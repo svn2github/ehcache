@@ -216,10 +216,10 @@ optional <a href="ehcache-constructs">ehcache-constructs</a> package.</li>
     </mailingLists>
 
     <scm>
-        <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/ehcache:ehcache</connection>
-        <developerConnection>scm:cvs:ext:developer@cvs.sourceforge.net:/cvsroot/ehcache:ehcache</developerConnection>
+        <connection>scm:svn:https://svn.sourceforge.net/svnroot/ehcache</connection>
+        <developerConnection>scm:svn:https://username@svn.sourceforge.net/svnroot/ehcache</developerConnection>
         <tag/>
-        <url>http://cvs.sourceforge.net/viewcvs.py/ehcache/</url>
+        <url>http://svn.sourceforge.net/viewcvs.cgi/ehcache/</url>
     </scm>
 
     <build>

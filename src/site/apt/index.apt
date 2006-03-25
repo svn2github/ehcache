@@ -15,17 +15,20 @@ Welcome to ehcache
 
 * Latest News
 
+
+** 25 March 2006: Subversion
+
+    Ehcache is now on Subversion. See the {{{/source-repository.html}source repository page}} for details.
+
 ** 17 March 2006: New Site Redesign
 
     Ehcache has outgrown its old web design. This new one is produced using {{{http://maven.apache.org}Maven 2}}.
     Please send any feedback on the new site to the {{{team-list.html}team}}.
 
-
 ** 14 March 2006: New Mailing List
 
     A new mailing list, ehcache-list@lists.sourceforge.net, has been created for ehcache users and developers. Go {{{mail-list.html}here}}
     to subscribe or to search the archive.
-
 
 ** 10 March 2006: Whats New in 1.2
 
@@ -53,8 +56,6 @@ Welcome to ehcache
        * Backward Compatibility with ehcache-1.1
 
      See the {{{/changes-report.html}changelog}} for more details on the release.
-
-
 
  More {{{news.html}news}}...
 
