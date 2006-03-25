@@ -1,0 +1,8 @@
+user.properties
+build
+*.iml
+*.ipr
+*.iws
+.ant-targets-build.xml
+.DS_Store
+cachedir

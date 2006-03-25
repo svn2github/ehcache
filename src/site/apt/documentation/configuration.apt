@@ -1,0 +1,753 @@
+    ------
+    Cache Configuration
+    ------
+    ------
+    Date
+    ------
+
+Cache Configuration
+
+* Declarative versus Programmatic Configuration
+
+   Declarative configuration refers to the practice of declaring configuration at
+   design time. Programmatic configuration to the practice of configuring
+   at runtime.
+
+   In ehcache the following must always be configured declaratively:
+
+     * The directory in which <<<DiskStore>>>s are to be created. (diskStore element)
+
+     * Default configuration for caches created without declarative or programmatic configuration. (defaultCache element)
+
+
+   Individual caches can be configured either declaratively or programmatically.
+
+   It is better practice to configure caches declaratively because:
+
+     * It is easy if you have all of your configuration in one place.
+       Caches consume memory, and disk space. They need to be carefully tuned.
+       You can see the total effect in a configuration file. You could do this
+       code, but it would not as visible.
+
+     * It is possible to change configuration without doing a recompile.
+
+     * Common configuration errors can be checked for at start-up, rather than causing a runtime error.
+
+   The programmatic facility is provided primarily so that new caches can be dynamically created at runtime.
+
+* Declarative Configuration
+
+** The ehcache schema:
+
+   ehcache.xsd
+   Ehcache looks for an ehcache.xml file. These must be configured in
+   accordance with the following schema:
+
++------------------------------------------+
+
+
+ <?xml version="1.0" encoding="UTF-8"?>
+   <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+   elementFormDefault="qualified">
+    <xs:element >
+    <xs:complexType>
+    <xs:sequence>
+    <xs:element
+   ref="diskStore"/>
+    <xs:element
+   ref="cacheManagerEventListenerFactory"/>
+    <xs:element
+   ref="cacheManagerPeerProviderFactory"/>
+    <xs:element
+   ref="cacheManagerPeerListenerFactory"/>
+    <xs:element
+   ref="defaultCache"/>
+    <xs:element
+   maxOccurs="unbounded" ref="cache"/>
+    </xs:sequence>
+    </xs:complexType>
+    </xs:element>
+    <xs:element >
+    <xs:complexType>
+    <xs:attribute
+   use="required" type="xs:NCName"/>
+    </xs:complexType>
+    </xs:element>
+    <xs:element >
+    <xs:complexType>
+    <xs:attribute
+   use="required"/>
+    <xs:attribute
+   use="optional"/>
+    </xs:complexType>
+    </xs:element>
+    <xs:element >
+    <xs:complexType>
+    <xs:attribute
+   use="required"/>
+    <xs:attribute
+   use="optional"/>
+    </xs:complexType>
+    </xs:element>
+    <xs:element >
+    <xs:complexType>
+    <xs:attribute
+   use="required"/>
+    <xs:attribute
+   use="optional"/>
+    </xs:complexType>
+    </xs:element>
+    <xs:element >
+    <xs:complexType>
+    <xs:attribute
+    use="optional"
+   type="xs:integer"/>
+    <xs:attribute
+   use="optional" type="xs:boolean"/>
+    <xs:attribute
+   use="required" type="xs:boolean"/>
+    <xs:attribute
+    use="required" type="xs:integer"/>
+    <xs:attribute
+    use="optional" type="xs:NCName"/>
+    <xs:attribute
+   use="required" type="xs:boolean"/>
+    <xs:attribute
+    use="optional" type="xs:integer"/>
+    <xs:attribute
+    use="optional" type="xs:integer"/>
+    </xs:complexType>
+    </xs:element>
+    <xs:element >
+    <xs:complexType>
+    <xs:sequence>
+    <xs:element minOccurs="0"
+   ref="cacheEventListenerFactory"/>
+    </xs:sequence>
+    <xs:attribute
+    type="xs:integer"/>
+    <xs:attribute
+   type="xs:boolean"/>
+    <xs:attribute
+   use="required" type="xs:boolean"/>
+    <xs:attribute
+    use="required" type="xs:integer"/>
+    <xs:attribute
+    type="xs:NCName"/>
+    <xs:attribute
+   use="required" type="xs:NCName"/>
+    <xs:attribute
+   use="required" type="xs:boolean"/>
+    <xs:attribute
+    type="xs:integer"/>
+    <xs:attribute
+    type="xs:integer"/>
+    </xs:complexType>
+    </xs:element>
+    <xs:element >
+    <xs:complexType>
+    <xs:attribute
+   use="required"/>
+    <xs:attribute
+   use="optional"/>
+    </xs:complexType>
+    </xs:element>
+   </xs:schema>
+
+
+
+
++------------------------------------------+
+   The XML schema is also provided in the root directory of the ehcache
+   distribution as ehcache.xsd.
+
+** diskStore
+   The diskStore element is required, regardless of whether or not it is
+   intended to use any DiskStores.
+** path
+   This is a required attribute.
+
+   It sets the path used by any DiskStore objects for creating data and
+   index files.
+
+   Legal values must be a relative or absolute path to a directory with
+   syntax legal for the operating system ehcache is running on. If
+   the directory does not exist an attempt is made to create it.
+
+   If the path value is a Java System Property (e.g. "user.home") it is
+   replaced by its runtime value in the Virtual Machine.
+
+   The following Java System Properties are understood:
+
+
++------------------------------------------+
+   user.home - User's home
+   directory
+   user.dir - User's current working
+   directory
+   java.io.tmpdir - Default temporary directory
++------------------------------------------+
+
+** defaultCache
+
+   The defaultCache element contains configuration used by ehcache to
+   create caches, where a cache element matching the cache name does not
+   exist. It is a template.
+
+   An example of it use is in Hibernate. When you specify that a Domain
+   Object is cacheable Hibernate creates a new cache using the fully
+   qualified class name of the Domain Object as the cache name. No
+   configuration information is provided. Ehcache automatically creates
+   the new caches using the defaultCache settings as a template.
+
+   While the defaultCache is a great convenience, it is preferable for
+   each Cache to be configured individually. For this reason a log warning
+   level message is issued each time a cache is created based on the
+   defaultCache values.
+
+** cache
+
+   The cache element contains configuration used by ehcache to create each
+   cache. When the CacheManager is created it parses ehcache.xml for cache
+   elements and creates a cache for each one with the settings provided.
+
+** defaultCache and cache attributes
+
+   defaultCache and cache share the same attributes, except that an
+   additional name attribute is required for the cache element.
+
+** name
+
+   This is a required attribute for cache elements only. The defaultCache
+   does not have a name attribute.
+
+   Legal values are any legal String value. Names must be unique. Ehcache
+   will throw a CacheException if an attempt is made to create two caches
+   with the same name.
+
+   Hibernate users should use the fully qualified class name of the
+   DomainObject being cached. There are different rules for other
+   types of Hibernate cache. For more on Hibernate naming see
+   {{{hibernate.html}Using ehcache as a Hibernate Plugin}}.
+
+** eternal
+
+   This is a required attribute.
+
+   Whether or not the cache is eternal. An eternal cache does not expire
+   its elements.
+
+   Legal values are "true" or "false".
+
+** maxElementsInMemory
+
+   This is a required attribute.
+
+   Legal values are integers between 0 and Integer.MAX_VALUE.
+
+   It is the maximum number of elements to store in the MemoryStore. It is
+   strongly recommended for performance reasons that this value is at
+   least 1. If not a warning will be issued at Cache creation time.
+
+** overflowToDisk
+
+   This is a required attribute.
+
+   Legal values are "true" or "false".
+
+   Whether or not to use the DiskStore when the number of Elements has
+   exceeded the maxElementsInMemory of the MemoryStore.
+
+   Entries to be removed from the MemoryStore, when it overflows, are
+   determined using a least recently used algorithm ("LRU"). Used means
+   inserted or accessed. If false, the LRU Element is discarded. If true,
+   it is transferred to the DiskStore.
+
+** timeToIdleSeconds
+
+   This is an optional attribute.
+
+   Legal values are integers between 0 and Integer.MAX_VALUE.
+
+   It is the number of seconds that an Element should live since it was
+   last used. Used means inserted or accessed.
+
+   0 has a special meaning, which is not to check the Element for time to
+   idle, i.e. it will idle forever.
+
+   The default value is 0.
+
+** timeToLiveSeconds
+
+   This is an optional attribute.
+
+   Legal values are integers between 0 and Integer.MAX_VALUE.
+
+   It is the number of seconds that an Element should live since it was
+   created. Created means inserted into a cache using the Cache.put method.
+
+   0 has a special meaning, which is not to check the Element for time to
+   live, i.e. it will live forever.
+
+   The default value is 0.
+
+** diskPersistent
+
+   This is an optional attribute.
+
+   Legal values are "true" or "false".
+
+   Whether or not the DiskStore should be persisted between CacheManager
+   shutdowns and Virtual Machine restarts.
+
+** diskExpiryThreadIntervalSeconds
+
+   This is an optional attribute.
+
+   Legal values are integers between 0 and Integer.MAX_VALUE.
+
+   It is how long to the disk expiry thread should sleep between
+   successive runs. Setting this value too low could cause performance
+   problems. A setting of 0 is not recommended. It will cause 100% cpu
+   load.
+
+   The default value is 120 seconds.
+
+** Sample ehcache.xml
+
+   A sample ehcache.xml configuration file is included in the root directory of the ehcache distribution. It is reproduced below.
+
+   The sample includes a diskStore element, a defaultCache element and three cache elements.
+
++------------------------------------------+
+
+         \<ehcache>
+
+    \<!-- Sets the path to the directory where cache
+   .data files are created.
+
+    If the path is a Java
+   System Property it is replaced by
+    its value in the
+   running VM.
+
+    The following
+   properties are translated:
+    user.home - User's
+   home directory
+    user.dir - User's
+   current working directory
+    java.io.tmpdir -
+   Default temp file path -->
+    \<diskStore path="java.io.tmpdir"/>
+
+
+    \<!--Default Cache configuration. These will
+   applied to caches programmatically created through
+    the CacheManager.
+
+    The following attributes are
+   required:
+
+
+   maxElementsInMemory
+   - Sets the maximum number of objects that will be created in memory
+
+   eternal
+   - Sets whether elements are eternal. If eternal, timeouts are
+   ignored and the
+
+   element is never expired.
+
+   overflowToDisk
+   - Sets whether elements can overflow to disk when the in-memory cache
+
+   has reached the maxInMemory limit.
+
+    The following attributes are
+   optional:
+
+   timeToIdleSeconds
+   - Sets the time to idle for an element before it expires.
+
+   i.e. The maximum amount of time between accesses before an element
+   expires
+
+   Is only used if the element is not eternal.
+
+   Optional attribute. A value of 0 means that an Element can idle for
+   infinity.
+
+   The default value is 0.
+
+   timeToLiveSeconds
+   - Sets the time to live for an element before it expires.
+
+   i.e. The maximum time between creation time and when an element expires.
+
+   Is only used if the element is not eternal.
+
+   Optional attribute. A value of 0 means that and Element can live for
+   infinity.
+
+   The default value is 0.
+
+   diskPersistent
+   - Whether the disk store persists between restarts of the Virtual
+   Machine.
+
+   The default value is false.
+
+   diskExpiryThreadIntervalSeconds- The number of seconds between runs of
+   the disk expiry thread. The default value
+
+   is 120 seconds.
+
+   memoryStoreEvictionPolicy - Policy would
+   be enforced upon reaching the maxElementsInMemory limit. Default
+
+   policy is Least Recently Used (specified as LRU). Other policies
+   available -
+
+   First In First Out (specified as FIFO) and Less Frequently Used
+
+   (specified as LFU)
+    -->
+
+    \<defaultCache
+    maxElementsInMemory="10000"
+    eternal="false"
+    timeToIdleSeconds="120"
+    timeToLiveSeconds="120"
+    overflowToDisk="true"
+    diskPersistent="false"
+
+   diskExpiryThreadIntervalSeconds="120"
+
+   memoryStoreEvictionPolicy="LRU"
+    />
+
+    \<!--Predefined caches. Add your cache
+   configuration settings here.
+    If you do not have a
+   configuration for your cache a WARNING will be issued when the
+    CacheManager starts
+
+    The following attributes are
+   required:
+
+
+   name
+   - Sets the name of the cache. This is used to identify the cache.
+
+   It must be unique.
+
+   maxElementsInMemory
+   - Sets the maximum number of objects that will be created in memory
+
+   eternal
+   - Sets whether elements are eternal. If eternal, timeouts are
+   ignored and the
+
+   element is never expired.
+
+   overflowToDisk
+   - Sets whether elements can overflow to disk when the in-memory cache
+
+   has reached the maxInMemory limit.
+
+    The following attributes are
+   optional:
+
+   timeToIdleSeconds
+   - Sets the time to idle for an element before it expires.
+
+   i.e. The maximum amount of time between accesses before an element
+   expires
+
+   Is only used if the element is not eternal.
+
+   Optional attribute. A value of 0 means that an Element can idle for
+   infinity.
+
+   The default value is 0.
+
+   timeToLiveSeconds
+   - Sets the time to live for an element before it expires.
+
+   i.e. The maximum time between creation time and when an element expires.
+
+   Is only used if the element is not eternal.
+
+   Optional attribute. A value of 0 means that and Element can live for
+   infinity.
+
+   The default value is 0.
+
+   diskPersistent
+   - Whether the disk store persists between restarts of the Virtual
+   Machine.
+
+   The default value is false.
+
+   diskExpiryThreadIntervalSeconds- The number of seconds between runs of
+   the disk expiry thread. The default value
+
+   is 120 seconds.
+
+   memoryStoreEvictionPolicy - Policy would
+   be enforced upon reaching the maxElementsInMemory limit. Default
+
+   policy is Least Recently Used (specified as LRU). Other policies
+   available -
+
+   First In First Out (specified as FIFO) and Less Frequently Used
+
+   (specified as LFU)
+    -->
+
+    \<!-- Sample cache named sampleCache1
+    This cache contains a
+   maximum in memory of 10000 elements, and will expire
+    an element if it is idle for
+   more than 5 minutes and lives for more than
+    10 minutes.
+
+    If there are more than 10000
+   elements it will overflow to the
+    disk cache, which in this
+   configuration will go to wherever java.io.tmp is
+    defined on your system. On a
+   standard Linux system this will be /tmp"
+    -->
+    \<cache
+    maxElementsInMemory="10000"
+    eternal="false"
+    overflowToDisk="true"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="600"
+
+   memoryStoreEvictionPolicy="LFU"
+    />
+
+    \<!-- Sample cache named sampleCache2
+    This cache has a maximum of
+   1000 elements in memory. There is no overflow to disk, so 1000
+    is also the maximum cache
+   size. Note that when a cache is eternal, timeToLive and timeToIdle
+    are not used and do not need
+   to be specified -->
+    \<cache
+    maxElementsInMemory="1000"
+    eternal="true"
+    overflowToDisk="false"
+
+   memoryStoreEvictionPolicy="FIFO"
+    />
+
+    \<!-- Sample cache named sampleCache3. This cache
+   overflows to disk. The disk store is persistent
+    between cache and VM
+   restarts. The disk expiry thread interval is set to 10 minutes,
+   overriding
+    the default of 2
+   minutes. -->
+
+    \<cache
+    maxElementsInMemory="500"
+    eternal="false"
+    overflowToDisk="true"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="600"
+    diskPersistent="true"
+
+   diskExpiryThreadIntervalSeconds="1"
+
+   memoryStoreEvictionPolicy="LFU"
+    />
+
+    \<!-- Place configuration for your caches
+   following -->
+
+   \</ehcache>
+
+
+
++------------------------------------------+
+
+** Installing ehcache.xml
+
+   By default the CacheManager.create() method expects to find ehcache.xml
+   as a resource in the classpath. It uses
+   Configurator.getClass().getResource(/"ehcache.xml"). The ehcache.xml
+   file should be placed at the root of the classpath, not in a package.
+   If placed in a jar, it should be in the root level directory of the jar.
+
+   If ehcache cannot find ehcache.xml
+   it
+   will instead use the {{{#mozTocId382717} }}failsafe configuration.
+
+   The CacheManager can also obtain ehcache.xml in other ways. See {{{#mozTocId239314} }}Creating a CacheManager.
+* Failsafe Configuration
+   Ehcache comes
+   with a
+   failsafe configuration declared in the ehcache-failsafe.xml file, which
+   is provided in the ehcache.jar. It is only used when no ehcache.xml
+   configuration file is found in the classpath, and CacheManager is
+   created without any arguments. If it is used a log warning level
+   message will be issued.
+
+   Ehcache deliberately
+   avoids placing an ehcache.xml configuration file in the JAR archive so
+   as to avoid frustrating classpath precedence problems.
+
+   The failsafe configuration provides ehcache with the minimum to
+   function: specified diskStore and defaultCache elements. It sets the <<<DiskStore>>>
+   path attribute to the value given by the Java system property
+   "java.io.tmpdir"
+   (/tmp on Unix-like systems) and sets the default cache to reasonable
+   values. ehcache-failsafe.xml is reproduced here:
+
++------------------------------------------+
+
+
+<ehcache>
+
+    <!-- Sets the path to the directory where cache .data files are created.
+
+    If the path is a Java
+   System Property it is replaced by
+    its value in the
+   running VM.
+
+    The following
+   properties are translated:
+    user.home - User's
+   home directory
+    user.dir - User's
+   current working directory
+    java.io.tmpdir -
+   Default temp file path -->
+
+   <diskStore path="java.io.tmpdir"/>
+
+
+   <!--Default Cache configuration. These will applied to caches programmatically
+
+   created through the CacheManager.
+
+    The following attributes are
+   required:
+
+
+   maxElementsInMemory
+   - Sets the maximum number of objects that will be created in memory
+
+   eternal
+   - Sets whether elements are eternal. If eternal, timeouts are
+   ignored and the
+
+   element is never expired.
+
+   overflowToDisk
+   - Sets whether elements can overflow to disk when the in-memory cache
+
+   has reached the maxInMemory limit.
+
+    The following attributes are
+   optional:
+
+   timeToIdleSeconds
+   - Sets the time to idle for an element before it expires.
+
+   i.e. The maximum amount of time between accesses before an element
+   expires
+
+   Is only used if the element is not eternal.
+
+   Optional attribute. A value of 0 means that an Element can idle for
+   infinity.
+
+   The default value is 0.
+
+   timeToLiveSeconds
+   - Sets the time to live for an element before it expires.
+
+   i.e. The maximum time between creation time and when an element expires.
+
+   Is only used if the element is not eternal.
+
+   Optional attribute. A value of 0 means that and Element can live for
+   infinity.
+
+   The default value is 0.
+
+   diskPersistent
+   - Whether the disk store persists between restarts of the Virtual
+   Machine.
+
+   The default value is false.
+
+   diskExpiryThreadIntervalSeconds- The number of seconds between runs of
+   the disk expiry thread. The default value
+
+   is 120 seconds.
+    -->
+
+    <defaultCache
+    maxElementsInMemory="10000"
+    eternal="false"
+    overflowToDisk="true"
+    timeToIdleSeconds="120"
+    timeToLiveSeconds="120"
+    diskPersistent="false"
+
+   diskExpiryThreadIntervalSeconds="120"
+    />
+</ehcache>
+
+
+
++------------------------------------------+
+
+* Programmatic Configuration
+
+   The configuration for a Cache can be specified programmatically in the Cache constructor:
+
++------------------------------------------+
+
+
+public Cache(
+    String name,
+    int maxElementsInMemory,
+    MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
+    boolean overflowToDisk,
+    boolean eternal,
+    long timeToLiveSeconds,
+    long timeToIdleSeconds,
+    boolean diskPersistent,
+    long diskExpiryThreadIntervalSeconds) {
+    ...
+   }
++------------------------------------------+
+
+   Here is an example which creates a cache called test.
+
++------------------------------------------+
+   //Create a CacheManager using defaults
+   CacheManager manager = CacheManager.create();
+
+   //Create a Cache specifying its configuration.
+
+   Cache testCache = new Cache("test", maxElements,
+   MemoryStoreEvictionPolicy.LFU, true, false, 60, 30, false, 0);
+   manager.addCache(cache);
++------------------------------------------+
+
+   Once the cache is created, add it to the list of caches managed by the CacheManager:
+
++------------------------------------------+
+     manager.addCache(testCache);
++------------------------------------------+
+
+   The cache is not usable until it has been added.

@@ -1,0 +1,66 @@
+ ------
+ Cache Concepts
+ ------
+ ------
+ Date
+ ------
+
+
+Cache Concepts
+
+    ehcache consists of a <<<CacheManager>>>, which manages caches. Caches contain elements,
+    which are essentially name value pairs. Caches are physically implemented either in-memory, or on disk.
+
+* CacheManager
+
+    The Cache Manager is made up of Caches which contain elements.
+
+    Creation of, access to and removal of caches is controlled by the <<<CacheManager>>>.
+
+** Singleton Mode
+
+    Ehcache-1.1 supported only one <<<CacheManager>>>
+    instance which was a singleton. CacheManager can still be used in this
+    way using the static create methods.
+
+** Instance Mode
+
+    From ehcache-1.2, CacheManager has constructors which mirror the
+    various static create methods. This enables multiple CacheManagers to
+    be created and used concurrently. Each CacheManager requires its own
+    configuration.
+
+    If the Caches under management use only the MemoryStore, there
+    are no special considerations. If Caches use the DiskStore, the
+    diskStore path specified in each CacheManager configuration should be
+    unique. When a new CacheManager is created, a check is made that there
+    are no other CacheManagers using the same diskStore path. If there are,
+    a CacheException is thrown. If a CacheManager is part of a cluster,
+    there will also be listener ports which must be unique.
+
+** Mixed Mode
+
+    If an application creates instances of CacheManager using a
+    constructor, and also calls a static create method, there will exist a
+    singleton instance of CacheManager which will be returned each time the
+    create method is called together with any other instances created via
+    constructor. The two types will coexist peacefully.
+
+* Cache
+
+    A cache has a name and attributes. Each cache contains elements.
+
+    The JCACHE JSR also has groups, which is an association between
+    objects in the same cache. They may be invalidated together or have the same
+    element attributes. While groups may be useful, they are not used in
+    Hibernate and has not been implemented in ehcache.
+
+    Cache elements are stored in the <<<MemoryStore>>>. Optionally
+    they also overflow to a <<<DiskStore>>>.
+
+* Element
+
+    An element is an atomic entry in a cache. It has a key, a value and a record of
+    accesses. Elements are put into and removed from caches. They can also
+    expire and be removed by the Cache, depending on the Cache settings.
+
