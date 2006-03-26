@@ -178,7 +178,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
             if (replicateUpdatesViaCopy) {
                 replicationQueue.add(new EventMessage(EventMessage.PUT, cache, element));
             } else {
-                replicationQueue.add(new EventMessage(EventMessage.REMOVE, cache, element));
+                replicationQueue.add(new EventMessage(EventMessage.REMOVE, cache, element.getKey()));
             }
         }
     }

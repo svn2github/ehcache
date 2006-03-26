@@ -206,5 +206,18 @@ public class RegisteredEventListeners {
         return cacheEventListeners;
     }
 
+    /**
+     * Tell listeners to dispose themselves.
+     * Because this method is only ever called from a synchronized cache method, it does not itself need to be
+     * synchronized.
+     */
+    public void dispose() {
+        Iterator iterator = cacheEventListeners.iterator();
+        while (iterator.hasNext()) {
+            CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
+            cacheEventListener.dispose();
+        }
 
+        cacheEventListeners.clear();
+    }
 }

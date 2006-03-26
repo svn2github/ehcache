@@ -332,6 +332,7 @@ public class CacheManagerTest extends TestCase {
     /**
      * Bug 1457268. Instance of RegisteredEventListeners shared between caches created from default cache.
      * The issue also results in sharing of all references.
+     * This test makes sure each cache has its own.
      */
     public void testCachesCreatedFromDefaultDoNotShareListenerReferences() {
         singletonManager = CacheManager.create();
@@ -347,9 +348,6 @@ public class CacheManagerTest extends TestCase {
         DiskStore diskStore1 = cache1.getDiskStore();
         DiskStore diskStore2 = cache2.getDiskStore();
         assertTrue(diskStore1 != diskStore2);
-
-
-
 
     }
 

@@ -446,6 +446,7 @@ public class Cache implements Cloneable {
             Serializable key = element.getKey();
             elementExists = isElementInMemory(key) || isElementOnDisk(key);
         }
+
         memoryStore.put(element);
         if (elementExists) {
             registeredEventListeners.notifyElementUpdated(element, doNotNotifyCacheReplicators);
@@ -469,6 +470,21 @@ public class Cache implements Cloneable {
             throw new IllegalArgumentException("Element cannot be null");
         }
         memoryStore.put(element);
+    }
+
+
+    /**
+     * Use this for development debugging
+     * @param operation
+     * @param doNotNotifyCacheReplicators
+     * @param element
+     */
+    private void logCacheOperation(String operation, boolean doNotNotifyCacheReplicators, Element element) {
+        if (LOG.isDebugEnabled()) {
+            LOG.info("Cache " + this.getGuid() + ": " + operation + ": " + element.getKey() + " doNotNotify: "
+                + doNotNotifyCacheReplicators);
+        }
+
     }
 
 
@@ -787,6 +803,7 @@ public class Cache implements Cloneable {
             }
             removed = true;
         }
+
         return removed;
     }
 
@@ -819,6 +836,9 @@ public class Cache implements Cloneable {
             diskStore.dispose();
             diskStore = null;
         }
+
+        registeredEventListeners.dispose();
+
         changeStatus(Status.STATUS_SHUTDOWN);
     }
 

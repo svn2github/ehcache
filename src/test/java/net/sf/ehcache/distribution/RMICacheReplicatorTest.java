@@ -62,6 +62,7 @@ import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.event.CountingCacheEventListener;
 
 import java.io.Serializable;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -178,6 +179,7 @@ public class RMICacheReplicatorTest extends TestCase {
         if (manager6 != null) {
             manager6.shutdown();
         }
+
     }
 
     /**
@@ -357,7 +359,6 @@ public class RMICacheReplicatorTest extends TestCase {
         //remote receiving caches' counting listener should have been notified
         assertEquals(3, CountingCacheEventListener.getCacheElementsPut(cache2).size());
 
-
         //Update
         cache1.put(new Element("1", new Date()));
         cache1.put(new Element("2", new Date()));
@@ -414,6 +415,89 @@ public class RMICacheReplicatorTest extends TestCase {
         waitForProgagate();
 
         //Should have been replicated to cache2.
+        element2 = cache2.get(key);
+        assertNull(element2);
+
+    }
+
+
+
+    /**
+     * Tests put and update through copy initiated from cache1 in a cluster
+     * <p/>
+     * This test goes into an infinite loop if the chain of notifications is not somehow broken.
+     */
+    public void testUpdateViaCopy() throws CacheException, InterruptedException, IOException {
+
+        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
+        cache1 = manager1.getCache("sampleCache1");
+        cache1.removeAll();
+
+        cache2 = manager2.getCache("sampleCache1");
+        cache2.removeAll();
+
+        Serializable key = new Date();
+        Serializable value = new Date();
+        Element element1 = new Element(key, value);
+
+        //Put
+        cache1.put(element1);
+        waitForProgagate();
+
+        //Should have been replicated to cache2.
+        Element element2 = cache2.get(key);
+        assertEquals(element1, element2);
+
+        //Update
+        Element updatedElement1 = new Element(key, new Date());
+
+        cache1.put(updatedElement1);
+        waitForProgagate();
+
+        //Should have been replicated to cache2.
+        Element receivedUpdatedElement2 = cache2.get(key);
+        assertEquals(updatedElement1, receivedUpdatedElement2);
+
+    }
+
+
+    /**
+     * Tests put and update through invalidation initiated from cache1 in a cluster
+     * <p/>
+     * This test goes into an infinite loop if the chain of notifications is not somehow broken.
+     */
+    public void testUpdateViaInvalidate() throws CacheException, InterruptedException, IOException {
+
+        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
+        cache1 = manager1.getCache("sampleCache2");
+        cache1.removeAll();
+
+        cache2 = manager2.getCache("sampleCache2");
+        cache2.removeAll();
+
+        Serializable key = "1";
+        Serializable value = new Date();
+        Element element1 = new Element(key, value);
+
+        //Put
+        cache1.put(element1);
+        waitForProgagate();
+
+        //Should have been replicated to cache2.
+        Element element2 = cache2.get(key);
+        assertEquals(element1, element2);
+
+        //Update
+        cache1.put(element1);
+        waitForProgagate();
+
+        //Should have been removed in cache2.
         element2 = cache2.get(key);
         assertNull(element2);
 

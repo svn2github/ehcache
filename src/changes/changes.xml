@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
-        <release version="current"  desc="Current beta version 5, unreleased. ehcache-1.2 represents the addition of many new features. It should be backwardly compatible with ehcache-1.1, based on
-        Google searches I have done to see if anyone was using a few methods I changed.">
+        <release version="1.2beta5" date="2006-3-26" desc="ehcache-1.2 represents the addition of many new features while remaining
+         backward compatible with 1.1.">
             <!-- Feature Changes -->
             <action dev="Surya Suravarapu" type="add">
                 Introduced new caching policies in addition to the standard LRU. FIFO and LFU were added. LRU remains
@@ -107,6 +107,10 @@
             <action dev="Greg Luck" issue="1457268" type="fix">
                 Fix bug introduced in 1.2 beta series. Caches created with Cache.addCache(String) share a RegisteredEventListeners instance.
                 Thanks to Olaf Ontaine for for reporting the bug and showing how it happens.
+            </action>
+            <action dev="Greg Luck" issue="1451780" type="fix">
+                Fix bug introduced in 1.2 beta series. RMIAsynchronousCacheReplicator mishandling non-copy updates.
+                Thanks to Randy Puro for a patch.
             </action>
         </release>
 

@@ -71,18 +71,16 @@ import java.rmi.RemoteException;
  * Non-RMI implementations should be able to use this interface.
  * Implementations not using RMI should
  *
- * todo test update, put, remove properly
  * todo test Cannot keep up with replication
  * todo test production simulation with lots of threads
- * todo test Hibernate transaction
- * todo test Hibernate read/write
- * todo test Hibernate nonstrict read/write
+ * todo new Hibernate plugin to be submitted to Hibernate
  * todo test default replication properties - should replicate sensibly
  * todo test default listener properties - should not need to specify host or timeout
  * todo create sample configs for different purposes
  * todo test sycnchronous performance replicating to five peers
- * todo test asycnchronous performance replicating to five peers
+ * todo test asynchronous performance replicating to five peers
  * todo updates backing up if one drops out
+ * todo update test for synchronous replicator. Async already tested.
  *
  * @author Greg Luck
  * @version $Id: CachePeer.java,v 1.3 2006/03/25 04:05:56 gregluck Exp $

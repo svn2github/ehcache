@@ -4,54 +4,35 @@ $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 ehcache-1.2 beta5
 =================
 
-ehcache-1.2 represents the addition of many new features. It should be backwardly compatible with ehcache-1.1, based on
-Google searches I have done to see if anyone was using a few methods I changed.
+ehcache-1.2 represents the addition of many new features while remaining backward compatible with 1.1.
 
-Feature Changes
----------------
-1. Introduced new caching policies in addition to the standard LRU. FIFO and LFU were added. LRU remains the default unless explicitly set in each cache's configuration. Thanks to Surya Suravarapu for working with me on these. The documentation has a new section on caching policies and when to use what. 
-2. Introduced CacheManagerEventListener and CacheEventListener interfaces and default implementations. These can be configured in ehcache.xml or set programmatically. Thanks to steve at jofti dot com for help with the specification for these.
-3. After requests from Jo Walnes, Paul Hammant and others, I have added normal instance constructers to CacheManager which do not act as singletons. The factory singleton methods remain for backward compatibility. CacheManager can now be constructed with a Configuration object programmatically.
-4. Since version 1.1, ehcache has had a persistent diskStore, which makes it suitable for storing application state. Added a flush method so that, if the cache is diskPersistent, it can be programmatically flushed, in addition to the automatic flush which happens at shutdown.
-5. Pluggable Distributed Caching. The default implementation supports cache discovery via multicast or manual configuration. Updates are delivered asynchronously or synchronously via custom RMI connections. Additional discovery or delivery schemes can be plugged in by third parties.
-6. Significant (up to 7 fold) DiskStore performance increases, after introduction of finer grained threading. Thanks to Robert Watkins for reporting on the performance limits.
-
-
-Performance Changes
--------------------
-1. DiskStore is now up to 12 times faster in certain operations and much more scalable.
-
-
-Packaging Changes
-----------------
-1. Included library dependencies for JDK-1.4.2 and higher in the tar ball.
-
-Bug Fixes Since ehcache-1.1
----------------------------
-1.  1158788 Fix for dependencies list... MemoryStore.java to remove Apache commons-collections for JDK1.4 users
-2.  1122734 change default configuration to use context classloader
-3.  1324221 Fix for DiskStore to deserialize using Thread.currentThread().getContextClassLoader()
-4.  1261613 CacheManager.shutdown now uses a Class rather than an instance lock.
-5.  1237017 Configurator gets a file not found when files contain spaces.
-6.  1332728 DiskStore degrades under load.
-7.  1079529 Change classloader to Thread.currentThread().getContextClassLoader() for ehache.xml.
-8.  1414674 DiskStore data file is not deleted when index is corrupt.
-9.  1224325 JavaDoc documentation fix for element.getLastAccessTime returns 0 for element just created
-10. 1247019 Documentation should advise using the Hibernate supplied plugin rather than the older one in ehcache which is now deprecated.
-
-Feature Requests Addressed since ehcache-1.1
---------------------------------------------
-1. 431481	 Distributed: The ability to notify cache event listeners excluding CacheReplicators
-2. 1431393	 Events from remote in distributed cache should be received by any non CacheReplicator listeners
-
-
-Bugs Fixed from earlier ehcache-1.2 betas
------------------------------------------
-1. Removed Boolean.parseBoolean and java.util.Queue which were introduced in the JDK1.5 API to preserve backward compatibility.
-2. Changed ant script to avoid compiling with clover in dists
-3. 410374 Cannot load configuration from jar (or any non-file URL).
-4. 1432074 NPE on RMICacheManagerPeerProviderFactory when rmiUrls not specified. Now throws a meaningful CacheException. 
-
+Introduced new caching policies in addition to the standard LRU. FIFO and LFU were added. LRU remains the default unless explicitly set in each cache's configuration. Thanks to Surya Suravarapu for working with me on these. The documentation has a new section on caching policies and when to use what.	Surya Suravarapu
+Introduced CacheManagerEventListener and CacheEventListener interfaces and default implementations. These can be configured in ehcache.xml or set programmatically. Thanks to steve at jofti dot com for help with the specification for these.	Greg Luck
+After requests from Jo Walnes, Paul Hammant and others, I have added normal instance constructers to CacheManager which do not act as singletons. The factory singleton methods remain for backward compatibility. CacheManager can now be constructed with a Configuration object programmatically.	Greg Luck
+Since version 1.1, ehcache has had a persistent diskStore, which makes it suitable for storing application state. Added a flush method so that, if the cache is diskPersistent, it can be programmatically flushed, in addition to the automatic flush which happens at shutdown.	Greg Luck
+Pluggable Distributed Caching. The default implementation supports cache discovery via multicast or manual configuration. Updates are delivered asynchronously or s ynchronously via custom RMI connections. Additional discovery or delivery schemes can be plugged in by third parties.	Greg Luck
+DiskStore is now up to 12 times faster in certain operations and much more scalable.	Greg Luck
+Significant (up to 7 fold) DiskStore performance increases, after introduction of finer grained threading. Thanks to Robert Watkins for reporting on the performance limits.	Greg Luck
+Clover test coverage raised to 86%.	Greg Luck
+Feature Request 431481 Distributed: The ability to notify cache event listeners excluding CacheReplicators	Greg Luck
+Feature Request 1431393 Events from remote in distributed cache should be received by any non CacheReplicator listeners	Greg Luck
+Patch 1158788. Fix for dependencies list... MemoryStore.java to remove Apache commons-collections for JDK1.4 users	Greg Luck
+change default configuration to use context classloader Fixes 1122734.	Greg Luck
+Fix for DiskStore to deserialize using Thread.currentThread().getContextClassLoader() Fixes 1324221.	Greg Luck
+CacheManager.shutdown now uses a Class rather than an instance lock. Fixes 1261613.	Greg Luck
+Configurator gets a file not found when files contain spaces. Fixes 1237017.	Greg Luck
+DiskStore degrades under load. Fixes 1332728.	Greg Luck
+Change classloader to Thread.currentThread().getContextClassLoader() for ehache.xml. Fixes 1079529.	Greg Luck
+DiskStore data file is not deleted when index is corrupt. Fixes 1414674.	Greg Luck
+JavaDoc documentation fix for element.getLastAccessTime returns 0 for element just created Fixes 1224325.	Greg Luck
+Documentation should advise using the Hibernate supplied plugin rather than the older one in ehcache which is now deprecated. Fixes 1247019.	Greg Luck
+Fix bug introduced in 1.2 beta series. Removed Boolean.parseBoolean and java.util.Queue which were introduced in the JDK1.5 API to preserve backward compatibility. Fixes .	Greg Luck
+Fix bug introduced in 1.2 beta series. Changed ant script to avoid compiling with clover in dists Fixes .	Greg Luck
+Fix bug introduced in 1.2 beta series. Cannot load configuration from jar (or any non-file URL). Fixes 1410374.	Greg Luck
+Fix bug introduced in 1.2 beta series. NPE on RMICacheManagerPeerProviderFactory when rmiUrls not specified. Now throws a meaningful CacheException. Fixes 1432074.	Greg Luck
+Fix bug introduced in 1.2 beta series. Deadlock on deserialization of a cache entry. Thanks to Felix Meschberger for reporting the bug and uploading a patch. Fixes 1445694.	Greg Luck
+Fix bug introduced in 1.2 beta series. Caches created with Cache.addCache(String) share a RegisteredEventListeners instance. Thanks to Olaf Ontaine for for reporting the bug and showing how it happens. Fixes 1457268.	Greg Luck
+Fix bug introduced in 1.2 beta series. RMIAsynchronousCacheReplicator mishandling non-copy updates. Thanks to Randy Puro for a patch. Fixes 1451780.	Greg Luck
 
 
 ehcache-1.1

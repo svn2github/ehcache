@@ -7,6 +7,11 @@
 
 News
 
+* 26 March 2006: {{{http://sourceforge.net/project/showfiles.php?group_id=93232}1.2 beta 5 released}}.
+
+     This is a bug fix release which fixes all reported issues in the new 1.2 features. Developers should be
+     testing this version.
+
 * 25 March 2006: Subversion
 
     Ehcache is now on Subversion. See the {{{/source-repository.html}source repository page}} for details.
@@ -24,7 +29,7 @@ News
     to subscribe or to search the archive.
 
 
-* 10 March 2006: Whats New in 1.2
+* 7 February 2006: Whats New in 1.2
 
      Ehcache-1.2, currently at beta 5, has many new features:
 

@@ -23,6 +23,7 @@
 
         <menu name="Code" href="maven-reports.html">
             <item name="Download" href="http://sourceforge.net/project/showfiles.php?group_id=93232"/>
+            <item name="Change logs" href="/changes-report.html"/>
             <item name="Code Samples" href="/samples.html"/>
             <item name="Source Repository" href="/source-repository.html"/>
             <item name="Browsable Source Code" href="/jxr.html"/>
@@ -59,7 +60,6 @@
 
 
         <menu name="Project Reports" href="maven-reports.html">
-            <item name="Change logs" href="/changes-report.html"/>
             <item name="fisheye CVS browser" href="http://fisheye1.cenqua.com/changelog/ehcache/"/>
             <item name="Checkstyle" href="/checkstyle.html"/>
             <item name="CPD" href="/cpd.html"/>
