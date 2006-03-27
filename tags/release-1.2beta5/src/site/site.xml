@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="Maven">
+    <bannerLeft>
+        <name>ehcache</name>
+        <src>images/ehcache_logo.gif</src>
+        <href>/</href>
+    </bannerLeft>
+    <body>
+        <links>
+            <item name="ehcache" href="/index.html"/>
+            <item name="ehcache-constructs" href="/ehcache-constructs/index.html"/>
+        </links>
+
+        <menu name="About" href="maven-reports.html">
+            <item name="Overview" href="/index.html"/>
+            <item name="Features" href="/features.html"/>
+            <item name="News" href="/news.html"/>
+            <item name="Project License" href="/license.html"/>
+            <item name="Project Team" href="/team-list.html"/>
+            <item name="Sponsors" href="/sponsors.html"/>
+            <item name="Name &amp; Logo" href="/nameandlogo.html"/>
+        </menu>
+
+        <menu name="Code" href="maven-reports.html">
+            <item name="Download" href="http://sourceforge.net/project/showfiles.php?group_id=93232"/>
+            <item name="Change logs" href="/changes-report.html"/>
+            <item name="Code Samples" href="/samples.html"/>
+            <item name="Source Repository" href="/source-repository.html"/>
+            <item name="Browsable Source Code" href="/jxr.html"/>
+        </menu>
+
+        <menu name="Documentation">
+            <item name="Getting Started" href="documentation/getting_started.html"/>
+            <item name="User Guide" href="documentation/index.html" collapse="true">
+                <item name="Installation" href="documentation/installation.html"/>
+                <item name="CacheConcepts" href="documentation/cache_concepts.html"/>
+                <item name="Storage Options" href="documentation/storage_options.html"/>
+                <item name="Class loading" href="documentation/class_loading.html"/>
+                <item name="Performance" href="documentation/performance_considerations.html"/>
+                <item name="Distributed Caching" href="documentation/distributed_caching.html"/>
+                <item name="VM Shutdown" href="documentation/shutdown_considerations.html"/>
+                <item name="Logging" href="documentation/logging.html"/>
+                <item name="Cache Configuration" href="documentation/configuration.html"/>
+                <item name="Hibernate Config" href="documentation/hibernate.html"/>
+            </item>
+            <item name="Guide for Version 1.1" href="documentation/documentation-1_1.html"/>
+            <item name="JavaDoc" href="apidocs/index.html"/>
+            <item name="FAQ" href="/documentation/faq.html"/>
+        </menu>
+
+        <menu name="Community" href="maven-reports.html">
+            <item name="SourceForge Home" href="http://sourceforge.net/projects/ehcache/"/>
+            <item name="Mailing Lists" href="/mail-lists.html"/>
+            <item name="Issue Tracking" href="/issue-tracking.html"/>
+            <item name="Forums" href="http://sourceforge.net/forum/?group_id=93232"/>
+            <item name="Bugs" href="http://sourceforge.net/tracker/?group_id=93232&amp;atid=603559"/>
+            <item name="Feature Requests" href="http://sourceforge.net/tracker/?group_id=93232&amp;atid=603562"/>
+            <item name="Who's Using?" href="/who_is_using.html"/>
+        </menu>
+
+
+        <menu name="Project Reports" href="maven-reports.html">
+            <item name="fisheye CVS browser" href="http://fisheye1.cenqua.com/changelog/ehcache/"/>
+            <item name="Checkstyle" href="/checkstyle.html"/>
+            <item name="CPD" href="/cpd.html"/>
+            <item name="PMD" href="/pmd.html"/>
+            <item name="ToDos" href="/taglist.html"/>
+            <item name="Clover Test Coverage" href="/clover/index.html"/>
+        </menu>
+
+        <menu name="Extending ehcache">
+            <item name="CacheManager event listeners" href="documentation/cachemanager_event_listeners.html"/>
+            <item name="Cache event listeners" href="documentation/cache_event_listeners.html"/>
+            <item name="Whitepaper on distributed caching" href="documentation/distributed_design.html"/>
+        </menu>
+
+    </body>
+</project>

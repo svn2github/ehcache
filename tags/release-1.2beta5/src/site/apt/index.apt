@@ -1,0 +1,69 @@
+ ------
+ ehcache
+ ------
+ ------
+ Date
+ ------
+
+Welcome to ehcache
+
+ Ehcache is a widely used java distributed cache for general purpose caching, J2EE and light-weight containers.
+
+ It features memory and disk stores, replicate by copy and invalidate, listeners, a gzip caching servlet filter and much {{{features.html}more}}...
+
+ Ehcache is available under an Apache open source {{{license.html}license}} and is actively developed, maintained and supported.
+
+* Latest News
+
+
+** 26 March 2006: {{{http://sourceforge.net/project/showfiles.php?group_id=93232}1.2 beta 5 released}}.
+
+     This is a bug fix release which fixes all reported issues in the new 1.2 features. Developers should be
+     testing this version.
+
+** 25 March 2006: Subversion
+
+    Ehcache is now on Subversion. See the {{{/source-repository.html}source repository page}} for details.
+
+** 17 March 2006: New Site Redesign
+
+    Ehcache has outgrown its old web design. This new one is produced using {{{http://maven.apache.org}Maven 2}}.
+    Please send any feedback on the new site to the {{{team-list.html}team}}.
+
+** 14 March 2006: New Mailing List
+
+    A new mailing list, ehcache-list@lists.sourceforge.net, has been created for ehcache users and developers. Go {{{mail-list.html}here}}
+    to subscribe or to search the archive.
+
+** 7 February 2006: Whats New in 1.2
+
+     Ehcache-1.2, currently at beta 4, has many new features:
+
+       * Distributed Caching. The default implementation
+     supports cache discovery via multicast or manual configuration. Updates
+     are delivered asynchronously or synchronously via custom RMI
+     connections. Additional discovery or delivery schemes can be plugged in
+     by third parties.
+
+       * New FIFO and LFU caching policies in addition to the standard LRU.
+
+       * Introduced CacheManagerEventListener and CacheEventListener
+     interfaces and default implementations.
+
+       * Multiple CacheManagers per virtual machine.
+
+       * Programmatic flushing of application state to persistent caches
+
+
+       * Significant (up to 7 fold) DiskStore performance increases.
+
+
+       * Backward Compatibility with ehcache-1.1
+
+     See the {{{/changes-report.html}changelog}} for more details on the release.
+
+ More {{{news.html}news}}...
+
+
+
+

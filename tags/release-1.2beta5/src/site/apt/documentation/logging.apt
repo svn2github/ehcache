@@ -1,0 +1,28 @@
+ ------
+ Logging
+ ------
+ ------
+ Date
+ ------
+
+Logging
+
+
+    Ehcache uses the Apache Commons Logging library for logging.
+
+    It acts as a thin bridge between
+    logging statements in the code and logging infrastructure detected in
+    the classpath. It will use in order of preference:
+
+     * log4j,
+     * JDK1.4 logging
+     * and then its own <<<SimpleLog>>> .
+
+     This enables
+    ehcache to use logging infrastructures compatible with Java versions
+    from JDK1.2 to JDK5. It does create a dependency on Apache Commons
+    Logging, however many projects, including Hibernate, share the same
+    dependency.
+
+    For normal production use, use the <<<WARN>>> level in log4J
+    and the <<<WARNING>>> level for JDK1.4 logging.
