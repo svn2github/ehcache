@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
+
+
+        <release version="1.2beta6" date="" desc="ehcache-1.2 represents the addition of many new features while remaining
+         backward compatible with 1.1.">
+            <!-- Feature Changes -->
+            <action dev="Greg Luck" type="update">
+                License updated to Apache 2.0.
+            </action>
+        </release>
+
+
+
         <release version="1.2beta5" date="2006-3-26" desc="ehcache-1.2 represents the addition of many new features while remaining
          backward compatible with 1.1.">
             <!-- Feature Changes -->
