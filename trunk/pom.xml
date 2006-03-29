@@ -34,7 +34,7 @@ and delivery options. <br>
   <li>Pluggable distribution API&nbsp; for extending distribution with
 different mechanisms. <br>
   </li>
-  <li>Available under the Apache 1.1license. Ehcache's
+  <li>Available under the Apache 2.0 license. Ehcache's
 copyright and licensing has been reviewed and
 approved by the Apache Software Foundation, making ehcache
 suitable for
@@ -182,7 +182,7 @@ optional <a href="ehcache-constructs">ehcache-constructs</a> package.</li>
 
     <licenses>
         <license>
-            <name>The Apache Software License, Version 1.1</name>
+            <name>The Apache Software License, Version 2.0</name>
             <url>http://ehcache.sourceforge.net/LICENSE.txt</url>
             <distribution>repo</distribution>
             <comments>The license is the standard wording from the Apache license, but with Greg Luck as copyright

@@ -7,6 +7,10 @@
 
 News
 
+* 28 March 2006: License changed from Apache 1.1 to Apache 2.0
+
+     The ehcache 1.2 series from beta5 is released under the Apache 2.0 license.
+
 * 26 March 2006: {{{http://sourceforge.net/project/showfiles.php?group_id=93232}1.2 beta 5 released}}.
 
      This is a bug fix release which fixes all reported issues in the new 1.2 features. Developers should be
