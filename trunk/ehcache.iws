@@ -126,7 +126,7 @@
   </component>
   <component name="DebuggerManager">
     <line_breakpoints>
-      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java" line="989" class="net.sf.ehcache.CacheTest" package="net.sf.ehcache">
+      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java" line="1017" class="net.sf.ehcache.CacheTest" package="net.sf.ehcache">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -178,7 +178,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java" line="888" class="net.sf.ehcache.CacheTest" package="net.sf.ehcache">
+      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java" line="891" class="net.sf.ehcache.CacheTest" package="net.sf.ehcache">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -191,7 +191,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java" line="809" class="net.sf.ehcache.Cache" package="net.sf.ehcache">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java" line="821" class="net.sf.ehcache.Cache" package="net.sf.ehcache">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -230,7 +230,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/event/CacheEventListenerTest.java" line="429" class="net.sf.ehcache.event.CacheEventListenerTest" package="net.sf.ehcache.event">
+      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/event/CacheEventListenerTest.java" line="453" class="net.sf.ehcache.event.CacheEventListenerTest" package="net.sf.ehcache.event">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -243,7 +243,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/event/CacheEventListenerTest.java" line="424" class="net.sf.ehcache.event.CacheEventListenerTest" package="net.sf.ehcache.event">
+      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/event/CacheEventListenerTest.java" line="448" class="net.sf.ehcache.event.CacheEventListenerTest" package="net.sf.ehcache.event">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -269,7 +269,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java" line="1030" class="net.sf.ehcache.CacheTest" package="net.sf.ehcache">
+      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java" line="1058" class="net.sf.ehcache.CacheTest" package="net.sf.ehcache">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -295,7 +295,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" line="653" class="net.sf.ehcache.DiskStoreTest" package="net.sf.ehcache">
+      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" line="655" class="net.sf.ehcache.DiskStoreTest" package="net.sf.ehcache">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -308,7 +308,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" line="639" class="Class at DiskStoreTest.java:678" package="net.sf.ehcache">
+      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" line="641" class="Class at DiskStoreTest.java:641" package="net.sf.ehcache">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -334,7 +334,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java" line="292" class="net.sf.ehcache.distribution.RMICacheReplicatorTest" package="net.sf.ehcache.distribution">
+      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java" line="294" class="net.sf.ehcache.distribution.RMICacheReplicatorTest" package="net.sf.ehcache.distribution">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -361,6 +361,32 @@
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
       <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/MulticastRMIPeerProviderTest.java" line="56" class="net.sf.ehcache.distribution.MulticastRMIPeerProviderTest" package="net.sf.ehcache.distribution">
+        <option name="ENABLED" value="true" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java" line="929" class="net.sf.ehcache.CacheTest" package="net.sf.ehcache">
+        <option name="ENABLED" value="true" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java" line="371" class="net.sf.ehcache.store.MemoryStore" package="net.sf.ehcache.store">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -445,38 +471,13 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="MulticastKeepaliveHeartbeatSender.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastKeepaliveHeartbeatSender.java">
+      <file leaf-file-name="Cache.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="184" column="11" selection-start="6804" selection-end="6804" vertical-scroll-proportion="0.6179245">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MulticastRMICacheManagerPeerProvider.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastRMICacheManagerPeerProvider.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="69" column="83" selection-start="3247" selection-end="3247" vertical-scroll-proportion="0.29411766">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="LruMemoryStore.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/LruMemoryStore.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="119" column="93" selection-start="4465" selection-end="4465" vertical-scroll-proportion="0.20872642">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="changes.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="10" column="18" selection-start="385" selection-end="385" vertical-scroll-proportion="0.14405762">
-              <folding />
+            <state line="462" column="75" selection-start="16755" selection-end="16755" vertical-scroll-proportion="0.52460986">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -484,7 +485,43 @@
       <file leaf-file-name="build.properties" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/build.properties">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="38" column="101" selection-start="974" selection-end="974" vertical-scroll-proportion="0.5377358">
+            <state line="7" column="69" selection-start="124" selection-end="124" vertical-scroll-proportion="0.0990566">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="cache_event_listeners.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/cache_event_listeners.apt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="38" column="3" selection-start="1234" selection-end="1234" vertical-scroll-proportion="0.54741895">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="getting_started.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/getting_started.apt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="concepts.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/concepts.apt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="68" column="97" selection-start="2766" selection-end="2766" vertical-scroll-proportion="0.8867925">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="storage_options.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/storage_options.apt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="21" column="26" selection-start="299" selection-end="299" vertical-scroll-proportion="0.30252102">
               <folding />
             </state>
           </provider>
@@ -493,7 +530,7 @@
       <file leaf-file-name="news.apt" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/site/apt/news.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="20" column="24" selection-start="491" selection-end="491" vertical-scroll-proportion="0.28811523">
+            <state line="11" column="5" selection-start="124" selection-end="538" vertical-scroll-proportion="0.15846339">
               <folding />
             </state>
           </provider>
@@ -502,34 +539,25 @@
       <file leaf-file-name="index.apt" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/site/apt/index.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="38" column="84" selection-start="1417" selection-end="1417" vertical-scroll-proportion="0.54741895">
+            <state line="25" column="73" selection-start="964" selection-end="964" vertical-scroll-proportion="0.22208883">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="pom.xml" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/pom.xml">
+      <file leaf-file-name="changes.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="185" column="54" selection-start="6455" selection-end="6455" vertical-scroll-proportion="0.375">
+            <state line="15" column="16" selection-start="811" selection-end="811" vertical-scroll-proportion="0.21608643">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="LICENSE.txt" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/LICENSE.txt">
+      <file leaf-file-name="distributed_caching.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/distributed_caching.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="LICENSE.txt" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/site/resources/LICENSE.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+            <state line="40" column="11" selection-start="1376" selection-end="1376" vertical-scroll-proportion="0.57623047">
               <folding />
             </state>
           </provider>
@@ -1405,14 +1433,14 @@
   <component name="RestoreUpdateTree" />
   <component name="RunManager">
     <activeType name="JUnit" />
-    <tempConfiguration selected="true" default="false" name="RMICacheReplicatorTest" type="JUnit" factoryName="JUnit">
+    <tempConfiguration selected="true" default="false" name="RMICacheReplicatorTest.testRemotePutNotificationGetsToOtherListeners" type="JUnit" factoryName="JUnit">
       <module name="ehcache" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
       <option name="PACKAGE_NAME" value="net.sf.ehcache.distribution" />
       <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.distribution.RMICacheReplicatorTest" />
-      <option name="METHOD_NAME" value="" />
-      <option name="TEST_OBJECT" value="class" />
+      <option name="METHOD_NAME" value="testRemotePutNotificationGetsToOtherListeners" />
+      <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="" />
       <option name="PARAMETERS" value="" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
@@ -1420,6 +1448,7 @@
       <option name="TEST_SEARCH_SCOPE">
         <value defaultName="wholeProject" />
       </option>
+      <RunnerSettings RunnerId="Run" />
       <RunnerSettings RunnerId="Profile ">
         <option name="myStartupWithAllocations" value="false" />
         <option name="myCPUStartup" />
@@ -1432,9 +1461,15 @@
         <option name="myDisableAlloc" value="false" />
         <option name="myDisableCounts" value="false" />
       </RunnerSettings>
-      <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Run" />
     </tempConfiguration>
+    <configuration selected="false" default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
+    </configuration>
     <configuration selected="false" default="true" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" />
       <option name="VM_PARAMETERS" />
@@ -1443,6 +1478,32 @@
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <module name="" />
+    </configuration>
+    <configuration selected="false" default="true" type="WebLogic Instance" factoryName="Local">
+      <option name="WORKING_DIRECTORY" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="7001" />
+      <option name="LOCAL" value="true" />
+      <option name="OPEN_IN_BROWSER" value="true" />
+      <option name="OPEN_IN_BROWSER_URL" value="/" />
+      <option name="COMMON_VM_ARGUMENTS" value="" />
+      <option name="DOMAIN_PATH" value="" />
+      <option name="USER" value="weblogic" />
+      <option name="PASSWORD" value="weblogic" />
+      <option name="SERVER_NAME" value="myserver" />
+      <option name="DOMAIN_NAME" value="mydomain" />
+    </configuration>
+    <configuration selected="false" default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
     </configuration>
     <configuration selected="false" default="true" type="JUnit" factoryName="JUnit">
       <module name="" />
@@ -1472,39 +1533,6 @@
         <option name="myDisableCounts" value="false" />
       </RunnerSettings>
     </configuration>
-    <configuration selected="false" default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-    </configuration>
-    <configuration selected="false" default="true" type="WebLogic Instance" factoryName="Local">
-      <option name="WORKING_DIRECTORY" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="7001" />
-      <option name="LOCAL" value="true" />
-      <option name="OPEN_IN_BROWSER" value="true" />
-      <option name="OPEN_IN_BROWSER_URL" value="/" />
-      <option name="COMMON_VM_ARGUMENTS" value="" />
-      <option name="DOMAIN_PATH" value="" />
-      <option name="USER" value="weblogic" />
-      <option name="PASSWORD" value="weblogic" />
-      <option name="SERVER_NAME" value="myserver" />
-      <option name="DOMAIN_NAME" value="mydomain" />
-    </configuration>
-    <configuration selected="false" default="true" type="Remote" factoryName="Remote">
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" value="javadebug" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="5005" />
-    </configuration>
     <configuration selected="true" default="false" name="Orion" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="com.evermind.server.ApplicationServer" />
       <option name="VM_PARAMETERS" value="-Djava.util.logging.config.file=$PROJECT_DIR$/build/orion/logging.properties -Xms200m -Xmx800m" />
@@ -1518,6 +1546,7 @@
         <option name="TRANSPORT" value="0" />
         <option name="LOCAL" value="false" />
       </RunnerSettings>
+      <RunnerSettings RunnerId="Run" />
       <RunnerSettings RunnerId="Profile ">
         <option name="myStartupWithAllocations" value="false" />
         <option name="myCPUStartup" value="" />
@@ -1530,7 +1559,6 @@
         <option name="myDisableAlloc" value="false" />
         <option name="myDisableCounts" value="false" />
       </RunnerSettings>
-      <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Debug" />
       <ConfigurationWrapper RunnerId="Run" />
     </configuration>
@@ -1554,6 +1582,7 @@
         <option name="TRANSPORT" value="0" />
         <option name="LOCAL" value="true" />
       </RunnerSettings>
+      <RunnerSettings RunnerId="Run" />
       <RunnerSettings RunnerId="Profile ">
         <option name="myStartupWithAllocations" value="false" />
         <option name="myCPUStartup" value="" />
@@ -1566,7 +1595,6 @@
         <option name="myDisableAlloc" value="false" />
         <option name="myDisableCounts" value="false" />
       </RunnerSettings>
-      <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Debug" />
       <ConfigurationWrapper RunnerId="Run" />
     </configuration>
@@ -1628,7 +1656,7 @@
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32850778" order="7" />
       <window_info id="ConsoleMavenPlugin" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
       <window_info id="Checkstyle" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.36082473" order="0" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.371134" order="0" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32739422" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25322166" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32516703" order="10" />
@@ -1643,7 +1671,7 @@
       <window_info id="File View" active="false" anchor="right" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="5" />
       <window_info id="Clover" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32946485" order="3" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="sliding" type="sliding" visible="false" weight="0.4" order="0" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.6202673" order="4" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.3608018" order="4" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32739422" order="9" />
       <window_info id="IG Telemetry" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="11" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="0" />
@@ -1756,107 +1784,109 @@
     </buildFile>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMIDistributedCacheTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/CacheEventListener.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="3" selection-start="608" selection-end="608" vertical-scroll-proportion="0.0">
+        <state line="85" column="0" selection-start="3484" selection-end="3484" vertical-scroll-proportion="0.4237695">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/FifoMemoryStore.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="3" selection-start="608" selection-end="608" vertical-scroll-proportion="0.0">
+        <state line="91" column="13" selection-start="2930" selection-end="2930" vertical-scroll-proportion="0.36320755">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationHelperTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMIAsynchronousCacheReplicator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="3" selection-start="608" selection-end="608" vertical-scroll-proportion="0.0">
+        <state line="114" column="0" selection-start="3776" selection-end="3776" vertical-scroll-proportion="0.63385355">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/config/ClassHeader.txt">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMISynchronousCacheReplicator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="15" column="0" selection-start="609" selection-end="609" vertical-scroll-proportion="0.21226415">
+        <state line="206" column="49" selection-start="7155" selection-end="7155" vertical-scroll-proportion="2.6362545">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Status.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="40" column="105" selection-start="1501" selection-end="1501" vertical-scroll-proportion="0.36792454">
+        <state line="497" column="66" selection-start="15357" selection-end="15357" vertical-scroll-proportion="0.46226415">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastKeepaliveHeartbeatSender.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="184" column="11" selection-start="6804" selection-end="6804" vertical-scroll-proportion="0.6179245">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastRMICacheManagerPeerProvider.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="69" column="83" selection-start="3247" selection-end="3247" vertical-scroll-proportion="0.29411766">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/LruMemoryStore.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="119" column="93" selection-start="4465" selection-end="4465" vertical-scroll-proportion="0.20872642">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="10" column="18" selection-start="385" selection-end="385" vertical-scroll-proportion="0.14405762">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/LICENSE.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/resources/LICENSE.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
+        <state line="462" column="75" selection-start="16755" selection-end="16755" vertical-scroll-proportion="0.52460986">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/build.properties">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="38" column="101" selection-start="974" selection-end="974" vertical-scroll-proportion="0.5377358">
+        <state line="7" column="69" selection-start="124" selection-end="124" vertical-scroll-proportion="0.0990566">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/news.apt">
+    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/cache_event_listeners.apt">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="20" column="24" selection-start="491" selection-end="491" vertical-scroll-proportion="0.28811523">
+        <state line="38" column="3" selection-start="1234" selection-end="1234" vertical-scroll-proportion="0.54741895">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/getting_started.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/concepts.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="68" column="97" selection-start="2766" selection-end="2766" vertical-scroll-proportion="0.8867925">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/distributed_caching.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="40" column="11" selection-start="1376" selection-end="1376" vertical-scroll-proportion="0.57623047">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/storage_options.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="21" column="26" selection-start="299" selection-end="299" vertical-scroll-proportion="0.30252102">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/site/apt/index.apt">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="38" column="84" selection-start="1417" selection-end="1417" vertical-scroll-proportion="0.54741895">
+        <state line="25" column="73" selection-start="964" selection-end="964" vertical-scroll-proportion="0.22208883">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
+    <entry file="file://$PROJECT_DIR$/src/site/apt/news.apt">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="185" column="54" selection-start="6455" selection-end="6455" vertical-scroll-proportion="0.375">
+        <state line="11" column="5" selection-start="124" selection-end="538" vertical-scroll-proportion="0.15846339">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="15" column="16" selection-start="811" selection-end="811" vertical-scroll-proportion="0.21608643">
           <folding />
         </state>
       </provider>

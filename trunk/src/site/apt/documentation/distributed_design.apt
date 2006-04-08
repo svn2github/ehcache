@@ -166,7 +166,7 @@ The Design of distributed ehcache
 
        * it allows tuning of TCP socket options
 
-       * Element keys and values are Serializable, therefore directly transmittable over RMI without conversion.
+       * Element keys and values for disk storage must already be Serializable, therefore directly transmittable over RMI without conversion.
 
        * RMI had improvements added to it with each release of Java, which can then be taken advantage of.
 

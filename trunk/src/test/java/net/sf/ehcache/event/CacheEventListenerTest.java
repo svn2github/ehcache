@@ -254,6 +254,30 @@ public class CacheEventListenerTest extends TestCase {
      * When the <code>MemoryStore</code> overflows, and there is no disk
      * store, then the element gets automatically removed. This should
      * trigger a remove notification.
+     */
+    public void testEvictionFromLRUMemoryStoreNotSerializable() throws IOException, CacheException, InterruptedException {
+        String sampleCache1 = "sampleCache1";
+        cache = manager.getCache(sampleCache1);
+        cache.removeAll();
+
+        //should trigger a removal notification because it is not Serializable and will be evicted
+        cache.put(new Element(12 + "", new Object()));
+
+        for (int i = 0; i < 10; i++) {
+            cache.put(new Element(i + "", new Date()));
+        }
+
+        List removalNotifications2 = CountingCacheEventListener.getCacheElementsRemoved(cache);
+        assertEquals(1, removalNotifications2.size());
+
+        List expiryNotifications = CountingCacheEventListener.getCacheElementsExpired(cache);
+        assertEquals(0, expiryNotifications.size());
+    }
+
+    /**
+     * When the <code>MemoryStore</code> overflows, and there is no disk
+     * store, then the element gets automatically removed. This should
+     * trigger a remove notification.
      * <p/>
      * If the element has expired, it should instead trigger an expiry notification.
      */

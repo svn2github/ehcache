@@ -15,6 +15,15 @@ Welcome to ehcache
 
 * Latest News
 
+** 8 April 2006: Elements are no longer required to be Serializable
+
+     Following many requests, ehcache no longer requires that Elements contain Serializable keys and values. Ehcache
+     will gracefully degrade for those operations which require Serialization.
+
+     In particular the MemoryStore and event listeners can be used with Non Serializable elements.
+
+     WARNING error messages are logged when an operation cannot be completed because the key or value is not Serializable.
+
 
 ** 28 March 2006: License changed from Apache 1.1 to Apache 2.0
 
@@ -56,15 +65,6 @@ Welcome to ehcache
 
     Ehcache is now on Subversion. See the {{{/source-repository.html}source repository page}} for details.
 
-** 17 March 2006: New Site Redesign
-
-    Ehcache has outgrown its old web design. This new one is produced using {{{http://maven.apache.org}Maven 2}}.
-    Please send any feedback on the new site to the {{{team-list.html}team}}.
-
-** 14 March 2006: New Mailing List
-
-    A new mailing list, ehcache-list@lists.sourceforge.net, has been created for ehcache users and developers. Go {{{mail-list.html}here}}
-    to subscribe or to search the archive.
 
  More {{{news.html}news}}...
 

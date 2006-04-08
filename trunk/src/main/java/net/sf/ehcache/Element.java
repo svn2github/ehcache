@@ -46,12 +46,12 @@ public class Element implements Serializable, Cloneable {
     /**
      * the cache key
      */
-    private final Serializable key;
+    private final Object key;
 
     /**
      * the value
      */
-    private Serializable value;
+    private Object value;
 
     /**
      * version of the element
@@ -84,7 +84,7 @@ public class Element implements Serializable, Cloneable {
      * Creation time is set to the current time. Last Access Time and Previous To Last Access Time
      * are not set.
      */
-    public Element(Serializable key, Serializable value, long version) {
+    public Element(Object key, Object value, long version) {
         this.key = key;
         this.value = value;
         this.version = version;
@@ -98,7 +98,7 @@ public class Element implements Serializable, Cloneable {
      * @param key
      * @param value
      */
-    public Element(Serializable key, Serializable value) {
+    public Element(Object key, Object value) {
         this(key, value, 1L);
     }
 
@@ -107,7 +107,7 @@ public class Element implements Serializable, Cloneable {
      *
      * @return The key value
      */
-    public Serializable getKey() {
+    public Object getKey() {
         return key;
     }
 
@@ -116,7 +116,7 @@ public class Element implements Serializable, Cloneable {
      *
      * @return The value value
      */
-    public Serializable getValue() {
+    public Object getValue() {
         return value;
     }
 
@@ -254,7 +254,7 @@ public class Element implements Serializable, Cloneable {
         return element;
     }
 
-    private Serializable deepCopy(Serializable oldValue) {
+    private Serializable deepCopy(Object oldValue) {
         Serializable newValue = null;
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         ObjectOutputStream oos = null;
@@ -292,6 +292,9 @@ public class Element implements Serializable, Cloneable {
      * @return The serialized size in bytes
      */
     public long getSerializedSize() {
+        if (!isSerializable()) {
+            return 0;
+        }
         long size = 0;
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         ObjectOutputStream oos = null;
@@ -311,6 +314,35 @@ public class Element implements Serializable, Cloneable {
         }
 
         return size;
+    }
+
+
+    /**
+     * Whether the element may be Serialized.
+     * <p/>
+     * While Element implements Serializable, it is possible to create non Serializable elements
+     * for use in MemoryStores. This method checks that an instance of Element really is Serializable
+     * and will not throw a NonSerializableException if Serialized.
+     * @return true if the element is Serializable
+     * @since 1.2
+     */
+    public boolean isSerializable() {
+        return key instanceof Serializable && value instanceof Serializable;
+    }
+
+    /**
+     * Whether the element's key may be Serialized.
+     * <p/>
+     * While Element implements Serializable, it is possible to create non Serializable elements and/or
+     * non Serializable keys for use in MemoryStores.
+     * <p/>
+     * This method checks that an instance of an Element's key really is Serializable
+     * and will not throw a NonSerializableException if Serialized.
+     * @return true if the element's key is Serializable
+     * @since 1.2
+     */
+    public boolean isKeySerializable() {
+        return key instanceof Serializable;
     }
 }
 

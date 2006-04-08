@@ -32,8 +32,7 @@
         <menu name="Documentation">
             <item name="Getting Started" href="documentation/getting_started.html"/>
             <item name="User Guide" href="documentation/index.html" collapse="true">
-                <item name="Installation" href="documentation/installation.html"/>
-                <item name="CacheConcepts" href="documentation/cache_concepts.html"/>
+                <item name="Cache Concepts" href="documentation/concepts.html"/>
                 <item name="Storage Options" href="documentation/storage_options.html"/>
                 <item name="Class loading" href="documentation/class_loading.html"/>
                 <item name="Performance" href="documentation/performance_considerations.html"/>
@@ -60,7 +59,7 @@
 
 
         <menu name="Project Reports" href="maven-reports.html">
-            <item name="fisheye CVS browser" href="http://fisheye1.cenqua.com/changelog/ehcache/"/>
+            <item name="fisheye Subversion browser" href="http://fisheye3.cenqua.com/changelog/ehcache/"/>
             <item name="Checkstyle" href="/checkstyle.html"/>
             <item name="CPD" href="/cpd.html"/>
             <item name="PMD" href="/pmd.html"/>

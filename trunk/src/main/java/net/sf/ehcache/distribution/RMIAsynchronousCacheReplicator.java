@@ -113,10 +113,23 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      * @param element the element which was just put into the cache.
      */
     public void notifyElementPut(final Cache cache, final Element element) throws CacheException {
-        if (replicatePuts) {
-            synchronized (replicationQueue) {
-                replicationQueue.add(new EventMessage(EventMessage.PUT, cache, element));
+        if (notAlive()) {
+            return;
+        }
+
+        if (!replicatePuts) {
+            return;
+        }
+
+        if (!element.isSerializable()) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Object with key " + element.getKey() + " is not Serializable and cannot be replicated");
             }
+            return;
+        }
+        
+        synchronized (replicationQueue) {
+            replicationQueue.add(new EventMessage(EventMessage.PUT, cache, element));
         }
     }
 
@@ -137,12 +150,26 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
         if (notAlive()) {
             return;
         }
-        if (replicateUpdates) {
-            if (replicateUpdatesViaCopy) {
-                replicationQueue.add(new EventMessage(EventMessage.PUT, cache, element));
-            } else {
-                replicationQueue.add(new EventMessage(EventMessage.REMOVE, cache, element.getKey()));
+        if (!replicateUpdates) {
+            return;
+        }
+
+        if (replicateUpdatesViaCopy) {
+            if (!element.isSerializable()) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Object with key " + element.getKey() + " is not Serializable and cannot be updated via copy");
+                }
+                return;
             }
+            replicationQueue.add(new EventMessage(EventMessage.PUT, cache, element));
+        } else {
+            if (!element.isKeySerializable()) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Key " + element.getKey() + " is not Serializable and cannot be replicated.");
+                }
+                return;
+            }
+            replicationQueue.add(new EventMessage(EventMessage.REMOVE, cache, (Serializable) element.getKey()));
         }
     }
 
@@ -156,10 +183,18 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      * @param element just deleted
      */
     public void notifyElementRemoved(final Cache cache, final Element element) throws CacheException {
-        if (replicateRemovals) {
-            synchronized (replicationQueue) {
-                replicationQueue.add(new EventMessage(EventMessage.REMOVE, cache, element.getKey()));
+        if (!replicateRemovals) {
+            return;
+        }
+
+        if (!element.isKeySerializable()) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Key " + element.getKey() + " is not Serializable and cannot be replicated.");
             }
+            return;
+        }
+        synchronized (replicationQueue) {
+            replicationQueue.add(new EventMessage(EventMessage.REMOVE, cache, (Serializable) element.getKey()));
         }
     }
 

@@ -17,12 +17,10 @@
 package net.sf.ehcache.event;
 
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Element;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.io.Serializable;
 
 /**
  * A Null Object Pattern implementation of CacheEventListener. It simply logs the calls made.
@@ -52,7 +50,7 @@ public class NullCacheEventListener implements CacheEventListener {
      */
     public void notifyElementPut(final Cache cache, final Element element) {
         if (LOG.isTraceEnabled()) {
-            Serializable key = null;
+            Object key = null;
             if (element != null) {
                 key = element.getKey();
             }
@@ -75,7 +73,7 @@ public class NullCacheEventListener implements CacheEventListener {
      */
     public void notifyElementUpdated(final Cache cache, final Element element) throws CacheException {
          if (LOG.isTraceEnabled()) {
-            Serializable key = null;
+            Object key = null;
             if (element != null) {
                 key = element.getKey();
             }

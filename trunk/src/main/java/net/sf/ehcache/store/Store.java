@@ -16,50 +16,63 @@
 
 package net.sf.ehcache.store;
 
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.CacheException;
 
 import java.io.IOException;
-import java.io.Serializable;
 
 /**
  * This is the interface for all stores. A store is a physical counterpart to a cache, which
  * is a logical concept.
  *
- * @version $Id: Store.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
  * @author Greg Luck
+ * @version $Id: Store.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
  */
 public interface Store {
 
-    /** Puts an item into the cache. */
+    /**
+     * Puts an item into the cache.
+     */
     void put(Element element) throws IOException, CacheException;
 
-    /** Gets an item from the cache. */
-    Element get(Serializable key) throws IOException;
+    /**
+     * Gets an item from the cache.
+     * @revised 1.2
+     */
+    Element get(Object key) throws IOException;
 
     /**
      * Removes an item from the cache.
+     *
      * @since signature changed in 1.2 from boolean to Element to support notifications
-     **/
-    Element remove(Serializable key) throws IOException;
+     * @revised 1.2
+     */
+    Element remove(Object key) throws IOException;
 
     /**
      * Remove all of the elements from the store.
      * <p/>
      * If there are registered <code>CacheEventListener</code>s they are notified of the expiry or removal
      * of the <code>Element</code> as each is removed.
+     *
      * @throws IOException
      */
     void removeAll() throws IOException, CacheException;
 
-    /** Prepares for shutdown. */
+    /**
+     * Prepares for shutdown.
+     */
     void dispose() throws IOException;
 
-    /** Returns the current store size. */
+    /**
+     * Returns the current store size.
+     */
     int getSize();
 
-    /** Returns the cache status. */
+    /**
+     * Returns the cache status.
+     */
     Status getStatus();
 
 
@@ -68,7 +81,8 @@ public interface Store {
      *
      * @param key The Element key
      * @return true if found. No check is made to see if the Element is expired.
+     * @revised 1.2
      */
-    boolean containsKey(Serializable key);
+    boolean containsKey(Object key);
 
 }

@@ -7,6 +7,16 @@
 
 News
 
+* 8 April 2006: Elements are no longer required to be Serializable
+
+     Following many requests, ehcache no longer requires that Elements contain Serializable keys and values. Ehcache
+     will gracefully degrade for those operations which require Serialization.
+
+     In particular the MemoryStore and event listeners can be used with Non Serializable elements.
+
+     WARNING error messages are logged when an operation cannot be completed because the key or value is not Serializable.
+
+
 * 28 March 2006: License changed from Apache 1.1 to Apache 2.0
 
      The ehcache 1.2 series from beta5 is released under the Apache 2.0 license.

@@ -69,13 +69,10 @@ high performance CacheEntryFactories for SelfPopulatingCaches.
 
 * Can non-Serializable objects be stored in a cache?
 
- No. Both keys and values must be Serializable. The reason is they must
-be Serializable to be persisted to the DiskStore. If the type was
-Object and not Serializable, runtime UnserializableExceptions would be
-thrown when an Element is transferred to the DiskStore.
+ As of ehcache-1.2, they can be stored in caches with MemoryStores.
 
- As it is now, your keys and values must be Serializable or you will get
-a compile-time error.
+ Elements attempted to be replicated or overflowed to disk will be removed and a warning logged
+  if not Serializable.
 
 * Why is there an expiry thread for the DiskStore but not for the MemoryStore?
 
@@ -128,8 +125,7 @@ through {{{http://sourceforge.net/cvs/?group_id=93232}cvs}}.
 
 * How do you get statistics on an Element without affecting them?
 
- Use the {{{http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/Cache.html#getQuiet%28java.io.Serializable%29}Cache.getQuiet(Serializable
-key}} method. It returns an Element without updating statistics.
+ Use the {{{http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/Cache.html#getQuiet%28java.io.Serializable%29}Cache.getQuiet()}} method. It returns an Element without updating statistics.
 
 * How do you get WebSphere to work with ehcache?
 

@@ -180,7 +180,7 @@ public class DiskStore implements Store {
      *
      * @return The element
      */
-    public synchronized Element get(final Serializable key) throws IOException {
+    public synchronized Element get(final Object key) throws IOException {
         try {
             checkActive();
 
@@ -218,7 +218,7 @@ public class DiskStore implements Store {
      * @return true if found. If this method return false, it means that an Element with the given key is definitely not in the MemoryStore.
      *         If it returns true, there is an Element there. An attempt to get it may return null if the Element has expired.
      */
-    public boolean containsKey(Serializable key) {
+    public boolean containsKey(Object key) {
         return diskElements.containsKey(key) || spool.containsKey(key);
     }
 
@@ -245,7 +245,7 @@ public class DiskStore implements Store {
      *
      * @return The element
      */
-    public synchronized Element getQuiet(final Serializable key) throws IOException {
+    public synchronized Element getQuiet(final Object key) throws IOException {
         try {
             checkActive();
 
@@ -346,7 +346,7 @@ public class DiskStore implements Store {
     /**
      * Removes an item from the disk store.
      */
-    public synchronized Element remove(final Serializable key) {
+    public synchronized Element remove(final Object key) {
         Element element = null;
         try {
             checkActive();
@@ -540,7 +540,7 @@ public class DiskStore implements Store {
             if (element == null) {
                 continue;
             }
-            final Serializable key = element.getKey();
+            final Serializable key = (Serializable) element.getKey();
 
             // Remove the old entry, if any
             final DiskElement oldBlock;

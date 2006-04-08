@@ -877,8 +877,11 @@ public class CacheTest extends AbstractCacheTest {
         for (int i = 0; i < 100; i++) {
             cache.put(new Element("" + i, new Date()));
         }
+        //Not spoolable, should get ignored
+        cache.put(new Element("key", new Object()));
+
         assertEquals(50, cache.getMemoryStoreSize());
-        assertEquals(50, cache.getDiskStoreSize());
+        assertEquals(51, cache.getDiskStoreSize());
 
         cache.flush();
         assertEquals(0, cache.getMemoryStoreSize());
@@ -905,6 +908,31 @@ public class CacheTest extends AbstractCacheTest {
         assertNull(cache.getQuiet("key1").getValue());
 
         assertEquals(false, cache.isExpired(element));
+    }
+
+
+    /**
+     * Tests using elements with null values. They should work as normal.
+     *
+     * @throws Exception
+     */
+    public void testNonSerializableElement() throws Exception {
+        Cache cache = new Cache("testElementWithNonSerializableValue", 1, true, false, 100, 200);
+        manager.addCache(cache);
+
+        Element element1 = new Element("key1", new Object());
+        Element element2 = new Element("key2", new Object());
+        cache.put(element1);
+        cache.put(element2);
+
+
+        //Removed because could not overflow
+        assertNull(cache.get("key1"));
+
+        //Second one should be in the MemoryStore and retrievable
+        assertNotNull(cache.get("key2"));
+
+
     }
 
     /**

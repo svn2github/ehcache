@@ -252,6 +252,8 @@ public class RMICacheReplicatorTest extends TestCase {
         for (int i = 0; i < cacheNames.length; i++) {
             String name = cacheNames[i];
             manager1.getCache(name).put(new Element("" + i, new Integer(i)));
+            //Add some non serializable elements that should not get propagated
+            manager1.getCache(name).put(new Element("nonSerializable" + i, new Object()));
         }
 
         waitForProgagate();
@@ -315,10 +317,15 @@ public class RMICacheReplicatorTest extends TestCase {
         cache1.put(new Element("2", new Date()));
         cache1.put(new Element("3", new Date()));
 
+        //Nonserializable and non deliverable put
+        Object nonSerializableObject = new Object();
+        cache1.put(new Element(nonSerializableObject, new Object()));
+
+
         waitForProgagate();
 
         //local initiating cache's counting listener should have been notified
-        assertEquals(3, CountingCacheEventListener.getCacheElementsPut(cache1).size());
+        assertEquals(4, CountingCacheEventListener.getCacheElementsPut(cache1).size());
         //remote receiving caches' counting listener should have been notified
         assertEquals(3, CountingCacheEventListener.getCacheElementsPut(cache2).size());
 
@@ -327,22 +334,26 @@ public class RMICacheReplicatorTest extends TestCase {
         cache1.put(new Element("2", new Date()));
         cache1.put(new Element("3", new Date()));
 
+        //Nonserializable and non deliverable put
+        cache1.put(new Element(nonSerializableObject, new Object()));
+
         waitForProgagate();
 
         //local initiating cache's counting listener should have been notified
-        assertEquals(3, CountingCacheEventListener.getCacheElementsUpdated(cache1).size());
+        assertEquals(4, CountingCacheEventListener.getCacheElementsUpdated(cache1).size());
         //remote receiving caches' counting listener should have been notified
         assertEquals(3, CountingCacheEventListener.getCacheElementsUpdated(cache2).size());
 
-        //Update
+        //Remove
         cache1.remove("1");
         cache1.remove("2");
         cache1.remove("3");
+        cache1.remove(nonSerializableObject);
 
         waitForProgagate();
 
         //local initiating cache's counting listener should have been notified
-        assertEquals(3, CountingCacheEventListener.getCacheElementsRemoved(cache1).size());
+        assertEquals(4, CountingCacheEventListener.getCacheElementsRemoved(cache1).size());
         //remote receiving caches' counting listener should have been notified
         assertEquals(3, CountingCacheEventListener.getCacheElementsRemoved(cache2).size());
 

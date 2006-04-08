@@ -50,7 +50,6 @@ import java.util.Set;
  *
  * @author Greg Luck
  * @version $Id: Cache.java,v 1.3 2006/03/25 04:40:39 gregluck Exp $
- *
  */
 public class Cache implements Cloneable {
 
@@ -112,7 +111,7 @@ public class Cache implements Cloneable {
     private final long timeToLiveSeconds;
 
     /**
-     * The maximum amount of time between {@link #get(java.io.Serializable)}s
+     * The maximum amount of time between {@link #get(Object)}s
      * before an element expires
      */
     private final long timeToIdleSeconds;
@@ -366,9 +365,10 @@ public class Cache implements Cloneable {
      * if it was requested
      * </ul>
      *
-     * @param element
+     * @param element An object. If Serializable it can fully participate in replication and the DiskStore.
      * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
      * @throws IllegalArgumentException if the element is null
+     * @revised 1.2
      */
     public synchronized void put(Element element) throws IllegalArgumentException, IllegalStateException,
             CacheException {
@@ -388,7 +388,7 @@ public class Cache implements Cloneable {
      * if it was requested
      * </ul>
      *
-     * @param element
+     * @param element An object. If Serializable it can fully participate in replication and the DiskStore.
      * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
      *                                    further notification to doNotNotifyCacheReplicators cache peers
      * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
@@ -405,23 +405,26 @@ public class Cache implements Cloneable {
 
         boolean elementExists = false;
         if (registeredEventListeners != null) {
-            Serializable key = element.getKey();
+            Object key = element.getKey();
             elementExists = isElementInMemory(key) || isElementOnDisk(key);
         }
 
         memoryStore.put(element);
+
         if (elementExists) {
             registeredEventListeners.notifyElementUpdated(element, doNotNotifyCacheReplicators);
         } else {
             registeredEventListeners.notifyElementPut(element, doNotNotifyCacheReplicators);
         }
+
     }
+
 
     /**
      * Put an element in the cache, without updating statistics, or updating listeners. This is meant to be used
      * in conjunction with {@link #getQuiet}
      *
-     * @param element
+     * @param element An object. If Serializable it can fully participate in replication and the DiskStore.
      * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
      * @throws IllegalArgumentException if the element is null
      */
@@ -437,6 +440,7 @@ public class Cache implements Cloneable {
 
     /**
      * Use this for development debugging
+     *
      * @param operation
      * @param doNotNotifyCacheReplicators
      * @param element
@@ -444,7 +448,7 @@ public class Cache implements Cloneable {
     private void logCacheOperation(String operation, boolean doNotNotifyCacheReplicators, Element element) {
         if (LOG.isDebugEnabled()) {
             LOG.info("Cache " + this.getGuid() + ": " + operation + ": " + element.getKey() + " doNotNotify: "
-                + doNotNotifyCacheReplicators);
+                    + doNotNotifyCacheReplicators);
         }
 
     }
@@ -454,14 +458,14 @@ public class Cache implements Cloneable {
      * Gets an element from the cache. Updates Element Statistics
      * <p/>
      * Note that the Element's lastAccessTime is always the time of this get.
-     * Use {@link #getQuiet(java.io.Serializable)} to peak into the Element to see its last access time with get
+     * Use {@link #getQuiet(Object)} to peak into the Element to see its last access time with get
      *
      * @param key a serializable value
      * @return the element, or null, if it does not exist.
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @see #isExpired
      */
-    public synchronized Element get(Serializable key) throws IllegalStateException, CacheException {
+    public synchronized Element get(Object key) throws IllegalStateException, CacheException {
         checkStatus();
         Element element;
 
@@ -496,7 +500,7 @@ public class Cache implements Cloneable {
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @see #isExpired
      */
-    public synchronized Element getQuiet(Serializable key) throws IllegalStateException, CacheException {
+    public synchronized Element getQuiet(Object key) throws IllegalStateException, CacheException {
         checkStatus();
         Element element;
 
@@ -531,7 +535,7 @@ public class Cache implements Cloneable {
      * The time taken is O(n). On a single cpu 1.8Ghz P4, approximately 8ms is required
      * for each 1000 entries.
      *
-     * @return a list of {@link Serializable} keys
+     * @return a list of {@link Object} keys
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     public synchronized List getKeys() throws IllegalStateException, CacheException {
@@ -578,7 +582,7 @@ public class Cache implements Cloneable {
      * this method takes so long, depending on cache settings, the list could be
      * quite out of date by the time you get it.
      *
-     * @return a list of {@link Serializable} keys
+     * @return a list of {@link Object} keys
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     public List getKeysWithExpiryCheck() throws IllegalStateException, CacheException {
@@ -587,7 +591,7 @@ public class Cache implements Cloneable {
         ArrayList nonExpiredKeys = new ArrayList(allKeyList.size());
         int allKeyListSize = allKeyList.size();
         for (int i = 0; i < allKeyListSize; i++) {
-            Serializable key = (Serializable) allKeyList.get(i);
+            Object key = (Object) allKeyList.get(i);
             Element element = getQuiet(key);
             if (element != null) {
                 nonExpiredKeys.add(key);
@@ -612,7 +616,7 @@ public class Cache implements Cloneable {
      * <p/>
      * This is the fastest getKeys method
      *
-     * @return a list of {@link Serializable} keys
+     * @return a list of {@link Object} keys
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     public synchronized List getKeysNoDuplicateCheck() throws IllegalStateException {
@@ -627,7 +631,7 @@ public class Cache implements Cloneable {
         return allKeys;
     }
 
-    private Element searchInMemoryStore(Serializable key, boolean updateStatistics) {
+    private Element searchInMemoryStore(Object key, boolean updateStatistics) {
         Element element;
         if (updateStatistics) {
             element = memoryStore.get(key);
@@ -649,12 +653,16 @@ public class Cache implements Cloneable {
         return element;
     }
 
-    private Element searchInDiskStore(Serializable key, boolean updateStatistics) throws IOException {
+    private Element searchInDiskStore(Object key, boolean updateStatistics) throws IOException {
+        if (!(key instanceof Serializable)) {
+            return null;
+        }
+        Serializable serializableKey = (Serializable) key;
         Element element;
         if (updateStatistics) {
-            element = diskStore.get(key);
+            element = diskStore.get(serializableKey);
         } else {
-            element = diskStore.getQuiet(key);
+            element = diskStore.getQuiet(serializableKey);
         }
         if (element != null) {
             if (isExpired(element)) {
@@ -685,7 +693,7 @@ public class Cache implements Cloneable {
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public synchronized boolean remove(Serializable key) throws IllegalStateException {
+    public synchronized boolean remove(Object key) throws IllegalStateException {
         return remove(key, false);
     }
 
@@ -703,7 +711,7 @@ public class Cache implements Cloneable {
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public synchronized boolean remove(Serializable key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
+    public synchronized boolean remove(Object key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         return remove(key, false, true, doNotNotifyCacheReplicators);
     }
 
@@ -716,7 +724,7 @@ public class Cache implements Cloneable {
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public synchronized boolean removeQuiet(Serializable key) throws IllegalStateException {
+    public synchronized boolean removeQuiet(Object key) throws IllegalStateException {
         return remove(key, false, false, false);
     }
 
@@ -733,7 +741,7 @@ public class Cache implements Cloneable {
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    private synchronized boolean remove(Serializable key, boolean expiry, boolean notifyListeners,
+    private synchronized boolean remove(Object key, boolean expiry, boolean notifyListeners,
                                         boolean doNotNotifyCacheReplicators)
             throws IllegalStateException, CacheException {
         checkStatus();
@@ -751,12 +759,16 @@ public class Cache implements Cloneable {
             removed = true;
         }
 
+        //could have been removed from both places, if there are two copies in the cache
         Element elementFromDiskStore = null;
         if (overflowToDisk) {
-            elementFromDiskStore = diskStore.remove(key);
+            if (!(key instanceof Serializable)) {
+                return false;
+            }
+            Serializable serializableKey = (Serializable) key;
+            elementFromDiskStore = diskStore.remove(serializableKey);
         }
 
-        //could have been removed from both places, if there are two copies in the cache
         if (elementFromDiskStore != null) {
             if (expiry) {
                 registeredEventListeners.notifyElementExpiry(elementFromDiskStore, doNotNotifyCacheReplicators);
@@ -1086,7 +1098,7 @@ Cache size is the size of the union of the two key sets.*/
                 expired = false;
             }
             if (LOG.isDebugEnabled()) {
-                Serializable key = null;
+                Object key = null;
                 if (element != null) {
                     key = element.getKey();
                 }
@@ -1139,6 +1151,7 @@ Cache size is the size of the union of the two key sets.*/
      * <p/>
      * A new, empty, RegisteredEventListeners is created on clone.
      * <p/>
+     *
      * @return an object of type {@link Cache}
      * @throws CloneNotSupportedException
      */
@@ -1148,7 +1161,8 @@ Cache size is the size of the union of the two key sets.*/
         }
         Cache copy = (Cache) super.clone();
         RegisteredEventListeners registeredEventListenersFromCopy = copy.getCacheEventNotificationService();
-        if (registeredEventListenersFromCopy == null || registeredEventListenersFromCopy.getCacheEventListeners().size() == 0) {
+        if (registeredEventListenersFromCopy == null || registeredEventListenersFromCopy.getCacheEventListeners().size() == 0)
+        {
             copy.registeredEventListeners = new RegisteredEventListeners(copy);
         } else {
             throw new CloneNotSupportedException("Cannot clone a cache with registered event listeners");
@@ -1207,7 +1221,7 @@ Cache size is the size of the union of the two key sets.*/
      * @return true if an element matching the key is found in memory
      * @since 1.2
      */
-    public boolean isElementInMemory(Serializable key) {
+    public boolean isElementInMemory(Object key) {
         return memoryStore.containsKey(key);
     }
 
@@ -1217,8 +1231,12 @@ Cache size is the size of the union of the two key sets.*/
      * @return true if an element matching the key is found in the diskStore
      * @since 1.2
      */
-    public boolean isElementOnDisk(Serializable key) {
-        return diskStore != null && diskStore.containsKey(key);
+    public boolean isElementOnDisk(Object key) {
+        if (!(key instanceof Serializable)) {
+            return false;
+        }
+        Serializable serializableKey = (Serializable) key;
+        return diskStore != null && diskStore.containsKey(serializableKey);
     }
 
     /**

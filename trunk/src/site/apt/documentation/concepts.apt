@@ -64,3 +64,7 @@ Cache Concepts
     accesses. Elements are put into and removed from caches. They can also
     expire and be removed by the Cache, depending on the Cache settings.
 
+    From ehcache-1.2, an Element may be Serializable or not. If it is Serializable, it can fully
+    participate in all aspects of ehcache, including overflow to the DiskStore and replication to clusters. If
+    not, those things that rely on Serialization will gracefully degrade with a WARNING message. 
+

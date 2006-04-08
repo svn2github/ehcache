@@ -38,6 +38,13 @@ Distributed Caching
     For each cache that will operate distributed, you then need to add
     a cacheEventListener to propagate messages.
 
+* Suitable Element Types
+
+    Only Serializable Elements are suitable for replication.
+
+    Some operations, such as remove,  work off Element keys rather than the full Element itself. In this case
+    the operation will be replicated provided the key is Serializable, even if the Element is not.
+
 * Peer Discovery
 
     Ehcache has the notion of a group of caches acting as a distributed

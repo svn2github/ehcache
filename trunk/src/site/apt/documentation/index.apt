@@ -11,7 +11,7 @@ ehcache 1.2 User Guide
 
     * {{{dependencies.html}Dependencies}}
 
-    * {{{cache_concepts.html}CacheConcepts}}
+    * {{{concepts.html}Cache Concepts}}
 
     * {{{storage_options.html}Storage Options}}
 

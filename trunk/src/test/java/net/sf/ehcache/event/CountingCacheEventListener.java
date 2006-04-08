@@ -104,7 +104,7 @@ public class CountingCacheEventListener implements CacheEventListener {
      * {@inheritDoc}
      */
     public void notifyElementRemoved(final Cache cache, final Element element) {
-        checkSynchonizedAccessToCacheOk(cache);
+        checkSynchronizedAccessToCacheOk(cache);
         cacheElementsRemoved.add(new CounterEntry(cache, element));
     }
 
@@ -119,7 +119,7 @@ public class CountingCacheEventListener implements CacheEventListener {
      * @param element   the element which was just put into the cache.
      */
     public void notifyElementPut(final Cache cache, final Element element) {
-        checkSynchonizedAccessToCacheOk(cache);
+        checkSynchronizedAccessToCacheOk(cache);
         cacheElementsPut.add(new CounterEntry(cache, element));
     }
 
@@ -167,7 +167,7 @@ public class CountingCacheEventListener implements CacheEventListener {
      * therefore this is ok.
      * @param cache
      */
-    private void checkSynchonizedAccessToCacheOk(Cache cache) {
+    private void checkSynchronizedAccessToCacheOk(Cache cache) {
         try {
             cache.get("justasyncrhonizationtest");
         } catch (CacheException e) {

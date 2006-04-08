@@ -25,7 +25,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -128,7 +127,7 @@ public abstract class MemoryStore implements Store {
      * @param key the cache key
      * @return the element, or null if there was no match for the key
      */
-    public synchronized Element get(Serializable key) {
+    public synchronized Element get(Object key) {
         Element element = (Element) map.get(key);
 
         if (element != null) {
@@ -156,7 +155,7 @@ public abstract class MemoryStore implements Store {
      * @param key the cache key
      * @return the element, or null if there was no match for the key
      */
-    public synchronized Element getQuiet(Serializable key) {
+    public synchronized Element getQuiet(Object key) {
         Element cacheElement = (Element) map.get(key);
 
         if (cacheElement != null) {
@@ -173,10 +172,11 @@ public abstract class MemoryStore implements Store {
 
     /**
      * Removes an Element from the store.
+     *
      * @param key the key of the Element, usually a String
      * @return the Element if one was found, else null
      */
-    public synchronized Element remove(Serializable key) {
+    public synchronized Element remove(Object key) {
 
         // remove single item.
         Element element = (Element) map.remove(key);
@@ -217,7 +217,7 @@ public abstract class MemoryStore implements Store {
         if (!listeners.getCacheEventListeners().isEmpty()) {
             Object[] keys = getKeyArray();
             for (int i = 0; i < keys.length; i++) {
-                Serializable key = (Serializable) keys[i];
+                Object key = (Object) keys[i];
                 Element element = remove(key);
                 if (cache.isExpired(element)) {
                     listeners.notifyElementExpiry(element, false);
@@ -264,7 +264,13 @@ public abstract class MemoryStore implements Store {
         Collection values = map.values();
         for (Iterator iterator = values.iterator(); iterator.hasNext();) {
             Element element = (Element) iterator.next();
-            spoolToDisk(element);
+            if (!element.isSerializable()) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Object with key " + element.getKey() + " is not Serializable and cannot be overflowed to disk");
+                }
+            } else {
+                spoolToDisk(element);
+            }
         }
     }
 
@@ -280,7 +286,7 @@ public abstract class MemoryStore implements Store {
         try {
             diskStore.put(element);
         } catch (IOException e) {
-            LOG.error("Error spooling to disk"  + ". Error was " + e.getMessage());
+            LOG.error("Error spooling to disk" + ". Error was " + e.getMessage());
             throw new IllegalStateException(e.getMessage());
         }
         if (LOG.isDebugEnabled()) {
@@ -323,7 +329,7 @@ public abstract class MemoryStore implements Store {
      * @return true if found. If this method return false, it means that an Element with the given key is definitely not in the MemoryStore.
      *         If it returns true, there is an Element there. An attempt to get it may return null if the Element has expired.
      */
-    public boolean containsKey(Serializable key) {
+    public boolean containsKey(Object key) {
         return map.containsKey(key);
     }
 
@@ -362,9 +368,19 @@ public abstract class MemoryStore implements Store {
      * @param element the <code>Element</code> to be evicted.
      */
     protected void evict(Element element) throws CacheException {
+        boolean spooled = false;
         if (cache.isOverflowToDisk()) {
-            spoolToDisk(element);
-        } else {
+            if (!element.isSerializable()) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Object with key " + element.getKey() + " is not Serializable and cannot be overflowed to disk");
+                }
+            } else {
+                spoolToDisk(element);
+                spooled = true;
+            }
+        }
+
+        if (!spooled) {
             cache.getCacheEventNotificationService().notifyElementRemoved(element, false);
         }
     }

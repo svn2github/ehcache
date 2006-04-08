@@ -42,6 +42,7 @@ import java.util.Random;
  */
 public class DiskStoreTest extends AbstractCacheTest {
     private static final Log LOG = LogFactory.getLog(DiskStoreTest.class.getName());
+    private static final int ELEMENT_ON_DISK_SIZE = 1255;
 
     /**
      * teardown
@@ -95,7 +96,7 @@ public class DiskStoreTest extends AbstractCacheTest {
             byte[] data = new byte[1024];
             diskStore.put(new Element("key" + (i + 100), data));
             waitForFlush(diskStore);
-            int predictedSize = 1259 * (i + 1);
+            int predictedSize = ELEMENT_ON_DISK_SIZE * (i + 1);
             long actualSize = diskStore.getDataFileSize();
             assertEquals("On the " + i + " iteration: ", predictedSize, actualSize);
         }
@@ -129,7 +130,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         diskStore.dispose();
 
         assertTrue("File exists", dataFile.exists());
-        assertEquals(100 * 1259, dataFile.length());
+        assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
     }
 
     /**
@@ -168,8 +169,9 @@ public class DiskStoreTest extends AbstractCacheTest {
         for (int i = 0; i < 100; i++) {
             byte[] data = new byte[1024];
             diskStore.put(new Element("key" + (i + 100), data));
+            
             waitForFlush(diskStore);
-            assertEquals("On the " + i + " iteration: ", 1259 * (i + 1), diskStore.getDataFileSize());
+            assertEquals("On the " + i + " iteration: ", ELEMENT_ON_DISK_SIZE * (i + 1), diskStore.getDataFileSize());
         }
         assertEquals(100, diskStore.getSize());
         diskStore.dispose();
@@ -179,13 +181,13 @@ public class DiskStoreTest extends AbstractCacheTest {
             diskStore = createPersistentDiskStore(cacheName);
             File dataFile = new File(diskStore.getDataFilePath() + File.separator + diskStore.getDataFileName());
             assertTrue("File exists", dataFile.exists());
-            assertEquals(100 * 1259, dataFile.length());
+            assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
             assertEquals(100, diskStore.getSize());
 
             diskStore.dispose();
 
             assertTrue("File exists", dataFile.exists());
-            assertEquals(100 * 1259, dataFile.length());
+            assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
         }
     }
 
@@ -204,7 +206,7 @@ public class DiskStoreTest extends AbstractCacheTest {
             byte[] data = new byte[1024];
             diskStore.put(new Element("key" + (i + 100), data));
             waitForFlush(diskStore);
-            assertEquals("On the " + i + " iteration: ", 1259 * (i + 1), diskStore.getDataFileSize());
+            assertEquals("On the " + i + " iteration: ", ELEMENT_ON_DISK_SIZE * (i + 1), diskStore.getDataFileSize());
         }
         assertEquals(100, diskStore.getSize());
         diskStore.dispose();
@@ -212,17 +214,17 @@ public class DiskStoreTest extends AbstractCacheTest {
         diskStore = createPersistentDiskStore(cacheName);
         File dataFile = new File(diskStore.getDataFilePath() + File.separator + diskStore.getDataFileName());
         assertTrue("File exists", dataFile.exists());
-        assertEquals(100 * 1259, dataFile.length());
+        assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
         assertEquals(100, diskStore.getSize());
 
         diskStore.remove("key100");
-        assertEquals(100 * 1259, dataFile.length());
+        assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
         assertEquals(99, diskStore.getSize());
 
         diskStore.dispose();
 
         assertTrue("File exists", dataFile.exists());
-        assertEquals(100 * 1259, dataFile.length());
+        assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
     }
 
     /**
@@ -239,7 +241,7 @@ public class DiskStoreTest extends AbstractCacheTest {
             byte[] data = new byte[1024];
             diskStore.put(new Element("key" + (i + 100), data));
             waitForFlush(diskStore);
-            assertEquals("On the " + i + " iteration: ", 1259 * (i + 1), diskStore.getDataFileSize());
+            assertEquals("On the " + i + " iteration: ", ELEMENT_ON_DISK_SIZE * (i + 1), diskStore.getDataFileSize());
         }
         assertEquals(100, diskStore.getSize());
         diskStore.dispose();
@@ -273,7 +275,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         for (int i = 0; i < 100; i++) {
             diskStore.put(new Element("key" + (i + 100), data));
             waitForFlush(diskStore);
-            int predictedSize = 1259 * (i + 1);
+            int predictedSize = ELEMENT_ON_DISK_SIZE * (i + 1);
             long actualSize = diskStore.getDataFileSize();
             assertEquals("On the " + i + " iteration: ", predictedSize, actualSize);
         }
@@ -284,7 +286,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         diskStore = createPersistentDiskStore(cacheName);
         File dataFile = new File(diskStore.getDataFilePath() + File.separator + diskStore.getDataFileName());
         assertTrue("File exists", dataFile.exists());
-        assertEquals(100 * 1259, dataFile.length());
+        assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
         assertEquals(100, diskStore.getSize());
 
         diskStore.remove("key100");
@@ -297,7 +299,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         diskStore.put(new Element("key101", data));
         waitForFlush(diskStore);
         //The file does not shrink.
-        assertEquals(100 * 1259, dataFile.length());
+        assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
         assertEquals(97, diskStore.getSize());
 
         diskStore.put(new Element("key102", data));
@@ -306,11 +308,11 @@ public class DiskStoreTest extends AbstractCacheTest {
         diskStore.put(new Element("key201", data));
         diskStore.put(new Element("key202", data));
         waitForFlush(diskStore);
-        assertEquals(102 * 1259, dataFile.length());
+        assertEquals(102 * ELEMENT_ON_DISK_SIZE, dataFile.length());
         assertEquals(102, diskStore.getSize());
         diskStore.dispose();
         assertTrue("File exists", dataFile.exists());
-        assertEquals(102 * 1259, dataFile.length());
+        assertEquals(102 * ELEMENT_ON_DISK_SIZE, dataFile.length());
     }
 
     /**

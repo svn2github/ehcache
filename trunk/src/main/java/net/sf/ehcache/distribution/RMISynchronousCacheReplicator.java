@@ -24,6 +24,9 @@ import net.sf.ehcache.Status;
 import java.io.Serializable;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Listens to {@link net.sf.ehcache.CacheManager} and {@link net.sf.ehcache.Cache} events and propagates those to
  * {@link CachePeer} peers of the Cache.
@@ -32,6 +35,9 @@ import java.util.List;
  * @version $Id: RMISynchronousCacheReplicator.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
  */
 public class RMISynchronousCacheReplicator implements CacheReplicator {
+
+    private static final Log LOG = LogFactory.getLog(RMISynchronousCacheReplicator.class.getName());
+
 
     /**
      * The status of the replicator. Only replicates when <code>STATUS_ALIVE</code>
@@ -98,9 +104,20 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
         if (notAlive()) {
             return;
         }
-        if (replicatePuts) {
-            replicatePutNotification(cache, element);
+
+        if (!replicatePuts) {
+            return;
         }
+
+        if (!element.isSerializable()) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Object with key " + element.getKey() + " is not Serializable and cannot be replicated");
+            }
+            return;
+        }
+
+
+        replicatePutNotification(cache, element);
     }
 
     /**
@@ -139,12 +156,28 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
         if (notAlive()) {
             return;
         }
-        if (replicateUpdates) {
-            if (replicateUpdatesViaCopy) {
-                replicatePutNotification(cache, element);
-            } else {
-                replicateRemovalNotification(cache, element.getKey());
+        if (!replicateUpdates) {
+            return;
+        }
+
+        if (replicateUpdatesViaCopy) {
+            if (!element.isSerializable()) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Object with key " + element.getKey() + " is not Serializable and cannot be updated via copy");
+                }
+                return;
             }
+
+            replicatePutNotification(cache, element);
+        } else {
+            if (!element.isKeySerializable()) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Key " + element.getKey() + " is not Serializable and cannot be replicated.");
+                }
+                return;
+            }
+
+            replicateRemovalNotification(cache, (Serializable) element.getKey());
         }
     }
 
@@ -164,9 +197,19 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
         if (notAlive()) {
             return;
         }
-        if (replicateRemovals) {
-            replicateRemovalNotification(cache, element.getKey());
+
+        if (!replicateRemovals) {
+            return;
         }
+
+        if (!element.isKeySerializable()) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Key " + element.getKey() + " is not Serializable and cannot be replicated.");
+            }
+            return;
+        }
+
+        replicateRemovalNotification(cache, (Serializable) element.getKey());
     }
 
     /**
