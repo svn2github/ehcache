@@ -32,6 +32,14 @@ import java.util.Date;
 public class CacheTest extends AbstractCacheTest {
     private static final Log LOG = LogFactory.getLog(CacheTest.class.getName());
 
+
+    /**
+     * teardown
+     */
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    }
+
     /**
      * Checks we cannot use a cache after shutdown
      */
@@ -888,6 +896,50 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(100, cache.getDiskStoreSize());
 
     }
+
+
+
+    /**
+     * When flushing large MemoryStores, OutOfMemory issues can happen if we are
+     * not careful to move each to Element to the DiskStore, rather than copy them all
+     * and then delete them from the MemoryStore.
+     * <p/>
+     * This test manipulates a MemoryStore right on the edge of what can fit into the 64MB standard VM size.
+     * An inefficient spool will cause an OutOfMemoryException.
+     *
+     * @throws Exception
+     */
+    public void testMemoryEfficiencyOfFlushWhenOverflowToDisk() throws Exception {
+        Cache cache = new Cache("testGetMemoryStoreSize", 50000, true, false, 100, 200);
+        manager.addCache(cache);
+
+        assertEquals(0, cache.getMemoryStoreSize());
+
+        putElementsInCache(cache);
+        assertEquals(50000, cache.getMemoryStoreSize());
+        assertEquals(50000, cache.getDiskStoreSize());
+
+        long beforeMemory = measureMemoryUse();
+        cache.flush();
+
+        //It takes a while to write all the Elements to disk
+        Thread.sleep(15000);
+
+        long afterMemory = measureMemoryUse();
+        long memoryIncrease = afterMemory - beforeMemory;
+        assertTrue(memoryIncrease < 40000000);
+
+        assertEquals(0, cache.getMemoryStoreSize());
+        assertEquals(100000, cache.getDiskStoreSize());
+
+    }
+
+    private void putElementsInCache(Cache cache) {
+        for (int i = 0; i < 100000; i++) {
+            cache.put(new Element("" + i, new byte[480]));
+        }
+    }
+
 
     /**
      * Tests using elements with null values. They should work as normal.

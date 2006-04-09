@@ -73,7 +73,7 @@ public class DiskStore implements Store {
     private final Map spool = Collections.synchronizedMap(new HashMap());
 
 
-    private Thread spoolThread = new SpoolThread();
+    private Thread spoolThread;
     private Thread expiryThread;
 
     private final Cache cache;
@@ -121,7 +121,8 @@ public class DiskStore implements Store {
 
             active = true;
 
-            // Start up the spool thread
+            // Always start up the spool thread
+            spoolThread = new SpoolThread();
             spoolThread.start();
 
             // Start up the expiry thread if not eternal

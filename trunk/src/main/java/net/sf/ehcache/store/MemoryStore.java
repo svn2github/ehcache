@@ -25,7 +25,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -217,7 +216,7 @@ public abstract class MemoryStore implements Store {
         if (!listeners.getCacheEventListeners().isEmpty()) {
             Object[] keys = getKeyArray();
             for (int i = 0; i < keys.length; i++) {
-                Object key = (Object) keys[i];
+                Object key = keys[i];
                 Element element = remove(key);
                 if (cache.isExpired(element)) {
                     listeners.notifyElementExpiry(element, false);
@@ -251,6 +250,7 @@ public abstract class MemoryStore implements Store {
                 LOG.debug(cache.getName() + " is persistent. Spooling " + map.size() + " elements to the disk store.");
             }
             spoolAllToDisk();
+            //should be empty in any case
             clear();
         }
     }
@@ -259,19 +259,25 @@ public abstract class MemoryStore implements Store {
      * Spools all elements to disk, in preparation for shutdown
      * <p/>
      * Relies on being called from a synchronized method
+     * <p/>
+     * This revised implementation is a little slower but avoids using increased memory during the method.
      */
     protected void spoolAllToDisk() {
-        Collection values = map.values();
-        for (Iterator iterator = values.iterator(); iterator.hasNext();) {
-            Element element = (Element) iterator.next();
+        Object[] keys = getKeyArray();
+        for (int i = 0; i < keys.length; i++) {
+            Element element = (Element) map.get(keys[i]);
+
             if (!element.isSerializable()) {
                 if (LOG.isWarnEnabled()) {
                     LOG.warn("Object with key " + element.getKey() + " is not Serializable and cannot be overflowed to disk");
                 }
             } else {
                 spoolToDisk(element);
+                //Don't notify listeners. They are not being removed from the cache, only a store
+                remove(keys[i]);
             }
         }
+
     }
 
     /**

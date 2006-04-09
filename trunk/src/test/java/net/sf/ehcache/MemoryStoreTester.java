@@ -533,18 +533,6 @@ public class MemoryStoreTester extends AbstractCacheTest {
         LOG.info("Total time for the test: " + (end + start) + " ms");
     }
 
-    /**
-     * Measure memory used by the VM.
-     *
-     * @return
-     * @throws InterruptedException
-     */
-    protected long measureMemoryUse() throws InterruptedException {
-        System.gc();
-        Thread.sleep(3000);
-        System.gc();
-        return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-    }
 
     /**
      * Runs a set of threads, for a fixed amount of time.

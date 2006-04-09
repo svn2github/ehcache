@@ -21,6 +21,11 @@
                 Add protections to the DiskStore spoolThread against programming errors in Elements that can cause it to die.
                 Secondly, if it does die, disable adding elements to the DiskStore and log an error, so as to gracefully degrade.
             </action>
+            <action dev="Greg Luck" issue="1369073" type="fix">
+                flush() was using up to double the memory used by a MemoryStore during flush() which could cause an
+                OutOfMemory error on shutdown if memory was constrained. flush no longer causes any memory spike.
+                Thanks to Sergey Nekoval for reporting the bug.
+            </action>
         </release>
 
 
