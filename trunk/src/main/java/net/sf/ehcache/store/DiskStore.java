@@ -333,8 +333,16 @@ public class DiskStore implements Store {
             checkActive();
 
             // Spool the entry
-            synchronized (spool) {
-                spool.put(entry.getKey(), entry);
+            if (spoolThread.isAlive()) {
+                synchronized (spool) {
+                    spool.put(entry.getKey(), entry);
+                }
+            } else {
+                LOG.error(name + "Cache: Elements cannot be written to disk store because the" +
+                        " spool thread has died.");
+                synchronized (spool) {
+                    spool.clear();
+                }
             }
 
         } catch (Exception e) {
@@ -551,12 +559,24 @@ public class DiskStore implements Store {
                 freeBlock(oldBlock);
             }
 
-            // Serialise the entry
-            final ByteArrayOutputStream outstr = new ByteArrayOutputStream();
-            final ObjectOutputStream objstr = new ObjectOutputStream(outstr);
-            objstr.writeObject(element);
-            objstr.close();
-            final byte[] buffer = outstr.toByteArray();
+            final byte[] buffer;
+            try {
+
+                // Serialise the entry
+                final ByteArrayOutputStream outstr = new ByteArrayOutputStream();
+                final ObjectOutputStream objstr = new ObjectOutputStream(outstr);
+                objstr.writeObject(element);
+                objstr.close();
+                buffer = outstr.toByteArray();
+
+            } catch (Exception e) {
+                // Catch any exception that occurs during serialization
+                LOG.error(name + "Cache: Failed to write element to disk '" + element.getKey()
+                        + "'. Error was " + e.getMessage());
+
+                // Don't write this element to disk but move on to the next
+                continue;
+            }
 
             // Check for a free block
             DiskElement diskElement = findFreeBlock(buffer.length);

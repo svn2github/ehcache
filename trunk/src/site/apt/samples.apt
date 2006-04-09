@@ -173,8 +173,8 @@ Cache cache = manager.getCache("sampleCache1");
 
 +-------------------------------+
 Cache cache = manager.getCache("sampleCache1");
-Element element = new Element("key1", "value1"
-cache.put(new Element(element);
+Element element = new Element("key1", "value1");
+cache.put(element);
 +-------------------------------+
 
 

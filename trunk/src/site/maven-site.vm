@@ -148,6 +148,7 @@
       #banner( $banner )
       #set ( $banner = "bannerRight" )
       #banner( $banner )
+      <div id="search"><FORM method=GET action=http://www.google.com/custom><INPUT TYPE=text name=q size=15 maxlength=255 value=""> <INPUT type=submit name=sa VALUE="Search"><INPUT type=hidden name=cof VALUE="GALT:#3C3E29;S:http://gregluck.com;VLC:#9C8E69;AH:left;BGC:white;LH:31;LC:#9C8E69;GFNT:#3C3E29;L:http://ehcache.sourceforge.net/images/ehcache_logo.gif;ALC:#9C8E69;LW:211;T:#4C4E39;GIMP:#3C3E29;AWFID:12c1e42dc993d5c6;"><input type=hidden name=domains value="ehcache.sourceforge.net"><input type=hidden name=sitesearch value="ehcache.sourceforge.net"></FORM></div>
       <div class="clear">
         <hr/>
       </div>
@@ -160,7 +161,8 @@
       </div>
     </div>
     <div id="leftColumn">
-        <div id="navcolumn">#mainMenu()
+      <div id="navcolumn">
+        #mainMenu()
         </div>
     </div>
     <div id="bodyColumn">

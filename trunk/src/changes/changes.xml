@@ -15,6 +15,12 @@
                 MemoryStore and event listeners can be used with Non Serializable elements. WARNING error messages are
                 logged when an operation cannot be completed because the key or value is not Serializable.
             </action>
+
+            <!-- Bug fixes -->
+            <action dev="Greg Luck" issue="1432458" type="fix">
+                Add protections to the DiskStore spoolThread against programming errors in Elements that can cause it to die.
+                Secondly, if it does die, disable adding elements to the DiskStore and log an error, so as to gracefully degrade.
+            </action>
         </release>
 
 

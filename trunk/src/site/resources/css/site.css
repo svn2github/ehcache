@@ -68,10 +68,10 @@ h2 {
 }
 
 h3 {
-	color: #4C4E39;
-	font-size: 1.1em;
-	font-family: arial, helvetica, sans-serif;
-	margin: 0.4em 0em 0em 0em;
+    color: #4C4E39;
+    font-size: 1.1em;
+    font-family: arial, helvetica, sans-serif;
+    margin: 0.4em 0em 0em 0em;
 }
 
 h4 {
@@ -83,11 +83,11 @@ h4 {
 }
 
 h5, .toc1, #navcolumn h5 {
-	color: #4C4E39;
-	font-size: 1.2em;
-	font-family: arial, helvetica, sans-serif;
-	margin: 0.4em 0em 0.4em 0em;
-	font-style: italic;
+    color: #4C4E39;
+    font-size: 1.2em;
+    font-family: arial, helvetica, sans-serif;
+    margin: 0.4em 0em 0.4em 0em;
+    font-style: italic;
 }
 
 h6 {
@@ -162,7 +162,6 @@ a:link {
     color: #9C8E59;
 }
 
-
 a:visited {
     color: #9C8E59;
 }
@@ -201,63 +200,89 @@ hr {
 }
 
 #footer {
-  border-top: 1px solid #aaa;
-  border-bottom: 1px solid #aaa;
-  background-color: #ccc;
+    border-top: 1px solid #aaa;
+    border-bottom: 1px solid #aaa;
+    background-color: #ccc;
 }
 
 /* Maven overrides */
 #banner {
-  padding: 6px 0px 6px 0px;
+    padding: 6px 0px 6px 0px;
 }
 
 #leftColumn {
- width: 160px;
- float:left;
+    width: 160px;
+    float: left;
 }
 
 #navcolumn {
-  padding: 4px 4px 20px 4px;
+    padding: 4px 4px 20px 4px;
 }
 
 #navcolumn li {
-  list-style-type: none;
-  background-image: none;
-  background-repeat: no-repeat;
-  background-position: 0 0.4em;
-  padding-left: 6px;
-  padding-bottom: 2px;  
-  list-style-position: outside;
-  line-height: 1.2em;
-  font-size: smaller;
+    list-style-type: none;
+    background-image: none;
+    background-repeat: no-repeat;
+    background-position: 0 0.4em;
+    padding-left: 6px;
+    padding-bottom: 2px;
+    list-style-position: outside;
+    line-height: 1.2em;
+    font-size: smaller;
 }
 
 h2 {
-  padding: 4px 4px 4px 6px;
-  border: 1px solid #999;
-  background-color: #ddd;
-  font-weight:900;
-  font-size: x-large;
+    padding: 4px 4px 4px 6px;
+    border: 1px solid #999;
+    background-color: #ddd;
+    font-weight: 900;
+    font-size: x-large;
 }
+
 h3 {
-  padding: 4px 4px 4px 6px;
-  border: 1px solid #aaa;
-  background-color: #eee;
-  font-weight: normal;
-  font-size: large;
+    padding: 4px 4px 4px 6px;
+    border: 1px solid #aaa;
+    background-color: #eee;
+    font-weight: normal;
+    font-size: large;
 }
+
 h4 {
-  padding: 4px 4px 4px 6px;
-  border: 1px solid #bbb;
-  background-color: #fafafa;
-  font-weight: normal;
-  font-size: medium;
+    padding: 4px 4px 4px 6px;
+    border: 1px solid #bbb;
+    background-color: #fafafa;
+    font-weight: normal;
+    font-size: medium;
 }
+
 h5 {
-  padding: 4px 4px 4px 6px;
-  font-size: large;
+    padding: 4px 4px 4px 6px;
+    font-size: large;
 }
+
 p {
-  line-height: 1.3em;
-  font-size: small;
+    line-height: 1.3em;
+    font-size: small;
 }
+
+input {
+    font-family: verdana, arial, sans-serif;
+    color: #3C3E29;
+    font-size: 10px;
+    font-weight: normal;
+    background: #eee;
+}
+
+.submit input {
+    color: #3C3E29;
+    background: #ddd;
+
+
+
+}
+
+#search {
+    padding: 8px 5px 2px 5px;
+    text-align: right;
+}
+
