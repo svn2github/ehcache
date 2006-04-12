@@ -120,7 +120,7 @@ Features
 
    Many users of ehcache hardly know they are using it. Sensible defaults require no initial configuration.
 
-   The API is very simple and easy to use, making it possible to get up and running in minutes. See the {{Code Samples}} for details.
+   The API is very simple and easy to use, making it possible to get up and running in minutes. See the {{{samples.html}Code Samples}} for details.
 
 ** {Small foot print}
 

@@ -169,7 +169,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         for (int i = 0; i < 100; i++) {
             byte[] data = new byte[1024];
             diskStore.put(new Element("key" + (i + 100), data));
-            
+
             waitForFlush(diskStore);
             assertEquals("On the " + i + " iteration: ", ELEMENT_ON_DISK_SIZE * (i + 1), diskStore.getDataFileSize());
         }
@@ -716,11 +716,6 @@ public class DiskStoreTest extends AbstractCacheTest {
                             + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                             + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
         }
-        long elapsed = stopWatch.getElapsedTime();
-        LOG.info("Elapsed time: " + elapsed / 1000);
-        assertTrue("Took too long", elapsed <= 4000);
-        assertEquals(100000, cache.getSize());
-        assertEquals(99000, cache.getDiskStore().getSize());
     }
 
     /**
@@ -753,5 +748,91 @@ public class DiskStoreTest extends AbstractCacheTest {
         //Some entries may be in the Memory Store and Disk Store. cache.getSize removes dupes. a look at the
         //disk store size directly does not.
         assertTrue(99000 <= cache.getDiskStore().getSize());
+    }
+
+
+    /**
+     * Runs out of memory at 5,099,999 elements with the standard 64MB VM size.
+     * <p/>
+     * The reason that it is not infinite is because of a small amount of memory used (about 12 bytes) used for
+     * the disk store index in this case.
+     */
+    public void testMaximumCacheEntriesIn64MBWithOverflowToDisk() throws Exception {
+
+        Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);
+        manager.addCache(cache);
+        StopWatch stopWatch = new StopWatch();
+        int i = 0;
+        int j = 0;
+        Integer index = null;
+        try {
+            for (; i < 100; i++) {
+                for (j = 0; j < 100000; j++) {
+                    index = new Integer(((1000000 * i) + j));
+                    cache.put(new Element(index,
+                            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                    + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                    + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                    + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                    + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
+                }
+                //wait to write entries
+                int size = cache.getSize();
+                Thread.sleep(2000);
+            }
+            long elapsed = stopWatch.getElapsedTime();
+            LOG.info("Elapsed time: " + elapsed / 1000);
+            fail();
+        } catch (OutOfMemoryError e) {
+            LOG.info("Failed at " + index);
+            assertTrue(index.intValue() > 5000000);
+        }
+    }
+
+    /**
+     * Perf test used by Venkat Subramani
+     */
+    public void testLargePutGetPerformanceWithOverflowToDisk() throws Exception {
+
+        Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 10000, null);
+        manager.addCache(cache);
+        StopWatch stopWatch = new StopWatch();
+        int i = 0;
+        int j = 0;
+        Integer index = null;
+        for (; i < 5; i++) {
+            for (j = 0; j < 100000; j++) {
+                index = new Integer(((1000000 * i) + j));
+                cache.put(new Element(index,
+                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
+            }
+            //wait to write entries
+            Thread.sleep(2000);
+        }
+        long elapsed = stopWatch.getElapsedTime();
+        long putTime = ((elapsed / 1000) - 10);
+        LOG.info("Put Elapsed time: " + putTime);
+        assertTrue(putTime < 8);
+
+        //wait for Disk Store to finish spooling
+        Thread.sleep(2000);
+        Random random = new Random();
+        StopWatch getStopWatch = new StopWatch();
+        long getStart = stopWatch.getElapsedTime();
+
+        for (int k = 0; k < 1000000; k++) {
+            Integer key = new Integer(random.nextInt(500000));
+            cache.get(key);
+        }
+
+        long getElapsedTime = getStopWatch.getElapsedTime();
+        int time = (int) ((getElapsedTime - getStart) / 1000);
+        LOG.info("Get Elapsed time: " + time);
+
+        assertTrue(time < 200);
     }
 }

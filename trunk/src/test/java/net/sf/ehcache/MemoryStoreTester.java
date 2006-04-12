@@ -597,7 +597,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
      * <p/>
      * Takes too long to run therefore switch off
      */
-    public void xTestMemoryStoreOutOfMemoryLimit() throws Exception {
+    public void testMemoryStoreOutOfMemoryLimit() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("memoryLimitTest", 1000000, false, false, 500, 500);
         manager.addCache(cache);
@@ -613,9 +613,8 @@ public class MemoryStoreTester extends AbstractCacheTest {
                         + "AAAAA " + i));
             }
             fail();
-            assertEquals(1000000, cache.getSize());
         } catch (OutOfMemoryError e) {
-            assertTrue(i > 60000);
+            assertTrue(i > 100000);
             LOG.info("Ran out of memory putting " + i + "th element");
         }
     }
