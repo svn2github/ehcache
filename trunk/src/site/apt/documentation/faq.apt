@@ -169,4 +169,10 @@ CacheManagerTest#testCreateShutdownCreate()
    manager.addCache(myCache);
 +-------------------------------+
 
+* Is there a simple way to disable ehcache when testing?
+
+ Yes. There is a System Property based method of disabling ehcache. If disabled no elements will be added to a cache.
+ Set the property "net.sf.ehcache.disabled=true" to disable ehcache.
+
+ This can easily be done using ___-Dnet.sf.ehcache.disabled=true___> in the command line.
 

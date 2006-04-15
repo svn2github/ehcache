@@ -41,7 +41,7 @@ public class DiskStoreConfiguration {
      * Translates and sets the path.
      *
      * @param path If the path contains a Java System Property it is replaced by
-     *             its value in the running VM. The following properties are translated:
+     *             its value in the running VM. Subdirectories can be specified below the property e.g. java.io.tmpdir/one The following properties are translated:
      *             <ul>
      *             <li><code>user.home</code> - User's home directory
      *             <li><code>user.dir</code> - User's current working directory

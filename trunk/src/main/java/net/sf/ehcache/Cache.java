@@ -60,6 +60,22 @@ public class Cache implements Cloneable {
     public static final String DEFAULT_CACHE_NAME = "default";
 
     /**
+     * System Property based method of disabling ehcache. If disabled no elements will be added to a cache.
+     * <p/>
+     * Set the property "net.sf.ehcache.disabled=true" to disable ehcache.
+     * <p/>
+     * This can easily be done using <code>java -Dnet.sf.ehcache.disabled=true</code> in the command line.
+     */
+    public static final String NET_SF_EHCACHE_DISABLED = "net.sf.ehcache.disabled";
+
+    {
+        String value = System.getProperty(NET_SF_EHCACHE_DISABLED);
+        if (value != null) {
+            disabled = value.equalsIgnoreCase("true");
+        }
+    }
+
+    /**
      * The default interval between runs of the expiry thread
      */
     public static final long DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS = 120;
@@ -67,7 +83,11 @@ public class Cache implements Cloneable {
     private static final Log LOG = LogFactory.getLog(Cache.class.getName());
 
     private static final int MS_PER_SECOND = 1000;
+
     private static final MemoryStoreEvictionPolicy DEFAULT_MEMORY_STORE_EVICTION_POLICY = MemoryStoreEvictionPolicy.LRU;
+
+    private boolean disabled;
+
 
     private String name;
 
@@ -326,6 +346,15 @@ public class Cache implements Cloneable {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Initialised cache: " + name);
         }
+
+        if (disabled) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Cache: " + name + " is disabled because the " + NET_SF_EHCACHE_DISABLED
+                        + " property was set to true. No elements will be added to the cache.");
+            }
+        }
+
+
     }
 
     private void changeStatus(Status status) {
@@ -372,8 +401,14 @@ public class Cache implements Cloneable {
      */
     public synchronized void put(Element element) throws IllegalArgumentException, IllegalStateException,
             CacheException {
+
+        if (disabled) {
+            return;
+        }
+
         put(element, false);
     }
+
 
     /**
      * Put an element in the cache.
@@ -388,7 +423,7 @@ public class Cache implements Cloneable {
      * if it was requested
      * </ul>
      *
-     * @param element An object. If Serializable it can fully participate in replication and the DiskStore.
+     * @param element                     An object. If Serializable it can fully participate in replication and the DiskStore.
      * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
      *                                    further notification to doNotNotifyCacheReplicators cache peers
      * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
@@ -431,6 +466,11 @@ public class Cache implements Cloneable {
     public synchronized void putQuiet(Element element) throws IllegalArgumentException, IllegalStateException,
             CacheException {
         checkStatus();
+
+        if (disabled) {
+            return;
+        }
+
         if (element == null) {
             throw new IllegalArgumentException("Element cannot be null");
         }
@@ -674,7 +714,7 @@ public class Cache implements Cloneable {
                 element = null;
             } else {
                 diskStoreHitCount++;
-                //Put the item back into memory to preserve policies in the memory store
+                //Put the item back into memory to preserve policies in the memory store and to save updated statistics
                 memoryStore.put(element);
             }
         }
@@ -818,7 +858,7 @@ public class Cache implements Cloneable {
 
 
     /**
-     * Flushes all cache items from memory to the disk store.
+     * Flushes all cache items from memory to the disk store, and from the DiskStore to disk.
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */

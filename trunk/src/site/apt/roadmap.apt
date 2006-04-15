@@ -1,0 +1,25 @@
+ ------
+ Roadmap
+ ------
+ ------
+ Date
+ ------
+
+* Development Roadmap for 1.3
+
+** Potential New Features
+
+*** SoftReferenceMemoryStore
+
+A MemoryStore built using SoftReferences. This would enable potentially much large MemoryStores with no risk of
+OutOfMemory errors.
+
+
+*** Element based expiry
+
+Allow elements to have override TTL and TTI settings. This would have a zero processing cost and would require
+two four byte ints to be added to Element.
+
+
+
+

@@ -177,7 +177,7 @@ Cache Configuration
    If the path value is a Java System Property (e.g. "user.home") it is
    replaced by its runtime value in the Virtual Machine.
 
-   The following Java System Properties are understood:
+   The following Java System Properties for specifying paths are understood:
 
 
 +------------------------------------------+
@@ -187,6 +187,10 @@ Cache Configuration
    directory
    java.io.tmpdir - Default temporary directory
 +------------------------------------------+
+
+   Sub directories can be specified under system paths.
+
+   e.g. ___java.io.tmpdir/one___ will be translated on most Unix systems to ___/tmp/one___ 
 
 ** defaultCache
 

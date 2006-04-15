@@ -229,6 +229,27 @@ public class CacheManagerTest extends TestCase {
     }
 
     /**
+     * Checks we can disable ehcache using a system property
+     */
+    public void testDisableEhcache() throws CacheException, InterruptedException {
+        System.setProperty(Cache.NET_SF_EHCACHE_DISABLED, "true");
+        Thread.sleep(1000);
+        instanceManager = CacheManager.create();
+        Cache cache = instanceManager.getCache("sampleCache1");
+        assertNotNull(cache);
+        cache.put(new Element("key123", "value"));
+        Element element = cache.get("key123");
+        assertNull("When the disabled property is set all puts should be discarded", element);
+
+        cache.putQuiet(new Element("key1234", "value"));
+        assertNull("When the disabled property is set all puts should be discarded", cache.get("key1234"));
+
+        System.setProperty(Cache.NET_SF_EHCACHE_DISABLED, "false");
+
+
+    }
+
+    /**
      * Tests shutdown after shutdown.
      */
     public void testShutdownAfterShutdown() throws CacheException {

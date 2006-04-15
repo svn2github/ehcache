@@ -26,6 +26,13 @@
                 Hibernate project. Any project still using net.sf.ehcache.hibernate.Plugin should change their
                 Hibernate configurations to org.hibernate.cache.EHCacheProvider.
             </action>
+            <action dev="Greg Luck" type="add">
+                Feature Request 1081071. Added the ability to specify subdirectories under System Property paths. e.g. java.io.tmpdir/one
+            </action>
+            <action dev="Greg Luck" type="add">
+                Feature Request 1025706. Added the ability to specify a system property, net.sf.ehcache.disabled=true, to
+                easily disable ehcache. A disabled cache works fully but discards and Elements added to it.
+            </action>
 
             <!-- Bug fixes -->
             <action dev="Greg Luck" issue="1432458" type="fix">

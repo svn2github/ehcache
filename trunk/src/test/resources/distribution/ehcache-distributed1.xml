@@ -3,7 +3,7 @@
     <!--
         Sets the path to the directory where cache data and index files are created.
 
-        If the path is a Java System Property it is replaced by its value in the running VM.
+        If the path is a Java System Property it is replaced by its value in the running VM. Subdirectories can be specified below the property e.g. java.io.tmpdir/one
 
         The following properties are parsed and translated at runtime:
         user.home - User's home directory
