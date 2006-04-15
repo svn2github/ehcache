@@ -23,7 +23,7 @@ import java.util.Properties;
  * concrete factory extending this factory. It can then be configured in ehcache.xml
  *
  * @author Greg Luck
- * @version $Id: CacheManagerEventListenerFactory.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public abstract class CacheManagerEventListenerFactory {
 

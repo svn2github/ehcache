@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
  * A provider of Peer RMI addresses.
  *
  * @author Greg Luck
- * @version $Id: RMICacheManagerPeerProvider.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public class RMICacheManagerPeerProvider implements CacheManagerPeerProvider {
 

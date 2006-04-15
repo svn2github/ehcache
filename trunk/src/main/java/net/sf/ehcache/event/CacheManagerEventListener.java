@@ -27,7 +27,7 @@ package net.sf.ehcache.event;
  * Callbacks to these methods are synchronous and unsynchronized. It is the responsibility of the implementer
  * to safely handle the potential performance and thread safety issues depending on what their listener is doing.
  * @author Greg Luck
- * @version $Id: CacheManagerEventListener.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  * @since 1.2
  * @see CacheEventListener
  */

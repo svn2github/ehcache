@@ -31,7 +31,7 @@ import net.sf.ehcache.CacheManager;
  * Sends heartbeats to a multicast group containing a compressed list of URLs. Supports up to approximately
  * 500 configured caches.
  * @author Greg Luck
- * @version $Id: MulticastKeepaliveHeartbeatSender.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public class MulticastKeepaliveHeartbeatSender {
 

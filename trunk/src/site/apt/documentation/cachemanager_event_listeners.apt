@@ -74,7 +74,7 @@ properties=""/>
  * concrete factory extending this factory. It can then be configured in ehcache.xml
  *
  * @author Greg Luck
- * @version $Id: cachemanager_event_listeners.apt,v 1.1 2006/03/15 09:53:55 gregluck Exp $
+ * @version $Id$
  */
 public abstract class CacheManagerEventListenerFactory {
 
@@ -104,7 +104,7 @@ public abstract class CacheManagerEventListenerFactory {
  * Callbacks to these methods are synchronous and unsynchronized. It is the responsibility of the implementer
  * to safely handle the potential performance and thread safety issues depending on what their listener is doing.
  * @author Greg Luck
- * @version $Id: cachemanager_event_listeners.apt,v 1.1 2006/03/15 09:53:55 gregluck Exp $
+ * @version $Id$
  * @since 1.2
  * @see CacheEventListener
  */

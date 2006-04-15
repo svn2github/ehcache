@@ -22,7 +22,7 @@ package net.sf.ehcache;
  * Tests for CacheException
  *
  * @author Greg Luck, Claus Ibsen
- * @version $Id: CacheExceptionTest.java,v 1.1 2006/03/09 06:38:20 gregluck Exp $
+ * @version $Id$
  */
 public class CacheExceptionTest extends AbstractCacheTest {
 

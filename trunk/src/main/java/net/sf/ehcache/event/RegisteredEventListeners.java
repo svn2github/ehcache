@@ -31,7 +31,7 @@ import java.util.Set;
  * There is one of these per Cache
  *
  * @author Greg Luck
- * @version $Id: RegisteredEventListeners.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public class RegisteredEventListeners {
 

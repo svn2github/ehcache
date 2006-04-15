@@ -21,7 +21,7 @@ package net.sf.ehcache;
  * Thrown when a duplicate cache is attemtpted to be created
  *
  * @author Greg Luck, Claus Ibsen
- * @version $Id: ObjectExistsException.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public class ObjectExistsException extends CacheException {
 

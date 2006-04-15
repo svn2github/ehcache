@@ -30,7 +30,7 @@ import java.io.IOException;
  * Note these tests need a live network interface running in multicast mode to work
  *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
- * @version $Id: PayloadUtilTest.java,v 1.2 2006/03/09 23:36:47 gregluck Exp $
+ * @version $Id$
  *
  */
 public class PayloadUtilTest extends TestCase {

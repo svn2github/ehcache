@@ -24,7 +24,7 @@ import net.sf.ehcache.CacheException;
  * Keeps all classloading in ehcache consistent.
  *
  * @author Greg Luck
- * @version $Id: ClassLoaderUtil.java,v 1.1 2006/03/09 06:38:20 gregluck Exp $
+ * @version $Id$
  */
 public final class ClassLoaderUtil {
 

@@ -27,7 +27,7 @@ import java.util.Date;
  * Tests for a Cache
  *
  * @author Greg Luck, Claus Ibsen
- * @version $Id: CacheTest.java,v 1.2 2006/03/14 08:32:43 gregluck Exp $
+ * @version $Id$
  */
 public class CacheTest extends AbstractCacheTest {
     private static final Log LOG = LogFactory.getLog(CacheTest.class.getName());

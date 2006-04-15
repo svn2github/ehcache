@@ -34,7 +34,7 @@ import java.rmi.server.RMISocketFactory;
  * <p/>
  * This class features a customised RMIClientSocketFactory which enables socket timeouts to be configured.
  * @author Greg Luck
- * @version $Id: RMICachePeer.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remote {
 

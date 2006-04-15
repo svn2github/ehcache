@@ -31,7 +31,7 @@ import java.util.Random;
  * Other than policy differences, the Store implementations should work identically
  *
  * @author Greg Luck
- * @version $Id: MemoryStoreTester.java,v 1.1 2006/03/09 06:38:20 gregluck Exp $
+ * @version $Id$
  */
 public class MemoryStoreTester extends AbstractCacheTest {
 

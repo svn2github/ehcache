@@ -27,7 +27,7 @@ import java.io.IOException;
  * is a logical concept.
  *
  * @author Greg Luck
- * @version $Id: Store.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public interface Store {
 

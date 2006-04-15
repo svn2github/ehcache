@@ -49,7 +49,7 @@ import java.util.Set;
  * </ol>
  *
  * @author Greg Luck
- * @version $Id: CacheManager.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public final class CacheManager {
 

@@ -57,7 +57,7 @@ import java.util.Set;
  * <p/>
  *
  * @author Greg Luck
- * @version $Id: RMICacheManagerPeerListener.java,v 1.2 2006/03/12 02:03:24 gregluck Exp $
+ * @version $Id$
  */
 public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
 

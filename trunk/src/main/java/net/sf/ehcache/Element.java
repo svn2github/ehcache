@@ -31,7 +31,7 @@ import java.io.Serializable;
  * A Cache Element, consisting of a key, value and attributes.
  *
  * @author Greg Luck
- * @version $Id: Element.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public class Element implements Serializable, Cloneable {
     /**

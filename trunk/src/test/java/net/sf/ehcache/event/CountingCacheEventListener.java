@@ -30,7 +30,7 @@ import java.util.List;
  * The methods also check that we hold the Cache lock.
  *
  * @author Greg Luck
- * @version $Id: CountingCacheEventListener.java,v 1.1 2006/03/09 06:38:20 gregluck Exp $
+ * @version $Id$
  */
 public class CountingCacheEventListener implements CacheEventListener {
 

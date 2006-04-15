@@ -28,7 +28,7 @@ import java.io.IOException;
  * Tests programmatically constructed Configuration instances
  *
  * @author Greg Luck
- * @version $Id: ConfigurationHelperTest.java,v 1.1 2006/03/09 06:38:20 gregluck Exp $
+ * @version $Id$
  */
 public class ConfigurationHelperTest extends AbstractCacheTest {
 

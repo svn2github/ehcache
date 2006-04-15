@@ -26,7 +26,7 @@ import java.util.Properties;
  * <p/>
  * This enables listener plugins.
  * @author Greg Luck
- * @version $Id: CacheManagerPeerListenerFactory.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public abstract class CacheManagerPeerListenerFactory {
 

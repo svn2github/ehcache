@@ -44,7 +44,7 @@ import org.apache.commons.logging.LogFactory;
  * Thus, they must include an Internet Group Management Protocol (IGMP) implementation in their TCP/IP stack.
  * </ol>
  * @author Greg Luck
- * @version $Id: MulticastRMICacheManagerPeerProvider.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public class MulticastRMICacheManagerPeerProvider extends RMICacheManagerPeerProvider implements CacheManagerPeerProvider {
 

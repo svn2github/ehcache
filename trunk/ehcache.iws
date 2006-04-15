@@ -461,7 +461,7 @@
       <file leaf-file-name="DiskStore.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="57" column="16" selection-start="1879" selection-end="1879" vertical-scroll-proportion="0.36158192">
+            <state line="56" column="16" selection-start="1835" selection-end="1835" vertical-scroll-proportion="0.33898306">
               <folding />
             </state>
           </provider>
@@ -481,7 +481,7 @@
       <file leaf-file-name="DiskStoreTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="824" column="57" selection-start="29392" selection-end="29392" vertical-scroll-proportion="0.5141243">
+            <state line="824" column="57" selection-start="29392" selection-end="29392" vertical-scroll-proportion="1.0037665">
               <folding />
             </state>
           </provider>
@@ -490,7 +490,7 @@
       <file leaf-file-name="checkstyle.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/config/checkstyle.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="238" column="8" selection-start="9167" selection-end="9167" vertical-scroll-proportion="0.7344633">
+            <state line="238" column="8" selection-start="9167" selection-end="9167" vertical-scroll-proportion="1.252354">
               <folding />
             </state>
           </provider>
@@ -499,7 +499,7 @@
       <file leaf-file-name="CacheException.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheException.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="24" column="25" selection-start="942" selection-end="942" vertical-scroll-proportion="0.021978023">
+            <state line="24" column="25" selection-start="942" selection-end="942" vertical-scroll-proportion="0.21978022">
               <folding />
             </state>
           </provider>
@@ -508,7 +508,7 @@
       <file leaf-file-name="RuntimeException.java" pinned="false" current="false" current-in-tab="false">
         <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/RuntimeException.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="23" column="44" selection-start="696" selection-end="696" vertical-scroll-proportion="0.021978023">
+            <state line="23" column="44" selection-start="696" selection-end="696" vertical-scroll-proportion="0.1904762">
               <folding />
             </state>
           </provider>
@@ -517,7 +517,7 @@
       <file leaf-file-name="Exception.java" pinned="false" current="false" current-in-tab="false">
         <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/Exception.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="35" selection-start="517" selection-end="517" vertical-scroll-proportion="0.021978023">
+            <state line="19" column="35" selection-start="517" selection-end="517" vertical-scroll-proportion="0.102564104">
               <folding />
             </state>
           </provider>
@@ -744,6 +744,24 @@
       </PATH_ELEMENT>
       <PATH_ELEMENT>
         <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+    </PATH>
+    <PATH>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="ehcache.ipr" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="ehcache" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/tools" />
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
       </PATH_ELEMENT>
     </PATH>
@@ -1617,13 +1635,13 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="22" width="1600" height="998" extended-state="0" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="13" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.32850778" order="7" />
       <window_info id="Checkstyle" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
       <window_info id="ConsoleMavenPlugin" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.38788658" order="0" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.38788658" order="0" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32739422" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25322166" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32516703" order="10" />
@@ -1657,10 +1675,10 @@
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="PUT_FOCUS_INTO_COMMENT" value="false" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Release ehcache under an Apache 2.0 license." />
+    <option name="LAST_COMMIT_MESSAGE" value="Try turning on Id" />
     <option name="SAVE_LAST_COMMIT_MESSAGE" value="true" />
     <option name="CHECKIN_DIALOG_SPLITTER_PROPORTION" value="0.8" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
@@ -1681,6 +1699,7 @@
     <MESSAGE value="Added cenque tasks to tools" />
     <MESSAGE value="Update site to reflect change to subversion." />
     <MESSAGE value="Release ehcache under an Apache 2.0 license." />
+    <MESSAGE value="Try turning on Id" />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -1797,35 +1816,35 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="824" column="57" selection-start="29392" selection-end="29392" vertical-scroll-proportion="0.5141243">
+        <state line="824" column="57" selection-start="29392" selection-end="29392" vertical-scroll-proportion="1.0037665">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/config/checkstyle.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="238" column="8" selection-start="9167" selection-end="9167" vertical-scroll-proportion="0.7344633">
+        <state line="238" column="8" selection-start="9167" selection-end="9167" vertical-scroll-proportion="1.252354">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheException.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="24" column="25" selection-start="942" selection-end="942" vertical-scroll-proportion="0.021978023">
+        <state line="24" column="25" selection-start="942" selection-end="942" vertical-scroll-proportion="0.21978022">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/RuntimeException.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="23" column="44" selection-start="696" selection-end="696" vertical-scroll-proportion="0.021978023">
+        <state line="23" column="44" selection-start="696" selection-end="696" vertical-scroll-proportion="0.1904762">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/Exception.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="35" selection-start="517" selection-end="517" vertical-scroll-proportion="0.021978023">
+        <state line="19" column="35" selection-start="517" selection-end="517" vertical-scroll-proportion="0.102564104">
           <folding />
         </state>
       </provider>
@@ -1853,7 +1872,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="57" column="16" selection-start="1879" selection-end="1879" vertical-scroll-proportion="0.36158192">
+        <state line="56" column="16" selection-start="1835" selection-end="1835" vertical-scroll-proportion="0.33898306">
           <folding />
         </state>
       </provider>

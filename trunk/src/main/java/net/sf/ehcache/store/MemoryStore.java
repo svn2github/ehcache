@@ -33,7 +33,7 @@ import java.util.Map;
  * policies (e.g: FIFO, LFU, LRU, etc.) should extend this class.
  *
  * @author <a href="mailto:ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
- * @version $Id: MemoryStore.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public abstract class MemoryStore implements Store {
 

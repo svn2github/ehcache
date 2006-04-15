@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
  * Test cases for status.
  *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
- * @version $Id: StatusTest.java,v 1.1 2006/03/09 06:38:20 gregluck Exp $
+ * @version $Id$
  */
 public class StatusTest extends TestCase {
     private static final Log LOG = LogFactory.getLog(StatusTest.class.getName());

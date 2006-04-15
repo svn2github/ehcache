@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Provides a discovery service to locate {@link CachePeer} RMI listener peers for a Cache.
  * @author Greg Luck
- * @version $Id: CacheManagerPeerProvider.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public interface CacheManagerPeerProvider {
 

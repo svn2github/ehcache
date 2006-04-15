@@ -35,7 +35,7 @@ import java.util.Date;
  * Note these tests need a live network interface running in multicast mode to work
  *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
- * @version $Id: RMICacheManagerPeerTest.java,v 1.1 2006/03/09 06:38:20 gregluck Exp $
+ * @version $Id$
  */
 public class RMICacheManagerPeerTest extends TestCase {
 

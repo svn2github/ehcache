@@ -49,7 +49,7 @@ import java.util.Set;
  * Statistics on cache usage are collected and made available through public methods.
  *
  * @author Greg Luck
- * @version $Id: Cache.java,v 1.3 2006/03/25 04:40:39 gregluck Exp $
+ * @version $Id$
  */
 public class Cache implements Cloneable {
 

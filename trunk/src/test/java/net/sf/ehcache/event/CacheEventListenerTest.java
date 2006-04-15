@@ -32,7 +32,7 @@ import java.util.List;
  * Tests the cache listener functionality
  *
  * @author Greg Luck
- * @version $Id: CacheEventListenerTest.java,v 1.2 2006/03/25 04:06:11 gregluck Exp $
+ * @version $Id$
  */
 public class CacheEventListenerTest extends TestCase {
 

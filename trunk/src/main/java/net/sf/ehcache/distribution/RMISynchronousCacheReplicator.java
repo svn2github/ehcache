@@ -32,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
  * {@link CachePeer} peers of the Cache.
  *
  * @author Greg Luck
- * @version $Id: RMISynchronousCacheReplicator.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public class RMISynchronousCacheReplicator implements CacheReplicator {
 

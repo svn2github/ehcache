@@ -32,7 +32,7 @@ import java.util.Map;
  * feature. LRU for this implementation means least recently accessed.
  *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
- * @version $Id: LruMemoryStore.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public class LruMemoryStore extends MemoryStore {
     private static final Log LOG = LogFactory.getLog(LruMemoryStore.class.getName());

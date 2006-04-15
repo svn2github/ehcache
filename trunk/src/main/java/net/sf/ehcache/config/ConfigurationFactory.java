@@ -34,7 +34,7 @@ import java.net.URL;
  * A utility class which configures beans from XML, using reflection.
  *
  * @author Greg Luck
- * @version $Id: ConfigurationFactory.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public final class ConfigurationFactory {
     private static final Log LOG = LogFactory.getLog(ConfigurationFactory.class.getName());

@@ -19,7 +19,7 @@ package net.sf.ehcache.config;
 /**
  * A class to represent the CacheManagerEventListener configuration
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
- * @version $Id: FactoryConfiguration.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public class FactoryConfiguration {
     /**

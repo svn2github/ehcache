@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
  * A class to represent DiskStore configuration
  * e.g. <diskStore path="java.io.tmpdir" />
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
- * @version $Id: DiskStoreConfiguration.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public class DiskStoreConfiguration {
     private static final Log LOG = LogFactory.getLog(DiskStoreConfiguration.class.getName());

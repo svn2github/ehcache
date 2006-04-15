@@ -35,7 +35,7 @@ import java.util.Random;
  *
  * @author <a href="mailto:amurdoch@thoughtworks.com">Adam Murdoch</a>
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
- * @version $Id: DiskStoreTest.java,v 1.1 2006/03/09 06:38:20 gregluck Exp $
+ * @version $Id$
  *          <p/>
  *          total time 149 old i/o
  *          total time 133, 131, 130 nio

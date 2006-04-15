@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * A bean, used by BeanUtils, to set configuration from an XML configuration file
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
- * @version $Id: Configuration.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public class Configuration {
 

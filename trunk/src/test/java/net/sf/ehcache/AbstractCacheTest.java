@@ -25,7 +25,7 @@ import java.io.File;
  * Common fields and methods required by most test cases
  *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
- * @version $Id: AbstractCacheTest.java,v 1.3 2006/03/12 02:03:55 gregluck Exp $
+ * @version $Id$
  */
 public abstract class AbstractCacheTest extends TestCase {
 

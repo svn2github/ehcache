@@ -21,7 +21,7 @@ import java.util.Properties;
 /**
  * A factory for NullCacheEventListener
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
- * @version $Id: NullCacheEventListenerFactory.java,v 1.1 2006/03/09 06:38:20 gregluck Exp $
+ * @version $Id$
  */
 public class NullCacheEventListenerFactory extends CacheEventListenerFactory {
     

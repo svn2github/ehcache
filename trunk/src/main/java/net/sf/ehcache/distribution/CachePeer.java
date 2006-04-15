@@ -46,7 +46,7 @@ import java.rmi.RemoteException;
  * todo update test for synchronous replicator. Async already tested.
  *
  * @author Greg Luck
- * @version $Id: CachePeer.java,v 1.3 2006/03/25 04:05:56 gregluck Exp $
+ * @version $Id$
  */
 public interface CachePeer extends Remote {
 

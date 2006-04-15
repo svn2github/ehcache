@@ -38,7 +38,7 @@ import net.sf.ehcache.CacheException;
  * Cache also has putQuiet and removeQuiet methods which do not notify listeners.
  *
  * @author Greg Luck
- * @version $Id: CacheEventListener.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  * @see CacheManagerEventListener
  * @since 1.2
  */

@@ -33,7 +33,7 @@ import java.util.Properties;
  * properties="hostName=localhost, port=5000" /&gt;
  * </code>
  * @author Greg Luck
- * @version $Id: RMICacheManagerPeerListenerFactory.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public class RMICacheManagerPeerListenerFactory extends CacheManagerPeerListenerFactory {
 

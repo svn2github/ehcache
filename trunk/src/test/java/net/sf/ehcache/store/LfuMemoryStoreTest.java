@@ -34,7 +34,7 @@ import java.util.Random;
  * Test class for LfuMemoryStore
  * <p/>
  * @author <a href="ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
- * @version $Id: LfuMemoryStoreTest.java,v 1.1 2006/03/09 06:38:20 gregluck Exp $
+ * @version $Id$
  */
 public class LfuMemoryStoreTest extends MemoryStoreTester {
 

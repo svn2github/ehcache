@@ -25,7 +25,7 @@ import java.io.Serializable;
  * Methods are provided to convert from the int status values to enum values and vice versa.
  *
  * @author Greg Luck
- * @version $Id: Status.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  * @since 1.2
  */
 public final class Status implements Serializable {

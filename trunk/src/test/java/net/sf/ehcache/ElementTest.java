@@ -31,7 +31,7 @@ import java.util.HashMap;
  * Test cases for the Element.
  *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
- * @version $Id: ElementTest.java,v 1.1 2006/03/09 06:38:20 gregluck Exp $
+ * @version $Id$
  */
 public class ElementTest extends AbstractCacheTest {
     private static final Log LOG = LogFactory.getLog(ElementTest.class.getName());

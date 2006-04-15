@@ -34,7 +34,7 @@ import java.util.List;
  * diskExpiryThreadIntervalSeconds="120"
  * />
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
- * @version $Id: CacheConfiguration.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public class CacheConfiguration {
 

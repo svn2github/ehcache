@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * A listener for updates, which controls remote cache peers
  * @author Greg Luck
- * @version $Id: CacheManagerPeerListener.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public interface CacheManagerPeerListener {
 

@@ -26,7 +26,7 @@ import net.sf.ehcache.config.CacheConfiguration;
  * Uses a counting listener to make sure all the notifications came through
  *
  * @author Greg Luck
- * @version $Id: CacheManagerEventListenerTest.java,v 1.1 2006/03/09 06:38:20 gregluck Exp $
+ * @version $Id$
  */
 public class CacheManagerEventListenerTest extends TestCase {
 

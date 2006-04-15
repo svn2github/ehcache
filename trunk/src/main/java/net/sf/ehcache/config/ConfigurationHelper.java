@@ -51,7 +51,7 @@ import org.apache.commons.logging.LogFactory;
  * </ul>
  *
  * @author Greg Luck
- * @version $Id: ConfigurationHelper.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public class ConfigurationHelper {
 

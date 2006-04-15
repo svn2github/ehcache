@@ -20,7 +20,7 @@ package net.sf.ehcache.distribution;
  * A utility class for distributed tests
  *
  * @author Greg Luck
- * @version $Id: DistributionUtil.java,v 1.1 2006/03/09 06:38:20 gregluck Exp $
+ * @version $Id$
  */
 public final class DistributionUtil {
     private static final float JDK_1_5 = 1.5f;

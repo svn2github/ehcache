@@ -35,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
  * Updates are guaranteed to be replicated in the order in which they are received.
  *
  * @author Greg Luck
- * @version $Id: RMIAsynchronousCacheReplicator.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicator {
 

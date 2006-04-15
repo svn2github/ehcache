@@ -31,7 +31,7 @@ import java.rmi.server.RMISocketFactory;
  * on newly created sockets.
  *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
- * @version $Id: ConfigurableRMIClientSocketFactory.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  * @see "http://java.sun.com/j2se/1.5.0/docs/guide/rmi/socketfactory/#1"
  */
 public final class ConfigurableRMIClientSocketFactory implements Serializable, RMIClientSocketFactory {

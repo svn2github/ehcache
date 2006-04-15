@@ -35,7 +35,7 @@ import net.sf.ehcache.store.DiskStore;
  * Tests for CacheManager
  *
  * @author Greg Luck
- * @version $Id: CacheManagerTest.java,v 1.3 2006/03/25 04:40:40 gregluck Exp $
+ * @version $Id$
  */
 public class CacheManagerTest extends TestCase {
     private static final Log LOG = LogFactory.getLog(CacheManagerTest.class.getName());

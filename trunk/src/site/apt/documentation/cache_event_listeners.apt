@@ -85,7 +85,7 @@ Cache Event Listeners
  * concrete factory extending this factory. It can then be configured in ehcache.xml
  *
  * @author Greg Luck
- * @version $Id: cache_event_listeners.apt,v 1.1 2006/03/15 09:53:55 gregluck Exp $
+ * @version $Id$
  */
 public abstract class CacheEventListenerFactory {
 
@@ -123,7 +123,7 @@ public abstract class CacheEventListenerFactory {
  * Cache also has putQuiet and removeQuiet methods which do not notify listeners.
  *
  * @author Greg Luck
- * @version $Id: cache_event_listeners.apt,v 1.1 2006/03/15 09:53:55 gregluck Exp $
+ * @version $Id$
  * @see CacheManagerEventListener
  * @since 1.2
  */

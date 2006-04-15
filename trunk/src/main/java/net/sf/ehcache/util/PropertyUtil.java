@@ -26,7 +26,7 @@ import java.io.IOException;
 /**
  * Property utilities
  * @author Greg Luck
- * @version $Id: PropertyUtil.java,v 1.1 2006/03/09 06:38:20 gregluck Exp $
+ * @version $Id$
  */
 public final class PropertyUtil {
 

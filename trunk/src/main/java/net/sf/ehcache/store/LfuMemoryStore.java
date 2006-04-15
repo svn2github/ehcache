@@ -47,7 +47,7 @@ import java.util.Random;
  * hit count distribution with a sample size of 30, which is the default.
  *
  * @author Greg Luck
- * @version $Id: LfuMemoryStore.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  *          Warning: Testing of this store reveals some problems with it. Do not use. It may be removed.
  */
 public class LfuMemoryStore extends MemoryStore {

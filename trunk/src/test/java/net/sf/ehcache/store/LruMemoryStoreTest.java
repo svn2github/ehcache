@@ -38,7 +38,7 @@ import net.sf.ehcache.MemoryStoreTester;
  * INFO: Time for benhmarkPutGet: 165
  *
  * @author Greg Luck
- * @version $Id: LruMemoryStoreTest.java,v 1.1 2006/03/09 06:38:20 gregluck Exp $
+ * @version $Id$
  */
 public class LruMemoryStoreTest extends MemoryStoreTester {
 

@@ -24,7 +24,7 @@ import java.util.Properties;
  * An abstract factory for creating peers. Implementers should provide their own
  * concrete factory extending this factory. It can then be configured in ehcache.xml
  * @author Greg Luck
- * @version $Id: CacheManagerPeerProviderFactory.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public abstract class CacheManagerPeerProviderFactory {
 

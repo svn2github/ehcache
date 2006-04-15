@@ -36,7 +36,7 @@ import java.util.List;
  * Note these tests need a live network interface running in multicast mode to work
  *
  * @author Greg Luck
- * @version $Id: RMICacheReplicatorTest.java,v 1.2 2006/03/12 02:03:59 gregluck Exp $
+ * @version $Id$
  */
 public class RMICacheReplicatorTest extends TestCase {
 

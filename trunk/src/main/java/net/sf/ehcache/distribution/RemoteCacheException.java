@@ -24,7 +24,7 @@ import net.sf.ehcache.CacheException;
  * A RemoteCacheException may not always matter to an application, which may want to ignore it.
  *
  * @author Greg Luck
- * @version $Id: RemoteCacheException.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public class RemoteCacheException extends CacheException {
 

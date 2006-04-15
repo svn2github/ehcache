@@ -19,7 +19,7 @@ package net.sf.ehcache;
 /**
  * Runs DiskStoreTest using the LRUMap, which is used in JDK1.3 rather than the JDK 1.4 LinkedHashMap
  * @author Greg Luck
- * @version $Id: ApacheLruDiskStoreTest.java,v 1.1 2006/03/09 06:38:20 gregluck Exp $
+ * @version $Id$
  */
 public class ApacheLruDiskStoreTest extends DiskStoreTest {
 

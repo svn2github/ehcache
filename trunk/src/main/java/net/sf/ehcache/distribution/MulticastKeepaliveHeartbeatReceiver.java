@@ -33,7 +33,7 @@ import java.util.StringTokenizer;
  * Our own multicast heartbeats are ignored.
  *
  * @author Greg Luck
- * @version $Id: MulticastKeepaliveHeartbeatReceiver.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public class MulticastKeepaliveHeartbeatReceiver {
 

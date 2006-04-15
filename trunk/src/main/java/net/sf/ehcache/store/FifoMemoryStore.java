@@ -32,7 +32,7 @@ import java.util.Set;
  * First-In-First-Out (FIFO) implementation of MemoryStore.
  *
  * @author <a href="mailto:ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
- * @version $Id: FifoMemoryStore.java,v 1.1 2006/03/09 06:38:19 gregluck Exp $
+ * @version $Id$
  */
 public class FifoMemoryStore extends MemoryStore {
     private static final Log LOG = LogFactory.getLog(FifoMemoryStore.class.getName());
