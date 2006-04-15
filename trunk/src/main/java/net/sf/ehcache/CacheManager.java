@@ -409,7 +409,7 @@ public final class CacheManager {
         try {
             cache = (Cache) defaultCache.clone();
         } catch (CloneNotSupportedException e) {
-            LOG.error("Failure adding cache. Error was " + e.getMessage());
+            LOG.error("Failure adding cache. Initial cause was " + e.getMessage(), e);
         }
         cache.setName(cacheName);
         addCache(cache);

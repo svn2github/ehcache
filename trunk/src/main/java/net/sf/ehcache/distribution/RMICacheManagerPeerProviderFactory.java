@@ -55,7 +55,7 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
             try {
                 return createAutomaticallyConfiguredCachePeerProvider(cacheManager, properties);
             } catch (IOException e) {
-                throw new CacheException("Could not create CacheManagerPeerProvider. Error was " + e.getMessage());
+                throw new CacheException("Could not create CacheManagerPeerProvider. Initial cause was " + e.getMessage(), e);
             }
         } else if (peerDiscovery.equalsIgnoreCase(MANUALLY_CONFIGURED_PEER_DISCOVERY)) {
             return createManuallyConfiguredCachePeerProvider(properties);

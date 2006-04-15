@@ -236,12 +236,6 @@
                  escape it and use \. to match dots. -->
             <property name="format" value="import java\.util\.logging\.Level;"/>
         </module>
-        <!-- Don't use JDK1.4 chained exceptions or it will break 1.3-->
-        <module name="GenericIllegalRegexp">
-            <!-- . matches any character, so we need to
-                 escape it and use \. to match dots. -->
-            <property name="format" value="\, e\);"/>
-        </module>
         <module name="ArrayTypeStyle"/>
         <module name="TodoComment"/>
         <module name="TrailingComment"/>

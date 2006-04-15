@@ -292,7 +292,7 @@ public abstract class MemoryStore implements Store {
         try {
             diskStore.put(element);
         } catch (IOException e) {
-            LOG.error("Error spooling to disk" + ". Error was " + e.getMessage());
+            LOG.error("Error spooling to disk" + ". Initial cause was " + e.getMessage(), e);
             throw new IllegalStateException(e.getMessage());
         }
         if (LOG.isDebugEnabled()) {

@@ -57,7 +57,7 @@ public class ConfigurationHelperTest extends AbstractCacheTest {
             fail();
         } catch (Exception e) {
             //expected
-            LOG.debug("Expected exception " + e.getMessage() + ". Error was " + e.getMessage());
+            LOG.debug("Expected exception " + e.getMessage() + ". Initial cause was " + e.getMessage(), e);
         }
     }
 

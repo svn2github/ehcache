@@ -830,7 +830,7 @@ public class Cache implements Cloneable {
                 diskStore.flush();
             }
         } catch (IOException e) {
-            throw new CacheException("Unable to flush cache: " + name + ". Error was " + e.getMessage());
+            throw new CacheException("Unable to flush cache: " + name + ". Initial cause was " + e.getMessage(), e);
         }
     }
 

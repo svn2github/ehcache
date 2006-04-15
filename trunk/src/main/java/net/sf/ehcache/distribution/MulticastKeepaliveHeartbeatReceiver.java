@@ -100,7 +100,7 @@ public class MulticastKeepaliveHeartbeatReceiver {
 
                 } catch (IOException e) {
                     if (!stopped) {
-                        LOG.error("Error receiving heartbeat. " + e.getMessage() + ". Error was " + e.getMessage());
+                        LOG.error("Error receiving heartbeat. " + e.getMessage() + ". Initial cause was " + e.getMessage(), e);
                     }
                 }
             }

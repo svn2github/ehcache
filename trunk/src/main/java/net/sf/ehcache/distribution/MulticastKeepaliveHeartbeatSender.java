@@ -113,7 +113,7 @@ public class MulticastKeepaliveHeartbeatSender {
                         }
                     } catch (InterruptedException e) {
                         if (!stopped) {
-                            LOG.error("Error receiving heartbeat. Error was " + e.getMessage());
+                            LOG.error("Error receiving heartbeat. Initial cause was " + e.getMessage(), e);
                         }
                     }
                 }

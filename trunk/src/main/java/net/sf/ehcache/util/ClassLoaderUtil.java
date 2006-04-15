@@ -62,11 +62,11 @@ public final class ClassLoaderUtil {
             clazz = Class.forName(className, true, getStandardClassLoader());
             newInstance = clazz.newInstance();
         } catch (ClassNotFoundException e) {
-            throw new CacheException("Unable to load class " + className + ". Error was " + e.getMessage());
+            throw new CacheException("Unable to load class " + className + ". Initial cause was " + e.getMessage(), e);
         } catch (IllegalAccessException e) {
-            throw new CacheException("Unable to load class " + className + ". Error was " + e.getMessage());
+            throw new CacheException("Unable to load class " + className + ". Initial cause was " + e.getMessage(), e);
         } catch (InstantiationException e) {
-            throw new CacheException("Unable to load class " + className + ". Error was " + e.getMessage());
+            throw new CacheException("Unable to load class " + className + ". Initial cause was " + e.getMessage(), e);
         }
         return newInstance;
     }

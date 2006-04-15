@@ -726,7 +726,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     public void testOverflowToDiskWithLargeNumberofCacheEntriesAndGets() throws Exception {
 
         //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);
+        Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 60, null);
         manager.addCache(cache);
         Random random = new Random();
         StopWatch stopWatch = new StopWatch();
@@ -791,6 +791,11 @@ public class DiskStoreTest extends AbstractCacheTest {
 
     /**
      * Perf test used by Venkat Subramani
+     * Get took 119s with Cache svn21
+     * Get took 42s
+     * The change was to stop adding DiskStore retrievals into the MemoryStore. This made sense when the only
+     * policy was LRU. In the new version an Elment, once evicted from the MemoryStore, stays in the DiskStore
+     * until expiry or removal. This avoids a lot of serialization overhead.
      */
     public void testLargePutGetPerformanceWithOverflowToDisk() throws Exception {
 

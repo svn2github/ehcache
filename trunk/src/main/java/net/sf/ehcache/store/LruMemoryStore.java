@@ -47,7 +47,7 @@ public class LruMemoryStore extends MemoryStore {
         try {
             map = loadMapInstance();
         } catch (CacheException e) {
-            LOG.error(cache.getName() + "Cache: Cannot start LruMemoryStore. Error was " + e.getMessage());
+            LOG.error(cache.getName() + "Cache: Cannot start LruMemoryStore. Initial cause was " + e.getMessage(), e);
         }
     }
 

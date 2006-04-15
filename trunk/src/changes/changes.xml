@@ -15,6 +15,17 @@
                 MemoryStore and event listeners can be used with Non Serializable elements. WARNING error messages are
                 logged when an operation cannot be completed because the key or value is not Serializable.
             </action>
+            <action dev="Greg Luck" type="update">
+                Feature Request 1458049 Wrap original exceptions during configuration.
+                Added an intial cause Throwable field to CacheException to facilitate easier reporting without
+                breaking pre JDK1.4 compatibility.
+            </action>
+            <action dev="Greg Luck" type="remove">
+                Removed the old Hibernate plugin from the code base. It has been deprecated since the beginning of the
+                1.2 beta series. The plugin is being actively maintained in the
+                Hibernate project. Any project still using net.sf.ehcache.hibernate.Plugin should change their
+                Hibernate configurations to org.hibernate.cache.EHCacheProvider.
+            </action>
 
             <!-- Bug fixes -->
             <action dev="Greg Luck" issue="1432458" type="fix">

@@ -62,7 +62,7 @@ public final class ConfigurationFactory {
             input = new BufferedInputStream(new FileInputStream(file));
             configuration = parseConfiguration(input);
         } catch (Exception e) {
-            throw new CacheException("Error configuring from " + file + ". Error was " + e.getMessage());
+            throw new CacheException("Error configuring from " + file + ". Initial cause was " + e.getMessage(), e);
         } finally {
             try {
                 input.close();
@@ -87,7 +87,7 @@ public final class ConfigurationFactory {
             input = url.openStream();
             configuration = parseConfiguration(input);
         } catch (Exception e) {
-            throw new CacheException("Error configuring from " + url + ". Error was " + e.getMessage());
+            throw new CacheException("Error configuring from " + url + ". Initial cause was " + e.getMessage(), e);
         } finally {
             try {
                 input.close();
@@ -139,11 +139,9 @@ public final class ConfigurationFactory {
             final BeanHandler handler = new BeanHandler(configuration);
             parser.parse(inputStream, handler);
         } catch (Exception e) {
-            throw new CacheException("Error configuring from input stream. Error was " + e.getMessage());
+            throw new CacheException("Error configuring from input stream. Initial cause was " + e.getMessage(), e);
         }
         return configuration;
     }
-
-
 
 }

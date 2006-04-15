@@ -64,7 +64,7 @@ public class RMICacheManagerPeerListenerFactory extends CacheManagerPeerListener
         try {
             return new RMICacheManagerPeerListener(hostName, port, cacheManager, socketTimeoutMillis);
         } catch (UnknownHostException e) {
-            throw new CacheException("Unable to create CacheManagerPeerListener. Error was " + e.getMessage());
+            throw new CacheException("Unable to create CacheManagerPeerListener. Initial cause was " + e.getMessage(), e);
         }
     }
 }

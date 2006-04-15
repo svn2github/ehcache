@@ -123,7 +123,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             LOG.debug("Server bound in registry");
         } catch (Exception e) {
             throw new CacheException("Problem starting listener for RMICachePeer "
-                    + rmiCachePeer.getUrl() + ".Error was " + e.getMessage());
+                    + rmiCachePeer.getUrl() + ". Initial cause was " + e.getMessage(), e);
         }
     }
 
@@ -231,7 +231,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             }
             LOG.debug("Server unbound in registry");
         } catch (Exception e) {
-            throw new CacheException("Problem unbinding remote cache peers. Error was " + e.getMessage());
+            throw new CacheException("Problem unbinding remote cache peers. Initial cause was " + e.getMessage(), e);
         }
     }
 

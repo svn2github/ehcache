@@ -52,11 +52,11 @@ import java.util.List;
  * As of ehcache-1.2 (v1.41 of this file) DiskStore has been changed to a mix of finer grained locking using synchronized collections
  * and synchronizing on the whole instance, as was the case with earlier versions.
  *
- * todo the index should automatically be zapped if the data is missing or corrupt
  * @author Adam Murdoch
  * @author Greg Luck
  * @author patches contributed: Ben Houston
  * @version $Id: DiskStore.java,v 1.3 2006/03/25 04:05:58 gregluck Exp $
+ * @revised ehcache-1.2
  */
 public class DiskStore implements Store {
     private static final Log LOG = LogFactory.getLog(DiskStore.class.getName());
@@ -135,7 +135,7 @@ public class DiskStore implements Store {
         } catch (final Exception e) {
             // Cleanup on error
             dispose();
-            LOG.error(name + "Cache: Could not create disk store. Error was " + e.getMessage());
+            LOG.error(name + "Cache: Could not create disk store. Initial cause was " + e.getMessage(), e);
         }
     }
 
@@ -151,9 +151,9 @@ public class DiskStore implements Store {
         }
 
         dataFile = new File(diskDir, getDataFileName());
+        indexFile = new File(diskDir, getIndexFileName());
 
         if (persistent) {
-            indexFile = new File(diskDir, getIndexFileName());
             if (!readIndex()) {
                 LOG.debug("Index file dirty or empty. Deleting data file " + getDataFileName());
                 dataFile.delete();
@@ -161,10 +161,20 @@ public class DiskStore implements Store {
         } else {
             LOG.debug("Deleting data file " + getDataFileName());
             dataFile.delete();
+            indexFile = null;
         }
 
         // Open the data file as random access. The dataFile is created if necessary.
         randomAccessFile = new RandomAccessFile(dataFile, "rw");
+    }
+
+    private void deleteIndexIfNoData() {
+        boolean dataFileExists = dataFile.exists();
+        boolean indexFileExists = indexFile.exists();
+        if (!dataFileExists && indexFileExists) {
+            LOG.debug("Matching data file missing for index file. Deleting index file " + getIndexFileName());
+            indexFile.delete();
+        }
     }
 
     /**
@@ -272,7 +282,7 @@ public class DiskStore implements Store {
             return element;
         } catch (Exception e) {
             LOG.error(name + "Cache: Could not read disk store element for key " + key
-                    + ". Error was " + e.getMessage());
+                    + ". Initial cause was " + e.getMessage(), e);
         }
         return null;
     }
@@ -314,7 +324,7 @@ public class DiskStore implements Store {
             }
             return spoolSize + diskSize;
         } catch (Exception e) {
-            LOG.error(name + "Cache: Could not determine size of disk store.. Error was " + e.getMessage());
+            LOG.error(name + "Cache: Could not determine size of disk store.. Initial cause was " + e.getMessage(), e);
             return 0;
         }
     }
@@ -348,7 +358,7 @@ public class DiskStore implements Store {
 
         } catch (Exception e) {
             LOG.error(name + "Cache: Could not write disk store element for " + entry.getKey()
-                    + ". Error was " + e.getMessage());
+                    + ". Initial cause was " + e.getMessage(), e);
         }
     }
 
@@ -415,7 +425,7 @@ public class DiskStore implements Store {
             }
         } catch (Exception e) {
             // Clean up
-            LOG.error(name + " Cache: Could not rebuild disk store. Error was " + e.getMessage());
+            LOG.error(name + " Cache: Could not rebuild disk store. Initial cause was " + e.getMessage(), e);
             dispose();
         }
     }
@@ -470,7 +480,7 @@ public class DiskStore implements Store {
                 dataFile.delete();
             }
         } catch (Exception e) {
-            LOG.error(name + "Cache: Could not shut down disk cache. Error was " + e.getMessage());
+            LOG.error(name + "Cache: Could not shut down disk cache. Initial cause was " + e.getMessage(), e);
         } finally {
             active = false;
             randomAccessFile = null;
@@ -527,7 +537,7 @@ public class DiskStore implements Store {
                 try {
                     flushSpool();
                 } catch (IOException e) {
-                    LOG.error(name + "Cache: Could not write elements to disk cache. Error was " + e.getMessage());
+                    LOG.error(name + "Cache: Could not write elements to disk cache. Initial cause was " + e.getMessage(), e);
                 }
             }
         }
@@ -573,7 +583,7 @@ public class DiskStore implements Store {
             } catch (Exception e) {
                 // Catch any exception that occurs during serialization
                 LOG.error(name + "Cache: Failed to write element to disk '" + element.getKey()
-                        + "'. Error was " + e.getMessage());
+                        + "'. Initial cause was " + e.getMessage(), e);
 
                 // Don't write this element to disk but move on to the next
                 continue;
@@ -658,7 +668,7 @@ public class DiskStore implements Store {
                 //normal when creating the cache for the first time
                 LOG.info("IOException reading index. Creating new index. ");
             } catch (ClassNotFoundException e) {
-                LOG.error("Class loading problem reading index. Creating new index. Error was " + e.getMessage());
+                LOG.error("Class loading problem reading index. Creating new index. Initial cause was " + e.getMessage(), e);
             } finally {
                 try {
                     if (objectInputStream != null) {
