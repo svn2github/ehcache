@@ -55,7 +55,7 @@ import java.util.List;
  * @author Adam Murdoch
  * @author Greg Luck
  * @author patches contributed: Ben Houston
- * @version $Id: DiskStore.java,v 1.3 2006/03/25 04:05:58 gregluck Exp $
+ * @version $Id$
  * @revised ehcache-1.2
  */
 public class DiskStore implements Store {
