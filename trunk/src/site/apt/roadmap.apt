@@ -1,5 +1,5 @@
  ------
- Roadmap
+ Development Roadmap
  ------
  ------
  Date
@@ -20,6 +20,12 @@ Development Roadmap for 1.3
  Allow elements to have override TTL and TTI settings. This would have a zero processing cost and would require
  two four byte ints to be added to Element.
 
+** More distribution mechanisms
+
+ Work has already begun by Surya on a JGRoups replication implementation. A JMS-based one would also be useful.
 
 
+* How to suggest features
+
+ Please add your feature suggestions to {{{http://sourceforge.net/tracker/?group_id=93232&atid=603562}Feature Requests}}.
 
