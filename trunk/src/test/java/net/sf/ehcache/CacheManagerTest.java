@@ -28,6 +28,8 @@ import java.util.Date;
 
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.DiskStore;
 
@@ -201,21 +203,40 @@ public class CacheManagerTest extends TestCase {
 
     /**
      * Tests programmatic creation of CacheManager with a programmatic Configuration.
-     * todo uncomment
+     * <p/>
+     * Tests:
+     * <ol>
+     * <li>adding a cache by name, which will use default cache
+     * <li>adding a Cache object
+     * <li>setting the DiskStore directory path
+     * </ol>
      *
      * @throws CacheException
      */
-    public void xTestCreateCacheManagersProgrammatically() throws CacheException {
-//        DefaultCacheConfiguration defaultCache = new DefaultCacheConfiguration();
-//        defaultCache.setEternal(false);
-//
-//        Configuration configuration =
-//                new Configuration(manager, configurationBean);
-//        assertNotNull(configuration);
-//
-//        instanceManager = new CacheManager(configuration);
-//        assertNotNull(instanceManager);
-//        assertEquals(0, instanceManager.getCacheNames().length);
+    public void testCreateCacheManagersProgrammatically() throws CacheException {
+
+        Configuration configuration = new Configuration();
+        assertNotNull(configuration);
+
+        CacheConfiguration defaultCacheConfiguration = new CacheConfiguration();
+        defaultCacheConfiguration.setEternal(false);
+        defaultCacheConfiguration.setName("defaultCache");
+        configuration.addDefaultCache(defaultCacheConfiguration);
+
+        DiskStoreConfiguration diskStoreConfiguration = new DiskStoreConfiguration();
+        diskStoreConfiguration.setPath("java.io.tmpdir");
+        configuration.addDiskStore(diskStoreConfiguration);
+
+        instanceManager = new CacheManager(configuration);
+        assertNotNull(instanceManager);
+        assertEquals(0, instanceManager.getCacheNames().length);
+
+        instanceManager.addCache("toBeDerivedFromDefaultCache");
+        Cache cache = new Cache("testCache", 1, true, false, 5, 2);
+        instanceManager.addCache(cache);
+
+
+        assertEquals(2, instanceManager.getCacheNames().length);
 
     }
 
