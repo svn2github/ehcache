@@ -182,8 +182,6 @@ public class MulticastKeepaliveHeartbeatSender {
          * status will be set. </p>
          *
          * @throws SecurityException if the current thread cannot modify this thread
-         * @revised 1.4
-         * @spec JSR-51
          */
         public void interrupt() {
             closeSocket();

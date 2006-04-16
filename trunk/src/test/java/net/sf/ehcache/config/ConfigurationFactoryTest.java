@@ -137,7 +137,6 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     }
 
 
-
     /**
      * Tests that the loader successfully loads from ehcache.xml
      * given as a {@link File}
@@ -538,7 +537,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     /**
      * Exposes a bug where the default configuration could not be loaded from a Jar URL
      * (a common scenario when ehcache is deployed, and always used for failsafe config).
-     * 
+     *
      * @throws Exception When the test fails.
      */
     public void testLoadConfigurationFromJarURL() throws Exception {
@@ -561,7 +560,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     /**
      * Given a URL, parse the configuration and test that the config read corresponds
      * to that which exists in the ehcache.xml file.
-     * 
+     *
      * @param url The URL to load.
      */
     private void testDefaultConfiguration(URL url) {
@@ -599,7 +598,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
     /**
      * Creates a jar file that contains only ehcache.xml (a supplied configuration file).
-     * 
+     *
      * @return The jar file created with the configuration file as its only entry.
      * @throws IOException If the jar could not be created.
      */
@@ -742,5 +741,14 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
             hiddenFile.renameTo(new File(AbstractCacheTest.TEST_CLASSES_DIR + "ehcache.xml"));
         }
 
+    }
+
+    /**
+     * Make sure that the empty Configuration constructor remains public for those wishing to create CacheManagers
+     * purely programmatically.
+     */
+    public void testCreateEmptyConfiguration() {
+        Configuration configuration = new Configuration();
+        configuration.setSource("programmatic");
     }
 }

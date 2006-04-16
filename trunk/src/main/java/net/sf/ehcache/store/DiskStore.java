@@ -56,7 +56,6 @@ import java.util.List;
  * @author Greg Luck
  * @author patches contributed: Ben Houston
  * @version $Id$
- * @revised ehcache-1.2
  */
 public class DiskStore implements Store {
     private static final Log LOG = LogFactory.getLog(DiskStore.class.getName());

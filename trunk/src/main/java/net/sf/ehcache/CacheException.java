@@ -27,7 +27,6 @@ package net.sf.ehcache;
  *
  * @author Greg Luck
  * @version $Id$
- * @revised 1.2
  */
 public class CacheException extends RuntimeException {
 

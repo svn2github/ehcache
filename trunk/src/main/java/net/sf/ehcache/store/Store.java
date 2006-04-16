@@ -38,7 +38,6 @@ public interface Store {
 
     /**
      * Gets an item from the cache.
-     * @revised 1.2
      */
     Element get(Object key) throws IOException;
 
@@ -46,7 +45,6 @@ public interface Store {
      * Removes an item from the cache.
      *
      * @since signature changed in 1.2 from boolean to Element to support notifications
-     * @revised 1.2
      */
     Element remove(Object key) throws IOException;
 
@@ -81,7 +79,7 @@ public interface Store {
      *
      * @param key The Element key
      * @return true if found. No check is made to see if the Element is expired.
-     * @revised 1.2
+     *  1.2
      */
     boolean containsKey(Object key);
 

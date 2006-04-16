@@ -397,7 +397,6 @@ public class Cache implements Cloneable {
      * @param element An object. If Serializable it can fully participate in replication and the DiskStore.
      * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
      * @throws IllegalArgumentException if the element is null
-     * @revised 1.2
      */
     public synchronized void put(Element element) throws IllegalArgumentException, IllegalStateException,
             CacheException {

@@ -38,9 +38,12 @@ public class Configuration {
     private String configurationSource;
 
     /**
-     * Package protected empty constructor for use by {@link ConfigurationFactory}. This is not usable programmatically.
+     * Empty constructor, which is used by {@link ConfigurationFactory}, and can be also sued programmatically.
+     * <p/>
+     * If you are using it programmtically you need to call the relevant add and setter methods in this class to
+     * populate everything.
      */
-    Configuration() { }
+    public Configuration() { }
 
 
     /**

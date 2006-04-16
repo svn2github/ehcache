@@ -79,6 +79,7 @@ public class ConfigurationHelperTest extends AbstractCacheTest {
         specificPathTest(diskStore, "user.home", "user.home");
         specificPathTest(diskStore, "user.home/cacheManager1", "user.home");
         specificPathTest(diskStore, "user.home/cacheManager1/", "user.home");
+        specificPathTest(diskStore, "user.home/cacheManager1/dir1", "user.home");
 
 
     }
