@@ -162,6 +162,23 @@
         </jar>
     </target>
 
+    <!-- Builds a test jar file containing a test application for manual distributed testing. -->
+    <target name="test-jar" depends="compile" description="Builds the application jar">
+        <mkdir dir="${build.dir}/test"/>
+        <jar destfile="${build.dir}/test/${name}-test.jar">
+            <fileset dir="${build.classes.dir}"/>
+            <fileset dir="${test.classes.dir}"/>
+            <fileset dir="${basedir}" includes="LICENSE.txt"/>
+            <fileset dir="${test.config.dir}/distribution" includes="ehcache-distributed1.xml"/>
+            <zipfileset src="${lib.runtime.dir}/commons-logging-1.0.4.jar" />
+            <zipfileset src="${lib.runtime.dir}/commons-collections-2.1.1.jar" />
+            <zipfileset src="${lib.compile.dir}/clover-1.3.10.jar" />
+            <manifest>
+                <attribute name="Main-Class" value="net.sf.ehcache.distribution.Main"/>
+            </manifest>
+        </jar>
+    </target>
+
     <!-- Builds a release tar-ball -->
     <target name="dist-tgz" depends="dist-jar, dist-javadoc, dist-src">
         <tar destfile="${dist.dir}/${name}-${version}.tgz"

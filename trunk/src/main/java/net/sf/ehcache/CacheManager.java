@@ -216,6 +216,7 @@ public final class CacheManager {
         Configuration configuration = null;
         String configurationSource = null;
         if (configurationFileName != null) {
+            LOG.debug("Configuring CacheManager from " + configurationFileName);
             configuration = ConfigurationFactory.parseConfiguration(new File(configurationFileName));
             configurationSource = "file located at " + configurationFileName;
         } else if (configurationURL != null) {

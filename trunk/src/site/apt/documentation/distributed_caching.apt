@@ -187,7 +187,9 @@ socketTimeoutMillis=2000"/>
     If unspecified, the hostname will use <<<InetAddress.getLocalHost().getHostAddress()>>>, which corresponds to the default
      host network interface.
 
-    Warning: Explicitly setting this to localhost refers to the local loopback of 127.0.0.1  which is not network visible.
+    Warning: Explicitly setting this to localhost refers to the local loopback of 127.0.0.1, which is not network visible
+    and will cause no replications to be received from remote hosts. You should only use this setting when multiple
+    CacheManagers are on the same machine.
 
     * port (mandatory) - the port the listener listens on.
 

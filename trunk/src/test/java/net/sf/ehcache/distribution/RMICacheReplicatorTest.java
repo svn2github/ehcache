@@ -295,6 +295,8 @@ public class RMICacheReplicatorTest extends TestCase {
 
     /**
      * See what happens when we send a 2000 puts through at the same time.
+     * <p/>
+     * Running a remote cache peer on a separate computer takes 28 seconds to get all notifications.
      */
     public void testBigPutsProgagates() throws CacheException, InterruptedException {
         //Give everything a chance to startup
@@ -319,7 +321,7 @@ public class RMICacheReplicatorTest extends TestCase {
 
         assertEquals(2000, cache1.getSize());
 
-        Thread.sleep(20000);
+        Thread.sleep(40000);
         assertEquals(2000, manager2.getCache("sampleCache1").getSize());
         assertEquals(2000, manager3.getCache("sampleCache1").getSize());
         assertEquals(2000, manager4.getCache("sampleCache1").getSize());

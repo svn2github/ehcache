@@ -163,7 +163,7 @@
            timeToLiveSeconds="100"
            overflowToDisk="true"
            memoryStoreEvictionPolicy="LRU"
-           diskExpiryThreadIntervalSeconds="1"
+           diskExpiryThreadIntervalSeconds="1000"
             >
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
                                    properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
