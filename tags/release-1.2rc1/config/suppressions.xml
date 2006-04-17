@@ -1,0 +1,44 @@
+    <!DOCTYPE suppressions PUBLIC
+        "-//Puppy Crawl//DTD Suppressions 1.0//EN"
+        "http://www.puppycrawl.com/dtds/suppressions_1_0.dtd">
+
+<suppressions>
+    <!-- Turn off some checks for tests -->
+    <suppress checks="usage.OneMethodPrivateField" files="Test.java"/>
+    <suppress checks="usage.UnusedParameter" files="Test.java"/>
+    <suppress checks="usage.UnusedPrivateMethod" files="Test.java"/>
+    <suppress checks="StrictDuplicateCode" files="Test.java"/>
+    <suppress checks="MagicNumberCheck" files="Test.java"/>
+    <suppress checks="MagicNumberCheck" files="Tester.java"/>
+    <suppress checks="CyclomaticComplexity" files="Test.java" />
+    <suppress checks="NPathComplexity" files="Test.java" />
+    <suppress checks="ClassDataAbstractionCoupling" files="Test.java" />
+    <suppress checks="ClassDataAbstractionCoupling" files="Test.java" />
+
+
+
+    <!-- Suppress duplicate checking of copyright notice -->
+    <suppress checks="StrictDuplicateCode" files=".java" lines="1-53"/>
+
+    <!-- super.clone won't work here -->
+    <suppress checks="SuperClone" files="Element.java"/>
+
+    <!-- No pachage.html required for tests -->
+    <suppress checks="PackageHtml" files="test[/\\]"/>
+
+
+
+    <!-- Candidates for refactoring -->
+    <suppress checks="CyclomaticComplexity" files="Cache.java" lines="860"/>
+    <suppress checks="CyclomaticComplexity" files="CacheManager.java" lines="147"/>
+    <suppress checks="CyclomaticComplexity" files="DiskStore.java" lines="583"/>
+    <suppress checks="NPathComplexity" files="Cache.java"/>
+    <suppress checks="NPathComplexity" files="CacheManager.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="DiskStore.java" />
+    <suppress checks="ClassFanOutComplexity" files="DiskStore.java" />
+    <suppress checks="ClassDataAbstractionCoupling" files="ElementTest.java"/>
+    <suppress checks="IllegalType" files="Cache.java"/>
+    <suppress checks="ParameterNumber" files="Cache.java"/>
+
+
+</suppressions>

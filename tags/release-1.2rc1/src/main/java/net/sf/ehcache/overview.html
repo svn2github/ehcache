@@ -1,0 +1,67 @@
+<html>
+  <head>
+  Overview
+  </head>
+  <body>
+  <pre>
+Introduction
+============
+ehcache is a pure Java, in-process cache with the following features:
+
+   1. Fast
+   2. Simple
+   3. Act as a pluggable cache for Hibernate 2.1.
+   4. Small foot print. Both in terms of size and memory requirements.
+   5. Minimal dependencies apart from J2SE.
+   6. Fully documented. See the online Documentation and the online JavaDoc.
+   7. Comprehensive Test Coverage. See the clover test report.
+   8. Available under the Apache 1.1 license. EHCache's copyright and licensing has been reviewed and approved by the Apache Software Foundation, making EHCache suitable for use in Apache projects.
+   9. Production tested. All versions of EHCache are production tested for several weeks on a large and very busy eCommerce site before release.
+
+Java Requirements
+=================
+ehcache supports JDK1.2, 1.3, 1.4 and 1.5 at runtime. When compiling from source, the build process requires JDK 1.4 or JDK1.5.
+
+ehcache does not work with JDK1.1.
+
+Dependencies
+============
+For JDK1.4, ehcache requires commons-logging from Apache's Jakarta project.
+
+For JDK1.2 and JDK 1.3, ehcache requires:
+
+- Apache Jakarta's commons-collections, version 2.1
+- Apache xerces (xml-apis.jar and xercesImpl.jar), version 2.5
+
+All three dependencies are also Hibernate dependencies, so if you are using ehcache as a Hibernate plugin, dependency requirements are met.
+
+
+Installation
+============
+Place ehcache-x.x.jar into your classpath. Ensure the required dependencies are in the
+classpath.
+
+Documentation
+=============
+See http://ehcache.sourceforge.net/documentation for
+full documentation.
+
+The JavaDoc is in the distribution and also online at
+http://ehcache.sourceforge.net/javadoc.
+
+Configuration
+=============
+The distribution contains an example configuration file
+called ehcache.xml and its accompanying schema, ehcache.xsd.
+
+To configure ehcache, edit ehcache.xml.
+
+For Hibernate it must be placed in your classpath. For use
+as a general case you can specify its location as a parameter
+of CacheManager.create(...).
+
+See http://ehcache.sourceforge.net/documentation/#configuration for
+more information.
+</pre>
+  </body>
+</html>
