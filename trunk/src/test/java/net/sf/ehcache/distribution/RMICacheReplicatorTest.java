@@ -22,6 +22,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.StopWatch;
 import net.sf.ehcache.event.CountingCacheEventListener;
 
 import java.io.Serializable;
@@ -29,6 +30,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Tests replication of Cache events
@@ -39,6 +43,8 @@ import java.util.List;
  * @version $Id$
  */
 public class RMICacheReplicatorTest extends TestCase {
+
+    private static final Log LOG = LogFactory.getLog(RMICacheReplicatorTest.class.getName());
 
     private static final boolean ASYNCHRONOUS = true;
     private static final boolean SYNCHRONOUS = false;
@@ -284,6 +290,40 @@ public class RMICacheReplicatorTest extends TestCase {
         assertEquals(55, count3);
         assertEquals(55, count4);
         assertEquals(55, count5);
+
+    }
+
+    /**
+     * See what happens when we send a 2000 puts through at the same time.
+     */
+    public void testBigPutsProgagates() throws CacheException, InterruptedException {
+        //Give everything a chance to startup
+        Thread.sleep(1000);
+        StopWatch stopWatch = new StopWatch();
+        Integer index = null;
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 1000; j++) {
+                index = new Integer(((1000 * i) + j));
+                cache1.put(new Element(index,
+                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
+            }
+        }
+        long elapsed = stopWatch.getElapsedTime();
+        long putTime = ((elapsed / 1000));
+        LOG.info("Put Elapsed time: " + putTime);
+        //assertTrue(putTime < 8);
+
+        assertEquals(2000, cache1.getSize());
+
+        Thread.sleep(20000);
+        assertEquals(2000, manager2.getCache("sampleCache1").getSize());
+        assertEquals(2000, manager3.getCache("sampleCache1").getSize());
+        assertEquals(2000, manager4.getCache("sampleCache1").getSize());
+        assertEquals(2000, manager5.getCache("sampleCache1").getSize());
 
     }
 
@@ -627,12 +667,21 @@ public class RMICacheReplicatorTest extends TestCase {
 
 
     /**
-     * May need to wait if async
+     * Need to wait for async
      *
      * @throws InterruptedException
      */
     protected void waitForProgagate() throws InterruptedException {
         Thread.sleep(2000);
+    }
+
+    /**
+     * Need to wait for async
+     *
+     * @throws InterruptedException
+     */
+    protected void waitForSlowProgagate() throws InterruptedException {
+        Thread.sleep(6000);
     }
 
 }
