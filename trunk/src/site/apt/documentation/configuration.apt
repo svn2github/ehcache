@@ -190,7 +190,7 @@ Cache Configuration
 
    Sub directories can be specified under system paths.
 
-   e.g. ___java.io.tmpdir/one___ will be translated on most Unix systems to ___/tmp/one___ 
+   e.g. <<<java.io.tmpdir/one>>> will be translated on most Unix systems to <<</tmp/one>>> 
 
 ** defaultCache
 

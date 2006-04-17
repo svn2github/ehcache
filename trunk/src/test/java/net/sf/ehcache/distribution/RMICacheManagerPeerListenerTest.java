@@ -143,35 +143,35 @@ public class RMICacheManagerPeerListenerTest extends TestCase {
         }
 
         List cachePeers1 = ((RMICacheManagerPeerListener) manager1.getCachePeerListener()).getBoundCachePeers();
-        assertEquals(53, cachePeers1.size());
+        assertEquals(55, cachePeers1.size());
         String[] boundCachePeers1 = ((RMICacheManagerPeerListener) manager1.getCachePeerListener()).listBoundRMICachePeers();
-        assertEquals(53, boundCachePeers1.length);
+        assertEquals(55, boundCachePeers1.length);
         assertEquals(cachePeers1.size(), boundCachePeers1.length);
 
         List cachePeers2 = ((RMICacheManagerPeerListener) manager2.getCachePeerListener()).getBoundCachePeers();
-        assertEquals(53, cachePeers2.size());
+        assertEquals(55, cachePeers2.size());
         String[] boundCachePeers2 = ((RMICacheManagerPeerListener) manager2.getCachePeerListener()).listBoundRMICachePeers();
-        assertEquals(53, boundCachePeers2.length);
+        assertEquals(55, boundCachePeers2.length);
         assertEquals(cachePeers2.size(), boundCachePeers2.length);
 
 
         List cachePeers3 = ((RMICacheManagerPeerListener) manager3.getCachePeerListener()).getBoundCachePeers();
-        assertEquals(53, cachePeers3.size());
+        assertEquals(55, cachePeers3.size());
         String[] boundCachePeers3 = ((RMICacheManagerPeerListener) manager3.getCachePeerListener()).listBoundRMICachePeers();
-        assertEquals(53, boundCachePeers3.length);
+        assertEquals(55, boundCachePeers3.length);
         assertEquals(cachePeers3.size(), boundCachePeers3.length);
 
 
         List cachePeers4 = ((RMICacheManagerPeerListener) manager4.getCachePeerListener()).getBoundCachePeers();
-        assertEquals(53, cachePeers4.size());
+        assertEquals(55, cachePeers4.size());
         String[] boundCachePeers4 = ((RMICacheManagerPeerListener) manager4.getCachePeerListener()).listBoundRMICachePeers();
-        assertEquals(53, boundCachePeers4.length);
+        assertEquals(55, boundCachePeers4.length);
         assertEquals(cachePeers4.size(), boundCachePeers4.length);
 
         List cachePeers5 = ((RMICacheManagerPeerListener) manager5.getCachePeerListener()).getBoundCachePeers();
-        assertEquals(53, cachePeers5.size());
+        assertEquals(55, cachePeers5.size());
         String[] boundCachePeers5 = ((RMICacheManagerPeerListener) manager5.getCachePeerListener()).listBoundRMICachePeers();
-        assertEquals(53, boundCachePeers5.length);
+        assertEquals(55, boundCachePeers5.length);
         assertEquals(cachePeers5.size(), boundCachePeers5.length);
     }
 

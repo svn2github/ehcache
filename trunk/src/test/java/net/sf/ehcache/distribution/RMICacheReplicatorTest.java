@@ -40,6 +40,9 @@ import java.util.List;
  */
 public class RMICacheReplicatorTest extends TestCase {
 
+    private static final boolean ASYNCHRONOUS = true;
+    private static final boolean SYNCHRONOUS = false;
+
     /**
      * CacheManager 1 in the cluster
      */
@@ -78,6 +81,7 @@ public class RMICacheReplicatorTest extends TestCase {
      * CacheManager 2 of 2s cache being replicated
      */
     protected Cache cache2;
+
 
     /**
      * {@inheritDoc}
@@ -229,24 +233,18 @@ public class RMICacheReplicatorTest extends TestCase {
         assertEquals(3, remotePeersOfCache1.size());
     }
 
-
     /**
      * Tests put and remove initiated from cache1 in a cluster
      * <p/>
      * This test goes into an infinite loop if the chain of notifications is not somehow broken.
      */
-    public void testPut() throws CacheException, InterruptedException {
+    public void testPutProgagatesFromAndToEveryCacheManagerAndCache() throws CacheException, InterruptedException {
 
         if (DistributionUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 
-        Serializable key = new Date();
-        Serializable value = new Date();
-        Element element1 = new Element(key, value);
-
         //Put
-        cache1.put(element1);
         String[] cacheNames = manager1.getCacheNames();
         Arrays.sort(cacheNames);
         for (int i = 0; i < cacheNames.length; i++) {
@@ -282,18 +280,75 @@ public class RMICacheReplicatorTest extends TestCase {
             }
             //LOG.debug("element propagated to cache named " + name + ": " + element);
         }
-        assertEquals(53, count2);
-        assertEquals(53, count3);
-        assertEquals(53, count4);
-        assertEquals(53, count5);
+        assertEquals(55, count2);
+        assertEquals(55, count3);
+        assertEquals(55, count4);
+        assertEquals(55, count5);
 
-        //Should have been replicated to cache2.
-        Element element2 = cache2.get(key);
-        assertEquals(element1, element2);
+    }
 
-        int countingListenerPutCount = CountingCacheEventListener.getCacheElementsPut(cache2).size();
-        assertEquals(2, countingListenerPutCount);
 
+    /**
+     * Test various cache configurations for cache1 - explicit setting of:
+     * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
+     */
+    public void testPutWithExplicitReplicationConfig() throws InterruptedException {
+        putTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
+    }
+
+    /**
+     * Test various cache configurations for cache1 - explicit setting of:
+     * properties="replicateAsynchronously=false, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
+     */
+    public void testPutWithExplicitReplicationSynchronousConfig() throws InterruptedException {
+        putTest(manager1.getCache("sampleCache3"), manager2.getCache("sampleCache3"), SYNCHRONOUS);
+    }
+
+
+    /**
+     * Test put replicated for cache4 - no properties.
+     * Defaults should be replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true
+     */
+    public void testPutWithEmptyReplicationPropertiesConfig() throws InterruptedException {
+        putTest(manager1.getCache("sampleCache4"), manager2.getCache("sampleCache4"), ASYNCHRONOUS);
+    }
+
+    /**
+     * Test put replicated for cache4 - missing replicatePuts property.
+     * replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true
+     * should equal replicateAsynchronously=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true
+     */
+    public void testPutWithOneMissingReplicationPropertyConfig() throws InterruptedException {
+        putTest(manager1.getCache("sampleCache5"), manager2.getCache("sampleCache5"), ASYNCHRONOUS);
+    }
+
+
+    /**
+     * Tests put and remove initiated from cache1 in a cluster
+     * <p/>
+     * This test goes into an infinite loop if the chain of notifications is not somehow broken.
+     */
+    public void putTest(Cache fromCache, Cache toCache, boolean asynchronous) throws CacheException, InterruptedException {
+
+        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
+        Serializable key = new Date();
+        Serializable value = new Date();
+        Element sourceElement = new Element(key, value);
+
+        //Put
+        fromCache.put(sourceElement);
+        int i = 0;
+
+        if (asynchronous) {
+            waitForProgagate();
+        }
+
+        //Should have been replicated to toCache.
+        Element deliveredElement = toCache.get(key);
+        assertEquals(sourceElement, deliveredElement);
 
     }
 
@@ -361,11 +416,36 @@ public class RMICacheReplicatorTest extends TestCase {
 
 
     /**
-     * Tests put and remove initiated from cache1 in a cluster
+     * Test various cache configurations for cache1 - explicit setting of:
+     * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
+     */
+    public void testRemoveWithExplicitReplicationConfig() throws InterruptedException {
+        removeTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
+    }
+
+    /**
+     * Test various cache configurations for cache1 - explicit setting of:
+     * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
+     */
+    public void testRemoveWithExplicitReplicationSynchronousConfig() throws InterruptedException {
+        removeTest(manager1.getCache("sampleCache3"), manager2.getCache("sampleCache3"), SYNCHRONOUS);
+    }
+
+
+    /**
+     * Test put replicated for cache4 - no properties.
+     * Defaults should be replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true
+     */
+    public void testRemoveWithEmptyReplicationPropertiesConfig() throws InterruptedException {
+        removeTest(manager1.getCache("sampleCache4"), manager2.getCache("sampleCache4"), ASYNCHRONOUS);
+    }
+
+    /**
+     * Tests put and remove initiated from a cache to another cache in a cluster
      * <p/>
      * This test goes into an infinite loop if the chain of notifications is not somehow broken.
      */
-    public void testRemove() throws CacheException, InterruptedException {
+    public void removeTest(Cache fromCache, Cache toCache, boolean asynchronous) throws CacheException, InterruptedException {
 
         if (DistributionUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -376,24 +456,26 @@ public class RMICacheReplicatorTest extends TestCase {
         Element element1 = new Element(key, value);
 
         //Put
-        cache1.put(element1);
-        waitForProgagate();
+        fromCache.put(element1);
+
+        if (asynchronous) {
+            waitForProgagate();
+        }
 
         //Should have been replicated to cache2.
-        Element element2 = cache2.get(key);
+        Element element2 = toCache.get(key);
         assertEquals(element1, element2);
 
         //Remove
-        cache1.remove(key);
+        fromCache.remove(key);
 
         waitForProgagate();
 
         //Should have been replicated to cache2.
-        element2 = cache2.get(key);
+        element2 = toCache.get(key);
         assertNull(element2);
 
     }
-
 
 
     /**

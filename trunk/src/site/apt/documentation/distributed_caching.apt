@@ -194,12 +194,16 @@ socketTimeoutMillis=2000"/>
 
 
 +------------------------------------------+
-<cacheEventListenerFactory
-class="net.sf.ehcache.distribution.RMICacheReplicatorFactory
-properties="replicateAsynchronously=true,
-replicatePuts=true, replicateUpdates=true,
-replicateUpdatesViaCopy=true, replicateRemovals=true"
-/>
+    <!-- Sample cache named sampleCache2. -->
+    <cache name="sampleCache2"
+           maxElementsInMemory="10"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+                                   properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+    </cache>
 +------------------------------------------+
 
     class - use net.sf.ehcache.distribution.RMICacheReplicatorFactory
@@ -207,17 +211,29 @@ replicateUpdatesViaCopy=true, replicateRemovals=true"
     The factory recognises the following properties:
 
     * replicatePuts=true | false - whether new elements placed in a cache are
-      replicated to others.
+      replicated to others. Defaults to true.
 
     * replicateUpdates=true | false - whether new elements which override an
-      element already existing with the same key are replicated.
+      element already existing with the same key are replicated. Defaults to true.
 
-    * replicateRemovals=true - whether element removals are replicated.
+    * replicateRemovals=true - whether element removals are replicated. Defaults to true.
 
     * replicateAsynchronously=true | false - whether replications are
-      asyncrhonous (true) or synchronous (false).
+      asyncrhonous (true) or synchronous (false). Defaults to true.
 
     * replicateUpdatesViaCopy=true | false - whether the new elements are
-      copied to other caches (true), or whether a remove message is sent.
+      copied to other caches (true), or whether a remove message is sent. Defaults to true.
 
-    In all cases the default, if unspecified, is true.
+ To reduce typing if you want default behaviour, which is replicate everything in asynchronous mode, you can leave off
+ the <<<RMICacheReplicatorFactory>>> properties as per the following example:
+
++------------------------------------------+
+    <!-- Sample cache named sampleCache4. All missing RMICacheReplicatorFactory properties default to true -->
+    <cache name="sampleCache4"
+           maxElementsInMemory="10"
+           eternal="true"
+           overflowToDisk="false"
+           memoryStoreEvictionPolicy="LFU">
+        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>
+    </cache>
++------------------------------------------+

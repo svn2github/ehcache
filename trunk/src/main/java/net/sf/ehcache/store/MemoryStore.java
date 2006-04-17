@@ -269,7 +269,7 @@ public abstract class MemoryStore implements Store {
 
             if (!element.isSerializable()) {
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Object with key " + element.getKey() + " is not Serializable and cannot be overflowed to disk");
+                    LOG.warn("Object with key " + element.getKey() + " is not Serializable and is not being overflowed to disk.");
                 }
             } else {
                 spoolToDisk(element);
