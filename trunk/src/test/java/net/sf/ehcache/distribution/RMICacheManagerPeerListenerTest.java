@@ -191,6 +191,7 @@ public class RMICacheManagerPeerListenerTest extends TestCase {
             Remote remote = ((RMICacheManagerPeerListener) manager1.getCachePeerListener()).lookupPeer(boundCacheName);
             assertNotNull(remote);
         }
+
     }
 
 

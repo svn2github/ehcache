@@ -90,13 +90,13 @@
         which is configured using RMICacheManagerPeerListenerFactory. It is configured as per the following example:
 
         <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
-                              properties="hostName=localhost, port=40001, socketTimeoutMillis=2000"/>
+                              properties="hostName=fully_qualified_hostname_or_ip, port=40001, socketTimeoutMillis=2000"/>
 
         Valid properties are:
         - hostName (optional) - the hostName of the host the listener is running on. Specify where the host is multihomed
         and you want to control the interface over which cluster messages are received.
         - port (mandatory) - the port the listener listens on.
-        - socketTimeoutMillis - the number of seconds client sockets will wait when sending messages to this listener
+        - socketTimeoutMillis (optional) - the number of seconds client sockets will wait when sending messages to this listener
         until they give up. By default this is 2000ms.
 
     -->
@@ -137,10 +137,6 @@
                                      (specified as LFU)
 
     Cache elements can also contain zero or more cacheEventListenerFactory elements.
-
-    The attributes of cacheManagerPeerProviderFactory are:
-    class - a fully qualified factory class name (required)
-    properties - comma separated properties having meaning only to the factory. (optional, depends on the factory)
 
     -->
 
@@ -189,22 +185,46 @@
                                          First In First Out (specified as FIFO) and Less Frequently Used
                                          (specified as LFU)
 
-        Cache elements can also contain zero or more cacheEventListenerFactory elements.
+        Cache elements can also contain cacheEventListenerFactory elements which consist of a factory class and properties.
 
-        The attributes of cacheManagerPeerProviderFactory are:
-        class - a fully qualified factory class name (required)
-        properties - comma separated properties having meaning only to the factory. (optional, depends on the factory)
+        Each cache that will be distributed needs to set a cache event listener which then replicates messages to the
+        other CacheManager peers. For the built-in RMI implementation this is done by adding a cacheEventListenerFactory
+        element of type RMICacheReplicatorFactory to each distributed cache's configuration as per the following example:
+
+        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+             properties="replicateAsynchronously=true,
+             replicatePuts=true,
+             replicateUpdates=true,
+             replicateUpdatesViaCopy=true,
+             replicateRemovals=true "/>
+
+        The RMICacheReplicatorFactory factory recognises the following properties:
+
+        * replicatePuts=true | false - whether new elements placed in a cache are
+          replicated to others. Defaults to true.
+
+        * replicateUpdates=true | false - whether new elements which override an
+          element already existing with the same key are replicated. Defaults to true.
+
+        * replicateRemovals=true - whether element removals are replicated. Defaults to true.
+
+        * replicateAsynchronously=true | false - whether replications are
+          asynchronous (true) or synchronous (false). Defaults to true.
+
+        * replicateUpdatesViaCopy=true | false - whether the new elements are
+          copied to other caches (true), or whether a remove message is sent. Defaults to true.
+
     -->
 
     <!-- Sample cache named sampleCache1
-    This cache contains a maximum in memory of 10000 elements, and will expire
-    an element if it is idle for more than 5 minutes and lives for more than
-    10 minutes.
+        This cache contains a maximum in memory of 10000 elements, and will expire
+        an element if it is idle for more than 5 minutes and lives for more than
+        10 minutes.
 
-    If there are more than 10000 elements it will overflow to the
-    disk cache, which in this configuration will go to wherever java.io.tmp is
-    defined on your system. On a standard Linux system this will be /tmp"
-    -->
+        If there are more than 10000 elements it will overflow to the
+        disk cache, which in this configuration will go to wherever java.io.tmp is
+        defined on your system. On a standard Linux system this will be /tmp" -->
+
     <cache name="sampleCache1"
            maxElementsInMemory="10000"
            eternal="false"
@@ -213,6 +233,7 @@
            timeToLiveSeconds="600"
            memoryStoreEvictionPolicy="LFU"
             />
+
 
     <!-- Sample cache named sampleCache2
         This cache has a maximum of 1000 elements in memory. There is no overflow to disk, so 1000
@@ -224,6 +245,7 @@
            overflowToDisk="false"
            memoryStoreEvictionPolicy="FIFO"
             />
+
 
     <!-- Sample cache named sampleCache3. This cache overflows to disk. The disk store is persistent
          between cache and VM restarts. The disk expiry thread interval is set to 10 minutes, overriding
@@ -240,9 +262,10 @@
            memoryStoreEvictionPolicy="LFU"
             />
 
+
     <!-- Sample distributed cache named sampleDistributedCache1.
-        This cache uses defaults which is replicate puts, updates and removes asynchronously via copy.
-        -->
+        This cache replicates using defaults. -->
+
     <cache name="sampleDistributedCache1"
            maxElementsInMemory="10"
            eternal="false"
@@ -253,9 +276,10 @@
     </cache>
 
 
+
     <!-- Sample distributed cache named sampleDistributedCache2.
-        This cache specifies its distribution properties. It only replicates updates and does so synchronously via copy
-     -->
+        This cache replicates using specific properties. It only replicates updates and does so synchronously via copy -->
+
         <cache name="sampleDistributedCache2"
                maxElementsInMemory="10"
                eternal="false"
@@ -269,6 +293,7 @@
 
 
 
-    <!-- Place configuration for your caches following -->
+
+    <!-- Place configuration for your caches following. Make sure you comment out the above samples -->
 
 </ehcache>

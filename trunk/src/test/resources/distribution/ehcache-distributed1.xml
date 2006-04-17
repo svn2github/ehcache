@@ -100,9 +100,12 @@
         - socketTimeoutMillis - the number of seconds client sockets will wait when sending messages to this listener
         until they give up. By default this is 2000ms.
 
+        In this example, hostName has been left blank, as has socketTimeoutMillis. They will default to
+            the default NIC IP address and 2000ms respectively.
+
     -->
     <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
-                                     properties="hostName=localhost, port=40001, socketTimeoutMillis=2000"/>
+                                     properties="hostName=, port=40001, socketTimeoutMillis="/>
 
 
     <!--Default Cache configuration. These will applied to caches programmatically created through
@@ -135,11 +138,6 @@
                                      policy is Least Recently Used (specified as LRU). Other policies available -
                                      First In First Out (specified as FIFO) and Less Frequently Used
                                      (specified as LFU)
-    cacheEventListenerClassNames   - A comma separated list of CacheEventListeners. The fully qualified class name of
-                                     the class which implements CacheEventListener is required.
-                                     Registered listeners will be notified of cache events such as Element puts, removes and expiries
-                                     and Cache status changes. The default if unspecified is an empty notifications list
-                                     which does nothing.
     -->
 
     <defaultCache
@@ -184,11 +182,6 @@
                                      policy is Least Recently Used (specified as LRU). Other policies available -
                                      First In First Out (specified as FIFO) and Less Frequently Used
                                      (specified as LFU)
-    cacheEventListenerClassNames   - A comma separated list of CacheEventListeners. The fully qualified class name of
-                                     the class which implements CacheEventListener is required.
-                                     Registered listeners will be notified of cache events such as Element puts, removes and expiries
-                                     and Cache status changes. The default if unspecified is an empty notifications list
-                                     which does nothing.
     -->
 
 
@@ -203,7 +196,11 @@
            diskExpiryThreadIntervalSeconds="1"
             >
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
-                                   properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
+                                   properties="replicateAsynchronously=true,
+                                               replicatePuts=true,
+                                               replicateUpdates=true,
+                                               replicateUpdatesViaCopy=true,
+                                               replicateRemovals=true "/>
         <cacheEventListenerFactory class="net.sf.ehcache.event.CountingCacheEventListenerFactory"/>
     </cache>
 
@@ -227,7 +224,7 @@
            overflowToDisk="false"
            memoryStoreEvictionPolicy="FIFO">
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
-                                   properties="replicateAsynchronously=false, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+                                   properties="replicateAsynchronously=false, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
     </cache>
 
     <!-- Sample cache named sampleCache4. All missing RMICacheReplicatorFactory properties default to true -->

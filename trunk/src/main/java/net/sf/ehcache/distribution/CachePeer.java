@@ -36,13 +36,10 @@ import java.rmi.RemoteException;
  *
  * todo test Cannot keep up with replication
  * todo test production simulation with lots of threads
- * todo new Hibernate plugin to be submitted to Hibernate
- * todo test default listener properties - should not need to specify host or timeout
  * todo create sample configs for different purposes
- * todo test sycnchronous performance replicating to five peers
+ * todo test synchronous performance replicating to five peers
  * todo test asynchronous performance replicating to five peers
  * todo updates backing up if one drops out
- * todo update test for synchronous replicator. Async already tested.
  *
  * @author Greg Luck
  * @version $Id$

@@ -179,15 +179,25 @@ socketTimeoutMillis=2000"/>
     running on. Specify where the host is multihomed and you want to
     control the interface over which cluster messages are received.
 
+    The hostname is checked for reachability during CacheManager initialisation.
+
+    If the hostName is unreachable, the CacheManager will refuse to start and an
+     CacheException will be thrown indicating connection was refused.
+
+    If unspecified, the hostname will use <<<InetAddress.getLocalHost().getHostAddress()>>>, which corresponds to the default
+     host network interface.
+
+    Warning: Explicitly setting this to localhost refers to the local loopback of 127.0.0.1  which is not network visible.
+
     * port (mandatory) - the port the listener listens on.
 
-    * socketTimeoutMillis - the number of seconds client sockets will wait
+    * socketTimeoutMillis (optional) - the number of seconds client sockets will wait
     when sending messages to this listener until they give up. By default
     this is 2000ms.
 
 * Configuring CacheReplicators
 
-    Each cache that will be distibuted needs to set a cache event listener
+    Each cache that will be distributed needs to set a cache event listener
     which then replicates messages to the other CacheManager peers. This is
     done by adding a cacheEventListenerFactory element to each cache's
     configuration.

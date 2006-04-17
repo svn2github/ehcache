@@ -38,5 +38,12 @@ public class ManualRMIPeerProviderTest extends MulticastRMIPeerProviderTest {
         manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed2.xml");
     }
 
+    /**
+     * The manual test only has two CacheManagers in the cluster, so there is only ever one other.
+     */
+    protected int expectedPeers() {
+        return 1;
+    }
+
 
 }

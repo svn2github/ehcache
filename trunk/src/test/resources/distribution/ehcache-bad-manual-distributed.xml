@@ -109,11 +109,6 @@
                                      policy is Least Recently Used (specified as LRU). Other policies available -
                                      First In First Out (specified as FIFO) and Less Frequently Used
                                      (specified as LFU)
-    cacheEventListenerClassNames   - A comma separated list of CacheEventListeners. The fully qualified class name of
-                                     the class which implements CacheEventListener is required.
-                                     Registered listeners will be notified of cache events such as Element puts, removes and expiries
-                                     and Cache status changes. The default if unspecified is an empty notifications list
-                                     which does nothing.
     -->
 
     <defaultCache
@@ -158,11 +153,6 @@
                                      policy is Least Recently Used (specified as LRU). Other policies available -
                                      First In First Out (specified as FIFO) and Less Frequently Used
                                      (specified as LFU)
-    cacheEventListenerClassNames   - A comma separated list of CacheEventListeners. The fully qualified class name of
-                                     the class which implements CacheEventListener is required.
-                                     Registered listeners will be notified of cache events such as Element puts, removes and expiries
-                                     and Cache status changes. The default if unspecified is an empty notifications list
-                                     which does nothing.
     -->
 
 

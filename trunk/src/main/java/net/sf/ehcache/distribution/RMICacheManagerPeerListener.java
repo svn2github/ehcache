@@ -76,16 +76,16 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
     /**
      * Constructor with full arguements
      *
-     * @param hostname            may be null, in which case the hostName will be looked up. Machines with multiple
+     * @param hostName            may be null, in which case the hostName will be looked up. Machines with multiple
      *                            interfaces should specify this if they do not want it to be the default NIC.
      * @param port                a port in the range 1025 - 65536
      * @param cacheManager        the CacheManager this listener belongs to
      * @param socketTimeoutMillis TCP/IP Socket timeout when waiting on response
      */
-    public RMICacheManagerPeerListener(String hostname, Integer port, CacheManager cacheManager,
+    public RMICacheManagerPeerListener(String hostName, Integer port, CacheManager cacheManager,
                                        Integer socketTimeoutMillis) throws UnknownHostException {
-        if (hostname != null) {
-            this.hostName = hostname;
+        if (hostName != null && hostName.length() != 0) {
+            this.hostName = hostName;
         } else {
             this.hostName = calculateHostAddress();
         }

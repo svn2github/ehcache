@@ -48,7 +48,31 @@
     <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
                                      properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446"/>
 
+    <!--
+        (Enable for distributed operation)
 
+        Specifies a CacheManagerPeerListenerFactory which will be used to create a CacheManagerPeerListener, which
+        listens for messages from cache replicators participating in the cluster.
+
+         The attributes of cacheManagerPeerListenerFactory are:
+        - class - a fully qualified factory class name
+        - properties - comma separated properties having meaning only to the factory.
+
+        Ehcache comes with a built-in RMI-based distribution system. The listener component is RMICacheManagerPeerListener
+        which is configured using RMICacheManagerPeerListenerFactory. It is configured as per the following example:
+
+        <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
+                              properties="hostName=localhost, port=40001, socketTimeoutMillis=2000"/>
+
+        Valid properties are:
+        - hostName (optional) - the hostName of the host the listener is running on. Specify where the host is multihomed
+        and you want to control the interface over which cluster messages are received.
+        - port (mandatory) - the port the listener listens on.
+        - socketTimeoutMillis - the number of seconds client sockets will wait when sending messages to this listener
+        until they give up. By default this is 2000ms.
+
+
+    -->
     <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
                                      properties="hostName=localhost, port=40004, socketTimeoutMillis=2000"/>
 
@@ -83,11 +107,6 @@
                                      policy is Least Recently Used (specified as LRU). Other policies available -
                                      First In First Out (specified as FIFO) and Less Frequently Used
                                      (specified as LFU)
-    cacheEventListenerClassNames   - A comma separated list of CacheEventListeners. The fully qualified class name of
-                                     the class which implements CacheEventListener is required.
-                                     Registered listeners will be notified of cache events such as Element puts, removes and expiries
-                                     and Cache status changes. The default if unspecified is an empty notifications list
-                                     which does nothing.
     -->
 
     <defaultCache
@@ -132,11 +151,6 @@
                                      policy is Least Recently Used (specified as LRU). Other policies available -
                                      First In First Out (specified as FIFO) and Less Frequently Used
                                      (specified as LFU)
-    cacheEventListenerClassNames   - A comma separated list of CacheEventListeners. The fully qualified class name of
-                                     the class which implements CacheEventListener is required.
-                                     Registered listeners will be notified of cache events such as Element puts, removes and expiries
-                                     and Cache status changes. The default if unspecified is an empty notifications list
-                                     which does nothing.
     -->
 
 
@@ -175,7 +189,7 @@
            overflowToDisk="false"
            memoryStoreEvictionPolicy="FIFO">
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
-                                   properties="replicateAsynchronously=false, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+                                   properties="replicateAsynchronously=false, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
     </cache>
 
     <!-- Sample cache named sampleCache4. All missing RMICacheReplicatorFactory properties default to true -->

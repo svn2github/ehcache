@@ -468,8 +468,9 @@ public class RMICacheReplicatorTest extends TestCase {
 
         //Remove
         fromCache.remove(key);
-
-        waitForProgagate();
+        if (asynchronous) {
+            waitForProgagate();
+        }
 
         //Should have been replicated to cache2.
         element2 = toCache.get(key);
@@ -479,42 +480,68 @@ public class RMICacheReplicatorTest extends TestCase {
 
 
     /**
+     * Test various cache configurations for cache1 - explicit setting of:
+     * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
+     */
+    public void testUpdateWithExplicitReplicationConfig() throws Exception {
+        updateViaCopyTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
+    }
+
+    /**
+     * Test various cache configurations for cache1 - explicit setting of:
+     * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
+     */
+    public void testUpdateWithExplicitReplicationSynchronousConfig() throws Exception {
+        updateViaCopyTest(manager1.getCache("sampleCache3"), manager2.getCache("sampleCache3"), SYNCHRONOUS);
+    }
+
+
+    /**
+     * Test put replicated for cache4 - no properties.
+     * Defaults should be replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true
+     */
+    public void testUpdateWithEmptyReplicationPropertiesConfig() throws Exception {
+        updateViaCopyTest(manager1.getCache("sampleCache4"), manager2.getCache("sampleCache4"), ASYNCHRONOUS);
+    }
+
+    /**
      * Tests put and update through copy initiated from cache1 in a cluster
      * <p/>
      * This test goes into an infinite loop if the chain of notifications is not somehow broken.
      */
-    public void testUpdateViaCopy() throws CacheException, InterruptedException, IOException {
+    public void updateViaCopyTest(Cache fromCache, Cache toCache, boolean asynchronous) throws Exception {
 
         if (DistributionUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 
-        cache1 = manager1.getCache("sampleCache1");
-        cache1.removeAll();
-
-        cache2 = manager2.getCache("sampleCache1");
-        cache2.removeAll();
+        fromCache.removeAll();
+        toCache.removeAll();
 
         Serializable key = new Date();
         Serializable value = new Date();
         Element element1 = new Element(key, value);
 
         //Put
-        cache1.put(element1);
-        waitForProgagate();
+        fromCache.put(element1);
+        if (asynchronous) {
+            waitForProgagate();
+        }
 
         //Should have been replicated to cache2.
-        Element element2 = cache2.get(key);
+        Element element2 = toCache.get(key);
         assertEquals(element1, element2);
 
         //Update
         Element updatedElement1 = new Element(key, new Date());
 
-        cache1.put(updatedElement1);
-        waitForProgagate();
+        fromCache.put(updatedElement1);
+        if (asynchronous) {
+            waitForProgagate();
+        }
 
         //Should have been replicated to cache2.
-        Element receivedUpdatedElement2 = cache2.get(key);
+        Element receivedUpdatedElement2 = toCache.get(key);
         assertEquals(updatedElement1, receivedUpdatedElement2);
 
     }

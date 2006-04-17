@@ -49,6 +49,8 @@ public class MulticastRMIPeerProviderTest extends TestCase {
     protected CacheManager manager1;
     /** Cache Manager 2 */
     protected CacheManager manager2;
+    /** Cache Manager 3 */
+    protected CacheManager manager3;
 
     /**
      * {@inheritDoc}
@@ -59,6 +61,7 @@ public class MulticastRMIPeerProviderTest extends TestCase {
         }
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
         manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml");
+        manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
     }
 
     /**
@@ -72,6 +75,9 @@ public class MulticastRMIPeerProviderTest extends TestCase {
 
         manager1.shutdown();
         manager2.shutdown();
+        if (manager3 != null) {
+            manager3.shutdown();
+        }
     }
 
     /**
@@ -88,7 +94,7 @@ public class MulticastRMIPeerProviderTest extends TestCase {
         Thread.sleep(2000);
 
         List peerUrls = manager1.getCachePeerProvider().listRemoteCachePeers(m1sampleCache1);
-        assertEquals(1, peerUrls.size());
+        assertEquals(expectedPeers(), peerUrls.size());
 
 
 
@@ -96,9 +102,15 @@ public class MulticastRMIPeerProviderTest extends TestCase {
         assertFalse(m1sampleCache1.getGuid().equals(m2sampleCache1.getGuid()));
 
         List peerUrls2 = manager2.getCachePeerProvider().listRemoteCachePeers(m2sampleCache1);
-        assertEquals(1, peerUrls2.size());
+        assertEquals(expectedPeers(), peerUrls2.size());
     }
 
+    /**
+     * There are 3 in the cluster, so there will be two others
+     */
+    protected int expectedPeers() {
+        return 2;
+    }
 
 
     /**

@@ -56,7 +56,7 @@ public class RMICacheManagerPeerListenerFactory extends CacheManagerPeerListener
         Integer port = new Integer(portString);
         String socketTimeoutMillisString = PropertyUtil.extractAndLogProperty(SOCKET_TIMEOUT_MILLIS, properties);
         Integer socketTimeoutMillis;
-        if (socketTimeoutMillisString == null) {
+        if (socketTimeoutMillisString == null || socketTimeoutMillisString.length() == 0) {
             socketTimeoutMillis = DEFAULT_SOCKET_TIMEOUT_MILLIS;
         } else {
             socketTimeoutMillis = new Integer(socketTimeoutMillisString);
