@@ -445,30 +445,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Main.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/Main.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="36" column="0" selection-start="1156" selection-end="1156" vertical-scroll-proportion="0.48351648">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="build.properties" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/build.properties">
           <provider selected="true" editor-type-id="text-editor">
             <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ManualRMIPeerProviderTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/ManualRMIPeerProviderTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="608" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -486,7 +466,25 @@
       <file leaf-file-name="build.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/build.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="17" column="4" selection-start="592" selection-end="592" vertical-scroll-proportion="0.2875458">
+            <state line="203" column="77" selection-start="8648" selection-end="8648" vertical-scroll-proportion="0.77106225">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="distributed_caching.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/distributed_caching.apt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="141" column="95" selection-start="5388" selection-end="5388" vertical-scroll-proportion="0.6779661">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="roadmap.apt" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/roadmap.apt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="12" column="0" selection-start="141" selection-end="141" vertical-scroll-proportion="0.26373628">
               <folding />
             </state>
           </provider>
@@ -528,7 +526,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CachePeer.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="CachePeer.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/CachePeer.java">
           <provider selected="true" editor-type-id="text-editor">
             <state line="37" column="18" selection-start="1361" selection-end="1361" vertical-scroll-proportion="0.2893773">
@@ -1453,23 +1451,9 @@
     </buildFile>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed2.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="45" column="48" selection-start="1946" selection-end="1946" vertical-scroll-proportion="-2.571116">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed1.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state line="105" column="62" selection-start="5626" selection-end="5626" vertical-scroll-proportion="0.4463895">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/distributed_caching.apt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="186" column="20" selection-start="6960" selection-end="6960" vertical-scroll-proportion="0.5273523">
           <folding />
         </state>
       </provider>
@@ -1511,20 +1495,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="300" column="27" selection-start="9275" selection-end="9275" vertical-scroll-proportion="0.507326">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="4" selection-start="592" selection-end="592" vertical-scroll-proportion="0.2875458">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/site/apt/news.apt">
       <provider selected="true" editor-type-id="text-editor">
         <state line="9" column="0" selection-start="51" selection-end="351" vertical-scroll-proportion="0.1978022">
@@ -1556,6 +1526,34 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/CachePeer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="37" column="18" selection-start="1361" selection-end="1361" vertical-scroll-proportion="0.2893773">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="300" column="27" selection-start="9275" selection-end="9275" vertical-scroll-proportion="0.507326">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="203" column="77" selection-start="8648" selection-end="8648" vertical-scroll-proportion="0.77106225">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/distributed_caching.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="141" column="95" selection-start="5388" selection-end="5388" vertical-scroll-proportion="0.6779661">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/roadmap.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="12" column="0" selection-start="141" selection-end="141" vertical-scroll-proportion="0.26373628">
           <folding />
         </state>
       </provider>

@@ -10,6 +10,7 @@ Development Roadmap
 * Expected features for 1.2.1
 
 ** JGroups based replication
+
  Work is near completion (by Surya) on a JGRoups replication implementation to complement the current RMI one. 
 
 * Potential New Features for 1.3

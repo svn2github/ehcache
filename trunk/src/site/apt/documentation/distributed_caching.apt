@@ -60,6 +60,7 @@ Distributed Caching
     in the ehcache.xml configuration file.
 
 ** Automatic Discovery
+
     Automatic discovery uses TCP multicast to establish and maintain a
     multicast group. It features minimal configuration and automatic
     addition to and deletion of members from
@@ -86,19 +87,15 @@ Distributed Caching
     sampleCache11 and sampleCache12. The configuration
     required for each server is identical:
 
-Configuration for server1 and server2
+    Configuration for server1 and server2
+
 +------------------------------------------+
-
-
-       \<cacheManagerPeerProviderFactory
+ <cacheManagerPeerProviderFactory
  class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
 
  properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1,
  multicastGroupPort=4446"/>
-
-
 +------------------------------------------+
-
 
 ** Manual Peer Discovery
 
@@ -119,6 +116,7 @@ Configuration for server1 and server2
      configured. Do not include the server being configured in the list.
 
 *** Example
+
      Suppose you have two servers in a cluster. You wish to distribute
      sampleCache11 and sampleCache12. Following is the configuration
      required for each server:
@@ -126,7 +124,7 @@ Configuration for server1 and server2
      Configuration for server1
 
 +------------------------------------------+
- \<cacheManagerPeerProviderFactory
+ <cacheManagerPeerProviderFactory
  class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
 
  properties="peerDiscovery=manual,
@@ -137,7 +135,7 @@ Configuration for server1 and server2
      Configuration for server2
 
 +------------------------------------------+
- \<cacheManagerPeerProviderFactory
+ <cacheManagerPeerProviderFactory
  class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
 
  properties="peerDiscovery=manual,
