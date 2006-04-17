@@ -1,6 +1,24 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
 
+ehcache-1.2rc1
+==============
+
+ehcache-1.2 release candidate 1. ehcache-1.2 represents the addition of many new features while remaining
+         backward compatible with 1.1.
+
+License updated to Apache 2.0.	Greg Luck
+Following many requests, ehcache no longer requires that Elements contain Serializable keys and values. Ehcache will gracefully degrade for those operations which require Serialization. In particular the MemoryStore and event listeners can be used with Non Serializable elements. WARNING error messages are logged when an operation cannot be completed because the key or value is not Serializable.	Greg Luck
+Feature Request 1458049 Wrap original exceptions during configuration. Added an intial cause Throwable field to CacheException to facilitate easier reporting without breaking pre JDK1.4 compatibility.	Greg Luck
+Removed the old Hibernate plugin from the code base. It has been deprecated since the beginning of the 1.2 beta series. The plugin is being actively maintained in the Hibernate project. Any project still using net.sf.ehcache.hibernate.Plugin should change their Hibernate configurations to org.hibernate.cache.EHCacheProvider.	Greg Luck
+Feature Request 1081071. Added the ability to specify subdirectories under System Property paths. e.g. java.io.tmpdir/one	Greg Luck
+Feature Request 1025706. Added the ability to specify a system property, net.sf.ehcache.disabled=true, to easily disable ehcache. A disabled cache works fully but discards and Elements added to it.	Greg Luck
+Add protections to the DiskStore spoolThread against programming errors in Elements that can cause it to die. Secondly, if it does die, disable adding elements to the DiskStore and log an error, so as to gracefully degrade. Fixes 1432458.	Greg Luck
+flush() was using up to double the memory used by a MemoryStore during flush() which could cause an OutOfMemory error on shutdown if memory was constrained. flush no longer causes any memory spike. Thanks to Sergey Nekoval for reporting the bug. Fixes 1369073.	Greg Luck
+
+
+
+
 ehcache-1.2 beta5
 =================
 

@@ -5,9 +5,6 @@
  Date
  ------
 
-
-
-
 Welcome to ehcache
 
  Ehcache is a widely used java distributed cache for general purpose caching, J2EE and light-weight containers.
@@ -17,6 +14,13 @@ Welcome to ehcache
  Ehcache is available under an Apache open source {{{license.html}license}} and is actively developed, maintained and supported.
 
 * Latest News
+
+** 17 April 2006: ehcache-1.2rc1 released
+
+     Released ehcache-1.2rc1 to give testers a chance to test recent fixes and fine tuning before a final release.
+
+     At this point all bugs, support requests and feature requests are closed. Final testing is focusing on the
+     distributed caching area.
 
 ** 8 April 2006: Elements are no longer required to be Serializable
 

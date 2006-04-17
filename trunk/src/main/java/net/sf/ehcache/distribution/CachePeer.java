@@ -38,7 +38,6 @@ import java.rmi.RemoteException;
  * todo test production simulation with lots of threads
  * todo create sample configs for different purposes
  * todo test synchronous performance replicating to five peers
- * todo test asynchronous performance replicating to five peers
  * todo updates backing up if one drops out
  *
  * @author Greg Luck

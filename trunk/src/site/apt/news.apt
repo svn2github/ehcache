@@ -7,6 +7,14 @@
 
 News
 
+* 17 April 2006: ehcache-1.2rc1 released
+
+     Released ehcache-1.2rc1 to give testers a chance to test recent fixes and fine tuning before a final release.
+
+     At this point all bugs, support requests and feature requests are closed. Final testing is focusing on the
+     distributed caching area.
+
+
 * 8 April 2006: Elements are no longer required to be Serializable
 
      Following many requests, ehcache no longer requires that Elements contain Serializable keys and values. Ehcache
