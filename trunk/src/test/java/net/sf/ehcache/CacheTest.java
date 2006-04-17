@@ -351,14 +351,14 @@ public class CacheTest extends AbstractCacheTest {
     }
 
     /**
-     * todo uncomment
      * Test Caches with persistent stores dispose properly. Tests:
      * <ol>
-     * <li>No exceptions are thrown
+     * <li>No exceptions are thrown on dispose
+     * <li>You cannot re add a cache after it has been disposed and removed
+     * <li>You can create a new cache with the same name
      * </ol>
      */
-    public void testDispose() throws CacheException {
-        //Set size so the second element overflows to disk.
+    public void testCreateAddDisposeAdd() throws CacheException {
         Cache cache = new Cache("test2", 1, true, true, 0, 0, true, 120);
         manager.addCache(cache);
         cache.put(new Element("key1", "value1"));
@@ -367,8 +367,23 @@ public class CacheTest extends AbstractCacheTest {
         int sizeFromKeys = cache.getKeys().size();
         assertEquals(sizeFromGetSize, sizeFromKeys);
         assertEquals(2, cache.getSize());
+        //package protected method, only available to tests. Called by teardown
+        cache.dispose();
+        manager.removeCache("test2");
 
-        //cache.dispose(); //package protected method, only available to tests. Called by teardown
+
+        try {
+            manager.addCache(cache);
+            fail();
+        } catch (IllegalStateException e) {
+            //expected
+        }
+
+        //Add a new cache with the same name as the disposed one.
+        Cache cache2 = new Cache("test2", 1, true, true, 0, 0, true, 120);
+        manager.addCache(cache2);
+        Cache cacheFromManager = manager.getCache("test2");
+        assertTrue(cacheFromManager.getStatus().equals(Status.STATUS_ALIVE));
 
     }
 

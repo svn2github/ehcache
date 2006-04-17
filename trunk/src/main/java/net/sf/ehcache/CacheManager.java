@@ -478,7 +478,7 @@ public final class CacheManager {
     public synchronized void removeCache(String cacheName) throws IllegalStateException {
         checkStatus();
         Cache cache = (Cache) caches.remove(cacheName);
-        if (cache != null) {
+        if (cache != null && cache.getStatus().equals(Status.STATUS_ALIVE)) {
             cache.dispose();
         }
         if (cacheManagerEventListener != null) {
