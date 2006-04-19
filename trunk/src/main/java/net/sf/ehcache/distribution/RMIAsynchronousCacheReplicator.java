@@ -221,6 +221,29 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
         }
     }
 
+    /**
+     * Makes a copy of the queue so as not to hold up the enqueue operations.
+     */
+    private void flushReplicationQueueStreamed() {
+        Object[] replicationQueueCopy;
+        synchronized (replicationQueue) {
+            replicationQueueCopy = replicationQueue.toArray();
+            replicationQueue.clear();
+        }
+        for (int i = 0; i < replicationQueueCopy.length; i++) {
+            final EventMessage eventMessage = (EventMessage) replicationQueueCopy[i];
+            try {
+                if (eventMessage.event == EventMessage.PUT) {
+                    replicatePutNotification(eventMessage.cache, eventMessage.element);
+                } else {
+                    replicateRemovalNotification(eventMessage.cache, eventMessage.key);
+                }
+            } catch (CacheException e) {
+                LOG.warn(e.getMessage());
+            }
+        }
+    }
+
 
     /**
      * A background daemon thread that writes objects to the file.

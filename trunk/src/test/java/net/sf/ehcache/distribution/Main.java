@@ -16,10 +16,8 @@
 
 package net.sf.ehcache.distribution;
 
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Cache;
-import java.net.URL;
-
+import net.sf.ehcache.CacheManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -51,11 +49,14 @@ public final class Main {
      */
     public static void main(String[] args) throws InterruptedException {
 
-        URL configurationUrl = Main.class.getResource("ehcache-distributed1.xml");
+        if (args.length != 1) {
+            LOG.info("Usage: java -jar ehcache-test.jar path_to_ehcache.xml");
+        }
 
-        CacheManager manager = new CacheManager(configurationUrl);
+        CacheManager manager = new CacheManager(args[0]);
 
         Cache cache = manager.getCache("sampleCache1");
+        LOG.info("sampleCAche1" + cache);
 
         while (true) {
 

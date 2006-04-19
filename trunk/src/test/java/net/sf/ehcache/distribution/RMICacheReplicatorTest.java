@@ -116,7 +116,7 @@ public class RMICacheReplicatorTest extends TestCase {
         cache2.removeAll();
 
         //allow cluster to be established
-        Thread.sleep(500);
+        Thread.sleep(6000);
 
     }
 
@@ -211,7 +211,7 @@ public class RMICacheReplicatorTest extends TestCase {
         manager5.shutdown();
 
         //Allow change detection to occur. Heartbeat 1 second and is not stale until 5000
-        Thread.sleep(6010);
+        Thread.sleep(11010);
         remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
 
 
@@ -234,9 +234,9 @@ public class RMICacheReplicatorTest extends TestCase {
         //Drop a CacheManager from the cluster
         manager5.shutdown();
 
-        //still works because the lookup fails
+        //Insufficient time for it to timeout
         remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
-        assertEquals(3, remotePeersOfCache1.size());
+        assertEquals(4, remotePeersOfCache1.size());
     }
 
     /**
@@ -294,13 +294,25 @@ public class RMICacheReplicatorTest extends TestCase {
     }
 
     /**
-     * See what happens when we send a 2000 puts through at the same time.
+     * Performance and capacity tests.
      * <p/>
-     * Running a remote cache peer on a separate computer takes 28 seconds to get all notifications.
+     * The numbers given are for the remote peer tester (java -jar ehcache-test.jar ehcache-distributed1.xml)
+     * running on a 10Mbit ethernet network
+     * <p/>
+     * r37 and earlier - initial implementation
+     * 38 seconds to get all notifications with 6 peers, 2000 Elements and 400 byte payload
+     * 18 seconds to get all notifications with 2 peers, 2000 Elements and 400 byte payload
+     * 40 seconds to get all notifications with 2 peers, 2000 Elements and 10k payload
+     * 22 seconds to get all notifications with 2 peers, 2000 Elements and 1k payload
+     * 26 seconds to get all notifications with 2 peers, 200 Elements and 100k payload
+     *
+     * r38 - RMI stub lookup on registration rather than at each lookup. Saves quite a few lookups. Also change to 5 second heartbeat
+     * 38 seconds to get 2000 notifications with 6 peers, Elements with 400 byte payload (1 second heartbeat)
+     * 16 seconds to get 2000 notifications with 6 peers, Elements with 400 byte payload (5 second heartbeat)
+     * 13 seconds to get 2000 notifications with 2 peers, Elements with 400 byte payload
      */
     public void testBigPutsProgagates() throws CacheException, InterruptedException {
         //Give everything a chance to startup
-        Thread.sleep(1000);
         StopWatch stopWatch = new StopWatch();
         Integer index = null;
         for (int i = 0; i < 2; i++) {
@@ -313,6 +325,7 @@ public class RMICacheReplicatorTest extends TestCase {
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
             }
+
         }
         long elapsed = stopWatch.getElapsedTime();
         long putTime = ((elapsed / 1000));

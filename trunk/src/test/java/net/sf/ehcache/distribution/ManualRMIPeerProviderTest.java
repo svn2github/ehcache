@@ -36,6 +36,9 @@ public class ManualRMIPeerProviderTest extends MulticastRMIPeerProviderTest {
 
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed1.xml");
         manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed2.xml");
+
+        //Allow cluster setup
+        Thread.sleep(100);
     }
 
     /**

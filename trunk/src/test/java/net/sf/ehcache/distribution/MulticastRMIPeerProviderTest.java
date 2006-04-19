@@ -45,11 +45,17 @@ public class MulticastRMIPeerProviderTest extends TestCase {
 
     private static final Log LOG = LogFactory.getLog(MulticastRMIPeerProviderTest.class.getName());
 
-    /** Cache Manager 1 */
+    /**
+     * Cache Manager 1
+     */
     protected CacheManager manager1;
-    /** Cache Manager 2 */
+    /**
+     * Cache Manager 2
+     */
     protected CacheManager manager2;
-    /** Cache Manager 3 */
+    /**
+     * Cache Manager 3
+     */
     protected CacheManager manager3;
 
     /**
@@ -62,6 +68,9 @@ public class MulticastRMIPeerProviderTest extends TestCase {
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
         manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml");
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
+
+        //wait for cluster to establish
+        Thread.sleep(6000);
     }
 
     /**
@@ -89,14 +98,11 @@ public class MulticastRMIPeerProviderTest extends TestCase {
             return;
         }
 
-
         Cache m1sampleCache1 = manager1.getCache("sampleCache1");
         Thread.sleep(2000);
 
         List peerUrls = manager1.getCachePeerProvider().listRemoteCachePeers(m1sampleCache1);
         assertEquals(expectedPeers(), peerUrls.size());
-
-
 
         Cache m2sampleCache1 = manager2.getCache("sampleCache1");
         assertFalse(m1sampleCache1.getGuid().equals(m2sampleCache1.getGuid()));
@@ -115,10 +121,10 @@ public class MulticastRMIPeerProviderTest extends TestCase {
 
     /**
      * Tests the speed of remotely looking up.
+     *
      * @throws RemoteException
-     * @throws InterruptedException
-     * .19ms
-     * This seems to imply a maximum of 5000 per second best case. Not bad.
+     * @throws InterruptedException .19ms
+     *                              This seems to imply a maximum of 5000 per second best case. Not bad.
      */
     public void testRemoteGetName() throws RemoteException, InterruptedException {
 

@@ -19,21 +19,18 @@ package net.sf.ehcache.distribution;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Collections;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * A provider of Peer RMI addresses.
@@ -41,7 +38,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Greg Luck
  * @version $Id$
  */
-public class RMICacheManagerPeerProvider implements CacheManagerPeerProvider {
+public abstract class RMICacheManagerPeerProvider implements CacheManagerPeerProvider {
 
     private static final Log LOG = LogFactory.getLog(RMICacheManagerPeerProvider.class.getName());
 
@@ -49,14 +46,11 @@ public class RMICacheManagerPeerProvider implements CacheManagerPeerProvider {
      * Contains a RMI URLs of the form: "//" + hostName + ":" + port + "/" + cacheName;
      */
     protected Map peerUrls = Collections.synchronizedMap(new HashMap());
-    private CacheManager cacheManager;
 
     /**
-     * Empty constructor
+     * The CacheManager this peer provider is associated with.
      */
-    public RMICacheManagerPeerProvider() {
-        //nothing to do
-    }
+    protected CacheManager cacheManager;
 
 
     /**
@@ -68,24 +62,35 @@ public class RMICacheManagerPeerProvider implements CacheManagerPeerProvider {
         this.cacheManager = cacheManager;
     }
 
+    /**
+     * Empty constructor
+     */
+    public RMICacheManagerPeerProvider() {
+        //nothing to do
+    }
+
 
     /**
      * {@inheritDoc}
      */
-    public void init() {
-        //nothing required for this implementation
-    }
+    public abstract void init();
+
 
     /**
      * Register a new peer
      *
      * @param rmiUrl
      */
-    public synchronized void registerPeer(String rmiUrl) {
-        peerUrls.put(rmiUrl, new Date());
-    }
+    public abstract void registerPeer(String rmiUrl);
 
-    private String extractCacheName(String rmiUrl) {
+
+
+    /**
+     * Gets the cache name out of the url
+     * @param rmiUrl
+     * @return the cache name as it would appear in ehcache.xml
+     */
+    protected String extractCacheName(String rmiUrl) {
         return rmiUrl.substring(rmiUrl.lastIndexOf('/') + 1);
     }
 
@@ -99,59 +104,17 @@ public class RMICacheManagerPeerProvider implements CacheManagerPeerProvider {
     }
 
     /**
-     * @return a list of {@link CachePeer} peers, excluding the local peer.
+     * @return a list of {@link net.sf.ehcache.distribution.CachePeer} peers for the given cache, excluding the local peer.
      */
-    public synchronized List listRemoteCachePeers(Cache cache) throws CacheException {
-        List remoteCachePeers = new ArrayList();
-        List staleList = new ArrayList();
-        for (Iterator iterator = peerUrls.keySet().iterator(); iterator.hasNext();) {
-            String rmiUrl = (String) iterator.next();
-            String rmiUrlCacheName = extractCacheName(rmiUrl);
-            try {
-                if (!rmiUrlCacheName.equals(cache.getName())) {
-                    continue;
-                }
-                Date date = (Date) peerUrls.get(rmiUrl);
-                if (!stale(date)) {
-                    CachePeer cachePeer = lookupRemoteCachePeer(rmiUrl);
-                    remoteCachePeers.add(cachePeer);
-                } else {
-                    if (LOG.isDebugEnabled()) {
-                    LOG.debug("rmiUrl " + rmiUrl + " is stale. Either the remote peer is shutdown or the " +
-                            "network connectivity has been interrupted. Will be removed from list of remote cache peers");
-                    }
-                    staleList.add(rmiUrl);
-                }
-            } catch (NotBoundException e) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("No cache peer bound to URL at " + rmiUrl
-                            + ". It must have disappeared since the last heartbeat");
-                }
-            } catch (Exception exception) {
-                LOG.error(exception.getMessage(), exception);
-                throw new CacheException("Unable to list remote cache peers. Error was " + exception.getMessage());
-            }
-        }
-
-        //Remove any stale remote peers. Must be done here to avoid concurrent modification exception.
-        for (int i = 0; i < staleList.size(); i++) {
-            String rmiUrl = (String) staleList.get(i);
-            peerUrls.remove(rmiUrl);
-        }
-        return remoteCachePeers;
-    }
+    public abstract List listRemoteCachePeers(Cache cache) throws CacheException;
 
     /**
      * Whether the entry should be considered stale. This will depend on the type of RMICacheManagerPeerProvider.
      * <p/>
-     * This method should be overridden for implementations that go stale based on date
-     *
      * @param date the date the entry was created
      * @return true if stale
      */
-    protected boolean stale(Date date) {
-        return false;
-    }
+    protected abstract boolean stale(Date date);
 
 
     /**
@@ -177,5 +140,8 @@ public class RMICacheManagerPeerProvider implements CacheManagerPeerProvider {
     public CacheManager getCacheManager() {
         return cacheManager;
     }
+
+
+
 
 }

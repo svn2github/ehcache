@@ -75,7 +75,7 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
         }
         rmiUrls = rmiUrls.trim();
         StringTokenizer stringTokenizer = new StringTokenizer(rmiUrls, PayloadUtil.URL_DELIMITER);
-        RMICacheManagerPeerProvider rmiPeerProvider = new RMICacheManagerPeerProvider();
+        RMICacheManagerPeerProvider rmiPeerProvider = new ManualRMICacheManagerPeerProvider();
         while (stringTokenizer.hasMoreTokens()) {
             String rmiUrl = stringTokenizer.nextToken();
             rmiUrl = rmiUrl.trim();

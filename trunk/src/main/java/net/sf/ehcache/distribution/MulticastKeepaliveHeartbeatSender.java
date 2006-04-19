@@ -38,7 +38,7 @@ public class MulticastKeepaliveHeartbeatSender {
 
 
     private static final Log LOG = LogFactory.getLog(MulticastKeepaliveHeartbeatSender.class.getName());
-    private static final long HEARTBEAT_INTERVAL = 1000;
+    private static final long HEARTBEAT_INTERVAL = 5000;
 
     private InetAddress groupMulticastAddress;
     private Integer groupMulticastPort;
