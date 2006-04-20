@@ -39,8 +39,11 @@ public class RMICacheManagerPeerListenerFactory extends CacheManagerPeerListener
 
     /**
      * The default timeout for cache replication for a single replication action.
+     * <p/>
+     * This may need to be increased for large data transfers.
+     *
      */
-    public static final Integer DEFAULT_SOCKET_TIMEOUT_MILLIS = new Integer(2000);
+    public static final Integer DEFAULT_SOCKET_TIMEOUT_MILLIS = new Integer(120000);
 
     private static final String HOSTNAME = "hostName";
     private static final String PORT = "port";

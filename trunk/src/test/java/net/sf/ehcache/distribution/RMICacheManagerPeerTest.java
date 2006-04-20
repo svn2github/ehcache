@@ -28,6 +28,8 @@ import java.net.SocketTimeoutException;
 import java.rmi.RemoteException;
 import java.rmi.UnmarshalException;
 import java.util.Date;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Unit tests for RMICachePeer
@@ -121,6 +123,31 @@ public class RMICacheManagerPeerTest extends TestCase {
 
         CachePeer cachePeer = RMICacheManagerPeerProvider.lookupRemoteCachePeer(rmiCachePeer.getUrl());
         cachePeer.put(new Element("1", new Date()));
+    }
+
+    /**
+     * Test send.
+     * <p/>
+     * This is a unit test because it was throwing AbstractMethodError if a method has changed signature,
+     * or NoSuchMethodError is a new one is added. The problem is that rmic needs
+     * to recompile the stub after any changes are made to the CachePeer source, something done by ant
+     * compile but not by the IDE.
+     */
+    public void testSend() throws Exception {
+
+        cache = new Cache("test", 10, false, false, 10, 10);
+        RMICachePeer rmiCachePeer = new RMICachePeer(cache, hostName, port, new Integer(2100));
+        manager.addCache(cache);
+
+        peerListener.getCachePeers().add(rmiCachePeer);
+        peerListener.init();
+
+        CachePeer cachePeer = RMICacheManagerPeerProvider.lookupRemoteCachePeer(rmiCachePeer.getUrl());
+        Element element = new Element("1", new Date());
+        EventMessage eventMessage = new EventMessage(EventMessage.PUT, element);
+        List eventMessages = new ArrayList();
+        eventMessages.add(eventMessage);
+        cachePeer.send(eventMessages);
     }
 
 

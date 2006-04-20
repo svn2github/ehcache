@@ -297,7 +297,8 @@ public class RMICacheReplicatorTest extends TestCase {
      * Performance and capacity tests.
      * <p/>
      * The numbers given are for the remote peer tester (java -jar ehcache-test.jar ehcache-distributed1.xml)
-     * running on a 10Mbit ethernet network
+     * running on a 10Mbit ethernet network and are measured from the time the peer starts receiving to when
+     * it has fully received.
      * <p/>
      * r37 and earlier - initial implementation
      * 38 seconds to get all notifications with 6 peers, 2000 Elements and 400 byte payload
@@ -310,6 +311,9 @@ public class RMICacheReplicatorTest extends TestCase {
      * 38 seconds to get 2000 notifications with 6 peers, Elements with 400 byte payload (1 second heartbeat)
      * 16 seconds to get 2000 notifications with 6 peers, Elements with 400 byte payload (5 second heartbeat)
      * 13 seconds to get 2000 notifications with 2 peers, Elements with 400 byte payload
+     *
+     * r39 - Batching asyn replicator. Send all queued messages in one RMI call once per second.
+     * 2 seconds to get 2000 notifications with 6 peers, Elements with 400 byte payload (5 second heartbeat)
      */
     public void testBigPutsProgagates() throws CacheException, InterruptedException {
         //Give everything a chance to startup
@@ -318,7 +322,7 @@ public class RMICacheReplicatorTest extends TestCase {
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 1000; j++) {
                 index = new Integer(((1000 * i) + j));
-                cache1.put(new Element(index,
+                cache1.put(new Element(index,                                        
                         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -334,7 +338,7 @@ public class RMICacheReplicatorTest extends TestCase {
 
         assertEquals(2000, cache1.getSize());
 
-        Thread.sleep(40000);
+        Thread.sleep(2000);
         assertEquals(2000, manager2.getCache("sampleCache1").getSize());
         assertEquals(2000, manager3.getCache("sampleCache1").getSize());
         assertEquals(2000, manager4.getCache("sampleCache1").getSize());
@@ -400,6 +404,16 @@ public class RMICacheReplicatorTest extends TestCase {
         if (asynchronous) {
             waitForProgagate();
         }
+
+        int j = 0;
+
+        Thread.sleep(5000);
+
+        LOG.info("" + manager1.getCache("sampleCache1").getSize());
+        LOG.info("" + manager2.getCache("sampleCache1").getSize());
+        LOG.info("" + manager3.getCache("sampleCache1").getSize());
+        LOG.info("" + manager4.getCache("sampleCache1").getSize());
+        LOG.info("" + manager5.getCache("sampleCache1").getSize());
 
         //Should have been replicated to toCache.
         Element deliveredElement = toCache.get(key);

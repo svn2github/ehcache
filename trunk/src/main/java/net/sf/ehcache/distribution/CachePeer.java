@@ -22,6 +22,7 @@ import net.sf.ehcache.Status;
 import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.List;
 
 /**
  * An interface for a cache peer to which updates are made remotely. The distribution mechanism
@@ -38,7 +39,6 @@ import java.rmi.RemoteException;
  * todo test production simulation with lots of threads
  * todo create sample configs for different purposes
  * todo test synchronous performance replicating to five peers
- * todo updates backing up if one drops out
  *
  * @author Greg Luck
  * @version $Id$
@@ -58,7 +58,6 @@ public interface CachePeer extends Remote {
      */
     void put(Element element) throws IllegalArgumentException, IllegalStateException, RemoteException;
 
-
     /**
      * Removes an {@link net.sf.ehcache.Element} from the Cache. This also removes it from any
      * stores it may be in.
@@ -75,6 +74,14 @@ public interface CachePeer extends Remote {
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     void removeAll() throws RemoteException, IllegalStateException;
+
+
+    /**
+     * Send the cache peer with an ordered list of {@link EventMessage}s
+     * <p/>
+     * This enables multiple messages to be delivered in one network invocation.
+     */
+    void send(List  eventMessages) throws RemoteException;
 
     /**
      * Gets the status attribute of the Store object
@@ -96,8 +103,8 @@ public interface CachePeer extends Remote {
     String getGuid() throws RemoteException;
 
     /**
-     * The URL for the remote replicator to connect. The value will have meaning
-     * only to a specific implementation of replicator and remote peer.
+     * The URL for the remote replicator to connect. The value will only have meaning
+     * for a specific implementation of replicator and remote peer.
      * <p/>
      * This method is not meant to be used remotely. The replicator already needs to know this. It has
      * to throw RemoteException to comply with RMI requirements
@@ -111,5 +118,8 @@ public interface CachePeer extends Remote {
      * only to a specific implementation of replicator and remote peer.
      */
      String getUrlBase() throws RemoteException;
+
+
+
 
 }

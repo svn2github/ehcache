@@ -19,6 +19,7 @@ package net.sf.ehcache.distribution;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ArrayList;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
@@ -43,7 +44,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      * The amount of time the replication thread sleeps after it detects the replicationQueue is empty
      * before checking again.
      */
-    protected static final int REPLICATION_THREAD_INTERVAL = 200;
+    protected static final int REPLICATION_THREAD_INTERVAL = 1000;
 
     private static final Log LOG = LogFactory.getLog(RMIAsynchronousCacheReplicator.class.getName());
 
@@ -127,9 +128,9 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
             }
             return;
         }
-        
+
         synchronized (replicationQueue) {
-            replicationQueue.add(new EventMessage(EventMessage.PUT, cache, element));
+            replicationQueue.add(new CacheEventMessage(EventMessage.PUT, cache, element));
         }
     }
 
@@ -161,7 +162,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
                 }
                 return;
             }
-            replicationQueue.add(new EventMessage(EventMessage.PUT, cache, element));
+            replicationQueue.add(new CacheEventMessage(EventMessage.PUT, cache, element));
         } else {
             if (!element.isKeySerializable()) {
                 if (LOG.isWarnEnabled()) {
@@ -169,7 +170,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
                 }
                 return;
             }
-            replicationQueue.add(new EventMessage(EventMessage.REMOVE, cache, (Serializable) element.getKey()));
+            replicationQueue.add(new CacheEventMessage(EventMessage.REMOVE, cache, (Serializable) element.getKey()));
         }
     }
 
@@ -194,56 +195,52 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
             return;
         }
         synchronized (replicationQueue) {
-            replicationQueue.add(new EventMessage(EventMessage.REMOVE, cache, (Serializable) element.getKey()));
+            replicationQueue.add(new CacheEventMessage(EventMessage.REMOVE, cache, (Serializable) element.getKey()));
         }
     }
 
     /**
+     * Gets called once per {@link #REPLICATION_THREAD_INTERVAL}.
+     * <p/>
+     * Sends accumulated messages in bulk to each peer. i.e. if ther are 100 messages and 1 peer,
+     * 1 RMI invocation results, not 100. Also, if a peer is unavailable this is discovered in only 1 try.
+     * <p/>
      * Makes a copy of the queue so as not to hold up the enqueue operations.
+     * <p/>
+     * Any exceptions are caught so that the replication thread does not die, and because errors are expected,
+     * due to peers becoming unavailable.
      */
     private void flushReplicationQueue() {
         Object[] replicationQueueCopy;
         synchronized (replicationQueue) {
+            if (replicationQueue.size() == 0) {
+                return;
+            }
+
             replicationQueueCopy = replicationQueue.toArray();
             replicationQueue.clear();
         }
+
+
+        Cache cache = ((CacheEventMessage) replicationQueueCopy[0]).cache;
+        List cachePeers = listRemoteCachePeers(cache);
+        List list = new ArrayList();
+
         for (int i = 0; i < replicationQueueCopy.length; i++) {
-            final EventMessage eventMessage = (EventMessage) replicationQueueCopy[i];
+            final CacheEventMessage cacheEventMessage = (CacheEventMessage) replicationQueueCopy[i];
+            list.add(cacheEventMessage.getEventMessage());
+        }
+
+        for (int j = 0; j < cachePeers.size(); j++) {
+            CachePeer cachePeer = (CachePeer) cachePeers.get(j);
             try {
-                if (eventMessage.event == EventMessage.PUT) {
-                    replicatePutNotification(eventMessage.cache, eventMessage.element);
-                } else {
-                    replicateRemovalNotification(eventMessage.cache, eventMessage.key);
-                }
-            } catch (CacheException e) {
-                LOG.warn(e.getMessage());
+                cachePeer.send(list);
+            } catch (Throwable t) {
+                LOG.info("Unable to send message to remote peer.  Message was: " + t.getMessage());
+
             }
         }
     }
-
-    /**
-     * Makes a copy of the queue so as not to hold up the enqueue operations.
-     */
-    private void flushReplicationQueueStreamed() {
-        Object[] replicationQueueCopy;
-        synchronized (replicationQueue) {
-            replicationQueueCopy = replicationQueue.toArray();
-            replicationQueue.clear();
-        }
-        for (int i = 0; i < replicationQueueCopy.length; i++) {
-            final EventMessage eventMessage = (EventMessage) replicationQueueCopy[i];
-            try {
-                if (eventMessage.event == EventMessage.PUT) {
-                    replicatePutNotification(eventMessage.cache, eventMessage.element);
-                } else {
-                    replicateRemovalNotification(eventMessage.cache, eventMessage.key);
-                }
-            } catch (CacheException e) {
-                LOG.warn(e.getMessage());
-            }
-        }
-    }
-
 
     /**
      * A background daemon thread that writes objects to the file.
@@ -267,26 +264,25 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      * An Event Message, which enables the element to enqueued along with
      * what is to be done with it.
      */
-    private class EventMessage {
+    private class CacheEventMessage extends EventMessage {
 
-        private static final int PUT = 0;
-        private static final int REMOVE = 1;
-
-        private int event;
         private Cache cache;
-        private Element element;
-        private Serializable key;
 
-        public EventMessage(int event, Cache cache, Element element) {
+        public CacheEventMessage(int event, Cache cache, Element element) {
+            super(event, element);
             this.cache = cache;
-            this.event = event;
-            this.element = element;
         }
 
-        public EventMessage(int event, Cache cache, Serializable key) {
+        public CacheEventMessage(int event, Cache cache, Serializable key) {
+            super(event, key);
             this.cache = cache;
-            this.event = event;
-            this.key = key;
+        }
+
+        /**
+         * Gets the component EventMessage
+         */
+        public EventMessage getEventMessage() {
+            return new EventMessage(event, key, element);
         }
 
     }
@@ -301,4 +297,6 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
         }
 
     }
+
+
 }

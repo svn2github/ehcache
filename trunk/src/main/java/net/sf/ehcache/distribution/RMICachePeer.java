@@ -28,11 +28,13 @@ import java.rmi.RemoteException;
 import java.rmi.Remote;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.server.RMISocketFactory;
+import java.util.List;
 
 /**
  * An RMI based implementation of <code>CachePeer</code>.
  * <p/>
  * This class features a customised RMIClientSocketFactory which enables socket timeouts to be configured.
+ *
  * @author Greg Luck
  * @version $Id$
  */
@@ -47,6 +49,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
 
     /**
      * Construct a new remote peer
+     *
      * @param cache
      * @param hostName
      * @param port
@@ -66,8 +69,9 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
 
     /**
      * {@inheritDoc}
-     *
+     * <p/>
      * This implementation gives an URL which has meaning to the RMI remoting system
+     *
      * @return the URL, without the scheme, as a string e.g. //hostname:port/cacheName
      */
     public String getUrl() {
@@ -83,8 +87,9 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
 
     /**
      * {@inheritDoc}
-     *
+     * <p/>
      * This implementation gives an URL which has meaning to the RMI remoting system
+     *
      * @return the URL, without the scheme, as a string e.g. //hostname:port
      */
     public String getUrlBase() {
@@ -137,6 +142,22 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
     }
 
     /**
+     * Send the cache peer with an ordered list of {@link EventMessage}s
+     * <p/>
+     * This enables multiple messages to be delivered in one network invocation.
+     */
+    public void send(List eventMessages) throws RemoteException {
+        for (int i = 0; i < eventMessages.size(); i++) {
+            EventMessage eventMessage = (EventMessage) eventMessages.get(i);
+            if (eventMessage.getEvent() == EventMessage.PUT) {
+                put(eventMessage.getElement());
+            } else {
+                remove(eventMessage.getKey());
+            }
+        }
+    }
+
+    /**
      * Gets the status attribute of the Store object
      *
      * @return The status value
@@ -151,7 +172,6 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
     public String getName() throws RemoteException {
         return cache.getName();
     }
-
 
 
     /**

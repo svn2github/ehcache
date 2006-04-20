@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.rmi.NotBoundException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,7 +51,6 @@ import org.apache.commons.logging.LogFactory;
  * <p/>
  * The list of CachePeers is maintained via heartbeats. rmiUrls are looked up using RMI and converted to CachePeers on
  * registration. On lookup any stale references are removed.
- *
  *
  * @author Greg Luck
  * @version $Id$
@@ -96,18 +96,32 @@ public class MulticastRMICacheManagerPeerProvider extends RMICacheManagerPeerPro
     }
 
     /**
-     * Register a new peer
+     * Register a new peer.
+     * <p/>
      *
      * @param rmiUrl
      */
     public synchronized void registerPeer(String rmiUrl) {
-        CachePeer cachePeer = null;
+
         try {
-            cachePeer = lookupRemoteCachePeer(rmiUrl);
+            CachePeer cachePeer = lookupRemoteCachePeer(rmiUrl);
             CachePeerEntry cachePeerEntry = new CachePeerEntry(cachePeer, new Date());
             peerUrls.put(rmiUrl, cachePeerEntry);
-        } catch (Exception e) {
-            LOG.error("Unable to lookup remote cache peer for " + rmiUrl + ". Cause was: " + e.getMessage());
+        } catch (IOException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Unable to lookup remote cache peer for " + rmiUrl + ". Removing from peer list. Cause was: "
+                        + e.getMessage());
+            }
+            peerUrls.remove(rmiUrl);
+        } catch (NotBoundException e) {
+            peerUrls.remove(rmiUrl);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Unable to lookup remote cache peer for " + rmiUrl + ". Removing from peer list. Cause was: "
+                        + e.getMessage());
+            }
+        } catch (Throwable t) {
+            LOG.error("Unable to lookup remote cache peer for " + rmiUrl
+                    + ". Cause was not due to the usual IOException or NotBoundException: " + t.getMessage());
         }
     }
 
@@ -117,35 +131,36 @@ public class MulticastRMICacheManagerPeerProvider extends RMICacheManagerPeerPro
     public synchronized List listRemoteCachePeers(Cache cache) throws CacheException {
         List remoteCachePeers = new ArrayList();
         List staleList = new ArrayList();
-        for (Iterator iterator = peerUrls.keySet().iterator(); iterator.hasNext();) {
-            String rmiUrl = (String) iterator.next();
-            String rmiUrlCacheName = extractCacheName(rmiUrl);
-            try {
-                if (!rmiUrlCacheName.equals(cache.getName())) {
-                    continue;
-                }
-                CachePeerEntry cachePeerEntry = (CachePeerEntry) peerUrls.get(rmiUrl);
-                Date date = cachePeerEntry.date;
-                if (!stale(date)) {
-                    CachePeer cachePeer = cachePeerEntry.cachePeer;
-                    remoteCachePeers.add(cachePeer);
-                } else {
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info("rmiUrl " + rmiUrl + " is stale. Either the remote peer is shutdown or the " +
-                                "network connectivity has been interrupted. Will be removed from list of remote cache peers");
+        synchronized (peerUrls) {
+            for (Iterator iterator = peerUrls.keySet().iterator(); iterator.hasNext();) {
+                String rmiUrl = (String) iterator.next();
+                String rmiUrlCacheName = extractCacheName(rmiUrl);
+                try {
+                    if (!rmiUrlCacheName.equals(cache.getName())) {
+                        continue;
                     }
-                    staleList.add(rmiUrl);
+                    CachePeerEntry cachePeerEntry = (CachePeerEntry) peerUrls.get(rmiUrl);
+                    Date date = cachePeerEntry.date;
+                    if (!stale(date)) {
+                        CachePeer cachePeer = cachePeerEntry.cachePeer;
+                        remoteCachePeers.add(cachePeer);
+                    } else {
+                        if (LOG.isInfoEnabled()) {
+                            LOG.info("rmiUrl " + rmiUrl + " is stale. Either the remote peer is shutdown or the " +
+                                    "network connectivity has been interrupted. Will be removed from list of remote cache peers");
+                        }
+                        staleList.add(rmiUrl);
+                    }
+                } catch (Exception exception) {
+                    LOG.error(exception.getMessage(), exception);
+                    throw new CacheException("Unable to list remote cache peers. Error was " + exception.getMessage());
                 }
-            } catch (Exception exception) {
-                LOG.error(exception.getMessage(), exception);
-                throw new CacheException("Unable to list remote cache peers. Error was " + exception.getMessage());
             }
-        }
-
-        //Remove any stale remote peers. Must be done here to avoid concurrent modification exception.
-        for (int i = 0; i < staleList.size(); i++) {
-            String rmiUrl = (String) staleList.get(i);
-            peerUrls.remove(rmiUrl);
+            //Must remove entries after we have finished iterating over them
+            for (int i = 0; i < staleList.size(); i++) {
+                String rmiUrl = (String) staleList.get(i);
+                peerUrls.remove(rmiUrl);
+            }
         }
         return remoteCachePeers;
     }
@@ -183,8 +198,9 @@ public class MulticastRMICacheManagerPeerProvider extends RMICacheManagerPeerPro
 
         /**
          * Constructor
+         *
          * @param cachePeer the cache peer part of this entry
-         * @param date the date part of this entry
+         * @param date      the date part of this entry
          */
         public CachePeerEntry(CachePeer cachePeer, Date date) {
             this.cachePeer = cachePeer;
