@@ -39,6 +39,7 @@
     <suppress checks="ClassDataAbstractionCoupling" files="ElementTest.java"/>
     <suppress checks="IllegalType" files="Cache.java"/>
     <suppress checks="ParameterNumber" files="Cache.java"/>
+    <suppress checks="FileLengthCheck" files="Cache.java"/>
 
 
 </suppressions>

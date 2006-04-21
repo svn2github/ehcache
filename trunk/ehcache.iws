@@ -165,7 +165,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java" line="860" class="net.sf.ehcache.Cache" package="net.sf.ehcache">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java" line="937" class="net.sf.ehcache.Cache" package="net.sf.ehcache">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -393,24 +393,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="CachePeer.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/CachePeer.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="45" column="38" selection-start="1671" selection-end="1671" vertical-scroll-proportion="0.33262712">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Remote.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/rmi/Remote.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="19" selection-start="807" selection-end="807" vertical-scroll-proportion="0.3449692">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="RMICacheReplicatorTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -423,7 +405,7 @@
       <file leaf-file-name="EventMessage.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/EventMessage.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="51" column="24" selection-start="1300" selection-end="1300" vertical-scroll-proportion="0.59958935">
+            <state line="51" column="24" selection-start="1353" selection-end="1353" vertical-scroll-proportion="0.59958935">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -440,10 +422,48 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MulticastRMICacheManagerPeerProvider.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="MulticastRMICacheManagerPeerProvider.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastRMICacheManagerPeerProvider.java">
           <provider selected="true" editor-type-id="text-editor">
             <state line="158" column="76" selection-start="7155" selection-end="7155" vertical-scroll-proportion="0.7118644">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Element.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Element.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="273" column="22" selection-start="6732" selection-end="6732" vertical-scroll-proportion="4.1190963">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="suppressions.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/config/suppressions.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="41" column="37" selection-start="2001" selection-end="2001" vertical-scroll-proportion="1.0102669">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Cache.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="1277" column="35" selection-start="46297" selection-end="46297" vertical-scroll-proportion="0.375">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CacheManager.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="402" column="87" selection-start="17026" selection-end="17026" vertical-scroll-proportion="0.17161018">
               <folding />
             </state>
           </provider>
@@ -458,15 +478,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Map.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/Map.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="231" column="6" selection-start="11488" selection-end="11488" vertical-scroll-proportion="0.32238194">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="RMIAsynchronousCacheReplicator.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMIAsynchronousCacheReplicator.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -474,15 +485,6 @@
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SocketException.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/net/SocketException.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="20" column="6" selection-start="426" selection-end="426" vertical-scroll-proportion="0.36960986">
-              <folding />
             </state>
           </provider>
         </entry>
@@ -1477,34 +1479,6 @@
     </buildFile>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/CacheManagerPeerProvider.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="47" column="0" selection-start="1321" selection-end="1321" vertical-scroll-proportion="0.7627119">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/Collections.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="1920" column="26" selection-start="74662" selection-end="74662" vertical-scroll-proportion="0.43432203">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerProvider.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="47" column="48" selection-start="1588" selection-end="1588" vertical-scroll-proportion="0.3220339">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMISynchronousCacheReplicator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="238" column="52" selection-start="8302" selection-end="8302" vertical-scroll-proportion="0.56892776">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListenerFactory.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="42" column="53" selection-start="1457" selection-end="1457" vertical-scroll-proportion="0.60393876">
@@ -1565,7 +1539,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/EventMessage.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="51" column="24" selection-start="1300" selection-end="1300" vertical-scroll-proportion="0.59958935">
+        <state line="51" column="24" selection-start="1353" selection-end="1353" vertical-scroll-proportion="0.59958935">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -1582,6 +1556,36 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastRMICacheManagerPeerProvider.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="158" column="76" selection-start="7155" selection-end="7155" vertical-scroll-proportion="0.7118644">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config/suppressions.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="41" column="37" selection-start="2001" selection-end="2001" vertical-scroll-proportion="1.0102669">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1277" column="35" selection-start="46297" selection-end="46297" vertical-scroll-proportion="0.375">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="402" column="87" selection-start="17026" selection-end="17026" vertical-scroll-proportion="0.17161018">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Element.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="273" column="22" selection-start="6732" selection-end="6732" vertical-scroll-proportion="4.1190963">
           <folding />
         </state>
       </provider>

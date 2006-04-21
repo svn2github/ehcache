@@ -116,7 +116,7 @@ public class Cache implements Cloneable {
     /**
      * For caches that overflow to disk, does the disk cache persist between CacheManager instances?
      */
-    private final boolean diskPersistent;
+    private final boolean diskPersistent; 
 
 
     /**
@@ -492,7 +492,6 @@ public class Cache implements Cloneable {
 
     }
 
-
     /**
      * Gets an element from the cache. Updates Element Statistics
      * <p/>
@@ -503,6 +502,23 @@ public class Cache implements Cloneable {
      * @return the element, or null, if it does not exist.
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @see #isExpired
+     */
+    public synchronized Element get(Serializable key) throws IllegalStateException, CacheException {
+        return get((Object)key);
+    }
+
+
+    /**
+     * Gets an element from the cache. Updates Element Statistics
+     * <p/>
+     * Note that the Element's lastAccessTime is always the time of this get.
+     * Use {@link #getQuiet(Object)} to peak into the Element to see its last access time with get
+     *
+     * @param key an Object value
+     * @return the element, or null, if it does not exist.
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     * @see #isExpired
+     * @since 1.2
      */
     public synchronized Element get(Object key) throws IllegalStateException, CacheException {
         checkStatus();
@@ -529,6 +545,20 @@ public class Cache implements Cloneable {
         }
     }
 
+     /**
+     * Gets an element from the cache, without updating Element statistics. Cache statistics are
+     * still updated.
+     * <p/>
+     *
+     * @param key a serializable value
+     * @return the element, or null, if it does not exist.
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     * @see #isExpired
+     */
+    public synchronized Element getQuiet(Serializable key) throws IllegalStateException, CacheException {
+         return getQuiet((Object) key);
+     }
+
     /**
      * Gets an element from the cache, without updating Element statistics. Cache statistics are
      * still updated.
@@ -538,6 +568,7 @@ public class Cache implements Cloneable {
      * @return the element, or null, if it does not exist.
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @see #isExpired
+     * @since 1.2
      */
     public synchronized Element getQuiet(Object key) throws IllegalStateException, CacheException {
         checkStatus();
@@ -720,7 +751,6 @@ public class Cache implements Cloneable {
         return element;
     }
 
-
     /**
      * Removes an {@link Element} from the Cache. This also removes it from any
      * stores it may be in.
@@ -732,10 +762,43 @@ public class Cache implements Cloneable {
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
+    public synchronized boolean remove(Serializable key) throws IllegalStateException {
+        return remove((Object) key);
+    }
+
+    /**
+     * Removes an {@link Element} from the Cache. This also removes it from any
+     * stores it may be in.
+     * <p/>
+     * Also notifies the CacheEventListener after the element was removed, but only if an Element
+     * with the key actually existed.
+     *
+     * @param key
+     * @return true if the element was removed, false if it was not found in the cache
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     * @since 1.2
+     */
     public synchronized boolean remove(Object key) throws IllegalStateException {
         return remove(key, false);
     }
 
+
+    /**
+     * Removes an {@link Element} from the Cache. This also removes it from any
+     * stores it may be in.
+     * <p/>
+     * Also notifies the CacheEventListener after the element was removed, but only if an Element
+     * with the key actually existed.
+     *
+     * @param key
+     * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
+     *                                    further notification to doNotNotifyCacheReplicators cache peers
+     * @return true if the element was removed, false if it was not found in the cache
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     */
+    public synchronized boolean remove(Serializable key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
+        return remove((Object) key, doNotNotifyCacheReplicators);
+    }
 
     /**
      * Removes an {@link Element} from the Cache. This also removes it from any
@@ -762,6 +825,20 @@ public class Cache implements Cloneable {
      * @param key
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     */
+    public synchronized boolean removeQuiet(Serializable key) throws IllegalStateException {
+        return remove((Object)key, false, false, false);
+    }
+
+    /**
+     * Removes an {@link Element} from the Cache, without notifying listeners. This also removes it from any
+     * stores it may be in.
+     * <p/>
+     *
+     * @param key
+     * @return true if the element was removed, false if it was not found in the cache
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     * @since 1.2
      */
     public synchronized boolean removeQuiet(Object key) throws IllegalStateException {
         return remove(key, false, false, false);
@@ -1254,6 +1331,16 @@ Cache size is the size of the union of the two key sets.*/
         return registeredEventListeners;
     }
 
+
+    /**
+     * Whether an Element is stored in the cache in Memory, indicating a very low cost of retrieval.
+     *
+     * @return true if an element matching the key is found in memory
+     */
+    public boolean isElementInMemory(Serializable key) {
+        return isElementInMemory((Object) key);
+    }
+
     /**
      * Whether an Element is stored in the cache in Memory, indicating a very low cost of retrieval.
      *
@@ -1262,6 +1349,15 @@ Cache size is the size of the union of the two key sets.*/
      */
     public boolean isElementInMemory(Object key) {
         return memoryStore.containsKey(key);
+    }
+
+    /**
+     * Whether an Element is stored in the cache on Disk, indicating a higher cost of retrieval.
+     *
+     * @return true if an element matching the key is found in the diskStore
+     */
+    public boolean isElementOnDisk(Serializable key) {
+        return isElementOnDisk((Object) key);
     }
 
     /**

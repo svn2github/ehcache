@@ -83,6 +83,19 @@ public class Element implements Serializable, Cloneable {
      * <p/>
      * Creation time is set to the current time. Last Access Time and Previous To Last Access Time
      * are not set.
+     * @since .4
+     */
+    public Element(Serializable key, Serializable value, long version) {
+        this((Object)key, (Object)value, version);
+
+    }
+
+    /**
+     * A full constructor.
+     * <p/>
+     * Creation time is set to the current time. Last Access Time and Previous To Last Access Time
+     * are not set.
+     * @since 1.2
      */
     public Element(Object key, Object value, long version) {
         this.key = key;
@@ -97,6 +110,17 @@ public class Element implements Serializable, Cloneable {
      *
      * @param key
      * @param value
+     */
+    public Element(Serializable key, Serializable value) {
+        this((Object)key, (Object)value, 1L);
+    }
+
+    /**
+     * Constructor
+     *
+     * @param key
+     * @param value
+     * @since 1.2
      */
     public Element(Object key, Object value) {
         this(key, value, 1L);
@@ -240,6 +264,8 @@ public class Element implements Serializable, Cloneable {
      * Clones an Element. A completely new object is created, with no common references with the
      * existing one.
      * <p/>
+     * This method will not work unless the Object is Serializable
+     * <p/>
      * Warning: This can be very slow on large object graphs. If you use this method
      * you should write a performance test to verify suitability.
      * @return a new {@link Element}, with exactly the same field values as the one it was cloned from.
@@ -254,7 +280,7 @@ public class Element implements Serializable, Cloneable {
         return element;
     }
 
-    private Serializable deepCopy(Object oldValue) {
+    private Object deepCopy(Object oldValue) {
         Serializable newValue = null;
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         ObjectOutputStream oos = null;
