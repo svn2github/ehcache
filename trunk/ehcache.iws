@@ -126,7 +126,7 @@
   </component>
   <component name="DebuggerManager">
     <line_breakpoints>
-      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java" line="1087" class="net.sf.ehcache.CacheTest" package="net.sf.ehcache">
+      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java" line="1088" class="net.sf.ehcache.CacheTest" package="net.sf.ehcache">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -217,7 +217,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java" line="1205" class="net.sf.ehcache.CacheTest" package="net.sf.ehcache">
+      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java" line="1247" class="net.sf.ehcache.CacheTest" package="net.sf.ehcache">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -269,7 +269,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java" line="947" class="net.sf.ehcache.CacheTest" package="net.sf.ehcache">
+      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java" line="949" class="net.sf.ehcache.CacheTest" package="net.sf.ehcache">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -295,7 +295,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java" line="1163" class="net.sf.ehcache.CacheTest" package="net.sf.ehcache">
+      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java" line="1165" class="net.sf.ehcache.CacheTest" package="net.sf.ehcache">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -380,19 +380,39 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="DiskStore.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
+      <file leaf-file-name="changes.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="61" column="51" selection-start="2107" selection-end="2107" vertical-scroll-proportion="0.37728938">
+            <state line="7" column="105" selection-start="323" selection-end="323" vertical-scroll-proportion="0.096045196">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="changes.xml" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
+      <file leaf-file-name="CacheTest.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="16" column="50" selection-start="983" selection-end="990" vertical-scroll-proportion="0.29943502">
+            <state line="1207" column="81" selection-start="42475" selection-end="42475" vertical-scroll-proportion="0.15384616">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MemoryStoreTester.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/MemoryStoreTester.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="36" column="27" selection-start="1242" selection-end="1242" vertical-scroll-proportion="0.2857143">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="EhCache.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file:///Users/gluck/work/hibernate-3.1/src/org/hibernate/cache/EhCache.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="252" column="34" selection-start="8525" selection-end="8525" vertical-scroll-proportion="0.5641026">
               <folding />
             </state>
           </provider>
@@ -401,16 +421,64 @@
       <file leaf-file-name="Cache.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="392" column="8" selection-start="13704" selection-end="13704" vertical-scroll-proportion="0.7175141">
+            <state line="1014" column="27" selection-start="37779" selection-end="37779" vertical-scroll-proportion="0.28625235">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="checkstyle.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/config/checkstyle.xml">
+      <file leaf-file-name="EhCache.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file:///Users/gluck/work/hibernate-3.0/src/org/hibernate/cache/EhCache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="242" column="43" selection-start="9436" selection-end="9436" vertical-scroll-proportion="1.094162">
+            <state line="114" column="41" selection-start="4704" selection-end="4704" vertical-scroll-proportion="-2.1391943">
+              <folding>
+                <marker date="1109572329000" expanded="false" signature="0:2736" placeholder="/.../" />
+                <marker date="1109572329000" expanded="false" signature="2774:3052" placeholder="..." />
+                <marker date="1109572329000" expanded="true" signature="3054:3509" placeholder="/**...*/" />
+                <marker date="1109572329000" expanded="true" signature="3665:3817" placeholder="/**...*/" />
+                <marker date="1109572329000" expanded="true" signature="3865:3897" placeholder="{...}" />
+                <marker date="1109572329000" expanded="true" signature="3903:4159" placeholder="/**...*/" />
+                <marker date="1109572329000" expanded="true" signature="4216:4943" placeholder="{...}" />
+                <marker date="1109572329000" expanded="true" signature="4950:5252" placeholder="/**...*/" />
+                <marker date="1109572329000" expanded="true" signature="5321:5663" placeholder="{...}" />
+                <marker date="1109572329000" expanded="true" signature="5669:5899" placeholder="/**...*/" />
+                <marker date="1109572329000" expanded="true" signature="5957:6221" placeholder="{...}" />
+                <marker date="1109572329000" expanded="true" signature="6227:6356" placeholder="/**...*/" />
+                <marker date="1109572329000" expanded="true" signature="6403:6643" placeholder="{...}" />
+                <marker date="1109572329000" expanded="true" signature="6649:6737" placeholder="/**...*/" />
+                <marker date="1109572329000" expanded="true" signature="6786:7084" placeholder="{...}" />
+                <marker date="1109572329000" expanded="true" signature="7090:7285" placeholder="/**...*/" />
+                <marker date="1109572329000" expanded="true" signature="7341:7348" placeholder="{...}" />
+                <marker date="1109572329000" expanded="true" signature="7354:7549" placeholder="/**...*/" />
+                <marker date="1109572329000" expanded="true" signature="7607:7614" placeholder="{...}" />
+                <marker date="1109572329000" expanded="true" signature="7620:7663" placeholder="/**...*/" />
+                <marker date="1109572329000" expanded="true" signature="7696:7738" placeholder="{...}" />
+                <marker date="1109572329000" expanded="true" signature="7744:7803" placeholder="/**...*/" />
+                <marker date="1109572329000" expanded="true" signature="7832:7916" placeholder="{...}" />
+                <marker date="1109572329000" expanded="true" signature="7949:7979" placeholder="{...}" />
+                <marker date="1109572329000" expanded="true" signature="8012:8110" placeholder="{...}" />
+                <marker date="1109572329000" expanded="true" signature="8151:8276" placeholder="{...}" />
+                <marker date="1109572329000" expanded="true" signature="8315:8354" placeholder="{...}" />
+                <marker date="1109572329000" expanded="true" signature="8376:8669" placeholder="{...}" />
+                <marker date="1109572329000" expanded="true" signature="8697:8746" placeholder="{...}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ehcache.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/config/ehcache.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="23" column="69" selection-start="1037" selection-end="1037" vertical-scroll-proportion="-2.282486">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AbstractCacheTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/AbstractCacheTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="54" column="25" selection-start="1572" selection-end="1572" vertical-scroll-proportion="0.32234433">
               <folding />
             </state>
           </provider>
@@ -425,46 +493,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MemoryStoreTester.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/MemoryStoreTester.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="29" column="94" selection-start="967" selection-end="967" vertical-scroll-proportion="0.13186814">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CacheManager.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="432" column="29" selection-start="18334" selection-end="18334" vertical-scroll-proportion="-0.8681319">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="roadmap.apt" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/site/apt/roadmap.apt">
           <provider selected="true" editor-type-id="text-editor">
             <state line="12" column="95" selection-start="141" selection-end="141" vertical-scroll-proportion="0.26373628">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ElementTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="169" column="95" selection-start="6261" selection-end="6261" vertical-scroll-proportion="0.14652015">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MemoryStore.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="381" column="28" selection-start="12245" selection-end="12245" vertical-scroll-proportion="0.35531136">
               <folding />
             </state>
           </provider>
@@ -507,7 +539,7 @@
   </component>
   <component name="ModuleEditorState">
     <option name="LAST_EDITED_MODULE_NAME" value="ehcache" />
-    <option name="LAST_EDITED_TAB_NAME" value="Libraries (Classpath)" />
+    <option name="LAST_EDITED_TAB_NAME" value="Order/Export" />
   </component>
   <component name="NamedScopeManager" />
   <component name="PackagesPane">
@@ -1182,13 +1214,13 @@
   <component name="RestoreUpdateTree" />
   <component name="RunManager">
     <activeType name="JUnit" />
-    <tempConfiguration selected="true" default="false" name="ElementTest.testObjectAccess" type="JUnit" factoryName="JUnit">
+    <tempConfiguration selected="true" default="false" name="CacheTest.testAPIAsUsedByHibernate2" type="JUnit" factoryName="JUnit">
       <module name="ehcache" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
       <option name="PACKAGE_NAME" value="net.sf.ehcache" />
-      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.ElementTest" />
-      <option name="METHOD_NAME" value="testObjectAccess" />
+      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.CacheTest" />
+      <option name="METHOD_NAME" value="testAPIAsUsedByHibernate2" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="" />
       <option name="PARAMETERS" value="" />
@@ -1535,41 +1567,6 @@
     </buildFile>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ConfigurationHelper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="225" column="83" selection-start="9275" selection-end="9275" vertical-scroll-proportion="0.08018868">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="366" column="48" selection-start="13839" selection-end="13839" vertical-scroll-proportion="0.021978023">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMISynchronousCacheReplicator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="154" column="102" selection-start="5522" selection-end="5522" vertical-scroll-proportion="0.08974359">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/List.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="187" column="12" selection-start="8011" selection-end="8011" vertical-scroll-proportion="0.51648355">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMIAsynchronousCacheReplicator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="194" column="19" selection-start="6866" selection-end="6866" vertical-scroll-proportion="0.45054945">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="169" column="95" selection-start="6261" selection-end="6261" vertical-scroll-proportion="0.14652015">
@@ -1591,23 +1588,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="392" column="8" selection-start="13704" selection-end="13704" vertical-scroll-proportion="0.7175141">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="381" column="28" selection-start="12245" selection-end="12245" vertical-scroll-proportion="0.35531136">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/MemoryStoreTester.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="29" column="94" selection-start="967" selection-end="967" vertical-scroll-proportion="0.13186814">
+        <state line="381" column="28" selection-start="12245" selection-end="12245" vertical-scroll-proportion="0.8559322">
           <folding />
         </state>
       </provider>
@@ -1633,10 +1616,91 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/AbstractCacheTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="54" column="25" selection-start="1572" selection-end="1572" vertical-scroll-proportion="0.32234433">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="50" selection-start="983" selection-end="990" vertical-scroll-proportion="0.29943502">
+        <state line="7" column="105" selection-start="323" selection-end="323" vertical-scroll-proportion="0.096045196">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/config/ehcache.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="23" column="69" selection-start="1037" selection-end="1037" vertical-scroll-proportion="-2.282486">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Users/gluck/work/hibernate-3.0/src/org/hibernate/cache/EhCache.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="114" column="41" selection-start="4704" selection-end="4704" vertical-scroll-proportion="-2.1391943">
+          <folding>
+            <marker date="1109572329000" expanded="false" signature="0:2736" placeholder="/.../" />
+            <marker date="1109572329000" expanded="false" signature="2774:3052" placeholder="..." />
+            <marker date="1109572329000" expanded="true" signature="3054:3509" placeholder="/**...*/" />
+            <marker date="1109572329000" expanded="true" signature="3665:3817" placeholder="/**...*/" />
+            <marker date="1109572329000" expanded="true" signature="3865:3897" placeholder="{...}" />
+            <marker date="1109572329000" expanded="true" signature="3903:4159" placeholder="/**...*/" />
+            <marker date="1109572329000" expanded="true" signature="4216:4943" placeholder="{...}" />
+            <marker date="1109572329000" expanded="true" signature="4950:5252" placeholder="/**...*/" />
+            <marker date="1109572329000" expanded="true" signature="5321:5663" placeholder="{...}" />
+            <marker date="1109572329000" expanded="true" signature="5669:5899" placeholder="/**...*/" />
+            <marker date="1109572329000" expanded="true" signature="5957:6221" placeholder="{...}" />
+            <marker date="1109572329000" expanded="true" signature="6227:6356" placeholder="/**...*/" />
+            <marker date="1109572329000" expanded="true" signature="6403:6643" placeholder="{...}" />
+            <marker date="1109572329000" expanded="true" signature="6649:6737" placeholder="/**...*/" />
+            <marker date="1109572329000" expanded="true" signature="6786:7084" placeholder="{...}" />
+            <marker date="1109572329000" expanded="true" signature="7090:7285" placeholder="/**...*/" />
+            <marker date="1109572329000" expanded="true" signature="7341:7348" placeholder="{...}" />
+            <marker date="1109572329000" expanded="true" signature="7354:7549" placeholder="/**...*/" />
+            <marker date="1109572329000" expanded="true" signature="7607:7614" placeholder="{...}" />
+            <marker date="1109572329000" expanded="true" signature="7620:7663" placeholder="/**...*/" />
+            <marker date="1109572329000" expanded="true" signature="7696:7738" placeholder="{...}" />
+            <marker date="1109572329000" expanded="true" signature="7744:7803" placeholder="/**...*/" />
+            <marker date="1109572329000" expanded="true" signature="7832:7916" placeholder="{...}" />
+            <marker date="1109572329000" expanded="true" signature="7949:7979" placeholder="{...}" />
+            <marker date="1109572329000" expanded="true" signature="8012:8110" placeholder="{...}" />
+            <marker date="1109572329000" expanded="true" signature="8151:8276" placeholder="{...}" />
+            <marker date="1109572329000" expanded="true" signature="8315:8354" placeholder="{...}" />
+            <marker date="1109572329000" expanded="true" signature="8376:8669" placeholder="{...}" />
+            <marker date="1109572329000" expanded="true" signature="8697:8746" placeholder="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1014" column="27" selection-start="37779" selection-end="37779" vertical-scroll-proportion="0.28625235">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Users/gluck/work/hibernate-3.1/src/org/hibernate/cache/EhCache.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="252" column="34" selection-start="8525" selection-end="8525" vertical-scroll-proportion="0.5641026">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/MemoryStoreTester.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="36" column="27" selection-start="1242" selection-end="1242" vertical-scroll-proportion="0.2857143">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1207" column="81" selection-start="42475" selection-end="42475" vertical-scroll-proportion="0.15384616">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

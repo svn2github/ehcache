@@ -18,6 +18,8 @@ package net.sf.ehcache;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.cache.EhCacheProvider;
+import org.hibernate.cache.EhCache;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +27,7 @@ import java.util.Date;
 import java.util.Map;
 import java.lang.ref.SoftReference;
 import java.io.Serializable;
+
 
 /**
  * Tests for a Cache
@@ -916,7 +919,6 @@ public class CacheTest extends AbstractCacheTest {
     }
 
 
-
     /**
      * When flushing large MemoryStores, OutOfMemory issues can happen if we are
      * not careful to move each to Element to the DiskStore, rather than copy them all
@@ -994,7 +996,6 @@ public class CacheTest extends AbstractCacheTest {
         Element element2 = new Element("key2", new Object());
         cache.put(element1);
         cache.put(element2);
-
 
         //Removed because could not overflow
         assertNull(cache.get("key1"));
@@ -1086,6 +1087,7 @@ public class CacheTest extends AbstractCacheTest {
 
     /**
      * When does equals mean the same thing as == ?
+     *
      * @throws CacheException
      * @throws InterruptedException
      */
@@ -1200,6 +1202,46 @@ public class CacheTest extends AbstractCacheTest {
 
         //Test that equals works
         assertEquals(objectElement, retrievedObject);
+    }
+
+    /**
+     * Make sure ehcache works with one of the main projects using it: Hibernate-2.1.8
+     */
+    public void testAPIAsUsedByHibernate2() throws net.sf.hibernate.cache.CacheException {
+        net.sf.hibernate.cache.EhCacheProvider provider = new net.sf.hibernate.cache.EhCacheProvider();
+        provider.start(null);
+        net.sf.hibernate.cache.EhCache ehcache = (net.sf.hibernate.cache.EhCache) provider.buildCache("hibernate2cache", null);
+        assertNotNull(manager.getCache("hibernate2cache"));
+
+        Serializable key = "key";
+        Serializable value = "value";
+        ehcache.put(key, value);
+        assertEquals(value, ehcache.get(key));
+
+        ehcache.remove(key);
+        assertEquals(null, ehcache.get(key));
+    }
+
+
+    /**
+     * Make sure ehcache works with one of the main projects using it: Hibernate-3.1.3
+     */
+    public void testAPIAsUsedByHibernate3() {
+        EhCacheProvider provider = new EhCacheProvider();
+        provider.start(null);
+        EhCache ehcache = (EhCache) provider.buildCache("hibernate3cache", null);
+        assertNotNull(manager.getCache("hibernate3cache"));
+
+        assertEquals("hibernate3cache", ehcache.getRegionName());
+        Serializable key = "key";
+        Serializable value = "value";
+        ehcache.put(key, value);
+        assertTrue(213 == ehcache.getSizeInMemory());
+        assertEquals(value, ehcache.get(key));
+
+        ehcache.remove(key);
+        assertEquals(null, ehcache.get(key));
+
     }
 
 
