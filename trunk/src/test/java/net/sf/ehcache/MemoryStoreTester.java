@@ -30,6 +30,7 @@ import java.util.Random;
 /**
  * Other than policy differences, the Store implementations should work identically
  *
+ * todo add NonSerializable elements to tests
  * @author Greg Luck
  * @version $Id$
  */
@@ -116,12 +117,12 @@ public class MemoryStoreTester extends AbstractCacheTest {
         element = new Element("key1", "value1");
         store.put(element);
         assertEquals(1, store.getSize());
-        assertEquals("value1", store.get("key1").getValue());
+        assertEquals("value1", store.get("key1").getObjectValue());
 
         element = new Element("key2", "value2");
         store.put(element);
         assertEquals(2, store.getSize());
-        assertEquals("value2", store.get("key2").getValue());
+        assertEquals("value2", store.get("key2").getObjectValue());
     }
 
     /**
@@ -202,7 +203,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
         assertEquals(1, store.getSize());
         element = store.get(key);
         assertNotNull(element);
-        assertEquals(value, element.getValue());
+        assertEquals(value, element.getObjectValue());
     }
 
     /**
@@ -378,7 +379,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
                 public void execute() throws Exception {
                     final Element element = store.get(key);
                     assertNotNull(element);
-                    assertEquals("value", element.getValue());
+                    assertEquals("value", element.getObjectValue());
                 }
             };
             executables.add(executable);

@@ -152,7 +152,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
             if (eventMessage.getEvent() == EventMessage.PUT) {
                 put(eventMessage.getElement());
             } else {
-                remove(eventMessage.getKey());
+                remove(eventMessage.getSerializableKey());
             }
         }
     }

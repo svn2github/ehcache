@@ -104,7 +104,7 @@ public abstract class MemoryStore implements Store {
      */
     public synchronized void put(Element element) throws CacheException {
         if (element != null) {
-            map.put(element.getKey(), element);
+            map.put(element.getObjectKey(), element);
             doPut(element);
         }
     }
@@ -269,7 +269,7 @@ public abstract class MemoryStore implements Store {
 
             if (!element.isSerializable()) {
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Object with key " + element.getKey() + " is not Serializable and is not being overflowed to disk.");
+                    LOG.warn("Object with key " + element.getObjectKey() + " is not Serializable and is not being overflowed to disk.");
                 }
             } else {
                 spoolToDisk(element);
@@ -296,7 +296,7 @@ public abstract class MemoryStore implements Store {
             throw new IllegalStateException(e.getMessage());
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug(cache.getName() + "Cache: spool to disk done for: " + element.getKey());
+            LOG.debug(cache.getName() + "Cache: spool to disk done for: " + element.getObjectKey());
         }
     }
 
@@ -378,7 +378,8 @@ public abstract class MemoryStore implements Store {
         if (cache.isOverflowToDisk()) {
             if (!element.isSerializable()) {
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Object with key " + element.getKey() + " is not Serializable and cannot be overflowed to disk");
+                    LOG.warn(new StringBuffer("Object with key ").append(element.getObjectKey()).
+                            append(" is not Serializable and cannot be overflowed to disk"));
                 }
             } else {
                 spoolToDisk(element);

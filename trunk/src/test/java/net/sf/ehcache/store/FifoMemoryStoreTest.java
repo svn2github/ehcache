@@ -78,7 +78,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
         element = store.get("key1");
         assertNotNull(element);
         //FIFO
-        assertEquals("value1", element.getValue());
+        assertEquals("value1", element.getObjectValue());
         assertEquals(2, store.getSize());
     }
 
@@ -134,12 +134,12 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
         // Make sure that the elements are getting removed in the FIFO manner
         store.remove("key1");
         element = ((FifoMemoryStore)store).getFirstElement();
-        assertEquals("value2", element.getValue());
+        assertEquals("value2", element.getObjectValue());
         assertEquals(2, store.getSize());
 
         store.remove("key2");
         element = ((FifoMemoryStore)store).getFirstElement();
-        assertEquals("value3", element.getValue());
+        assertEquals("value3", element.getObjectValue());
         assertEquals(1, store.getSize());
 
         store.remove("key3");

@@ -29,6 +29,11 @@ import java.io.Serializable;
 
 /**
  * A Cache Element, consisting of a key, value and attributes.
+ * <p/>
+ * From ehcache-1.2, Elements can have keys and values that are Serializable or Objects. To preserve backward
+ * compatibility, special accessor methods for Object keys and values are provided: {@link #getObjectKey()} and
+ * {@link #getObjectValue()}. If placing Objects in ehcace, developers must use the new getObject... methods to
+ * avoid CacheExceptions. The get... methods are reserved for Serializable keys and values.
  *
  * @author Greg Luck
  * @version $Id$
@@ -36,11 +41,11 @@ import java.io.Serializable;
 public class Element implements Serializable, Cloneable {
     /**
      * serial version
+     * Updated version 1.2
      */
-    static final long serialVersionUID = -7401070179721710743L;
+    static final long serialVersionUID = 7832456720941087574L;
 
     private static final Log LOG = LogFactory.getLog(Element.class.getName());
-
 
 
     /**
@@ -86,7 +91,7 @@ public class Element implements Serializable, Cloneable {
      * @since .4
      */
     public Element(Serializable key, Serializable value, long version) {
-        this((Object)key, (Object)value, version);
+        this((Object) key, (Object) value, version);
 
     }
 
@@ -129,30 +134,76 @@ public class Element implements Serializable, Cloneable {
     /**
      * Gets the key attribute of the Element object
      *
-     * @return The key value
+     * @return The key value. If the key is not Serializable, null is returned and an info log message emitted
+     * @see #getObjectKey()
      */
-    public Object getKey() {
+    public Serializable getKey() {
+        Serializable keyAsSerializable = null;
+        try {
+            keyAsSerializable = (Serializable) key;
+        } catch (Exception e) {
+            throw new CacheException("Key " + key + " is not Serializable. Consider using Element#getObjectKey()");
+        }
+        return keyAsSerializable;
+    }
+
+    /**
+     * Gets the key attribute of the Element object.
+     * <p/>
+     * This method is provided for those wishing to use ehcache as a memory only cache
+     * and enables retrieval of non-Serializable values from elements.
+     *
+     * @return The key as an Object. i.e no restriction is placed on it
+     * @see #getKey()
+     */
+    public Object getObjectKey() {
         return key;
     }
 
     /**
      * Gets the value attribute of the Element object
      *
-     * @return The value value
+     * @return The value which must be Serializable. If not use {@link #getObjectValue}. If the value is not Serializable, null is returned and an info log message emitted
+     * @see #getObjectValue()
      */
-    public Object getValue() {
+    public Serializable getValue() {
+        Serializable valueAsSerializable = null;
+        try {
+            valueAsSerializable = (Serializable) value;
+        } catch (Exception e) {
+            throw new CacheException("Value " + value + " is not Serializable. Consider using Element#getObjectKey()");
+        }
+        return valueAsSerializable;
+    }
+
+    /**
+     * Gets the value attribute of the Element object as an Object.
+     * <p/>
+     * This method is provided for those wishing to use ehcache as a memory only cache
+     * and enables retrieval of non-Serializable values from elements.
+     *
+     * @return The value as an Object.  i.e no restriction is placed on it
+     * @see #getValue()
+     * @since 1.2
+     */
+    public Object getObjectValue() {
         return value;
     }
 
     /**
      * Equals comparison with another element, based on the key
      */
-    public boolean equals(Object obj) {
-        Element element = (Element)obj;
-        if (key.equals(element.getKey())) {
-            return true;
+    public boolean equals(Object object) {
+        if (object == null) {
+            return false;
         }
-        return false;
+
+        Element element = (Element) object;
+        if (key == null || element.getObjectKey() == null) {
+            return false;
+        }
+
+        return key.equals(element.getObjectKey());
     }
 
     /**
@@ -180,14 +231,12 @@ public class Element implements Serializable, Cloneable {
         return creationTime;
     }
 
-
     /**
      * Sets the creationTime attribute of the ElementAttributes object
      */
     public void setCreateTime() {
         creationTime = System.currentTimeMillis();
     }
-
 
     /**
      * Gets the version attribute of the ElementAttributes object
@@ -197,7 +246,6 @@ public class Element implements Serializable, Cloneable {
     public long getVersion() {
         return version;
     }
-
 
     /**
      * Gets the last access time.
@@ -342,7 +390,6 @@ public class Element implements Serializable, Cloneable {
         return size;
     }
 
-
     /**
      * Whether the element may be Serialized.
      * <p/>
@@ -369,8 +416,8 @@ public class Element implements Serializable, Cloneable {
      */
     public boolean isKeySerializable() {
         return key instanceof Serializable;
-    }
 }
+        }
 
 
 

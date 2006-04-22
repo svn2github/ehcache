@@ -364,7 +364,7 @@ public class CacheManagerTest extends TestCase {
         assertNotNull(cache);
         cache.put(new Element("key1", "value1"));
 
-        assertEquals("value1", cache.get("key1").getValue());
+        assertEquals("value1", cache.get("key1").getObjectValue());
         singletonManager.removeCache("test");
         singletonManager.addCache("test");
 

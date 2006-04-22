@@ -37,7 +37,6 @@ public class ElementTest extends AbstractCacheTest {
     private static final Log LOG = LogFactory.getLog(ElementTest.class.getName());
 
 
-
     /**
      * Checks serialization performance.
      * <p/>
@@ -47,7 +46,7 @@ public class ElementTest extends AbstractCacheTest {
      * For 310232 bytes the average serialization time is 7 ms
      */
     public void testSerializationPerformanceByteArray() throws CacheException {
-        Serializable key = new String("key");
+        Serializable key = "key";
 
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         for (int j = 0; j < 10000; j++) {
@@ -126,7 +125,7 @@ public class ElementTest extends AbstractCacheTest {
      * <p/>
      */
     public void testClonePerformanceByteArray() throws CacheException, CloneNotSupportedException {
-        Serializable key = new String("key");
+        Serializable key = "key";
 
         byte[] value = getTestByteArray();
 
@@ -182,6 +181,47 @@ public class ElementTest extends AbstractCacheTest {
         LOG.info("In-memory size in bytes: " + serializedValue.length
                 + " time to deserialize in ms: " + elapsed);
         assertTrue(elapsed < 30);
+    }
+
+
+    /**
+     * ehcache-1.2 adds support to Objects in addition to Serializable. Check that this works
+     */
+    public void testObjectAccess() {
+        Object key = new Object();
+        Object value = new Object();
+        Element element = new Element(key, value);
+        //Should work
+        assertEquals(key, element.getObjectKey());
+        assertEquals(value, element.getObjectValue());
+
+        //Should fail
+        try {
+            element.getKey();
+        } catch (CacheException e) {
+            //expected
+        }
+        assertEquals(value, element.getObjectValue());
+
+    }
+
+    /**
+     * ehcache-1.1 and earllier exclusively uses Serializable keys and values. Check that this works
+     */
+    public void testSerializableAccess() {
+        Serializable key = "";
+        Serializable value = "";
+        Element element = new Element(key, value);
+
+        //test gets
+        assertEquals(key, element.getObjectKey());
+        assertEquals(value, element.getObjectValue());
+
+        //should also work with objects
+        assertEquals(key, element.getObjectKey());
+        assertEquals(value, element.getObjectValue());
+
+
     }
 
 }

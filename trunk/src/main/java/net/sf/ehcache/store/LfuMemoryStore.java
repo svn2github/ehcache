@@ -87,13 +87,13 @@ public class LfuMemoryStore extends MemoryStore {
 
         // If the element is expired remove
         if (cache.isExpired(element)) {
-            remove(element.getKey());
+            remove(element.getObjectKey());
             notifyExpiry(element);
             return;
         }
 
         evict(element);
-        remove(element.getKey());
+        remove(element.getObjectKey());
     }
 
     /**

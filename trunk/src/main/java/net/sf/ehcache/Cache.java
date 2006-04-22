@@ -116,7 +116,7 @@ public class Cache implements Cloneable {
     /**
      * For caches that overflow to disk, does the disk cache persist between CacheManager instances?
      */
-    private final boolean diskPersistent; 
+    private final boolean diskPersistent;
 
 
     /**
@@ -400,11 +400,6 @@ public class Cache implements Cloneable {
      */
     public synchronized void put(Element element) throws IllegalArgumentException, IllegalStateException,
             CacheException {
-
-        if (disabled) {
-            return;
-        }
-
         put(element, false);
     }
 
@@ -432,6 +427,11 @@ public class Cache implements Cloneable {
             IllegalStateException,
             CacheException {
         checkStatus();
+
+        if (disabled) {
+            return;
+        }
+
         if (element == null) {
             throw new IllegalArgumentException("Element cannot be null");
         }
@@ -439,7 +439,7 @@ public class Cache implements Cloneable {
 
         boolean elementExists = false;
         if (registeredEventListeners != null) {
-            Object key = element.getKey();
+            Object key = element.getObjectKey();
             elementExists = isElementInMemory(key) || isElementOnDisk(key);
         }
 
@@ -474,22 +474,6 @@ public class Cache implements Cloneable {
             throw new IllegalArgumentException("Element cannot be null");
         }
         memoryStore.put(element);
-    }
-
-
-    /**
-     * Use this for development debugging
-     *
-     * @param operation
-     * @param doNotNotifyCacheReplicators
-     * @param element
-     */
-    private void logCacheOperation(String operation, boolean doNotNotifyCacheReplicators, Element element) {
-        if (LOG.isDebugEnabled()) {
-            LOG.info("Cache " + this.getGuid() + ": " + operation + ": " + element.getKey() + " doNotNotify: "
-                    + doNotNotifyCacheReplicators);
-        }
-
     }
 
     /**
@@ -1205,7 +1189,7 @@ Cache size is the size of the union of the two key sets.*/
         checkStatus();
         boolean expired;
         synchronized (element) {
-            if (element.getValue() == null) {
+            if (element.getObjectValue() == null) {
                 expired = true;
             }
             if (!eternal) {
@@ -1214,11 +1198,7 @@ Cache size is the size of the union of the two key sets.*/
                 expired = false;
             }
             if (LOG.isDebugEnabled()) {
-                Object key = null;
-                if (element != null) {
-                    key = element.getKey();
-                }
-                LOG.debug(getName() + ": Is element with key " + key + " expired?: " + expired);
+                LOG.debug(getName() + ": Is element with key " + element.getObjectKey() + " expired?: " + expired);
             }
             return expired;
         }
@@ -1236,21 +1216,21 @@ Cache size is the size of the union of the two key sets.*/
         long ageToIdle = timeToIdleSeconds * MS_PER_SECOND;
 
         if (LOG.isTraceEnabled()) {
-            LOG.trace(element.getKey() + " now: " + now);
-            LOG.trace(element.getKey() + " Creation Time: " + creationTime
+            LOG.trace(element.getObjectKey() + " now: " + now);
+            LOG.trace(element.getObjectKey() + " Creation Time: " + creationTime
                     + " Next To Last Access Time: " + nextToLastAccessTime);
-            LOG.trace(element.getKey() + " mostRecentTime: " + mostRecentTime);
-            LOG.trace(element.getKey() + " Age to Idle: " + ageToIdle + " Age Idled: " + ageIdled);
+            LOG.trace(element.getObjectKey() + " mostRecentTime: " + mostRecentTime);
+            LOG.trace(element.getObjectKey() + " Age to Idle: " + ageToIdle + " Age Idled: " + ageIdled);
         }
 
         if (timeToLiveSeconds != 0 && (ageLived > ageToLive)) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("timeToLiveSeconds exceeded : " + element.getKey());
+                LOG.trace("timeToLiveSeconds exceeded : " + element.getObjectKey());
             }
             expired = true;
         } else if (timeToIdleSeconds != 0 && (ageIdled > ageToIdle)) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("timeToIdleSeconds exceeded : " + element.getKey());
+                LOG.trace("timeToIdleSeconds exceeded : " + element.getObjectKey());
             }
             expired = true;
         } else {

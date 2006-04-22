@@ -90,8 +90,8 @@ public class CacheEventListenerTest extends TestCase {
         List notifications = CountingCacheEventListener.getCacheElementsPut(cache);
 
         assertTrue(notifications.size() == 1);
-        assertEquals(key, ((Element) notifications.get(0)).getKey());
-        assertEquals(element.getValue(), ((Element) notifications.get(0)).getValue());
+        assertEquals(key, ((Element) notifications.get(0)).getObjectKey());
+        assertEquals(element.getObjectValue(), ((Element) notifications.get(0)).getObjectValue());
 
         //A put which updates records as one put, because the second one is an update
         cache.put(element);
@@ -118,13 +118,13 @@ public class CacheEventListenerTest extends TestCase {
         //Should get 12 puts and 11 updates
         List notifications = CountingCacheEventListener.getCacheElementsPut(cache);
         assertTrue(notifications.size() == 12);
-        assertEquals("0", ((Element) notifications.get(0)).getKey());
-        assertEquals("0", ((Element) notifications.get(0)).getValue());
+        assertEquals("0", ((Element) notifications.get(0)).getObjectKey());
+        assertEquals("0", ((Element) notifications.get(0)).getObjectValue());
 
         notifications = CountingCacheEventListener.getCacheElementsUpdated(cache);
         assertTrue(notifications.size() == 11);
-        assertEquals("0", ((Element) notifications.get(0)).getKey());
-        assertEquals("0", ((Element) notifications.get(0)).getValue());
+        assertEquals("0", ((Element) notifications.get(0)).getObjectKey());
+        assertEquals("0", ((Element) notifications.get(0)).getObjectValue());
 
 
     }
@@ -445,7 +445,7 @@ public class CacheEventListenerTest extends TestCase {
         List notifications = CountingCacheEventListener.getCacheElementsExpired(cache);
         for (int i = 0; i < notifications.size(); i++) {
             Element element = (Element) notifications.get(i);
-            element.getKey();
+            element.getObjectKey();
         }
         assertTrue(notifications.size() >= 10);
     }
@@ -469,7 +469,7 @@ public class CacheEventListenerTest extends TestCase {
         List notifications = CountingCacheEventListener.getCacheElementsExpired(cache);
         for (int i = 0; i < notifications.size(); i++) {
             Element element = (Element) notifications.get(i);
-            element.getKey();
+            element.getObjectKey();
         }
         assertEquals(10, notifications.size());
 

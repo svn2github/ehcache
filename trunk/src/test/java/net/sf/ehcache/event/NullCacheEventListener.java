@@ -41,7 +41,7 @@ public class NullCacheEventListener implements CacheEventListener {
      */
     public void notifyElementRemoved(final Cache cache, final Element element) {
         if (LOG.isTraceEnabled()) {
-            LOG.trace("notifyElementRemoved called for cache " + cache + " for element with key " + element.getKey());
+            LOG.trace("notifyElementRemoved called for cache " + cache + " for element with key " + element.getObjectKey());
         }
     }
 
@@ -52,7 +52,7 @@ public class NullCacheEventListener implements CacheEventListener {
         if (LOG.isTraceEnabled()) {
             Object key = null;
             if (element != null) {
-                key = element.getKey();
+                key = element.getObjectKey();
             }
             LOG.trace("notifyElementPut called for cache " + cache + " for element with key " + key);
         }
@@ -75,7 +75,7 @@ public class NullCacheEventListener implements CacheEventListener {
          if (LOG.isTraceEnabled()) {
             Object key = null;
             if (element != null) {
-                key = element.getKey();
+                key = element.getObjectKey();
             }
             LOG.trace("notifyElementUpdated called for cache " + cache + " for element with key " + key);
         }
@@ -86,7 +86,7 @@ public class NullCacheEventListener implements CacheEventListener {
      */
     public void notifyElementExpired(final Cache cache, final Element element) {
         if (LOG.isTraceEnabled()) {
-            LOG.trace("notifyElementExpired called for cache " + cache + " for element with key " + element.getKey());
+            LOG.trace("notifyElementExpired called for cache " + cache + " for element with key " + element.getObjectKey());
         }
     }
 

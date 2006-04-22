@@ -124,7 +124,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
 
         if (!element.isSerializable()) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Object with key " + element.getKey() + " is not Serializable and cannot be replicated");
+                LOG.warn("Object with key " + element.getObjectKey() + " is not Serializable and cannot be replicated");
             }
             return;
         }
@@ -158,7 +158,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
         if (replicateUpdatesViaCopy) {
             if (!element.isSerializable()) {
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Object with key " + element.getKey() + " is not Serializable and cannot be updated via copy");
+                    LOG.warn("Object with key " + element.getObjectKey() + " is not Serializable and cannot be updated via copy");
                 }
                 return;
             }
@@ -166,11 +166,11 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
         } else {
             if (!element.isKeySerializable()) {
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Key " + element.getKey() + " is not Serializable and cannot be replicated.");
+                    LOG.warn("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
                 }
                 return;
             }
-            replicationQueue.add(new CacheEventMessage(EventMessage.REMOVE, cache, (Serializable) element.getKey()));
+            replicationQueue.add(new CacheEventMessage(EventMessage.REMOVE, cache, (Serializable) element.getObjectKey()));
         }
     }
 
@@ -190,12 +190,12 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
 
         if (!element.isKeySerializable()) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Key " + element.getKey() + " is not Serializable and cannot be replicated.");
+                LOG.warn("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
             }
             return;
         }
         synchronized (replicationQueue) {
-            replicationQueue.add(new CacheEventMessage(EventMessage.REMOVE, cache, (Serializable) element.getKey()));
+            replicationQueue.add(new CacheEventMessage(EventMessage.REMOVE, cache, (Serializable) element.getObjectKey()));
         }
     }
 

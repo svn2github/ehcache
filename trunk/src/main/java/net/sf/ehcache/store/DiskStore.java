@@ -336,16 +336,19 @@ public class DiskStore implements Store {
     }
 
     /**
-     * Puts an item into the disk store.
+     * Puts an element into the disk store.
+     * <p/>
+     * This method is not synchronized. It is however threadsafe. It uses fine-grained
+     * synchronization on the spool
      */
-    public void put(final Element entry) throws IOException {
+    public void put(final Element element) throws IOException {
         try {
             checkActive();
 
-            // Spool the entry
+            // Spool the element
             if (spoolThread.isAlive()) {
                 synchronized (spool) {
-                    spool.put(entry.getKey(), entry);
+                    spool.put(element.getObjectKey(), element);
                 }
             } else {
                 LOG.error(name + "Cache: Elements cannot be written to disk store because the" +
@@ -356,7 +359,7 @@ public class DiskStore implements Store {
             }
 
         } catch (Exception e) {
-            LOG.error(name + "Cache: Could not write disk store element for " + entry.getKey()
+            LOG.error(name + "Cache: Could not write disk store element for " + element.getObjectKey()
                     + ". Initial cause was " + e.getMessage(), e);
         }
     }
@@ -558,7 +561,7 @@ public class DiskStore implements Store {
             if (element == null) {
                 continue;
             }
-            final Serializable key = (Serializable) element.getKey();
+            final Serializable key = (Serializable) element.getObjectKey();
 
             // Remove the old entry, if any
             final DiskElement oldBlock;
@@ -581,7 +584,7 @@ public class DiskStore implements Store {
 
             } catch (Exception e) {
                 // Catch any exception that occurs during serialization
-                LOG.error(name + "Cache: Failed to write element to disk '" + element.getKey()
+                LOG.error(name + "Cache: Failed to write element to disk '" + element.getObjectKey()
                         + "'. Initial cause was " + e.getMessage(), e);
 
                 // Don't write this element to disk but move on to the next
@@ -742,7 +745,7 @@ public class DiskStore implements Store {
                 if (cache.isExpired(element)) {
                     // An expired element
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug(name + "Cache: Removing expired spool element " + element.getKey());
+                        LOG.debug(name + "Cache: Removing expired spool element " + element.getObjectKey());
                     }
                     iterator.remove();
                     notifyExpiryListeners(element);

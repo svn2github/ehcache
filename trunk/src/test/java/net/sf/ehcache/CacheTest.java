@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Date;
 import java.util.Map;
 import java.lang.ref.SoftReference;
+import java.io.Serializable;
 
 /**
  * Tests for a Cache
@@ -166,7 +167,7 @@ public class CacheTest extends AbstractCacheTest {
         assertNotNull(cache);
         cache.put(new Element("key1", "value1"));
 
-        assertEquals("value1", cache.get("key1").getValue());
+        assertEquals("value1", cache.get("key1").getObjectValue());
         manager.removeCache("test");
         manager.addCache("test");
 
@@ -973,8 +974,8 @@ public class CacheTest extends AbstractCacheTest {
         assertNotNull(cache.getQuiet("key1"));
         assertSame(element, cache.get("key1"));
         assertSame(element, cache.getQuiet("key1"));
-        assertNull(cache.get("key1").getValue());
-        assertNull(cache.getQuiet("key1").getValue());
+        assertNull(cache.get("key1").getObjectValue());
+        assertNull(cache.getQuiet("key1").getObjectValue());
 
         assertEquals(false, cache.isExpired(element));
     }
@@ -1147,5 +1148,59 @@ public class CacheTest extends AbstractCacheTest {
         assertTrue("You should get more than this out of SoftReferences", counter > 32);
 
     }
+
+
+    /**
+     * Does the Object API work?
+     */
+    public void testAPIObjectCompatibility() {
+        //Set size so the second element overflows to disk.
+        Cache cache = new Cache("test", 5, true, false, 5, 2);
+        manager.addCache(cache);
+
+        Object objectKey = new Object();
+        Object objectValue = new Object();
+        Element objectElement = new Element(objectKey, objectValue);
+        cache.put(objectElement);
+
+        //Cannot get it back using get
+        Element retrievedElement = cache.get(objectKey);
+        assertNotNull(retrievedElement);
+        try {
+            retrievedElement.getObjectValue();
+        } catch (CacheException e) {
+            //expected
+        }
+
+        //Test that equals works
+        retrievedElement = cache.get(objectKey);
+        assertEquals(objectElement, retrievedElement);
+
+        //Can with getObjectValue
+        retrievedElement = cache.get(objectKey);
+        assertEquals(objectValue, retrievedElement.getObjectValue());
+
+    }
+
+
+    /**
+     * Does the Serializable API work?
+     */
+    public void testAPISerializableCompatibility() {
+        //Set size so the second element overflows to disk.
+        Cache cache = new Cache("test", 5, true, false, 5, 2);
+        manager.addCache(cache);
+
+        //Try object compatibility
+        Serializable key = new String();
+        Element objectElement = new Element(key, new String());
+        cache.put(objectElement);
+        Object retrievedObject = cache.get(key);
+        assertEquals(retrievedObject, objectElement);
+
+        //Test that equals works
+        assertEquals(objectElement, retrievedObject);
+    }
+
 
 }

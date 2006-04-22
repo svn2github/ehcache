@@ -111,7 +111,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
 
         if (!element.isSerializable()) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Object with key " + element.getKey() + " is not Serializable and cannot be replicated");
+                LOG.warn("Object with key " + element.getObjectKey() + " is not Serializable and cannot be replicated");
             }
             return;
         }
@@ -163,7 +163,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
         if (replicateUpdatesViaCopy) {
             if (!element.isSerializable()) {
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Object with key " + element.getKey() + " is not Serializable and cannot be updated via copy");
+                    LOG.warn("Object with key " + element.getObjectKey() + " is not Serializable and cannot be updated via copy");
                 }
                 return;
             }
@@ -172,12 +172,12 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
         } else {
             if (!element.isKeySerializable()) {
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Key " + element.getKey() + " is not Serializable and cannot be replicated.");
+                    LOG.warn("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
                 }
                 return;
             }
 
-            replicateRemovalNotification(cache, (Serializable) element.getKey());
+            replicateRemovalNotification(cache, (Serializable) element.getObjectKey());
         }
     }
 
@@ -204,12 +204,12 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
 
         if (!element.isKeySerializable()) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Key " + element.getKey() + " is not Serializable and cannot be replicated.");
+                LOG.warn("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
             }
             return;
         }
 
-        replicateRemovalNotification(cache, (Serializable) element.getKey());
+        replicateRemovalNotification(cache, (Serializable) element.getObjectKey());
     }
 
     /**

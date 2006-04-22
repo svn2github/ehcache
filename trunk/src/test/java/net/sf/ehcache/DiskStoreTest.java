@@ -344,7 +344,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         assertEquals(1, diskStore.getSize());
         element = diskStore.get("key");
         assertNotNull(element);
-        assertEquals(value, element.getValue());
+        assertEquals(value, element.getObjectValue());
     }
 
     /**
@@ -370,7 +370,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         assertEquals(1, diskStore.getSize());
         element = diskStore.get("key");
         assertNotNull(element);
-        assertEquals(value, element.getValue());
+        assertEquals(value, element.getObjectValue());
     }
 
     /**
@@ -575,7 +575,7 @@ public class DiskStoreTest extends AbstractCacheTest {
                 public void execute() throws Exception {
                     final Element element = diskStore.get(key);
                     assertNotNull(element);
-                    assertEquals("value", element.getValue());
+                    assertEquals("value", element.getObjectValue());
                 }
             };
             executables.add(executable);

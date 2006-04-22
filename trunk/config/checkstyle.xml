@@ -236,6 +236,17 @@
                  escape it and use \. to match dots. -->
             <property name="format" value="import java\.util\.logging\.Level;"/>
         </module>
+        <!-- Make sure we are using safe element.get methods everywhere -->
+        <module name="GenericIllegalRegexp">
+            <!-- . matches any character, so we need to
+                 escape it and use \. to match dots. -->
+            <property name="format" value="[^entry]\\.getKey\\(\\)"/>
+        </module>
+        <module name="GenericIllegalRegexp">
+            <!-- . matches any character, so we need to
+                 escape it and use \. to match dots. -->
+            <property name="format" value="[^entry]\\.getValue\\(\\)"/>
+        </module>
         <module name="ArrayTypeStyle"/>
         <module name="TodoComment"/>
         <module name="TrailingComment"/>

@@ -87,23 +87,23 @@ public class EventMessage implements Serializable {
 
     /**
      * Gets the event
-     * @return either {@link #PUT} or {@link REMOVE}
+     * @return either {@link #PUT} or {@link #REMOVE}
      */
     public int getEvent() {
         return event;
     }
 
     /**
-     * @return the element component of the message. null if a {@link REMOVE} event
+     * @return the element component of the message. null if a {@link #REMOVE} event
      */
     public Element getElement() {
         return element;
     }
 
     /**
-     * @return the key component of the message. null if a {@link PUT} event
+     * @return the key component of the message. null if a {@link #PUT} event
      */
-    public Serializable getKey() {
+    public Serializable getSerializableKey() {
         return key;
     }
 }

@@ -55,7 +55,7 @@ public class FifoMemoryStore extends MemoryStore {
     public FifoMemoryStore(Cache cache, DiskStore diskStore) {
         super(cache, diskStore);
 
-        // Use LinkedHashMap for JDK 1.4
+        // Use LinkedHashMap for JDK 1.4 and higher
         try {
             Class.forName("java.util.LinkedHashMap");
             map = new LinkedHashMap();
@@ -120,11 +120,11 @@ public class FifoMemoryStore extends MemoryStore {
         Element element = getFirstElement();
 
         if (cache.isExpired(element)) {
-            remove(element.getKey());
+            remove(element.getObjectKey());
             notifyExpiry(element);
             return;
         }
-        remove(element.getKey());
+        remove(element.getObjectKey());
         evict(element);
     }
 }
