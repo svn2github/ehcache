@@ -56,7 +56,7 @@ public final class Main {
         CacheManager manager = new CacheManager(args[0]);
 
         Cache cache = manager.getCache("sampleCache1");
-        LOG.info("sampleCAche1" + cache);
+        LOG.info("sampleCache1" + cache);
 
         while (true) {
 

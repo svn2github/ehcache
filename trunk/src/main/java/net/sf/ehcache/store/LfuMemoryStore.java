@@ -79,7 +79,7 @@ public class LfuMemoryStore extends MemoryStore {
     private void removeLfuElement(Element elementJustAdded) {
 
         if (LOG.isTraceEnabled()) {
-            LOG.info("Cache is full. Removing LFU element ...");
+            LOG.trace("Cache is full. Removing LFU element ...");
         }
 
         // First element of the sorted list is the candidate for the removal

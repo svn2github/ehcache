@@ -180,7 +180,7 @@ public class RMICacheManagerPeerTest extends TestCase {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException exception) {
-                LOG.info(exception.getMessage(), exception);
+                LOG.debug(exception.getMessage(), exception);
             }
         }
     }

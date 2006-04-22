@@ -381,7 +381,7 @@ public class Cache implements Cloneable {
                         // removeShutdownHook to remove it during shutdown
                         Cache.this.shutdownHook = null;
 
-                        LOG.info("VM shutting down with the disk store for " + name
+                        LOG.debug("VM shutting down with the disk store for " + name
                             + " still active. The disk store is persistent. Calling dispose...");
                         dispose();
                     }
@@ -1009,7 +1009,7 @@ Cache size is the size of the union of the two key sets.*/
      * because the object lock is held for a long period
      * <p/>
      *
-     * @return the size of the memory store in bytes
+     * @return the approximate size of the memory store in bytes
      * @throws IllegalStateException
      */
     public synchronized long calculateInMemorySize() throws IllegalStateException, CacheException {

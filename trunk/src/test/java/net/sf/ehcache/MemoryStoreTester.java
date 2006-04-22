@@ -30,9 +30,6 @@ import java.util.Random;
 /**
  * Other than policy differences, the Store implementations should work identically
  *
- * todo add NonSerializable elements to tests
- * todo set log levels appropriately for release
- * todo test hibernate 3.2 proposed changes
  * @author Greg Luck
  * @version $Id$
  */

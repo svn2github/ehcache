@@ -526,7 +526,7 @@ public class DiskStore implements Store {
                 try {
                     Thread.sleep(SPOOL_THREAD_INTERVAL);
                 } catch (InterruptedException e) {
-                    LOG.info("Spool Thread interrupted.");
+                    LOG.debug("Spool Thread interrupted.");
                     return;
                 }
             }
@@ -671,7 +671,7 @@ public class DiskStore implements Store {
                 LOG.error("Corrupt index file. Creating new index.");
             } catch (IOException e) {
                 //normal when creating the cache for the first time
-                LOG.info("IOException reading index. Creating new index. ");
+                LOG.debug("IOException reading index. Creating new index. ");
             } catch (ClassNotFoundException e) {
                 LOG.error("Class loading problem reading index. Creating new index. Initial cause was " + e.getMessage(), e);
             } finally {

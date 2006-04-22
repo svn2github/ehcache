@@ -18,15 +18,13 @@ package net.sf.ehcache;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.cache.EhCacheProvider;
-import org.hibernate.cache.EhCache;
 
+import java.io.Serializable;
+import java.lang.ref.SoftReference;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Date;
 import java.util.Map;
-import java.lang.ref.SoftReference;
-import java.io.Serializable;
 
 
 /**
@@ -666,6 +664,16 @@ public class CacheTest extends AbstractCacheTest {
         cache.remove("key2");
         assertEquals(cache.getSize(), cache.getKeys().size());
         assertEquals(0, cache.getSize());
+
+        //try null values
+        cache.put(new Element("nullValue1", null));
+        cache.put(new Element("nullValue2", null));
+        //Cannot overflow therefore just one
+        assertEquals(1, cache.getSize());
+        Element nullValueElement = cache.get("nullValue2");
+        assertNull(nullValueElement.getValue());
+        assertNull(nullValueElement.getObjectValue());
+
     }
 
     /**
@@ -861,6 +869,9 @@ public class CacheTest extends AbstractCacheTest {
         } catch (IllegalArgumentException e) {
             //noop
         }
+
+        //Null Elements like this are OK
+        cache.putQuiet(new Element(null, null));
     }
 
     /**
@@ -882,11 +893,13 @@ public class CacheTest extends AbstractCacheTest {
 
         cache.put(new Element("key3", "value3"));
         cache.put(new Element("key4", "value4"));
-        assertEquals(4, cache.getMemoryStoreSize());
+        //NonSerializable
+        cache.put(new Element(new Object(), Object.class));
+        assertEquals(5, cache.getMemoryStoreSize());
 
         cache.remove("key4");
         cache.remove("key3");
-        assertEquals(2, cache.getMemoryStoreSize());
+        assertEquals(3, cache.getMemoryStoreSize());
 
         cache.removeAll();
         assertEquals(0, cache.getMemoryStoreSize());
@@ -908,12 +921,21 @@ public class CacheTest extends AbstractCacheTest {
         }
         //Not spoolable, should get ignored
         cache.put(new Element("key", new Object()));
+        cache.put(new Element(new Object(), new Object()));
+        cache.put(new Element(new Object(), "value"));
+
+        //these "null" Elements are keyed the same way and only count as one
+        cache.put(new Element(null, null));
+        cache.put(new Element(null, null));
+
+        cache.put(new Element("nullValue", null));
 
         assertEquals(50, cache.getMemoryStoreSize());
-        assertEquals(51, cache.getDiskStoreSize());
+        assertEquals(55, cache.getDiskStoreSize());
 
         cache.flush();
         assertEquals(0, cache.getMemoryStoreSize());
+        //Non Serializable Elements gets discarded
         assertEquals(100, cache.getDiskStoreSize());
 
     }
@@ -970,14 +992,15 @@ public class CacheTest extends AbstractCacheTest {
         Cache cache = new Cache("testElementWithNullValue", 10, false, false, 100, 200);
         manager.addCache(cache);
 
-        Element element = new Element("key1", null);
+        Object key1 = new Object();
+        Element element = new Element(key1, null);
         cache.put(element);
-        assertNotNull(cache.get("key1"));
-        assertNotNull(cache.getQuiet("key1"));
-        assertSame(element, cache.get("key1"));
-        assertSame(element, cache.getQuiet("key1"));
-        assertNull(cache.get("key1").getObjectValue());
-        assertNull(cache.getQuiet("key1").getObjectValue());
+        assertNotNull(cache.get(key1));
+        assertNotNull(cache.getQuiet(key1));
+        assertSame(element, cache.get(key1));
+        assertSame(element, cache.getQuiet(key1));
+        assertNull(cache.get(key1).getObjectValue());
+        assertNull(cache.getQuiet(key1).getObjectValue());
 
         assertEquals(false, cache.isExpired(element));
     }
@@ -1056,6 +1079,15 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(0, cache.getSize());
         assertEquals(0, cache.getDiskStoreSize());
         assertEquals(0, cache.getMemoryStoreSize());
+
+        //Check behaviour of NonSerializable objects
+        cache.put(new Element(new Object(), new Object()));
+        cache.put(new Element(new Object(), new Object()));
+        cache.put(new Element(new Object(), new Object()));
+        assertEquals(1, cache.getSize());
+        assertEquals(0, cache.getDiskStoreSize());
+        assertEquals(1, cache.getMemoryStoreSize());
+
     }
 
     /**
@@ -1204,45 +1236,6 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(objectElement, retrievedObject);
     }
 
-    /**
-     * Make sure ehcache works with one of the main projects using it: Hibernate-2.1.8
-     */
-    public void testAPIAsUsedByHibernate2() throws net.sf.hibernate.cache.CacheException {
-        net.sf.hibernate.cache.EhCacheProvider provider = new net.sf.hibernate.cache.EhCacheProvider();
-        provider.start(null);
-        net.sf.hibernate.cache.EhCache ehcache = (net.sf.hibernate.cache.EhCache) provider.buildCache("hibernate2cache", null);
-        assertNotNull(manager.getCache("hibernate2cache"));
-
-        Serializable key = "key";
-        Serializable value = "value";
-        ehcache.put(key, value);
-        assertEquals(value, ehcache.get(key));
-
-        ehcache.remove(key);
-        assertEquals(null, ehcache.get(key));
-    }
-
-
-    /**
-     * Make sure ehcache works with one of the main projects using it: Hibernate-3.1.3
-     */
-    public void testAPIAsUsedByHibernate3() {
-        EhCacheProvider provider = new EhCacheProvider();
-        provider.start(null);
-        EhCache ehcache = (EhCache) provider.buildCache("hibernate3cache", null);
-        assertNotNull(manager.getCache("hibernate3cache"));
-
-        assertEquals("hibernate3cache", ehcache.getRegionName());
-        Serializable key = "key";
-        Serializable value = "value";
-        ehcache.put(key, value);
-        assertTrue(213 == ehcache.getSizeInMemory());
-        assertEquals(value, ehcache.get(key));
-
-        ehcache.remove(key);
-        assertEquals(null, ehcache.get(key));
-
-    }
 
 
 }

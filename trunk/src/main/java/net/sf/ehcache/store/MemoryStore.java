@@ -268,8 +268,8 @@ public abstract class MemoryStore implements Store {
             Element element = (Element) map.get(keys[i]);
 
             if (!element.isSerializable()) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Object with key " + element.getObjectKey()
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Object with key " + element.getObjectKey()
                             + " is not Serializable and is not being overflowed to disk.");
                 }
             } else {
@@ -378,8 +378,8 @@ public abstract class MemoryStore implements Store {
         boolean spooled = false;
         if (cache.isOverflowToDisk()) {
             if (!element.isSerializable()) {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info(new StringBuffer("Object with key ").append(element.getObjectKey())
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(new StringBuffer("Object with key ").append(element.getObjectKey())
                             .append(" is not Serializable and cannot be overflowed to disk"));
                 }
             } else {

@@ -91,7 +91,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
                 try {
                     Thread.sleep(REPLICATION_THREAD_INTERVAL);
                 } catch (InterruptedException e) {
-                    LOG.info("Spool Thread interrupted.");
+                    LOG.debug("Spool Thread interrupted.");
                     return;
                 }
             }
@@ -236,7 +236,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
             try {
                 cachePeer.send(list);
             } catch (Throwable t) {
-                LOG.info("Unable to send message to remote peer.  Message was: " + t.getMessage());
+                LOG.debug("Unable to send message to remote peer.  Message was: " + t.getMessage());
 
             }
         }
