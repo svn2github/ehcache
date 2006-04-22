@@ -11,7 +11,9 @@ Development Roadmap
 
 ** JGroups based replication
 
- Work is near completion (by Surya) on a JGRoups replication implementation to complement the current RMI one. 
+ Work is near completion (by Surya) on a JGRoups replication implementation to complement the current RMI one.
+ Use of JGroups for peer discovery and replication will be a configuration option.
+ This should make it into the 1.2.1 maintenance release.
 
 * Potential New Features for 1.3
 
@@ -30,6 +32,19 @@ Development Roadmap
 
  A JMS-based replication mechanism would also be useful.
 
+** Implementation of OpenCache specification
+
+ James Strachan, myself and others are thinking of creating an OpenCache specification to standardise
+ caching APIs. Naturally ehcache would implement the API.
+
+** Dropping JDK 1.3 support
+
+ By dropping 1.3 support, things like chained exceptions and some new collection types can be used across
+ the board, simplifying the codebase. It would also enable creation of new features such as JMX.
+
+** JMX Instrumentation
+
+ Create an ehcache MBean to simplify and standardise efforts to monitor ehcache.
 
 * How to suggest features
 

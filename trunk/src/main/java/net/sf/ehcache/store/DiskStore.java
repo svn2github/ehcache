@@ -75,7 +75,7 @@ public class DiskStore implements Store {
     private Thread spoolThread;
     private Thread expiryThread;
 
-    private final Cache cache;
+    private Cache cache;
 
     /**
      * If persistent, the disk file will be kept
@@ -487,6 +487,9 @@ public class DiskStore implements Store {
             active = false;
             randomAccessFile = null;
             notifyAll();
+
+            //release reference to cache
+            cache = null;
         }
     }
 

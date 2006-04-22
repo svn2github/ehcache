@@ -31,6 +31,8 @@ import java.util.Random;
  * Other than policy differences, the Store implementations should work identically
  *
  * todo add NonSerializable elements to tests
+ * todo add tests for Hibernate 2 and 3 usages of the API
+ * todo set log levels appropriately for release
  * @author Greg Luck
  * @version $Id$
  */

@@ -118,6 +118,12 @@ public class Cache implements Cloneable {
      */
     private final boolean diskPersistent;
 
+    /**
+     * The shutdown hook thread for {@link #diskPersistent} caches. This thread
+     * must be unregistered as a shutdown hook, when the cache is disposed.
+     * Otherwise the cache is not GC-able.
+     */
+    private Thread shutdownHook;
 
     /**
      * Can turn off expiration
@@ -367,17 +373,41 @@ public class Cache implements Cloneable {
      * case, so that the data and index can be written to disk.
      */
     private void addShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
+        Thread localShutdownHook = new Thread() {
             public void run() {
                 synchronized (this) {
                     if (status.equals(Status.STATUS_ALIVE)) {
+                        // clear shutdown hook reference to prevent
+                        // removeShutdownHook to remove it during shutdown
+                        Cache.this.shutdownHook = null;
+
                         LOG.info("VM shutting down with the disk store for " + name
-                                + " still active. The disk store is persistent. Calling dispose...");
+                            + " still active. The disk store is persistent. Calling dispose...");
                         dispose();
                     }
                 }
             }
-        });
+        };
+
+        Runtime.getRuntime().addShutdownHook(localShutdownHook);
+        shutdownHook = localShutdownHook;
+    }
+
+
+    /**
+     * Remove the shutdown hook to prevent leaving orphaned caches around. This
+     * is called by {@link #dispose()} AFTER the status has been set to shutdown.
+     */
+    private void removeShutdownHook() {
+        if (shutdownHook != null) {
+            // remove shutdown hook
+            Runtime.getRuntime().removeShutdownHook(shutdownHook);
+
+            // run the shutdown thread to remove it from its thread group
+            shutdownHook.start();
+
+            shutdownHook = null;
+        }
     }
 
 
@@ -914,6 +944,10 @@ public class Cache implements Cloneable {
         registeredEventListeners.dispose();
 
         changeStatus(Status.STATUS_SHUTDOWN);
+
+        if (diskPersistent) {
+            removeShutdownHook();
+        }
     }
 
 
