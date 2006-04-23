@@ -38,7 +38,6 @@ import java.util.List;
  * todo test Cannot keep up with replication
  * todo test production simulation with lots of threads
  * todo create sample configs for different purposes
- * todo test synchronous performance replicating to five peers
  *
  * @author Greg Luck
  * @version $Id$

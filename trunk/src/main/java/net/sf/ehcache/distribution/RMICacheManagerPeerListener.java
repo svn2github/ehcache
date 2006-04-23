@@ -86,6 +86,10 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
                                        Integer socketTimeoutMillis) throws UnknownHostException {
         if (hostName != null && hostName.length() != 0) {
             this.hostName = hostName;
+            if (hostName.equals("localhost")) {
+                LOG.warn("Explicitly setting the listener hostname to 'localhost' is not recommended. "
+                + "It will only work if all CacheManager peers are on the same machine.");
+            }
         } else {
             this.hostName = calculateHostAddress();
         }

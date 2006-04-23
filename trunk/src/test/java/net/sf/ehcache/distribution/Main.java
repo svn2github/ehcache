@@ -22,9 +22,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * A main class for manual distributed testing on different computers.
+ * A distributed testing tool for manual distributed testing of ehcache on cluster nodes.
  * <p/>
- * It uses ehcache-distributed1.xml and will in the cluster for the multicast group
+ * It is passed the ehcache configuration to use and cache to monitor
  *
  *
  * @author Greg Luck
@@ -44,19 +44,19 @@ public final class Main {
 
 
     /**
-     * Designed to work with ehcache-distributed1.xml
+     * Distributed
      * @param args
      */
     public static void main(String[] args) throws InterruptedException {
 
         if (args.length != 1) {
-            LOG.info("Usage: java -jar ehcache-test.jar path_to_ehcache.xml");
+            LOG.info("Usage: java -jar ehcache-test.jar path_to_ehcache.xml cacheToMonitor");
         }
 
         CacheManager manager = new CacheManager(args[0]);
 
-        Cache cache = manager.getCache("sampleCache1");
-        LOG.info("sampleCache1" + cache);
+        Cache cache = manager.getCache(args[1]);
+        LOG.info(args[1] + " " + cache);
 
         while (true) {
 

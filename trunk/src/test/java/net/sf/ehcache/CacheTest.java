@@ -1113,7 +1113,7 @@ public class CacheTest extends AbstractCacheTest {
     public void testToString() {
         Cache cache = new Cache("testGetMemoryStore", 10, false, false, 100, 200);
         assertTrue(cache.toString().indexOf("testGetMemoryStore") > -1);
-        assertEquals(367, cache.toString().length());
+        assertEquals(389, cache.toString().length());
     }
 
 

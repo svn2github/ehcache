@@ -306,23 +306,23 @@ public class RMICacheReplicatorTest extends TestCase {
      * 40 seconds to get all notifications with 2 peers, 2000 Elements and 10k payload
      * 22 seconds to get all notifications with 2 peers, 2000 Elements and 1k payload
      * 26 seconds to get all notifications with 2 peers, 200 Elements and 100k payload
-     *
+     * <p/>
      * r38 - RMI stub lookup on registration rather than at each lookup. Saves quite a few lookups. Also change to 5 second heartbeat
      * 38 seconds to get 2000 notifications with 6 peers, Elements with 400 byte payload (1 second heartbeat)
      * 16 seconds to get 2000 notifications with 6 peers, Elements with 400 byte payload (5 second heartbeat)
      * 13 seconds to get 2000 notifications with 2 peers, Elements with 400 byte payload
-     *
+     * <p/>
      * r39 - Batching asyn replicator. Send all queued messages in one RMI call once per second.
      * 2 seconds to get 2000 notifications with 6 peers, Elements with 400 byte payload (5 second heartbeat)
      */
-    public void testBigPutsProgagates() throws CacheException, InterruptedException {
+    public void testBigPutsProgagatesAsynchronous() throws CacheException, InterruptedException {
         //Give everything a chance to startup
         StopWatch stopWatch = new StopWatch();
         Integer index = null;
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 1000; j++) {
                 index = new Integer(((1000 * i) + j));
-                cache1.put(new Element(index,                                        
+                cache1.put(new Element(index,
                         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -343,6 +343,120 @@ public class RMICacheReplicatorTest extends TestCase {
         assertEquals(2000, manager3.getCache("sampleCache1").getSize());
         assertEquals(2000, manager4.getCache("sampleCache1").getSize());
         assertEquals(2000, manager5.getCache("sampleCache1").getSize());
+
+    }
+
+    /**
+     * Performance and capacity tests.
+     * <p/>
+     * The numbers given are for the remote peer tester (java -jar ehcache-test.jar ehcache-distributed1.xml)
+     * running on a 10Mbit ethernet network and are measured from the time the peer starts receiving to when
+     * it has fully received.
+     * <p/>
+     * 4 seconds to get all remove notifications with 6 peers, 5000 Elements and 400 byte payload
+     */
+    public void testBigRemovesProgagatesAsynchronous() throws CacheException, InterruptedException {
+        //Give everything a chance to startup
+        Integer index = null;
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 1000; j++) {
+                index = new Integer(((1000 * i) + j));
+                cache1.put(new Element(index,
+                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
+            }
+
+        }
+        Thread.sleep(5000);
+        assertEquals(5000, cache1.getSize());
+        assertEquals(5000, manager2.getCache("sampleCache1").getSize());
+        assertEquals(5000, manager3.getCache("sampleCache1").getSize());
+        assertEquals(5000, manager4.getCache("sampleCache1").getSize());
+        assertEquals(5000, manager5.getCache("sampleCache1").getSize());
+
+        //Let the disk stores catch up before the next stage of the test
+        Thread.sleep(2000);
+
+        StopWatch stopWatch = new StopWatch();
+
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 1000; j++) {
+                index = new Integer(((1000 * i) + j));
+                cache1.remove(index);
+            }
+        }
+
+
+        int timeForPropagate = 10000;
+//        if (manager1.getCache("sampleCache1").getSize() != 0 && manager5.getCache("sampleCache1").getSize() != 0) {
+//            Thread.sleep(1000);
+//            timeForPropagate += 1000;
+//        }
+
+        Thread.sleep(timeForPropagate);
+        assertEquals(0, cache1.getSize());
+        assertEquals(0, manager2.getCache("sampleCache1").getSize());
+        assertEquals(0, manager3.getCache("sampleCache1").getSize());
+        assertEquals(0, manager4.getCache("sampleCache1").getSize());
+        assertEquals(0, manager5.getCache("sampleCache1").getSize());
+
+        LOG.info("Remove Elapsed time: " + timeForPropagate);
+
+
+    }
+
+
+    /**
+     * Performance and capacity tests.
+     * <p/>
+     * 5 seconds to send all notifications synchronously with 5 peers, 2000 Elements and 400 byte payload
+     * The numbers given below are for the remote peer tester (java -jar ehcache-test.jar ehcache-distributed1.xml)
+     * running on a 10Mbit ethernet network and are measured from the time the peer starts receiving to when
+     * it has fully received.
+     * <p/>
+     * <p/>
+     * 38 seconds to get all notifications with 6 peers, 2000 Elements and 400 byte payload
+     * 18 seconds to get all notifications with 2 peers, 2000 Elements and 400 byte payload
+     * 40 seconds to get all notifications with 2 peers, 2000 Elements and 10k payload
+     * 22 seconds to get all notifications with 2 peers, 2000 Elements and 1k payload
+     * 26 seconds to get all notifications with 2 peers, 200 Elements and 100k payload
+     * <p/>
+     * r38 - RMI stub lookup on registration rather than at each lookup. Saves quite a few lookups. Also change to 5 second heartbeat
+     * 38 seconds to get 2000 notifications with 6 peers, Elements with 400 byte payload (1 second heartbeat)
+     * 16 seconds to get 2000 notifications with 6 peers, Elements with 400 byte payload (5 second heartbeat)
+     * 13 seconds to get 2000 notifications with 2 peers, Elements with 400 byte payload
+     * <p/>
+     * r39 - Batching asyn replicator. Send all queued messages in one RMI call once per second.
+     * 2 seconds to get 2000 notifications with 6 peers, Elements with 400 byte payload (5 second heartbeat)
+     */
+    public void testBigPutsProgagatesSynchronous() throws CacheException, InterruptedException {
+        //Give everything a chance to startup
+        StopWatch stopWatch = new StopWatch();
+        Integer index;
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 1000; j++) {
+                index = new Integer(((1000 * i) + j));
+                manager1.getCache("sampleCache3").put(new Element(index,
+                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
+            }
+
+        }
+        long elapsed = stopWatch.getElapsedTime();
+        long putTime = ((elapsed / 1000));
+        LOG.info("Put and Propagate Synchronously Elapsed time: " + putTime + " seconds");
+
+        assertEquals(2000, manager1.getCache("sampleCache3").getSize());
+        assertEquals(2000, manager2.getCache("sampleCache3").getSize());
+        assertEquals(2000, manager3.getCache("sampleCache3").getSize());
+        assertEquals(2000, manager4.getCache("sampleCache3").getSize());
+        assertEquals(2000, manager5.getCache("sampleCache3").getSize());
 
     }
 

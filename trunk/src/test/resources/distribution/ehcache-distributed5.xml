@@ -182,13 +182,11 @@
     </cache>
 
 
-    <!-- Sample cache named sampleCache3. It is set for synchronouos replication. -->
+    <!-- Sample cache named sampleCache3. It is set for synchronous replication. -->
     <cache name="sampleCache3"
            maxElementsInMemory="10"
-           eternal="false"
-           timeToLiveSeconds="100"
-           overflowToDisk="false"
-           memoryStoreEvictionPolicy="FIFO">
+           eternal="true"
+           overflowToDisk="true">
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
                                    properties="replicateAsynchronously=false, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
     </cache>

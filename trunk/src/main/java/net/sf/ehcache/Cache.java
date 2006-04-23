@@ -1183,6 +1183,8 @@ Cache size is the size of the union of the two key sets.*/
     public String toString() {
         StringBuffer dump = new StringBuffer();
 
+        registeredEventListeners.getCacheEventListeners();
+
         dump.append("[ ")
                 .append(" name = ").append(name)
                 .append(" status = ").append(status)
@@ -1194,6 +1196,7 @@ Cache size is the size of the union of the two key sets.*/
                 .append(" timeToIdleSeconds = ").append(timeToIdleSeconds)
                 .append(" diskPersistent = ").append(diskPersistent)
                 .append(" diskExpiryThreadIntervalSeconds = ").append(diskExpiryThreadIntervalSeconds)
+                .append(registeredEventListeners)
                 .append(" hitCount = ").append(hitCount)
                 .append(" memoryStoreHitCount = ").append(memoryStoreHitCount)
                 .append(" diskStoreHitCount = ").append(diskStoreHitCount)

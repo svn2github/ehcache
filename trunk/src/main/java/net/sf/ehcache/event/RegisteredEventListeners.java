@@ -183,4 +183,22 @@ public class RegisteredEventListeners {
 
         cacheEventListeners.clear();
     }
+
+    /**
+     * Returns a string representation of the object. In general, the
+     * <code>toString</code> method returns a string that
+     * "textually represents" this object. The result should
+     * be a concise but informative representation that is easy for a
+     * person to read.
+     *
+     * @return a string representation of the object.
+     */
+    public String toString() {
+        StringBuffer stringBuffer = new StringBuffer(" cacheEventListeners: ");
+        for (Iterator iterator = cacheEventListeners.iterator(); iterator.hasNext();) {
+            CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
+            stringBuffer.append(cacheEventListener.getClass().getName()).append(" ");
+        }
+        return stringBuffer.toString();
+    }
 }
