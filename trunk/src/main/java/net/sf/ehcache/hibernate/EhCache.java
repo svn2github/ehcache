@@ -16,7 +16,6 @@
 package net.sf.ehcache.hibernate;
 
 
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,7 +24,6 @@ import org.hibernate.cache.CacheException;
 import org.hibernate.cache.Timestamper;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -34,9 +32,11 @@ import java.util.Map;
  * EHCache plugin for Hibernate
  * <p/>
  * EHCache uses a {@link net.sf.ehcache.store.MemoryStore} and a
- * {@link net.sf.ehcache.store.DiskStore}. The {@link net.sf.ehcache.store.DiskStore}
- * requires that both keys and values be {@link Serializable}. For this reason
- * this plugin throws Exceptions when either of these are not castable to {@link Serializable}.
+ * {@link net.sf.ehcache.store.DiskStore}.
+ * <p/>
+ * The {@link net.sf.ehcache.store.DiskStore} requires that both keys and values be {@link java.io.Serializable}.
+ * However the MemoryStore does not and in ehcache-1.2 nonSerializable Objects are permitted. They are discarded
+ * if an attempt it made to overflow them to Disk or to replicate them to remote cache peers.
  * <p/>
  *
  * @author Greg Luck
@@ -112,7 +112,7 @@ public class EhCache implements Cache {
      *
      * @param key   an Object key
      * @param value an Object value
-     * @throws CacheException if the {@link CacheManager} is shutdown or another {@link Exception} occurs.
+     * @throws CacheException if the {@link net.sf.ehcache.CacheManager} is shutdown or another {@link Exception} occurs.
      */
     public void update(Object key, Object value) throws CacheException {
         put(key, value);
@@ -123,7 +123,7 @@ public class EhCache implements Cache {
      *
      * @param key   an Object key
      * @param value an Object value
-     * @throws CacheException if the {@link CacheManager} is shutdown or another {@link Exception} occurs.
+     * @throws CacheException if the {@link net.sf.ehcache.CacheManager} is shutdown or another {@link Exception} occurs.
      */
     public void put(Object key, Object value) throws CacheException {
         try {
@@ -177,7 +177,7 @@ public class EhCache implements Cache {
      */
     public void destroy() throws CacheException {
         try {
-            CacheManager.getInstance().removeCache(cache.getName());
+            cache.getCacheManager().removeCache(cache.getName());
         } catch (IllegalStateException e) {
             throw new CacheException(e);
         } catch (net.sf.ehcache.CacheException e) {
@@ -270,7 +270,7 @@ public class EhCache implements Cache {
             Iterator iter = cache.getKeys().iterator();
             while (iter.hasNext()) {
                 Object key = iter.next();
-                result.put(key, cache.get((Serializable) key).getValue());
+                result.put(key, cache.get(key).getObjectValue());
             }
             return result;
         } catch (Exception e) {
@@ -283,6 +283,13 @@ public class EhCache implements Cache {
      */
     public String toString() {
         return "EHCache(" + getRegionName() + ')';
+    }
+
+    /**
+     * Package protected method used for testing
+     */
+    net.sf.ehcache.Cache getBackingCache() {
+        return cache;
     }
 
 }

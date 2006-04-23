@@ -23,6 +23,7 @@ import net.sf.ehcache.Element;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 
 /**
  * Counts listener notifications.
@@ -34,18 +35,17 @@ import java.util.List;
  */
 public class CountingCacheEventListener implements CacheEventListener {
 
-    private static List cacheElementsPut = new ArrayList();
-    private static List cacheElementsUpdated = new ArrayList();
-    private static List cacheElementsRemoved = new ArrayList();
-    private static List cacheElementsExpired = new ArrayList();
-
+    private static final List CACHE_ELEMENTS_PUT = Collections.synchronizedList(new ArrayList());
+    private static final List CACHE_ELEMENTS_UPDATED = Collections.synchronizedList(new ArrayList());
+    private static final List CACHE_ELEMENTS_REMOVED = Collections.synchronizedList(new ArrayList());
+    private static final List CACHE_ELEMENTS_EXPIRED = Collections.synchronizedList(new ArrayList());
 
 
     /**
      * Accessor
      */
     public static List getCacheElementsRemoved(Cache cache) {
-        return extractListForGivenCache(cacheElementsRemoved, cache);
+        return extractListForGivenCache(CACHE_ELEMENTS_REMOVED, cache);
     }
 
 
@@ -53,47 +53,57 @@ public class CountingCacheEventListener implements CacheEventListener {
      * Accessor
      */
     public static List getCacheElementsPut(Cache cache) {
-        return extractListForGivenCache(cacheElementsPut, cache);
+        return extractListForGivenCache(CACHE_ELEMENTS_PUT, cache);
     }
 
     /**
      * Accessor
      */
     public static List getCacheElementsUpdated(Cache cache) {
-        return extractListForGivenCache(cacheElementsUpdated, cache);
+        return extractListForGivenCache(CACHE_ELEMENTS_UPDATED, cache);
     }
 
     /**
      * Accessor
      */
     public static List getCacheElementsExpired(Cache cache) {
-        return extractListForGivenCache(cacheElementsExpired, cache);
+        return extractListForGivenCache(CACHE_ELEMENTS_EXPIRED, cache);
     }
 
     /**
      * Resets the counters to 0
      */
     public static void resetCounters() {
-        cacheElementsRemoved.clear();
-        cacheElementsPut.clear();
-        cacheElementsExpired.clear();
+        synchronized (CACHE_ELEMENTS_REMOVED) {
+            CACHE_ELEMENTS_REMOVED.clear();
+        }
+        synchronized (CACHE_ELEMENTS_PUT) {
+            CACHE_ELEMENTS_PUT.clear();
+        }
+        synchronized (CACHE_ELEMENTS_UPDATED) {
+            CACHE_ELEMENTS_UPDATED.clear();
+        }
+        synchronized (CACHE_ELEMENTS_EXPIRED) {
+            CACHE_ELEMENTS_EXPIRED.clear();
+        }
     }
 
 
     /**
-     *
      * @param notificationList
-     * @param cache the cache to filter on. If null, there is not filtering and all entries are returned.
+     * @param cache            the cache to filter on. If null, there is not filtering and all entries are returned.
      * @return a list of notifications for the cache
      */
     private static List extractListForGivenCache(List notificationList, Cache cache) {
         ArrayList list = new ArrayList();
-        for (int i = 0; i < notificationList.size(); i++) {
-            CounterEntry counterEntry = (CounterEntry) notificationList.get(i);
-            if (counterEntry.cache.equals(cache)) {
-                list.add(counterEntry.getElement());
-            } else if (cache == null) {
-                list.add(counterEntry.getElement());
+        synchronized (notificationList) {
+            for (int i = 0; i < notificationList.size(); i++) {
+                CounterEntry counterEntry = (CounterEntry) notificationList.get(i);
+                if (counterEntry.cache.equals(cache)) {
+                    list.add(counterEntry.getElement());
+                } else if (cache == null) {
+                    list.add(counterEntry.getElement());
+                }
             }
         }
         return list;
@@ -105,7 +115,7 @@ public class CountingCacheEventListener implements CacheEventListener {
      */
     public void notifyElementRemoved(final Cache cache, final Element element) {
         checkSynchronizedAccessToCacheOk(cache);
-        cacheElementsRemoved.add(new CounterEntry(cache, element));
+        CACHE_ELEMENTS_REMOVED.add(new CounterEntry(cache, element));
     }
 
     /**
@@ -116,14 +126,12 @@ public class CountingCacheEventListener implements CacheEventListener {
      * Implementers should be careful not to modify the element. The effect of any modifications is undefined.
      *
      * @param cache
-     * @param element   the element which was just put into the cache.
+     * @param element the element which was just put into the cache.
      */
     public void notifyElementPut(final Cache cache, final Element element) {
         checkSynchronizedAccessToCacheOk(cache);
-        cacheElementsPut.add(new CounterEntry(cache, element));
+        CACHE_ELEMENTS_PUT.add(new CounterEntry(cache, element));
     }
-
-
 
 
     /**
@@ -140,14 +148,14 @@ public class CountingCacheEventListener implements CacheEventListener {
      * @param element the element which was just put into the cache.
      */
     public void notifyElementUpdated(final Cache cache, final Element element) throws CacheException {
-        cacheElementsUpdated.add(new CounterEntry(cache, element));
+        CACHE_ELEMENTS_UPDATED.add(new CounterEntry(cache, element));
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyElementExpired(final Cache cache, final Element element) {
-        cacheElementsExpired.add(new CounterEntry(cache, element));
+        CACHE_ELEMENTS_EXPIRED.add(new CounterEntry(cache, element));
     }
 
     /**
@@ -156,15 +164,13 @@ public class CountingCacheEventListener implements CacheEventListener {
      * Clean up static counters
      */
     public void dispose() {
-        cacheElementsPut = new ArrayList();
-        cacheElementsUpdated = new ArrayList();
-        cacheElementsRemoved = new ArrayList();
-        cacheElementsExpired = new ArrayList();
+        resetCounters();
     }
 
     /**
      * This counter should be called from calls synchonized on Cache. These methods should hold the lock
      * therefore this is ok.
+     *
      * @param cache
      */
     private void checkSynchronizedAccessToCacheOk(Cache cache) {
@@ -185,6 +191,7 @@ public class CountingCacheEventListener implements CacheEventListener {
 
         /**
          * Construct a new event
+         *
          * @param cache
          * @param element
          */

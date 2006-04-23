@@ -250,6 +250,32 @@ public class CacheManagerTest extends TestCase {
     }
 
     /**
+     * Does the cache hang on to its instance?
+     */
+    public void testCacheManagerReferenceInstance() {
+        instanceManager = new CacheManager();
+        instanceManager.addCache("test");
+        Cache cache = instanceManager.getCache("test");
+        assertEquals("test", cache.getName());
+        assertEquals(Status.STATUS_ALIVE, cache.getStatus());
+        CacheManager reference = cache.getCacheManager();
+        assertTrue(reference == instanceManager);
+    }
+
+    /**
+     * Does a cache with a reference to a singleton hang on to it?
+     */
+    public void testCacheManagerReferenceSingleton() {
+        singletonManager = CacheManager.create();
+        singletonManager.addCache("test");
+        Cache cache = singletonManager.getCache("test");
+        assertEquals("test", cache.getName());
+        assertEquals(Status.STATUS_ALIVE, cache.getStatus());
+        CacheManager reference = cache.getCacheManager();
+        assertTrue(reference == singletonManager);
+    }
+
+    /**
      * Checks we can disable ehcache using a system property
      */
     public void testDisableEhcache() throws CacheException, InterruptedException {
@@ -414,7 +440,6 @@ public class CacheManagerTest extends TestCase {
 
     private int countThreads() {
 
-
         /**
          * A class for visiting threads
          */
@@ -451,13 +476,11 @@ public class CacheManagerTest extends TestCase {
 
         }
 
-
         // Find the root thread group
         ThreadGroup root = Thread.currentThread().getThreadGroup().getParent();
         while (root.getParent() != null) {
             root = root.getParent();
         }
-
 
         // Visit each thread group
         ThreadVisitor visitor = new ThreadVisitor();

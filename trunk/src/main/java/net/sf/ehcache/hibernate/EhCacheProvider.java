@@ -22,7 +22,6 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.CacheProvider;
-import org.hibernate.cache.EhCache;
 import org.hibernate.cache.Timestamper;
 
 import java.net.URL;
@@ -48,6 +47,7 @@ import java.util.Properties;
  * <p/>
  * See http://ehcache.sf.net for documentation on ehcache
  * <p/>
+ *
  * @author Greg Luck
  * @author Emmanuel Bernard
  * @version $Id$
@@ -91,7 +91,7 @@ public class EhCacheProvider implements CacheProvider {
                 cache = manager.getCache(name);
                 EhCacheProvider.LOG.debug("started EHCache region: " + name);
             }
-            return new EhCache(cache);
+            return new net.sf.ehcache.hibernate.EhCache(cache);
         } catch (net.sf.ehcache.CacheException e) {
             throw new CacheException(e);
         }
@@ -120,7 +120,6 @@ public class EhCacheProvider implements CacheProvider {
             if (configurationResourceName == null || configurationResourceName.length() == 0) {
                 manager = new CacheManager();
             } else {
-                ClassLoader standardClassloader = ClassLoaderUtil.getStandardClassLoader();
                 if (!configurationResourceName.startsWith("/")) {
                     configurationResourceName = "/" + configurationResourceName;
                     if (LOG.isDebugEnabled()) {
@@ -128,12 +127,28 @@ public class EhCacheProvider implements CacheProvider {
                                 + "of the classpath rather than in a package.");
                     }
                 }
-                URL url = standardClassloader.getResource(configurationResourceName);
+                URL url = loadResource(configurationResourceName);
                 manager = new CacheManager(url);
             }
         } catch (net.sf.ehcache.CacheException e) {
             throw new CacheException(e);
         }
+    }
+
+    private URL loadResource(String configurationResourceName) {
+        ClassLoader standardClassloader = ClassLoaderUtil.getStandardClassLoader();
+        URL url = null;
+        if (standardClassloader != null) {
+            url = standardClassloader.getResource(configurationResourceName);
+        }
+        if (url == null) {
+            url = this.getClass().getResource(configurationResourceName);
+        }
+        if (LOG.isDebugEnabled()) {
+        LOG.debug("Creating EhCacheProvider from a specified resource: "
+                + configurationResourceName + " Resolved to URL: " + url);
+        }
+        return url;
     }
 
     /**

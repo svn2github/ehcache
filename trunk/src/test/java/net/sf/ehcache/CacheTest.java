@@ -192,6 +192,8 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(Status.STATUS_ALIVE, cache.getStatus());
     }
 
+    
+
     /**
      * Tests getting the cache name
      *

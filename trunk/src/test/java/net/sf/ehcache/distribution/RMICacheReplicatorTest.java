@@ -391,10 +391,6 @@ public class RMICacheReplicatorTest extends TestCase {
 
 
         int timeForPropagate = 10000;
-//        if (manager1.getCache("sampleCache1").getSize() != 0 && manager5.getCache("sampleCache1").getSize() != 0) {
-//            Thread.sleep(1000);
-//            timeForPropagate += 1000;
-//        }
 
         Thread.sleep(timeForPropagate);
         assertEquals(0, cache1.getSize());
