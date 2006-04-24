@@ -59,30 +59,30 @@ public final class CacheManager {
      * Keeps track of the disk store paths of all CacheManagers.
      * Can be checked before letting a new CacheManager start up.
      */
-    private static Set allCacheManagersDiskStorePaths = Collections.synchronizedSet(new HashSet());
+    private static final Set ALL_CACHE_MANAGER_DISKT_STORE_PATHS = Collections.synchronizedSet(new HashSet());
 
     /**
-     * The Singleton Instance
+     * The Singleton Instance.
      */
     private static CacheManager singleton;
 
     /**
-     * Caches managed by this manager
+     * Caches managed by this manager.
      */
-    private Hashtable caches = new Hashtable();
+    private final Hashtable caches = new Hashtable();
 
     /**
-     * Default cache cache
+     * Default cache cache.
      */
     private Cache defaultCache;
 
     /**
-     * The path for the directory in which disk caches are created
+     * The path for the directory in which disk caches are created.
      */
     private String diskStorePath;
 
     /**
-     * The CacheManagerEventListener which will be notified of significant events
+     * The CacheManagerEventListener which will be notified of significant events.
      */
     private CacheManagerEventListener cacheManagerEventListener;
 
@@ -170,6 +170,7 @@ public final class CacheManager {
     }
 
     /**
+     * Constructor.
      * @throws CacheException
      */
     public CacheManager() throws CacheException {
@@ -206,15 +207,17 @@ public final class CacheManager {
      * <p/>
      * Should only be called once.
      *
-     * @param configurationFileName
-     * @param configurationURL
-     * @param configurationInputStream
+     * @param configurationFileName the file name to parse, or null
+     * @param configurationURL the URL to pass, or null
+     * @param configurationInputStream, the InputStream to parse, or null
+     * @return the loaded configuration
+     * @throws CacheException if the configuration cannot be parsed
      */
     private synchronized Configuration parseConfiguration(String configurationFileName, URL configurationURL,
         InputStream configurationInputStream) throws CacheException {
         reinitialisationCheck();
-        Configuration configuration = null;
-        String configurationSource = null;
+        Configuration configuration;
+        String configurationSource;
         if (configurationFileName != null) {
             LOG.debug("Configuring CacheManager from " + configurationFileName);
             configuration = ConfigurationFactory.parseConfiguration(new File(configurationFileName));
@@ -240,7 +243,7 @@ public final class CacheManager {
     private void configure(ConfigurationHelper configurationHelper) {
 
         diskStorePath = configurationHelper.getDiskStorePath();
-        if (!allCacheManagersDiskStorePaths.add(diskStorePath)) {
+        if (!ALL_CACHE_MANAGER_DISKT_STORE_PATHS.add(diskStorePath)) {
             throw new CacheException("Cannot parseConfiguration CacheManager. Attempt to create a new instance" +
                     " of CacheManager using the diskStorePath \"" + diskStorePath + "\" which is already used" +
                     " by an existing CacheManager. The source of the configuration was "
@@ -271,6 +274,8 @@ public final class CacheManager {
      * <p/>
      * The configuration will be read, {@link Cache}s created and required stores initialized.
      * When the {@link CacheManager} is no longer required, call shutdown to free resources.
+     * @return the singleton CacheManager
+     * @throws CacheException if the CacheManager cannot be created
      */
     public static CacheManager create() throws CacheException {
         synchronized (CacheManager.class) {
@@ -294,6 +299,8 @@ public final class CacheManager {
      * This has the same effect as {@link CacheManager#create}
      * <p/>
      * Same as {@link #create()}
+     * @return the singleton CacheManager
+     * @throws CacheException if the CacheManager cannot be created
      */
     public static CacheManager getInstance() throws CacheException {
         return CacheManager.create();
@@ -403,6 +410,12 @@ public final class CacheManager {
     public synchronized void addCache(String cacheName) throws IllegalStateException,
             ObjectExistsException, CacheException {
         checkStatus();
+
+        //NPE guard
+        if (cacheName == null || cacheName.length() == 0) {
+            return;
+        }
+
         if (caches.get(cacheName) != null) {
             throw new ObjectExistsException("Cache " + cacheName + " already exists");
         }
@@ -412,7 +425,9 @@ public final class CacheManager {
         } catch (CloneNotSupportedException e) {
             LOG.error("Failure adding cache. Initial cause was " + e.getMessage(), e);
         }
-        cache.setName(cacheName);
+        if (cache != null) {
+            cache.setName(cacheName);
+        }
         addCache(cache);
     }
 
@@ -478,6 +493,12 @@ public final class CacheManager {
      */
     public synchronized void removeCache(String cacheName) throws IllegalStateException {
         checkStatus();
+
+        //NPE guard
+        if (cacheName == null || cacheName.length() == 0) {
+            return;
+        }
+
         Cache cache = (Cache) caches.remove(cacheName);
         if (cache != null && cache.getStatus().equals(Status.STATUS_ALIVE)) {
             cache.dispose();
@@ -507,7 +528,7 @@ public final class CacheManager {
             cacheManagerPeerListener.dispose();
         }
         synchronized (CacheManager.class) {
-            allCacheManagersDiskStorePaths.remove(diskStorePath);
+            ALL_CACHE_MANAGER_DISKT_STORE_PATHS.remove(diskStorePath);
             Enumeration allCaches = caches.elements();
             while (allCaches.hasMoreElements()) {
                 Cache cache = (Cache) allCaches.nextElement();

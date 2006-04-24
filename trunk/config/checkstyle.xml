@@ -120,7 +120,7 @@
 
         <!-- Modifiers -->
         <!--<module name="ModifierOrder"/> Bug reported. Want this to work -->
-        <module name="RedundantModifier"/>
+        <!--<module name="RedundantModifier"/>-->
 
         <!-- Blocks -->
         <module name="EmptyBlock">

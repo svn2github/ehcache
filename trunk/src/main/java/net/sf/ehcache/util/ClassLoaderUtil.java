@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import net.sf.ehcache.CacheException;
 
 /**
@@ -27,9 +25,6 @@ import net.sf.ehcache.CacheException;
  * @version $Id$
  */
 public final class ClassLoaderUtil {
-
-
-    private static final Log LOG = LogFactory.getLog(ClassLoaderUtil.class.getName());
 
     /**
      * Utility class
@@ -57,7 +52,7 @@ public final class ClassLoaderUtil {
      */
     public static Object createNewInstance(String className) throws CacheException {
         Class clazz;
-        Object newInstance = null;
+        Object newInstance;
         try {
             clazz = Class.forName(className, true, getStandardClassLoader());
             newInstance = clazz.newInstance();

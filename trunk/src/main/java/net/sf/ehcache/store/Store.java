@@ -20,8 +20,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 
-import java.io.IOException;
-
 /**
  * This is the interface for all stores. A store is a physical counterpart to a cache, which
  * is a logical concept.
@@ -34,34 +32,32 @@ public interface Store {
     /**
      * Puts an item into the cache.
      */
-    void put(Element element) throws IOException, CacheException;
+    void put(Element element) throws CacheException;
 
     /**
      * Gets an item from the cache.
      */
-    Element get(Object key) throws IOException;
+    Element get(Object key);
 
     /**
      * Removes an item from the cache.
      *
      * @since signature changed in 1.2 from boolean to Element to support notifications
      */
-    Element remove(Object key) throws IOException;
+    Element remove(Object key);
 
     /**
      * Remove all of the elements from the store.
      * <p/>
      * If there are registered <code>CacheEventListener</code>s they are notified of the expiry or removal
      * of the <code>Element</code> as each is removed.
-     *
-     * @throws IOException
      */
-    void removeAll() throws IOException, CacheException;
+    void removeAll() throws CacheException;
 
     /**
      * Prepares for shutdown.
      */
-    void dispose() throws IOException;
+    void dispose();
 
     /**
      * Returns the current store size.

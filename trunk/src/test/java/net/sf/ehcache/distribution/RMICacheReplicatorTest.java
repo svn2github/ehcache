@@ -100,7 +100,7 @@ public class RMICacheReplicatorTest extends TestCase {
      * @throws Exception
      */
     protected void setUp() throws Exception {
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 
@@ -141,7 +141,7 @@ public class RMICacheReplicatorTest extends TestCase {
      */
     protected void tearDown() throws Exception {
 
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 
@@ -173,7 +173,7 @@ public class RMICacheReplicatorTest extends TestCase {
      */
     public void testRemoteCachePeersEqualsNumberOfCacheManagersInCluster() {
 
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 
@@ -188,7 +188,7 @@ public class RMICacheReplicatorTest extends TestCase {
      */
     public void testRemoteCachePeersDetectsNewCacheManager() throws InterruptedException {
 
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 
@@ -211,7 +211,7 @@ public class RMICacheReplicatorTest extends TestCase {
      */
     public void testRemoteCachePeersDetectsDownCacheManager() throws InterruptedException {
 
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 
@@ -236,7 +236,7 @@ public class RMICacheReplicatorTest extends TestCase {
      */
     public void testRemoteCachePeersDetectsDownCacheManagerSlow() throws InterruptedException {
 
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 
@@ -259,7 +259,7 @@ public class RMICacheReplicatorTest extends TestCase {
      */
     public void testPutProgagatesFromAndToEveryCacheManagerAndCache() throws CacheException, InterruptedException {
 
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 
@@ -329,6 +329,11 @@ public class RMICacheReplicatorTest extends TestCase {
      * 2 seconds to get 2000 notifications with 6 peers, Elements with 400 byte payload (5 second heartbeat)
      */
     public void testBigPutsProgagatesAsynchronous() throws CacheException, InterruptedException {
+
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
         //Give everything a chance to startup
         StopWatch stopWatch = new StopWatch();
         Integer index = null;
@@ -364,6 +369,11 @@ public class RMICacheReplicatorTest extends TestCase {
      * Drive everything to point of breakage within a 64MB VM.
      */
     public void xTestHugePutsBreaksAsynchronous() throws CacheException, InterruptedException {
+
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
         //Give everything a chance to startup
         StopWatch stopWatch = new StopWatch();
         Integer index = null;
@@ -405,6 +415,11 @@ public class RMICacheReplicatorTest extends TestCase {
      * 4 seconds to get all remove notifications with 6 peers, 5000 Elements and 400 byte payload
      */
     public void testBigRemovesProgagatesAsynchronous() throws CacheException, InterruptedException {
+
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
         //Give everything a chance to startup
         Integer index = null;
         for (int i = 0; i < 5; i++) {
@@ -461,23 +476,13 @@ public class RMICacheReplicatorTest extends TestCase {
      * The numbers given below are for the remote peer tester (java -jar ehcache-test.jar ehcache-distributed1.xml)
      * running on a 10Mbit ethernet network and are measured from the time the peer starts receiving to when
      * it has fully received.
-     * <p/>
-     * <p/>
-     * 38 seconds to get all notifications with 6 peers, 2000 Elements and 400 byte payload
-     * 18 seconds to get all notifications with 2 peers, 2000 Elements and 400 byte payload
-     * 40 seconds to get all notifications with 2 peers, 2000 Elements and 10k payload
-     * 22 seconds to get all notifications with 2 peers, 2000 Elements and 1k payload
-     * 26 seconds to get all notifications with 2 peers, 200 Elements and 100k payload
-     * <p/>
-     * r38 - RMI stub lookup on registration rather than at each lookup. Saves quite a few lookups. Also change to 5 second heartbeat
-     * 38 seconds to get 2000 notifications with 6 peers, Elements with 400 byte payload (1 second heartbeat)
-     * 16 seconds to get 2000 notifications with 6 peers, Elements with 400 byte payload (5 second heartbeat)
-     * 13 seconds to get 2000 notifications with 2 peers, Elements with 400 byte payload
-     * <p/>
-     * r39 - Batching asyn replicator. Send all queued messages in one RMI call once per second.
-     * 2 seconds to get 2000 notifications with 6 peers, Elements with 400 byte payload (5 second heartbeat)
      */
     public void testBigPutsProgagatesSynchronous() throws CacheException, InterruptedException {
+
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
         //Give everything a chance to startup
         StopWatch stopWatch = new StopWatch();
         Integer index;
@@ -511,6 +516,9 @@ public class RMICacheReplicatorTest extends TestCase {
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
     public void testPutWithExplicitReplicationConfig() throws InterruptedException {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
         putTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
     }
 
@@ -519,6 +527,9 @@ public class RMICacheReplicatorTest extends TestCase {
      * properties="replicateAsynchronously=false, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
     public void testPutWithExplicitReplicationSynchronousConfig() throws InterruptedException {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
         putTest(manager1.getCache("sampleCache3"), manager2.getCache("sampleCache3"), SYNCHRONOUS);
     }
 
@@ -528,6 +539,9 @@ public class RMICacheReplicatorTest extends TestCase {
      * Defaults should be replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true
      */
     public void testPutWithEmptyReplicationPropertiesConfig() throws InterruptedException {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
         putTest(manager1.getCache("sampleCache4"), manager2.getCache("sampleCache4"), ASYNCHRONOUS);
     }
 
@@ -537,6 +551,9 @@ public class RMICacheReplicatorTest extends TestCase {
      * should equal replicateAsynchronously=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true
      */
     public void testPutWithOneMissingReplicationPropertyConfig() throws InterruptedException {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
         putTest(manager1.getCache("sampleCache5"), manager2.getCache("sampleCache5"), ASYNCHRONOUS);
     }
 
@@ -547,10 +564,6 @@ public class RMICacheReplicatorTest extends TestCase {
      * This test goes into an infinite loop if the chain of notifications is not somehow broken.
      */
     public void putTest(Cache fromCache, Cache toCache, boolean asynchronous) throws CacheException, InterruptedException {
-
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         Serializable key = new Date();
         Serializable value = new Date();
@@ -587,7 +600,7 @@ public class RMICacheReplicatorTest extends TestCase {
      */
     public void testRemotePutNotificationGetsToOtherListeners() throws CacheException, InterruptedException {
 
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 
@@ -648,6 +661,9 @@ public class RMICacheReplicatorTest extends TestCase {
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
     public void testRemoveWithExplicitReplicationConfig() throws InterruptedException {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
         removeTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
     }
 
@@ -656,6 +672,9 @@ public class RMICacheReplicatorTest extends TestCase {
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
     public void testRemoveWithExplicitReplicationSynchronousConfig() throws InterruptedException {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
         removeTest(manager1.getCache("sampleCache3"), manager2.getCache("sampleCache3"), SYNCHRONOUS);
     }
 
@@ -665,6 +684,9 @@ public class RMICacheReplicatorTest extends TestCase {
      * Defaults should be replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true
      */
     public void testRemoveWithEmptyReplicationPropertiesConfig() throws InterruptedException {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
         removeTest(manager1.getCache("sampleCache4"), manager2.getCache("sampleCache4"), ASYNCHRONOUS);
     }
 
@@ -674,10 +696,6 @@ public class RMICacheReplicatorTest extends TestCase {
      * This test goes into an infinite loop if the chain of notifications is not somehow broken.
      */
     public void removeTest(Cache fromCache, Cache toCache, boolean asynchronous) throws CacheException, InterruptedException {
-
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         Serializable key = new Date();
         Serializable value = new Date();
@@ -712,6 +730,9 @@ public class RMICacheReplicatorTest extends TestCase {
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
     public void testUpdateWithExplicitReplicationConfig() throws Exception {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
         updateViaCopyTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
     }
 
@@ -720,6 +741,9 @@ public class RMICacheReplicatorTest extends TestCase {
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
     public void testUpdateWithExplicitReplicationSynchronousConfig() throws Exception {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
         updateViaCopyTest(manager1.getCache("sampleCache3"), manager2.getCache("sampleCache3"), SYNCHRONOUS);
     }
 
@@ -729,6 +753,9 @@ public class RMICacheReplicatorTest extends TestCase {
      * Defaults should be replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true
      */
     public void testUpdateWithEmptyReplicationPropertiesConfig() throws Exception {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
         updateViaCopyTest(manager1.getCache("sampleCache4"), manager2.getCache("sampleCache4"), ASYNCHRONOUS);
     }
 
@@ -738,10 +765,6 @@ public class RMICacheReplicatorTest extends TestCase {
      * This test goes into an infinite loop if the chain of notifications is not somehow broken.
      */
     public void updateViaCopyTest(Cache fromCache, Cache toCache, boolean asynchronous) throws Exception {
-
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         fromCache.removeAll();
         toCache.removeAll();
@@ -782,7 +805,7 @@ public class RMICacheReplicatorTest extends TestCase {
      */
     public void testUpdateViaInvalidate() throws CacheException, InterruptedException, IOException {
 
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 
@@ -819,7 +842,7 @@ public class RMICacheReplicatorTest extends TestCase {
      */
     public void testInfiniteNotificationsLoop() throws InterruptedException {
 
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 

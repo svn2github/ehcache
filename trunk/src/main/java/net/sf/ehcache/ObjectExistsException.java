@@ -23,7 +23,7 @@ package net.sf.ehcache;
  * @author Greg Luck, Claus Ibsen
  * @version $Id$
  */
-public class ObjectExistsException extends CacheException {
+public final class ObjectExistsException extends CacheException {
 
     /** Constructor for the ObjectExistsException object */
     public ObjectExistsException() {

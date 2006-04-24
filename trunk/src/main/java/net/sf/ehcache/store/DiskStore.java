@@ -57,11 +57,11 @@ import java.util.List;
  * @author patches contributed: Ben Houston
  * @version $Id$
  */
-public class DiskStore implements Store {
+public final class DiskStore implements Store {
     private static final Log LOG = LogFactory.getLog(DiskStore.class.getName());
     private static final int MS_PER_SECOND = 1000;
     private static final int SPOOL_THREAD_INTERVAL = 200;
-    private long expiryThreadInterval;
+    private final long expiryThreadInterval;
 
     private final String name;
     private boolean active;
@@ -152,6 +152,8 @@ public class DiskStore implements Store {
         dataFile = new File(diskDir, getDataFileName());
         indexFile = new File(diskDir, getIndexFileName());
 
+        deleteIndexIfNoData();
+
         if (persistent) {
             if (!readIndex()) {
                 LOG.debug("Index file dirty or empty. Deleting data file " + getDataFileName());
@@ -190,7 +192,7 @@ public class DiskStore implements Store {
      *
      * @return The element
      */
-    public synchronized Element get(final Object key) throws IOException {
+    public final synchronized Element get(final Object key) {
         try {
             checkActive();
 
@@ -228,7 +230,7 @@ public class DiskStore implements Store {
      * @return true if found. If this method return false, it means that an Element with the given key is definitely not in the MemoryStore.
      *         If it returns true, there is an Element there. An attempt to get it may return null if the Element has expired.
      */
-    public boolean containsKey(Object key) {
+    public final boolean containsKey(Object key) {
         return diskElements.containsKey(key) || spool.containsKey(key);
     }
 
@@ -255,7 +257,7 @@ public class DiskStore implements Store {
      *
      * @return The element
      */
-    public synchronized Element getQuiet(final Object key) throws IOException {
+    public final synchronized Element getQuiet(final Object key) {
         try {
             checkActive();
 
@@ -292,7 +294,7 @@ public class DiskStore implements Store {
      *
      * @return An Object[] of {@link Serializable} keys
      */
-    public synchronized Object[] getKeyArray() {
+    public final synchronized Object[] getKeyArray() {
         Set elementKeySet;
         synchronized (diskElements) {
             elementKeySet = diskElements.keySet();
@@ -310,7 +312,7 @@ public class DiskStore implements Store {
     /**
      * Returns the current store size.
      */
-    public synchronized int getSize() {
+    public final synchronized int getSize() {
         try {
             checkActive();
             int spoolSize;
@@ -331,7 +333,7 @@ public class DiskStore implements Store {
     /**
      * Returns the store status.
      */
-    public Status getStatus() {
+    public final Status getStatus() {
         return status;
     }
 
@@ -341,7 +343,7 @@ public class DiskStore implements Store {
      * This method is not synchronized. It is however threadsafe. It uses fine-grained
      * synchronization on the spool
      */
-    public void put(final Element element) throws IOException {
+    public final void put(final Element element) {
         try {
             checkActive();
 
@@ -367,8 +369,8 @@ public class DiskStore implements Store {
     /**
      * Removes an item from the disk store.
      */
-    public synchronized Element remove(final Object key) {
-        Element element = null;
+    public final synchronized Element remove(final Object key) {
+        Element element;
         try {
             checkActive();
 
@@ -409,7 +411,7 @@ public class DiskStore implements Store {
      * If there are registered <code>CacheEventListener</code>s they are notified of the expiry or removal
      * of the <code>Element</code> as each is removed.
      */
-    public synchronized void removeAll() throws IOException {
+    public final synchronized void removeAll() {
         try {
             checkActive();
 
@@ -432,7 +434,7 @@ public class DiskStore implements Store {
         }
     }
 
-    private void notifyingRemoveAll() throws IOException {
+    private void notifyingRemoveAll() {
         RegisteredEventListeners listeners = cache.getCacheEventNotificationService();
         if (!listeners.getCacheEventListeners().isEmpty()) {
             Object[] keys = getKeyArray();
@@ -456,7 +458,7 @@ public class DiskStore implements Store {
      * after we have read the elements, so that it has a zero length. On a dirty restart, it still will have
      * and the data file will automatically be deleted, thus preserving safety.
      */
-    public synchronized void dispose() {
+    public final synchronized void dispose() {
 
         if (!active) {
             return;
@@ -498,7 +500,7 @@ public class DiskStore implements Store {
      *
      * @throws IOException
      */
-    public void flush() throws IOException {
+    public final void flush() throws IOException {
         if (persistent) {
             flushSpool();
             writeIndex();
@@ -510,7 +512,7 @@ public class DiskStore implements Store {
      *
      * @return false if there are elements waiting, otherwise true
      */
-    public synchronized boolean isSpoolEmpty() {
+    public final synchronized boolean isSpoolEmpty() {
         return (!active || spool.size() == 0);
     }
 
@@ -808,7 +810,7 @@ public class DiskStore implements Store {
     /**
      * Returns a {@link String} representation of the {@link DiskStore}
      */
-    public String toString() {
+    public final String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("[ dataFile = ").append(dataFile.getAbsolutePath())
                 .append(", active=").append(active)
@@ -823,7 +825,7 @@ public class DiskStore implements Store {
     /**
      * A reference to an on-disk elements.
      */
-    private static class DiskElement implements Serializable {
+    private static final class DiskElement implements Serializable {
         /**
          * the file pointer
          */
@@ -849,7 +851,7 @@ public class DiskStore implements Store {
     /**
      * A background daemon thread that writes objects to the file.
      */
-    private class SpoolThread extends Thread {
+    private final class SpoolThread extends Thread {
         public SpoolThread() {
             super("Store " + name + " Spool Thread");
             setDaemon(true);
@@ -859,7 +861,7 @@ public class DiskStore implements Store {
         /**
          * Main thread method.
          */
-        public void run() {
+        public final void run() {
             spoolThreadMain();
         }
     }
@@ -867,7 +869,7 @@ public class DiskStore implements Store {
     /**
      * A background daemon thread that removes expired objects.
      */
-    private class ExpiryThread extends Thread {
+    private final class ExpiryThread extends Thread {
         public ExpiryThread() {
             super("Store " + name + " Expiry Thread");
             setDaemon(true);
@@ -877,7 +879,7 @@ public class DiskStore implements Store {
         /**
          * Main thread method.
          */
-        public void run() {
+        public final void run() {
             expiryThreadMain();
         }
     }
@@ -885,14 +887,14 @@ public class DiskStore implements Store {
     /**
      * @return the total size of the data file and the index file, in bytes.
      */
-    public long getTotalFileSize() {
+    public final long getTotalFileSize() {
         return getDataFileSize() + getIndexFileSize();
     }
 
     /**
      * @return the size of the data file in bytes.
      */
-    public long getDataFileSize() {
+    public final long getDataFileSize() {
         return dataFile.length();
     }
 
@@ -902,7 +904,7 @@ public class DiskStore implements Store {
      *
      * @return the sparseness, measured as the percentage of space in the Data File not used for holding data
      */
-    public float calculateDataFileSparseness() {
+    public final float calculateDataFileSparseness() {
         return 1 - ((float) getUsedDataSize() / (float) getDataFileSize());
     }
 
@@ -913,14 +915,14 @@ public class DiskStore implements Store {
      * This method indicates the actual size used for data, excluding holes. It can be compared with
      * {@link #getDataFileSize()} as a measure of fragmentation.
      */
-    public long getUsedDataSize() {
+    public final long getUsedDataSize() {
         return totalSize;
     }
 
     /**
      * @return the size of the index file, in bytes.
      */
-    public long getIndexFileSize() {
+    public final long getIndexFileSize() {
         if (indexFile == null) {
             return 0;
         } else {
@@ -931,14 +933,14 @@ public class DiskStore implements Store {
     /**
      * @return the file name of the data file where the disk store stores data, without any path information.
      */
-    public String getDataFileName() {
+    public final String getDataFileName() {
         return name + ".data";
     }
 
     /**
      * @return the disk path, which will be dependent on the operating system
      */
-    public String getDataFilePath() {
+    public final String getDataFilePath() {
         return diskPath;
     }
 
@@ -946,7 +948,7 @@ public class DiskStore implements Store {
      * @return the file name of the index file, which maintains a record of elements and their addresses
      *         on the data file, without any path information.
      */
-    public String getIndexFileName() {
+    public final String getIndexFileName() {
         return name + ".index";
     }
 
@@ -959,7 +961,7 @@ public class DiskStore implements Store {
      *
      * @return true if an expiryThread was created and is still alive.
      */
-    public boolean isExpiryThreadAlive() {
+    public final boolean isExpiryThreadAlive() {
         if (expiryThread == null) {
             return false;
         } else {

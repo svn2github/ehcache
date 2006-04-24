@@ -19,6 +19,7 @@ package net.sf.ehcache;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.LruMemoryStoreTest;
+import net.sf.ehcache.distribution.JVMUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -614,7 +615,11 @@ public class MemoryStoreTester extends AbstractCacheTest {
             }
             fail();
         } catch (OutOfMemoryError e) {
-            assertTrue(i > 100000);
+            if (JVMUtil.isJDK15()) {
+                assertTrue(i > 100000);
+            } else {
+                assertTrue(i > 60000);
+            }
             LOG.info("Ran out of memory putting " + i + "th element");
         }
     }

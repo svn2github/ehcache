@@ -27,7 +27,7 @@ import java.io.Serializable;
  * @author Greg Luck
  * @version $Id$
  */
-public class EventMessage implements Serializable {
+public final class EventMessage implements Serializable {
 
 
     /**
@@ -43,7 +43,7 @@ public class EventMessage implements Serializable {
     /**
      * The event component
      */
-    protected int event;
+    protected final int event;
     /**
      * The element component
      */
@@ -89,21 +89,21 @@ public class EventMessage implements Serializable {
      * Gets the event
      * @return either {@link #PUT} or {@link #REMOVE}
      */
-    public int getEvent() {
+    public final int getEvent() {
         return event;
     }
 
     /**
      * @return the element component of the message. null if a {@link #REMOVE} event
      */
-    public Element getElement() {
+    public final Element getElement() {
         return element;
     }
 
     /**
      * @return the key component of the message. null if a {@link #PUT} event
      */
-    public Serializable getSerializableKey() {
+    public final Serializable getSerializableKey() {
         return key;
     }
 }

@@ -38,7 +38,7 @@ public class FactoryConfiguration {
      *
      * @param fullyQualifiedClassPath
      */
-    public void setClass(String fullyQualifiedClassPath) {
+    public final void setClass(String fullyQualifiedClassPath) {
         this.fullyQualifiedClassPath = fullyQualifiedClassPath;
     }
 
@@ -47,21 +47,21 @@ public class FactoryConfiguration {
      *
      * @param properties
      */
-    public void setProperties(String properties) {
+    public final void setProperties(String properties) {
         this.properties = properties;
     }
 
     /**
      * Getter
      */
-    public String getFullyQualifiedClassPath() {
+    public final String getFullyQualifiedClassPath() {
         return fullyQualifiedClassPath;
     }
 
     /**
      * Getter
      */
-    public String getProperties() {
+    public final String getProperties() {
         return properties;
     }
 

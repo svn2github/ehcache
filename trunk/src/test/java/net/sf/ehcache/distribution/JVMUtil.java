@@ -22,14 +22,14 @@ package net.sf.ehcache.distribution;
  * @author Greg Luck
  * @version $Id$
  */
-public final class DistributionUtil {
+public final class JVMUtil {
     private static final float JDK_1_5 = 1.5f;
     private static final int FIRST_THREE_CHARS = 3;
 
     /**
      * Utility class. No constructor
      */
-    private DistributionUtil() {
+    private JVMUtil() {
         //noop
     }
 
@@ -46,5 +46,15 @@ public final class DistributionUtil {
         String majorVersion = version.substring(0, FIRST_THREE_CHARS);
         float majorVersionFloat = Float.parseFloat(majorVersion);
         return majorVersionFloat < JDK_1_5;
+    }
+
+
+    /**
+     * Some performance numbers and size limits are higher in 15.
+     * This is used to set the tests as high as possible for each VM.
+     * @return true if JDK1.5 or higher
+     */
+    public static boolean isJDK15() {
+        return !isSingleRMIRegistryPerVM();
     }
 }

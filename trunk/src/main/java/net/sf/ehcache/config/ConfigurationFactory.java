@@ -53,6 +53,10 @@ public final class ConfigurationFactory {
      * Configures a bean from an XML file.
      */
     public static Configuration parseConfiguration(final File file) throws CacheException {
+        if (file == null) {
+            throw new CacheException("Attempt to configure ehcache from null file.");
+        }
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("Configuring ehcache from file: " + file.toString());
         }
@@ -65,10 +69,11 @@ public final class ConfigurationFactory {
             throw new CacheException("Error configuring from " + file + ". Initial cause was " + e.getMessage(), e);
         } finally {
             try {
-                input.close();
+                if (input != null) {
+                    input.close();
+                }
             } catch (IOException e) {
-                throw new CacheException("IOException while closing configuration input stream. Error was "
-                        + e.getMessage());
+                LOG.error("IOException while closing configuration input stream. Error was " + e.getMessage());
             }
         }
         return configuration;
@@ -90,10 +95,11 @@ public final class ConfigurationFactory {
             throw new CacheException("Error configuring from " + url + ". Initial cause was " + e.getMessage(), e);
         } finally {
             try {
-                input.close();
+                if (input != null) {
+                    input.close();
+                }
             } catch (IOException e) {
-                throw new CacheException("IOException while closing configuration input stream. Error was "
-                        + e.getMessage());
+                LOG.error("IOException while closing configuration input stream. Error was " + e.getMessage());
             }
         }
         return configuration;
@@ -104,7 +110,6 @@ public final class ConfigurationFactory {
      */
     public static Configuration parseConfiguration() throws CacheException {
         ClassLoader standardClassloader = ClassLoaderUtil.getStandardClassLoader();
-        Configuration configuration;
         URL url = null;
         if (standardClassloader != null) {
             url = standardClassloader.getResource(DEFAULT_CLASSPATH_CONFIGURATION_FILE);

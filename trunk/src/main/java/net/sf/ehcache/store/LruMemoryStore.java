@@ -34,7 +34,7 @@ import java.util.Map;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class LruMemoryStore extends MemoryStore {
+public final class LruMemoryStore extends MemoryStore {
     private static final Log LOG = LogFactory.getLog(LruMemoryStore.class.getName());
 
     /**
@@ -60,7 +60,7 @@ public class LruMemoryStore extends MemoryStore {
      *
      * @return a Map, being either {@link java.util.LinkedHashMap} or
      */
-    public Map loadMapInstance() throws CacheException {
+    public final Map loadMapInstance() throws CacheException {
         //First try to load java.util.LinkedHashMap, which is preferred, but only if not overriden
         if (System.getProperty("net.sf.ehcache.useLRUMap") == null) {
 
@@ -100,7 +100,7 @@ public class LruMemoryStore extends MemoryStore {
      * This is used if {@link java.util.LinkedHashMap} is not found in the classpath.
      * LinkedHashMap is part of JDK
      */
-    public class SpoolingLRUMap extends org.apache.commons.collections.LRUMap {
+    public final class SpoolingLRUMap extends org.apache.commons.collections.LRUMap {
 
         /**
          * Constructor.
@@ -121,7 +121,7 @@ public class LruMemoryStore extends MemoryStore {
          * @param key
          * @param value
          */
-        protected void processRemovedLRU(Object key, Object value) {
+        protected final void processRemovedLRU(Object key, Object value) {
             //Already removed from the map at this point
             Element element = (Element) value;
 
@@ -145,7 +145,7 @@ public class LruMemoryStore extends MemoryStore {
      * <p/>
      * This implementation also provides LRU by access order.
      */
-    public class SpoolingLinkedHashMap extends java.util.LinkedHashMap {
+    public final class SpoolingLinkedHashMap extends java.util.LinkedHashMap {
         private static final int INITIAL_CAPACITY = 100;
         private static final float GROWTH_FACTOR = .75F;
 
@@ -184,7 +184,7 @@ public class LruMemoryStore extends MemoryStore {
          * @return true if the eldest entry should be removed
          *         from the map; <tt>false</t> if it should be retained.
          */
-        protected boolean removeEldestEntry(Map.Entry eldest) {
+        protected final boolean removeEldestEntry(Map.Entry eldest) {
             Element element = (Element) eldest.getValue();
             return removeLeastRecentlyUsedElement(element);
         }

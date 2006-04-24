@@ -47,12 +47,12 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
     /**
      * Whether to replicate puts.
      */
-    protected boolean replicatePuts;
+    protected final boolean replicatePuts;
 
     /**
      * Whether to replicate updates.
      */
-    protected boolean replicateUpdates;
+    protected final boolean replicateUpdates;
 
     /**
      * Whether an update (a put) should be by copy or by invalidation, (a remove).
@@ -68,7 +68,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
     /**
      * Whether to replicate removes
      */
-    protected boolean replicateRemovals;
+    protected final boolean replicateRemovals;
 
     /**
      * Constructor for internal and subclass use

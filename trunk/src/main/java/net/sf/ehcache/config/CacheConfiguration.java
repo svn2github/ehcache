@@ -36,7 +36,7 @@ import java.util.List;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class CacheConfiguration {
+public final class CacheConfiguration {
 
     /**
      * the name of the cache
@@ -105,26 +105,26 @@ public class CacheConfiguration {
     /**
      * The event listener factories added by BeanUtils
      */
-    protected List cacheEventListenerConfigurations = new ArrayList();
+    protected final List cacheEventListenerConfigurations = new ArrayList();
 
     /**
      * Sets the name of the cache. This must be unique
      */
-    public void setName(String name) {
+    public final void setName(String name) {
         this.name = name;
     }
 
     /**
      * Sets the maximum objects to be held in memory
      */
-    public void setMaxElementsInMemory(int maxElementsInMemory) {
+    public final void setMaxElementsInMemory(int maxElementsInMemory) {
         this.maxElementsInMemory = maxElementsInMemory;
     }
 
     /**
      * Sets the eviction policy. An invalid argument will set it to null
      */
-    public void setMemoryStoreEvictionPolicy(String memoryStoreEvictionPolicy) {
+    public final void setMemoryStoreEvictionPolicy(String memoryStoreEvictionPolicy) {
         this.memoryStoreEvictionPolicy = MemoryStoreEvictionPolicy.fromString(memoryStoreEvictionPolicy);
     }
 
@@ -132,7 +132,7 @@ public class CacheConfiguration {
      * Sets whether elements are eternal. If eternal,  timeouts are ignored and the element
      * is never expired.
      */
-    public void setEternal(boolean eternal) {
+    public final void setEternal(boolean eternal) {
         this.eternal = eternal;
     }
 
@@ -140,7 +140,7 @@ public class CacheConfiguration {
      * Sets the time to idle for an element before it expires. Is only used
      * if the element is not eternal.
      */
-    public void setTimeToIdleSeconds(int timeToIdleSeconds) {
+    public final void setTimeToIdleSeconds(int timeToIdleSeconds) {
         this.timeToIdleSeconds = timeToIdleSeconds;
     }
 
@@ -148,7 +148,7 @@ public class CacheConfiguration {
      * Sets the time to idle for an element before it expires. Is only used
      * if the element is not eternal.
      */
-    public void setTimeToLiveSeconds(int timeToLiveSeconds) {
+    public final void setTimeToLiveSeconds(int timeToLiveSeconds) {
         this.timeToLiveSeconds = timeToLiveSeconds;
     }
 
@@ -156,7 +156,7 @@ public class CacheConfiguration {
      * Sets whether elements can overflow to disk when the in-memory cache
      * has reached the set limit.
      */
-    public void setOverflowToDisk(boolean overflowToDisk) {
+    public final void setOverflowToDisk(boolean overflowToDisk) {
         this.overflowToDisk = overflowToDisk;
     }
 
@@ -164,7 +164,7 @@ public class CacheConfiguration {
      * Sets whether, for caches that overflow to disk,
      * the disk cache persist between CacheManager instances
      */
-    public void setDiskPersistent(boolean diskPersistent) {
+    public final void setDiskPersistent(boolean diskPersistent) {
         this.diskPersistent = diskPersistent;
     }
 
@@ -175,20 +175,20 @@ public class CacheConfiguration {
      * This is not the same thing as time to live or time to idle. When the thread runs it checks
      * these things. So this value is how often we check for expiry.
      */
-    public void setDiskExpiryThreadIntervalSeconds(int diskExpiryThreadIntervalSeconds) {
+    public final void setDiskExpiryThreadIntervalSeconds(int diskExpiryThreadIntervalSeconds) {
         this.diskExpiryThreadIntervalSeconds = diskExpiryThreadIntervalSeconds;
     }
 
     /**
      * Configuration for the CachePeerListenerFactoryConfiguration
      */
-    public class CacheEventListenerFactoryConfiguration extends FactoryConfiguration {
+    public final class CacheEventListenerFactoryConfiguration extends FactoryConfiguration {
     }
 
     /**
      * Used by BeanUtils to add cacheEventListenerFactory elements to the cache configuration.
      */
-    public void addCacheEventListenerFactory(CacheEventListenerFactoryConfiguration factory) {
+    public final void addCacheEventListenerFactory(CacheEventListenerFactoryConfiguration factory) {
         cacheEventListenerConfigurations.add(factory);
     }
 

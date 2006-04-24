@@ -34,7 +34,7 @@ import java.util.ArrayList;
  * @author Adam Murdoch
  * @author Greg Luck
  */
-public class BeanHandler extends DefaultHandler {
+public final class BeanHandler extends DefaultHandler {
     private final Object bean;
     private ElementInfo element;
     private Locator locator;
@@ -50,14 +50,14 @@ public class BeanHandler extends DefaultHandler {
     /**
      * Receive a Locator object for document events.
      */
-    public void setDocumentLocator(Locator locator) {
+    public final void setDocumentLocator(Locator locator) {
         this.locator = locator;
     }
 
     /**
      * Receive notification of the start of an element.
      */
-    public void startElement(final String uri,
+    public final void startElement(final String uri,
                              final String localName,
                              final String qName,
                              final Attributes attributes)
@@ -81,7 +81,7 @@ public class BeanHandler extends DefaultHandler {
     /**
      * Receive notification of the end of an element.
      */
-    public void endElement(final String uri,
+    public final void endElement(final String uri,
                            final String localName,
                            final String qName)
             throws SAXException {
@@ -125,7 +125,7 @@ public class BeanHandler extends DefaultHandler {
     /**
      * Creates a child object.
      */
-    private Object createInstance(Object parent, Class childClass)
+    private static Object createInstance(Object parent, Class childClass)
             throws Exception {
         final Constructor[] constructors = childClass.getConstructors();
         ArrayList candidates = new ArrayList();
@@ -184,7 +184,7 @@ public class BeanHandler extends DefaultHandler {
     /**
      * Builds a method name from an element or attribute name.
      */
-    private String makeMethodName(final String prefix, final String name) {
+    private static String makeMethodName(final String prefix, final String name) {
         return prefix + Character.toUpperCase(name.charAt(0)) + name.substring(1);
     }
 
@@ -222,7 +222,7 @@ public class BeanHandler extends DefaultHandler {
     /**
      * Converts a string to an object of a particular class.
      */
-    private Object convert(final Class toClass, final String value)
+    private static Object convert(final Class toClass, final String value)
             throws Exception {
         if (value == null) {
             return null;
@@ -307,7 +307,7 @@ public class BeanHandler extends DefaultHandler {
     /**
      * Element info class
      */
-    private static class ElementInfo {
+    private static final class ElementInfo {
         private final ElementInfo parent;
         private final String elementName;
         private final Object bean;

@@ -27,14 +27,14 @@ import java.util.Set;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class Configuration {
+public final class Configuration {
 
     private DiskStoreConfiguration diskStoreConfiguration;
     private CacheConfiguration defaultCacheConfiguration;
     private FactoryConfiguration cacheManagerPeerProviderFactoryConfiguration;
     private FactoryConfiguration cacheManagerPeerListenerFactoryConfiguration;
     private FactoryConfiguration cacheManagerEventListenerFactoryConfiguration;
-    private Map cacheConfigurations = new HashMap();
+    private final Map cacheConfigurations = new HashMap();
     private String configurationSource;
 
     /**
@@ -49,7 +49,7 @@ public class Configuration {
     /**
      * Allows {@link BeanHandler} to add disk store location to the configuration
      */
-    public void addDiskStore(DiskStoreConfiguration diskStoreConfigurationParameter) throws ObjectExistsException {
+    public final void addDiskStore(DiskStoreConfiguration diskStoreConfigurationParameter) throws ObjectExistsException {
         if (diskStoreConfiguration != null) {
             throw new ObjectExistsException("The Disk Store has already been configured");
         }
@@ -59,7 +59,7 @@ public class Configuration {
     /**
      * Allows {@link BeanHandler} to add the CacheManagerEventListener to the configuration
      */
-    public void addCacheManagerEventListenerFactory(FactoryConfiguration
+    public final void addCacheManagerEventListenerFactory(FactoryConfiguration
             cacheManagerEventListenerFactoryConfiguration) throws ObjectExistsException {
         if (this.cacheManagerEventListenerFactoryConfiguration == null) {
             this.cacheManagerEventListenerFactoryConfiguration = cacheManagerEventListenerFactoryConfiguration;
@@ -69,7 +69,7 @@ public class Configuration {
     /**
      * Adds a CachePeerProviderFactoryConfiguration
      */
-    public void addCacheManagerPeerProviderFactory(FactoryConfiguration factory) {
+    public final void addCacheManagerPeerProviderFactory(FactoryConfiguration factory) {
         if (cacheManagerPeerProviderFactoryConfiguration == null) {
             cacheManagerPeerProviderFactoryConfiguration = factory;
         }
@@ -80,7 +80,7 @@ public class Configuration {
      * cachePeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
      * properties="hostName=localhost, port=5000"
      */
-    public void addCacheManagerPeerListenerFactory(FactoryConfiguration factory) {
+    public final void addCacheManagerPeerListenerFactory(FactoryConfiguration factory) {
         if (cacheManagerPeerListenerFactoryConfiguration == null) {
             cacheManagerPeerListenerFactoryConfiguration = factory;
         }
@@ -90,7 +90,7 @@ public class Configuration {
     /**
      * Allows {@link BeanHandler} to add a default configuration to the configuration
      */
-    public void addDefaultCache(CacheConfiguration defaultCacheConfiguration) throws ObjectExistsException {
+    public final void addDefaultCache(CacheConfiguration defaultCacheConfiguration) throws ObjectExistsException {
         if (this.defaultCacheConfiguration != null) {
             throw new ObjectExistsException("The Default Cache has already been configured");
         }
@@ -100,7 +100,7 @@ public class Configuration {
     /**
      * Allows {@link BeanHandler} to add Cache Configurations to the configuration
      */
-    public void addCache(CacheConfiguration cacheConfiguration) throws ObjectExistsException {
+    public final void addCache(CacheConfiguration cacheConfiguration) throws ObjectExistsException {
         if (cacheConfigurations.get(cacheConfiguration.name) != null) {
             throw new ObjectExistsException("Cannot create cache: " + cacheConfiguration.name
                     + " with the same name as an existing one.");
@@ -115,14 +115,14 @@ public class Configuration {
     /**
      * Gets a Map of cacheConfigurations
      */
-    public Set getCacheConfigurationsKeySet() {
+    public final Set getCacheConfigurationsKeySet() {
         return cacheConfigurations.keySet();
     }
 
     /**
      * @return the configuration's default cache configuration
      */
-    public CacheConfiguration getDefaultCacheConfiguration() {
+    public final CacheConfiguration getDefaultCacheConfiguration() {
         return defaultCacheConfiguration;
     }
 
@@ -130,7 +130,7 @@ public class Configuration {
      *
      * @param defaultCacheConfiguration
      */
-    public void setDefaultCacheConfiguration(CacheConfiguration defaultCacheConfiguration) {
+    public final void setDefaultCacheConfiguration(CacheConfiguration defaultCacheConfiguration) {
         this.defaultCacheConfiguration = defaultCacheConfiguration;
     }
 
@@ -138,35 +138,35 @@ public class Configuration {
     /**
      * Gets the disk store configuration
      */
-    public DiskStoreConfiguration getDiskStoreConfiguration() {
+    public final DiskStoreConfiguration getDiskStoreConfiguration() {
         return diskStoreConfiguration;
     }
 
     /**
      * Gets the CacheManagerPeerProvider factory configuration
      */
-    public FactoryConfiguration getCacheManagerPeerProviderFactoryConfiguration() {
+    public final FactoryConfiguration getCacheManagerPeerProviderFactoryConfiguration() {
         return cacheManagerPeerProviderFactoryConfiguration;
     }
 
     /**
      * Gets the CacheManagerPeerListener factory configuration
      */
-    public FactoryConfiguration getCacheManagerPeerListenerFactoryConfiguration() {
+    public final FactoryConfiguration getCacheManagerPeerListenerFactoryConfiguration() {
         return cacheManagerPeerListenerFactoryConfiguration;
     }
 
     /**
      * Gets the CacheManagerEventListener factory configuration
      */
-    public FactoryConfiguration getCacheManagerEventListenerFactoryConfiguration() {
+    public final FactoryConfiguration getCacheManagerEventListenerFactoryConfiguration() {
         return cacheManagerEventListenerFactoryConfiguration;
     }
 
     /**
      * Gets a Map of cache configurations, keyed by name
      */
-    public Map getCacheConfigurations() {
+    public final Map getCacheConfigurations() {
         return cacheConfigurations;
     }
 
@@ -175,14 +175,14 @@ public class Configuration {
      * @param configurationSource  an informative description of the source, preferably
      * including the resource name and location.
      */
-    public void setSource(String configurationSource) {
+    public final void setSource(String configurationSource) {
         this.configurationSource = configurationSource;
     }
 
     /**
      * Gets a description of the source from which this configuration was created.
      */
-    public String getConfigurationSource() {
+    public final String getConfigurationSource() {
         return configurationSource;
     }
 }

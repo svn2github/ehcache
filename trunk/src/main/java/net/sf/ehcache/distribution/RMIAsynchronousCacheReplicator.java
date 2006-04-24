@@ -53,7 +53,7 @@ import java.util.List;
  * @author Greg Luck
  * @version $Id$
  */
-public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicator {
+public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicator {
 
     /**
      * The amount of time the replication thread sleeps after it detects the replicationQueue is empty
@@ -128,7 +128,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      * @param cache   the cache emitting the notification
      * @param element the element which was just put into the cache.
      */
-    public void notifyElementPut(final Cache cache, final Element element) throws CacheException {
+    public final void notifyElementPut(final Cache cache, final Element element) throws CacheException {
         if (notAlive()) {
             return;
         }
@@ -162,7 +162,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      * @param cache   the cache emitting the notification
      * @param element the element which was just put into the cache.
      */
-    public void notifyElementUpdated(final Cache cache, final Element element) throws CacheException {
+    public final void notifyElementUpdated(final Cache cache, final Element element) throws CacheException {
         if (notAlive()) {
             return;
         }
@@ -198,7 +198,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      * @param cache   the cache emitting the notification
      * @param element just deleted
      */
-    public void notifyElementRemoved(final Cache cache, final Element element) throws CacheException {
+    public final void notifyElementRemoved(final Cache cache, final Element element) throws CacheException {
         if (!replicateRemovals) {
             return;
         }
@@ -228,9 +228,6 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      * This method issues warnings for problems that can be fixed with configuration changes.
      */
     private void flushReplicationQueue() {
-
-        int discardCounter = 0;
-
         Object[] replicationQueueCopy;
         synchronized (replicationQueue) {
             if (replicationQueue.size() == 0) {
@@ -283,7 +280,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      * @param replicationQueueCopy
      * @return a list of EventMessages which were able to be resolved
      */
-    private List extractAndResolveEventMessages(Object[] replicationQueueCopy) {
+    private static List extractAndResolveEventMessages(Object[] replicationQueueCopy) {
         List list = new ArrayList();
         for (int i = 0; i < replicationQueueCopy.length; i++) {
             EventMessage eventMessage = ((CacheEventMessage) replicationQueueCopy[i]).getEventMessage();
@@ -298,7 +295,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
     /**
      * A background daemon thread that writes objects to the file.
      */
-    private class ReplicationThread extends Thread {
+    private final class ReplicationThread extends Thread {
         public ReplicationThread() {
             super("Replication Thread");
             setDaemon(true);
@@ -308,7 +305,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
         /**
          * Main thread method.
          */
-        public void run() {
+        public final void run() {
             replicationThreadMain();
         }
     }
@@ -320,10 +317,10 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      * The wrapper holds a {@link SoftReference} to the {@link EventMessage}, so that the queue is never
      * the cause of an {@link OutOfMemoryError}
      */
-    private class CacheEventMessage {
+    private static final class CacheEventMessage {
 
-        private Cache cache;
-        private SoftReference softEventMessage;
+        private final Cache cache;
+        private final SoftReference softEventMessage;
 
         public CacheEventMessage(int event, Cache cache, Element element) {
             EventMessage eventMessage = new EventMessage(event, element);
@@ -340,7 +337,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
         /**
          * Gets the component EventMessage
          */
-        public EventMessage getEventMessage() {
+        public final EventMessage getEventMessage() {
             return (EventMessage) softEventMessage.get();
         }
 
@@ -349,7 +346,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
     /**
      * Give the replicator a chance to cleanup and free resources when no longer needed
      */
-    public void dispose() {
+    public final void dispose() {
         status = Status.STATUS_SHUTDOWN;
         synchronized (replicationQueue) {
             replicationQueue.clear();

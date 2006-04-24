@@ -51,7 +51,7 @@ import java.util.Set;
  * @author Greg Luck
  * @version $Id$
  */
-public class Cache implements Cloneable {
+public final class Cache implements Cloneable {
 
     /**
      * A reserved word for cache names. It denotes a default configuration
@@ -76,7 +76,7 @@ public class Cache implements Cloneable {
     }
 
     /**
-     * The default interval between runs of the expiry thread
+     * The default interval between runs of the expiry thread.
      */
     public static final long DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS = 120;
 
@@ -93,7 +93,7 @@ public class Cache implements Cloneable {
 
     private DiskStore diskStore;
 
-    private String diskStorePath;
+    private final String diskStorePath;
 
     private Status status;
 
@@ -102,7 +102,7 @@ public class Cache implements Cloneable {
     private MemoryStoreEvictionPolicy memoryStoreEvictionPolicy;
 
     /**
-     * Do cache elements in this cache overflowToDisk?
+     * Whether cache elements in this cache overflowToDisk.
      */
     private final boolean overflowToDisk;
 
@@ -114,7 +114,7 @@ public class Cache implements Cloneable {
     private final long diskExpiryThreadIntervalSeconds;
 
     /**
-     * For caches that overflow to disk, does the disk cache persist between CacheManager instances?
+     * For caches that overflow to disk, does the disk cache persist between CacheManager instances.
      */
     private final boolean diskPersistent;
 
@@ -126,7 +126,7 @@ public class Cache implements Cloneable {
     private Thread shutdownHook;
 
     /**
-     * Can turn off expiration
+     * Whether elements are eternal, which is the same as non-expiring.
      */
     private final boolean eternal;
 
@@ -137,34 +137,33 @@ public class Cache implements Cloneable {
     private final long timeToLiveSeconds;
 
     /**
-     * The maximum amount of time between {@link #get(Object)}s
-     * before an element expires
+     * The maximum amount of time between {@link #get(Object)}s before an element expires.
      */
     private final long timeToIdleSeconds;
 
 
     /**
-     * Cache hit count
+     * Cache hit count.
      */
     private int hitCount;
 
     /**
-     * Memory cache hit count
+     * Memory cache hit count.
      */
     private int memoryStoreHitCount;
 
     /**
-     * Auxiliary hit counts broken down by auxiliary
+     * Auxiliary hit counts broken down by auxiliary.
      */
     private int diskStoreHitCount;
 
     /**
-     * Count of misses where element was not found
+     * Count of misses where element was not found.
      */
     private int missCountNotFound;
 
     /**
-     * Count of misses where element was expired
+     * Count of misses where element was expired.
      */
     private int missCountExpired;
 
@@ -323,7 +322,7 @@ public class Cache implements Cloneable {
      * <p/>
      * This method creates those and makes the cache ready to accept elements
      */
-    synchronized void initialise() {
+    final synchronized void initialise() {
         if (!status.equals(Status.STATUS_UNINITIALISED)) {
             throw new IllegalStateException("Cannot initialise the " + name
                     + " cache because its status is not STATUS_UNINITIALISED");
@@ -428,7 +427,7 @@ public class Cache implements Cloneable {
      * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
      * @throws IllegalArgumentException if the element is null
      */
-    public synchronized void put(Element element) throws IllegalArgumentException, IllegalStateException,
+    public final synchronized void put(Element element) throws IllegalArgumentException, IllegalStateException,
             CacheException {
         put(element, false);
     }
@@ -453,7 +452,7 @@ public class Cache implements Cloneable {
      * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
      * @throws IllegalArgumentException if the element is null
      */
-    public synchronized void put(Element element, boolean doNotNotifyCacheReplicators) throws IllegalArgumentException,
+    public final synchronized void put(Element element, boolean doNotNotifyCacheReplicators) throws IllegalArgumentException,
             IllegalStateException,
             CacheException {
         checkStatus();
@@ -492,7 +491,7 @@ public class Cache implements Cloneable {
      * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
      * @throws IllegalArgumentException if the element is null
      */
-    public synchronized void putQuiet(Element element) throws IllegalArgumentException, IllegalStateException,
+    public final synchronized void putQuiet(Element element) throws IllegalArgumentException, IllegalStateException,
             CacheException {
         checkStatus();
 
@@ -517,7 +516,7 @@ public class Cache implements Cloneable {
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @see #isExpired
      */
-    public synchronized Element get(Serializable key) throws IllegalStateException, CacheException {
+    public final synchronized Element get(Serializable key) throws IllegalStateException, CacheException {
         return get((Object)key);
     }
 
@@ -534,7 +533,7 @@ public class Cache implements Cloneable {
      * @see #isExpired
      * @since 1.2
      */
-    public synchronized Element get(Object key) throws IllegalStateException, CacheException {
+    public final synchronized Element get(Object key) throws IllegalStateException, CacheException {
         checkStatus();
         Element element;
 
@@ -569,7 +568,7 @@ public class Cache implements Cloneable {
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @see #isExpired
      */
-    public synchronized Element getQuiet(Serializable key) throws IllegalStateException, CacheException {
+    public final synchronized Element getQuiet(Serializable key) throws IllegalStateException, CacheException {
          return getQuiet((Object) key);
      }
 
@@ -584,7 +583,7 @@ public class Cache implements Cloneable {
      * @see #isExpired
      * @since 1.2
      */
-    public synchronized Element getQuiet(Object key) throws IllegalStateException, CacheException {
+    public final synchronized Element getQuiet(Object key) throws IllegalStateException, CacheException {
         checkStatus();
         Element element;
 
@@ -622,7 +621,7 @@ public class Cache implements Cloneable {
      * @return a list of {@link Object} keys
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public synchronized List getKeys() throws IllegalStateException, CacheException {
+    public final synchronized List getKeys() throws IllegalStateException, CacheException {
         checkStatus();
         /* An element with the same key can exist in both the memory store and the
             disk store at the same time. Because the memory store is always searched first
@@ -669,13 +668,13 @@ public class Cache implements Cloneable {
      * @return a list of {@link Object} keys
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public List getKeysWithExpiryCheck() throws IllegalStateException, CacheException {
+    public final List getKeysWithExpiryCheck() throws IllegalStateException, CacheException {
         List allKeyList = getKeys();
         //remove keys of expired elements
         ArrayList nonExpiredKeys = new ArrayList(allKeyList.size());
         int allKeyListSize = allKeyList.size();
         for (int i = 0; i < allKeyListSize; i++) {
-            Object key = (Object) allKeyList.get(i);
+            Object key = allKeyList.get(i);
             Element element = getQuiet(key);
             if (element != null) {
                 nonExpiredKeys.add(key);
@@ -703,7 +702,7 @@ public class Cache implements Cloneable {
      * @return a list of {@link Object} keys
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public synchronized List getKeysNoDuplicateCheck() throws IllegalStateException {
+    public final synchronized List getKeysNoDuplicateCheck() throws IllegalStateException {
         checkStatus();
         ArrayList allKeys = new ArrayList();
         List memoryKeySet = Arrays.asList(memoryStore.getKeyArray());
@@ -776,7 +775,7 @@ public class Cache implements Cloneable {
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public synchronized boolean remove(Serializable key) throws IllegalStateException {
+    public final synchronized boolean remove(Serializable key) throws IllegalStateException {
         return remove((Object) key);
     }
 
@@ -792,7 +791,7 @@ public class Cache implements Cloneable {
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @since 1.2
      */
-    public synchronized boolean remove(Object key) throws IllegalStateException {
+    public final synchronized boolean remove(Object key) throws IllegalStateException {
         return remove(key, false);
     }
 
@@ -810,7 +809,7 @@ public class Cache implements Cloneable {
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public synchronized boolean remove(Serializable key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
+    public final synchronized boolean remove(Serializable key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         return remove((Object) key, doNotNotifyCacheReplicators);
     }
 
@@ -827,7 +826,7 @@ public class Cache implements Cloneable {
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public synchronized boolean remove(Object key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
+    public final synchronized boolean remove(Object key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         return remove(key, false, true, doNotNotifyCacheReplicators);
     }
 
@@ -840,8 +839,8 @@ public class Cache implements Cloneable {
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public synchronized boolean removeQuiet(Serializable key) throws IllegalStateException {
-        return remove((Object)key, false, false, false);
+    public final synchronized boolean removeQuiet(Serializable key) throws IllegalStateException {
+        return remove(key, false, false, false);
     }
 
     /**
@@ -854,7 +853,7 @@ public class Cache implements Cloneable {
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @since 1.2
      */
-    public synchronized boolean removeQuiet(Object key) throws IllegalStateException {
+    public final synchronized boolean removeQuiet(Object key) throws IllegalStateException {
         return remove(key, false, false, false);
     }
 
@@ -917,7 +916,7 @@ public class Cache implements Cloneable {
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public synchronized void removeAll() throws IllegalStateException, IOException, CacheException {
+    public final synchronized void removeAll() throws IllegalStateException, IOException, CacheException {
         checkStatus();
         memoryStore.removeAll();
         if (overflowToDisk) {
@@ -932,7 +931,7 @@ public class Cache implements Cloneable {
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    synchronized void dispose() throws IllegalStateException {
+    final synchronized void dispose() throws IllegalStateException {
         checkStatus();
         memoryStore.dispose();
         memoryStore = null;
@@ -956,7 +955,7 @@ public class Cache implements Cloneable {
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public synchronized void flush() throws IllegalStateException, CacheException {
+    public final synchronized void flush() throws IllegalStateException, CacheException {
         checkStatus();
         try {
             memoryStore.flush();
@@ -994,7 +993,7 @@ public class Cache implements Cloneable {
      * @return The size value
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public synchronized int getSize() throws IllegalStateException, CacheException {
+    public final synchronized int getSize() throws IllegalStateException, CacheException {
         checkStatus();
         /* The memory store and the disk store can simultaneously contain elements with the same key
 Cache size is the size of the union of the two key sets.*/
@@ -1012,7 +1011,7 @@ Cache size is the size of the union of the two key sets.*/
      * @return the approximate size of the memory store in bytes
      * @throws IllegalStateException
      */
-    public synchronized long calculateInMemorySize() throws IllegalStateException, CacheException {
+    public final synchronized long calculateInMemorySize() throws IllegalStateException, CacheException {
         checkStatus();
         return memoryStore.getSizeInBytes();
     }
@@ -1023,7 +1022,7 @@ Cache size is the size of the union of the two key sets.*/
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public long getMemoryStoreSize() throws IllegalStateException {
+    public final long getMemoryStoreSize() throws IllegalStateException {
         checkStatus();
         return memoryStore.getSize();
     }
@@ -1033,7 +1032,7 @@ Cache size is the size of the union of the two key sets.*/
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public int getDiskStoreSize() throws IllegalStateException {
+    public final int getDiskStoreSize() throws IllegalStateException {
         checkStatus();
         if (overflowToDisk) {
             return diskStore.getSize();
@@ -1047,7 +1046,7 @@ Cache size is the size of the union of the two key sets.*/
      *
      * @return The status value from the Status enum class
      */
-    public Status getStatus() {
+    public final Status getStatus() {
         return status;
     }
 
@@ -1064,7 +1063,7 @@ Cache size is the size of the union of the two key sets.*/
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public int getHitCount()
+    public final int getHitCount()
             throws IllegalStateException {
         checkStatus();
         return hitCount;
@@ -1075,7 +1074,7 @@ Cache size is the size of the union of the two key sets.*/
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public int getMemoryStoreHitCount() throws IllegalStateException {
+    public final int getMemoryStoreHitCount() throws IllegalStateException {
         checkStatus();
         return memoryStoreHitCount;
     }
@@ -1085,7 +1084,7 @@ Cache size is the size of the union of the two key sets.*/
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public int getDiskStoreHitCount() throws IllegalStateException {
+    public final int getDiskStoreHitCount() throws IllegalStateException {
         checkStatus();
         return diskStoreHitCount;
     }
@@ -1097,7 +1096,7 @@ Cache size is the size of the union of the two key sets.*/
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public int getMissCountNotFound() throws IllegalStateException {
+    public final int getMissCountNotFound() throws IllegalStateException {
         checkStatus();
         return missCountNotFound;
     }
@@ -1107,7 +1106,7 @@ Cache size is the size of the union of the two key sets.*/
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public int getMissCountExpired() throws IllegalStateException {
+    public final int getMissCountExpired() throws IllegalStateException {
         checkStatus();
         return missCountExpired;
     }
@@ -1115,49 +1114,49 @@ Cache size is the size of the union of the two key sets.*/
     /**
      * Gets the cache name
      */
-    public String getName() {
+    public final String getName() {
         return name;
     }
 
     /**
      * Sets the name
      */
-    void setName(String name) {
+    final void setName(String name) {
         this.name = name;
     }
 
     /**
      * Gets timeToIdleSeconds
      */
-    public long getTimeToIdleSeconds() {
+    public final long getTimeToIdleSeconds() {
         return timeToIdleSeconds;
     }
 
     /**
      * Gets timeToLiveSeconds
      */
-    public long getTimeToLiveSeconds() {
+    public final long getTimeToLiveSeconds() {
         return timeToLiveSeconds;
     }
 
     /**
      * Are elements eternal
      */
-    public boolean isEternal() {
+    public final boolean isEternal() {
         return eternal;
     }
 
     /**
      * Does the overflow go to disk
      */
-    public boolean isOverflowToDisk() {
+    public final boolean isOverflowToDisk() {
         return overflowToDisk;
     }
 
     /**
      * Gets the maximum number of elements to hold in memory
      */
-    public int getMaxElementsInMemory() {
+    public final int getMaxElementsInMemory() {
         return maxElementsInMemory;
     }
 
@@ -1173,14 +1172,14 @@ Cache size is the size of the union of the two key sets.*/
      *
      * @since 1.2
      */
-    public MemoryStoreEvictionPolicy getMemoryStoreEvictionPolicy() {
+    public final MemoryStoreEvictionPolicy getMemoryStoreEvictionPolicy() {
         return memoryStoreEvictionPolicy;
     }
 
     /**
      * Returns a {@link String} representation of {@link Cache}
      */
-    public String toString() {
+    public final String toString() {
         StringBuffer dump = new StringBuffer();
 
         registeredEventListeners.getCacheEventListeners();
@@ -1222,13 +1221,10 @@ Cache size is the size of the union of the two key sets.*/
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @throws NullPointerException  if the element is null
      */
-    public boolean isExpired(Element element) throws IllegalStateException, NullPointerException {
+    public final boolean isExpired(Element element) throws IllegalStateException, NullPointerException {
         checkStatus();
         boolean expired;
         synchronized (element) {
-            if (element.getObjectValue() == null) {
-                expired = true;
-            }
             if (!eternal) {
                 expired = checkExpirationForNotEternal(element);
             } else {
@@ -1288,7 +1284,7 @@ Cache size is the size of the union of the two key sets.*/
      * @return an object of type {@link Cache}
      * @throws CloneNotSupportedException
      */
-    public Object clone() throws CloneNotSupportedException {
+    public final Object clone() throws CloneNotSupportedException {
         if (!(memoryStore == null && diskStore == null)) {
             throw new CloneNotSupportedException("Cannot clone an initialized cache.");
         }
@@ -1308,7 +1304,7 @@ Cache size is the size of the union of the two key sets.*/
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    DiskStore getDiskStore() throws IllegalStateException {
+    final DiskStore getDiskStore() throws IllegalStateException {
         checkStatus();
         return diskStore;
     }
@@ -1318,7 +1314,7 @@ Cache size is the size of the union of the two key sets.*/
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    MemoryStore getMemoryStore() throws IllegalStateException {
+    final MemoryStore getMemoryStore() throws IllegalStateException {
         checkStatus();
         return memoryStore;
     }
@@ -1326,7 +1322,7 @@ Cache size is the size of the union of the two key sets.*/
     /**
      * @return true if the cache overflows to disk and the disk is persistent between restarts
      */
-    public boolean isDiskPersistent() {
+    public final boolean isDiskPersistent() {
         return diskPersistent;
     }
 
@@ -1335,7 +1331,7 @@ Cache size is the size of the union of the two key sets.*/
      *         of the expiry thread, where it checks the disk store for expired elements. It is not the
      *         the timeToLiveSeconds.
      */
-    public long getDiskExpiryThreadIntervalSeconds() {
+    public final long getDiskExpiryThreadIntervalSeconds() {
         return diskExpiryThreadIntervalSeconds;
     }
 
@@ -1344,7 +1340,7 @@ Cache size is the size of the union of the two key sets.*/
      *
      * @return the RegisteredEventListeners instance for this cache.
      */
-    public RegisteredEventListeners getCacheEventNotificationService() {
+    public final RegisteredEventListeners getCacheEventNotificationService() {
         return registeredEventListeners;
     }
 
@@ -1354,7 +1350,7 @@ Cache size is the size of the union of the two key sets.*/
      *
      * @return true if an element matching the key is found in memory
      */
-    public boolean isElementInMemory(Serializable key) {
+    public final boolean isElementInMemory(Serializable key) {
         return isElementInMemory((Object) key);
     }
 
@@ -1364,7 +1360,7 @@ Cache size is the size of the union of the two key sets.*/
      * @return true if an element matching the key is found in memory
      * @since 1.2
      */
-    public boolean isElementInMemory(Object key) {
+    public final boolean isElementInMemory(Object key) {
         return memoryStore.containsKey(key);
     }
 
@@ -1373,7 +1369,7 @@ Cache size is the size of the union of the two key sets.*/
      *
      * @return true if an element matching the key is found in the diskStore
      */
-    public boolean isElementOnDisk(Serializable key) {
+    public final boolean isElementOnDisk(Serializable key) {
         return isElementOnDisk((Object) key);
     }
 
@@ -1383,7 +1379,7 @@ Cache size is the size of the union of the two key sets.*/
      * @return true if an element matching the key is found in the diskStore
      * @since 1.2
      */
-    public boolean isElementOnDisk(Object key) {
+    public final boolean isElementOnDisk(Object key) {
         if (!(key instanceof Serializable)) {
             return false;
         }
@@ -1398,7 +1394,7 @@ Cache size is the size of the union of the two key sets.*/
      * @return the globally unique identifier for this cache instance. This is guaranteed to be unique.
      * @since 1.2
      */
-    public String getGuid() {
+    public final String getGuid() {
         return guid;
     }
 
@@ -1408,7 +1404,7 @@ Cache size is the size of the union of the two key sets.*/
      *
      * @return the manager or null if there is none
      */
-    public CacheManager getCacheManager() {
+    public final CacheManager getCacheManager() {
         return cacheManager;
     }
 
@@ -1417,7 +1413,7 @@ Cache size is the size of the union of the two key sets.*/
      *
      * @param cacheManager
      */
-    void setCacheManager(CacheManager cacheManager) {
+    final void setCacheManager(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
     }
 

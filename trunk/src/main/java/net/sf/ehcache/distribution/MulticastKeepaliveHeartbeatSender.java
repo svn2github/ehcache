@@ -33,18 +33,18 @@ import net.sf.ehcache.CacheManager;
  * @author Greg Luck
  * @version $Id$
  */
-public class MulticastKeepaliveHeartbeatSender {
+public final class MulticastKeepaliveHeartbeatSender {
 
 
 
     private static final Log LOG = LogFactory.getLog(MulticastKeepaliveHeartbeatSender.class.getName());
     private static final long HEARTBEAT_INTERVAL = 5000;
 
-    private InetAddress groupMulticastAddress;
-    private Integer groupMulticastPort;
+    private final InetAddress groupMulticastAddress;
+    private final Integer groupMulticastPort;
     private MulticastServerThread serverThread;
     private boolean stopped;
-    private CacheManager cacheManager;
+    private final CacheManager cacheManager;
 
 
     /**
@@ -64,7 +64,7 @@ public class MulticastKeepaliveHeartbeatSender {
     /**
      * Start the heartbeat thread
      */
-    public void init() {
+    public final void init() {
         serverThread = new MulticastServerThread();
         serverThread.start();
     }
@@ -72,7 +72,7 @@ public class MulticastKeepaliveHeartbeatSender {
     /**
      * Shutdown this heartbeat sender
      */
-    public synchronized void dispose() {
+    public final synchronized void dispose() {
         stopped = true;
         notifyAll();
         serverThread.interrupt();
@@ -81,7 +81,7 @@ public class MulticastKeepaliveHeartbeatSender {
     /**
      * A thread which sends a multicast heartbeat every second
      */
-    private class MulticastServerThread extends Thread {
+    private final class MulticastServerThread extends Thread {
 
         private MulticastSocket socket;
         private byte[] compressedUrlList;
@@ -96,7 +96,7 @@ public class MulticastKeepaliveHeartbeatSender {
             setDaemon(true);
         }
 
-        public void run() {
+        public final void run() {
             try {
                 socket = new MulticastSocket(groupMulticastPort.intValue());
                 socket.joinGroup(groupMulticastAddress);
@@ -183,7 +183,7 @@ public class MulticastKeepaliveHeartbeatSender {
          *
          * @throws SecurityException if the current thread cannot modify this thread
          */
-        public void interrupt() {
+        public final void interrupt() {
             closeSocket();
             super.interrupt();
         }

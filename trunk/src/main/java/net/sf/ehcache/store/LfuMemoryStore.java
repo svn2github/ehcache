@@ -50,13 +50,13 @@ import java.util.Random;
  * @version $Id$
  *          Warning: Testing of this store reveals some problems with it. Do not use. It may be removed.
  */
-public class LfuMemoryStore extends MemoryStore {
+public final class LfuMemoryStore extends MemoryStore {
 
     private static final Log LOG = LogFactory.getLog(LfuMemoryStore.class.getName());
 
     private static final int DEFAULT_SAMPLE_SIZE = 30;
 
-    private Random random = new Random();
+    private final Random random = new Random();
 
     /**
      * Constructor for the LfuMemoryStore object
@@ -69,7 +69,7 @@ public class LfuMemoryStore extends MemoryStore {
     /**
      * Puts an element into the cache
      */
-    public synchronized void doPut(Element elementJustAdded) {
+    public final synchronized void doPut(Element elementJustAdded) {
         if (isFull()) {
             removeLfuElement(elementJustAdded);
         }
@@ -99,10 +99,9 @@ public class LfuMemoryStore extends MemoryStore {
     /**
      * Find a "relatively" unused element, but not the element just added
      */
-    Element findRelativelyUnused(Element elementJustAdded) {
+    final Element findRelativelyUnused(Element elementJustAdded) {
         Element[] elements = sampleElements(calculateSampleSize());
-        Element element = lowestElementFromArray(elements, elementJustAdded);
-        return element;
+        return lowestElementFromArray(elements, elementJustAdded);
     }
 
     private int calculateSampleSize() {
@@ -120,7 +119,7 @@ public class LfuMemoryStore extends MemoryStore {
      * @param sampleSize how many samples to take
      * @return an array of sampled elements
      */
-    Element[] sampleElements(int sampleSize) {
+    final Element[] sampleElements(int sampleSize) {
         int[] offsets = generateRandomOffsets(sampleSize);
         Element[] elements = new Element[sampleSize];
         Iterator iterator = map.values().iterator();
@@ -133,7 +132,7 @@ public class LfuMemoryStore extends MemoryStore {
         return elements;
     }
 
-    private Element lowestElementFromArray(Element[] elements, Element elementJustAdded) {
+    private static Element lowestElementFromArray(Element[] elements, Element elementJustAdded) {
         //edge condition when Memory Store configured to size 0
         if (elements.length == 1) {
             return elementJustAdded;

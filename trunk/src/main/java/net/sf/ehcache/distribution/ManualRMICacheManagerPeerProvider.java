@@ -37,7 +37,7 @@ import java.util.List;
  * @author Greg Luck
  * @version $Id$
  */
-public class ManualRMICacheManagerPeerProvider extends RMICacheManagerPeerProvider {
+public final class ManualRMICacheManagerPeerProvider extends RMICacheManagerPeerProvider {
 
     private static final Log LOG = LogFactory.getLog(ManualRMICacheManagerPeerProvider.class.getName());
 
@@ -51,7 +51,7 @@ public class ManualRMICacheManagerPeerProvider extends RMICacheManagerPeerProvid
     /**
      * {@inheritDoc}
      */
-    public void init() {
+    public final void init() {
         //nothing to do here
     }
 
@@ -60,7 +60,7 @@ public class ManualRMICacheManagerPeerProvider extends RMICacheManagerPeerProvid
      *
      * @param rmiUrl
      */
-    public synchronized void registerPeer(String rmiUrl) {
+    public final synchronized void registerPeer(String rmiUrl) {
         peerUrls.put(rmiUrl, new Date());
     }
 
@@ -68,7 +68,7 @@ public class ManualRMICacheManagerPeerProvider extends RMICacheManagerPeerProvid
     /**
      * @return a list of {@link CachePeer} peers, excluding the local peer.
      */
-    public synchronized List listRemoteCachePeers(Cache cache) throws CacheException {
+    public final synchronized List listRemoteCachePeers(Cache cache) throws CacheException {
         List remoteCachePeers = new ArrayList();
         List staleList = new ArrayList();
         for (Iterator iterator = peerUrls.keySet().iterator(); iterator.hasNext();) {
@@ -117,7 +117,7 @@ public class ManualRMICacheManagerPeerProvider extends RMICacheManagerPeerProvid
      * @param date the date the entry was created
      * @return true if stale
      */
-    protected boolean stale(Date date) {
+    protected final boolean stale(Date date) {
         return false;
     }
 

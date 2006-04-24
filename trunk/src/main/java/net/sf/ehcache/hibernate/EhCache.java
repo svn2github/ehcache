@@ -43,13 +43,13 @@ import java.util.Map;
  * @author Emmanuel Bernard
  * @version $Id$
  */
-public class EhCache implements Cache {
+public final class EhCache implements Cache {
 
     private static final Log LOG = LogFactory.getLog(EhCache.class);
 
     private static final int SIXTY_THOUSAND_MS = 60000;
 
-    private net.sf.ehcache.Cache cache;
+    private final net.sf.ehcache.Cache cache;
 
     /**
      * Creates a new Hibernate pluggable cache by name.
@@ -72,7 +72,7 @@ public class EhCache implements Cache {
      * @throws org.hibernate.cache.CacheException
      *
      */
-    public Object get(Object key) throws CacheException {
+    public final Object get(Object key) throws CacheException {
         try {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("key: " + key);
@@ -102,7 +102,7 @@ public class EhCache implements Cache {
      * @return
      * @throws CacheException
      */
-    public Object read(Object key) throws CacheException {
+    public final Object read(Object key) throws CacheException {
         return get(key);
     }
 
@@ -114,7 +114,7 @@ public class EhCache implements Cache {
      * @param value an Object value
      * @throws CacheException if the {@link net.sf.ehcache.CacheManager} is shutdown or another {@link Exception} occurs.
      */
-    public void update(Object key, Object value) throws CacheException {
+    public final void update(Object key, Object value) throws CacheException {
         put(key, value);
     }
 
@@ -125,7 +125,7 @@ public class EhCache implements Cache {
      * @param value an Object value
      * @throws CacheException if the {@link net.sf.ehcache.CacheManager} is shutdown or another {@link Exception} occurs.
      */
-    public void put(Object key, Object value) throws CacheException {
+    public final void put(Object key, Object value) throws CacheException {
         try {
             Element element = new Element(key, value);
             cache.put(element);
@@ -145,7 +145,7 @@ public class EhCache implements Cache {
      * @param key the key of the element to remove
      * @throws CacheException
      */
-    public void remove(Object key) throws CacheException {
+    public final void remove(Object key) throws CacheException {
         try {
             cache.remove(key);
         } catch (ClassCastException e) {
@@ -160,7 +160,7 @@ public class EhCache implements Cache {
      *
      * @throws CacheException
      */
-    public void clear() throws CacheException {
+    public final void clear() throws CacheException {
         try {
             cache.removeAll();
         } catch (IllegalStateException e) {
@@ -175,7 +175,7 @@ public class EhCache implements Cache {
      *
      * @throws CacheException
      */
-    public void destroy() throws CacheException {
+    public final void destroy() throws CacheException {
         try {
             cache.getCacheManager().removeCache(cache.getName());
         } catch (IllegalStateException e) {
@@ -191,7 +191,7 @@ public class EhCache implements Cache {
      * <p/>
      * ehcache does not support distributed locking and therefore this method does nothing.
      */
-    public void lock(Object key) throws CacheException {
+    public final void lock(Object key) throws CacheException {
         //noop
     }
 
@@ -200,21 +200,21 @@ public class EhCache implements Cache {
      * <p/>
      * ehcache does not support distributed locking and therefore this method does nothing.
      */
-    public void unlock(Object key) throws CacheException {
+    public final void unlock(Object key) throws CacheException {
         //noop
     }
 
     /**
      * Gets the next timestamp;
      */
-    public long nextTimestamp() {
+    public final long nextTimestamp() {
         return Timestamper.next();
     }
 
     /**
      * Returns the lock timeout for this cache, which is 60s
      */
-    public int getTimeout() {
+    public final int getTimeout() {
         // 60 second lock timeout
         return Timestamper.ONE_MS * SIXTY_THOUSAND_MS;
     }
@@ -222,7 +222,7 @@ public class EhCache implements Cache {
     /**
      * @return the region name of the cache, which is the cache name in ehcache
      */
-    public String getRegionName() {
+    public final String getRegionName() {
         return cache.getName();
     }
 
@@ -234,7 +234,7 @@ public class EhCache implements Cache {
      *
      * @return the approximate size of memory ehcache is using for the MemoryStore for this cache
      */
-    public long getSizeInMemory() {
+    public final long getSizeInMemory() {
         try {
             return cache.calculateInMemorySize();
         } catch (Throwable t) {
@@ -245,7 +245,7 @@ public class EhCache implements Cache {
     /**
      * @return the number of elements in ehcache's MemoryStore
      */
-    public long getElementCountInMemory() {
+    public final long getElementCountInMemory() {
         try {
             return cache.getMemoryStoreSize();
         } catch (net.sf.ehcache.CacheException ce) {
@@ -256,7 +256,7 @@ public class EhCache implements Cache {
     /**
      * @return the number of elements in ehcache's DiskStore. 0 is there is no DiskStore
      */
-    public long getElementCountOnDisk() {
+    public final long getElementCountOnDisk() {
         return cache.getDiskStoreSize();
     }
 
@@ -264,7 +264,7 @@ public class EhCache implements Cache {
     /**
      * @return a copy of the cache Elements as a Map
      */
-    public Map toMap() {
+    public final Map toMap() {
         try {
             Map result = new HashMap();
             Iterator iter = cache.getKeys().iterator();
@@ -281,14 +281,14 @@ public class EhCache implements Cache {
     /**
      * @return the region name, which is the cache name in ehcache
      */
-    public String toString() {
+    public final String toString() {
         return "EHCache(" + getRegionName() + ')';
     }
 
     /**
      * Package protected method used for testing
      */
-    net.sf.ehcache.Cache getBackingCache() {
+    final net.sf.ehcache.Cache getBackingCache() {
         return cache;
     }
 

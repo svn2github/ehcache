@@ -34,7 +34,7 @@ import java.util.Set;
  * @author <a href="mailto:ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
  * @version $Id$
  */
-public class FifoMemoryStore extends MemoryStore {
+public final class FifoMemoryStore extends MemoryStore {
     private static final Log LOG = LogFactory.getLog(FifoMemoryStore.class.getName());
 
     private final static int SEQUENCED_HASH_MAP = 1;
@@ -77,7 +77,7 @@ public class FifoMemoryStore extends MemoryStore {
      *
      * @param element
      */
-    protected void doPut(Element element) throws CacheException {
+    protected final void doPut(Element element) throws CacheException {
         if (isFull()) {
             removeFirstElement();
         }
@@ -88,13 +88,13 @@ public class FifoMemoryStore extends MemoryStore {
      * Returns the first eligible element that can be taken out of the cache
      * based on the FIFO policy
      */
-    public synchronized Element getFirstElement() {
+    public final synchronized Element getFirstElement() {
         if (map.size() == 0) {
             return null;
         }
 
         Element element = null;
-        Serializable key = null;
+        Serializable key;
 
         if (collectionType == LINKED_HASH_MAP) {
             Set keySet = map.keySet();

@@ -32,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Greg Luck
  * @version $Id$
  */
-public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProviderFactory {
+public final class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProviderFactory {
 
     private static final Log LOG = LogFactory.getLog(RMICacheManagerPeerProviderFactory.class.getName());
 
@@ -48,7 +48,7 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
      * @param properties implementation specific properties. These are configured as comma
      *                   separated name value pairs in ehcache.xml
      */
-    public CacheManagerPeerProvider createCachePeerProvider(CacheManager cacheManager, Properties properties)
+    public final CacheManagerPeerProvider createCachePeerProvider(CacheManager cacheManager, Properties properties)
     throws CacheException {
         String peerDiscovery = extractAndLogProperty(PEER_DISCOVERY, properties);
         if (peerDiscovery.equalsIgnoreCase(AUTOMATIC_PEER_DISCOVERY)) {
@@ -103,7 +103,7 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
     /**
      * @return null is their is not property for the key
      */
-    private String extractAndLogProperty(String name, Properties properties) {
+    private static String extractAndLogProperty(String name, Properties properties) {
         String foundValue = (String) properties.get(name);
         if (LOG.isDebugEnabled()) {
             LOG.debug(new StringBuffer().append("Value found for ").append(name).append(": ")

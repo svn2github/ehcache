@@ -38,7 +38,7 @@ public final class ConfigurableRMIClientSocketFactory implements Serializable, R
 
     private static final int ONE_SECOND = 1000;
 
-    private int socketTimeoutMillis;
+    private final int socketTimeoutMillis;
 
     /**
      * Construct a new socket factory with the given timeout

@@ -36,7 +36,7 @@ import java.util.Properties;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
+public final class RMICacheReplicatorFactory extends CacheEventListenerFactory {
     private static final String REPLICATE_PUTS = "replicatePuts";
     private static final String REPLICATE_UPDATES = "replicateUpdates";
     private static final String REPLICATE_UPDATES_VIA_COPY = "replicateUpdatesViaCopy";
@@ -69,7 +69,7 @@ public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
      *                   "/&gt;</code>
      * @return a constructed CacheEventListener
      */
-    public CacheEventListener createCacheEventListener(Properties properties) {
+    public final CacheEventListener createCacheEventListener(Properties properties) {
         boolean replicatePuts = extractReplicatePuts(properties);
         boolean replicateUpdates = extractReplicateUpdates(properties);
         boolean replicateUpdatesViaCopy = extractReplicateUpdatesViaCopy(properties);
@@ -91,7 +91,7 @@ public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         }
     }
 
-    private boolean extractReplicateAsynchronously(Properties properties) {
+    private static boolean extractReplicateAsynchronously(Properties properties) {
         boolean replicateAsynchronously;
         String replicateAsynchronouslyString = PropertyUtil.extractAndLogProperty(REPLICATE_ASYNCHRONOUSLY, properties);
         if (replicateAsynchronouslyString != null) {
@@ -102,7 +102,7 @@ public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         return replicateAsynchronously;
     }
 
-    private boolean extractReplicateRemovals(Properties properties) {
+    private static boolean extractReplicateRemovals(Properties properties) {
         boolean replicateRemovals;
         String replicateRemovalsString = PropertyUtil.extractAndLogProperty(REPLICATE_REMOVALS, properties);
         if (replicateRemovalsString != null) {
@@ -113,7 +113,7 @@ public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         return replicateRemovals;
     }
 
-    private boolean extractReplicateUpdatesViaCopy(Properties properties) {
+    private static boolean extractReplicateUpdatesViaCopy(Properties properties) {
         boolean replicateUpdatesViaCopy;
         String replicateUpdatesViaCopyString = PropertyUtil.extractAndLogProperty(REPLICATE_UPDATES_VIA_COPY, properties);
         if (replicateUpdatesViaCopyString != null) {
@@ -135,7 +135,7 @@ public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         return replicateUpdates;
     }
 
-    private boolean extractReplicatePuts(Properties properties) {
+    private static boolean extractReplicatePuts(Properties properties) {
         boolean replicatePuts;
         String replicatePutsString = PropertyUtil.extractAndLogProperty(REPLICATE_PUTS, properties);
         if (replicatePutsString != null) {

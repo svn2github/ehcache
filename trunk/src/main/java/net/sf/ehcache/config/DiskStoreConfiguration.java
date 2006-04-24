@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class DiskStoreConfiguration {
+public final class DiskStoreConfiguration {
     private static final Log LOG = LogFactory.getLog(DiskStoreConfiguration.class.getName());
 
     private String path;
@@ -33,7 +33,7 @@ public class DiskStoreConfiguration {
     /**
      * The diskStore path
      */
-    public String getPath() {
+    public final String getPath() {
         return path;
     }
 
@@ -49,9 +49,9 @@ public class DiskStoreConfiguration {
      *             </ul>
      *             e.g. <code>java.io/tmpdir/caches</code> might become <code>/tmp/caches</code>
      */
-    public void setPath(final String path) {
+    public final void setPath(final String path) {
         /** A constants class with method scope */
-        class Env {
+        final class Env {
             static final String USER_HOME = "user.home";
             static final String USER_DIR = "user.dir";
             static final String JAVA_IO_TMPDIR = "java.io.tmpdir";

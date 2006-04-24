@@ -24,7 +24,6 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -52,7 +51,7 @@ public abstract class MemoryStore implements Store {
     /**
      * The DiskStore associated with this MemoryStore
      */
-    protected DiskStore diskStore;
+    protected final DiskStore diskStore;
 
     /**
      * status
@@ -102,7 +101,7 @@ public abstract class MemoryStore implements Store {
      *
      * @param element the element to add
      */
-    public synchronized void put(Element element) throws CacheException {
+    public final synchronized void put(Element element) throws CacheException {
         if (element != null) {
             map.put(element.getObjectKey(), element);
             doPut(element);
@@ -126,12 +125,11 @@ public abstract class MemoryStore implements Store {
      * @param key the cache key
      * @return the element, or null if there was no match for the key
      */
-    public synchronized Element get(Object key) {
+    public final synchronized Element get(Object key) {
         Element element = (Element) map.get(key);
 
         if (element != null) {
             element.updateAccessStatistics();
-            doGetOnFoundElement(element);
             if (LOG.isTraceEnabled()) {
                 LOG.trace(cache.getName() + "Cache: " + cache.getName() + "MemoryStore hit for " + key);
             }
@@ -142,19 +140,12 @@ public abstract class MemoryStore implements Store {
     }
 
     /**
-     * Allows subclasses to do any further processing when an element is found
-     */
-    protected void doGetOnFoundElement(Element element) {
-        //nothing for this class
-    }
-
-    /**
      * Gets an item from the cache, without updating Element statistics
      *
      * @param key the cache key
      * @return the element, or null if there was no match for the key
      */
-    public synchronized Element getQuiet(Object key) {
+    public final synchronized Element getQuiet(Object key) {
         Element cacheElement = (Element) map.get(key);
 
         if (cacheElement != null) {
@@ -175,7 +166,7 @@ public abstract class MemoryStore implements Store {
      * @param key the key of the Element, usually a String
      * @return the Element if one was found, else null
      */
-    public synchronized Element remove(Object key) {
+    public final synchronized Element remove(Object key) {
 
         // remove single item.
         Element element = (Element) map.remove(key);
@@ -195,7 +186,7 @@ public abstract class MemoryStore implements Store {
      * If there are registered <code>CacheEventListener</code>s they are notified of the expiry or removal
      * of the <code>Element</code> as each is removed.
      */
-    public synchronized void removeAll() throws CacheException {
+    public final synchronized void removeAll() throws CacheException {
         notifyingRemoveAll();
         clear();
     }
@@ -203,7 +194,7 @@ public abstract class MemoryStore implements Store {
     /**
      * Clears any data structures and places it back to its state when it was first created
      */
-    protected void clear() {
+    protected final void clear() {
         map.clear();
     }
 
@@ -211,7 +202,7 @@ public abstract class MemoryStore implements Store {
      * If there are registered <code>CacheEventListener</code>s they are notified of the expiry or removal
      * of the <code>Element</code> as each is removed.
      */
-    protected void notifyingRemoveAll() throws CacheException {
+    protected final void notifyingRemoveAll() throws CacheException {
         RegisteredEventListeners listeners = cache.getCacheEventNotificationService();
         if (!listeners.getCacheEventListeners().isEmpty()) {
             Object[] keys = getKeyArray();
@@ -230,7 +221,7 @@ public abstract class MemoryStore implements Store {
     /**
      * Prepares for shutdown.
      */
-    public synchronized void dispose() {
+    public final synchronized void dispose() {
         if (status.equals(Status.STATUS_SHUTDOWN)) {
             return;
         }
@@ -244,7 +235,7 @@ public abstract class MemoryStore implements Store {
     /**
      * flush to disk
      */
-    public synchronized void flush() {
+    public final synchronized void flush() {
         if (cache.isOverflowToDisk()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(cache.getName() + " is persistent. Spooling " + map.size() + " elements to the disk store.");
@@ -262,7 +253,7 @@ public abstract class MemoryStore implements Store {
      * <p/>
      * This revised implementation is a little slower but avoids using increased memory during the method.
      */
-    protected void spoolAllToDisk() {
+    protected final void spoolAllToDisk() {
         Object[] keys = getKeyArray();
         for (int i = 0; i < keys.length; i++) {
             Element element = (Element) map.get(keys[i]);
@@ -289,13 +280,8 @@ public abstract class MemoryStore implements Store {
      *
      * @param element The Element
      */
-    protected void spoolToDisk(Element element) {
-        try {
-            diskStore.put(element);
-        } catch (IOException e) {
-            LOG.error("Error spooling to disk" + ". Initial cause was " + e.getMessage(), e);
-            throw new IllegalStateException(e.getMessage());
-        }
+    protected final void spoolToDisk(Element element) {
+        diskStore.put(element);
         if (LOG.isDebugEnabled()) {
             LOG.debug(cache.getName() + "Cache: spool to disk done for: " + element.getObjectKey());
         }
@@ -304,7 +290,7 @@ public abstract class MemoryStore implements Store {
     /**
      * Gets the status of the MemoryStore.
      */
-    public Status getStatus() {
+    public final Status getStatus() {
         return status;
     }
 
@@ -315,7 +301,7 @@ public abstract class MemoryStore implements Store {
      *
      * @return An Object[]
      */
-    public synchronized Object[] getKeyArray() {
+    public final synchronized Object[] getKeyArray() {
         return map.keySet().toArray();
     }
 
@@ -324,7 +310,7 @@ public abstract class MemoryStore implements Store {
      *
      * @return The size value
      */
-    public int getSize() {
+    public final int getSize() {
         return map.size();
     }
 
@@ -336,7 +322,7 @@ public abstract class MemoryStore implements Store {
      * @return true if found. If this method return false, it means that an Element with the given key is definitely not in the MemoryStore.
      *         If it returns true, there is an Element there. An attempt to get it may return null if the Element has expired.
      */
-    public boolean containsKey(Object key) {
+    public final boolean containsKey(Object key) {
         return map.containsKey(key);
     }
 
@@ -351,7 +337,7 @@ public abstract class MemoryStore implements Store {
      *
      * @return the size, in bytes
      */
-    public synchronized long getSizeInBytes() throws CacheException {
+    public final synchronized long getSizeInBytes() throws CacheException {
         long sizeInBytes = 0;
         for (Iterator iterator = map.values().iterator(); iterator.hasNext();) {
             Element element = (Element) iterator.next();
@@ -374,7 +360,7 @@ public abstract class MemoryStore implements Store {
      *
      * @param element the <code>Element</code> to be evicted.
      */
-    protected void evict(Element element) throws CacheException {
+    protected final void evict(Element element) throws CacheException {
         boolean spooled = false;
         if (cache.isOverflowToDisk()) {
             if (!element.isSerializable()) {
@@ -398,14 +384,14 @@ public abstract class MemoryStore implements Store {
      *
      * @param element
      */
-    protected void notifyExpiry(Element element) {
+    protected final void notifyExpiry(Element element) {
         cache.getCacheEventNotificationService().notifyElementExpiry(element, false);
     }
 
     /**
      * An algorithm to tell if the MemoryStore is at or beyond its carrying capacity
      */
-    protected boolean isFull() {
+    protected final boolean isFull() {
         return map.size() > cache.getMaxElementsInMemory();
     }
 

@@ -33,7 +33,7 @@ import java.util.Set;
  * @author Greg Luck
  * @version $Id$
  */
-public class RegisteredEventListeners {
+public final class RegisteredEventListeners {
 
     /**
      * A Map of CacheEventListeners keyed by listener class.
@@ -41,8 +41,8 @@ public class RegisteredEventListeners {
      *
      * @see CacheEventListener
      */
-    private Set cacheEventListeners = new HashSet();
-    private Cache cache;
+    private final Set cacheEventListeners = new HashSet();
+    private final Cache cache;
 
     /**
      * Constructs a new notification service
@@ -61,7 +61,7 @@ public class RegisteredEventListeners {
      * @param remoteEvent whether the event came from a remote cache peer
      * @see CacheEventListener#notifyElementRemoved
      */
-    public void notifyElementRemoved(Element element, boolean remoteEvent) throws CacheException {
+    public final void notifyElementRemoved(Element element, boolean remoteEvent) throws CacheException {
         Iterator iterator = cacheEventListeners.iterator();
         while (iterator.hasNext()) {
             CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
@@ -78,7 +78,7 @@ public class RegisteredEventListeners {
      * @param remoteEvent whether the event came from a remote cache peer
      * @see CacheEventListener#notifyElementPut(net.sf.ehcache.Cache,net.sf.ehcache.Element)
      */
-    public void notifyElementPut(Element element, boolean remoteEvent) throws CacheException {
+    public final void notifyElementPut(Element element, boolean remoteEvent) throws CacheException {
         Iterator iterator = cacheEventListeners.iterator();
         while (iterator.hasNext()) {
             CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
@@ -95,7 +95,7 @@ public class RegisteredEventListeners {
      * @param remoteEvent whether the event came from a remote cache peer
      * @see CacheEventListener#notifyElementPut(net.sf.ehcache.Cache,net.sf.ehcache.Element)
      */
-    public void notifyElementUpdated(Element element, boolean remoteEvent) {
+    public final void notifyElementUpdated(Element element, boolean remoteEvent) {
         Iterator iterator = cacheEventListeners.iterator();
         while (iterator.hasNext()) {
             CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
@@ -112,7 +112,7 @@ public class RegisteredEventListeners {
      * @param remoteEvent whether the event came from a remote cache peer
      * @see CacheEventListener#notifyElementExpired
      */
-    public void notifyElementExpiry(Element element, boolean remoteEvent) {
+    public final void notifyElementExpiry(Element element, boolean remoteEvent) {
         Iterator iterator = cacheEventListeners.iterator();
         while (iterator.hasNext()) {
             CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
@@ -131,7 +131,7 @@ public class RegisteredEventListeners {
      * @param cacheEventListener
      * @return true is notifiying the listener would cause a circular notification
      */
-    private boolean isCircularNotification(boolean remoteEvent, CacheEventListener cacheEventListener) {
+    private static boolean isCircularNotification(boolean remoteEvent, CacheEventListener cacheEventListener) {
         return remoteEvent && cacheEventListener instanceof CacheReplicator;
     }
 
@@ -143,7 +143,7 @@ public class RegisteredEventListeners {
      * @param cacheEventListener
      * @return true if the listener is being added and was not already added
      */
-    public boolean registerListener(CacheEventListener cacheEventListener) {
+    public final boolean registerListener(CacheEventListener cacheEventListener) {
         if (cacheEventListener == null) {
             return false;
         }
@@ -156,7 +156,7 @@ public class RegisteredEventListeners {
      * @param cacheEventListener
      * @return true if the listener was present
      */
-    public boolean unregisterListener(CacheEventListener cacheEventListener) {
+    public final boolean unregisterListener(CacheEventListener cacheEventListener) {
         return cacheEventListeners.remove(cacheEventListener);
     }
 
@@ -165,7 +165,7 @@ public class RegisteredEventListeners {
      *
      * @return a list of type <code>CacheEventListener</code>
      */
-    public Set getCacheEventListeners() {
+    public final Set getCacheEventListeners() {
         return cacheEventListeners;
     }
 
@@ -174,7 +174,7 @@ public class RegisteredEventListeners {
      * Because this method is only ever called from a synchronized cache method, it does not itself need to be
      * synchronized.
      */
-    public void dispose() {
+    public final void dispose() {
         Iterator iterator = cacheEventListeners.iterator();
         while (iterator.hasNext()) {
             CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
@@ -193,7 +193,7 @@ public class RegisteredEventListeners {
      *
      * @return a string representation of the object.
      */
-    public String toString() {
+    public final String toString() {
         StringBuffer stringBuffer = new StringBuffer(" cacheEventListeners: ");
         for (Iterator iterator = cacheEventListeners.iterator(); iterator.hasNext();) {
             CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();

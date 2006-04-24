@@ -26,7 +26,7 @@ import net.sf.ehcache.CacheException;
  * @author Greg Luck
  * @version $Id$
  */
-public class RemoteCacheException extends CacheException {
+public final class RemoteCacheException extends CacheException {
 
     /** Constructor for the RemoteCacheException object */
     public RemoteCacheException() {

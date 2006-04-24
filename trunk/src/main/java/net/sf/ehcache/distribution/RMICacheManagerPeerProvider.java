@@ -45,7 +45,7 @@ public abstract class RMICacheManagerPeerProvider implements CacheManagerPeerPro
     /**
      * Contains a RMI URLs of the form: "//" + hostName + ":" + port + "/" + cacheName;
      */
-    protected Map peerUrls = Collections.synchronizedMap(new HashMap());
+    protected final Map peerUrls = Collections.synchronizedMap(new HashMap());
 
     /**
      * The CacheManager this peer provider is associated with.
@@ -90,7 +90,7 @@ public abstract class RMICacheManagerPeerProvider implements CacheManagerPeerPro
      * @param rmiUrl
      * @return the cache name as it would appear in ehcache.xml
      */
-    protected String extractCacheName(String rmiUrl) {
+    protected static String extractCacheName(String rmiUrl) {
         return rmiUrl.substring(rmiUrl.lastIndexOf('/') + 1);
     }
 
@@ -99,7 +99,7 @@ public abstract class RMICacheManagerPeerProvider implements CacheManagerPeerPro
      *
      * @param rmiUrl
      */
-    public synchronized void unregisterPeer(String rmiUrl) {
+    public final synchronized void unregisterPeer(String rmiUrl) {
         peerUrls.remove(rmiUrl);
     }
 
@@ -137,7 +137,7 @@ public abstract class RMICacheManagerPeerProvider implements CacheManagerPeerPro
     /**
      * The cacheManager this provider is bound to
      */
-    public CacheManager getCacheManager() {
+    public final CacheManager getCacheManager() {
         return cacheManager;
     }
 

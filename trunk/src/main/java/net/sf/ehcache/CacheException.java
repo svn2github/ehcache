@@ -37,7 +37,7 @@ public class CacheException extends RuntimeException {
     private final Throwable initialCause;
 
     /**
-     * Constructor for the CacheException object
+     * Constructor for the CacheException object.
      */
     public CacheException() {
         super();
@@ -45,9 +45,8 @@ public class CacheException extends RuntimeException {
     }
 
     /**
-     * Constructor for the CacheException object
-     *
-     * @param message
+     * Constructor for the CacheException object.
+     * @param message the exception detail message
      */
     public CacheException(String message) {
         super(message);
@@ -56,9 +55,8 @@ public class CacheException extends RuntimeException {
 
 
     /**
-     * Constructor for the CacheException object
-     *
-     * @param message
+     * Constructor for the CacheException object.
+     * @param message the exception detail message
      */
     public CacheException(String message, Throwable initialCause) {
         super(message);
@@ -69,7 +67,7 @@ public class CacheException extends RuntimeException {
      * The intiial cause of this Exception.
      * @return the cause or null if this exception has no deeper cause.
      */
-    public Throwable getInitialCause() {
+    public final Throwable getInitialCause() {
         return initialCause;
     }
 

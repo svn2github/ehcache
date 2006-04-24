@@ -59,19 +59,19 @@ import java.util.Set;
  * @author Greg Luck
  * @version $Id$
  */
-public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
+public final class RMICacheManagerPeerListener implements CacheManagerPeerListener {
 
     private static final Log LOG = LogFactory.getLog(RMICacheManagerPeerListener.class.getName());
     private static final int MINIMUM_SENSIBLE_TIMEOUT = 200;
 
     private Registry registry;
 
-    private String hostName;
+    private final String hostName;
     private Integer port;
     private CacheManager cacheManager;
     private Integer socketTimeoutMillis;
 
-    private List cachePeers = new ArrayList();
+    private final List cachePeers = new ArrayList();
 
     /**
      * Constructor with full arguements
@@ -107,7 +107,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
     }
 
 
-    private String calculateHostAddress() throws UnknownHostException {
+    private static String calculateHostAddress() throws UnknownHostException {
         return InetAddress.getLocalHost().getHostAddress();
     }
 
@@ -115,7 +115,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
     /**
      * {@inheritDoc}
      */
-    public void init() throws CacheException {
+    public final void init() throws CacheException {
         RMICachePeer rmiCachePeer = null;
         try {
             startRegistry();
@@ -126,8 +126,13 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             }
             LOG.debug("Server bound in registry");
         } catch (Exception e) {
+            String url = null;
+            if (rmiCachePeer != null) {
+                url = rmiCachePeer.getUrl();
+            }
+
             throw new CacheException("Problem starting listener for RMICachePeer "
-                    + rmiCachePeer.getUrl() + ". Initial cause was " + e.getMessage(), e);
+                    + url + ". Initial cause was " + e.getMessage(), e);
         }
     }
 
@@ -137,7 +142,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      * This should match the list of cachePeers i.e. they should always be bound
      * @return a list of String representations of <code>RMICachePeer</code> objects
      */
-    String[] listBoundRMICachePeers() throws CacheException {
+    final String[] listBoundRMICachePeers() throws CacheException {
         try {
             return registry.list();
         } catch (RemoteException e) {
@@ -149,9 +154,9 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      * Returns a reference to the remote object.
      * @param name the name of the cache e.g. <code>sampleCache1</code>
      */
-    Remote lookupPeer(String name) throws CacheException {
+    final Remote lookupPeer(String name) throws CacheException {
         try {
-            return (Remote) registry.lookup(name);
+            return registry.lookup(name);
         } catch (Exception e) {
             throw new CacheException("Unable to lookup peer for replicated cache " + name + " "
                     + e.getMessage());
@@ -181,7 +186,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      * @param cache the cache to check
      * @return true if a <code>CacheReplicator</code> is found in the listeners
      */
-    private boolean isDistributed(Cache cache) {
+    private static boolean isDistributed(Cache cache) {
         Set listeners = cache.getCacheEventNotificationService().getCacheEventListeners();
         for (Iterator iterator = listeners.iterator(); iterator.hasNext();) {
             CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
@@ -226,7 +231,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      * <li>unbinds the objects from the registry
      * </ul>
      */
-    public void dispose() throws CacheException {
+    public final void dispose() throws CacheException {
         try {
             for (int i = 0; i < cachePeers.size(); i++) {
                 RMICachePeer rmiCachePeer = (RMICachePeer) cachePeers.get(i);
@@ -244,14 +249,14 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      *
      * @return a list of <code>RMICachePeer</code> objects
      */
-    public List getBoundCachePeers() {
+    public final List getBoundCachePeers() {
         return cachePeers;
     }
 
     /**
      * Gets a list of cache peers
      */
-    List getCachePeers() {
+    final List getCachePeers() {
         return cachePeers;
     }
 }

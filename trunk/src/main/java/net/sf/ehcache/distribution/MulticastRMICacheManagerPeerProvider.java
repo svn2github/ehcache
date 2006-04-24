@@ -55,7 +55,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Greg Luck
  * @version $Id$
  */
-public class MulticastRMICacheManagerPeerProvider extends RMICacheManagerPeerProvider implements CacheManagerPeerProvider {
+public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerPeerProvider implements CacheManagerPeerProvider {
 
     /**
      * The number of ms until the peer is considered to be offline. Once offline it will not be sent
@@ -66,8 +66,8 @@ public class MulticastRMICacheManagerPeerProvider extends RMICacheManagerPeerPro
     private static final Log LOG = LogFactory.getLog(MulticastRMICacheManagerPeerProvider.class.getName());
 
 
-    private MulticastKeepaliveHeartbeatReceiver heartBeatReceiver;
-    private MulticastKeepaliveHeartbeatSender heartBeatSender;
+    private final MulticastKeepaliveHeartbeatReceiver heartBeatReceiver;
+    private final MulticastKeepaliveHeartbeatSender heartBeatSender;
 
     /**
      * Creates and starts a multicast peer provider
@@ -85,7 +85,7 @@ public class MulticastRMICacheManagerPeerProvider extends RMICacheManagerPeerPro
     /**
      * {@inheritDoc}
      */
-    public void init() throws CacheException {
+    public final void init() throws CacheException {
         try {
             heartBeatReceiver.init();
             heartBeatSender.init();
@@ -101,7 +101,7 @@ public class MulticastRMICacheManagerPeerProvider extends RMICacheManagerPeerPro
      *
      * @param rmiUrl
      */
-    public synchronized void registerPeer(String rmiUrl) {
+    public final synchronized void registerPeer(String rmiUrl) {
 
         try {
             CachePeer cachePeer = lookupRemoteCachePeer(rmiUrl);
@@ -129,7 +129,7 @@ public class MulticastRMICacheManagerPeerProvider extends RMICacheManagerPeerPro
     /**
      * @return a list of {@link CachePeer} peers, excluding the local peer.
      */
-    public synchronized List listRemoteCachePeers(Cache cache) throws CacheException {
+    public final synchronized List listRemoteCachePeers(Cache cache) throws CacheException {
         List remoteCachePeers = new ArrayList();
         List staleList = new ArrayList();
         synchronized (peerUrls) {
@@ -170,7 +170,7 @@ public class MulticastRMICacheManagerPeerProvider extends RMICacheManagerPeerPro
     /**
      * Shutdown the heartbeat
      */
-    public void dispose() {
+    public final void dispose() {
         heartBeatSender.dispose();
         heartBeatReceiver.dispose();
     }
@@ -183,7 +183,7 @@ public class MulticastRMICacheManagerPeerProvider extends RMICacheManagerPeerPro
      * @param date the date the entry was created
      * @return true if stale
      */
-    protected boolean stale(Date date) {
+    protected final boolean stale(Date date) {
         long now = System.currentTimeMillis();
         return date.getTime() < (now - STALE_PEER_TIME_MS);
     }
@@ -192,10 +192,10 @@ public class MulticastRMICacheManagerPeerProvider extends RMICacheManagerPeerPro
     /**
      * Entry containing a looked up CachePeer and date
      */
-    protected class CachePeerEntry {
+    protected static final class CachePeerEntry {
 
-        private CachePeer cachePeer;
-        private Date date;
+        private final CachePeer cachePeer;
+        private final Date date;
 
         /**
          * Constructor
@@ -211,7 +211,7 @@ public class MulticastRMICacheManagerPeerProvider extends RMICacheManagerPeerPro
         /**
          * @return the cache peer part of this entry
          */
-        public CachePeer getCachePeer() {
+        public final CachePeer getCachePeer() {
             return cachePeer;
         }
 
@@ -219,7 +219,7 @@ public class MulticastRMICacheManagerPeerProvider extends RMICacheManagerPeerPro
         /**
          * @return the date part of this entry
          */
-        public Date getDate() {
+        public final Date getDate() {
             return date;
         }
 

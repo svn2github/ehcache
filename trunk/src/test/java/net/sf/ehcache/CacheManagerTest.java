@@ -336,6 +336,10 @@ public class CacheManagerTest extends TestCase {
         singletonManager.removeCache("sampleCache1");
         cache = singletonManager.getCache("sampleCache1");
         assertNull(cache);
+
+        //NPE tests
+        singletonManager.removeCache(null);
+        singletonManager.removeCache("");
     }
 
     /**
@@ -356,6 +360,9 @@ public class CacheManagerTest extends TestCase {
             }
         }
         assertTrue(match);
+
+        //NPE tests
+        singletonManager.addCache("");
     }
 
     /**

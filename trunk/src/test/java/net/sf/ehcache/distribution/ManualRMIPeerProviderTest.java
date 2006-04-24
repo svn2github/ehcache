@@ -30,7 +30,7 @@ public class ManualRMIPeerProviderTest extends MulticastRMIPeerProviderTest {
      * {@inheritDoc}
      */
     protected void setUp() throws Exception {
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 

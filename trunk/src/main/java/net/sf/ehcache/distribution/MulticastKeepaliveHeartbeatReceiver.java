@@ -35,16 +35,16 @@ import java.util.StringTokenizer;
  * @author Greg Luck
  * @version $Id$
  */
-public class MulticastKeepaliveHeartbeatReceiver {
+public final class MulticastKeepaliveHeartbeatReceiver {
 
     private static final Log LOG = LogFactory.getLog(MulticastKeepaliveHeartbeatReceiver.class.getName());
 
-    private InetAddress groupMulticastAddress;
-    private Integer groupMulticastPort;
+    private final InetAddress groupMulticastAddress;
+    private final Integer groupMulticastPort;
     private MulticastReceiverThread receiverThread;
     private MulticastSocket socket;
     private boolean stopped;
-    private MulticastRMICacheManagerPeerProvider peerProvider;
+    private final MulticastRMICacheManagerPeerProvider peerProvider;
 
     /**
      * Constructor
@@ -64,7 +64,7 @@ public class MulticastKeepaliveHeartbeatReceiver {
      * Start
      * @throws IOException
      */
-    void init() throws IOException {
+    final void init() throws IOException {
 
         socket = new MulticastSocket(groupMulticastPort.intValue());
         socket.joinGroup(groupMulticastAddress);
@@ -75,7 +75,7 @@ public class MulticastKeepaliveHeartbeatReceiver {
     /**
      * Shutdown the heartbeat
      */
-    public void dispose() {
+    public final void dispose() {
         stopped = true;
         receiverThread.interrupt();
     }
@@ -84,11 +84,11 @@ public class MulticastKeepaliveHeartbeatReceiver {
     /**
      * A multicast receiver which continously receives heartbeats.
      */
-    private class MulticastReceiverThread extends Thread {
+    private final class MulticastReceiverThread extends Thread {
 
 
 
-        public void run() {
+        public final void run() {
             byte[] buf = new byte[PayloadUtil.MTU];
             while (!stopped) {
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);
@@ -150,7 +150,7 @@ public class MulticastKeepaliveHeartbeatReceiver {
         /**
          * {@inheritDoc}
          */
-        public void interrupt() {
+        public final void interrupt() {
             try {
                 socket.leaveGroup(groupMulticastAddress);
             } catch (IOException e) {

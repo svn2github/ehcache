@@ -28,7 +28,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 /**
- * A Cache Element, consisting of a key, value and attributes.
+ * A Cache Element, consisting of a key, value and attributes. 
  * <p/>
  * From ehcache-1.2, Elements can have keys and values that are Serializable or Objects. To preserve backward
  * compatibility, special accessor methods for Object keys and values are provided: {@link #getObjectKey()} and
@@ -38,12 +38,12 @@ import java.io.Serializable;
  * @author Greg Luck
  * @version $Id$
  */
-public class Element implements Serializable, Cloneable {
+public final class Element implements Serializable, Cloneable {
     /**
      * serial version
      * Updated version 1.2
      */
-    static final long serialVersionUID = 7832456720941087574L;
+    private static final long serialVersionUID = 7832456720941087574L;
 
     private static final Log LOG = LogFactory.getLog(Element.class.getName());
 
@@ -56,7 +56,7 @@ public class Element implements Serializable, Cloneable {
     /**
      * the value
      */
-    private Object value;
+    private final Object value;
 
     /**
      * version of the element
@@ -137,8 +137,8 @@ public class Element implements Serializable, Cloneable {
      * @return The key value. If the key is not Serializable, null is returned and an info log message emitted
      * @see #getObjectKey()
      */
-    public Serializable getKey() {
-        Serializable keyAsSerializable = null;
+    public final Serializable getKey() {
+        Serializable keyAsSerializable;
         try {
             keyAsSerializable = (Serializable) key;
         } catch (Exception e) {
@@ -156,7 +156,7 @@ public class Element implements Serializable, Cloneable {
      * @return The key as an Object. i.e no restriction is placed on it
      * @see #getKey()
      */
-    public Object getObjectKey() {
+    public final Object getObjectKey() {
         return key;
     }
 
@@ -166,8 +166,8 @@ public class Element implements Serializable, Cloneable {
      * @return The value which must be Serializable. If not use {@link #getObjectValue}. If the value is not Serializable, null is returned and an info log message emitted
      * @see #getObjectValue()
      */
-    public Serializable getValue() {
-        Serializable valueAsSerializable = null;
+    public final Serializable getValue() {
+        Serializable valueAsSerializable;
         try {
             valueAsSerializable = (Serializable) value;
         } catch (Exception e) {
@@ -186,14 +186,14 @@ public class Element implements Serializable, Cloneable {
      * @see #getValue()
      * @since 1.2
      */
-    public Object getObjectValue() {
+    public final Object getObjectValue() {
         return value;
     }
 
     /**
      * Equals comparison with another element, based on the key
      */
-    public boolean equals(Object object) {
+    public final boolean equals(Object object) {
         if (object == null) {
             return false;
         }
@@ -209,7 +209,7 @@ public class Element implements Serializable, Cloneable {
     /**
      * Gets the hascode, based on the key
      */
-    public int hashCode() {
+    public final int hashCode() {
         return key.hashCode();
     }
 
@@ -218,7 +218,7 @@ public class Element implements Serializable, Cloneable {
      *
      * @param version The new version value
      */
-    public void setVersion(long version) {
+    public final void setVersion(long version) {
         this.version = version;
     }
 
@@ -227,14 +227,14 @@ public class Element implements Serializable, Cloneable {
      *
      * @return The creationTime value
      */
-    public long getCreationTime() {
+    public final long getCreationTime() {
         return creationTime;
     }
 
     /**
      * Sets the creationTime attribute of the ElementAttributes object
      */
-    public void setCreateTime() {
+    public final void setCreateTime() {
         creationTime = System.currentTimeMillis();
     }
 
@@ -243,7 +243,7 @@ public class Element implements Serializable, Cloneable {
      *
      * @return The version value
      */
-    public long getVersion() {
+    public final long getVersion() {
         return version;
     }
 
@@ -252,7 +252,7 @@ public class Element implements Serializable, Cloneable {
      * Access means a get. So a newly created {@link Element}
      * will have a last access time equal to its create time.
      */
-    public long getLastAccessTime() {
+    public final long getLastAccessTime() {
         return lastAccessTime;
     }
 
@@ -262,21 +262,21 @@ public class Element implements Serializable, Cloneable {
      *
      * @see #getLastAccessTime()
      */
-    long getNextToLastAccessTime() {
+    final long getNextToLastAccessTime() {
         return nextToLastAccessTime;
     }
 
     /**
      * Gets the hit count on this element.
      */
-    public long getHitCount() {
+    public final long getHitCount() {
         return hitCount;
     }
 
     /**
      * Resets the hit count to 0 and the last access time to 0
      */
-    public void resetAccessStatistics() {
+    public final void resetAccessStatistics() {
         lastAccessTime = 0;
         nextToLastAccessTime = 0;
         hitCount = 0;
@@ -285,7 +285,7 @@ public class Element implements Serializable, Cloneable {
     /**
      * Sets the last access time to now.
      */
-    public void updateAccessStatistics() {
+    public final void updateAccessStatistics() {
         nextToLastAccessTime = lastAccessTime;
         lastAccessTime = System.currentTimeMillis();
         hitCount++;
@@ -294,7 +294,7 @@ public class Element implements Serializable, Cloneable {
     /**
      * Returns a {@link String} representation of the {@link Element}
      */
-    public String toString() {
+    public final String toString() {
         StringBuffer sb = new StringBuffer();
 
         sb.append("[ key = ").append(key)
@@ -319,7 +319,10 @@ public class Element implements Serializable, Cloneable {
      * @return a new {@link Element}, with exactly the same field values as the one it was cloned from.
      * @throws CloneNotSupportedException
      */
-    public Object clone() throws CloneNotSupportedException {
+    public final Object clone() throws CloneNotSupportedException {
+        //Not used. Just to get code inspectors to shut up
+        super.clone();
+
         Element element = new Element(deepCopy(key), deepCopy(value), version);
         element.creationTime = creationTime;
         element.lastAccessTime = lastAccessTime;
@@ -347,9 +350,13 @@ public class Element implements Serializable, Cloneable {
                     + " during serialization and deserialization of value");
         } finally {
             try {
-                oos.close();
-                ois.close();
-            } catch (IOException e) {
+                if (oos != null) {
+                    oos.close();
+                }
+                if (ois != null) {
+                    ois.close();
+                }
+            } catch (Exception e) {
                 LOG.error("Error closing Stream");
             }
         }
@@ -365,7 +372,7 @@ public class Element implements Serializable, Cloneable {
      *
      * @return The serialized size in bytes
      */
-    public long getSerializedSize() {
+    public final long getSerializedSize() {
         if (!isSerializable()) {
             return 0;
         }
@@ -381,8 +388,10 @@ public class Element implements Serializable, Cloneable {
             LOG.error("Error measuring element size for element with key " + key);
         } finally {
             try {
-                oos.close();
-            } catch (IOException e) {
+                if (oos != null) {
+                    oos.close();
+                }
+            } catch (Exception e) {
                 LOG.error("Error closing ObjectOutputStream");
             }
         }
@@ -399,7 +408,7 @@ public class Element implements Serializable, Cloneable {
      * @return true if the element is Serializable
      * @since 1.2
      */
-    public boolean isSerializable() {
+    public final boolean isSerializable() {
         return key instanceof Serializable && value instanceof Serializable;
     }
 
@@ -414,7 +423,7 @@ public class Element implements Serializable, Cloneable {
      * @return true if the element's key is Serializable
      * @since 1.2
      */
-    public boolean isKeySerializable() {
+    public final boolean isKeySerializable() {
         return key instanceof Serializable;
 }
         }

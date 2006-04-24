@@ -64,7 +64,7 @@ public class RMIDistributedCacheTest extends TestCase {
      * @throws Exception
      */
     protected void setUp() throws Exception {
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 
@@ -85,7 +85,7 @@ public class RMIDistributedCacheTest extends TestCase {
      * Shutdown the cache
      */
     protected void tearDown() throws InterruptedException {
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 
@@ -98,7 +98,7 @@ public class RMIDistributedCacheTest extends TestCase {
      * Getting an RMI Server going is a big deal
      */
     public void testCreation() throws Exception {
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 
@@ -111,7 +111,7 @@ public class RMIDistributedCacheTest extends TestCase {
      * They will simply replace the ones that were there.
      */
     public void testMultipleCreationOfRMIServers() throws Exception {
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 
@@ -134,7 +134,7 @@ public class RMIDistributedCacheTest extends TestCase {
      * @throws java.rmi.RemoteException
      */
     public void testGetName() throws Exception {
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 

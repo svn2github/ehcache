@@ -83,7 +83,7 @@ public class RMICacheManagerPeerListenerTest extends TestCase {
      * @throws Exception
      */
     protected void setUp() throws Exception {
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 
@@ -114,7 +114,7 @@ public class RMICacheManagerPeerListenerTest extends TestCase {
      * @throws Exception
      */
     protected void tearDown() throws Exception {
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 
@@ -138,7 +138,7 @@ public class RMICacheManagerPeerListenerTest extends TestCase {
      */
     public void testPeersBound() {
 
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 
@@ -181,7 +181,7 @@ public class RMICacheManagerPeerListenerTest extends TestCase {
      */
     public void testBoundListenerPeers() throws RemoteException {
 
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 

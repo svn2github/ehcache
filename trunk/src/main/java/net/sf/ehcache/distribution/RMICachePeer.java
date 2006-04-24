@@ -18,16 +18,15 @@ package net.sf.ehcache.distribution;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.Status;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.rmi.RemoteException;
 import java.rmi.Remote;
-import java.rmi.server.UnicastRemoteObject;
+import java.rmi.RemoteException;
 import java.rmi.server.RMISocketFactory;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
 /**
@@ -37,15 +36,15 @@ import java.util.List;
  *
  * @author Greg Luck
  * @version $Id$
+ * @noinspection FieldCanBeLocal
  */
 public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remote {
-
+                                                                                                                 
     private static final Log LOG = LogFactory.getLog(RMICachePeer.class.getName());
 
-    private String hostname;
-    private Integer port;
-    private Cache cache;
-    private Integer socketTimeoutMillis;
+    private final String hostname;
+    private final Integer port;
+    private final Cache cache;
 
     /**
      * Construct a new remote peer
@@ -64,7 +63,6 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
         this.hostname = hostName;
         this.port = port;
         this.cache = cache;
-        this.socketTimeoutMillis = socketTimeoutMillis;
     }
 
     /**
@@ -74,7 +72,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      *
      * @return the URL, without the scheme, as a string e.g. //hostname:port/cacheName
      */
-    public String getUrl() {
+    public final String getUrl() {
         return new StringBuffer()
                 .append("//")
                 .append(hostname)
@@ -92,7 +90,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      *
      * @return the URL, without the scheme, as a string e.g. //hostname:port
      */
-    public String getUrlBase() {
+    public final String getUrlBase() {
         return new StringBuffer()
                 .append("//")
                 .append(hostname)
@@ -123,7 +121,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      * @throws RemoteException
      * @throws IllegalStateException
      */
-    public boolean remove(Serializable key) throws RemoteException, IllegalStateException {
+    public final boolean remove(Serializable key) throws RemoteException, IllegalStateException {
         return cache.remove(key, true);
     }
 
@@ -132,7 +130,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      *
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
-    public void removeAll() throws RemoteException, IllegalStateException {
+    public final void removeAll() throws RemoteException, IllegalStateException {
         try {
             cache.removeAll();
         } catch (IOException e) {
@@ -146,7 +144,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      * <p/>
      * This enables multiple messages to be delivered in one network invocation.
      */
-    public void send(List eventMessages) throws RemoteException {
+    public final void send(List eventMessages) throws RemoteException {
         for (int i = 0; i < eventMessages.size(); i++) {
             EventMessage eventMessage = (EventMessage) eventMessages.get(i);
             if (eventMessage.getEvent() == EventMessage.PUT) {
@@ -158,18 +156,9 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
     }
 
     /**
-     * Gets the status attribute of the Store object
-     *
-     * @return The status value
-     */
-    public Status getStatus() throws RemoteException {
-        return Status.STATUS_UNINITIALISED;
-    }
-
-    /**
      * Gets the cache name
      */
-    public String getName() throws RemoteException {
+    public final String getName() throws RemoteException {
         return cache.getName();
     }
 
@@ -177,14 +166,14 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
     /**
      * {@inheritDoc}
      */
-    public String getGuid() throws RemoteException {
+    public final String getGuid() throws RemoteException {
         return cache.getGuid();
     }
 
     /**
      * Gets the cache instance that this listener is bound to
      */
-    Cache getBoundCacheInstance() {
+    final Cache getBoundCacheInstance() {
         return cache;
     }
 

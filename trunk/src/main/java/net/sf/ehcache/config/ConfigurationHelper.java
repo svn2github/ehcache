@@ -53,7 +53,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Greg Luck
  * @version $Id$
  */
-public class ConfigurationHelper {
+public final class ConfigurationHelper {
 
     private static final Log LOG = LogFactory.getLog(ConfigurationHelper.class.getName());
 
@@ -78,8 +78,8 @@ public class ConfigurationHelper {
     /**
      * A factory method to create a RegisteredEventListeners
      */
-    protected void registerCacheListeners(Cache cache, CacheConfiguration cacheConfiguration,
-                                          RegisteredEventListeners registeredEventListeners) {
+    protected final void registerCacheListeners(CacheConfiguration cacheConfiguration,
+                                                RegisteredEventListeners registeredEventListeners) {
         List cacheEventListenerConfigurations = cacheConfiguration.cacheEventListenerConfigurations;
         for (int i = 0; i < cacheEventListenerConfigurations.size(); i++) {
             CacheConfiguration.CacheEventListenerFactoryConfiguration factoryConfiguration =
@@ -95,7 +95,7 @@ public class ConfigurationHelper {
      *
      * @param factoryConfiguration
      */
-    private CacheEventListener createCacheEventListener(
+    private static CacheEventListener createCacheEventListener(
             CacheConfiguration.CacheEventListenerFactoryConfiguration factoryConfiguration) {
         String className = null;
         CacheEventListener cacheEventListener = null;
@@ -118,7 +118,7 @@ public class ConfigurationHelper {
     /**
      * Tries to load the class specified otherwise defaults to null
      */
-    public CacheManagerPeerProvider createCachePeerProvider() {
+    public final CacheManagerPeerProvider createCachePeerProvider() {
         String className = null;
         FactoryConfiguration cachePeerProviderFactoryConfiguration =
                 configuration.getCacheManagerPeerProviderFactoryConfiguration();
@@ -142,7 +142,7 @@ public class ConfigurationHelper {
     /**
      * Tries to load the class specified otherwise defaults to null
      */
-    public CacheManagerPeerListener createCachePeerListener() {
+    public final CacheManagerPeerListener createCachePeerListener() {
         String className = null;
         FactoryConfiguration cachePeerListenerFactoryConfiguration =
                 configuration.getCacheManagerPeerListenerFactoryConfiguration();
@@ -167,7 +167,7 @@ public class ConfigurationHelper {
      *
      * @return If there is none returns null.
      */
-    public CacheManagerEventListener createCacheManagerEventListener() throws CacheException {
+    public final CacheManagerEventListener createCacheManagerEventListener() throws CacheException {
         String className = null;
         FactoryConfiguration cacheManagerEventListenerFactoryConfiguration =
                 configuration.getCacheManagerEventListenerFactoryConfiguration();
@@ -190,7 +190,7 @@ public class ConfigurationHelper {
     /**
      * @return the disk store path, or null if not set.
      */
-    public String getDiskStorePath() {
+    public final String getDiskStorePath() {
         DiskStoreConfiguration diskStoreConfiguration = configuration.getDiskStoreConfiguration();
         if (diskStoreConfiguration == null) {
             return null;
@@ -203,7 +203,7 @@ public class ConfigurationHelper {
      * @return the Default Cache
      * @throws net.sf.ehcache.CacheException if there is no default cache
      */
-    public Cache createDefaultCache() throws CacheException {
+    public final Cache createDefaultCache() throws CacheException {
         CacheConfiguration cacheConfiguration = configuration.getDefaultCacheConfiguration();
         if (cacheConfiguration == null) {
             throw new CacheException("Illegal configuration. No default cache is configured.");
@@ -218,7 +218,7 @@ public class ConfigurationHelper {
      *
      * @return an empty set if there are none,
      */
-    public Set createCaches() {
+    public final Set createCaches() {
         Set caches = new HashSet();
         Set cacheConfigurations = configuration.getCacheConfigurations().entrySet();
         for (Iterator iterator = cacheConfigurations.iterator(); iterator.hasNext();) {
@@ -235,7 +235,7 @@ public class ConfigurationHelper {
      *
      * @return the cache, or null if there is no match
      */
-    Cache createCacheFromName(String name) {
+    final Cache createCacheFromName(String name) {
         CacheConfiguration cacheConfiguration = null;
         Set cacheConfigurations = configuration.getCacheConfigurations().entrySet();
         for (Iterator iterator = cacheConfigurations.iterator(); iterator.hasNext();) {
@@ -258,7 +258,7 @@ public class ConfigurationHelper {
      *
      * @param cacheConfiguration
      */
-    Cache createCache(CacheConfiguration cacheConfiguration) {
+    final Cache createCache(CacheConfiguration cacheConfiguration) {
         Cache cache = new Cache(cacheConfiguration.name,
                 cacheConfiguration.maxElementsInMemory,
                 cacheConfiguration.memoryStoreEvictionPolicy,
@@ -271,14 +271,14 @@ public class ConfigurationHelper {
                 cacheConfiguration.diskExpiryThreadIntervalSeconds,
                 null);
         RegisteredEventListeners listeners = cache.getCacheEventNotificationService();
-        registerCacheListeners(cache, cacheConfiguration, listeners);
+        registerCacheListeners(cacheConfiguration, listeners);
         return cache;
     }
 
     /**
      * @return the Configuration used
      */
-    public Configuration getConfigurationBean() {
+    public final Configuration getConfigurationBean() {
         return configuration;
     }
 }

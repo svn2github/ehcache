@@ -62,7 +62,7 @@ public class MulticastRMIPeerProviderTest extends TestCase {
      * {@inheritDoc}
      */
     protected void setUp() throws Exception {
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
@@ -78,7 +78,7 @@ public class MulticastRMIPeerProviderTest extends TestCase {
      */
     protected void tearDown() throws Exception {
 
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 
@@ -94,7 +94,7 @@ public class MulticastRMIPeerProviderTest extends TestCase {
      */
     public void testProviderFromCacheManager() throws InterruptedException {
 
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 
@@ -128,7 +128,7 @@ public class MulticastRMIPeerProviderTest extends TestCase {
      */
     public void testRemoteGetName() throws RemoteException, InterruptedException {
 
-        if (DistributionUtil.isSingleRMIRegistryPerVM()) {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
 

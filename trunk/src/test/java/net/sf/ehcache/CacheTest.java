@@ -192,7 +192,7 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(Status.STATUS_ALIVE, cache.getStatus());
     }
 
-    
+
 
     /**
      * Tests getting the cache name
@@ -967,7 +967,7 @@ public class CacheTest extends AbstractCacheTest {
         cache.flush();
 
         //It takes a while to write all the Elements to disk
-        Thread.sleep(15000);
+        Thread.sleep(20000);
 
         long afterMemory = measureMemoryUse();
         long memoryIncrease = afterMemory - beforeMemory;

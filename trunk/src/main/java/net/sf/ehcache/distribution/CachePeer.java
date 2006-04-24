@@ -17,7 +17,6 @@
 package net.sf.ehcache.distribution;
 
 import net.sf.ehcache.Element;
-import net.sf.ehcache.Status;
 
 import java.io.Serializable;
 import java.rmi.Remote;
@@ -35,8 +34,6 @@ import java.util.List;
  * Non-RMI implementations should be able to use this interface.
  * Implementations not using RMI should
  *
- * todo 1.4 and 1.3
- *
  * @author Greg Luck
  * @version $Id$
  */
@@ -50,7 +47,7 @@ public interface CachePeer extends Remote {
      * gotten from a cache, and is now being put back.
      *
      * @param element
-     * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
+     * @throws IllegalStateException    if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      * @throws IllegalArgumentException if the element is null
      */
     void put(Element element) throws IllegalArgumentException, IllegalStateException, RemoteException;
@@ -79,13 +76,6 @@ public interface CachePeer extends Remote {
      * This enables multiple messages to be delivered in one network invocation.
      */
     void send(List  eventMessages) throws RemoteException;
-
-    /**
-     * Gets the status attribute of the Store object
-     *
-     * @return The status value
-     */
-    Status getStatus() throws RemoteException;
 
     /**
      * Gets the cache name

@@ -18,6 +18,7 @@ package net.sf.ehcache;
 
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.distribution.JVMUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -785,7 +786,11 @@ public class DiskStoreTest extends AbstractCacheTest {
             fail();
         } catch (OutOfMemoryError e) {
             LOG.info("Failed at " + index);
-            assertTrue(index.intValue() > 5000000);
+            if (JVMUtil.isJDK15()) {
+                assertTrue(index.intValue() > 5000000);
+            } else {
+                assertTrue(index.intValue() > 4099000);
+            }
         }
     }
 

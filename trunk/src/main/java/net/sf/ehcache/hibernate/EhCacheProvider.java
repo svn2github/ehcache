@@ -52,7 +52,7 @@ import java.util.Properties;
  * @author Emmanuel Bernard
  * @version $Id$
  */
-public class EhCacheProvider implements CacheProvider {
+public final class EhCacheProvider implements CacheProvider {
 
     /**
      * The Hibernate system property specifying the location of the ehcache configuration file name.
@@ -82,7 +82,7 @@ public class EhCacheProvider implements CacheProvider {
      * @throws org.hibernate.cache.CacheException
      *          inter alia, if a cache of the same name already exists
      */
-    public Cache buildCache(String name, Properties properties) throws CacheException {
+    public final Cache buildCache(String name, Properties properties) throws CacheException {
         try {
             net.sf.ehcache.Cache cache = manager.getCache(name);
             if (cache == null) {
@@ -100,7 +100,7 @@ public class EhCacheProvider implements CacheProvider {
     /**
      * Returns the next timestamp.
      */
-    public long nextTimestamp() {
+    public final long nextTimestamp() {
         return Timestamper.next();
     }
 
@@ -111,7 +111,7 @@ public class EhCacheProvider implements CacheProvider {
      *
      * @param properties current configuration settings.
      */
-    public void start(Properties properties) throws CacheException {
+    public final void start(Properties properties) throws CacheException {
         try {
             String configurationResourceName = null;
             if (properties != null) {
@@ -155,7 +155,7 @@ public class EhCacheProvider implements CacheProvider {
      * Callback to perform any necessary cleanup of the underlying cache implementation
      * during SessionFactory.close().
      */
-    public void stop() {
+    public final void stop() {
         if (manager != null) {
             manager.shutdown();
             manager = null;
@@ -167,7 +167,7 @@ public class EhCacheProvider implements CacheProvider {
      *
      * @return false to be safe
      */
-    public boolean isMinimalPutsEnabledByDefault() {
+    public final boolean isMinimalPutsEnabledByDefault() {
         return false;
     }
 
