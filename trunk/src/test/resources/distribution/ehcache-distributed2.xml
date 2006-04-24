@@ -70,7 +70,7 @@
         and you want to control the interface over which cluster messages are received.
         - port (mandatory) - the port the listener listens on.
         - socketTimeoutMillis - the number of seconds client sockets will wait when sending messages to this listener
-        until they give up. By default this is 2000ms.
+        until they give up. By default this is 120s.
 
         In this example, hostName and timeout have been omitted. They will default to
             the default NIC IP address and 2000ms respectively.

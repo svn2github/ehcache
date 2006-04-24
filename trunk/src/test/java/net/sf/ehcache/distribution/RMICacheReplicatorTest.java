@@ -38,6 +38,10 @@ import org.apache.commons.logging.LogFactory;
  * Tests replication of Cache events
  * <p/>
  * Note these tests need a live network interface running in multicast mode to work
+ * <p/>
+ * If running involving RMIAsynchronousCacheReplicator individually the test will fail because
+ * the VM will gobble up the SoftReferences rather than allocating more memory. Uncomment the
+ * forceVMGrowth() method usage in setup.
  *
  * @author Greg Luck
  * @version $Id$
@@ -100,6 +104,11 @@ public class RMICacheReplicatorTest extends TestCase {
             return;
         }
 
+        //Required to get SoftReference tests to pass. The VM clean up SoftReferences rather than allocating
+        // memory to -Xmx!
+        //forceVMGrowth();
+        //System.gc();
+
         CountingCacheEventListener.resetCounters();
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
         manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml");
@@ -118,6 +127,10 @@ public class RMICacheReplicatorTest extends TestCase {
         //allow cluster to be established
         Thread.sleep(6000);
 
+    }
+
+    private void forceVMGrowth() {
+        byte[] forceVMGrowth = new byte[50000000];
     }
 
 
@@ -345,6 +358,42 @@ public class RMICacheReplicatorTest extends TestCase {
         assertEquals(2000, manager5.getCache("sampleCache1").getSize());
 
     }
+
+
+    /**
+     * Drive everything to point of breakage within a 64MB VM.
+     */
+    public void xTestHugePutsBreaksAsynchronous() throws CacheException, InterruptedException {
+        //Give everything a chance to startup
+        StopWatch stopWatch = new StopWatch();
+        Integer index = null;
+        for (int i = 0; i < 500; i++) {
+            for (int j = 0; j < 1000; j++) {
+                index = new Integer(((1000 * i) + j));
+                cache1.put(new Element(index,
+                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
+            }
+
+        }
+        long elapsed = stopWatch.getElapsedTime();
+        long putTime = ((elapsed / 1000));
+        LOG.info("Put Elapsed time: " + putTime);
+        //assertTrue(putTime < 8);
+
+        assertEquals(100000, cache1.getSize());
+
+        Thread.sleep(100000);
+        assertEquals(20000, manager2.getCache("sampleCache1").getSize());
+        assertEquals(20000, manager3.getCache("sampleCache1").getSize());
+        assertEquals(20000, manager4.getCache("sampleCache1").getSize());
+        assertEquals(20000, manager5.getCache("sampleCache1").getSize());
+
+    }
+
 
     /**
      * Performance and capacity tests.

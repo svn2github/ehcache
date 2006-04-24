@@ -35,8 +35,7 @@ import java.util.List;
  * Non-RMI implementations should be able to use this interface.
  * Implementations not using RMI should
  *
- * todo test Cannot keep up with replication
- * todo test production simulation with lots of threads
+ * todo 1.4 and 1.3
  *
  * @author Greg Luck
  * @version $Id$

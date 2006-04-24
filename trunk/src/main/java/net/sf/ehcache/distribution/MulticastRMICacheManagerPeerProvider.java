@@ -121,7 +121,8 @@ public class MulticastRMICacheManagerPeerProvider extends RMICacheManagerPeerPro
             }
         } catch (Throwable t) {
             LOG.error("Unable to lookup remote cache peer for " + rmiUrl
-                    + ". Cause was not due to the usual IOException or NotBoundException: " + t.getMessage());
+                    + ". Cause was not due to an IOException or NotBoundException which will occur in normal operation:" +
+                    " " + t.getMessage());
         }
     }
 

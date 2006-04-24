@@ -16,24 +16,39 @@
 
 package net.sf.ehcache.distribution;
 
-import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ArrayList;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.io.Serializable;
+import java.lang.ref.SoftReference;
+import java.rmi.UnmarshalException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Listens to {@link net.sf.ehcache.CacheManager} and {@link net.sf.ehcache.Cache} events and propagates those to
  * {@link CachePeer} peers of the Cache asynchronously.
  * <p/>
  * Updates are guaranteed to be replicated in the order in which they are received.
+ * <p/>
+ * While much faster in operation than {@link RMISynchronousCacheReplicator}, it does suffer from a number
+ * of problems. Elements, which may be being spooled to DiskStore may stay around in memory because references
+ * are being held to them from {@link EventMessage}s which are queued up. The replication thread runs once
+ * per second, limiting the build up. However a lot of elements can be put into a cache in that time. We do not want
+ * to get an {@link OutOfMemoryError} using distribution in circumstances when it would not happen if we were
+ * just using the DiskStore.
+ * <p/>
+ * Accordingly, {@link EventMessage}s are held by {@link SoftReference} in the queue,
+ * so that they can be discarded if required by the GC to avoid an {@link OutOfMemoryError}. A log message
+ * will be issued on each flush of the queue if there were any forced discards. One problem with GC collection
+ * of SoftReferences is that the VM (JDK1.5 anyway) will do that rather than grow the heap size to the maximum.
+ * The workaround is to either set minimum heap size to the maximum heap size to force heap allocation at start
+ * up, or put up with a few lost messages while the heap grows.
  *
  * @author Greg Luck
  * @version $Id$
@@ -209,8 +224,13 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      * <p/>
      * Any exceptions are caught so that the replication thread does not die, and because errors are expected,
      * due to peers becoming unavailable.
+     * <p/>
+     * This method issues warnings for problems that can be fixed with configuration changes.
      */
     private void flushReplicationQueue() {
+
+        int discardCounter = 0;
+
         Object[] replicationQueueCopy;
         synchronized (replicationQueue) {
             if (replicationQueue.size() == 0) {
@@ -224,22 +244,55 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
 
         Cache cache = ((CacheEventMessage) replicationQueueCopy[0]).cache;
         List cachePeers = listRemoteCachePeers(cache);
-        List list = new ArrayList();
 
-        for (int i = 0; i < replicationQueueCopy.length; i++) {
-            final CacheEventMessage cacheEventMessage = (CacheEventMessage) replicationQueueCopy[i];
-            list.add(cacheEventMessage.getEventMessage());
-        }
+        List resolvedEventMessages = extractAndResolveEventMessages(replicationQueueCopy);
+
 
         for (int j = 0; j < cachePeers.size(); j++) {
             CachePeer cachePeer = (CachePeer) cachePeers.get(j);
             try {
-                cachePeer.send(list);
+                cachePeer.send(resolvedEventMessages);
             } catch (Throwable t) {
-                LOG.debug("Unable to send message to remote peer.  Message was: " + t.getMessage());
+                if (t instanceof UnmarshalException) {
+                    String message = t.getMessage();
+                    if (message.indexOf("Read time out") != 0) {
+                        LOG.warn("Unable to send message to remote peer due to socket read timeout. Consider increasing" +
+                                " the socketTimeoutMillis setting in the cacheManagerPeerListenerFactory. " +
+                                "Message was: " + t.getMessage());
+                    }
+                } else {
+                    LOG.debug("Unable to send message to remote peer.  Message was: " + t.getMessage());
+                }
 
             }
         }
+        if (LOG.isWarnEnabled()) {
+            int eventMessagesNotResolved = replicationQueueCopy.length - resolvedEventMessages.size();
+            if (eventMessagesNotResolved > 0) {
+                LOG.warn(eventMessagesNotResolved + " messages were discarded on replicate due to reclamation of " +
+                        "SoftReferences by the VM. Consider increasing the maximum heap size and/or setting the " +
+                        "starting heap size to a higher value.");
+            }
+
+        }
+    }
+
+    /**
+     * Extracts CacheEventMessages and attempts to get a hard reference to the underlying EventMessage
+     *
+     * @param replicationQueueCopy
+     * @return a list of EventMessages which were able to be resolved
+     */
+    private List extractAndResolveEventMessages(Object[] replicationQueueCopy) {
+        List list = new ArrayList();
+        for (int i = 0; i < replicationQueueCopy.length; i++) {
+            EventMessage eventMessage = ((CacheEventMessage) replicationQueueCopy[i]).getEventMessage();
+            if (eventMessage != null) {
+                list.add(eventMessage);
+            }
+            replicationQueueCopy[i] = null;
+        }
+        return list;
     }
 
     /**
@@ -261,20 +314,26 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
     }
 
     /**
-     * An Event Message, which enables the element to enqueued along with
+     * A wrapper around an EventMessage, which enables the element to enqueued along with
      * what is to be done with it.
+     * <p/>
+     * The wrapper holds a {@link SoftReference} to the {@link EventMessage}, so that the queue is never
+     * the cause of an {@link OutOfMemoryError}
      */
-    private class CacheEventMessage extends EventMessage {
+    private class CacheEventMessage {
 
         private Cache cache;
+        private SoftReference softEventMessage;
 
         public CacheEventMessage(int event, Cache cache, Element element) {
-            super(event, element);
+            EventMessage eventMessage = new EventMessage(event, element);
+            softEventMessage = new SoftReference(eventMessage);
             this.cache = cache;
         }
 
         public CacheEventMessage(int event, Cache cache, Serializable key) {
-            super(event, key);
+            EventMessage eventMessage = new EventMessage(event, key);
+            softEventMessage = new SoftReference(eventMessage);
             this.cache = cache;
         }
 
@@ -282,7 +341,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
          * Gets the component EventMessage
          */
         public EventMessage getEventMessage() {
-            return new EventMessage(event, key, element);
+            return (EventMessage) softEventMessage.get();
         }
 
     }

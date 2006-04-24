@@ -69,12 +69,12 @@
         and you want to control the interface over which cluster messages are received.
         - port (mandatory) - the port the listener listens on.
         - socketTimeoutMillis - the number of seconds client sockets will wait when sending messages to this listener
-        until they give up. By default this is 2000ms.
+        until they give up. By default this is 120s.
 
 
     -->
     <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
-                                     properties="hostName=, port=40004, socketTimeoutMillis=2000"/>
+                                     properties="hostName=, port=40004, socketTimeoutMillis=120000"/>
 
 
     <!--Default Cache configuration. These will applied to caches programmatically created through
