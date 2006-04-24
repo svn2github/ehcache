@@ -37,7 +37,7 @@ import java.io.ByteArrayInputStream;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public final class PayloadUtil {
+final class PayloadUtil {
 
     /**
      * The maximum transmission unit. This varies by link layer. For ethernet, fast ethernet and

@@ -20,7 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * A typesafe enumeration of eviction policies
+ * A typesafe enumeration of eviction policies.
  * The policy used to evict elements from the {@link net.sf.ehcache.store.MemoryStore}.
  * This can be one of:
  * <ol>
@@ -37,18 +37,18 @@ import org.apache.commons.logging.LogFactory;
 public final class MemoryStoreEvictionPolicy {
 
     /**
-     * LRU - least recently used
+     * LRU - least recently used.
      */
     public static final MemoryStoreEvictionPolicy LRU = new MemoryStoreEvictionPolicy("LRU");
 
     /**
-     * LFU - least frequently used
+     * LFU - least frequently used.
      */
 
     public static final MemoryStoreEvictionPolicy LFU = new MemoryStoreEvictionPolicy("LFU");
 
     /**
-     * FIFO - first in first out, the oldest element by creation time
+     * FIFO - first in first out, the oldest element by creation time.
      */
     public static final MemoryStoreEvictionPolicy FIFO = new MemoryStoreEvictionPolicy("FIFO");
 
@@ -58,7 +58,7 @@ public final class MemoryStoreEvictionPolicy {
     private final String myName;
 
     /**
-     * This class should not be subclassed or have instances created
+     * This class should not be subclassed or have instances created.
      * @param policy
      */
     private MemoryStoreEvictionPolicy(String policy) {

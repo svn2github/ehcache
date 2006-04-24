@@ -39,7 +39,7 @@ import java.util.List;
  * @noinspection FieldCanBeLocal
  */
 public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remote {
-                                                                                                                 
+
     private static final Log LOG = LogFactory.getLog(RMICachePeer.class.getName());
 
     private final String hostname;
@@ -47,7 +47,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
     private final Cache cache;
 
     /**
-     * Construct a new remote peer
+     * Construct a new remote peer.
      *
      * @param cache
      * @param hostName
@@ -68,7 +68,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
     /**
      * {@inheritDoc}
      * <p/>
-     * This implementation gives an URL which has meaning to the RMI remoting system
+     * This implementation gives an URL which has meaning to the RMI remoting system.
      *
      * @return the URL, without the scheme, as a string e.g. //hostname:port/cacheName
      */
@@ -86,7 +86,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
     /**
      * {@inheritDoc}
      * <p/>
-     * This implementation gives an URL which has meaning to the RMI remoting system
+     * This implementation gives an URL which has meaning to the RMI remoting system.
      *
      * @return the URL, without the scheme, as a string e.g. //hostname:port
      */

@@ -29,7 +29,7 @@ import java.util.Properties;
 public abstract class CacheManagerPeerProviderFactory {
 
     /**
-     * Create a peer provider
+     * Create a peer provider.
      * @param cacheManager the CacheManager instance connected to this peer provider
      * @param properties implementation specific properties. These are configured as comma
      * separated name value pairs in ehcache.xml

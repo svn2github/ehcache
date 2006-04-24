@@ -60,7 +60,7 @@ public final class LruMemoryStore extends MemoryStore {
      *
      * @return a Map, being either {@link java.util.LinkedHashMap} or
      */
-    public final Map loadMapInstance() throws CacheException {
+    private Map loadMapInstance() throws CacheException {
         //First try to load java.util.LinkedHashMap, which is preferred, but only if not overriden
         if (System.getProperty("net.sf.ehcache.useLRUMap") == null) {
 

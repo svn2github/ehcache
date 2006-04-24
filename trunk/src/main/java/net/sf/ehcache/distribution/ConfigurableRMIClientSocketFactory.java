@@ -33,15 +33,18 @@ import java.rmi.server.RMISocketFactory;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  * @see "http://java.sun.com/j2se/1.5.0/docs/guide/rmi/socketfactory/#1"
+ * @noinspection SerializableHasSerializationMethods,SerializableHasSerializationMethods
  */
 public final class ConfigurableRMIClientSocketFactory implements Serializable, RMIClientSocketFactory {
 
     private static final int ONE_SECOND = 1000;
 
+    private static final long serialVersionUID = 4920508630517373246L;
+
     private final int socketTimeoutMillis;
 
     /**
-     * Construct a new socket factory with the given timeout
+     * Construct a new socket factory with the given timeout.
      *
      * @param socketTimeoutMillis
      * @see Socket#setSoTimeout

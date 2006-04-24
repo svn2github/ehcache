@@ -24,7 +24,7 @@ import java.net.UnknownHostException;
 import java.util.Properties;
 
 /**
- * Builds a listener based on RMI
+ * Builds a listener based on RMI.
  * <p/>
  * Expected configuration line:
  * <p/>
@@ -39,15 +39,14 @@ public final class RMICacheManagerPeerListenerFactory extends CacheManagerPeerLi
 
     /**
      * The default timeout for cache replication for a single replication action.
-     * <p/>
      * This may need to be increased for large data transfers.
-     *
      */
     public static final Integer DEFAULT_SOCKET_TIMEOUT_MILLIS = new Integer(120000);
 
     private static final String HOSTNAME = "hostName";
     private static final String PORT = "port";
     private static final String SOCKET_TIMEOUT_MILLIS = "socketTimeoutMillis";
+
     /**
      * @param properties implementation specific properties. These are configured as comma
      *                   separated name value pairs in ehcache.xml

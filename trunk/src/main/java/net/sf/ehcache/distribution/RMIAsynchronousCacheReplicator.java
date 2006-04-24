@@ -145,7 +145,7 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
         }
 
         synchronized (replicationQueue) {
-            replicationQueue.add(new CacheEventMessage(EventMessage.PUT, cache, element));
+            replicationQueue.add(new CacheEventMessage(EventMessage.PUT, cache, element, null));
         }
     }
 
@@ -177,7 +177,7 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
                 }
                 return;
             }
-            replicationQueue.add(new CacheEventMessage(EventMessage.PUT, cache, element));
+            replicationQueue.add(new CacheEventMessage(EventMessage.PUT, cache, element, null));
         } else {
             if (!element.isKeySerializable()) {
                 if (LOG.isWarnEnabled()) {
@@ -185,7 +185,7 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
                 }
                 return;
             }
-            replicationQueue.add(new CacheEventMessage(EventMessage.REMOVE, cache, (Serializable) element.getObjectKey()));
+            replicationQueue.add(new CacheEventMessage(EventMessage.REMOVE, cache, null, element.getKey()));
         }
     }
 
@@ -210,7 +210,7 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
             return;
         }
         synchronized (replicationQueue) {
-            replicationQueue.add(new CacheEventMessage(EventMessage.REMOVE, cache, (Serializable) element.getObjectKey()));
+            replicationQueue.add(new CacheEventMessage(EventMessage.REMOVE, cache, null, element.getKey()));
         }
     }
 
@@ -249,18 +249,17 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
             CachePeer cachePeer = (CachePeer) cachePeers.get(j);
             try {
                 cachePeer.send(resolvedEventMessages);
-            } catch (Throwable t) {
-                if (t instanceof UnmarshalException) {
-                    String message = t.getMessage();
-                    if (message.indexOf("Read time out") != 0) {
-                        LOG.warn("Unable to send message to remote peer due to socket read timeout. Consider increasing" +
-                                " the socketTimeoutMillis setting in the cacheManagerPeerListenerFactory. " +
-                                "Message was: " + t.getMessage());
-                    }
+            } catch (UnmarshalException e) {
+                String message = e.getMessage();
+                if (message.indexOf("Read time out") != 0) {
+                    LOG.warn("Unable to send message to remote peer due to socket read timeout. Consider increasing" +
+                            " the socketTimeoutMillis setting in the cacheManagerPeerListenerFactory. " +
+                            "Message was: " + e.getMessage());
                 } else {
-                    LOG.debug("Unable to send message to remote peer.  Message was: " + t.getMessage());
+                    LOG.debug("Unable to send message to remote peer.  Message was: " + e.getMessage());
                 }
-
+            } catch (Throwable t) {
+                LOG.debug("Unable to send message to remote peer.  Message was: " + t.getMessage());
             }
         }
         if (LOG.isWarnEnabled()) {
@@ -322,14 +321,8 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
         private final Cache cache;
         private final SoftReference softEventMessage;
 
-        public CacheEventMessage(int event, Cache cache, Element element) {
-            EventMessage eventMessage = new EventMessage(event, element);
-            softEventMessage = new SoftReference(eventMessage);
-            this.cache = cache;
-        }
-
-        public CacheEventMessage(int event, Cache cache, Serializable key) {
-            EventMessage eventMessage = new EventMessage(event, key);
+        public CacheEventMessage(int event, Cache cache, Element element, Serializable key) {
+            EventMessage eventMessage = new EventMessage(event, key, element);
             softEventMessage = new SoftReference(eventMessage);
             this.cache = cache;
         }

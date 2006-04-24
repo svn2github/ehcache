@@ -29,14 +29,13 @@ import java.util.List;
 public interface CacheManagerPeerProvider {
 
     /**
-     * Register a new peer
-     *
+     * Register a new peer.
      * @param rmiUrl
      */
     void registerPeer(String rmiUrl);
 
     /**
-     * Unregisters a peer
+     * Unregisters a peer.
      *
      * @param rmiUrl
      */

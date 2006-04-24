@@ -30,11 +30,12 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Collection;
 
 /**
  * A container for {@link Cache}s that maintain all aspects of their lifecycle.
@@ -59,7 +60,7 @@ public final class CacheManager {
      * Keeps track of the disk store paths of all CacheManagers.
      * Can be checked before letting a new CacheManager start up.
      */
-    private static final Set ALL_CACHE_MANAGER_DISKT_STORE_PATHS = Collections.synchronizedSet(new HashSet());
+    private static final Set ALL_CACHE_MANAGER_DISK_STORE_PATHS = Collections.synchronizedSet(new HashSet());
 
     /**
      * The Singleton Instance.
@@ -69,7 +70,7 @@ public final class CacheManager {
     /**
      * Caches managed by this manager.
      */
-    private final Hashtable caches = new Hashtable();
+    private final Map caches = new HashMap();
 
     /**
      * Default cache cache.
@@ -214,7 +215,7 @@ public final class CacheManager {
      * @throws CacheException if the configuration cannot be parsed
      */
     private synchronized Configuration parseConfiguration(String configurationFileName, URL configurationURL,
-        InputStream configurationInputStream) throws CacheException {
+                                                          InputStream configurationInputStream) throws CacheException {
         reinitialisationCheck();
         Configuration configuration;
         String configurationSource;
@@ -243,7 +244,7 @@ public final class CacheManager {
     private void configure(ConfigurationHelper configurationHelper) {
 
         diskStorePath = configurationHelper.getDiskStorePath();
-        if (!ALL_CACHE_MANAGER_DISKT_STORE_PATHS.add(diskStorePath)) {
+        if (!ALL_CACHE_MANAGER_DISK_STORE_PATHS.add(diskStorePath)) {
             throw new CacheException("Cannot parseConfiguration CacheManager. Attempt to create a new instance" +
                     " of CacheManager using the diskStorePath \"" + diskStorePath + "\" which is already used" +
                     " by an existing CacheManager. The source of the configuration was "
@@ -502,9 +503,9 @@ public final class CacheManager {
         Cache cache = (Cache) caches.remove(cacheName);
         if (cache != null && cache.getStatus().equals(Status.STATUS_ALIVE)) {
             cache.dispose();
-        }
-        if (cacheManagerEventListener != null) {
-            cacheManagerEventListener.notifyCacheRemoved(cache.getName());
+            if (cacheManagerEventListener != null) {
+                cacheManagerEventListener.notifyCacheRemoved(cache.getName());
+            }
         }
     }
 
@@ -528,10 +529,11 @@ public final class CacheManager {
             cacheManagerPeerListener.dispose();
         }
         synchronized (CacheManager.class) {
-            ALL_CACHE_MANAGER_DISKT_STORE_PATHS.remove(diskStorePath);
-            Enumeration allCaches = caches.elements();
-            while (allCaches.hasMoreElements()) {
-                Cache cache = (Cache) allCaches.nextElement();
+            ALL_CACHE_MANAGER_DISK_STORE_PATHS.remove(diskStorePath);
+
+            Collection cacheSet = caches.values();
+            for (Iterator iterator = cacheSet.iterator(); iterator.hasNext();) {
+                Cache cache = (Cache) iterator.next();
                 if (cache != null) {
                     cache.dispose();
                 }

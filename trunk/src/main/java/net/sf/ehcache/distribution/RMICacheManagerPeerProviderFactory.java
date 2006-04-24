@@ -68,7 +68,7 @@ public final class RMICacheManagerPeerProviderFactory extends CacheManagerPeerPr
     /**
      * peerDiscovery=manual, rmiUrls=//hostname:port/cacheName //hostname:port/cacheName //hostname:port/cacheName
      */
-    private CacheManagerPeerProvider createManuallyConfiguredCachePeerProvider(Properties properties) {
+    private static CacheManagerPeerProvider createManuallyConfiguredCachePeerProvider(Properties properties) {
         String rmiUrls = extractAndLogProperty(RMI_URLS, properties);
         if (rmiUrls == null || rmiUrls.length() == 0) {
             throw new CacheException("rmiUrls must be specified when peerDiscovery is manual");
@@ -90,7 +90,7 @@ public final class RMICacheManagerPeerProviderFactory extends CacheManagerPeerPr
     /**
      * peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446
      */
-    private CacheManagerPeerProvider createAutomaticallyConfiguredCachePeerProvider(CacheManager cacheManager,
+    private static CacheManagerPeerProvider createAutomaticallyConfiguredCachePeerProvider(CacheManager cacheManager,
                                                                              Properties properties) throws IOException {
         String groupAddressString = extractAndLogProperty(MULTICAST_GROUP_ADDRESS, properties);
         InetAddress groupAddress = InetAddress.getByName(groupAddressString);

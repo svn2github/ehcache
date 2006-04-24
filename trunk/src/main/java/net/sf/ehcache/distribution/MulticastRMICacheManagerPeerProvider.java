@@ -97,8 +97,6 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
 
     /**
      * Register a new peer.
-     * <p/>
-     *
      * @param rmiUrl
      */
     public final synchronized void registerPeer(String rmiUrl) {

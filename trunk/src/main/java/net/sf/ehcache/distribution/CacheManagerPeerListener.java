@@ -21,7 +21,7 @@ import net.sf.ehcache.CacheException;
 import java.util.List;
 
 /**
- * A listener for updates, which controls remote cache peers
+ * A listener for updates, which controls remote cache peers.
  * @author Greg Luck
  * @version $Id$
  */
@@ -30,11 +30,13 @@ public interface CacheManagerPeerListener {
 
     /**
      * Call to start the listeners and do any other network initialisation.
+     * @throws CacheException
      */
     void init() throws CacheException;
 
     /**
      * Stop the listener and free any resources.
+     * @throws CacheException
      */
     void dispose() throws CacheException;
 

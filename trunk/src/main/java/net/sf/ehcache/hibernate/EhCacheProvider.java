@@ -163,7 +163,7 @@ public final class EhCacheProvider implements CacheProvider {
     }
 
     /**
-     * Not sure what this is supposed to do
+     * Not sure what this is supposed to do.
      *
      * @return false to be safe
      */

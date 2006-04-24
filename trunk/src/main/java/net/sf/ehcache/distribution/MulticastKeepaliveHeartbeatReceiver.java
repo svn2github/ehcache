@@ -47,7 +47,7 @@ public final class MulticastKeepaliveHeartbeatReceiver {
     private final MulticastRMICacheManagerPeerProvider peerProvider;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param peerProvider
      * @param multicastAddress
@@ -61,7 +61,7 @@ public final class MulticastKeepaliveHeartbeatReceiver {
     }
 
     /**
-     * Start
+     * Start.
      * @throws IOException
      */
     final void init() throws IOException {
@@ -73,7 +73,7 @@ public final class MulticastKeepaliveHeartbeatReceiver {
     }
 
     /**
-     * Shutdown the heartbeat
+     * Shutdown the heartbeat.
      */
     public final void dispose() {
         stopped = true;

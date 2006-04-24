@@ -24,7 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 /**
- * Property utilities
+ * Property utilities.
  * @author Greg Luck
  * @version $Id$
  */
@@ -33,7 +33,7 @@ public final class PropertyUtil {
     private static final Log LOG = LogFactory.getLog(PropertyUtil.class.getName());
 
     /**
-     * Utility class therefore no constructor
+     * Utility class therefore no constructor.
      */
     private PropertyUtil() {
         //noop

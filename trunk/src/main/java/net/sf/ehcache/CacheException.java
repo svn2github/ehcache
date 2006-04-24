@@ -18,7 +18,7 @@
 package net.sf.ehcache;
 
 /**
- * A runtime Cache Exception, compatible with JDK1.3
+ * A runtime Cache Exception, compatible with JDK1.3.
  * <p/>
  * Because JDK1.3 does not support chained exceptions or intial cause, this class has its own initialCause
  * field and {@link #getInitialCause} accessor, to aid with debugging. The JDK1.4 initial cause mechanism is
@@ -32,7 +32,7 @@ public class CacheException extends RuntimeException {
 
 
     /**
-     * Enables the cause to be recorded in a way that supports pre-JDK1.4 JDKs
+     * Enables the cause to be recorded in a way that supports pre-JDK1.4 JDKs.
      */
     private final Throwable initialCause;
 
@@ -57,6 +57,7 @@ public class CacheException extends RuntimeException {
     /**
      * Constructor for the CacheException object.
      * @param message the exception detail message
+     * @param initialCause the cause of the exception
      */
     public CacheException(String message, Throwable initialCause) {
         super(message);

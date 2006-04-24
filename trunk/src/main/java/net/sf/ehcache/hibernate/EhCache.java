@@ -29,7 +29,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * EHCache plugin for Hibernate
+ * EHCache plugin for Hibernate.
  * <p/>
  * EHCache uses a {@link net.sf.ehcache.store.MemoryStore} and a
  * {@link net.sf.ehcache.store.DiskStore}.
@@ -96,7 +96,7 @@ public final class EhCache implements Cache {
     }
 
     /**
-     * Gets an object from the cache
+     * Gets an object from the cache.
      *
      * @param key an Object value
      * @return

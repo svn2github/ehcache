@@ -126,7 +126,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
      * @param element
      * @throws RemoteCacheException if anything goes wrong with the remote call
      */
-    protected static void replicatePutNotification(Cache cache, Element element) throws RemoteCacheException {
+    private static void replicatePutNotification(Cache cache, Element element) throws RemoteCacheException {
         List cachePeers = listRemoteCachePeers(cache);
         for (int i = 0; i < cachePeers.size(); i++) {
             CachePeer cachePeer = (CachePeer) cachePeers.get(i);
@@ -218,7 +218,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
      * @param key
      * @throws RemoteCacheException if anything goes wrong with the remote call
      */
-    protected static void replicateRemovalNotification(Cache cache, Serializable key) throws RemoteCacheException {
+    private static void replicateRemovalNotification(Cache cache, Serializable key) throws RemoteCacheException {
         List cachePeers = listRemoteCachePeers(cache);
         for (int i = 0; i < cachePeers.size(); i++) {
             CachePeer cachePeer = (CachePeer) cachePeers.get(i);

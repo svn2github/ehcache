@@ -25,14 +25,16 @@ package net.sf.ehcache;
  */
 public final class ObjectExistsException extends CacheException {
 
-    /** Constructor for the ObjectExistsException object */
+    /**
+     * Constructor for the ObjectExistsException object.
+     */
     public ObjectExistsException() {
         super();
     }
 
 
     /**
-     * Constructor for the ObjectExistsException object
+     * Constructor for the ObjectExistsException object.
      *
      * @param message
      */

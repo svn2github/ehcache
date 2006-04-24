@@ -88,7 +88,7 @@ public final class FifoMemoryStore extends MemoryStore {
      * Returns the first eligible element that can be taken out of the cache
      * based on the FIFO policy
      */
-    public final synchronized Element getFirstElement() {
+    Element getFirstElement() {
         if (map.size() == 0) {
             return null;
         }

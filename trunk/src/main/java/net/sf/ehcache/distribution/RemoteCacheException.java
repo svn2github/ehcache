@@ -28,13 +28,15 @@ import net.sf.ehcache.CacheException;
  */
 public final class RemoteCacheException extends CacheException {
 
-    /** Constructor for the RemoteCacheException object */
+    /**
+     * Constructor for the RemoteCacheException object.
+     */
     public RemoteCacheException() {
         super();
     }
 
     /**
-     * Constructor for the RemoteCacheException object
+     * Constructor for the RemoteCacheException object.
      *
      * @param message the reason the exception was thrown
      */

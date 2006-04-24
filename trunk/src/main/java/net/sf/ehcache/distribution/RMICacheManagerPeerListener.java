@@ -74,7 +74,7 @@ public final class RMICacheManagerPeerListener implements CacheManagerPeerListen
     private final List cachePeers = new ArrayList();
 
     /**
-     * Constructor with full arguements
+     * Constructor with full arguments.
      *
      * @param hostName            may be null, in which case the hostName will be looked up. Machines with multiple
      *                            interfaces should specify this if they do not want it to be the default NIC.
@@ -164,8 +164,7 @@ public final class RMICacheManagerPeerListener implements CacheManagerPeerListen
     }
 
     /**
-     * Should be called on init because this is one of the last things that should happen on CacheManager
-     * startup
+     * Should be called on init because this is one of the last things that should happen on CacheManager startup.
      */
     private void populateListOfRemoteCachePeers() throws RemoteException {
         String[] names = cacheManager.getCacheNames();
@@ -182,7 +181,6 @@ public final class RMICacheManagerPeerListener implements CacheManagerPeerListen
 
     /**
      * Determine if the given cache is distributed.
-     *
      * @param cache the cache to check
      * @return true if a <code>CacheReplicator</code> is found in the listeners
      */
@@ -198,7 +196,7 @@ public final class RMICacheManagerPeerListener implements CacheManagerPeerListen
     }
 
     /**
-     * Start the rmiregistry
+     * Start the rmiregistry.
      * <p/>
      * The alternative is to use the <code>rmiregistry</code> binary, in which case:
      * <ol/>

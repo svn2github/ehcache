@@ -43,7 +43,7 @@ public final class ConfigurationFactory {
     private static final String FAILSAFE_CLASSPATH_CONFIGURATION_FILE = "/ehcache-failsafe.xml";
 
     /**
-     * Constructor
+     * Constructor.
      */
     private ConfigurationFactory() {
 
@@ -132,7 +132,7 @@ public final class ConfigurationFactory {
     }
 
     /**
-     * Configures a bean from an XML input stream
+     * Configures a bean from an XML input stream.
      */
     public static Configuration parseConfiguration(final InputStream inputStream) throws CacheException {
         if (LOG.isDebugEnabled()) {

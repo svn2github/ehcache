@@ -57,11 +57,11 @@ import java.util.List;
  * @author patches contributed: Ben Houston
  * @version $Id$
  */
-public final class DiskStore implements Store {
+public class DiskStore implements Store {
     private static final Log LOG = LogFactory.getLog(DiskStore.class.getName());
     private static final int MS_PER_SECOND = 1000;
     private static final int SPOOL_THREAD_INTERVAL = 200;
-    private final long expiryThreadInterval;
+    private long expiryThreadInterval;
 
     private final String name;
     private boolean active;
@@ -293,6 +293,7 @@ public final class DiskStore implements Store {
      * Gets an Array of the keys for all elements in the disk store.
      *
      * @return An Object[] of {@link Serializable} keys
+     * @noinspection SynchronizeOnNonFinalField
      */
     public final synchronized Object[] getKeyArray() {
         Set elementKeySet;
@@ -311,6 +312,7 @@ public final class DiskStore implements Store {
 
     /**
      * Returns the current store size.
+     * @noinspection SynchronizeOnNonFinalField
      */
     public final synchronized int getSize() {
         try {
@@ -368,6 +370,7 @@ public final class DiskStore implements Store {
 
     /**
      * Removes an item from the disk store.
+     * @noinspection SynchronizeOnNonFinalField
      */
     public final synchronized Element remove(final Object key) {
         Element element;
@@ -550,9 +553,11 @@ public final class DiskStore implements Store {
         }
     }
 
+
     /**
      * Flushes all spooled elements to disk.
      * Note that the cache is locked for the entire time that the spool is being flushed.
+     * @noinspection SynchronizeOnNonFinalField
      */
     private synchronized void flushSpool() throws IOException {
         // Write elements to the DB
@@ -739,6 +744,7 @@ public final class DiskStore implements Store {
     /**
      * Removes expired elements.
      * Note that the cache is locked for the entire time that elements are being expired.
+     * @noinspection SynchronizeOnNonFinalField
      */
     private void expireElements() {
         final long now = System.currentTimeMillis();
@@ -824,8 +830,12 @@ public final class DiskStore implements Store {
 
     /**
      * A reference to an on-disk elements.
+     * @noinspection SerializableHasSerializationMethods
      */
     private static final class DiskElement implements Serializable {
+
+        private static final long serialVersionUID = -717310932566592289L;
+
         /**
          * the file pointer
          */

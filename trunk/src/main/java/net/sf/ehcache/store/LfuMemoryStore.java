@@ -59,7 +59,7 @@ public final class LfuMemoryStore extends MemoryStore {
     private final Random random = new Random();
 
     /**
-     * Constructor for the LfuMemoryStore object
+     * Constructor for the LfuMemoryStore object.
      */
     protected LfuMemoryStore(Cache cache, DiskStore diskStore) {
         super(cache, diskStore);
@@ -67,7 +67,7 @@ public final class LfuMemoryStore extends MemoryStore {
     }
 
     /**
-     * Puts an element into the cache
+     * Puts an element into the cache.
      */
     public final synchronized void doPut(Element elementJustAdded) {
         if (isFull()) {
@@ -97,7 +97,7 @@ public final class LfuMemoryStore extends MemoryStore {
     }
 
     /**
-     * Find a "relatively" unused element, but not the element just added
+     * Find a "relatively" unused element, but not the element just added.
      */
     final Element findRelativelyUnused(Element elementJustAdded) {
         Element[] elements = sampleElements(calculateSampleSize());
@@ -114,7 +114,7 @@ public final class LfuMemoryStore extends MemoryStore {
     }
 
     /**
-     * Uses random numbers to sample the entire map
+     * Uses random numbers to sample the entire map.
      *
      * @param sampleSize how many samples to take
      * @return an array of sampled elements

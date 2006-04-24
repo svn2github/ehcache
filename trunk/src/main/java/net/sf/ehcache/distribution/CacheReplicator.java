@@ -19,25 +19,27 @@ package net.sf.ehcache.distribution;
 import net.sf.ehcache.event.CacheEventListener;
 
 /**
- *
+ * Replicates cache entries to peers of the CacheManager
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
 public interface CacheReplicator extends CacheEventListener {
 
     /**
-     * @return whether update is through copy or invalidate
+     * Returns whether update is through copy or invalidate
+     * @return true if update is via copy, else false if invalidate
      */
     boolean isReplicateUpdatesViaCopy();
 
     /**
-     * Asserts that the replicator is active.
+     * Returns whether the replicator is not active.
      * @return true if the status is not STATUS_ALIVE
      */
     boolean notAlive();
 
     /**
      * Checks that the replicator is is <code>STATUS_ALIVE</code>.
+     * @return true if the replicator is is <code>STATUS_ALIVE</code>, else false.
      */
     boolean alive();
 

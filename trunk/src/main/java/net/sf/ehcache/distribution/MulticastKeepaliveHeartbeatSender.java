@@ -120,7 +120,7 @@ public final class MulticastKeepaliveHeartbeatSender {
                 closeSocket();
 
             } catch (IOException e) {
-                e.printStackTrace();
+                LOG.debug(e);
             }
         }
 

@@ -17,24 +17,24 @@
 package net.sf.ehcache.config;
 
 /**
- * A class to represent the CacheManagerEventListener configuration
+ * A class to represent the CacheManagerEventListener configuration.
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
 public class FactoryConfiguration {
     /**
-     * class name
+     * class name.
      */
     protected String fullyQualifiedClassPath;
 
     /**
-     * properties
+     * properties.
      */
     protected String properties;
 
 
     /**
-     * Sets the class name
+     * Sets the class name.
      *
      * @param fullyQualifiedClassPath
      */
@@ -43,7 +43,7 @@ public class FactoryConfiguration {
     }
 
     /**
-     * Sets the configuration properties
+     * Sets the configuration properties.
      *
      * @param properties
      */
@@ -52,14 +52,14 @@ public class FactoryConfiguration {
     }
 
     /**
-     * Getter
+     * Getter.
      */
     public final String getFullyQualifiedClassPath() {
         return fullyQualifiedClassPath;
     }
 
     /**
-     * Getter
+     * Getter.
      */
     public final String getProperties() {
         return properties;

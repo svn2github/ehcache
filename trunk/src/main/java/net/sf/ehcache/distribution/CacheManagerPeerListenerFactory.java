@@ -31,7 +31,7 @@ import java.util.Properties;
 public abstract class CacheManagerPeerListenerFactory {
 
     /**
-     * Create a peer provider
+     * Creates a peer provider.
      * @param cacheManager the CacheManager instance connected to this peer provider
      * @param properties implementation specific properties. These are configured as comma
      * separated name value pairs in ehcache.xml

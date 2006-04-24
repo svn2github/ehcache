@@ -39,22 +39,22 @@ public abstract class MemoryStore implements Store {
     private static final Log LOG = LogFactory.getLog(MemoryStore.class.getName());
 
     /**
-     * The cache this store is associated with
+     * The cache this store is associated with.
      */
     protected Cache cache;
 
     /**
-     * Map where items are stored by key
+     * Map where items are stored by key.
      */
     protected Map map;
 
     /**
-     * The DiskStore associated with this MemoryStore
+     * The DiskStore associated with this MemoryStore.
      */
     protected final DiskStore diskStore;
 
     /**
-     * status
+     * status.
      */
     protected Status status;
 
@@ -75,7 +75,7 @@ public abstract class MemoryStore implements Store {
 
 
     /**
-     * A factory method to create a MemoryStore
+     * A factory method to create a MemoryStore.
      *
      * @param cache
      * @param diskStore
@@ -109,7 +109,7 @@ public abstract class MemoryStore implements Store {
     }
 
     /**
-     * Allow specialised actions over adding the element to the map
+     * Allow specialised actions over adding the element to the map.
      *
      * @param element
      */
@@ -118,7 +118,7 @@ public abstract class MemoryStore implements Store {
     }
 
     /**
-     * Gets an item from the cache
+     * Gets an item from the cache.
      * <p/>
      * The last access time in {@link net.sf.ehcache.Element} is updated.
      *
@@ -140,7 +140,7 @@ public abstract class MemoryStore implements Store {
     }
 
     /**
-     * Gets an item from the cache, without updating Element statistics
+     * Gets an item from the cache, without updating Element statistics.
      *
      * @param key the cache key
      * @return the element, or null if there was no match for the key
@@ -192,7 +192,7 @@ public abstract class MemoryStore implements Store {
     }
 
     /**
-     * Clears any data structures and places it back to its state when it was first created
+     * Clears any data structures and places it back to its state when it was first created.
      */
     protected final void clear() {
         map.clear();
@@ -233,7 +233,7 @@ public abstract class MemoryStore implements Store {
     }
 
     /**
-     * flush to disk
+     * Flush to disk.
      */
     public final synchronized void flush() {
         if (cache.isOverflowToDisk()) {
@@ -247,7 +247,7 @@ public abstract class MemoryStore implements Store {
     }
 
     /**
-     * Spools all elements to disk, in preparation for shutdown
+     * Spools all elements to disk, in preparation for shutdown.
      * <p/>
      * Relies on being called from a synchronized method
      * <p/>
@@ -273,7 +273,7 @@ public abstract class MemoryStore implements Store {
     }
 
     /**
-     * Puts the element in the DiskStore
+     * Puts the element in the DiskStore.
      * Should only be called if {@link Cache#isOverflowToDisk} is true
      * <p/>
      * Relies on being called from a synchronized method
@@ -295,7 +295,7 @@ public abstract class MemoryStore implements Store {
     }
 
     /**
-     * Gets an Array of the keys for all elements in the memory cache
+     * Gets an Array of the keys for all elements in the memory cache.
      * <p/>
      * Does not check for expired entries
      *
@@ -328,8 +328,7 @@ public abstract class MemoryStore implements Store {
 
 
     /**
-     * Measures the size of the memory store by measuring the serialized
-     * size of all elements.
+     * Measures the size of the memory store by measuring the serialized size of all elements.
      * <p/>
      * Warning: This method can be very expensive to run. Allow approximately 1 second
      * per 1MB of entries. Running this method could create liveness problems
@@ -380,7 +379,7 @@ public abstract class MemoryStore implements Store {
     }
 
     /**
-     * Before eviction elements are checked
+     * Before eviction elements are checked.
      *
      * @param element
      */
@@ -389,7 +388,7 @@ public abstract class MemoryStore implements Store {
     }
 
     /**
-     * An algorithm to tell if the MemoryStore is at or beyond its carrying capacity
+     * An algorithm to tell if the MemoryStore is at or beyond its carrying capacity.
      */
     protected final boolean isFull() {
         return map.size() > cache.getMaxElementsInMemory();

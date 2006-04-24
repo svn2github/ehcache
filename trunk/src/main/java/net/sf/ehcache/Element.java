@@ -37,6 +37,7 @@ import java.io.Serializable;
  *
  * @author Greg Luck
  * @version $Id$
+ * @noinspection SerializableHasSerializationMethods
  */
 public final class Element implements Serializable, Cloneable {
     /**
@@ -49,27 +50,27 @@ public final class Element implements Serializable, Cloneable {
 
 
     /**
-     * the cache key
+     * the cache key.
      */
     private final Object key;
 
     /**
-     * the value
+     * the value.
      */
     private final Object value;
 
     /**
-     * version of the element
+     * version of the element.
      */
     private long version;
 
     /**
-     * The creation time
+     * The creation time.
      */
     private long creationTime;
 
     /**
-     * The last access time
+     * The last access time.
      */
     private long lastAccessTime;
 
@@ -111,7 +112,7 @@ public final class Element implements Serializable, Cloneable {
     }
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param key
      * @param value
@@ -121,7 +122,7 @@ public final class Element implements Serializable, Cloneable {
     }
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param key
      * @param value
@@ -132,7 +133,7 @@ public final class Element implements Serializable, Cloneable {
     }
 
     /**
-     * Gets the key attribute of the Element object
+     * Gets the key attribute of the Element object.
      *
      * @return The key value. If the key is not Serializable, null is returned and an info log message emitted
      * @see #getObjectKey()
@@ -161,7 +162,7 @@ public final class Element implements Serializable, Cloneable {
     }
 
     /**
-     * Gets the value attribute of the Element object
+     * Gets the value attribute of the Element object.
      *
      * @return The value which must be Serializable. If not use {@link #getObjectValue}. If the value is not Serializable, null is returned and an info log message emitted
      * @see #getObjectValue()
@@ -191,7 +192,7 @@ public final class Element implements Serializable, Cloneable {
     }
 
     /**
-     * Equals comparison with another element, based on the key
+     * Equals comparison with another element, based on the key.
      */
     public final boolean equals(Object object) {
         if (object == null) {
@@ -207,14 +208,14 @@ public final class Element implements Serializable, Cloneable {
     }
 
     /**
-     * Gets the hascode, based on the key
+     * Gets the hascode, based on the key.
      */
     public final int hashCode() {
         return key.hashCode();
     }
 
     /**
-     * Sets the version attribute of the ElementAttributes object
+     * Sets the version attribute of the ElementAttributes object.
      *
      * @param version The new version value
      */
@@ -223,7 +224,7 @@ public final class Element implements Serializable, Cloneable {
     }
 
     /**
-     * Gets the creationTime attribute of the ElementAttributes object
+     * Gets the creationTime attribute of the ElementAttributes object.
      *
      * @return The creationTime value
      */
@@ -232,14 +233,14 @@ public final class Element implements Serializable, Cloneable {
     }
 
     /**
-     * Sets the creationTime attribute of the ElementAttributes object
+     * Sets the creationTime attribute of the ElementAttributes object.
      */
     public final void setCreateTime() {
         creationTime = System.currentTimeMillis();
     }
 
     /**
-     * Gets the version attribute of the ElementAttributes object
+     * Gets the version attribute of the ElementAttributes object.
      *
      * @return The version value
      */
@@ -258,7 +259,7 @@ public final class Element implements Serializable, Cloneable {
 
     /**
      * Gets the next to last access time. This is package protected as it should
-     * not be used outside internal Cache housekeeping
+     * not be used outside internal Cache housekeeping.
      *
      * @see #getLastAccessTime()
      */
@@ -274,7 +275,7 @@ public final class Element implements Serializable, Cloneable {
     }
 
     /**
-     * Resets the hit count to 0 and the last access time to 0
+     * Resets the hit count to 0 and the last access time to 0.
      */
     public final void resetAccessStatistics() {
         lastAccessTime = 0;
@@ -292,7 +293,7 @@ public final class Element implements Serializable, Cloneable {
     }
 
     /**
-     * Returns a {@link String} representation of the {@link Element}
+     * Returns a {@link String} representation of the {@link Element}.
      */
     public final String toString() {
         StringBuffer sb = new StringBuffer();

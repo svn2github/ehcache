@@ -17,6 +17,12 @@
 package net.sf.ehcache;
 
 import junit.framework.TestCase;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ConfigurationFactory;
+import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.event.RegisteredEventListeners;
+import net.sf.ehcache.store.DiskStore;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -25,13 +31,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Date;
-
-import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.config.ConfigurationFactory;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.store.DiskStore;
 
 /**
  * Tests for CacheManager

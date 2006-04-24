@@ -42,7 +42,7 @@ public final class ManualRMICacheManagerPeerProvider extends RMICacheManagerPeer
     private static final Log LOG = LogFactory.getLog(ManualRMICacheManagerPeerProvider.class.getName());
 
     /**
-     * Empty constructor
+     * Empty constructor.
      */
     public ManualRMICacheManagerPeerProvider() {
         super();
@@ -56,7 +56,7 @@ public final class ManualRMICacheManagerPeerProvider extends RMICacheManagerPeer
     }
 
     /**
-     * Register a new peer
+     * Register a new peer.
      *
      * @param rmiUrl
      */

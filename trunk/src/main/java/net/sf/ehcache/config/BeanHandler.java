@@ -34,14 +34,14 @@ import java.util.ArrayList;
  * @author Adam Murdoch
  * @author Greg Luck
  */
-public final class BeanHandler extends DefaultHandler {
+final class BeanHandler extends DefaultHandler {
     private final Object bean;
     private ElementInfo element;
     private Locator locator;
 
 
     /**
-     * Constructor
+     * Constructor.
      */
     public BeanHandler(final Object bean) {
         this.bean = bean;
@@ -158,7 +158,7 @@ public final class BeanHandler extends DefaultHandler {
     /**
      * Finds a creator method.
      */
-    private Method findCreateMethod(Class objClass, String name) {
+    private static Method findCreateMethod(Class objClass, String name) {
         final String methodName = makeMethodName("create", name);
         final Method[] methods = objClass.getMethods();
         for (int i = 0; i < methods.length; i++) {

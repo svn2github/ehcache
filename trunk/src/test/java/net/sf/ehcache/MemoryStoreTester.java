@@ -616,7 +616,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
             fail();
         } catch (OutOfMemoryError e) {
             if (JVMUtil.isJDK15()) {
-                assertTrue(i > 100000);
+                assertTrue(i > 90000);
             } else {
                 assertTrue(i > 60000);
             }

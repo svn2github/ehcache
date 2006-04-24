@@ -124,7 +124,7 @@ public final class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         return replicateUpdatesViaCopy;
     }
 
-    private boolean extractReplicateUpdates(Properties properties) {
+    private static boolean extractReplicateUpdates(Properties properties) {
         boolean replicateUpdates;
         String replicateUpdatesString = PropertyUtil.extractAndLogProperty(REPLICATE_UPDATES, properties);
         if (replicateUpdatesString != null) {

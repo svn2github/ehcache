@@ -67,7 +67,7 @@ public final class DiskStoreConfiguration {
         this.path = translatedPath;
     }
 
-    private String replaceToken(final String token, final String replacement, final String source) {
+    private static String replaceToken(final String token, final String replacement, final String source) {
         int foundIndex = source.indexOf(token);
         if (foundIndex == -1) {
             return source;

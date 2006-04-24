@@ -50,7 +50,7 @@ public abstract class RMICacheManagerPeerProvider implements CacheManagerPeerPro
     /**
      * The CacheManager this peer provider is associated with.
      */
-    protected CacheManager cacheManager;
+    private CacheManager cacheManager;
 
 
     /**
@@ -90,7 +90,7 @@ public abstract class RMICacheManagerPeerProvider implements CacheManagerPeerPro
      * @param rmiUrl
      * @return the cache name as it would appear in ehcache.xml
      */
-    protected static String extractCacheName(String rmiUrl) {
+    static String extractCacheName(String rmiUrl) {
         return rmiUrl.substring(rmiUrl.lastIndexOf('/') + 1);
     }
 

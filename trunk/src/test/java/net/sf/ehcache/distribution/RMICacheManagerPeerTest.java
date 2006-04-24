@@ -144,7 +144,7 @@ public class RMICacheManagerPeerTest extends TestCase {
 
         CachePeer cachePeer = RMICacheManagerPeerProvider.lookupRemoteCachePeer(rmiCachePeer.getUrl());
         Element element = new Element("1", new Date());
-        EventMessage eventMessage = new EventMessage(EventMessage.PUT, element);
+        EventMessage eventMessage = new EventMessage(EventMessage.PUT, null, element);
         List eventMessages = new ArrayList();
         eventMessages.add(eventMessage);
         cachePeer.send(eventMessages);

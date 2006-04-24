@@ -27,6 +27,7 @@ import java.io.Serializable;
  * @author Greg Luck
  * @version $Id$
  * @since 1.2
+ * @noinspection SerializableHasSerializationMethods
  */
 public final class Status implements Serializable {
     /**
@@ -41,6 +42,8 @@ public final class Status implements Serializable {
      * The cache is shudown. It cannot be used.
      */
     public static final Status STATUS_SHUTDOWN = new Status(2, "STATUS_SHUTDOWN");
+
+    private static final long serialVersionUID = 2732730630423367732L;
 
     private static final Status[] STATUSES = {STATUS_UNINITIALISED, STATUS_ALIVE, STATUS_SHUTDOWN};
 
@@ -79,7 +82,7 @@ public final class Status implements Serializable {
     }
 
     /**
-     * @param statusAsInt an int argument between 1 and 3
+     * @param statusAsInt an int argument between 1 and 3.
      * @return an enum Status
      * @throws IllegalArgumentException if the argument is not between 1 and 3
      */
@@ -91,7 +94,8 @@ public final class Status implements Serializable {
     }
 
     /**
-     * @return the int value of this status. For backward compatibility with ehcache versions below 1.2
+     * Returns the int value of status, for backward compatibility with ehcache versions below 1.2
+     * @return the int value of this status.
      */
     public int intValue() {
         return intValue;
@@ -151,7 +155,7 @@ public final class Status implements Serializable {
     }
 
     /**
-     * Equality checker when the comparison object is of the same type
+     * Equality checker when the comparison object is of the same type.
      * @param status the status to check
      * @return true is the statuses are the same
      */

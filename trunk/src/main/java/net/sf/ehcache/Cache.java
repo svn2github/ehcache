@@ -231,6 +231,15 @@ public final class Cache implements Cloneable {
      * <p/>
      * Only the CacheManager can initialise them.
      *
+     * @param name
+     * @param maxElementsInMemory
+     * @param overflowToDisk
+     * @param eternal
+     * @param timeToLiveSeconds
+     * @param timeToIdleSeconds
+     * @param diskPersistent
+     * @param diskExpiryThreadIntervalSeconds
+     *
      * @since 1.1
      */
     public Cache(String name,
@@ -381,7 +390,7 @@ public final class Cache implements Cloneable {
                         Cache.this.shutdownHook = null;
 
                         LOG.debug("VM shutting down with the disk store for " + name
-                            + " still active. The disk store is persistent. Calling dispose...");
+                                + " still active. The disk store is persistent. Calling dispose...");
                         dispose();
                     }
                 }
@@ -517,7 +526,7 @@ public final class Cache implements Cloneable {
      * @see #isExpired
      */
     public final synchronized Element get(Serializable key) throws IllegalStateException, CacheException {
-        return get((Object)key);
+        return get((Object) key);
     }
 
 
@@ -539,11 +548,7 @@ public final class Cache implements Cloneable {
 
         element = searchInMemoryStore(key, true);
         if (element == null && overflowToDisk) {
-            try {
-                element = searchInDiskStore(key, true);
-            } catch (IOException e) {
-                throw new CacheException(e.getMessage());
-            }
+            element = searchInDiskStore(key, true);
         }
 
         if (element == null) {
@@ -558,7 +563,7 @@ public final class Cache implements Cloneable {
         }
     }
 
-     /**
+    /**
      * Gets an element from the cache, without updating Element statistics. Cache statistics are
      * still updated.
      * <p/>
@@ -569,8 +574,8 @@ public final class Cache implements Cloneable {
      * @see #isExpired
      */
     public final synchronized Element getQuiet(Serializable key) throws IllegalStateException, CacheException {
-         return getQuiet((Object) key);
-     }
+        return getQuiet((Object) key);
+    }
 
     /**
      * Gets an element from the cache, without updating Element statistics. Cache statistics are
@@ -589,11 +594,7 @@ public final class Cache implements Cloneable {
 
         element = searchInMemoryStore(key, false);
         if (element == null && overflowToDisk) {
-            try {
-                element = searchInDiskStore(key, false);
-            } catch (IOException e) {
-                throw new CacheException(e.getMessage());
-            }
+            element = searchInDiskStore(key, false);
         }
 
         if (element == null) {
@@ -736,7 +737,7 @@ public final class Cache implements Cloneable {
         return element;
     }
 
-    private Element searchInDiskStore(Object key, boolean updateStatistics) throws IOException {
+    private Element searchInDiskStore(Object key, boolean updateStatistics) {
         if (!(key instanceof Serializable)) {
             return null;
         }
@@ -808,6 +809,7 @@ public final class Cache implements Cloneable {
      *                                    further notification to doNotNotifyCacheReplicators cache peers
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     * @noinspection SameParameterValue
      */
     public final synchronized boolean remove(Serializable key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         return remove((Object) key, doNotNotifyCacheReplicators);
@@ -866,7 +868,9 @@ public final class Cache implements Cloneable {
      * with the key actually existed.
      *
      * @param key
-     * @param expiry if the reason this method is being called is to expire the element
+     * @param expiry                      if the reason this method is being called is to expire the element
+     * @param notifyListeners             whether to notify listeners
+     * @param doNotNotifyCacheReplicators whether not to notify cache replicators
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
@@ -1020,6 +1024,7 @@ Cache size is the size of the union of the two key sets.*/
     /**
      * Returns the number of elements in the memory store.
      *
+     * @return the number of elements in the memory store
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     public final long getMemoryStoreSize() throws IllegalStateException {
@@ -1030,6 +1035,7 @@ Cache size is the size of the union of the two key sets.*/
     /**
      * Returns the number of elements in the disk store.
      *
+     * @return the number of elements in the disk store.
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     public final int getDiskStoreSize() throws IllegalStateException {
@@ -1042,7 +1048,7 @@ Cache size is the size of the union of the two key sets.*/
     }
 
     /**
-     * Gets the status attribute of the Cache
+     * Gets the status attribute of the Cache.
      *
      * @return The status value from the Status enum class
      */
@@ -1059,8 +1065,9 @@ Cache size is the size of the union of the two key sets.*/
 
 
     /**
-     * Number of times a requested item was found in the cache
+     * The number of times a requested item was found in the cache.
      *
+     * @return the number of times a requested item was found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     public final int getHitCount()
@@ -1070,8 +1077,9 @@ Cache size is the size of the union of the two key sets.*/
     }
 
     /**
-     * Number of times a requested item was found in the Memory Store
+     * Number of times a requested item was found in the Memory Store.
      *
+     * @return Number of times a requested item was found in the Memory Store.
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     public final int getMemoryStoreHitCount() throws IllegalStateException {
@@ -1080,7 +1088,7 @@ Cache size is the size of the union of the two key sets.*/
     }
 
     /**
-     * Number of times a requested item was found in the Disk Store
+     * Number of times a requested item was found in the Disk Store.
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
@@ -1102,7 +1110,7 @@ Cache size is the size of the union of the two key sets.*/
     }
 
     /**
-     * Number of times a requested element was found but was expired
+     * Number of times a requested element was found but was expired.
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
@@ -1112,49 +1120,51 @@ Cache size is the size of the union of the two key sets.*/
     }
 
     /**
-     * Gets the cache name
+     * Gets the cache name.
      */
     public final String getName() {
         return name;
     }
 
     /**
-     * Sets the name
+     * Sets the cache name which will name.
+     *
+     * @param name the name of the cache. Should not be null.
      */
     final void setName(String name) {
         this.name = name;
     }
 
     /**
-     * Gets timeToIdleSeconds
+     * Gets timeToIdleSeconds.
      */
     public final long getTimeToIdleSeconds() {
         return timeToIdleSeconds;
     }
 
     /**
-     * Gets timeToLiveSeconds
+     * Gets timeToLiveSeconds.
      */
     public final long getTimeToLiveSeconds() {
         return timeToLiveSeconds;
     }
 
     /**
-     * Are elements eternal
+     * Are elements eternal.
      */
     public final boolean isEternal() {
         return eternal;
     }
 
     /**
-     * Does the overflow go to disk
+     * Does the overflow go to disk.
      */
     public final boolean isOverflowToDisk() {
         return overflowToDisk;
     }
 
     /**
-     * Gets the maximum number of elements to hold in memory
+     * Gets the maximum number of elements to hold in memory.
      */
     public final int getMaxElementsInMemory() {
         return maxElementsInMemory;
@@ -1177,12 +1187,10 @@ Cache size is the size of the union of the two key sets.*/
     }
 
     /**
-     * Returns a {@link String} representation of {@link Cache}
+     * Returns a {@link String} representation of {@link Cache}.
      */
     public final String toString() {
         StringBuffer dump = new StringBuffer();
-
-        registeredEventListeners.getCacheEventListeners();
 
         dump.append("[ ")
                 .append(" name = ").append(name)

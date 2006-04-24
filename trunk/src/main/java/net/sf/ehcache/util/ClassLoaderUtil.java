@@ -27,7 +27,7 @@ import net.sf.ehcache.CacheException;
 public final class ClassLoaderUtil {
 
     /**
-     * Utility class
+     * Utility class.
      */
     private ClassLoaderUtil() {
         //noop

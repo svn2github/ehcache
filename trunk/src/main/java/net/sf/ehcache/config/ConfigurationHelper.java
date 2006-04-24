@@ -78,7 +78,7 @@ public final class ConfigurationHelper {
     /**
      * A factory method to create a RegisteredEventListeners
      */
-    protected final void registerCacheListeners(CacheConfiguration cacheConfiguration,
+    protected static void registerCacheListeners(CacheConfiguration cacheConfiguration,
                                                 RegisteredEventListeners registeredEventListeners) {
         List cacheEventListenerConfigurations = cacheConfiguration.cacheEventListenerConfigurations;
         for (int i = 0; i < cacheEventListenerConfigurations.size(); i++) {

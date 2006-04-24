@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A class to represent Cache configuration
+ * A class to represent Cache configuration.
  * e.g.
  * <cache name="testCache1"
  * maxElementsInMemory="10000"
@@ -39,12 +39,12 @@ import java.util.List;
 public final class CacheConfiguration {
 
     /**
-     * the name of the cache
+     * the name of the cache.
      */
     protected String name;
 
     /**
-     * the maximum objects to be held in the {@link net.sf.ehcache.store.MemoryStore}
+     * the maximum objects to be held in the {@link net.sf.ehcache.store.MemoryStore}.
      */
     protected int maxElementsInMemory;
 
@@ -89,7 +89,7 @@ public final class CacheConfiguration {
     protected boolean overflowToDisk;
 
     /**
-     * For caches that overflow to disk, does the disk cache persist between CacheManager instances?
+     * For caches that overflow to disk, whether the disk cache persists between CacheManager instances.
      */
     protected boolean diskPersistent;
 
@@ -103,66 +103,61 @@ public final class CacheConfiguration {
     protected long diskExpiryThreadIntervalSeconds;
 
     /**
-     * The event listener factories added by BeanUtils
+     * The event listener factories added by BeanUtils.
      */
     protected final List cacheEventListenerConfigurations = new ArrayList();
 
     /**
-     * Sets the name of the cache. This must be unique
+     * Sets the name of the cache. This must be unique.
      */
     public final void setName(String name) {
         this.name = name;
     }
 
     /**
-     * Sets the maximum objects to be held in memory
+     * Sets the maximum objects to be held in memory.
      */
     public final void setMaxElementsInMemory(int maxElementsInMemory) {
         this.maxElementsInMemory = maxElementsInMemory;
     }
 
     /**
-     * Sets the eviction policy. An invalid argument will set it to null
+     * Sets the eviction policy. An invalid argument will set it to null.
      */
     public final void setMemoryStoreEvictionPolicy(String memoryStoreEvictionPolicy) {
         this.memoryStoreEvictionPolicy = MemoryStoreEvictionPolicy.fromString(memoryStoreEvictionPolicy);
     }
 
     /**
-     * Sets whether elements are eternal. If eternal,  timeouts are ignored and the element
-     * is never expired.
+     * Sets whether elements are eternal. If eternal, timeouts are ignored and the element is never expired.
      */
     public final void setEternal(boolean eternal) {
         this.eternal = eternal;
     }
 
     /**
-     * Sets the time to idle for an element before it expires. Is only used
-     * if the element is not eternal.
+     * Sets the time to idle for an element before it expires. Is only used if the element is not eternal.
      */
     public final void setTimeToIdleSeconds(int timeToIdleSeconds) {
         this.timeToIdleSeconds = timeToIdleSeconds;
     }
 
     /**
-     * Sets the time to idle for an element before it expires. Is only used
-     * if the element is not eternal.
+     * Sets the time to idle for an element before it expires. Is only used if the element is not eternal.
      */
     public final void setTimeToLiveSeconds(int timeToLiveSeconds) {
         this.timeToLiveSeconds = timeToLiveSeconds;
     }
 
     /**
-     * Sets whether elements can overflow to disk when the in-memory cache
-     * has reached the set limit.
+     * Sets whether elements can overflow to disk when the in-memory cache has reached the set limit.
      */
     public final void setOverflowToDisk(boolean overflowToDisk) {
         this.overflowToDisk = overflowToDisk;
     }
 
     /**
-     * Sets whether, for caches that overflow to disk,
-     * the disk cache persist between CacheManager instances
+     * Sets whether, for caches that overflow to disk, the disk cache persist between CacheManager instances.
      */
     public final void setDiskPersistent(boolean diskPersistent) {
         this.diskPersistent = diskPersistent;
@@ -180,7 +175,7 @@ public final class CacheConfiguration {
     }
 
     /**
-     * Configuration for the CachePeerListenerFactoryConfiguration
+     * Configuration for the CachePeerListenerFactoryConfiguration.
      */
     public final class CacheEventListenerFactoryConfiguration extends FactoryConfiguration {
     }

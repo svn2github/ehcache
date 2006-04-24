@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A bean, used by BeanUtils, to set configuration from an XML configuration file
+ * A bean, used by BeanUtils, to set configuration from an XML configuration file.
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
@@ -47,7 +47,7 @@ public final class Configuration {
 
 
     /**
-     * Allows {@link BeanHandler} to add disk store location to the configuration
+     * Allows {@link BeanHandler} to add disk store location to the configuration.
      */
     public final void addDiskStore(DiskStoreConfiguration diskStoreConfigurationParameter) throws ObjectExistsException {
         if (diskStoreConfiguration != null) {
@@ -57,7 +57,7 @@ public final class Configuration {
     }
 
     /**
-     * Allows {@link BeanHandler} to add the CacheManagerEventListener to the configuration
+     * Allows {@link BeanHandler} to add the CacheManagerEventListener to the configuration.
      */
     public final void addCacheManagerEventListenerFactory(FactoryConfiguration
             cacheManagerEventListenerFactoryConfiguration) throws ObjectExistsException {
@@ -67,7 +67,7 @@ public final class Configuration {
     }
 
     /**
-     * Adds a CachePeerProviderFactoryConfiguration
+     * Adds a CachePeerProviderFactoryConfiguration.
      */
     public final void addCacheManagerPeerProviderFactory(FactoryConfiguration factory) {
         if (cacheManagerPeerProviderFactoryConfiguration == null) {
@@ -76,7 +76,7 @@ public final class Configuration {
     }
 
     /**
-     * Adds a CachePeerProviderFactoryConfiguration
+     * Adds a CachePeerProviderFactoryConfiguration.
      * cachePeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
      * properties="hostName=localhost, port=5000"
      */
@@ -88,7 +88,7 @@ public final class Configuration {
 
 
     /**
-     * Allows {@link BeanHandler} to add a default configuration to the configuration
+     * Allows {@link BeanHandler} to add a default configuration to the configuration.
      */
     public final void addDefaultCache(CacheConfiguration defaultCacheConfiguration) throws ObjectExistsException {
         if (this.defaultCacheConfiguration != null) {
@@ -98,7 +98,7 @@ public final class Configuration {
     }
 
     /**
-     * Allows {@link BeanHandler} to add Cache Configurations to the configuration
+     * Allows {@link BeanHandler} to add Cache Configurations to the configuration.
      */
     public final void addCache(CacheConfiguration cacheConfiguration) throws ObjectExistsException {
         if (cacheConfigurations.get(cacheConfiguration.name) != null) {
@@ -113,7 +113,7 @@ public final class Configuration {
     }
 
     /**
-     * Gets a Map of cacheConfigurations
+     * Gets a Map of cacheConfigurations.
      */
     public final Set getCacheConfigurationsKeySet() {
         return cacheConfigurations.keySet();
@@ -136,42 +136,42 @@ public final class Configuration {
 
 
     /**
-     * Gets the disk store configuration
+     * Gets the disk store configuration.
      */
     public final DiskStoreConfiguration getDiskStoreConfiguration() {
         return diskStoreConfiguration;
     }
 
     /**
-     * Gets the CacheManagerPeerProvider factory configuration
+     * Gets the CacheManagerPeerProvider factory configuration.
      */
     public final FactoryConfiguration getCacheManagerPeerProviderFactoryConfiguration() {
         return cacheManagerPeerProviderFactoryConfiguration;
     }
 
     /**
-     * Gets the CacheManagerPeerListener factory configuration
+     * Gets the CacheManagerPeerListener factory configuration.
      */
     public final FactoryConfiguration getCacheManagerPeerListenerFactoryConfiguration() {
         return cacheManagerPeerListenerFactoryConfiguration;
     }
 
     /**
-     * Gets the CacheManagerEventListener factory configuration
+     * Gets the CacheManagerEventListener factory configuration.
      */
     public final FactoryConfiguration getCacheManagerEventListenerFactoryConfiguration() {
         return cacheManagerEventListenerFactoryConfiguration;
     }
 
     /**
-     * Gets a Map of cache configurations, keyed by name
+     * Gets a Map of cache configurations, keyed by name.
      */
     public final Map getCacheConfigurations() {
         return cacheConfigurations;
     }
 
     /**
-     * Sets the configuration source
+     * Sets the configuration source.
      * @param configurationSource  an informative description of the source, preferably
      * including the resource name and location.
      */

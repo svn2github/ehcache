@@ -26,55 +26,40 @@ import java.io.Serializable;
  * The message is Serializable, so that it can be sent across the network.
  * @author Greg Luck
  * @version $Id$
+ * @noinspection SerializableHasSerializationMethods
  */
 public final class EventMessage implements Serializable {
 
 
     /**
-     * A put or update event
+     * A put or update event.
      */
     public static final int PUT = 0;
 
     /**
-     * A remove or invalidate event
+     * A remove or invalidate event.
      */
     public static final int REMOVE = 1;
 
+    private static final long serialVersionUID = -5760542938372164184L;
+    
     /**
-     * The event component
+     * The event component.
      */
-    protected final int event;
+    private final int event;
     /**
-     * The element component
+     * The element component.
      */
-    protected Element element;
+    private final Element element;
     /**
-     * The key component
+     * The key component.
      */
-    protected Serializable key;
+    private final Serializable key;
+
+
 
     /**
-     * Constructor
-     * @param event
-     * @param element
-     */
-    public EventMessage(int event, Element element) {
-        this.event = event;
-        this.element = element;
-    }
-
-    /**
-     * Conbstructor
-     * @param event
-     * @param key
-     */
-    public EventMessage(int event, Serializable key) {
-        this.event = event;
-        this.key = key;
-    }
-
-    /**
-     * Full constructor
+     * Full constructor.
      * @param event
      * @param key
      * @param element
@@ -86,7 +71,7 @@ public final class EventMessage implements Serializable {
     }
 
     /**
-     * Gets the event
+     * Gets the event.
      * @return either {@link #PUT} or {@link #REMOVE}
      */
     public final int getEvent() {
