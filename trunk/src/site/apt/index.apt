@@ -15,63 +15,50 @@ Welcome to ehcache
 
 * Latest News
 
-** 17 April 2006: ehcache-1.2rc1 released
+** 25 April 2006: {{{http://sourceforge.net/project/showfiles.php?group_id=93232}ehcache-1.2}} released.
 
-     Released ehcache-1.2rc1 to give testers a chance to test recent fixes and fine tuning before a final release.
+     After 10 months of development, ehcache-1.2 is released. Thanks to all the developers who contributed to
+      the release through feature requests, bug reports and patches during the beta program.
 
-     At this point all bugs, support requests and feature requests are closed. Final testing is focusing on the
-     distributed caching area.
+     The 1.2 release of ehcache has many new features including:
 
-** 8 April 2006: Elements are no longer required to be Serializable
-
-     Following many requests, ehcache no longer requires that Elements contain Serializable keys and values. Ehcache
-     will gracefully degrade for those operations which require Serialization.
-
-     In particular the MemoryStore and event listeners can be used with Non Serializable elements.
-
-     WARNING error messages are logged when an operation cannot be completed because the key or value is not Serializable.
-
-
-** 28 March 2006: License changed from Apache 1.1 to Apache 2.0
-
-     The ehcache 1.2 series from beta5 is released under the Apache 2.0 license.
-
-
-** 26 March 2006: {{{http://sourceforge.net/project/showfiles.php?group_id=93232}1.2 beta 5 released}}.
-
-     This is a bug fix release which fixes all reported issues in the new 1.2 features. Developers should be
-     testing this version.
-
-     The 1.2 beta series of ehcache has many new features including:
-
-            * Distributed Caching. The default implementation
-          supports cache discovery via multicast or manual configuration. Updates
-          are delivered asynchronously or synchronously via custom RMI
-          connections. Additional discovery or delivery schemes can be plugged in
-          by third parties.
+            * Flexible, extensible, high performance distributed caching. The default implementation supports cache
+              discovery via multicast or manual configuration. Updates are delivered either asynchronously or synchronously
+              via custom RMI connections. Additional discovery or delivery schemes can be plugged in by third parties.
 
             * New FIFO and LFU caching policies in addition to the standard LRU.
 
-            * Introduced CacheManagerEventListener and CacheEventListener
-          interfaces and default implementations.
+            * Introduced CacheManagerEventListener and CacheEventListener interfaces and default implementations.
 
             * Multiple CacheManagers per virtual machine.
 
             * Programmatic flushing of application state to persistent caches
 
-
             * Significant (up to 7 fold) DiskStore performance increases.
 
+            * API for Objects in addition to Serializable. Non-serializable Objects can use all parts of ehcache
+              except for DiskStore and replication. Two new methods on Element: getObjectValue and getKeyValue
+              are the only API differences between the Serializable and Object APIs.
 
-            * Backward Compatibility with ehcache-1.1
+            * Backward Compatibility with ehcache-1.1. All users of ehcache-1.1 should be able to upgrade to ehcache-1.2.
 
-          See the {{{/changes-report.html}changelog}} for more details on the release.
+            * Tested with Hibernate2.1.8 and  Hibernate3.1.3, which can utilise all of the new features except for Object API and
+              multiple session factories each using a different ehcache CacheManager. A new <<<net.sf.ehcache.hibernate.EhCacheProvider>>>
+              makes those additional features available to Hibernate-3.1.3. A version of the new provider should make it into
+              the Hibernate3.2 release.
 
+            * Tested with ehcache-constructs.
 
-** 25 March 2006: Subversion
+            * Apache 2.0 license.
 
-    Ehcache is now on Subversion. See the {{{/source-repository.html}source repository page}} for details.
+     At time of release, there are no open bugs against the ehcache-1.2. 21 bugs have been fixed in this release. Most
+     of those were raised against the 1.2 beta releases.
 
+     See the {{{/changes-report.html}changelog}} for more details on this release.
+
+** 20 April 2006: Development Roadmap Updated
+
+     The roadmap for new development has been updated {{{roadmap.html}here}}.
 
  More {{{news.html}news}}...
 

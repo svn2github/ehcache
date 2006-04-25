@@ -597,6 +597,8 @@ public class MemoryStoreTester extends AbstractCacheTest {
      * This test will fail (ie not get an out of memory error) on VMs configured to be server which do not have a fixed upper memory limit.
      * <p/>
      * Takes too long to run therefore switch off
+     * <p/>
+     * These memory size asserts were 100,000 and 60,000. The ApacheLRU map does not get quite as high numbers. 
      */
     public void testMemoryStoreOutOfMemoryLimit() throws Exception {
         //Set size so the second element overflows to disk.
@@ -618,7 +620,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
             if (JVMUtil.isJDK15()) {
                 assertTrue(i > 90000);
             } else {
-                assertTrue(i > 60000);
+                assertTrue(i > 50000);
             }
             LOG.info("Ran out of memory putting " + i + "th element");
         }

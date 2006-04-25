@@ -99,7 +99,7 @@ public final class EhCache implements Cache {
      * Gets an object from the cache.
      *
      * @param key an Object value
-     * @return
+     * @return the Object, or null if not found
      * @throws CacheException
      */
     public final Object read(Object key) throws CacheException {

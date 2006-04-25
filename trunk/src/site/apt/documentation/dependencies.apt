@@ -9,20 +9,22 @@ Dependencies
 
 * Java Requirements
 
-    Ehcache supports JDK1.2, 1.3, 1.4, 1.5 and 1.6 at runtime. When compiling from source, the build
-    process requires at least JDK 1.4.
+    Ehcache supports 1.3, 1.4, 1.5 and 1.6 at runtime. Ehcache final releases are compiled with -target 1.3.
+     This produces Java class data, version 47.0.
 
-    Ehcache does not work with JDK1.1.
+    When compiling from source, the build process requires at least JDK 1.4, because 1.4 features are compile
+    in but switched out at runtime if the JDK is 1.3. JDK1.3 is supported by catching NoSuchMethodError and
+    providing an alternate implementation. No JDK1.4 or 1.5 language features are used.
 
-    Because of an {{{#http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4267864}RMI bug}}
-    in JDKs before JDK1.5 ehcache is limited to one CacheManager
-    operating in distributed mode per virtual machine.
-    (The bug limits the number of RMI registries to one per virtual
-    machine). This is the default and expected
-    configuration however, so it should be of no practical effect.
+    Ehcache is known not to work with JDK1.1 and is not tested on JDK1.2.
 
-    On JDK1.5 and higher it is possible to have multiple CacheManagers per VM
-    each participating in the same or different clusters.
+    Because of an {{{#http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4267864}RMI bug}}, in JDKs before JDK1.5
+    ehcache is limited to one CacheManager operating in distributed mode per virtual machine.
+    (The bug limits the number of RMI registries to one per virtual machine). Because this is the expected deployment
+    configuration, however, ther should be no practical effect.
+
+    On JDK1.5 and higher it is possible to have multiple CacheManagers per VM each participating in the same or different clusters.
+    Indeed the replication tests do this with 5 CacheManagers on the same VM all run from JUnit.
 
 
 * Dependencies
@@ -31,8 +33,7 @@ Dependencies
     and {{{#http://jakarta.apache.org/commons/collections/} }}commons-collections
     2.1.1 from Apache's Jakarta project.
 
-    For JDK1.2 and JDK
-    1.3, ehcache also requires Apache {{{#http://xml.apache.org/xerces2-j/} }}xerces
+    For JDK 1.3, ehcache also requires Apache {{{#http://xml.apache.org/xerces2-j/} }}xerces
     (xml-apis.jar and xercesImpl.jar), version 2.5.
 
     These dependencies are very common, so they are probably already met in your project.

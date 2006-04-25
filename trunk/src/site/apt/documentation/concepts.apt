@@ -50,10 +50,7 @@ Cache Concepts
 
     A cache has a name and attributes. Each cache contains elements.
 
-    The JCACHE JSR also has groups, which is an association between
-    objects in the same cache. They may be invalidated together or have the same
-    element attributes. While groups may be useful, they are not used in
-    Hibernate and has not been implemented in ehcache.
+    A Cache is similar to a cache region in other caching systems.
 
     Cache elements are stored in the <<<MemoryStore>>>. Optionally
     they also overflow to a <<<DiskStore>>>.
@@ -64,7 +61,12 @@ Cache Concepts
     accesses. Elements are put into and removed from caches. They can also
     expire and be removed by the Cache, depending on the Cache settings.
 
-    From ehcache-1.2, an Element may be Serializable or not. If it is Serializable, it can fully
-    participate in all aspects of ehcache, including overflow to the DiskStore and replication to clusters. If
-    not, those things that rely on Serialization will gracefully degrade with a WARNING message. 
+    As of ehcache-1.2 there is an API for Objects in addition to the one for Serializable. Non-serializable Objects can
+    use all parts of ehcache except for DiskStore and replication. If an attempt is made to persist or replicate them
+    they are discarded without error and with a DEBUG level log message.
+
+    The APIs are identical except for the return methods from Element. Two new methods on
+    Element: getObjectValue and getKeyValue are the only API differences between the Serializable and Object APIs. This
+    makes it very easy to start with caching Objects and then change your Objects to Seralizable to participate in
+    the extra features when needed. Also a large number of Java classes are simply not Serializable.
 

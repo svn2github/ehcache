@@ -954,34 +954,31 @@ public class CacheTest extends AbstractCacheTest {
      * @throws Exception
      */
     public void testMemoryEfficiencyOfFlushWhenOverflowToDisk() throws Exception {
-        Cache cache = new Cache("testGetMemoryStoreSize", 50000, true, false, 100, 200);
+        Cache cache = new Cache("testGetMemoryStoreSize", 40000, true, false, 100, 200);
         manager.addCache(cache);
 
         assertEquals(0, cache.getMemoryStoreSize());
 
-        putElementsInCache(cache);
-        assertEquals(50000, cache.getMemoryStoreSize());
-        assertEquals(50000, cache.getDiskStoreSize());
+        for (int i = 0; i < 80000; i++) {
+            cache.put(new Element("" + i, new byte[480]));
+        }
+
+        assertEquals(40000, cache.getMemoryStoreSize());
+        assertEquals(40000, cache.getDiskStoreSize());
 
         long beforeMemory = measureMemoryUse();
         cache.flush();
 
         //It takes a while to write all the Elements to disk
-        Thread.sleep(20000);
+        Thread.sleep(5000);
 
         long afterMemory = measureMemoryUse();
         long memoryIncrease = afterMemory - beforeMemory;
         assertTrue(memoryIncrease < 40000000);
 
         assertEquals(0, cache.getMemoryStoreSize());
-        assertEquals(100000, cache.getDiskStoreSize());
+        assertEquals(80000, cache.getDiskStoreSize());
 
-    }
-
-    private void putElementsInCache(Cache cache) {
-        for (int i = 0; i < 100000; i++) {
-            cache.put(new Element("" + i, new byte[480]));
-        }
     }
 
 

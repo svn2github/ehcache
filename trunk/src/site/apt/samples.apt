@@ -189,11 +189,20 @@ cache.put(new Element("key1", "value2");
 +-------------------------------+
 
 
- Get an element from a cache with a key of "key1".
+ Get a Serializable value from an element in a cache with a key of "key1".
 
 +-------------------------------+
 Cache cache = manager.getCache("sampleCache1");
 Element element = cache.get("key1");
+Serializable value = element.getValue();
++-------------------------------+
+
+ Get a NonSerializable value from an element in a cache with a key of "key1".
+
++-------------------------------+
+Cache cache = manager.getCache("sampleCache1");
+Element element = cache.get("key1");
+Object value = element.getObjectValue();
 +-------------------------------+
 
  Remove an element from a cache with a key of "key1".

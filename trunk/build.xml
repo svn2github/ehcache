@@ -73,6 +73,7 @@
     <target name="compile-src" description="compile src files">
         <mkdir dir="${build.classes.dir}"/>
         <javac destdir="${build.classes.dir}"
+               target="1.3"
                debug="${compiler.debug}"
                deprecation="${compiler.deprecation}"
                source="1.3">
@@ -90,6 +91,7 @@
     <target name="compile-tests" depends="compile-src">
         <mkdir dir="${test.classes.dir}"/>
         <javac destdir="${test.classes.dir}"
+               target="1.3"
                debug="${compiler.debug}"
                deprecation="${compiler.deprecation}"
                source="1.3">
@@ -232,6 +234,7 @@
                 version="true"
                 use="true"
                 windowtitle="${name}">
+            <tag name="noinspection" description="IntelliJ Inspection Ignore tag" enabled="false"/>
             <classpath refid="project.class.path"/>
             <header><![CDATA[<a href="/" target="_top">${name}</a>]]></header>
         </javadoc>

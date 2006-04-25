@@ -7,6 +7,51 @@
 
 News
 
+* 25 April 2006: {{{http://sourceforge.net/project/showfiles.php?group_id=93232}ehcache-1.2}} released.
+
+     After 10 months of development, ehcache-1.2 is released. Thanks to all the developers who contributed to
+      the release through feature requests, bug reports and patches during the beta program.
+
+     The 1.2 release of ehcache has many new features including:
+
+            * Flexible, extensible, high performance distributed caching. The default implementation supports cache
+              discovery via multicast or manual configuration. Updates are delivered either asynchronously or synchronously
+              via custom RMI connections. Additional discovery or delivery schemes can be plugged in by third parties.
+
+            * New FIFO and LFU caching policies in addition to the standard LRU.
+
+            * Introduced CacheManagerEventListener and CacheEventListener interfaces and default implementations.
+
+            * Multiple CacheManagers per virtual machine.
+
+            * Programmatic flushing of application state to persistent caches
+
+            * Significant (up to 7 fold) DiskStore performance increases.
+
+            * API for Objects in addition to Serializable. Non-serializable Objects can use all parts of ehcache
+              except for DiskStore and replication. Two new methods on Element: getObjectValue and getKeyValue
+              are the only API differences between the Serializable and Object APIs.
+
+            * Backward Compatibility with ehcache-1.1. All users of ehcache-1.1 should be able to upgrade to ehcache-1.2.
+
+            * Tested with Hibernate2.1.8 and  Hibernate3.1.3, which can utilise all of the new features except for Object API and
+              multiple session factories each using a different ehcache CacheManager. A new <<<net.sf.ehcache.hibernate.EhCacheProvider>>>
+              makes those additional features available to Hibernate-3.1.3. A version of the new provider should make it into
+              the Hibernate3.2 release.
+
+            * Tested with ehcache-constructs.
+
+            * Apache 2.0 license
+
+     At time of release, there are no open bugs against the ehcache-1.2. 21 bugs have been fixed in this release. Most
+     of those were raised against the 1.2 beta releases.
+
+     See the {{{/changes-report.html}changelog}} for more details on this release.
+
+* 20 April 2006: Development Roadmap Updated
+
+     The roadmap for new development has been updated {{{roadmap.html}here}}.
+
 * 17 April 2006: ehcache-1.2rc1 released
 
      Released ehcache-1.2rc1 to give testers a chance to test recent fixes and fine tuning before a final release.

@@ -32,6 +32,8 @@ Features
 
  * Complete
 
+    * {{{#Supports Object or Serializable caching}Supports Object or Serializable caching}}
+
     * {{{#Provides LRU, LFU and FIFO cache eviction policies}Provides LRU, LFU and FIFO cache eviction policies}}
 
     * {{{#Provides Memory and Disk stores}Provides Memory and Disk stores}}
@@ -84,9 +86,13 @@ Features
 
   * {{{#Cacheable Commands}Cacheable Commands}}
 
+  * {{{#Works with Hibernate}Works with Hibernate}}
+
  * High Quality
 
   * {{{#High Test Coverage}High Test Coverage}}
+
+  * {{{#Automated Load, Limit and Performance System Tests}Automated Load, Limit and Performance System Tests}}
 
   * {{{#Production tested}Production tested}}
 
@@ -102,7 +108,7 @@ Features
 
  * Open Source Licensing
 
-  * {{{#Apache 1.1 license}Apache 1.1 license}}
+  * {{{#Apache 2.0 license}Apache 2.0 license}}
 
 
 ~~ Contents
@@ -153,6 +159,17 @@ Features
 
 * Complete
 
+** {Supports Object or Serializable caching}
+
+   As of ehcache-1.2 there is an API for Objects in addition to the one for Serializable. Non-serializable Objects can
+   use all parts of ehcache except for DiskStore and replication. If an attempt is made to persist or replicate them
+   they are discarded without error and with a DEBUG level log message.
+
+   The APIs are identical except for the return methods from Element. Two new methods on
+   Element: getObjectValue and getKeyValue are the only API differences between the Serializable and Object APIs. This
+   makes it very easy to start with caching Objects and then change your Objects to Seralizable to participate in
+   the extra features when needed. Also a large number of Java classes are simply not Serializable.
+
 ** {Provides LRU, LFU and FIFO cache eviction policies}
 
     Ehcache 1.2 introduced Less Frequently Used and First In First Out caching eviction policies. These round out the
@@ -164,7 +181,9 @@ Features
 
 ** {Distributed}
 
-    Ehcache 1.2 added distributed caching with synchronous and asynchronous replication, manual or multicast peer discover, and invalidating or copying}Distributed Caching with synchronous and asynchronous replication, manual or multicast peer discover, and invalidating or copying
+    Flexible, extensible, high performance distributed caching. The default implementation supports cache
+    discovery via multicast or manual configuration. Updates are delivered either asynchronously or synchronously
+    via custom RMI connections. Additional discovery or delivery schemes can be plugged in by third parties.
 
     See the {{Distributed}} section for more feature details.
 
@@ -179,7 +198,6 @@ Features
 
     Distributed caching, introduced in ehcache 1.2 involves many choices and tradeoffs. The ehcache team believe that one size will not fit all.
     Implementers can use built-in mechanisms or write their own. A plugin development guide is included for this purpose.
-
 
 * Application Persistence
 
@@ -269,6 +287,13 @@ Features
 
     This is the trusty old command pattern with a twist: asynchronous behaviour, fault tolerance and caching.
 
+** {Works with Hibernate}
+
+   Tested with Hibernate2.1.8 and  Hibernate3.1.3, which can utilise all of the new features except for Object API and
+   multiple session factories each using a different ehcache CacheManager. A new <<<net.sf.ehcache.hibernate.EhCacheProvider>>>
+   makes those additional features available to Hibernate-3.1.3. A version of the new provider should make it into
+   the Hibernate3.2 release.
+
 * {High Quality}
 
 ** {High Test Coverage}
@@ -278,9 +303,28 @@ Features
  Ehcache has a relatively high 86% test coverage of source code. This has edged higher over time. Clover enforces the test coverage.
  Most of the missing 14% is logging and exception paths.
 
+** {Automated Load, Limit and Performance System Tests}
+
+  The ehcache JUnit test suite contains some long-running system tests which place high load on different ehcache subsystems
+    to the point of failure and then are back off to just below that point. The same is done with limits such as the amount
+      of Elements that can fit in a given heap size. The same is also done with performance testing of each subsystem and
+      the whole together. The same is also done with network tests for cache replication.
+
+  The tests serve a number of purposes:
+
+  * establishing well understood metrics and limits
+
+  * preventing regressions
+
+  * reproducing any reported issues in production
+
+  * Allowing the design principle of graceful degradation to be achieved. For example, the asynchronous cache replicator
+    uses SoftReferences for queued messages, so that the messages will be reclaimed before before an OutOfMemoryError occurs,
+    thus favouring stability over replication. 
+
 ** {Specific Concurrency Testing}
 
- Ehcache also has concurrency testing, which typically uses 50 concurrent threads hammering a piece of code. The test
+  Ehcache also has concurrency testing, which typically uses 50 concurrent threads hammering a piece of code. The test
   suites are also run on multi-core or multi-cpu machines so that concurrency is real rather than simulated.
   Additionally, every concurrency related issue that has ever been anticipated or resulted in a bug report has a unit
   test which prevents the condition from recurring. There are no reported issues that have not been reproduced in a unit
@@ -288,6 +332,7 @@ Features
 
   Concurrency unit tests are somewhat difficult to write, and are often overlooked. The team considers these tests a
   major factor in ehcache's quality.
+
 
 ** {Production tested}
 
@@ -335,11 +380,11 @@ Features
 
 * {Open Source Licensing}
 
-** {Apache 1.1 license}
+** {Apache 2.0 license}
 
- Ehcache's copyright and licensing has been reviewed and approved by the Apache Software Foundation,
- making ehcache suitable for use in Apache projects.
+ Ehcache's original Apache1.1 copyright and licensing was reviewed and approved by the Apache Software Foundation,
+ making ehcache suitable for use in Apache projects. ehcache-1.2 is released under the updated Apache 2.0 license.
 
- The Apache license is also a friendly one, making it easy to include ehcache in other open source projects or commercial products.
+ The Apache license is also friendly one, making it safe and easy to include ehcache in other open source projects or commercial products.
 
 

@@ -8,7 +8,7 @@
             <!-- Bug fixes -->
             <action dev="Greg Luck" issue="1473833" type="fix">
                 Changing the API to Object from Serializable breaks projects. Leave the existing Serializable
-                API in place and add new constructors and methods for Object.
+                API in place and add new constructors and methods for Object. Add getObjectValue and getObjectKey to Element.
             </action>
             <action dev="Greg Luck" issue="1474363" type="fix">
                 Closing Cache does not remove reference from DiskStore, preventing Garbage Collection of DiskStore and Cache
@@ -67,7 +67,7 @@
 
 
 
-        <release version="1.2beta5" date="2006-3-26" desc="ehcache-1.2 represents the addition of many new features while remaining
+        <release version="1.2beta5" date="2006-3-26" desc="Covers beta1 - beta 5 releases. ehcache-1.2 represents the addition of many new features while remaining
          backward compatible with 1.1.">
             <!-- Feature Changes -->
             <action dev="Surya Suravarapu" type="add">

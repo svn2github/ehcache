@@ -205,8 +205,8 @@ final class BeanHandler extends DefaultHandler {
                 return;
             }
         } catch (final InvocationTargetException e) {
-            throw (SAXException) new SAXException(getLocation()
-                    + ": Could not set attribute \"" + attrName + "\".").initCause(e.getTargetException());
+            throw new SAXException(getLocation() + ": Could not set attribute \"" + attrName + "\"."
+                + ". Message was: " + e.getTargetException());
         } catch (final Exception e) {
             throw new SAXException(getLocation() + ": Could not set attribute \"" + attrName + "\".");
         }
@@ -289,8 +289,8 @@ final class BeanHandler extends DefaultHandler {
                 method.invoke(parent, new Object[]{child});
             }
         } catch (final InvocationTargetException e) {
-            final SAXException exc = new SAXException(getLocation() + ": Could not finish element <" + name + ">.");
-            exc.initCause(e.getTargetException());
+            final SAXException exc = new SAXException(getLocation() + ": Could not finish element <" + name + ">." +
+                    " Message was: " + e.getTargetException());
             throw exc;
         } catch (final Exception e) {
             throw new SAXException(getLocation() + ": Could not finish element <" + name + ">.");

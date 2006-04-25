@@ -340,6 +340,7 @@ optional <a href="ehcache-constructs">ehcache-constructs</a> package.</li>
                     <use>true</use>
                     <version>true</version>
                     <windowtitle>${project.name} ${project.version} API</windowtitle>
+                    <tag name="noinspection" description="IntelliJ Inspection Ignore tag" enabled="false"/>                    
                 </configuration>
             </plugin>
 

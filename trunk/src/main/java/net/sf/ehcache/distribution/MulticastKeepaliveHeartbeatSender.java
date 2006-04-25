@@ -30,11 +30,11 @@ import net.sf.ehcache.CacheManager;
 /**
  * Sends heartbeats to a multicast group containing a compressed list of URLs. Supports up to approximately
  * 500 configured caches.
+ *
  * @author Greg Luck
  * @version $Id$
  */
 public final class MulticastKeepaliveHeartbeatSender {
-
 
 
     private static final Log LOG = LogFactory.getLog(MulticastKeepaliveHeartbeatSender.class.getName());
@@ -129,6 +129,7 @@ public final class MulticastKeepaliveHeartbeatSender {
          * <p/>
          * The last gzipped payload is retained and only recalculated if the list of cache peers
          * has changed.
+         *
          * @return a gzipped byte[]
          */
         private byte[] createCachePeersPayload() {
@@ -146,8 +147,6 @@ public final class MulticastKeepaliveHeartbeatSender {
             }
             return compressedUrlList;
         }
-
-
 
 
         /**
@@ -189,11 +188,21 @@ public final class MulticastKeepaliveHeartbeatSender {
         }
 
         private void closeSocket() {
-            if (!socket.isClosed()) {
+            try {
+                if (!socket.isClosed()) {
+                    try {
+                        socket.leaveGroup(groupMulticastAddress);
+                    } catch (IOException e) {
+                        LOG.error("Error leaving mutlicast group. Message was " + e.getMessage());
+                    }
+                    socket.close();
+                }
+            } catch (NoSuchMethodError e) {
+                LOG.debug("socket.isClosed is not supported by JDK1.3");
                 try {
                     socket.leaveGroup(groupMulticastAddress);
-                } catch (IOException e) {
-                    LOG.error("erroe leaving group");
+                } catch (IOException ex) {
+                    LOG.error("Error leaving multicast group. Message was " + ex.getMessage());
                 }
                 socket.close();
             }
