@@ -1,0 +1,41 @@
+ ------
+ Getting Started
+ ------
+ ------
+ Date
+ ------
+
+
+Getting Started
+
+
+* General Purpose Caching
+
+      * Make sure you are using a supported {{{dependencies.html#java}Java}} version.
+
+      * Place the ehcache jar into your classpath.
+
+      * Ensure that any libraries required to satisfy {{{dependencies.html}dependencies}} are also in the classpath.
+
+      * Configure ehcache.xml
+
+      * Optionally, configure an appropriate {{{logging.html}logging}} level.
+
+* Hibernate, Spring, Cocoon or other frameworks
+
+     There is nothing to do. Hibernate and Spring include ehcache.
+
+     They will use the defaultCache configuration in ehcache.xml, which will be somewhere in the classpath.
+
+     It is a good idea to create specific cache configurations in ehcache.xml
+
+* J2EE Servlet Filters
+
+    * Place ehcache and the ehcache-constructs jars in your classpath accessible to your web container.
+
+    * Place ehcache.xml in your classpath.
+
+    * Configure a cache for your web page in ehcache.xml.
+
+    * Configure the web.xml
+
