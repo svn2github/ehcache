@@ -20,8 +20,7 @@ Development Roadmap
 ** SoftReferenceMemoryStore
 
  A MemoryStore built using SoftReferences. This would enable potentially much large MemoryStores with no risk of
- OutOfMemory errors.
-
+ OutOfMemory errors. SoftReferences are already used in ehcache for the asynchronous replication spool.
 
 ** Element based expiry
 
@@ -45,6 +44,14 @@ Development Roadmap
 ** JMX Instrumentation
 
  Create an ehcache MBean to simplify and standardise efforts to monitor ehcache.
+
+** Distributed Cache Priming
+
+ A feature a number of people are requesting is distributed cache priming. When you bring up a new node it will have
+ empty caches, apart from any persistent DiskStores it has. The idea is for a new cache to prime itself from its peers.
+ When a new peer comes up, for each distributed cache it asks the cluster for a list of keys already cached. Then it
+ requests those elements in chunks from random peers.  
+
 
 * How to suggest features
 

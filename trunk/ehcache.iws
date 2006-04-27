@@ -380,19 +380,37 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="HibernateAPIUsageTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/hibernate/HibernateAPIUsageTest.java">
+      <file leaf-file-name="CacheTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="112" column="30" selection-start="3615" selection-end="3624" vertical-scroll-proportion="0.014150944">
+            <state line="65" column="107" selection-start="1958" selection-end="1958" vertical-scroll-proportion="0.6084906">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CacheTest.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java">
+      <file leaf-file-name="Cache.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="35" column="13" selection-start="1028" selection-end="1028" vertical-scroll-proportion="0.18396227">
+            <state line="502" column="35" selection-start="18037" selection-end="18037" vertical-scroll-proportion="0.41896757">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ehcache.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/config/ehcache.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="264" column="51" selection-start="14464" selection-end="14464" vertical-scroll-proportion="0.40936375">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="roadmap.apt" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/roadmap.apt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="28" column="30" selection-start="856" selection-end="856" vertical-scroll-proportion="0.3962264">
               <folding />
             </state>
           </provider>
@@ -443,28 +461,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="changes.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="85" selection-start="1330" selection-end="1330" vertical-scroll-proportion="0.014405762">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="RELEASE_NOTES.txt" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/RELEASE_NOTES.txt">
           <provider selected="true" editor-type-id="text-editor">
             <state line="7" column="0" selection-start="169" selection-end="1353" vertical-scroll-proportion="0.10084034">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="overview.html" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/overview.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="22" column="86" selection-start="854" selection-end="854" vertical-scroll-proportion="0.31692678">
               <folding />
             </state>
           </provider>
@@ -1693,27 +1693,6 @@
     </buildFile>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/distributed_design.apt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="122" column="75" selection-start="4592" selection-end="4592" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/features.apt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="165" column="17" selection-start="5126" selection-end="5126" vertical-scroll-proportion="0.014405762">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/getting_started.apt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/site/apt/samples.apt">
       <provider selected="true" editor-type-id="text-editor">
         <state line="157" column="37" selection-start="5046" selection-end="5046" vertical-scroll-proportion="0.014405762">
@@ -1793,7 +1772,28 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="13" selection-start="1028" selection-end="1028" vertical-scroll-proportion="0.18396227">
+        <state line="65" column="107" selection-start="1958" selection-end="1958" vertical-scroll-proportion="0.6084906">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="502" column="35" selection-start="18037" selection-end="18037" vertical-scroll-proportion="0.41896757">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/config/ehcache.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="264" column="51" selection-start="14464" selection-end="14464" vertical-scroll-proportion="0.40936375">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/roadmap.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="28" column="30" selection-start="856" selection-end="856" vertical-scroll-proportion="0.3962264">
           <folding />
         </state>
       </provider>
