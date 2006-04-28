@@ -10,9 +10,9 @@ Frequently Asked Questions
 
 * Does ehcache run on JDK1.3?
 
- Yes. It runs on JDK1.2, 1.3, 1.4 and 5. The restriction for JDK1.3 and
-JDK1.2 is that you must either use the precompiled ehcache.jar or build
-it using JDK1.4. This is because ehcache makes use of some JDK1.4
+ Yes. It runs on JDK1.3, 1.4 and 5. The restriction for JDK1.3 is
+  that you must either use the precompiled ehcache.jar or build
+it using JDK1.4 with a target of 1.3. This is because ehcache makes use of some JDK1.4
 features but substitutes alternatives at runtime if it does not find
 those features.
 
@@ -24,6 +24,8 @@ approach accessible with the getInstance(...) method is still available
 too. Remember that ehcache can supports hundreds of
 caches within one CacheManager. You would use separate CacheManagers
 where you want quite different configurations.
+
+The Hibernate EhCacheProvider has also been updated to support this behaviour.
 
 * Can you use ehcache with Hibernate and outside of Hibernate at the same time?
 
@@ -175,4 +177,10 @@ CacheManagerTest#testCreateShutdownCreate()
  Set the property "net.sf.ehcache.disabled=true" to disable ehcache.
 
  This can easily be done using <<<-Dnet.sf.ehcache.disabled=true>>>> in the command line.
+
+* Is there a Maven bundle for ehcache?
+
+ Yes. http://www.ibiblio.org/maven/net.sf.ehcache/ for ehcache-1.2 and higher.
+
+ http://www.ibiblio.org/maven/ehcache/ for earlier versions.
 

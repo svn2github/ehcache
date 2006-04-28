@@ -1,12 +1,15 @@
 
 Using ehcache as a Hibernate plugin
 
+    Note these instructions are for Hibernate 3.1. Go to {{{/documentation/documentation-1_1.html#mozTocId116611}Guide for Version 1.1}}
+    for older instructions on how to use Hibernate 2.1.
+
     Ehcache easily integrates with the {{{#hibernate.org} }}Hibernate
     Object/Relational persistence and query service. Gavin King, the
     maintainer of Hibernate, is also a committer to the ehcache project.
     This ensures ehcache will remain a first class cache for Hibernate.
-    Since Hibernate 2.1, ehcache has been the default cache,
-    for Hibernate.
+
+    Since Hibernate 2.1, ehcache has been the default cache, for Hibernate.
 
     The net.sf.ehcache.hibernate package provides classes integrating
     ehcache with Hibernate. Hibernate is an application of ehcache. Ehcache
@@ -14,46 +17,68 @@ Using ehcache as a Hibernate plugin
 
     To use ehcache with Hibernate do the following:
 
-      * Ensure ehcache is enabled in the Hibernate configuration (it
-    should already be)
+      * Ensure ehcache is enabled in the Hibernate configuration.
 
-      * Add the cache element to the Hibernate mapping file, either
-    manually, or via hibernatedoclet for each Domain Object you wish to
-    cache
-      * Add the cache element to the Hibernate mapping file, either
-    manually, or via hibernatedoclet for each Domain Object collection you
-    wish to cache
-      * Add the cache element to the Hibernate mapping file, either
-    manually, or via hibernatedoclet for each Hibernate query you wish to
-    cache
+      * Add the cache element to the Hibernate mapping file, either manually, or via hibernatedoclet for each Domain
+        Object you wish to cache.
+
+      * Add the cache element to the Hibernate mapping file, either manually, or via hibernatedoclet for each
+        Domain Object collection you wish to cache.
+
+      * Add the cache element to the Hibernate mapping file, either manually, or via hibernatedoclet for each
+        Hibernate query you wish to cache.
+
       * Create a cache element in ehcache.xml
 
-
-    Each of these steps is illustrated using a fictional Country Domain
-    Object.
+    Each of these steps is illustrated using a fictional Country Domain Object.
 
     For more about cache configuration in Hibernate see the {{{#http://www.hibernate.org/hib_docs/reference/en/html_single/} }}Hibernate
-    documentation. Parts of this chapter are drawn from Hibernate
-    documentation and source code comments. They are reproduced here for
-    convenience in using ehcache.
+    documentation. Parts of this chapter are drawn from Hibernate documentation and source code comments.
+
+    They are reproduced here for convenience in using ehcache.
 
 * Ensuring ehcache is enabled
 
+    To ensure ehcache is enabled, verify that the hibernate.cache.provider_class property is set to
+    net.sf.hibernate.cache.EhCacheProvider in the Hibernate configuration file;
+    either hibernate.cfg.xml or hibernate.properties. The format given is for hibernate.cfg.xml.
 
-    To ensure ehcache is enabled, verify that the
-    hibernate.cache.provider_class property is set to
-    net.sf.ehcache.hibernate.Provider in the Hibernate configuration file;
-    typically hibernate.cfg.xml.
+    If you are using hibernate-3 or hibernate-3.1 you will need to use the ehcache provider to
+    use multiple SessionFactories/CacheManagers in a single VM. That provider should be integrated into the
+    Hibernate-3.2 version.1
 
 +------------------------------------------+
 
 <property name="hibernate.cache.provider_class">net.sf.hibernate.cache.EhCacheProvider</property>
+<property name="net.sf.ehcache.configurationResourceName">/name_of_configuration_resource</property>
 
 +------------------------------------------+
 
+    The meaning of the properties is as follows:
+
+    hibernate.cache.provider_class - The fully qualified class name of the cache provider
+
+
+
+    net.sf.ehcache.configurationResourceName - The name of a configuration resource to use.
+
+    The resource is searched for in the root of the classpath. It is needed to support multiple
+    CacheManagers in the same VM. It tells Hibernate which configuration to use. An example
+    might be "ehcache-2.xml".
+
+
+    To use the one from the Hibernate project:
+
++------------------------------------------+
+
+<property name="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</property>
+
++------------------------------------------+
+
+
     The provider can also be set programmatically in Hiberante using
     Configuration.setProperty("hibernate.cache.provider_class",
-    "net.sf.ehcache.hibernate.Provider").
+    "net.sf.hibernate.cache.EhCacheProvider").
 
 * Hibernate Mapping Files
 
