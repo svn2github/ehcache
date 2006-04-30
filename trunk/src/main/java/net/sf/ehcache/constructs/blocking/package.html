@@ -1,0 +1,29 @@
+<html>
+  <head>
+  </head>
+  <body>
+    This package provides a BlockingCache and classes which extend it.
+    <p/>
+    At present it contains:
+    <ul>
+    <li>BlockingCache - a cache which blocks subsequent threads until the first read thread
+    populates a cache entry
+    <li>SelfPopulatingCache - a read-through cache. A cache that populates elements as they are requested
+    without requiring the caller to know how the entries are populated. It also enables refreshes
+    of cache entries without blocking reads on the same entries.
+    <li>SelfPopulatingCollectionsCache - a SelfPopulatingCache that adds threading safety where it is known
+    in advance that all entries will be collections.
+    </ul>
+    The package is useful for, inter alia, :
+    <ul>
+    <li>Web Page caches
+    <li>Search Engine caches
+    </ul>
+    See the tests for examples of how to use this package.
+    <p/>
+    This package requires Doug Lea's concurrency library. A copy is provided in the tools directory
+    when you check out the project by cvs. Or, you can get it from http://gee.cs.oswego.edu/dl/cpj/
+    <p/>
+    If you wish to use this class, you will need the concurrent package in your class path.
+  </body>
+</html>
