@@ -190,4 +190,41 @@
            timeToLiveSeconds="10000"
            overflowToDisk="true"
             />
+
+
+        <!-- Test Page Caches -->
+    <cache name="SimplePageCachingFilter"
+        maxElementsInMemory="10"
+        eternal="false"
+        timeToIdleSeconds="10000"
+        timeToLiveSeconds="10000"
+        overflowToDisk="true"
+        />
+
+    <cache name="SimplePageFragmentCachingFilter"
+        maxElementsInMemory="10"
+        eternal="false"
+        timeToIdleSeconds="10000"
+        timeToLiveSeconds="10000"
+        overflowToDisk="true"
+        />
+
+
+    <cache name="SimplePageCachingFilterWithBlankPageProblem"
+        maxElementsInMemory="10"
+        eternal="false"
+        timeToIdleSeconds="10000"
+        timeToLiveSeconds="10000"
+        overflowToDisk="true"
+        />
+
+    <!-- Asynchronous Caching tests -->
+    <cache name="net.sf.ehcache.constructs.asynchronous.MessageCache"
+        maxElementsInMemory="1"
+        eternal="false"
+        timeToIdleSeconds="10000"
+        timeToLiveSeconds="10000"
+        overflowToDisk="true"
+        />
+
 </ehcache>

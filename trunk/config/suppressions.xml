@@ -40,6 +40,17 @@
     <suppress checks="IllegalType" files="Cache.java"/>
     <suppress checks="ParameterNumber" files="Cache.java"/>
     <suppress checks="FileLengthCheck" files="Cache.java"/>
+    <suppress checks="ThrowsCountCheck" files="CachingFilter.java"/>
+
+    <!-- We need to return LinkedList -->
+    <suppress checks="IllegalType" files="AsynchronousCommandExecutor.java"/>
+
+    <!-- Candidates for refactoring -->
+    <suppress checks="CyclomaticComplexity" files="AsynchronousCommandExecutor.java" />
+    <suppress checks="NPathComplexity" files="AsynchronousCommandExecutor.java" />
+
+    <!-- Doug Lea's contributed code -->
+    <suppress checks="CyclomaticComplexity" files="Mutex.java"/>
 
 
 </suppressions>

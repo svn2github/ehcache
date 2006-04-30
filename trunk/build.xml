@@ -106,7 +106,8 @@
     </target>
 
 
-    <target name="test" depends="compile, run-tests-no-check" if="tests.failed" description="Runs Tests">
+    <target name="test" depends="compile, prepare-web-tests, start-orion, run-tests-no-check, stop-orion"
+            if="tests.failed" description="Runs Tests">
         <fail message="One or more tests failed. See the log file for details."/>
     </target>
 
@@ -302,6 +303,62 @@
             </or>
         </not>
     </condition>
+
+    <!-- Start up the test instance of the Orion server -->
+    <target name="start-orion" description="Starts the Orion server">
+        <echo>Starting Orion on ${os.name}</echo>
+        <exec dir="${build.orion.dir}" spawn="true" os="Mac OS X, Linux" executable="sh">
+            <arg line="orion_sh_and.bat"/>
+        </exec>
+        <waitfor maxwait="10000" checkevery="1500">
+            <http url="http://localhost:8080"/>
+        </waitfor>
+        <echo message="...Started"/>
+    </target>
+
+    <!-- Stop the test instance of the Orion server -->
+    <target name="stop-orion" description="Stops the Orion server">
+        <echo>Stopping Orion</echo>
+        <waitfor maxwait="5000" checkevery="500">
+            <http url="http://localhost:8080/Exit.jsp"/>
+        </waitfor>
+        <echo message="...Stopped"/>
+    </target>
+
+    <target name="prepare-web-tests" depends="compile, dist-jar, deploy-default-web-app" if="${run.web.tests}"
+            description="Prepare to run  the web tests ">
+    </target>
+
+    <target name="deploy-default-web-app">
+        <unzip dest="${build.dir}" src="${lib.compile.dir}/web/orion.zip"/>
+        <copy file="${dist.dir}/${name}-${version}.jar" todir="${build.orion.lib.dir}"/>
+        <copy file="${lib.runtime.dir}/commons-logging-1.0.4.jar" todir="${build.orion.lib.dir}"/>
+        <!--<copy file="${lib.compile.dir}/ehcache-1.2.jar" todir="${build.orion.lib.dir}"/>-->
+        <copy file="${lib.runtime.dir}/commons-collections-2.1.1.jar" todir="${build.orion.lib.dir}"/>
+        <copy file="${lib.compile.dir}/clover-1.3.10.jar" todir="${build.orion.lib.dir}"/>
+        <copy file="${test.config.dir}/ehcache.xml" todir="${build.orion.lib.dir}"/>
+        <copy file="logging.properties" todir="${build.orion.dir}"/>
+        <jar destfile="${build.orion.lib.dir}/${name}-tests-${version}.jar">
+            <fileset dir="${test.classes.dir}"/>
+        </jar>
+        <copy todir="${build.orion.dir}">
+            <fileset dir="${test.config.dir}" includes="default-web-app/**"/>
+        </copy>
+
+        <condition property="unix">
+            <and>
+                <os family="unix"/>
+                <not>
+                    <os name="Mac OS X"/>
+                </not>
+            </and>
+        </condition>
+        <antcall target="copy-tools-lib"/>
+    </target>
+
+    <target name="copy-tools-lib" if="unix">
+        <copy todir="${build.orion.dir}" file="${java.home}/../lib/tools.jar"/>
+    </target>
 
 
 </project>

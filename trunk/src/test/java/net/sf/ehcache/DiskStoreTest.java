@@ -757,8 +757,10 @@ public class DiskStoreTest extends AbstractCacheTest {
      * <p/>
      * The reason that it is not infinite is because of a small amount of memory used (about 12 bytes) used for
      * the disk store index in this case.
+     *
+     * Slow tests
      */
-    public void testMaximumCacheEntriesIn64MBWithOverflowToDisk() throws Exception {
+    public void xTestMaximumCacheEntriesIn64MBWithOverflowToDisk() throws Exception {
 
         Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);
         manager.addCache(cache);
@@ -801,8 +803,10 @@ public class DiskStoreTest extends AbstractCacheTest {
      * The change was to stop adding DiskStore retrievals into the MemoryStore. This made sense when the only
      * policy was LRU. In the new version an Elment, once evicted from the MemoryStore, stays in the DiskStore
      * until expiry or removal. This avoids a lot of serialization overhead.
+     *
+     * Slow tests
      */
-    public void testLargePutGetPerformanceWithOverflowToDisk() throws Exception {
+    public void xTestLargePutGetPerformanceWithOverflowToDisk() throws Exception {
 
         Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 10000, null);
         manager.addCache(cache);

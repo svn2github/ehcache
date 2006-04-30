@@ -70,7 +70,7 @@ public class CacheManagerTest extends TestCase {
     public void testCreateCacheManager() throws CacheException {
         singletonManager = CacheManager.create();
         assertNotNull(singletonManager);
-        assertTrue(singletonManager.getCacheNames().length == 8);
+        assertEquals(12, singletonManager.getCacheNames().length);
     }
 
     /**
@@ -190,12 +190,12 @@ public class CacheManagerTest extends TestCase {
         instanceManager.shutdown();
 
         //shutting down instance should leave singleton ok
-        assertTrue(singletonManager.getCacheNames().length == 8);
+        assertEquals(12, singletonManager.getCacheNames().length);
 
 
         instanceManager = new CacheManager(secondCacheConfiguration);
         assertNotNull(instanceManager);
-        assertTrue(instanceManager.getCacheNames().length == 8);
+        assertEquals(8, instanceManager.getCacheNames().length);
 
 
     }
@@ -318,7 +318,7 @@ public class CacheManagerTest extends TestCase {
         //check we can recreate the CacheManager on demand.
         singletonManager = CacheManager.create();
         assertNotNull(singletonManager);
-        assertTrue(singletonManager.getCacheNames().length == 8);
+        assertEquals(12, singletonManager.getCacheNames().length);
         assertEquals(Status.STATUS_ALIVE, singletonManager.getStatus());
 
         singletonManager.shutdown();
