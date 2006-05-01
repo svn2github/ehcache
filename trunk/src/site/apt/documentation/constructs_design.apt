@@ -245,5 +245,5 @@ The Design of the ehcache constructs package
    Is this what you want? Or would you prefer to have the affected part of the system degrade with errors while the rest
    of the system keeps ticking? That is a judgement call.
 
-   BlockingCache has an option in its constructor called timeout. If you set that then any queued thread will immediately
-   timeout when its turn comes in the above scenario. Some requests get exceptions, but you don's lose your VM.
+   BlockingCache has a parameter in its constructor called timeoutMillis. If you set that then any queued thread will immediately
+   timeout when its turn comes in the above scenario. Some requests get exceptions, but you do not lose your VM.

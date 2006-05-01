@@ -406,28 +406,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="BlockingCache.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="195" column="25" selection-start="7003" selection-end="7003" vertical-scroll-proportion="0.2264151">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="BlockingCacheException.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCacheException.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="22" column="30" selection-start="764" selection-end="764" vertical-scroll-proportion="0.11320755">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="BlockingCacheTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/BlockingCacheTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="222" column="17" selection-start="7238" selection-end="7238" vertical-scroll-proportion="0.6580189">
+            <state line="222" column="17" selection-start="7238" selection-end="7238" vertical-scroll-proportion="0.014150944">
               <folding />
             </state>
           </provider>
@@ -435,20 +417,41 @@
       </file>
       <file leaf-file-name="build.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/build.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="299" column="113" selection-start="12804" selection-end="12804" vertical-scroll-proportion="0.5425667">
-              <folding />
-            </state>
-          </provider>
           <provider editor-type-id="antVisTarget">
             <state />
           </provider>
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="299" column="113" selection-start="12804" selection-end="12804" vertical-scroll-proportion="0.015247776">
+              <folding />
+            </state>
+          </provider>
         </entry>
       </file>
-      <file leaf-file-name="LfuMemoryStoreTest.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="LfuMemoryStoreTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/store/LfuMemoryStoreTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="275" column="16" selection-start="9526" selection-end="9526" vertical-scroll-proportion="0.33254716">
+            <state line="275" column="16" selection-start="9526" selection-end="9526" vertical-scroll-proportion="0.20754717">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="site.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/site.xml">
+          <provider editor-type-id="antVisTarget">
+            <state />
+          </provider>
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="43" column="132" selection-start="2324" selection-end="2324" vertical-scroll-proportion="0.40149626">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="constructs_design.apt" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/constructs_design.apt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="247" column="72" selection-start="14215" selection-end="14215" vertical-scroll-proportion="0.942377">
               <folding />
             </state>
           </provider>
@@ -466,7 +469,7 @@
       <file leaf-file-name="AsynchronousCommandExecutor.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/asynchronous/AsynchronousCommandExecutor.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="334" column="105" selection-start="13467" selection-end="13467" vertical-scroll-proportion="0.0884434">
+            <state line="334" column="105" selection-start="13467" selection-end="13467" vertical-scroll-proportion="0.014150944">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -477,7 +480,7 @@
       <file leaf-file-name="LinkedList.java" pinned="false" current="false" current-in-tab="false">
         <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/LinkedList.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="484" column="18" selection-start="16766" selection-end="16766" vertical-scroll-proportion="0.22995283">
+            <state line="484" column="18" selection-start="16766" selection-end="16766" vertical-scroll-proportion="0.014150944">
               <folding />
             </state>
           </provider>
@@ -495,7 +498,7 @@
       <file leaf-file-name="Mutex.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/concurrent/Mutex.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="152" column="28" selection-start="5658" selection-end="5658" vertical-scroll-proportion="0.33254716">
+            <state line="152" column="28" selection-start="5658" selection-end="5658" vertical-scroll-proportion="0.17924528">
               <folding />
             </state>
           </provider>
@@ -1496,14 +1499,14 @@
     <property name="RunManagerConfig.compileBeforeRunning" value="true" />
     <property name="cvs_file_history_flatWidth6" value="214" />
     <property name="cvs_file_history_flatOrder0" value="0" />
-    <property name="cvs_file_history_treeOrder3" value="3" />
     <property name="cvs_file_history_treeWidth4" value="212" />
+    <property name="cvs_file_history_treeOrder3" value="3" />
     <property name="cvs_file_history_treeWidth6" value="211" />
     <property name="last_opened_file_path" value="/Users/gluck/Desktop" />
     <property name="cvs_file_history_flatOrder5" value="5" />
     <property name="cvs_file_history_flatWidth5" value="214" />
-    <property name="cvs_file_history_treeOrder2" value="2" />
     <property name="cvs_file_history_treeWidth3" value="370" />
+    <property name="cvs_file_history_treeOrder2" value="2" />
     <property name="cvs_file_history_treeWidth5" value="212" />
     <property name="cvs_file_history_flatOrder6" value="6" />
     <property name="cvs_file_history_flatWidth0" value="374" />
@@ -1577,27 +1580,6 @@
       </RunnerSettings>
       <ConfigurationWrapper RunnerId="Debug" />
     </tempConfiguration>
-    <configuration selected="false" default="true" type="WebLogic Instance" factoryName="Local">
-      <option name="WORKING_DIRECTORY" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="7001" />
-      <option name="LOCAL" value="true" />
-      <option name="OPEN_IN_BROWSER" value="true" />
-      <option name="OPEN_IN_BROWSER_URL" value="/" />
-      <option name="COMMON_VM_ARGUMENTS" value="" />
-      <option name="DOMAIN_PATH" value="" />
-      <option name="USER" value="weblogic" />
-      <option name="PASSWORD" value="weblogic" />
-      <option name="SERVER_NAME" value="myserver" />
-      <option name="DOMAIN_NAME" value="mydomain" />
-    </configuration>
-    <configuration selected="false" default="true" type="Remote" factoryName="Remote">
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" value="javadebug" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="5005" />
-    </configuration>
     <configuration selected="false" default="true" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" />
       <option name="VM_PARAMETERS" />
@@ -1606,6 +1588,13 @@
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <module name="" />
+    </configuration>
+    <configuration selected="false" default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
     </configuration>
     <configuration selected="false" default="true" type="JUnit" factoryName="JUnit">
       <module name="ehcache" />
@@ -1634,6 +1623,20 @@
         <option name="myDisableAlloc" value="false" />
         <option name="myDisableCounts" value="false" />
       </RunnerSettings>
+    </configuration>
+    <configuration selected="false" default="true" type="WebLogic Instance" factoryName="Local">
+      <option name="WORKING_DIRECTORY" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="7001" />
+      <option name="LOCAL" value="true" />
+      <option name="OPEN_IN_BROWSER" value="true" />
+      <option name="OPEN_IN_BROWSER_URL" value="/" />
+      <option name="COMMON_VM_ARGUMENTS" value="" />
+      <option name="DOMAIN_PATH" value="" />
+      <option name="USER" value="weblogic" />
+      <option name="PASSWORD" value="weblogic" />
+      <option name="SERVER_NAME" value="myserver" />
+      <option name="DOMAIN_NAME" value="mydomain" />
     </configuration>
     <configuration selected="false" default="true" type="Applet" factoryName="Applet">
       <module name="" />
@@ -1683,6 +1686,7 @@
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
       <module name="ehcache" />
+      <RunnerSettings RunnerId="Run" />
       <RunnerSettings RunnerId="Profile ">
         <option name="myStartupWithAllocations" value="false" />
         <option name="myCPUStartup" value="" />
@@ -1700,9 +1704,8 @@
         <option name="TRANSPORT" value="0" />
         <option name="LOCAL" value="false" />
       </RunnerSettings>
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Debug" />
       <ConfigurationWrapper RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Debug" />
     </configuration>
   </component>
   <component name="SelectInManager">
@@ -1761,9 +1764,9 @@
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="13" />
       <window_info id="Regex" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32850778" order="7" />
-      <window_info id="ConsoleMavenPlugin" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
       <window_info id="Checkstyle" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.253866" order="0" />
+      <window_info id="ConsoleMavenPlugin" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.25773194" order="0" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32739422" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25322166" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32516703" order="10" />
@@ -1892,13 +1895,6 @@
     </buildFile>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/FilterNonReentrantException.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="3" selection-start="703" selection-end="1028" vertical-scroll-proportion="0.18380743">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/AlreadyGzippedException.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="21" column="3" selection-start="696" selection-end="968" vertical-scroll-proportion="0.15300547">
@@ -1913,13 +1909,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/constructs_design.apt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="248" column="111" selection-start="14376" selection-end="14376" vertical-scroll-proportion="0.9567827">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="924" column="13" selection-start="34755" selection-end="34755" vertical-scroll-proportion="0.36134455">
@@ -1927,46 +1916,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/concurrent/Mutex.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="152" column="28" selection-start="5658" selection-end="5658" vertical-scroll-proportion="0.33254716">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="195" column="25" selection-start="7003" selection-end="7003" vertical-scroll-proportion="0.2264151">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/tools/junit-3.8.1.jar!/junit/framework/TestCase.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="26" column="0" selection-start="919" selection-end="919" vertical-scroll-proportion="0.3537736">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/LinkedList.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="484" column="18" selection-start="16766" selection-end="16766" vertical-scroll-proportion="0.22995283">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/asynchronous/AsynchronousCommandExecutor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="334" column="105" selection-start="13467" selection-end="13467" vertical-scroll-proportion="0.0884434">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/AbstractCacheTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="101" column="23" selection-start="2685" selection-end="2685" vertical-scroll-proportion="0.8726415">
+        <state line="195" column="25" selection-start="7003" selection-end="7003" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -1980,24 +1932,78 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/BlockingCacheTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="222" column="17" selection-start="7238" selection-end="7238" vertical-scroll-proportion="0.6580189">
+        <state line="222" column="17" selection-start="7238" selection-end="7238" vertical-scroll-proportion="0.014150944">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/AbstractCacheTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="101" column="23" selection-start="2685" selection-end="2685" vertical-scroll-proportion="0.8726415">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/asynchronous/AsynchronousCommandExecutor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="334" column="105" selection-start="13467" selection-end="13467" vertical-scroll-proportion="0.014150944">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/LinkedList.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="484" column="18" selection-start="16766" selection-end="16766" vertical-scroll-proportion="0.014150944">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/tools/junit-3.8.1.jar!/junit/framework/TestCase.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="26" column="0" selection-start="919" selection-end="919" vertical-scroll-proportion="0.3537736">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/concurrent/Mutex.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="152" column="28" selection-start="5658" selection-end="5658" vertical-scroll-proportion="0.17924528">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/build.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="299" column="113" selection-start="12804" selection-end="12804" vertical-scroll-proportion="0.5425667">
-          <folding />
-        </state>
-      </provider>
       <provider editor-type-id="antVisTarget">
         <state />
+      </provider>
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="299" column="113" selection-start="12804" selection-end="12804" vertical-scroll-proportion="0.015247776">
+          <folding />
+        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/store/LfuMemoryStoreTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="275" column="16" selection-start="9526" selection-end="9526" vertical-scroll-proportion="0.33254716">
+        <state line="275" column="16" selection-start="9526" selection-end="9526" vertical-scroll-proportion="0.20754717">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/site.xml">
+      <provider editor-type-id="antVisTarget">
+        <state />
+      </provider>
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="43" column="132" selection-start="2324" selection-end="2324" vertical-scroll-proportion="0.40149626">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/constructs_design.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="247" column="72" selection-start="14215" selection-end="14215" vertical-scroll-proportion="0.942377">
           <folding />
         </state>
       </provider>
