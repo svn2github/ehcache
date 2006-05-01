@@ -252,6 +252,12 @@
                 version="true"
                 use="true"
                 windowtitle="${name}">
+            <doclet name="ydoc.doclets.YStandard"
+                    path="tools/ydoc-2.1_05/lib/ydoc.jar;tools/ydoc-2.1_05/lib/class2svg.jar;tools/ydoc-2.1_05/lib/styleed.jar;tools/ydoc-2.1_05/resources;${build.classes.dir};"
+                    pathref="project.class.path">
+                <param name="-umlgen" value="true"/>
+            </doclet>
+
             <tag name="noinspection" description="IntelliJ Inspection Ignore tag" enabled="false"/>
             <classpath refid="project.class.path"/>
             <header><![CDATA[<a href="/" target="_top">${name}</a>]]></header>

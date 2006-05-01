@@ -200,6 +200,33 @@ public class BlockingCacheTest extends AbstractCacheTest {
     }
 
     /**
+     * Thrashes a BlockingCache which has a tiny timeout. Should throw
+     * a BlockingCacheException caused by queued threads not getting the lock
+     * in the required time.
+     */
+    public void testThrashBlockingCacheTinyTimeout() throws Exception {
+        blockingCache = new BlockingCache("sampleCache1", 1);
+        long duration = 0;
+        try {
+            duration = thrashCache(blockingCache, 50, 400L, 1000L);
+            fail();
+        } catch (Exception e) {
+            assertEquals(BlockingCacheException.class, e.getCause().getClass());
+            assertTrue(e.getCause().getMessage().startsWith("lock timeout attempting to acquire lock"));
+        }
+        LOG.debug("Thrash Duration:" + duration);
+    }
+
+    /**
+     * Thrashes a BlockingCache which has a reasonable timeout. Should work.
+     */
+    public void testThrashBlockingCacheReasonableTimeout() throws Exception {
+        blockingCache = new BlockingCache("sampleCache1", 400);
+        long duration = thrashCache(blockingCache, 50, 400L, 1000L);
+        LOG.debug("Thrash Duration:" + duration);
+    }
+
+    /**
      * Thrashes an NonScalableBlockingCache and looks for liveness problems
      * This test requires much large values than for the {@link BlockingCache},
      * demonstrating the scalability problems with it.

@@ -86,6 +86,9 @@ public class BlockingCache {
      */
     private final Cache cache;
 
+
+    private final int timeoutMillis;
+
     /**
      * A map of cache entry locks, one per key, if present
      */
@@ -98,6 +101,18 @@ public class BlockingCache {
      * @throws CacheException
      */
     public BlockingCache(final String name) throws CacheException {
+        this(name, 0);
+    }
+
+    /**
+     * Creates a BlockingCache with the given name.
+     *
+     * @param name the name to give the cache
+     * @param timeoutMillis the amount of time, in milliseconds, to block for
+     * @throws CacheException
+     * @since 1.2
+     */
+    public BlockingCache(final String name, int timeoutMillis) throws CacheException {
         CacheManager manager = null;
         try {
             manager = CacheManager.create();
@@ -108,6 +123,7 @@ public class BlockingCache {
         if (cache == null || !cache.getName().equals(name)) {
             throw new CacheException("Cache " + name + " cannot be retrieved. Please check ehcache.xml");
         }
+        this.timeoutMillis = timeoutMillis;
     }
 
     /**
@@ -119,6 +135,20 @@ public class BlockingCache {
      * @throws CacheException
      */
     public BlockingCache(final String name, final CacheManager manager) throws CacheException {
+        this(name, manager, 0);
+    }
+
+    /**
+     * Creates a BlockingCache with the given name and
+     * uses the given cache manager to create the cache
+     *
+     * @param name    the name to give the cache
+     * @param manager the EHCache CacheManager used to create the backing cache
+     * @param timeoutMillis the amount of time, in milliseconds, to block for
+     * @throws CacheException
+     * @since 1.2
+     */
+    public BlockingCache(final String name, final CacheManager manager, int timeoutMillis) throws CacheException {
         if (manager == null) {
             throw new CacheException("CacheManager cannot be null");
         }
@@ -126,6 +156,7 @@ public class BlockingCache {
         if (cache == null || !cache.getName().equals(name)) {
             throw new CacheException("Cache " + name + " cannot be retrieved. Please check ehcache.xml");
         }
+        this.timeoutMillis = timeoutMillis;
     }
 
     /**
@@ -150,7 +181,16 @@ public class BlockingCache {
     public Serializable get(final Serializable key) throws BlockingCacheException {
         Mutex lock = checkLockExistsForKey(key);
         try {
-            lock.acquire();
+            if (timeoutMillis == 0) {
+                lock.acquire();
+            } else {
+                boolean acquired = lock.attempt(timeoutMillis);
+                if (!acquired) {
+                    StringBuffer message = new StringBuffer("lock timeout attempting to acquire lock for key ")
+                            .append(key).append(" on cache ").append(cache.getName());
+                    throw new BlockingCacheException(message.toString());
+                }
+            }
             final Element element = cache.get(key);
             if (element != null) {
                 //ok let the other threads in
@@ -161,9 +201,7 @@ public class BlockingCache {
                 return null;
             }
         } catch (InterruptedException e) {
-            throw new CacheException("Interrupted");
-        } catch (net.sf.ehcache.CacheException e) {
-            throw new CacheException("EHCache exception");
+            throw new CacheException("Interrupted. Message was: " + e.getMessage());
         }
     }
 
@@ -196,8 +234,7 @@ public class BlockingCache {
     }
 
     /**
-     * Returns the keys of this cache.
-     *
+     * Returns the keys for this cache.
      * @return The keys of this cache.  This is not a live set, so it will not track changes to the key set.
      */
     public Collection getKeys() throws CacheException {

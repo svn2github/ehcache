@@ -25,7 +25,6 @@ import org.apache.commons.logging.LogFactory;
 
 import java.rmi.dgc.VMID;
 import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Stack;
 import java.util.Date;
 import java.io.Serializable;
@@ -188,7 +187,7 @@ public final class AsynchronousCommandExecutor {
     }
 
     private void enqueue(String uid) throws AsynchronousCommandException {
-        Queue queue = null;
+        LinkedList queue = null;
         queue = getQueue();
         queue.add(uid);
     }
@@ -285,7 +284,9 @@ public final class AsynchronousCommandExecutor {
         }
         Object object = null;
         while (true) {
-            object = queue.peek();
+            if (queue.size() != 0) {
+                object = queue.getFirst();
+            } else
             if (object == null) {
                 break;
             }
@@ -339,8 +340,8 @@ public final class AsynchronousCommandExecutor {
         return match;
     }
 
-    private void remove(Queue queue, String uid, String reason) {
-        queue.remove();
+    private void remove(LinkedList queue, String uid, String reason) {
+        queue.removeFirst();
         Cache cache = null;
         try {
             cache = getMessageCache();

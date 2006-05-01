@@ -280,12 +280,24 @@ Features
 
 ** {J2EE Gzipping Servlet Filter}
 
-    A high performance HTTP J2EE servlet filter which caches pages based on the request URI and Query String. It also gzips the pages
-    and delivers them to browsers either gzipped or ungzipped depending on the HTTP request headers.
+    * CachingFilter - an abstract, extensible caching filter.
+
+    * SimplePageCachingFilter
+
+     A high performance J2EE servlet filter that caches pages based on the request URI and Query String. It also gzips the pages
+     and delivers them to browsers either gzipped or ungzipped depending on the HTTP request headers. Use
+     to cache entire Servlet pages, whether from JSP, velocity, or any other rendering technology.
+
+    * SimplePageFragmentCachingFilter
+
+     A high performance J2EE filter that caches page fragments based on the request URI and Query String. Use
+     with Servlet request dispatchers to cache parts of pages, whether from JSP, velocity, or any other rendering technology.
+     Can be used from JSPs using jsp:include.
 
 ** {Cacheable Commands}
 
-    This is the trusty old command pattern with a twist: asynchronous behaviour, fault tolerance and caching.
+    This is the trusty old command pattern with a twist: asynchronous behaviour, fault tolerance and caching. Creates a
+    command, caches it and then attempts to execute it.
 
 ** {Works with Hibernate}
 
