@@ -523,6 +523,20 @@ public class RMICacheReplicatorTest extends TestCase {
     }
 
     /**
+     * CacheEventListeners that are not CacheReplicators should receive cache events originated from receipt
+     * of a remote event by a CachePeer.
+     */
+    public void testRemotelyReceivedPutNotifiesCountingListener() throws InterruptedException {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+        putTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
+        assertEquals(1, CountingCacheEventListener.getCacheElementsPut(manager1.getCache("sampleCache1")).size());
+        assertEquals(1, CountingCacheEventListener.getCacheElementsPut(manager2.getCache("sampleCache1")).size());
+
+    }
+
+    /**
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=false, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
