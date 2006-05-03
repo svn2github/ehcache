@@ -189,7 +189,7 @@ public final class MulticastKeepaliveHeartbeatSender {
 
         private void closeSocket() {
             try {
-                if (!socket.isClosed()) {
+                if (socket != null && !socket.isClosed()) {
                     try {
                         socket.leaveGroup(groupMulticastAddress);
                     } catch (IOException e) {

@@ -84,9 +84,7 @@ public class MulticastRMIPeerProviderTest extends TestCase {
 
         manager1.shutdown();
         manager2.shutdown();
-        if (manager3 != null) {
-            manager3.shutdown();
-        }
+        manager3.shutdown();
     }
 
     /**
@@ -109,6 +107,12 @@ public class MulticastRMIPeerProviderTest extends TestCase {
 
         List peerUrls2 = manager2.getCachePeerProvider().listRemoteCachePeers(m2sampleCache1);
         assertEquals(expectedPeers(), peerUrls2.size());
+
+        Cache m3sampleCache1 = manager3.getCache("sampleCache1");
+        assertFalse(m1sampleCache1.getGuid().equals(m3sampleCache1.getGuid()));
+
+        List peerUrls3 = manager3.getCachePeerProvider().listRemoteCachePeers(m3sampleCache1);
+        assertEquals(expectedPeers(), peerUrls3.size());
     }
 
     /**

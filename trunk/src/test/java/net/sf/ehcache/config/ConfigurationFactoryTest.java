@@ -502,16 +502,14 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
     /**
      * Regression test for bug 1432074 - NullPointer on RMICacheManagerPeerProviderFactory
-     * If manual peer provider configuration is selected then a CacheException should be
-     * thrown if there is no list.
+     * If manual peer provider configuration is selected then an info message should be
+     * logged if there is no list.
      */
-    public void testBadManualDistributedConfiguration() {
-        try {
-            new CacheManager(TEST_CONFIG_DIR + "distribution/ehcache-bad-manual-distributed.xml");
-            fail();
-        } catch (CacheException e) {
-            assertEquals("rmiUrls must be specified when peerDiscovery is manual", e.getMessage());
-        }
+    public void testEmptyPeerListManualDistributedConfiguration() {
+        CacheManager cacheManager = new CacheManager(TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed3.xml");
+        assertEquals(0, cacheManager.getCacheManagerPeerProvider()
+                .listRemoteCachePeers(cacheManager.getCache("sampleCache1")).size());
+
     }
 
 

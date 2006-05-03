@@ -236,7 +236,7 @@
 
     <property name="classpath" refid="project.class.path"/>
 
-    <!-- Produce the javadocs. Includes the JDK1.5 version of yDoc. There is also a 1.4 version but it is different. -->
+    <!-- Produce the javadocs. Note the maven version of javadoc includes yDoc. Too big to include in download though  -->
     <target
             name="javadoc"
             description="Creates the javadocs">
@@ -252,12 +252,6 @@
                 version="true"
                 use="true"
                 windowtitle="${name}">
-            <doclet name="ydoc.doclets.YStandard"
-                    path="tools/ydoc-2.2_02-jdk1.5/lib/ydoc.jar:tools/ydoc-2.2_02-jdk1.5/resources:tools/ydoc-2.2_02-jdk1.5/lib/class2svg.jar:${build.classes.dir}"
-                    pathref="project.class.path">
-                <param name="-umlautogen" />
-            </doclet>
-
             <tag name="noinspection" description="IntelliJ Inspection Ignore tag" enabled="false"/>
             <classpath refid="project.class.path"/>
             <header><![CDATA[<a href="/" target="_top">${name}</a>]]></header>

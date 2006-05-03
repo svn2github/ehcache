@@ -16,8 +16,8 @@
 
 package net.sf.ehcache.distribution;
 
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.CacheManager;
 
 /**
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
@@ -36,17 +36,19 @@ public class ManualRMIPeerProviderTest extends MulticastRMIPeerProviderTest {
 
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed1.xml");
         manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed2.xml");
+        manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed3.xml");
+
+        /* manager3 has an empty manual configuration, which is topped up by adding manual entries.
+         * The sampleCache1 from manager3 is added to the rmiUrls list for manager1 and manager2
+         */
+        CacheManagerPeerProvider peerProvider = manager3.getCacheManagerPeerProvider();
+        peerProvider.registerPeer("//localhost:40001/sampleCache1");
+        peerProvider.registerPeer("//localhost:40002/sampleCache1");
 
         //Allow cluster setup
         Thread.sleep(100);
     }
 
-    /**
-     * The manual test only has two CacheManagers in the cluster, so there is only ever one other.
-     */
-    protected int expectedPeers() {
-        return 1;
-    }
 
 
 }

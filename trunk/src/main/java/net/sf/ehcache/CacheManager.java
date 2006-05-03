@@ -614,6 +614,17 @@ public final class CacheManager {
         this.cacheManagerEventListener = cacheManagerEventListener;
     }
 
+    /**
+     * Gets the CacheManagerPeerProvider, which can be useful for programmatically adding peers. Adding peers
+     * will only be useful if the peer providers are manually provided rather than automatically discovered, otherwise
+     * they will go stale.
+     *
+     * @return the CacheManagerPeerProvider, or null if there is not one.
+     */
+    public CacheManagerPeerProvider getCacheManagerPeerProvider() {
+        return cacheManagerPeerProvider;
+    }
+
 
 
 

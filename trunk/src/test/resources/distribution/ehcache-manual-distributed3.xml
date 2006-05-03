@@ -9,7 +9,7 @@
          user.home - User's home directory
          user.dir - User's current working directory
          java.io.tmpdir - Default temp file path -->
-    <diskStore path="java.io.tmpdir/one"/>
+    <diskStore path="java.io.tmpdir/three"/>
 
 
     <!--
@@ -46,8 +46,8 @@
     properties  - Properties to be interpreted by the factory
     -->
     <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
-                              properties="peerDiscovery=manual,
-                              rmiUrls=//localhost:40002/sampleCache19|//localhost:40002/sampleCache18|//localhost:40002/sampleCache49|//localhost:40002/sampleCache17|//localhost:40002/sampleCache16|//localhost:40002/sampleCache48|//localhost:40002/sampleCache15|//localhost:40002/sampleCache47|//localhost:40002/sampleCache46|//localhost:40002/sampleCache13|//localhost:40002/sampleCache45|//localhost:40002/sampleCache12|//localhost:40002/sampleCache44|//localhost:40002/sampleCache43|//localhost:40002/sampleCache11|//localhost:40002/sampleCache10|//localhost:40002/sampleCache42|//localhost:40002/sampleCache41|//localhost:40002/sampleCache40|//localhost:40002/sampleCache9|//localhost:40002/sampleCache8|//localhost:40002/sampleCache7|//localhost:40002/sampleCache6|//localhost:40002/sampleCache5|//localhost:40002/sampleCache2|//localhost:40002/sampleCache1|//localhost:40003/sampleCache1|//localhost:40002/sampleCache39|//localhost:40002/sampleCache38|//localhost:40002/sampleCache37|//localhost:40002/sampleCache36|//localhost:40002/sampleCache35|//localhost:40002/sampleCache34|//localhost:40002/sampleCache33|//localhost:40002/sampleCache32|//localhost:40002/sampleCache31|//localhost:40002/sampleCache30|//localhost:40002/sampleCache29|//localhost:40002/sampleCache28|//localhost:40002/sampleCache27|//localhost:40002/sampleCache26|//localhost:40002/sampleCache25|//localhost:40002/sampleCache24|//localhost:40002/sampleCache56|//localhost:40002/sampleCache55|//localhost:40002/sampleCache23|//localhost:40002/sampleCache22|//localhost:40002/sampleCache54|//localhost:40002/sampleCache53|//localhost:40002/sampleCache21|//localhost:40002/sampleCache20|//localhost:40002/sampleCache52|//localhost:40002/sampleCache51|//localhost:40002/sampleCache50"/>
+                              properties="peerDiscovery=manual" />
+
 
     <!--
         (Enable for distributed operation)
@@ -74,7 +74,7 @@
 
     -->
     <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
-                              properties="hostName=localhost, port=40001, socketTimeoutMillis=2000"/>
+                              properties="hostName=localhost, port=40003, socketTimeoutMillis=2000"/>
 
 
     <!--Default Cache configuration. These will applied to caches programmatically created through

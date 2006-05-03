@@ -71,7 +71,8 @@ public final class RMICacheManagerPeerProviderFactory extends CacheManagerPeerPr
     private static CacheManagerPeerProvider createManuallyConfiguredCachePeerProvider(Properties properties) {
         String rmiUrls = extractAndLogProperty(RMI_URLS, properties);
         if (rmiUrls == null || rmiUrls.length() == 0) {
-            throw new CacheException("rmiUrls must be specified when peerDiscovery is manual");
+            LOG.info("Starting manual peer provider with empty list of peers. No replication will occur unless peers are added.");
+            rmiUrls = new String();
         }
         rmiUrls = rmiUrls.trim();
         StringTokenizer stringTokenizer = new StringTokenizer(rmiUrls, PayloadUtil.URL_DELIMITER);
