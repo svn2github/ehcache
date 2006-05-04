@@ -18,8 +18,8 @@ Sponsors
  {{{http://wotif.com}wotif.com}}, who granted a license to the authors to in respect of code developed at
 wotif.com for the purpose of making it available to the community under an Apache open source license.
 
-
 [images/novell.gif]
+
  The ehcache project gratefully acknowledges the contriubtion of Novell, Inc, who granted a license to the authors of
  the AsynchronousCommandExecutor and associated code for the purposes of making it available to the communtiy
  under an Apache open source license.
@@ -55,3 +55,7 @@ open source licenses of {{{http://atlassian.com/software/jira/}JIRA}}, an issue 
 
  Ironflare for permission to embed the excellent Orion application server in the testing infrastructure for use as a Servlet 2.3 container.
  Orion is not distributed in the binary. It is not a dependency for using ehcache. Commercial use of Orion requires a license.
+
+[images/yworks.gif]
+
+ {{{http://www.yworks.com/en/products_ydoc.htm}yWorks}}, for a free open source license to use yDoc, the UML extension to JavaDoc.

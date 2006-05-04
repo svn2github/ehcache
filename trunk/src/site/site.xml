@@ -7,8 +7,7 @@
     </bannerLeft>
     <body>
         <links>
-            <item name="ehcache" href="/index.html"/>
-            <item name="ehcache-constructs" href="/ehcache-constructs/index.html"/>
+            <item name="Download" href="http://sourceforge.net/project/showfiles.php?group_id=93232"/>
         </links>
 
         <menu name="About" href="maven-reports.html">
@@ -40,9 +39,14 @@
                 <item name="VM Shutdown" href="documentation/shutdown_considerations.html"/>
                 <item name="Logging" href="documentation/logging.html"/>
                 <item name="Cache Configuration" href="documentation/configuration.html"/>
+                <item name="CacheManager event listeners" href="documentation/cachemanager_event_listeners.html"/>
+                <item name="Cache event listeners" href="documentation/cache_event_listeners.html"/>
                 <item name="Hibernate Config" href="documentation/hibernate.html"/>
             </item>
-            <item name="Guide for Version 1.1" href="documentation/documentation-1_1.html"/>
+            <item name="Older User Guides" href="" collapse="true">
+                <item name="ehcache 1.1" href="documentation/documentation-1_1.html"/>
+                <item name="ehcache-constructs 0.5" href="documentation/constructs-0_5.html"/>
+            </item>
             <item name="JavaDoc" href="apidocs/index.html"/>
             <item name="FAQ" href="/documentation/faq.html"/>
             <item name="Whitepaper on distributed caching" href="documentation/distributed_design.html"/>
@@ -58,6 +62,7 @@
             <item name="Feature Requests" href="http://sourceforge.net/tracker/?group_id=93232&amp;atid=603562"/>
             <item name="Who's Using?" href="/who_is_using.html"/>
             <item name="Development Roadmap" href="/roadmap.html"/>
+            <item name="Maintainer's blog" href="http://gregluck.com/blog"/>
         </menu>
 
 
@@ -68,11 +73,6 @@
             <item name="PMD" href="/pmd.html"/>
             <item name="ToDos" href="/taglist.html"/>
             <item name="Clover Test Coverage" href="/clover/index.html"/>
-        </menu>
-
-        <menu name="Extending ehcache">
-            <item name="CacheManager event listeners" href="documentation/cachemanager_event_listeners.html"/>
-            <item name="Cache event listeners" href="documentation/cache_event_listeners.html"/>
         </menu>
 
     </body>

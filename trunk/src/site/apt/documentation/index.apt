@@ -23,7 +23,7 @@ ehcache 1.2 User Guide
 
     * {{{shutdown_considerations.html}Virtual Machine Shutdown Considerations}}
 
-    * {{{logging.html}Logging}}
+    * {{{logging.html}Logging & Debugging}}
 
     * {{{configuration.html}Cache Configuration}}
 

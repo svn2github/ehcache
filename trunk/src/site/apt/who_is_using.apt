@@ -27,6 +27,8 @@ be included in the list.
  
  * {{{http://jofti.com/}Jofti}}. A cached object indexing and searching system.
 
+ * {{{http://acegisecurity.org/index.html}Acegi}}. A security system for Spring.
+
 * Distributions
 
  * {{{http://jpackage.org/}JPackage}}. Java libraries packaged for Linux.
