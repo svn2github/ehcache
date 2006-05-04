@@ -15,32 +15,28 @@
  */
 package net.sf.ehcache.hibernate;
 
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.util.ClassLoaderUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.hibernate.cache.CacheProvider;
 import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
-import org.hibernate.cache.CacheProvider;
 import org.hibernate.cache.Timestamper;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.util.ClassLoaderUtil;
 
-import java.net.URL;
 import java.util.Properties;
+import java.net.URL;
 
 /**
- * Cache Provider plugin for Hibernate 3.2 and ehcache-1.2. New in this provider are ehcache support for multiple
- * Hibernate session factories, each with its own ehcache configuration, and non Serializable keys and values.
+ * Singleton cache Provider plugin for Hibernate 3.2 and ehcache-1.2. New in this provider is support for
+ * non Serializable keys and values. This provider works as a Singleton. No matter how many Hibernate Configurations
+ * you have, only one ehcache CacheManager is used. See EhCacheProvider for a non-singleton implementation.
+ * <p/>
  * Ehcache-1.2 also has many other features such as cluster support and listeners, which can be used seamlessly simply
  * by configurion in ehcache.xml.
  * <p/>
- * Use <code>hibernate.cache.provider_class=net.sf.ehcache.hibernate.EhCacheProvider</code> in the Hibernate configuration
+ * Use <code>hibernate.cache.provider_class=net.sf.ehcache.hibernate.SingletonEhCacheProvider</code> in the Hibernate configuration
  * to enable this provider for Hibernate's second level cache.
- * <p/>
- * When configuring multiple ehcache CacheManagers, as you would where you have multiple Hibernate Configurations and
- * multiple SessionFactories, specify in each Hibernate configuration the ehcache configuration using
- * the property <code>net.sf.ehcache.configurationResourceName</code> An example to set an ehcach configuration
- * called ehcache-2.xml would be <code>net.sf.ehcache.configurationResourceName=/ehcache-2.xml</code>. If the leading
- * slash is not there one will be added. The configuration file will be looked for in the root of the classpath.
  * <p/>
  * Updated for ehcache-1.2. Note this provider requires ehcache-1.2.jar. Make sure ehcache-1.1.jar or earlier
  * is not in the classpath or it will not work.
@@ -52,7 +48,7 @@ import java.util.Properties;
  * @author Emmanuel Bernard
  * @version $Id$
  */
-public final class EhCacheProvider implements CacheProvider {
+public final class SingletonEhCacheProvider implements CacheProvider {
 
     /**
      * The Hibernate system property specifying the location of the ehcache configuration file name.
@@ -63,7 +59,13 @@ public final class EhCacheProvider implements CacheProvider {
      */
     public static final String NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME = "net.sf.ehcache.configurationResourceName";
 
-    private static final Log LOG = LogFactory.getLog(EhCacheProvider.class);
+    private static final Log LOG = LogFactory.getLog(SingletonEhCacheProvider.class);
+
+    /**
+     * To be backwardly compatible with a lot of Hibernate code out there, allow multiple starts and stops on the
+     * one singleton CacheManager. Keep a count of references to only stop on when only one reference is held.
+     */
+    private static int referenceCount;
 
     private CacheManager manager;
 
@@ -86,12 +88,13 @@ public final class EhCacheProvider implements CacheProvider {
         try {
             net.sf.ehcache.Cache cache = manager.getCache(name);
             if (cache == null) {
-                LOG.warn("Could not find a specific ehcache configuration for cache named [" + name + "]; using defaults.");
+                SingletonEhCacheProvider.LOG.warn("Could not find a specific ehcache configuration for cache named ["
+                        + name + "]; using defaults.");
                 manager.addCache(name);
                 cache = manager.getCache(name);
-                EhCacheProvider.LOG.debug("started EHCache region: " + name);
+                SingletonEhCacheProvider.LOG.debug("started EHCache region: " + name);
             }
-            return new net.sf.ehcache.hibernate.EhCache(cache);
+            return new EhCache(cache);
         } catch (net.sf.ehcache.CacheException e) {
             throw new CacheException(e);
         }
@@ -112,40 +115,24 @@ public final class EhCacheProvider implements CacheProvider {
      * @param properties current configuration settings.
      */
     public final void start(Properties properties) throws CacheException {
-        if (manager != null) {
-            LOG.warn("Attempt to restart an already started EhCacheProvider. Use sessionFactory.close() " +
-                    " between repeated calls to buildSessionFactory. Using previously created EhCacheProvider." +
-                    " If this behaviour is required, consider using SingletonEhCacheProvider.");
-            return;
+        String configurationResourceName = null;
+        if (properties != null) {
+            configurationResourceName = (String) properties.get(NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME);
         }
-        try {
-            String configurationResourceName = null;
-            if (properties != null) {
-                configurationResourceName = (String) properties.get(
-                        SingletonEhCacheProvider.NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME);
-            }
-            if (configurationResourceName == null || configurationResourceName.length() == 0) {
-                manager = new CacheManager();
-            } else {
-                if (!configurationResourceName.startsWith("/")) {
-                    configurationResourceName = "/" + configurationResourceName;
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("prepending / to " + configurationResourceName + ". It should be placed in the root"
-                                + "of the classpath rather than in a package.");
-                    }
+        if (configurationResourceName == null || configurationResourceName.length() == 0) {
+            manager = CacheManager.create();
+            referenceCount++;
+        } else {
+            if (!configurationResourceName.startsWith("/")) {
+                configurationResourceName = "/" + configurationResourceName;
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("prepending / to " + configurationResourceName + ". It should be placed in the root"
+                            + "of the classpath rather than in a package.");
                 }
-                URL url = loadResource(configurationResourceName);
-                manager = new CacheManager(url);
             }
-        } catch (net.sf.ehcache.CacheException e) {
-            if (e.getMessage().startsWith("Cannot parseConfiguration CacheManager. Attempt to create a new instance of " +
-                    "CacheManager using the diskStorePath")) {
-                throw new CacheException("Attempt to restart an already started EhCacheProvider. Use sessionFactory.close() " +
-                    " between repeated calls to buildSessionFactory. Consider using SingletonEhCacheProvider. Error from " +
-                    " ehcache was: " + e.getMessage());
-            } else {
-                throw e;
-            }
+            URL url = loadResource(configurationResourceName);
+            manager = CacheManager.create(url);
+            referenceCount++;
         }
     }
 
@@ -159,8 +146,8 @@ public final class EhCacheProvider implements CacheProvider {
         if (url == null) {
             url = this.getClass().getResource(configurationResourceName);
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Creating EhCacheProvider from a specified resource: "
+        if (SingletonEhCacheProvider.LOG.isDebugEnabled()) {
+            SingletonEhCacheProvider.LOG.debug("Creating EhCacheProvider from a specified resource: "
                     + configurationResourceName + " Resolved to URL: " + url);
         }
         return url;
@@ -170,13 +157,14 @@ public final class EhCacheProvider implements CacheProvider {
      * Callback to perform any necessary cleanup of the underlying cache implementation
      * during SessionFactory.close().
      */
-    public final void stop() {
+    public void stop() {
         if (manager != null) {
-            manager.shutdown();
+            if (--referenceCount == 0) {
+                manager.shutdown();
+            }
             manager = null;
         }
     }
-
 
     /**
      * Not sure what this is supposed to do.
@@ -188,4 +176,3 @@ public final class EhCacheProvider implements CacheProvider {
     }
 
 }
-

@@ -162,9 +162,11 @@ Cache Configuration
    distribution as ehcache.xsd.
 
 ** diskStore
+
    The diskStore element is required, regardless of whether or not it is
    intended to use any DiskStores.
 ** path
+
    This is a required attribute.
 
    It sets the path used by any DiskStore objects for creating data and
@@ -579,7 +581,7 @@ Cache Configuration
 
 +------------------------------------------+
 
-** Installing ehcache.xml
+** Location of ehcache.xml
 
    By default the CacheManager.create() method expects to find ehcache.xml
    as a resource in the classpath. It uses
@@ -587,29 +589,26 @@ Cache Configuration
    file should be placed at the root of the classpath, not in a package.
    If placed in a jar, it should be in the root level directory of the jar.
 
-   If ehcache cannot find ehcache.xml
-   it
-   will instead use the {{{#mozTocId382717} }}failsafe configuration.
+   If ehcache cannot find ehcache.xml it will instead use the failsafe configuration.
 
-   The CacheManager can also obtain ehcache.xml in other ways. See {{{#mozTocId239314} }}Creating a CacheManager.
-* Failsafe Configuration
-   Ehcache comes
-   with a
-   failsafe configuration declared in the ehcache-failsafe.xml file, which
+   The CacheManager can also obtain ehcache.xml in other ways {{{#Programmatic Configuration}programmatically}}.
+
+
+** Failsafe Configuration
+
+   Ehcache comes with a failsafe configuration declared in the ehcache-failsafe.xml file, which
    is provided in the ehcache.jar. It is only used when no ehcache.xml
    configuration file is found in the classpath, and CacheManager is
    created without any arguments. If it is used a log warning level
    message will be issued.
 
-   Ehcache deliberately
-   avoids placing an ehcache.xml configuration file in the JAR archive so
+   Ehcache deliberately avoids placing an ehcache.xml configuration file in the JAR archive so
    as to avoid frustrating classpath precedence problems.
 
    The failsafe configuration provides ehcache with the minimum to
    function: specified diskStore and defaultCache elements. It sets the <<<DiskStore>>>
    path attribute to the value given by the Java system property
-   "java.io.tmpdir"
-   (/tmp on Unix-like systems) and sets the default cache to reasonable
+   "java.io.tmpdir" (/tmp on Unix-like systems) and sets the default cache to reasonable
    values. ehcache-failsafe.xml is reproduced here:
 
 +------------------------------------------+
@@ -714,7 +713,7 @@ Cache Configuration
 
 +------------------------------------------+
 
-* Programmatic Configuration
+* {Programmatic Configuration}
 
    The configuration for a Cache can be specified programmatically in the Cache constructor:
 

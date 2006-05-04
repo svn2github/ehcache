@@ -43,7 +43,7 @@
                 <item name="Cache event listeners" href="documentation/cache_event_listeners.html"/>
                 <item name="Hibernate Config" href="documentation/hibernate.html"/>
             </item>
-            <item name="Older User Guides" href="" collapse="true">
+            <item name="Older User Guides" href="documentation/older_guides.html" collapse="true">
                 <item name="ehcache 1.1" href="documentation/documentation-1_1.html"/>
                 <item name="ehcache-constructs 0.5" href="documentation/constructs-0_5.html"/>
             </item>
