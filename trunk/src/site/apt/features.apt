@@ -122,6 +122,58 @@ Features
 
   Extensive performance tests in the test suite keep ehcache's performance consistent between releases.
 
+  As an example, some guys have created a java cache test tool called cache4j_perfomance_tester.
+
+  The results for ehcache-1.1 and ehcache-1.2 follow.
+
++------------------------------------------+
+ 
+  ehcache-1.1
+
+  [java] ---------------------------------------------------------------
+  [java] java.version=1.4.2_09
+  [java] java.vm.name=Java HotSpot(TM) Client VM
+  [java] java.vm.version=1.4.2-54
+  [java] java.vm.info=mixed mode
+  [java] java.vm.vendor="Apple Computer, Inc."
+  [java] os.name=Mac OS X
+  [java] os.version=10.4.5
+  [java] os.arch=ppc
+  [java] ---------------------------------------------------------------
+  [java] This test can take about 5-10 minutes. Please wait ...
+  [java] ---------------------------------------------------------------
+  [java] |GetPutRemoveT |GetPutRemove |Get |
+  [java] ---------------------------------------------------------------
+  [java] cache4j 0.4 |9240 |9116 |5556 |
+  [java] oscache 2.2 |33577 |30803 |8350 |
+  [java] ehcache 1.1 |7697 |6145 |3395 |
+  [java] jcs 1.2.7.0 |8966 |9455 |4072 |
+  [java] ---------------------------------------------------------------
+
+  ehcache-1.2
+  [java] ---------------------------------------------------------------
+  [java] java.version=1.4.2_09
+  [java] java.vm.name=Java HotSpot(TM) Client VM
+  [java] java.vm.version=1.4.2-54
+  [java] java.vm.info=mixed mode
+  [java] java.vm.vendor="Apple Computer, Inc."
+  [java] os.name=Mac OS X
+  [java] os.version=10.4.5
+  [java] os.arch=ppc
+  [java] ---------------------------------------------------------------
+  [java] This test can take about 5-10 minutes. Please wait ...
+  [java] ---------------------------------------------------------------
+  [java] |GetPutRemoveT |GetPutRemove |Get |
+  [java] ---------------------------------------------------------------
+  [java] cache4j 0.4 |9410 |9053 |5865 |
+  [java] oscache 2.2 |28076 |30833 |8031 |
+  [java] ehcache 1.2 |8753 |7072 |3479 |
+  [java] jcs 1.2.7.0 |8806 |9522 |4097 |
+  [java] ---------------------------------------------------------------
+
++------------------------------------------+
+
+
 ** {Simple}
 
    Many users of ehcache hardly know they are using it. Sensible defaults require no initial configuration.

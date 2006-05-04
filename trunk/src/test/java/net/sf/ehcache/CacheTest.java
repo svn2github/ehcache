@@ -193,7 +193,6 @@ public class CacheTest extends AbstractCacheTest {
     }
 
 
-
     /**
      * Tests getting the cache name
      *
@@ -877,34 +876,41 @@ public class CacheTest extends AbstractCacheTest {
     }
 
     /**
-     * Tests memory store size
-     *
-     * @throws Exception
+     * Tests cache, memory store and disk store sizes from config
      */
-    public void testGetMemoryStoreSize() throws Exception {
-        Cache cache = new Cache("testGetMemoryStoreSize", 10, false, false, 100, 200);
-        manager.addCache(cache);
+    public void testSizes() throws Exception {
+        Cache cache = manager.getCache("sampleCache1");
 
         assertEquals(0, cache.getMemoryStoreSize());
 
-        cache.put(new Element("key1", "value1"));
-        assertEquals(1, cache.getMemoryStoreSize());
+        for (int i = 0; i < 10010; i++) {
+            cache.put(new Element("key" + i, "value1"));
+        }
+        assertEquals(10010, cache.getSize());
+        assertEquals(10000, cache.getMemoryStoreSize());
+        assertEquals(10, cache.getDiskStoreSize());
 
-        cache.put(new Element("key2", "value2"));
-        assertEquals(2, cache.getMemoryStoreSize());
-
-        cache.put(new Element("key3", "value3"));
-        cache.put(new Element("key4", "value4"));
         //NonSerializable
         cache.put(new Element(new Object(), Object.class));
-        assertEquals(5, cache.getMemoryStoreSize());
+
+        assertEquals(10011, cache.getSize());
+        assertEquals(10000, cache.getMemoryStoreSize());
+        assertEquals(11, cache.getDiskStoreSize());
+
 
         cache.remove("key4");
         cache.remove("key3");
-        assertEquals(3, cache.getMemoryStoreSize());
+
+        assertEquals(10009, cache.getSize());
+        assertEquals(10000, cache.getMemoryStoreSize());
+        assertEquals(9, cache.getDiskStoreSize());
+
 
         cache.removeAll();
+        assertEquals(0, cache.getSize());
         assertEquals(0, cache.getMemoryStoreSize());
+        assertEquals(0, cache.getDiskStoreSize());
+
     }
 
     /**
@@ -1234,7 +1240,6 @@ public class CacheTest extends AbstractCacheTest {
         //Test that equals works
         assertEquals(objectElement, retrievedObject);
     }
-
 
 
 }
