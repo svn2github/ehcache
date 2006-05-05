@@ -32,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Greg Luck
  * @version $Id$
  */
-public final class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProviderFactory {
+public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProviderFactory {
 
     private static final Log LOG = LogFactory.getLog(RMICacheManagerPeerProviderFactory.class.getName());
 
@@ -48,7 +48,7 @@ public final class RMICacheManagerPeerProviderFactory extends CacheManagerPeerPr
      * @param properties implementation specific properties. These are configured as comma
      *                   separated name value pairs in ehcache.xml
      */
-    public final CacheManagerPeerProvider createCachePeerProvider(CacheManager cacheManager, Properties properties)
+    public CacheManagerPeerProvider createCachePeerProvider(CacheManager cacheManager, Properties properties)
     throws CacheException {
         String peerDiscovery = extractAndLogProperty(PEER_DISCOVERY, properties);
         if (peerDiscovery.equalsIgnoreCase(AUTOMATIC_PEER_DISCOVERY)) {
@@ -68,7 +68,7 @@ public final class RMICacheManagerPeerProviderFactory extends CacheManagerPeerPr
     /**
      * peerDiscovery=manual, rmiUrls=//hostname:port/cacheName //hostname:port/cacheName //hostname:port/cacheName
      */
-    private static CacheManagerPeerProvider createManuallyConfiguredCachePeerProvider(Properties properties) {
+    protected CacheManagerPeerProvider createManuallyConfiguredCachePeerProvider(Properties properties) {
         String rmiUrls = extractAndLogProperty(RMI_URLS, properties);
         if (rmiUrls == null || rmiUrls.length() == 0) {
             LOG.info("Starting manual peer provider with empty list of peers. No replication will occur unless peers are added.");
@@ -91,7 +91,7 @@ public final class RMICacheManagerPeerProviderFactory extends CacheManagerPeerPr
     /**
      * peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446
      */
-    private static CacheManagerPeerProvider createAutomaticallyConfiguredCachePeerProvider(CacheManager cacheManager,
+    protected CacheManagerPeerProvider createAutomaticallyConfiguredCachePeerProvider(CacheManager cacheManager,
                                                                              Properties properties) throws IOException {
         String groupAddressString = extractAndLogProperty(MULTICAST_GROUP_ADDRESS, properties);
         InetAddress groupAddress = InetAddress.getByName(groupAddressString);
@@ -104,7 +104,7 @@ public final class RMICacheManagerPeerProviderFactory extends CacheManagerPeerPr
     /**
      * @return null is their is not property for the key
      */
-    private static String extractAndLogProperty(String name, Properties properties) {
+    protected String extractAndLogProperty(String name, Properties properties) {
         String foundValue = (String) properties.get(name);
         if (LOG.isDebugEnabled()) {
             LOG.debug(new StringBuffer().append("Value found for ").append(name).append(": ")

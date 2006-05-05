@@ -99,7 +99,7 @@ public class RMICacheManagerPeerTest extends TestCase {
         peerListener.init();
 
         try {
-            CachePeer cachePeer = RMICacheManagerPeerProvider.lookupRemoteCachePeer(rmiCachePeer.getUrl());
+            CachePeer cachePeer = new ManualRMICacheManagerPeerProvider().lookupRemoteCachePeer(rmiCachePeer.getUrl());
             cachePeer.put(new Element("1", new Date()));
             fail();
         } catch (UnmarshalException e) {
@@ -121,7 +121,7 @@ public class RMICacheManagerPeerTest extends TestCase {
         peerListener.getCachePeers().add(rmiCachePeer);
         peerListener.init();
 
-        CachePeer cachePeer = RMICacheManagerPeerProvider.lookupRemoteCachePeer(rmiCachePeer.getUrl());
+        CachePeer cachePeer = new ManualRMICacheManagerPeerProvider().lookupRemoteCachePeer(rmiCachePeer.getUrl());
         cachePeer.put(new Element("1", new Date()));
     }
 
@@ -142,7 +142,7 @@ public class RMICacheManagerPeerTest extends TestCase {
         peerListener.getCachePeers().add(rmiCachePeer);
         peerListener.init();
 
-        CachePeer cachePeer = RMICacheManagerPeerProvider.lookupRemoteCachePeer(rmiCachePeer.getUrl());
+        CachePeer cachePeer = new ManualRMICacheManagerPeerProvider().lookupRemoteCachePeer(rmiCachePeer.getUrl());
         Element element = new Element("1", new Date());
         EventMessage eventMessage = new EventMessage(EventMessage.PUT, null, element);
         List eventMessages = new ArrayList();

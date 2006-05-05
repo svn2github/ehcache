@@ -91,7 +91,11 @@ public final class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         }
     }
 
-    private static boolean extractReplicateAsynchronously(Properties properties) {
+    /**
+     * Extracts the value of replicateAsynchronously from the properties
+     * @param properties
+     */
+    protected boolean extractReplicateAsynchronously(Properties properties) {
         boolean replicateAsynchronously;
         String replicateAsynchronouslyString = PropertyUtil.extractAndLogProperty(REPLICATE_ASYNCHRONOUSLY, properties);
         if (replicateAsynchronouslyString != null) {
@@ -102,7 +106,11 @@ public final class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         return replicateAsynchronously;
     }
 
-    private static boolean extractReplicateRemovals(Properties properties) {
+    /**
+     * Extracts the value of replicateRemovals from the properties
+     * @param properties
+     */
+    protected boolean extractReplicateRemovals(Properties properties) {
         boolean replicateRemovals;
         String replicateRemovalsString = PropertyUtil.extractAndLogProperty(REPLICATE_REMOVALS, properties);
         if (replicateRemovalsString != null) {
@@ -113,7 +121,11 @@ public final class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         return replicateRemovals;
     }
 
-    private static boolean extractReplicateUpdatesViaCopy(Properties properties) {
+    /**
+     * Extracts the value of replicateUpdatesViaCopy from the properties
+     * @param properties
+     */
+    protected boolean extractReplicateUpdatesViaCopy(Properties properties) {
         boolean replicateUpdatesViaCopy;
         String replicateUpdatesViaCopyString = PropertyUtil.extractAndLogProperty(REPLICATE_UPDATES_VIA_COPY, properties);
         if (replicateUpdatesViaCopyString != null) {
@@ -124,7 +136,11 @@ public final class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         return replicateUpdatesViaCopy;
     }
 
-    private static boolean extractReplicateUpdates(Properties properties) {
+    /**
+     * Extracts the value of replicateUpdates from the properties
+     * @param properties
+     */
+    protected boolean extractReplicateUpdates(Properties properties) {
         boolean replicateUpdates;
         String replicateUpdatesString = PropertyUtil.extractAndLogProperty(REPLICATE_UPDATES, properties);
         if (replicateUpdatesString != null) {
@@ -135,7 +151,11 @@ public final class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         return replicateUpdates;
     }
 
-    private static boolean extractReplicatePuts(Properties properties) {
+    /**
+     * Extracts the value of replicatePuts from the properties
+     * @param properties
+     */
+    protected boolean extractReplicatePuts(Properties properties) {
         boolean replicatePuts;
         String replicatePutsString = PropertyUtil.extractAndLogProperty(REPLICATE_PUTS, properties);
         if (replicatePutsString != null) {
@@ -146,7 +166,12 @@ public final class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         return replicatePuts;
     }
 
-    private static boolean parseBoolean(String name) {
-        return ((name != null) && name.equalsIgnoreCase("true"));
+    /**
+     * Null safe, parser of boolean from a String
+     * @param value
+     * @return true if non null and case insensitively matches true
+     */
+    protected boolean parseBoolean(String value) {
+        return ((value != null) && value.equalsIgnoreCase("true"));
     }
 }

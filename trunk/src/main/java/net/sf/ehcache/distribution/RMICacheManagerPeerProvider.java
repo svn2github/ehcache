@@ -50,7 +50,7 @@ public abstract class RMICacheManagerPeerProvider implements CacheManagerPeerPro
     /**
      * The CacheManager this peer provider is associated with.
      */
-    private CacheManager cacheManager;
+    protected CacheManager cacheManager;
 
 
     /**
@@ -121,7 +121,7 @@ public abstract class RMICacheManagerPeerProvider implements CacheManagerPeerPro
      * The use of one-time registry creation and Naming.rebind should mean we can create as many listeneres as we like.
      * They will simply replace the ones that were there.
      */
-    public static CachePeer lookupRemoteCachePeer(String url) throws MalformedURLException, NotBoundException, RemoteException {
+    public CachePeer lookupRemoteCachePeer(String url) throws MalformedURLException, NotBoundException, RemoteException {
         return (CachePeer) Naming.lookup(url);
     }
 
