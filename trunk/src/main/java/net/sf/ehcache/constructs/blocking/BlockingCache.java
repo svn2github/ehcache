@@ -16,27 +16,26 @@
 
 package net.sf.ehcache.constructs.blocking;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.constructs.valueobject.KeyValuePair;
 import net.sf.ehcache.constructs.concurrent.Mutex;
+import net.sf.ehcache.constructs.valueobject.KeyValuePair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 
 /**
- * A blocking cache, backed by {@link Cache}.
+ * A blocking cache, backed by {@link Ehcache}.
  * <p/>
  * It allows concurrent read access to elements already in the cache. If the element is null, other
  * reads will block until an element with the same key is put into the cache.
@@ -84,7 +83,7 @@ public class BlockingCache {
     /**
      * The backing Cache
      */
-    private final Cache cache;
+    private final Ehcache cache;
 
 
     private final int timeoutMillis;
@@ -107,7 +106,7 @@ public class BlockingCache {
     /**
      * Creates a BlockingCache with the given name.
      *
-     * @param name the name to give the cache
+     * @param name          the name to give the cache
      * @param timeoutMillis the amount of time, in milliseconds, to block for
      * @throws CacheException
      * @since 1.2
@@ -142,8 +141,8 @@ public class BlockingCache {
      * Creates a BlockingCache with the given name and
      * uses the given cache manager to create the cache
      *
-     * @param name    the name to give the cache
-     * @param manager the EHCache CacheManager used to create the backing cache
+     * @param name          the name to give the cache
+     * @param manager       the EHCache CacheManager used to create the backing cache
      * @param timeoutMillis the amount of time, in milliseconds, to block for
      * @throws CacheException
      * @since 1.2
@@ -162,7 +161,7 @@ public class BlockingCache {
     /**
      * Retrieve the EHCache backing cache
      */
-    protected net.sf.ehcache.Cache getCache() {
+    protected net.sf.ehcache.Ehcache getCache() {
         return cache;
     }
 
@@ -235,6 +234,7 @@ public class BlockingCache {
 
     /**
      * Returns the keys for this cache.
+     *
      * @return The keys of this cache.  This is not a live set, so it will not track changes to the key set.
      */
     public Collection getKeys() throws CacheException {
@@ -248,11 +248,7 @@ public class BlockingCache {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Cache " + cache.getName() + ": removing all entries");
         }
-        try {
-            cache.removeAll();
-        } catch (IOException e) {
-            throw new CacheException("Failure clearing cache");
-        }
+        cache.removeAll();
     }
 
     /**

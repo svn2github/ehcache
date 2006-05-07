@@ -17,9 +17,9 @@
 package net.sf.ehcache.event;
 
 import junit.framework.TestCase;
+import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.config.CacheConfiguration;
 
 /**

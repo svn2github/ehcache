@@ -19,9 +19,9 @@ package net.sf.ehcache.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.Properties;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Properties;
 
 /**
  * Property utilities.

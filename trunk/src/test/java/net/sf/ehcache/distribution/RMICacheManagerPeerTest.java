@@ -17,19 +17,20 @@
 package net.sf.ehcache.distribution;
 
 import junit.framework.TestCase;
+import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.AbstractCacheTest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.net.SocketTimeoutException;
 import java.rmi.RemoteException;
 import java.rmi.UnmarshalException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.ArrayList;
 
 /**
  * Unit tests for RMICachePeer
@@ -164,7 +165,8 @@ public class RMICacheManagerPeerTest extends TestCase {
          * @param socketTimeoutMillis
          * @throws RemoteException
          */
-        public SlowRMICachePeer(Cache cache, String hostName, Integer port, Integer socketTimeoutMillis) throws RemoteException {
+        public SlowRMICachePeer(Ehcache cache, String hostName, Integer port, Integer socketTimeoutMillis)
+                throws RemoteException {
             super(cache, hostName, port, socketTimeoutMillis);
         }
 

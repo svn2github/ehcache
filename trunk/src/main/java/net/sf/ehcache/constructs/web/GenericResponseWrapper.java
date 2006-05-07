@@ -17,21 +17,20 @@
 package net.sf.ehcache.constructs.web;
 
 import net.sf.ehcache.constructs.web.filter.FilterServletOutputStream;
-
-import javax.servlet.http.HttpServletResponseWrapper;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Cookie;
-import javax.servlet.ServletOutputStream;
-import java.io.Serializable;
-import java.io.PrintWriter;
-import java.io.OutputStream;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Provides a wrapper for {@link javax.servlet.http.HttpServletResponseWrapper}.

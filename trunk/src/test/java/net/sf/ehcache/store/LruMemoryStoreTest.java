@@ -52,16 +52,6 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
 
 
     /**
-     * Benchmark to test speed. This uses both memory and disk and tries to be realistic
-     * v 1.38 DiskStore 7355
-     * v 1.41 DiskStore 1609
-     * Adjusted for change to laptop
-     */
-    public void testBenchmarkPutGetSurya() throws Exception {
-        benchmarkPutGetSuryaTest(2500);
-    }
-
-    /**
      * Test the LRU policy
      */
     public void testPolicy() throws Exception {
@@ -121,6 +111,19 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
 
         //key1 should now be the least recently used.
         assertNull(store.get("key1"));
+    }
+
+
+
+
+    /**
+     * Benchmark to test speed. This uses both memory and disk and tries to be realistic
+     * v 1.38 DiskStore 7355
+     * v 1.41 DiskStore 1609
+     * Adjusted for change to laptop
+     */
+    public void testBenchmarkPutGetSurya() throws Exception {
+        benchmarkPutGetSuryaTest(2500);
     }
 
 

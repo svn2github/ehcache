@@ -16,14 +16,14 @@
 
 package net.sf.ehcache.event;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Counts listener notifications.
@@ -44,7 +44,7 @@ public class CountingCacheEventListener implements CacheEventListener {
     /**
      * Accessor
      */
-    public static List getCacheElementsRemoved(Cache cache) {
+    public static List getCacheElementsRemoved(Ehcache cache) {
         return extractListForGivenCache(CACHE_ELEMENTS_REMOVED, cache);
     }
 
@@ -52,21 +52,21 @@ public class CountingCacheEventListener implements CacheEventListener {
     /**
      * Accessor
      */
-    public static List getCacheElementsPut(Cache cache) {
+    public static List getCacheElementsPut(Ehcache cache) {
         return extractListForGivenCache(CACHE_ELEMENTS_PUT, cache);
     }
 
     /**
      * Accessor
      */
-    public static List getCacheElementsUpdated(Cache cache) {
+    public static List getCacheElementsUpdated(Ehcache cache) {
         return extractListForGivenCache(CACHE_ELEMENTS_UPDATED, cache);
     }
 
     /**
      * Accessor
      */
-    public static List getCacheElementsExpired(Cache cache) {
+    public static List getCacheElementsExpired(Ehcache cache) {
         return extractListForGivenCache(CACHE_ELEMENTS_EXPIRED, cache);
     }
 
@@ -94,7 +94,7 @@ public class CountingCacheEventListener implements CacheEventListener {
      * @param cache            the cache to filter on. If null, there is not filtering and all entries are returned.
      * @return a list of notifications for the cache
      */
-    private static List extractListForGivenCache(List notificationList, Cache cache) {
+    private static List extractListForGivenCache(List notificationList, Ehcache cache) {
         ArrayList list = new ArrayList();
         synchronized (notificationList) {
             for (int i = 0; i < notificationList.size(); i++) {
@@ -113,7 +113,7 @@ public class CountingCacheEventListener implements CacheEventListener {
     /**
      * {@inheritDoc}
      */
-    public void notifyElementRemoved(final Cache cache, final Element element) {
+    public void notifyElementRemoved(final Ehcache cache, final Element element) {
         checkSynchronizedAccessToCacheOk(cache);
         CACHE_ELEMENTS_REMOVED.add(new CounterEntry(cache, element));
     }
@@ -128,7 +128,7 @@ public class CountingCacheEventListener implements CacheEventListener {
      * @param cache
      * @param element the element which was just put into the cache.
      */
-    public void notifyElementPut(final Cache cache, final Element element) {
+    public void notifyElementPut(final Ehcache cache, final Element element) {
         checkSynchronizedAccessToCacheOk(cache);
         CACHE_ELEMENTS_PUT.add(new CounterEntry(cache, element));
     }
@@ -147,14 +147,14 @@ public class CountingCacheEventListener implements CacheEventListener {
      * @param cache   the cache emitting the notification
      * @param element the element which was just put into the cache.
      */
-    public void notifyElementUpdated(final Cache cache, final Element element) throws CacheException {
+    public void notifyElementUpdated(final Ehcache cache, final Element element) throws CacheException {
         CACHE_ELEMENTS_UPDATED.add(new CounterEntry(cache, element));
     }
 
     /**
      * {@inheritDoc}
      */
-    public void notifyElementExpired(final Cache cache, final Element element) {
+    public void notifyElementExpired(final Ehcache cache, final Element element) {
         CACHE_ELEMENTS_EXPIRED.add(new CounterEntry(cache, element));
     }
 
@@ -173,7 +173,7 @@ public class CountingCacheEventListener implements CacheEventListener {
      *
      * @param cache
      */
-    private void checkSynchronizedAccessToCacheOk(Cache cache) {
+    private void checkSynchronizedAccessToCacheOk(Ehcache cache) {
         try {
             cache.get("justasyncrhonizationtest");
         } catch (CacheException e) {
@@ -186,7 +186,7 @@ public class CountingCacheEventListener implements CacheEventListener {
      */
     public static class CounterEntry {
 
-        private Cache cache;
+        private Ehcache cache;
         private Element element;
 
         /**
@@ -195,7 +195,7 @@ public class CountingCacheEventListener implements CacheEventListener {
          * @param cache
          * @param element
          */
-        public CounterEntry(Cache cache, Element element) {
+        public CounterEntry(Ehcache cache, Element element) {
             this.cache = cache;
             this.element = element;
         }
@@ -203,7 +203,7 @@ public class CountingCacheEventListener implements CacheEventListener {
         /**
          * @return the cache the event relates to
          */
-        public Cache getCache() {
+        public Ehcache getCache() {
             return cache;
         }
 

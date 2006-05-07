@@ -17,14 +17,13 @@
 package net.sf.ehcache.constructs.blocking;
 
 import junit.framework.TestCase;
+import net.sf.ehcache.CacheException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import net.sf.ehcache.CacheException;
 
 /**
  * Test cases for the {@link SelfPopulatingCache}.

@@ -18,8 +18,8 @@ package net.sf.ehcache;
 
 import junit.framework.TestCase;
 
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Common fields and methods required by most test cases

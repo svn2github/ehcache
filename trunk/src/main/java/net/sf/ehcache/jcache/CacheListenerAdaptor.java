@@ -14,49 +14,51 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.event;
+package net.sf.ehcache.jcache;
 
-import net.sf.ehcache.CacheException;
+import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.CacheException;
+
+import javax.cache.CacheListener;
 
 /**
- * Allows implementers to register callback methods that will be executed when a cache event occurs.
- * The events include:
- * <ol>
- * <li>put Element
- * <li>update Element
- * <li>remove Element
- * <li>an Element expires, either because timeToLive or timeToIdle has been reached.
- * </ol>
- * <p/>
- * Callbacks to these methods are synchronous and unsynchronized. It is the responsibility of the implementer
- * to safely handle the potential performance and thread safety issues depending on what their listener is doing.
- * <p/>
- * Events are guaranteed to be notified in the order in which they occurred.
- * <p/>
- * Cache also has putQuiet and removeQuiet methods which do not notify listeners.
- *
+ * This adaptor permits JCACHE {@link CacheListener}s to be registered as Ehcache {@link CacheEventListener}s.
  * @author Greg Luck
  * @version $Id$
- * @see CacheManagerEventListener
- * @since 1.2
  */
-public interface CacheEventListener {
+public class CacheListenerAdaptor implements CacheEventListener {
+
+    private CacheListener cacheListener;
+
+    /**
+     * Creates an adaptor that delegates to a {@link CacheListener}
+     * @param cacheListener the JCACHE listener.
+     */
+    public CacheListenerAdaptor(CacheListener cacheListener) {
+        this.cacheListener = cacheListener;
+    }
+
 
     /**
      * Called immediately after an element has been removed. The remove method will block until
      * this method returns.
      * <p/>
-     * Ehcache does not chech for
-     * <p/>
      * As the {@link net.sf.ehcache.Element} has been removed, only what was the key of the element is known.
      * <p/>
-     *
+     * This method delegates to onRemove. After the last element is removed, a call to onClear is also made.
      * @param cache   the cache emitting the notification
      * @param element just deleted
      */
-    void notifyElementRemoved(final Ehcache cache, final Element element) throws CacheException;
+    public void notifyElementRemoved(final Ehcache cache, final Element element) throws CacheException {
+        if (element != null) {
+            cacheListener.onRemove(element.getObjectKey());
+            if (cache.getSize() == 0) {
+                cacheListener.onClear();
+            }
+        }
+    }
 
     /**
      * Called immediately after an element has been put into the cache. The {@link net.sf.ehcache.Cache#put(net.sf.ehcache.Element)} method
@@ -68,7 +70,11 @@ public interface CacheEventListener {
      * @param cache   the cache emitting the notification
      * @param element the element which was just put into the cache.
      */
-    void notifyElementPut(final Ehcache cache, final Element element) throws CacheException;
+    public void notifyElementPut(final Ehcache cache, final Element element) throws CacheException {
+        if (element != null) {
+            cacheListener.onPut(element.getObjectKey());
+        }
+    }
 
     /**
      * Called immediately after an element has been put into the cache and the element already
@@ -79,18 +85,23 @@ public interface CacheEventListener {
      * <p/>
      * Implementers may wish to have access to the Element's fields, including value, so the element is provided.
      * Implementers should be careful not to modify the element. The effect of any modifications is undefined.
-     *
+     * <p/>
+     * This method delegates to onPut in the underlying CacheListener, because JCACHE CacheListener does not
+     * have update notifications.
      * @param cache   the cache emitting the notification
      * @param element the element which was just put into the cache.
      */
-    void notifyElementUpdated(final Ehcache cache, final Element element) throws CacheException;
-
+    public void notifyElementUpdated(final Ehcache cache, final Element element) throws CacheException {
+        if (element != null) {
+            cacheListener.onPut(element.getObjectKey());
+        }
+    }
 
     /**
      * Called immediately after an element is <i>found</i> to be expired. The
      * {@link net.sf.ehcache.Cache#remove(Object)} method will block until this method returns.
      * <p/>
-     * As the {@link Element} has been expired, only what was the key of the element is known.
+     * As the {@link net.sf.ehcache.Element} has been expired, only what was the key of the element is known.
      * <p/>
      * Elements are checked for expiry in ehcache at the following times:
      * <ul>
@@ -100,6 +111,9 @@ public interface CacheEventListener {
      * {@link net.sf.ehcache.Cache#DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS}
      * </ul>
      * If an element is found to be expired, it is deleted and this method is notified.
+     * <p/>
+     * JCACHE CacheListener does not support an expiry notification, so onEvict is called instead. Expiry is a
+     * type of eviction.
      *
      * @param cache   the cache emitting the notification
      * @param element the element that has just expired
@@ -109,11 +123,29 @@ public interface CacheEventListener {
      *                synchronized <code>Cache</code> method and that subsequently calls into DiskStore a deadlock will result.
      *                Accordingly implementers of this method should not call back into Cache.
      */
-    void notifyElementExpired(final Ehcache cache, final Element element);
-
+    public void notifyElementExpired(final Ehcache cache, final Element element) {
+        if (element != null) {
+            cacheListener.onEvict(element.getObjectKey());
+        }
+    }
 
     /**
-     * Give the replicator a chance to cleanup and free resources when no longer needed
+     * Give the replicator a chance to cleanup and free resources when no longer needed.
+     * <p/>
+     * JCACHE CacheListener does not support on dispose. This method does not delegate to anything.
+     * JCACHE CacheListener implementations should consider registering a CacheManagerEventListener
+     * so that they know when a cache is removed and they can perform an cleanup required.
      */
-    void dispose();
+    public void dispose() {
+        //noop
+    }
+
+    /**
+     * Gets the underlying CacheListener
+     * @return the underlying CacheListener
+     */
+    public CacheListener getCacheListener() {
+        return cacheListener;
+    }
+
 }

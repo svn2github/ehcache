@@ -17,22 +17,21 @@
 package net.sf.ehcache.distribution;
 
 import junit.framework.TestCase;
-import net.sf.ehcache.Cache;
+import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.StopWatch;
 import net.sf.ehcache.event.CountingCacheEventListener;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import java.io.Serializable;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Tests replication of Cache events
@@ -85,12 +84,12 @@ public class RMICacheReplicatorTest extends TestCase {
     /**
      * CacheManager 1 of 2s cache being replicated
      */
-    protected Cache cache1;
+    protected Ehcache cache1;
 
     /**
      * CacheManager 2 of 2s cache being replicated
      */
-    protected Cache cache2;
+    protected Ehcache cache2;
 
 
     /**
@@ -577,7 +576,7 @@ public class RMICacheReplicatorTest extends TestCase {
      * <p/>
      * This test goes into an infinite loop if the chain of notifications is not somehow broken.
      */
-    public void putTest(Cache fromCache, Cache toCache, boolean asynchronous) throws CacheException, InterruptedException {
+    public void putTest(Ehcache fromCache, Ehcache toCache, boolean asynchronous) throws CacheException, InterruptedException {
 
         Serializable key = new Date();
         Serializable value = new Date();
@@ -709,7 +708,7 @@ public class RMICacheReplicatorTest extends TestCase {
      * <p/>
      * This test goes into an infinite loop if the chain of notifications is not somehow broken.
      */
-    public void removeTest(Cache fromCache, Cache toCache, boolean asynchronous) throws CacheException, InterruptedException {
+    public void removeTest(Ehcache fromCache, Ehcache toCache, boolean asynchronous) throws CacheException, InterruptedException {
 
         Serializable key = new Date();
         Serializable value = new Date();
@@ -778,7 +777,7 @@ public class RMICacheReplicatorTest extends TestCase {
      * <p/>
      * This test goes into an infinite loop if the chain of notifications is not somehow broken.
      */
-    public void updateViaCopyTest(Cache fromCache, Cache toCache, boolean asynchronous) throws Exception {
+    public void updateViaCopyTest(Ehcache fromCache, Ehcache toCache, boolean asynchronous) throws Exception {
 
         fromCache.removeAll();
         toCache.removeAll();

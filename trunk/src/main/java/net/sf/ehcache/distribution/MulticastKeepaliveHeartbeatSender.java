@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.distribution;
 
+import net.sf.ehcache.CacheManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -24,8 +25,6 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.List;
-
-import net.sf.ehcache.CacheManager;
 
 /**
  * Sends heartbeats to a multicast group containing a compressed list of URLs. Supports up to approximately

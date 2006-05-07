@@ -16,9 +16,9 @@
 
 package net.sf.ehcache.constructs.web.filter;
 
+import net.sf.ehcache.constructs.web.AlreadyGzippedException;
 import net.sf.ehcache.constructs.web.GenericResponseWrapper;
 import net.sf.ehcache.constructs.web.PageInfo;
-import net.sf.ehcache.constructs.web.AlreadyGzippedException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;

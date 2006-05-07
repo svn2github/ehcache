@@ -17,17 +17,15 @@
 package net.sf.ehcache.constructs.blocking;
 
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.constructs.concurrent.Mutex;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.Serializable;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -92,7 +90,7 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
         try {
             lockManager.acquireLock(key);
 
-            Cache backingCache = getCache();
+            Ehcache backingCache = getCache();
             Element element = backingCache.get(key);
 
             if (element == null) {
@@ -122,7 +120,7 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
 
     private void update(final Serializable key) {
         try {
-            Cache backingCache = getCache();
+            Ehcache backingCache = getCache();
             final Element element = backingCache.getQuiet(key);
 
             if (element == null) {

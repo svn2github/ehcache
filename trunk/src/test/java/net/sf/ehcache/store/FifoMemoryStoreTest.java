@@ -16,9 +16,9 @@
 
 package net.sf.ehcache.store;
 
+import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStoreTester;
-import net.sf.ehcache.AbstractCacheTest;
 
 import java.io.IOException;
 

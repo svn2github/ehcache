@@ -16,7 +16,7 @@
 
 package net.sf.ehcache.store;
 
-import net.sf.ehcache.Cache;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,7 +61,7 @@ public final class LfuMemoryStore extends MemoryStore {
     /**
      * Constructor for the LfuMemoryStore object.
      */
-    protected LfuMemoryStore(Cache cache, DiskStore diskStore) {
+    protected LfuMemoryStore(Ehcache cache, DiskStore diskStore) {
         super(cache, diskStore);
         map = new HashMap();
     }

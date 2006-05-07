@@ -15,17 +15,17 @@
  */
 package net.sf.ehcache.hibernate;
 
-import org.hibernate.cache.CacheProvider;
-import org.hibernate.cache.Cache;
-import org.hibernate.cache.CacheException;
-import org.hibernate.cache.Timestamper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.util.ClassLoaderUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.cache.Cache;
+import org.hibernate.cache.CacheException;
+import org.hibernate.cache.CacheProvider;
+import org.hibernate.cache.Timestamper;
 
-import java.util.Properties;
 import java.net.URL;
+import java.util.Properties;
 
 /**
  * Singleton cache Provider plugin for Hibernate 3.2 and ehcache-1.2. New in this provider is support for
@@ -86,7 +86,7 @@ public final class SingletonEhCacheProvider implements CacheProvider {
      */
     public final Cache buildCache(String name, Properties properties) throws CacheException {
         try {
-            net.sf.ehcache.Cache cache = manager.getCache(name);
+            net.sf.ehcache.Ehcache cache = manager.getCache(name);
             if (cache == null) {
                 SingletonEhCacheProvider.LOG.warn("Could not find a specific ehcache configuration for cache named ["
                         + name + "]; using defaults.");

@@ -31,7 +31,7 @@ Development Roadmap
 
  A JMS-based replication mechanism would also be useful.
 
-** Implementation of OpenCache specification
+** Implementation of JCACHE/OpenCache specification
 
  James Strachan, myself and others are thinking of creating an OpenCache specification to standardise
  caching APIs. Naturally ehcache would implement the API.

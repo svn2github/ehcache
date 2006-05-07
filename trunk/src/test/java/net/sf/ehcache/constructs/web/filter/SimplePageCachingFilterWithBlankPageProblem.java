@@ -16,14 +16,13 @@
 
 package net.sf.ehcache.constructs.web.filter;
 
+import net.sf.ehcache.constructs.web.PageInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.FilterChain;
-
-import net.sf.ehcache.constructs.web.PageInfo;
 
 /**
  * This implementation only writes the response when it is not committed. This is half

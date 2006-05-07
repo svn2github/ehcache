@@ -17,9 +17,9 @@
 
 package net.sf.ehcache;
 
-import net.sf.ehcache.config.ConfigurationHelper;
-import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ConfigurationFactory;
+import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.event.CacheManagerEventListener;
@@ -29,13 +29,13 @@ import org.apache.commons.logging.LogFactory;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Collection;
+import java.util.Set;
 
 /**
  * A container for {@link Cache}s that maintain all aspects of their lifecycle.
@@ -75,7 +75,7 @@ public final class CacheManager {
     /**
      * Default cache cache.
      */
-    private Cache defaultCache;
+    private Ehcache defaultCache;
 
     /**
      * The path for the directory in which disk caches are created.

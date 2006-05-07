@@ -16,10 +16,10 @@
 
 package net.sf.ehcache.constructs.web;
 
+import com.meterware.httpunit.ClientProperties;
 import com.meterware.httpunit.HttpUnitOptions;
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebResponse;
-import com.meterware.httpunit.ClientProperties;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.apache.commons.logging.Log;

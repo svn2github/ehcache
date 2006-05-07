@@ -16,8 +16,8 @@
 
 package net.sf.ehcache.constructs.asynchronous;
 
-import java.io.Serializable;
 import java.io.IOException;
+import java.io.Serializable;
 
 /**
  * A class which purports to be <code>Serializable</code> but will fail to serialize. Used for testing.

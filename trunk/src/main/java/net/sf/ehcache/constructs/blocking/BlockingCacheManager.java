@@ -16,16 +16,15 @@
 
 package net.sf.ehcache.constructs.blocking;
 
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
 
 
 /**

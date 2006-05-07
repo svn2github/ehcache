@@ -16,11 +16,13 @@
 
 package net.sf.ehcache.event;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.jcache.CacheListenerAdaptor;
 import net.sf.ehcache.distribution.CacheReplicator;
 
+import javax.cache.CacheListener;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -42,14 +44,14 @@ public final class RegisteredEventListeners {
      * @see CacheEventListener
      */
     private final Set cacheEventListeners = new HashSet();
-    private final Cache cache;
+    private final Ehcache cache;
 
     /**
      * Constructs a new notification service
      *
      * @param cache
      */
-    public RegisteredEventListeners(Cache cache) {
+    public RegisteredEventListeners(Ehcache cache) {
         this.cache = cache;
     }
 
@@ -76,7 +78,7 @@ public final class RegisteredEventListeners {
      *
      * @param element
      * @param remoteEvent whether the event came from a remote cache peer
-     * @see CacheEventListener#notifyElementPut(net.sf.ehcache.Cache,net.sf.ehcache.Element)
+     * @see CacheEventListener#notifyElementPut(net.sf.ehcache.Ehcache,net.sf.ehcache.Element)
      */
     public final void notifyElementPut(Element element, boolean remoteEvent) throws CacheException {
         Iterator iterator = cacheEventListeners.iterator();
@@ -93,7 +95,7 @@ public final class RegisteredEventListeners {
      *
      * @param element
      * @param remoteEvent whether the event came from a remote cache peer
-     * @see CacheEventListener#notifyElementPut(net.sf.ehcache.Cache,net.sf.ehcache.Element)
+     * @see CacheEventListener#notifyElementPut(net.sf.ehcache.Ehcache,net.sf.ehcache.Element)
      */
     public final void notifyElementUpdated(Element element, boolean remoteEvent) {
         Iterator iterator = cacheEventListeners.iterator();
@@ -157,7 +159,22 @@ public final class RegisteredEventListeners {
      * @return true if the listener was present
      */
     public final boolean unregisterListener(CacheEventListener cacheEventListener) {
+        if (cacheEventListener instanceof CacheListenerAdaptor) {
+            removeCacheListenerAdaptor(((CacheListenerAdaptor)cacheEventListener).getCacheListener());
+        }
         return cacheEventListeners.remove(cacheEventListener);
+    }
+
+    private void removeCacheListenerAdaptor(CacheListener cacheListener) {
+        for (Iterator iterator = cacheEventListeners.iterator(); iterator.hasNext();) {
+            CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
+            if (cacheEventListener instanceof CacheListenerAdaptor) {
+                if (((CacheListenerAdaptor)cacheEventListener).getCacheListener() == cacheListener) {
+                    cacheEventListeners.remove(cacheEventListener);
+                    break;
+                }
+            }
+        }
     }
 
     /**

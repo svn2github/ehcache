@@ -48,7 +48,7 @@ public class CacheTest extends AbstractCacheTest {
      * Checks we cannot use a cache after shutdown
      */
     public void testUseCacheAfterManagerShutdown() throws CacheException {
-        Cache cache = manager.getCache("sampleCache1");
+        Ehcache cache = manager.getCache("sampleCache1");
         manager.shutdown();
         Element element = new Element("key", "value");
         try {
@@ -69,36 +69,12 @@ public class CacheTest extends AbstractCacheTest {
         } catch (IllegalStateException e) {
             assertEquals("The sampleCache1 Cache is not alive.", e.getMessage());
         }
-        try {
-            cache.getHitCount();
-            fail();
-        } catch (IllegalStateException e) {
-            assertEquals("The sampleCache1 Cache is not alive.", e.getMessage());
-        }
-        try {
-            cache.getMemoryStoreHitCount();
-            fail();
-        } catch (IllegalStateException e) {
-            assertEquals("The sampleCache1 Cache is not alive.", e.getMessage());
-        }
-        try {
-            cache.getDiskStoreHitCount();
-            fail();
-        } catch (IllegalStateException e) {
-            assertEquals("The sampleCache1 Cache is not alive.", e.getMessage());
-        }
-        try {
-            cache.getMissCountExpired();
-            fail();
-        } catch (IllegalStateException e) {
-            assertEquals("The sampleCache1 Cache is not alive.", e.getMessage());
-        }
-        try {
-            cache.getMissCountNotFound();
-            fail();
-        } catch (IllegalStateException e) {
-            assertEquals("The sampleCache1 Cache is not alive.", e.getMessage());
-        }
+        //ok to get stats
+        cache.getHitCount();
+        cache.getMemoryStoreHitCount();
+        cache.getDiskStoreHitCount();
+        cache.getMissCountExpired();
+        cache.getMissCountNotFound();
     }
 
     /**
@@ -106,7 +82,7 @@ public class CacheTest extends AbstractCacheTest {
      */
     public void testUseCacheOutsideManager() throws CacheException {
         //Not put into manager.
-        Cache cache = new Cache("testCache", 1, true, false, 5, 2);
+        Ehcache cache = new Cache("testCache", 1, true, false, 5, 2);
         Element element = new Element("key", "value");
         try {
             cache.getSize();
@@ -126,36 +102,12 @@ public class CacheTest extends AbstractCacheTest {
         } catch (IllegalStateException e) {
             assertEquals("The testCache Cache is not alive.", e.getMessage());
         }
-        try {
-            cache.getHitCount();
-            fail();
-        } catch (IllegalStateException e) {
-            assertEquals("The testCache Cache is not alive.", e.getMessage());
-        }
-        try {
-            cache.getMemoryStoreHitCount();
-            fail();
-        } catch (IllegalStateException e) {
-            assertEquals("The testCache Cache is not alive.", e.getMessage());
-        }
-        try {
-            cache.getDiskStoreHitCount();
-            fail();
-        } catch (IllegalStateException e) {
-            assertEquals("The testCache Cache is not alive.", e.getMessage());
-        }
-        try {
-            cache.getMissCountExpired();
-            fail();
-        } catch (IllegalStateException e) {
-            assertEquals("The testCache Cache is not alive.", e.getMessage());
-        }
-        try {
-            cache.getMissCountNotFound();
-            fail();
-        } catch (IllegalStateException e) {
-            assertEquals("The testCache Cache is not alive.", e.getMessage());
-        }
+        //ok to get stats
+        cache.getHitCount();
+        cache.getMemoryStoreHitCount();
+        cache.getDiskStoreHitCount();
+        cache.getMissCountExpired();
+        cache.getMissCountNotFound();
     }
 
 
@@ -164,7 +116,7 @@ public class CacheTest extends AbstractCacheTest {
      */
     public void testStaleCacheReference() throws CacheException {
         manager.addCache("test");
-        Cache cache = manager.getCache("test");
+        Ehcache cache = manager.getCache("test");
         assertNotNull(cache);
         cache.put(new Element("key1", "value1"));
 
@@ -187,7 +139,7 @@ public class CacheTest extends AbstractCacheTest {
      */
     public void testCacheName() throws Exception {
         manager.addCache("test");
-        Cache cache = manager.getCache("test");
+        Ehcache cache = manager.getCache("test");
         assertEquals("test", cache.getName());
         assertEquals(Status.STATUS_ALIVE, cache.getStatus());
     }
@@ -199,7 +151,7 @@ public class CacheTest extends AbstractCacheTest {
      * @throws Exception
      */
     public void testCacheWithNoIdle() throws Exception {
-        Cache cache = manager.getCache("sampleCacheNoIdle");
+        Ehcache cache = manager.getCache("sampleCacheNoIdle");
         assertEquals("sampleCacheNoIdle", cache.getName());
         assertEquals(Status.STATUS_ALIVE, cache.getStatus());
         assertEquals(0, cache.getTimeToIdleSeconds());
@@ -216,7 +168,7 @@ public class CacheTest extends AbstractCacheTest {
      */
     public void testExpiryBasedOnTimeToLiveWhenNoIdle() throws Exception {
         //Set size so the second element overflows to disk.
-        Cache cache = manager.getCache("sampleCacheNoIdle");
+        Ehcache cache = manager.getCache("sampleCacheNoIdle");
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
         assertNotNull(cache.get("key1"));
@@ -245,7 +197,7 @@ public class CacheTest extends AbstractCacheTest {
      */
     public void testExpirySampleCacheNotEternalButNoIdleOrExpiry() throws Exception {
         //Set size so the second element overflows to disk.
-        Cache cache = manager.getCache("sampleCacheNotEternalButNoIdleOrExpiry");
+        Ehcache cache = manager.getCache("sampleCacheNotEternalButNoIdleOrExpiry");
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
         assertNotNull(cache.get("key1"));
@@ -385,7 +337,7 @@ public class CacheTest extends AbstractCacheTest {
         //Add a new cache with the same name as the disposed one.
         Cache cache2 = new Cache("test2", 1, true, true, 0, 0, true, 120);
         manager.addCache(cache2);
-        Cache cacheFromManager = manager.getCache("test2");
+        Ehcache cacheFromManager = manager.getCache("test2");
         assertTrue(cacheFromManager.getStatus().equals(Status.STATUS_ALIVE));
 
     }
@@ -417,7 +369,7 @@ public class CacheTest extends AbstractCacheTest {
      */
     public void testExpiryBasedOnTimeToLiveForDefault() throws Exception {
         String name = "ThisIsACacheWhichIsNotConfiguredAndWillThereforeUseDefaults";
-        Cache cache = null;
+        Ehcache cache = null;
         CacheManager manager = CacheManager.getInstance();
         cache = manager.getCache(name);
         if (cache == null) {
@@ -545,44 +497,6 @@ public class CacheTest extends AbstractCacheTest {
         assertNull(cache.get("key1"));
         element2 = cache.get("key2");
         assertNull(element2);
-    }
-
-    /**
-     * Test statistics
-     */
-    public void testStatistics() throws Exception {
-        //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test", 1, true, false, 5, 2);
-        manager.addCache(cache);
-        cache.put(new Element("key1", "value1"));
-        cache.put(new Element("key2", "value1"));
-
-        //key1 should be in the Disk Store
-        cache.get("key1");
-        assertEquals(1, cache.getHitCount());
-        assertEquals(1, cache.getDiskStoreHitCount());
-        assertEquals(0, cache.getMemoryStoreHitCount());
-        assertEquals(0, cache.getMissCountExpired());
-        assertEquals(0, cache.getMissCountNotFound());
-
-        //key 1 should now be in the LruMemoryStore
-        cache.get("key1");
-        assertEquals(2, cache.getHitCount());
-        assertEquals(1, cache.getDiskStoreHitCount());
-        assertEquals(1, cache.getMemoryStoreHitCount());
-        assertEquals(0, cache.getMissCountExpired());
-        assertEquals(0, cache.getMissCountNotFound());
-
-        //Let the idle expire
-        Thread.sleep(5010);
-
-        //key 1 should now be expired
-        cache.get("key1");
-        assertEquals(2, cache.getHitCount());
-        assertEquals(1, cache.getDiskStoreHitCount());
-        assertEquals(1, cache.getMemoryStoreHitCount());
-        assertEquals(1, cache.getMissCountExpired());
-        assertEquals(1, cache.getMissCountNotFound());
     }
 
     /**
@@ -879,7 +793,7 @@ public class CacheTest extends AbstractCacheTest {
      * Tests cache, memory store and disk store sizes from config
      */
     public void testSizes() throws Exception {
-        Cache cache = manager.getCache("sampleCache1");
+        Ehcache cache = manager.getCache("sampleCache1");
 
         assertEquals(0, cache.getMemoryStoreSize());
 
@@ -1116,7 +1030,7 @@ public class CacheTest extends AbstractCacheTest {
      * Tests that the toString() method works.
      */
     public void testToString() {
-        Cache cache = new Cache("testGetMemoryStore", 10, false, false, 100, 200);
+        Ehcache cache = new Cache("testGetMemoryStore", 10, false, false, 100, 200);
         assertTrue(cache.toString().indexOf("testGetMemoryStore") > -1);
         assertEquals(389, cache.toString().length());
     }
@@ -1155,8 +1069,8 @@ public class CacheTest extends AbstractCacheTest {
      * Tests the uniqueness of the GUID
      */
     public void testGuid() {
-        Cache cache1 = new Cache("testGetMemoryStore", 10, false, false, 100, 200);
-        Cache cache2 = new Cache("testGetMemoryStore", 10, false, false, 100, 200);
+        Ehcache cache1 = new Cache("testGetMemoryStore", 10, false, false, 100, 200);
+        Ehcache cache2 = new Cache("testGetMemoryStore", 10, false, false, 100, 200);
         String guid1 = cache1.getGuid();
         String guid2 = cache2.getGuid();
         assertEquals(cache1.getName(), cache2.getName());
@@ -1240,6 +1154,5 @@ public class CacheTest extends AbstractCacheTest {
         //Test that equals works
         assertEquals(objectElement, retrievedObject);
     }
-
 
 }

@@ -16,10 +16,10 @@
 
 package net.sf.ehcache.store;
 
+import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStoreTester;
 import net.sf.ehcache.StopWatch;
-import net.sf.ehcache.AbstractCacheTest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

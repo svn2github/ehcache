@@ -16,12 +16,12 @@
 
 package net.sf.ehcache.constructs.web.filter;
 
+import com.meterware.httpunit.WebResponse;
 import net.sf.ehcache.constructs.web.AbstractWebTest;
 import net.sf.ehcache.constructs.web.PageInfo;
-import com.meterware.httpunit.WebResponse;
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.methods.GetMethod;
 
 /**

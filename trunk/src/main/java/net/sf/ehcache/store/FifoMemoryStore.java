@@ -16,9 +16,9 @@
 
 package net.sf.ehcache.store;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 import org.apache.commons.collections.SequencedHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,7 +52,7 @@ public final class FifoMemoryStore extends MemoryStore {
      * First tries to use {@link java.util.LinkedHashMap}. If not found uses
      * Jakarta Commons collections.
      */
-    public FifoMemoryStore(Cache cache, DiskStore diskStore) {
+    public FifoMemoryStore(Ehcache cache, DiskStore diskStore) {
         super(cache, diskStore);
 
         // Use LinkedHashMap for JDK 1.4 and higher

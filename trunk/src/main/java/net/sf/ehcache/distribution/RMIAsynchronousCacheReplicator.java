@@ -16,8 +16,8 @@
 
 package net.sf.ehcache.distribution;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import org.apache.commons.logging.Log;
@@ -128,7 +128,7 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
      * @param cache   the cache emitting the notification
      * @param element the element which was just put into the cache.
      */
-    public final void notifyElementPut(final Cache cache, final Element element) throws CacheException {
+    public final void notifyElementPut(final Ehcache cache, final Element element) throws CacheException {
         if (notAlive()) {
             return;
         }
@@ -162,7 +162,7 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
      * @param cache   the cache emitting the notification
      * @param element the element which was just put into the cache.
      */
-    public final void notifyElementUpdated(final Cache cache, final Element element) throws CacheException {
+    public final void notifyElementUpdated(final Ehcache cache, final Element element) throws CacheException {
         if (notAlive()) {
             return;
         }
@@ -198,7 +198,7 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
      * @param cache   the cache emitting the notification
      * @param element just deleted
      */
-    public final void notifyElementRemoved(final Cache cache, final Element element) throws CacheException {
+    public final void notifyElementRemoved(final Ehcache cache, final Element element) throws CacheException {
         if (!replicateRemovals) {
             return;
         }
@@ -239,7 +239,7 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
         }
 
 
-        Cache cache = ((CacheEventMessage) replicationQueueCopy[0]).cache;
+        Ehcache cache = ((CacheEventMessage) replicationQueueCopy[0]).cache;
         List cachePeers = listRemoteCachePeers(cache);
 
         List resolvedEventMessages = extractAndResolveEventMessages(replicationQueueCopy);
@@ -318,10 +318,10 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
      */
     private static final class CacheEventMessage {
 
-        private final Cache cache;
+        private final Ehcache cache;
         private final SoftReference softEventMessage;
 
-        public CacheEventMessage(int event, Cache cache, Element element, Serializable key) {
+        public CacheEventMessage(int event, Ehcache cache, Element element, Serializable key) {
             EventMessage eventMessage = new EventMessage(event, key, element);
             softEventMessage = new SoftReference(eventMessage);
             this.cache = cache;

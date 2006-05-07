@@ -16,8 +16,8 @@
 
 package net.sf.ehcache.distribution;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -55,7 +55,7 @@ public final class Main {
 
         CacheManager manager = new CacheManager(args[0]);
 
-        Cache cache = manager.getCache(args[1]);
+        Ehcache cache = manager.getCache(args[1]);
         LOG.info(args[1] + " " + cache);
 
         while (true) {

@@ -16,8 +16,9 @@
 
 package net.sf.ehcache.constructs.web.filter;
 
-import com.meterware.httpunit.WebResponse;
 import com.meterware.httpunit.HttpInternalErrorException;
+import com.meterware.httpunit.WebResponse;
+import junit.framework.AssertionFailedError;
 import net.sf.ehcache.constructs.web.AbstractWebTest;
 import net.sf.ehcache.constructs.web.PageInfo;
 import org.apache.commons.httpclient.Header;
@@ -29,8 +30,6 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import junit.framework.AssertionFailedError;
 
 /**
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>

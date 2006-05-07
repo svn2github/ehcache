@@ -16,9 +16,9 @@
 
 package net.sf.ehcache.distribution;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.event.CacheEventListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -173,7 +173,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
         String[] names = cacheManager.getCacheNames();
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
-            Cache cache = cacheManager.getCache(name);
+            Ehcache cache = cacheManager.getCache(name);
             if (isDistributed(cache)) {
                 RMICachePeer peer = new RMICachePeer(cache, hostName, port, socketTimeoutMillis);
                 cachePeers.add(peer);
@@ -187,7 +187,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      * @param cache the cache to check
      * @return true if a <code>CacheReplicator</code> is found in the listeners
      */
-    protected boolean isDistributed(Cache cache) {
+    protected boolean isDistributed(Ehcache cache) {
         Set listeners = cache.getCacheEventNotificationService().getCacheEventListeners();
         for (Iterator iterator = listeners.iterator(); iterator.hasNext();) {
             CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();

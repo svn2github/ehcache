@@ -51,7 +51,7 @@ import java.util.Set;
  * @author Greg Luck
  * @version $Id$
  */
-public final class Cache implements Cloneable {
+public final class Cache implements Ehcache {
 
     /**
      * A reserved word for cache names. It denotes a default configuration
@@ -100,6 +100,8 @@ public final class Cache implements Cloneable {
     private final int maxElementsInMemory;
 
     private MemoryStoreEvictionPolicy memoryStoreEvictionPolicy;
+
+    private int statisticsAccuracy = Statistics.STATISTICS_ACCURACY_BEST_EFFORT;
 
     /**
      * Whether cache elements in this cache overflowToDisk.
@@ -189,6 +191,8 @@ public final class Cache implements Cloneable {
     }
 
     private CacheManager cacheManager;
+
+    private Statistics cacheStatistics;
 
     /**
      * 1.0 Constructor.
@@ -298,6 +302,7 @@ public final class Cache implements Cloneable {
         this.timeToLiveSeconds = timeToLiveSeconds;
         this.timeToIdleSeconds = timeToIdleSeconds;
         this.diskPersistent = diskPersistent;
+
         if (diskStorePath == null) {
             this.diskStorePath = System.getProperty("java.io.tmpdir");
         } else {
@@ -321,6 +326,7 @@ public final class Cache implements Cloneable {
         if (memoryStoreEvictionPolicy == null) {
             this.memoryStoreEvictionPolicy = DEFAULT_MEMORY_STORE_EVICTION_POLICY;
         }
+
 
         changeStatus(Status.STATUS_UNINITIALISED);
     }
@@ -920,7 +926,7 @@ public final class Cache implements Cloneable {
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public final synchronized void removeAll() throws IllegalStateException, IOException, CacheException {
+    public final synchronized void removeAll() throws IllegalStateException, CacheException {
         checkStatus();
         memoryStore.removeAll();
         if (overflowToDisk) {
@@ -1068,11 +1074,8 @@ Cache size is the size of the union of the two key sets.*/
      * The number of times a requested item was found in the cache.
      *
      * @return the number of times a requested item was found in the cache
-     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public final int getHitCount()
-            throws IllegalStateException {
-        checkStatus();
+    public final int getHitCount() {
         return hitCount;
     }
 
@@ -1080,20 +1083,15 @@ Cache size is the size of the union of the two key sets.*/
      * Number of times a requested item was found in the Memory Store.
      *
      * @return Number of times a requested item was found in the Memory Store.
-     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public final int getMemoryStoreHitCount() throws IllegalStateException {
-        checkStatus();
+    public final int getMemoryStoreHitCount() {
         return memoryStoreHitCount;
     }
 
     /**
      * Number of times a requested item was found in the Disk Store.
-     *
-     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public final int getDiskStoreHitCount() throws IllegalStateException {
-        checkStatus();
+    public final int getDiskStoreHitCount() {
         return diskStoreHitCount;
     }
 
@@ -1101,21 +1099,15 @@ Cache size is the size of the union of the two key sets.*/
      * Number of times a requested element was not found in the cache. This
      * may be because it expired, in which case this will also be recorded in {@link #getMissCountExpired},
      * or because it was simply not there.
-     *
-     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public final int getMissCountNotFound() throws IllegalStateException {
-        checkStatus();
+    public final int getMissCountNotFound() {
         return missCountNotFound;
     }
 
     /**
      * Number of times a requested element was found but was expired.
-     *
-     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public final int getMissCountExpired() throws IllegalStateException {
-        checkStatus();
+    public final int getMissCountExpired() {
         return missCountExpired;
     }
 
@@ -1416,6 +1408,103 @@ Cache size is the size of the union of the two key sets.*/
         return cacheManager;
     }
 
+
+
+    /**
+     * Resets statistics counters back to 0.
+     *
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     */
+    public synchronized void clearStatistics() throws IllegalStateException {
+        checkStatus();
+        hitCount = 0;
+        memoryStoreHitCount = 0;
+        diskStoreHitCount = 0;
+        missCountExpired = 0;
+        missCountNotFound = 0;
+    }
+
+    /**
+     * Accurately measuring statistics can be expensive. Returns the current accuracy setting.
+     *
+     * @return one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}, {@link Statistics#STATISTICS_ACCURACY_GUARANTEED}, {@link Statistics#STATISTICS_ACCURACY_NONE}
+     */
+    public int getStatisticsAccuracy() {
+        return statisticsAccuracy;
+    }
+
+    /**
+     * Sets the statistics accuracy.
+     *
+     * @param statisticsAccuracy one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}, {@link Statistics#STATISTICS_ACCURACY_GUARANTEED}, {@link Statistics#STATISTICS_ACCURACY_NONE}
+     */
+    public void setStatisticsAccuracy(int statisticsAccuracy) {
+        this.statisticsAccuracy = statisticsAccuracy;
+    }
+
+    /**
+     * Causes all elements stored in the Cache to be synchronously checked for expiry, and if expired, evicted.
+     */
+    public void evictExpiredElements() {
+        Object[] keys = memoryStore.getKeyArray();
+        synchronized (this) {
+            for (int i = 0; i < keys.length; i++) {
+                Object key = keys[i];
+                searchInMemoryStore(key, false);
+            }
+        }
+        //This is called regularly by the expiry thread, but call it here synchronously
+        diskStore.expireElements();
+    }
+
+    /**
+     * An inexpensive check to see if the key exists in the cache.
+     * <p/>
+     * This method is not synchronized. It is possible that an element may exist in the cache aned be removed
+     * before the check gets to it, or vice versa.
+     *
+     * @param key the key to check.
+     * @return true if an Element matching the key is found in the cache. No assertions are made about the state of the Element.
+     */
+    public boolean isKeyInCache(Object key) {
+        if (isElementInMemory(key)) {
+            return true;
+        } else {
+            return isElementOnDisk(key);
+        }
+    }
+
+    /**
+     * An extremely expensive check to see if the value exists in the cache. This implementation is O(n). Ehcache
+     * is not designed for efficient access in this manner.
+     * <p/>
+     * This method is not synchronized. It is possible that an element may exist in the cache aned be removed
+     * before the check gets to it, or vice versa. Because it is slow to execute the probability of that this will
+     * have happened.
+     *
+     * @param value to check for
+     * @return true if an Element matching the key is found in the cache. No assertions are made about the state of the Element.
+     */
+    public boolean isValueInCache(Object value) {
+        List keys = getKeys();
+        for (int i = 0; i < keys.size(); i++) {
+            Element element = (Element) keys.get(i);
+            if (element != null && element.getObjectValue().equals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Statistics getStatistics() throws IllegalStateException {
+        //todo Do three implementations, depending of accuracy
+        return new Statistics(this, statisticsAccuracy, hitCount, diskStoreHitCount, memoryStoreHitCount,
+                missCountExpired + missCountNotFound, getSize());
+    }
+
     /**
      * Package local setter for use by CacheManager
      *
@@ -1424,6 +1513,8 @@ Cache size is the size of the union of the two key sets.*/
     final void setCacheManager(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
     }
+
+
 
 
 }

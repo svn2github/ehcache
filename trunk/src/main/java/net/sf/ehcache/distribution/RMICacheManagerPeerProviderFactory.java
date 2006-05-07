@@ -16,16 +16,15 @@
 
 package net.sf.ehcache.distribution;
 
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.CacheException;
-
-import java.util.Properties;
-import java.util.StringTokenizer;
-import java.net.InetAddress;
-import java.io.IOException;
-
+import net.sf.ehcache.CacheManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
 /**
  * Builds a factory based on RMI

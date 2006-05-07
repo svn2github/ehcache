@@ -16,17 +16,16 @@
 
 package net.sf.ehcache.constructs.blocking;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Iterator;
-
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Iterator;
 
 
 /**
@@ -124,7 +123,7 @@ public class SelfPopulatingCache extends BlockingCache {
     /**
      * Refresh the elements of this cache.
      * <p/>
-     * Refreshes bypass the {@link BlockingCache} and act directly on the backing {@link Cache}.
+     * Refreshes bypass the {@link BlockingCache} and act directly on the backing {@link Ehcache}.
      * This way, {@link BlockingCache} gets can continue to return stale data while the refresh, which
      * might be expensive, takes place.
      * <p/>
@@ -155,7 +154,7 @@ public class SelfPopulatingCache extends BlockingCache {
             final Serializable key = (Serializable) iterator.next();
 
             try {
-                Cache backingCache = getCache();
+                Ehcache backingCache = getCache();
                 final Element element = backingCache.getQuiet(key);
 
                 if (element == null) {
@@ -187,10 +186,10 @@ public class SelfPopulatingCache extends BlockingCache {
      * Refresh a single element.
      *
      * @param element      the Element to refresh
-     * @param backingCache the underlying {@link Cache}.
+     * @param backingCache the underlying {@link Ehcache}.
      * @throws Exception
      */
-    protected void refreshElement(final Element element, Cache backingCache)
+    protected void refreshElement(final Element element, Ehcache backingCache)
         throws Exception {
         Serializable key = element.getKey();
 

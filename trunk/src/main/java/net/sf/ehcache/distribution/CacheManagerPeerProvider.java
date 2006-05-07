@@ -17,7 +17,7 @@
 package net.sf.ehcache.distribution;
 
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Cache;
+import net.sf.ehcache.Ehcache;
 
 import java.util.List;
 
@@ -44,7 +44,7 @@ public interface CacheManagerPeerProvider {
     /**
      * @return a list of {@link CachePeer} peers for the given cache, excluding the local peer.
      */
-    List listRemoteCachePeers(Cache cache) throws CacheException;
+    List listRemoteCachePeers(Ehcache cache) throws CacheException;
 
     /**
      * Notifies providers to initialise themselves.

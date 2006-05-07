@@ -16,10 +16,10 @@
 
 package net.sf.ehcache;
 
+import net.sf.ehcache.distribution.JVMUtil;
+import net.sf.ehcache.store.LruMemoryStoreTest;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.LruMemoryStoreTest;
-import net.sf.ehcache.distribution.JVMUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

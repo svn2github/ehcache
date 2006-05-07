@@ -19,11 +19,12 @@ package net.sf.ehcache.event;
 import java.util.Properties;
 
 /**
- * An abstract factory for creating cache manager listeners. Implementers should provide their own
+ * An abstract factory for creating {@link CacheManagerEventListener}s. Implementers should provide their own
  * concrete factory extending this factory. It can then be configured in ehcache.xml
  *
  * @author Greg Luck
  * @version $Id$
+ * @see "http://ehcache.sourceforge.net/documentation/cachemanager_event_listeners.html"
  */
 public abstract class CacheManagerEventListenerFactory {
 

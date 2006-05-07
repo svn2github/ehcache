@@ -16,8 +16,8 @@
 
 package net.sf.ehcache.store;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.event.RegisteredEventListeners;
@@ -41,7 +41,7 @@ public abstract class MemoryStore implements Store {
     /**
      * The cache this store is associated with.
      */
-    protected Cache cache;
+    protected Ehcache cache;
 
     /**
      * Map where items are stored by key.
@@ -64,7 +64,7 @@ public abstract class MemoryStore implements Store {
      * @param cache
      * @param diskStore
      */
-    protected MemoryStore(Cache cache, DiskStore diskStore) {
+    protected MemoryStore(Ehcache cache, DiskStore diskStore) {
         status = Status.STATUS_UNINITIALISED;
         this.cache = cache;
         this.diskStore = diskStore;
@@ -81,7 +81,7 @@ public abstract class MemoryStore implements Store {
      * @param diskStore
      * @return an instance of a MemoryStore, configured with the appropriate eviction policy
      */
-    public static MemoryStore create(Cache cache, DiskStore diskStore) {
+    public static MemoryStore create(Ehcache cache, DiskStore diskStore) {
         MemoryStore memoryStore = null;
         MemoryStoreEvictionPolicy policy = cache.getMemoryStoreEvictionPolicy();
 
@@ -274,7 +274,7 @@ public abstract class MemoryStore implements Store {
 
     /**
      * Puts the element in the DiskStore.
-     * Should only be called if {@link Cache#isOverflowToDisk} is true
+     * Should only be called if {@link Ehcache#isOverflowToDisk} is true
      * <p/>
      * Relies on being called from a synchronized method
      *
@@ -393,5 +393,6 @@ public abstract class MemoryStore implements Store {
     protected final boolean isFull() {
         return map.size() > cache.getMaxElementsInMemory();
     }
+
 
 }

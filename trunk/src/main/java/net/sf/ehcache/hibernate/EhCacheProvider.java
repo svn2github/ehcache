@@ -84,7 +84,7 @@ public final class EhCacheProvider implements CacheProvider {
      */
     public final Cache buildCache(String name, Properties properties) throws CacheException {
         try {
-            net.sf.ehcache.Cache cache = manager.getCache(name);
+            net.sf.ehcache.Ehcache cache = manager.getCache(name);
             if (cache == null) {
                 LOG.warn("Could not find a specific ehcache configuration for cache named [" + name + "]; using defaults.");
                 manager.addCache(name);

@@ -17,15 +17,14 @@
 package net.sf.ehcache.distribution;
 
 import junit.framework.TestCase;
-
-import java.rmi.RemoteException;
-import java.rmi.Remote;
-import java.util.List;
-
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.event.CountingCacheEventListener;
+
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.util.List;
 
 /**
  * Unit tests for the RMICacheManagerPeerListener
@@ -69,12 +68,12 @@ public class RMICacheManagerPeerListenerTest extends TestCase {
     /**
      * CacheManager 1 of 2s cache being replicated
      */
-    protected Cache cache1;
+    protected Ehcache cache1;
 
     /**
      * CacheManager 2 of 2s cache being replicated
      */
-    protected Cache cache2;
+    protected Ehcache cache2;
 
     /**
      * {@inheritDoc}

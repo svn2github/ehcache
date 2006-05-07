@@ -16,20 +16,19 @@
 
 package net.sf.ehcache.distribution;
 
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.rmi.NotBoundException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * A peer provider which discovers peers using Multicast.
@@ -127,7 +126,7 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
     /**
      * @return a list of {@link CachePeer} peers, excluding the local peer.
      */
-    public final synchronized List listRemoteCachePeers(Cache cache) throws CacheException {
+    public final synchronized List listRemoteCachePeers(Ehcache cache) throws CacheException {
         List remoteCachePeers = new ArrayList();
         List staleList = new ArrayList();
         synchronized (peerUrls) {

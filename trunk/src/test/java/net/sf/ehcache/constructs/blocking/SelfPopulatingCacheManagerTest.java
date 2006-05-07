@@ -16,8 +16,8 @@
 
 package net.sf.ehcache.constructs.blocking;
 
-import net.sf.ehcache.CacheException;
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.CacheException;
 
 import java.util.ArrayList;
 

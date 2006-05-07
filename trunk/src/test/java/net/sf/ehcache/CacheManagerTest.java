@@ -244,7 +244,7 @@ public class CacheManagerTest extends TestCase {
      */
     public void testGetCache() throws CacheException {
         instanceManager = CacheManager.create();
-        Cache cache = instanceManager.getCache("sampleCache1");
+        Ehcache cache = instanceManager.getCache("sampleCache1");
         assertNotNull(cache);
     }
 
@@ -254,7 +254,7 @@ public class CacheManagerTest extends TestCase {
     public void testCacheManagerReferenceInstance() {
         instanceManager = new CacheManager();
         instanceManager.addCache("test");
-        Cache cache = instanceManager.getCache("test");
+        Ehcache cache = instanceManager.getCache("test");
         assertEquals("test", cache.getName());
         assertEquals(Status.STATUS_ALIVE, cache.getStatus());
         CacheManager reference = cache.getCacheManager();
@@ -267,7 +267,7 @@ public class CacheManagerTest extends TestCase {
     public void testCacheManagerReferenceSingleton() {
         singletonManager = CacheManager.create();
         singletonManager.addCache("test");
-        Cache cache = singletonManager.getCache("test");
+        Ehcache cache = singletonManager.getCache("test");
         assertEquals("test", cache.getName());
         assertEquals(Status.STATUS_ALIVE, cache.getStatus());
         CacheManager reference = cache.getCacheManager();
@@ -281,7 +281,7 @@ public class CacheManagerTest extends TestCase {
         System.setProperty(Cache.NET_SF_EHCACHE_DISABLED, "true");
         Thread.sleep(1000);
         instanceManager = CacheManager.create();
-        Cache cache = instanceManager.getCache("sampleCache1");
+        Ehcache cache = instanceManager.getCache("sampleCache1");
         assertNotNull(cache);
         cache.put(new Element("key123", "value"));
         Element element = cache.get("key123");
@@ -330,7 +330,7 @@ public class CacheManagerTest extends TestCase {
      */
     public void testRemoveCache() throws CacheException {
         singletonManager = CacheManager.create();
-        Cache cache = singletonManager.getCache("sampleCache1");
+        Ehcache cache = singletonManager.getCache("sampleCache1");
         assertNotNull(cache);
         singletonManager.removeCache("sampleCache1");
         cache = singletonManager.getCache("sampleCache1");
@@ -347,7 +347,7 @@ public class CacheManagerTest extends TestCase {
     public void testAddCache() throws CacheException {
         singletonManager = CacheManager.create();
         singletonManager.addCache("test");
-        Cache cache = singletonManager.getCache("test");
+        Ehcache cache = singletonManager.getCache("test");
         assertNotNull(cache);
         assertEquals("test", cache.getName());
         String[] cacheNames = singletonManager.getCacheNames();
@@ -392,7 +392,7 @@ public class CacheManagerTest extends TestCase {
     public void testStaleCacheReference() throws CacheException {
         singletonManager = CacheManager.create();
         singletonManager.addCache("test");
-        Cache cache = singletonManager.getCache("test");
+        Ehcache cache = singletonManager.getCache("test");
         assertNotNull(cache);
         cache.put(new Element("key1", "value1"));
 
@@ -421,7 +421,7 @@ public class CacheManagerTest extends TestCase {
         String[] names = singletonManager.getCacheNames();
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
-            Cache cache = singletonManager.getCache(name);
+            Ehcache cache = singletonManager.getCache(name);
             for (int j = 0; i < 100; i++) {
                 cache.put(new Element(new Integer(j), "value"));
             }
@@ -430,7 +430,7 @@ public class CacheManagerTest extends TestCase {
         for (int repeats = 0; repeats < 5000; repeats++) {
             for (int i = 0; i < names.length; i++) {
                 String name = names[i];
-                Cache cache = singletonManager.getCache(name);
+                Ehcache cache = singletonManager.getCache(name);
                 for (int j = 0; i < 100; i++) {
                     Element element = cache.get(name + j);
                     if ((element == null)) {

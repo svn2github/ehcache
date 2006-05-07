@@ -17,14 +17,13 @@
 package net.sf.ehcache.constructs.asynchronous;
 
 import junit.framework.TestCase;
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Tests of the package.
@@ -46,7 +45,7 @@ public class AsynchronousCommandExecutorTest extends TestCase {
     private volatile int counter;
 
 
-    private Cache messageCache;
+    private Ehcache messageCache;
 
     /**
      * Does setup tasks

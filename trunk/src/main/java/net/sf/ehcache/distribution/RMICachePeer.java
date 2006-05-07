@@ -16,12 +16,11 @@
 
 package net.sf.ehcache.distribution;
 
-import net.sf.ehcache.Cache;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -44,7 +43,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
 
     private final String hostname;
     private final Integer port;
-    private final Cache cache;
+    private final Ehcache cache;
 
     /**
      * Construct a new remote peer.
@@ -55,7 +54,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      * @param socketTimeoutMillis
      * @throws RemoteException
      */
-    public RMICachePeer(Cache cache, String hostName, Integer port, Integer socketTimeoutMillis)
+    public RMICachePeer(Ehcache cache, String hostName, Integer port, Integer socketTimeoutMillis)
             throws RemoteException {
         super(0, new ConfigurableRMIClientSocketFactory(socketTimeoutMillis),
                 RMISocketFactory.getDefaultSocketFactory());
@@ -131,12 +130,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
     public final void removeAll() throws RemoteException, IllegalStateException {
-        try {
-            cache.removeAll();
-        } catch (IOException e) {
-            LOG.error(e.getMessage());
-            throw new RemoteException(e.getMessage());
-        }
+        cache.removeAll();
     }
 
     /**
@@ -173,7 +167,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
     /**
      * Gets the cache instance that this listener is bound to
      */
-    final Cache getBoundCacheInstance() {
+    final Ehcache getBoundCacheInstance() {
         return cache;
     }
 

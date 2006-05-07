@@ -17,10 +17,10 @@
 package net.sf.ehcache.distribution;
 
 import junit.framework.TestCase;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 
 import java.rmi.Naming;
 import java.util.Date;
@@ -47,8 +47,8 @@ public class RMIDistributedCacheTest extends TestCase {
     /**
      * the cache we wish to test
      */
-    private Cache sampleCache1;
-    private Cache sampleCache2;
+    private Ehcache sampleCache1;
+    private Ehcache sampleCache2;
 
 
     private String hostName = "localhost";

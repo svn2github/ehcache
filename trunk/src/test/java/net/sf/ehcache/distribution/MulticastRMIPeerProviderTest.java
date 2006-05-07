@@ -17,16 +17,15 @@
 package net.sf.ehcache.distribution;
 
 import junit.framework.TestCase;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.StopWatch;
 import net.sf.ehcache.AbstractCacheTest;
-
-import java.util.List;
-import java.rmi.RemoteException;
-
-import org.apache.commons.logging.LogFactory;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.StopWatch;
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.rmi.RemoteException;
+import java.util.List;
 
 /**
  * Multicast tests. These require special machine configuration.
@@ -96,19 +95,19 @@ public class MulticastRMIPeerProviderTest extends TestCase {
             return;
         }
 
-        Cache m1sampleCache1 = manager1.getCache("sampleCache1");
+        Ehcache m1sampleCache1 = manager1.getCache("sampleCache1");
         Thread.sleep(2000);
 
         List peerUrls = manager1.getCachePeerProvider().listRemoteCachePeers(m1sampleCache1);
         assertEquals(expectedPeers(), peerUrls.size());
 
-        Cache m2sampleCache1 = manager2.getCache("sampleCache1");
+        Ehcache m2sampleCache1 = manager2.getCache("sampleCache1");
         assertFalse(m1sampleCache1.getGuid().equals(m2sampleCache1.getGuid()));
 
         List peerUrls2 = manager2.getCachePeerProvider().listRemoteCachePeers(m2sampleCache1);
         assertEquals(expectedPeers(), peerUrls2.size());
 
-        Cache m3sampleCache1 = manager3.getCache("sampleCache1");
+        Ehcache m3sampleCache1 = manager3.getCache("sampleCache1");
         assertFalse(m1sampleCache1.getGuid().equals(m3sampleCache1.getGuid()));
 
         List peerUrls3 = manager3.getCachePeerProvider().listRemoteCachePeers(m3sampleCache1);
@@ -136,7 +135,7 @@ public class MulticastRMIPeerProviderTest extends TestCase {
             return;
         }
 
-        Cache m1sampleCache1 = manager1.getCache("sampleCache1");
+        Ehcache m1sampleCache1 = manager1.getCache("sampleCache1");
         Thread.sleep(2000);
         List peerUrls = manager1.getCachePeerProvider().listRemoteCachePeers(m1sampleCache1);
 

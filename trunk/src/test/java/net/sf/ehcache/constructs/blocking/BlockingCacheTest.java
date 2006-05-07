@@ -17,19 +17,19 @@
 package net.sf.ehcache.constructs.blocking;
 
 import net.sf.ehcache.AbstractCacheTest;
-import net.sf.ehcache.Cache;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.StopWatch;
-import net.sf.ehcache.constructs.valueobject.KeyValuePair;
 import net.sf.ehcache.constructs.concurrent.Mutex;
+import net.sf.ehcache.constructs.valueobject.KeyValuePair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 /**
  * Test cases for the {@link BlockingCache}.
@@ -85,7 +85,7 @@ public class BlockingCacheTest extends AbstractCacheTest {
      * Tests that getting entries matches a list of known entries
      */
     public void testGetEntries() throws Exception {
-        Cache cache = blockingCache.getCache();
+        Ehcache cache = blockingCache.getCache();
         for (int i = 0; i < 100; i++) {
             cache.put(new Element(new Integer(i), "value" + i));
         }

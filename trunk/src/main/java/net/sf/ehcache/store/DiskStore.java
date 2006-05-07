@@ -17,8 +17,8 @@
 
 package net.sf.ehcache.store;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.event.RegisteredEventListeners;
@@ -33,18 +33,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.io.StreamCorruptedException;
-import java.io.ObjectStreamClass;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * A disk store implementation.
@@ -75,7 +75,7 @@ public class DiskStore implements Store {
     private Thread spoolThread;
     private Thread expiryThread;
 
-    private Cache cache;
+    private Ehcache cache;
 
     /**
      * If persistent, the disk file will be kept
@@ -107,7 +107,7 @@ public class DiskStore implements Store {
      * @param cache    the {@link net.sf.ehcache.Cache} that the store is part of
      * @param diskPath the directory in which to create data and index files
      */
-    public DiskStore(Cache cache, String diskPath) {
+    public DiskStore(Ehcache cache, String diskPath) {
         status = Status.STATUS_UNINITIALISED;
         this.cache = cache;
         name = cache.getName();
@@ -743,10 +743,9 @@ public class DiskStore implements Store {
 
     /**
      * Removes expired elements.
-     * Note that the cache is locked for the entire time that elements are being expired.
      * @noinspection SynchronizeOnNonFinalField
      */
-    private void expireElements() {
+    public void expireElements() {
         final long now = System.currentTimeMillis();
 
         // Clean up the spool

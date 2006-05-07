@@ -16,8 +16,8 @@
 
 package net.sf.ehcache.store;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,7 +41,7 @@ public final class LruMemoryStore extends MemoryStore {
      * Constructor for the LruMemoryStore object
      * The backing {@link java.util.LinkedHashMap} is created with LRU by access order.
      */
-    public LruMemoryStore(Cache cache, DiskStore diskStore) {
+    public LruMemoryStore(Ehcache cache, DiskStore diskStore) {
         super(cache, diskStore);
 
         try {
@@ -104,7 +104,7 @@ public final class LruMemoryStore extends MemoryStore {
 
         /**
          * Constructor.
-         * The maximum size is set to {@link Cache#getMaxElementsInMemory}. If the
+         * The maximum size is set to {@link Ehcache#getMaxElementsInMemory}. If the
          * LRUMap gets bigger than this, {@link #processRemovedLRU} is called.
          */
         public SpoolingLRUMap() {

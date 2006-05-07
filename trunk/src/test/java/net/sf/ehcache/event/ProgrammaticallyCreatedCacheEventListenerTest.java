@@ -16,8 +16,8 @@
 
 package net.sf.ehcache.event;
 
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.CacheManager;
 
 /**
  * Same as {@link CacheEventListenerTest} except that the listener is set programmatically. This test inherits because

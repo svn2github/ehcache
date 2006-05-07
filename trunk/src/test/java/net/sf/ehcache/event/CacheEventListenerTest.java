@@ -17,11 +17,11 @@
 package net.sf.ehcache.event;
 
 import junit.framework.TestCase;
-import net.sf.ehcache.Cache;
+import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.AbstractCacheTest;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -47,7 +47,7 @@ public class CacheEventListenerTest extends TestCase {
     /**
      * the cache we wish to test
      */
-    protected Cache cache;
+    protected Ehcache cache;
 
     /**
      * {@inheritDoc}

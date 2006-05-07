@@ -16,16 +16,15 @@
 
 package net.sf.ehcache.distribution;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.Serializable;
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Listens to {@link net.sf.ehcache.CacheManager} and {@link net.sf.ehcache.Cache} events and propagates those to
@@ -100,7 +99,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
      * @param cache   the cache emitting the notification
      * @param element the element which was just put into the cache.
      */
-    public void notifyElementPut(final Cache cache, final Element element) throws CacheException {
+    public void notifyElementPut(final Ehcache cache, final Element element) throws CacheException {
         if (notAlive()) {
             return;
         }
@@ -126,7 +125,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
      * @param element
      * @throws RemoteCacheException if anything goes wrong with the remote call
      */
-    private static void replicatePutNotification(Cache cache, Element element) throws RemoteCacheException {
+    private static void replicatePutNotification(Ehcache cache, Element element) throws RemoteCacheException {
         List cachePeers = listRemoteCachePeers(cache);
         for (int i = 0; i < cachePeers.size(); i++) {
             CachePeer cachePeer = (CachePeer) cachePeers.get(i);
@@ -152,7 +151,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
      * @param cache   the cache emitting the notification
      * @param element the element which was just put into the cache.
      */
-    public void notifyElementUpdated(final Cache cache, final Element element) throws CacheException {
+    public void notifyElementUpdated(final Ehcache cache, final Element element) throws CacheException {
         if (notAlive()) {
             return;
         }
@@ -193,7 +192,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
      * @param cache   the cache emitting the notification
      * @param element just deleted
      */
-    public void notifyElementRemoved(final Cache cache, final Element element) throws CacheException {
+    public void notifyElementRemoved(final Ehcache cache, final Element element) throws CacheException {
         if (notAlive()) {
             return;
         }
@@ -218,7 +217,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
      * @param key
      * @throws RemoteCacheException if anything goes wrong with the remote call
      */
-    private static void replicateRemovalNotification(Cache cache, Serializable key) throws RemoteCacheException {
+    private static void replicateRemovalNotification(Ehcache cache, Serializable key) throws RemoteCacheException {
         List cachePeers = listRemoteCachePeers(cache);
         for (int i = 0; i < cachePeers.size(); i++) {
             CachePeer cachePeer = (CachePeer) cachePeers.get(i);
@@ -234,7 +233,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
      * Package protected List of cache peers
      * @param cache
      */
-    static List listRemoteCachePeers(Cache cache) {
+    static List listRemoteCachePeers(Ehcache cache) {
         CacheManagerPeerProvider provider = cache.getCacheManager().getCachePeerProvider();
         return provider.listRemoteCachePeers(cache);
     }
@@ -246,7 +245,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
      * expire in the remote cache at the same time. If the remote peer is not configured the same way they should
      * not be in an cache cluster.
      */
-    public final void notifyElementExpired(final Cache cache, final Element element) {
+    public final void notifyElementExpired(final Ehcache cache, final Element element) {
         /*do not propagate expiries. The element should expire in the remote cache at the same time, thus
           preseerving coherency.
           */

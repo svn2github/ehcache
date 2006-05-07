@@ -16,18 +16,18 @@
 
 package net.sf.ehcache.constructs.asynchronous;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.Serializable;
 import java.rmi.dgc.VMID;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.Stack;
-import java.util.Date;
-import java.io.Serializable;
 
 /**
  * Handles the asynchronous execution of commands. This class contains subtle threading interactions and should
@@ -134,7 +134,7 @@ public final class AsynchronousCommandExecutor {
      */
     synchronized LinkedList getQueue() throws AsynchronousCommandException {
         LinkedList queue = null;
-        Cache cache = getMessageCache();
+        Ehcache cache = getMessageCache();
         Element element = null;
         try {
             element = cache.get(QUEUE_KEY);
@@ -157,8 +157,8 @@ public final class AsynchronousCommandExecutor {
      * @return the {@link #MESSAGE_CACHE} cache
      * @throws AsynchronousCommandException if the {@link #MESSAGE_CACHE} is null
      */
-    public Cache getMessageCache() throws AsynchronousCommandException {
-        Cache cache = cacheManager.getCache(MESSAGE_CACHE);
+    public Ehcache getMessageCache() throws AsynchronousCommandException {
+        Ehcache cache = cacheManager.getCache(MESSAGE_CACHE);
         if (cache == null) {
             throw new AsynchronousCommandException(
                     "ehcache.xml with a configuration entry for " +
@@ -342,7 +342,7 @@ public final class AsynchronousCommandExecutor {
 
     private void remove(LinkedList queue, String uid, String reason) {
         queue.removeFirst();
-        Cache cache = null;
+        Ehcache cache = null;
         try {
             cache = getMessageCache();
         } catch (AsynchronousCommandException e) {
@@ -364,7 +364,7 @@ public final class AsynchronousCommandExecutor {
         Element element = null;
         try {
             //Cache not alive here. Why?
-            Cache cache = getMessageCache();
+            Ehcache cache = getMessageCache();
             element = cache.get(uid);
         } catch (Exception e) {
             throw new CommandNotFoundInCacheException("Cache error while retrieving command", e);
@@ -401,7 +401,7 @@ public final class AsynchronousCommandExecutor {
     public synchronized int countCachedPublishCommands() {
         int messageCount = 0;
         try {
-            Cache cache = getMessageCache();
+            Ehcache cache = getMessageCache();
             messageCount = cache.getSize();
         } catch (Exception e) {
             LOG.info("Unable to determine the number"
@@ -452,7 +452,7 @@ public final class AsynchronousCommandExecutor {
     String storeCommandToCache(InstrumentedCommand instrumentedCommand) throws AsynchronousCommandException {
         String uid = generateUniqueIdentifier();
         Element element = new Element(uid, instrumentedCommand);
-        Cache messageCache = getMessageCache();
+        Ehcache messageCache = getMessageCache();
         messageCache.put(element);
         return uid;
     }

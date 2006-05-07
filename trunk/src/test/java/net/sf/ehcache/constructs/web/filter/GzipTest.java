@@ -18,8 +18,9 @@ package net.sf.ehcache.constructs.web.filter;
 
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebResponse;
-import java.net.HttpURLConnection;
 import net.sf.ehcache.constructs.web.AbstractWebTest;
+
+import java.net.HttpURLConnection;
 
 /**
  * Test cases for the Caching filter and Gzip.

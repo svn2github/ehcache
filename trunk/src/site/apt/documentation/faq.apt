@@ -184,3 +184,18 @@ CacheManagerTest#testCreateShutdownCreate()
 
  http://www.ibiblio.org/maven/ehcache/ for earlier versions.
 
+
+* How do I dynamically change Cache attributes at runtime?
+
+    You can't but you can achieve the same result as follows:
+
+    Cache cache = new Cache("test2", 1, true, true, 0, 0, true, 120, ...);
+    cacheManager.addCache(cache);
+
+    See the JavaDoc for the full parameters, also reproduced here:
+     
+    Having created the new cache, get a list of keys using cache.getKeys, then get each one and put it in the new cache.
+    None of this will use much memory because the new cache element have values that reference the same data as the original cache.
+    Then use cacheManager.removeCache("oldcachename") to remove the original cache.
+
+
