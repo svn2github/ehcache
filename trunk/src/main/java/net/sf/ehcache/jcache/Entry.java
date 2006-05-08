@@ -89,7 +89,7 @@ public class Entry implements CacheEntry {
     }
 
     /**
-     * This implementation does not have a notion of cost. Accordingly 0 is always returned.
+     * This implementation does not have a notion of cost. Accordingly, 0 is always returned.
      *
      * @return 0
      */
@@ -111,26 +111,35 @@ public class Entry implements CacheEntry {
     }
 
     /**
-     * todo need to implement this on Element
+     * Returns the expiration time based on time to live. If this element also has a time to idle setting, the expiry
+     * time will vary depending on whether the element is accessed.
      *
+     * @return the time to expiration
      */
     public long getExpirationTime() {
         if (element != null) {
-            return 0;
+            return element.getExpirationTime();
         } else {
             return 0;
         }
     }
 
     /**
-     * todo need to implement this on Element
+     * Gets the hit count on this element. A new element has a hit count of 0.
+     * @return the number of hits this Element has had. If the Element was updated, the hit count is reset to 0.
      */
     public long getHits() {
-        return 0;
+        if (element != null) {
+            return element.getHitCount();
+        } else {
+            return 0;
+        }
     }
 
     /**
-     * todo need to implement this on Element
+     * Gets the last access time.
+     * Access means a get. So a newly created {@link Element}
+     * will have a last access time equal to its create time.
      */
     public long getLastAccessTime() {
         if (element != null) {
@@ -141,14 +150,21 @@ public class Entry implements CacheEntry {
     }
 
     /**
-     * todo need to implement this on Element
+     * Updated means there was an existing Element that was replaced with a new one, for the same key. If an update
+     * occurs, then the lastUpdateTime will be non-zero.
+     * @return 0 if never updated, otherwise the time the update occurred.
      */
     public long getLastUpdateTime() {
-        return 0;
+        if (element != null) {
+            return element.getLastUpdateTime();
+        } else {
+            return 0;
+        }
     }
 
     /**
-     * todo make version meaningful. Updates should increment version in the new Element, not set it to 0.
+     * Returns the version of the Element. This is based on timestamps.
+     * @return 0 if the first version, otherwise the timestamp when the version was created.
      */
     public long getVersion() {
         if (element != null) {
@@ -160,10 +176,15 @@ public class Entry implements CacheEntry {
     }
 
     /**
-     * todo implement this in element
+     * An Element is 'valid' if it is unexpired.
+     * @return true if unexpired, otherwise false.
      */
     public boolean isValid() {
-        return true;
+        if (element != null) {
+            return !element.isExpired();
+        } else {
+            return false;
+        }
     }
 }
 

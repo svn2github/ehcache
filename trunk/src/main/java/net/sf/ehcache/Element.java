@@ -28,7 +28,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 /**
- * A Cache Element, consisting of a key, value and attributes. 
+ * A Cache Element, consisting of a key, value and attributes.
  * <p/>
  * From ehcache-1.2, Elements can have keys and values that are Serializable or Objects. To preserve backward
  * compatibility, special accessor methods for Object keys and values are provided: {@link #getObjectKey()} and
@@ -60,7 +60,8 @@ public final class Element implements Serializable, Cloneable {
     private final Object value;
 
     /**
-     * version of the element.
+     * version of the element. System.currentTimeMillis() is used to compute version for updated elements. That
+     * way, the actual version of the updated element does not need to be checked.
      */
     private long version;
 
@@ -85,10 +86,29 @@ public final class Element implements Serializable, Cloneable {
     private long hitCount;
 
     /**
+     * The amount of time for the element to live. 0 indicates unlimited.
+     */
+    private long timeToLive;
+
+    /**
+     * The amount of time for the element to idle. 0 indicates unlimited.
+     */
+    private long timeToIdle;
+
+    /**
+     * If there is an Element in the Cache and it is replaced with a new Element for the same key,
+     * then both the version number and lastUpdateTime should be updated to reflect that. The creation time
+     * will be the creation time of the new Element, not the original one, so that TTL concepts still work.
+     */
+    private long lastUpdateTime;
+
+
+    /**
      * A full constructor.
      * <p/>
      * Creation time is set to the current time. Last Access Time and Previous To Last Access Time
      * are not set.
+     *
      * @since .4
      */
     public Element(Serializable key, Serializable value, long version) {
@@ -101,6 +121,7 @@ public final class Element implements Serializable, Cloneable {
      * <p/>
      * Creation time is set to the current time. Last Access Time and Previous To Last Access Time
      * are not set.
+     *
      * @since 1.2
      */
     public Element(Object key, Object value, long version) {
@@ -118,7 +139,7 @@ public final class Element implements Serializable, Cloneable {
      * @param value
      */
     public Element(Serializable key, Serializable value) {
-        this((Object)key, (Object)value, 1L);
+        this((Object) key, (Object) value, 1L);
     }
 
     /**
@@ -293,6 +314,15 @@ public final class Element implements Serializable, Cloneable {
     }
 
     /**
+     * Sets the last access time to now.
+     */
+    public final void updateUpdateStatistics() {
+        lastUpdateTime = System.currentTimeMillis();
+        version = lastUpdateTime;
+    }
+
+
+    /**
      * Returns a {@link String} representation of the {@link Element}.
      */
     public final String toString() {
@@ -317,6 +347,7 @@ public final class Element implements Serializable, Cloneable {
      * <p/>
      * Warning: This can be very slow on large object graphs. If you use this method
      * you should write a performance test to verify suitability.
+     *
      * @return a new {@link Element}, with exactly the same field values as the one it was cloned from.
      * @throws CloneNotSupportedException
      */
@@ -406,6 +437,7 @@ public final class Element implements Serializable, Cloneable {
      * While Element implements Serializable, it is possible to create non Serializable elements
      * for use in MemoryStores. This method checks that an instance of Element really is Serializable
      * and will not throw a NonSerializableException if Serialized.
+     *
      * @return true if the element is Serializable
      * @since 1.2
      */
@@ -421,13 +453,54 @@ public final class Element implements Serializable, Cloneable {
      * <p/>
      * This method checks that an instance of an Element's key really is Serializable
      * and will not throw a NonSerializableException if Serialized.
+     *
      * @return true if the element's key is Serializable
      * @since 1.2
      */
     public final boolean isKeySerializable() {
         return key instanceof Serializable;
-}
+    }
+
+    /**
+     * If there is an Element in the Cache and it is replaced with a new Element for the same key,
+     * then both the version number and lastUpdateTime should be updated to reflect that. The creation time
+     * will be the creation time of the new Element, not the original one, so that TTL concepts still work.
+     *
+     * @return the time when the last update occured. If this is the original Element, the time will be null
+     */
+    public long getLastUpdateTime() {
+        return lastUpdateTime;
+    }
+
+    /**
+     * An element is expired if the expiration time as given by {@link #getExpirationTime()} is in the past. 
+     * @return true if the Element is expired, otherwise false.
+     * @see #getExpirationTime()
+     */
+    public boolean isExpired() {
+        return getExpirationTime() > System.currentTimeMillis();
+    }
+
+    /**
+     * Returns the expiration time based on time to live. If this element also has a time to idle setting, the expiry
+     * time will vary depending on whether the element is accessed.
+     *
+     * @return the time to expiration
+     */
+    public long getExpirationTime() {
+
+        long expiryOnTTLBasis = 0;
+        if (timeToLive != 0) {
+            expiryOnTTLBasis = creationTime + timeToLive;
         }
+
+        long expiredOnTTIBasis = 0;
+        if (timeToIdle != 0) {
+            expiredOnTTIBasis = lastAccessTime + timeToIdle;
+        }
+        return Math.min(expiryOnTTLBasis, expiredOnTTIBasis);
+    }
+}
 
 
 

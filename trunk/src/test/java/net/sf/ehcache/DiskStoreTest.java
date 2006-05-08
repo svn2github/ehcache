@@ -43,7 +43,7 @@ import java.util.Random;
  */
 public class DiskStoreTest extends AbstractCacheTest {
     private static final Log LOG = LogFactory.getLog(DiskStoreTest.class.getName());
-    private static final int ELEMENT_ON_DISK_SIZE = 1255;
+    private static final int ELEMENT_ON_DISK_SIZE = 1322;
 
     /**
      * teardown

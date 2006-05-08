@@ -487,6 +487,10 @@ public final class Cache implements Ehcache {
             elementExists = isElementInMemory(key) || isElementOnDisk(key);
         }
 
+        if (elementExists) {
+            element.updateUpdateStatistics();
+        }
+
         memoryStore.put(element);
 
         if (elementExists) {
@@ -1498,11 +1502,21 @@ Cache size is the size of the union of the two key sets.*/
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Note, the {@link @getSize} method will have the same value as the size reported by Statistics
+     * for the statistics accuracy of {@link Statistics.STATISTICS_ACCURACY_BEST_EFFORT}.
      */
     public Statistics getStatistics() throws IllegalStateException {
-        //todo Do three implementations, depending of accuracy
+        int size = 0;
+        if (statisticsAccuracy == Statistics.STATISTICS_ACCURACY_BEST_EFFORT) {
+            size = getSize();
+        } else if (statisticsAccuracy == Statistics.STATISTICS_ACCURACY_GUARANTEED) {
+            size = getKeysWithExpiryCheck().size();
+        } else if (statisticsAccuracy == Statistics.STATISTICS_ACCURACY_NONE) {
+            size = getKeysNoDuplicateCheck().size();
+        }
         return new Statistics(this, statisticsAccuracy, hitCount, diskStoreHitCount, memoryStoreHitCount,
-                missCountExpired + missCountNotFound, getSize());
+                missCountExpired + missCountNotFound, size);
     }
 
     /**

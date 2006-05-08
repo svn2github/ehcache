@@ -34,6 +34,7 @@ import java.util.Properties;
  */
 public class HibernateAPIUsageTest extends AbstractCacheTest {
     private static final Log LOG = LogFactory.getLog(CacheTest.class.getName());
+    private static final int EMPTY_ELEMENT_SIZE = 280;
 
 
     /**
@@ -106,7 +107,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         cache.clear();
         assertEquals(0, cache.getElementCountInMemory());
         cache.put(key, value);
-        assertTrue(213 == cache.getSizeInMemory());
+        assertTrue(EMPTY_ELEMENT_SIZE == cache.getSizeInMemory());
 
         //locks
         //timeout. This seems strange
@@ -178,7 +179,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         cache.clear();
         assertEquals(0, cache.getElementCountInMemory());
         cache.put(key, value);
-        assertTrue(213 == cache.getSizeInMemory());
+        assertTrue(EMPTY_ELEMENT_SIZE == cache.getSizeInMemory());
 
         //locks
         //timeout. This seems strange
