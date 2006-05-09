@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.net.ServerSocket;
 import java.rmi.Naming;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.io.IOException;
 
 /**
  * A cache server which exposes available cache operations remotely through RMI.
@@ -88,13 +90,14 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             this.hostName = hostName;
             if (hostName.equals("localhost")) {
                 LOG.warn("Explicitly setting the listener hostname to 'localhost' is not recommended. "
-                + "It will only work if all CacheManager peers are on the same machine.");
+                        + "It will only work if all CacheManager peers are on the same machine.");
             }
         } else {
             this.hostName = calculateHostAddress();
         }
-        if (port == null) {
-            throw new IllegalArgumentException("port must be specified in the range 1025 - 65536");
+        if (port == null || port.intValue() == 0) {
+            this.port = new Integer(this.getFreePort());
+            LOG.debug("Automatically finding a free TCP/IP port to listen on: " + this.port);
         } else {
             this.port = port;
         }
@@ -108,10 +111,35 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
 
     /**
      * Calculates the host address as the default NICs IP address
+     *
      * @throws UnknownHostException
      */
     protected String calculateHostAddress() throws UnknownHostException {
         return InetAddress.getLocalHost().getHostAddress();
+    }
+
+
+    /**
+     * Gets a free server socket port.
+     * @return a number in the range 1025 - 65536 that was free at the time this method was executed
+     * @throws IllegalArgumentException
+     */
+    protected int getFreePort() throws IllegalArgumentException {
+        ServerSocket serverSocket = null;
+        try {
+            serverSocket = new ServerSocket(0);
+            return serverSocket.getLocalPort();
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Could not acquire a free port number.");
+        } finally {
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                try {
+                    serverSocket.close();
+                } catch (Exception e) {
+                    LOG.debug("Error closing ServerSocket: " + e.getMessage());
+                }
+            }
+        }
     }
 
 
@@ -143,6 +171,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      * Returns a list of bound objects.
      * <p/>
      * This should match the list of cachePeers i.e. they should always be bound
+     *
      * @return a list of String representations of <code>RMICachePeer</code> objects
      */
     protected String[] listBoundRMICachePeers() throws CacheException {
@@ -155,6 +184,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
 
     /**
      * Returns a reference to the remote object.
+     *
      * @param name the name of the cache e.g. <code>sampleCache1</code>
      */
     protected Remote lookupPeer(String name) throws CacheException {
@@ -184,6 +214,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
 
     /**
      * Determine if the given cache is distributed.
+     *
      * @param cache the cache to check
      * @return true if a <code>CacheReplicator</code> is found in the listeners
      */

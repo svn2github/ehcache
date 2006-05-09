@@ -55,7 +55,12 @@ public final class RMICacheManagerPeerListenerFactory extends CacheManagerPeerLi
             throws CacheException {
         String hostName = PropertyUtil.extractAndLogProperty(HOSTNAME, properties);
         String portString = PropertyUtil.extractAndLogProperty(PORT, properties);
-        Integer port = new Integer(portString);
+        Integer port = null;
+        if (portString != null && portString.length() != 0) {
+            port = new Integer(portString);
+        } else {
+            port = new Integer(0);
+        }
         String socketTimeoutMillisString = PropertyUtil.extractAndLogProperty(SOCKET_TIMEOUT_MILLIS, properties);
         Integer socketTimeoutMillis;
         if (socketTimeoutMillisString == null || socketTimeoutMillisString.length() == 0) {

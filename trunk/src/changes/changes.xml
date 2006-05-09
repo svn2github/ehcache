@@ -10,6 +10,22 @@
                 valuable functionality and given that the 1.2 jar size is large, can be added with only a small
                 increase in jar size.
             </action>
+            <action dev="Greg Luck" type="add">
+                Added an implementation for JSR-107, JCACHE/OpenCache, to net.sf.ehcache.jcache. Thanks to Chris Berry and
+                James Strachan for help with this. A small number of enhancements to Cache and Element have been added to support
+                JCACHE behaviour. A new Statistics class which can be obtained from a Cache has been added. Elements can
+                now return their expected expiry times.
+            </action>
+            <action dev="Greg Luck" issue="1483735" type="add">
+                Allow zeroconf of RMICacheManagerPeerListenerFactory. A configuration
+                &lt;cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/&gt;
+                will now work. The listener port will be automatically assigned a free port.
+            </action>
+            <action dev="Greg Luck" type="add">
+                New SingletonEhCacheProvider for use by Hibernate in situations where code has been written which relies
+                on the singleton behaviour of ehcache-1.1 and earlier. Most code bases using Hibernate should not
+                require this.
+            </action>
             <!-- Bug fixes -->
             <action dev="Greg Luck" issue="1480442" type="fix">
                 Theoretically possible NPE if a MulticastRMICacheManagerPeerProvider is started and then stopped

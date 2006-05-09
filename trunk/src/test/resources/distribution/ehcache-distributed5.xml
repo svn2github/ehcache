@@ -75,7 +75,7 @@
 
     -->
     <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
-                                     properties="hostName=, port=40005, socketTimeoutMillis=120000"/>
+                                     properties="hostName=, socketTimeoutMillis=120000"/>
 
 
     <!--Default Cache configuration. These will applied to caches programmatically created through
