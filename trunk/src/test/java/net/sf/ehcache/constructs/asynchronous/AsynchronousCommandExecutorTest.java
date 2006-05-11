@@ -180,6 +180,7 @@ public class AsynchronousCommandExecutorTest extends TestCase {
      * Show that, no matter how long the dispatcher thread interval is, messages will attempt to
      * be sent immediately.
      * <p/>
+     * todo compare with queue implementation
      * This will not work if the thread does polling. It must be able to be woken up when new messages
      * arrive for processing.
      */
@@ -191,7 +192,7 @@ public class AsynchronousCommandExecutorTest extends TestCase {
         Thread.sleep(2000);
         sendSerializableMessage();
         //Wait for messages to be sent.
-        Thread.sleep(2000);
+        Thread.sleep(3000);
         //Will not work unless we were able to wake the thread up.
         assertEquals(2, messages.size());
         assertNoCommandsInCache();
@@ -210,7 +211,7 @@ public class AsynchronousCommandExecutorTest extends TestCase {
             //sendNonSerializableMessage();
         }
         //Wait for messages to be sent.
-        Thread.sleep(9000);
+        Thread.sleep(10000);
         assertEquals(2, messages.size());
         assertNoCommandsInCache();
 

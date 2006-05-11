@@ -48,6 +48,7 @@ import java.util.Set;
  * <li>Event listeners are given cache names as arguments. They are assured the cache is referenceable through a single
  * CacheManager.
  * </ol>
+ * todo add shutdown hook
  *
  * @author Greg Luck
  * @version $Id$
