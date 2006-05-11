@@ -19,6 +19,7 @@ package net.sf.ehcache.distribution;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CacheEventListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,6 +58,8 @@ import java.io.IOException;
  * all required classes to enable distribution, so no remote classloading is required or desirable. Accordingly,
  * no security manager is set and there are no special JVM configuration requirements.
  * <p/>
+ * This class opens a ServerSocket. The dispose method should be called for orderly closure of that socket. This class
+ * has a shutdown hook which calls dispose() as a convenience feature for developers.
  *
  * @author Greg Luck
  * @version $Id$
@@ -73,6 +76,19 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
     private CacheManager cacheManager;
     private Integer socketTimeoutMillis;
 
+    /**
+     * The shutdown hook thread for these listeners. To cover the situation where dispose() is not called explicitly.
+     *
+     * This thread must be unregistered as a shutdown hook, when the listener is disposed.
+     * Otherwise the listener is not GC-able.
+     */
+    private Thread shutdownHook;
+
+    /**
+     * status.
+     */
+    private Status status;
+
     private final List cachePeers = new ArrayList();
 
     /**
@@ -86,6 +102,9 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      */
     public RMICacheManagerPeerListener(String hostName, Integer port, CacheManager cacheManager,
                                        Integer socketTimeoutMillis) throws UnknownHostException {
+
+        status = Status.STATUS_UNINITIALISED;
+
         if (hostName != null && hostName.length() != 0) {
             this.hostName = hostName;
             if (hostName.equals("localhost")) {
@@ -107,6 +126,49 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
         }
         this.socketTimeoutMillis = socketTimeoutMillis;
 
+    }
+
+
+    /**
+     * Some caches might be persistent, so we want to add a shutdown hook if that is the
+     * case, so that the data and index can be written to disk.
+     */
+    private void addShutdownHook() {
+        Thread localShutdownHook = new Thread() {
+            public void run() {
+                synchronized (this) {
+                    if (status.equals(Status.STATUS_ALIVE)) {
+                        // clear shutdown hook reference to prevent
+                        // removeShutdownHook to remove it during shutdown
+                        RMICacheManagerPeerListener.this.shutdownHook = null;
+
+                        LOG.debug("VM shutting down with the RMICacheManagerPeerListener for " + hostName
+                                + " still active. Calling dispose...");
+                        dispose();
+                    }
+                }
+            }
+        };
+
+        Runtime.getRuntime().addShutdownHook(localShutdownHook);
+        shutdownHook = localShutdownHook;
+    }
+
+
+    /**
+     * Remove the shutdown hook to prevent leaving orphaned caches around. This
+     * is called by {@link #dispose()} AFTER the status has been set to shutdown.
+     */
+    private void removeShutdownHook() {
+        if (shutdownHook != null) {
+            // remove shutdown hook
+            Runtime.getRuntime().removeShutdownHook(shutdownHook);
+
+            // run the shutdown thread to remove it from its thread group
+            shutdownHook.start();
+
+            shutdownHook = null;
+        }
     }
 
     /**
@@ -156,6 +218,8 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
                 Naming.rebind(rmiCachePeer.getUrl(), rmiCachePeer);
             }
             LOG.debug("Server bound in registry");
+            status = Status.STATUS_ALIVE;
+            addShutdownHook();
         } catch (Exception e) {
             String url = null;
             if (rmiCachePeer != null) {
@@ -165,6 +229,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             throw new CacheException("Problem starting listener for RMICachePeer "
                     + url + ". Initial cause was " + e.getMessage(), e);
         }
+
     }
 
     /**
@@ -271,8 +336,11 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
                 Naming.unbind(rmiCachePeer.getUrl());
             }
             LOG.debug("Server unbound in registry");
+            status = Status.STATUS_SHUTDOWN;
         } catch (Exception e) {
             throw new CacheException("Problem unbinding remote cache peers. Initial cause was " + e.getMessage(), e);
+        } finally {
+            removeShutdownHook();
         }
     }
 
@@ -283,6 +351,13 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      */
     public List getBoundCachePeers() {
         return cachePeers;
+    }
+
+    /**
+     * Returns the listener status.
+     */
+    public Status getStatus() {
+        return status;
     }
 
     /**

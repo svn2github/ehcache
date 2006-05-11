@@ -17,6 +17,7 @@
 package net.sf.ehcache.distribution;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Status;
 
 import java.util.List;
 
@@ -45,6 +46,11 @@ public interface CacheManagerPeerListener {
      * @return a list of <code>CachePeer</code> objects
      */
     List getBoundCachePeers();
+
+    /**
+     * Returns the listener status.
+     */
+    Status getStatus();
 
 
 

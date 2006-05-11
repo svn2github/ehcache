@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CountingCacheEventListener;
 
 import java.rmi.Remote;
@@ -193,5 +194,44 @@ public class RMICacheManagerPeerListenerTest extends TestCase {
 
     }
 
+    /**
+     * Does the RMI listener stop?
+     */
+    public void testListenerShutsdown() {
 
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
+        CacheManagerPeerListener cachePeerListener = manager1.getCachePeerListener();
+        List cachePeers1 = cachePeerListener.getBoundCachePeers();
+        assertEquals(55, cachePeers1.size());
+        assertEquals(Status.STATUS_ALIVE, cachePeerListener.getStatus());
+
+        manager1.shutdown();
+        assertEquals(Status.STATUS_SHUTDOWN, cachePeerListener.getStatus());
+
+    }
+
+    /**
+     * Does the RMI listener stop?
+     * <p/>
+     * This test does not actually do test the shutdown hook automatically. But you should be able to
+     * see "VM shutting down with the RMICacheManagerPeerListener for localhost still active. Calling dispose..."
+     * in the log with FINE level when this test is run individually or as the last test in the run. i.e. on VM shutdown.
+     */
+    public void testListenerShutsdownFromShutdownHook() {
+
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
+        CacheManager manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed6.xml");
+
+        CacheManagerPeerListener cachePeerListener = manager.getCachePeerListener();
+        List cachePeers1 = cachePeerListener.getBoundCachePeers();
+        assertEquals(55, cachePeers1.size());
+        assertEquals(Status.STATUS_ALIVE, cachePeerListener.getStatus());
+
+    }
 }

@@ -32,6 +32,11 @@
                 before a multicast socket connection can be established. Added guard for NPE. Thanks to Roman Kurmanowytsch
                 for reporting the issue and a fix.
             </action>
+            <action dev="Greg Luck" issue="1485765" type="fix">
+                Add shutdown hook to RMICacheManagerPeerListener so that, even if CacheManager.shutdown() is not called,
+                processes still exit cleanly. This is a bug rather than a feature request because Cache has a shutdown
+                hook to always cleanly shut down disk store, and ehcache should be consistent in supporting shutdown hooks.
+            </action>
         </release>
 
 
