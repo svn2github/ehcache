@@ -48,7 +48,6 @@ import java.util.Set;
  * <li>Event listeners are given cache names as arguments. They are assured the cache is referenceable through a single
  * CacheManager.
  * </ol>
- * todo add shutdown hook
  *
  * @author Greg Luck
  * @version $Id$
@@ -460,6 +459,9 @@ public final class CacheManager {
         caches.put(cache.getName(), cache);
         if (cacheManagerEventListener != null) {
             cacheManagerEventListener.notifyCacheAdded(cache.getName());
+        }
+        if (cacheManagerPeerListener != null && status.equals(Status.STATUS_ALIVE)) {
+            cacheManagerPeerListener.notifyCacheAdded(cache.getName());
         }
     }
 

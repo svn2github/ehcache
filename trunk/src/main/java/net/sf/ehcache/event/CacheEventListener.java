@@ -42,7 +42,7 @@ import net.sf.ehcache.Element;
  * @see CacheManagerEventListener
  * @since 1.2
  */
-public interface CacheEventListener {
+public interface CacheEventListener extends Cloneable {
 
     /**
      * Called immediately after an element has been removed. The remove method will block until
@@ -116,4 +116,16 @@ public interface CacheEventListener {
      * Give the replicator a chance to cleanup and free resources when no longer needed
      */
     void dispose();
+
+
+    /**
+     * Creates a clone of this listener. This method will only be called by ehcache before a cache is initialized.
+     * <p/>
+     * This may not be possible for listeners after they have been initialized. Implementations should throw
+     * CloneNotSupportedException if they do not support clone.
+     * @return a clone
+     * @throws CloneNotSupportedException if the listener could not be cloned.
+     */
+    public Object clone() throws CloneNotSupportedException;
+
 }

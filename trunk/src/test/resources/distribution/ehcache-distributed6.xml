@@ -115,8 +115,14 @@
             eternal="false"
             timeToIdleSeconds="5"
             timeToLiveSeconds="10"
-            overflowToDisk="true"
-            />
+            overflowToDisk="true">
+        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+                                   properties="replicateAsynchronously=true,
+                                               replicatePuts=true,
+                                               replicateUpdates=true,
+                                               replicateUpdatesViaCopy=true,
+                                               replicateRemovals=true "/>
+    </defaultCache>
 
 
     <!--Predefined caches.  Add your cache configuration settings here.

@@ -17,6 +17,7 @@
 package net.sf.ehcache;
 
 import net.sf.ehcache.event.RegisteredEventListeners;
+import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
@@ -33,6 +34,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Iterator;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -1294,11 +1296,16 @@ Cache size is the size of the union of the two key sets.*/
         }
         Cache copy = (Cache) super.clone();
         RegisteredEventListeners registeredEventListenersFromCopy = copy.getCacheEventNotificationService();
-        if (registeredEventListenersFromCopy == null || registeredEventListenersFromCopy.getCacheEventListeners().size() == 0)
-        {
+        if (registeredEventListenersFromCopy == null || registeredEventListenersFromCopy.getCacheEventListeners().size() == 0) {
             copy.registeredEventListeners = new RegisteredEventListeners(copy);
         } else {
-            throw new CloneNotSupportedException("Cannot clone a cache with registered event listeners");
+            copy.registeredEventListeners = new RegisteredEventListeners(copy);
+            Set cacheEventListeners = registeredEventListeners.getCacheEventListeners();
+            for (Iterator iterator = cacheEventListeners.iterator(); iterator.hasNext();) {
+                CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
+                CacheEventListener cacheEventListenerClone = (CacheEventListener) cacheEventListener.clone();
+                copy.registeredEventListeners.registerListener(cacheEventListenerClone);
+            }
         }
         return copy;
     }

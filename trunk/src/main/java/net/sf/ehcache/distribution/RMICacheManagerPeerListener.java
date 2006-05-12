@@ -24,9 +24,10 @@ import net.sf.ehcache.event.CacheEventListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.net.ServerSocket;
+import java.net.UnknownHostException;
 import java.rmi.Naming;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -35,10 +36,11 @@ import java.rmi.registry.Registry;
 import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.io.IOException;
 
 /**
  * A cache server which exposes available cache operations remotely through RMI.
@@ -78,7 +80,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
 
     /**
      * The shutdown hook thread for these listeners. To cover the situation where dispose() is not called explicitly.
-     *
+     * <p/>
      * This thread must be unregistered as a shutdown hook, when the listener is disposed.
      * Otherwise the listener is not GC-able.
      */
@@ -89,7 +91,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      */
     private Status status;
 
-    private final List cachePeers = new ArrayList();
+    private final Map cachePeers = new HashMap();
 
     /**
      * Constructor with full arguments.
@@ -183,6 +185,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
 
     /**
      * Gets a free server socket port.
+     *
      * @return a number in the range 1025 - 65536 that was free at the time this method was executed
      * @throws IllegalArgumentException
      */
@@ -212,12 +215,14 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
         RMICachePeer rmiCachePeer = null;
         try {
             startRegistry();
+            int counter = 0;
             populateListOfRemoteCachePeers();
-            for (int i = 0; i < cachePeers.size(); i++) {
-                rmiCachePeer = (RMICachePeer) cachePeers.get(i);
+            for (Iterator iterator = cachePeers.values().iterator(); iterator.hasNext();) {
+                rmiCachePeer = (RMICachePeer) iterator.next();
                 Naming.rebind(rmiCachePeer.getUrl(), rmiCachePeer);
+                counter++;
             }
-            LOG.debug("Server bound in registry");
+            LOG.debug(counter + " RMICachePeers bound in registry for RMI listener");
             status = Status.STATUS_ALIVE;
             addShutdownHook();
         } catch (Exception e) {
@@ -269,9 +274,11 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
             Ehcache cache = cacheManager.getCache(name);
-            if (isDistributed(cache)) {
-                RMICachePeer peer = new RMICachePeer(cache, hostName, port, socketTimeoutMillis);
-                cachePeers.add(peer);
+            if (cachePeers.get(name) == null) {
+                if (isDistributed(cache)) {
+                    RMICachePeer peer = new RMICachePeer(cache, hostName, port, socketTimeoutMillis);
+                    cachePeers.put(name, peer);
+                }
             }
         }
 
@@ -330,27 +337,35 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      */
     public void dispose() throws CacheException {
         try {
-            for (int i = 0; i < cachePeers.size(); i++) {
-                RMICachePeer rmiCachePeer = (RMICachePeer) cachePeers.get(i);
+            int counter = 0;
+            for (Iterator iterator = cachePeers.values().iterator(); iterator.hasNext();) {
+                RMICachePeer rmiCachePeer = (RMICachePeer) iterator.next();
                 UnicastRemoteObject.unexportObject(rmiCachePeer, false);
                 Naming.unbind(rmiCachePeer.getUrl());
+                counter++;
             }
-            LOG.debug("Server unbound in registry");
+            LOG.debug(counter + " RMICachePeers unbound from registry in RMI listener");
             status = Status.STATUS_SHUTDOWN;
         } catch (Exception e) {
             throw new CacheException("Problem unbinding remote cache peers. Initial cause was " + e.getMessage(), e);
         } finally {
             removeShutdownHook();
+
         }
     }
 
     /**
      * All of the caches which are listenting for remote changes.
      *
-     * @return a list of <code>RMICachePeer</code> objects
+     * @return a list of <code>RMICachePeer</code> objects. The list if not live
      */
     public List getBoundCachePeers() {
-        return cachePeers;
+        List cachePeerList = new ArrayList();
+        for (Iterator iterator = cachePeers.values().iterator(); iterator.hasNext();) {
+            RMICachePeer rmiCachePeer = (RMICachePeer) iterator.next();
+            cachePeerList.add(rmiCachePeer);
+        }
+        return cachePeerList;
     }
 
     /**
@@ -361,9 +376,71 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
     }
 
     /**
-     * Gets a list of cache peers
+     * Called immediately after a cache has been added and activated.
+     * <p/>
+     * Note that the CacheManager calls this method from a synchronized method. Any attempt to call a synchronized
+     * method on CacheManager from this method will cause a deadlock.
+     * <p/>
+     * Note that activation will also cause a CacheEventListener status change notification from
+     * {@link net.sf.ehcache.Status#STATUS_UNINITIALISED} to {@link net.sf.ehcache.Status#STATUS_ALIVE}. Care should be
+     * taken on processing that notification because:
+     * <ul>
+     * <li>the cache will not yet be accessible from the CacheManager.
+     * <li>the addCaches methods whih cause this notification are synchronized on the CacheManager. An attempt to call
+     * {@link net.sf.ehcache.CacheManager#getCache(String)} will cause a deadlock.
+     * </ul>
+     * The calling method will block until this method returns.
+     * <p/>
+     * Repopulates the list of cache peers and rebinds the list.
+     * This method should be called if a cache is dynamically added
+     * @param cacheName the name of the <code>Cache</code> the operation relates to
+     * @see net.sf.ehcache.event.CacheEventListener
      */
-    protected List getCachePeers() {
-        return cachePeers;
+    public void notifyCacheAdded(String cacheName) {
+        LOG.debug("Adding " + cacheName + " to RMI listener");
+        RMICachePeer rmiCachePeer = null;
+        try {
+            populateListOfRemoteCachePeers();
+            int counter = 0;
+            for (Iterator iterator = cachePeers.values().iterator(); iterator.hasNext();) {
+                rmiCachePeer = (RMICachePeer) iterator.next();
+                Naming.rebind(rmiCachePeer.getUrl(), rmiCachePeer);
+                counter++;
+            }
+            LOG.debug(counter + " RMICachePeers bound in registry for RMI listener");
+        } catch (Exception e) {
+            String url = null;
+            if (rmiCachePeer != null) {
+                url = rmiCachePeer.getUrl();
+            }
+
+            throw new CacheException("Problem starting listener for RMICachePeer "
+                    + url + ". Initial cause was " + e.getMessage(), e);
+        }
+
+    }
+
+    /**
+     * Called immediately after a cache has been disposed and removed. The calling method will block until
+     * this method returns.
+     * <p/>
+     * Note that the CacheManager calls this method from a synchronized method. Any attempt to call a synchronized
+     * method on CacheManager from this method will cause a deadlock.
+     * <p/>
+     * Note that a {@link net.sf.ehcache.event.CacheEventListener} status changed will also be triggered. Any attempt from that notification
+     * to access CacheManager will also result in a deadlock.
+     *
+     * @param cacheName the name of the <code>Cache</code> the operation relates to
+     */
+    public void notifyCacheRemoved(String cacheName) {
+        //todo support programmatic removal as well
+    }
+
+    /**
+     * Package local method for testing
+     */
+    void addCachePeer(String name, RMICachePeer peer) {
+        cachePeers.put(name, peer);
+
     }
 }

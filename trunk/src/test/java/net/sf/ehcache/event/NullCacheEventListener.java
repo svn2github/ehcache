@@ -96,4 +96,16 @@ public class NullCacheEventListener implements CacheEventListener {
     public void dispose() {
         //nothing to do
     }
+
+    /**
+     * Creates a clone of this listener. This method will only be called by ehcache before a cache is initialized.
+     * <p/>
+     * This may not be possible for listeners after they have been initialized. Implementations should throw
+     * CloneNotSupportedException if they do not support clone.
+     * @return a clone
+     * @throws CloneNotSupportedException if the listener could not be cloned.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 }

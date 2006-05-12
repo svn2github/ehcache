@@ -66,7 +66,7 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
     /**
      * A thread which handles replication, so that replication can take place asynchronously and not hold up the cache
      */
-    protected final Thread replicationThread = new ReplicationThread();
+    protected Thread replicationThread = new ReplicationThread();
 
     /**
      * A queue of updates.
@@ -345,6 +345,22 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
             replicationQueue.clear();
         }
 
+    }
+
+
+    /**
+     * Creates a clone of this listener. This method will only be called by ehcache before a cache is initialized.
+     * <p/>
+     * This may not be possible for listeners after they have been initialized. Implementations should throw
+     * CloneNotSupportedException if they do not support clone.
+     *
+     * @return a clone
+     * @throws CloneNotSupportedException if the listener could not be cloned.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        //shutup checkstyle
+        super.clone();
+        return new RMIAsynchronousCacheReplicator(replicatePuts, replicateUpdates, replicateUpdatesViaCopy, replicateRemovals);
     }
 
 

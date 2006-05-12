@@ -96,8 +96,10 @@ public class RMICacheManagerPeerTest extends TestCase {
     public void testFailsIfTimeoutExceeded() throws Exception {
 
         RMICachePeer rmiCachePeer = new SlowRMICachePeer(cache, hostName, port, new Integer(1000));
-        peerListener.getCachePeers().add(rmiCachePeer);
         peerListener.init();
+        peerListener.addCachePeer(cache.getName(), rmiCachePeer);
+        peerListener.notifyCacheAdded("");
+
 
         try {
             CachePeer cachePeer = new ManualRMICacheManagerPeerProvider().lookupRemoteCachePeer(rmiCachePeer.getUrl());
@@ -119,7 +121,7 @@ public class RMICacheManagerPeerTest extends TestCase {
         cache = new Cache("test", 10, false, false, 10, 10);
         RMICachePeer rmiCachePeer = new SlowRMICachePeer(cache, hostName, port, new Integer(2100));
 
-        peerListener.getCachePeers().add(rmiCachePeer);
+        peerListener.addCachePeer(cache.getName(), rmiCachePeer);
         peerListener.init();
 
         CachePeer cachePeer = new ManualRMICacheManagerPeerProvider().lookupRemoteCachePeer(rmiCachePeer.getUrl());
@@ -140,7 +142,7 @@ public class RMICacheManagerPeerTest extends TestCase {
         RMICachePeer rmiCachePeer = new RMICachePeer(cache, hostName, port, new Integer(2100));
         manager.addCache(cache);
 
-        peerListener.getCachePeers().add(rmiCachePeer);
+        peerListener.addCachePeer(cache.getName(), rmiCachePeer);
         peerListener.init();
 
         CachePeer cachePeer = new ManualRMICacheManagerPeerProvider().lookupRemoteCachePeer(rmiCachePeer.getUrl());

@@ -21,6 +21,7 @@ import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.StopWatch;
+import net.sf.ehcache.Cache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -112,6 +113,41 @@ public class MulticastRMIPeerProviderTest extends TestCase {
 
         List peerUrls3 = manager3.getCachePeerProvider().listRemoteCachePeers(m3sampleCache1);
         assertEquals(expectedPeers(), peerUrls3.size());
+    }
+
+    /**
+     * The default caches for ehcache-dsitributed1-6.xml are set to replicate.
+     * We create a new cache from the default and expect it to be replicated.
+     * todo check programmatically added caches, which have listeners.
+     */
+    public void testProviderCreatedFromDefaultCache() throws InterruptedException {
+
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
+        //manual does not nor should it work this way
+        if (this.getClass() != MulticastRMIPeerProviderTest.class) {
+            return;
+        }
+
+        manager1.addCache("fromDefaultCache");
+        RMICacheManagerPeerListener peerListener1 = (RMICacheManagerPeerListener) manager1.getCachePeerListener();
+        //peerListener1.notifyCacheAdded("fromDefaultCache");
+        manager2.addCache("fromDefaultCache");
+        RMICacheManagerPeerListener peerListener2 = (RMICacheManagerPeerListener) manager2.getCachePeerListener();
+        //peerListener2.notifyCacheAdded("fromDefaultCache");
+        manager3.addCache("fromDefaultCache");
+        RMICacheManagerPeerListener peerListener3 = (RMICacheManagerPeerListener) manager3.getCachePeerListener();
+        //peerListener3.notifyCacheAdded("fromDefaultCache");
+        Thread.sleep(6000);
+
+        CacheManagerPeerProvider cachePeerProvider = manager1.getCachePeerProvider();
+
+        Cache cache = manager1.getCache("fromDefaultCache");
+        List peerUrls = cachePeerProvider.listRemoteCachePeers(cache);
+        assertEquals(expectedPeers(), peerUrls.size());
+
     }
 
     /**

@@ -26,6 +26,11 @@
                 on the singleton behaviour of ehcache-1.1 and earlier. Most code bases using Hibernate should not
                 require this.
             </action>
+            <action dev="Greg Luck" type="add">
+                Allow cacheEventListenerFactory elements to be added to defaultCache in ehcache.xml. This allows
+                caches created with CacheManager.addCache(String cacheName) to receive events. This can be used for
+                example to set default replication settings in defaultCache.
+            </action>
             <!-- Bug fixes -->
             <action dev="Greg Luck" issue="1480442" type="fix">
                 Theoretically possible NPE if a MulticastRMICacheManagerPeerProvider is started and then stopped

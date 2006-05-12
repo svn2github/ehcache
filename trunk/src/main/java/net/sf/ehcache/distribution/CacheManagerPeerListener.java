@@ -18,6 +18,7 @@ package net.sf.ehcache.distribution;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.event.CacheManagerEventListener;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ import java.util.List;
  * @author Greg Luck
  * @version $Id$
  */
-public interface CacheManagerPeerListener {
+public interface CacheManagerPeerListener extends CacheManagerEventListener {
 
 
     /**
