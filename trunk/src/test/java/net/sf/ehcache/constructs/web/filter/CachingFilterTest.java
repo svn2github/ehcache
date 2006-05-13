@@ -421,13 +421,8 @@ public class CachingFilterTest extends AbstractWebTest {
 
 
     /**
-     * The following response codes cannot have bodies:
-     * <ol>
-     * <li>100 Continue. Should neve see these in a filter
-     * <li>204 No Content.
-     * <li>304 Not Modified.
-     * </ol>
-     * Was throwing a java.io.EOFException when the content is empty.
+     * A 0 length body should give a 0 length gzip body and content length
+     * Manual Test: wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:8080/empty_caching_filter/empty.html
      */
     public void testZeroLengthHTML() throws Exception {
 
@@ -445,13 +440,8 @@ public class CachingFilterTest extends AbstractWebTest {
     }
 
     /**
-     * The following response codes cannot have bodies:
-     * <ol>
-     * <li>100 Continue. Should neve see these in a filter
-     * <li>204 No Content.
-     * <li>304 Not Modified.
-     * </ol>
-     * Was throwing a java.io.EOFException when the content is empty.
+     * A 0 length body should give a 0 length gzip body and content length
+     *
      */
     public void testNotModifiedJSPGzipFilter() throws Exception {
 
@@ -471,14 +461,12 @@ public class CachingFilterTest extends AbstractWebTest {
     }
 
     /**
-     * The following response codes cannot have bodies:
-     * <ol>
-     * <li>100 Continue. Should neve see these in a filter
-     * <li>204 No Content.
-     * <li>304 Not Modified.
-     * </ol>
-     * Was throwing a java.io.EOFException when the content is empty.
-     * todo test doco
+     * HTTP_NO_CONTENT should have a body size of 0. But in Orion bodies can still be returned.
+     * For this reason, the fix for the 20 byte gzip body size depends only on detecting the 20
+     * bytes and changing it to 0, regardless of response code.
+     *
+     * So, this test returns the compressed body even though under the HTTP spec, Orion should not be doing it.
+     * Does not seem to cause problems.
      */
     public void testNoContentJSPGzipFilter() throws Exception {
 

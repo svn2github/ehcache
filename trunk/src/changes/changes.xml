@@ -42,6 +42,11 @@
                 processes still exit cleanly. This is a bug rather than a feature request because Cache has a shutdown
                 hook to always cleanly shut down disk store, and ehcache should be consistent in supporting shutdown hooks.
             </action>
+            <action dev="Greg Luck" issue="1486858" type="fix">
+                In GzipFilter and CachingFilter Gzipping an empty response body creates 20 byte responses. Fixed so that
+                this situation is detected and a zero bytes gzipped body, with a content length also of 0 is returned. Can
+                occur in 204 and 304 responses.
+            </action>
         </release>
 
 

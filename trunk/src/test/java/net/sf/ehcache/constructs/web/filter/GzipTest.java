@@ -70,13 +70,7 @@ public class GzipTest extends AbstractWebTest {
     }
 
     /**
-     * The following response codes cannot have bodies:
-     * <ol>
-     * <li>100 Continue. Should neve see these in a filter
-     * <li>204 No Content.
-     * <li>304 Not Modified.
-     * </ol>
-     * Was throwing a java.io.EOFException when the content is empty.
+     * A 0 length body should give a 0 length gzip body and content length
      */
     public void testZeroLengthHTML() throws Exception {
 
@@ -100,7 +94,8 @@ public class GzipTest extends AbstractWebTest {
      * <li>204 No Content.
      * <li>304 Not Modified.
      * </ol>
-     * Was throwing a java.io.EOFException when the content is empty.
+     * Manual test with wget -d --server-response --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:8080/empty_gzip/SC_NOT_MODIFIED.jsp
+     * A 0 length body should give a 0 length gzip body and content length
      */
     public void testNotModifiedJSPGzipFilter() throws Exception {
 
@@ -120,6 +115,7 @@ public class GzipTest extends AbstractWebTest {
 
     /**
      * Orion can send content even when the response is set to no content for a JSP.
+     * In this case there should not be a body but there is. This may be Orion specific.
      *
      */
     public void testNoContentJSPGzipFilter() throws Exception {
