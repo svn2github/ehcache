@@ -21,12 +21,14 @@ import java.io.Serializable;
 
 /**
  * A serializable cookie which wraps Cookie.
- * This gets around a NotSerializable error with Cookie when auxiliary JCS caches are used.
+ * This gets around a NotSerializable error with Cookie when non memory stores are used.
  *
  * @version $Id$
  * @author <a href="mailto:amurdoch@thoughtworks.com">Adam Murdoch</a>
  */
 public class SerializableCookie implements Serializable {
+
+    private static final long serialVersionUID = 8628587700329421486L;
 
     private String name;
     private String value;

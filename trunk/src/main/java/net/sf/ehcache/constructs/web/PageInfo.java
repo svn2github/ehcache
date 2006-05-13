@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import net.sf.ehcache.constructs.web.filter.GzipFilter;
+
 /**
  * A Serializable representation of a {@link HttpServletResponse}.
  *
@@ -73,6 +75,7 @@ public class PageInfo implements Serializable {
             final Cookie cookie = (Cookie) iterator.next();
             serializableCookies.add(new SerializableCookie(cookie));
         }
+
         this.contentType = contentType;
         this.storeGzipped = storeGzipped;
         try {
@@ -159,6 +162,12 @@ public class PageInfo implements Serializable {
      */
     public byte[] getGzippedBody() {
         if (storeGzipped) {
+            if (gzippedBody.length == GzipFilter.EMPTY_GZIPPED_CONTENT_SIZE)  {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Detected empty gzip body. Returning 0 bytes.");
+                }
+                return new byte[0];
+            }
             return gzippedBody;
         } else {
             return null;

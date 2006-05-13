@@ -22,11 +22,15 @@ import net.sf.ehcache.constructs.web.AbstractWebTest;
 
 import java.net.HttpURLConnection;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
+
 /**
  * Test cases for the Caching filter and Gzip.
  *
- * @version $Id$
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
+ * @version $Id$
  */
 public class GzipTest extends AbstractWebTest {
 
@@ -48,8 +52,6 @@ public class GzipTest extends AbstractWebTest {
     }
 
 
-
-
     /**
      * Tests that a page which is storeGzipped is gzipped when the user agent accepts gzip encoding
      */
@@ -67,6 +69,75 @@ public class GzipTest extends AbstractWebTest {
         assertEquals("gzip", response.getHeaderField("Content-Encoding"));
     }
 
+    /**
+     * The following response codes cannot have bodies:
+     * <ol>
+     * <li>100 Continue. Should neve see these in a filter
+     * <li>204 No Content.
+     * <li>304 Not Modified.
+     * </ol>
+     * Was throwing a java.io.EOFException when the content is empty.
+     */
+    public void testZeroLengthHTML() throws Exception {
+
+        String url = "http://localhost:8080/empty_gzip/empty.html";
+        HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = new GetMethod(url);
+        httpMethod.addRequestHeader("If-modified-Since", "Fri, 13 May 3006 23:54:18 GMT");
+        httpMethod.addRequestHeader("Accept-Encoding", "gzip");
+        int responseCode = httpClient.executeMethod(httpMethod);
+        assertEquals(HttpURLConnection.HTTP_NOT_MODIFIED, responseCode);
+        byte[] responseBody = httpMethod.getResponseBody();
+        assertEquals(null, responseBody);
+        assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
+        assertEquals("0", httpMethod.getResponseHeader("Content-Length").getValue());
+    }
+
+    /**
+     * The following response codes cannot have bodies:
+     * <ol>
+     * <li>100 Continue. Should neve see these in a filter
+     * <li>204 No Content.
+     * <li>304 Not Modified.
+     * </ol>
+     * Was throwing a java.io.EOFException when the content is empty.
+     */
+    public void testNotModifiedJSPGzipFilter() throws Exception {
+
+        String url = "http://localhost:8080/empty_gzip/SC_NOT_MODIFIED.jsp";
+        HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = new GetMethod(url);
+        httpMethod.addRequestHeader("If-modified-Since", "Fri, 13 May 3006 23:54:18 GMT");
+        httpMethod.addRequestHeader("Accept-Encoding", "gzip");
+        int responseCode = httpClient.executeMethod(httpMethod);
+        assertEquals(HttpURLConnection.HTTP_NOT_MODIFIED, responseCode);
+        byte[] responseBody = httpMethod.getResponseBody();
+        assertEquals(null, responseBody);
+        assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
+        assertNotNull(httpMethod.getResponseHeader("Last-Modified").getValue());
+        assertEquals("0", httpMethod.getResponseHeader("Content-Length").getValue());
+    }
+
+    /**
+     * Orion can send content even when the response is set to no content for a JSP.
+     *
+     */
+    public void testNoContentJSPGzipFilter() throws Exception {
+
+        String url = "http://localhost:8080/empty_gzip/SC_NO_CONTENT.jsp";
+        HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = new GetMethod(url);
+        httpMethod.addRequestHeader("If-modified-Since", "Fri, 13 May 3006 23:54:18 GMT");
+        httpMethod.addRequestHeader("Accept-Encoding", "gzip");
+        int responseCode = httpClient.executeMethod(httpMethod);
+        assertEquals(HttpURLConnection.HTTP_NO_CONTENT, responseCode);
+        byte[] responseBody = httpMethod.getResponseBody();
+        assertEquals(null, responseBody);
+        assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
+        assertNotNull(httpMethod.getResponseHeader("Last-Modified").getValue());
+        //Not 0.Sends body as well.
+        assertEquals("70", httpMethod.getResponseHeader("Content-Length").getValue());
+    }
 
     /**
      * Tests that a page which is storeGzipped is gzipped when the user agent does not accept gzip encoding
@@ -94,6 +165,5 @@ public class GzipTest extends AbstractWebTest {
     }
 
 
-   
 }
 

@@ -108,6 +108,24 @@
         <url-pattern>/errors/IllegalArgumentException.jsp</url-pattern>
     </filter-mapping>
 
+
+    <!-- Empty responses. -->
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/empty_gzip/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>SimplePageCachingFilter</filter-name>
+        <url-pattern>/empty_caching_filter/*</url-pattern>
+    </filter-mapping>
+
+    <!-- 304. Not Modified -->
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/index_gzip.html</url-pattern>
+    </filter-mapping>
+
     <!-- Servlet Declarations -->
     <servlet>
         <servlet-name>IncludeCachedPageServlet</servlet-name>

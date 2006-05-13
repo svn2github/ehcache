@@ -1,3 +1,7 @@
+<%
+    response.setDateHeader("Last-Modified", System.currentTimeMillis());
+    //request.getSession(false);
+%>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <%@ include file="/include/Common.jsp" %>
 <html>

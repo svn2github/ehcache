@@ -192,7 +192,7 @@ public class AsynchronousCommandExecutorTest extends TestCase {
         Thread.sleep(2000);
         sendSerializableMessage();
         //Wait for messages to be sent.
-        Thread.sleep(3000);
+        Thread.sleep(2000);
         //Will not work unless we were able to wake the thread up.
         assertEquals(2, messages.size());
         assertNoCommandsInCache();
@@ -211,7 +211,7 @@ public class AsynchronousCommandExecutorTest extends TestCase {
             //sendNonSerializableMessage();
         }
         //Wait for messages to be sent.
-        Thread.sleep(10000);
+        Thread.sleep(9000);
         assertEquals(2, messages.size());
         assertNoCommandsInCache();
 

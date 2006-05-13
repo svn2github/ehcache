@@ -23,8 +23,10 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
-import java.util.logging.Logger;
 import java.util.zip.GZIPOutputStream;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Provides GZIP compression of responses.
@@ -38,7 +40,18 @@ import java.util.zip.GZIPOutputStream;
  */
 public class GzipFilter extends Filter {
 
-    private static final Logger LOG = Logger.getLogger(GzipFilter.class.getName());
+    /**
+     * Gzipping an empty file or stream always results in a 20 byte output
+     * This is in java or elsewhere.
+     * <p/>
+     * On a unix system to reproduce do <code>gzip -n empty_file</code>. -n tells gzip to not
+     * include the file name. The resulting file size is 20 bytes.
+     * <p/>
+     * Therefore 20 bytes can be used indicate that the gzip byte[] will be empty when ungzipped.
+     */
+    public static final int EMPTY_GZIPPED_CONTENT_SIZE = 20;
+
+    private static final Log LOG = LogFactory.getLog(GzipFilter.class.getName());
 
     /**
      * Performs initialisation.
@@ -61,7 +74,9 @@ public class GzipFilter extends Filter {
                             final FilterChain chain) throws Exception {
         if (!isIncluded(request) && acceptsEncoding(request, "gzip")) {
             // Client accepts zipped content
-            LOG.fine("Writing with gzip compression");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(request.getRequestURL() + ". Writing with gzip compression");
+            }
 
             // Create a gzip stream
             final ByteArrayOutputStream compressed = new ByteArrayOutputStream();
@@ -73,13 +88,27 @@ public class GzipFilter extends Filter {
             wrapper.flush();
             gzout.close();
 
+            //Check for zero length
+            byte[] compressedBytes = compressed.toByteArray();
+            if (compressedBytes.length == EMPTY_GZIPPED_CONTENT_SIZE) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(request.getRequestURL() + " resulted in an empty response.");
+                }
+                compressedBytes = new byte[0];
+            }
+
             // Write the zipped body
             addGzipHeader(response);
-            response.setContentLength(compressed.size());
-            response.getOutputStream().write(compressed.toByteArray());
+            response.setContentLength(compressedBytes.length);
+
+
+            response.getOutputStream().write(compressedBytes);
         } else {
             // Client does not accept zipped content - don't bother zipping
-            LOG.fine("Writing without compression");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(request.getRequestURL()
+                        + ". Writing without gzip compression because the request does not accept gzip.");
+            }
             chain.doFilter(request, response);
         }
     }

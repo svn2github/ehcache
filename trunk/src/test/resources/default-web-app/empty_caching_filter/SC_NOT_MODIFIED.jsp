@@ -1,9 +1,4 @@
 <%
     response.setDateHeader("Last-Modified", System.currentTimeMillis());
+    response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
 %>
-
-<html>
-<body>
-This page is not included in any filters
-</body>
-</html>

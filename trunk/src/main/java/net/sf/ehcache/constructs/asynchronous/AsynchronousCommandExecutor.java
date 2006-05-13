@@ -27,6 +27,7 @@ import java.io.Serializable;
 import java.rmi.dgc.VMID;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Stack;
 
 /**
@@ -36,7 +37,7 @@ import java.util.Stack;
  * AsynchronousCommandExecutor is a singleton. Multiple clients may use it. It will execute commands in the order they were
  * added per client. To preserve order, if a command cannot be executed, all commands will wait behind it.
  * <p/>
- *
+ * todo linked list implementation without NPE. Queue is JDK1.5
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
@@ -187,7 +188,7 @@ public final class AsynchronousCommandExecutor {
     }
 
     private void enqueue(String uid) throws AsynchronousCommandException {
-        LinkedList queue = null;
+        Queue queue = null;
         queue = getQueue();
         queue.add(uid);
     }
@@ -284,9 +285,7 @@ public final class AsynchronousCommandExecutor {
         }
         Object object = null;
         while (true) {
-            if (queue.size() != 0) {
-                object = queue.getFirst();
-            } else
+            object = queue.peek();
             if (object == null) {
                 break;
             }
@@ -340,8 +339,8 @@ public final class AsynchronousCommandExecutor {
         return match;
     }
 
-    private void remove(LinkedList queue, String uid, String reason) {
-        queue.removeFirst();
+    private void remove(Queue queue, String uid, String reason) {
+        queue.remove();
         Ehcache cache = null;
         try {
             cache = getMessageCache();

@@ -117,6 +117,7 @@ public abstract class CachingFilter extends Filter {
      * <p/>
      * Some requests are for page fragments which should never be gzipped, or for
      * other pages which are not gzipped.
+     * todo swallowing date headers. Also check int headers
      */
     protected PageInfo buildPageInfo(final HttpServletRequest request, final HttpServletResponse response,
                                      final FilterChain chain) throws Exception {

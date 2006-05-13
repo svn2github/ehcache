@@ -43,6 +43,9 @@ import java.util.List;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  */
 public class GenericResponseWrapper extends HttpServletResponseWrapper implements Serializable {
+
+    private static final long serialVersionUID = -5976708169031065498L;
+
     private static final Log LOG = LogFactory.getLog(GenericResponseWrapper.class);
     private int statusCode = SC_OK;
     private int contentLength;

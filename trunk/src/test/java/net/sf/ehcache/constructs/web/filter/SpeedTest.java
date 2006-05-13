@@ -36,9 +36,8 @@ public class SpeedTest extends AbstractWebTest {
     private static final Log LOG = LogFactory.getLog(SpeedTest.class.getName());
 
     /**
-     * Time to get 100 Cached Pages
-     * Test time: 5.1s
-     * StopWatch time:3.9s
+     * Time to get 200 Cached Pages
+     * StopWatch time: 947ms
      */
     public void testSpeedHttpClientNotCached() throws IOException {
         StopWatch stopWatch = new StopWatch();
@@ -47,18 +46,16 @@ public class SpeedTest extends AbstractWebTest {
         HttpMethod httpMethod = new GetMethod(url);
         stopWatch.getElapsedTime();
         for (int i = 0; i < 200; i++) {
-            httpMethod.recycle();
             httpClient.executeMethod(httpMethod);
-            httpMethod.getResponseBodyAsString();
+            httpMethod.getResponseBodyAsStream();
         }
         long time = stopWatch.getElapsedTime();
         LOG.info("Time for 200 uncached page requests: " + time);
     }
 
     /**
-     * Time to get 100 Cached Pages
-     * Test time: 5.3s
-     * StopWatch time: 4.1s
+     * Time to get 200 Cached Pages
+     * StopWatch time: 1021ms
      */
     public void testSpeedHttpClientCached() throws IOException {
         StopWatch stopWatch = new StopWatch();
@@ -67,17 +64,15 @@ public class SpeedTest extends AbstractWebTest {
         HttpMethod httpMethod = new GetMethod(url);
         stopWatch.getElapsedTime();
         for (int i = 0; i < 200; i++) {
-            httpMethod.recycle();
             httpClient.executeMethod(httpMethod);
-            httpMethod.getResponseBodyAsString();
+            httpMethod.getResponseBodyAsStream();
         }
         long time = stopWatch.getElapsedTime();
         LOG.info("Time for 200 cached page requests: " + time);
     }
 
     /**
-     * Test time 14.5s
-     * StopWatch time: 11.1s
+     * StopWatch time: 2251ms
      */
     public void testSpeedNoDom() throws Exception {
         StopWatch stopWatch = new StopWatch();
@@ -96,7 +91,7 @@ public class SpeedTest extends AbstractWebTest {
 
     /**
      * Test time: 10.2s, 11.5    4.2 without JavaScript library
-     * StopWatch time: 7.7s, 8.5    2.7 without JavaScript library
+     * StopWatch time: 2686ms without JavaScript library
      * This test gets the CacheLogin twice so we need half as many
      */
     public void testSpeedDom() throws Exception {

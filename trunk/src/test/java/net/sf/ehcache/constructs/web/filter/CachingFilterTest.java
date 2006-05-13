@@ -30,6 +30,7 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.net.HttpURLConnection;
 
 /**
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
@@ -202,7 +203,7 @@ public class CachingFilterTest extends AbstractWebTest {
      * 5 Content-Type: text/plain
      * </pre>
      * Though gzip, the header is not set. The content-type is text/plain, because in our case the
-     * test servlet did not set a type. 
+     * test servlet did not set a type.
      *
      * @see {@link net.sf.ehcache.constructs.web.ResponseHeadersNotModifiableException}
      */
@@ -416,6 +417,84 @@ public class CachingFilterTest extends AbstractWebTest {
 
         cachedPageUrl = url;
         testCachedPageConcurrent();
+    }
+
+
+    /**
+     * The following response codes cannot have bodies:
+     * <ol>
+     * <li>100 Continue. Should neve see these in a filter
+     * <li>204 No Content.
+     * <li>304 Not Modified.
+     * </ol>
+     * Was throwing a java.io.EOFException when the content is empty.
+     */
+    public void testZeroLengthHTML() throws Exception {
+
+        String url = "http://localhost:8080/empty_caching_filter/empty.html";
+        HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = new GetMethod(url);
+        httpMethod.addRequestHeader("If-modified-Since", "Fri, 13 May 3006 23:54:18 GMT");
+        httpMethod.addRequestHeader("Accept-Encoding", "gzip");
+        int responseCode = httpClient.executeMethod(httpMethod);
+        assertTrue(HttpURLConnection.HTTP_OK == responseCode || HttpURLConnection.HTTP_NOT_MODIFIED == responseCode);
+        String responseBody = httpMethod.getResponseBodyAsString();
+        assertTrue("".equals(responseBody) || null == responseBody);
+        assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
+        assertEquals("0", httpMethod.getResponseHeader("Content-Length").getValue());
+    }
+
+    /**
+     * The following response codes cannot have bodies:
+     * <ol>
+     * <li>100 Continue. Should neve see these in a filter
+     * <li>204 No Content.
+     * <li>304 Not Modified.
+     * </ol>
+     * Was throwing a java.io.EOFException when the content is empty.
+     */
+    public void testNotModifiedJSPGzipFilter() throws Exception {
+
+        String url = "http://localhost:8080/empty_caching_filter/SC_NOT_MODIFIED.jsp";
+        HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = new GetMethod(url);
+        httpMethod.addRequestHeader("If-modified-Since", "Fri, 13 May 3006 23:54:18 GMT");
+        httpMethod.addRequestHeader("Accept-Encoding", "gzip");
+        int responseCode = httpClient.executeMethod(httpMethod);
+        assertEquals(HttpURLConnection.HTTP_NOT_MODIFIED, responseCode);
+        String responseBody = httpMethod.getResponseBodyAsString();
+        assertEquals(null, responseBody);
+        assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
+        assertNotNull(httpMethod.getResponseHeader("Last-Modified").getValue());
+        assertEquals("0", httpMethod.getResponseHeader("Content-Length").getValue());
+
+    }
+
+    /**
+     * The following response codes cannot have bodies:
+     * <ol>
+     * <li>100 Continue. Should neve see these in a filter
+     * <li>204 No Content.
+     * <li>304 Not Modified.
+     * </ol>
+     * Was throwing a java.io.EOFException when the content is empty.
+     * todo test doco
+     */
+    public void testNoContentJSPGzipFilter() throws Exception {
+
+        String url = "http://localhost:8080/empty_caching_filter/SC_NO_CONTENT.jsp";
+        HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = new GetMethod(url);
+        httpMethod.addRequestHeader("If-modified-Since", "Fri, 13 May 3006 23:54:18 GMT");
+        httpMethod.addRequestHeader("Accept-Encoding", "gzip");
+        int responseCode = httpClient.executeMethod(httpMethod);
+        assertEquals(HttpURLConnection.HTTP_NO_CONTENT, responseCode);
+        String responseBody = httpMethod.getResponseBodyAsString();
+        assertEquals(null, responseBody);
+        assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
+        assertNotNull(httpMethod.getResponseHeader("Last-Modified").getValue());
+        assertEquals("70", httpMethod.getResponseHeader("Content-Length").getValue());
+
     }
 
 
