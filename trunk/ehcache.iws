@@ -152,7 +152,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java" line="124" class="net.sf.ehcache.CacheManager" package="net.sf.ehcache">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java" line="125" class="net.sf.ehcache.CacheManager" package="net.sf.ehcache">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -438,7 +438,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java" line="515" class="net.sf.ehcache.CacheManager" package="net.sf.ehcache">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java" line="516" class="net.sf.ehcache.CacheManager" package="net.sf.ehcache">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -532,10 +532,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="JCacheFactory.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="JCacheFactory.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheFactory.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="34" column="4" selection-start="1039" selection-end="1039" vertical-scroll-proportion="0.2134434">
+            <state line="85" column="0" selection-start="3280" selection-end="3280" vertical-scroll-proportion="0.9351415">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -570,10 +570,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CacheManager.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="CacheManager.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="54" column="19" selection-start="2020" selection-end="2020" vertical-scroll-proportion="-0.9056604">
+            <state line="50" column="81" selection-start="1984" selection-end="1984" vertical-scroll-proportion="0.254717">
               <folding />
             </state>
           </provider>
@@ -2658,13 +2658,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="54" column="19" selection-start="2020" selection-end="2020" vertical-scroll-proportion="-0.9056604">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheManagerPeerTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="101" column="0" selection-start="3054" selection-end="3054" vertical-scroll-proportion="0.12146226">
@@ -2695,10 +2688,17 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheFactory.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="4" selection-start="1039" selection-end="1039" vertical-scroll-proportion="0.2134434">
+        <state line="85" column="0" selection-start="3280" selection-end="3280" vertical-scroll-proportion="0.9351415">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="50" column="81" selection-start="1984" selection-end="1984" vertical-scroll-proportion="0.254717">
+          <folding />
         </state>
       </provider>
     </entry>
