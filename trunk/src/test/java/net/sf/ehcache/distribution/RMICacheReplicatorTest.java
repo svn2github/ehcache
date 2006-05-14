@@ -17,12 +17,14 @@
 package net.sf.ehcache.distribution;
 
 import junit.framework.TestCase;
+import junit.framework.AssertionFailedError;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.StopWatch;
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.event.CountingCacheEventListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -511,6 +513,41 @@ public class RMICacheReplicatorTest extends TestCase {
 
 
     /**
+     * manager1 adds a replicating cache, then manager2 and so on. Then we remove one. Does everything work as expected?
+     */
+    public void testPutWithNewCacheAddedProgressively() throws InterruptedException {
+
+        manager1.addCache("progressiveAddCache");
+        manager2.addCache("progressiveAddCache");
+
+        //The cluster will not have formed yet, so it will fail
+        try {
+            putTest(manager1.getCache("progressiveAddCache"), manager2.getCache("progressiveAddCache"), ASYNCHRONOUS);
+            fail();
+        } catch (AssertionFailedError e) {
+            //expected
+        }
+
+        //The cluster will now have formed yet, so it will succeed
+        putTest(manager1.getCache("progressiveAddCache"), manager2.getCache("progressiveAddCache"), ASYNCHRONOUS);
+
+        Cache secondCache = manager2.getCache("progressiveAddCache");
+
+        //The second peer disappears. The test will fail.
+        manager2.removeCache("progressiveAddCache");
+        try {
+            putTest(manager1.getCache("progressiveAddCache"), secondCache, ASYNCHRONOUS);
+            fail();
+        } catch (IllegalStateException e) {
+            //The second cache will not alive. Expected. But no other exception is caught and this will otherwise fail.
+
+        }
+
+
+    }
+
+
+    /**
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
@@ -587,18 +624,9 @@ public class RMICacheReplicatorTest extends TestCase {
         int i = 0;
 
         if (asynchronous) {
-            waitForProgagate();
+            waitForSlowProgagate();
         }
 
-        int j = 0;
-
-        Thread.sleep(5000);
-
-        LOG.info("" + manager1.getCache("sampleCache1").getSize());
-        LOG.info("" + manager2.getCache("sampleCache1").getSize());
-        LOG.info("" + manager3.getCache("sampleCache1").getSize());
-        LOG.info("" + manager4.getCache("sampleCache1").getSize());
-        LOG.info("" + manager5.getCache("sampleCache1").getSize());
 
         //Should have been replicated to toCache.
         Element deliveredElement = toCache.get(key);

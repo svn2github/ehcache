@@ -118,7 +118,6 @@ public class MulticastRMIPeerProviderTest extends TestCase {
     /**
      * The default caches for ehcache-dsitributed1-6.xml are set to replicate.
      * We create a new cache from the default and expect it to be replicated.
-     * todo check programmatically added caches, which have listeners.
      */
     public void testProviderCreatedFromDefaultCache() throws InterruptedException {
 
@@ -146,6 +145,41 @@ public class MulticastRMIPeerProviderTest extends TestCase {
 
         Cache cache = manager1.getCache("fromDefaultCache");
         List peerUrls = cachePeerProvider.listRemoteCachePeers(cache);
+        assertEquals(expectedPeers(), peerUrls.size());
+
+    }
+
+
+    /**
+     * The default caches for ehcache-dsitributed1-6.xml are set to replicate.
+     * We create a new cache from the default and expect it to be replicated.
+     */
+    public void testDeleteReplicatedCache() throws InterruptedException {
+
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
+        //manual does not nor should it work this way
+        if (this.getClass() != MulticastRMIPeerProviderTest.class) {
+            return;
+        }
+
+        manager1.addCache("fromDefaultCache");
+        manager2.addCache("fromDefaultCache");
+        manager3.addCache("fromDefaultCache");
+        Thread.sleep(6000);
+
+        CacheManagerPeerProvider cachePeerProvider = manager1.getCachePeerProvider();
+        Cache cache = manager1.getCache("fromDefaultCache");
+
+        //Should be three
+        List peerUrls = cachePeerProvider.listRemoteCachePeers(cache);
+        assertEquals(expectedPeers(), peerUrls.size());
+
+
+        manager1.removeCache("fromDefaultCache");
+        peerUrls = cachePeerProvider.listRemoteCachePeers(cache);
         assertEquals(expectedPeers(), peerUrls.size());
 
     }

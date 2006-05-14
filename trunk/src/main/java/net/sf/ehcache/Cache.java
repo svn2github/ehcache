@@ -274,7 +274,7 @@ public final class Cache implements Ehcache {
      * @param maxElementsInMemory
      * @param memoryStoreEvictionPolicy one of LRU, LFU and FIFO. Optionally null, in which case it will be set to LRU.
      * @param overflowToDisk
-     * @param diskStorePath
+     * @param diskStorePath the directory to be used a disk store path. Uses java.io.tmpdir if the argument is null.
      * @param eternal
      * @param timeToLiveSeconds
      * @param timeToIdleSeconds

@@ -115,8 +115,8 @@
     <defaultCache
             maxElementsInMemory="10"
             eternal="false"
-            timeToIdleSeconds="5"
-            timeToLiveSeconds="10"
+            timeToIdleSeconds="100"
+            timeToLiveSeconds="100"
             overflowToDisk="true">
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
                                    properties="replicateAsynchronously=true,

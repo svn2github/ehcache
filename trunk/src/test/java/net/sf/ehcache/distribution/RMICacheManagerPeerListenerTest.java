@@ -18,9 +18,11 @@ package net.sf.ehcache.distribution;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CountingCacheEventListener;
 
 import java.rmi.Remote;
@@ -185,14 +187,87 @@ public class RMICacheManagerPeerListenerTest extends TestCase {
             return;
         }
 
-        String[] boundCachePeers1 = ((RMICacheManagerPeerListener) manager1.getCachePeerListener()).listBoundRMICachePeers();
-        for (int i = 0; i < boundCachePeers1.length; i++) {
-            String boundCacheName = boundCachePeers1[i];
+        String[] boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener()).listBoundRMICachePeers();
+        validateBoundCachePeer(boundCachePeers);
+    }
+
+    /**
+     * Are all of the CachePeers for replicated caches bound to the listener and working?
+     */
+    public void testBoundListenerPeersAfterDefaultCacheAdd() throws RemoteException {
+
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
+        String[] boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener()).listBoundRMICachePeers();
+        assertEquals(55, boundCachePeers.length);
+        validateBoundCachePeer(boundCachePeers);
+
+        //Add from default which is has a CacheReplicator configured.
+        manager1.addCache("fromDefaultCache");
+        boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener()).listBoundRMICachePeers();
+        assertEquals(56, boundCachePeers.length);
+        validateBoundCachePeer(boundCachePeers);
+    }
+
+    /**
+     * Are all of the CachePeers for replicated caches bound to the listener and working?
+     */
+    public void testBoundListenerPeersAfterProgrammaticCacheAdd() throws RemoteException {
+
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
+        String[] boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener()).listBoundRMICachePeers();
+        assertEquals(55, boundCachePeers.length);
+        validateBoundCachePeer(boundCachePeers);
+
+        //Add from default which is has a CacheReplicator configured.
+
+
+        RMICacheReplicatorFactory factory = new RMICacheReplicatorFactory();
+        CacheEventListener replicatingListener = factory.createCacheEventListener(null);
+        Cache cache = new Cache("programmaticallyAdded",
+                10, null, true, System.getProperty("java.io.tmpdir"), false, 10, 10, false, 60, null);
+        cache.getCacheEventNotificationService().registerListener(replicatingListener);
+
+        manager1.addCache(cache);
+        boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener()).listBoundRMICachePeers();
+        assertEquals(56, boundCachePeers.length);
+        validateBoundCachePeer(boundCachePeers);
+    }
+
+    /**
+     * Are all of the CachePeers for replicated caches bound to the listener and working?
+     */
+    public void testBoundListenerPeersAfterCacheRemove() throws RemoteException {
+
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
+        String[] boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener()).listBoundRMICachePeers();
+        assertEquals(55, boundCachePeers.length);
+        validateBoundCachePeer(boundCachePeers);
+
+        //Remove a replicated cache
+        manager1.removeCache("sampleCache1");
+        boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener()).listBoundRMICachePeers();
+        assertEquals(54, boundCachePeers.length);
+        validateBoundCachePeer(boundCachePeers);
+    }
+
+
+    private void validateBoundCachePeer(String[] boundCachePeers) {
+        for (int i = 0; i < boundCachePeers.length; i++) {
+            String boundCacheName = boundCachePeers[i];
             Remote remote = ((RMICacheManagerPeerListener) manager1.getCachePeerListener()).lookupPeer(boundCacheName);
             assertNotNull(remote);
         }
-
     }
+
 
     /**
      * Does the RMI listener stop?

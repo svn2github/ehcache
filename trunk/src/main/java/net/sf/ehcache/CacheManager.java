@@ -172,6 +172,7 @@ public final class CacheManager {
 
     /**
      * Constructor.
+     *
      * @throws CacheException
      */
     public CacheManager() throws CacheException {
@@ -208,8 +209,8 @@ public final class CacheManager {
      * <p/>
      * Should only be called once.
      *
-     * @param configurationFileName the file name to parse, or null
-     * @param configurationURL the URL to pass, or null
+     * @param configurationFileName     the file name to parse, or null
+     * @param configurationURL          the URL to pass, or null
      * @param configurationInputStream, the InputStream to parse, or null
      * @return the loaded configuration
      * @throws CacheException if the configuration cannot be parsed
@@ -275,6 +276,7 @@ public final class CacheManager {
      * <p/>
      * The configuration will be read, {@link Cache}s created and required stores initialized.
      * When the {@link CacheManager} is no longer required, call shutdown to free resources.
+     *
      * @return the singleton CacheManager
      * @throws CacheException if the CacheManager cannot be created
      */
@@ -300,6 +302,7 @@ public final class CacheManager {
      * This has the same effect as {@link CacheManager#create}
      * <p/>
      * Same as {@link #create()}
+     *
      * @return the singleton CacheManager
      * @throws CacheException if the CacheManager cannot be created
      */
@@ -509,6 +512,9 @@ public final class CacheManager {
             if (cacheManagerEventListener != null) {
                 cacheManagerEventListener.notifyCacheRemoved(cache.getName());
             }
+            if (cacheManagerPeerListener != null && status.equals(Status.STATUS_ALIVE)) {
+                cacheManagerPeerListener.notifyCacheRemoved(cache.getName());
+            }
         }
     }
 
@@ -627,8 +633,6 @@ public final class CacheManager {
     public CacheManagerPeerProvider getCacheManagerPeerProvider() {
         return cacheManagerPeerProvider;
     }
-
-
 
 
 }

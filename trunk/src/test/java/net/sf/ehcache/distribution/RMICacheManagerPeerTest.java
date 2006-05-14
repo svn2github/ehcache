@@ -63,6 +63,7 @@ public class RMICacheManagerPeerTest extends TestCase {
     protected void setUp() throws Exception {
         manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
         cache = new Cache("test", 10, false, false, 10, 10);
+
         peerListener = new RMICacheManagerPeerListener(hostName, port, manager, new Integer(2000));
     }
 
@@ -96,9 +97,9 @@ public class RMICacheManagerPeerTest extends TestCase {
     public void testFailsIfTimeoutExceeded() throws Exception {
 
         RMICachePeer rmiCachePeer = new SlowRMICachePeer(cache, hostName, port, new Integer(1000));
-        peerListener.init();
         peerListener.addCachePeer(cache.getName(), rmiCachePeer);
-        peerListener.notifyCacheAdded("");
+        peerListener.init();
+        
 
 
         try {

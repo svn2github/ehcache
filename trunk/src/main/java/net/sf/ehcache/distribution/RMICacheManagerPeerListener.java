@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.distribution;
 
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -393,31 +394,39 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      * <p/>
      * Repopulates the list of cache peers and rebinds the list.
      * This method should be called if a cache is dynamically added
+     *
      * @param cacheName the name of the <code>Cache</code> the operation relates to
      * @see net.sf.ehcache.event.CacheEventListener
      */
-    public void notifyCacheAdded(String cacheName) {
-        LOG.debug("Adding " + cacheName + " to RMI listener");
-        RMICachePeer rmiCachePeer = null;
-        try {
-            populateListOfRemoteCachePeers();
-            int counter = 0;
-            for (Iterator iterator = cachePeers.values().iterator(); iterator.hasNext();) {
-                rmiCachePeer = (RMICachePeer) iterator.next();
-                Naming.rebind(rmiCachePeer.getUrl(), rmiCachePeer);
-                counter++;
-            }
-            LOG.debug(counter + " RMICachePeers bound in registry for RMI listener");
-        } catch (Exception e) {
-            String url = null;
-            if (rmiCachePeer != null) {
-                url = rmiCachePeer.getUrl();
-            }
+    public void notifyCacheAdded(String cacheName) throws CacheException {
 
-            throw new CacheException("Problem starting listener for RMICachePeer "
-                    + url + ". Initial cause was " + e.getMessage(), e);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Adding " + cacheName + " to RMI listener");
         }
 
+        //Don't add if exists.
+        if (cachePeers.get(cacheName) != null) {
+            return;
+        }
+
+        Cache cache = cacheManager.getCache(cacheName);
+        if (isDistributed(cache)) {
+            RMICachePeer rmiCachePeer = null;
+            String url = null;
+            try {
+                rmiCachePeer = new RMICachePeer(cache, hostName, port, socketTimeoutMillis);
+                url = rmiCachePeer.getUrl();
+                Naming.rebind(rmiCachePeer.getUrl(), rmiCachePeer);
+            } catch (Exception e) {
+                throw new CacheException("Problem starting listener for RMICachePeer "
+                    + url + ". Initial cause was " + e.getMessage(), e);
+            }
+            cachePeers.put(cacheName, rmiCachePeer);
+
+        }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(cachePeers.size() + " RMICachePeers bound in registry for RMI listener");
+        }
     }
 
     /**
@@ -433,8 +442,31 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      * @param cacheName the name of the <code>Cache</code> the operation relates to
      */
     public void notifyCacheRemoved(String cacheName) {
-        //todo support programmatic removal as well
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Removing " + cacheName + " from RMI listener");
+        }
+
+        //don't remove if already removed.
+        if (cachePeers.get(cacheName) == null) {
+            return;
+        }
+
+        RMICachePeer rmiCachePeer = (RMICachePeer) cachePeers.remove(cacheName);
+        String url = null;
+        try {
+            url = rmiCachePeer.getUrl();
+            Naming.unbind(rmiCachePeer.getUrl());
+        } catch (Exception e) {
+            throw new CacheException("Error removing Cache Peer "
+                    + url + " from listener. Message was: " + e.getMessage(), e);
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(cachePeers.size() + " RMICachePeers bound in registry for RMI listener");
+        }
     }
+
 
     /**
      * Package local method for testing
