@@ -182,10 +182,6 @@ public abstract class AbstractWebTest extends TestCase {
      * @param response
      */
     protected void assertIncludeHeadersSane(WebResponse response) {
-        /*
-          The content type should be text/plain.
-          todo Do not understand why it is text/html
-        */
         String contentType = response.getHeaderField(CONTENT_TYPE);
         assertTrue(contentType.equals("text/html")
                 || contentType.equals("text/plain"));

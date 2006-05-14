@@ -32,8 +32,6 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import net.sf.ehcache.constructs.web.filter.GzipFilter;
-
 /**
  * A Serializable representation of a {@link HttpServletResponse}.
  *
@@ -70,14 +68,12 @@ public class PageInfo implements Serializable {
                     final byte[] body, boolean storeGzipped) throws AlreadyGzippedException {
         this.headers.addAll(headers);
         this.headers.remove("Content-Encoding");
-        final Collection cookieCollection = cookies;
-        for (Iterator iterator = cookieCollection.iterator(); iterator.hasNext();) {
-            final Cookie cookie = (Cookie) iterator.next();
-            serializableCookies.add(new SerializableCookie(cookie));
-        }
-
         this.contentType = contentType;
         this.storeGzipped = storeGzipped;
+        this.statusCode = statusCode;
+
+        extractCookies(cookies);
+
         try {
             if (storeGzipped) {
                 //gunzip on demand
@@ -98,7 +94,14 @@ public class PageInfo implements Serializable {
             LOG.error("Error ungzipping gzipped body", e);
         }
 
-        this.statusCode = statusCode;
+
+    }
+
+    private void extractCookies(Collection cookies) {
+        for (Iterator iterator = cookies.iterator(); iterator.hasNext();) {
+            final Cookie cookie = (Cookie) iterator.next();
+            serializableCookies.add(new SerializableCookie(cookie));
+        }
     }
 
     /**
@@ -162,12 +165,6 @@ public class PageInfo implements Serializable {
      */
     public byte[] getGzippedBody() {
         if (storeGzipped) {
-            if (gzippedBody.length == GzipFilter.EMPTY_GZIPPED_CONTENT_SIZE)  {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Detected empty gzip body. Returning 0 bytes.");
-                }
-                return new byte[0];
-            }
             return gzippedBody;
         } else {
             return null;

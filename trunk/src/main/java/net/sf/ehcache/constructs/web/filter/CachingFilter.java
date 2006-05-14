@@ -24,6 +24,7 @@ import net.sf.ehcache.constructs.web.GenericResponseWrapper;
 import net.sf.ehcache.constructs.web.PageInfo;
 import net.sf.ehcache.constructs.web.ResponseHeadersNotModifiableException;
 import net.sf.ehcache.constructs.web.SerializableCookie;
+import net.sf.ehcache.constructs.web.ResponseUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -117,7 +118,6 @@ public abstract class CachingFilter extends Filter {
      * <p/>
      * Some requests are for page fragments which should never be gzipped, or for
      * other pages which are not gzipped.
-     * todo swallowing date headers. Also check int headers
      */
     protected PageInfo buildPageInfo(final HttpServletRequest request, final HttpServletResponse response,
                                      final FilterChain chain) throws Exception {
@@ -298,15 +298,24 @@ public abstract class CachingFilter extends Filter {
     protected void writeContent(final HttpServletRequest request,
                                 final HttpServletResponse response, final PageInfo pageInfo)
             throws IOException, ResponseHeadersNotModifiableException {
-        byte[] content = null;
+        byte[] body;
         if (acceptsGzipEncoding(request)) {
-            addGzipHeader(response);
-            content = pageInfo.getGzippedBody();
+            ResponseUtil.addGzipHeader(response);
+            body = pageInfo.getGzippedBody();
+            if (ResponseUtil.shouldGzippedBodyBeZero(body, request)) {
+                body = new byte[0];
+            }
         } else {
-            content = pageInfo.getUngzippedBody();
+            body = pageInfo.getUngzippedBody();
         }
-        response.setContentLength(content.length);
-        response.getOutputStream().write(content);
+
+        boolean shouldBodyBeZero = ResponseUtil.shouldBodyBeZero(request, pageInfo.getStatusCode());
+        if (shouldBodyBeZero) {
+            body = new byte[0];
+        }
+
+        response.setContentLength(body.length);
+        response.getOutputStream().write(body);
     }
 
     /**

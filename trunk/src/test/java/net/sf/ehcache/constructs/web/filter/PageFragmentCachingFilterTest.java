@@ -66,7 +66,6 @@ public class PageFragmentCachingFilterTest extends AbstractWebTest {
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(buildUrl("/include/Footer.jsp"));
         //httpMethod.setRequestHeader(new Header("Accept-encoding", "gzip"));
-        httpMethod.setStrictMode(true);
         httpClient.executeMethod(httpMethod);
         byte[] responseBody = httpMethod.getResponseBody();
         assertFalse(PageInfo.isGzipped(responseBody));
@@ -80,7 +79,6 @@ public class PageFragmentCachingFilterTest extends AbstractWebTest {
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(buildUrl("/include/Footer.jsp"));
         httpMethod.setRequestHeader(new Header("Accept-encoding", "gzip"));
-        httpMethod.setStrictMode(true);
         httpClient.executeMethod(httpMethod);
         byte[] responseBody = httpMethod.getResponseBody();
         assertFalse(PageInfo.isGzipped(responseBody));

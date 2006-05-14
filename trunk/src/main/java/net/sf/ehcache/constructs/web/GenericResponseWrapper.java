@@ -198,7 +198,6 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
      */
     public void resetBuffer() {
         super.resetBuffer();
-        // TODO - need to clear the streams.
     }
 
     /**

@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.constructs.web.filter;
 
-import net.sf.ehcache.constructs.web.ResponseHeadersNotModifiableException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -102,12 +101,11 @@ public abstract class Filter implements javax.servlet.Filter {
     /**
      * Filters can be disabled programmatically by adding a {@link #NO_FILTER} parameter to the request.
      * This parameter is normally added to make RequestDispatcher include and forwards work.
-     * todo this should not be necessary
      *
      * @param httpRequest the request
      * @return true if NO_FILTER is not set.
      */
-    private boolean filterNotDisabled(final HttpServletRequest httpRequest) {
+    protected boolean filterNotDisabled(final HttpServletRequest httpRequest) {
         return httpRequest.getAttribute(NO_FILTER) == null;
     }
 
@@ -287,21 +285,7 @@ public abstract class Filter implements javax.servlet.Filter {
         }
     }
 
-    /**
-     * Adds the gzip HTTP header to the response. This is need when a gzipped body
-     * is returned so that browsers can properly decompress it.
-     * @throws ResponseHeadersNotModifiableException Either the response is committed or we were called using the include method
-     * from a {@link javax.servlet.RequestDispatcher#include(javax.servlet.ServletRequest, javax.servlet.ServletResponse)}
-     * method and the set set header is ignored.
-     */
-    protected void addGzipHeader(final HttpServletResponse response) throws ResponseHeadersNotModifiableException {
-        response.setHeader("Content-Encoding", "gzip");
-        boolean containsEncoding = response.containsHeader("Content-Encoding");
-        if (!containsEncoding) {
-            throw new ResponseHeadersNotModifiableException("Failure when attempting to set "
-                    + "Content-Encoding: gzip");
-        }
-    }
+
 
     /**
      * A template method that performs any Filter specific destruction tasks.

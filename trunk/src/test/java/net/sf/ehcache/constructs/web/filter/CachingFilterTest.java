@@ -61,7 +61,6 @@ public class CachingFilterTest extends AbstractWebTest {
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(buildUrl(cachedPageUrl));
         httpMethod.setRequestHeader(new Header("Accept-encoding", "gzip"));
-        httpMethod.setStrictMode(true);
         httpClient.executeMethod(httpMethod);
         byte[] responseBody = httpMethod.getResponseBody();
         assertTrue(PageInfo.isGzipped(responseBody));
@@ -75,7 +74,6 @@ public class CachingFilterTest extends AbstractWebTest {
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(buildUrl(cachedPageUrl));
         //httpMethod.setRequestHeader(new Header("Accept-encoding", "gzip"));
-        httpMethod.setStrictMode(true);
         httpClient.executeMethod(httpMethod);
         byte[] responseBody = httpMethod.getResponseBody();
         assertFalse(PageInfo.isGzipped(responseBody));
@@ -440,8 +438,13 @@ public class CachingFilterTest extends AbstractWebTest {
     }
 
     /**
-     * A 0 length body should give a 0 length gzip body and content length
+     * Servlets and JSPs can send content even when the response is set to no content.
+     * In this case there should not be a body but there is. Orion seems to kill the body
+     * after is has left the Servlet filter chain. To avoid wget going into an inifinite
+     * retry loop, and presumably some other web clients, the content length should be 0
+     * and the body 0.
      *
+     * wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:8080/empty_caching_filter/SC_NOT_MODIFIED.jsp
      */
     public void testNotModifiedJSPGzipFilter() throws Exception {
 
@@ -461,12 +464,13 @@ public class CachingFilterTest extends AbstractWebTest {
     }
 
     /**
-     * HTTP_NO_CONTENT should have a body size of 0. But in Orion bodies can still be returned.
-     * For this reason, the fix for the 20 byte gzip body size depends only on detecting the 20
-     * bytes and changing it to 0, regardless of response code.
+     * Servlets and JSPs can send content even when the response is set to no content.
+     * In this case there should not be a body but there is. Orion seems to kill the body
+     * after is has left the Servlet filter chain. To avoid wget going into an inifinite
+     * retry loop, and presumably some other web clients, the content length should be 0
+     * and the body 0.
      *
-     * So, this test returns the compressed body even though under the HTTP spec, Orion should not be doing it.
-     * Does not seem to cause problems.
+     * Manual Test: wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:8080/empty_caching_filter/SC_NO_CONTENT.jsp
      */
     public void testNoContentJSPGzipFilter() throws Exception {
 
@@ -481,7 +485,7 @@ public class CachingFilterTest extends AbstractWebTest {
         assertEquals(null, responseBody);
         assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
         assertNotNull(httpMethod.getResponseHeader("Last-Modified").getValue());
-        assertEquals("70", httpMethod.getResponseHeader("Content-Length").getValue());
+        assertEquals("0", httpMethod.getResponseHeader("Content-Length").getValue());
 
     }
 

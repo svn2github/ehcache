@@ -3,5 +3,5 @@
     response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 %>
 <html>
-Hopefully this does not get returned.
+This must be removed from the response under RFC2616.
 </html>

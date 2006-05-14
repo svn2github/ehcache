@@ -134,9 +134,9 @@ public final class AsynchronousCommandExecutor {
      * @throws AsynchronousCommandException
      */
     synchronized LinkedList getQueue() throws AsynchronousCommandException {
-        LinkedList queue = null;
+        LinkedList queue;
         Ehcache cache = getMessageCache();
-        Element element = null;
+        Element element;
         try {
             element = cache.get(QUEUE_KEY);
         } catch (CacheException e) {
@@ -188,7 +188,7 @@ public final class AsynchronousCommandExecutor {
     }
 
     private void enqueue(String uid) throws AsynchronousCommandException {
-        Queue queue = null;
+        Queue queue;
         queue = getQueue();
         queue.add(uid);
     }
@@ -492,7 +492,6 @@ public final class AsynchronousCommandExecutor {
      * @param dispatcherThreadIntervalSeconds
      *         the time in seconds
      * @see #DEFAULT_DISPATCHER_THREAD_INTERVAL_SECONDS for more information.
-     * @deprecated this is used for testing and will be removed in future.
      */
     public void setUnsafeDispatcherThreadIntervalSeconds(long dispatcherThreadIntervalSeconds) {
         this.dispatcherThreadIntervalSeconds = dispatcherThreadIntervalSeconds;

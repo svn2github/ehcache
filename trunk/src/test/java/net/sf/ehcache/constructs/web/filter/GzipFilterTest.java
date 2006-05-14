@@ -32,7 +32,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class GzipTest extends AbstractWebTest {
+public class GzipFilterTest extends AbstractWebTest {
 
     /**
      * Fetch NoFiltersPage.jsp, which is excluded from all filters and check it is not gzipped.
@@ -71,6 +71,8 @@ public class GzipTest extends AbstractWebTest {
 
     /**
      * A 0 length body should give a 0 length gzip body and content length
+     *
+     * Manual test: wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:8080/empty_gzip/empty.html
      */
     public void testZeroLengthHTML() throws Exception {
 
@@ -88,14 +90,13 @@ public class GzipTest extends AbstractWebTest {
     }
 
     /**
-     * The following response codes cannot have bodies:
-     * <ol>
-     * <li>100 Continue. Should neve see these in a filter
-     * <li>204 No Content.
-     * <li>304 Not Modified.
-     * </ol>
-     * Manual test with wget -d --server-response --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:8080/empty_gzip/SC_NOT_MODIFIED.jsp
-     * A 0 length body should give a 0 length gzip body and content length
+     * JSPs and Servlets can send bodies when the response is SC_NOT_MODIFIED.
+     * In this case there should not be a body but there is. Orion seems to kill the body
+     * after is has left the Servlet filter chain. To avoid wget going into an inifinite
+     * retry loop, and presumably some other web clients, the content length should be 0
+     * and the body 0.
+     *
+     * Manual test: wget -d --server-response --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:8080/empty_gzip/SC_NOT_MODIFIED.jsp
      */
     public void testNotModifiedJSPGzipFilter() throws Exception {
 
@@ -114,8 +115,13 @@ public class GzipTest extends AbstractWebTest {
     }
 
     /**
-     * Orion can send content even when the response is set to no content for a JSP.
-     * In this case there should not be a body but there is. This may be Orion specific.
+     * JSPs and Servlets can send bodies when the response is SC_NOT_MODIFIED.
+     * In this case there should not be a body but there is. Orion seems to kill the body
+     * after is has left the Servlet filter chain. To avoid wget going into an inifinite
+     * retry loop, and presumably some other web clients, the content length should be 0
+     * and the body 0.
+     *
+     * Manual test: wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:8080/empty_gzip/SC_NO_CONTENT.jsp
      *
      */
     public void testNoContentJSPGzipFilter() throws Exception {
@@ -131,8 +137,7 @@ public class GzipTest extends AbstractWebTest {
         assertEquals(null, responseBody);
         assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
         assertNotNull(httpMethod.getResponseHeader("Last-Modified").getValue());
-        //Not 0.Sends body as well.
-        assertEquals("70", httpMethod.getResponseHeader("Content-Length").getValue());
+        assertEquals("0", httpMethod.getResponseHeader("Content-Length").getValue());
     }
 
     /**

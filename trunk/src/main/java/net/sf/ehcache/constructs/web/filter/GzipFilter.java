@@ -17,16 +17,15 @@
 package net.sf.ehcache.constructs.web.filter;
 
 import net.sf.ehcache.constructs.web.GenericResponseWrapper;
+import net.sf.ehcache.constructs.web.ResponseUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.util.zip.GZIPOutputStream;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Provides GZIP compression of responses.
@@ -39,17 +38,6 @@ import org.apache.commons.logging.LogFactory;
  * @version $Id$
  */
 public class GzipFilter extends Filter {
-
-    /**
-     * Gzipping an empty file or stream always results in a 20 byte output
-     * This is in java or elsewhere.
-     * <p/>
-     * On a unix system to reproduce do <code>gzip -n empty_file</code>. -n tells gzip to not
-     * include the file name. The resulting file size is 20 bytes.
-     * <p/>
-     * Therefore 20 bytes can be used indicate that the gzip byte[] will be empty when ungzipped.
-     */
-    public static final int EMPTY_GZIPPED_CONTENT_SIZE = 20;
 
     private static final Log LOG = LogFactory.getLog(GzipFilter.class.getName());
 
@@ -86,19 +74,19 @@ public class GzipFilter extends Filter {
             final GenericResponseWrapper wrapper = new GenericResponseWrapper(response, gzout);
             chain.doFilter(request, wrapper);
             wrapper.flush();
+
             gzout.close();
 
-            //Check for zero length
+            //Saneness checks
             byte[] compressedBytes = compressed.toByteArray();
-            if (compressedBytes.length == EMPTY_GZIPPED_CONTENT_SIZE) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(request.getRequestURL() + " resulted in an empty response.");
-                }
+            boolean shouldGzippedBodyBeZero = ResponseUtil.shouldGzippedBodyBeZero(compressedBytes, request);
+            boolean shouldBodyBeZero = ResponseUtil.shouldBodyBeZero(request, wrapper.getStatus());
+            if (shouldGzippedBodyBeZero || shouldBodyBeZero) {
                 compressedBytes = new byte[0];
             }
 
             // Write the zipped body
-            addGzipHeader(response);
+            ResponseUtil.addGzipHeader(response);
             response.setContentLength(compressedBytes.length);
 
 
@@ -113,14 +101,21 @@ public class GzipFilter extends Filter {
         }
     }
 
+
+
     /**
      * Checks if the request uri is an include.
      * These cannot be gzipped.
-     * todo maybe issue a warning here or maybe log
      */
-    private boolean isIncluded(final ServletRequest request) {
+    private boolean isIncluded(final HttpServletRequest request) {
         final String uri = (String) request.getAttribute("javax.servlet.include.request_uri");
-        return !(uri == null);
+        final boolean includeRequest = !(uri == null);
+
+        if (includeRequest && LOG.isDebugEnabled()) {
+            LOG.debug(request.getRequestURL() + " resulted in an include request. This is unusable, because" +
+                    "the response will be assembled into the overrall response. Not gzipping.");
+        }
+        return includeRequest;
     }
 
     /**
@@ -146,13 +141,5 @@ public class GzipFilter extends Filter {
         return acceptsEncoding(request, "gzip");
     }
 
-    /**
-     * Adds the gzip HTTP header to the response. This is need when a gzipped body
-     * is returned
-     *
-     * @param response
-     */
-    protected void addGzipHeader(final HttpServletResponse response) {
-        response.setHeader("Content-Encoding", "gzip");
-    }
+
 }
