@@ -16,8 +16,8 @@
 
 package net.sf.ehcache;
 
-import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.event.CacheEventListener;
+import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
@@ -32,9 +32,9 @@ import java.rmi.server.UID;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.Iterator;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -87,6 +87,17 @@ public final class Cache implements Ehcache {
     private static final int MS_PER_SECOND = 1000;
 
     private static final MemoryStoreEvictionPolicy DEFAULT_MEMORY_STORE_EVICTION_POLICY = MemoryStoreEvictionPolicy.LRU;
+
+
+    private static InetAddress localhost;
+
+    static {
+        try {
+            localhost = InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            LOG.error("Unable to set localhost. This prevents creation of a GUID. Cause was: " + e.getMessage(), e);
+        }
+    }
 
     private boolean disabled;
 
@@ -178,19 +189,19 @@ public final class Cache implements Ehcache {
 
     private RegisteredEventListeners registeredEventListeners;
 
-    private String guid;
+    private final String guid;
 
     {
-        try {
             guid = new StringBuffer()
-                    .append(InetAddress.getLocalHost())
+                    .append(localhost)
                     .append("-")
                     .append(new UID())
                     .toString();
-        } catch (UnknownHostException e) {
-            LOG.error("Could not create GUID: " + e.getMessage());
-        }
     }
+
+
+
+
 
     private CacheManager cacheManager;
 

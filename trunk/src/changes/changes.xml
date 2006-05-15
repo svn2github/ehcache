@@ -51,6 +51,10 @@
                 this situation is detected and a zero bytes gzipped body, with a content length also of 0 is returned. Can
                 occur in 204 and 304 responses.
             </action>
+            <action dev="Greg Luck" issue="1488853" type="fix">
+                Changed localhost lookup to a static in Cache, to avoid a potential bottleneck when creating and destroying
+                large numbers of caches rapidly. Thanks to Derek Hully for the bug report and suggested fix.
+            </action>
         </release>
 
 
