@@ -72,8 +72,6 @@ public class CacheEventListenerTest extends TestCase {
         manager.shutdown();
     }
 
-    
-
 
     /**
      * Tests the put listener.
@@ -113,7 +111,6 @@ public class CacheEventListenerTest extends TestCase {
 
         //Put with no update
         cache.put(new Element("20", "20"));
-
 
         //Should get 12 puts and 11 updates
         List notifications = CountingCacheEventListener.getCacheElementsPut(cache);
@@ -156,6 +153,193 @@ public class CacheEventListenerTest extends TestCase {
         //check for NPE
         cache.remove(null);
 
+    }
+
+
+    /**
+     * Tests the expiry notifier. Check a reported scenario
+     */
+    public void testExpiryNotifications() throws InterruptedException {
+
+        Serializable key = "1";
+        Serializable value = new Date();
+        Element element = new Element(key, value);
+
+        cache.getCacheEventNotificationService().registerListener(new TestCacheEventListener());
+
+
+        //Put
+        cache.put(element);
+
+        //expire
+        Thread.sleep(1000);
+
+        //force expiry
+        Element expiredElement = cache.get(key);
+        assertEquals(null, expiredElement);
+
+        //the TestCacheEventListener does a put of a new Element with the same key on expiry
+        Element newElement = cache.get(key);
+        assertEquals("set on notify", newElement.getValue());
+        assertNotNull(newElement);
+
+        //Check counting listener
+        List notifications = CountingCacheEventListener.getCacheElementsExpired(cache);
+        assertEquals(element, notifications.get(0));
+        assertEquals(1, notifications.size());
+
+        //check for NPE
+        cache.remove(null);
+
+    }
+
+    /**
+     * Used to do work on notifyRemoved for the above test.
+     */
+    class TestCacheEventListener implements CacheEventListener {
+
+        /**
+         * Called immediately after an element has been removed. The remove method will block until
+         * this method returns.
+         * <p/>
+         * Ehcache does not chech for
+         * <p/>
+         * As the {@link net.sf.ehcache.Element} has been removed, only what was the key of the element is known.
+         * <p/>
+         *
+         * @param cache   the cache emitting the notification
+         * @param element just deleted
+         */
+        public void notifyElementRemoved(final Ehcache cache, final Element element) throws CacheException {
+            //
+        }
+
+        /**
+         * Called immediately after an element has been put into the cache. The {@link net.sf.ehcache.Cache#put(net.sf.ehcache.Element)} method
+         * will block until this method returns.
+         * <p/>
+         * Implementers may wish to have access to the Element's fields, including value, so the element is provided.
+         * Implementers should be careful not to modify the element. The effect of any modifications is undefined.
+         *
+         * @param cache   the cache emitting the notification
+         * @param element the element which was just put into the cache.
+         */
+        public void notifyElementPut(final Ehcache cache, final Element element) throws CacheException {
+            //
+        }
+
+        /**
+         * Called immediately after an element has been put into the cache and the element already
+         * existed in the cache. This is thus an update.
+         * <p/>
+         * The {@link net.sf.ehcache.Cache#put(net.sf.ehcache.Element)} method
+         * will block until this method returns.
+         * <p/>
+         * Implementers may wish to have access to the Element's fields, including value, so the element is provided.
+         * Implementers should be careful not to modify the element. The effect of any modifications is undefined.
+         *
+         * @param cache   the cache emitting the notification
+         * @param element the element which was just put into the cache.
+         */
+        public void notifyElementUpdated(final Ehcache cache, final Element element) throws CacheException {
+            //
+        }
+
+        /**
+         * Called immediately after an element is <i>found</i> to be expired. The
+         * {@link net.sf.ehcache.Cache#remove(Object)} method will block until this method returns.
+         * <p/>
+         * As the {@link net.sf.ehcache.Element} has been expired, only what was the key of the element is known.
+         * <p/>
+         * Elements are checked for expiry in ehcache at the following times:
+         * <ul>
+         * <li>When a get request is made
+         * <li>When an element is spooled to the diskStore in accordance with a MemoryStore eviction policy
+         * <li>In the DiskStore when the expiry thread runs, which by default is
+         * {@link net.sf.ehcache.Cache#DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS}
+         * </ul>
+         * If an element is found to be expired, it is deleted and this method is notified.
+         *
+         * @param cache   the cache emitting the notification
+         * @param element the element that has just expired
+         *                <p/>
+         *                Deadlock Warning: expiry will often come from the <code>DiskStore</code> expiry thread. It holds a lock to the
+         *                DiskStorea the time the notification is sent. If the implementation of this method calls into a
+         *                synchronized <code>Cache</code> method and that subsequently calls into DiskStore a deadlock will result.
+         *                Accordingly implementers of this method should not call back into Cache.
+         */
+        public void notifyElementExpired(final Ehcache cache, final Element element) {
+            cache.put(new Element(element.getKey(), "set on notify"));
+        }
+
+        /**
+         * Give the replicator a chance to cleanup and free resources when no longer needed
+         */
+        public void dispose() {
+            //
+        }
+
+        /**
+         * Creates and returns a copy of this object.  The precise meaning
+         * of "copy" may depend on the class of the object. The general
+         * intent is that, for any object <tt>x</tt>, the expression:
+         * <blockquote>
+         * <pre>
+         * x.clone() != x</pre></blockquote>
+         * will be true, and that the expression:
+         * <blockquote>
+         * <pre>
+         * x.clone().getClass() == x.getClass()</pre></blockquote>
+         * will be <tt>true</tt>, but these are not absolute requirements.
+         * While it is typically the case that:
+         * <blockquote>
+         * <pre>
+         * x.clone().equals(x)</pre></blockquote>
+         * will be <tt>true</tt>, this is not an absolute requirement.
+         * <p/>
+         * By convention, the returned object should be obtained by calling
+         * <tt>super.clone</tt>.  If a class and all of its superclasses (except
+         * <tt>Object</tt>) obey this convention, it will be the case that
+         * <tt>x.clone().getClass() == x.getClass()</tt>.
+         * <p/>
+         * By convention, the object returned by this method should be independent
+         * of this object (which is being cloned).  To achieve this independence,
+         * it may be necessary to modify one or more fields of the object returned
+         * by <tt>super.clone</tt> before returning it.  Typically, this means
+         * copying any mutable objects that comprise the internal "deep structure"
+         * of the object being cloned and replacing the references to these
+         * objects with references to the copies.  If a class contains only
+         * primitive fields or references to immutable objects, then it is usually
+         * the case that no fields in the object returned by <tt>super.clone</tt>
+         * need to be modified.
+         * <p/>
+         * The method <tt>clone</tt> for class <tt>Object</tt> performs a
+         * specific cloning operation. First, if the class of this object does
+         * not implement the interface <tt>Cloneable</tt>, then a
+         * <tt>CloneNotSupportedException</tt> is thrown. Note that all arrays
+         * are considered to implement the interface <tt>Cloneable</tt>.
+         * Otherwise, this method creates a new instance of the class of this
+         * object and initializes all its fields with exactly the contents of
+         * the corresponding fields of this object, as if by assignment; the
+         * contents of the fields are not themselves cloned. Thus, this method
+         * performs a "shallow copy" of this object, not a "deep copy" operation.
+         * <p/>
+         * The class <tt>Object</tt> does not itself implement the interface
+         * <tt>Cloneable</tt>, so calling the <tt>clone</tt> method on an object
+         * whose class is <tt>Object</tt> will result in throwing an
+         * exception at run time.
+         *
+         * @return a clone of this instance.
+         * @throws CloneNotSupportedException if the object's class does not
+         *                                    support the <code>Cloneable</code> interface. Subclasses
+         *                                    that override the <code>clone</code> method can also
+         *                                    throw this exception to indicate that an instance cannot
+         *                                    be cloned.
+         * @see Cloneable
+         */
+        public Object clone() throws CloneNotSupportedException {
+            return super.clone();
+        }
     }
 
     /**

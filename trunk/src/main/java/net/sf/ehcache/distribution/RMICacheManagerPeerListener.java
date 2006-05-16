@@ -66,6 +66,7 @@ import java.util.Set;
  *
  * @author Greg Luck
  * @version $Id$
+ * todo consider just registering an RMICachePeer for all caches
  */
 public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
 

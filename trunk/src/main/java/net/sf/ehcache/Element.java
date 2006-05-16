@@ -38,6 +38,7 @@ import java.io.Serializable;
  * @author Greg Luck
  * @version $Id$
  * @noinspection SerializableHasSerializationMethods
+ * todo TTL per element
  */
 public final class Element implements Serializable, Cloneable {
     /**
