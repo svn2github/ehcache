@@ -500,16 +500,7 @@
       <file leaf-file-name="CacheManagerPeerProvider.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/CacheManagerPeerProvider.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="59" column="0" selection-start="1651" selection-end="1651" vertical-scroll-proportion="0.9230769">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MulticastRMICacheManagerPeerProvider.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastRMICacheManagerPeerProvider.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="169" column="22" selection-start="7523" selection-end="7523" vertical-scroll-proportion="3.0282485">
+            <state line="59" column="0" selection-start="1651" selection-end="1651" vertical-scroll-proportion="0.5943396">
               <folding />
             </state>
           </provider>
@@ -518,7 +509,7 @@
       <file leaf-file-name="RMICacheManagerPeerProvider.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerProvider.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="132" column="0" selection-start="3723" selection-end="3723" vertical-scroll-proportion="1.2179487">
+            <state line="132" column="0" selection-start="3723" selection-end="3723" vertical-scroll-proportion="0.7841981">
               <folding />
             </state>
           </provider>
@@ -527,7 +518,7 @@
       <file leaf-file-name="JNDICacheManagerPeerListener.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDICacheManagerPeerListener.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="67" column="69" selection-start="2294" selection-end="2294" vertical-scroll-proportion="0.1904762">
+            <state line="67" column="69" selection-start="2294" selection-end="2294" vertical-scroll-proportion="0.12264151">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -535,13 +526,22 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RMICacheManagerPeerListener.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="RMICacheManagerPeerListener.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="68" column="18" selection-start="2756" selection-end="2756" vertical-scroll-proportion="0.13559322">
+            <state line="78" column="86" selection-start="3178" selection-end="3178" vertical-scroll-proportion="0.23049219">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MulticastKeepaliveHeartbeatSender.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastKeepaliveHeartbeatSender.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="203" column="66" selection-start="7708" selection-end="7708" vertical-scroll-proportion="2.2417452">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -549,7 +549,7 @@
       <file leaf-file-name="RMICacheReplicatorTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="45" column="85" selection-start="1610" selection-end="1610" vertical-scroll-proportion="0.24293785">
+            <state line="174" column="16" selection-start="5043" selection-end="5043" vertical-scroll-proportion="0.18247299">
               <folding />
             </state>
           </provider>
@@ -558,7 +558,7 @@
       <file leaf-file-name="RMICacheManagerPeerProviderFactory.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerProviderFactory.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="31" column="91" selection-start="1078" selection-end="1078" vertical-scroll-proportion="0.20338982">
+            <state line="31" column="91" selection-start="1078" selection-end="1078" vertical-scroll-proportion="0.12965186">
               <folding />
             </state>
           </provider>
@@ -567,7 +567,7 @@
       <file leaf-file-name="MulticastKeepaliveHeartbeatReceiver.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastKeepaliveHeartbeatReceiver.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="36" column="35" selection-start="1255" selection-end="1255" vertical-scroll-proportion="0.2857143">
+            <state line="45" column="71" selection-start="1612" selection-end="1612" vertical-scroll-proportion="0.31132075">
               <folding />
             </state>
           </provider>
@@ -576,7 +576,7 @@
       <file leaf-file-name="JNDICacheReplicatorTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/JNDICacheReplicatorTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="48" column="14" selection-start="1608" selection-end="1608" vertical-scroll-proportion="0.33898306">
+            <state line="53" column="65" selection-start="1862" selection-end="1862" vertical-scroll-proportion="0.2845138">
               <folding />
             </state>
           </provider>
@@ -585,7 +585,7 @@
       <file leaf-file-name="JNDICacheManagerPeerProvider.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDICacheManagerPeerProvider.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="214" column="13" selection-start="6670" selection-end="6670" vertical-scroll-proportion="-0.6135531">
+            <state line="214" column="13" selection-start="6670" selection-end="6670" vertical-scroll-proportion="-0.39504716">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -2264,14 +2264,14 @@
   <component name="RestoreUpdateTree" />
   <component name="RunManager">
     <activeType name="JUnit" />
-    <tempConfiguration selected="true" default="false" name="JNDICacheReplicatorTest" type="JUnit" factoryName="JUnit">
+    <tempConfiguration selected="true" default="false" name="RMICacheReplicatorTest.testRemoteCachePeersEqualsNumberOfCacheManagersInCluster" type="JUnit" factoryName="JUnit">
       <module name="ehcache" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
       <option name="PACKAGE_NAME" value="net.sf.ehcache.distribution" />
-      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.distribution.JNDICacheReplicatorTest" />
-      <option name="METHOD_NAME" value="" />
-      <option name="TEST_OBJECT" value="class" />
+      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.distribution.RMICacheReplicatorTest" />
+      <option name="METHOD_NAME" value="testRemoteCachePeersEqualsNumberOfCacheManagersInCluster" />
+      <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="" />
       <option name="PARAMETERS" value="" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
@@ -2477,7 +2477,7 @@
     <layout>
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="13" />
       <window_info id="Regex" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.32850778" order="7" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32850778" order="7" />
       <window_info id="ConsoleMavenPlugin" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
       <window_info id="Checkstyle" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.35180414" order="0" />
@@ -2609,13 +2609,6 @@
     </buildFile>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/MockContext.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="167" column="74" selection-start="4559" selection-end="4559" vertical-scroll-proportion="0.6109937">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDICacheManagerPeerListenerFactory.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="35" column="13" selection-start="1106" selection-end="1106" vertical-scroll-proportion="0.45665962">
@@ -2653,21 +2646,46 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerProvider.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="132" column="0" selection-start="3723" selection-end="3723" vertical-scroll-proportion="1.2179487">
+        <state line="132" column="0" selection-start="3723" selection-end="3723" vertical-scroll-proportion="0.7841981">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/CacheManagerPeerProvider.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="59" column="0" selection-start="1651" selection-end="1651" vertical-scroll-proportion="0.9230769">
+        <state line="59" column="0" selection-start="1651" selection-end="1651" vertical-scroll-proportion="0.5943396">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDICacheManagerPeerProvider.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="214" column="13" selection-start="6670" selection-end="6670" vertical-scroll-proportion="-0.6135531">
+        <state line="214" column="13" selection-start="6670" selection-end="6670" vertical-scroll-proportion="-0.39504716">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerProviderFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="31" column="91" selection-start="1078" selection-end="1078" vertical-scroll-proportion="0.12965186">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDICacheManagerPeerListener.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="67" column="69" selection-start="2294" selection-end="2294" vertical-scroll-proportion="0.12264151">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="78" column="86" selection-start="3178" selection-end="3178" vertical-scroll-proportion="0.23049219">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -2676,47 +2694,29 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/JNDICacheReplicatorTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="48" column="14" selection-start="1608" selection-end="1608" vertical-scroll-proportion="0.33898306">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDICacheManagerPeerListener.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="67" column="69" selection-start="2294" selection-end="2294" vertical-scroll-proportion="0.1904762">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="45" column="85" selection-start="1610" selection-end="1610" vertical-scroll-proportion="0.24293785">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerProviderFactory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="31" column="91" selection-start="1078" selection-end="1078" vertical-scroll-proportion="0.20338982">
+        <state line="53" column="65" selection-start="1862" selection-end="1862" vertical-scroll-proportion="0.2845138">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastKeepaliveHeartbeatReceiver.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="36" column="35" selection-start="1255" selection-end="1255" vertical-scroll-proportion="0.2857143">
+        <state line="45" column="71" selection-start="1612" selection-end="1612" vertical-scroll-proportion="0.31132075">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="68" column="18" selection-start="2756" selection-end="2756" vertical-scroll-proportion="0.13559322">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state line="174" column="16" selection-start="5043" selection-end="5043" vertical-scroll-proportion="0.18247299">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastKeepaliveHeartbeatSender.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="203" column="66" selection-start="7708" selection-end="7708" vertical-scroll-proportion="2.2417452">
+          <folding />
         </state>
       </provider>
     </entry>
