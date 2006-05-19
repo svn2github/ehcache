@@ -321,19 +321,6 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java" line="569" class="net.sf.ehcache.distribution.RMICacheReplicatorTest" package="net.sf.ehcache.distribution">
-        <option name="ENABLED" value="true" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="false" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
       <breakpoint url="file:///Users/gluck/work/hibernate-3.2/src/org/hibernate/cache/EhCacheProvider.java" line="155" class="org.hibernate.cache.EhCacheProvider" package="org.hibernate.cache">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
@@ -510,92 +497,98 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Cache.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
+      <file leaf-file-name="CacheManagerPeerProvider.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/CacheManagerPeerProvider.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="551" column="0" selection-start="19506" selection-end="19506" vertical-scroll-proportion="0.2962264">
+            <state line="59" column="0" selection-start="1651" selection-end="1651" vertical-scroll-proportion="0.9230769">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="changes.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
+      <file leaf-file-name="MulticastRMICacheManagerPeerProvider.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastRMICacheManagerPeerProvider.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="128" selection-start="1301" selection-end="1301" vertical-scroll-proportion="0.4301887">
+            <state line="169" column="22" selection-start="7523" selection-end="7523" vertical-scroll-proportion="3.0282485">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Element.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Element.java">
+      <file leaf-file-name="RMICacheManagerPeerProvider.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerProvider.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="14" column="6" selection-start="608" selection-end="608" vertical-scroll-proportion="0.0">
+            <state line="132" column="0" selection-start="3723" selection-end="3723" vertical-scroll-proportion="1.2179487">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CacheEventListenerTest.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/event/CacheEventListenerTest.java">
+      <file leaf-file-name="JNDICacheManagerPeerListener.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDICacheManagerPeerListener.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="196" column="59" selection-start="5687" selection-end="5687" vertical-scroll-proportion="0.33207548">
-              <folding />
+            <state line="67" column="69" selection-start="2294" selection-end="2294" vertical-scroll-proportion="0.1904762">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RMICacheManagerPeerListener.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="RMICacheManagerPeerListener.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="70" column="113" selection-start="2885" selection-end="2885" vertical-scroll-proportion="0.7018868">
+            <state line="68" column="18" selection-start="2756" selection-end="2756" vertical-scroll-proportion="0.13559322">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RMICacheReplicatorTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="45" column="85" selection-start="1610" selection-end="1610" vertical-scroll-proportion="0.24293785">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CachePeer.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/CachePeer.java">
+      <file leaf-file-name="RMICacheManagerPeerProviderFactory.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerProviderFactory.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="39" column="0" selection-start="1383" selection-end="1383" vertical-scroll-proportion="0.2972477">
+            <state line="31" column="91" selection-start="1078" selection-end="1078" vertical-scroll-proportion="0.20338982">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RMICachePeer.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICachePeer.java">
+      <file leaf-file-name="MulticastKeepaliveHeartbeatReceiver.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastKeepaliveHeartbeatReceiver.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="39" column="13" selection-start="1312" selection-end="1312" vertical-scroll-proportion="0.2972477">
+            <state line="36" column="35" selection-start="1255" selection-end="1255" vertical-scroll-proportion="0.2857143">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TestCase.class" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar://$PROJECT_DIR$/tools/junit-3.8.1.jar!/junit/framework/TestCase.class">
+      <file leaf-file-name="JNDICacheReplicatorTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/JNDICacheReplicatorTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="26" column="0" selection-start="919" selection-end="919" vertical-scroll-proportion="0.5504587">
+            <state line="48" column="14" selection-start="1608" selection-end="1608" vertical-scroll-proportion="0.33898306">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CountingCacheEventListener.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/event/CountingCacheEventListener.java">
+      <file leaf-file-name="JNDICacheManagerPeerProvider.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDICacheManagerPeerProvider.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="157" column="33" selection-start="5542" selection-end="5542" vertical-scroll-proportion="0.8603774">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ehcache-countinglisteners.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/resources/ehcache-countinglisteners.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="133" column="67" selection-start="8584" selection-end="8584" vertical-scroll-proportion="0.5207547">
-              <folding />
+            <state line="214" column="13" selection-start="6670" selection-end="6670" vertical-scroll-proportion="-0.6135531">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -2200,7 +2193,7 @@
   <component name="PropertiesComponent">
     <property name="GoToClass.includeJavaFiles" value="false" />
     <property name="MemberChooser.copyJavadoc" value="false" />
-    <property name="cvs_file_history_treeWidth0" value="374" />
+    <property name="cvs_file_history_treeWidth0" value="370" />
     <property name="cvs_file_history_treeOrder4" value="4" />
     <property name="cvs_file_history_flatWidth2" value="374" />
     <property name="cvs_file_history_flatOrder4" value="4" />
@@ -2208,13 +2201,13 @@
     <property name="GoToFile.includeJavaFiles" value="false" />
     <property name="cvs_file_history_flatOrder1" value="1" />
     <property name="cvs_file_history_flatWidth1" value="374" />
-    <property name="cvs_file_history_treeWidth1" value="374" />
+    <property name="cvs_file_history_treeWidth1" value="370" />
     <property name="cvs_file_history_treeOrder6" value="6" />
     <property name="GoToClass.includeLibraries" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="cvs_file_history_flatOrder2" value="2" />
     <property name="cvs_file_history_flatWidth4" value="214" />
-    <property name="cvs_file_history_treeWidth2" value="374" />
+    <property name="cvs_file_history_treeWidth2" value="371" />
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="cvs_file_history_flatOrder3" value="3" />
     <property name="RunManagerConfig.showSettingsBeforeRunnig" value="true" />
@@ -2223,14 +2216,14 @@
     <property name="RunManagerConfig.compileBeforeRunning" value="true" />
     <property name="cvs_file_history_flatWidth6" value="214" />
     <property name="cvs_file_history_flatOrder0" value="0" />
-    <property name="cvs_file_history_treeOrder3" value="3" />
     <property name="cvs_file_history_treeWidth4" value="212" />
+    <property name="cvs_file_history_treeOrder3" value="3" />
     <property name="cvs_file_history_treeWidth6" value="211" />
     <property name="last_opened_file_path" value="/Users/gluck/Desktop" />
     <property name="cvs_file_history_flatOrder5" value="5" />
     <property name="cvs_file_history_flatWidth5" value="214" />
+    <property name="cvs_file_history_treeWidth3" value="370" />
     <property name="cvs_file_history_treeOrder2" value="2" />
-    <property name="cvs_file_history_treeWidth3" value="374" />
     <property name="cvs_file_history_treeWidth5" value="212" />
     <property name="cvs_file_history_flatOrder6" value="6" />
     <property name="cvs_file_history_flatWidth0" value="374" />
@@ -2271,14 +2264,14 @@
   <component name="RestoreUpdateTree" />
   <component name="RunManager">
     <activeType name="JUnit" />
-    <tempConfiguration selected="true" default="false" name="CacheEventListenerTest.testExpiryNotifications" type="JUnit" factoryName="JUnit">
+    <tempConfiguration selected="true" default="false" name="JNDICacheReplicatorTest" type="JUnit" factoryName="JUnit">
       <module name="ehcache" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
-      <option name="PACKAGE_NAME" value="net.sf.ehcache.event" />
-      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.event.CacheEventListenerTest" />
-      <option name="METHOD_NAME" value="testExpiryNotifications" />
-      <option name="TEST_OBJECT" value="method" />
+      <option name="PACKAGE_NAME" value="net.sf.ehcache.distribution" />
+      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.distribution.JNDICacheReplicatorTest" />
+      <option name="METHOD_NAME" value="" />
+      <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" value="" />
       <option name="PARAMETERS" value="" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
@@ -2286,11 +2279,7 @@
       <option name="TEST_SEARCH_SCOPE">
         <value defaultName="wholeProject" />
       </option>
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="55579" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="true" />
-      </RunnerSettings>
+      <RunnerSettings RunnerId="Run" />
       <RunnerSettings RunnerId="Profile ">
         <option name="myStartupWithAllocations" value="false" />
         <option name="myCPUStartup" value="" />
@@ -2303,10 +2292,20 @@
         <option name="myDisableAlloc" value="false" />
         <option name="myDisableCounts" value="false" />
       </RunnerSettings>
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Debug" />
       <ConfigurationWrapper RunnerId="Run" />
     </tempConfiguration>
+    <configuration selected="false" default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+    </configuration>
     <configuration selected="false" default="true" type="JUnit" factoryName="JUnit">
       <module name="ehcache" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
@@ -2335,25 +2334,6 @@
         <option name="myDisableCounts" value="false" />
       </RunnerSettings>
     </configuration>
-    <configuration selected="false" default="true" type="Remote" factoryName="Remote">
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" value="javadebug" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="5005" />
-    </configuration>
-    <configuration selected="false" default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-    </configuration>
     <configuration selected="false" default="true" type="WebLogic Instance" factoryName="Local">
       <option name="WORKING_DIRECTORY" />
       <option name="HOST" value="localhost" />
@@ -2367,6 +2347,13 @@
       <option name="PASSWORD" value="weblogic" />
       <option name="SERVER_NAME" value="myserver" />
       <option name="DOMAIN_NAME" value="mydomain" />
+    </configuration>
+    <configuration selected="false" default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
     </configuration>
     <configuration selected="false" default="true" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" />
@@ -2418,6 +2405,7 @@
         <option name="TRANSPORT" value="0" />
         <option name="LOCAL" value="false" />
       </RunnerSettings>
+      <RunnerSettings RunnerId="Run" />
       <RunnerSettings RunnerId="Profile ">
         <option name="myStartupWithAllocations" value="false" />
         <option name="myCPUStartup" value="" />
@@ -2430,7 +2418,6 @@
         <option name="myDisableAlloc" value="false" />
         <option name="myDisableCounts" value="false" />
       </RunnerSettings>
-      <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Debug" />
       <ConfigurationWrapper RunnerId="Run" />
     </configuration>
@@ -2490,10 +2477,10 @@
     <layout>
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="13" />
       <window_info id="Regex" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32850778" order="7" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.32850778" order="7" />
       <window_info id="ConsoleMavenPlugin" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
-      <window_info id="Checkstyle" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.32962137" order="8" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.3466495" order="0" />
+      <window_info id="Checkstyle" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.35180414" order="0" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32739422" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25322166" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32516703" order="10" />
@@ -2622,110 +2609,114 @@
     </buildFile>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/util/PropertyUtil.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/MockContext.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="608" vertical-scroll-proportion="0.0">
+        <state line="167" column="74" selection-start="4559" selection-end="4559" vertical-scroll-proportion="0.6109937">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheManagerPeerListenerTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDICacheManagerPeerListenerFactory.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="232" column="16" selection-start="8201" selection-end="8201" vertical-scroll-proportion="0.3384434">
+        <state line="35" column="13" selection-start="1106" selection-end="1106" vertical-scroll-proportion="0.45665962">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheFactory.java">
+    <entry file="file://$PROJECT_DIR$/config/suppressions.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="85" column="0" selection-start="3280" selection-end="3280" vertical-scroll-proportion="1.6283368">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="299" column="84" selection-start="12598" selection-end="12598" vertical-scroll-proportion="1.6016427">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="204" column="119" selection-start="7803" selection-end="7803" vertical-scroll-proportion="0.5831622">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="128" selection-start="1301" selection-end="1301" vertical-scroll-proportion="0.4301887">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/event/CountingCacheEventListener.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="157" column="33" selection-start="5542" selection-end="5542" vertical-scroll-proportion="0.8603774">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/resources/ehcache-countinglisteners.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="133" column="67" selection-start="8584" selection-end="8584" vertical-scroll-proportion="0.5207547">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="551" column="0" selection-start="19506" selection-end="19506" vertical-scroll-proportion="0.2962264">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/tools/junit-3.8.1.jar!/junit/framework/TestCase.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="26" column="0" selection-start="919" selection-end="919" vertical-scroll-proportion="0.5504587">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Element.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="6" selection-start="608" selection-end="608" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/CachePeer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="0" selection-start="1383" selection-end="1383" vertical-scroll-proportion="0.2972477">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICachePeer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="13" selection-start="1312" selection-end="1312" vertical-scroll-proportion="0.2972477">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="70" column="113" selection-start="2885" selection-end="2885" vertical-scroll-proportion="0.7018868">
+        <state line="6" column="83" selection-start="274" selection-end="274" vertical-scroll-proportion="0.13186814">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/event/CacheEventListenerTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="196" column="59" selection-start="5687" selection-end="5687" vertical-scroll-proportion="0.33207548">
+        <state line="36" column="21" selection-start="1131" selection-end="1131" vertical-scroll-proportion="0.27118644">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDICacheManagerPeerProviderFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="33" column="16" selection-start="992" selection-end="992" vertical-scroll-proportion="0.3551797">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastRMICacheManagerPeerProvider.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="169" column="22" selection-start="7523" selection-end="7523" vertical-scroll-proportion="3.0282485">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerProvider.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="132" column="0" selection-start="3723" selection-end="3723" vertical-scroll-proportion="1.2179487">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/CacheManagerPeerProvider.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="59" column="0" selection-start="1651" selection-end="1651" vertical-scroll-proportion="0.9230769">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDICacheManagerPeerProvider.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="214" column="13" selection-start="6670" selection-end="6670" vertical-scroll-proportion="-0.6135531">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/JNDICacheReplicatorTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="48" column="14" selection-start="1608" selection-end="1608" vertical-scroll-proportion="0.33898306">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDICacheManagerPeerListener.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="67" column="69" selection-start="2294" selection-end="2294" vertical-scroll-proportion="0.1904762">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="45" column="85" selection-start="1610" selection-end="1610" vertical-scroll-proportion="0.24293785">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerProviderFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="31" column="91" selection-start="1078" selection-end="1078" vertical-scroll-proportion="0.20338982">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastKeepaliveHeartbeatReceiver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="36" column="35" selection-start="1255" selection-end="1255" vertical-scroll-proportion="0.2857143">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="68" column="18" selection-start="2756" selection-end="2756" vertical-scroll-proportion="0.13559322">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

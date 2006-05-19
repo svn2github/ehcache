@@ -18,10 +18,10 @@ package net.sf.ehcache.distribution;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.StopWatch;
-import net.sf.ehcache.Cache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

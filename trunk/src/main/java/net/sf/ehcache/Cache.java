@@ -189,19 +189,7 @@ public final class Cache implements Ehcache {
 
     private RegisteredEventListeners registeredEventListeners;
 
-    private final String guid;
-
-    {
-            guid = new StringBuffer()
-                    .append(localhost)
-                    .append("-")
-                    .append(new UID())
-                    .toString();
-    }
-
-
-
-
+    private final String guid = new StringBuffer() .append(localhost) .append("-").append(new UID()).toString();
 
     private CacheManager cacheManager;
 

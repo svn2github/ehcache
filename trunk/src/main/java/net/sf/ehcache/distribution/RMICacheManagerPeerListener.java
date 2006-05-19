@@ -66,15 +66,24 @@ import java.util.Set;
  *
  * @author Greg Luck
  * @version $Id$
- * todo consider just registering an RMICachePeer for all caches
+ *          todo consider just registering an RMICachePeer for all caches
  */
 public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
 
     private static final Log LOG = LogFactory.getLog(RMICacheManagerPeerListener.class.getName());
     private static final int MINIMUM_SENSIBLE_TIMEOUT = 200;
 
-    private Registry registry;
+    /**
+     * The cache peers. The value is an RMICachePeer.
+     */
+    protected final Map cachePeers = new HashMap();
+    
+    /**
+     * status.
+     */
+    protected Status status;
 
+    private Registry registry;
     private final String hostName;
     private Integer port;
     private CacheManager cacheManager;
@@ -87,13 +96,6 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      * Otherwise the listener is not GC-able.
      */
     private Thread shutdownHook;
-
-    /**
-     * status.
-     */
-    private Status status;
-
-    private final Map cachePeers = new HashMap();
 
     /**
      * Constructor with full arguments.
@@ -163,7 +165,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      * Remove the shutdown hook to prevent leaving orphaned caches around. This
      * is called by {@link #dispose()} AFTER the status has been set to shutdown.
      */
-    private void removeShutdownHook() {
+    protected void removeShutdownHook() {
         if (shutdownHook != null) {
             // remove shutdown hook
             Runtime.getRuntime().removeShutdownHook(shutdownHook);
@@ -221,7 +223,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             populateListOfRemoteCachePeers();
             for (Iterator iterator = cachePeers.values().iterator(); iterator.hasNext();) {
                 rmiCachePeer = (RMICachePeer) iterator.next();
-                Naming.rebind(rmiCachePeer.getUrl(), rmiCachePeer);
+                bind(rmiCachePeer);
                 counter++;
             }
             LOG.debug(counter + " RMICachePeers bound in registry for RMI listener");
@@ -237,6 +239,15 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
                     + url + ". Initial cause was " + e.getMessage(), e);
         }
 
+    }
+
+    /**
+     * Bind a cache peer
+     *
+     * @param rmiCachePeer
+     */
+    protected void bind(RMICachePeer rmiCachePeer) throws Exception {
+        Naming.rebind(rmiCachePeer.getUrl(), rmiCachePeer);
     }
 
     /**
@@ -342,8 +353,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             int counter = 0;
             for (Iterator iterator = cachePeers.values().iterator(); iterator.hasNext();) {
                 RMICachePeer rmiCachePeer = (RMICachePeer) iterator.next();
-                UnicastRemoteObject.unexportObject(rmiCachePeer, false);
-                Naming.unbind(rmiCachePeer.getUrl());
+                unbind(rmiCachePeer);
                 counter++;
             }
             LOG.debug(counter + " RMICachePeers unbound from registry in RMI listener");
@@ -354,6 +364,17 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             removeShutdownHook();
 
         }
+    }
+
+    /**
+     * Unbinds an RMICachePeer
+     *
+     * @param rmiCachePeer
+     * @throws Exception
+     */
+    protected void unbind(RMICachePeer rmiCachePeer) throws Exception {
+        UnicastRemoteObject.unexportObject(rmiCachePeer, false);
+        Naming.unbind(rmiCachePeer.getUrl());
     }
 
     /**
@@ -417,10 +438,10 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             try {
                 rmiCachePeer = new RMICachePeer(cache, hostName, port, socketTimeoutMillis);
                 url = rmiCachePeer.getUrl();
-                Naming.rebind(rmiCachePeer.getUrl(), rmiCachePeer);
+                bind(rmiCachePeer);
             } catch (Exception e) {
                 throw new CacheException("Problem starting listener for RMICachePeer "
-                    + url + ". Initial cause was " + e.getMessage(), e);
+                        + url + ". Initial cause was " + e.getMessage(), e);
             }
             cachePeers.put(cacheName, rmiCachePeer);
 

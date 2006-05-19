@@ -35,7 +35,7 @@ import java.util.Properties;
  * @author Greg Luck
  * @version $Id$
  */
-public final class RMICacheManagerPeerListenerFactory extends CacheManagerPeerListenerFactory {
+public class RMICacheManagerPeerListenerFactory extends CacheManagerPeerListenerFactory {
 
     /**
      * The default timeout for cache replication for a single replication action.
@@ -68,6 +68,19 @@ public final class RMICacheManagerPeerListenerFactory extends CacheManagerPeerLi
         } else {
             socketTimeoutMillis = new Integer(socketTimeoutMillisString);
         }
+        return doCreateCachePeerListener(hostName, port, cacheManager, socketTimeoutMillis);
+    }
+
+    /**
+     * A template method to actually create the factory
+     * @param hostName
+     * @param port
+     * @param cacheManager
+     * @param socketTimeoutMillis
+     * @return a crate CacheManagerPeerListener
+     */
+    protected CacheManagerPeerListener doCreateCachePeerListener(String hostName, Integer port, CacheManager cacheManager,
+                                                                 Integer socketTimeoutMillis) {
         try {
             return new RMICacheManagerPeerListener(hostName, port, cacheManager, socketTimeoutMillis);
         } catch (UnknownHostException e) {

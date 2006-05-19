@@ -1,4 +1,4 @@
-    <!DOCTYPE suppressions PUBLIC
+<!DOCTYPE suppressions PUBLIC
         "-//Puppy Crawl//DTD Suppressions 1.0//EN"
         "http://www.puppycrawl.com/dtds/suppressions_1_0.dtd">
 
@@ -10,11 +10,14 @@
     <suppress checks="StrictDuplicateCode" files="Test.java"/>
     <suppress checks="MagicNumberCheck" files="Test.java"/>
     <suppress checks="MagicNumberCheck" files="Tester.java"/>
-    <suppress checks="CyclomaticComplexity" files="Test.java" />
-    <suppress checks="NPathComplexity" files="Test.java" />
-    <suppress checks="ClassDataAbstractionCoupling" files="Test.java" />
-    <suppress checks="ClassDataAbstractionCoupling" files="Test.java" />
+    <suppress checks="CyclomaticComplexity" files="Test.java"/>
+    <suppress checks="NPathComplexity" files="Test.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="Test.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="Test.java"/>
 
+
+    <!-- JNDI -->
+    <suppress checks="IllegalTypeCheck" files="test[/\\]"/>
 
 
     <!-- Suppress duplicate checking of copyright notice -->
@@ -27,15 +30,14 @@
     <suppress checks="PackageHtml" files="test[/\\]"/>
 
 
-
     <!-- Candidates for refactoring -->
     <suppress checks="CyclomaticComplexity" files="Cache.java" lines="860"/>
     <suppress checks="CyclomaticComplexity" files="CacheManager.java" lines="147"/>
     <suppress checks="CyclomaticComplexity" files="DiskStore.java" lines="583"/>
     <suppress checks="NPathComplexity" files="Cache.java"/>
     <suppress checks="NPathComplexity" files="CacheManager.java"/>
-    <suppress checks="ClassDataAbstractionCoupling" files="DiskStore.java" />
-    <suppress checks="ClassFanOutComplexity" files="DiskStore.java" />
+    <suppress checks="ClassDataAbstractionCoupling" files="DiskStore.java"/>
+    <suppress checks="ClassFanOutComplexity" files="DiskStore.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="ElementTest.java"/>
     <suppress checks="IllegalType" files="Cache.java"/>
     <suppress checks="ParameterNumber" files="Cache.java"/>
@@ -46,8 +48,8 @@
     <suppress checks="IllegalType" files="AsynchronousCommandExecutor.java"/>
 
     <!-- Candidates for refactoring -->
-    <suppress checks="CyclomaticComplexity" files="AsynchronousCommandExecutor.java" />
-    <suppress checks="NPathComplexity" files="AsynchronousCommandExecutor.java" />
+    <suppress checks="CyclomaticComplexity" files="AsynchronousCommandExecutor.java"/>
+    <suppress checks="NPathComplexity" files="AsynchronousCommandExecutor.java"/>
 
     <!-- Doug Lea's contributed code -->
     <suppress checks="CyclomaticComplexity" files="Mutex.java"/>

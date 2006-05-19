@@ -34,6 +34,7 @@ import java.util.StringTokenizer;
  *
  * @author Greg Luck
  * @version $Id$
+ * todo support zero length message
  */
 public final class MulticastKeepaliveHeartbeatReceiver {
 
