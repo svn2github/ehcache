@@ -37,11 +37,10 @@ import java.util.Iterator;
  * @author Greg Luck
  * @version $Id$
  * @see RMICacheManagerPeerListener
- * todo simplify
  */
-public class JNDICacheManagerPeerListener extends RMICacheManagerPeerListener implements CacheManagerPeerListener {
+public class JNDIRMICacheManagerPeerListener extends RMICacheManagerPeerListener implements CacheManagerPeerListener {
 
-    private static final Log LOG = LogFactory.getLog(JNDICacheManagerPeerListener.class.getName());
+    private static final Log LOG = LogFactory.getLog(JNDIRMICacheManagerPeerListener.class.getName());
 
     private String jndiProviderUrl;
 
@@ -49,8 +48,8 @@ public class JNDICacheManagerPeerListener extends RMICacheManagerPeerListener im
     /**
      * @see RMICacheManagerPeerListener(String, Integer, CacheManager, Integer)
      */
-    public JNDICacheManagerPeerListener(String hostName, Integer port,
-                                        CacheManager cacheManager, Integer socketTimeoutMillis) throws UnknownHostException {
+    public JNDIRMICacheManagerPeerListener(String hostName, Integer port,
+                                           CacheManager cacheManager, Integer socketTimeoutMillis) throws UnknownHostException {
         super(hostName, port, cacheManager, socketTimeoutMillis);
         jndiProviderUrl = "//localhost:" + port;
     }
@@ -80,12 +79,14 @@ public class JNDICacheManagerPeerListener extends RMICacheManagerPeerListener im
         }
     }
 
+
+
     /**
      * @return
      * @throws NamingException
      */
     private Context getInitialContext() throws NamingException {
-        Hashtable hashTable = new Hashtable(1);
+        Hashtable hashTable = new Hashtable();
         String initialContextFactory = System.getProperty(Context.INITIAL_CONTEXT_FACTORY);
         if (initialContextFactory != null && initialContextFactory.startsWith("net.sf.ehcache")) {
 

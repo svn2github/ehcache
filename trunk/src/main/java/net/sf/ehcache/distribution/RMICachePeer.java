@@ -36,6 +36,7 @@ import java.util.List;
  * @author Greg Luck
  * @version $Id$
  * @noinspection FieldCanBeLocal
+ * todo bootstrap
  */
 public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remote {
 
@@ -169,6 +170,13 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      */
     final Ehcache getBoundCacheInstance() {
         return cache;
+    }
+
+    /**
+     * Returns a String that represents the value of this object.
+     */
+    public String toString() {
+        return getUrl();
     }
 
 }

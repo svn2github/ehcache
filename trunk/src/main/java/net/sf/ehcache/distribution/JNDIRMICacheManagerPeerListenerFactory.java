@@ -26,14 +26,14 @@ import java.net.UnknownHostException;
  * Expected configuration line:
  * <p/>
  * <code>
- * <cachePeerListenerFactory class="net.sf.ehcache.distribution.JNDICacheManagerPeerListenerFactory"
+ * <cachePeerListenerFactory class="net.sf.ehcache.distribution.JNDIRMICacheManagerPeerListenerFactory"
  * properties="hostName=localhost, port=5000" />
  * </code>
  * @author Andy McNutt
  * @author Greg Luck
  * @version $Id$
  */
-public class JNDICacheManagerPeerListenerFactory extends RMICacheManagerPeerListenerFactory {
+public class JNDIRMICacheManagerPeerListenerFactory extends RMICacheManagerPeerListenerFactory {
 
     /**
      * A template method to actually create the factory
@@ -47,7 +47,7 @@ public class JNDICacheManagerPeerListenerFactory extends RMICacheManagerPeerList
     protected CacheManagerPeerListener doCreateCachePeerListener(String hostName, Integer port, CacheManager cacheManager,
                                                                  Integer socketTimeoutMillis) {
          try {
-            return new JNDICacheManagerPeerListener(hostName, port, cacheManager, socketTimeoutMillis);
+            return new JNDIRMICacheManagerPeerListener(hostName, port, cacheManager, socketTimeoutMillis);
         } catch (UnknownHostException e) {
             throw new CacheException("Unable to create CacheManagerPeerListener. Error was " + e.getMessage(), e);
         }

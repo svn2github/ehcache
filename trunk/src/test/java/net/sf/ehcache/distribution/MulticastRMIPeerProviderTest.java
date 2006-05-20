@@ -88,6 +88,17 @@ public class MulticastRMIPeerProviderTest extends TestCase {
     }
 
     /**
+     * Make sure no exceptions get logged. Manual inspection.
+     */
+    public void testSolePeer() throws Exception {
+        tearDown();
+
+        manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR
+                + "distribution/ehcache-distributed-no-caches-replicating.xml");
+        Thread.sleep(6000);
+    }
+
+    /**
      * test remote cache peers
      */
     public void testProviderFromCacheManager() throws InterruptedException {

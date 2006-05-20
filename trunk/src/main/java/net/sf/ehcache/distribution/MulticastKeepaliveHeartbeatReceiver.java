@@ -26,6 +26,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.rmi.RemoteException;
 import java.util.StringTokenizer;
+import java.util.List;
 
 /**
  * Receives heartbeats from any {@link MulticastKeepaliveHeartbeatSender}s out there.
@@ -34,7 +35,6 @@ import java.util.StringTokenizer;
  *
  * @author Greg Luck
  * @version $Id$
- * todo support zero length message
  */
 public final class MulticastKeepaliveHeartbeatReceiver {
 
@@ -63,6 +63,7 @@ public final class MulticastKeepaliveHeartbeatReceiver {
 
     /**
      * Start.
+     *
      * @throws IOException
      */
     final void init() throws IOException {
@@ -88,22 +89,26 @@ public final class MulticastKeepaliveHeartbeatReceiver {
     private final class MulticastReceiverThread extends Thread {
 
 
-
         public final void run() {
             byte[] buf = new byte[PayloadUtil.MTU];
-            while (!stopped) {
-                DatagramPacket packet = new DatagramPacket(buf, buf.length);
-                try {
-                    socket.receive(packet);
-                    byte[] payload = packet.getData();
-                    processPayload(payload);
+            try {
+                while (!stopped) {
+                    DatagramPacket packet = new DatagramPacket(buf, buf.length);
+                    try {
+                        socket.receive(packet);
+                        byte[] payload = packet.getData();
+                        processPayload(payload);
 
 
-                } catch (IOException e) {
-                    if (!stopped) {
-                        LOG.error("Error receiving heartbeat. " + e.getMessage() + ". Initial cause was " + e.getMessage(), e);
+                    } catch (IOException e) {
+                        if (!stopped) {
+                            LOG.error("Error receiving heartbeat. " + e.getMessage() +
+                                    ". Initial cause was " + e.getMessage(), e);
+                        }
                     }
                 }
+            } finally {
+                LOG.error("Multicast receiver thread stopped.");
             }
         }
 
@@ -128,11 +133,19 @@ public final class MulticastKeepaliveHeartbeatReceiver {
         /**
          * @param rmiUrls
          * @return true if our own hostname and listener port are found in the list. This then means we have
-         * caught our onw multicast, and should be ignored.
+         *         caught our onw multicast, and should be ignored.
          */
         private boolean self(String rmiUrls) {
             CacheManager cacheManager = peerProvider.getCacheManager();
-            CachePeer peer = (CachePeer) cacheManager.getCachePeerListener().getBoundCachePeers().get(0);
+            CacheManagerPeerListener cacheManagerPeerListener = cacheManager.getCachePeerListener();
+            if (cacheManagerPeerListener == null) {
+                return false;
+            }
+            List boundCachePeers = cacheManagerPeerListener.getBoundCachePeers();
+            if (boundCachePeers == null || boundCachePeers.size() == 0) {
+                return false;
+            }
+            CachePeer peer = (CachePeer) boundCachePeers.get(0);
             String cacheManagerUrlBase = null;
             try {
                 cacheManagerUrlBase = peer.getUrlBase();

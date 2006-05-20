@@ -38,7 +38,7 @@ import java.util.List;
 
 /**
  * Tests replication of Cache events with 
- * JNDICacheManagerPeerListener and JNDICacheManagerPeerProvider.
+ * JNDIRMICacheManagerPeerListener and JNDIManualRMICacheManagerPeerProvider.
  * <p>
  * MockContextFactory and MockContext are used to mock JNDI.
  * @see RMICacheReplicatorTest

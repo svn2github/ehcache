@@ -78,12 +78,12 @@
     <!--
         An alternate CacheManagerPeerProviderFactory can be used for JNDI discovery of other CacheManagers in the cluster.
         Only manual discovery is supported.
-        For cacheManagerPeerProviderFactory specify class net.sf.ehcache.distribution.JNDICacheManagerPeerProviderFactory.
-        Correspondingly for cacheManagerPeerListenerFactory specify class net.sf.ehcache.distribution.JNDICacheManagerPeerListenerFactory. 
+        For cacheManagerPeerProviderFactory specify class net.sf.ehcache.distribution.JNDIManualRMICacheManagerPeerProviderFactoryerFactory.
+        Correspondingly for cacheManagerPeerListenerFactory specify class net.sf.ehcache.distribution.JNDIRMICacheManagerPeerListenerFactoryory.
 
         Configuring JNDI Manual Discovery:
         Manual JNDI discovery is configured as per the following example:
-        <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.JNDICacheManagerPeerProviderFactory"
+        <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.JNDIManualRMICacheManagerPeerProviderFactoryerFactory"
                               properties="peerDiscovery=manual, stashContexts=true, stashRemoteCachePeers=true, 
                               jndiUrls=t3//server1:40000/sampleCache1|t3//server2:40000/sampleCache1|t3//server1:40000/sampleCache2|t3//server2:40000/sampleCache2"/>
 
@@ -125,9 +125,9 @@
 
     <!--
         An alternate CacheManagerPeerListenerFactory can be used for JNDI binding of listeners for messages from cache replicators participating in the cluster.
-        For cacheManagerPeerListenerFactory specify class net.sf.ehcache.distribution.JNDICacheManagerPeerListenerFactory. 
-         Correspondingly for cacheManagerPeerProviderFactory specify class net.sf.ehcache.distribution.JNDICacheManagerPeerProviderFactory.
-        Properties for JNDICacheManagerPeerListenerFactory are the same as RMICacheManagerPeerListenerFactory.
+        For cacheManagerPeerListenerFactory specify class net.sf.ehcache.distribution.JNDIRMICacheManagerPeerListenerFactoryory.
+         Correspondingly for cacheManagerPeerProviderFactory specify class net.sf.ehcache.distribution.JNDIManualRMICacheManagerPeerProviderFactoryerFactory.
+        Properties for JNDIRMICacheManagerPeerListenerFactory are the same as RMICacheManagerPeerListenerFactory.
     -->
 
 

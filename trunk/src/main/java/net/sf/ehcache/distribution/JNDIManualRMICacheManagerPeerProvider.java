@@ -47,11 +47,10 @@ import java.util.Map;
  * @author Andy McNutt
  * @author Greg Luck
  * @version $Id$
- * todo simplify
  */
-public class JNDICacheManagerPeerProvider implements CacheManagerPeerProvider {
+public class JNDIManualRMICacheManagerPeerProvider implements CacheManagerPeerProvider {
 
-    private static final Log LOG = LogFactory .getLog(JNDICacheManagerPeerListener.class.getName());
+    private static final Log LOG = LogFactory.getLog(JNDIRMICacheManagerPeerListener.class.getName());
 
 
     /**
@@ -82,7 +81,7 @@ public class JNDICacheManagerPeerProvider implements CacheManagerPeerProvider {
      * @param isStashRemoteCachePeers
      * @param isStashContexts
      */
-    public JNDICacheManagerPeerProvider(boolean isStashContexts, boolean isStashRemoteCachePeers) {
+    public JNDIManualRMICacheManagerPeerProvider(boolean isStashContexts, boolean isStashRemoteCachePeers) {
         this.isStashContexts = isStashContexts;
         this.isStashRemoteCachePeers = isStashRemoteCachePeers;
     }
@@ -92,7 +91,7 @@ public class JNDICacheManagerPeerProvider implements CacheManagerPeerProvider {
      *
      * @param cacheManager
      */
-    public JNDICacheManagerPeerProvider(CacheManager cacheManager) {
+    public JNDIManualRMICacheManagerPeerProvider(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
     }
 
@@ -128,14 +127,12 @@ public class JNDICacheManagerPeerProvider implements CacheManagerPeerProvider {
     /**
      * @return a list of {@link CachePeer} peers, excluding the local peer.
      */
-    public List listRemoteCachePeers(Ehcache cache)
-            throws CacheException {
+    public List listRemoteCachePeers(Ehcache cache) throws CacheException {
         List remoteCachePeers = new ArrayList();
         List staleCachePeers = new ArrayList();
         String jndiProviderUrl = null;
         synchronized (lock) {
-            for (Iterator iterator = peerUrls.keySet().iterator(); iterator
-                    .hasNext();) {
+            for (Iterator iterator = peerUrls.keySet().iterator(); iterator.hasNext();) {
                 jndiProviderUrl = (String) iterator.next();
                 String providerUrlCacheName = extractCacheName(jndiProviderUrl);
                 try {
@@ -161,13 +158,11 @@ public class JNDICacheManagerPeerProvider implements CacheManagerPeerProvider {
         }
         if (LOG.isDebugEnabled()) {
             try {
-                LOG.debug("listRemoteCachePeers " + cache.getName() + " returning "
-                        + remoteCachePeers.size() + " "
-                        + getDisplay(remoteCachePeers));
+                LOG.debug("listRemoteCachePeers " + cache.getName() + " returning " + remoteCachePeers.size() + " "
+                        + printCachePeers(remoteCachePeers));
             } catch (RemoteException re) {
                 LOG.warn(re.getMessage(), re);
-                LOG.debug("listRemoteCachePeers " + cache.getName() + " returning "
-                        + remoteCachePeers.size());
+                LOG.debug("listRemoteCachePeers " + cache.getName() + " returning " + remoteCachePeers.size());
             }
         }
         return remoteCachePeers;
@@ -206,18 +201,17 @@ public class JNDICacheManagerPeerProvider implements CacheManagerPeerProvider {
      * @param jndiProviderUrl
      */
     private Context registerPeerToContext(String jndiProviderUrl) {
-        String initialContextFactory = System
-                .getProperty(Context.INITIAL_CONTEXT_FACTORY);
+        String initialContextFactory = System.getProperty(Context.INITIAL_CONTEXT_FACTORY);
         if (LOG.isDebugEnabled()) {
             LOG.debug("registerPeerToContext: " + jndiProviderUrl
                     + " " + extractProviderUrl(jndiProviderUrl)
                     + " with " + initialContextFactory);
         }
-        Hashtable ht = new Hashtable(1);
-        ht.put(Context.PROVIDER_URL, extractProviderUrl(jndiProviderUrl));
+        Hashtable hashTable = new Hashtable(1);
+        hashTable.put(Context.PROVIDER_URL, extractProviderUrl(jndiProviderUrl));
         Context initialContext = null;
         try {
-            initialContext = new InitialContext(ht);
+            initialContext = new InitialContext(hashTable);
             registerPeerToContext(jndiProviderUrl, initialContext);
 
         } catch (NamingException e) {
@@ -255,12 +249,10 @@ public class JNDICacheManagerPeerProvider implements CacheManagerPeerProvider {
     }
 
     /**
-     * Call this method after we have checked all the CachePeers for staleness
-     * which sets _stalePeerUrls.
+     * Call this method after we have checked all the CachePeers for staleness which sets stalePeerUrls.
      * <p/>
      * This method sets to null the Context in peerUrls, and
-     * sets to null the CachePeer in cachePeers for each jndiProviderUrl
-     * in _staleCachePeers.
+     * sets to null the CachePeer in cachePeers for each jndiProviderUrl in staleCachePeers.
      *
      * @param staleCachePeers - List of stale jndiProviderUrls
      */
@@ -273,7 +265,6 @@ public class JNDICacheManagerPeerProvider implements CacheManagerPeerProvider {
                 LOG.debug("unregisterStalePeers " + jndiProviderUrl);
             }
         }
-
     }
 
     /**
@@ -357,23 +348,29 @@ public class JNDICacheManagerPeerProvider implements CacheManagerPeerProvider {
         }
     }
 
+    /**
+     * The last lookup and test isStale may have caused context to be null for jndiProviderUrl.
+     * @param jndiProviderUrl
+     * @return
+     * @throws NamingException
+     */
     private CachePeer lookupRemoteCachePeer(String jndiProviderUrl)
             throws NamingException {
         Context context = getContext(jndiProviderUrl);
 
-        // The last lookup and test isStale may have caused
-        // context to be null for jndiProviderUrl.
         if (context == null) {
             context = registerPeerToContext(jndiProviderUrl);
         }
         return (CachePeer) context.lookup(extractCacheName(jndiProviderUrl));
     }
 
+    /**
+     * Any remote method call that doesn't throw RemoteException indicates the cachePeer is not stale
+     * @param cachePeer  the peer to check
+     * @return true if the peer is contactable
+     */
     private boolean isStale(CachePeer cachePeer) {
         try {
-
-            // Any remote method call that doesn't throw RemoteException
-            // indicates the cachePeer is not stale
             cachePeer.getName();
         } catch (RemoteException re) {
             return true;
@@ -386,17 +383,16 @@ public class JNDICacheManagerPeerProvider implements CacheManagerPeerProvider {
      * @return StringBuffer with URL of each CachePeer
      * @throws RemoteException
      */
-    private StringBuffer getDisplay(List cachePeers)
-            throws RemoteException {
-        Iterator it = cachePeers.iterator();
-        StringBuffer buff = new StringBuffer();
-        buff.append("CachePeers=[");
-        while (it.hasNext()) {
-            CachePeer cachePeer = (CachePeer) it.next();
-            buff.append(" ").append(cachePeer.getUrl());
+    private StringBuffer printCachePeers(List cachePeers) throws RemoteException {
+        Iterator iterator = cachePeers.iterator();
+        StringBuffer sb = new StringBuffer();
+        sb.append("CachePeers=[");
+        while (iterator.hasNext()) {
+            CachePeer cachePeer = (CachePeer) iterator.next();
+            sb.append(" ").append(cachePeer.toString());
         }
-        buff.append("]");
-        return buff;
+        sb.append("]");
+        return sb;
     }
 
     /**

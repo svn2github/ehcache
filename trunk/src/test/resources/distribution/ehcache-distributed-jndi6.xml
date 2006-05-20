@@ -77,12 +77,12 @@
     <!--
         An alternate CacheManagerPeerProviderFactory can be used for JNDI discovery of other CacheManagers in the cluster.
         Only manual discovery is supported.
-        For cacheManagerPeerProviderFactory specify class net.sf.ehcache.distribution.JNDICacheManagerPeerProviderFactory.
-        Correspondingly for cacheManagerPeerListenerFactory specify class net.sf.ehcache.distribution.JNDICacheManagerPeerListenerFactory. 
+        For cacheManagerPeerProviderFactory specify class net.sf.ehcache.distribution.JNDIManualRMICacheManagerPeerProviderFactoryerFactory.
+        Correspondingly for cacheManagerPeerListenerFactory specify class net.sf.ehcache.distribution.JNDIRMICacheManagerPeerListenerFactoryory.
 
         Configuring JNDI Manual Discovery:
         Manual JNDI discovery is configured as per the following example:
-        <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.JNDICacheManagerPeerProviderFactory"
+        <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.JNDIManualRMICacheManagerPeerProviderFactoryerFactory"
                               properties="peerDiscovery=manual, stashContexts=true, stashRemoteCachePeers=true, 
                               jndiUrls=t3//server1:40000/sampleCache1|t3//server2:40000/sampleCache1|t3//server1:40000/sampleCache2|t3//server2:40000/sampleCache2"/>
 
@@ -93,7 +93,7 @@
         - jndiUrls (mandatory) - specify a pipe separated list of jndiUrls, in the form protocol//hostname:port
 
     -->
-    <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.JNDICacheManagerPeerProviderFactory"
+    <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.JNDIManualRMICacheManagerPeerProviderFactory"
         properties="peerDiscovery=manual, jndiUrls=//localhost:40002/sampleCache1|//localhost:40002/sampleCache2|//localhost:40002/sampleCache3|//localhost:40002/sampleCache4|//localhost:40002/sampleCache5|//localhost:40002/sampleCache6//localhost:40002/sampleCache7|//localhost:40003/sampleCache1|//localhost:40003/sampleCache2|//localhost:40003/sampleCache3|//localhost:40003/sampleCache4|//localhost:40003/sampleCache5|//localhost:40003/sampleCache6//localhost:40003/sampleCache7|//localhost:40004/sampleCache1|//localhost:40004/sampleCache2|//localhost:40004/sampleCache3|//localhost:40004/sampleCache4|//localhost:40004/sampleCache5|//localhost:40004/sampleCache6//localhost:40004/sampleCache7|//localhost:40005/sampleCache1|//localhost:40005/sampleCache2|//localhost:40005/sampleCache3|//localhost:40005/sampleCache4|//localhost:40005/sampleCache5|//localhost:40005/sampleCache6//localhost:40005/sampleCache7|//localhost:40001/sampleCache1|//localhost:40001/sampleCache2|//localhost:40001/sampleCache3|//localhost:40001/sampleCache4|//localhost:40001/sampleCache5|//localhost:40001/sampleCache6//localhost:40001/sampleCache7"/>
 
 
@@ -127,11 +127,11 @@
 
     <!--
         An alternate CacheManagerPeerListenerFactory can be used for JNDI binding of listeners for messages from cache replicators participating in the cluster.
-        For cacheManagerPeerListenerFactory specify class net.sf.ehcache.distribution.JNDICacheManagerPeerListenerFactory. 
-         Correspondingly for cacheManagerPeerProviderFactory specify class net.sf.ehcache.distribution.JNDICacheManagerPeerProviderFactory.
-        Properties for JNDICacheManagerPeerListenerFactory are the same as RMICacheManagerPeerListenerFactory.
+        For cacheManagerPeerListenerFactory specify class net.sf.ehcache.distribution.JNDIRMICacheManagerPeerListenerFactoryory.
+         Correspondingly for cacheManagerPeerProviderFactory specify class net.sf.ehcache.distribution.JNDIManualRMICacheManagerPeerProviderFactoryerFactory.
+        Properties for JNDIRMICacheManagerPeerListenerFactory are the same as RMICacheManagerPeerListenerFactory.
     -->
-    <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.JNDICacheManagerPeerListenerFactory"
+    <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.JNDIRMICacheManagerPeerListenerFactory"
                                      properties="hostName=localhost, port=40006, socketTimeoutMillis=120000"/>
 
 

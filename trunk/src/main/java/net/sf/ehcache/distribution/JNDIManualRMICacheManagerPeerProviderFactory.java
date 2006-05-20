@@ -26,16 +26,15 @@ import java.util.StringTokenizer;
 
 
 /**
- * A factory to build CacheManagerPeerProvider based on RMI and JNDI.
+ * A factory to build a CacheManagerPeerProvider based on RMI and JNDI.
  *
  * @author Andy McNutt
  * @author Greg Luck
  * @version $Id$
- * todo simplify
  */
-public class JNDICacheManagerPeerProviderFactory extends RMICacheManagerPeerProviderFactory {
+public class JNDIManualRMICacheManagerPeerProviderFactory extends RMICacheManagerPeerProviderFactory {
     
-    private static final Log LOG = LogFactory.getLog(JNDICacheManagerPeerProviderFactory.class.getName());
+    private static final Log LOG = LogFactory.getLog(JNDIManualRMICacheManagerPeerProviderFactory.class.getName());
 
     private static final String JNDI_URLS = "jndiUrls";
     private static final String STASH_CONTEXTS = "stashContexts";
@@ -45,15 +44,12 @@ public class JNDICacheManagerPeerProviderFactory extends RMICacheManagerPeerProv
     /**
      * peerDiscovery=manual, 
      * jndiUrls=//hostname:port/cacheName //hostname:port/cacheName
-     * The jndiUrls are in the format expected by the implementation
-     * of your Context.INITIAL_CONTEXT_FACTORY.
+     * The jndiUrls are in the format expected by the implementation of your Context.INITIAL_CONTEXT_FACTORY.
      */
-    protected CacheManagerPeerProvider createManuallyConfiguredCachePeerProvider(
-            Properties properties) {
+    protected CacheManagerPeerProvider createManuallyConfiguredCachePeerProvider(Properties properties) {
         String urls = extractAndLogProperty(JNDI_URLS, properties);
         if (urls == null || urls.length() == 0) {
-            throw new CacheException(JNDI_URLS 
-                    + " must be specified when peerDiscovery is manual");
+            throw new CacheException(JNDI_URLS + " must be specified when peerDiscovery is manual");
         }
         urls = urls.trim();
         StringTokenizer stringTokenizer = new StringTokenizer(
@@ -64,8 +60,8 @@ public class JNDICacheManagerPeerProviderFactory extends RMICacheManagerPeerProv
         boolean isStashContexts = (stashContexts == null || Boolean.valueOf(stashContexts).booleanValue());
         boolean isStashRemoteCachePeers = (stashRemoteCachePeers == null ||
                 Boolean.valueOf(stashRemoteCachePeers).booleanValue());
-        JNDICacheManagerPeerProvider jndiPeerProvider = 
-                new JNDICacheManagerPeerProvider(isStashContexts, 
+        JNDIManualRMICacheManagerPeerProvider jndiPeerProvider =
+                new JNDIManualRMICacheManagerPeerProvider(isStashContexts,
                 isStashRemoteCachePeers);
         while (stringTokenizer.hasMoreTokens()) {
             String jndiUrl = stringTokenizer.nextToken();
