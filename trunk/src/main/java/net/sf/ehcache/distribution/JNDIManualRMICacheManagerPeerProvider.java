@@ -160,8 +160,8 @@ public class JNDIManualRMICacheManagerPeerProvider implements CacheManagerPeerPr
             try {
                 LOG.debug("listRemoteCachePeers " + cache.getName() + " returning " + remoteCachePeers.size() + " "
                         + printCachePeers(remoteCachePeers));
-            } catch (RemoteException re) {
-                LOG.warn(re.getMessage(), re);
+            } catch (RemoteException e) {
+                LOG.warn(e.getMessage(), e);
                 LOG.debug("listRemoteCachePeers " + cache.getName() + " returning " + remoteCachePeers.size());
             }
         }
@@ -285,7 +285,7 @@ public class JNDIManualRMICacheManagerPeerProvider implements CacheManagerPeerPr
             cachePeer = lookupRemoteCachePeer(jndiProviderUrl);
             if (cachePeer == null) {
                 String msg = "cachePeer null after lookup " + jndiProviderUrl;
-                LOG.warn(msg);
+                LOG.debug(msg);
                 throw new NamingException(msg);
             }
             isAlreadyLookedupRemoteCachePeer = true;

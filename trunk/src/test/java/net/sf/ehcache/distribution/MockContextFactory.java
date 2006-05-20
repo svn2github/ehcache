@@ -43,8 +43,7 @@ public class MockContextFactory implements InitialContextFactory {
     /**
      * @see javax.naming.spi.InitialContextFactory#getInitialContext(java.util.Hashtable)
      */
-    public Context getInitialContext(Hashtable environment)
-            throws NamingException {
+    public Context getInitialContext(Hashtable environment) throws NamingException {
         LOG.debug("getInitialContext " + environment);
         String jndiProviderUrl = (String) environment.get(Context.PROVIDER_URL);
         synchronized (JNDI_PROVIDER_URL_TO_CONTEXT_MAP) {

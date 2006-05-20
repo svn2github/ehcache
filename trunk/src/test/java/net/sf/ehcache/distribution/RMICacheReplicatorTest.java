@@ -49,10 +49,17 @@ import java.util.List;
  */
 public class RMICacheReplicatorTest extends TestCase {
 
-    private static final Log LOG = LogFactory.getLog(RMICacheReplicatorTest.class.getName());
+    /**
+     * A value to represent replicate asynchronously
+     */
+    protected static final boolean ASYNCHRONOUS = true;
 
-    private static final boolean ASYNCHRONOUS = true;
-    private static final boolean SYNCHRONOUS = false;
+    /**
+     * A value to represent replicate synchronously
+     */
+    protected static final boolean SYNCHRONOUS = false;
+
+    private static final Log LOG = LogFactory.getLog(RMICacheReplicatorTest.class.getName());
 
     /**
      * CacheManager 1 in the cluster
@@ -93,6 +100,14 @@ public class RMICacheReplicatorTest extends TestCase {
      */
     protected Ehcache cache2;
 
+    /**
+     * Constructor, for suites.
+     *
+     * @param name
+     */
+    public RMICacheReplicatorTest(String name) {
+        super(name);
+    }
 
     /**
      * {@inheritDoc}
@@ -117,7 +132,7 @@ public class RMICacheReplicatorTest extends TestCase {
         manager4 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed4.xml");
         manager5 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed5.xml");
 
-        manager1.getCache(cacheName).removeAll();
+        //manager6 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-jndi6.xml");
 
         cache1 = manager1.getCache(cacheName);
         cache1.removeAll();
@@ -127,10 +142,13 @@ public class RMICacheReplicatorTest extends TestCase {
 
         //allow cluster to be established
         Thread.sleep(6000);
-
     }
 
-    private void forceVMGrowth() {
+    /**
+     * Force the VM to grow to its full size. This stops SoftReferences from being reclaimed in favour of
+     * Heap growth. Only an issue when a VM is cold.
+     */
+    protected void forceVMGrowth() {
         byte[] forceVMGrowth = new byte[50000000];
     }
 
@@ -158,15 +176,12 @@ public class RMICacheReplicatorTest extends TestCase {
         if (manager4 != null) {
             manager4.shutdown();
         }
-
         if (manager5 != null) {
             manager5.shutdown();
         }
-
         if (manager6 != null) {
             manager6.shutdown();
         }
-
     }
 
     /**
@@ -266,6 +281,7 @@ public class RMICacheReplicatorTest extends TestCase {
 
         //Put
         String[] cacheNames = manager1.getCacheNames();
+        int numberOfCaches = getNumberOfReplicatingCachesInCacheManager();
         Arrays.sort(cacheNames);
         for (int i = 0; i < cacheNames.length; i++) {
             String name = cacheNames[i];
@@ -286,6 +302,10 @@ public class RMICacheReplicatorTest extends TestCase {
             if (element2 != null) {
                 count2++;
             }
+            Element nonSerializableElement2 = manager2.getCache(name).get("nonSerializable" + i);
+            if (nonSerializableElement2 != null) {
+                count2++;
+            }
             Element element3 = manager3.getCache(name).get("" + i);
             if (element3 != null) {
                 count3++;
@@ -298,13 +318,19 @@ public class RMICacheReplicatorTest extends TestCase {
             if (element5 != null) {
                 count5++;
             }
-            //LOG.debug("element propagated to cache named " + name + ": " + element);
         }
-        assertEquals(55, count2);
-        assertEquals(55, count3);
-        assertEquals(55, count4);
-        assertEquals(55, count5);
+        assertEquals(numberOfCaches, count2);
+        assertEquals(numberOfCaches, count3);
+        assertEquals(numberOfCaches, count4);
+        assertEquals(numberOfCaches, count5);
 
+    }
+
+    /**
+     * The number of caches there should be.
+     */
+    protected int getNumberOfReplicatingCachesInCacheManager() {
+        return 55;
     }
 
     /**
@@ -626,7 +652,6 @@ public class RMICacheReplicatorTest extends TestCase {
         if (asynchronous) {
             waitForSlowProgagate();
         }
-
 
         //Should have been replicated to toCache.
         Element deliveredElement = toCache.get(key);

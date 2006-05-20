@@ -42,16 +42,12 @@ public class JNDIRMICacheManagerPeerListener extends RMICacheManagerPeerListener
 
     private static final Log LOG = LogFactory.getLog(JNDIRMICacheManagerPeerListener.class.getName());
 
-    private String jndiProviderUrl;
-
-
     /**
      * @see RMICacheManagerPeerListener(String, Integer, CacheManager, Integer)
      */
-    public JNDIRMICacheManagerPeerListener(String hostName, Integer port,
-                                           CacheManager cacheManager, Integer socketTimeoutMillis) throws UnknownHostException {
+    public JNDIRMICacheManagerPeerListener(String hostName, Integer port, CacheManager cacheManager, Integer socketTimeoutMillis)
+            throws UnknownHostException {
         super(hostName, port, cacheManager, socketTimeoutMillis);
-        jndiProviderUrl = "//localhost:" + port;
     }
 
     /**
@@ -86,12 +82,12 @@ public class JNDIRMICacheManagerPeerListener extends RMICacheManagerPeerListener
      * @throws NamingException
      */
     private Context getInitialContext() throws NamingException {
-        Hashtable hashTable = new Hashtable();
         String initialContextFactory = System.getProperty(Context.INITIAL_CONTEXT_FACTORY);
-        if (initialContextFactory != null && initialContextFactory.startsWith("net.sf.ehcache")) {
 
+        if (initialContextFactory != null && initialContextFactory.startsWith("net.sf.ehcache")) {
             // Put Context.PROVIDER_URL so unit tests can work
-            hashTable.put(Context.PROVIDER_URL, jndiProviderUrl);
+            Hashtable hashTable = new Hashtable();
+            hashTable.put(Context.PROVIDER_URL, "//localhost:" + port);
             return new InitialContext(hashTable);
         }
         return new InitialContext();

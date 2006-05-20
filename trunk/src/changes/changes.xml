@@ -35,6 +35,10 @@
                 To complement full support foe default cache (above), added support for programmatic addition of caches
                 which include CacheReplicators. Also support for removal of these caches with CacheManager.remove(String cacheName).
             </action>
+            <action dev="Greg Luck" type="add">
+                Andy McNutt's JNDI-based manual RMI replication added. See ehcache.xml example for how to use.
+            </action>
+
             <!-- Bug fixes -->
             <action dev="Greg Luck" issue="1480442" type="fix">
                 Theoretically possible NPE if a MulticastRMICacheManagerPeerProvider is started and then stopped

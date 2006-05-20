@@ -31,6 +31,13 @@ import java.util.StringTokenizer;
  * @author Andy McNutt
  * @author Greg Luck
  * @version $Id$
+ *
+ * Default values where properties are not specified or left empty are:
+ * <ol>
+ * <li>stashContexts - true
+ * <li>stashRemoteCachePeers - true
+ * </ol>
+ *
  */
 public class JNDIManualRMICacheManagerPeerProviderFactory extends RMICacheManagerPeerProviderFactory {
     
@@ -51,18 +58,14 @@ public class JNDIManualRMICacheManagerPeerProviderFactory extends RMICacheManage
         if (urls == null || urls.length() == 0) {
             throw new CacheException(JNDI_URLS + " must be specified when peerDiscovery is manual");
         }
+
+        boolean stashContexts = isStashContexts(properties);
+        boolean stashRemoteCachePeers = isStashRemoteCachePeers(properties);
+
+        JNDIManualRMICacheManagerPeerProvider jndiPeerProvider = new JNDIManualRMICacheManagerPeerProvider(stashContexts,
+                    stashRemoteCachePeers);
         urls = urls.trim();
-        StringTokenizer stringTokenizer = new StringTokenizer(
-                urls, PayloadUtil.URL_DELIMITER);
-        String stashContexts = extractAndLogProperty(STASH_CONTEXTS, properties);
-        String stashRemoteCachePeers = extractAndLogProperty(
-                STASH_REMOTE_CACHE_PEERS, properties);
-        boolean isStashContexts = (stashContexts == null || Boolean.valueOf(stashContexts).booleanValue());
-        boolean isStashRemoteCachePeers = (stashRemoteCachePeers == null ||
-                Boolean.valueOf(stashRemoteCachePeers).booleanValue());
-        JNDIManualRMICacheManagerPeerProvider jndiPeerProvider =
-                new JNDIManualRMICacheManagerPeerProvider(isStashContexts,
-                isStashRemoteCachePeers);
+        StringTokenizer stringTokenizer = new StringTokenizer(urls, PayloadUtil.URL_DELIMITER);
         while (stringTokenizer.hasMoreTokens()) {
             String jndiUrl = stringTokenizer.nextToken();
             jndiUrl = jndiUrl.trim();
@@ -72,6 +75,28 @@ public class JNDIManualRMICacheManagerPeerProviderFactory extends RMICacheManage
             }
         }
         return jndiPeerProvider;
+    }
+
+    private boolean isStashRemoteCachePeers(Properties properties) {
+        String stashRemoteCachePeersString = extractAndLogProperty(STASH_REMOTE_CACHE_PEERS, properties);
+        boolean stashRemoteCachePeers;
+        if (stashRemoteCachePeersString == null || stashRemoteCachePeersString.length() == 0) {
+            stashRemoteCachePeers = true;
+        } else {
+            stashRemoteCachePeers = Boolean.valueOf(stashRemoteCachePeersString).booleanValue();
+        }
+        return stashRemoteCachePeers;
+    }
+
+    private boolean isStashContexts(Properties properties) {
+        String stashContextsString = extractAndLogProperty(STASH_CONTEXTS, properties);
+        boolean stashContexts;
+        if (stashContextsString == null || stashContextsString.length() == 0) {
+            stashContexts = true;
+        } else {
+            stashContexts = Boolean.valueOf(stashContextsString).booleanValue();
+        }
+        return stashContexts;
     }
 
 }

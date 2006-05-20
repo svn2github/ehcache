@@ -66,7 +66,6 @@ import java.util.Set;
  *
  * @author Greg Luck
  * @version $Id$
- *          todo consider just registering an RMICachePeer for all caches
  */
 public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
 
@@ -77,15 +76,20 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      * The cache peers. The value is an RMICachePeer.
      */
     protected final Map cachePeers = new HashMap();
-    
+
     /**
      * status.
      */
     protected Status status;
 
+    /**
+     * The RMI listener port
+     */
+    protected Integer port;
+
     private Registry registry;
     private final String hostName;
-    private Integer port;
+
     private CacheManager cacheManager;
     private Integer socketTimeoutMillis;
 
