@@ -37,7 +37,8 @@ public final class MulticastKeepaliveHeartbeatSender {
 
 
     private static final Log LOG = LogFactory.getLog(MulticastKeepaliveHeartbeatSender.class.getName());
-    private static final long HEARTBEAT_INTERVAL = 5000;
+
+    private static long heartBeatInterval = 5000;
 
     private final InetAddress groupMulticastAddress;
     private final Integer groupMulticastPort;
@@ -108,7 +109,7 @@ public final class MulticastKeepaliveHeartbeatSender {
 
                     try {
                         synchronized (this) {
-                            wait(HEARTBEAT_INTERVAL);
+                            wait(heartBeatInterval);
                         }
                     } catch (InterruptedException e) {
                         if (!stopped) {
@@ -207,5 +208,20 @@ public final class MulticastKeepaliveHeartbeatSender {
             }
         }
 
+    }
+
+    /**
+     * Sets the heartbeat interval to something other than the default of 5000ms. This is useful for testing,
+     * but not recommended for production. This method is static and so affects the heartbeat interval of all
+     * senders. The change takes effect after the next scheduled heartbeat. 
+     * @param heartBeatInterval a time in ms, greater than 1000
+     */
+    static void setHeartBeatInterval(long heartBeatInterval) {
+        if (heartBeatInterval < 1000) {
+            LOG.warn("Trying to set heartbeat interval too low. Using 1000 instead.");
+            MulticastKeepaliveHeartbeatSender.heartBeatInterval = 1000;
+        } else {
+            MulticastKeepaliveHeartbeatSender.heartBeatInterval = heartBeatInterval;
+        }
     }
 }

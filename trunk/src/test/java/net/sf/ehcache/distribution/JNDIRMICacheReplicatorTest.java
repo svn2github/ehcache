@@ -68,7 +68,7 @@ public class JNDIRMICacheReplicatorTest extends RMICacheReplicatorTest {
         cache2.removeAll();
 
         //allow cluster to be established
-        Thread.sleep(6000);
+//        Thread.sleep(6000);
     }
 
     /**
@@ -211,6 +211,15 @@ public class JNDIRMICacheReplicatorTest extends RMICacheReplicatorTest {
 
     private InitialContextFactory getContextFactory() {
         return new MockContextFactory();
+    }
+
+        /**
+     * Need to wait for async
+     *
+     * @throws InterruptedException
+     */
+    protected void waitForSlowProgagate() throws InterruptedException {
+        Thread.sleep(2000);
     }
 
 }
