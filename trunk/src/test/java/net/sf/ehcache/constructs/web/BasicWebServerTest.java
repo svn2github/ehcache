@@ -23,7 +23,7 @@ import com.meterware.httpunit.WebResponse;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class OrionServerTest extends AbstractWebTest {
+public class BasicWebServerTest extends AbstractWebTest {
 
     /**
      * Tests Orion supplied page

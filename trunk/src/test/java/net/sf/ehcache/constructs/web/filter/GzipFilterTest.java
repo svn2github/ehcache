@@ -71,7 +71,7 @@ public class GzipFilterTest extends AbstractWebTest {
 
     /**
      * A 0 length body should give a 0 length gzip body and content length
-     *
+     * <p/>
      * Manual test: wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:8080/empty_gzip/empty.html
      */
     public void testZeroLengthHTML() throws Exception {
@@ -86,8 +86,10 @@ public class GzipFilterTest extends AbstractWebTest {
         byte[] responseBody = httpMethod.getResponseBody();
         assertEquals(null, responseBody);
         assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
-        assertEquals("0", httpMethod.getResponseHeader("Content-Length").getValue());
+        checkNullOrZeroContentLength(httpMethod);
     }
+
+
 
     /**
      * JSPs and Servlets can send bodies when the response is SC_NOT_MODIFIED.
@@ -95,7 +97,7 @@ public class GzipFilterTest extends AbstractWebTest {
      * after is has left the Servlet filter chain. To avoid wget going into an inifinite
      * retry loop, and presumably some other web clients, the content length should be 0
      * and the body 0.
-     *
+     * <p/>
      * Manual test: wget -d --server-response --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:8080/empty_gzip/SC_NOT_MODIFIED.jsp
      */
     public void testNotModifiedJSPGzipFilter() throws Exception {
@@ -111,7 +113,7 @@ public class GzipFilterTest extends AbstractWebTest {
         assertEquals(null, responseBody);
         assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
         assertNotNull(httpMethod.getResponseHeader("Last-Modified").getValue());
-        assertEquals("0", httpMethod.getResponseHeader("Content-Length").getValue());
+        checkNullOrZeroContentLength(httpMethod);
     }
 
     /**
@@ -120,9 +122,8 @@ public class GzipFilterTest extends AbstractWebTest {
      * after is has left the Servlet filter chain. To avoid wget going into an inifinite
      * retry loop, and presumably some other web clients, the content length should be 0
      * and the body 0.
-     *
+     * <p/>
      * Manual test: wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:8080/empty_gzip/SC_NO_CONTENT.jsp
-     *
      */
     public void testNoContentJSPGzipFilter() throws Exception {
 
@@ -137,11 +138,11 @@ public class GzipFilterTest extends AbstractWebTest {
         assertEquals(null, responseBody);
         assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
         assertNotNull(httpMethod.getResponseHeader("Last-Modified").getValue());
-        assertEquals("0", httpMethod.getResponseHeader("Content-Length").getValue());
+        checkNullOrZeroContentLength(httpMethod);
     }
 
     /**
-     * Tests that a page which is storeGzipped is gzipped when the user agent does not accept gzip encoding
+     * Tests that a page which is storeGzipped is not gzipped when the user agent does not accept gzip encoding
      */
     public void testNotGzippedWhenNotAcceptEncodingHomePage() throws Exception {
         WebConversation client = createWebConversation(false);

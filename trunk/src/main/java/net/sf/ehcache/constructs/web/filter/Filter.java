@@ -38,6 +38,7 @@ import java.util.Map;
  *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
+ * todo NPE on shutdown in tomcat
  */
 public abstract class Filter implements javax.servlet.Filter {
     /**
@@ -91,7 +92,12 @@ public abstract class Filter implements javax.servlet.Filter {
                 chain.doFilter(request, response);
             }
             // Flush the response
-            httpResponse.getOutputStream().flush();
+            String implementationVendor = request.getClass().getPackage().getImplementationVendor();
+            if (implementationVendor != null && implementationVendor.equals("\"Evermind\"")) {
+                httpResponse.getOutputStream().flush();
+            } else {
+                httpResponse.flushBuffer();
+            }
 
         } catch (final Throwable throwable) {
             logThrowable(throwable, httpRequest);

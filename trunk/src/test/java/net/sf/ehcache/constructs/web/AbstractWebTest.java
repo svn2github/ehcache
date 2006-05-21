@@ -24,6 +24,7 @@ import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.httpclient.HttpMethod;
 import org.dom4j.Comment;
 import org.dom4j.Document;
 import org.dom4j.io.DOMReader;
@@ -166,7 +167,9 @@ public abstract class AbstractWebTest extends TestCase {
         //Content type is text/html with an optional character set
         String contentType = response.getHeaderField(CONTENT_TYPE);
         assertTrue(contentType.equals("text/html")
-                || contentType.equals("text/html; charset=utf-8"));
+                || contentType.equals("text/html; charset=utf-8")
+                || contentType.equals("text/html;charset=utf-8")
+                || contentType.equals("text/html;charset=ISO-8859-1"));
 
         //The content length set in the header matches the actual content length
         String headerContentLength = response.getHeaderField(CONTENT_LENGTH);
@@ -183,10 +186,13 @@ public abstract class AbstractWebTest extends TestCase {
      */
     protected void assertIncludeHeadersSane(WebResponse response) {
         String contentType = response.getHeaderField(CONTENT_TYPE);
-        assertTrue(contentType.equals("text/html")
+
+        assertTrue(contentType == null
+                || contentType.equals("text/html")
                 || contentType.equals("text/plain"));
 
-        assertNull(response.getHeaderField(CONTENT_LENGTH));
+        String contentLength = response.getHeaderField(CONTENT_LENGTH);
+        assertTrue(contentLength == null || contentLength.equals("0"));
         assertNull(response.getHeaderField(CONTENT_ENCODING));
     }
 
@@ -383,6 +389,17 @@ public abstract class AbstractWebTest extends TestCase {
         }
         assertTrue(text.indexOf("<html>") != -1);
         assertTrue(text.indexOf("</html>") != -1);
+    }
+
+    /**
+     * Orion returns a length of 0. Tomcat does not set content length at all.
+     * @param httpMethod
+     */
+    protected void checkNullOrZeroContentLength(HttpMethod httpMethod) {
+        boolean nullContentLengthHeader = httpMethod.getResponseHeader("Content-Length") == null;
+        if (!nullContentLengthHeader) {
+            assertEquals("0", httpMethod.getResponseHeader("Content-Length").getValue());
+        }
     }
 
 }

@@ -185,6 +185,7 @@
   </component>
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/src/test/resources/default-web-app/default-web-app.iml" filepath="$PROJECT_DIR$/src/test/resources/default-web-app/default-web-app.iml" />
       <module fileurl="file://$PROJECT_DIR$/ehcache.iml" filepath="$PROJECT_DIR$/ehcache.iml" />
     </modules>
   </component>

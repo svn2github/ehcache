@@ -101,15 +101,6 @@ public class RMICacheReplicatorTest extends TestCase {
     protected Ehcache cache2;
 
     /**
-     * Constructor, for suites.
-     *
-     * @param name
-     */
-    public RMICacheReplicatorTest(String name) {
-        super(name);
-    }
-
-    /**
      * {@inheritDoc}
      * Sets up two caches: cache1 is local. cache2 is to be receive updates
      *

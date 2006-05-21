@@ -106,11 +106,24 @@
     </target>
 
 
-    <target name="test" depends="compile, prepare-web-tests, start-orion, run-tests-no-check, stop-orion"
+    <target name="test" depends="test-non-web, test-orion, test-tomcat" description="Runs Tests">
+        <antcall target="junitreport"/>
+    </target>
+
+    <target name="test-non-web" depends="compile, run-tests-no-check"
             if="tests.failed" description="Runs Tests">
         <fail message="One or more tests failed. See the log file for details."/>
     </target>
 
+    <target name="test-orion" depends="compile, prepare-web-tests, start-orion, run-web-tests-no-check, stop-orion"
+            if="tests.failed" description="Runs Tests">
+        <fail message="One or more tests failed. See the log file for details."/>
+    </target>
+
+    <target name="test-tomcat" depends="compile, prepare-web-tests, start-tomcat, run-web-tests-no-check, stop-tomcat"
+            if="tests.failed" description="Runs Tests">
+        <fail message="One or more tests failed. See the log file for details."/>
+    </target>
 
     <!-- Make sure you have copied junit-3.8.1.jar to $ANT_HOME/lib -->
     <target name="run-tests-no-check">
@@ -138,10 +151,40 @@
                 <fileset dir="${test.classes.dir}">
                     <include name="**/${test.directory.pattern}/**/${test.pattern}Test.class"/>
                     <exclude name="**/Abstract*"/>
+                    <exclude name="**/constructs/web/**"/>
                 </fileset>
             </batchtest>
         </junit>
-        <antcall target="junitreport"/>
+    </target>
+
+    <target name="run-web-tests-no-check">
+        <mkdir dir="${test.results.dir}"/>
+
+        <condition property="test.pattern" value="*">
+            <not>
+                <isset property="test.case"/>
+            </not>
+        </condition>
+        <condition property="test.pattern" value="${test.case}">
+            <isset property="test.case"/>
+        </condition>
+
+        <junit printSummary="true" failureproperty="tests.failed" fork="true" dir="${basedir}">
+            <sysproperty key="java.util.logging.config.file" file="${test.logging.properties.file}"/>
+            <classpath>
+                <path location="${test.classes.dir}"/>
+                <path location="${build.classes.dir}"/>
+                <path refid="project.class.path"/>
+            </classpath>
+            <formatter type="xml"/>
+            <formatter type="plain" usefile="false"/>
+            <batchtest todir="${test.results.dir}">
+                <fileset dir="${test.classes.dir}">
+                    <include name="**/${test.directory.pattern}/**/constructs/web/**/${test.pattern}Test.class"/>
+                    <exclude name="**/Abstract*"/>
+                </fileset>
+            </batchtest>
+        </junit>
     </target>
 
     <!-- Transform test results into a junit report. -->
@@ -325,11 +368,11 @@
         <echo message="...Stopped"/>
     </target>
 
-    <target name="prepare-web-tests" depends="compile, dist-jar, deploy-default-web-app" if="${run.web.tests}"
+    <target name="prepare-web-tests" depends="compile, dist-jar, deploy-default-web-app-orion, deploy-default-web-app-tomcat" if="${run.web.tests}"
             description="Prepare to run  the web tests ">
     </target>
 
-    <target name="deploy-default-web-app">
+    <target name="deploy-default-web-app-orion">
         <unzip dest="${build.dir}" src="${lib.compile.dir}/web/orion.zip"/>
         <copy file="${dist.dir}/${name}-${version}.jar" todir="${build.orion.lib.dir}"/>
         <copy file="${lib.runtime.dir}/commons-logging-1.0.4.jar" todir="${build.orion.lib.dir}"/>
@@ -354,6 +397,56 @@
             </and>
         </condition>
         <antcall target="copy-tools-lib"/>
+    </target>
+
+
+    <target name="deploy-default-web-app-tomcat">
+        <untar dest="${build.dir}" src="${lib.compile.dir}/web/apache-tomcat-5.5.17.tgz" compression="gzip"/>
+        <mkdir dir="${build.tomcat.defaultwebapp.dir}"/>
+        <mkdir dir="${build.tomcat.defaultwebapp.dir}/WEB-INF/classes"/>
+        <mkdir dir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib"/>
+        <copy file="${dist.dir}/${name}-${version}.jar" todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib"/>
+        <!--<copy file="${lib.runtime.dir}/commons-logging-1.0.4.jar" todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib"/>-->
+        <copy file="${lib.runtime.dir}/commons-collections-2.1.1.jar" todir="${build.tomcat.defaultwebapp.dir}/WEb-INF/lib"/>
+        <copy file="${lib.compile.dir}/clover-1.3.10.jar" todir="${build.tomcat.defaultwebapp.dir}/WEb-INF/lib"/>
+        <copy file="${test.config.dir}/ehcache.xml" todir="${build.tomcat.defaultwebapp.dir}/WEb-INF/classes"/>
+        <copy file="logging.properties" todir="${build.orion.dir}"/>
+        <jar destfile="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib/${name}-tests-${version}.jar">
+            <fileset dir="${test.classes.dir}"/>
+        </jar>
+        <copy todir="${build.tomcat.defaultwebapp.dir}">
+            <fileset dir="${test.config.dir}/default-web-app"/>
+        </copy>
+
+        <condition property="unix">
+            <and>
+                <os family="unix"/>
+                <not>
+                    <os name="Mac OS X"/>
+                </not>
+            </and>
+        </condition>
+    </target>
+
+    <!-- Start up the test instance of the Tomcat server -->
+    <target name="start-tomcat" description="Starts the Orion server">
+        <echo>Starting Tomcat on ${os.name}</echo>
+        <exec dir="${build.tomcat.dir}/bin" spawn="true" os="Mac OS X, Linux" executable="sh">
+            <arg line="tomcat_sh_and.bat"/>
+        </exec>
+        <waitfor maxwait="10000" checkevery="1500">
+            <http url="http://localhost:8080"/>
+        </waitfor>
+        <echo message="...Started"/>
+    </target>
+
+    <!-- Stop the test instance of the Tomcat server -->
+    <target name="stop-tomcat" description="Stops the Orion server">
+        <echo>Stopping Tomcat</echo>
+        <waitfor maxwait="5000" checkevery="500">
+            <http url="http://localhost:8080/Exit.jsp"/>
+        </waitfor>
+        <echo message="...Stopped"/>
     </target>
 
     <target name="copy-tools-lib" if="unix">
