@@ -38,8 +38,12 @@
             <action dev="Greg Luck" type="add">
                 Andy McNutt's JNDI-based manual RMI replication added. See ehcache.xml example for how to use.
             </action>
+            <action dev="Greg Luck" type="add">
+                Support tomcat for the servlet filters. Tomcat integration testing, in addition to the Orion one, is also
+                added to the full JUnit test process.
+            </action>
 
-            <!-- Bug fixes -->
+            <!-- Reported Bug fixes -->
             <action dev="Greg Luck" issue="1480442" type="fix">
                 Theoretically possible NPE if a MulticastRMICacheManagerPeerProvider is started and then stopped
                 before a multicast socket connection can be established. Added guard for NPE. Thanks to Roman Kurmanowytsch

@@ -469,11 +469,18 @@ public class DiskStore implements Store {
 
         // Close the cache
         try {
+            //stop the expiry thread
             if (expiryThread != null) {
                 expiryThread.interrupt();
             }
 
+
             flush();
+
+            //stop the spool thread
+            if (spoolThread != null) {
+                spoolThread.interrupt();
+            }
 
             //Clear in-memory data structures
             spool.clear();

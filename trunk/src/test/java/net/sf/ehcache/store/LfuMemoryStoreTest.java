@@ -318,7 +318,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         LOG.info("Find time: " + findTime);
         assertTrue(findTime < 1500);
         LOG.info("Selections not in lowest quartile: " + lowestQuarterNotIdentified);
-        assertTrue(lowestQuarterNotIdentified < 3);
+        assertTrue(lowestQuarterNotIdentified < 4);
 
     }
 

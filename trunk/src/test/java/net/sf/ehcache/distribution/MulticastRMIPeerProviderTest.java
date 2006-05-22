@@ -65,12 +65,13 @@ public class MulticastRMIPeerProviderTest extends TestCase {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
+        MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
         manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml");
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
 
         //wait for cluster to establish
-        Thread.sleep(6000);
+        Thread.sleep(2000);
     }
 
     /**
@@ -95,7 +96,6 @@ public class MulticastRMIPeerProviderTest extends TestCase {
 
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR
                 + "distribution/ehcache-distributed-no-caches-replicating.xml");
-        Thread.sleep(6000);
     }
 
     /**
@@ -150,7 +150,7 @@ public class MulticastRMIPeerProviderTest extends TestCase {
         manager3.addCache("fromDefaultCache");
         RMICacheManagerPeerListener peerListener3 = (RMICacheManagerPeerListener) manager3.getCachePeerListener();
         //peerListener3.notifyCacheAdded("fromDefaultCache");
-        Thread.sleep(6000);
+        Thread.sleep(2000);
 
         CacheManagerPeerProvider cachePeerProvider = manager1.getCachePeerProvider();
 
@@ -179,7 +179,7 @@ public class MulticastRMIPeerProviderTest extends TestCase {
         manager1.addCache("fromDefaultCache");
         manager2.addCache("fromDefaultCache");
         manager3.addCache("fromDefaultCache");
-        Thread.sleep(6000);
+        Thread.sleep(1000);
 
         CacheManagerPeerProvider cachePeerProvider = manager1.getCachePeerProvider();
         Cache cache = manager1.getCache("fromDefaultCache");

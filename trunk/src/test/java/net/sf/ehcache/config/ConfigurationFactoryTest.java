@@ -49,6 +49,9 @@ import java.util.jar.JarOutputStream;
 /**
  * Tests for Store Configuration
  *
+ * Make sure ant compile has been executed before running these tests, as they rely on the test ehcache.xml being
+ * in the classpath.
+ *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */

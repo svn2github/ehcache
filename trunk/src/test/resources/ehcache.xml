@@ -1,38 +1,109 @@
 <ehcache>
 
-    <!-- Sets the path to the directory where cache .data files are created.
+    <!--
+        Sets the path to the directory where cache data and index files are created.
 
-         If the path is a Java System Property it is replaced by
-         its value in the running VM. Subdirectories can be specified below the property e.g. java.io.tmpdir/one
+        If the path is a Java System Property it is replaced by its value in the running VM. Subdirectories can be specified below the property e.g. java.io.tmpdir/one
 
-         The following properties are translated:
-         user.home - User's home directory
-         user.dir - User's current working directory
-         java.io.tmpdir - Default temp file path -->
+        The following properties are parsed and translated at runtime:
+        user.home - User's home directory
+        user.dir - User's current working directory
+        java.io.tmpdir - Default temp file path
+
+        e.g. java.io.tmpdir on Unix would be /tmp
+             java.io.tmpdir/application_cache on Unix would be /tmp/application_cache
+         -->
     <diskStore path="java.io.tmpdir"/>
 
 
     <!--
-        Specifies a CacheManagerEventListenerFactory  which will be used to create a CacheManagerPeerProvider, which
-        is notified when Caches are added or removed from the CacheManager.
+        Specifies a CacheManagerEventListenerFactory which will be used to create a CacheManagerEventListener
+         and register it with the CacheManager.
 
-        The attributes of CacheManagerEventListenerFactory are:
+        A CacheManagerEventListener listens to for the following CacheManager events:
+        - Cache added
+        - Cache removed
+
+        The attributes of cacheManagerEventListenerFactory are:
+        - class - a fully qualified factory class name
+        - properties - comma separated properties having meaning only to the factory.
+    -->
+    <!--<cacheManagerEventListenerFactory class="net.sf.ehcache.event.NullCacheManagerEventListenerFactory"-->
+    <!--properties=""/>-->
+
+
+    <!--
+        (Enable for distributed operation)
+
+        Specifies a CacheManagerPeerProviderFactory which will be used to create a CacheManagerPeerProvider, which
+        discovers other CacheManagers in the cluster.
+
+         The attributes of cacheManagerPeerProviderFactory are:
         - class - a fully qualified factory class name
         - properties - comma separated properties having meaning only to the factory.
 
-        Sets the fully qualified class name to be registered as the CacheManager event listener.
+        Ehcache comes with a built-in RMI-based distribution system with two means of discovery of CacheManager peers
+        participating in the cluster:
+         - automatic, using a multicast group. This one automatically discovers peers and detects changes such as
+           peers entering and leaving the group
+         - manual, using manual rmiURL configuration. A hardcoded list of peers is provided at configuration time.
 
-    The events include:
-    - adding a Cache
-    - removing a Cache
+        Configuring Automatic Discovery:
+        Automatic discovery is configured as per the following example:
+        <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+                              properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446"/>
 
-    Callbacks to listener methods are synchronous and unsynchronized. It is the responsibility of the implementer
-    to safely handle the potential performance and thread safety issues depending on what their listener is doing.
+        Valid properties are:
+        - peerDiscovery (mandatory) - specify "automatic"
+        - multicastGroupAddress (mandatory) - specify a valid multicast group address
+        - multicastGroupPort (mandatory) - specify a dedicated port for the multicast hearbeat traffic
 
-    If no class is specified, no listener is created. There is no default.
+        Configuring Manual Discovery:
+        Manual discovery is configured as per the following example:
+        <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+                              properties="peerDiscovery=manual,
+                              rmiUrls=//server1:40000/sampleCache1|//server2:40000/sampleCache1|//server1:40000/sampleCache2|//server2:40000/sampleCache2"/>
+
+        Valid properties are:
+        - peerDiscovery (mandatory) - specify "manual"
+        - rmiUrls (mandatory) - specify a pipe separated list of rmiUrls, in the form //hostname:port
+
+        The hostname is the hostname of the remote CacheManager peer. The port is the listening port of the RMICacheManagerPeerListener
+        of the remote CacheManager peer.
     -->
-    <!--<cacheManagerEventListenerFactory class="" properties=""/>-->
-    
+    <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+                                     properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446"/>
+
+
+    <!--
+        (Enable for distributed operation)
+
+        Specifies a CacheManagerPeerListenerFactory which will be used to create a CacheManagerPeerListener, which
+        listens for messages from cache replicators participating in the cluster.
+
+         The attributes of cacheManagerPeerListenerFactory are:
+        - class - a fully qualified factory class name
+        - properties - comma separated properties having meaning only to the factory.
+
+        Ehcache comes with a built-in RMI-based distribution system. The listener component is RMICacheManagerPeerListener
+        which is configured using RMICacheManagerPeerListenerFactory. It is configured as per the following example:
+
+        <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
+                              properties="hostName=localhost, port=40001, socketTimeoutMillis=2000"/>
+
+        Valid properties are:
+        - hostName (optional) - the hostName of the host the listener is running on. Specify where the host is multihomed
+        and you want to control the interface over which cluster messages are received.
+        - port (mandatory) - the port the listener listens on.
+        - socketTimeoutMillis - the number of seconds client sockets will wait when sending messages to this listener
+        until they give up. By default this is 120s.
+
+        In this example, hostName has been left blank, as has socketTimeoutMillis. They will default to
+            the default NIC IP address and 2000ms respectively.
+
+    -->
+    <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
+                                     properties="hostName=, port=40001, socketTimeoutMillis="/>
 
 
     <!--Default Cache configuration. These will applied to caches programmatically created through
@@ -127,7 +198,7 @@
            timeToLiveSeconds="1000"
            overflowToDisk="true"
            memoryStoreEvictionPolicy="LRU">
-    <cacheEventListenerFactory class="net.sf.ehcache.event.NullCacheEventListenerFactory"/>
+        <cacheEventListenerFactory class="net.sf.ehcache.event.NullCacheEventListenerFactory"/>
     </cache>
 
     <!-- Sample cache named sampleCache2. Is eternal -->
@@ -174,57 +245,94 @@
            diskExpiryThreadIntervalSeconds="600"
             />
 
-    <!-- Page Caches -->
-
+    <!-- Page Caches  for Web filter tests -->
     <cache name="CachedLogin"
            maxElementsInMemory="10"
            eternal="false"
            timeToIdleSeconds="10000"
            timeToLiveSeconds="10000"
-           overflowToDisk="true"
-            />
+           overflowToDisk="true">
+        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+                                   properties="replicateAsynchronously=true,
+                                               replicatePuts=true,
+                                               replicateUpdates=true,
+                                               replicateUpdatesViaCopy=true,
+                                               replicateRemovals=true "/>
+    </cache>
+
+
     <cache name="FooterPageCache"
            maxElementsInMemory="10"
            eternal="false"
            timeToIdleSeconds="10000"
            timeToLiveSeconds="10000"
-           overflowToDisk="true"
-            />
+           overflowToDisk="true">
+        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+                                   properties="replicateAsynchronously=true,
+                                               replicatePuts=true,
+                                               replicateUpdates=true,
+                                               replicateUpdatesViaCopy=true,
+                                               replicateRemovals=true "/>
+    </cache>
 
 
-        <!-- Test Page Caches -->
+    <!-- Test Page Caches -->
     <cache name="SimplePageCachingFilter"
-        maxElementsInMemory="10"
-        eternal="false"
-        timeToIdleSeconds="10000"
-        timeToLiveSeconds="10000"
-        overflowToDisk="true"
-        />
+           maxElementsInMemory="10"
+           eternal="false"
+           timeToIdleSeconds="10000"
+           timeToLiveSeconds="10000"
+           overflowToDisk="true">
+        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+                                   properties="replicateAsynchronously=true,
+                                               replicatePuts=true,
+                                               replicateUpdates=true,
+                                               replicateUpdatesViaCopy=true,
+                                               replicateRemovals=true "/>
+    </cache>
 
     <cache name="SimplePageFragmentCachingFilter"
-        maxElementsInMemory="10"
-        eternal="false"
-        timeToIdleSeconds="10000"
-        timeToLiveSeconds="10000"
-        overflowToDisk="true"
-        />
+           maxElementsInMemory="10"
+           eternal="false"
+           timeToIdleSeconds="10000"
+           timeToLiveSeconds="10000"
+           overflowToDisk="true">
+        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+                                   properties="replicateAsynchronously=true,
+                                               replicatePuts=true,
+                                               replicateUpdates=true,
+                                               replicateUpdatesViaCopy=true,
+                                               replicateRemovals=true "/>
+    </cache>
 
 
     <cache name="SimplePageCachingFilterWithBlankPageProblem"
-        maxElementsInMemory="10"
-        eternal="false"
-        timeToIdleSeconds="10000"
-        timeToLiveSeconds="10000"
-        overflowToDisk="true"
-        />
+           maxElementsInMemory="10"
+           eternal="false"
+           timeToIdleSeconds="10000"
+           timeToLiveSeconds="10000"
+           overflowToDisk="true">
+        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+                                   properties="replicateAsynchronously=true,
+                                               replicatePuts=true,
+                                               replicateUpdates=true,
+                                               replicateUpdatesViaCopy=true,
+                                               replicateRemovals=true "/>
+    </cache>
 
     <!-- Asynchronous Caching tests -->
     <cache name="net.sf.ehcache.constructs.asynchronous.MessageCache"
-        maxElementsInMemory="1"
-        eternal="false"
-        timeToIdleSeconds="10000"
-        timeToLiveSeconds="10000"
-        overflowToDisk="true"
-        />
+           maxElementsInMemory="1"
+           eternal="false"
+           timeToIdleSeconds="10000"
+           timeToLiveSeconds="10000"
+           overflowToDisk="true">
+        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+                                   properties="replicateAsynchronously=true,
+                                               replicatePuts=true,
+                                               replicateUpdates=true,
+                                               replicateUpdatesViaCopy=true,
+                                               replicateRemovals=true "/>
+    </cache>
 
 </ehcache>

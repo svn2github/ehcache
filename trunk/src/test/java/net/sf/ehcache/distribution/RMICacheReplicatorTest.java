@@ -115,6 +115,7 @@ public class RMICacheReplicatorTest extends TestCase {
         // memory to -Xmx!
         //forceVMGrowth();
         //System.gc();
+        MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
 
         CountingCacheEventListener.resetCounters();
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
@@ -132,7 +133,7 @@ public class RMICacheReplicatorTest extends TestCase {
         cache2.removeAll();
 
         //allow cluster to be established
-        Thread.sleep(6000);
+        Thread.sleep(1000);
     }
 
     /**
@@ -452,7 +453,7 @@ public class RMICacheReplicatorTest extends TestCase {
             }
 
         }
-        Thread.sleep(5000);
+        Thread.sleep(8000);
         assertEquals(5000, cache1.getSize());
         assertEquals(5000, manager2.getCache("sampleCache1").getSize());
         assertEquals(5000, manager3.getCache("sampleCache1").getSize());
@@ -641,7 +642,7 @@ public class RMICacheReplicatorTest extends TestCase {
         int i = 0;
 
         if (asynchronous) {
-            waitForSlowProgagate();
+            waitForProgagate();
         }
 
         //Should have been replicated to toCache.
