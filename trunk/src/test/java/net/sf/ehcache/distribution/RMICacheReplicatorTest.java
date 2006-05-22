@@ -248,16 +248,26 @@ public class RMICacheReplicatorTest extends TestCase {
             return;
         }
 
-        CacheManagerPeerProvider provider = manager1.getCachePeerProvider();
-        List remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
-        assertEquals(4, remotePeersOfCache1.size());
+        try {
+            CacheManagerPeerProvider provider = manager1.getCachePeerProvider();
+            List remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
+            assertEquals(4, remotePeersOfCache1.size());
 
-        //Drop a CacheManager from the cluster
-        manager5.shutdown();
+            MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(2000);
+            Thread.sleep(2000);
 
-        //Insufficient time for it to timeout
-        remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
-        assertEquals(4, remotePeersOfCache1.size());
+            //Drop a CacheManager from the cluster
+            manager5.shutdown();
+
+            //Insufficient time for it to timeout
+            remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
+            assertEquals(4, remotePeersOfCache1.size());
+        } finally {
+            MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
+            Thread.sleep(2000);
+        }
+
+
     }
 
     /**

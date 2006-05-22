@@ -160,7 +160,11 @@ public final class Status implements Serializable {
      * @return true is the statuses are the same
      */
     public boolean equals(Status status) {
-        return intValue == status.intValue;
+        if (status == null) {
+            return false;
+        } else {
+            return (intValue == status.intValue);
+        }
     }
 
     /**

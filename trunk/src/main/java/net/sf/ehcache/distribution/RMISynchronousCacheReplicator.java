@@ -264,14 +264,18 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
      * @return true if the status is not STATUS_ALIVE
      */
     public final boolean notAlive() {
-        return !status.equals(Status.STATUS_ALIVE);
+        return !alive();
     }
 
     /**
      * Checks that the replicator is is <code>STATUS_ALIVE</code>.
      */
     public final boolean alive() {
-        return (status.equals(Status.STATUS_ALIVE));
+        if (status == null) {
+            return false;
+        } else {
+            return (status.equals(Status.STATUS_ALIVE));
+        }
     }
 
     /**

@@ -102,7 +102,7 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
     private void replicationThreadMain() {
         while (true) {
             // Wait for elements in the replicationQueue
-            while (alive() && replicationQueue.size() == 0) {
+            while (alive() && replicationQueue != null && replicationQueue.size() == 0) {
                 try {
                     Thread.sleep(REPLICATION_THREAD_INTERVAL);
                 } catch (InterruptedException e) {

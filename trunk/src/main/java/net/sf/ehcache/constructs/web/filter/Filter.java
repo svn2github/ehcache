@@ -38,7 +38,6 @@ import java.util.Map;
  *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
- * todo NPE on shutdown in tomcat
  */
 public abstract class Filter implements javax.servlet.Filter {
     /**
