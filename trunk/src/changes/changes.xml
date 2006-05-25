@@ -42,6 +42,10 @@
                 Support tomcat for the servlet filters. Tomcat integration testing, in addition to the Orion one, is also
                 added to the full JUnit test process.
             </action>
+            <action dev="Greg Luck" type="add">
+                Support setting individual Element time to lives, time to idles and eternal overrides. If an override
+                is set, the Element expiry ignores the Cache default.
+            </action>
 
             <!-- Reported Bug fixes -->
             <action dev="Greg Luck" issue="1480442" type="fix">

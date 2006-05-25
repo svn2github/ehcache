@@ -187,6 +187,104 @@ public class CacheTest extends AbstractCacheTest {
 
 
     /**
+     * Test expiry based on time to live for a cache with config
+     * <cache name="sampleCacheNoIdle"
+     * maxElementsInMemory="1000"
+     * eternal="false"
+     * timeToLiveSeconds="5"
+     * overflowToDisk="false"
+     * />
+     * <p/>
+     * where an Elment override is set on TTL
+     */
+    public void testExpiryBasedOnTimeToLiveWhenNoIdleElementOverride() throws Exception {
+        //Set size so the second element overflows to disk.
+        Ehcache cache = manager.getCache("sampleCacheNoIdle");
+        Element element1 = new Element("key1", "value1");
+        element1.setTimeToLive(3);
+        cache.put(element1);
+
+        Element element2 = new Element("key2", "value1");
+        element2.setTimeToLive(3);
+        cache.put(element2);
+        assertNotNull(cache.get("key1"));
+        assertNotNull(cache.get("key2"));
+
+        //Test time to idle. Should not idle out because not specified
+        Thread.sleep(2000);
+        assertNotNull(cache.get("key1"));
+        assertNotNull(cache.get("key2"));
+
+        //Test time to live.
+        Thread.sleep(3001);
+        assertNull(cache.get("key1"));                                  
+        assertNull(cache.get("key2"));
+    }
+
+        /**
+     * Test expiry based on time to live for a cache with config
+     * <cache name="sampleCacheNoIdle"
+     * maxElementsInMemory="1000"
+     * eternal="false"
+     * timeToLiveSeconds="5"
+     * overflowToDisk="false"
+     * />
+     * <p/>
+     * where an Elment override is set on TTL
+     */
+    public void testExpiryBasedOnTimeToIdleElementOverride() throws Exception {
+        //Set size so the second element overflows to disk.
+        Ehcache cache = manager.getCache("sampleCacheNoIdle");
+        Element element1 = new Element("key1", "value1");
+        element1.setTimeToIdle(1);
+        cache.put(element1);
+
+        Element element2 = new Element("key2", "value1");
+        element2.setTimeToIdle(1);
+        cache.put(element2);
+        assertNotNull(cache.get("key1"));
+        assertNotNull(cache.get("key2"));
+
+        //Test time to idle. Should not idle out because not specified
+        Thread.sleep(1001);
+        assertNull(cache.get("key1"));
+        assertNull(cache.get("key2"));
+
+    }
+
+
+       /**
+     * Test expiry based on time to live for a cache with config
+     * <cache name="sampleCacheNoIdle"
+     * maxElementsInMemory="1000"
+     * eternal="false"
+     * timeToLiveSeconds="5"
+     * overflowToDisk="false"
+     * />
+     * <p/>
+     * where an Elment override is set on TTL
+     */
+    public void testExpiryBasedEternalElementOverride() throws Exception {
+        //Set size so the second element overflows to disk.
+        Ehcache cache = manager.getCache("sampleCacheNoIdle");
+        Element element1 = new Element("key1", "value1");
+        element1.setEternal(true);
+        cache.put(element1);
+
+        Element element2 = new Element("key2", "value1");
+        element2.setEternal(true);
+        cache.put(element2);
+        assertNotNull(cache.get("key1"));
+        assertNotNull(cache.get("key2"));
+
+        Thread.sleep(5001);
+        assertNotNull(cache.get("key1"));
+        assertNotNull(cache.get("key2"));
+
+    }
+
+
+    /**
      * Test expiry based on time to live. Even though eternal is false, because there are no
      * expiry or idle times, it is eternal.
      * <cache name="sampleCacheNotEternalButNoIdleOrExpiry"
@@ -1161,8 +1259,14 @@ public class CacheTest extends AbstractCacheTest {
      */
     public void testDiskStoreFlorian() {
         Cache cache = new Cache("test3cache", 20000, true, false, 50, 30);
-
         assertTrue(cache.isOverflowToDisk());
+        manager.addCache(cache);
+
+        for (int i = 0; i < 25000; i++) {
+            cache.put(new Element(i + "", "value"));
+        }
+
+        assertEquals(5000, cache.getDiskStoreSize());
     }
 
 

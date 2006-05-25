@@ -245,20 +245,20 @@ public final class Element implements Serializable, Cloneable {
     /**
      * Sets time to Live
      *
-     * @param timeToLive the number of seconds to live
+     * @param timeToLiveSeconds the number of seconds to live
      */
-    public void setTimeToLive(int timeToLive) {
-        this.timeToLive = timeToLive;
+    public void setTimeToLive(int timeToLiveSeconds) {
+        this.timeToLive = timeToLiveSeconds;
         lifespanSet = true;
     }
 
     /**
      * Sets time to idle
      *
-     * @param timeToIdle the number of seconds to idle
+     * @param timeToIdleSeconds the number of seconds to idle
      */
-    public void setTimeToIdle(int timeToIdle) {
-        this.timeToIdle = timeToIdle;
+    public void setTimeToIdle(int timeToIdleSeconds) {
+        this.timeToIdle = timeToIdleSeconds;
         lifespanSet = true;
     }
 
