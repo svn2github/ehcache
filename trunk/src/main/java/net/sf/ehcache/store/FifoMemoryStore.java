@@ -119,7 +119,7 @@ public final class FifoMemoryStore extends MemoryStore {
     private void removeFirstElement() throws CacheException {
         Element element = getFirstElement();
 
-        if (cache.isExpired(element)) {
+        if (element.isExpired()) {
             remove(element.getObjectKey());
             notifyExpiry(element);
             return;

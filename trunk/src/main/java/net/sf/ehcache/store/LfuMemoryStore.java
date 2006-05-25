@@ -86,7 +86,7 @@ public final class LfuMemoryStore extends MemoryStore {
         Element element = findRelativelyUnused(elementJustAdded);
 
         // If the element is expired remove
-        if (cache.isExpired(element)) {
+        if (element.isExpired()) {
             remove(element.getObjectKey());
             notifyExpiry(element);
             return;

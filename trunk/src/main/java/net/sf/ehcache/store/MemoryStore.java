@@ -209,7 +209,7 @@ public abstract class MemoryStore implements Store {
             for (int i = 0; i < keys.length; i++) {
                 Object key = keys[i];
                 Element element = remove(key);
-                if (cache.isExpired(element)) {
+                if (element.isExpired()) {
                     listeners.notifyElementExpiry(element, false);
                 } else {
                     listeners.notifyElementRemoved(element, false);

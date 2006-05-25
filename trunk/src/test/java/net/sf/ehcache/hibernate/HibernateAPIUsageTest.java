@@ -35,7 +35,7 @@ import java.util.Properties;
  */
 public class HibernateAPIUsageTest extends AbstractCacheTest {
     private static final Log LOG = LogFactory.getLog(CacheTest.class.getName());
-    private static final int EMPTY_ELEMENT_SIZE = 280;
+    private static final int EMPTY_ELEMENT_SIZE = 298;
 
 
     /**

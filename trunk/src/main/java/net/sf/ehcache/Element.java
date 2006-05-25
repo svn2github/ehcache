@@ -43,12 +43,13 @@ import java.io.Serializable;
 public final class Element implements Serializable, Cloneable {
     /**
      * serial version
-     * Updated version 1.2
+     * Updated version 1.2 and again for 1.2.1
      */
-    private static final long serialVersionUID = 7832456720941087574L;
+    private static final long serialVersionUID = 3343087714201120157L;
 
     private static final Log LOG = LogFactory.getLog(Element.class.getName());
 
+    private static final int ONE_SECOND = 1000;
 
     /**
      * the cache key.
@@ -87,14 +88,14 @@ public final class Element implements Serializable, Cloneable {
     private long hitCount;
 
     /**
-     * The amount of time for the element to live. 0 indicates unlimited.
+     * The amount of time for the element to live, in seconds. 0 indicates unlimited.
      */
-    private long timeToLive;
+    private int timeToLive;
 
     /**
-     * The amount of time for the element to idle. 0 indicates unlimited.
+     * The amount of time for the element to idle, in seconds. 0 indicates unlimited.
      */
-    private long timeToIdle;
+    private int timeToIdle;
 
     /**
      * If there is an Element in the Cache and it is replaced with a new Element for the same key,
@@ -102,6 +103,18 @@ public final class Element implements Serializable, Cloneable {
      * will be the creation time of the new Element, not the original one, so that TTL concepts still work.
      */
     private long lastUpdateTime;
+
+    /**
+     * Whether the element is eternal, i.e. never expires.
+     */
+    private boolean eternal;
+
+
+    /**
+     * Whether any combination of eternal, TTL or TTI has been set.
+     */
+    private boolean lifespanSet;
+
 
 
     /**
@@ -227,6 +240,26 @@ public final class Element implements Serializable, Cloneable {
         }
 
         return key.equals(element.getObjectKey());
+    }
+
+    /**
+     * Sets time to Live
+     *
+     * @param timeToLive the number of seconds to live
+     */
+    public void setTimeToLive(int timeToLive) {
+        this.timeToLive = timeToLive;
+        lifespanSet = true;
+    }
+
+    /**
+     * Sets time to idle
+     *
+     * @param timeToIdle the number of seconds to idle
+     */
+    public void setTimeToIdle(int timeToIdle) {
+        this.timeToIdle = timeToIdle;
+        lifespanSet = true;
     }
 
     /**
@@ -474,12 +507,21 @@ public final class Element implements Serializable, Cloneable {
     }
 
     /**
-     * An element is expired if the expiration time as given by {@link #getExpirationTime()} is in the past. 
-     * @return true if the Element is expired, otherwise false.
+     * An element is expired if the expiration time as given by {@link #getExpirationTime()} is in the past.
+     *
+     * @return true if the Element is expired, otherwise false. If no lifespan has been set for the Element it is
+     *         considered not able to expire.
      * @see #getExpirationTime()
      */
     public boolean isExpired() {
-        return getExpirationTime() > System.currentTimeMillis();
+        if (!lifespanSet) {
+            return false;
+        }
+
+        long now = System.currentTimeMillis();
+        long expirationTime = getExpirationTime();
+
+        return now > expirationTime;
     }
 
     /**
@@ -490,16 +532,65 @@ public final class Element implements Serializable, Cloneable {
      */
     public long getExpirationTime() {
 
-        long expiryOnTTLBasis = 0;
-        if (timeToLive != 0) {
-            expiryOnTTLBasis = creationTime + timeToLive;
+        if (!lifespanSet || eternal || (timeToLive == 0 && timeToIdle == 0)) {
+            return Long.MAX_VALUE;
         }
 
-        long expiredOnTTIBasis = 0;
-        if (timeToIdle != 0) {
-            expiredOnTTIBasis = lastAccessTime + timeToIdle;
+        long expirationTime = 0;
+        long ttlExpiry = creationTime + timeToLive * ONE_SECOND;
+
+        long mostRecentTime = Math.max(creationTime, nextToLastAccessTime);
+        long ttiExpiry = mostRecentTime + timeToIdle * ONE_SECOND;
+
+        if (timeToLive != 0 && (timeToIdle == 0 || lastAccessTime == 0)) {
+            expirationTime = ttlExpiry;
+        } else if (timeToLive == 0) {
+            expirationTime = ttiExpiry;
+        } else {
+            expirationTime = Math.min(ttlExpiry, ttiExpiry);
         }
-        return Math.min(expiryOnTTLBasis, expiredOnTTIBasis);
+
+        return expirationTime;
+    }
+
+    /**
+     * @return true if the element is eternal
+     */
+    public boolean isEternal() {
+        return eternal;
+    }
+
+    /**
+     * Sets whether the element is eternal.
+     *
+     * @param eternal
+     */
+    public void setEternal(boolean eternal) {
+        this.eternal = eternal;
+        lifespanSet = true;
+    }
+
+    /**
+     * Whether any combination of eternal, TTL or TTI has been set.
+     *
+     * @return true if set.
+     */
+    public boolean isLifespanSet() {
+        return lifespanSet;
+    }
+
+    /**
+     * @return the time to live, in seconds
+     */
+    public int getTimeToLive() {
+        return timeToLive;
+    }
+
+    /**
+     * @return the time to idle, in seconds
+     */
+    public int getTimeToIdle() {
+        return timeToIdle;
     }
 }
 

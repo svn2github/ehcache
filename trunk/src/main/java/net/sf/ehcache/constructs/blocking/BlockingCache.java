@@ -116,7 +116,8 @@ public class BlockingCache {
         try {
             manager = CacheManager.create();
         } catch (net.sf.ehcache.CacheException e) {
-            throw new CacheException("CacheManager cannot be created");
+            LOG.fatal("CacheManager cannot be created. Cause was: " + e.getMessage() + e);
+            throw new CacheException("CacheManager cannot be created", e);
         }
         cache = manager.getCache(name);
         if (cache == null || !cache.getName().equals(name)) {

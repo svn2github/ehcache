@@ -131,7 +131,7 @@ public final class LruMemoryStore extends MemoryStore {
             }
 
             //check for expiry before going to the trouble of spooling
-            if (cache.isExpired(element)) {
+            if (element.isExpired()) {
                 notifyExpiry(element);
             } else {
                 evict(element);
@@ -197,7 +197,7 @@ public final class LruMemoryStore extends MemoryStore {
          */
         private boolean removeLeastRecentlyUsedElement(Element element) throws CacheException {
             //check for expiry and remove before going to the trouble of spooling it
-            if (cache.isExpired(element)) {
+            if (element.isExpired()) {
                 notifyExpiry(element);
                 return true;
             }

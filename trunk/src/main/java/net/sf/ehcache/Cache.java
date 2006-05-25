@@ -490,6 +490,8 @@ public final class Cache implements Ehcache {
 
         if (elementExists) {
             element.updateUpdateStatistics();
+        } else {
+            applyDefaultsToElementWithoutLifespanSet(element);
         }
 
         memoryStore.put(element);
@@ -500,6 +502,15 @@ public final class Cache implements Ehcache {
             registeredEventListeners.notifyElementPut(element, doNotNotifyCacheReplicators);
         }
 
+    }
+
+    private void applyDefaultsToElementWithoutLifespanSet(Element element) {
+        if (!element.isLifespanSet()) {
+            //Setting with Cache defaults
+            element.setTimeToLive((int) timeToLiveSeconds);
+            element.setTimeToIdle((int) timeToIdleSeconds);
+            element.setEternal(eternal);
+        }
     }
 
 
@@ -522,6 +533,9 @@ public final class Cache implements Ehcache {
         if (element == null) {
             throw new IllegalArgumentException("Element cannot be null");
         }
+        
+        applyDefaultsToElementWithoutLifespanSet(element);
+
         memoryStore.put(element);
     }
 
@@ -1228,53 +1242,9 @@ Cache size is the size of the union of the two key sets.*/
      */
     public final boolean isExpired(Element element) throws IllegalStateException, NullPointerException {
         checkStatus();
-        boolean expired;
         synchronized (element) {
-            if (!eternal) {
-                expired = checkExpirationForNotEternal(element);
-            } else {
-                expired = false;
-            }
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(getName() + ": Is element with key " + element.getObjectKey() + " expired?: " + expired);
-            }
-            return expired;
+            return element.isExpired();
         }
-    }
-
-    private boolean checkExpirationForNotEternal(Element element) {
-        boolean expired;
-        long now = System.currentTimeMillis();
-        long creationTime = element.getCreationTime();
-        long ageLived = now - creationTime;
-        long ageToLive = timeToLiveSeconds * MS_PER_SECOND;
-        long nextToLastAccessTime = element.getNextToLastAccessTime();
-        long mostRecentTime = Math.max(creationTime, nextToLastAccessTime);
-        long ageIdled = now - mostRecentTime;
-        long ageToIdle = timeToIdleSeconds * MS_PER_SECOND;
-
-        if (LOG.isTraceEnabled()) {
-            LOG.trace(element.getObjectKey() + " now: " + now);
-            LOG.trace(element.getObjectKey() + " Creation Time: " + creationTime
-                    + " Next To Last Access Time: " + nextToLastAccessTime);
-            LOG.trace(element.getObjectKey() + " mostRecentTime: " + mostRecentTime);
-            LOG.trace(element.getObjectKey() + " Age to Idle: " + ageToIdle + " Age Idled: " + ageIdled);
-        }
-
-        if (timeToLiveSeconds != 0 && (ageLived > ageToLive)) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("timeToLiveSeconds exceeded : " + element.getObjectKey());
-            }
-            expired = true;
-        } else if (timeToIdleSeconds != 0 && (ageIdled > ageToIdle)) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("timeToIdleSeconds exceeded : " + element.getObjectKey());
-            }
-            expired = true;
-        } else {
-            expired = false;
-        }
-        return expired;
     }
 
 

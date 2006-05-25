@@ -444,7 +444,7 @@ public class DiskStore implements Store {
             for (int i = 0; i < keys.length; i++) {
                 Serializable key = (Serializable) keys[i];
                 Element element = remove(key);
-                if (cache.isExpired(element)) {
+                if (element.isExpired()) {
                     listeners.notifyElementExpiry(element, false);
                 } else {
                     listeners.notifyElementRemoved(element, false);
@@ -759,7 +759,7 @@ public class DiskStore implements Store {
         synchronized (spool) {
             for (Iterator iterator = spool.values().iterator(); iterator.hasNext();) {
                 final Element element = (Element) iterator.next();
-                if (cache.isExpired(element)) {
+                if (element.isExpired()) {
                     // An expired element
                     if (LOG.isDebugEnabled()) {
                         LOG.debug(name + "Cache: Removing expired spool element " + element.getObjectKey());

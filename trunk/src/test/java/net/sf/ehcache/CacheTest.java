@@ -1155,4 +1155,15 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(objectElement, retrievedObject);
     }
 
+
+    /**
+     * Test issues reported.
+     */
+    public void testDiskStoreFlorian() {
+        Cache cache = new Cache("test3cache", 20000, true, false, 50, 30);
+
+        assertTrue(cache.isOverflowToDisk());
+    }
+
+
 }
