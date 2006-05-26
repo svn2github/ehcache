@@ -17,7 +17,6 @@
 package net.sf.ehcache.constructs.web.filter;
 
 import com.meterware.httpunit.HttpInternalErrorException;
-import com.meterware.httpunit.WebResponse;
 import net.sf.ehcache.constructs.web.AbstractWebTest;
 import org.xml.sax.SAXException;
 
@@ -43,17 +42,10 @@ public class CachingFilterReentranceTest extends AbstractWebTest {
      * <li>Demonstrate how the problem occurs
      * <li>Check that an Exception is thrown rather than blocking forever.
      * </ol>
-     * todo tomcat is not reentering the filter chain for the include. This test is not hitting fail() because tomcat is not caching the include.
      */
     public void testReentranceOfCachingFilterThrowsException() throws IOException, SAXException {
         try {
-            WebResponse response = getResponseFromAcceptGzipRequest(
-                    "/reentrant/MainPageAndIncludeBothGoThroughCachingFilter.jsp");
-            String server = response.getHeaderField("SERVER");
-            if (server.equals("Apache-Coyote/1.1")) {
-                //this is broken in tomcat.
-                return;
-            }
+            getResponseFromAcceptGzipRequest("/reentrant/MainPageAndIncludeBothGoThroughCachingFilter.jsp");
             fail();
         } catch (HttpInternalErrorException e) {
             //noop
@@ -64,17 +56,10 @@ public class CachingFilterReentranceTest extends AbstractWebTest {
      * Checks that reentrance via a forward is still caught.
      *
      * @see #testReentranceOfCachingFilterThrowsException()
-     * todo tomcat is not reentering the filter chain for the include. This test is not hitting fail() because tomcat is not caching the include.
      */
     public void testReentranceOfCachingFilterViaForwardThrowsException() throws IOException, SAXException {
         try {
-            WebResponse response =
-                    getResponseFromAcceptGzipRequest("/reentrant/MainPageAndForwardBothGoThroughCachingFilter.jsp");
-            String server = response.getHeaderField("SERVER");
-            if (server.equals("Apache-Coyote/1.1")) {
-                //this is broken in tomcat.
-                return;
-            }
+            getResponseFromAcceptGzipRequest("/reentrant/MainPageAndForwardBothGoThroughCachingFilter.jsp");
             fail();
         } catch (HttpInternalErrorException e) {
             //noop

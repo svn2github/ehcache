@@ -534,7 +534,7 @@ public class DiskStore implements Store {
     private void spoolThreadMain() {
         while (true) {
             // Wait for elements in the spool
-            while (active && spool.size() == 0) {
+            while (active && spool != null && spool.size() == 0) {
                 try {
                     Thread.sleep(SPOOL_THREAD_INTERVAL);
                 } catch (InterruptedException e) {

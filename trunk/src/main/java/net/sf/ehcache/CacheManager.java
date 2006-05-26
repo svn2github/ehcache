@@ -48,7 +48,6 @@ import java.util.Set;
  * <li>Event listeners are given cache names as arguments. They are assured the cache is referenceable through a single
  * CacheManager.
  * </ol>
- * todo pass diskStore check for multiple instances where no caches use diskStore
  *
  * @author Greg Luck
  * @version $Id$

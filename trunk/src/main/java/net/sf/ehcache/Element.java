@@ -32,13 +32,12 @@ import java.io.Serializable;
  * <p/>
  * From ehcache-1.2, Elements can have keys and values that are Serializable or Objects. To preserve backward
  * compatibility, special accessor methods for Object keys and values are provided: {@link #getObjectKey()} and
- * {@link #getObjectValue()}. If placing Objects in ehcace, developers must use the new getObject... methods to
+ * {@link #getObjectValue()}. If placing Objects in ehcache, developers must use the new getObject... methods to
  * avoid CacheExceptions. The get... methods are reserved for Serializable keys and values.
  *
  * @author Greg Luck
  * @version $Id$
  * @noinspection SerializableHasSerializationMethods
- * todo TTL per element
  */
 public final class Element implements Serializable, Cloneable {
     /**

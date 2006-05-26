@@ -190,6 +190,8 @@ public class MulticastRMIPeerProviderTest extends TestCase {
 
 
         manager1.removeCache("fromDefaultCache");
+        Thread.sleep(1000);
+
         peerUrls = cachePeerProvider.listRemoteCachePeers(cache);
         assertEquals(expectedPeers(), peerUrls.size());
 

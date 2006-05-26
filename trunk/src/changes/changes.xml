@@ -39,8 +39,9 @@
                 Andy McNutt's JNDI-based manual RMI replication added. See ehcache.xml example for how to use.
             </action>
             <action dev="Greg Luck" type="add">
-                Support tomcat for the servlet filters. Tomcat integration testing, in addition to the Orion one, is also
-                added to the full JUnit test process.
+                Support tomcat 5.5 for the servlet filters. Tomcat integration testing, in addition to the Orion one, is also
+                added to the full JUnit test process. Tomcat relies on Servlet 2.4 dispatcher INCLUDE and FORWARD directives
+                for page fragment caching.
             </action>
             <action dev="Greg Luck" type="add">
                 Support setting individual Element time to lives, time to idles and eternal overrides. If an override

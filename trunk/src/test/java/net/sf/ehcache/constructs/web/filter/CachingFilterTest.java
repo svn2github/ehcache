@@ -146,15 +146,15 @@ public class CachingFilterTest extends AbstractWebTest {
      * @throws Exception
      */
     public void testFromJSPInclude() throws Exception {
-        WebResponse response = getResponseFromAcceptGzipRequest("/legaldispatchtocachedpage/Include.jsp");
-        assertResponseOk(response);
-        assertHeadersSane(response);
-        assertPageNotBlank(response);
         try {
+            WebResponse response = getResponseFromAcceptGzipRequest("/legaldispatchtocachedpage/Include.jsp");
             assertPropertlyFormed(response);
             fail();
         } catch (AssertionFailedError e) {
-            //noop Page is actually an error message
+            //noop Page is actually an error message in Orion
+        } catch (HttpInternalErrorException e) {
+            //noop 500 error in Tomcat. The log shows ResponseHeadersNotModifiableException when we try to set Gzip
+            //because it is already gzipped.
         }
 
         //No point doing the rest of the tests because the page is always blank
@@ -167,15 +167,15 @@ public class CachingFilterTest extends AbstractWebTest {
      * @throws Exception
      */
     public void testFromJSPIncludeNoGzip() throws Exception {
-        WebResponse response = getResponseFromNonAcceptGzipRequest("/legaldispatchtocachedpage/Include.jsp");
-        assertResponseOk(response);
-        assertHeadersSane(response);
-        assertPageNotBlank(response);
         try {
+            WebResponse response = getResponseFromNonAcceptGzipRequest("/legaldispatchtocachedpage/Include.jsp");
             assertPropertlyFormed(response);
             fail();
         } catch (AssertionFailedError e) {
             //noop Page is actually an error message
+        } catch (HttpInternalErrorException e) {
+            //noop 500 error in Tomcat. The log shows ResponseHeadersNotModifiableException when we try to set Gzip
+            //because it is already gzipped.
         }
 
         //No point doing the rest of the tests because the page is always blank
@@ -207,14 +207,8 @@ public class CachingFilterTest extends AbstractWebTest {
      */
     public void testFromServletInclude() {
         String url = "/servletdispatchtocachedpage/IncludeCachedPageServlet";
-        WebResponse response = null;
         try {
-            response = getResponseFromAcceptGzipRequest(url);
-            String server = response.getHeaderField("SERVER");
-            if (server.equals("Apache-Coyote/1.1")) {
-                //todo this is broken in tomcat. include not reentering chain
-                return;
-            }
+            getResponseFromAcceptGzipRequest(url);
             fail();
         } catch (HttpInternalErrorException e) {
             //this is what should happen.
@@ -350,13 +344,6 @@ public class CachingFilterTest extends AbstractWebTest {
     public void testFromJSPForward() throws Exception {
         WebResponse response = getResponseFromAcceptGzipRequest("/legaldispatchtocachedpage/Forward.jsp");
         assertResponseGood(response, true);
-
-        String server = response.getHeaderField("SERVER");
-        if (server.equals("Apache-Coyote/1.1")) {
-            //todo this is broken in tomcat. forward not reentering chain
-            return;
-        }
-
         runStandardTestsOnUrl("/legaldispatchtocachedpage/Forward.jsp");
     }
 

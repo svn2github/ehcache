@@ -85,21 +85,22 @@ public abstract class CachingFilter extends Filter {
 
     /**
      * Performs the filtering for a request.
+     *
      * @param request
      * @param response
      * @param chain
-     * @throws AlreadyGzippedException if a double gzip is attempted
-     * @throws AlreadyCommittedException if the response was committed on the way in or the on the way back
+     * @throws AlreadyGzippedException     if a double gzip is attempted
+     * @throws AlreadyCommittedException   if the response was committed on the way in or the on the way back
      * @throws FilterNonReentrantException if an attempt is made to reenter this filter in the same request.
-     * @throws Exception for all other exceptions. They will be caught and logged in
-     * {@link Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)}
+     * @throws Exception                   for all other exceptions. They will be caught and logged in
+     *                                     {@link Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)}
      */
     protected void doFilter(final HttpServletRequest request, final HttpServletResponse response,
                             final FilterChain chain)
             throws AlreadyGzippedException,
-                    AlreadyCommittedException,
-                    FilterNonReentrantException,
-                    Exception {
+            AlreadyCommittedException,
+            FilterNonReentrantException,
+            Exception {
         if (response.isCommitted()) {
             throw new AlreadyCommittedException("Response already committed before doing buildPage.");
         }
@@ -182,12 +183,14 @@ public abstract class CachingFilter extends Filter {
 
     /**
      * Writes the response from a PageInfo object.
+     *
      * @param request
      * @param response
      * @param pageInfo
      * @throws IOException
      * @throws DataFormatException
      * @throws ResponseHeadersNotModifiableException
+     *
      */
     protected void writeResponse(final HttpServletRequest request, final HttpServletResponse response, final PageInfo pageInfo)
             throws IOException, DataFormatException, ResponseHeadersNotModifiableException {

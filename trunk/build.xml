@@ -1,4 +1,3 @@
-
 <project name="ehcache" default="clover">
     <!-- Load local environment overrides -->
     <property environment="env"/>
@@ -369,7 +368,9 @@
         <echo message="...Stopped"/>
     </target>
 
-    <target name="prepare-web-tests" depends="compile, dist-jar, deploy-default-web-app-orion, deploy-default-web-app-tomcat" if="${run.web.tests}"
+    <target name="prepare-web-tests"
+            depends="compile, dist-jar, deploy-default-web-app-orion, deploy-default-web-app-tomcat"
+            if="${run.web.tests}"
             description="Prepare to run  the web tests ">
     </target>
 
@@ -386,7 +387,11 @@
             <fileset dir="${test.classes.dir}"/>
         </jar>
         <copy todir="${build.orion.dir}">
-            <fileset dir="${test.config.dir}" includes="default-web-app/**"/>
+            <fileset dir="${test.config.dir}" includes="default-web-app/**" excludes="**/WEB-INF/**"/>
+        </copy>
+
+        <copy todir="${build.orion.dir}/default-web-app/WEB-INF">
+            <fileset dir="${test.config.dir}/default-web-app/WEB-INF/2_3"/>
         </copy>
 
         <condition property="unix">
@@ -408,15 +413,21 @@
         <mkdir dir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib"/>
         <copy file="${dist.dir}/${name}-${version}.jar" todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib"/>
         <!--<copy file="${lib.runtime.dir}/commons-logging-1.0.4.jar" todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib"/>-->
-        <copy file="${lib.runtime.dir}/commons-collections-2.1.1.jar" todir="${build.tomcat.defaultwebapp.dir}/WEb-INF/lib"/>
-        <copy file="${lib.compile.dir}/clover-1.3.10.jar" todir="${build.tomcat.defaultwebapp.dir}/WEb-INF/lib"/>
+        <copy file="${lib.runtime.dir}/commons-collections-2.1.1.jar"
+              todir="${build.tomcat.defaultwebapp.dir}/WEb-INF/lib"/>
+        <copy file="${lib.compile.dir}/clover-1.3.10.jar" todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib"/>
         <copy file="${test.config.dir}/ehcache.xml" todir="${build.tomcat.defaultwebapp.dir}/WEb-INF/classes"/>
         <copy file="logging.properties" todir="${build.orion.dir}"/>
         <jar destfile="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib/${name}-tests-${version}.jar">
             <fileset dir="${test.classes.dir}"/>
         </jar>
         <copy todir="${build.tomcat.defaultwebapp.dir}">
-            <fileset dir="${test.config.dir}/default-web-app"/>
+            <fileset dir="${test.config.dir}/default-web-app">
+                <exclude name="**/WEB-INF/**"/>
+            </fileset>
+        </copy>
+        <copy todir="${build.tomcat.defaultwebapp.dir}/WEB-INF">
+            <fileset dir="${test.config.dir}/default-web-app/WEB-INF/2_4/"/>
         </copy>
 
         <condition property="unix">
@@ -428,6 +439,7 @@
             </and>
         </condition>
     </target>
+
 
     <!-- Start up the test instance of the Tomcat server -->
     <target name="start-tomcat" description="Starts the Orion server">
