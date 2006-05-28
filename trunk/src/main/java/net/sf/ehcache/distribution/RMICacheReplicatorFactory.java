@@ -99,7 +99,7 @@ public final class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         boolean replicateAsynchronously;
         String replicateAsynchronouslyString = PropertyUtil.extractAndLogProperty(REPLICATE_ASYNCHRONOUSLY, properties);
         if (replicateAsynchronouslyString != null) {
-            replicateAsynchronously = parseBoolean(replicateAsynchronouslyString);
+            replicateAsynchronously = PropertyUtil.parseBoolean(replicateAsynchronouslyString);
         } else {
             replicateAsynchronously = true;
         }
@@ -114,7 +114,7 @@ public final class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         boolean replicateRemovals;
         String replicateRemovalsString = PropertyUtil.extractAndLogProperty(REPLICATE_REMOVALS, properties);
         if (replicateRemovalsString != null) {
-            replicateRemovals = parseBoolean(replicateRemovalsString);
+            replicateRemovals = PropertyUtil.parseBoolean(replicateRemovalsString);
         } else {
             replicateRemovals = true;
         }
@@ -129,7 +129,7 @@ public final class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         boolean replicateUpdatesViaCopy;
         String replicateUpdatesViaCopyString = PropertyUtil.extractAndLogProperty(REPLICATE_UPDATES_VIA_COPY, properties);
         if (replicateUpdatesViaCopyString != null) {
-            replicateUpdatesViaCopy = parseBoolean(replicateUpdatesViaCopyString);
+            replicateUpdatesViaCopy = PropertyUtil.parseBoolean(replicateUpdatesViaCopyString);
         } else {
             replicateUpdatesViaCopy = true;
         }
@@ -144,7 +144,7 @@ public final class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         boolean replicateUpdates;
         String replicateUpdatesString = PropertyUtil.extractAndLogProperty(REPLICATE_UPDATES, properties);
         if (replicateUpdatesString != null) {
-            replicateUpdates = parseBoolean(replicateUpdatesString);
+            replicateUpdates = PropertyUtil.parseBoolean(replicateUpdatesString);
         } else {
             replicateUpdates = true;
         }
@@ -159,19 +159,12 @@ public final class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         boolean replicatePuts;
         String replicatePutsString = PropertyUtil.extractAndLogProperty(REPLICATE_PUTS, properties);
         if (replicatePutsString != null) {
-            replicatePuts = parseBoolean(replicatePutsString);
+            replicatePuts = PropertyUtil.parseBoolean(replicatePutsString);
         } else {
             replicatePuts = true;
         }
         return replicatePuts;
     }
 
-    /**
-     * Null safe, parser of boolean from a String
-     * @param value
-     * @return true if non null and case insensitively matches true
-     */
-    protected boolean parseBoolean(String value) {
-        return ((value != null) && value.equalsIgnoreCase("true"));
-    }
+
 }

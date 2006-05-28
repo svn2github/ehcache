@@ -21,11 +21,14 @@ import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.distribution.MulticastRMICacheManagerPeerProvider;
 import net.sf.ehcache.distribution.RMIAsynchronousCacheReplicator;
 import net.sf.ehcache.distribution.RMICacheManagerPeerListener;
+import net.sf.ehcache.distribution.RMIBootstrapCacheLoader;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.event.CountingCacheEventListener;
@@ -341,6 +344,11 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
                     instanceof CountingCacheEventListener);
         }
 
+        BootstrapCacheLoader bootstrapCacheLoader = ((Cache)sampleCache1).getBootstrapCacheLoader();
+        assertNotNull(bootstrapCacheLoader);
+        assertEquals(RMIBootstrapCacheLoader.class, bootstrapCacheLoader.getClass());
+        assertEquals(true, bootstrapCacheLoader.isAsynchronous());
+        assertEquals(5000000, ((RMIBootstrapCacheLoader)bootstrapCacheLoader).getMaximumChunkSizeBytes());
 
     }
 

@@ -96,4 +96,13 @@ public final class PropertyUtil {
         }
         return properties;
     }
+
+    /**
+     * Null safe, parser of boolean from a String
+     * @param value
+     * @return true if non null and case insensitively matches true
+     */
+    public static boolean parseBoolean(String value) {
+        return ((value != null) && value.equalsIgnoreCase("true"));
+    }
 }

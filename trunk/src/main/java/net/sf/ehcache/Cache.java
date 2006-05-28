@@ -16,6 +16,7 @@
 
 package net.sf.ehcache;
 
+import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.DiskStore;
@@ -193,7 +194,7 @@ public final class Cache implements Ehcache {
 
     private CacheManager cacheManager;
 
-    private Statistics cacheStatistics;
+    private BootstrapCacheLoader bootstrapCacheLoader;
 
     /**
      * 1.0 Constructor.
@@ -222,8 +223,9 @@ public final class Cache implements Ehcache {
     public Cache(String name, int maxElementsInMemory, boolean overflowToDisk,
                  boolean eternal, long timeToLiveSeconds, long timeToIdleSeconds) {
         this(name, maxElementsInMemory, DEFAULT_MEMORY_STORE_EVICTION_POLICY, overflowToDisk,
-                null, eternal, timeToLiveSeconds, timeToIdleSeconds, false, DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS, null);
+                null, eternal, timeToLiveSeconds, timeToIdleSeconds, false, DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS, null, null);
     }
+
 
 
     /**
@@ -256,8 +258,11 @@ public final class Cache implements Ehcache {
                  boolean diskPersistent,
                  long diskExpiryThreadIntervalSeconds) {
         this(name, maxElementsInMemory, DEFAULT_MEMORY_STORE_EVICTION_POLICY, overflowToDisk, null,
-                eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, null);
+                eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, null, null);
     }
+
+
+
 
     /**
      * 1.2 Constructor
@@ -273,7 +278,7 @@ public final class Cache implements Ehcache {
      * @param maxElementsInMemory
      * @param memoryStoreEvictionPolicy one of LRU, LFU and FIFO. Optionally null, in which case it will be set to LRU.
      * @param overflowToDisk
-     * @param diskStorePath the directory to be used a disk store path. Uses java.io.tmpdir if the argument is null.
+     * @param diskStorePath             the directory to be used a disk store path. Uses java.io.tmpdir if the argument is null.
      * @param eternal
      * @param timeToLiveSeconds
      * @param timeToIdleSeconds
@@ -295,6 +300,59 @@ public final class Cache implements Ehcache {
                  boolean diskPersistent,
                  long diskExpiryThreadIntervalSeconds,
                  RegisteredEventListeners registeredEventListeners) {
+        this(name,
+                maxElementsInMemory,
+                memoryStoreEvictionPolicy,
+                overflowToDisk,
+                diskStorePath,
+                eternal,
+                timeToLiveSeconds,
+                timeToIdleSeconds,
+                diskPersistent,
+                diskExpiryThreadIntervalSeconds,
+                registeredEventListeners,
+                null);
+    }
+
+
+    /**
+     * 1.2 Constructor
+     * <p/>
+     * The {@link net.sf.ehcache.config.ConfigurationFactory} and clients can create these.
+     * <p/>
+     * A client can specify their own settings here and pass the {@link Cache} object
+     * into {@link CacheManager#addCache} to specify parameters other than the defaults.
+     * <p/>
+     * Only the CacheManager can initialise them.
+     *
+     * @param name
+     * @param maxElementsInMemory
+     * @param memoryStoreEvictionPolicy one of LRU, LFU and FIFO. Optionally null, in which case it will be set to LRU.
+     * @param overflowToDisk
+     * @param diskStorePath             the directory to be used a disk store path. Uses java.io.tmpdir if the argument is null.
+     * @param eternal
+     * @param timeToLiveSeconds
+     * @param timeToIdleSeconds
+     * @param diskPersistent
+     * @param diskExpiryThreadIntervalSeconds
+     * @param bootstrapCacheLoader
+     *
+     * @param registeredEventListeners  a notification service. Optionally null, in which case a new
+     *                                  one with no registered listeners will be created.
+     * @since 1.3
+     */
+    public Cache(String name,
+                 int maxElementsInMemory,
+                 MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
+                 boolean overflowToDisk,
+                 String diskStorePath,
+                 boolean eternal,
+                 long timeToLiveSeconds,
+                 long timeToIdleSeconds,
+                 boolean diskPersistent,
+                 long diskExpiryThreadIntervalSeconds,
+                 RegisteredEventListeners registeredEventListeners,
+                 BootstrapCacheLoader bootstrapCacheLoader) {
         this.name = name;
         this.maxElementsInMemory = maxElementsInMemory;
         this.memoryStoreEvictionPolicy = memoryStoreEvictionPolicy;
@@ -304,6 +362,7 @@ public final class Cache implements Ehcache {
         this.timeToIdleSeconds = timeToIdleSeconds;
         this.diskPersistent = diskPersistent;
 
+        //todo ehcache-1.1 constructor will have null diskStorePath even where it is set.
         if (diskStorePath == null) {
             this.diskStorePath = System.getProperty("java.io.tmpdir");
         } else {
@@ -328,6 +387,7 @@ public final class Cache implements Ehcache {
             this.memoryStoreEvictionPolicy = DEFAULT_MEMORY_STORE_EVICTION_POLICY;
         }
 
+        this.bootstrapCacheLoader = bootstrapCacheLoader;
 
         changeStatus(Status.STATUS_UNINITIALISED);
     }
@@ -338,31 +398,39 @@ public final class Cache implements Ehcache {
      * <p/>
      * This method creates those and makes the cache ready to accept elements
      */
-    final synchronized void initialise() {
-        if (!status.equals(Status.STATUS_UNINITIALISED)) {
-            throw new IllegalStateException("Cannot initialise the " + name
-                    + " cache because its status is not STATUS_UNINITIALISED");
-        }
-
-        if (maxElementsInMemory == 0) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Cache: " + name + " has a maxElementsInMemory of 0. It is strongly recommended to " +
-                        "have a maximumSize of at least 1. Performance is halved by not using a MemoryStore.");
+    final void initialise() {
+        synchronized (this) {
+            if (!status.equals(Status.STATUS_UNINITIALISED)) {
+                throw new IllegalStateException("Cannot initialise the " + name
+                        + " cache because its status is not STATUS_UNINITIALISED");
             }
+
+            if (maxElementsInMemory == 0) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Cache: " + name + " has a maxElementsInMemory of 0. It is strongly recommended to " +
+                            "have a maximumSize of at least 1. Performance is halved by not using a MemoryStore.");
+                }
+            }
+
+            if (overflowToDisk) {
+                diskStore = new DiskStore(this, diskStorePath);
+            }
+
+            memoryStore = MemoryStore.create(this, diskStore);
+
+
+            if (diskPersistent) {
+                addShutdownHook();
+            }
+
+            changeStatus(Status.STATUS_ALIVE);
+
+            if (!disabled && bootstrapCacheLoader != null && !bootstrapCacheLoader.isAsynchronous()) {
+                bootstrapCacheLoader.load(this);
+            }
+
+
         }
-
-        if (overflowToDisk) {
-            diskStore = new DiskStore(this, diskStorePath);
-        }
-
-        memoryStore = MemoryStore.create(this, diskStore);
-
-
-        if (diskPersistent) {
-            addShutdownHook();
-        }
-
-        changeStatus(Status.STATUS_ALIVE);
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Initialised cache: " + name);
@@ -373,6 +441,10 @@ public final class Cache implements Ehcache {
                 LOG.warn("Cache: " + name + " is disabled because the " + NET_SF_EHCACHE_DISABLED
                         + " property was set to true. No elements will be added to the cache.");
             }
+        }
+
+        if (!disabled && bootstrapCacheLoader != null && bootstrapCacheLoader.isAsynchronous()) {
+            bootstrapCacheLoader.load(this);
         }
 
 
@@ -533,7 +605,7 @@ public final class Cache implements Ehcache {
         if (element == null) {
             throw new IllegalArgumentException("Element cannot be null");
         }
-        
+
         applyDefaultsToElementWithoutLifespanSet(element);
 
         memoryStore.put(element);
@@ -1265,7 +1337,8 @@ Cache size is the size of the union of the two key sets.*/
         }
         Cache copy = (Cache) super.clone();
         RegisteredEventListeners registeredEventListenersFromCopy = copy.getCacheEventNotificationService();
-        if (registeredEventListenersFromCopy == null || registeredEventListenersFromCopy.getCacheEventListeners().size() == 0) {
+        if (registeredEventListenersFromCopy == null || registeredEventListenersFromCopy.getCacheEventListeners().size() == 0)
+        {
             copy.registeredEventListeners = new RegisteredEventListeners(copy);
         } else {
             copy.registeredEventListeners = new RegisteredEventListeners(copy);
@@ -1389,7 +1462,6 @@ Cache size is the size of the union of the two key sets.*/
     }
 
 
-
     /**
      * Resets statistics counters back to 0.
      *
@@ -1505,6 +1577,22 @@ Cache size is the size of the union of the two key sets.*/
     }
 
 
+    /**
+     * Accessor for the BootstrapCacheLoader associated with this cache. For testing purposes.
+     */
+    public BootstrapCacheLoader getBootstrapCacheLoader() {
+        return bootstrapCacheLoader;
+    }
 
-
+    /**
+     * Sets the bootstrap cache loader.
+     * @param bootstrapCacheLoader the loader to be used
+     * @throws CacheException if this method is called after the cache is initialized
+     */
+    public void setBootstrapCacheLoader(BootstrapCacheLoader bootstrapCacheLoader) throws CacheException {
+        if (!status.equals(Status.STATUS_UNINITIALISED)) {
+            throw new CacheException("A bootstrap cache loader can only be set before the cache is initialized. " + name);
+        }
+        this.bootstrapCacheLoader = bootstrapCacheLoader;
+    }
 }

@@ -231,6 +231,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
 
     /**
      * Package protected List of cache peers
+     *
      * @param cache
      */
     static List listRemoteCachePeers(Ehcache cache) {
@@ -290,6 +291,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
      * <p/>
      * This may not be possible for listeners after they have been initialized. Implementations should throw
      * CloneNotSupportedException if they do not support clone.
+     *
      * @return a clone
      * @throws CloneNotSupportedException if the listener could not be cloned.
      */

@@ -113,6 +113,38 @@ public interface CachePeer extends Remote {
      String getUrlBase() throws RemoteException;
 
 
+    /**
+     * Returns a list of all elements in the cache, whether or not they are expired.
+     * <p/>
+     * The returned keys are unique and can be considered a set.
+     * <p/>
+     * The List returned is not live. It is a copy.
+     * <p/>
+     * The time taken is O(n). On a single cpu 1.8Ghz P4, approximately 8ms is required
+     * for each 1000 entries.
+     *
+     * @return a list of {@link Object} keys
+     */
+    List getKeys() throws RemoteException;
+
+
+    /**
+     * Gets an element from the cache, without updating Element statistics. Cache statistics are
+     * still updated.
+     * @param key a serializable value
+     * @return the element, or null, if it does not exist.
+     */
+    Element getQuiet(Serializable key) throws RemoteException;
+
+    /**
+     * Gets a list of elements from the cache, for a list of keys, without updating Element statistics. Time to
+     * idle lifetimes are therefore not affected.
+     * <p/>
+     * Cache statistics are still updated.
+     * @param keys a list of serializable values which represent keys
+     * @return a list of Elements. If an element was not found or null, it will not be in the list.
+     */
+    List getElements(List keys) throws RemoteException;
 
 
 }

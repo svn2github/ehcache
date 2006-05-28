@@ -34,6 +34,8 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
+import java.rmi.RemoteException;
 
 /**
  * Tests replication of Cache events
@@ -390,6 +392,86 @@ public class RMICacheReplicatorTest extends TestCase {
         assertEquals(2000, manager3.getCache("sampleCache1").getSize());
         assertEquals(2000, manager4.getCache("sampleCache1").getSize());
         assertEquals(2000, manager5.getCache("sampleCache1").getSize());
+
+    }
+
+    /**
+     * Performance and capacity tests.
+     * <p/>
+     *
+     */
+    public void testBootstrap() throws CacheException, InterruptedException, RemoteException {
+
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
+        //load up some data
+        StopWatch stopWatch = new StopWatch();
+        Integer index = null;
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 1000; j++) {
+                index = new Integer(((1000 * i) + j));
+                cache1.put(new Element(index,
+                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
+            }
+
+        }
+        long elapsed = stopWatch.getElapsedTime();
+        long putTime = ((elapsed / 1000));
+        LOG.info("Put Elapsed time: " + putTime);
+
+        assertEquals(2000, cache1.getSize());
+
+        Thread.sleep(2000);
+        assertEquals(2000, manager2.getCache("sampleCache1").getSize());
+        assertEquals(2000, manager3.getCache("sampleCache1").getSize());
+        assertEquals(2000, manager4.getCache("sampleCache1").getSize());
+        assertEquals(2000, manager5.getCache("sampleCache1").getSize());
+
+
+        //now test bootstrap
+        manager1.addCache("bootStrapResults");
+        Cache cache =  manager1.getCache("bootStrapResults");
+        List cachePeers = manager1.getCacheManagerPeerProvider().listRemoteCachePeers(cache1);
+        CachePeer cachePeer = (CachePeer) cachePeers.get(0);
+
+        List keys = cachePeer.getKeys();
+        assertEquals(2000, keys.size());
+
+        Element firstElement = cachePeer.getQuiet((Serializable) keys.get(0));
+        long size = firstElement.getSerializedSize();
+        assertEquals(574, size);
+
+        int chunkSize = (int) (5000000 / size);
+
+        List requestChunk = new ArrayList();
+        for (int i = 0; i < keys.size(); i++) {
+            Serializable serializable = (Serializable) keys.get(i);
+            requestChunk.add(serializable);
+            if (requestChunk.size() == chunkSize) {
+                fetchAndPutElements(cache, requestChunk, cachePeer);
+                requestChunk.clear();
+            }
+        }
+        //get leftovers
+        fetchAndPutElements(cache, requestChunk, cachePeer);
+
+        assertEquals(keys.size(), cache.getSize());
+
+    }
+
+    private void fetchAndPutElements(Ehcache cache, List requestChunk, CachePeer cachePeer) throws RemoteException {
+        List receivedChunk = cachePeer.getElements(requestChunk);
+        for (int i = 0; i < receivedChunk.size(); i++) {
+            Element element = (Element) receivedChunk.get(i);
+            assertNotNull(element);
+            cache.put(element, true);
+        }
 
     }
 

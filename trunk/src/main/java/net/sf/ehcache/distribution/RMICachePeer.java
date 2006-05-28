@@ -27,6 +27,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.RMISocketFactory;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * An RMI based implementation of <code>CachePeer</code>.
@@ -97,6 +98,59 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
                 .append(":")
                 .append(port)
                 .toString();
+    }
+
+    /**
+     * Returns a list of all elements in the cache, whether or not they are expired.
+     * <p/>
+     * The returned keys are unique and can be considered a set.
+     * <p/>
+     * The List returned is not live. It is a copy.
+     * <p/>
+     * The time taken is O(n). On a single cpu 1.8Ghz P4, approximately 8ms is required
+     * for each 1000 entries.
+     *
+     * @return a list of {@link Object} keys
+     */
+    public List getKeys() throws RemoteException {
+        return cache.getKeys();
+    }
+
+    /**
+     * Gets an element from the cache, without updating Element statistics. Cache statistics are
+     * still updated.
+     *
+     * @param key a serializable value
+     * @return the element, or null, if it does not exist.
+     */
+    public Element getQuiet(Serializable key) throws RemoteException {
+        return cache.getQuiet(key);
+    }
+
+    /**
+     * Gets a list of elements from the cache, for a list of keys, without updating Element statistics. Time to
+     * idle lifetimes are therefore not affected.
+     * <p/>
+     * Cache statistics are still updated.
+     * <p/>
+     * Callers should ideally first call this method with a small list of keys to gauge the size of a typical Element.
+     * Then a calculation can be made of the right number to request each time so as to optimise network performance and
+     * not cause an OutOfMemory error on this Cache.
+     *
+     * @param keys a list of serializable values which represent keys
+     * @return a list of Elements. If an element was not found or null, it will not be in the list.
+     */
+    public List getElements(List keys) throws RemoteException {
+        if (keys == null) {
+            return new ArrayList();
+        }
+        List elements = new ArrayList();
+        for (int i = 0; i < keys.size(); i++) {
+            Serializable key = (Serializable) keys.get(i);
+            Element element = cache.getQuiet(key);
+            elements.add(element);
+        }
+        return elements;
     }
 
 

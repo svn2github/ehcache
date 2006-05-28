@@ -201,6 +201,9 @@
            memoryStoreEvictionPolicy="LRU"
            diskExpiryThreadIntervalSeconds="1000"
             >
+        <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"
+                                   properties="bootstrapAsynchronously=true,
+                                               maximumChunkSizeBytes=5000000"/>
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
                                    properties="replicateAsynchronously=true,
                                                replicatePuts=true,

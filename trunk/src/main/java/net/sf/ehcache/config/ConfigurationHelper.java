@@ -20,6 +20,8 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerListenerFactory;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
@@ -105,7 +107,7 @@ public final class ConfigurationHelper {
             //
         }
         if (className == null) {
-            LOG.error("CacheEventListener factory not configured. Skipping listener configuration");
+            LOG.debug("CacheEventListener factory not configured. Skipping...");
         } else {
             CacheEventListenerFactory factory = (CacheEventListenerFactory)
                     ClassLoaderUtil.createNewInstance(className);
@@ -114,6 +116,32 @@ public final class ConfigurationHelper {
         }
         return cacheEventListener;
     }
+
+    /**
+     * Tries to load the class specified.
+     *
+     * @return If there is none returns null.
+     */
+    public final BootstrapCacheLoader createBootstrapCacheLoader(
+            CacheConfiguration.BootstrapCacheLoaderFactoryConfiguration factoryConfiguration) throws CacheException {
+        String className = null;
+        BootstrapCacheLoader bootstrapCacheLoader = null;
+        try {
+            className = factoryConfiguration.fullyQualifiedClassPath;
+        } catch (Throwable t) {
+            //No class created because the config was missing
+        }
+        if (className == null || className.length() == 0) {
+            LOG.debug("No BootstrapCacheLoaderFactory class specified. Skipping...");
+        } else {
+            BootstrapCacheLoaderFactory factory = (BootstrapCacheLoaderFactory)
+                    ClassLoaderUtil.createNewInstance(className);
+            Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties());
+            return factory.createBootstrapCacheLoader(properties);
+        }
+        return bootstrapCacheLoader;
+    }
+
 
     /**
      * Tries to load the class specified otherwise defaults to null
@@ -187,6 +215,7 @@ public final class ConfigurationHelper {
         }
     }
 
+
     /**
      * @return the disk store path, or null if not set.
      */
@@ -255,6 +284,7 @@ public final class ConfigurationHelper {
 
     /**
      * Create a cache given a cache configuration
+     * todo add bootstrap to default
      *
      * @param cacheConfiguration
      */
@@ -269,9 +299,13 @@ public final class ConfigurationHelper {
                 cacheConfiguration.timeToIdleSeconds,
                 cacheConfiguration.diskPersistent,
                 cacheConfiguration.diskExpiryThreadIntervalSeconds,
+                null,
                 null);
         RegisteredEventListeners listeners = cache.getCacheEventNotificationService();
         registerCacheListeners(cacheConfiguration, listeners);
+        BootstrapCacheLoader bootstrapCacheLoader = createBootstrapCacheLoader(
+                cacheConfiguration.bootstrapCacheLoaderFactoryConfiguration);
+        cache.setBootstrapCacheLoader(bootstrapCacheLoader);
         return cache;
     }
 

@@ -171,7 +171,7 @@ public interface Ehcache extends Cloneable {
      * <p/>
      * The time taken is O(n), where n is the number of elements in the cache. On
      * a 1.8Ghz P4, the time taken is approximately 200ms per 1000 entries. This method
-     * is not syncrhonized, because it relies on a non-live list returned from {@link #getKeys()}
+     * is not synchronized, because it relies on a non-live list returned from {@link #getKeys()}
      * , which is synchronised, and which takes 8ms per 1000 entries. This way
      * cache liveness is preserved, even if this method is very slow to return.
      * <p/>
@@ -614,4 +614,7 @@ public interface Ehcache extends Cloneable {
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     public Statistics getStatistics() throws IllegalStateException;
+
+
+    
 }
