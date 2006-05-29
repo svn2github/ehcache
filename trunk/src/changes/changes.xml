@@ -44,8 +44,14 @@
                 for page fragment caching.
             </action>
             <action dev="Greg Luck" type="add">
-                Support setting individual Element time to lives, time to idles and eternal overrides. If an override
-                is set, the Element expiry ignores the Cache default.
+                Support runtime setting of individual Element time to lives, time to idles and eternal overrides.
+                If an override is set, the Element expiry ignores the Cache default.
+            </action>
+            <action dev="Greg Luck" type="add">
+                Add a cache bootstrap mechanism. This is used to populate a cache when it is first initialized. An
+                abstract factory, BootstrapCacheLoaderFactory has been defined along with an interface BootstrapCacheLoader.
+                The initial concrete implementations are for RMI, so that a new cache entering a cluster gets bootstrapped
+                from a randomly chosen peer.
             </action>
 
             <!-- Reported Bug fixes -->

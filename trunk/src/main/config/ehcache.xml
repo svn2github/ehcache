@@ -212,7 +212,14 @@
                                          First In First Out (specified as FIFO) and Less Frequently Used
                                          (specified as LFU)
 
-        Cache elements can also contain cacheEventListenerFactory elements which consist of a factory class and properties.
+        Cache elements can also contain sub elements which take the same format of a factory class and properties. Defined
+        sub-elements are:
+
+        * cacheEventListenerFactory - Enables registration of listeners for cache events, such as put, remove, update, expire
+
+        * bootstrapCacheLoaderFactory - Specifies a BootstrapCacheLoader, which is called by a cache on initialisation to
+        prepopulate itself.
+
 
         Each cache that will be distributed needs to set a cache event listener which then replicates messages to the
         other CacheManager peers. For the built-in RMI implementation this is done by adding a cacheEventListenerFactory
@@ -225,7 +232,7 @@
              replicateUpdatesViaCopy=true,
              replicateRemovals=true "/>
 
-        The RMICacheReplicatorFactory factory recognises the following properties:
+        The RMICacheReplicatorFactory recognises the following properties:
 
         * replicatePuts=true | false - whether new elements placed in a cache are
           replicated to others. Defaults to true.
@@ -240,6 +247,20 @@
 
         * replicateUpdatesViaCopy=true | false - whether the new elements are
           copied to other caches (true), or whether a remove message is sent. Defaults to true.
+
+
+        The RMI-based BootstrapCacheLoader is configured as per the following example:
+
+        <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"
+            properties="bootstrapAsynchronously=true, maximumChunkSizeBytes=5000000"/>
+
+        The RMIBootstrapCacheLoaderFactory recognises the following optional properties:
+
+        * bootstrapAsynchronously=true | false - whether the bootstrap happens in the background after the cache has started.
+          If false, bootstrap must complete before the cache is made available. The default value is true.
+
+        * maximumChunkSizeBytes=<integer> - Caches can potentially be very large, larger than the memory limits of the VM.
+          Enables the cache bootstrap to be fetched in chunks. The default value is 5000000 (5MB).
 
     -->
 
@@ -291,7 +312,7 @@
 
 
     <!-- Sample distributed cache named sampleDistributedCache1.
-        This cache replicates using defaults. -->
+        This cache replicates using defaults. It also bootstraps from the cluster. -->
 
     <cache name="sampleDistributedCache1"
            maxElementsInMemory="10"
@@ -299,6 +320,7 @@
            timeToIdleSeconds="100"
            timeToLiveSeconds="100"
            overflowToDisk="false">
+        <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"/>
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>
     </cache>
 
