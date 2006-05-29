@@ -152,6 +152,8 @@
                                                replicateUpdates=true,
                                                replicateUpdatesViaCopy=true,
                                                replicateRemovals=true "/>
+
+        <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory" />
     </defaultCache>
 
 
@@ -232,6 +234,7 @@
            overflowToDisk="true">
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
                                    properties="replicateAsynchronously=false, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
+        <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory" />
     </cache>
 
     <!-- Sample cache named sampleCache4. All missing RMICacheReplicatorFactory properties default to true -->
@@ -241,6 +244,9 @@
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LFU">
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>
+        <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"
+                                   properties="bootstrapAsynchronously=false,
+                                               maximumChunkSizeBytes=10000"/>
     </cache>
 
     <!-- Sample cache names sampleCache5. The missing replicatePuts will default to true -->

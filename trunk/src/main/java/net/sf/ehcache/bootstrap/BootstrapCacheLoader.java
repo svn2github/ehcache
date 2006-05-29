@@ -36,8 +36,9 @@ public interface BootstrapCacheLoader {
      */
     boolean isAsynchronous();
 
-
-
-
+    /**
+     * Clones the loader
+     */
+    Object clone() throws CloneNotSupportedException;
 
 }

@@ -173,6 +173,9 @@
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
                                    properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
         <cacheEventListenerFactory class="net.sf.ehcache.event.CountingCacheEventListenerFactory"/>
+        <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"
+                                   properties="bootstrapAsynchronously=true,
+                                               maximumChunkSizeBytes=5000000"/>
     </cache>
 
     <!-- Sample cache named sampleCache2. -->

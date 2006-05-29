@@ -35,6 +35,14 @@ import java.util.Random;
  */
 public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
 
+    private static final int ONE_SECOND = 1000;
+
+    /**
+     * todo improve
+     * Two multicast pings plus 1 second. The most time we should have to wait for a cluster to form.
+     */
+    private static final int ELEVEN_TIMES = 11;
+
     private static final Log LOG = LogFactory.getLog(RMIBootstrapCacheLoader.class.getName());
 
     /**
@@ -87,7 +95,7 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
         private Ehcache cache;
 
         public BootstrapThread(Ehcache cache) {
-            super("Bootstrap Thread");
+            super("Bootstrap Thread for cache " + cache.getName());
             this.cache = cache;
             setDaemon(true);
             setPriority(2);
@@ -115,10 +123,15 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
      * Bootstraps the cache from a random CachePeer. Requests are done in chunks estimated at 5MB Serializable
      * size. This balances memory use on each end and network performance.
      *
+     * Bootstrapping requires the establishment of a cluster. This can be instantaneous for manually configued
+     * clusters or may take a number of seconds for multicast ones. This method waits up to 11 seconds for a cluster
+     * to form.
+     *
      * @throws net.sf.ehcache.distribution.RemoteCacheException if anything goes wrong with the remote call
      */
     public void doLoad(Ehcache cache) throws RemoteCacheException {
-        List cachePeers = listRemoteCachePeers(cache);
+
+        List cachePeers = acquireCachePeers(cache);
         if (cachePeers == null || cachePeers.size() == 0) {
             LOG.info("Empty list of cache peers. No cache peer to bootstrap from.");
             return;
@@ -156,6 +169,29 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
     }
 
     /**
+     * Acquires the cache peers for this cache.
+     * @param cache
+     */
+    protected List acquireCachePeers(Ehcache cache) {
+        List cachePeers = null;
+        for (int i = 0; i < ELEVEN_TIMES; i++) {
+            cachePeers = listRemoteCachePeers(cache);
+            if (cachePeers == null) {
+                break;
+            }
+            if (cachePeers.size() > 0) {
+                break;
+            }
+            try {
+                Thread.sleep(ONE_SECOND);
+            } catch (InterruptedException e) {
+                LOG.debug("doLoad for " + cache.getName() + " interrupted.");
+            }
+        }
+        return cachePeers;
+    }
+
+    /**
      * Fetches a chunk of elements from a remote cache peer
      * @param cache the cache to put elements in
      * @param requestChunk the chunk of keys to request
@@ -190,6 +226,14 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
      */
     public int getMaximumChunkSizeBytes() {
         return maximumChunkSizeBytes;
+    }
+
+    /**
+     * Clones this loader
+     */
+    public Object clone() throws CloneNotSupportedException {
+        //checkstyle
+        return new RMIBootstrapCacheLoader(asynchronous, maximumChunkSizeBytes);
     }
 
 }

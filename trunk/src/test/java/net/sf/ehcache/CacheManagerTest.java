@@ -23,6 +23,8 @@ import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.DiskStore;
+import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.distribution.RMIBootstrapCacheLoader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -383,6 +385,30 @@ public class CacheManagerTest extends TestCase {
         DiskStore diskStore1 = cache1.getDiskStore();
         DiskStore diskStore2 = cache2.getDiskStore();
         assertTrue(diskStore1 != diskStore2);
+
+    }
+
+    /**
+     * Do bootstrap cache loaders work ok when created from the default cache?
+     */
+    public void testCachesCreatedFromDefaultWithBootstrapSet() {
+        singletonManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
+        singletonManager.addCache("newfromdefault1");
+        Cache newfromdefault1 = singletonManager.getCache("newfromdefault1");
+        singletonManager.addCache("newfromdefault2");
+        Cache newfromdefault2 = singletonManager.getCache("newfromdefault2");
+
+        assertTrue(newfromdefault1 != newfromdefault2);
+
+        BootstrapCacheLoader bootstrapCacheLoader1 = ((Cache)newfromdefault1).getBootstrapCacheLoader();
+        BootstrapCacheLoader bootstrapCacheLoader2 = ((Cache)newfromdefault2).getBootstrapCacheLoader();
+
+        assertTrue(bootstrapCacheLoader1 != bootstrapCacheLoader2);
+
+        assertNotNull(bootstrapCacheLoader1);
+        assertEquals(RMIBootstrapCacheLoader.class, bootstrapCacheLoader1.getClass());
+        assertEquals(true, bootstrapCacheLoader1.isAsynchronous());
+        assertEquals(5000000, ((RMIBootstrapCacheLoader)bootstrapCacheLoader1).getMaximumChunkSizeBytes());
 
     }
 

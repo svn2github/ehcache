@@ -85,8 +85,6 @@ public final class Cache implements Ehcache {
 
     private static final Log LOG = LogFactory.getLog(Cache.class.getName());
 
-    private static final int MS_PER_SECOND = 1000;
-
     private static final MemoryStoreEvictionPolicy DEFAULT_MEMORY_STORE_EVICTION_POLICY = MemoryStoreEvictionPolicy.LRU;
 
 
@@ -227,7 +225,6 @@ public final class Cache implements Ehcache {
     }
 
 
-
     /**
      * 1.1 Constructor.
      * <p/>
@@ -260,8 +257,6 @@ public final class Cache implements Ehcache {
         this(name, maxElementsInMemory, DEFAULT_MEMORY_STORE_EVICTION_POLICY, overflowToDisk, null,
                 eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, null, null);
     }
-
-
 
 
     /**
@@ -335,8 +330,8 @@ public final class Cache implements Ehcache {
      * @param timeToIdleSeconds
      * @param diskPersistent
      * @param diskExpiryThreadIntervalSeconds
-     * @param bootstrapCacheLoader
      *
+     * @param bootstrapCacheLoader
      * @param registeredEventListeners  a notification service. Optionally null, in which case a new
      *                                  one with no registered listeners will be created.
      * @since 1.3
@@ -425,10 +420,6 @@ public final class Cache implements Ehcache {
 
             changeStatus(Status.STATUS_ALIVE);
 
-            if (!disabled && bootstrapCacheLoader != null && !bootstrapCacheLoader.isAsynchronous()) {
-                bootstrapCacheLoader.load(this);
-            }
-
 
         }
 
@@ -442,11 +433,16 @@ public final class Cache implements Ehcache {
                         + " property was set to true. No elements will be added to the cache.");
             }
         }
+    }
 
-        if (!disabled && bootstrapCacheLoader != null && bootstrapCacheLoader.isAsynchronous()) {
+    /**
+     * todo deal with synchronous
+     * Package local bootstrap command. This must be called after the CacheManager and Cache are intialised.
+     */
+    void bootstrap() {
+        if (!disabled && bootstrapCacheLoader != null) {
             bootstrapCacheLoader.load(this);
         }
-
 
     }
 
@@ -1349,6 +1345,12 @@ Cache size is the size of the union of the two key sets.*/
                 copy.registeredEventListeners.registerListener(cacheEventListenerClone);
             }
         }
+
+        if (bootstrapCacheLoader != null) {
+            BootstrapCacheLoader bootstrapCacheLoaderClone = (BootstrapCacheLoader) bootstrapCacheLoader.clone();
+            copy.setBootstrapCacheLoader(bootstrapCacheLoaderClone);
+        }
+
         return copy;
     }
 
@@ -1586,6 +1588,7 @@ Cache size is the size of the union of the two key sets.*/
 
     /**
      * Sets the bootstrap cache loader.
+     *
      * @param bootstrapCacheLoader the loader to be used
      * @throws CacheException if this method is called after the cache is initialized
      */

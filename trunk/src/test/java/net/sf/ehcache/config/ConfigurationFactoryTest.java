@@ -51,7 +51,7 @@ import java.util.jar.JarOutputStream;
 
 /**
  * Tests for Store Configuration
- *
+ * <p/>
  * Make sure ant compile has been executed before running these tests, as they rely on the test ehcache.xml being
  * in the classpath.
  *
@@ -344,14 +344,44 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
                     instanceof CountingCacheEventListener);
         }
 
-        BootstrapCacheLoader bootstrapCacheLoader = ((Cache)sampleCache1).getBootstrapCacheLoader();
+        BootstrapCacheLoader bootstrapCacheLoader = ((Cache) sampleCache1).getBootstrapCacheLoader();
         assertNotNull(bootstrapCacheLoader);
         assertEquals(RMIBootstrapCacheLoader.class, bootstrapCacheLoader.getClass());
         assertEquals(true, bootstrapCacheLoader.isAsynchronous());
-        assertEquals(5000000, ((RMIBootstrapCacheLoader)bootstrapCacheLoader).getMaximumChunkSizeBytes());
+        assertEquals(5000000, ((RMIBootstrapCacheLoader) bootstrapCacheLoader).getMaximumChunkSizeBytes());
 
     }
 
+    /**
+     * The following should give defaults of true and 5000000
+     * <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory" />
+     */
+    public void testLoadConfigurationFromFileNoBootstrapPropertiesSet() throws Exception {
+        File file = new File(TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+        Ehcache sampleCache3 = configurationHelper.createCacheFromName("sampleCache3");
+
+        BootstrapCacheLoader bootstrapCacheLoader = ((Cache) sampleCache3).getBootstrapCacheLoader();
+        assertEquals(true, bootstrapCacheLoader.isAsynchronous());
+        assertEquals(5000000, ((RMIBootstrapCacheLoader) bootstrapCacheLoader).getMaximumChunkSizeBytes());
+    }
+
+    /**
+     * The following should give defaults of true and 5000000
+     * <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"
+     * properties="bootstrapAsynchronously=false, maximumChunkSizeBytes=10000"/>
+     */
+    public void testLoadConfigurationFromFileWithSpecificPropertiesSet() throws Exception {
+        File file = new File(TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+        Ehcache sampleCache4 = configurationHelper.createCacheFromName("sampleCache4");
+
+        BootstrapCacheLoader bootstrapCacheLoader = ((Cache) sampleCache4).getBootstrapCacheLoader();
+        assertEquals(false, bootstrapCacheLoader.isAsynchronous());
+        assertEquals(10000, ((RMIBootstrapCacheLoader) bootstrapCacheLoader).getMaximumChunkSizeBytes());
+    }
 
     /**
      * Tests that the loader successfully loads from ehcache-nodefault.xml

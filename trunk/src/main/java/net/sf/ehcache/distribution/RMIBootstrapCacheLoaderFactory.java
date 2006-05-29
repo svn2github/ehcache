@@ -88,10 +88,10 @@ public class RMIBootstrapCacheLoaderFactory extends BootstrapCacheLoaderFactory 
                     LOG.warn("Trying to set the chunk size to an unreasonable number. Using the default instead.");
                     maximumChunkSizeBytes = DEFAULT_MAXIMUM_CHUNK_SIZE_BYTES;
                 } else {
-                    LOG.warn("Number format exception trying to set chunk size. Using the default instead.");
                     maximumChunkSizeBytes = maximumChunkSizeBytesCandidate;
                 }
             } catch (NumberFormatException e) {
+                LOG.warn("Number format exception trying to set chunk size. Using the default instead.");
                 maximumChunkSizeBytes = DEFAULT_MAXIMUM_CHUNK_SIZE_BYTES;
             }
 

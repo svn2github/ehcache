@@ -192,6 +192,7 @@ public final class CacheManager {
 
         ConfigurationHelper configurationHelper = new ConfigurationHelper(this, localConfiguration);
         configure(configurationHelper);
+        addConfiguredCaches(configurationHelper);
 
         status = Status.STATUS_ALIVE;
         if (cacheManagerPeerListener != null) {
@@ -200,6 +201,13 @@ public final class CacheManager {
         if (cacheManagerPeerProvider != null) {
             cacheManagerPeerProvider.init();
         }
+
+        for (Iterator iterator = caches.values().iterator(); iterator.hasNext();) {
+            Cache cache = (Cache) iterator.next();
+            cache.bootstrap();
+        }
+
+
 
     }
 
@@ -257,6 +265,9 @@ public final class CacheManager {
         cacheManagerPeerProvider = configurationHelper.createCachePeerProvider();
         defaultCache = configurationHelper.createDefaultCache();
 
+    }
+
+    private void addConfiguredCaches(ConfigurationHelper configurationHelper) {
         Set unitialisedCaches = configurationHelper.createCaches();
         for (Iterator iterator = unitialisedCaches.iterator(); iterator.hasNext();) {
             Cache unitialisedCache = (Cache) iterator.next();
@@ -457,8 +468,8 @@ public final class CacheManager {
         if (caches.get(cache.getName()) != null) {
             throw new ObjectExistsException("Cache " + cache.getName() + " already exists");
         }
-        cache.initialise();
         cache.setCacheManager(this);
+        cache.initialise();
         caches.put(cache.getName(), cache);
         if (cacheManagerEventListener != null) {
             cacheManagerEventListener.notifyCacheAdded(cache.getName());
