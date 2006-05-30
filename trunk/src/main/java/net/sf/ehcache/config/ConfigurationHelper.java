@@ -284,7 +284,6 @@ public final class ConfigurationHelper {
 
     /**
      * Create a cache given a cache configuration
-     * todo add bootstrap to default
      *
      * @param cacheConfiguration
      */
