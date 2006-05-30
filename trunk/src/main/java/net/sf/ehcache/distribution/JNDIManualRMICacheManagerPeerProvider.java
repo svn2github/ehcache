@@ -188,6 +188,15 @@ public class JNDIManualRMICacheManagerPeerProvider implements CacheManagerPeerPr
     }
 
     /**
+     * Time for a cluster to form. This varies considerably, depending on the implementation.
+     *
+     * @return the time in ms, for a cluster to form
+     */
+    public long getTimeForClusterToForm() {
+        return 0;
+    }
+
+    /**
      * The cacheManager this provider is bound to
      */
     public CacheManager getCacheManager() {

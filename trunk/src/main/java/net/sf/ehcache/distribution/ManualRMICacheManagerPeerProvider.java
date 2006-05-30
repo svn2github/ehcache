@@ -56,6 +56,15 @@ public final class ManualRMICacheManagerPeerProvider extends RMICacheManagerPeer
     }
 
     /**
+     * Time for a cluster to form. This varies considerably, depending on the implementation.
+     *
+     * @return the time in ms, for a cluster to form
+     */
+    public long getTimeForClusterToForm() {
+        return 0;
+    }
+
+    /**
      * Register a new peer.
      *
      * @param rmiUrl

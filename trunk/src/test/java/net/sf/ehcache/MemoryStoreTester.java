@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Date;
 
 /**
  * Other than policy differences, the Store implementations should work identically
@@ -42,6 +43,13 @@ public class MemoryStoreTester extends AbstractCacheTest {
      * The memory store that tests will be performed on
      */
     protected Store store;
+
+
+    /**
+     * The cache under test
+     */
+    protected Cache cache;
+
 
     /**
      * For automatic suite generators
@@ -73,7 +81,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
      * @throws CacheException
      */
     protected void createMemoryStore(MemoryStoreEvictionPolicy evictionPolicy) throws CacheException {
-        Cache cache = new Cache("test", 1000, evictionPolicy, true, null, true, 60, 30, false, 60, null);
+        cache = new Cache("test", 1000, evictionPolicy, true, null, true, 60, 30, false, 60, null);
         manager.addCache(cache);
         store = cache.getMemoryStore();
     }
@@ -86,7 +94,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
      */
     protected void createMemoryStore(MemoryStoreEvictionPolicy evictionPolicy, int memoryStoreSize) throws CacheException {
         manager.removeCache("test");
-        Cache cache = new Cache("test", memoryStoreSize, evictionPolicy, true, null, true, 60, 30, false, 60, null);
+        cache = new Cache("test", memoryStoreSize, evictionPolicy, true, null, true, 60, 30, false, 60, null);
         manager.addCache(cache);
         store = cache.getMemoryStore();
     }
@@ -101,7 +109,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     protected void createMemoryStore(String filePath, String cacheName) throws CacheException {
         manager.shutdown();
         manager = CacheManager.create(filePath);
-        Cache cache = manager.getCache(cacheName);
+        cache = manager.getCache(cacheName);
         store = cache.getMemoryStore();
     }
 
@@ -123,6 +131,14 @@ public class MemoryStoreTester extends AbstractCacheTest {
         store.put(element);
         assertEquals(2, store.getSize());
         assertEquals("value2", store.get("key2").getObjectValue());
+
+        for (int i = 0; i < 2000; i++) {
+            store.put(new Element("" + i, new Date()));
+        }
+
+        assertEquals(4, store.getSize());
+        assertEquals(2002, cache.getSize());
+        assertEquals(1998, cache.getDiskStoreSize());
     }
 
     /**
@@ -151,6 +167,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
 
         //check no NPE on key handling
         assertNull(store.remove(null));
+
     }
 
 
@@ -602,7 +619,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
      */
     public void testMemoryStoreOutOfMemoryLimit() throws Exception {
         //Set size so the second element overflows to disk.
-        Cache cache = new Cache("memoryLimitTest", 1000000, false, false, 500, 500);
+        cache = new Cache("memoryLimitTest", 1000000, false, false, 500, 500);
         manager.addCache(cache);
         int i = 0;
         try {

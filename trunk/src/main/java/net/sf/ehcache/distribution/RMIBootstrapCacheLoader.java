@@ -37,12 +37,6 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
 
     private static final int ONE_SECOND = 1000;
 
-    /**
-     * todo improve
-     * Two multicast pings plus 1 second. The most time we should have to wait for a cluster to form.
-     */
-    private static final int ELEVEN_TIMES = 11;
-
     private static final Log LOG = LogFactory.getLog(RMIBootstrapCacheLoader.class.getName());
 
     /**
@@ -133,21 +127,30 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
 
         List cachePeers = acquireCachePeers(cache);
         if (cachePeers == null || cachePeers.size() == 0) {
-            LOG.info("Empty list of cache peers. No cache peer to bootstrap from.");
+            LOG.debug("Empty list of cache peers. No cache peer to bootstrap from.");
             return;
         }
         Random random = new Random();
         int randomPeerNumber = random.nextInt(cachePeers.size());
         CachePeer cachePeer = (CachePeer) cachePeers.get(randomPeerNumber);
-        LOG.info("Bootstrapping from " + cachePeer);
+        LOG.debug("Bootstrapping from " + cachePeer);
 
         try {
 
+            Element sampleElement = null;
             List keys = cachePeer.getKeys();
-
-            //todo first element may be null
-            Element firstElement = cachePeer.getQuiet((Serializable) keys.get(0));
-            long size = firstElement.getSerializedSize();
+            for (int i = 0; i < keys.size(); i++) {
+                Serializable key = (Serializable) keys.get(i);
+                sampleElement = cachePeer.getQuiet((Serializable) keys.get(0));
+                if (sampleElement != null) {
+                    break;
+                }
+            }
+            if (sampleElement == null) {
+                LOG.debug("All cache peer elements were null. Nothing to bootstrap from. Cache peer was " + cachePeer);
+                return;
+            }
+            long size = sampleElement.getSerializedSize();
             int chunkSize = (int) (maximumChunkSizeBytes / size);
 
             List requestChunk = new ArrayList();
@@ -173,8 +176,9 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
      * @param cache
      */
     protected List acquireCachePeers(Ehcache cache) {
+        long timeForClusterToForm = cache.getCacheManager().getCacheManagerPeerProvider().getTimeForClusterToForm();
         List cachePeers = null;
-        for (int i = 0; i < ELEVEN_TIMES; i++) {
+        for (int i = 0; i <= timeForClusterToForm; i = i + ONE_SECOND) {
             cachePeers = listRemoteCachePeers(cache);
             if (cachePeers == null) {
                 break;

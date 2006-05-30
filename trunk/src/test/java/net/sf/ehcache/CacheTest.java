@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.Serializable;
+import java.io.ByteArrayInputStream;
 import java.lang.ref.SoftReference;
 import java.util.Date;
 import java.util.HashMap;
@@ -217,11 +218,11 @@ public class CacheTest extends AbstractCacheTest {
 
         //Test time to live.
         Thread.sleep(3001);
-        assertNull(cache.get("key1"));                                  
+        assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
     }
 
-        /**
+    /**
      * Test expiry based on time to live for a cache with config
      * <cache name="sampleCacheNoIdle"
      * maxElementsInMemory="1000"
@@ -253,7 +254,7 @@ public class CacheTest extends AbstractCacheTest {
     }
 
 
-       /**
+    /**
      * Test expiry based on time to live for a cache with config
      * <cache name="sampleCacheNoIdle"
      * maxElementsInMemory="1000"
@@ -1253,14 +1254,52 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(objectElement, retrievedObject);
     }
 
-
     /**
      * Test issues reported.
      */
     public void testDiskStoreFlorian() {
+        manager.shutdown();
+
+        byte[] config = ("<ehcache> \n" +
+                "<diskStore path=\"java.io.tmpdir\"/> \n" +
+                "<defaultCache \n" +
+                "            maxElementsInMemory=\"10000\" \n" +
+                "            eternal=\"false\" \n" +
+                "            timeToIdleSeconds=\"120\" \n" +
+                "            timeToLiveSeconds=\"120\" \n" +
+                "            overflowToDisk=\"true\" \n" +
+                "            diskPersistent=\"false\" \n" +
+                "            diskExpiryThreadIntervalSeconds=\"120\" \n" +
+                "            memoryStoreEvictionPolicy=\"LRU\" \n" +
+                "            /> " +
+                "\n" +
+                "<cache name=\"testCache\" \n" +
+                "       maxElementsInMemory=\"20000\" \n" +
+                "       eternal=\"false\" \n" +
+                "       overflowToDisk=\"false\" \n" +
+                "       timeToIdleSeconds=\"300\" \n" +
+                "       timeToLiveSeconds=\"600\" \n" +
+                "       diskPersistent=\"false\" \n" +
+                "       diskExpiryThreadIntervalSeconds=\"1\" \n" +
+                "       memoryStoreEvictionPolicy=\"LFU\" \n" +
+                "/>           \n" +
+                "<cache name=\"test2Cache\" \n" +
+                "       maxElementsInMemory=\"20000\" \n" +
+                "       eternal=\"false\" \n" +
+                "       overflowToDisk=\"true\" \n" +
+                "       timeToIdleSeconds=\"300\" \n" +
+                "       timeToLiveSeconds=\"600\" \n" +
+                "       diskPersistent=\"false\" \n" +
+                "       diskExpiryThreadIntervalSeconds=\"1\" \n" +
+                "       memoryStoreEvictionPolicy=\"LFU\" \n" +
+                "/> \n" +
+                "</ehcache> ").getBytes();
+
+
+        CacheManager cacheManager = new CacheManager(new ByteArrayInputStream(config));
         Cache cache = new Cache("test3cache", 20000, true, false, 50, 30);
         assertTrue(cache.isOverflowToDisk());
-        manager.addCache(cache);
+        cacheManager.addCache(cache);
 
         for (int i = 0; i < 25000; i++) {
             cache.put(new Element(i + "", "value"));

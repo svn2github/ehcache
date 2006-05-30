@@ -59,4 +59,9 @@ public interface CacheManagerPeerProvider {
      */
     void dispose() throws CacheException;
 
+    /**
+     * Time for a cluster to form. This varies considerably, depending on the implementation.
+     * @return the time in ms, for a cluster to form
+     */
+    long getTimeForClusterToForm();
 }

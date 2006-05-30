@@ -147,6 +147,9 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         store.put(element);
         assertEquals(4, store.getSize());
         assertNull(store.get("key4"));
+
+
+
     }
 
     /**

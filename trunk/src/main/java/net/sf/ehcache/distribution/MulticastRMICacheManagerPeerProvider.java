@@ -173,6 +173,15 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
     }
 
     /**
+     * Time for a cluster to form. This varies considerably, depending on the implementation.
+     *
+     * @return the time in ms, for a cluster to form
+     */
+    public long getTimeForClusterToForm() {
+        return STALE_PEER_TIME_MS;
+    }
+
+    /**
      * Whether the entry should be considered stale.
      * This will depend on the type of RMICacheManagerPeerProvider.
      * This method should be overridden for implementations that go stale based on date
