@@ -22,10 +22,13 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.event.CountingCacheEventListener;
 import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.Date;
 
 /**
  * @author Greg Luck
@@ -196,6 +199,28 @@ public class RMIBootstrapCacheLoaderTest extends TestCase {
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
         Thread.sleep(5000);
         assertEquals(2000, manager3.getCache("sampleCache1").getSize());
+
+
+    }
+
+
+    /**
+     * Create the same named cache in two CacheManagers. Populate the first one. Check that the second one gets the
+     * entries.
+     */
+    public void testAddCacheAndBootstrapOccurs() throws InterruptedException {
+
+        manager1.addCache("testBootstrap1");
+        Cache testBootstrap1 = manager1.getCache("testBootstrap1");
+        for (int i = 0; i < 1000; i++) {
+            testBootstrap1.put(new Element("key" + i, new Date()));
+        }
+
+        manager2.addCache("testBootstrap1");
+        Cache testBootstrap2 = manager2.getCache("testBootstrap1");
+        //wait for async bootstrap
+        Thread.sleep(3000);
+        assertEquals(1000, testBootstrap2.getSize());
 
 
     }

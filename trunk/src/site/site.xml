@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project name="Maven">
+    <!-- todo single page html manual  and pdf -->
     <bannerLeft>
         <name>ehcache</name>
         <src>images/ehcache_logo.gif</src>
@@ -13,6 +14,7 @@
         <menu name="About" href="maven-reports.html">
             <item name="Overview" href="/index.html"/>
             <item name="Features" href="/features.html"/>
+            <item name="Support" href="/support.html"/>
             <item name="News" href="/news.html"/>
             <item name="Project License" href="/license.html"/>
             <item name="Project Team" href="/team-list.html"/>

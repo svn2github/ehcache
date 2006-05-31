@@ -124,6 +124,7 @@
                                                replicateUpdates=true,
                                                replicateUpdatesViaCopy=true,
                                                replicateRemovals=true "/>
+        <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory" />
     </defaultCache>
 
 

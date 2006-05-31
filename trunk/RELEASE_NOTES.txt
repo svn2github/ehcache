@@ -53,3 +53,12 @@ See http://ehcache.sourceforge.net/documentation for full documentation.
 
 The JavaDoc is in the distribution and also online at http://ehcache.sourceforge.net/javadoc.
 
+Compatibility With Ehcache 1.1
+==============================
+1. Due to an internal reorganisation in the code base the DiskStore path will default to java.io.tmp when the ehcache-1.1
+constructor is used.
+
+2. APIs are the same. CacheException is now a runtime exception. Additionally, IOException is no longer thrown.
+This does not cause a runtime error but will cause a compile time error if clients are recompiled against ehcache. In
+this case change the code to not catch an IOException. Catching CacheException is optional.
+

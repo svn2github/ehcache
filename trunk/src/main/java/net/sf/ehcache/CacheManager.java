@@ -470,6 +470,7 @@ public final class CacheManager {
         }
         cache.setCacheManager(this);
         cache.initialise();
+        cache.bootstrap();
         caches.put(cache.getName(), cache);
         if (cacheManagerEventListener != null) {
             cacheManagerEventListener.notifyCacheAdded(cache.getName());
