@@ -351,7 +351,7 @@ public final class Cache implements Ehcache {
      * @param bootstrapCacheLoader
      * @param registeredEventListeners  a notification service. Optionally null, in which case a new
      *                                  one with no registered listeners will be created.
-     * @since 1.3
+     * @since 1.2.1
      */
     public Cache(String name,
                  int maxElementsInMemory,
