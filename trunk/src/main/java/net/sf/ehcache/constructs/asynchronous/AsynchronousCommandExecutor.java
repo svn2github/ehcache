@@ -37,7 +37,7 @@ import java.util.Stack;
  * AsynchronousCommandExecutor is a singleton. Multiple clients may use it. It will execute commands in the order they were
  * added per client. To preserve order, if a command cannot be executed, all commands will wait behind it.
  * <p/>
- * todo linked list implementation without NPE. Queue is JDK1.5
+ * This code requires JDK1.5 at present.
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */

@@ -28,7 +28,6 @@ import java.util.List;
 /**
  * Tests of the package.
  *
- * todo: different exceptions
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
@@ -164,7 +163,6 @@ public class AsynchronousCommandExecutorTest extends TestCase {
      * Demonstrates the behaviour with bad messages. Each should be tried three times before the next message
      * is tried. This will take the thread interval which is overriden for testing purposes to 1 second * the
      * number of messages * 3 repeats + 1 = 16 seconds.
-     * todo should be 12 commands in the cache
      */
     public void testAsynchronousNonSerializableCommandExecution() throws Exception {
         for (int i = 0; i < 12; i++) {
@@ -172,7 +170,6 @@ public class AsynchronousCommandExecutorTest extends TestCase {
         }
         waitForProcessing();
         assertEquals(0, messages.size());
-        //assertCommandsInCache(12);
     }
 
 
@@ -180,7 +177,6 @@ public class AsynchronousCommandExecutorTest extends TestCase {
      * Show that, no matter how long the dispatcher thread interval is, messages will attempt to
      * be sent immediately.
      * <p/>
-     * todo compare with queue implementation
      * This will not work if the thread does polling. It must be able to be woken up when new messages
      * arrive for processing.
      */

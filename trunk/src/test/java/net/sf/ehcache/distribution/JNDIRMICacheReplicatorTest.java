@@ -69,7 +69,6 @@ public class JNDIRMICacheReplicatorTest extends RMICacheReplicatorTest {
     }
 
     /**
-     * todo The JNDI replicator uses more memory than the RMI one. Investigate.
      * @throws CacheException
      * @throws InterruptedException
      */
@@ -79,7 +78,6 @@ public class JNDIRMICacheReplicatorTest extends RMICacheReplicatorTest {
     }
 
     /**
-     * todo The JNDI replicator uses more memory than the RMI one. Investigate.
      * @throws CacheException
      * @throws InterruptedException
      */

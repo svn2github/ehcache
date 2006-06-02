@@ -53,23 +53,6 @@ import java.util.Set;
  *
  * @author Greg Luck
  * @version $Id$
- *          todo Initial Comment:
- *          We would like to be able to configure a Cache to user
- *          SoftReferences.
- *          <p/>
- *          This is because we want the cache to be able to cache a
- *          lot of items, but when the load becomes high, and more
- *          memory is needed, cached items should be able to get
- *          collected..
- *          <p/>
- *          Right now swarmcache is the only cache doing this.
- *          <p/>
- *          <p/>
- *          Of course we could put a softref in the cache but:
- *          - We cannot control how hibernate put stuff in the
- *          cache by configuring.
- *          - if the softref gets collected, the cache still has an
- *          element in it's map
  */
 public final class Cache implements Ehcache {
 
