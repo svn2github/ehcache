@@ -1,11 +1,5 @@
- ------
- CacheManager Event Listeners
- ------
- ------
- Date
- ------
-
-CacheManager Event Listeners
+
+{CacheManager Event Listeners}
 
       * {{{#Configuration}Configuration}}
 
@@ -58,7 +52,7 @@ properties=""/>
     If no class is specified, or there is no cacheManagerEventListenerFactory element, no listener is created. There
     is no default.
 
-* Implementing a CacheManagerEventListenerFactory and CacheManagerEventListener
+* Implementing a {CacheManagerEventListenerFactory} and {CacheManagerEventListener}
 
     CacheManagerEventListenerFactory is an abstract factory for creating
     cache manager listeners. Implementers should provide their own concrete
