@@ -208,6 +208,20 @@ ehcache is a pure Java, in-process cache with the following features:
                             <goal>run</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>site</id>
+                        <phase>validate</phase>
+                        <configuration>
+                            <tasks>
+                                <ant antfile="${basedir}/build.xml" inheritRefs="true">
+                                    <target name="book"/>
+                                </ant>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
 

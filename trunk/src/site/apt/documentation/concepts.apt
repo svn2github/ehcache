@@ -1,29 +1,22 @@
- ------
- Cache Concepts
- ------
- ------
- Date
- ------
-
-
-Cache Concepts
+
+{Cache Concepts}
 
     ehcache consists of a <<<CacheManager>>>, which manages caches. Caches contain elements,
     which are essentially name value pairs. Caches are physically implemented either in-memory, or on disk.
 
-* CacheManager
+* {CacheManager}
 
     The Cache Manager is made up of Caches which contain elements.
 
     Creation of, access to and removal of caches is controlled by the <<<CacheManager>>>.
 
-** Singleton Mode
+** {Singleton Mode}
 
     Ehcache-1.1 supported only one <<<CacheManager>>>
     instance which was a singleton. CacheManager can still be used in this
     way using the static create methods.
 
-** Instance Mode
+** {Instance Mode}
 
     From ehcache-1.2, CacheManager has constructors which mirror the
     various static create methods. This enables multiple CacheManagers to
@@ -38,7 +31,7 @@ Cache Concepts
     a CacheException is thrown. If a CacheManager is part of a cluster,
     there will also be listener ports which must be unique.
 
-** Mixed Mode
+** {Mixed Singleton and Instance Mode}
 
     If an application creates instances of CacheManager using a
     constructor, and also calls a static create method, there will exist a
@@ -46,7 +39,7 @@ Cache Concepts
     create method is called together with any other instances created via
     constructor. The two types will coexist peacefully.
 
-* Cache
+* {Cache}
 
     A cache has a name and attributes. Each cache contains elements.
 
@@ -55,7 +48,7 @@ Cache Concepts
     Cache elements are stored in the <<<MemoryStore>>>. Optionally
     they also overflow to a <<<DiskStore>>>.
 
-* Element
+* {Element}
 
     An element is an atomic entry in a cache. It has a key, a value and a record of
     accesses. Elements are put into and removed from caches. They can also
@@ -69,4 +62,6 @@ Cache Concepts
     Element: getObjectValue and getKeyValue are the only API differences between the Serializable and Object APIs. This
     makes it very easy to start with caching Objects and then change your Objects to Seralizable to participate in
     the extra features when needed. Also a large number of Java classes are simply not Serializable.
+
+
 

@@ -1,35 +1,29 @@
- ------
- ehcache 1.2 User Guide
- ------
- ------
- Date
- ------
 
 ehcache 1.2 User Guide
 
-    * {{{getting_started.html}Getting Started}}
+    * {{{./getting_started.html}Getting Started}}
 
-    * {{{dependencies.html}Dependencies}}
+    * {{{./dependencies.html}Dependencies}}
 
-    * {{{concepts.html}Cache Concepts}}
+    * {{{./concepts.html}Cache Concepts}}
 
-    * {{{storage_options.html}Storage Options}}
+    * {{{./storage_options.html}Storage Options}}
 
-    * {{{class_loading.html}Class loading and Class Loaders}}
+    * {{{./class_loading.html}Class loading and Class Loaders}}
 
-    * {{{performance_considerations.html}Performance Considerations}}
+    * {{{./performance_considerations.html}Performance Considerations}}
 
-    * {{{distributed_caching.html}Distributed Caching}}
+    * {{{./distributed_caching.html}Distributed Caching}}
 
-    * {{{shutdown_considerations.html}Virtual Machine Shutdown Considerations}}
+    * {{{./shutdown_considerations.html}Virtual Machine Shutdown Considerations}}
 
-    * {{{logging.html}Logging & Debugging}}
+    * {{{./logging.html}Logging & Debugging}}
 
-    * {{{configuration.html}Cache Configuration}}
+    * {{{./configuration.html}Cache Configuration}}
 
-    * {{{cachemanager_event_listeners.html}CacheManager Event Listeners}}
+    * {{{./cachemanager_event_listeners.html}CacheManager Event Listeners}}
 
-    * {{{cache_event_listeners.html}Cache Event Listeners}}
+    * {{{./cache_event_listeners.html.html}Cache Event Listeners}}
 
-    * {{{hibernate.html}Configuration for Hibernate Caches}}
+    * {{{./hibernate.html}Configuration for Hibernate Caches}}
 

@@ -1,14 +1,8 @@
- ------
- Frequently Asked Questions
- ------
- ------
- Date
- ------
-
+
 
 Frequently Asked Questions
 
-* Does ehcache run on JDK1.3?
+* Does ehcache run on {JDK1.3}?
 
  Yes. It runs on JDK1.3, 1.4 and 5. The restriction for JDK1.3 is
   that you must either use the precompiled ehcache.jar or build
@@ -25,7 +19,7 @@ too. Remember that ehcache can supports hundreds of
 caches within one CacheManager. You would use separate CacheManagers
 where you want quite different configurations.
 
-The Hibernate EhCacheProvider has also been updated to support this behaviour.
+ The Hibernate EhCacheProvider has also been updated to support this behaviour.
 
 * Can you use ehcache with Hibernate and outside of Hibernate at the same time?
 
@@ -165,11 +159,11 @@ CacheManagerTest#testCreateShutdownCreate()
 
  You need to add a newly created cache to a CacheManager before it gets intialised. Use code like the following:
  
-+-------------------------------+
+---------------------------------
    CacheManager manager = CacheManager.create();
    Cache myCache = new Cache("testDiskOnly", 0, true, false, 5, 2);
    manager.addCache(myCache);
-+-------------------------------+
+---------------------------------
 
 * Is there a simple way to disable ehcache when testing?
 

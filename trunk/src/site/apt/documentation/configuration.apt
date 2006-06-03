@@ -1,11 +1,5 @@
-    ------
-    Cache Configuration
-    ------
-    ------
-    Date
-    ------
-
-Cache Configuration
+
+{Cache Configuration}
 
 * Declarative versus Programmatic Configuration
 
@@ -35,137 +29,111 @@ Cache Configuration
 
    The programmatic facility is provided primarily so that new caches can be dynamically created at runtime.
 
-* Declarative Configuration
+* {Declarative Configuration}
 
-** The ehcache schema:
+** The ehcache schema: {ehcache.xsd}
 
-   ehcache.xsd
-   Ehcache looks for an ehcache.xml file. These must be configured in
-   accordance with the following schema:
+   Ehcache looks for an ehcache.xml file. These must be configured in accordance with the following schema:
 
-+------------------------------------------+
+--------------------------------------------
 
-
- <?xml version="1.0" encoding="UTF-8"?>
-   <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-   elementFormDefault="qualified">
-    <xs:element >
-    <xs:complexType>
-    <xs:sequence>
-    <xs:element
-   ref="diskStore"/>
-    <xs:element
-   ref="cacheManagerEventListenerFactory"/>
-    <xs:element
-   ref="cacheManagerPeerProviderFactory"/>
-    <xs:element
-   ref="cacheManagerPeerListenerFactory"/>
-    <xs:element
-   ref="defaultCache"/>
-    <xs:element
-   maxOccurs="unbounded" ref="cache"/>
-    </xs:sequence>
-    </xs:complexType>
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="ehcache">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="diskStore"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="cacheManagerEventListenerFactory"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="cacheManagerPeerProviderFactory"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="cacheManagerPeerListenerFactory"/>
+                <xs:element ref="defaultCache"/>
+                <xs:element maxOccurs="unbounded" ref="cache"/>
+            </xs:sequence>
+        </xs:complexType>
     </xs:element>
-    <xs:element >
-    <xs:complexType>
-    <xs:attribute
-   use="required" type="xs:NCName"/>
-    </xs:complexType>
+    <xs:element name="diskStore">
+        <xs:complexType>
+            <xs:attribute name="path" use="required" type="xs:NCName"/>
+        </xs:complexType>
     </xs:element>
-    <xs:element >
-    <xs:complexType>
-    <xs:attribute
-   use="required"/>
-    <xs:attribute
-   use="optional"/>
-    </xs:complexType>
+    <xs:element name="cacheManagerEventListenerFactory">
+        <xs:complexType>
+            <xs:attribute name="class" use="required"/>
+            <xs:attribute name="properties" use="optional"/>
+        </xs:complexType>
     </xs:element>
-    <xs:element >
-    <xs:complexType>
-    <xs:attribute
-   use="required"/>
-    <xs:attribute
-   use="optional"/>
-    </xs:complexType>
+    <xs:element name="cacheManagerPeerProviderFactory">
+        <xs:complexType>
+            <xs:attribute name="class" use="required"/>
+            <xs:attribute name="properties" use="optional"/>
+        </xs:complexType>
     </xs:element>
-    <xs:element >
-    <xs:complexType>
-    <xs:attribute
-   use="required"/>
-    <xs:attribute
-   use="optional"/>
-    </xs:complexType>
+    <xs:element name="cacheManagerPeerListenerFactory">
+        <xs:complexType>
+            <xs:attribute name="class" use="required"/>
+            <xs:attribute name="properties" use="optional"/>
+        </xs:complexType>
     </xs:element>
-    <xs:element >
-    <xs:complexType>
-    <xs:attribute
-    use="optional"
-   type="xs:integer"/>
-    <xs:attribute
-   use="optional" type="xs:boolean"/>
-    <xs:attribute
-   use="required" type="xs:boolean"/>
-    <xs:attribute
-    use="required" type="xs:integer"/>
-    <xs:attribute
-    use="optional" type="xs:NCName"/>
-    <xs:attribute
-   use="required" type="xs:boolean"/>
-    <xs:attribute
-    use="optional" type="xs:integer"/>
-    <xs:attribute
-    use="optional" type="xs:integer"/>
-    </xs:complexType>
+    <xs:element name="defaultCache">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" ref="cacheEventListenerFactory"/>
+                <xs:element minOccurs="0" ref="bootstrapCacheLoaderFactory"/>
+            </xs:sequence>
+            <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
+            <xs:attribute name="diskPersistent" use="optional" type="xs:boolean"/>
+            <xs:attribute name="eternal" use="required" type="xs:boolean"/>
+            <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
+            <xs:attribute name="memoryStoreEvictionPolicy" use="optional" type="xs:NCName"/>
+            <xs:attribute name="overflowToDisk" use="required" type="xs:boolean"/>
+            <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
+            <xs:attribute name="timeToLiveSeconds" use="optional" type="xs:integer"/>
+        </xs:complexType>
     </xs:element>
-    <xs:element >
-    <xs:complexType>
-    <xs:sequence>
-    <xs:element minOccurs="0"
-   ref="cacheEventListenerFactory"/>
-    </xs:sequence>
-    <xs:attribute
-    type="xs:integer"/>
-    <xs:attribute
-   type="xs:boolean"/>
-    <xs:attribute
-   use="required" type="xs:boolean"/>
-    <xs:attribute
-    use="required" type="xs:integer"/>
-    <xs:attribute
-    type="xs:NCName"/>
-    <xs:attribute
-   use="required" type="xs:NCName"/>
-    <xs:attribute
-   use="required" type="xs:boolean"/>
-    <xs:attribute
-    type="xs:integer"/>
-    <xs:attribute
-    type="xs:integer"/>
-    </xs:complexType>
+    <xs:element name="cache">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" ref="cacheEventListenerFactory"/>
+                <xs:element minOccurs="0" ref="bootstrapCacheLoaderFactory"/>
+            </xs:sequence>
+            <xs:attribute name="diskExpiryThreadIntervalSeconds" type="xs:integer"/>
+            <xs:attribute name="diskPersistent" type="xs:boolean"/>
+            <xs:attribute name="eternal" use="required" type="xs:boolean"/>
+            <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
+            <xs:attribute name="memoryStoreEvictionPolicy" type="xs:NCName"/>
+            <xs:attribute name="name" use="required" type="xs:NCName"/>
+            <xs:attribute name="overflowToDisk" use="required" type="xs:boolean"/>
+            <xs:attribute name="timeToIdleSeconds" type="xs:integer"/>
+            <xs:attribute name="timeToLiveSeconds" type="xs:integer"/>
+        </xs:complexType>
     </xs:element>
-    <xs:element >
-    <xs:complexType>
-    <xs:attribute
-   use="required"/>
-    <xs:attribute
-   use="optional"/>
-    </xs:complexType>
+    <xs:element name="cacheEventListenerFactory">
+        <xs:complexType>
+            <xs:attribute name="class" use="required"/>
+            <xs:attribute name="properties" use="optional"/>
+        </xs:complexType>
     </xs:element>
-   </xs:schema>
+    <xs:element name="bootstrapCacheLoaderFactory">
+        <xs:complexType>
+            <xs:attribute name="class" use="required"/>
+            <xs:attribute name="properties" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
 
 
 
 
-+------------------------------------------+
+--------------------------------------------
    The XML schema is also provided in the root directory of the ehcache
    distribution as ehcache.xsd.
 
-** diskStore
+** {diskStore}
 
    The diskStore element is required, regardless of whether or not it is
    intended to use any DiskStores.
-** path
+
+** {path}
 
    This is a required attribute.
 
@@ -181,20 +149,19 @@ Cache Configuration
 
    The following Java System Properties for specifying paths are understood:
 
-
-+------------------------------------------+
+--------------------------------------------
    user.home - User's home
    directory
    user.dir - User's current working
    directory
    java.io.tmpdir - Default temporary directory
-+------------------------------------------+
+--------------------------------------------
 
    Sub directories can be specified under system paths.
 
    e.g. <<<java.io.tmpdir/one>>> will be translated on most Unix systems to <<</tmp/one>>> 
 
-** defaultCache
+** {defaultCache}
 
    The defaultCache element contains configuration used by ehcache to
    create caches, where a cache element matching the cache name does not
@@ -211,7 +178,7 @@ Cache Configuration
    level message is issued each time a cache is created based on the
    defaultCache values.
 
-** cache
+** {cache}
 
    The cache element contains configuration used by ehcache to create each
    cache. When the CacheManager is created it parses ehcache.xml for cache
@@ -234,9 +201,9 @@ Cache Configuration
    Hibernate users should use the fully qualified class name of the
    DomainObject being cached. There are different rules for other
    types of Hibernate cache. For more on Hibernate naming see
-   {{{hibernate.html}Using ehcache as a Hibernate Plugin}}.
+   {{{./hibernate.html}Using ehcache as a Hibernate Plugin}}.
 
-** eternal
+** {eternal}
 
    This is a required attribute.
 
@@ -245,7 +212,7 @@ Cache Configuration
 
    Legal values are "true" or "false".
 
-** maxElementsInMemory
+** {maxElementsInMemory}
 
    This is a required attribute.
 
@@ -255,7 +222,7 @@ Cache Configuration
    strongly recommended for performance reasons that this value is at
    least 1. If not a warning will be issued at Cache creation time.
 
-** overflowToDisk
+** {overflowToDisk}
 
    This is a required attribute.
 
@@ -269,7 +236,7 @@ Cache Configuration
    inserted or accessed. If false, the LRU Element is discarded. If true,
    it is transferred to the DiskStore.
 
-** timeToIdleSeconds
+** {timeToIdleSeconds}
 
    This is an optional attribute.
 
@@ -283,7 +250,7 @@ Cache Configuration
 
    The default value is 0.
 
-** timeToLiveSeconds
+** {timeToLiveSeconds}
 
    This is an optional attribute.
 
@@ -297,7 +264,7 @@ Cache Configuration
 
    The default value is 0.
 
-** diskPersistent
+** {diskPersistent}
 
    This is an optional attribute.
 
@@ -306,7 +273,7 @@ Cache Configuration
    Whether or not the DiskStore should be persisted between CacheManager
    shutdowns and Virtual Machine restarts.
 
-** diskExpiryThreadIntervalSeconds
+** {diskExpiryThreadIntervalSeconds}
 
    This is an optional attribute.
 
@@ -325,7 +292,7 @@ Cache Configuration
 
    The sample includes a diskStore element, a defaultCache element and three cache elements.
 
-+------------------------------------------+
+--------------------------------------------
 
          \<ehcache>
 
@@ -579,7 +546,7 @@ Cache Configuration
 
 
 
-+------------------------------------------+
+--------------------------------------------
 
 ** Location of ehcache.xml
 
@@ -594,7 +561,7 @@ Cache Configuration
    The CacheManager can also obtain ehcache.xml in other ways {{{#Programmatic Configuration}programmatically}}.
 
 
-** Failsafe Configuration
+** {Failsafe Configuration}: {ehcache-failsafe.xml}
 
    Ehcache comes with a failsafe configuration declared in the ehcache-failsafe.xml file, which
    is provided in the ehcache.jar. It is only used when no ehcache.xml
@@ -611,7 +578,7 @@ Cache Configuration
    "java.io.tmpdir" (/tmp on Unix-like systems) and sets the default cache to reasonable
    values. ehcache-failsafe.xml is reproduced here:
 
-+------------------------------------------+
+--------------------------------------------
 
 
 <ehcache>
@@ -711,13 +678,13 @@ Cache Configuration
 
 
 
-+------------------------------------------+
+--------------------------------------------
 
 * {Programmatic Configuration}
 
    The configuration for a Cache can be specified programmatically in the Cache constructor:
 
-+------------------------------------------+
+--------------------------------------------
 
 
 public Cache(
@@ -732,11 +699,11 @@ public Cache(
     long diskExpiryThreadIntervalSeconds) {
     ...
    }
-+------------------------------------------+
+--------------------------------------------
 
    Here is an example which creates a cache called test.
 
-+------------------------------------------+
+--------------------------------------------
    //Create a CacheManager using defaults
    CacheManager manager = CacheManager.create();
 
@@ -745,12 +712,14 @@ public Cache(
    Cache testCache = new Cache("test", maxElements,
    MemoryStoreEvictionPolicy.LFU, true, false, 60, 30, false, 0);
    manager.addCache(cache);
-+------------------------------------------+
+--------------------------------------------
 
    Once the cache is created, add it to the list of caches managed by the CacheManager:
 
-+------------------------------------------+
+--------------------------------------------
      manager.addCache(testCache);
-+------------------------------------------+
+--------------------------------------------
 
    The cache is not usable until it has been added.
+
+

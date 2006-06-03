@@ -1,16 +1,9 @@
- ------
- Virtual Machine Shutdown Considerations
- ------
- ------
- Date
- ------
-
-
-Virtual Machine Shutdown Considerations
+
+{Virtual Machine Shutdown Considerations}
 
     The DiskStore can optionally be configured to persist between
     CacheManager and Virtual Machine instances. See documentation on
-    the {{{#mozTocId607199} }}diskPersistent cache attribute
+    the diskPersistent cache attribute
     for information on how to do this.
 
     When diskPersistent is turned on for a cache, a Virtual Machine
@@ -45,3 +38,4 @@ Virtual Machine Shutdown Considerations
     except that it will have lost all data.
 
     
+

@@ -1,11 +1,5 @@
-    ------
-    The Design of the ehcache constructs package
-    ------
-    ------
-    Date
-    ------
-
-The Design of the ehcache constructs package
+
+The Design of the {ehcache constructs} package
 
     This is a discussion and explanation of the reasons for and the design forces behind the constructs package in ehcache.
 
@@ -46,7 +40,7 @@ The Design of the ehcache constructs package
 
     * safety, where nothing bad ever happens to an object.
 
-** Safety Failures
+** {Safety Failures}
 
     Failures of safety include:
 
@@ -57,30 +51,30 @@ The Design of the ehcache constructs package
     A cache is similar to a global variable. By its nature it is accessible to multiple threads.
     Cache entries, and the locking around them, are often highly contended for.
 
-** Liveness Failures
+** {Liveness Failures}
 
     Failures of liveness include:
 
-    * Deadlock. This is caused by a circular dependency among locks. The threads involved cannot make progress.
+    * {Deadlock}. This is caused by a circular dependency among locks. The threads involved cannot make progress.
 
-    * Missed Signals. A thread entered the wait state after a notification to wake it up was produced.
+    * {Missed Signals}. A thread entered the wait state after a notification to wake it up was produced.
 
-    * Nested monitor lockouts. A waiting thread holds a lock needed by a thread wishing to wake it up
+    * {Nested monitor lockouts}. A waiting thread holds a lock needed by a thread wishing to wake it up
 
-    * Livelock. A continously retried action continously fails.
+    * {Livelock}. A continously retried action continously fails.
 
-    * Starvation. Some threads never get allocated CPU time.
+    * {Starvation}. Some threads never get allocated CPU time.
 
-    * Resource Exhaustion. All resourcesof some kind are in use by threads, none of which will give one up.
+    * {Resource Exhaustion}. All resourcesof some kind are in use by threads, none of which will give one up.
 
-    * Distributed Failure. A remote machine connected by socket becomes inaccessible.
+    * {Distributed Failure}. A remote machine connected by socket becomes inaccessible.
 
-    * Stampede. With notifyAll(), all threads wake up and in a stampede, attempt to make progress.
+    * {Stampede}. With notifyAll(), all threads wake up and in a stampede, attempt to make progress.
 
 
 * The constructs
 
-** Blocking Cache
+** {Blocking Cache}
 
     Imagine you have a very busy web site with thousands of concurrent users. Rather than being evenly distributed in
     what they do, they tend to gravitate to popular pages. These pages are not static, they have dynamic data which
@@ -95,7 +89,7 @@ The Design of the ehcache constructs package
 
     Enter the BlockingCache.
 
-[/images/uml/BlockingCache.gif] Blocking Cache
+[images/uml/BlockingCache] Blocking Cache
 
     It is blocking because all threads requesting the same key wait for the first thread to complete. Once the first
     thread has completed the other threads simply obtain the cache entry and return.
@@ -103,7 +97,7 @@ The Design of the ehcache constructs package
     The BlockingCache can scale up to very busy systems.
 
 
-** SelfPopulatingCache
+** {SelfPopulatingCache}
 
     You want to use the BlockingCache, but the requirement to always release the lock creates gnarly code. You also
     want to think about what you are doing without thinking about the caching.
@@ -113,7 +107,7 @@ The Design of the ehcache constructs package
 
     SelfPopulatingCache uses a <<<CacheEntryFactory>>>, that given a key, knows how to populate the entry.
 
-** CachingFilter
+** {CachingFilter}
 
     You want to use the BlockingCache with web pages, but the requirement to always release the lock creates gnarly code.
     You also want to think about what you are doing without thinking about the caching.
@@ -134,7 +128,7 @@ The Design of the ehcache constructs package
     time the browser does not accept gzipping.
 
 
-** SimplePageCachingFilter
+** {SimplePageCachingFilter}
 
     What if you just want to get started with the CachingFilter and don't want to think too hard? Just use SimplePageCachingFilter
     which has a calculateKey method already implemented. It uses <<<httpRequest.getRequestURI()).append(httpRequest.getQueryString()>>>
@@ -143,7 +137,7 @@ The Design of the ehcache constructs package
 
     SimplePageCachingFilter is 10 lines of code.
 
-** PageFragmentCachingFilter
+** {PageFragmentCachingFilter}
 
     You notice that an entire page cannot be cached because the data on it very in staleness. Say, an address which changes
     very infrequently, and the price and availability of inventory, which changes quite a lot. Or you have a portal, with
@@ -154,7 +148,7 @@ The Design of the ehcache constructs package
     gzips, so the fragments can be combined.
 
 
-** SimplePageFragmentCachingFilter
+** {SimplePageFragmentCachingFilter}
 
     What if you just want to get started with the PageFragmentCachingFilter and don't want to think too hard? Just use SimplePageFragmentCachingFilter
     which has a calculateKey method already implemented. It uses <<<httpRequest.getRequestURI()).append(httpRequest.getQueryString()>>>
@@ -163,7 +157,7 @@ The Design of the ehcache constructs package
 
     SimplePageFragmentCachingFilter is 10 lines of code.
 
-** AsynchronousCommandExecutor
+** {AsynchronousCommandExecutor}
 
    What happens if your JMS server is down? The usual answer it to have two of them. Unfortunately, not all JMS servers
    do a good job of clustering. Plus if takes twice the hardware.
@@ -247,3 +241,7 @@ The Design of the ehcache constructs package
 
    BlockingCache has a parameter in its constructor called timeoutMillis. If you set that then any queued thread will immediately
    timeout when its turn comes in the above scenario. Some requests get exceptions, but you do not lose your VM.
+
+
+
+

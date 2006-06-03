@@ -1,11 +1,5 @@
- ------
- Cache Event Listeners
- ------
- ------
- Date
- ------
-
-Cache Event Listeners
+
+{Cache Event Listeners}
 
       * {{{#Configuration}Configuration}}
 
@@ -46,14 +40,14 @@ Cache Event Listeners
     Each listener is configured by adding a
     cacheManagerEventListenerFactory element as follows:
 
-+------------------------------------------+
+------------------------------------------
 
 <cache ...>
 <cacheEventListenerFactory class="" properties=""/>
 ...
 </cache>
 
-+------------------------------------------+
+------------------------------------------
 
     The entry specifies a CacheManagerEventListenerFactory which is used to
     create a CachePeerProvider, which then receives notifications.
@@ -79,7 +73,7 @@ Cache Event Listeners
     The factory class needs to be a concrete subclass of the abstract
     factory class CacheEventListenerFactory, which is reproduced below:
 
-+------------------------------------------+
+------------------------------------------
 /**
  * An abstract factory for creating listeners. Implementers should provide their own
  * concrete factory extending this factory. It can then be configured in ehcache.xml
@@ -99,12 +93,12 @@ public abstract class CacheEventListenerFactory {
     public abstract CacheEventListener createCacheEventListener(Properties properties);
 
 }
-+------------------------------------------+
+------------------------------------------
 
     The factory creates a concrete implementation of the CacheEventListener
     interface, which is reproduced below:
 
-+------------------------------------------+
+------------------------------------------
 /**
  * Allows implementers to register callback methods that will be executed when a cache event occurs.
  * The events include:
@@ -203,7 +197,9 @@ public interface CacheEventListener {
     void dispose();
 }
 
-+------------------------------------------+
+------------------------------------------
 
     The implementations need to be placed in the classpath accessible to
     ehcache. Ehcache uses the ClassLoader returned by <<<Thread.currentThread().getContextClassLoader()>>> to load classes.
+
+

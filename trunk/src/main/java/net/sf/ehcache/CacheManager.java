@@ -49,6 +49,7 @@ import java.util.Set;
  * CacheManager.
  * </ol>
  *
+ * todo enable most ehcache.xml configurations to be reused
  * @author Greg Luck
  * @version $Id$
  */

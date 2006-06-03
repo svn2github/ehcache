@@ -1,11 +1,4 @@
- ------
- Storage Options
- ------
- ------
- Date
- ------
-
-
+
 Storage Options
 
  Ehcache has two stores:
@@ -15,7 +8,7 @@ Storage Options
    * a DiskStore
 
 
-* Memory Store
+* {Memory Store}
 
      The <<<MemoryStore>>> is always enabled. It is not directly manipulated, but is a component of every cache.
 
@@ -36,7 +29,7 @@ Storage Options
      ** Backed By JDK
 
      LinkedHashMap The <<<MemoryStore>>>
-     for JDK1.4 and JDK 5 it is backed by an extended {{{#http://java.sun.com/j2se/1.4.2/docs/api/} }}LinkedHashMap.
+     for JDK1.4 and JDK 5 it is backed by an extended {{{http://java.sun.com/j2se/1.4.2/docs/api/}LinkedHashMap}}.
      This provides a combined linked list and a hash map, and is ideally
      suited for caching. Using this standard Java class simplifies the
      implementation of the memory cache. It directly supports
@@ -52,7 +45,7 @@ Storage Options
 
      The memory store, being all in memory, is the fastest caching option.
 
-** Memory Use, Spooling and Expiry Strategy
+** Memory Use, {Spooling} and {Expiry Strategy}
 
      All caches specify their maximum in-memory size, in terms of the number of elements, at configuration time.
 
@@ -70,13 +63,13 @@ Storage Options
      LRU, LFU and FIFO eviction policies are supported. LRU is the default,
      consistent with all earlier releases of ehcache.
 
-    * Least Recently Used (LRU) - Default
+    * {Least Recently Used} ({LRU}) - Default
 
      The eldest element, is the Least Recently Used (LRU). The last used
      timestamp is updated when an element is put into the cache or an
      element is retrieved from the cache with a get call.
 
-    * Less Frequently Used (LFU)
+    * {Less Frequently Used} ({LFU})
 
      For each get call on the element the number of hits is updated. When a
      put call is made for a new element (and assuming that the max limit is
@@ -90,22 +83,16 @@ Storage Options
      for the memory store) the element that was placed first (First-In) in
      the store is the candidate for eviction (First-Out).
 
-     For all the eviction policies there are also {{{#http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/Cache.html#putQuiet%28net.sf.ehcache.Element%29} }}putQuiet
-     and {{{#http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/Cache.html#getQuiet%28java.io.Serializable%29} }}getQuiet
-     methods which do not update the last used timestamp.
+     For all the eviction policies there are also <<<putQuiet>>> and <<<getQuiet>>> methods which do not update the last used timestamp.
 
-     When there is a {{{#http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/Cache.html#get%28java.io.Serializable%29} }}get
-     or a {{{#http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/Cache.html#getQuiet%28java.io.Serializable%29} }}getQuiet
-     on an element, it is
-     checked for expiry. If
-     expired, it is removed and null is returned.
+     When there is a <<<get>>> or a <<<getQuiet>>> on an element, it is checked for expiry. If expired, it is removed and null is returned.
 
      Note that at any point in time there will usually be some expired
      elements in the
      cache. Memory sizing of an application must always take into
      account the maximum size of each cache. There is a convenience method
      which can provide an estimate of the size in bytes of the <<<MemoryStore>>>.
-     See {{{#http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/Cache.html#calculateInMemorySize%28%29} }}calculateInMemorySize().
+     See {{{http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/Cache.html#calculateInMemorySize%28%29}calculateInMemorySize()}}.
      It returns the serialized size of the cache. Do not use this method in
      production. It is very slow. It is only meant to provide a rough
      estimate.
@@ -115,7 +102,7 @@ Storage Options
      utilisation. The design is in favour of the latter. For those concerned
      with memory use, simply reduce the <<<maxElementsInMemory>>>.
 
-* DiskStore
+* {DiskStore}
 
      The <<<DiskStore>>> provides a disk spooling facility.
 
@@ -158,14 +145,14 @@ Storage Options
 
  ** Serializable Objects
 
-     Only Serializable objects can be stored in a <<<DiskStore>>>. A {{{#http://java.sun.com/j2se/1.4.2/docs/api/java/io/NotSerializableException.html}NotSerializableException}}
+     Only Serializable objects can be stored in a <<<DiskStore>>>. A {{{http://java.sun.com/j2se/1.4.2/docs/api/java/io/NotSerializableException.html}NotSerializableException}}
      will be thrown if the object is not serializable.
 
  ** Safety
 
      <<<DiskStore>>>s are thread safe.
 
- ** Persistence
+ ** {Persistence}
 
      <<<DiskStore>>> persistence is controlled by the diskPersistent configuration element. If false or omitted, <<<DiskStore>>>s will not persist
      between <<<CacheManager>>> restarts. The data file for each cache will be deleted, if it
@@ -179,7 +166,7 @@ Storage Options
      index file is only written when dispose is called on the <<<DiskStore>>>.
      This happens when the CacheManager is shut down, a Cache is disposed,
      or the VM is being shut down. It is recommended that the
-     CacheManager {{{#http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/CacheManager.html#shutdown%28%29}shutdown()}}
+     CacheManager {{{http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/CacheManager.html#shutdown%28%29}shutdown()}}
      method be used. See Virtual Machine Shutdown Considerations for guidance on how to safely shut the Virtual
      Machine down.
 
@@ -227,7 +214,7 @@ Storage Options
 
     * Serialization
 
-     Writes to and from the disk use {{{#http://java.sun.com/j2se/1.4.2/docs/api/java/io/ObjectOutputStream.html} }}ObjectInputStream
+     Writes to and from the disk use {{{http://java.sun.com/j2se/1.4.2/docs/api/java/io/ObjectOutputStream.html}ObjectInputStream}}
      and the Java serialization mechanism. This is not required for the
      MemoryStore. As a result the DiskStore can never be as fast as the MemoryStore.
 
@@ -255,4 +242,6 @@ Storage Options
      memory. Linux presents it as a file system. The Disk Cache treats it
      like a normal disk - it is just way faster. With this type of file
      system, object serialization becomes the limiting factor to performance.
+
+
 
