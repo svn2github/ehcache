@@ -166,9 +166,10 @@ public class DiskStore implements Store {
         if (persistent) {
             //if diskpath contains auto generated string
             if (diskPath.indexOf(AUTO_DISK_PATH_DIRECTORY_PREFIX) != -1) {
-                LOG.warn("Data cannot be loaded from automatically created directories (those containing "
-                + AUTO_DISK_PATH_DIRECTORY_PREFIX + "). Remove diskPersistent or resolve the conflicting disk path" +
-                        "s in cache configuration. Deleting data file " + getDataFileName());
+                LOG.warn("Data in persistent disk stores is ignored for stores from automatically created directories"
+                + " (they start with " + AUTO_DISK_PATH_DIRECTORY_PREFIX + ").\n"
+                + "Remove diskPersistent or resolve the conflicting disk paths in cache configuration.\n"
+                + "Deleting data file " + getDataFileName());
                 dataFile.delete();
             } else if (!readIndex()) {
                 LOG.debug("Index file dirty or empty. Deleting data file " + getDataFileName());

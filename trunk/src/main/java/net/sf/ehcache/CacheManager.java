@@ -254,20 +254,18 @@ public final class CacheManager {
     private void configure(ConfigurationHelper configurationHelper) {
 
         diskStorePath = configurationHelper.getDiskStorePath();
-
-        detectConfigurationConflicts(configurationHelper);
+        detectAndFixDiskStorePathConflict(configurationHelper);
 
         cacheManagerEventListener = configurationHelper.createCacheManagerEventListener();
+
         cacheManagerPeerListener = configurationHelper.createCachePeerListener();
+        detectAndFixCacheManagerPeerListenerConflict(configurationHelper);
+
+        ALL_CACHE_MANAGERS.add(this);
+
         cacheManagerPeerProvider = configurationHelper.createCachePeerProvider();
         defaultCache = configurationHelper.createDefaultCache();
 
-    }
-
-    private void detectConfigurationConflicts(ConfigurationHelper configurationHelper) {
-        detectAndFixDiskStorePathConflict(configurationHelper);
-        detectAndFixCacheManagerPeerListenerConflict(configurationHelper);
-        ALL_CACHE_MANAGERS.add(this);
     }
 
     private void detectAndFixDiskStorePathConflict(ConfigurationHelper configurationHelper) {
@@ -303,11 +301,11 @@ public final class CacheManager {
             String otherUniqueResourceIdentifier = otherCacheManagerPeerListener.getUniqueResourceIdentifier();
             if (uniqueResourceIdentifier.equals(otherUniqueResourceIdentifier)) {
                 LOG.warn("Creating a new instance of CacheManager with a CacheManagerPeerListener which " +
-                        "has a conflict on a resource that must be unique. The resource is " + uniqueResourceIdentifier
-                        + ". Attempting automatic resolution."
-                        + "The source of the configuration was "
-                        + configurationHelper.getConfigurationBean().getConfigurationSource() + ". "
-                        + " To avoid this warning consider using the CacheManager factory methods to create a " +
+                        "has a conflict on a resource that must be unique.\n" +
+                        "The resource is " + uniqueResourceIdentifier + ".\n" +
+                        "Attempting automatic resolution. The source of the configuration was "
+                        + configurationHelper.getConfigurationBean().getConfigurationSource() + ".\n"
+                        + "To avoid this warning consider using the CacheManager factory methods to create a " +
                         "singleton CacheManager " +
                         "or specifying a separate ehcache configuration (ehcache.xml) for each CacheManager instance.");
                 cacheManagerPeerListener.attemptResolutionOfUniqueResourceConflict();

@@ -22,14 +22,14 @@ import org.apache.commons.logging.LogFactory;
 import java.io.Serializable;
 
 /**
- * An immutable {@link javax.cache.CacheStatistics implementation}
+ * An immutable Cache statistics implementation}
  * <p/>
  * This is like a value object, with the added ability to clear cache statistics on the cache.
  * That ability does not survive any Serialization of this class. On deserialization the cache
  * can be considered disconnected.
  * <p/>
  * The accuracy of these statistics are determined by the value of {#getStatisticsAccuracy()}
- * at the time the statistic was computed. This can be changed by setting it sing {@link net.sf.ehcache.jcache.JCache#setStatisticsAccuracy(int)}.
+ * at the time the statistic was computed. This can be changed by setting {@link Cache#setStatisticsAccuracy}.
  * <p/>
  * Because this class maintains a reference to an Ehcache, any references held to this class will precent the Ehcache
  * from getting garbage collected.
@@ -40,17 +40,17 @@ import java.io.Serializable;
 public class Statistics implements Serializable {
 
     /**
-     * Best efforts accuracy setting. Matches {@link javax.cache.CacheStatistics#STATISTICS_ACCURACY_BEST_EFFORT}
+     * Best efforts accuracy setting.
      */
     public static final int STATISTICS_ACCURACY_BEST_EFFORT = 0;
 
     /**
-     * Guaranteed accuracy setting. Matches {@link javax.cache.CacheStatistics#STATISTICS_ACCURACY_GUARANTEED}
+     * Guaranteed accuracy setting.
      */
     public static final int STATISTICS_ACCURACY_GUARANTEED = 1;
 
     /**
-      * Fast but not accurate setting. Matches {@link javax.cache.CacheStatistics#STATISTICS_ACCURACY_NONE}
+      * Fast but not accurate setting.
       */
      public static final int STATISTICS_ACCURACY_NONE = 2;
 

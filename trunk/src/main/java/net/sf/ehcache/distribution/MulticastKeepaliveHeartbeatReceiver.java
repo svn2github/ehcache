@@ -107,8 +107,8 @@ public final class MulticastKeepaliveHeartbeatReceiver {
                         }
                     }
                 }
-            } finally {
-                LOG.error("Multicast receiver thread stopped.");
+            } catch (Throwable t) {
+                LOG.error("Multicast receiver thread stopped. Cause was " + t.getMessage());
             }
         }
 

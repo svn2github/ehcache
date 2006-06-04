@@ -66,7 +66,7 @@ public interface CacheManagerPeerListener extends CacheManagerEventListener {
     /**
      * If a conflict is detected in unique resource use, this method signals the listener to attempt
      * automatic resolution of the resource conflict.
-     * @throws IllegalStateException if the statis of the listener is not {@link Status.STATUS_UNINITIALISED}
+     * @throws IllegalStateException if the statis of the listener is not {@link Status#STATUS_UNINITIALISED}
      */
     void attemptResolutionOfUniqueResourceConflict() throws IllegalStateException, CacheException;
 

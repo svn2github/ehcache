@@ -1553,8 +1553,8 @@ Cache size is the size of the union of the two key sets.*/
     /**
      * {@inheritDoc}
      * <p/>
-     * Note, the {@link @getSize} method will have the same value as the size reported by Statistics
-     * for the statistics accuracy of {@link Statistics.STATISTICS_ACCURACY_BEST_EFFORT}.
+     * Note, the {@link #getSize} method will have the same value as the size reported by Statistics
+     * for the statistics accuracy of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}.
      */
     public Statistics getStatistics() throws IllegalStateException {
         int size = 0;

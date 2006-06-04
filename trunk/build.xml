@@ -115,12 +115,12 @@
         <fail message="One or more tests failed. See the log file for details."/>
     </target>
 
-    <target name="test-orion" depends="compile, prepare-web-tests, start-orion, run-web-tests-no-check, stop-orion"
+    <target name="test-orion" depends="compile, prepare-web-tests, start-orion, run-web-tests-no-check-orion, stop-orion"
             if="tests.failed" description="Runs Tests">
         <fail message="One or more tests failed. See the log file for details."/>
     </target>
 
-    <target name="test-tomcat" depends="compile, prepare-web-tests, start-tomcat, run-web-tests-no-check, stop-tomcat"
+    <target name="test-tomcat" depends="compile, prepare-web-tests, start-tomcat, run-web-tests-no-check-tomcat, stop-tomcat"
             if="tests.failed" description="Runs Tests">
         <fail message="One or more tests failed. See the log file for details."/>
     </target>
@@ -157,7 +157,37 @@
         </junit>
     </target>
 
-    <target name="run-web-tests-no-check">
+    <target name="run-web-tests-no-check-orion">
+        <mkdir dir="${test.results.dir}"/>
+
+        <condition property="test.pattern" value="*">
+            <not>
+                <isset property="test.case"/>
+            </not>
+        </condition>
+        <condition property="test.pattern" value="${test.case}">
+            <isset property="test.case"/>
+        </condition>
+
+        <junit printSummary="true" failureproperty="tests.failed" fork="true" dir="${basedir}">
+            <sysproperty key="java.util.logging.config.file" file="${test.logging.properties.file}"/>
+            <classpath>
+                <path location="${test.classes.dir}"/>
+                <path location="${build.classes.dir}"/>
+                <path refid="project.class.path"/>
+            </classpath>
+            <formatter type="xml"/>
+            <formatter type="plain" usefile="false"/>
+            <batchtest todir="${test.results.dir}">
+                <fileset dir="${test.classes.dir}">
+                    <include name="**/${test.directory.pattern}/**/constructs/web/**/${test.pattern}Test.class"/>
+                    <exclude name="**/Abstract*"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="run-web-tests-no-check-tomcat">
         <mkdir dir="${test.results.dir}"/>
 
         <condition property="test.pattern" value="*">

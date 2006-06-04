@@ -226,4 +226,11 @@ public final class MulticastKeepaliveHeartbeatSender {
             MulticastKeepaliveHeartbeatSender.heartBeatInterval = heartBeatInterval;
         }
     }
+
+    /**
+     * Returns the heartbeat interval.
+     */
+    public static long getHeartBeatInterval() {
+        return heartBeatInterval;
+    }
 }

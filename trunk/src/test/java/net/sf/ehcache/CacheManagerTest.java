@@ -121,7 +121,6 @@ public class CacheManagerTest extends TestCase {
 
     /**
      * Tests that creating a second cache manager with the same disk path will fail.
-     * todo test listener conflict resolution
      */
     public void testCreateTwoCacheManagersWithSamePath() throws CacheException {
         URL secondCacheConfiguration = this.getClass().getResource("/ehcache-2.xml");
@@ -174,6 +173,40 @@ public class CacheManagerTest extends TestCase {
 
         //Try shutting and recreating a new instance cache manager
         instanceManager = new CacheManager(secondCacheConfiguration);
+        instanceManager.getCache("sampleCache1").put(element2);
+        CacheManager.getInstance().shutdown();
+        assertEquals(element2, instanceManager.getCache("sampleCache1").get(2 + ""));
+
+        //Try shutting and recreating the singleton cache manager
+        CacheManager.getInstance().getCache("sampleCache1").put(element2);
+        assertNull(CacheManager.getInstance().getCache("sampleCache1").get(1 + ""));
+        assertEquals(element2, CacheManager.getInstance().getCache("sampleCache1").get(2 + ""));
+    }
+
+    /**
+     * Tests that two CacheManagers were successfully created
+     */
+    public void testTwoCacheManagersWithSameConfiguration() throws CacheException {
+        Element element1 = new Element(1 + "", new Date());
+        Element element2 = new Element(2 + "", new Date());
+
+
+        String fileName = AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml";
+        CacheManager.create(fileName).getCache("sampleCache1").put(element1);
+
+        //Check can start second one with the same config
+        instanceManager = new CacheManager(fileName);
+        instanceManager.getCache("sampleCache1").put(element2);
+
+        assertEquals(element1, CacheManager.getInstance().getCache("sampleCache1").get(1 + ""));
+        assertEquals(element2, instanceManager.getCache("sampleCache1").get(2 + ""));
+
+        //shutting down instance should leave singleton unaffected
+        instanceManager.shutdown();
+        assertEquals(element1, CacheManager.getInstance().getCache("sampleCache1").get(1 + ""));
+
+        //Try shutting and recreating a new instance cache manager
+        instanceManager = new CacheManager(fileName);
         instanceManager.getCache("sampleCache1").put(element2);
         CacheManager.getInstance().shutdown();
         assertEquals(element2, instanceManager.getCache("sampleCache1").get(2 + ""));

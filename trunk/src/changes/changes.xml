@@ -2,19 +2,12 @@
 <document>
     <body>
 
-        <release version="1.2.1" date="2006-12-31" desc="ehcache-1.2.1 This is a maintenance release for ehcache.
-                    It also includes the constructs package, which was a separate module.">
+        <release version="1.2.1RC" date="2006-6-4" desc="ehcache-1.2.1RC">
             <!-- Feature Changes over 1.2 -->
             <action dev="Greg Luck" type="add">
                 Added the constructs package which was previously a separate module. The constructs package adds
                 valuable functionality and given that the 1.2 jar size is large, can be added with only a small
                 increase in jar size.
-            </action>
-            <action dev="Greg Luck" type="add">
-                Added an implementation for JSR-107, JCACHE/OpenCache, to net.sf.ehcache.jcache. Thanks to Chris Berry and
-                James Strachan for help with this. A small number of enhancements to Cache and Element have been added to support
-                JCACHE behaviour. A new Statistics class which can be obtained from a Cache has been added. Elements can
-                now return their expected expiry times.
             </action>
             <action dev="Greg Luck" issue="1483735" type="add">
                 Allow zeroconf of RMICacheManagerPeerListenerFactory. A configuration

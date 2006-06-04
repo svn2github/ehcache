@@ -57,10 +57,9 @@ import java.util.List;
 public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerPeerProvider implements CacheManagerPeerProvider {
 
     /**
-     * The number of ms until the peer is considered to be offline. Once offline it will not be sent
-     * notifications.
+     * One second, in ms
      */
-    public static final int STALE_PEER_TIME_MS = 11000;
+    protected static final int SHORT_DELAY = 100;
 
     private static final Log LOG = LogFactory.getLog(MulticastRMICacheManagerPeerProvider.class.getName());
 
@@ -178,7 +177,14 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
      * @return the time in ms, for a cluster to form
      */
     public long getTimeForClusterToForm() {
-        return STALE_PEER_TIME_MS;
+        return getStaleTime();
+    }
+
+    /**
+     * The time after which an unrefreshed peer provider entry is considered stale.
+     */
+    protected long getStaleTime() {
+        return MulticastKeepaliveHeartbeatSender.getHeartBeatInterval() * 2 + SHORT_DELAY;
     }
 
     /**
@@ -191,7 +197,7 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
      */
     protected final boolean stale(Date date) {
         long now = System.currentTimeMillis();
-        return date.getTime() < (now - STALE_PEER_TIME_MS);
+        return date.getTime() < (now - getStaleTime());
     }
 
 

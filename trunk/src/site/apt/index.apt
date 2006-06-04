@@ -15,50 +15,62 @@ Welcome to ehcache
 
 * Latest News
 
-** 25 April 2006: {{{http://sourceforge.net/project/showfiles.php?group_id=93232}ehcache-1.2}} released.
+** 4 June 2006: ehcache-1.2RC released.
 
-     After 10 months of development, ehcache-1.2 is released. Thanks to all the developers who contributed to
-      the release through feature requests, bug reports and patches during the beta program.
+   This is a release candidate for ehcache-1.2.1. There are a few very minor bug fixes in this release.
+   The main focus is to resolve upgrade difficulties with client libraries which expect ehcache CacheManagers to be
+   singletons as they were in ehcache-1.1. In ehcache-1.2 any attempt to have two CacheManagers sharing the same
+   configuration resulted in a CacheException being thrown. The check was made on diskStorePath. In ehcache-1.2.1RC
+   multiple CacheManagers sharing the same ehcache.xml configuration is permitted.
 
-     The 1.2 release of ehcache has many new features including:
+   To resolve conflicts with DiskStore paths, the second and subsequent CacheManagers create their data files in a
+   unique subdirectory under the first CacheManager's diskStore path.
 
-            * Flexible, extensible, high performance distributed caching. The default implementation supports cache
-              discovery via multicast or manual configuration. Updates are delivered either asynchronously or synchronously
-              via custom RMI connections. Additional discovery or delivery schemes can be plugged in by third parties.
+   The other potential conflict is in CacheManagerPeerListeners. In the default implementation the conflict is with RMI
+   listener ports. To resolve this conflict the second and subsequent CacheManagers use a free port to listen on.
 
-            * New FIFO and LFU caching policies in addition to the standard LRU.
+   For both, warning messages are logged encouraging clients to migrate over to their own ehcache.xml.
 
-            * Introduced CacheManagerEventListener and CacheEventListener interfaces and default implementations.
+   There are also a number of enhancements/new features as follows:
 
-            * Multiple CacheManagers per virtual machine.
+   * New SingletonEhCacheProvider for use by Hibernate in situations where code has been written which relies on the
+     singleton behaviour of ehcache-1.1 and earlier. Most code bases using Hibernate should not require this.
 
-            * Programmatic flushing of application state to persistent caches
+   * Allow cacheEventListenerFactory elements to be added to defaultCache in ehcache.xml. This allows caches created with
+     CacheManager.a ddCache(String cacheName) to receive events. This can be used for example to set default replication
+     settings in defaultCache.
 
-            * Significant (up to 7 fold) DiskStore performance increases.
+   * To complement full support foe default cache (above), added support for programmatic addition of caches which
+     include CacheReplicators. Also support for removal of these caches with CacheManager.remove(String cacheName).
 
-            * API for Objects in addition to Serializable. Non-serializable Objects can use all parts of ehcache
-              except for DiskStore and replication. Two new methods on Element: getObjectValue and getKeyValue
-              are the only API differences between the Serializable and Object APIs.
+   * Andy McNutt's JNDI-based manual RMI replication added. See ehcache.xml example for how to use.
 
-            * Backward Compatibility with ehcache-1.1. All users of ehcache-1.1 should be able to upgrade to ehcache-1.2.
+   * Support tomcat 5.5 for the servlet filters. Tomcat integration testing, in addition to the Orion one,
+     is also added to the full JUnit test process. Tomcat relies on Servlet 2.4 dispatcher INCLUDE and FORWARD directives
+     for page fragment caching.
 
-            * Tested with Hibernate2.1.8 and  Hibernate3.1.3, which can utilise all of the new features except for Object API and
-              multiple session factories each using a different ehcache CacheManager. A new <<<net.sf.ehcache.hibernate.EhCacheProvider>>>
-              makes those additional features available to Hibernate-3.1.3. A version of the new provider should make it into
-              the Hibernate3.2 release.
+   * Support runtime setting of individual Element time to lives (TTLs), time to idles(TTIs) and eternal overrides.
+     If an override is set, the Element expiry ignores the Cache default.
 
-            * Tested with ehcache-constructs.
+   * Add a cache bootstrap mechanism. This is used to populate a cache when it is first initialized. An abstract factory,
+     BootstrapCacheLoaderFactory has been defined along with an interface BootstrapCacheLoader.
+     The initial concrete implementations are for RMI, so that a new cache entering a cluster gets bootstrapped from a
+     randomly chosen peer.
 
-            * Apache 2.0 license.
+   Finally, the ehcache-constructs package has been merged into the ehcache module so that there is only one jar to
+   download and install to get all functionaliy. Ehcache-constructs contains J2EE Caching filters and other useful
+   applied caching solutions.
 
-     At time of release, there are no open bugs against the ehcache-1.2. 21 bugs have been fixed in this release. Most
-     of those were raised against the 1.2 beta releases.
+   See the {{{/changes-report.html}change log}} for more details.
 
-     See the {{{/changes-report.html}changelog}} for more details on this release.
+   The plan is to rapidly release ehcache-1.2.1 within a week or so. Please report any issues with ehcache-1.2.1RC promptly.
+   Documentation of the new features will be complete during this time.
 
-** 20 April 2006: Development Roadmap Updated
+** 3 June 2006: Printable PDF User Guide for ehcache available
 
-     The roadmap for new development has been updated {{{roadmap.html}here}}.
+ Some people have requested a printable manual for ehcache.
+  Please see{{{http://ehcache.sourceforge.net/EhcacheUserGuide.pdf}}EhcacheUserGuide.pdf}
+
 
  More {{{news.html}news}}...
 

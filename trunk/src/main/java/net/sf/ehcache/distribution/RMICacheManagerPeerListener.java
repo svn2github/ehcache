@@ -139,7 +139,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
 
     /**
      * Assigns a free port to be the listener port.
-     * @throws IllegalStateException if the statis of the listener is not {@link net.sf.ehcache.Status.STATUS_UNINITIALISED}
+     * @throws IllegalStateException if the statis of the listener is not {@link net.sf.ehcache.Status#STATUS_UNINITIALISED}
      */
     protected void assignFreePort(boolean forced) throws IllegalStateException {
         if (status != Status.STATUS_UNINITIALISED) {
@@ -432,7 +432,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      * If a conflict is detected in unique resource use, this method signals the listener to attempt
      * automatic resolution of the resource conflict.
      *
-     * @throws IllegalStateException if the statis of the listener is not {@link net.sf.ehcache.Status.STATUS_UNINITIALISED}
+     * @throws IllegalStateException if the statis of the listener is not {@link net.sf.ehcache.Status#STATUS_UNINITIALISED}
      */
     public void attemptResolutionOfUniqueResourceConflict() throws IllegalStateException, CacheException {
         assignFreePort(true);

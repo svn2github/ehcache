@@ -78,9 +78,9 @@ public final class ResponseUtil {
     /**
      * Performs a number of checks to ensure response saneness according to the rules of RFC2616:
      * <ol>
-     * <li>If the response code is {@link javax.servlet.http.HttpServletResponse.SC_NO_CONTENT} then it is illegal for the body
+     * <li>If the response code is {@link javax.servlet.http.HttpServletResponse#SC_NO_CONTENT} then it is illegal for the body
      * to contain anything. See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.5
-     * <li>If the response code is {@link javax.servlet.http.HttpServletResponse.SC_NOT_MODIFIED} then it is illegal for the body
+     * <li>If the response code is {@link javax.servlet.http.HttpServletResponse#SC_NOT_MODIFIED} then it is illegal for the body
      * to contain anything. See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.5
      * </ol>
      *

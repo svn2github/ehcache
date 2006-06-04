@@ -7,15 +7,17 @@
 
 Development Roadmap
 
-* Expected features for 1.2.1
+Several features expected for 1.3 have actually been incorporated in ehcache-1.2. See the {{{/changes-report.html}change log}}
+for more details.
+
+
+* Expected New Features for 1.3
 
 ** JGroups based replication
 
  Work is near completion (by Surya) on a JGRoups replication implementation to complement the current RMI one.
  Use of JGroups for peer discovery and replication will be a configuration option.
  This should make it into the 1.2.1 maintenance release.
-
-* Potential New Features for 1.3
 
 ** SoftReferenceMemoryStore
 
@@ -33,8 +35,10 @@ Development Roadmap
 
 ** Implementation of JCACHE/OpenCache specification
 
- James Strachan, myself and others are thinking of creating an OpenCache specification to standardise
- caching APIs. Naturally ehcache would implement the API.
+ The maintainer of ehcache, Greg Luck, has been admitted to the JSR-107 (JCACHE) expert group.
+
+ Ehcache-1.3 will be an implementation of JSR-107, while maintaining backward compatiblity with ehcache-1.2 and ehcache-1.1.
+
 
 ** Dropping JDK 1.3 support
 
@@ -44,14 +48,6 @@ Development Roadmap
 ** JMX Instrumentation
 
  Create an ehcache MBean to simplify and standardise efforts to monitor ehcache.
-
-** Distributed Cache Priming
-
- A feature a number of people are requesting is distributed cache priming. When you bring up a new node it will have
- empty caches, apart from any persistent DiskStores it has. The idea is for a new cache to prime itself from its peers.
- When a new peer comes up, for each distributed cache it asks the cluster for a list of keys already cached. Then it
- requests those elements in chunks from random peers.  
-
 
 * How to suggest features
 

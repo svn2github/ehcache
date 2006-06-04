@@ -1,5 +1,43 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+ehcache-1.2.1
+=============
+ehcache-1.2.1 is a maintenance release of
+
+This is a release candidate for ehcache-1.2.1. There are a few very minor bug fixes in this release.
+
+The main focus is to resolve upgrade difficulties with client libraries which expect ehcache CacheManagers to be
+singletons as they were in ehcache-1.1. In ehcache-1.2 any attempt to have two CacheManagers sharing the same
+configuration resulted in a CacheException being thrown. The check was made on diskStorePath. In ehcache-1.2.1RC
+multiple CacheManagers sharing the same ehcache.xml configuration is permitted.
+
+To resolve conflicts with DiskStore paths, the second and subsequent CacheManagers create their data files in a
+unique subdirectory under the first CacheManager's diskStore path.
+
+The other potential conflict is in CacheManagerPeerListeners. In the default implementation the conflict is with RMI
+listener ports. To resolve this conflict the second and subsequent CacheManagers use a free port to listen on.
+
+For both, warning messages are logged encouraging clients to migrate over to their own ehcache.xml.
+
+There are also a number of enhancements/new features.
+
+Details of changes are:
+
+- Added the constructs package which was previously a separate module. The constructs package adds valuable functionality and given that the 1.2 jar size is large, can be added with only a small increase in jar size.	Greg Luck
+- Allow zeroconf of RMICacheManagerPeerListenerFactory. A configuration < cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/ > will now work. The listener port will be automatically assigned a free port. Fixes 1483735.	Greg Luck
+- New SingletonEhCacheProvider for use by Hibernate in situations where code has been written which relies on the singleton behaviour of ehcache-1.1 and earlier. Most code bases using Hibernate should not require this.	Greg Luck
+- Allow cacheEventListenerFactory elements to be added to defaultCache in ehcache.xml. This allows caches created with CacheManager.a ddCache(String cacheName) to receive events. This can be used for example to set default replication settings in defaultCache.	Greg Luck
+- To complement full support foe default cache (above), added support for programmatic addition of caches which include CacheReplicators. Also support for removal of these caches with CacheManager.remove(String cacheName).	Greg Luck
+- Andy McNutt's JNDI-based manual RMI replication added. See ehcache.xml example for how to use.	Greg Luck
+- Support tomcat 5.5 for the servlet filters. Tomcat integration testing, in addition to the Orion one, is also added to the full JUnit test process. Tomcat relies on Servlet 2.4 dispatcher INCLUDE and FORWARD directives for page fragment caching.	Greg Luck
+- Support runtime setting of individual Element time to lives, time to idles and eternal overrides. If an override is set, the Element expiry ignores the Cache default.	Greg Luck
+- Add a cache bootstrap mechanism. This is used to populate a cache when it is first initialized. An abstract factory, BootstrapCacheLoaderFactory has been defined along with an interface BootstrapCacheLoader. The initial concrete implementations are for RMI, so that a new cache entering a cluster gets bootstrapped from a randomly chosen peer.	Greg Luck
+- Theoretically possible NPE if a MulticastRMICacheManagerPeerProvider is started and then stopped before a multicast socket connecti on can be established. Added guard for NPE. Thanks to Roman Kurmanowytsch for reporting the issue and a fix. Fixes 1480442.	Greg Luck
+- Add shutdown hook to RMICacheManagerPeerListener so that, even if CacheManager.shutdown() is not called, processes still exit cleanly. This is a bug rather than a feature request because Cache has a shutdown hook to always cleanly shut down disk store, and ehcache should be consistent in supporting shutdown hooks. Fixes 1485765.	Greg Luck
+- In GzipFilter and CachingFilter Gzipping an empty response body creates 20 byte responses. Fixed so that this situation is detected and a zero bytes gzipped body, with a content length also of 0 is returned. Can occur in 204 and 304 responses. Fixes 1486858.	Greg Luck
+- Changed localhost lookup to a static in Cache, to avoid a potential bottleneck when creating and destroying large numbers of caches rapidly. Thanks to Derek Hully for the bug report and suggested fix. Fixes 1488853.
+- Allow CacheManager instances to use the same ehcache.xml configuration. Automatically resolve conflicts for DiskStore and CacheManagerPeerListener. Log a warning that the conflict existed and what was done to resolve it along with a suggestion to either use ehcache in singleton mode or specify separate ehcache.xml configurations for each CacheManager instance.
+
 ehcache-1.2
 ===========
 ehcache-1.2. ehcache-1.2 represents the addition of many new features while remaining backward compatible with 1.1.

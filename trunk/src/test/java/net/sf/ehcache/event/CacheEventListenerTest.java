@@ -648,7 +648,7 @@ public class CacheEventListenerTest extends TestCase {
         }
 
         //Wait for expiry and expiry thread
-        Thread.sleep(2050);
+        Thread.sleep(2100);
 
         List notifications = CountingCacheEventListener.getCacheElementsExpired(cache);
         for (int i = 0; i < notifications.size(); i++) {

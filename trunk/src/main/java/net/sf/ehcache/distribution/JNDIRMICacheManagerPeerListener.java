@@ -43,7 +43,8 @@ public class JNDIRMICacheManagerPeerListener extends RMICacheManagerPeerListener
     private static final Log LOG = LogFactory.getLog(JNDIRMICacheManagerPeerListener.class.getName());
 
     /**
-     * @see RMICacheManagerPeerListener(String, Integer, CacheManager, Integer)
+     * Constructor
+     * @see RMICacheManagerPeerListener
      */
     public JNDIRMICacheManagerPeerListener(String hostName, Integer port, CacheManager cacheManager, Integer socketTimeoutMillis)
             throws UnknownHostException {

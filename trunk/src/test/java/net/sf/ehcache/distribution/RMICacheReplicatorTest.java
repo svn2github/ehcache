@@ -387,7 +387,7 @@ public class RMICacheReplicatorTest extends TestCase {
 
         assertEquals(2000, cache1.getSize());
 
-        Thread.sleep(2000);
+        Thread.sleep(5000);
         assertEquals(2000, manager2.getCache("sampleCache1").getSize());
         assertEquals(2000, manager3.getCache("sampleCache1").getSize());
         assertEquals(2000, manager4.getCache("sampleCache1").getSize());
@@ -427,7 +427,7 @@ public class RMICacheReplicatorTest extends TestCase {
 
         assertEquals(2000, cache1.getSize());
 
-        Thread.sleep(2000);
+        Thread.sleep(5000);
         assertEquals(2000, manager2.getCache("sampleCache1").getSize());
         assertEquals(2000, manager3.getCache("sampleCache1").getSize());
         assertEquals(2000, manager4.getCache("sampleCache1").getSize());
