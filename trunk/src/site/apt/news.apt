@@ -7,7 +7,7 @@
 
 News
 
-* 4 June 2006: ehcache-1.2RC released.
+* 4 June 2006: ehcache-1.2.1RC {{{http://sourceforge.net/project/showfiles.php?group_id=93232}released}}.
 
     This is a release candidate for ehcache-1.2.1. There are a few very minor bug fixes in this release.
     The main focus is to resolve upgrade difficulties with client libraries which expect ehcache CacheManagers to be

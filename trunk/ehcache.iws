@@ -635,7 +635,7 @@
       <file leaf-file-name="RMICacheReplicatorTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="429" column="22" selection-start="14879" selection-end="14879" vertical-scroll-proportion="0.31812724">
+            <state line="429" column="22" selection-start="14880" selection-end="14880" vertical-scroll-proportion="0.31812724">
               <folding />
             </state>
           </provider>
@@ -650,37 +650,37 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ElementTest.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="ElementTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="35" column="13" selection-start="1138" selection-end="1138" vertical-scroll-proportion="-1.8018868">
+            <state line="189" column="121" selection-start="7010" selection-end="7010" vertical-scroll-proportion="0.3773585">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ResponseUtil.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/ResponseUtil.java">
+      <file leaf-file-name="support.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/support.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="82" column="81" selection-start="2966" selection-end="2966" vertical-scroll-proportion="0.20754717">
+            <state line="16" column="0" selection-start="241" selection-end="241" vertical-scroll-proportion="0.2264151">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="JNDIManualRMICacheManagerPeerProvider.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDIManualRMICacheManagerPeerProvider.java">
+      <file leaf-file-name="news.apt" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/news.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="50" column="13" selection-start="1666" selection-end="1666" vertical-scroll-proportion="0.014150944">
+            <state line="9" column="0" selection-start="51" selection-end="51" vertical-scroll-proportion="0.12965186">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="JNDIRMICacheManagerPeerListener.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDIRMICacheManagerPeerListener.java">
+      <file leaf-file-name="index.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/index.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="39" column="49" selection-start="1376" selection-end="1376" vertical-scroll-proportion="0.014150944">
+            <state line="17" column="0" selection-start="475" selection-end="581" vertical-scroll-proportion="0.1212485">
               <folding />
             </state>
           </provider>
@@ -1845,27 +1845,6 @@
     </buildFile>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/hibernate/SingletonEhCacheProvider.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="56" column="108" selection-start="2380" selection-end="2380" vertical-scroll-proportion="0.7484144">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="24" column="102" selection-start="1602" selection-end="1602" vertical-scroll-proportion="0.62882096">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/event/CacheEventListenerTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="641" column="112" selection-start="25080" selection-end="25080" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="1556" column="56" selection-start="56799" selection-end="56799" vertical-scroll-proportion="0.034813926">
@@ -1882,7 +1861,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/ResponseUtil.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="82" column="81" selection-start="2966" selection-end="2966" vertical-scroll-proportion="0.20754717">
+        <state line="82" column="81" selection-start="2967" selection-end="2967" vertical-scroll-proportion="0.20754717">
           <folding />
         </state>
       </provider>
@@ -1896,7 +1875,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDIRMICacheManagerPeerListener.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="49" selection-start="1376" selection-end="1376" vertical-scroll-proportion="0.014150944">
+        <state line="39" column="3" selection-start="1377" selection-end="1377" vertical-scroll-proportion="0.014150944">
           <folding />
         </state>
       </provider>
@@ -1931,7 +1910,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="429" column="22" selection-start="14879" selection-end="14879" vertical-scroll-proportion="0.31812724">
+        <state line="429" column="22" selection-start="14880" selection-end="14880" vertical-scroll-proportion="0.31812724">
           <folding />
         </state>
       </provider>
@@ -1945,7 +1924,28 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="13" selection-start="1138" selection-end="1138" vertical-scroll-proportion="-1.8018868">
+        <state line="189" column="121" selection-start="7010" selection-end="7010" vertical-scroll-proportion="0.3773585">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/support.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="16" column="0" selection-start="241" selection-end="241" vertical-scroll-proportion="0.2264151">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/index.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="17" column="0" selection-start="475" selection-end="581" vertical-scroll-proportion="0.1212485">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/news.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="9" column="0" selection-start="51" selection-end="51" vertical-scroll-proportion="0.12965186">
           <folding />
         </state>
       </provider>
