@@ -429,7 +429,7 @@ public class CacheTest extends AbstractCacheTest {
         try {
             manager.addCache(cache);
             fail();
-        } catch (IllegalStateException e) {
+        } catch (CacheException e) {
             //expected
         }
 

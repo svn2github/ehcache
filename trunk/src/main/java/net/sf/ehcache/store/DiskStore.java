@@ -58,6 +58,15 @@ import java.util.Set;
  * @version $Id$
  */
 public class DiskStore implements Store {
+
+    /**
+     * If the CacheManager needs to resolve a conflict with the disk path, it will create a
+     * subdirectory in the given disk path with this prefix followed by a number. The presence of this
+     * name is used to determined whether it makes sense for a persistent DiskStore to be loaded. Loading
+     * persistent DiskStores will only have useful semantics where the diskStore path has not changed.
+     */
+    public static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
+
     private static final Log LOG = LogFactory.getLog(DiskStore.class.getName());
     private static final int MS_PER_SECOND = 1000;
     private static final int SPOOL_THREAD_INTERVAL = 200;
@@ -155,7 +164,13 @@ public class DiskStore implements Store {
         deleteIndexIfNoData();
 
         if (persistent) {
-            if (!readIndex()) {
+            //if diskpath contains auto generated string
+            if (diskPath.indexOf(AUTO_DISK_PATH_DIRECTORY_PREFIX) != -1) {
+                LOG.warn("Data cannot be loaded from automatically created directories (those containing "
+                + AUTO_DISK_PATH_DIRECTORY_PREFIX + "). Remove diskPersistent or resolve the conflicting disk path" +
+                        "s in cache configuration. Deleting data file " + getDataFileName());
+                dataFile.delete();
+            } else if (!readIndex()) {
                 LOG.debug("Index file dirty or empty. Deleting data file " + getDataFileName());
                 dataFile.delete();
             }
@@ -831,6 +846,15 @@ public class DiskStore implements Store {
                 .append(", expiryThreadInterval = ").append(expiryThreadInterval)
                 .append(" ]");
         return sb.toString();
+    }
+
+    /**
+     * Generates a unique directory name for use in automatically creating a diskStorePath where there is a conflict.
+     * @return a path consisting of {@link #AUTO_DISK_PATH_DIRECTORY_PREFIX} followed by "_" followed by the current
+     *  time as a long e.g. ehcache_auto_created_1149389837006
+     */
+    public static String generateUniqueDirectory() {
+        return DiskStore.AUTO_DISK_PATH_DIRECTORY_PREFIX + "_" + System.currentTimeMillis();
     }
 
 

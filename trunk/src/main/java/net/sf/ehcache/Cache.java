@@ -105,7 +105,7 @@ public final class Cache implements Ehcache {
 
     private DiskStore diskStore;
 
-    private final String diskStorePath;
+    private String diskStorePath;
 
     private Status status;
 
@@ -1598,4 +1598,20 @@ Cache size is the size of the union of the two key sets.*/
         }
         this.bootstrapCacheLoader = bootstrapCacheLoader;
     }
+
+
+    /**
+     * DiskStore paths can conflict between CacheManager instances. This method allows the path to be changed.
+     *
+     * @param diskStorePath the new path to be used.
+     * @throws CacheException if this method is called after the cache is initialized
+     */
+    public void setDiskStorePath(String diskStorePath) throws CacheException {
+        if (!status.equals(Status.STATUS_UNINITIALISED)) {
+            throw new CacheException("A DiskStore path can only be set before the cache is initialized. " + name);
+        }
+        this.diskStorePath = diskStorePath;
+    }
+
+
 }

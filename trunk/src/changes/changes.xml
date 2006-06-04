@@ -53,6 +53,12 @@
                 The initial concrete implementations are for RMI, so that a new cache entering a cluster gets bootstrapped
                 from a randomly chosen peer.
             </action>
+            <action dev="Greg Luck" type="add">
+                Allow CacheManager instances to use the same ehcache.xml configuration. Automatically resolve conflicts
+                for DiskStore and CacheManagerPeerListener. Log a warning that the conflict existed and what was done to
+                resolve it along with a suggestion to either use ehcache in singleton mode or specify separate ehcache.xml
+                configurations for each CacheManager instance.
+            </action>
 
             <!-- Reported Bug fixes -->
             <action dev="Greg Luck" issue="1480442" type="fix">

@@ -17,14 +17,14 @@
 package net.sf.ehcache;
 
 import junit.framework.TestCase;
+import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.distribution.RMIBootstrapCacheLoader;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.DiskStore;
-import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
-import net.sf.ehcache.distribution.RMIBootstrapCacheLoader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -54,14 +54,23 @@ public class CacheManagerTest extends TestCase {
     protected CacheManager instanceManager;
 
     /**
-     * Shutdown managers and check for thread leak.
+     * Shutdown managers.
+     * Check that the manager is removed from CacheManager.ALL_CACHE_MANAGERS
      */
     protected void tearDown() throws Exception {
         if (singletonManager != null) {
+            if (singletonManager.getStatus().equals(Status.STATUS_ALIVE)) {
+                assertTrue(CacheManager.ALL_CACHE_MANAGERS.contains(singletonManager));
+            }
             singletonManager.shutdown();
+            assertFalse(CacheManager.ALL_CACHE_MANAGERS.contains(singletonManager));
         }
         if (instanceManager != null) {
+            if (instanceManager.getStatus().equals(Status.STATUS_ALIVE)) {
+                assertTrue(CacheManager.ALL_CACHE_MANAGERS.contains(instanceManager));
+            }
             instanceManager.shutdown();
+            assertFalse(CacheManager.ALL_CACHE_MANAGERS.contains(instanceManager));
         }
     }
 
@@ -112,17 +121,34 @@ public class CacheManagerTest extends TestCase {
 
     /**
      * Tests that creating a second cache manager with the same disk path will fail.
+     * todo test listener conflict resolution
      */
     public void testCreateTwoCacheManagersWithSamePath() throws CacheException {
         URL secondCacheConfiguration = this.getClass().getResource("/ehcache-2.xml");
 
         singletonManager = CacheManager.create(secondCacheConfiguration);
-        try {
-            instanceManager = new CacheManager(secondCacheConfiguration);
-            fail();
-        } catch (CacheException e) {
-            //expected
+        instanceManager = new CacheManager(secondCacheConfiguration);
+
+        String intialDiskStorePath = System.getProperty("java.io.tmpdir") + File.separator + "second";
+
+        File diskStorePathDir = new File(intialDiskStorePath);
+        File[] files = diskStorePathDir.listFiles();
+        File newDiskStorePath = null;
+        boolean newDiskStorePathFound = false;
+        for (int i = 0; i < files.length; i++) {
+            File file = files[i];
+            if (file.isDirectory()) {
+                if (file.getName().indexOf(DiskStore.AUTO_DISK_PATH_DIRECTORY_PREFIX) != -1) {
+                    newDiskStorePathFound = true;
+                    newDiskStorePath = file;
+                    break;
+                }
+            }
         }
+        assertTrue(newDiskStorePathFound);
+        newDiskStorePath.delete();
+
+
     }
 
     /**
@@ -400,15 +426,15 @@ public class CacheManagerTest extends TestCase {
 
         assertTrue(newfromdefault1 != newfromdefault2);
 
-        BootstrapCacheLoader bootstrapCacheLoader1 = ((Cache)newfromdefault1).getBootstrapCacheLoader();
-        BootstrapCacheLoader bootstrapCacheLoader2 = ((Cache)newfromdefault2).getBootstrapCacheLoader();
+        BootstrapCacheLoader bootstrapCacheLoader1 = ((Cache) newfromdefault1).getBootstrapCacheLoader();
+        BootstrapCacheLoader bootstrapCacheLoader2 = ((Cache) newfromdefault2).getBootstrapCacheLoader();
 
         assertTrue(bootstrapCacheLoader1 != bootstrapCacheLoader2);
 
         assertNotNull(bootstrapCacheLoader1);
         assertEquals(RMIBootstrapCacheLoader.class, bootstrapCacheLoader1.getClass());
         assertEquals(true, bootstrapCacheLoader1.isAsynchronous());
-        assertEquals(5000000, ((RMIBootstrapCacheLoader)bootstrapCacheLoader1).getMaximumChunkSizeBytes());
+        assertEquals(5000000, ((RMIBootstrapCacheLoader) bootstrapCacheLoader1).getMaximumChunkSizeBytes());
 
     }
 
@@ -472,9 +498,9 @@ public class CacheManagerTest extends TestCase {
 
     private int countThreads() {
 
-        /**
-         * A class for visiting threads
-         */
+/**
+ * A class for visiting threads
+ */
         class ThreadVisitor {
 
             private int threadCount;

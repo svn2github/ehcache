@@ -125,8 +125,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             this.hostName = calculateHostAddress();
         }
         if (port == null || port.intValue() == 0) {
-            this.port = new Integer(this.getFreePort());
-            LOG.debug("Automatically finding a free TCP/IP port to listen on: " + this.port);
+            assignFreePort(false);
         } else {
             this.port = port;
         }
@@ -136,6 +135,22 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
         }
         this.socketTimeoutMillis = socketTimeoutMillis;
 
+    }
+
+    /**
+     * Assigns a free port to be the listener port.
+     * @throws IllegalStateException if the statis of the listener is not {@link net.sf.ehcache.Status.STATUS_UNINITIALISED}
+     */
+    protected void assignFreePort(boolean forced) throws IllegalStateException {
+        if (status != Status.STATUS_UNINITIALISED) {
+            throw new IllegalStateException("Cannot change the port of an already started listener.");
+        }
+        this.port = new Integer(this.getFreePort());
+        if (forced) {
+            LOG.warn("Resolving RMI port conflict by automatically using a free TCP/IP port to listen on: " + this.port);
+        } else {
+            LOG.debug("Automatically finding a free TCP/IP port to listen on: " + this.port);
+        }
     }
 
 
@@ -400,6 +415,27 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      */
     public Status getStatus() {
         return status;
+    }
+
+    /**
+     * A listener will normally have a resource that only one instance can use at the same time,
+     * such as a port. This identifier is used to tell if it is unique and will not conflict with an
+     * existing instance using the resource.
+     *
+     * @return a String identifier for the resource
+     */
+    public String getUniqueResourceIdentifier() {
+        return "RMI listener port: " + port;
+    }
+
+    /**
+     * If a conflict is detected in unique resource use, this method signals the listener to attempt
+     * automatic resolution of the resource conflict.
+     *
+     * @throws IllegalStateException if the statis of the listener is not {@link net.sf.ehcache.Status.STATUS_UNINITIALISED}
+     */
+    public void attemptResolutionOfUniqueResourceConflict() throws IllegalStateException, CacheException {
+        assignFreePort(true);
     }
 
     /**

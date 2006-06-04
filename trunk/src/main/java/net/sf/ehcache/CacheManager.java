@@ -23,17 +23,19 @@ import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.event.CacheManagerEventListener;
+import net.sf.ehcache.store.DiskStore;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -48,20 +50,19 @@ import java.util.Set;
  * <li>Event listeners are given cache names as arguments. They are assured the cache is referenceable through a single
  * CacheManager.
  * </ol>
- *
- * todo enable most ehcache.xml configurations to be reused
+ * <p/>
  * @author Greg Luck
  * @version $Id$
  */
 public final class CacheManager {
 
-    private static final Log LOG = LogFactory.getLog(CacheManager.class.getName());
-
     /**
-     * Keeps track of the disk store paths of all CacheManagers.
-     * Can be checked before letting a new CacheManager start up.
+     * Keeps track of all known CacheManagers. Used to check on conflicts.
+     * CacheManagers should remove themselves from this list during shut down.
      */
-    private static final Set ALL_CACHE_MANAGER_DISK_STORE_PATHS = Collections.synchronizedSet(new HashSet());
+    static final List ALL_CACHE_MANAGERS = Collections.synchronizedList(new ArrayList());
+
+    private static final Log LOG = LogFactory.getLog(CacheManager.class.getName());
 
     /**
      * The Singleton Instance.
@@ -209,7 +210,6 @@ public final class CacheManager {
         }
 
 
-
     }
 
     /**
@@ -254,18 +254,67 @@ public final class CacheManager {
     private void configure(ConfigurationHelper configurationHelper) {
 
         diskStorePath = configurationHelper.getDiskStorePath();
-        if (!ALL_CACHE_MANAGER_DISK_STORE_PATHS.add(diskStorePath)) {
-            throw new CacheException("Cannot parseConfiguration CacheManager. Attempt to create a new instance" +
-                    " of CacheManager using the diskStorePath \"" + diskStorePath + "\" which is already used" +
-                    " by an existing CacheManager. The source of the configuration was "
-                    + configurationHelper.getConfigurationBean().getConfigurationSource() + ".");
-        }
+
+        detectConfigurationConflicts(configurationHelper);
 
         cacheManagerEventListener = configurationHelper.createCacheManagerEventListener();
         cacheManagerPeerListener = configurationHelper.createCachePeerListener();
         cacheManagerPeerProvider = configurationHelper.createCachePeerProvider();
         defaultCache = configurationHelper.createDefaultCache();
 
+    }
+
+    private void detectConfigurationConflicts(ConfigurationHelper configurationHelper) {
+        detectAndFixDiskStorePathConflict(configurationHelper);
+        detectAndFixCacheManagerPeerListenerConflict(configurationHelper);
+        ALL_CACHE_MANAGERS.add(this);
+    }
+
+    private void detectAndFixDiskStorePathConflict(ConfigurationHelper configurationHelper) {
+        for (int i = 0; i < ALL_CACHE_MANAGERS.size(); i++) {
+            CacheManager cacheManager = (CacheManager) ALL_CACHE_MANAGERS.get(i);
+            if (diskStorePath.equals(cacheManager.diskStorePath)) {
+                String newDiskStorePath = diskStorePath + File.separator + DiskStore.generateUniqueDirectory();
+                LOG.warn("Creating a new instance of CacheManager using the diskStorePath \""
+                        + diskStorePath + "\" which is already used" +
+                        " by an existing CacheManager.\nThe source of the configuration was "
+                        + configurationHelper.getConfigurationBean().getConfigurationSource() + ".\n" +
+                        "The diskStore path for this CacheManager will be set to " + newDiskStorePath + ".\nTo avoid this" +
+                        " warning consider using the CacheManager factory methods to create a singleton CacheManager " +
+                        "or specifying a separate ehcache configuration (ehcache.xml) for each CacheManager instance.");
+                diskStorePath = newDiskStorePath;
+                break;
+            }
+
+        }
+    }
+
+    private void detectAndFixCacheManagerPeerListenerConflict(ConfigurationHelper configurationHelper) {
+        if (cacheManagerPeerListener == null) {
+            return;
+        }
+        String uniqueResourceIdentifier = cacheManagerPeerListener.getUniqueResourceIdentifier();
+        for (int i = 0; i < ALL_CACHE_MANAGERS.size(); i++) {
+            CacheManager cacheManager = (CacheManager) ALL_CACHE_MANAGERS.get(i);
+            CacheManagerPeerListener otherCacheManagerPeerListener = cacheManager.cacheManagerPeerListener;
+            if (otherCacheManagerPeerListener == null) {
+                continue;
+            }
+            String otherUniqueResourceIdentifier = otherCacheManagerPeerListener.getUniqueResourceIdentifier();
+            if (uniqueResourceIdentifier.equals(otherUniqueResourceIdentifier)) {
+                LOG.warn("Creating a new instance of CacheManager with a CacheManagerPeerListener which " +
+                        "has a conflict on a resource that must be unique. The resource is " + uniqueResourceIdentifier
+                        + ". Attempting automatic resolution."
+                        + "The source of the configuration was "
+                        + configurationHelper.getConfigurationBean().getConfigurationSource() + ". "
+                        + " To avoid this warning consider using the CacheManager factory methods to create a " +
+                        "singleton CacheManager " +
+                        "or specifying a separate ehcache configuration (ehcache.xml) for each CacheManager instance.");
+                cacheManagerPeerListener.attemptResolutionOfUniqueResourceConflict();
+                break;
+            }
+
+        }
     }
 
     private void addConfiguredCaches(ConfigurationHelper configurationHelper) {
@@ -470,6 +519,8 @@ public final class CacheManager {
             throw new ObjectExistsException("Cache " + cache.getName() + " already exists");
         }
         cache.setCacheManager(this);
+        //Is an attribute of the CacheManager. Setting the dependency so as not to break constructor comptability.
+        cache.setDiskStorePath(diskStorePath);
         cache.initialise();
         cache.bootstrap();
         caches.put(cache.getName(), cache);
@@ -551,7 +602,7 @@ public final class CacheManager {
             cacheManagerPeerListener.dispose();
         }
         synchronized (CacheManager.class) {
-            ALL_CACHE_MANAGER_DISK_STORE_PATHS.remove(diskStorePath);
+            ALL_CACHE_MANAGERS.remove(this);
 
             Collection cacheSet = caches.values();
             for (Iterator iterator = cacheSet.iterator(); iterator.hasNext();) {

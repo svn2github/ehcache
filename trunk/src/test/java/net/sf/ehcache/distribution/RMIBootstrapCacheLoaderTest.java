@@ -193,7 +193,7 @@ public class RMIBootstrapCacheLoaderTest extends TestCase {
 
         assertEquals(2000, cache1.getSize());
 
-        Thread.sleep(2000);
+        Thread.sleep(3000);
         assertEquals(2000, manager2.getCache("sampleCache1").getSize());
 
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");

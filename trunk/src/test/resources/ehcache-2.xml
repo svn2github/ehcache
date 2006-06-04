@@ -128,7 +128,7 @@
            overflowToDisk="true"
            memoryStoreEvictionPolicy="LRU">
     <cacheEventListenerFactory class="net.sf.ehcache.event.NullCacheEventListenerFactory"/>
-    </cache>
+    </cache>                                                                                             
 
     <!-- Sample cache named sampleCache2. Is eternal -->
     <cache name="sampleCache2"
