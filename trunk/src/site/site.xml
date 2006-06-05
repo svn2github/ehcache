@@ -32,7 +32,8 @@
         <menu name="Documentation">
             <item name="Getting Started" href="documentation/getting_started.html"/>
             <item name="PDF User Guide" href="EhcacheUserGuide.pdf" />
-            <item name="Online User Guide" href="documentation/index.html" collapse="true">
+            <item name="Single Page User Guide" href="EhcacheUserGuide.html" />
+            <item name="Multi Page User Guide" href="documentation/index.html" collapse="true">
                 <item name="Cache Concepts" href="documentation/concepts.html"/>
                 <item name="Storage Options" href="documentation/storage_options.html"/>
                 <item name="Class loading" href="documentation/class_loading.html"/>

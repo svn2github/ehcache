@@ -614,24 +614,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Statistics.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Statistics.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="24" column="32" selection-start="787" selection-end="787" vertical-scroll-proportion="0.014150944">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Ehcache.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Ehcache.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="560" column="33" selection-start="22255" selection-end="22255" vertical-scroll-proportion="0.049219687">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="RMICacheReplicatorTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -677,28 +659,55 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="index.apt" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="index.apt" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/site/apt/index.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="24" column="96" selection-start="1115" selection-end="1115" vertical-scroll-proportion="0.16446579">
+            <state line="38" column="96" selection-start="2034" selection-end="2034" vertical-scroll-proportion="0.36614645">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RMICacheManagerPeerListener.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java">
+      <file leaf-file-name="build.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/build.xml">
+          <provider editor-type-id="antVisTarget">
+            <state />
+          </provider>
           <provider selected="true" editor-type-id="text-editor">
-            <state line="429" column="55" selection-start="15556" selection-end="15556" vertical-scroll-proportion="0.014405762">
+            <state line="526" column="90" selection-start="22662" selection-end="22662" vertical-scroll-proportion="0.3117207">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CacheManagerPeerListener.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/CacheManagerPeerListener.java">
+      <file leaf-file-name="book.css" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/site/resources/css/book.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="41" column="77" selection-start="1306" selection-end="1306" vertical-scroll-proportion="0.3254717">
+            <state line="15" column="34" selection-start="298" selection-end="298" vertical-scroll-proportion="0.21226415">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="site.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/site.xml">
+          <provider editor-type-id="antVisTarget">
+            <state />
+          </provider>
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="35" column="35" selection-start="1638" selection-end="1638" vertical-scroll-proportion="0.52369076">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="pom.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pom.xml">
+          <provider editor-type-id="antVisTarget">
+            <state />
+          </provider>
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="215" column="100" selection-start="7897" selection-end="7897" vertical-scroll-proportion="0.45743328">
               <folding />
             </state>
           </provider>
@@ -1092,6 +1101,36 @@
       </PATH_ELEMENT>
       <PATH_ELEMENT>
         <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site/apt" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+    </PATH>
+    <PATH>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="ehcache.ipr" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="ehcache" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site/apt" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site/apt/documentation" />
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
       </PATH_ELEMENT>
     </PATH>
@@ -1845,34 +1884,6 @@
     </buildFile>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="1556" column="56" selection-start="56799" selection-end="56799" vertical-scroll-proportion="0.034813926">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/StatisticsTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="13" selection-start="1048" selection-end="1048" vertical-scroll-proportion="0.014150944">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/ResponseUtil.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="82" column="81" selection-start="2967" selection-end="2967" vertical-scroll-proportion="0.20754717">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDIManualRMICacheManagerPeerProvider.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="50" column="13" selection-start="1666" selection-end="1666" vertical-scroll-proportion="0.014150944">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDIRMICacheManagerPeerListener.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="39" column="3" selection-start="1377" selection-end="1377" vertical-scroll-proportion="0.014150944">
@@ -1943,9 +1954,46 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/site.xml">
+      <provider editor-type-id="antVisTarget">
+        <state />
+      </provider>
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="35" column="35" selection-start="1638" selection-end="1638" vertical-scroll-proportion="0.52369076">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider editor-type-id="antVisTarget">
+        <state />
+      </provider>
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="215" column="100" selection-start="7897" selection-end="7897" vertical-scroll-proportion="0.45743328">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/site/apt/index.apt">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="24" column="96" selection-start="1115" selection-end="1115" vertical-scroll-proportion="0.16446579">
+        <state line="38" column="96" selection-start="2034" selection-end="2034" vertical-scroll-proportion="0.36614645">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.xml">
+      <provider editor-type-id="antVisTarget">
+        <state />
+      </provider>
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="526" column="90" selection-start="22662" selection-end="22662" vertical-scroll-proportion="0.3117207">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/resources/css/book.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="15" column="34" selection-start="298" selection-end="298" vertical-scroll-proportion="0.21226415">
           <folding />
         </state>
       </provider>

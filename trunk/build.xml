@@ -532,6 +532,42 @@
         <copy file="${build.dir}/book/EhcacheUserGuide.pdf" todir="${build.dir}/site"/>
 
     </target>
+        <target name="singlepageguide">
+        <delete dir="${build.dir}/book"/>
+        <mkdir dir="${build.dir}/book"/>
+        <copy todir="${build.dir}/book/images">
+            <fileset dir="src/site/resources/images"/>
+        </copy>
+        <copy todir="${build.dir}/book">
+            <fileset dir="src/site/apt/documentation">
+                <include name="*.apt"/>
+            </fileset>
+        </copy>
+
+        <exec executable="aptconvert" newenvironment="false" dir="${build.dir}/book" spawn="false">
+            <arg value="EhcacheUserGuide.html"/>
+            <arg value="getting_started.apt"/>
+            <arg value="concepts.apt"/>
+            <arg value="dependencies.apt"/>
+            <arg value="logging.apt"/>
+            <arg value="class_loading.apt"/>
+            <arg value="performance_considerations.apt"/>
+            <arg value="configuration.apt"/>
+            <arg value="storage_options.apt"/>
+            <arg value="shutdown_considerations.apt"/>
+            <arg value="hibernate.apt"/>
+            <arg value="distributed_design.apt"/>
+            <arg value="distributed_caching.apt"/>
+            <arg value="constructs_design.apt"/>
+            <arg value="cachemanager_event_listeners.apt"/>
+            <arg value="cache_event_listeners.apt"/>
+            <arg value="faq.apt"/>
+        </exec>
+
+        <copy file="${build.dir}/book/EhcacheUserGuide.html" todir="${build.dir}/site"/>
+        <copy file="${build.dir}/book/book.css" todir="${build.dir}/site"/>
+        <copy file="${build.dir}/book/apt_toc.gif" todir="${build.dir}/site"/>
+    </target>
 
 
 </project>

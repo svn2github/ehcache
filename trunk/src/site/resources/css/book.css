@@ -1,7 +1,7 @@
 body {
     font-family: arial sans-serif;
     color: #3C3E29;
-    font-size: 16px;
+    font-size: 14px;
     padding-left: 3px;
     font-weight: normal;
     line-height: 16px;
@@ -17,7 +17,7 @@ b {
 
 tt {
     color: #3C3E29;
-    font-size: 16px;
+    font-size: 13px;
 
 }
 
@@ -28,7 +28,7 @@ tt {
     font-weight: normal;
     padding-top: 25px;
     padding-left: 3px;
-    padding-right: 16px;
+    padding-right: 15px;
     padding-bottom: 25px;
     text-align: right;
 }
@@ -51,7 +51,7 @@ tt {
 dl {
     font-family: arial sans-serif;
     color: #3C3E29;
-    font-size: 16px;
+    font-size: 13px;
     padding-left: 3px;
     font-weight: normal;
     line-height: 16px;
@@ -60,7 +60,7 @@ dl {
 dd {
     font-family: arial sans-serif;
     color: black;
-    font-size: 16px;
+    font-size: 13px;
     padding-left: 3px;
     font-weight: normal;
     line-height: 16px;
@@ -128,30 +128,24 @@ ol {
 }
 
 a:link {
-/*color: #9C8E59;*/
-/*for pdf support */
-    color: #3C3E29;
-    text-decoration: none;
+    color: #9C8E59;
 }
 
 a:visited {
-/*color : #9C8E59;*/
-/*for pdf support*/
-    color: #3C3E29;
-    text-decoration: none;
+    color: #9C8E59;
 }
 
 .box {
     border-style: dashed;
     border-spacing: 1cm;
-    color: #3C3E29;
+    background-color: #3C3E29
 }
 
 pre {
     margin-right: 7px;
     margin-left: 7px;
     font-family: monospace;
-    font-size: 10px
+    font-size: 12px
 
 }
 
@@ -175,8 +169,8 @@ hr {
     font-size: 16px;
     font-weight: bold;
     background: #99CCFF;
-    padding-left: 16px;
-    padding-right: 16px; /*modified by Ash*/
+    padding-left: 15px;
+    padding-right: 15px; /*modified by Ash*/
     padding-top: 2px;
     padding-bottom: 0px;
     height: 0em; /*end mod*/
@@ -243,7 +237,7 @@ h1 {
     border: 1px solid #999;
     background-color: #ddd;
     font-weight: 900;
-    font-size: 25px;
+    font-size: 20px;
 }
 
 h2 {
