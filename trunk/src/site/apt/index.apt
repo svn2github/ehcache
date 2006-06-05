@@ -66,10 +66,11 @@ Welcome to ehcache
    The plan is to rapidly release ehcache-1.2.1 within a week or so. Please report any issues with ehcache-1.2.1RC promptly.
    Documentation of the new features will be complete during this time.
 
+
 ** 3 June 2006: Printable PDF User Guide for ehcache available
 
- Some people have requested a printable manual for ehcache.
-  Please see{{{http://ehcache.sourceforge.net/EhcacheUserGuide.pdf}}EhcacheUserGuide.pdf}
+  Some people have requested a printable manual for ehcache.
+   Please see{{{http://ehcache.sourceforge.net/EhcacheUserGuide.pdf}EhcacheUserGuide.pdf}}
 
 
  More {{{news.html}news}}...

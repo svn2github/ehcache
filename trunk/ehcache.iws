@@ -668,19 +668,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="news.apt" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="news.apt" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/site/apt/news.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="9" column="0" selection-start="51" selection-end="51" vertical-scroll-proportion="0.12965186">
+            <state line="59" column="0" selection-start="3499" selection-end="3714" vertical-scroll-proportion="0.41896757">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="index.apt" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="index.apt" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/site/apt/index.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="17" column="0" selection-start="475" selection-end="581" vertical-scroll-proportion="0.1212485">
+            <state line="24" column="96" selection-start="1115" selection-end="1115" vertical-scroll-proportion="0.16446579">
               <folding />
             </state>
           </provider>
@@ -1936,16 +1936,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/index.apt">
+    <entry file="file://$PROJECT_DIR$/src/site/apt/news.apt">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="0" selection-start="475" selection-end="581" vertical-scroll-proportion="0.1212485">
+        <state line="59" column="0" selection-start="3499" selection-end="3714" vertical-scroll-proportion="0.41896757">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/news.apt">
+    <entry file="file://$PROJECT_DIR$/src/site/apt/index.apt">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="9" column="0" selection-start="51" selection-end="51" vertical-scroll-proportion="0.12965186">
+        <state line="24" column="96" selection-start="1115" selection-end="1115" vertical-scroll-proportion="0.16446579">
           <folding />
         </state>
       </provider>
