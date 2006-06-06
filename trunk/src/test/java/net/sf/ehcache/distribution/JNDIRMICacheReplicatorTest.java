@@ -83,7 +83,7 @@ public class JNDIRMICacheReplicatorTest extends RMICacheReplicatorTest {
      */
     public void testBigRemovesProgagatesAsynchronous() throws CacheException, InterruptedException {
 //        forceVMGrowth();
-//        super.testBigPutsProgagatesAsynchronous();
+//        super.testBigRemovesProgagatesAsynchronous();
     }
 
 

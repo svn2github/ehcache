@@ -357,39 +357,29 @@ public class BlockingCacheTest extends AbstractCacheTest {
      * Tests that stripes are evently distributed
      */
     public void testStripingDistribution() {
-        int[] lockIndexes = new int[100];
-        for (int i = 0; i < 5000; i++) {
-            int lock = getLockForKey((new Character((char) i)).toString() + i);
+        blockingCache = new BlockingCache("sampleCache1", 400);
+
+        int[] lockIndexes = new int[128];
+        for (int i = 0; i < 50000; i++) {
+            String key = new String("" + i * 3 / 2 + i);
+            key += key.hashCode();
+            int lock = blockingCache.selectLock(key);
             lockIndexes[lock]++;
         }
 
-        for (int i = 0; i < 100; i++) {
-            assertTrue("Lock index " + i + " outside of range", 40 <= lockIndexes[i] && lockIndexes[i] <= 60);
+        for (int i = 0; i < 128; i++) {
+            assertTrue("Lock index " + i + " outside of range: " + lockIndexes[i],
+                    340 <= lockIndexes[i] && lockIndexes[i] <= 460);
         }
     }
 
     /**
-     * Tests edge conditions for striping mechanism
+     * Tests edge conditions for striping mechanism.
      */
     public void testNullKey() {
-        getLockForKey(null);
-        getLockForKey("");
+        blockingCache = new BlockingCache("sampleCache1", 400);
+        blockingCache.selectLock(null);
+        blockingCache.selectLock("");
     }
-
-
-    /**
-     * Workalike of the method in BlockingCache
-     */
-    private int getLockForKey(final Serializable key) {
-        if (key == null) {
-            return 1;
-        }
-        int lockIndex = key.hashCode() % 100;
-        if (lockIndex < 0) {
-            lockIndex += 100;
-        }
-        return lockIndex;
-    }
-
 }
 

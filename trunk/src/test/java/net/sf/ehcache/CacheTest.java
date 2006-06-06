@@ -19,13 +19,15 @@ package net.sf.ehcache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.Serializable;
 import java.io.ByteArrayInputStream;
+import java.io.Serializable;
 import java.lang.ref.SoftReference;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 
 /**
@@ -1307,6 +1309,71 @@ public class CacheTest extends AbstractCacheTest {
 
         assertEquals(5000, cache.getDiskStoreSize());
     }
+
+
+
+    /**
+     * Multi-thread read-write test with 20 threads
+     * Just use MemoryStore to put max stress on cache
+     */
+    public void testReadWriteThreads() throws Exception {
+
+        final Ehcache cache = manager.getCache("sampleCache1");
+
+        long start = System.currentTimeMillis();
+        final List executables = new ArrayList();
+        final Random random = new Random();
+
+        final StopWatch stopWatch = new StopWatch();
+
+        // 50% of the time get data
+        for (int i = 0; i < 30; i++) {
+            final Executable executable = new Executable() {
+                public void execute() throws Exception {
+                    long start = stopWatch.getElapsedTime();
+                    cache.get("key" + random.nextInt(10000));
+                    long end = stopWatch.getElapsedTime();
+                    long elapsed = end - start;
+                    assertTrue("Get time outside of allowed range: " + elapsed, elapsed < 110);
+                }
+            };
+            executables.add(executable);
+        }
+
+        //25% of the time add data
+        for (int i = 0; i < 10; i++) {
+            final Executable executable = new Executable() {
+                public void execute() throws Exception {
+                    long start = stopWatch.getElapsedTime();
+                    cache.put(new Element("key" + random.nextInt(10000), "value"));
+                    long end = stopWatch.getElapsedTime();
+                    long elapsed = end - start;
+                    assertTrue("Put time outside of allowed range: " + elapsed, elapsed < 110);
+                }
+            };
+            executables.add(executable);
+        }
+
+        //25% of the time remove the data
+        for (int i = 0; i < 10; i++) {
+            final Executable executable = new Executable() {
+                public void execute() throws Exception {
+                    long start = stopWatch.getElapsedTime();
+                    cache.remove("key" + random.nextInt(10000));
+                    long end = stopWatch.getElapsedTime();
+                    long elapsed = end - start;
+                    assertTrue("Remove time outside of allowed range: " + elapsed, elapsed < 110);
+                }
+            };
+            executables.add(executable);
+        }
+
+        runThreads(executables);
+        long end = System.currentTimeMillis();
+        LOG.info("Total time for the test: " + (end - start) + " ms");
+    }
+
+
 
 
 }

@@ -25,9 +25,9 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import java.util.Date;
 
 /**
  * Other than policy differences, the Store implementations should work identically
@@ -550,60 +550,6 @@ public class MemoryStoreTester extends AbstractCacheTest {
         long end = System.currentTimeMillis();
         LOG.info("Total time for the test: " + (end + start) + " ms");
     }
-
-
-    /**
-     * Runs a set of threads, for a fixed amount of time.
-     */
-    protected void runThreads(final List executables) throws Exception {
-
-        final long endTime = System.currentTimeMillis() + 10000;
-        final Throwable[] errors = new Throwable[1];
-
-        // Spin up the threads
-        final Thread[] threads = new Thread[executables.size()];
-        for (int i = 0; i < threads.length; i++) {
-            final LruMemoryStoreTest.Executable executable = (MemoryStoreTester.Executable) executables.get(i);
-            threads[i] = new Thread() {
-                public void run() {
-                    try {
-                        // Run the thread until the given end time
-                        while (System.currentTimeMillis() < endTime) {
-                            executable.execute();
-                        }
-                    } catch (Throwable t) {
-                        // Hang on to any errors
-                        errors[0] = t;
-                    }
-                }
-            };
-            threads[i].start();
-        }
-
-        // Wait for the threads to finish
-        for (int i = 0; i < threads.length; i++) {
-            threads[i].join();
-        }
-
-        // Throw any error that happened
-        if (errors[0] != null) {
-            throw new Exception("Test thread failed.", errors[0]);
-        }
-    }
-
-
-    /**
-     * A runnable, that can throw an exception.
-     */
-    protected interface Executable {
-        /**
-         * Executes this object.
-         *
-         * @throws Exception
-         */
-        void execute() throws Exception;
-    }
-
 
 
     /**

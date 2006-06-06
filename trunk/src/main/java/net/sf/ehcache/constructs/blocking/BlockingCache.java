@@ -62,26 +62,25 @@ import java.util.List;
  * The <code>Mutex</code> class does not appear in the JDK5 concurrency package. Doug Lea has
  * generously offered the following advice:
  * <p/>
- * <pre>
- * You should just be able to use ReentrantLock here.  We supply
+ * "You should just be able to use ReentrantLock here.  We supply
  * ReentrantLock, but not Mutex because the number of cases where a
  * non-reentrant mutex is preferable is small, and most people are more
  * familiar with reentrant seamantics. If you really need a non-reentrant
  * one, the javadocs for class AbstractQueuedSynchronizer include sample
- * code for them.
+ * code for them."
  * <p/>
  * -Doug
  * <p/>
- * Hashtable / synchronizedMap uses the "one big fat lock" approach to guard the mutable state of the map.
+ * "Hashtable / synchronizedMap uses the "one big fat lock" approach to guard the mutable state of the map.
  * That works, but is a big concurrency bottleneck, as you've observed.  You went to the opposite extreme, one lock per key.
- *  That works (as long as you've got sufficient synchronization in the cache itself to protect its own data structures.)
+ * That works (as long as you've got sufficient synchronization in the cache itself to protect its own data structures.)
  * <p/>
  * Lock striping is a middle ground, partitioning keys into a fixed number of subsets, like the trick used at large
- *  theaters for will-call ticket pickup -- there are separate lines for "A-F, G-M, N-R, and S-Z".
- * This way, there are a fixed number of locks, each guarding (hopefully) 1/Nth of the keys.
+ * theaters for will-call ticket pickup -- there are separate lines for "A-F, G-M, N-R, and S-Z".
+ * This way, there are a fixed number of locks, each guarding (hopefully) 1/Nth of the keys."
  * - Brian Goetz
- * </pre>
  * <p/>
+ * Further improvements to hashing suggested by Joe Bowbeer.
  *
  * @author Greg Luck
  * @version $Id$
@@ -89,19 +88,33 @@ import java.util.List;
 public class BlockingCache {
 
     /**
-     * The default number of locks to use. 16 is recommended by Brian Goetz
+     * The default number of locks to use. 16 is recommended by Brian Goetz. Must be a power of 2
      */
-    protected static final int LOCK_NUMBER = 100;
+    protected static final int LOCK_NUMBER = 128;
+
+    static {
+        int number = LOCK_NUMBER & (LOCK_NUMBER - 1);
+        if (number != 0) {
+            throw new IllegalStateException("Lock number must be a power of two: " + LOCK_NUMBER);
+        }
+    }
 
     private static final Log LOG = LogFactory.getLog(BlockingCache.class.getName());
+
+    private static final int DOUG_LEA_BLACK_MAGIC_OPERAND_1 = 20;
+    private static final int DOUG_LEA_BLACK_MAGIC_OPERAND_2 = 12;
+    private static final int DOUG_LEA_BLACK_MAGIC_OPERAND_3 = 7;
+    private static final int DOUG_LEA_BLACK_MAGIC_OPERAND_4 = 4;
+
 
 
     /**
      * Based on the lock striping concept from Brian Goetz. See Java Concurrency in Practice 11.4.3
      */
-    private Mutex[] locks = new Mutex[LOCK_NUMBER];
+    private final Mutex[] locks = new Mutex[LOCK_NUMBER];
 
     {
+
         for (int i = 0; i < LOCK_NUMBER; i++) {
             locks[i] = new Mutex();
         }
@@ -114,6 +127,7 @@ public class BlockingCache {
 
 
     private final int timeoutMillis;
+
     /**
      * A map of cache entry locks, one per key, if present
      */
@@ -231,15 +245,44 @@ public class BlockingCache {
         }
     }
 
-    private Mutex getLockForKey(final Serializable key) {
+
+    private Mutex getLockForKey(final Object key) {
+        int lockNumber = selectLock(key);
+        return locks[lockNumber];
+    }
+
+    /**
+     * Selects a lock for a key. The same lock is always used for a given key.
+     *
+     * @param key
+     * @return the selected lock index
+     */
+    int selectLock(final Object key) {
         if (key == null) {
-            return locks[0];
+            return 0;
+        } else {
+            int hash = hash(key) & (LOCK_NUMBER - 1);
+            return hash;
         }
-        int h = key.hashCode() % LOCK_NUMBER;
-        if (h < 0) {
-            h += LOCK_NUMBER;
-        }
-        return locks[h];
+
+    }
+
+
+    /**
+     * Returns a hash code for non-null Object x.
+     * <p/>
+     * This function ensures that hashCodes that differ only by
+     * constant multiples at each bit position have a bounded
+     * number of collisions. (Doug Lea)
+     *
+     * @param object the object serving as a key
+     * @return the hash code
+     */
+    private static int hash(Object object) {
+
+        int h = object.hashCode();
+        h ^= (h >>> DOUG_LEA_BLACK_MAGIC_OPERAND_1) ^ (h >>> DOUG_LEA_BLACK_MAGIC_OPERAND_2);
+        return h ^ (h >>> DOUG_LEA_BLACK_MAGIC_OPERAND_3) ^ (h >>> DOUG_LEA_BLACK_MAGIC_OPERAND_4);
     }
 
     /**

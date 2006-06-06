@@ -14,6 +14,7 @@
     <suppress checks="NPathComplexity" files="Test.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="Test.java"/>
     <suppress checks="ClassFanOutComplexity" files="Test.java"/>
+    <suppress checks="FileLengthCheck" files="Test.java"/>    
 
 
     <!-- JNDI -->
