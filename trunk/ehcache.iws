@@ -603,11 +603,11 @@
     <leaf>
       <file leaf-file-name="build.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/build.xml">
-          <provider editor-type-id="antVisTarget">
+          <provider selected="true" editor-type-id="antVisTarget">
             <state />
           </provider>
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="526" column="90" selection-start="22662" selection-end="22662" vertical-scroll-proportion="0.3117207">
+          <provider editor-type-id="text-editor">
+            <state line="526" column="90" selection-start="22662" selection-end="22662" vertical-scroll-proportion="0.24064837">
               <folding />
             </state>
           </provider>
@@ -625,7 +625,7 @@
       <file leaf-file-name="BlockingCache.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="199" column="5" selection-start="7404" selection-end="7404" vertical-scroll-proportion="0.26415095">
+            <state line="199" column="5" selection-start="7404" selection-end="7404" vertical-scroll-proportion="0.014150944">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -636,7 +636,7 @@
       <file leaf-file-name="changes.xml" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="9" column="36" selection-start="516" selection-end="516" vertical-scroll-proportion="0.12965186">
+            <state line="7" column="16" selection-start="272" selection-end="621" vertical-scroll-proportion="0.10084034">
               <folding />
             </state>
           </provider>
@@ -645,7 +645,7 @@
       <file leaf-file-name="Object.java" pinned="false" current="false" current-in-tab="false">
         <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/Object.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="74" column="22" selection-start="3210" selection-end="3210" vertical-scroll-proportion="0.7936321">
+            <state line="74" column="22" selection-start="3210" selection-end="3210" vertical-scroll-proportion="0.014150944">
               <folding />
             </state>
           </provider>
@@ -654,7 +654,7 @@
       <file leaf-file-name="BlockingCacheTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/BlockingCacheTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="375" column="26" selection-start="13410" selection-end="13410" vertical-scroll-proportion="0.6462264">
+            <state line="375" column="26" selection-start="13410" selection-end="13410" vertical-scroll-proportion="0.6639151">
               <folding />
             </state>
           </provider>
@@ -663,7 +663,7 @@
       <file leaf-file-name="Character.java" pinned="false" current="false" current-in-tab="false">
         <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/Character.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="101" column="6" selection-start="4503" selection-end="4503" vertical-scroll-proportion="-6.711885">
+            <state line="101" column="6" selection-start="4503" selection-end="4503" vertical-scroll-proportion="0.014405762">
               <folding />
             </state>
           </provider>
@@ -672,7 +672,7 @@
       <file leaf-file-name="CacheManager.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="290" column="0" selection-start="12236" selection-end="12236" vertical-scroll-proportion="0.19103773">
+            <state line="290" column="0" selection-start="12236" selection-end="12236" vertical-scroll-proportion="0.014150944">
               <folding />
             </state>
           </provider>
@@ -681,7 +681,7 @@
       <file leaf-file-name="Cache.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="56" column="19" selection-start="2184" selection-end="2184" vertical-scroll-proportion="0.33133253">
+            <state line="56" column="19" selection-start="2184" selection-end="2184" vertical-scroll-proportion="0.014405762">
               <folding />
             </state>
           </provider>
@@ -1275,14 +1275,14 @@
     <property name="RunManagerConfig.compileBeforeRunning" value="true" />
     <property name="cvs_file_history_flatWidth6" value="214" />
     <property name="cvs_file_history_flatOrder0" value="0" />
-    <property name="cvs_file_history_treeWidth4" value="212" />
     <property name="cvs_file_history_treeOrder3" value="3" />
+    <property name="cvs_file_history_treeWidth4" value="212" />
     <property name="cvs_file_history_treeWidth6" value="211" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="cvs_file_history_flatOrder5" value="5" />
     <property name="cvs_file_history_flatWidth5" value="214" />
-    <property name="cvs_file_history_treeWidth3" value="370" />
     <property name="cvs_file_history_treeOrder2" value="2" />
+    <property name="cvs_file_history_treeWidth3" value="370" />
     <property name="cvs_file_history_treeWidth5" value="212" />
     <property name="cvs_file_history_flatOrder6" value="6" />
     <property name="cvs_file_history_flatWidth0" value="370" />
@@ -1735,7 +1735,7 @@
       <window_info id="Regex" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32850778" order="7" />
       <window_info id="Checkstyle" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.29703608" order="0" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.3015464" order="0" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32739422" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25322166" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32516703" order="10" />
@@ -1908,54 +1908,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/features.apt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="47" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/build.xml">
-      <provider editor-type-id="antVisTarget">
+      <provider selected="true" editor-type-id="antVisTarget">
         <state />
       </provider>
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="526" column="90" selection-start="22662" selection-end="22662" vertical-scroll-proportion="0.3117207">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="56" column="19" selection-start="2184" selection-end="2184" vertical-scroll-proportion="0.33133253">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="290" column="0" selection-start="12236" selection-end="12236" vertical-scroll-proportion="0.19103773">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/Character.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="101" column="6" selection-start="4503" selection-end="4503" vertical-scroll-proportion="-6.711885">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/Object.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="74" column="22" selection-start="3210" selection-end="3210" vertical-scroll-proportion="0.7936321">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/BlockingCacheTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="375" column="26" selection-start="13410" selection-end="13410" vertical-scroll-proportion="0.6462264">
+      <provider editor-type-id="text-editor">
+        <state line="526" column="90" selection-start="22662" selection-end="22662" vertical-scroll-proportion="0.24064837">
           <folding />
         </state>
       </provider>
@@ -1969,16 +1927,58 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="199" column="5" selection-start="7404" selection-end="7404" vertical-scroll-proportion="0.26415095">
+        <state line="199" column="5" selection-start="7404" selection-end="7404" vertical-scroll-proportion="0.014150944">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/Object.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="74" column="22" selection-start="3210" selection-end="3210" vertical-scroll-proportion="0.014150944">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/BlockingCacheTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="375" column="26" selection-start="13410" selection-end="13410" vertical-scroll-proportion="0.6639151">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/Character.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="101" column="6" selection-start="4503" selection-end="4503" vertical-scroll-proportion="0.014405762">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="290" column="0" selection-start="12236" selection-end="12236" vertical-scroll-proportion="0.014150944">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="56" column="19" selection-start="2184" selection-end="2184" vertical-scroll-proportion="0.014405762">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/features.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="47" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="9" column="36" selection-start="516" selection-end="516" vertical-scroll-proportion="0.12965186">
+        <state line="7" column="16" selection-start="272" selection-end="621" vertical-scroll-proportion="0.10084034">
           <folding />
         </state>
       </provider>
