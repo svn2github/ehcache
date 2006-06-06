@@ -601,15 +601,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="index.apt" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/site/apt/index.apt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="38" column="96" selection-start="2034" selection-end="2034" vertical-scroll-proportion="0.36614645">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="build.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/build.xml">
           <provider editor-type-id="antVisTarget">
@@ -631,13 +622,22 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BlockingCache.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="BlockingCache.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="74" column="87" selection-start="3153" selection-end="3153" vertical-scroll-proportion="-1.504717">
+            <state line="199" column="5" selection-start="7404" selection-end="7404" vertical-scroll-proportion="0.26415095">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="changes.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="9" column="36" selection-start="516" selection-end="516" vertical-scroll-proportion="0.12965186">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -654,7 +654,7 @@
       <file leaf-file-name="BlockingCacheTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/BlockingCacheTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="375" column="98" selection-start="13409" selection-end="13409" vertical-scroll-proportion="0.6462264">
+            <state line="375" column="26" selection-start="13410" selection-end="13410" vertical-scroll-proportion="0.6462264">
               <folding />
             </state>
           </provider>
@@ -1867,13 +1867,6 @@
     </buildFile>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/site/apt/support.apt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="0" selection-start="241" selection-end="241" vertical-scroll-proportion="0.2264151">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/site/apt/news.apt">
       <provider selected="true" editor-type-id="text-editor">
         <state line="59" column="0" selection-start="3499" selection-end="3714" vertical-scroll-proportion="0.41896757">
@@ -1932,13 +1925,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/getting_started.apt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="40" column="0" selection-start="1059" selection-end="1059" vertical-scroll-proportion="0.5660377">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="56" column="19" selection-start="2184" selection-end="2184" vertical-scroll-proportion="0.33133253">
@@ -1969,17 +1955,31 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/BlockingCacheTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="375" column="98" selection-start="13409" selection-end="13409" vertical-scroll-proportion="0.6462264">
+        <state line="375" column="26" selection-start="13410" selection-end="13410" vertical-scroll-proportion="0.6462264">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/getting_started.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="40" column="0" selection-start="1059" selection-end="1059" vertical-scroll-proportion="0.5660377">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="74" column="87" selection-start="3153" selection-end="3153" vertical-scroll-proportion="-1.504717">
+        <state line="199" column="5" selection-start="7404" selection-end="7404" vertical-scroll-proportion="0.26415095">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="9" column="36" selection-start="516" selection-end="516" vertical-scroll-proportion="0.12965186">
+          <folding />
         </state>
       </provider>
     </entry>
