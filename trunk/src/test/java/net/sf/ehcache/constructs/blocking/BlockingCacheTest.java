@@ -105,13 +105,12 @@ public class BlockingCacheTest extends AbstractCacheTest {
     /**
      * The design of the BlockingCache threading uses a small amount of memory per entry.
      * This test checks that it is not excessive.
-     *
+     * <p/>
      * Profiler testing reveals 24 bytes are used per Mutex added to the HashMap
-     * 
+     *
      * @throws InterruptedException
      */
     public void testMutexSize() throws InterruptedException {
-
         long startingMemory = measureMemoryUse();
         Map map = new HashMap();
         for (int i = 0; i < 100000; i++) {
@@ -122,7 +121,6 @@ public class BlockingCacheTest extends AbstractCacheTest {
         LOG.info("Memory used: " + memoryUsed);
         assertTrue(memoryUsed < 10000000);
     }
-
 
 
     /**
@@ -195,7 +193,7 @@ public class BlockingCacheTest extends AbstractCacheTest {
      */
     public void testThrashBlockingCache() throws Exception {
         blockingCache = new BlockingCache("sampleCache1");
-        long duration = thrashCache(blockingCache, 50, 400L, 1000L);
+        long duration = thrashCache(blockingCache, 100, 400L, 1000L);
         LOG.debug("Thrash Duration:" + duration);
     }
 
@@ -208,7 +206,7 @@ public class BlockingCacheTest extends AbstractCacheTest {
         blockingCache = new BlockingCache("sampleCache1", 1);
         long duration = 0;
         try {
-            duration = thrashCache(blockingCache, 50, 400L, 1000L);
+            duration = thrashCache(blockingCache, 100, 400L, 1000L);
             fail();
         } catch (Exception e) {
             assertEquals(BlockingCacheException.class, e.getCause().getClass());
@@ -222,7 +220,7 @@ public class BlockingCacheTest extends AbstractCacheTest {
      */
     public void testThrashBlockingCacheReasonableTimeout() throws Exception {
         blockingCache = new BlockingCache("sampleCache1", 400);
-        long duration = thrashCache(blockingCache, 50, 400L, 1000L);
+        long duration = thrashCache(blockingCache, 100, 400L, 1000L);
         LOG.debug("Thrash Duration:" + duration);
     }
 
@@ -352,6 +350,45 @@ public class BlockingCacheTest extends AbstractCacheTest {
     private interface Executable {
         // Executes this object.
         void execute() throws Exception;
+    }
+
+
+    /**
+     * Tests that stripes are evently distributed
+     */
+    public void testStripingDistribution() {
+        int[] lockIndexes = new int[100];
+        for (int i = 0; i < 5000; i++) {
+            int lock = getLockForKey((new Character((char) i)).toString() + i);
+            lockIndexes[lock]++;
+        }
+
+        for (int i = 0; i < 100; i++) {
+            assertTrue("Lock index " + i + " outside of range", 40 <= lockIndexes[i] && lockIndexes[i] <= 60);
+        }
+    }
+
+    /**
+     * Tests edge conditions for striping mechanism
+     */
+    public void testNullKey() {
+        getLockForKey(null);
+        getLockForKey("");
+    }
+
+
+    /**
+     * Workalike of the method in BlockingCache
+     */
+    private int getLockForKey(final Serializable key) {
+        if (key == null) {
+            return 1;
+        }
+        int lockIndex = key.hashCode() % 100;
+        if (lockIndex < 0) {
+            lockIndex += 100;
+        }
+        return lockIndex;
     }
 
 }

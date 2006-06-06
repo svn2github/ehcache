@@ -28,10 +28,8 @@ import org.apache.commons.logging.LogFactory;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -52,6 +50,9 @@ import java.util.Map;
  * <li>Scalability to a large number of threads.
  * </ul>
  * <p/>
+ * This class has been updated to use Lock striping. The Mutex implementation gives scalability but creates
+ * many Mutex objects of 24 bytes each. Lock striping limits their number to 100.
+ * <p/>
  * A version of this class is planned which will dynamically use JDK5's concurrency package, which is
  * based on Doug Lea's, so as to avoid a dependency on his package for JDK5 systems. This will not
  * be implemented until JDK5 is released on MacOSX and Linux, as JDK5 will be required to compile
@@ -70,6 +71,15 @@ import java.util.Map;
  * code for them.
  * <p/>
  * -Doug
+ * <p/>
+ * Hashtable / synchronizedMap uses the "one big fat lock" approach to guard the mutable state of the map.
+ * That works, but is a big concurrency bottleneck, as you've observed.  You went to the opposite extreme, one lock per key.
+ *  That works (as long as you've got sufficient synchronization in the cache itself to protect its own data structures.)
+ * <p/>
+ * Lock striping is a middle ground, partitioning keys into a fixed number of subsets, like the trick used at large
+ *  theaters for will-call ticket pickup -- there are separate lines for "A-F, G-M, N-R, and S-Z".
+ * This way, there are a fixed number of locks, each guarding (hopefully) 1/Nth of the keys.
+ * - Brian Goetz
  * </pre>
  * <p/>
  *
@@ -78,7 +88,24 @@ import java.util.Map;
  */
 public class BlockingCache {
 
+    /**
+     * The default number of locks to use. 16 is recommended by Brian Goetz
+     */
+    protected static final int LOCK_NUMBER = 100;
+
     private static final Log LOG = LogFactory.getLog(BlockingCache.class.getName());
+
+
+    /**
+     * Based on the lock striping concept from Brian Goetz. See Java Concurrency in Practice 11.4.3
+     */
+    private Mutex[] locks = new Mutex[LOCK_NUMBER];
+
+    {
+        for (int i = 0; i < LOCK_NUMBER; i++) {
+            locks[i] = new Mutex();
+        }
+    }
 
     /**
      * The backing Cache
@@ -87,11 +114,10 @@ public class BlockingCache {
 
 
     private final int timeoutMillis;
-
     /**
      * A map of cache entry locks, one per key, if present
      */
-    private final Map locks = new HashMap();
+    //private final Map locks = new HashMap();
 
     /**
      * Creates a BlockingCache with the given name.
@@ -179,7 +205,7 @@ public class BlockingCache {
      * If a put is not done, the lock is never released
      */
     public Serializable get(final Serializable key) throws BlockingCacheException {
-        Mutex lock = checkLockExistsForKey(key);
+        Mutex lock = getLockForKey(key);
         try {
             if (timeoutMillis == 0) {
                 lock.acquire();
@@ -205,21 +231,22 @@ public class BlockingCache {
         }
     }
 
-    private synchronized Mutex checkLockExistsForKey(final Serializable key) {
-        Mutex lock;
-        lock = (Mutex) locks.get(key);
-        if (lock == null) {
-            lock = new Mutex();
-            locks.put(key, lock);
+    private Mutex getLockForKey(final Serializable key) {
+        if (key == null) {
+            return locks[0];
         }
-        return lock;
+        int h = key.hashCode() % LOCK_NUMBER;
+        if (h < 0) {
+            h += LOCK_NUMBER;
+        }
+        return locks[h];
     }
 
     /**
      * Adds an entry and unlocks it
      */
     public void put(final Serializable key, final Serializable value) {
-        Mutex lock = checkLockExistsForKey(key);
+        Mutex lock = getLockForKey(key);
         try {
             if (value != null) {
                 final Element element = new Element(key, value);
