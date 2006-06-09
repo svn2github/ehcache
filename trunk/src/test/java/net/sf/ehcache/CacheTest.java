@@ -448,7 +448,7 @@ public class CacheTest extends AbstractCacheTest {
      */
     public void testExpiryBasedOnTimeToLive() throws Exception {
         //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test", 1, true, false, 5, 2);
+        Cache cache = new Cache("test", 1, true, false, 3, 0);
         manager.addCache(cache);
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
@@ -456,7 +456,15 @@ public class CacheTest extends AbstractCacheTest {
         //Test time to live
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
-        Thread.sleep(5010);
+        Thread.sleep(1001);
+        //Test time to live
+        assertNotNull(cache.get("key1"));
+        assertNotNull(cache.get("key2"));
+        Thread.sleep(1001);
+        //Test time to live
+        assertNotNull(cache.get("key1"));
+        assertNotNull(cache.get("key2"));
+        Thread.sleep(1001);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
     }
@@ -552,7 +560,7 @@ public class CacheTest extends AbstractCacheTest {
      */
     public void testExpiryBasedOnTimeToIdle() throws Exception {
         //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test", 1, true, false, 5, 2);
+        Cache cache = new Cache("test", 1, true, false, 6, 2);
         manager.addCache(cache);
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
@@ -562,6 +570,17 @@ public class CacheTest extends AbstractCacheTest {
         Element element2 = cache.get("key2");
         assertNotNull(element1);
         assertNotNull(element2);
+        Thread.sleep(2010);
+        assertNull(cache.get("key1"));
+        assertNull(cache.get("key2"));
+
+        //Test effect of get
+        cache.put(new Element("key1", "value1"));
+        cache.put(new Element("key2", "value1"));
+        Thread.sleep(1010);
+        assertNotNull(cache.get("key1"));
+        assertNotNull(cache.get("key2"));
+
         Thread.sleep(2010);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
@@ -1315,26 +1334,41 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Multi-thread read-write test with 20 threads
      * Just use MemoryStore to put max stress on cache
+     * Values that work:
+     * <pre>
+     * size     threads     maxTime
+     * 10000    50          200
+     * 200000   50          500
+     * 200000   500         800
+     * </pre>
      */
     public void testReadWriteThreads() throws Exception {
 
-        final Ehcache cache = manager.getCache("sampleCache1");
+        final int size = 10000;
+        final int maxTime = 230;
+        final Cache cache = new Cache("test3cache", size, false, true, 30, 30);
+        manager.addCache(cache);
 
         long start = System.currentTimeMillis();
         final List executables = new ArrayList();
         final Random random = new Random();
 
-        final StopWatch stopWatch = new StopWatch();
+        for (int i = 0; i < size; i++) {
+            cache.put(new Element("" + i, "value"));
+        }
+
+
 
         // 50% of the time get data
         for (int i = 0; i < 30; i++) {
             final Executable executable = new Executable() {
                 public void execute() throws Exception {
+                    final StopWatch stopWatch = new StopWatch();
                     long start = stopWatch.getElapsedTime();
-                    cache.get("key" + random.nextInt(10000));
+                    cache.get("key" + random.nextInt(size));
                     long end = stopWatch.getElapsedTime();
                     long elapsed = end - start;
-                    assertTrue("Get time outside of allowed range: " + elapsed, elapsed < 110);
+                    assertTrue("Get time outside of allowed range: " + elapsed, elapsed < maxTime);
                 }
             };
             executables.add(executable);
@@ -1344,11 +1378,12 @@ public class CacheTest extends AbstractCacheTest {
         for (int i = 0; i < 10; i++) {
             final Executable executable = new Executable() {
                 public void execute() throws Exception {
+                    final StopWatch stopWatch = new StopWatch();
                     long start = stopWatch.getElapsedTime();
-                    cache.put(new Element("key" + random.nextInt(10000), "value"));
+                    cache.put(new Element("key" + random.nextInt(size), "value"));
                     long end = stopWatch.getElapsedTime();
                     long elapsed = end - start;
-                    assertTrue("Put time outside of allowed range: " + elapsed, elapsed < 110);
+                    assertTrue("Put time outside of allowed range: " + elapsed, elapsed < maxTime);
                 }
             };
             executables.add(executable);
@@ -1358,11 +1393,12 @@ public class CacheTest extends AbstractCacheTest {
         for (int i = 0; i < 10; i++) {
             final Executable executable = new Executable() {
                 public void execute() throws Exception {
+                    final StopWatch stopWatch = new StopWatch();
                     long start = stopWatch.getElapsedTime();
-                    cache.remove("key" + random.nextInt(10000));
+                    cache.remove("key" + random.nextInt(size));
                     long end = stopWatch.getElapsedTime();
                     long elapsed = end - start;
-                    assertTrue("Remove time outside of allowed range: " + elapsed, elapsed < 110);
+                    assertTrue("Remove time outside of allowed range: " + elapsed, elapsed < maxTime);
                 }
             };
             executables.add(executable);

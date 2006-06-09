@@ -16,8 +16,8 @@
 package net.sf.ehcache.distribution;
 
 import net.sf.ehcache.AbstractCacheTest;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.event.CountingCacheEventListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

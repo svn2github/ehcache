@@ -662,56 +662,6 @@ public class DiskStoreTest extends AbstractCacheTest {
     }
 
     /**
-     * Runs a set of threads, for a fixed amount of time.
-     */
-    private static void runThreads(final List executables) throws Exception {
-
-        final long endTime = System.currentTimeMillis() + 3000;
-        final ArrayList errors = new ArrayList();
-
-// Spin up the threads
-        final Thread[] threads = new Thread[executables.size()];
-        for (int i = 0; i < threads.length; i++) {
-            final Executable executable = (Executable) executables.get(i);
-            threads[i] = new Thread() {
-                public void run() {
-                    try {
-                        // Run the thread until the given end time
-                        while (System.currentTimeMillis() < endTime) {
-                            executable.execute();
-                        }
-                    } catch (Throwable t) {
-                        // Hang on to any errors
-                        LOG.error(t.getMessage(), t);
-                        errors.add(t);
-                    }
-                }
-            };
-            threads[i].start();
-        }
-
-        // Wait for the threads to finish
-        for (int i = 0; i < threads.length; i++) {
-            threads[i].join();
-        }
-
-        // Fail if any error happened
-        if (errors.size() > 0) {
-            fail(errors.size() + " errors");
-        }
-    }
-
-    /**
-     * A runnable, that can throw an exception.
-     */
-    private interface Executable {
-        /**
-         * Executes this object.
-         */
-        void execute() throws Exception;
-    }
-
-    /**
      * Tests how data is written to a random access file.
      * <p/>
      * It makes sure that bytes are immediately written to disk after a write.

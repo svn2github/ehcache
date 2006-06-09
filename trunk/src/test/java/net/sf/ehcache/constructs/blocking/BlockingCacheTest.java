@@ -193,7 +193,7 @@ public class BlockingCacheTest extends AbstractCacheTest {
      */
     public void testThrashBlockingCache() throws Exception {
         blockingCache = new BlockingCache("sampleCache1");
-        long duration = thrashCache(blockingCache, 100, 400L, 1000L);
+        long duration = thrashCache(blockingCache, 50, 400L, 1000L);
         LOG.debug("Thrash Duration:" + duration);
     }
 
@@ -206,7 +206,7 @@ public class BlockingCacheTest extends AbstractCacheTest {
         blockingCache = new BlockingCache("sampleCache1", 1);
         long duration = 0;
         try {
-            duration = thrashCache(blockingCache, 100, 400L, 1000L);
+            duration = thrashCache(blockingCache, 50, 400L, 1000L);
             fail();
         } catch (Exception e) {
             assertEquals(BlockingCacheException.class, e.getCause().getClass());
@@ -220,7 +220,7 @@ public class BlockingCacheTest extends AbstractCacheTest {
      */
     public void testThrashBlockingCacheReasonableTimeout() throws Exception {
         blockingCache = new BlockingCache("sampleCache1", 400);
-        long duration = thrashCache(blockingCache, 100, 400L, 1000L);
+        long duration = thrashCache(blockingCache, 50, 400L, 1000L);
         LOG.debug("Thrash Duration:" + duration);
     }
 
@@ -303,55 +303,6 @@ public class BlockingCacheTest extends AbstractCacheTest {
                 measuredRetrievalTime < requiredRetrievalTime);
     }
 
-    /**
-     * Runs a set of threads, for a fixed amount of time.
-     */
-    private void runThreads(final List executables) throws Exception {
-
-        final long endTime = System.currentTimeMillis() + 10000;
-        final Throwable[] errors = new Throwable[1];
-
-        // Spin up the threads
-        final Thread[] threads = new Thread[executables.size()];
-        for (int i = 0; i < threads.length; i++) {
-            final Executable executable = (Executable) executables.get(i);
-            threads[i] = new Thread() {
-                public void run() {
-                    try {
-                        // Run the thread until the given end time
-                        while (System.currentTimeMillis() < endTime) {
-                            executable.execute();
-                        }
-                    } catch (Throwable t) {
-                        // Hang on to any errors
-                        errors[0] = t;
-                    }
-                }
-            };
-
-            threads[i].start();
-        }
-        LOG.debug("Started " + threads.length + " threads");
-
-        // Wait for the threads to finish
-        for (int i = 0; i < threads.length; i++) {
-            threads[i].join();
-        }
-
-        // Throw any error that happened
-        if (errors[0] != null) {
-            throw new Exception("Test thread failed.", errors[0]);
-        }
-    }
-
-    /**
-     * A runnable, that can throw an exception.
-     */
-    private interface Executable {
-        // Executes this object.
-        void execute() throws Exception;
-    }
-
 
     /**
      * Tests that stripes are evently distributed
@@ -359,18 +310,23 @@ public class BlockingCacheTest extends AbstractCacheTest {
     public void testStripingDistribution() {
         blockingCache = new BlockingCache("sampleCache1", 400);
 
-        int[] lockIndexes = new int[128];
-        for (int i = 0; i < 50000; i++) {
-            String key = new String("" + i * 3 / 2 + i);
+        int[] lockIndexes = new int[BlockingCache.LOCK_NUMBER];
+        for (int i = 0; i < 20480 * 3; i++) {
+            String key = "" + i * 3 / 2 + i;
             key += key.hashCode();
             int lock = blockingCache.selectLock(key);
             lockIndexes[lock]++;
         }
 
-        for (int i = 0; i < 128; i++) {
-            assertTrue("Lock index " + i + " outside of range: " + lockIndexes[i],
-                    340 <= lockIndexes[i] && lockIndexes[i] <= 460);
+        int outliers = 0;
+        for (int i = 0; i < BlockingCache.LOCK_NUMBER; i++) {
+            if (20 <= lockIndexes[i] && lockIndexes[i] <= 40) {
+                continue;
+            }
+            LOG.info(i + ": " + lockIndexes[i]);
+            outliers++;
         }
+        assertTrue(outliers <= 128);
     }
 
     /**

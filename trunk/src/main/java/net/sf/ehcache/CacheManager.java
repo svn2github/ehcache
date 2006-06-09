@@ -203,13 +203,6 @@ public final class CacheManager {
         if (cacheManagerPeerProvider != null) {
             cacheManagerPeerProvider.init();
         }
-
-        for (Iterator iterator = caches.values().iterator(); iterator.hasNext();) {
-            Cache cache = (Cache) iterator.next();
-            cache.bootstrap();
-        }
-
-
     }
 
     /**

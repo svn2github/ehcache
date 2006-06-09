@@ -88,9 +88,9 @@ import java.util.List;
 public class BlockingCache {
 
     /**
-     * The default number of locks to use. 16 is recommended by Brian Goetz. Must be a power of 2
+     * The default number of locks to use. Must be a power of 2
      */
-    protected static final int LOCK_NUMBER = 128;
+    protected static final int LOCK_NUMBER = 2048;
 
     static {
         int number = LOCK_NUMBER & (LOCK_NUMBER - 1);

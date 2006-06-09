@@ -77,7 +77,7 @@ public class StatusTest extends TestCase {
         }
         long objectCompareTime = stopWatch.getElapsedTime();
         LOG.info("Time to do equals(Object): " + objectCompareTime);
-        assertTrue("Status compare is greater than permitted time", objectCompareTime < 20);
+        assertTrue("Status compare is greater than permitted time", objectCompareTime < 25);
 
 
     }

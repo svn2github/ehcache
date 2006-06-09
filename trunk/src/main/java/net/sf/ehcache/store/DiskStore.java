@@ -636,18 +636,10 @@ public class DiskStore implements Store {
             randomAccessFile.seek(diskElement.position);
             randomAccessFile.write(buffer);
 
-            if (cache.isEternal()) {
-                // Never expires
-                diskElement.expiryTime = Long.MAX_VALUE;
-            } else {
-                // Calculate expiry time
-                long timeToLive = element.getCreationTime() + cache.getTimeToLiveSeconds() * MS_PER_SECOND;
-                long timeToIdle = element.getLastAccessTime() + cache.getTimeToIdleSeconds() * MS_PER_SECOND;
-                diskElement.expiryTime = Math.max(timeToLive, timeToIdle);
-            }
 
             // Add to index, update stats
             diskElement.payloadSize = buffer.length;
+            diskElement.expiryTime = element.getExpirationTime();
             totalSize += buffer.length;
             synchronized (diskElements) {
                 diskElements.put(key, diskElement);
@@ -766,6 +758,10 @@ public class DiskStore implements Store {
 
     /**
      * Removes expired elements.
+     *
+     * Note that the DiskStore cannot efficiently expire based on TTI. It does it on TTL. However any gets out
+     * of the DiskStore are check for both before return.
+     *
      * @noinspection SynchronizeOnNonFinalField
      */
     public void expireElements() {
