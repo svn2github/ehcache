@@ -121,7 +121,7 @@
 
     -->
     <!--<cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"-->
-                              <!--properties="port=40001, socketTimeoutMillis=2000"/>-->
+                              <!--properties="port=40001, socketTimeoutMillis=120000"/>-->
 
     <!--
         An alternate CacheManagerPeerListenerFactory can be used for JNDI binding of listeners for messages from cache replicators participating in the cluster.
