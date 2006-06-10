@@ -1,4 +1,3 @@
-
 {Virtual Machine Shutdown Considerations}
 
     The DiskStore can optionally be configured to persist between

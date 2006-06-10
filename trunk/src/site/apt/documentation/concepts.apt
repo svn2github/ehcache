@@ -1,4 +1,4 @@
-
+
 {Cache Concepts}
 
     ehcache consists of a <<<CacheManager>>>, which manages caches. Caches contain elements,

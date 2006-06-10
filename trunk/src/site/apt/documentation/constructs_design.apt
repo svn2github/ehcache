@@ -1,4 +1,3 @@
-
 The Design of the {ehcache constructs} package
 
     This is a discussion and explanation of the reasons for and the design forces behind the constructs package in ehcache.
