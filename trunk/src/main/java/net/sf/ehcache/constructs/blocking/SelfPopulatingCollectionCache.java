@@ -17,9 +17,9 @@
 package net.sf.ehcache.constructs.blocking;
 
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -45,59 +45,48 @@ public class SelfPopulatingCollectionCache extends SelfPopulatingCache {
     /**
      * Creates a SelfPopulatingCollectionCache.
      *
-     * @param name    the name of the cache
      * @param factory must be an UpdatingCacheEntryFactory
      * @throws CacheException
      */
-    public SelfPopulatingCollectionCache(final String name, final CacheEntryFactory factory) throws CacheException {
-        super(name, factory);
+    public SelfPopulatingCollectionCache(final Ehcache cache, final CacheEntryFactory factory) throws CacheException {
+        super(cache, factory);
         if (!(factory instanceof UpdatingCacheEntryFactory)) {
             throw new IllegalArgumentException("The factory must be an instance of UpdatingCacheEntryFactory");
         }
     }
 
-    /**
-     * Creates a SelfPopulatingCollectionCache.
-     *
-     * @param name    the name of the cache
-     * @param mgr     the {@link net.sf.ehcache.CacheManager} to use to create the backing cache.
-     * @param factory must be an UpdatingCacheEntryFactory
-     * @throws CacheException
-     */
-    public SelfPopulatingCollectionCache(final String name, final CacheManager mgr, final CacheEntryFactory factory)
-            throws CacheException {
-        super(name, mgr, factory);
-        if (!(factory instanceof UpdatingCacheEntryFactory)) {
-            throw new IllegalArgumentException("The factory must be an instance of UpdatingCacheEntryFactory");
-        }
-    }
-
-    /**
+     /**
      * Adds an entry and unlocks it.
      * <p/>
      * Relies on a get always being called before a put
      *
-     * @param key   the key for adding the value to the cache
-     * @param value value must be both a {@link Collection} and {@link Serializable}
+     * @param element an element with a value which must a {@link Collection}
      * @throws IllegalArgumentException
      */
-    public void put(Serializable key, Serializable value) throws IllegalArgumentException {
-        if (!(value instanceof Collection)) {
+    public void put(Element element) throws IllegalArgumentException {
+         if (element == null) {
+             return;
+         }
+        if (!(element.getObjectValue() instanceof Collection)) {
             throw new IllegalArgumentException("value must be an instance of Collection");
         }
-        super.put(key, (Serializable) value);
+        super.put(element);
     }
 
     /**
      * Looks up an entry for a key, creating it if it is not found
      *
      * @param key
-     * @return a {@link Serializable} {@link Collection}
+     * @return a new Element containg an unmodifiable {@link Collection}
      * @throws CacheException
      * @throws ClassCastException if the value is not a Collection
      */
-    public Serializable get(Serializable key) throws BlockingCacheException, ClassCastException {
-        Collection collection = (Collection) super.get(key);
-        return (Serializable) Collections.unmodifiableCollection(collection);
+    public Element get(Object key) throws LockTimeoutException, ClassCastException {
+        Element element = super.get(key);
+        if (element == null) {
+            return null;
+        }
+        Collection collection = (Collection) element.getObjectValue();
+        return new Element(element.getKey(), Collections.unmodifiableCollection(collection));
     }
 }

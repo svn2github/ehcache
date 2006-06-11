@@ -17,14 +17,16 @@
 package net.sf.ehcache.constructs.web.filter;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
 import net.sf.ehcache.constructs.web.AlreadyCommittedException;
 import net.sf.ehcache.constructs.web.AlreadyGzippedException;
 import net.sf.ehcache.constructs.web.GenericResponseWrapper;
 import net.sf.ehcache.constructs.web.PageInfo;
 import net.sf.ehcache.constructs.web.ResponseHeadersNotModifiableException;
-import net.sf.ehcache.constructs.web.SerializableCookie;
 import net.sf.ehcache.constructs.web.ResponseUtil;
+import net.sf.ehcache.constructs.web.SerializableCookie;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -60,7 +62,7 @@ public abstract class CachingFilter extends Filter {
 
 
     /**
-     * The cache holding the web pages
+     * The cache holding the web pages. One per CachingFilter type that needs to be shared by all threads.
      */
     private BlockingCache blockingCache;
 
@@ -69,10 +71,17 @@ public abstract class CachingFilter extends Filter {
      *
      * @throws CacheException The most likely cause is that a cache has not been
      *                        configured in ehcache's configuration file ehcache.xml for the filter name
+     *                        todo do all threads should use the same blocking cache per subclass
+     *                        todo let specify own ehcache
      */
     public void doInit() throws CacheException {
-        final String cacheName = getCacheName();
-        blockingCache = FilterCacheManager.getInstance().getCache(cacheName);
+        synchronized (this.getClass()) {
+            if (blockingCache == null) {
+                final String cacheName = getCacheName();
+                Ehcache cache = FilterCacheManager.getCacheManagerInstance().getCache(cacheName);
+                blockingCache = new BlockingCache(cache);
+            }
+        }
     }
 
 
@@ -127,8 +136,8 @@ public abstract class CachingFilter extends Filter {
         PageInfo pageInfo = null;
         try {
             checkNoReentry(request);
-            pageInfo = (PageInfo) blockingCache.get(key);
-            if (pageInfo == null) {
+            Element element = blockingCache.get(key);
+            if (element == null || element.getObjectValue() == null) {
                 try {
                     // Page is not cached - build the response, cache it, and send to client
                     pageInfo = buildPage(request, response, chain);
@@ -136,19 +145,21 @@ public abstract class CachingFilter extends Filter {
                         if (LOG.isTraceEnabled()) {
                             LOG.trace("PageInfo ok. Adding to cache " + blockingCache.getName() + " with key " + key);
                         }
-                        blockingCache.put(key, pageInfo);
+                        blockingCache.put(new Element(key, pageInfo));
                     } else {
                         if (LOG.isWarnEnabled()) {
                             LOG.warn("PageInfo was not ok(200). Putting null into cache " + blockingCache.getName()
                                     + " with key " + key);
                         }
-                        blockingCache.put(key, null);
+                        blockingCache.put(new Element(key, null));
                     }
                 } catch (final Throwable throwable) {
                     // Must unlock the cache if the above fails. Will be logged at Filter
-                    blockingCache.put(key, null);
+                    blockingCache.put(new Element(key, null));
                     throw new Exception(throwable);
                 }
+            } else {
+                pageInfo = (PageInfo) element.getObjectValue();
             }
         } finally {
             Thread.currentThread().setName("Application Server Thread");

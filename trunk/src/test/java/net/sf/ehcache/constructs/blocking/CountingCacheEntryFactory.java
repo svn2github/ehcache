@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.constructs.blocking;
 
-import java.io.Serializable;
-
 /**
  * A cache entry factory that counts the number of entries it has created.
  * <p/>
@@ -29,20 +27,20 @@ import java.io.Serializable;
 public class CountingCacheEntryFactory implements UpdatingCacheEntryFactory {
 
     private int count;
-    private final Serializable value;
+    private final Object value;
 
     /**
      * Creates a new instance
      * @param value the factory always creates values equal to this value
      */
-    public CountingCacheEntryFactory(final Serializable value) {
+    public CountingCacheEntryFactory(final Object value) {
         this.value = value;
     }
 
     /**
      * Fetches an entry.
      */
-    public Serializable createEntry(final Serializable key) {
+    public Object createEntry(final Object key) {
         count++;
         return value;
     }
@@ -68,7 +66,7 @@ public class CountingCacheEntryFactory implements UpdatingCacheEntryFactory {
      * @param value a value copied from the value that belonged to the Element in the cache. Value must be mutable
      * @throws Exception
      */
-    public void updateEntryValue(Serializable key, Serializable value) throws Exception {
+    public void updateEntryValue(Object key, Object value) throws Exception {
         count++;
     }
 

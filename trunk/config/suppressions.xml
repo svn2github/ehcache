@@ -15,6 +15,7 @@
     <suppress checks="ClassDataAbstractionCoupling" files="Test.java"/>
     <suppress checks="ClassFanOutComplexity" files="Test.java"/>
     <suppress checks="FileLengthCheck" files="Test.java"/>    
+    <suppress checks="PackageHtml" files="test[/\\]"/>
 
 
     <!-- JNDI -->
@@ -26,9 +27,6 @@
 
     <!-- super.clone won't work here -->
     <suppress checks="SuperClone" files="Element.java"/>
-
-    <!-- No pachage.html required for tests -->
-    <suppress checks="PackageHtml" files="test[/\\]"/>
 
 
     <!-- Candidates for refactoring -->

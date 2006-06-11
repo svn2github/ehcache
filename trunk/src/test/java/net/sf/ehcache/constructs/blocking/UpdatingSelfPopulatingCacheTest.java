@@ -18,6 +18,7 @@ package net.sf.ehcache.constructs.blocking;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.StopWatch;
+import net.sf.ehcache.Element;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -41,23 +42,21 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
     public void testFetchAndUpdate() throws Exception {
         final String value = "value";
         final CountingCacheEntryFactory factory = new CountingCacheEntryFactory(value);
-        final UpdatingSelfPopulatingCache cache =
-                new UpdatingSelfPopulatingCache("sampleCacheNotEternalButNoIdleOrExpiry", factory);
+        selfPopulatingCache = new UpdatingSelfPopulatingCache(cache, factory);
+
 
         // Lookup
-        Object actualValue = cache.get("key");
-        assertSame(value, actualValue);
+        Element element = selfPopulatingCache.get("key");
+        assertSame(value, element.getObjectValue());
         assertEquals(1, factory.getCount());
 
-        actualValue = cache.get("key");
+        Object actualValue = selfPopulatingCache.get("key").getObjectValue();
         assertSame(value, actualValue);
         assertEquals(2, factory.getCount());
 
-        actualValue = cache.get("key");
+        actualValue = selfPopulatingCache.get("key").getObjectValue();
         assertSame(value, actualValue);
         assertEquals(3, factory.getCount());
-
-        cache.clear();
     }
 
     /**
@@ -66,23 +65,22 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
     public void testFetchFail() throws Exception {
         final Exception exception = new Exception("Failed.");
         final UpdatingCacheEntryFactory factory = new UpdatingCacheEntryFactory() {
-            public Serializable createEntry(final Serializable key)
+            public Object createEntry(final Object key)
                     throws Exception {
                 throw exception;
             }
 
-            public void updateEntryValue(Serializable key, Serializable value)
+            public void updateEntryValue(Object key, Object value)
                     throws Exception {
                 throw exception;
             }
         };
 
-        final UpdatingSelfPopulatingCache cache =
-                new UpdatingSelfPopulatingCache("sampleCacheNotEternalButNoIdleOrExpiry", factory);
+        selfPopulatingCache = new UpdatingSelfPopulatingCache(cache, factory);
 
         // Lookup
         try {
-            cache.get("key");
+            selfPopulatingCache.get("key");
             fail();
         } catch (final Exception e) {
             Thread.sleep(1);
@@ -91,7 +89,6 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
             assertEquals("Could not fetch object for cache entry \"key\".", e.getMessage());
         }
 
-        cache.clear();
     }
 
     /**
@@ -100,19 +97,17 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
     public void testRefresh() throws Exception {
         final String value = "value";
         final CountingCacheEntryFactory factory = new CountingCacheEntryFactory(value);
-        final UpdatingSelfPopulatingCache cache =
-                new UpdatingSelfPopulatingCache("sampleCacheNotEternalButNoIdleOrExpiry", factory);
+        selfPopulatingCache = new UpdatingSelfPopulatingCache(cache, factory);
 
         // Refresh
         try {
-            cache.refresh();
+            selfPopulatingCache.refresh();
             fail();
         } catch (CacheException e) {
             //expected.
             assertEquals("UpdatingSelfPopulatingCache objects should not be refreshed.", e.getMessage());
         }
 
-        cache.clear();
     }
 
     /**
@@ -124,9 +119,8 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
     public void testThrashUpdatingSelfPopulatingCache() throws Exception {
         final String value = "value";
         final CountingCacheEntryFactory factory = new CountingCacheEntryFactory(value);
-        final UpdatingSelfPopulatingCache cache =
-                new UpdatingSelfPopulatingCache("sampleCacheNotEternalButNoIdleOrExpiry", factory);
-        long duration = thrashCache(cache, 300L, 1500L);
+        selfPopulatingCache = new UpdatingSelfPopulatingCache(cache, factory);
+        long duration = thrashCache((UpdatingSelfPopulatingCache) selfPopulatingCache, 300L, 1500L);
         LOG.debug("Thrash Duration:" + duration);
     }
 
@@ -145,10 +139,10 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
                 public void execute() throws Exception {
                     for (int i = 0; i < 10; i++) {
                         final String key = "key" + i;
-                        Serializable value = cache.get(key);
+                        Object value = cache.get(key);
                         checkLiveness(cache, liveness);
                         if (value == null) {
-                            cache.put(key, "value" + i);
+                            cache.put(new Element(key, "value" + i));
                         }
                         //The key will be in. Now check we can get it quickly
                         checkRetrievalOnKnownKey(cache, retrievalTime, key);
@@ -159,7 +153,7 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
         }
 
         runThreads(executables);
-        cache.clear();
+        cache.removeAll();
         return stopWatch.getElapsedTime();
     }
 
@@ -188,7 +182,7 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
      * @param cache a BlockingCache
      */
     private void checkRetrievalOnKnownKey(UpdatingSelfPopulatingCache cache, long requiredRetrievalTime, Serializable key)
-            throws BlockingCacheException {
+            throws LockTimeoutException {
         StopWatch stopWatch = new StopWatch();
         cache.get(key);
         long measuredRetrievalTime = stopWatch.getElapsedTime();

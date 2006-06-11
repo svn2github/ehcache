@@ -16,7 +16,7 @@
 
 package net.sf.ehcache.constructs.web.filter;
 
-import net.sf.ehcache.constructs.blocking.BlockingCacheManager;
+import net.sf.ehcache.CacheManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -26,10 +26,10 @@ import org.apache.commons.logging.LogFactory;
  * @author Greg Luck
  * @version $Id$
  */
-public final class FilterCacheManager extends BlockingCacheManager {
+public final class FilterCacheManager {
     private static final Log LOG = LogFactory.getLog(FilterCacheManager.class.getName());
 
-    private static FilterCacheManager instance;
+    private static CacheManager instance;
 
 
     private FilterCacheManager() {
@@ -37,16 +37,13 @@ public final class FilterCacheManager extends BlockingCacheManager {
     }
 
     /**
-     * Gets a singleton instance of {@link FilterCacheManager}
+     * Gets a singleton instance of the {@link CacheManager} used by this filter
      */
-    public static synchronized FilterCacheManager getInstance() {
+    public static synchronized CacheManager getCacheManagerInstance() {
         if (instance == null) {
-            if (instance == null) {
-                instance = new FilterCacheManager();
-            }
+                instance = new CacheManager();
         }
         return instance;
     }
-
 
 }

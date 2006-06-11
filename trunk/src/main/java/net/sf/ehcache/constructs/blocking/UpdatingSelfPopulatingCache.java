@@ -18,7 +18,6 @@ package net.sf.ehcache.constructs.blocking;
 
 
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.constructs.concurrent.Mutex;
@@ -26,8 +25,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -36,7 +33,7 @@ import java.util.Map;
  * Clients of the cache simply call it without needing knowledge of whether
  * the entry exists in the cache, or whether it needs updating before use.
  * <p/>
- *
+ * <p/>
  * Thread safety depends on the factory being used. The UpdatingCacheEntryFactory should be made
  * thread safe. In addition users of returned values should not modify their contents.
  *
@@ -46,25 +43,13 @@ import java.util.Map;
  */
 public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
     private static final Log LOG = LogFactory.getLog(UpdatingSelfPopulatingCache.class.getName());
-    private final LockManager lockManager;
 
     /**
      * Creates a SelfPopulatingCache.
      */
-    public UpdatingSelfPopulatingCache(final String name, final UpdatingCacheEntryFactory factory)
-        throws CacheException {
-        super(name, factory);
-        lockManager = new LockManager();
-    }
-
-
-    /**
-     * Creates a SelfPopulatingCache and use the given cache manager to create cache objects
-     */
-    public UpdatingSelfPopulatingCache(final String name, final CacheManager mgr, final CacheEntryFactory factory)
-        throws CacheException {
-        super(name, mgr, factory);
-        lockManager = new LockManager();
+    public UpdatingSelfPopulatingCache(Ehcache cache, final UpdatingCacheEntryFactory factory)
+            throws CacheException {
+        super(cache, factory);
     }
 
     /**
@@ -75,46 +60,42 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
      * <p/>
      * It is expected that
      * gets, which update as part of the get, might take considerable time. Access to the cache cannot be blocked
-     * while that is happening. This method is therefore not synchronized. The {@link LockManager} is used
-     * to synchronise individual entries.
+     * while that is happening. This method is therefore not synchronized. Mutexes are used for thread safety based on key
+     *
      * @param key
      * @return a value
      * @throws net.sf.ehcache.CacheException
      */
-    public Serializable get(final Serializable key) throws BlockingCacheException {
+    public Element get(final Serializable key) throws LockTimeoutException {
         String oldThreadName = Thread.currentThread().getName();
         setThreadName("get", key);
 
-        Serializable value = null;
 
         try {
-            lockManager.acquireLock(key);
+
 
             Ehcache backingCache = getCache();
             Element element = backingCache.get(key);
 
             if (element == null) {
-                value = super.get(key);
+                element = super.get(key);
             } else {
-                value = element.getValue();
-                update(key);
+                Mutex lock = getLockForKey(key);
+                try {
+                    lock.acquire();
+                    update(key);
+                } finally {
+                    lock.release();
+                }
             }
-
-            return value;
+            return element;
         } catch (final Throwable throwable) {
             // Could not fetch - Ditch the entry from the cache and rethrow
             setThreadName("put", key);
-            put(key, null);
-
-            try {
-                throw new BlockingCacheException("Could not fetch object for cache entry \"" + key + "\".", throwable);
-            } catch (NoSuchMethodError e) {
-                //Running 1.3 or lower
-                throw new CacheException("Could not fetch object for cache entry \"" + key + "\".");
-            }
+            put(new Element(key, null));
+            throw new LockTimeoutException("Could not fetch object for cache entry \"" + key + "\".", throwable);
         } finally {
             Thread.currentThread().setName(oldThreadName);
-            lockManager.releaseLock(key);
         }
     }
 
@@ -146,58 +127,4 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
         throw new CacheException("UpdatingSelfPopulatingCache objects should not be refreshed.");
     }
 
-    /**
-     * Provides locking at the level of a single cache entry using Doug Lea's concurrency library.
-     * <p/>
-     * This permits scalability of an order of magnitude higher than simple class instance locking
-     * provided by the synchronized method.
-     *
-     */
-    public static class LockManager {
-        /**
-         * A map of cache entry locks, one per key, if present
-         */
-        protected final Map locks;
-
-        /**
-         * Creates a new LockManager and initialises the locks Map
-         */
-        public LockManager() {
-            locks = new HashMap();
-        }
-
-        /**
-         * Acquires a lock with the given key.
-         * <p/>
-         * If the lock does not exist it is created.
-         * @param key
-         * @throws InterruptedException
-         */
-        public void acquireLock(Serializable key) throws InterruptedException {
-            Mutex lock = checkLockExistsForKey(key);
-            lock.acquire();
-        }
-
-        /**
-         * Releases a lock with the given key
-         * <p/>
-         * If the lock does not exist it is created.
-         * @param key
-         */
-        public void releaseLock(Serializable key) {
-            Mutex lock = checkLockExistsForKey(key);
-            lock.release();
-        }
-
-        private synchronized Mutex checkLockExistsForKey(final Serializable key) {
-            Mutex lock;
-            lock = (Mutex) locks.get(key);
-
-            if (lock == null) {
-                lock = new Mutex();
-                locks.put(key, lock);
-            }
-            return lock;
-        }
-    }
 }

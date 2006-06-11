@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.constructs.blocking;
 
-import java.io.Serializable;
-
 
 /**
  * Creates objects to populate the cache.
@@ -35,5 +33,5 @@ public interface CacheEntryFactory {
      * @return The entry, or null if it does not exist.
      * @throws Exception On failure creating the object.
      */
-    Serializable createEntry(Serializable key) throws Exception;
+    Object createEntry(Object key) throws Exception;
 }

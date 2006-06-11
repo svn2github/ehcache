@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.constructs.blocking;
 
-import java.io.Serializable;
-
 /**
  * A cache entry factory that blocks until signaled.
  * <p/>
@@ -28,14 +26,14 @@ import java.io.Serializable;
  */
 public class BlockingCacheEntryFactory implements CacheEntryFactory {
 
-    private final Serializable value;
+    private final Object value;
     private int count;
 
     /**
      * Constructs a new object
      * @param value the factory always creates values equal to this value
      */
-    public BlockingCacheEntryFactory(final Serializable value) {
+    public BlockingCacheEntryFactory(final Object value) {
         this.value = value;
     }
 
@@ -59,7 +57,7 @@ public class BlockingCacheEntryFactory implements CacheEntryFactory {
     /**
      * Fetches an entry.
      */
-    public synchronized Serializable createEntry(final Serializable key) throws Exception {
+    public synchronized Object createEntry(final Object key) throws Exception {
         // Wait until signalled
         while (count == 0) {
             wait();

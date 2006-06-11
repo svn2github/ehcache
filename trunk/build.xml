@@ -496,7 +496,7 @@
         <copy todir="${build.orion.dir}" file="${java.home}/../lib/tools.jar"/>
     </target>
 
-
+    <!-- Requres LaTeX netpbm-->
     <target name="book">
         <delete dir="${build.dir}/book"/>
         <mkdir dir="${build.dir}/book"/>

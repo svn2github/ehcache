@@ -54,7 +54,7 @@ import java.util.Set;
  * @author Greg Luck
  * @version $Id$
  */
-public final class CacheManager {
+public class CacheManager {
 
     /**
      * Keeps track of all known CacheManagers. Used to check on conflicts.
@@ -72,7 +72,7 @@ public final class CacheManager {
     /**
      * Caches managed by this manager.
      */
-    private final Map caches = new HashMap();
+    protected final Map caches = new HashMap();
 
     /**
      * Default cache cache.
@@ -510,7 +510,7 @@ public final class CacheManager {
             throw new ObjectExistsException("Cache " + cache.getName() + " already exists");
         }
         cache.setCacheManager(this);
-        //Is an attribute of the CacheManager. Setting the dependency so as not to break constructor comptability.
+        //Is an attribute of the CacheManager. Setting the dependency so as not to break constructor compatibility.
         cache.setDiskStorePath(diskStorePath);
         cache.initialise();
         cache.bootstrap();
@@ -638,6 +638,35 @@ public final class CacheManager {
      */
     public Status getStatus() {
         return status;
+    }
+
+    /**
+     * Clears  the contents of all caches in the CacheManager, but without
+     * removing any caches.
+     * <p/>
+     * This method is not synchronized. It only guarantees to clear those elements in a cache
+     * at the time that the clear to each cache is called.
+     */
+    public void clearAll() throws CacheException {
+        String[] cacheNames = getCacheNames();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Clearing all caches");
+        }
+        for (int i = 0; i < cacheNames.length; i++) {
+            String cacheName = cacheNames[i];
+            clear(cacheName);
+        }
+    }
+
+    /**
+     * Removes all the entries in a named cache.
+     */
+    public void clear(final String cacheName) throws CacheException {
+        final Cache cache = getCache(cacheName);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Clearing cache" + cacheName);
+        }
+        cache.removeAll();
     }
 
     /**

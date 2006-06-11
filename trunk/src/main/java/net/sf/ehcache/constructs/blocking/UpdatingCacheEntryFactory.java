@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.constructs.blocking;
 
-import java.io.Serializable;
-
 /**
  * A <code>CacheEntryFactory</code> with one additional method, <code>updateEntryValue((Serializable key, Serializable value)</code>
  * which allows the cache entry to updated rather than replaced. This has the following
@@ -46,7 +44,7 @@ public interface UpdatingCacheEntryFactory extends CacheEntryFactory {
      * @param value a value copied from the value that belonged to the Element in the cache. Value must be mutable
      * @throws Exception
      */
-    void updateEntryValue(Serializable key, Serializable value) throws Exception;
+    void updateEntryValue(Object key, Object value) throws Exception;
 
 }
 

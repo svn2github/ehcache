@@ -17,7 +17,6 @@
 package net.sf.ehcache.constructs.blocking;
 
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.apache.commons.logging.Log;
@@ -29,7 +28,7 @@ import java.util.Iterator;
 
 
 /**
- * A {@link net.sf.ehcache.Cache} backed cache that creates entries on demand.
+ * A selfpopulating decorator for {@link Ehcache} that creates entries on demand.
  * <p/>
  * Clients of the cache simply call it without needing knowledge of whether
  * the entry exists in the cache.
@@ -58,48 +57,39 @@ public class SelfPopulatingCache extends BlockingCache {
     /**
      * Creates a SelfPopulatingCache.
      */
-    public SelfPopulatingCache(final String name, final CacheEntryFactory factory)
-        throws CacheException {
-        super(name);
-        this.factory = factory;
-    }
-
-    /**
-     * Creates a SelfPopulatingCache and use the given cache manager to create cache objects
-     */
-    public SelfPopulatingCache(final String name, final CacheManager mgr, final CacheEntryFactory factory)
-        throws CacheException {
-        super(name, mgr);
+    public SelfPopulatingCache(final Ehcache cache, final CacheEntryFactory factory) throws CacheException {
+        super(cache);
         this.factory = factory;
     }
 
     /**
      * Looks up an object, creating it if not found.
+     * @revised 1.2
      */
-    public Serializable get(final Serializable key) throws BlockingCacheException {
+    public Element get(final Serializable key) throws LockTimeoutException {
         String oldThreadName = Thread.currentThread().getName();
         setThreadName("get", key);
 
         try {
             //if null will lock here
-            Serializable value = super.get(key);
+            Element element = super.get(key);
 
-            if (value == null) {
+            if (element == null) {
                 // Value not cached - fetch it
-                value = factory.createEntry(key);
+                Object value = factory.createEntry(key);
                 setThreadName("put", key);
-                put(key, value);
-                Thread.currentThread().setName(oldThreadName);
+                element = new Element(key, value);
+                put(element);
             }
-
-            return value;
+            return element;
         } catch (final Throwable throwable) {
             // Could not fetch - Ditch the entry from the cache and rethrow
             setThreadName("put", key);
-            put(key, null);
+            //must hand back the mutex here
+            put(new Element(key, null));
 
             try {
-                throw new BlockingCacheException("Could not fetch object for cache entry \"" + key + "\".", throwable);
+                throw new LockTimeoutException("Could not fetch object for cache entry \"" + key + "\".", throwable);
             } catch (NoSuchMethodError e) {
                 //Running 1.3 or lower
                 throw new CacheException("Could not fetch object for cache entry \"" + key + "\".");
@@ -115,7 +105,7 @@ public class SelfPopulatingCache extends BlockingCache {
      * @param method the method about to be called
      * @param key    the key being operated on
      */
-    protected void setThreadName(String method, final Serializable key) {
+    protected void setThreadName(String method, final Object key) {
         StringBuffer threadName = new StringBuffer(getName()).append(": ").append(method).append("(").append(key).append(")");
         Thread.currentThread().setName(threadName.toString());
     }
@@ -191,7 +181,7 @@ public class SelfPopulatingCache extends BlockingCache {
      */
     protected void refreshElement(final Element element, Ehcache backingCache)
         throws Exception {
-        Serializable key = element.getKey();
+        Object key = element.getObjectKey();
 
         if (LOG.isTraceEnabled()) {
             setThreadName("refreshElement", key);
@@ -210,7 +200,7 @@ public class SelfPopulatingCache extends BlockingCache {
             //or idles out of the backingCache. In that case we hold a reference to it but the
             // backingCache no longer does.
         } else {
-            final Serializable value = factory.createEntry(key);
+            final Object value = factory.createEntry(key);
             replacementElement = new Element(key, value);
         }
 

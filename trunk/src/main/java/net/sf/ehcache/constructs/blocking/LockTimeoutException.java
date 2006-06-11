@@ -16,19 +16,30 @@
 
 package net.sf.ehcache.constructs.blocking;
 
+import net.sf.ehcache.CacheException;
+
 
 /**
+ * Indicates that a timeout has occured while attempting to obtain a lock using
+ * {@link net.sf.ehcache.constructs.concurrent.Mutex#attempt(long)}
+ * <p/>
+ * This is a normal runtime exception which should be handled by calling code.
+ * It is possible that simply reattempting to obtain the lock may succeed.
+ * Timeouts are often caused by overloaded resources.
+ * <p/>
+ * The frequency of these Exceptions may be reduced by increasing the timeout
+ * if appropriate.
  * @author Greg Luck
  * @version $Id$
  */
-public class BlockingCacheException extends Exception {
+public class LockTimeoutException extends CacheException {
 
     /**
      * Constructs a new runtime exception with <code>null</code> as its
      * detail message.  The cause is not initialized, and may subsequently be
      * initialized by a call to {@link #initCause}.
      */
-    public BlockingCacheException() {
+    public LockTimeoutException() {
         super();
     }
 
@@ -40,27 +51,20 @@ public class BlockingCacheException extends Exception {
      * @param message the detail message. The detail message is saved for
      *                later retrieval by the {@link #getMessage()} method.
      */
-    public BlockingCacheException(String message) {
+    public LockTimeoutException(String message) {
         super(message);
     }
 
 
     /**
-     * Constructs a new runtime exception with the specified detail message and
-     * cause.  <p>Note that the detail message associated with
-     * <code>cause</code> is <i>not</i> automatically incorporated in
-     * this runtime exception's detail message.
+     * Constructor for the LockTimeoutException object.
      *
-     * @param message the detail message (which is saved for later retrieval
-     *                by the {@link #getMessage()} method).
-     * @param cause   the cause (which is saved for later retrieval by the
-     *                {@link #getCause()} method).  (A <tt>null</tt> value is
-     *                permitted, and indicates that the cause is nonexistent or
-     *                unknown.)
-     * @since 1.4
+     * @param message      the exception detail message
+     * @param initialCause the cause of the exception which can later be retrieved with the {@link #getInitialCause()}
+     *                     method
      */
-    public BlockingCacheException(String message, Throwable cause) {
-        super(message, cause);
+    public LockTimeoutException(String message, Throwable initialCause) {
+        super(message, initialCause);
     }
 
 

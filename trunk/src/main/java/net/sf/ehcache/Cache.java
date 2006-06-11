@@ -54,7 +54,7 @@ import java.util.Set;
  * @author Greg Luck
  * @version $Id$
  */
-public final class Cache implements Ehcache {
+public class Cache implements Ehcache {
 
     /**
      * A reserved word for cache names. It denotes a default configuration
@@ -705,7 +705,7 @@ public final class Cache implements Ehcache {
     }
 
     /**
-     * Returns a list of all elements in the cache, whether or not they are expired.
+     * Returns a list of all element keys in the cache, whether or not they are expired.
      * <p/>
      * The returned keys are unique and can be considered a set.
      * <p/>
@@ -744,7 +744,7 @@ public final class Cache implements Ehcache {
     }
 
     /**
-     * Returns a list of all elements in the cache. Only keys of non-expired
+     * Returns a list of all element keys in the cache. Only keys of non-expired
      * elements are returned.
      * <p/>
      * The returned keys are unique and can be considered a set.
@@ -1423,6 +1423,7 @@ Cache size is the size of the union of the two key sets.*/
 
     /**
      * Whether an Element is stored in the cache on Disk, indicating a higher cost of retrieval.
+     * todo do we need this and similar methods?
      *
      * @return true if an element matching the key is found in the diskStore
      */

@@ -20,8 +20,6 @@ import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.StopWatch;
-import net.sf.ehcache.constructs.concurrent.Mutex;
-import net.sf.ehcache.constructs.valueobject.KeyValuePair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -40,7 +38,6 @@ import java.util.Map;
  */
 public class BlockingCacheTest extends AbstractCacheTest {
     private static final Log LOG = LogFactory.getLog(BlockingCacheTest.class.getName());
-    private BlockingCacheManager manager;
     private BlockingCache blockingCache;
 
     /**
@@ -48,15 +45,15 @@ public class BlockingCacheTest extends AbstractCacheTest {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        manager = new BlockingCacheManager();
-        blockingCache = manager.getCache("sampleIdlingExpiringCache");
+        Ehcache cache = manager.getCache("sampleIdlingExpiringCache");
+        blockingCache = new BlockingCache(cache);
     }
 
     /**
      * teardown
      */
     protected void tearDown() throws Exception {
-        blockingCache.clear();
+        blockingCache.removeAll();
         super.tearDown();
     }
 
@@ -66,18 +63,19 @@ public class BlockingCacheTest extends AbstractCacheTest {
     public void testAddEntry() throws Exception {
         final String key = "key";
         final String value = "value";
+        Element element = new Element(key, value);
 
         // Check the cache is empty
         assertEquals(0, blockingCache.getKeys().size());
 
         // Put the entry
-        blockingCache.put(key, value);
+        blockingCache.put(new Element(key, value));
 
         // Check there is a single entry
         assertEquals(1, blockingCache.getKeys().size());
         assertTrue(blockingCache.getKeys().contains(key));
-        final Object actualValue = blockingCache.get(key);
-        assertSame(value, actualValue);
+        final Element returnedElement = blockingCache.get(key);
+        assertEquals(element, returnedElement);
 
     }
 
@@ -89,12 +87,17 @@ public class BlockingCacheTest extends AbstractCacheTest {
         for (int i = 0; i < 100; i++) {
             cache.put(new Element(new Integer(i), "value" + i));
         }
-        List entries = blockingCache.getEntries();
-        assertEquals(100, entries.size());
+        List keys = blockingCache.getKeys();
+        List elements = new ArrayList();
+        for (int i = 0; i < keys.size(); i++) {
+            Object key = keys.get(i);
+            elements.add(blockingCache.get(key));
+        }
+        assertEquals(100, elements.size());
         Map map = new HashMap();
-        for (int i = 0; i < 100; i++) {
-            KeyValuePair keyValuePair = (KeyValuePair) entries.get(i);
-            map.put(keyValuePair.getKey(), keyValuePair.getValue());
+        for (int i = 0; i < elements.size(); i++) {
+            Element element = (Element) elements.get(i);
+            map.put(element.getObjectKey(), element.getObjectValue());
         }
         for (int i = 0; i < 100; i++) {
             Serializable value = (Serializable) map.get(new Integer(i));
@@ -103,68 +106,46 @@ public class BlockingCacheTest extends AbstractCacheTest {
     }
 
     /**
-     * The design of the BlockingCache threading uses a small amount of memory per entry.
-     * This test checks that it is not excessive.
-     * <p/>
-     * Profiler testing reveals 24 bytes are used per Mutex added to the HashMap
-     *
-     * @throws InterruptedException
-     */
-    public void testMutexSize() throws InterruptedException {
-        long startingMemory = measureMemoryUse();
-        Map map = new HashMap();
-        for (int i = 0; i < 100000; i++) {
-            map.put("" + i, new Mutex());
-        }
-        long endingMemory = measureMemoryUse();
-        long memoryUsed = endingMemory - startingMemory;
-        LOG.info("Memory used: " + memoryUsed);
-        assertTrue(memoryUsed < 10000000);
-    }
-
-
-    /**
      * Tests looking up a missing entry, then adding it.
      */
     public void testAddMissingEntry() throws Exception {
+        Element element = new Element("key", "value");
 
         // Make sure the entry does not exist
         assertNull(blockingCache.get("key"));
 
         // Put the entry
-        final String value = "value";
-        blockingCache.put("key", value);
+        blockingCache.put(element);
 
         // Check the entry is in the cache
         assertEquals(1, blockingCache.getKeys().size());
-        assertSame(value, blockingCache.get("key"));
+        assertEquals(element, blockingCache.get("key"));
 
     }
 
     /**
-     * Tests looking up a missing entry, then marks it as unknown.
+     * Elements with null valuea are not stored in the blocking cache
      */
     public void testUnknownEntry() throws Exception {
         // Make sure the entry does not exist
         assertNull(blockingCache.get("key"));
         // Put the entry
-        blockingCache.put("key", null);
+        blockingCache.put(new Element("key", null));
         assertEquals(0, blockingCache.getKeys().size());
     }
 
     /**
-     * Tests adding and removing an entry.
+     * Overwriting an Element with an element with a null value effectively removes it from the cache
      */
     public void testRemoveEntry() throws Exception {
-        final String key = "key";
-        final String value = "value";
+        Element element = new Element("key", "value");
 
         // Add entry and make sure it's there
-        blockingCache.put(key, value);
-        final Object actualValue = blockingCache.get(key);
-        assertSame(value, actualValue);
+        blockingCache.put(element);
+        assertEquals(element, blockingCache.get("key"));
+
         // Remove the entry and make sure its gone
-        blockingCache.put(key, null);
+        blockingCache.put(new Element("key", null));
         assertEquals(0, blockingCache.getKeys().size());
 
     }
@@ -173,16 +154,16 @@ public class BlockingCacheTest extends AbstractCacheTest {
      * Tests clearing the cache
      */
     public void testClear() throws Exception {
-        manager = new BlockingCacheManager();
-        blockingCache = manager.getCache("sampleCacheNotEternalButNoIdleOrExpiry");
+        Ehcache cache = manager.getCache("sampleCacheNotEternalButNoIdleOrExpiry");
+        blockingCache = new BlockingCache(cache);
         // Add some entries
-        blockingCache.put("key1", "value1");
-        blockingCache.put("key2", "value2");
-        blockingCache.put("key3", "value2");
+        blockingCache.put(new Element("key1", "value1"));
+        blockingCache.put(new Element("key2", "value2"));
+        blockingCache.put(new Element("key3", "value2"));
         assertEquals(3, blockingCache.getKeys().size());
 
         // Clear the cache
-        blockingCache.clear();
+        blockingCache.removeAll();
         assertEquals(0, blockingCache.getKeys().size());
     }
 
@@ -192,47 +173,41 @@ public class BlockingCacheTest extends AbstractCacheTest {
      * Note. These timings are without logging. Turn logging off to run this test.
      */
     public void testThrashBlockingCache() throws Exception {
-        blockingCache = new BlockingCache("sampleCache1");
+        Ehcache cache = manager.getCache("sampleCache1");
+        blockingCache = new BlockingCache(cache);
         long duration = thrashCache(blockingCache, 50, 400L, 1000L);
         LOG.debug("Thrash Duration:" + duration);
     }
 
     /**
      * Thrashes a BlockingCache which has a tiny timeout. Should throw
-     * a BlockingCacheException caused by queued threads not getting the lock
+     * a LockTimeoutException caused by queued threads not getting the lock
      * in the required time.
      */
     public void testThrashBlockingCacheTinyTimeout() throws Exception {
-        blockingCache = new BlockingCache("sampleCache1", 1);
+        Ehcache cache = manager.getCache("sampleCache1");
+        blockingCache = new BlockingCache(cache);
+        blockingCache.setTimeoutMillis(1);
         long duration = 0;
         try {
             duration = thrashCache(blockingCache, 50, 400L, 1000L);
             fail();
         } catch (Exception e) {
-            assertEquals(BlockingCacheException.class, e.getCause().getClass());
-            assertTrue(e.getCause().getMessage().startsWith("lock timeout attempting to acquire lock"));
+            assertEquals(LockTimeoutException.class, e.getCause().getClass());
+            assertTrue(e.getCause().getMessage().startsWith("Lock timeout attempting to acquire lock"));
         }
         LOG.debug("Thrash Duration:" + duration);
     }
 
     /**
      * Thrashes a BlockingCache which has a reasonable timeout. Should work.
+     * The old implementation, which had scalability limits, needed 5, 1000L, 5000L to pass
      */
     public void testThrashBlockingCacheReasonableTimeout() throws Exception {
-        blockingCache = new BlockingCache("sampleCache1", 400);
+        Ehcache cache = manager.getCache("sampleCache1");
+        blockingCache = new BlockingCache(cache);
+        blockingCache.setTimeoutMillis(400);
         long duration = thrashCache(blockingCache, 50, 400L, 1000L);
-        LOG.debug("Thrash Duration:" + duration);
-    }
-
-    /**
-     * Thrashes an NonScalableBlockingCache and looks for liveness problems
-     * This test requires much large values than for the {@link BlockingCache},
-     * demonstrating the scalability problems with it.
-     * Note. These timings are without logging. Turn logging off to run this test.
-     */
-    public void testThrashNonScalableBlockingCache() throws Exception {
-        NonScalableBlockingCache nonScalableBlockingCache = new NonScalableBlockingCache("sampleCache1");
-        long duration = thrashCache(nonScalableBlockingCache, 5, 1000L, 5000L);
         LOG.debug("Thrash Duration:" + duration);
     }
 
@@ -251,10 +226,10 @@ public class BlockingCacheTest extends AbstractCacheTest {
                 public void execute() throws Exception {
                     for (int i = 0; i < 10; i++) {
                         final String key = "key" + i;
-                        Serializable value = cache.get(key);
+                        Object value = cache.get(key);
                         checkLiveness(cache, liveness);
                         if (value == null) {
-                            cache.put(key, "value" + i);
+                            cache.put(new Element(key, "value" + i));
                         }
                         //The key will be in. Now check we can get it quickly
                         checkRetrievalOnKnownKey(cache, retrievalTime, key);
@@ -265,7 +240,7 @@ public class BlockingCacheTest extends AbstractCacheTest {
         }
 
         runThreads(executables);
-        cache.clear();
+        cache.removeAll();
         return stopWatch.getElapsedTime();
     }
 
@@ -294,7 +269,7 @@ public class BlockingCacheTest extends AbstractCacheTest {
      * @param cache a BlockingCache
      */
     private void checkRetrievalOnKnownKey(BlockingCache cache, long requiredRetrievalTime, Serializable key)
-            throws BlockingCacheException {
+            throws LockTimeoutException {
         StopWatch stopWatch = new StopWatch();
         cache.get(key);
         long measuredRetrievalTime = stopWatch.getElapsedTime();
@@ -304,38 +279,6 @@ public class BlockingCacheTest extends AbstractCacheTest {
     }
 
 
-    /**
-     * Tests that stripes are evently distributed
-     */
-    public void testStripingDistribution() {
-        blockingCache = new BlockingCache("sampleCache1", 400);
 
-        int[] lockIndexes = new int[BlockingCache.LOCK_NUMBER];
-        for (int i = 0; i < 20480 * 3; i++) {
-            String key = "" + i * 3 / 2 + i;
-            key += key.hashCode();
-            int lock = blockingCache.selectLock(key);
-            lockIndexes[lock]++;
-        }
-
-        int outliers = 0;
-        for (int i = 0; i < BlockingCache.LOCK_NUMBER; i++) {
-            if (20 <= lockIndexes[i] && lockIndexes[i] <= 40) {
-                continue;
-            }
-            LOG.info(i + ": " + lockIndexes[i]);
-            outliers++;
-        }
-        assertTrue(outliers <= 128);
-    }
-
-    /**
-     * Tests edge conditions for striping mechanism.
-     */
-    public void testNullKey() {
-        blockingCache = new BlockingCache("sampleCache1", 400);
-        blockingCache.selectLock(null);
-        blockingCache.selectLock("");
-    }
 }
 
