@@ -22,6 +22,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.constructs.concurrent.ConcurrencyUtil;
 import net.sf.ehcache.constructs.concurrent.Mutex;
 import net.sf.ehcache.event.RegisteredEventListeners;
@@ -139,6 +140,15 @@ public class BlockingCache implements Ehcache {
      */
     public String getName() {
         return cache.getName();
+    }
+
+    /**
+     * Sets the cache name which will name.
+     *
+     * @param name the name of the cache. Should not be null.
+     */
+    public void setName(String name) {
+        cache.setName(name);
     }
 
     /**
@@ -398,6 +408,71 @@ public class BlockingCache implements Ehcache {
      */
     public Statistics getStatistics() throws IllegalStateException {
         return cache.getStatistics();
+    }
+
+    /**
+     * Sets the CacheManager
+     *
+     * @param cacheManager
+     */
+    public void setCacheManager(CacheManager cacheManager) {
+        cache.setCacheManager(cacheManager);
+    }
+
+    /**
+     * Accessor for the BootstrapCacheLoader associated with this cache. For testing purposes.
+     */
+    public BootstrapCacheLoader getBootstrapCacheLoader() {
+        return cache.getBootstrapCacheLoader();
+    }
+
+    /**
+     * Sets the bootstrap cache loader.
+     *
+     * @param bootstrapCacheLoader the loader to be used
+     * @throws net.sf.ehcache.CacheException if this method is called after the cache is initialized
+     */
+    public void setBootstrapCacheLoader(BootstrapCacheLoader bootstrapCacheLoader) throws CacheException {
+        cache.setBootstrapCacheLoader(bootstrapCacheLoader);
+    }
+
+    /**
+     * DiskStore paths can conflict between CacheManager instances. This method allows the path to be changed.
+     *
+     * @param diskStorePath the new path to be used.
+     * @throws net.sf.ehcache.CacheException if this method is called after the cache is initialized
+     */
+    public void setDiskStorePath(String diskStorePath) throws CacheException {
+        cache.setDiskStorePath(diskStorePath);
+    }
+
+    /**
+     * Newly created caches do not have a {@link net.sf.ehcache.store.MemoryStore} or a {@link net.sf.ehcache.store.DiskStore}.
+     * <p/>
+     * This method creates those and makes the cache ready to accept elements
+     */
+    public void initialise() {
+        cache.initialise();
+    }
+
+    /**
+     * Bootstrap command. This must be called after the Cache is intialised, during
+     * CacheManager initialisation. If loads are synchronous, they will complete before the CacheManager
+     * initialise completes, otherwise they will happen in the background.
+     */
+    public void bootstrap() {
+        cache.bootstrap();
+    }
+
+    /**
+     * Flushes all cache items from memory to auxilliary caches and close the auxilliary caches.
+     * <p/>
+     * Should be invoked only by CacheManager.
+     *
+     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     */
+    public void dispose() throws IllegalStateException {
+        cache.dispose();
     }
 
     /**

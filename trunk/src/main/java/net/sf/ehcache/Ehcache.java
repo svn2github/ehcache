@@ -18,6 +18,7 @@ package net.sf.ehcache;
 
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 
 import java.io.Serializable;
 import java.util.List;
@@ -398,6 +399,13 @@ public interface Ehcache extends Cloneable {
     String getName();
 
     /**
+     * Sets the cache name which will name.
+     *
+     * @param name the name of the cache. Should not be null.
+     */
+    void setName(String name);
+
+    /**
      * Gets timeToIdleSeconds.
      */
     long getTimeToIdleSeconds();
@@ -613,8 +621,60 @@ public interface Ehcache extends Cloneable {
      * @return the number of elements in the ehcache, with a varying degree of accuracy, depending on accuracy setting.
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public Statistics getStatistics() throws IllegalStateException;
+    Statistics getStatistics() throws IllegalStateException;
 
 
-    
+    /**
+     * Sets the CacheManager
+     *
+     * @param cacheManager
+     */
+    void setCacheManager(CacheManager cacheManager);
+
+
+    /**
+     * Accessor for the BootstrapCacheLoader associated with this cache. For testing purposes.
+     */
+    BootstrapCacheLoader getBootstrapCacheLoader();
+
+    /**
+     * Sets the bootstrap cache loader.
+     *
+     * @param bootstrapCacheLoader the loader to be used
+     * @throws CacheException if this method is called after the cache is initialized
+     */
+    void setBootstrapCacheLoader(BootstrapCacheLoader bootstrapCacheLoader) throws CacheException;
+
+
+    /**
+     * DiskStore paths can conflict between CacheManager instances. This method allows the path to be changed.
+     *
+     * @param diskStorePath the new path to be used.
+     * @throws CacheException if this method is called after the cache is initialized
+     */
+    void setDiskStorePath(String diskStorePath) throws CacheException;
+
+    /**
+     * Newly created caches do not have a {@link net.sf.ehcache.store.MemoryStore} or a {@link net.sf.ehcache.store.DiskStore}.
+     * <p/>
+     * This method creates those and makes the cache ready to accept elements
+     */
+    void initialise();
+
+    /**
+     * Bootstrap command. This must be called after the Cache is intialised, during
+     * CacheManager initialisation. If loads are synchronous, they will complete before the CacheManager
+     * initialise completes, otherwise they will happen in the background.
+     */
+    void bootstrap();
+
+    /**
+     * Flushes all cache items from memory to auxilliary caches and close the auxilliary caches.
+     * <p/>
+     * Should be invoked only by CacheManager.
+     *
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     */
+    public void dispose() throws IllegalStateException;
+
 }

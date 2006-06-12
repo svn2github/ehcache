@@ -394,7 +394,7 @@ public class Cache implements Ehcache {
      * <p/>
      * This method creates those and makes the cache ready to accept elements
      */
-    final void initialise() {
+    public void initialise() {
         synchronized (this) {
             if (!status.equals(Status.STATUS_UNINITIALISED)) {
                 throw new IllegalStateException("Cannot initialise the " + name
@@ -437,11 +437,11 @@ public class Cache implements Ehcache {
     }
 
     /**
-     * Package local bootstrap command. This must be called after the Cache is intialised, during
+     * Bootstrap command. This must be called after the Cache is intialised, during
      * CacheManager initialisation. If loads are synchronous, they will complete before the CacheManager
      * initialise completes, otherwise they will happen in the background.
      */
-    void bootstrap() {
+    public void bootstrap() {
         if (!disabled && bootstrapCacheLoader != null) {
             bootstrapCacheLoader.load(this);
         }
@@ -1030,7 +1030,7 @@ public class Cache implements Ehcache {
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    final synchronized void dispose() throws IllegalStateException {
+    public synchronized void dispose() throws IllegalStateException {
         checkStatus();
         memoryStore.dispose();
         memoryStore = null;
@@ -1095,7 +1095,7 @@ public class Cache implements Ehcache {
     public final synchronized int getSize() throws IllegalStateException, CacheException {
         checkStatus();
         /* The memory store and the disk store can simultaneously contain elements with the same key
-Cache size is the size of the union of the two key sets.*/
+            Cache size is the size of the union of the two key sets.*/
         return getKeys().size();
     }
 
@@ -1212,7 +1212,7 @@ Cache size is the size of the union of the two key sets.*/
      *
      * @param name the name of the cache. Should not be null.
      */
-    final void setName(String name) {
+    public final void setName(String name) {
         this.name = name;
     }
 
@@ -1577,7 +1577,7 @@ Cache size is the size of the union of the two key sets.*/
      *
      * @param cacheManager
      */
-    final void setCacheManager(CacheManager cacheManager) {
+    public void setCacheManager(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
     }
 
@@ -1614,6 +1614,68 @@ Cache size is the size of the union of the two key sets.*/
             throw new CacheException("A DiskStore path can only be set before the cache is initialized. " + name);
         }
         this.diskStorePath = diskStorePath;
+    }
+
+
+    /**
+     * An equals method which follows the contract of {@link Object#equals(Object)}
+     * @param object the reference object with which to compare.
+     * @return <code>true</code> if this object is the same as the obj
+     *         argument; <code>false</code> otherwise. Same for a Cache means, the same GUID
+     * @see #hashCode()
+     * @see java.util.Hashtable
+     */
+    public boolean equals(Object object) {
+        if (object == null) {
+            return false;
+        }
+        if (!(object instanceof Ehcache)) {
+            return false;
+        }
+        Ehcache other = (Ehcache) object;
+        return guid.equals(other.getGuid());
+    }
+
+
+    /**
+     * Returns a hash code value for the object. This method is
+     * supported for the benefit of hashtables such as those provided by
+     * <code>java.util.Hashtable</code>.
+     * <p/>
+     * The general contract of <code>hashCode</code> is:
+     * <ul>
+     * <li>Whenever it is invoked on the same object more than once during
+     * an execution of a Java application, the <tt>hashCode</tt> method
+     * must consistently return the same integer, provided no information
+     * used in <tt>equals</tt> comparisons on the object is modified.
+     * This integer need not remain consistent from one execution of an
+     * application to another execution of the same application.
+     * <li>If two objects are equal according to the <tt>equals(Object)</tt>
+     * method, then calling the <code>hashCode</code> method on each of
+     * the two objects must produce the same integer result.
+     * <li>It is <em>not</em> required that if two objects are unequal
+     * according to the {@link Object#equals(Object)}
+     * method, then calling the <tt>hashCode</tt> method on each of the
+     * two objects must produce distinct integer results.  However, the
+     * programmer should be aware that producing distinct integer results
+     * for unequal objects may improve the performance of hashtables.
+     * </ul>
+     * <p/>
+     * As much as is reasonably practical, the hashCode method defined by
+     * class <tt>Object</tt> does return distinct integers for distinct
+     * objects. (This is typically implemented by converting the internal
+     * address of the object into an integer, but this implementation
+     * technique is not required by the
+     * Java<font size="-2"><sup>TM</sup></font> programming language.)
+     * <p/>
+     * This implementation use the GUID of the cache.
+     *
+     * @return a hash code value for this object.
+     * @see Object#equals(Object)
+     * @see java.util.Hashtable
+     */
+    public int hashCode() {
+        return guid.hashCode();
     }
 
 

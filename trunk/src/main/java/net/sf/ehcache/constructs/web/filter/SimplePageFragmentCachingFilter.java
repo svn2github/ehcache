@@ -16,10 +16,14 @@
 
 package net.sf.ehcache.constructs.web.filter;
 
+import net.sf.ehcache.CacheManager;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
  * A simple page fragment {@link CachingFilter} suitable for most uses.
+ * <p/>
+ * It uses a Singleton CacheManager created with the default factory method. Override to use a different CacheManager
  * <p/>
  * The meaning of <i>page fragment</i> is:
  * <ul>
@@ -73,6 +77,19 @@ public class SimplePageFragmentCachingFilter extends PageFragmentCachingFilter {
         stringBuffer.append(httpRequest.getRequestURI()).append(httpRequest.getQueryString());
         String key = stringBuffer.toString();
         return key;
+    }
+
+    /**
+     * Gets the CacheManager for this CachingFilter. It is therefore up to subclasses what CacheManager to use.
+     * <p/>
+     * This method was introduced in ehcache 1.2.1. Older versions used a singleton CacheManager instance created with
+     * the default factory method.
+     *
+     * @return the CacheManager to be used
+     * @since 1.2.1
+     */
+    protected CacheManager getCacheManager() {
+        return CacheManager.getInstance();
     }
 
     /**

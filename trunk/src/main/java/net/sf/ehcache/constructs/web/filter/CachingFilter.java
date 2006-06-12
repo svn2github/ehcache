@@ -19,6 +19,7 @@ package net.sf.ehcache.constructs.web.filter;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
 import net.sf.ehcache.constructs.web.AlreadyCommittedException;
 import net.sf.ehcache.constructs.web.AlreadyGzippedException;
@@ -53,7 +54,7 @@ import java.util.zip.DataFormatException;
  * The {@link CachingFilter} uses the {@link net.sf.ehcache.constructs.blocking.BlockingCache}. It blocks until the thread which
  * did a get which results in a null does a put. If reentry happens a second get happens before the first put. The second
  * get could wait indefinitely. This situation is monitored and if it happens, an IllegalStateException will be thrown.
- *
+ * todo test that the threads block
  * @author @author Greg Luck
  * @version $Id$
  */
@@ -62,7 +63,7 @@ public abstract class CachingFilter extends Filter {
 
 
     /**
-     * The cache holding the web pages. One per CachingFilter type that needs to be shared by all threads.
+     * The cache holding the web pages. Ensure that all threads for a given cache name are using the same instance of this.
      */
     private BlockingCache blockingCache;
 
@@ -71,15 +72,18 @@ public abstract class CachingFilter extends Filter {
      *
      * @throws CacheException The most likely cause is that a cache has not been
      *                        configured in ehcache's configuration file ehcache.xml for the filter name
-     *                        todo do all threads should use the same blocking cache per subclass
-     *                        todo let specify own ehcache
      */
     public void doInit() throws CacheException {
         synchronized (this.getClass()) {
             if (blockingCache == null) {
                 final String cacheName = getCacheName();
-                Ehcache cache = FilterCacheManager.getCacheManagerInstance().getCache(cacheName);
-                blockingCache = new BlockingCache(cache);
+                Ehcache cache = getCacheManager().getEhcache(cacheName);
+                if (!(cache instanceof BlockingCache)) {
+                    //decorate and substitute
+                    BlockingCache newBlockingCache = new BlockingCache(cache);
+                    getCacheManager().replaceCacheWithDecoratedCache(cache, newBlockingCache);
+                }
+                blockingCache = (BlockingCache) getCacheManager().getEhcache(getCacheName());
             }
         }
     }
@@ -278,6 +282,17 @@ public abstract class CachingFilter extends Filter {
      * @return the name of the cache to use for this filter.
      */
     protected abstract String getCacheName();
+
+
+    /**
+     * Gets the CacheManager for this CachingFilter. It is therefore up to subclasses what CacheManager to use.
+     * <p/>
+     * This method was introduced in ehcache 1.2.1. Older versions used a singleton CacheManager instance created with
+     * the default factory method.
+     * @return the CacheManager to be used
+     * @since 1.2.1
+     */
+    protected abstract CacheManager getCacheManager();
 
 
     /**

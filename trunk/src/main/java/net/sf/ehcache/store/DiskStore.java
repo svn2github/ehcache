@@ -565,7 +565,7 @@ public class DiskStore implements Store {
             }
 
 
-            if (spool.size() != 0) {
+            if (spool != null && spool.size() != 0) {
                 // Write elements to disk
                 try {
                     flushSpool();
