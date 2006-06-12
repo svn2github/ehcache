@@ -1423,7 +1423,6 @@ public class Cache implements Ehcache {
 
     /**
      * Whether an Element is stored in the cache on Disk, indicating a higher cost of retrieval.
-     * todo do we need this and similar methods?
      *
      * @return true if an element matching the key is found in the diskStore
      */

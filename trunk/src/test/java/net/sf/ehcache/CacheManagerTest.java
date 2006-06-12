@@ -25,6 +25,9 @@ import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.distribution.RMIBootstrapCacheLoader;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.DiskStore;
+import net.sf.ehcache.constructs.blocking.BlockingCache;
+import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
+import net.sf.ehcache.constructs.blocking.CountingCacheEntryFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -581,5 +584,61 @@ public class CacheManagerTest extends TestCase {
 
     }
 
+
+    /**
+     * Shows that a decorated cache can be substituted
+     */
+    public void testDecoratorRequiresDecoratedCache() {
+
+        singletonManager = CacheManager.create();
+        Ehcache cache = singletonManager.getEhcache("sampleCache1");
+        //decorate and substitute
+        BlockingCache newBlockingCache = new BlockingCache(cache);
+        singletonManager.replaceCacheWithDecoratedCache(cache, newBlockingCache);
+        Ehcache blockingCache = singletonManager.getEhcache("sampleCache1");
+        blockingCache.get("unknownkey");
+    }
+
+
+
+
+    /**
+     * Shows that a decorated cache can be substituted
+     */
+    public void testDecoratorFailsIfUnderlyingCacheNotSame() {
+
+        singletonManager = CacheManager.create();
+        Ehcache cache = singletonManager.getEhcache("sampleCache1");
+        Ehcache cache2 = singletonManager.getEhcache("sampleCache2");
+        //decorate and substitute
+        BlockingCache newBlockingCache = new BlockingCache(cache2);
+        try {
+            singletonManager.replaceCacheWithDecoratedCache(cache, newBlockingCache);
+        } catch (CacheException e) {
+            //expected
+        }
+    }
+
+    /**
+     * Shows that a decorated cache has decorated behaviour for methods that override Cache methods, without
+     * requiring a cast.
+     */
+    public void testDecoratorOverridesDefaultBehaviour() {
+
+        singletonManager = CacheManager.create();
+        Ehcache cache = singletonManager.getEhcache("sampleCache1");
+        Element element = cache.get("key");
+        //default behaviour for a missing key
+        assertNull(element);
+
+        //decorate and substitute
+        SelfPopulatingCache selfPopulatingCache = new SelfPopulatingCache(cache, new CountingCacheEntryFactory("value"));
+        selfPopulatingCache.get("key");
+        singletonManager.replaceCacheWithDecoratedCache(cache, selfPopulatingCache);
+
+        Ehcache decoratedCache = singletonManager.getEhcache("sampleCache1");
+        Element element2 = cache.get("key");
+        assertEquals("value", element2.getObjectValue());
+    }
 
 }

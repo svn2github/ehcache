@@ -754,7 +754,9 @@ public class CacheManager {
      * <p/>
      * It is generally required that a decorated cache, once constructed, is made available to other execution threads.
      * The simplest way of doing this is to substitute the original cache for the decorated one here.
-     * todo cast required?
+     * <p/>
+     * Note that any overwritten Ehcache methods will take on new behaviours without casting. Casting is only required
+     * for new methods that the decorator introduces.
      * For more information see the well known Gang of Four Decorator pattern.
      * @param cache
      * @param decoratedCache An implementation of Ehcache that wraps the original cache.
@@ -763,8 +765,8 @@ public class CacheManager {
     public synchronized void replaceCacheWithDecoratedCache(Ehcache cache, Ehcache decoratedCache) throws CacheException {
 
         if (!cache.equals(decoratedCache)) {
-            throw new CacheException("The decoratedCache" + decoratedCache.getName()
-                    + " does not equal the cache to be replaced.");
+            throw new CacheException("Cannot replace " + decoratedCache.getName()
+                    + " It does not equal the incumbent cache.");
         } else {
             caches.remove(cache.getName());
             caches.put(cache.getName(), decoratedCache);

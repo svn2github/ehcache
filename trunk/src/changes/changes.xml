@@ -2,13 +2,19 @@
 <document>
     <body>
 
-        <release version="1.2.1RC" date="2006-6-4" desc="ehcache-1.2.1RC">
+        <release version="1.2.1" date="2006-12-31" desc="ehcache-1.2.1">
             <!-- Feature Changes over 1.2.1RC -->
             <action dev="Greg Luck" issue="1492900" type="add">
                 Change Blocking cache to use a lock striping technique for its Mutexes. This limits the number
                 of Mutexes to 100, rather than a number equalling the number of keys, while preserving excellent
                 liveness and safety. Thanks to Olaf Krische for reporting this and Brian Goetz for assisting with
                 a solution.
+            </action>
+            <action dev="Greg Luck" type="add">
+                Change BlockingCache and SelfPopulatingCache to act as decorators for Ehcache. Remove now redundant
+                BlockingCacheManager and SelfPopulatingCacheManager. Change signatures of these caches from Serializable
+                to Object. This change is not backward compatible but no libraries use these, so developers can change
+                over on their own projects.
             </action>
 
             <!-- Reported Bug fixes -->

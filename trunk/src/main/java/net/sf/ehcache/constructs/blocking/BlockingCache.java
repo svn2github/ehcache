@@ -605,7 +605,6 @@ public class BlockingCache implements Ehcache {
      * @return the element, or null, if it does not exist.
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      * @see #isExpired
-     * todo do we want this?
      */
     public Element getQuiet(Serializable key) throws IllegalStateException, CacheException {
         return cache.getQuiet(key);
@@ -621,7 +620,6 @@ public class BlockingCache implements Ehcache {
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      * @see #isExpired
      * @since 1.2
-     * todo do we want this?
      */
     public Element getQuiet(Object key) throws IllegalStateException, CacheException {
         return cache.getQuiet(key);

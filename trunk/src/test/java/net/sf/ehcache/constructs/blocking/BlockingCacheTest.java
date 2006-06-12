@@ -123,6 +123,36 @@ public class BlockingCacheTest extends AbstractCacheTest {
 
     }
 
+
+    /**
+     * Does a second tread block until the first thread puts the entry?
+     */
+    public void testSecondThreadActuallyBlocks() throws Exception {
+        Element element = new Element("key", "value");
+        final List threadResults = new ArrayList();
+
+        // Make sure the entry does not exist
+        assertNull(blockingCache.get("key"));
+
+        Thread secondThread = new Thread() {
+                public void run() {
+                    threadResults.add(blockingCache.get("key"));
+                }
+            };
+        secondThread.start();
+        assertEquals(0, threadResults.size());
+
+        // Put the entry
+        blockingCache.put(element);
+        Thread.sleep(10);
+        assertEquals(1, threadResults.size());
+        assertEquals(element, threadResults.get(0));
+
+        // Check the entry is in the cache
+        assertEquals(1, blockingCache.getKeys().size());
+        assertEquals(element, blockingCache.get("key"));
+    }
+
     /**
      * Elements with null valuea are not stored in the blocking cache
      */
@@ -277,7 +307,6 @@ public class BlockingCacheTest extends AbstractCacheTest {
                 + " but should be less than " + requiredRetrievalTime + "ms",
                 measuredRetrievalTime < requiredRetrievalTime);
     }
-
 
 
 }

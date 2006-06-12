@@ -101,6 +101,7 @@ public class CachingFilterTest extends AbstractWebTest {
         testCachedPageIsGzippedWhenEncodingHeaderSet();
     }
 
+
     /**
      * The reentry check instruments the thread name to indicate it has entered a CachingFilter.
      * The name is reset at the end. Check that this works for concurrent situations.

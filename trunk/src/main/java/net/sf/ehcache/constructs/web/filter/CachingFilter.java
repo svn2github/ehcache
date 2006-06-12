@@ -54,7 +54,6 @@ import java.util.zip.DataFormatException;
  * The {@link CachingFilter} uses the {@link net.sf.ehcache.constructs.blocking.BlockingCache}. It blocks until the thread which
  * did a get which results in a null does a put. If reentry happens a second get happens before the first put. The second
  * get could wait indefinitely. This situation is monitored and if it happens, an IllegalStateException will be thrown.
- * todo test that the threads block
  * @author @author Greg Luck
  * @version $Id$
  */
