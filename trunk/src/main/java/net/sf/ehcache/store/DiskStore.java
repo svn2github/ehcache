@@ -569,8 +569,8 @@ public class DiskStore implements Store {
                 // Write elements to disk
                 try {
                     flushSpool();
-                } catch (IOException e) {
-                    LOG.error(name + "Cache: Could not write elements to disk cache. Initial cause was " + e.getMessage(), e);
+                } catch (Throwable e) {
+                    LOG.error(name + "Cache: Could not flush elements to disk due to " + e.getMessage(), e);
                 }
             }
         }

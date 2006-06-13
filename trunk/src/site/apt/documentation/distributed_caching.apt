@@ -240,3 +240,4 @@ socketTimeoutMillis=2000"/>
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>
     </cache>
 --------------------------------------------
+

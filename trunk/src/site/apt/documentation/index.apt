@@ -13,6 +13,8 @@ ehcache 1.2 User Guide
 
     * {{{./performance_considerations.html}Performance Considerations}}
 
+    * {{{./cache_decorators.html}Cache Decorators}} 
+
     * {{{./distributed_caching.html}Distributed Caching}}
 
     * {{{./shutdown_considerations.html}Virtual Machine Shutdown Considerations}}

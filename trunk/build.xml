@@ -115,12 +115,14 @@
         <fail message="One or more tests failed. See the log file for details."/>
     </target>
 
-    <target name="test-orion" depends="compile, prepare-web-tests, start-orion, run-web-tests-no-check-orion, stop-orion"
+    <target name="test-orion"
+            depends="compile, prepare-web-tests, start-orion, run-web-tests-no-check-orion, stop-orion"
             if="tests.failed" description="Runs Tests">
         <fail message="One or more tests failed. See the log file for details."/>
     </target>
 
-    <target name="test-tomcat" depends="compile, prepare-web-tests, start-tomcat, run-web-tests-no-check-tomcat, stop-tomcat"
+    <target name="test-tomcat"
+            depends="compile, prepare-web-tests, start-tomcat, run-web-tests-no-check-tomcat, stop-tomcat"
             if="tests.failed" description="Runs Tests">
         <fail message="One or more tests failed. See the log file for details."/>
     </target>
@@ -496,7 +498,7 @@
         <copy todir="${build.orion.dir}" file="${java.home}/../lib/tools.jar"/>
     </target>
 
-    <!-- Requres LaTeX netpbm-->
+    <!-- Requres LaTeX and netpbm-->
     <target name="book">
         <delete dir="${build.dir}/book"/>
         <mkdir dir="${build.dir}/book"/>
@@ -509,64 +511,70 @@
             </fileset>
         </copy>
 
-        <exec executable="aptconvert" dir="${build.dir}/book" spawn="false">
-            <arg value="EhcacheUserGuide.pdf"/>
-            <arg value="getting_started.apt"/>
-            <arg value="concepts.apt"/>
-            <arg value="dependencies.apt"/>
-            <arg value="logging.apt"/>
-            <arg value="class_loading.apt"/>
-            <arg value="performance_considerations.apt"/>
-            <arg value="configuration.apt"/>
-            <arg value="storage_options.apt"/>
-            <arg value="shutdown_considerations.apt"/>
-            <arg value="hibernate.apt"/>
-            <arg value="distributed_design.apt"/>
-            <arg value="distributed_caching.apt"/>
-            <arg value="constructs_design.apt"/>
-            <arg value="cachemanager_event_listeners.apt"/>
-            <arg value="cache_event_listeners.apt"/>
-            <arg value="faq.apt"/>
-        </exec>
+        <property name="extension" value="pdf"/>
+        <antcall target="create_book" inheritall="true"/>
 
         <copy file="${build.dir}/book/EhcacheUserGuide.pdf" todir="${build.dir}/site"/>
 
     </target>
-        <target name="singlepageguide">
+
+
+    <target name="singlepageguide">
         <delete dir="${build.dir}/book"/>
         <mkdir dir="${build.dir}/book"/>
         <copy todir="${build.dir}/book/images">
             <fileset dir="src/site/resources/images"/>
         </copy>
         <copy todir="${build.dir}/book">
+            <fileset dir="src/site/resources/css"/>
+        </copy>
+        <copy todir="${build.dir}/book">
             <fileset dir="src/site/apt/documentation">
                 <include name="*.apt"/>
             </fileset>
         </copy>
-
-        <exec executable="aptconvert" newenvironment="false" dir="${build.dir}/book" spawn="false">
-            <arg value="EhcacheUserGuide.html"/>
-            <arg value="getting_started.apt"/>
-            <arg value="concepts.apt"/>
-            <arg value="dependencies.apt"/>
-            <arg value="logging.apt"/>
-            <arg value="class_loading.apt"/>
-            <arg value="performance_considerations.apt"/>
-            <arg value="configuration.apt"/>
-            <arg value="storage_options.apt"/>
-            <arg value="shutdown_considerations.apt"/>
-            <arg value="hibernate.apt"/>
-            <arg value="distributed_design.apt"/>
-            <arg value="distributed_caching.apt"/>
-            <arg value="constructs_design.apt"/>
-            <arg value="cachemanager_event_listeners.apt"/>
-            <arg value="cache_event_listeners.apt"/>
-            <arg value="faq.apt"/>
-        </exec>
+        <antcall target="create_singlepageguide" inheritall="true"/>
 
         <copy file="${build.dir}/book/EhcacheUserGuide.html" todir="${build.dir}/site"/>
         <copy file="${build.dir}/book/book.css" todir="${build.dir}/site"/>
-        <copy file="${build.dir}/book/apt_toc.gif" todir="${build.dir}/site"/>
+        <copy file="src/site/resources/images/apt_toc.gif" todir="${build.dir}/site"/>
+    </target>
+
+    <macrodef name="create_artifact">
+        <attribute name="extension" default="NOT SET"/>
+        <element name="some-tasks" optional="yes"/>
+        <sequential>
+            <exec executable="aptconvert" newenvironment="false" dir="${build.dir}/book" spawn="false">
+                <arg value="EhcacheUserGuide.@{extension}"/>
+                <arg value="getting_started.apt"/>
+                <arg value="concepts.apt"/>
+                <arg value="dependencies.apt"/>
+                <arg value="logging.apt"/>
+                <arg value="class_loading.apt"/>
+                <arg value="performance_considerations.apt"/>
+                <arg value="cache_decorators.apt"/>
+                <arg value="configuration.apt"/>
+                <arg value="storage_options.apt"/>
+                <arg value="shutdown_considerations.apt"/>
+                <arg value="hibernate.apt"/>
+                <arg value="distributed_design.apt"/>
+                <arg value="distributed_caching.apt"/>
+                <arg value="constructs_design.apt"/>
+                <arg value="cachemanager_event_listeners.apt"/>
+                <arg value="cache_event_listeners.apt"/>
+                <arg value="faq.apt"/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+
+    <target name="create_singlepageguide">
+        <create_artifact extension="html"/>
+    </target>
+
+
+    <target name="create_book">
+        <create_artifact extension="pdf"/>
     </target>
 
 
