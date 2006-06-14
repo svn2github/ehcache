@@ -35,7 +35,7 @@ import java.util.List;
 
 
 /**
- * A blocking decorator for an Ehccache, backed by a {@link Ehcache}.
+ * A blocking decorator for an Ehcache, backed by a {@link Ehcache}.
  * <p/>
  * It allows concurrent read access to elements already in the cache. If the element is null, other
  * reads will block until an element with the same key is put into the cache.
