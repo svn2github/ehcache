@@ -307,7 +307,5 @@ public class BlockingCacheTest extends AbstractCacheTest {
                 + " but should be less than " + requiredRetrievalTime + "ms",
                 measuredRetrievalTime < requiredRetrievalTime);
     }
-
-
 }
 

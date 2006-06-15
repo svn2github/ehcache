@@ -21,6 +21,11 @@
             <action dev="Greg Luck" issue="1190614" type="fix">
                 This was reported by Victor Volle and is a duplicate of 1492900. Fixed. 
             </action>
+            <action dev="Greg Luck" issue="1506399" type="fix">
+                Changing all classloading to the context classloader is sometimes inconvenient. Fallback to
+                ClassLoaderUtil.class.getClassLoader() if Thread.currentThread().getContextClassLoader()
+                fails. Thanks to Robert Watkins for reporting this one.
+            </action>
         </release>
 
 

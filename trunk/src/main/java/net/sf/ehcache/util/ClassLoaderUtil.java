@@ -44,6 +44,15 @@ public final class ClassLoaderUtil {
     }
 
     /**
+     * Gets a fallback <code>ClassLoader</code> that all classes in ehcache, and extensions, should use for classloading.
+     * This is used if the context class loader does not work.
+     * @return the <code>ClassLoaderUtil.class.getClassLoader();</code>
+     */
+    public static ClassLoader getFallbackClassLoader() {
+        return ClassLoaderUtil.class.getClassLoader();
+    }
+
+    /**
      * Creates a new class instance. Logs errors along the way. Classes are loaded using the
      * ehcache standard classloader.
      *
@@ -55,9 +64,17 @@ public final class ClassLoaderUtil {
         Object newInstance;
         try {
             clazz = Class.forName(className, true, getStandardClassLoader());
-            newInstance = clazz.newInstance();
         } catch (ClassNotFoundException e) {
-            throw new CacheException("Unable to load class " + className + ". Initial cause was " + e.getMessage(), e);
+            //try fallback
+            try {
+                clazz = Class.forName(className, true, getFallbackClassLoader());
+            } catch (ClassNotFoundException ex) {
+                throw new CacheException("Unable to load class " + className + ". Initial cause was " + e.getMessage(), e);
+            }
+        }
+
+        try {
+            newInstance = clazz.newInstance();
         } catch (IllegalAccessException e) {
             throw new CacheException("Unable to load class " + className + ". Initial cause was " + e.getMessage(), e);
         } catch (InstantiationException e) {
