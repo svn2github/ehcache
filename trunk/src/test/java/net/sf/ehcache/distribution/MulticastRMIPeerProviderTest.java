@@ -179,7 +179,7 @@ public class MulticastRMIPeerProviderTest extends TestCase {
         manager1.addCache("fromDefaultCache");
         manager2.addCache("fromDefaultCache");
         manager3.addCache("fromDefaultCache");
-        Thread.sleep(1000);
+        Thread.sleep(2200);
 
         CacheManagerPeerProvider cachePeerProvider = manager1.getCachePeerProvider();
         Cache cache = manager1.getCache("fromDefaultCache");
@@ -190,7 +190,7 @@ public class MulticastRMIPeerProviderTest extends TestCase {
 
 
         manager1.removeCache("fromDefaultCache");
-        Thread.sleep(1000);
+        Thread.sleep(2200);
 
         peerUrls = cachePeerProvider.listRemoteCachePeers(cache);
         assertEquals(expectedPeers(), peerUrls.size());

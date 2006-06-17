@@ -434,7 +434,8 @@ public final class Element implements Serializable, Cloneable {
      * however.
      * <p/>
      * Warning: This method can be <b>very slow</b> for values which contain large object graphs.
-     *
+     * <p/>
+     * If the key or value of the Element is not Serializable, an error will be logged and 0 will be returned.
      * @return The serialized size in bytes
      */
     public final long getSerializedSize() {
@@ -450,7 +451,7 @@ public final class Element implements Serializable, Cloneable {
             size = bout.size();
             return size;
         } catch (IOException e) {
-            LOG.error("Error measuring element size for element with key " + key);
+            LOG.debug("Error measuring element size for element with key " + key + ". Cause was: " + e.getMessage());
         } finally {
             try {
                 if (oos != null) {
