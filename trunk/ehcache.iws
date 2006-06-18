@@ -575,93 +575,97 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="BlockingCacheTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/BlockingCacheTest.java">
+      <file leaf-file-name="samples.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/samples.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="31" column="120" selection-start="1009" selection-end="1009" vertical-scroll-proportion="0.30955994">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ClassLoaderUtil.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/util/ClassLoaderUtil.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="42" column="62" selection-start="1379" selection-end="1426" vertical-scroll-proportion="0.35811836">
+            <state line="10" column="108" selection-start="386" selection-end="386" vertical-scroll-proportion="0.1863354">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="changes.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
+      <file leaf-file-name="build.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/build.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="26" column="71" selection-start="1676" selection-end="1676" vertical-scroll-proportion="0.48447204">
+            <state line="522" column="92" selection-start="22335" selection-end="22335" vertical-scroll-proportion="0.8795987">
+              <folding />
+            </state>
+          </provider>
+          <provider editor-type-id="antVisTarget">
+            <state />
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="getting_started.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/getting_started.apt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ConcurrencyUtilTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/concurrent/ConcurrencyUtilTest.java">
+      <file leaf-file-name="introduction.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/introduction.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="69" column="122" selection-start="2065" selection-end="2065" vertical-scroll-proportion="0.97723824">
+            <state line="90" column="89" selection-start="3646" selection-end="3646" vertical-scroll-proportion="0.10925645">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MulticastRMIPeerProviderTest.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/MulticastRMIPeerProviderTest.java">
+      <file leaf-file-name="preface.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/preface.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="192" column="23" selection-start="6708" selection-end="6708" vertical-scroll-proportion="0.50986344">
+            <state line="26" column="103" selection-start="1308" selection-end="1308" vertical-scroll-proportion="0.14415781">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MemoryStore.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java">
+      <file leaf-file-name="nameandlogo.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/nameandlogo.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="343" column="45" selection-start="11183" selection-end="11183" vertical-scroll-proportion="0.32919255">
+            <state line="0" column="0" selection-start="0" selection-end="545" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Element.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Element.java">
+      <file leaf-file-name="sponsors.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/sponsors.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="453" column="21" selection-start="13584" selection-end="13584" vertical-scroll-proportion="0.49689442">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RMIAsynchronousCacheReplicator.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMIAsynchronousCacheReplicator.java">
+      <file leaf-file-name="cache_decorators.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/cache_decorators.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="98" column="101" selection-start="4033" selection-end="4033" vertical-scroll-proportion="0.52807283">
+            <state line="45" column="98" selection-start="1622" selection-end="1622" vertical-scroll-proportion="0.19878604">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ConfigurationFactory.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ConfigurationFactory.java">
+      <file leaf-file-name="pom.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="111" column="58" selection-start="3896" selection-end="3896" vertical-scroll-proportion="0.430956">
+            <state line="196" column="0" selection-start="6981" selection-end="6981" vertical-scroll-proportion="0.45317724">
               <folding />
             </state>
           </provider>
+          <provider editor-type-id="antVisTarget">
+            <state />
+          </provider>
         </entry>
       </file>
-      <file leaf-file-name="Class.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/Class.java">
+      <file leaf-file-name="book.css" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/resources/css/book.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="234" column="49" selection-start="9331" selection-end="9331" vertical-scroll-proportion="0.45978755">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -1807,6 +1811,32 @@
       <option name="OPEN_IN_BROWSER_URL" value="/" />
       <option name="COMMON_VM_ARGUMENTS" value="" />
     </configuration>
+    <configuration selected="false" default="true" type="WebLogic Instance" factoryName="Local">
+      <option name="WORKING_DIRECTORY" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="7001" />
+      <option name="LOCAL" value="true" />
+      <option name="OPEN_IN_BROWSER" value="true" />
+      <option name="OPEN_IN_BROWSER_URL" value="/" />
+      <option name="COMMON_VM_ARGUMENTS" value="" />
+      <option name="DOMAIN_PATH" value="" />
+      <option name="USER" value="weblogic" />
+      <option name="PASSWORD" value="weblogic" />
+      <option name="SERVER_NAME" value="myserver" />
+      <option name="DOMAIN_NAME" value="mydomain" />
+    </configuration>
+    <configuration selected="false" default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+    </configuration>
     <configuration selected="false" default="true" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" />
       <option name="VM_PARAMETERS" />
@@ -1857,32 +1887,6 @@
       <option name="USE_WEBSPHERE51_LINEMAPPING_MODEL" value="false" />
       <option name="LOCAL_PORT" value="80" />
     </configuration>
-    <configuration selected="false" default="true" type="WebLogic Instance" factoryName="Local">
-      <option name="WORKING_DIRECTORY" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="7001" />
-      <option name="LOCAL" value="true" />
-      <option name="OPEN_IN_BROWSER" value="true" />
-      <option name="OPEN_IN_BROWSER_URL" value="/" />
-      <option name="COMMON_VM_ARGUMENTS" value="" />
-      <option name="DOMAIN_PATH" value="" />
-      <option name="USER" value="weblogic" />
-      <option name="PASSWORD" value="weblogic" />
-      <option name="SERVER_NAME" value="myserver" />
-      <option name="DOMAIN_NAME" value="mydomain" />
-    </configuration>
-    <configuration selected="false" default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-    </configuration>
     <configuration selected="false" default="true" type="Remote" factoryName="Remote">
       <option name="USE_SOCKET_TRANSPORT" value="true" />
       <option name="SERVER_MODE" value="false" />
@@ -1896,11 +1900,6 @@
       <option name="SHMEM_ADDRESS" value="javadebug" />
       <option name="HOST" value="localhost" />
       <option name="PORT" value="5005" />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="5005" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="false" />
-      </RunnerSettings>
       <RunnerSettings RunnerId="Profile ">
         <option name="myStartupWithAllocations" value="false" />
         <option name="myCPUStartup" value="" />
@@ -1912,6 +1911,11 @@
         <option name="myForceJVMTI" value="false" />
         <option name="myDisableAlloc" value="false" />
         <option name="myDisableCounts" value="false" />
+      </RunnerSettings>
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="5005" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="false" />
       </RunnerSettings>
       <ConfigurationWrapper RunnerId="Debug" />
     </configuration>
@@ -1927,11 +1931,6 @@
       <option name="VM_OPTS" value="" />
       <option name="USE_WEBSPHERE51_LINEMAPPING_MODEL" value="false" />
       <option name="LOCAL_PORT" value="80" />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="64449" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="true" />
-      </RunnerSettings>
       <RunnerSettings RunnerId="Run" />
       <RunnerSettings RunnerId="Profile ">
         <option name="myStartupWithAllocations" value="false" />
@@ -1945,21 +1944,11 @@
         <option name="myDisableAlloc" value="false" />
         <option name="myDisableCounts" value="false" />
       </RunnerSettings>
-      <ConfigurationWrapper VM_VAR="" RunnerId="Debug">
-        <option name="USE_ENV_VARIABLES" value="true" />
-        <STARTUP>
-          <option name="USE_DEFAULT" value="false" />
-          <option name="SCRIPT" value="" />
-          <option name="VM_PARAMETERS" value="" />
-          <option name="PROGRAM_PARAMETERS" value="" />
-        </STARTUP>
-        <SHUTDOWN>
-          <option name="USE_DEFAULT" value="false" />
-          <option name="SCRIPT" value="" />
-          <option name="VM_PARAMETERS" value="" />
-          <option name="PROGRAM_PARAMETERS" value="" />
-        </SHUTDOWN>
-      </ConfigurationWrapper>
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="64449" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
+      </RunnerSettings>
       <ConfigurationWrapper VM_VAR="" RunnerId="Run">
         <option name="USE_ENV_VARIABLES" value="true" />
         <STARTUP>
@@ -1990,6 +1979,21 @@
           <option name="PROGRAM_PARAMETERS" value="" />
         </SHUTDOWN>
       </ConfigurationWrapper>
+      <ConfigurationWrapper VM_VAR="" RunnerId="Debug">
+        <option name="USE_ENV_VARIABLES" value="true" />
+        <STARTUP>
+          <option name="USE_DEFAULT" value="false" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </STARTUP>
+        <SHUTDOWN>
+          <option name="USE_DEFAULT" value="false" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </SHUTDOWN>
+      </ConfigurationWrapper>
     </configuration>
     <configuration selected="true" default="false" name="Unnamed" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat">
       <option name="WORKING_DIRECTORY" />
@@ -1999,11 +2003,6 @@
       <option name="OPEN_IN_BROWSER" value="true" />
       <option name="OPEN_IN_BROWSER_URL" value="http://localhost:8080/" />
       <option name="COMMON_VM_ARGUMENTS" value="" />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="64453" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="true" />
-      </RunnerSettings>
       <RunnerSettings RunnerId="Run" />
       <RunnerSettings RunnerId="Profile ">
         <option name="myStartupWithAllocations" value="false" />
@@ -2017,21 +2016,11 @@
         <option name="myDisableAlloc" value="false" />
         <option name="myDisableCounts" value="false" />
       </RunnerSettings>
-      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Debug">
-        <option name="USE_ENV_VARIABLES" value="true" />
-        <STARTUP>
-          <option name="USE_DEFAULT" value="true" />
-          <option name="SCRIPT" value="/Users/gluck/work/apache-tomcat-5.5.17/bin/catalina.sh" />
-          <option name="VM_PARAMETERS" value="" />
-          <option name="PROGRAM_PARAMETERS" value=" run" />
-        </STARTUP>
-        <SHUTDOWN>
-          <option name="USE_DEFAULT" value="true" />
-          <option name="SCRIPT" value="/Users/gluck/work/apache-tomcat-5.5.17/bin/catalina.sh" />
-          <option name="VM_PARAMETERS" value="" />
-          <option name="PROGRAM_PARAMETERS" value=" stop" />
-        </SHUTDOWN>
-      </ConfigurationWrapper>
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="64453" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
+      </RunnerSettings>
       <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Run">
         <option name="USE_ENV_VARIABLES" value="true" />
         <STARTUP>
@@ -2062,6 +2051,21 @@
           <option name="PROGRAM_PARAMETERS" value=" stop" />
         </SHUTDOWN>
       </ConfigurationWrapper>
+      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Debug">
+        <option name="USE_ENV_VARIABLES" value="true" />
+        <STARTUP>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="/Users/gluck/work/apache-tomcat-5.5.17/bin/catalina.sh" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value=" run" />
+        </STARTUP>
+        <SHUTDOWN>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="/Users/gluck/work/apache-tomcat-5.5.17/bin/catalina.sh" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value=" stop" />
+        </SHUTDOWN>
+      </ConfigurationWrapper>
     </configuration>
     <configuration selected="true" default="false" name="Orion" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="com.evermind.server.ApplicationServer" />
@@ -2071,11 +2075,6 @@
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
       <module name="ehcache" />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="50165" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="false" />
-      </RunnerSettings>
       <RunnerSettings RunnerId="Run" />
       <RunnerSettings RunnerId="Profile ">
         <option name="myStartupWithAllocations" value="false" />
@@ -2089,8 +2088,13 @@
         <option name="myDisableAlloc" value="false" />
         <option name="myDisableCounts" value="false" />
       </RunnerSettings>
-      <ConfigurationWrapper RunnerId="Debug" />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="50165" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="false" />
+      </RunnerSettings>
       <ConfigurationWrapper RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Debug" />
     </configuration>
     <configuration selected="false" default="false" name="" type="JUnit" factoryName="JUnit">
       <module name="ehcache" />
@@ -2172,13 +2176,13 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="22" width="1600" height="998" extended-state="0" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="13" />
       <window_info id="Regex" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.2026726" order="7" />
       <window_info id="Checkstyle" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.3060567" order="0" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.3150773" order="0" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32739422" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25322166" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32516703" order="10" />
@@ -2310,9 +2314,93 @@
     </buildFile>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/pom.xml">
+    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/Class.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="-3.7123747">
+        <state line="234" column="49" selection-start="9331" selection-end="9331" vertical-scroll-proportion="0.018209409">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/concurrent/ConcurrencyUtilTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="69" column="122" selection-start="2065" selection-end="2065" vertical-scroll-proportion="0.9468892">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/MulticastRMIPeerProviderTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="196" column="94" selection-start="6837" selection-end="6837" vertical-scroll-proportion="0.33990896">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/features.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="10" selection-start="10" selection-end="10" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/constructs_design.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="202" column="0" selection-start="11622" selection-end="11622" vertical-scroll-proportion="0.9627329">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/samples.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="10" column="108" selection-start="386" selection-end="386" vertical-scroll-proportion="0.1863354">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/getting_started.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/sponsors.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/nameandlogo.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="545" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/preface.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="26" column="103" selection-start="1308" selection-end="1308" vertical-scroll-proportion="0.14415781">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/introduction.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="90" column="89" selection-start="3646" selection-end="3646" vertical-scroll-proportion="0.10925645">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/cache_decorators.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="45" column="98" selection-start="1622" selection-end="1622" vertical-scroll-proportion="0.19878604">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="522" column="92" selection-start="22335" selection-end="22335" vertical-scroll-proportion="0.8795987">
           <folding />
         </state>
       </provider>
@@ -2320,104 +2408,21 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/distributed_caching.apt">
+    <entry file="file://$PROJECT_DIR$/src/site/resources/css/book.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="227" column="98" selection-start="9271" selection-end="9271" vertical-scroll-proportion="1.2423581">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/cache_decorators.apt">
+    <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="108" selection-start="684" selection-end="684" vertical-scroll-proportion="0.53276956">
+        <state line="196" column="0" selection-start="6981" selection-end="6981" vertical-scroll-proportion="0.45317724">
           <folding />
         </state>
       </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/index.apt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="31" column="0" selection-start="858" selection-end="858" vertical-scroll-proportion="0.78646934">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/ClassLoader.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="1345" column="31" selection-start="47888" selection-end="47888" vertical-scroll-proportion="0.41226214">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/Class.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="234" column="49" selection-start="9331" selection-end="9331" vertical-scroll-proportion="0.45978755">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ConfigurationFactory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="111" column="58" selection-start="3896" selection-end="3896" vertical-scroll-proportion="0.430956">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/BlockingCacheTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="31" column="120" selection-start="1009" selection-end="1009" vertical-scroll-proportion="0.30955994">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/util/ClassLoaderUtil.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="42" column="62" selection-start="1379" selection-end="1426" vertical-scroll-proportion="0.35811836">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="26" column="71" selection-start="1676" selection-end="1676" vertical-scroll-proportion="0.48447204">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="343" column="45" selection-start="11183" selection-end="11183" vertical-scroll-proportion="0.32919255">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Element.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="453" column="21" selection-start="13584" selection-end="13584" vertical-scroll-proportion="0.49689442">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMIAsynchronousCacheReplicator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="98" column="101" selection-start="4033" selection-end="4033" vertical-scroll-proportion="0.52807283">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/concurrent/ConcurrencyUtilTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="69" column="122" selection-start="2065" selection-end="2065" vertical-scroll-proportion="0.97723824">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/MulticastRMIPeerProviderTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="192" column="23" selection-start="6708" selection-end="6708" vertical-scroll-proportion="0.50986344">
-          <folding />
-        </state>
+      <provider editor-type-id="antVisTarget">
+        <state />
       </provider>
     </entry>
   </component>

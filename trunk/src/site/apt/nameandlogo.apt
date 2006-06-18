@@ -1,16 +1,9 @@
- ------
-About the ehcache name and logo
- ------
- ------
- Date
- ------
+{About the ehcache name and logo}
 
-About the ehcache name and logo
-
- Adam Murdoch came up with the name in a moment of inspiration while we were stuck on the
+ {Adam Murdoch} (an all round top Java coder) came up with the name in a moment of inspiration while we were stuck on the
  SourceForge project create page. Ehcache is a palindrome. We thought the name was wicked cool.
 
-[images/ehcache_logo.gif]
+[images/ehcache_logo]
 
  The logo is similarly symmetrical, and is evocative of the diagram symbol
 for a doubly-linked list. The JDK1.4 LinkedHashMap, and Apache's LRUMap
