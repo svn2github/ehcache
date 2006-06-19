@@ -560,7 +560,6 @@
                 <arg value="features.apt"/>
                 <arg value="concepts.apt"/>
                 <arg value="samples.apt"/>
-                <arg value="samples.apt"/>
                 <arg value="dependencies.apt"/>
                 <arg value="logging.apt"/>
                 <arg value="class_loading.apt"/>

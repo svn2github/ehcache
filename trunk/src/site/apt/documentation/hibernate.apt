@@ -1,4 +1,4 @@
-Using ehcache as a Hibernate plugin
+{Hibernate Caching}
 
     Note these instructions are for Hibernate 3.1. Go to {{{http://ehcache.sf.net/documentation/documentation-1_1.html}Guide for Version 1.1}}
     for older instructions on how to use Hibernate 2.1.

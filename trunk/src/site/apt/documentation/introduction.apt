@@ -39,6 +39,11 @@ Introduction
     then the time taken to complete a computation depends principally on the rate at which data can be obtained. If it is
     CPU bound, then the time taken principally depends on the speed of the CPU and main memory.
 
+    While the focus for caching is on improving performance, it it also worth realizing that it reduces load. The time it
+    takes something to complete is usually related to the expense of it. So, caching often reduces load on scarce resources.
+
+
+
 ** Speeding up {CPU bound Applications}
 
   CPU bound applications are often sped up by:

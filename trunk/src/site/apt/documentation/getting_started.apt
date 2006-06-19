@@ -1,6 +1,13 @@
 
 Getting Started
 
+    Ehcache can be used directly. It can also be used with the popular Hibernate Object/Relational tool. Finally, it
+    can be used for J2EE Servlet Caching.
+
+    This quick guide gets you started on each of these. The rest of the documentation can be explored for a deeper
+     understanding.
+
+
 * {General Purpose Caching}
 
       * Make sure you are using a supported {{{./dependencies.html#java}Java}} version.
@@ -13,20 +20,40 @@ Getting Started
 
       * Optionally, configure an appropriate {{{./logging.html}logging}} level.
 
-* Hibernate, Spring, Cocoon or other frameworks
+      See {{{../samples.html}Code Samples}} for more information on direct interaction with ehcache.
+
+* Hibernate
 
     * Perform the same steps as {{{General Purpose Caching}General Purpose Caching}}.
 
-    * Create caches in ehcache.xml. For Hibernate, see the {{{./hibernate.html}Hibernate page}}.
+    * Create caches in ehcache.xml.
 
-* J2EE Servlet Filters
+    See {{{./hibernate.html}Hibernate Caching}} for more information.
 
-    * Place ehcache and the ehcache-constructs jars in your classpath accessible to your web container.
+* J2EE Servlet Caching
 
-    * Place ehcache.xml in your classpath.
+    * Perform the same steps as {{{General Purpose Caching}General Purpose Caching}}.
 
     * Configure a cache for your web page in ehcache.xml.
 
-    * Configure the web.xml
+    * To cache an entire web page, either use SimplePageCachingFilter or create your own subclass of CachingFilter
+
+    * To cache a jsp:Include or anything callable from a RequestDispatcher, either use SimplePageFragmentCachingFilter
+    or create a subclass of PageFragmentCachingFilter.
+
+    * Configure the web.xml. Declare the filters created above and create filter mapping associating the filter with
+    a URL.
+
+    See {{{./j2ee_servlet_caching.html}J2EE Servlet Caching}} for more information.
 
 
+* Spring, Cocoon, Acegi and other frameworks
+
+   Usually, with these, you are using ehcache without even realising it. The first steps in getting more control
+   over what is happening are:
+
+   * discover the cache names used by the framework
+
+   * create your own ehcache.xml with settings for the caches and place it in the application classpath.
+
+   

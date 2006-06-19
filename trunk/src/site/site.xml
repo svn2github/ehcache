@@ -44,7 +44,7 @@
                 <item name="Cache Configuration" href="documentation/configuration.html"/>
                 <item name="CacheManager event listeners" href="documentation/cachemanager_event_listeners.html"/>
                 <item name="Cache event listeners" href="documentation/cache_event_listeners.html"/>
-                <item name="Hibernate Config" href="documentation/hibernate.html"/>
+                <item name="Hibernate Caching" href="documentation/hibernate.html"/>
             </item>
             <item name="Older User Guides" href="documentation/older_guides.html" collapse="true">
                 <item name="ehcache 1.1" href="documentation/documentation-1_1.html"/>

@@ -27,5 +27,5 @@ ehcache 1.2 User Guide
 
     * {{{./cache_event_listeners.html.html}Cache Event Listeners}}
 
-    * {{{./hibernate.html}Configuration for Hibernate Caches}}
+    * {{{./hibernate.html}Hibernate Caching}}
 

@@ -68,6 +68,8 @@
 
    * {{{#Extensible}Extensible}}
 
+   * {{{#Bootstrapping from Peers}Bootstrapping from Peers}}
+
  * J2EE and Applied Caching
 
   * {{{#Blocking Cache to avoid duplicate processing for concurrent operations}Blocking Cache to avoid duplicate processing for concurrent operations}}
@@ -309,6 +311,14 @@
 
     Distributed caching, introduced in ehcache 1.2 involves many choices and tradeoffs. The ehcache team believe that one size will not fit all.
     Implementers can use built-in mechanisms or write their own. A plugin development guide is included for this purpose.
+
+** {Bootstrapping from Peers}
+
+    Distributed caches enter and leave the cluster at different times. Caches can be configured to bootstrap themselves
+    from the cluster when they are first initialized.
+
+     An abstract factory, BootstrapCacheLoaderFactory has been defined along with an interface BootstrapCacheLoader along
+     with an RMI based default implementation.
 
 * {J2EE and Applied Caching}
 
