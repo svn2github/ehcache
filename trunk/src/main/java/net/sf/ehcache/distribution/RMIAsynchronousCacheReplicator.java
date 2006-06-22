@@ -113,8 +113,12 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
             if (notAlive()) {
                 return;
             }
-            if (replicationQueue.size() != 0) {
-                flushReplicationQueue();
+            try {
+                if (replicationQueue.size() != 0) {
+                    flushReplicationQueue();
+                }
+            } catch (Throwable e) {
+                LOG.warn("Error on flusing of replication queue: " + e.getMessage(), e);
             }
         }
     }

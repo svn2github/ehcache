@@ -26,6 +26,8 @@
 
     * {{{#Supports Object or Serializable caching}Supports Object or Serializable caching}}
 
+    * {{{#Support cache-wide or Element-based expiry policies}Support cache-wide or Element-based expiry policies}}
+
     * {{{#Provides LRU, LFU and FIFO cache eviction policies}Provides LRU, LFU and FIFO cache eviction policies}}
 
     * {{{#Provides Memory and Disk stores}Provides Memory and Disk stores}}
@@ -47,7 +49,7 @@
     * {{{#Flush to disk on demand}Flush to disk on demand}}
 
 
- * Listeners
+ * Supports Listeners
 
    * {{{#CacheManager listeners}CacheManager listeners}}
 
@@ -216,6 +218,11 @@
    makes it very easy to start with caching Objects and then change your Objects to Seralizable to participate in
    the extra features when needed. Also a large number of Java classes are simply not Serializable.
 
+** {Support cache-wide or Element-based expiry policies}
+
+   Time to lives and time to idles are settable per cache. In addition, from ehcache-1.2.1, overrides to these can be
+   set per Element.
+
 ** {Provides LRU, LFU and FIFO cache eviction policies}
 
     Ehcache 1.2 introduced Less Frequently Used and First In First Out caching eviction policies. These round out the
@@ -342,11 +349,17 @@
      and delivers them to browsers either gzipped or ungzipped depending on the HTTP request headers. Use
      to cache entire Servlet pages, whether from JSP, velocity, or any other rendering technology.
 
+     Tested with Orion and Tomcat.
+
     * SimplePageFragmentCachingFilter
 
      A high performance J2EE filter that caches page fragments based on the request URI and Query String. Use
      with Servlet request dispatchers to cache parts of pages, whether from JSP, velocity, or any other rendering technology.
      Can be used from JSPs using jsp:include.
+
+     Tested with Orion and Tomcat.
+
+    * Works with Servlet 2.3 and Servlet 2.4 specifications. 
 
 ** {Cacheable Commands}
 
