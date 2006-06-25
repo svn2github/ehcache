@@ -22,6 +22,13 @@
 
      * {{{#Statistics of Cache Hits and Misses}Statistics of Cache Hits and Misses}}
 
+ * {{{#Programmatically Creating Caches}Programmatically Creating Caches}}
+
+     * {{{#Creating a new cache from defaults}Creating a new cache from defaults}}
+
+     * {{{#Creating a new cache with custom parameters}Creating a new cache with custom parameters}}
+
+
  * {{{#Browse the JUnit Tests}Browse the JUnit Tests}}
 
 
@@ -282,6 +289,54 @@ int hits = cache.getMissCountExpired();
  These are just the most commonly used methods. See {{{xref-test/net/sf/ehcache/CacheTest.html}CacheTest}} for more examples.
  See {{{xref/net/sf/ehcache/Cache.html}Cache}} for the full API.
 
+
+* {Creating a new cache from defaults}
+
+    A new cache with a given name can be created from defaults very simply:
+
+---
+manager.addCache("cache name");
+---
+
+* {Creating a new cache with custom parameters}
+
+   The configuration for a Cache can be specified programmatically in the Cache constructor:
+
+--------------------------------------------
+public Cache(
+    String name,
+    int maxElementsInMemory,
+    MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
+    boolean overflowToDisk,
+    boolean eternal,
+    long timeToLiveSeconds,
+    long timeToIdleSeconds,
+    boolean diskPersistent,
+    long diskExpiryThreadIntervalSeconds) {
+    ...
+   }
+--------------------------------------------
+
+   Here is an example which creates a cache called test.
+
+--------------------------------------------
+   //Create a CacheManager using defaults
+   CacheManager manager = CacheManager.create();
+
+   //Create a Cache specifying its configuration.
+
+   Cache testCache = new Cache("test", maxElements,
+   MemoryStoreEvictionPolicy.LFU, true, false, 60, 30, false, 0);
+   manager.addCache(cache);
+--------------------------------------------
+
+   Once the cache is created, add it to the list of caches managed by the CacheManager:
+
+--------------------------------------------
+     manager.addCache(testCache);
+--------------------------------------------
+
+   The cache is not usable until it has been added.
 
 * {Browse the JUnit Tests}
 

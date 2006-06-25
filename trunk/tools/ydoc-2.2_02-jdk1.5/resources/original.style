@@ -18,7 +18,6 @@
 uml_display_associations=TRUE
 uml_display_packages=TRUE
 uml_display_parameters=TRUE
-
 #
 # Dependency policy
 #
@@ -132,7 +131,7 @@ uml_exclude_pattern_dependencies=
 uml_exclude_pattern_generalizations=
 uml_exclude_pattern_realizations=
 
-
+#uml_display_parameters=
 
 ############################################################
 #

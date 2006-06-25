@@ -1,22 +1,33 @@
 
-{Cache Concepts}
+{Key Ehcache Concepts}
 
-    ehcache consists of a <<<CacheManager>>>, which manages caches. Caches contain elements,
+
+* Key Ehcache Classes
+
+[apidocs/net/sf/ehcache/package] Top Level Package Diagram
+
+    Ehcache consists of a <<<CacheManager>>>, which manages caches. Caches contain elements,
     which are essentially name value pairs. Caches are physically implemented either in-memory, or on disk.
 
-* {CacheManager}
+** {CacheManager}
 
-    The Cache Manager is made up of Caches which contain elements.
+[apidocs/net/sf/ehcache/CacheManager] CacheManager Class Diagram
+
+    The <<<CacheManager>>> comprises Caches which in turn comprise Elements.
 
     Creation of, access to and removal of caches is controlled by the <<<CacheManager>>>.
 
-** {Singleton Mode}
+*** CacheManager Creation Modes
+
+   <<<CacheManager>>> supports two creation modes: singleton and instance.
+
+**** {Singleton Mode}
 
     Ehcache-1.1 supported only one <<<CacheManager>>>
     instance which was a singleton. CacheManager can still be used in this
-    way using the static create methods.
+    way using the static factory methods.
 
-** {Instance Mode}
+**** {Instance Mode}
 
     From ehcache-1.2, CacheManager has constructors which mirror the
     various static create methods. This enables multiple CacheManagers to
@@ -31,7 +42,7 @@
     a CacheException is thrown. If a CacheManager is part of a cluster,
     there will also be listener ports which must be unique.
 
-** {Mixed Singleton and Instance Mode}
+**** {Mixed Singleton and Instance Mode}
 
     If an application creates instances of CacheManager using a
     constructor, and also calls a static create method, there will exist a
@@ -39,16 +50,22 @@
     create method is called together with any other instances created via
     constructor. The two types will coexist peacefully.
 
-* {Cache}
 
-    A cache has a name and attributes. Each cache contains elements.
 
-    A Cache is similar to a cache region in other caching systems.
+** {Ehcache}
+
+[apidocs/net/sf/ehcache/Ehcache] Ehcache Interface Diagram
+
+    All caches implement the <<<Ehcache>>> interface. A cache has a name and attributes. Each cache contains Elements.
+
+    A Cache in ehcache is analogous to a cache region in other caching systems.
 
     Cache elements are stored in the <<<MemoryStore>>>. Optionally
     they also overflow to a <<<DiskStore>>>.
 
-* {Element}
+** {Element}
+
+[apidocs/net/sf/ehcache/Element] Element Class Diagram
 
     An element is an atomic entry in a cache. It has a key, a value and a record of
     accesses. Elements are put into and removed from caches. They can also
@@ -64,4 +81,40 @@
     the extra features when needed. Also a large number of Java classes are simply not Serializable.
 
 
+* {Cache Eviction Algorithms}
+
+    A cache eviction algorithm is a way of deciding which <<<Element>>> to evict when the cache is full.
+    In ehcache the <<<MemoryStore>>> has a fixed limited size and the <<<DiskStore>>> is unlimited. So, the only store
+    that can be full is the <<<MemoryStore>>>. If a cache is set to only use a <<<MemoryStore>>> then the cache will
+    also be full when the <<<MemoryStore>>> is full, otherwise it will overflow to the <<<DiskStore>>>.
+
+    The eviction algorithms in ehcache thus determine when the <<<MemoryStore>>> evicts an element. If there is no
+    <<<DiskStore>>> this will also be a cache eviction, otherwise it will cause an overflow to disk.
+
+    Ehcache supports three eviction algorithms: LRU, LFU and FIFO
+
+
+** {Least Recently Used} ({LRU}) - Default
+
+     The eldest element, is the Least Recently Used (LRU). The last used
+     timestamp is updated when an element is put into the cache or an
+     element is retrieved from the cache with a get call.
+
+** {Less Frequently Used} ({LFU})
+
+     For each get call on the element the number of hits is updated. When a
+     put call is made for a new element (and assuming that the max limit is
+     reached for the memory store) the element with least number of hits,
+     the Less Frequently Used element, is evicted.
+
+** First In First Out ({FIFO})
+
+     Elements are evicted in the same order as they come in. When a put call
+     is made for a new element (and assuming that the max limit is reached
+     for the memory store) the element that was placed first (First-In) in
+     the store is the candidate for eviction (First-Out).
+
+
+
+     
 

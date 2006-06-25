@@ -500,8 +500,10 @@
         <copy todir="${build.orion.dir}" file="${java.home}/../lib/tools.jar"/>
     </target>
 
+    <target name="book" depends="prepare-book-resources, fast-book"/>
+
     <!-- Requres LaTeX and netpbm-->
-    <target name="book" depends="prepare-book-resources">
+    <target name="fast-book" >
         <mkdir dir="${build.dir}/book"/>
         <copy todir="${build.dir}/book/images">
             <fileset dir="src/site/resources/images"/>

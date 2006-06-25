@@ -46,8 +46,7 @@ recently used ("LRU") element is removed. Used in this case means
 inserted with a put or accessed with a get.
 
  If the overflowToDisk cache attribute is false, the LRU Element is
-discarded. If true,
-it is transferred asynchronously to the DiskStore.
+ discarded. If true, it is transferred asynchronously to the DiskStore.
 
 * Is it thread safe to modify Element values after retrieval from a Cache?
 
