@@ -70,7 +70,9 @@ public abstract class MemoryStore implements Store {
         this.diskStore = diskStore;
         status = Status.STATUS_ALIVE;
 
-        LOG.debug("Initialized " + this.getClass().getName() + " for " + cache.getName());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Initialized " + this.getClass().getName() + " for " + cache.getName());
+        }
     }
 
 

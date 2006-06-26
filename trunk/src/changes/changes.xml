@@ -26,6 +26,10 @@
                 ClassLoaderUtil.class.getClassLoader() if Thread.currentThread().getContextClassLoader()
                 fails. Thanks to Robert Watkins for reporting this one.
             </action>
+            <action dev="Greg Luck" issue="1508623" type="fix">
+                Debug messages generate excess String objects. Added logging level guards around about 6 debug log statements.
+                Thanks to Derek Hulley for pointing this one out.
+            </action>
         </release>
 
 

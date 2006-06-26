@@ -91,28 +91,83 @@
     The eviction algorithms in ehcache thus determine when the <<<MemoryStore>>> evicts an element. If there is no
     <<<DiskStore>>> this will also be a cache eviction, otherwise it will cause an overflow to disk.
 
+** {About Eviction Algorithms}
+
+    The idea here is, given a limit on the number of items to cache, how to choose the thing to evict that
+    gives the <best> result.
+
+    In 1966 Laszlo Belady showed that the most efficient caching algorithm would be to always discard the
+    information that will not be needed for the longest time in the future. This it a theoretical result
+    that is unimplementable without domain knowledge. The Least Recently Used ("LRU") algorithm is often used as
+    a proxy. It works pretty well because of the locality of reference phenonemon. As a result, LRU is the default
+    eviction algorithm in ehcache, as it is in most caches.
+
+    Ehcache users may sometimes have a good domain knowledge. Accordingly, ehcache provides three eviction
+    algorithms to choose from.
+
+** {Ehcache's Eviction Algorithms}
+
     Ehcache supports three eviction algorithms: LRU, LFU and FIFO
 
 
-** {Least Recently Used} ({LRU}) - Default
+*** {Least Recently Used} ({LRU})
 
      The eldest element, is the Least Recently Used (LRU). The last used
      timestamp is updated when an element is put into the cache or an
      element is retrieved from the cache with a get call.
 
-** {Less Frequently Used} ({LFU})
+     LRU is the default in ehcache.
+
+*** {Less Frequently Used} ({LFU})
 
      For each get call on the element the number of hits is updated. When a
      put call is made for a new element (and assuming that the max limit is
      reached for the memory store) the element with least number of hits,
      the Less Frequently Used element, is evicted.
 
-** First In First Out ({FIFO})
+     If cache element use follows a pareto distribution, this algorithm may give better
+     results than LRU.
+
+*** First In First Out ({FIFO})
 
      Elements are evicted in the same order as they come in. When a put call
      is made for a new element (and assuming that the max limit is reached
      for the memory store) the element that was placed first (First-In) in
      the store is the candidate for eviction (First-Out).
+
+     This algorithm is used if the use of an element makes it less likely to be used
+     in the future. An example here would be an authentication cache.
+
+
+* {Cache Usage Patterns}
+
+    Caches can be used in different ways. Each of these ways follows a cache usage pattern.
+    Ehcache supports the following:
+
+    * direct manipulation
+
+    * pull-through
+
+    * self-populating
+
+** Direct Manipulation
+
+    Here, to put something in the cache you do <<<cache.put(Element element)>>> and to get something
+    from the cache you do <<<cache.get(Object key)>>>.
+
+    You are aware you are using a cache and you are doing so consciously.
+
+** Self Populating
+
+    Here, you just do gets to the cache using <<<cache.get(Object key)>>>. The cache itself knows
+    how to populate an entry.
+
+    See the SelfPopulatingCache for more on this pattern.
+
+
+
+
+
 
 
 

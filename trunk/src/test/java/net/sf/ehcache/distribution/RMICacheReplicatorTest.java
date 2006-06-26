@@ -331,6 +331,17 @@ public class RMICacheReplicatorTest extends TestCase {
     }
 
     /**
+     * Enables long stabilty runs using replication to be done.
+     *
+     * @throws InterruptedException
+     */
+    public void manualStabilityTest() throws InterruptedException {
+        while (true) {
+            testBigPutsProgagatesAsynchronous();
+        }
+    }
+
+    /**
      * The number of caches there should be.
      */
     protected int getNumberOfReplicatingCachesInCacheManager() {
@@ -398,7 +409,6 @@ public class RMICacheReplicatorTest extends TestCase {
     /**
      * Performance and capacity tests.
      * <p/>
-     *
      */
     public void testBootstrap() throws CacheException, InterruptedException, RemoteException {
 
@@ -433,10 +443,9 @@ public class RMICacheReplicatorTest extends TestCase {
         assertEquals(2000, manager4.getCache("sampleCache1").getSize());
         assertEquals(2000, manager5.getCache("sampleCache1").getSize());
 
-
         //now test bootstrap
         manager1.addCache("bootStrapResults");
-        Cache cache =  manager1.getCache("bootStrapResults");
+        Cache cache = manager1.getCache("bootStrapResults");
         List cachePeers = manager1.getCacheManagerPeerProvider().listRemoteCachePeers(cache1);
         CachePeer cachePeer = (CachePeer) cachePeers.get(0);
 

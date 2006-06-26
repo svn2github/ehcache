@@ -34,9 +34,9 @@ public final class ClassLoaderUtil {
     }
 
     /**
-     * Gets the <code>ClassLoader</code> that all classes in ehcache, and extensions, should use for classloading.
-     * All ClassLoading in ehcache should use this one. This is the only thing that seems to work for all of the
-     * class loading situations found in the wild.
+     * Gets the <code>ClassLoader</code> that all classes in ehcache, and extensions, should
+     * use for classloading. All ClassLoading in ehcache should use this one. This is the only
+     * thing that seems to work for all of the class loading situations found in the wild.
      * @return the thread context class loader.
      */
     public static ClassLoader getStandardClassLoader() {
@@ -44,8 +44,8 @@ public final class ClassLoaderUtil {
     }
 
     /**
-     * Gets a fallback <code>ClassLoader</code> that all classes in ehcache, and extensions, should use for classloading.
-     * This is used if the context class loader does not work.
+     * Gets a fallback <code>ClassLoader</code> that all classes in ehcache, and extensions,
+     * should use for classloading. This is used if the context class loader does not work.
      * @return the <code>ClassLoaderUtil.class.getClassLoader();</code>
      */
     public static ClassLoader getFallbackClassLoader() {
@@ -69,16 +69,19 @@ public final class ClassLoaderUtil {
             try {
                 clazz = Class.forName(className, true, getFallbackClassLoader());
             } catch (ClassNotFoundException ex) {
-                throw new CacheException("Unable to load class " + className + ". Initial cause was " + e.getMessage(), e);
+                throw new CacheException("Unable to load class " + className +
+                        ". Initial cause was " + e.getMessage(), e);
             }
         }
 
         try {
             newInstance = clazz.newInstance();
         } catch (IllegalAccessException e) {
-            throw new CacheException("Unable to load class " + className + ". Initial cause was " + e.getMessage(), e);
+            throw new CacheException("Unable to load class " + className +
+                    ". Initial cause was " + e.getMessage(), e);
         } catch (InstantiationException e) {
-            throw new CacheException("Unable to load class " + className + ". Initial cause was " + e.getMessage(), e);
+            throw new CacheException("Unable to load class " + className +
+                    ". Initial cause was " + e.getMessage(), e);
         }
         return newInstance;
     }

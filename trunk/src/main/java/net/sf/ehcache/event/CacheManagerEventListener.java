@@ -17,15 +17,17 @@
 package net.sf.ehcache.event;
 
 /**
- * Allows implementers to register callback methods that will be executed when a <code>CacheManager</code> event occurs.
+ * Allows implementers to register callback methods that will be executed when a
+ * <code>CacheManager</code> event occurs.
  * The events include:
  * <ol>
  * <li>adding a <code>Cache</code>
  * <li>removing a <code>Cache</code>
  * </ol>
  * <p/>
- * Callbacks to these methods are synchronous and unsynchronized. It is the responsibility of the implementer
- * to safely handle the potential performance and thread safety issues depending on what their listener is doing.
+ * Callbacks to these methods are synchronous and unsynchronized. It is the responsibility of
+ * the implementer to safely handle the potential performance and thread safety issues
+ * depending on what their listener is doing.
  * @author Greg Luck
  * @version $Id$
  * @since 1.2
@@ -37,16 +39,18 @@ public interface CacheManagerEventListener {
     /**
      * Called immediately after a cache has been added and activated.
      * <p/>
-     * Note that the CacheManager calls this method from a synchronized method. Any attempt to call a synchronized
-     * method on CacheManager from this method will cause a deadlock.
+     * Note that the CacheManager calls this method from a synchronized method. Any attempt to
+     * call a synchronized method on CacheManager from this method will cause a deadlock.
      * <p/>
-     * Note that activation will also cause a CacheEventListener status change notification from
-     *  {@link net.sf.ehcache.Status#STATUS_UNINITIALISED} to {@link net.sf.ehcache.Status#STATUS_ALIVE}. Care should be
-     * taken on processing that notification because:
+     * Note that activation will also cause a CacheEventListener status change notification
+     * from {@link net.sf.ehcache.Status#STATUS_UNINITIALISED} to
+     * {@link net.sf.ehcache.Status#STATUS_ALIVE}. Care should be taken on processing that
+     * notification because:
      * <ul>
      * <li>the cache will not yet be accessible from the CacheManager.
-     * <li>the addCaches methods whih cause this notification are synchronized on the CacheManager. An attempt to call
-     * {@link net.sf.ehcache.CacheManager#getCache(String)} will cause a deadlock.
+     * <li>the addCaches methods whih cause this notification are synchronized on the
+     * CacheManager. An attempt to call {@link net.sf.ehcache.CacheManager#getCache(String)}
+     * will cause a deadlock.
      * </ul>
      * The calling method will block until this method returns.
      * <p/>
@@ -56,14 +60,14 @@ public interface CacheManagerEventListener {
     void notifyCacheAdded(String cacheName);
 
     /**
-     * Called immediately after a cache has been disposed and removed. The calling method will block until
-     * this method returns.
+     * Called immediately after a cache has been disposed and removed. The calling method will
+     * block until this method returns.
      * <p/>
-     * Note that the CacheManager calls this method from a synchronized method. Any attempt to call a synchronized
-     * method on CacheManager from this method will cause a deadlock.
+     * Note that the CacheManager calls this method from a synchronized method. Any attempt to
+     * call a synchronized method on CacheManager from this method will cause a deadlock.
      * <p/>
-     * Note that a {@link CacheEventListener} status changed will also be triggered. Any attempt from that notification
-     * to access CacheManager will also result in a deadlock.
+     * Note that a {@link CacheEventListener} status changed will also be triggered. Any
+     * attempt from that notification to access CacheManager will also result in a deadlock.
      * @param cacheName the name of the <code>Cache</code> the operation relates to
      */
     void notifyCacheRemoved(String cacheName);

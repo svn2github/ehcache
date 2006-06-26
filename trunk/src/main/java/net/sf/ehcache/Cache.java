@@ -466,8 +466,10 @@ public class Cache implements Ehcache {
                         // removeShutdownHook to remove it during shutdown
                         Cache.this.shutdownHook = null;
 
+                        if (LOG.isDebugEnabled()) {
                         LOG.debug("VM shutting down with the disk store for " + name
                                 + " still active. The disk store is persistent. Calling dispose...");
+                        }
                         dispose();
                     }
                 }

@@ -172,11 +172,15 @@ public class DiskStore implements Store {
                 + "Deleting data file " + getDataFileName());
                 dataFile.delete();
             } else if (!readIndex()) {
-                LOG.debug("Index file dirty or empty. Deleting data file " + getDataFileName());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Index file dirty or empty. Deleting data file " + getDataFileName());
+                }
                 dataFile.delete();
             }
         } else {
-            LOG.debug("Deleting data file " + getDataFileName());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Deleting data file " + getDataFileName());
+            }
             dataFile.delete();
             indexFile = null;
         }
@@ -189,7 +193,9 @@ public class DiskStore implements Store {
         boolean dataFileExists = dataFile.exists();
         boolean indexFileExists = indexFile.exists();
         if (!dataFileExists && indexFileExists) {
-            LOG.debug("Matching data file missing for index file. Deleting index file " + getIndexFileName());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Matching data file missing for index file. Deleting index file " + getIndexFileName());
+            }
             indexFile.delete();
         }
     }
@@ -693,7 +699,9 @@ public class DiskStore implements Store {
                 LOG.error("Corrupt index file. Creating new index.");
             } catch (IOException e) {
                 //normal when creating the cache for the first time
-                LOG.debug("IOException reading index. Creating new index. ");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("IOException reading index. Creating new index. ");
+                }
             } catch (ClassNotFoundException e) {
                 LOG.error("Class loading problem reading index. Creating new index. Initial cause was " + e.getMessage(), e);
             } finally {
@@ -724,10 +732,14 @@ public class DiskStore implements Store {
     private void createNewIndexFile() throws IOException {
         if (indexFile.exists()) {
             indexFile.delete();
-            LOG.debug("Index file " + indexFile + " deleted.");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Index file " + indexFile + " deleted.");
+            }
         }
         if (indexFile.createNewFile()) {
-            LOG.debug("Index file " + indexFile + " created successfully");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Index file " + indexFile + " created successfully");
+            }
         } else {
             throw new IOException("Index file " + indexFile + " could not created.");
         }
