@@ -1345,7 +1345,7 @@ public class CacheTest extends AbstractCacheTest {
     public void testReadWriteThreads() throws Exception {
 
         final int size = 10000;
-        final int maxTime = 230;
+        final int maxTime = 300;
         final Cache cache = new Cache("test3cache", size, false, true, 30, 30);
         manager.addCache(cache);
 

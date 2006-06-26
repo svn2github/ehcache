@@ -16,8 +16,8 @@
 
 package net.sf.ehcache.constructs.blocking;
 
-import junit.framework.TestCase;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.CacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.apache.commons.logging.Log;
@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Adam Murdoch
  * @author Greg Luck
  */
-public class SelfPopulatingCacheTest extends TestCase {
+public class SelfPopulatingCacheTest extends CacheTest {
     private static final Log LOG = LogFactory.getLog(SelfPopulatingCache.class.getName());
 
     /**

@@ -575,60 +575,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="CacheManagerEventListener.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/CacheManagerEventListener.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="20" column="3" selection-start="729" selection-end="729" vertical-scroll-proportion="0.2185129">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="cachemanager_event_listeners.apt" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/cachemanager_event_listeners.apt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="85" column="3" selection-start="3270" selection-end="3270" vertical-scroll-proportion="0.67391306">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="class_loading.apt" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/class_loading.apt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="20" column="75" selection-start="810" selection-end="810" vertical-scroll-proportion="0.36418816">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MemoryStore.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="73" column="12" selection-start="2160" selection-end="2160" vertical-scroll-proportion="0.93167704">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DiskStore.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="1021" column="16" selection-start="34578" selection-end="34578" vertical-scroll-proportion="1.181677">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Cache.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="423" column="31" selection-start="15437" selection-end="15437" vertical-scroll-proportion="0.16149068">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="CacheManager.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -638,28 +584,82 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="changes.xml" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="changes.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="30" column="65" selection-start="1955" selection-end="1955" vertical-scroll-proportion="0.5590062">
+            <state line="425" column="16" selection-start="25207" selection-end="25207" vertical-scroll-proportion="0.2748447">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ClassLoaderUtil.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/util/ClassLoaderUtil.java">
+      <file leaf-file-name="news.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/news.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="35" column="0" selection-start="964" selection-end="1824" vertical-scroll-proportion="0.17602427">
+            <state line="305" column="4" selection-start="15512" selection-end="15512" vertical-scroll-proportion="0.2748447">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CacheManagerEventListenerFactory.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/CacheManagerEventListenerFactory.java">
+      <file leaf-file-name="constructs-0_5.html" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/resources/documentation/constructs-0_5.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="24" column="24" selection-start="875" selection-end="875" vertical-scroll-proportion="0.18209408">
+            <state line="198" column="6" selection-start="8604" selection-end="8604" vertical-scroll-proportion="0.27617604">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="package.html" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/package.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="41" column="4" selection-start="1528" selection-end="1528" vertical-scroll-proportion="0.7465857">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SelfPopulatingCacheTest.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/SelfPopulatingCacheTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="32" column="13" selection-start="1074" selection-end="1074" vertical-scroll-proportion="0.2367223">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="UpdatingSelfPopulatingCacheTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/UpdatingSelfPopulatingCacheTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="35" column="18" selection-start="1168" selection-end="1168" vertical-scroll-proportion="0.2367223">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CacheTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="1335" column="69" selection-start="47003" selection-end="47003" vertical-scroll-proportion="0.1107739">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AbstractCacheTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/AbstractCacheTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="46" column="21" selection-start="1378" selection-end="1378" vertical-scroll-proportion="-0.054628223">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CHANGELOG.txt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/CHANGELOG.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="184" column="4" selection-start="15362" selection-end="15362" vertical-scroll-proportion="0.2748447">
               <folding />
             </state>
           </provider>
@@ -1796,13 +1796,13 @@
   <component name="RestoreUpdateTree" />
   <component name="RunManager">
     <activeType name="JUnit" />
-    <tempConfiguration selected="true" default="false" name="RMICacheReplicatorTest.manualStabilityTest" type="JUnit" factoryName="JUnit">
+    <tempConfiguration selected="true" default="false" name="UpdatingSelfPopulatingCacheTest.testReadWriteThreads" type="JUnit" factoryName="JUnit">
       <module name="ehcache" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
-      <option name="PACKAGE_NAME" value="net.sf.ehcache.distribution" />
-      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.distribution.RMICacheReplicatorTest" />
-      <option name="METHOD_NAME" value="manualStabilityTest" />
+      <option name="PACKAGE_NAME" value="net.sf.ehcache.constructs.blocking" />
+      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.constructs.blocking.UpdatingSelfPopulatingCacheTest" />
+      <option name="METHOD_NAME" value="testReadWriteThreads" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="" />
       <option name="PARAMETERS" value="" />
@@ -2338,65 +2338,9 @@
     </buildFile>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/older_guides.apt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/index.apt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="42" selection-start="289" selection-end="322" vertical-scroll-proportion="0.32980973">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/concepts.apt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="171" column="77" selection-start="6917" selection-end="6917" vertical-scroll-proportion="0.94926006">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="337" column="22" selection-start="10758" selection-end="10758" vertical-scroll-proportion="1.2794759">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/cache_event_listeners.apt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="128" column="67" selection-start="4542" selection-end="4542" vertical-scroll-proportion="3.2473574">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/CacheManagerEventListener.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="20" column="3" selection-start="729" selection-end="729" vertical-scroll-proportion="0.2185129">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/CacheManagerEventListenerFactory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="24" column="24" selection-start="875" selection-end="875" vertical-scroll-proportion="0.18209408">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/util/ClassLoaderUtil.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="0" selection-start="964" selection-end="1824" vertical-scroll-proportion="0.17602427">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/cachemanager_event_listeners.apt">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="85" column="3" selection-start="3270" selection-end="3270" vertical-scroll-proportion="0.67391306">
+        <state line="85" column="3" selection-start="3266" selection-end="3266" vertical-scroll-proportion="0.67391306">
           <folding />
         </state>
       </provider>
@@ -2410,7 +2354,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="73" column="12" selection-start="2160" selection-end="2160" vertical-scroll-proportion="0.93167704">
+        <state line="73" column="12" selection-start="2161" selection-end="2161" vertical-scroll-proportion="0.93167704">
           <folding />
         </state>
       </provider>
@@ -2436,9 +2380,65 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/CHANGELOG.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="184" column="4" selection-start="15362" selection-end="15362" vertical-scroll-proportion="0.2748447">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="65" selection-start="1955" selection-end="1955" vertical-scroll-proportion="0.5590062">
+        <state line="425" column="16" selection-start="25207" selection-end="25207" vertical-scroll-proportion="0.2748447">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/news.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="305" column="4" selection-start="15512" selection-end="15512" vertical-scroll-proportion="0.2748447">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/resources/documentation/constructs-0_5.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="198" column="6" selection-start="8604" selection-end="8604" vertical-scroll-proportion="0.27617604">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/AbstractCacheTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="46" column="21" selection-start="1378" selection-end="1378" vertical-scroll-proportion="-0.054628223">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/package.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="41" column="4" selection-start="1528" selection-end="1528" vertical-scroll-proportion="0.7465857">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/UpdatingSelfPopulatingCacheTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="35" column="18" selection-start="1168" selection-end="1168" vertical-scroll-proportion="0.2367223">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1335" column="69" selection-start="47003" selection-end="47003" vertical-scroll-proportion="0.1107739">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/SelfPopulatingCacheTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="32" column="13" selection-start="1074" selection-end="1074" vertical-scroll-proportion="0.2367223">
           <folding />
         </state>
       </provider>

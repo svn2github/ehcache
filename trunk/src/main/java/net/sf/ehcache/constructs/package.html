@@ -15,7 +15,7 @@
   <li>BlockingCache
   - a cache which blocks subsequent threads until the
   first read thread populates a cache entry </li>
-  <li>SelfPopulatingCache</a>
+  <li>SelfPopulatingCache</li>
   - a read-through cache. A cache that
   populates elements as they are requested without requiring the caller
   to know how the entries are populated. It also enables refreshes of
@@ -23,11 +23,7 @@
   <li>UpdatingSelfPopulatingCache - a read-through cache. A cache that
   populates elements as they are requested without requiring the caller
   to know how the entries are populated. The cache entry is automatically
-  updated on subsequent reads. <br>
-  </li>
-  <li>SelfPopulatingCollectionsCache - a SelfPopulatingCache that adds
-  threading safety where it is known in advance that all entries will be
-  collections.</li>
+  updated on subsequent reads.</li>
   </ul>
   <h4>Web Caching</h4>
   Servlet 2.3 caching filters that cache HTTP/S responses:<br>
