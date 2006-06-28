@@ -503,7 +503,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java" line="626" class="net.sf.ehcache.store.DiskStore" package="net.sf.ehcache.store">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java" line="631" class="net.sf.ehcache.store.DiskStore" package="net.sf.ehcache.store">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -591,90 +591,88 @@
       <file leaf-file-name="DiskStore.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="626" column="0" selection-start="21137" selection-end="21137" vertical-scroll-proportion="0.24378882">
+            <state line="596" column="8" selection-start="20088" selection-end="20433" vertical-scroll-proportion="0.29503107">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DiskStoreTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
+      <file leaf-file-name="Map.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/Map.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="43" column="13" selection-start="1447" selection-end="1447" vertical-scroll-proportion="-1.30956">
+            <state line="296" column="22" selection-start="14419" selection-end="14419" vertical-scroll-proportion="0.25948405">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RMICacheReplicatorTest.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
+      <file leaf-file-name="AbstractMap.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/AbstractMap.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="375" column="26" selection-start="12602" selection-end="12602" vertical-scroll-proportion="0.09006211">
+            <state line="333" column="17" selection-start="12453" selection-end="12453" vertical-scroll-proportion="0.3505311">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CacheTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java">
+      <file leaf-file-name="Set.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/Set.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="1106" column="60" selection-start="39044" selection-end="39044" vertical-scroll-proportion="0.7314112">
+            <state line="296" column="0" selection-start="13312" selection-end="13312" vertical-scroll-proportion="0.3323217">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ThreadKiller.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/ThreadKiller.java">
+      <file leaf-file-name="HashMap.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/HashMap.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="33" column="70" selection-start="1036" selection-end="1036" vertical-scroll-proportion="0.34597877">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ElementTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="608" vertical-scroll-proportion="0.0">
+            <state line="949" column="27" selection-start="32554" selection-end="32554" vertical-scroll-proportion="0.3505311">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="OutOfMemoryError.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/OutOfMemoryError.java">
+      <file leaf-file-name="RMIAsynchronousCacheReplicator.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMIAsynchronousCacheReplicator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="36" selection-start="498" selection-end="498" vertical-scroll-proportion="0.25493172">
+            <state line="58" column="83" selection-start="2800" selection-end="2800" vertical-scroll-proportion="0.5827011">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="VirtualMachineError.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/VirtualMachineError.java">
+      <file leaf-file-name="MulticastKeepaliveHeartbeatSender.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastKeepaliveHeartbeatSender.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="36" selection-start="477" selection-end="477" vertical-scroll-proportion="0.25493172">
+            <state line="124" column="65" selection-start="3997" selection-end="3997" vertical-scroll-proportion="0.1138088">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Error.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/Error.java">
+      <file leaf-file-name="changes.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="26" column="22" selection-start="949" selection-end="949" vertical-scroll-proportion="0.22003035">
+            <state line="49" column="73" selection-start="3011" selection-end="3011" vertical-scroll-proportion="0.5962733">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ThreadDeath.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/ThreadDeath.java">
+      <file leaf-file-name="RMICacheManagerPeerListener.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="34" column="13" selection-start="1174" selection-end="1174" vertical-scroll-proportion="0.52807283">
+            <state line="405" column="38" selection-start="14808" selection-end="14808" vertical-scroll-proportion="0.3136646">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PayloadUtil.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/PayloadUtil.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="72" column="37" selection-start="2397" selection-end="2397" vertical-scroll-proportion="0.3505311">
               <folding />
             </state>
           </provider>
@@ -1192,6 +1190,48 @@
       </PATH_ELEMENT>
       <PATH_ELEMENT>
         <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+    </PATH>
+    <PATH>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="ehcache.ipr" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="ehcache" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache/util" />
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
       </PATH_ELEMENT>
     </PATH>
@@ -2123,109 +2163,107 @@
     </buildFile>
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/ThreadGroup.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="38" column="6" selection-start="1430" selection-end="1430" vertical-scroll-proportion="-12.983087">
+        <state line="387" column="65" selection-start="13062" selection-end="13062" vertical-scroll-proportion="0.3136646">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/Thread.java">
+    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/List.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="114" column="6" selection-start="4197" selection-end="4197" vertical-scroll-proportion="-6.2093024">
+        <state line="187" column="17" selection-start="8016" selection-end="8016" vertical-scroll-proportion="0.3323217">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/index.apt">
+    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/System.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+        <state line="422" column="23" selection-start="16994" selection-end="16994" vertical-scroll-proportion="2.0804248">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/io/Serializable.java">
+    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/ArrayList.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="44" column="53" selection-start="1851" selection-end="2041" vertical-scroll-proportion="0.5813953">
+        <state line="275" column="16" selection-start="9879" selection-end="9879" vertical-scroll-proportion="0.36874053">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMIAsynchronousCacheReplicator.java">
+    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/Collection.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="121" column="24" selection-start="4979" selection-end="4979" vertical-scroll-proportion="0.5174507">
+        <state line="159" column="0" selection-start="7308" selection-end="7308" vertical-scroll-proportion="0.3323217">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/ThreadDeath.java">
+    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/HashMap.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="13" selection-start="1174" selection-end="1174" vertical-scroll-proportion="0.52807283">
+        <state line="949" column="27" selection-start="32554" selection-end="32554" vertical-scroll-proportion="0.3505311">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
+    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/Set.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="43" column="13" selection-start="1447" selection-end="1447" vertical-scroll-proportion="-1.30956">
+        <state line="296" column="0" selection-start="13312" selection-end="13312" vertical-scroll-proportion="0.3323217">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/Error.java">
+    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/AbstractMap.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="26" column="22" selection-start="949" selection-end="949" vertical-scroll-proportion="0.22003035">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/VirtualMachineError.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="36" selection-start="477" selection-end="477" vertical-scroll-proportion="0.25493172">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/OutOfMemoryError.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="36" selection-start="498" selection-end="498" vertical-scroll-proportion="0.25493172">
+        <state line="333" column="17" selection-start="12453" selection-end="12453" vertical-scroll-proportion="0.3505311">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="626" column="0" selection-start="21137" selection-end="21137" vertical-scroll-proportion="0.24378882">
+        <state line="596" column="8" selection-start="20088" selection-end="20433" vertical-scroll-proportion="0.29503107">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/PayloadUtil.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1106" column="60" selection-start="39044" selection-end="39044" vertical-scroll-proportion="0.7314112">
+        <state line="72" column="37" selection-start="2397" selection-end="2397" vertical-scroll-proportion="0.3505311">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMIAsynchronousCacheReplicator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="608" vertical-scroll-proportion="0.0">
+        <state line="58" column="83" selection-start="2800" selection-end="2800" vertical-scroll-proportion="0.5827011">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/ThreadKiller.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastKeepaliveHeartbeatSender.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="33" column="70" selection-start="1036" selection-end="1036" vertical-scroll-proportion="0.34597877">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state line="124" column="65" selection-start="3997" selection-end="3997" vertical-scroll-proportion="0.1138088">
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
+    <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="375" column="26" selection-start="12602" selection-end="12602" vertical-scroll-proportion="0.09006211">
+        <state line="49" column="73" selection-start="3011" selection-end="3011" vertical-scroll-proportion="0.5962733">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/Map.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="296" column="22" selection-start="14419" selection-end="14419" vertical-scroll-proportion="0.25948405">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="405" column="38" selection-start="14808" selection-end="14808" vertical-scroll-proportion="0.3136646">
           <folding />
         </state>
       </provider>

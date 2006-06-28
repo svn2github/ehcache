@@ -30,6 +30,9 @@
                 Debug messages generate excess String objects. Added logging level guards around about 6 debug log statements.
                 Thanks to Derek Hulley for pointing this one out.
             </action>
+            <action dev="Greg Luck" type="update">
+                Change spooling mechanism to use less memory, so as to avoid memory spikes. 
+            </action>
         </release>
 
 

@@ -397,7 +397,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
     }
 
     /**
-     * All of the caches which are listenting for remote changes.
+     * All of the caches which are listening for remote changes.
      *
      * @return a list of <code>RMICachePeer</code> objects. The list if not live
      */

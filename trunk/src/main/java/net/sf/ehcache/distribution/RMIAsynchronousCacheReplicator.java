@@ -220,6 +220,24 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
     }
 
     /**
+     * Adds a message to the queue.
+     * <p/>
+     * This method checks the state of the replication thread and warns
+     * if it has stopped and then discards the message.
+     *
+     * @param cacheEventMessage
+     */
+    protected void addToReplicationQueue(CacheEventMessage cacheEventMessage) {
+        if (!replicationThread.isAlive()) {
+            LOG.error("CacheEventMessages cannot be added to the replication queue"
+                    + " because the replication thread has died.");
+        } else {
+            replicationQueue.add(cacheEventMessage);
+        }
+    }
+
+
+    /**
      * Gets called once per {@link #REPLICATION_THREAD_INTERVAL}.
      * <p/>
      * Sends accumulated messages in bulk to each peer. i.e. if ther are 100 messages and 1 peer,
@@ -233,18 +251,22 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
      * This method issues warnings for problems that can be fixed with configuration changes.
      */
     private void flushReplicationQueue() {
-        Object[] replicationQueueCopy;
+        List replicationQueueCopy;
         synchronized (replicationQueue) {
             if (replicationQueue.size() == 0) {
                 return;
             }
 
-            replicationQueueCopy = replicationQueue.toArray();
+             replicationQueueCopy = new ArrayList(replicationQueue.size());
+            for (int i = 0; i < replicationQueue.size(); i++) {
+                CacheEventMessage cacheEventMessage = (CacheEventMessage) replicationQueue.get(i);
+                replicationQueueCopy.add(cacheEventMessage);
+            }
             replicationQueue.clear();
         }
 
 
-        Ehcache cache = ((CacheEventMessage) replicationQueueCopy[0]).cache;
+        Ehcache cache = ((CacheEventMessage) replicationQueueCopy.get(0)).cache;
         List cachePeers = listRemoteCachePeers(cache);
 
         List resolvedEventMessages = extractAndResolveEventMessages(replicationQueueCopy);
@@ -268,7 +290,7 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
             }
         }
         if (LOG.isWarnEnabled()) {
-            int eventMessagesNotResolved = replicationQueueCopy.length - resolvedEventMessages.size();
+            int eventMessagesNotResolved = replicationQueueCopy.size() - resolvedEventMessages.size();
             if (eventMessagesNotResolved > 0) {
                 LOG.warn(eventMessagesNotResolved + " messages were discarded on replicate due to reclamation of " +
                         "SoftReferences by the VM. Consider increasing the maximum heap size and/or setting the " +
@@ -284,14 +306,13 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
      * @param replicationQueueCopy
      * @return a list of EventMessages which were able to be resolved
      */
-    private static List extractAndResolveEventMessages(Object[] replicationQueueCopy) {
+    private static List extractAndResolveEventMessages(List replicationQueueCopy) {
         List list = new ArrayList();
-        for (int i = 0; i < replicationQueueCopy.length; i++) {
-            EventMessage eventMessage = ((CacheEventMessage) replicationQueueCopy[i]).getEventMessage();
+        for (int i = 0; i < replicationQueueCopy.size(); i++) {
+            EventMessage eventMessage = ((CacheEventMessage) replicationQueueCopy.get(i)).getEventMessage();
             if (eventMessage != null) {
                 list.add(eventMessage);
             }
-            replicationQueueCopy[i] = null;
         }
         return list;
     }
@@ -313,7 +334,6 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
             replicationThreadMain();
         }
     }
-
 
 
     /**

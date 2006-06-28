@@ -45,6 +45,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collection;
 
 /**
  * A disk store implementation.
@@ -593,13 +594,17 @@ public class DiskStore implements Store {
      */
     private synchronized void flushSpool() throws IOException {
         // Write elements to the DB
-        Object[] spoolCopy;
+        List spoolCopy = new ArrayList(spool.size());
         synchronized (spool) {
-            spoolCopy = spool.values().toArray();
+            Collection values = spool.values();
+            for (Iterator iterator = values.iterator(); iterator.hasNext();) {
+                Element element = (Element) iterator.next();
+                spoolCopy.add(element);
+            }
             spool.clear();
         }
-        for (int i = 0; i < spoolCopy.length; i++) {
-            final Element element = (Element) spoolCopy[i];
+        for (int i = 0; i < spoolCopy.size(); i++) {
+            final Element element = (Element) spoolCopy.get(i);
             if (element == null) {
                 continue;
             }
