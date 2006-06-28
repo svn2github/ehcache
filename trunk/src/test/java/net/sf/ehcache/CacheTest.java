@@ -1064,8 +1064,34 @@ public class CacheTest extends AbstractCacheTest {
 
         //Second one should be in the MemoryStore and retrievable
         assertNotNull(cache.get("key2"));
+    }
 
 
+    /**
+     * Tests what happens when an Element throws an Error on serialization. This mimics
+     * what a nasty error like OutOfMemoryError could do.
+     * <p/>
+     * Before a change to the SpoolThread to handle this situation this test failed and generated the following log message.
+     * Jun 28, 2006 7:17:16 PM net.sf.ehcache.store.DiskStore put
+     * SEVERE: testThreadKillerCache: Elements cannot be written to disk store because the spool thread has died.
+     *
+     * @throws Exception
+     */
+    public void testSpoolThreadHandlesThreadKiller() throws Exception {
+        Cache cache = new Cache("testThreadKiller", 1, true, false, 100, 200);
+        manager.addCache(cache);
+
+        Element elementThreadKiller = new Element("key", new ThreadKiller());
+        cache.put(elementThreadKiller);
+        Element element1 = new Element("key1", "one");
+        Element element2 = new Element("key2", "two");
+        cache.put(element1);
+        cache.put(element2);
+
+        Thread.sleep(2000);
+
+        assertNotNull(cache.get("key1"));
+        assertNotNull(cache.get("key2"));
     }
 
     /**
@@ -1330,7 +1356,6 @@ public class CacheTest extends AbstractCacheTest {
     }
 
 
-
     /**
      * Multi-thread read-write test with 20 threads
      * Just use MemoryStore to put max stress on cache
@@ -1356,8 +1381,6 @@ public class CacheTest extends AbstractCacheTest {
         for (int i = 0; i < size; i++) {
             cache.put(new Element("" + i, "value"));
         }
-
-
 
         // 50% of the time get data
         for (int i = 0; i < 30; i++) {
@@ -1408,8 +1431,6 @@ public class CacheTest extends AbstractCacheTest {
         long end = System.currentTimeMillis();
         LOG.info("Total time for the test: " + (end - start) + " ms");
     }
-
-
 
 
 }

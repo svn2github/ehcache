@@ -40,7 +40,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
     /**
      * Shared with subclass
      */
-    protected SelfPopulatingCache selfPopulatingCache;
+    protected SelfPopulatingCache selfPopulatingCache;          
     /**
      * Shared with subclass
      */

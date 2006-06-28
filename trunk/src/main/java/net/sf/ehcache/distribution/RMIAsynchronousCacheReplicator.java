@@ -118,7 +118,8 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
                     flushReplicationQueue();
                 }
             } catch (Throwable e) {
-                LOG.warn("Error on flusing of replication queue: " + e.getMessage(), e);
+                LOG.warn("Exception on flushing of replication queue: " + e.getMessage()
+                        + ". Continuing...", e);
             }
         }
     }
@@ -312,6 +313,8 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
             replicationThreadMain();
         }
     }
+
+
 
     /**
      * A wrapper around an EventMessage, which enables the element to enqueued along with

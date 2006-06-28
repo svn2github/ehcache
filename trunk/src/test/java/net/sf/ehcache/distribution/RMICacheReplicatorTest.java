@@ -25,6 +25,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.StopWatch;
+import net.sf.ehcache.ThreadKiller;
 import net.sf.ehcache.event.CountingCacheEventListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,6 +51,8 @@ import java.rmi.RemoteException;
  * @version $Id$
  */
 public class RMICacheReplicatorTest extends TestCase {
+
+
 
     /**
      * A value to represent replicate asynchronously
@@ -406,6 +409,7 @@ public class RMICacheReplicatorTest extends TestCase {
 
     }
 
+
     /**
      * Performance and capacity tests.
      * <p/>
@@ -677,6 +681,18 @@ public class RMICacheReplicatorTest extends TestCase {
         putTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
     }
 
+
+    /**
+     * Test various cache configurations for cache1 - explicit setting of:
+     * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
+     */
+    public void testPutWithThreadKiller() throws InterruptedException {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+        putTestWithThreadKiller(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
+    }
+
     /**
      * CacheEventListeners that are not CacheReplicators should receive cache events originated from receipt
      * of a remote event by a CachePeer.
@@ -751,6 +767,38 @@ public class RMICacheReplicatorTest extends TestCase {
         assertEquals(sourceElement, deliveredElement);
 
     }
+
+
+    /**
+     * Tests put and remove initiated from cache1 in a cluster
+     * <p/>
+     * This test goes into an infinite loop if the chain of notifications is not somehow broken.
+     */
+    public void putTestWithThreadKiller(Ehcache fromCache, Ehcache toCache, boolean asynchronous)
+            throws CacheException, InterruptedException {
+
+        fromCache.put(new Element("thread killer", new ThreadKiller()));
+        if (asynchronous) {
+            waitForProgagate();
+        }
+
+        Serializable key = new Date();
+        Serializable value = new Date();
+        Element sourceElement = new Element(key, value);
+
+        //Put
+        fromCache.put(sourceElement);
+
+        if (asynchronous) {
+            waitForProgagate();
+        }
+
+        //Should have been replicated to toCache.
+        Element deliveredElement = toCache.get(key);
+        assertEquals(sourceElement, deliveredElement);
+
+    }
+
 
     /**
      * Checks that a put received from a remote cache notifies any registered listeners.

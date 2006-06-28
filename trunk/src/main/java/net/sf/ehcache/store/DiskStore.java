@@ -167,9 +167,9 @@ public class DiskStore implements Store {
             //if diskpath contains auto generated string
             if (diskPath.indexOf(AUTO_DISK_PATH_DIRECTORY_PREFIX) != -1) {
                 LOG.warn("Data in persistent disk stores is ignored for stores from automatically created directories"
-                + " (they start with " + AUTO_DISK_PATH_DIRECTORY_PREFIX + ").\n"
-                + "Remove diskPersistent or resolve the conflicting disk paths in cache configuration.\n"
-                + "Deleting data file " + getDataFileName());
+                        + " (they start with " + AUTO_DISK_PATH_DIRECTORY_PREFIX + ").\n"
+                        + "Remove diskPersistent or resolve the conflicting disk paths in cache configuration.\n"
+                        + "Deleting data file " + getDataFileName());
                 dataFile.delete();
             } else if (!readIndex()) {
                 if (LOG.isDebugEnabled()) {
@@ -334,6 +334,7 @@ public class DiskStore implements Store {
 
     /**
      * Returns the current store size.
+     *
      * @noinspection SynchronizeOnNonFinalField
      */
     public final synchronized int getSize() {
@@ -392,6 +393,7 @@ public class DiskStore implements Store {
 
     /**
      * Removes an item from the disk store.
+     *
      * @noinspection SynchronizeOnNonFinalField
      */
     public final synchronized Element remove(final Object key) {
@@ -576,7 +578,7 @@ public class DiskStore implements Store {
                 try {
                     flushSpool();
                 } catch (Throwable e) {
-                    LOG.error(name + "Cache: Could not flush elements to disk due to " + e.getMessage(), e);
+                    LOG.error(name + "Cache: Could not flush elements to disk due to " + e.getMessage() + ". Continuing...", e);
                 }
             }
         }
@@ -586,6 +588,7 @@ public class DiskStore implements Store {
     /**
      * Flushes all spooled elements to disk.
      * Note that the cache is locked for the entire time that the spool is being flushed.
+     *
      * @noinspection SynchronizeOnNonFinalField
      */
     private synchronized void flushSpool() throws IOException {
@@ -641,7 +644,6 @@ public class DiskStore implements Store {
             // Write the record
             randomAccessFile.seek(diskElement.position);
             randomAccessFile.write(buffer);
-
 
             // Add to index, update stats
             diskElement.payloadSize = buffer.length;
@@ -753,24 +755,25 @@ public class DiskStore implements Store {
      */
     private void expiryThreadMain() {
         long expiryThreadIntervalMillis = expiryThreadInterval * MS_PER_SECOND;
-        try {
-            while (active) {
+        while (active) {
+            try {
                 Thread.sleep(expiryThreadIntervalMillis);
-
-                //Expire the elements
                 expireElements();
-            }
-        } catch (InterruptedException e) {
-            // Bail on interruption
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(name + "Cache: Expiry thread interrupted on Disk Store.");
+            } catch (InterruptedException e) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(name + "Cache: Expiry thread interrupted on Disk Store.");
+                }
+                return;
+            } catch (Throwable t) {
+                LOG.warn(name + "Cache: Expiry thread throwable caught. Message was: "
+                        + t.getMessage() + ". Contimuing...", t);
             }
         }
     }
 
     /**
      * Removes expired elements.
-     *
+     * <p/>
      * Note that the DiskStore cannot efficiently expire based on TTI. It does it on TTL. However any gets out
      * of the DiskStore are check for both before return.
      *
@@ -859,8 +862,9 @@ public class DiskStore implements Store {
 
     /**
      * Generates a unique directory name for use in automatically creating a diskStorePath where there is a conflict.
+     *
      * @return a path consisting of {@link #AUTO_DISK_PATH_DIRECTORY_PREFIX} followed by "_" followed by the current
-     *  time as a long e.g. ehcache_auto_created_1149389837006
+     *         time as a long e.g. ehcache_auto_created_1149389837006
      */
     public static String generateUniqueDirectory() {
         return DiskStore.AUTO_DISK_PATH_DIRECTORY_PREFIX + "_" + System.currentTimeMillis();
@@ -869,6 +873,7 @@ public class DiskStore implements Store {
 
     /**
      * A reference to an on-disk elements.
+     *
      * @noinspection SerializableHasSerializationMethods
      */
     private static final class DiskElement implements Serializable {
