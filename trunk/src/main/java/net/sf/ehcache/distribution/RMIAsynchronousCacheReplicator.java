@@ -148,10 +148,7 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
             }
             return;
         }
-
-        synchronized (replicationQueue) {
-            replicationQueue.add(new CacheEventMessage(EventMessage.PUT, cache, element, null));
-        }
+        addToReplicationQueue(new CacheEventMessage(EventMessage.PUT, cache, element, null));
     }
 
     /**
@@ -182,7 +179,7 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
                 }
                 return;
             }
-            replicationQueue.add(new CacheEventMessage(EventMessage.PUT, cache, element, null));
+            addToReplicationQueue(new CacheEventMessage(EventMessage.PUT, cache, element, null));
         } else {
             if (!element.isKeySerializable()) {
                 if (LOG.isWarnEnabled()) {
@@ -190,7 +187,7 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
                 }
                 return;
             }
-            replicationQueue.add(new CacheEventMessage(EventMessage.REMOVE, cache, null, element.getKey()));
+            addToReplicationQueue(new CacheEventMessage(EventMessage.REMOVE, cache, null, element.getKey()));
         }
     }
 
@@ -214,9 +211,7 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
             }
             return;
         }
-        synchronized (replicationQueue) {
-            replicationQueue.add(new CacheEventMessage(EventMessage.REMOVE, cache, null, element.getKey()));
-        }
+        addToReplicationQueue(new CacheEventMessage(EventMessage.REMOVE, cache, null, element.getKey()));
     }
 
     /**
@@ -232,7 +227,9 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
             LOG.error("CacheEventMessages cannot be added to the replication queue"
                     + " because the replication thread has died.");
         } else {
-            replicationQueue.add(cacheEventMessage);
+            synchronized (replicationQueue) {
+                replicationQueue.add(cacheEventMessage);
+            }
         }
     }
 
@@ -257,7 +254,7 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
                 return;
             }
 
-             replicationQueueCopy = new ArrayList(replicationQueue.size());
+            replicationQueueCopy = new ArrayList(replicationQueue.size());
             for (int i = 0; i < replicationQueue.size(); i++) {
                 CacheEventMessage cacheEventMessage = (CacheEventMessage) replicationQueue.get(i);
                 replicationQueueCopy.add(cacheEventMessage);
