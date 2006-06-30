@@ -33,6 +33,7 @@
     <suppress checks="CyclomaticComplexity" files="CacheManager.java" lines="147"/>
     <suppress checks="CyclomaticComplexity" files="DiskStore.java" lines="583"/>
     <suppress checks="NPathComplexity" files="Cache.java"/>
+    <suppress checks="NPathComplexity" files="DiskStore.java"/>
     <suppress checks="NPathComplexity" files="CacheManager.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="DiskStore.java" />
     <suppress checks="ClassFanOutComplexity" files="DiskStore.java" />

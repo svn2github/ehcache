@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -527,7 +528,7 @@ public class DiskStore implements Store {
     private void spoolThreadMain() {
         while (true) {
             // Wait for elements in the spool
-            while (active && spool.size() == 0) {
+            while (active && spool != null && spool.size() == 0) {
                 try {
                     Thread.sleep(SPOOL_THREAD_INTERVAL);
                 } catch (InterruptedException e) {
@@ -542,12 +543,12 @@ public class DiskStore implements Store {
             }
 
 
-            if (spool.size() != 0) {
+            if (spool != null && spool.size() != 0) {
                 // Write elements to disk
                 try {
                     flushSpool();
-                } catch (IOException e) {
-                    LOG.error(name + "Cache: Could not write elements to disk cache. Initial cause was " + e.getMessage(), e);
+                } catch (Throwable e) {
+                    LOG.error(name + "Cache: Could not flush elements to disk due to " + e.getMessage() + ". Continuing...", e);
                 }
             }
         }
@@ -561,13 +562,17 @@ public class DiskStore implements Store {
      */
     private synchronized void flushSpool() throws IOException {
         // Write elements to the DB
-        Object[] spoolCopy;
+        List spoolCopy = new ArrayList(spool.size());
         synchronized (spool) {
-            spoolCopy = spool.values().toArray();
+            Collection values = spool.values();
+            for (Iterator iterator = values.iterator(); iterator.hasNext();) {
+                Element element = (Element) iterator.next();
+                spoolCopy.add(element);
+            }
             spool.clear();
         }
-        for (int i = 0; i < spoolCopy.length; i++) {
-            final Element element = (Element) spoolCopy[i];
+        for (int i = 0; i < spoolCopy.size(); i++) {
+            final Element element = (Element) spoolCopy.get(i);
             if (element == null) {
                 continue;
             }

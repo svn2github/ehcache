@@ -23,6 +23,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.StopWatch;
+import net.sf.ehcache.ThreadKiller;
 import net.sf.ehcache.event.CountingCacheEventListener;
 
 import java.io.Serializable;
@@ -522,6 +523,32 @@ public class RMICacheReplicatorTest extends TestCase {
         putTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
     }
 
+
+    /**
+     * Test various cache configurations for cache1 - explicit setting of:
+     * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
+     */
+    public void testPutWithThreadKiller() throws InterruptedException {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+        putTestWithThreadKiller(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
+    }
+
+    /**
+     * CacheEventListeners that are not CacheReplicators should receive cache events originated from receipt
+     * of a remote event by a CachePeer.
+     */
+    public void testRemotelyReceivedPutNotifiesCountingListener() throws InterruptedException {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+        putTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
+        assertEquals(1, CountingCacheEventListener.getCacheElementsPut(manager1.getCache("sampleCache1")).size());
+        assertEquals(1, CountingCacheEventListener.getCacheElementsPut(manager2.getCache("sampleCache1")).size());
+
+    }
+
     /**
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=false, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
@@ -587,11 +614,38 @@ public class RMICacheReplicatorTest extends TestCase {
         LOG.info("" + manager4.getCache("sampleCache1").getSize());
         LOG.info("" + manager5.getCache("sampleCache1").getSize());
 
+    }
+
+    /**
+     * Tests put and remove initiated from cache1 in a cluster
+     * <p/>
+     * This test goes into an infinite loop if the chain of notifications is not somehow broken.
+     */
+    public void putTestWithThreadKiller(Cache fromCache, Cache toCache, boolean asynchronous)
+            throws CacheException, InterruptedException {
+
+        fromCache.put(new Element("thread killer", new ThreadKiller()));
+        if (asynchronous) {
+            waitForProgagate();
+        }
+
+        Serializable key = new Date();
+        Serializable value = new Date();
+        Element sourceElement = new Element(key, value);
+
+        //Put
+        fromCache.put(sourceElement);
+
+        if (asynchronous) {
+            waitForProgagate();
+        }
+
         //Should have been replicated to toCache.
         Element deliveredElement = toCache.get(key);
         assertEquals(sourceElement, deliveredElement);
 
     }
+
 
     /**
      * Checks that a put received from a remote cache notifies any registered listeners.
