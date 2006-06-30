@@ -331,14 +331,18 @@ public class RMICacheReplicatorTest extends TestCase {
         assertEquals(numberOfCaches, count4);
         assertEquals(numberOfCaches, count5);
 
+
     }
 
     /**
      * Enables long stabilty runs using replication to be done.
      *
+     * This test has been run for as long as 9 hours without issue.
+     *
      * @throws InterruptedException
      */
     public void manualStabilityTest() throws InterruptedException {
+        forceVMGrowth();
         while (true) {
             testBigPutsProgagatesAsynchronous();
         }

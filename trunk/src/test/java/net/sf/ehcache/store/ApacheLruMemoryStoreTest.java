@@ -16,9 +16,6 @@
 
 package net.sf.ehcache.store;
 
-import java.util.Properties;
-import java.io.FileInputStream;
-
 /**
  * Runs DiskStoreTest using the LRUMap, which is used in JDK1.3 rather than the JDK 1.4 LinkedHashMap
  * @author Greg Luck
@@ -41,12 +38,6 @@ public class ApacheLruMemoryStoreTest extends LruMemoryStoreTest {
      * 2079ms
      */
     public void testBenchmarkPutGetSurya() throws Exception {
-
-//        Properties properties = new Properties();
-//        properties.load(new FileInputStream("src/test/profiles/linux-4426-bogomips.properties"));
-//        Thread.currentThread().getStackTrace();
-//        Long allowedTime = new Long(properties.getProperty("ApacheLruMemoryStoreTest.testBenchmarkPutGetSurya"));
-//        benchmarkPutGetSuryaTest(allowedTime.longValue());
         benchmarkPutGetSuryaTest(2500);
     }
 

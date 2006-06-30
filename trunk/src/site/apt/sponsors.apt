@@ -33,7 +33,7 @@ the grant.
 
 * Tools
 
-[images/cenqua_logo] [images/clover_logo_small] [images/fisheye_logo_small]
+[images/cenqua_logo.gif] [images/clover_logo_small.gif] [images/fisheye_logo_small.gif]
 
  {{{http://cenqua.com/}Cenqua}} for the free open
 source license of the test coverage tool {{{http://cenqua.com/clover/}Clover}}
@@ -47,15 +47,15 @@ open source licenses of {{{http://atlassian.com/software/jira/}JIRA}}, an issue 
 
  {{{http://jetbrains.com}Jetbrains}} for a free open source license to use the Java IDE, IntelliJ IDEA.
 
-[images/yourkit]
+[images/yourkit.gif]
 
  {{{http://yourkit.com}YourKit}} for a free open source license to use the profiler, YourKit.
 
-[images/orion]
+[images/orion.gif]
 
  Ironflare for permission to embed the excellent Orion application server in the testing infrastructure for use as a Servlet 2.3 container.
  Orion is not distributed in the binary. It is not a dependency for using ehcache. Commercial use of Orion requires a license.
 
-[images/yworks]
+[images/yworks.gif]
 
  {{{http://www.yworks.com/en/products_ydoc.htm}yWorks}}, for a free open source license to use yDoc, the UML extension to JavaDoc.
