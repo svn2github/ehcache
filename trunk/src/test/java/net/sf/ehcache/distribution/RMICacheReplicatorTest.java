@@ -53,7 +53,6 @@ import java.rmi.RemoteException;
 public class RMICacheReplicatorTest extends TestCase {
 
 
-
     /**
      * A value to represent replicate asynchronously
      */
@@ -336,8 +335,8 @@ public class RMICacheReplicatorTest extends TestCase {
 
     /**
      * Enables long stabilty runs using replication to be done.
-     *
-     * This test has been run for as long as 9 hours without issue.
+     * <p/>
+     * This test has been run in a profile for 15 hours without any observed issues.
      *
      * @throws InterruptedException
      */
@@ -349,11 +348,24 @@ public class RMICacheReplicatorTest extends TestCase {
     }
 
     /**
+     * Non JUnit invocation of stability test to get cleaner run
+     *
+     * @param args
+     * @throws InterruptedException
+     */
+    public static void main(String[] args) throws Exception {
+        RMICacheReplicatorTest replicatorTest = new RMICacheReplicatorTest();
+        replicatorTest.setUp();
+        replicatorTest.manualStabilityTest();
+    }
+
+    /**
      * The number of caches there should be.
      */
     protected int getNumberOfReplicatingCachesInCacheManager() {
         return 55;
     }
+
 
     /**
      * Performance and capacity tests.
@@ -410,6 +422,8 @@ public class RMICacheReplicatorTest extends TestCase {
         assertEquals(2000, manager3.getCache("sampleCache1").getSize());
         assertEquals(2000, manager4.getCache("sampleCache1").getSize());
         assertEquals(2000, manager5.getCache("sampleCache1").getSize());
+
+        CountingCacheEventListener.resetCounters();
 
     }
 

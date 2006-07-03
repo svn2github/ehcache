@@ -39,12 +39,9 @@ import java.util.Iterator;
  * Thread safety depends on the factory being used. The UpdatingCacheEntryFactory should be made
  * thread safe. In addition users of returned values should not modify their contents.
  *
- * For values which are {@link Collection}s, extra safety has been built in.
- * Use the {@link SelfPopulatingCollectionCache}
  *
  * @author Greg Luck
  * @version $Id$
- * @see SelfPopulatingCollectionCache
  */
 public class SelfPopulatingCache extends BlockingCache {
     private static final Log LOG = LogFactory.getLog(SelfPopulatingCache.class.getName());

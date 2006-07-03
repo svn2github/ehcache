@@ -297,7 +297,7 @@
 
     <!-- Create zip file for javadocs -->
     <target name="dist-javadoc" depends="javadoc" description="Creates a zip file for javadocs">
-        <zip destfile="${dist.dir}/${name}-${version}-${javadoc.zip}">
+        <zip destfile="${dist.dir}/${name}-${version}-${javadoc.zip}" >
             <zipfileset dir="${build.javadoc.dir}" prefix="docs/"/>
         </zip>
     </target>

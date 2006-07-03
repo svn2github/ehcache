@@ -39,7 +39,6 @@ import java.io.Serializable;
  *
  * @author Greg Luck
  * @version $Id$
- * @see SelfPopulatingCollectionCache
  */
 public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
     private static final Log LOG = LogFactory.getLog(UpdatingSelfPopulatingCache.class.getName());

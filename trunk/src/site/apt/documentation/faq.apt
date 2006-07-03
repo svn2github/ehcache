@@ -189,4 +189,22 @@ CacheManagerTest#testCreateShutdownCreate()
     None of this will use much memory because the new cache element have values that reference the same data as the original cache.
     Then use cacheManager.removeCache("oldcachename") to remove the original cache.
 
+* I get net.sf.ehcache.distribution.RemoteCacheException: Error doing put to
+ remote peerremote peer. Message was: Error unmarshaling return header; nested
+ exception is: java.net.SocketTimeoutException: Read timed out. What does this mean.
 
+    It typically means you need to increase your socketTimeoutMillis. This is the amount of time a sender
+     should wait for the call to the remote peer to complete. How long it takes depends on the network and
+     the size of the Elements being replicated. 
+
+    The configuration that controls this is the socketTimeoutMillis setting in cacheManagerPeerListenerFactory.
+    120000 seems to work well for most scenarios.
+
+
+---
+    <cacheManagerPeerListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
+            properties="hostName=fully_qualified_hostname_or_ip,
+                        port=40001,
+                        socketTimeoutMillis=120000"/>
+---

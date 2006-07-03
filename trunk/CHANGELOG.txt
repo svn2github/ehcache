@@ -2,7 +2,31 @@ $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
 ehcache-1.2.1
 =============
-ehcache-1.2.1 is a maintenance release of
+
+ehcache-1.2.1 is mostly a maintenance release of ehcache.
+
+Change Blocking cache to use a lock striping technique for its Mutexes. This limits the number
+of Mutexes to 100, rather than a number equalling the number of keys, while preserving excellent
+liveness and safety. Thanks to Olaf Krische for reporting this and Brian Goetz for assisting with
+a solution.
+
+Change BlockingCache and SelfPopulatingCache to act as decorators for Ehcache. Remove now redundant
+BlockingCacheManager and SelfPopulatingCacheManager. Change signatures of these caches from Serializable
+to Object. This change is not backward compatible but no libraries use these, so developers can change
+over on their own projects.
+
+Bug fixes:
+- Bug 1190614. This was reported by Victor Volle and is a duplicate of 1492900. Fixed.
+- Bug 1506399. Changing all classloading to the context classloader is sometimes inconvenient. Fallback to
+- ClassLoaderUtil.class.getClassLoader() if Thread.currentThread().getContextClassLoader()
+  fails. Thanks to Robert Watkins for reporting this one.
+- Bug 1508623. Debug messages generate excess String objects. Added logging level guards around about 6 debug log statements.
+  Thanks to Derek Hulley for pointing this one out.
+- Harden all ehcache threads so that RuntimeExceptions and Errors do not stop them. This change, on its own, has been
+  backported to a separate release, ehcache-1.2.0_01.
+
+ehcache-1.2.1RC
+===============
 
 This is a release candidate for ehcache-1.2.1. There are a few very minor bug fixes in this release.
 
