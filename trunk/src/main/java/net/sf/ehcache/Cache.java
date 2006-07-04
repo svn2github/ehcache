@@ -562,9 +562,9 @@ public class Cache implements Ehcache {
 
         if (elementExists) {
             element.updateUpdateStatistics();
-        } else {
-            applyDefaultsToElementWithoutLifespanSet(element);
         }
+
+        applyDefaultsToElementWithoutLifespanSet(element);
 
         memoryStore.put(element);
 

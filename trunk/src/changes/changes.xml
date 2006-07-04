@@ -2,6 +2,16 @@
 <document>
     <body>
 
+        <release version="1.2.2" date="2006-12-31" desc="Maintenance release to ehcache-1.2.1">
+
+            <!-- Reported Bug fixes -->
+            <action dev="Greg Luck" issue="1516447" type="fix">
+                If you put an Element with overridden TTL and TTI values and then replace it
+                with an Element with defaults, the new Element lives forever. putQuiet is not
+                affected by this bug. Thanks to Pete at Goodtech for finding this one.
+            </action>
+        </release>
+
         <release version="1.2.1" date="2006-7-2" desc="ehcache-1.2.1">
             <!-- Feature Changes over 1.2.1RC -->
             <action dev="Greg Luck" issue="1492900" type="add">

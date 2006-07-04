@@ -1046,6 +1046,70 @@ public class CacheTest extends AbstractCacheTest {
 
 
     /**
+     * Tests put works correctly for Elements with overriden TTL
+     *
+     * @throws Exception
+     */
+    public void testPutWithOverriddenTTLAndTTI() throws Exception {
+        Cache cache = new Cache("testElementWithNullValue", 10, false, false, 1, 1);
+        manager.addCache(cache);
+
+        Object key = new Object();
+        Element element = new Element(key, "value");
+        element.setTimeToLive(2);
+        cache.put(element);
+        Thread.sleep(1010);
+        assertNotNull(cache.get(key));
+        assertSame(element, cache.get(key));
+
+
+        Element element2 = new Element(key, "value");
+        cache.put(element2);
+        Thread.sleep(1010);
+        assertNull(cache.get(key));
+
+        Element element3 = new Element(key, "value");
+        element3.setTimeToLive(2);
+        cache.put(element3);
+        Thread.sleep(1500);
+        assertSame(element3, cache.get(key));
+
+    }
+
+
+    /**
+     * Tests putQuiet works correctly for Elements with overriden TTL
+     *
+     * @throws Exception
+     */
+    public void testPutQuietWithOverriddenTTLAndTTI() throws Exception {
+        Cache cache = new Cache("testElementWithNullValue", 10, false, false, 1, 1);
+        manager.addCache(cache);
+
+        Object key = new Object();
+        Element element = new Element(key, "value");
+        element.setTimeToLive(2);
+        cache.putQuiet(element);
+        Thread.sleep(1010);
+        assertNotNull(cache.get(key));
+        assertSame(element, cache.get(key));
+
+
+        Element element2 = new Element(key, "value");
+        cache.putQuiet(element2);
+        Thread.sleep(1010);
+        assertNull(cache.get(key));
+
+        Element element3 = new Element(key, "value");
+        element3.setTimeToLive(2);
+        cache.putQuiet(element3);
+        Thread.sleep(1500);
+        assertSame(element3, cache.get(key));
+
+    }
+
+
+    /**
      * Tests using elements with null values. They should work as normal.
      *
      * @throws Exception
