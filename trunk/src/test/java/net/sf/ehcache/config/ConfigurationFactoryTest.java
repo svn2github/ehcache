@@ -175,6 +175,14 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //Check caches
         assertEquals(5, configurationHelper.createCaches().size());
 
+        //check config
+        CacheConfiguration sampleCache1Config = (CacheConfiguration) configuration.getCacheConfigurations().get("sampleCache1");
+        assertEquals("sampleCache1", sampleCache1Config.getName());
+        assertEquals(false, sampleCache1Config.isEternal());
+        assertEquals(300, sampleCache1Config.getTimeToIdleSeconds());
+        assertEquals(600, sampleCache1Config.getTimeToLiveSeconds());
+        assertEquals(true, sampleCache1Config.isOverflowToDisk());
+
         //  <cache name="sampleCache1"
         //  maxElementsInMemory="10000"
         //  eternal="false"
@@ -182,6 +190,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //  timeToLiveSeconds="600"
         //  overflowToDisk="true"
         //  />
+        //Check created cache
         Ehcache sampleCache1 = configurationHelper.createCacheFromName("sampleCache1");
         assertEquals("sampleCache1", sampleCache1.getName());
         assertEquals(false, sampleCache1.isEternal());

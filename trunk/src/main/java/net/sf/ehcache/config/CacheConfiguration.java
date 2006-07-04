@@ -37,7 +37,7 @@ import java.util.List;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public final class CacheConfiguration {
+public class CacheConfiguration {
 
     /**
      * the name of the cache.
@@ -206,6 +206,83 @@ public final class CacheConfiguration {
             bootstrapCacheLoaderFactoryConfiguration) {
         this.bootstrapCacheLoaderFactoryConfiguration = bootstrapCacheLoaderFactoryConfiguration;
 
+    }
+
+    /**
+     * Accessor
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Accessor
+     */
+    public int getMaxElementsInMemory() {
+        return maxElementsInMemory;
+    }
+
+    /**
+     * Accessor
+     */
+    public MemoryStoreEvictionPolicy getMemoryStoreEvictionPolicy() {
+        return memoryStoreEvictionPolicy;
+    }
+
+    /**
+     * Accessor
+     */
+    public boolean isEternal() {
+        return eternal;
+    }
+
+    /**
+     * Accessor
+     */
+    public int getTimeToIdleSeconds() {
+        return timeToIdleSeconds;
+    }
+
+    /**
+     * Accessor
+     */
+    public int getTimeToLiveSeconds() {
+        return timeToLiveSeconds;
+    }
+
+    /**
+     * Accessor
+     */
+    public boolean isOverflowToDisk() {
+        return overflowToDisk;
+    }
+
+    /**
+     * Accessor
+     */
+    public boolean isDiskPersistent() {
+        return diskPersistent;
+    }
+
+    /**
+     * Accessor
+     */
+    public long getDiskExpiryThreadIntervalSeconds() {
+        return diskExpiryThreadIntervalSeconds;
+    }
+
+    /**
+     * Accessor
+     */
+    public List getCacheEventListenerConfigurations() {
+        return cacheEventListenerConfigurations;
+    }
+
+    /**
+     * Accessor
+     */
+    public BootstrapCacheLoaderFactoryConfiguration getBootstrapCacheLoaderFactoryConfiguration() {
+        return bootstrapCacheLoaderFactoryConfiguration;
     }
 
 }

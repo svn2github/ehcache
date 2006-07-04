@@ -191,7 +191,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java" line="340" class="net.sf.ehcache.config.ConfigurationFactoryTest" package="net.sf.ehcache.config">
+      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java" line="349" class="net.sf.ehcache.config.ConfigurationFactoryTest" package="net.sf.ehcache.config">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -328,36 +328,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="build.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/build.xml">
-          <provider selected="true" editor-type-id="antVisTarget">
-            <state />
-          </provider>
-          <provider editor-type-id="text-editor">
-            <state line="329" column="5" selection-start="14065" selection-end="14065" vertical-scroll-proportion="0.015247776">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="news.apt" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/site/apt/news.apt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="31" column="12" selection-start="1201" selection-end="1201" vertical-scroll-proportion="0.014405762">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="index.apt" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/site/apt/index.apt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="39" column="13" selection-start="1628" selection-end="1628" vertical-scroll-proportion="0.014405762">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="Cache.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -367,28 +337,73 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CacheTest.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="CacheTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="1084" column="39" selection-start="37940" selection-end="37940" vertical-scroll-proportion="0.5754717">
+            <state line="1500" column="0" selection-start="38717" selection-end="52845" vertical-scroll-proportion="0.9150943">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="UpdatingSelfPopulatingCache.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/UpdatingSelfPopulatingCache.java">
+      <file leaf-file-name="faq.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/faq.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="36" column="93" selection-start="1275" selection-end="1275" vertical-scroll-proportion="0.014150944">
+            <state line="196" column="99" selection-start="9230" selection-end="9230" vertical-scroll-proportion="0.034813926">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SelfPopulatingCache.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/SelfPopulatingCache.java">
+      <file leaf-file-name="CacheConfiguration.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/CacheConfiguration.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="57" column="93" selection-start="2045" selection-end="2045" vertical-scroll-proportion="0.014150944">
+            <state line="113" column="23" selection-start="3425" selection-end="3425" vertical-scroll-proportion="-1.5613208">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ConfigurationHelperTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationHelperTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="42" column="20" selection-start="1362" selection-end="1362" vertical-scroll-proportion="0.254717">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ConfigurationFactoryTest.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="199" column="11" selection-start="8181" selection-end="8181" vertical-scroll-proportion="0.46698114">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Configuration.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/Configuration.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="170" column="25" selection-start="6261" selection-end="6261" vertical-scroll-proportion="0.6320755">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ConfigurationHelper.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ConfigurationHelper.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="138" column="92" selection-start="5533" selection-end="5533" vertical-scroll-proportion="0.18632075">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ehcache.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/config/ehcache.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="361" column="40" selection-start="15384" selection-end="15384" vertical-scroll-proportion="0.6886792">
               <folding />
             </state>
           </provider>
@@ -398,24 +413,6 @@
         <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
           <provider selected="true" editor-type-id="text-editor">
             <state line="10" column="37" selection-start="492" selection-end="492" vertical-scroll-proportion="0.14405762">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CHANGELOG.txt" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/CHANGELOG.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="5" column="0" selection-start="91" selection-end="1493" vertical-scroll-proportion="0.014405762">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="RELEASE_NOTES.txt" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/RELEASE_NOTES.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="2" column="39" selection-start="105" selection-end="105" vertical-scroll-proportion="0.020408163">
               <folding />
             </state>
           </provider>
@@ -635,6 +632,86 @@
         <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
       </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf/ehcache" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+    </PATH>
+    <PATH>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="ehcache.ipr" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="ehcache" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf/ehcache" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf/ehcache/config" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+    </PATH>
+    <PATH>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="ehcache.ipr" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="ehcache" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
     </PATH>
     <PATH>
       <PATH_ELEMENT>
@@ -655,6 +732,22 @@
       </PATH_ELEMENT>
       <PATH_ELEMENT>
         <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache" />
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
       </PATH_ELEMENT>
     </PATH>
@@ -796,13 +889,13 @@
   <component name="RestoreUpdateTree" />
   <component name="RunManager">
     <activeType name="JUnit" />
-    <tempConfiguration selected="true" default="false" name="CacheTest.testPutQuietWithOverridenTTLAndTTI" type="JUnit" factoryName="JUnit">
+    <tempConfiguration selected="true" default="false" name="ConfigurationFactoryTest.testLoadConfigurationFromFile" type="JUnit" factoryName="JUnit">
       <module name="ehcache" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
-      <option name="PACKAGE_NAME" value="net.sf.ehcache" />
-      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.CacheTest" />
-      <option name="METHOD_NAME" value="testPutQuietWithOverridenTTLAndTTI" />
+      <option name="PACKAGE_NAME" value="net.sf.ehcache.config" />
+      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.config.ConfigurationFactoryTest" />
+      <option name="METHOD_NAME" value="testLoadConfigurationFromFile" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="" />
       <option name="PARAMETERS" value="" />
@@ -1205,7 +1298,7 @@
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.20188902" order="7" />
       <window_info id="Checkstyle" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.2931701" order="0" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.3270366" order="1" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32628062" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25322166" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32405347" order="10" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.3997773" order="6" />
@@ -1336,58 +1429,6 @@
     </buildFile>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/faq.apt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="197" column="48" selection-start="9286" selection-end="9286" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/hibernate/HibernateAPIUsageTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="76" column="105" selection-start="2634" selection-end="2634" vertical-scroll-proportion="0.014150944">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/UpdatingSelfPopulatingCacheTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="65" selection-start="1215" selection-end="1215" vertical-scroll-proportion="0.014150944">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/SelfPopulatingCacheTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="32" column="49" selection-start="1110" selection-end="1110" vertical-scroll-proportion="0.014150944">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="347" column="98" selection-start="11051" selection-end="11051" vertical-scroll-proportion="0.014405762">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build.xml">
-      <provider selected="true" editor-type-id="antVisTarget">
-        <state />
-      </provider>
-      <provider editor-type-id="text-editor">
-        <state line="329" column="5" selection-start="14065" selection-end="14065" vertical-scroll-proportion="0.015247776">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/UpdatingSelfPopulatingCache.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="36" column="93" selection-start="1275" selection-end="1275" vertical-scroll-proportion="0.014150944">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/SelfPopulatingCache.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="57" column="93" selection-start="2045" selection-end="2045" vertical-scroll-proportion="0.014150944">
@@ -1418,14 +1459,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/site/apt/index.apt">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="13" selection-start="1628" selection-end="1628" vertical-scroll-proportion="0.014405762">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="334" column="112" selection-start="12019" selection-end="12019" vertical-scroll-proportion="0.10084034">
+        <state line="39" column="13" selection-start="1628" selection-end="1628" vertical-scroll-proportion="0.022514071">
           <folding />
         </state>
       </provider>
@@ -1437,9 +1471,65 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="334" column="112" selection-start="12019" selection-end="12019" vertical-scroll-proportion="0.10084034">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1084" column="39" selection-start="37940" selection-end="37940" vertical-scroll-proportion="0.5754717">
+        <state line="1500" column="0" selection-start="38717" selection-end="52845" vertical-scroll-proportion="0.9150943">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/config/ehcache.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="361" column="40" selection-start="15384" selection-end="15384" vertical-scroll-proportion="0.6886792">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/faq.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="196" column="99" selection-start="9230" selection-end="9230" vertical-scroll-proportion="0.034813926">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ConfigurationHelper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="138" column="92" selection-start="5533" selection-end="5533" vertical-scroll-proportion="0.18632075">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/CacheConfiguration.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="113" column="23" selection-start="3425" selection-end="3425" vertical-scroll-proportion="-1.5613208">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationHelperTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="42" column="20" selection-start="1362" selection-end="1362" vertical-scroll-proportion="0.254717">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/Configuration.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="170" column="25" selection-start="6261" selection-end="6261" vertical-scroll-proportion="0.6320755">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="199" column="11" selection-start="8181" selection-end="8181" vertical-scroll-proportion="0.46698114">
           <folding />
         </state>
       </provider>

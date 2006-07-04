@@ -208,3 +208,54 @@ CacheManagerTest#testCreateShutdownCreate()
                         port=40001,
                         socketTimeoutMillis=120000"/>
 ---
+
+* Should I use this directive when doing distributed caching? <cacheManagerEventListenerFactory class="" properties=""/>
+
+    No. It is unrelated. It is for listening to changes in your local CacheManager.
+
+
+* What is the minimum config to get distributed caching going?
+
+     The minimum configuration you need to get distributed going is:
+
+---
+    <cacheManagerPeerProviderFactory
+            class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+            properties="peerDiscovery=automatic,
+                        multicastGroupAddress=230.0.0.1,
+                        multicastGroupPort=4446"/>
+
+
+<cacheManagerPeerListenerFactory
+class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
+
+---
+
+    and then at least one cache declaration with
+
+---
+<cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>>>>
+---
+
+    in it. An example cache is:
+
+---
+
+    <cache name="sampleDistributedCache1"
+           maxElementsInMemory="10"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>
+    </cache>
+---
+
+    Each server in the cluster can have the same config.
+
+* How can I see if distributed caching is working?
+
+    You should see the listener port open on each server.
+
+    You can use the distributed debug tool to see what is going on. (See {{{http://ehcache.sourceforge.net/documentation/logging.html}}}).
+
