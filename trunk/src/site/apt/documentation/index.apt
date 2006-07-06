@@ -1,5 +1,7 @@
 
-ehcache 1.2 User Guide
+ehcache 1.2.1 User Guide
+
+    * {{{./introduction.html}Introduction}}
 
     * {{{./getting_started.html}Getting Started}}
 
