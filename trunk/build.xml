@@ -250,7 +250,6 @@
             <fileset dir="${test.config.dir}/distribution" includes="ehcache-distributed1.xml"/>
             <zipfileset src="${lib.runtime.dir}/commons-logging-1.0.4.jar"/>
             <zipfileset src="${lib.runtime.dir}/commons-collections-2.1.1.jar"/>
-            <zipfileset src="${lib.compile.dir}/clover-1.3.12.jar"/>
             <manifest>
                 <attribute name="Main-Class" value="net.sf.ehcache.distribution.Main"/>
             </manifest>
