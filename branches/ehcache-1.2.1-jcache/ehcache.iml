@@ -41,7 +41,9 @@
           <root url="jar://$MODULE_DIR$/tools/jcache.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="file:///Users/gluck/work/jcache-spec/src" />
+        </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">

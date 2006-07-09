@@ -24,13 +24,15 @@
     </target>
 
     <!-- Generate Clover code coverage report -->
-    <target name="clover" depends="clean, with.clover, checkstyle, test, clover.html, clover-check-coverage"
+    <target name="clover"
+            depends="clean, with.clover, checkstyle, test, clover.html, clover-check-coverage"
             description="Runs tests and test coverage">
         <echo message="Use ant build to build a distribution"/>
     </target>
 
     <!-- compiles -->
-    <target name="compile" depends="compile-src, rmic, compile-tests" description="Performs a compile"/>
+    <target name="compile" depends="compile-src, rmic, compile-tests"
+            description="Performs a compile"/>
 
     <!-- Runs checkstyle over the java source -->
     <target name="checkstyle-check">
@@ -42,7 +44,8 @@
     </target>
 
     <!-- Runs checkstyle over the java source -->
-    <target name="checkstyle" depends="generate-checkstyle-config, checkstyle-check" unless="checkstyle.up-to-date">
+    <target name="checkstyle" depends="generate-checkstyle-config, checkstyle-check"
+            unless="checkstyle.up-to-date">
         <taskdef name="checkstyle" classname="com.puppycrawl.tools.checkstyle.CheckStyleTask">
             <classpath>
                 <path location="${test.classes.dir}"/>
@@ -81,11 +84,15 @@
             <classpath refid="project.class.path"/>
         </javac>
         <copy file="${src.config.dir}/ehcache-failsafe.xml" todir="${build.classes.dir}"/>
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${src.config.dir}/jcache"/>
+        </copy>
     </target>
 
 
     <target name="rmic">
-        <rmic base="${build.classes.dir}" includes="**/RMICachePeer.class" excludes="**/*CLOVER*"/>
+        <rmic base="${build.classes.dir}" includes="**/RMICachePeer.class"
+              excludes="**/*CLOVER*"/>
     </target>
 
     <target name="compile-tests" depends="compile-src">
@@ -106,7 +113,8 @@
     </target>
 
 
-    <target name="test" depends="test-non-web, test-orion, test-tomcat" description="Runs Tests">
+    <target name="test" depends="test-non-web, test-orion, test-tomcat"
+            description="Runs Tests">
         <antcall target="junitreport"/>
     </target>
 
@@ -141,7 +149,8 @@
         </condition>
 
         <junit printSummary="true" failureproperty="tests.failed" fork="true" dir="${basedir}">
-            <sysproperty key="java.util.logging.config.file" file="${test.logging.properties.file}"/>
+            <sysproperty key="java.util.logging.config.file"
+                         file="${test.logging.properties.file}"/>
             <classpath>
                 <path location="${test.classes.dir}"/>
                 <path location="${build.classes.dir}"/>
@@ -172,7 +181,8 @@
         </condition>
 
         <junit printSummary="true" failureproperty="tests.failed" fork="true" dir="${basedir}">
-            <sysproperty key="java.util.logging.config.file" file="${test.logging.properties.file}"/>
+            <sysproperty key="java.util.logging.config.file"
+                         file="${test.logging.properties.file}"/>
             <classpath>
                 <path location="${test.classes.dir}"/>
                 <path location="${build.classes.dir}"/>
@@ -182,7 +192,8 @@
             <formatter type="plain" usefile="false"/>
             <batchtest todir="${test.results.dir}">
                 <fileset dir="${test.classes.dir}">
-                    <include name="**/${test.directory.pattern}/**/constructs/web/**/${test.pattern}Test.class"/>
+                    <include
+                            name="**/${test.directory.pattern}/**/constructs/web/**/${test.pattern}Test.class"/>
                     <exclude name="**/Abstract*"/>
                 </fileset>
             </batchtest>
@@ -202,7 +213,8 @@
         </condition>
 
         <junit printSummary="true" failureproperty="tests.failed" fork="true" dir="${basedir}">
-            <sysproperty key="java.util.logging.config.file" file="${test.logging.properties.file}"/>
+            <sysproperty key="java.util.logging.config.file"
+                         file="${test.logging.properties.file}"/>
             <classpath>
                 <path location="${test.classes.dir}"/>
                 <path location="${build.classes.dir}"/>
@@ -212,7 +224,8 @@
             <formatter type="plain" usefile="false"/>
             <batchtest todir="${test.results.dir}">
                 <fileset dir="${test.classes.dir}">
-                    <include name="**/${test.directory.pattern}/**/constructs/web/**/${test.pattern}Test.class"/>
+                    <include
+                            name="**/${test.directory.pattern}/**/constructs/web/**/${test.pattern}Test.class"/>
                     <exclude name="**/Abstract*"/>
                 </fileset>
             </batchtest>
@@ -247,7 +260,8 @@
             <fileset dir="${build.classes.dir}"/>
             <fileset dir="${test.classes.dir}"/>
             <fileset dir="${basedir}" includes="LICENSE.txt"/>
-            <fileset dir="${test.config.dir}/distribution" includes="ehcache-distributed1.xml"/>
+            <fileset dir="${test.config.dir}/distribution"
+                     includes="ehcache-distributed1.xml"/>
             <zipfileset src="${lib.runtime.dir}/commons-logging-1.0.4.jar"/>
             <zipfileset src="${lib.runtime.dir}/commons-collections-2.1.1.jar"/>
             <manifest>
@@ -279,8 +293,10 @@
 
     <!-- Builds a maven upload bundle -->
     <target name="maven-bundle" depends="dist-tgz">
-        <copy file="${dist.dir}/${name}-${version}-${javadoc.zip}" tofile="${dist.dir}/${name}-${version}-javadoc.jar"/>
-        <copy file="${dist.dir}/${name}-${version}-src.zip" tofile="${dist.dir}/${name}-${version}-sources.jar"/>
+        <copy file="${dist.dir}/${name}-${version}-${javadoc.zip}"
+              tofile="${dist.dir}/${name}-${version}-javadoc.jar"/>
+        <copy file="${dist.dir}/${name}-${version}-src.zip"
+              tofile="${dist.dir}/${name}-${version}-sources.jar"/>
         <copy file="${basedir}/pom.xml" tofile="${dist.dir}/${name}-${version}.pom"/>
         <copy file="${basedir}/LICENSE.txt" tofile="${dist.dir}/${name}-${version}.license"/>
         <jar destfile="${dist.dir}/${name}-${version}-bundle.jar">
@@ -295,8 +311,9 @@
     </target>
 
     <!-- Create zip file for javadocs -->
-    <target name="dist-javadoc" depends="javadoc" description="Creates a zip file for javadocs">
-        <zip destfile="${dist.dir}/${name}-${version}-${javadoc.zip}" >
+    <target name="dist-javadoc" depends="javadoc"
+            description="Creates a zip file for javadocs">
+        <zip destfile="${dist.dir}/${name}-${version}-${javadoc.zip}">
             <zipfileset dir="${build.javadoc.dir}" prefix="docs/"/>
         </zip>
     </target>
@@ -326,12 +343,12 @@
                 version="true"
                 use="true"
                 windowtitle="${name}">
-            <tag name="noinspection" description="IntelliJ Inspection Ignore tag" enabled="false"/>
+            <tag name="noinspection" description="IntelliJ Inspection Ignore tag"
+                 enabled="false"/>
             <classpath refid="project.class.path"/>
             <header><![CDATA[<a href="/" target="_top">${name}</a>]]></header>
         </javadoc>
     </target>
-
 
 
     <!-- Copy the clover jar to your ant lib directory to run these -->
@@ -410,9 +427,11 @@
     <target name="deploy-default-web-app-orion">
         <unzip dest="${build.dir}" src="${lib.compile.dir}/web/orion.zip"/>
         <copy file="${dist.dir}/${name}-${version}.jar" todir="${build.orion.lib.dir}"/>
-        <copy file="${lib.runtime.dir}/commons-logging-1.0.4.jar" todir="${build.orion.lib.dir}"/>
+        <copy file="${lib.runtime.dir}/commons-logging-1.0.4.jar"
+              todir="${build.orion.lib.dir}"/>
         <!--<copy file="${lib.compile.dir}/ehcache-1.2.jar" todir="${build.orion.lib.dir}"/>-->
-        <copy file="${lib.runtime.dir}/commons-collections-2.1.1.jar" todir="${build.orion.lib.dir}"/>
+        <copy file="${lib.runtime.dir}/commons-collections-2.1.1.jar"
+              todir="${build.orion.lib.dir}"/>
         <copy file="${lib.compile.dir}/clover-1.3.12.jar" todir="${build.orion.lib.dir}"/>
         <copy file="${test.config.dir}/ehcache.xml" todir="${build.orion.lib.dir}"/>
         <copy file="logging.properties" todir="${build.orion.dir}"/>
@@ -420,7 +439,8 @@
             <fileset dir="${test.classes.dir}"/>
         </jar>
         <copy todir="${build.orion.dir}">
-            <fileset dir="${test.config.dir}" includes="default-web-app/**" excludes="**/WEB-INF/**"/>
+            <fileset dir="${test.config.dir}" includes="default-web-app/**"
+                     excludes="**/WEB-INF/**"/>
         </copy>
 
         <copy todir="${build.orion.dir}/default-web-app/WEB-INF">
@@ -440,16 +460,20 @@
 
 
     <target name="deploy-default-web-app-tomcat">
-        <untar dest="${build.dir}" src="${lib.compile.dir}/web/apache-tomcat-5.5.17.tgz" compression="gzip"/>
+        <untar dest="${build.dir}" src="${lib.compile.dir}/web/apache-tomcat-5.5.17.tgz"
+               compression="gzip"/>
         <mkdir dir="${build.tomcat.defaultwebapp.dir}"/>
         <mkdir dir="${build.tomcat.defaultwebapp.dir}/WEB-INF/classes"/>
         <mkdir dir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib"/>
-        <copy file="${dist.dir}/${name}-${version}.jar" todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib"/>
+        <copy file="${dist.dir}/${name}-${version}.jar"
+              todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib"/>
         <!--<copy file="${lib.runtime.dir}/commons-logging-1.0.4.jar" todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib"/>-->
         <copy file="${lib.runtime.dir}/commons-collections-2.1.1.jar"
               todir="${build.tomcat.defaultwebapp.dir}/WEb-INF/lib"/>
-        <copy file="${lib.compile.dir}/clover-1.3.12.jar" todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib"/>
-        <copy file="${test.config.dir}/ehcache.xml" todir="${build.tomcat.defaultwebapp.dir}/WEb-INF/classes"/>
+        <copy file="${lib.compile.dir}/clover-1.3.12.jar"
+              todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib"/>
+        <copy file="${test.config.dir}/ehcache.xml"
+              todir="${build.tomcat.defaultwebapp.dir}/WEb-INF/classes"/>
         <copy file="logging.properties" todir="${build.orion.dir}"/>
         <jar destfile="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib/${name}-tests-${version}.jar">
             <fileset dir="${test.classes.dir}"/>
@@ -502,7 +526,7 @@
     <target name="book" depends="prepare-book-resources, fast-book"/>
 
     <!-- Requres LaTeX and netpbm-->
-    <target name="fast-book" >
+    <target name="fast-book">
         <mkdir dir="${build.dir}/book"/>
         <copy todir="${build.dir}/book/images">
             <fileset dir="src/site/resources/images"/>
@@ -553,7 +577,8 @@
         <attribute name="extension" default="NOT SET"/>
         <element name="some-tasks" optional="yes"/>
         <sequential>
-            <exec executable="aptconvert" newenvironment="false" dir="${build.dir}/book" spawn="false">
+            <exec executable="aptconvert" newenvironment="false" dir="${build.dir}/book"
+                  spawn="false">
                 <arg value="EhcacheUserGuide.@{extension}"/>
                 <arg value="preface.apt"/>
                 <arg value="introduction.apt"/>
@@ -601,8 +626,11 @@
                 doclet="ydoc.doclets.YStandard"
                 docletpath="${basedir}/tools/ydoc-2.2_02-jdk1.5/lib/ydoc.jar:${basedir}/tools/ydoc-2.2_02-jdk1.5/lib/class2svg.jar:${basedir}/tools/ydoc-2.2_02-jdk1.5/resources:${build.classes.dir}"
                 additionalparam="-umlautogen">
-            <tag name="noinspection" description="IntelliJ Inspection Ignore tag" enabled="false"/>
-            <tag name="revised" description="Indicates the version a public APU method was revised" enabled="true"/>
+            <tag name="noinspection" description="IntelliJ Inspection Ignore tag"
+                 enabled="false"/>
+            <tag name="revised"
+                 description="Indicates the version a public APU method was revised"
+                 enabled="true"/>
             <classpath refid="project.class.path"/>
             <header><![CDATA[<a href="/" target="_top">${name}</a>]]></header>
         </javadoc>
