@@ -45,7 +45,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collection;
 
 /**
  * A disk store implementation.
@@ -71,6 +70,7 @@ public class DiskStore implements Store {
     private static final Log LOG = LogFactory.getLog(DiskStore.class.getName());
     private static final int MS_PER_SECOND = 1000;
     private static final int SPOOL_THREAD_INTERVAL = 200;
+    private static final int ESTIMATED_MINIMUM_PAYLOAD_SIZE = 512;
     private long expiryThreadInterval;
 
     private final String name;
@@ -84,6 +84,8 @@ public class DiskStore implements Store {
 
     private Thread spoolThread;
     private Thread expiryThread;
+
+    private volatile int lastElementSize;
 
     private Ehcache cache;
 
@@ -593,71 +595,145 @@ public class DiskStore implements Store {
      * @noinspection SynchronizeOnNonFinalField
      */
     private synchronized void flushSpool() throws IOException {
-        // Write elements to the DB
-        List spoolCopy = new ArrayList(spool.size());
+        Object[] spoolCopy = createCopyOfSpool();
+
+        for (int i = 0; i < spoolCopy.length; i++) {
+            writeOrReplaceEntry(spoolCopy[i]);
+            spoolCopy[i] = null;
+
+        }
+    }
+
+    private Object[] createCopyOfSpool() {
+        Object[] spoolCopy;
         synchronized (spool) {
-            Collection values = spool.values();
-            for (Iterator iterator = values.iterator(); iterator.hasNext();) {
-                Element element = (Element) iterator.next();
-                spoolCopy.add(element);
-            }
+            spoolCopy = spool.values().toArray();
             spool.clear();
         }
-        for (int i = 0; i < spoolCopy.size(); i++) {
-            final Element element = (Element) spoolCopy.get(i);
-            if (element == null) {
-                continue;
-            }
-            final Serializable key = (Serializable) element.getObjectKey();
+        return spoolCopy;
+    }
 
-            // Remove the old entry, if any
-            final DiskElement oldBlock;
-            synchronized (diskElements) {
-                oldBlock = (DiskElement) diskElements.remove(key);
-            }
-            if (oldBlock != null) {
-                freeBlock(oldBlock);
-            }
+    private void writeOrReplaceEntry(Object object) throws IOException {
+        Element element = (Element) object;
+        if (element == null) {
+            return;
+        }
+        final Serializable key = (Serializable) element.getObjectKey();
+        removeOldEntryIfAny(key);
+        writeElement(element, key);
+    }
 
-            final byte[] buffer;
+
+
+
+    private void writeElement(Element element, Serializable key) throws IOException {
+        try {
+            int bufferLength;
+            long expirationTime = element.getExpirationTime();
+
+            MemoryEfficientByteArrayOutputStream buffer = null;
             try {
+                buffer = serializeEntry(element);
+            } catch (OutOfMemoryError e) {
+                LOG.error("OutOfMemoryError on serialize: " + key);
 
-                // Serialise the entry
-                final ByteArrayOutputStream outstr = new ByteArrayOutputStream();
-                final ObjectOutputStream objstr = new ObjectOutputStream(outstr);
-                objstr.writeObject(element);
-                objstr.close();
-                buffer = outstr.toByteArray();
-
-            } catch (Exception e) {
-                // Catch any exception that occurs during serialization
-                LOG.error(name + "Cache: Failed to write element to disk '" + element.getObjectKey()
-                        + "'. Initial cause was " + e.getMessage(), e);
-
-                // Don't write this element to disk but move on to the next
-                continue;
             }
-
-            // Check for a free block
-            DiskElement diskElement = findFreeBlock(buffer.length);
-            if (diskElement == null) {
-                diskElement = new DiskElement();
-                diskElement.position = randomAccessFile.length();
-                diskElement.blockSize = buffer.length;
-            }
+            bufferLength = buffer.size();
+            DiskElement diskElement = checkForFreeBlock(bufferLength);
 
             // Write the record
             randomAccessFile.seek(diskElement.position);
-            randomAccessFile.write(buffer);
+            randomAccessFile.write(buffer.toByteArray(), 0, bufferLength);
+            buffer = null;
 
             // Add to index, update stats
-            diskElement.payloadSize = buffer.length;
-            diskElement.expiryTime = element.getExpirationTime();
-            totalSize += buffer.length;
+            diskElement.payloadSize = bufferLength;
+            diskElement.expiryTime = expirationTime;
+            totalSize += bufferLength;
             synchronized (diskElements) {
                 diskElements.put(key, diskElement);
             }
+
+        } catch (Exception e) {
+            // Catch any exception that occurs during serialization
+            LOG.error(name + "Cache: Failed to write element to disk '" + key
+                    + "'. Initial cause was " + e.getMessage(), e);
         }
+
+    }
+
+    /**
+     * This class is designed to minimse the number of System.arraycopy(); methods
+     * required to complete.
+     */
+    class MemoryEfficientByteArrayOutputStream extends ByteArrayOutputStream {
+
+
+        /**
+         * Creates a new byte array output stream, with a buffer capacity of
+         * the specified size, in bytes.
+         *
+         * @param size the initial size.
+         */
+        public MemoryEfficientByteArrayOutputStream(int size) {
+            super(size);
+        }
+
+        /**
+         * Gets the bytes. Not all may be valid. Use only up to getSize()
+         * @return the underlying byte[]
+         */
+        public synchronized byte getBytes()[] {
+            return buf;
+        }
+    }
+
+    private MemoryEfficientByteArrayOutputStream serializeEntry(Element element) throws IOException {
+        MemoryEfficientByteArrayOutputStream outstr = new MemoryEfficientByteArrayOutputStream(estimatedPayloadSize());
+        ObjectOutputStream objstr = new ObjectOutputStream(outstr);
+        objstr.writeObject(element);
+        objstr.close();
+        return outstr;
+    }
+
+
+    private int estimatedPayloadSize() {
+        int size = 0;
+        try {
+            size = (int) (totalSize / diskElements.size());
+        } catch (Exception e) {
+            //
+        }
+        if (size <= 0) {
+            size = ESTIMATED_MINIMUM_PAYLOAD_SIZE;
+        }
+        return size;
+    }
+
+    /**
+     * Remove the old entry, if any
+     *
+     * @param key
+     */
+    private void removeOldEntryIfAny(Serializable key) {
+
+        final DiskElement oldBlock;
+        synchronized (diskElements) {
+            oldBlock = (DiskElement) diskElements.remove(key);
+        }
+        if (oldBlock != null) {
+            freeBlock(oldBlock);
+        }
+    }
+
+    private DiskElement checkForFreeBlock(int bufferLength) throws IOException {
+        DiskElement diskElement = findFreeBlock(bufferLength);
+        if (diskElement == null) {
+            diskElement = new DiskElement();
+            diskElement.position = randomAccessFile.length();
+            diskElement.blockSize = bufferLength;
+        }
+        return diskElement;
     }
 
     /**

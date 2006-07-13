@@ -58,7 +58,7 @@ public final class Element implements Serializable, Cloneable {
     /**
      * the value.
      */
-    private final Object value;
+    private Object value;
 
     /**
      * version of the element. System.currentTimeMillis() is used to compute version for updated elements. That

@@ -711,6 +711,35 @@ public class DiskStoreTest extends AbstractCacheTest {
         }
     }
 
+
+    /**
+     * Revision 138 of DiskStore gives
+     * Jul 13, 2006 5:03:33 PM net.sf.ehcache.store.DiskStore spoolThreadMain
+     * SEVERE: testCache: Could not flush elements to disk due to Java heap space. Continuing...
+     * after writing a number of elements. Different runs faileda at: 84006, 85809, 69378, 112757 elements.
+     *
+     * Version 139 writes the whole 500000 without giving any OutOfMemory error message.
+     */
+    public void testOutOfMemoryErrorOnOverflowToDisk() throws Exception {
+
+        //Set size so the second element overflows to disk.
+        Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);
+        manager.addCache(cache);
+        int i = 0;
+
+        Random random = new Random();
+        try {
+            for (; i < 7000; i++) {
+                byte[] bytes = new byte[10000];
+                random.nextBytes(bytes);
+                cache.put(new Element("" + i, bytes));
+                Thread.sleep(10);
+            }
+        } catch (OutOfMemoryError e) {
+            LOG.info("Elements written: " + i);
+        }
+    }
+
     /**
      * Test overflow to disk = true, using 100000 records.
      * 35 seconds v1.38 DiskStore
@@ -738,8 +767,8 @@ public class DiskStoreTest extends AbstractCacheTest {
         long elapsed = stopWatch.getElapsedTime();
         LOG.info("Elapsed time: " + elapsed / 1000);
         assertEquals(100000, cache.getSize());
-//Some entries may be in the Memory Store and Disk Store. cache.getSize removes dupes. a look at the
-//disk store size directly does not.
+        //Some entries may be in the Memory Store and Disk Store. cache.getSize removes dupes. a look at the
+        //disk store size directly does not.
         assertTrue(99000 <= cache.getDiskStore().getSize());
     }
 
@@ -751,7 +780,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * <p/>
      * Slow tests
      */
-    public void xTestMaximumCacheEntriesIn64MBWithOverflowToDisk() throws Exception {
+    public void xtestMaximumCacheEntriesIn64MBWithOverflowToDisk() throws Exception {
 
         Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);
         manager.addCache(cache);
@@ -823,7 +852,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         LOG.info("Put Elapsed time: " + putTime);
         assertTrue(putTime < 8);
 
-//wait for Disk Store to finish spooling
+        //wait for Disk Store to finish spooling
         Thread.sleep(2000);
         Random random = new Random();
         StopWatch getStopWatch = new StopWatch();
