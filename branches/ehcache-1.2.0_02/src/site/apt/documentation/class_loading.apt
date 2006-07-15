@@ -1,0 +1,43 @@
+ ------
+ Class loading and Class Loaders
+ ------
+ ------
+ Date
+ ------
+
+
+Class loading and Class Loaders
+
+    Class loading within the plethora of environments ehcache can be running is a somewhat vexed issue.
+
+    Since ehcache-1.2 all classloading is done using a standard classloader which uses Thread.currentThread().getContextClassLoader().
+
+* Plugin class loading
+
+    Ehcache allows plugins for events and
+    distribution. These are loaded and created as follows:
+
++------------------------------------------+
+Class clazz = Class.forName(className, true, getStandardClassLoader());
+newInstance = clazz.newInstance();
++------------------------------------------+
+
+    If this does not work for some reason a CacheException is thrown with a
+    detailed error message.
+
+* Loading of ehcache.xml resources
+
+    If the configuration is otherwise unspecified, ehcache looks for a
+    configuration in the following order:
+
+      * Thread.currentThread().getContextClassLoader().getResource("/ehcache.xml")
+
+      * ConfigurationFactory.class.getResource("/ehcache.xml")
+
+      * ConfigurationFactory.class.getResource("/ehcache-failsafe.xml")
+
+
+    Ehcache uses the first configuration found.
+
+    Note the use of "/ehcache.xml" which requires that ehcache.xml be
+    placed at the root of the classpath, i.e. not in any package.
