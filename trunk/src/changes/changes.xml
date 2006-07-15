@@ -10,6 +10,10 @@
                 with an Element with defaults, the new Element lives forever. putQuiet is not
                 affected by this bug. Thanks to Pete at Goodtech for finding this one.
             </action>
+            <action dev="Greg Luck" type="fix">
+                Reduce the memory used by flushSpool() in DiskStore. See http://gregluck.com/blog/archives/2006/07/tuning_memory_u.html
+                for details.
+            </action>
         </release>
 
         <release version="1.2.1" date="2006-7-2" desc="ehcache-1.2.1">

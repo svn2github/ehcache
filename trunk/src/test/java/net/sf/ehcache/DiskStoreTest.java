@@ -713,12 +713,8 @@ public class DiskStoreTest extends AbstractCacheTest {
 
 
     /**
-     * Revision 138 of DiskStore gives
-     * Jul 13, 2006 5:03:33 PM net.sf.ehcache.store.DiskStore spoolThreadMain
-     * SEVERE: testCache: Could not flush elements to disk due to Java heap space. Continuing...
-     * after writing a number of elements. Different runs faileda at: 84006, 85809, 69378, 112757 elements.
-     *
-     * Version 139 writes the whole 500000 without giving any OutOfMemory error message.
+     * This test is designed to be used with a profiler to explore the ways in which DiskStore
+     * uses memory. It does not do much on its own.
      */
     public void testOutOfMemoryErrorOnOverflowToDisk() throws Exception {
 
@@ -728,16 +724,13 @@ public class DiskStoreTest extends AbstractCacheTest {
         int i = 0;
 
         Random random = new Random();
-        try {
-            for (; i < 7000; i++) {
-                byte[] bytes = new byte[10000];
-                random.nextBytes(bytes);
-                cache.put(new Element("" + i, bytes));
-                Thread.sleep(10);
-            }
-        } catch (OutOfMemoryError e) {
-            LOG.info("Elements written: " + i);
+        for (; i < 5500; i++) {
+            byte[] bytes = new byte[10000];
+            random.nextBytes(bytes);
+            cache.put(new Element("" + i, bytes));
         }
+        LOG.info("Elements written: " + i);
+        //Thread.sleep(100000);
     }
 
     /**

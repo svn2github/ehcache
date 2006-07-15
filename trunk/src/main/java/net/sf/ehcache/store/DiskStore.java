@@ -85,8 +85,6 @@ public class DiskStore implements Store {
     private Thread spoolThread;
     private Thread expiryThread;
 
-    private volatile int lastElementSize;
-
     private Ehcache cache;
 
     /**
