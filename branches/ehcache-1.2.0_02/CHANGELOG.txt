@@ -1,5 +1,9 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+ehcache-1.2.0_02
+================
+Reduce the memory used by flushSpool() in DiskStore. See http://gregluck.com/blog/archives/2006/07/tuning_memory_u.html for details.
+
 ehcache-1.2.0_01
 ================
 Backport from ehcache-1.2.1. All threads catch any Throwables in their main loops. 
