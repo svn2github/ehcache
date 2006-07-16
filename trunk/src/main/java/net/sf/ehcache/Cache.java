@@ -350,7 +350,10 @@ public class Cache implements Ehcache {
                  long diskExpiryThreadIntervalSeconds,
                  RegisteredEventListeners registeredEventListeners,
                  BootstrapCacheLoader bootstrapCacheLoader) {
-        this.name = name;
+
+        changeStatus(Status.STATUS_UNINITIALISED);
+
+        setName(name);
         this.maxElementsInMemory = maxElementsInMemory;
         this.memoryStoreEvictionPolicy = memoryStoreEvictionPolicy;
         this.overflowToDisk = overflowToDisk;
@@ -385,7 +388,6 @@ public class Cache implements Ehcache {
 
         this.bootstrapCacheLoader = bootstrapCacheLoader;
 
-        changeStatus(Status.STATUS_UNINITIALISED);
     }
 
 
@@ -1212,9 +1214,20 @@ public class Cache implements Ehcache {
     /**
      * Sets the cache name which will name.
      *
-     * @param name the name of the cache. Should not be null.
+     * @param name the name of the cache. Should not be null. Should also not contain any '/' characters, as these interfere
+     * with distribution
+     * @throws IllegalArgumentException if an illegal name is used.
      */
-    public final void setName(String name) {
+    public final void setName(String name) throws IllegalArgumentException {
+        if (!status.equals(Status.STATUS_UNINITIALISED)) {
+            throw new IllegalStateException("Only unitialised caches can have their names set.");
+        }
+        if (name == null) {
+            throw new IllegalArgumentException("Cache name cannot be null.");
+        }
+        if (name.indexOf('/') != -1) {
+            throw new IllegalArgumentException("Cache name cannot contain '/' characters.");
+        }
         this.name = name;
     }
 

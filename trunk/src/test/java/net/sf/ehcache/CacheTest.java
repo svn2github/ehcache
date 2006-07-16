@@ -113,6 +113,36 @@ public class CacheTest extends AbstractCacheTest {
         cache.getMissCountNotFound();
     }
 
+    /**
+     * Checks when and how we can set the cache name.
+     */
+    public void testSetCacheName() throws CacheException {
+        //Not put into manager.
+        Ehcache cache = new Cache("testCache", 1, true, false, 5, 2);
+
+        try {
+            cache.setName(null);
+            fail();
+        } catch (IllegalArgumentException e) {
+            //expected
+        }
+
+        try {
+            cache.setName("illegal/name");
+            fail();
+        } catch (IllegalArgumentException e) {
+            //expected
+        }
+
+        manager.addCache(cache);
+        try {
+            cache.setName("trying_to_change_name_after_initialised");
+            fail();
+        } catch (IllegalStateException e) {
+            //expected
+        }
+    }
+
 
     /**
      * Test using a cache which has been removed and replaced.

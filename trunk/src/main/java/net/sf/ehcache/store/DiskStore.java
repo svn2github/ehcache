@@ -264,10 +264,21 @@ public class DiskStore implements Store {
         final byte[] buffer = new byte[diskElement.payloadSize];
         randomAccessFile.readFully(buffer);
         final ByteArrayInputStream instr = new ByteArrayInputStream(buffer);
+
         final ObjectInputStream objstr = new ObjectInputStream(instr) {
-            protected Class resolveClass(ObjectStreamClass clazz) throws ClassNotFoundException {
-                ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-                return Class.forName(clazz.getName(), false, classLoader);
+            /**
+             * Overridden because of:
+             * Bug 1324221 ehcache DiskStore has issues when used in Tomcat
+             */
+            protected Class resolveClass(ObjectStreamClass clazz) throws ClassNotFoundException, IOException {
+                try {
+                    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+                    return Class.forName(clazz.getName(), false, classLoader);
+                } catch (ClassNotFoundException e) {
+                    // Use the default as a fallback because of
+                    // bug 1517565 - DiskStore loadElementFromDiskElement
+                    return super.resolveClass(clazz);
+                }
             }
         };
         element = (Element) objstr.readObject();

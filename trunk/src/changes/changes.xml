@@ -17,8 +17,18 @@
                 affected by this bug. Thanks to Pete at Goodtech for finding this one.
             </action>
             <action dev="Greg Luck" type="fix">
-                Reduce the memory used by flushSpool() in DiskStore. See http://gregluck.com/blog/archives/2006/07/tuning_memory_u.html
-                for details.
+                Reduce the memory used by flushSpool() in DiskStore.
+                See http://gregluck.com/blog/archives/2006/07/tuning_memory_u.html for details.
+            </action>
+            <action dev="Greg Luck" issue="1521699" type="fix">
+                Cache names with slashes cause problems. Tightened the validation code around setting a cache
+                name. Now throw IllegalArgumentException if a cache name is null or contains '/'. Thanks to Daniel
+                Wiell for repoting this one and suggesting the fix.
+            </action>
+            <action dev="Greg Luck" issue="1517565" type="fix">
+                Loading an element from the disk store fails in some circumstances due to classloading
+                issues. This issue was created by a patch to fix 1324221 back in October 2005. Resolved
+                by trying the new way and then, if a ClassNotFoundException is thrown, doing it the old way.
             </action>
         </release>
 
