@@ -489,9 +489,9 @@
     <!-- Stop the test instance of the Tomcat server -->
     <target name="stop-tomcat" description="Stops the Orion server">
         <echo>Stopping Tomcat</echo>
-        <waitfor maxwait="5000" checkevery="500">
-            <http url="http://localhost:8080/Exit.jsp"/>
-        </waitfor>
+        <exec dir="${build.tomcat.dir}/bin" spawn="true" os="Mac OS X, Linux" executable="sh">
+            <arg line="tomcat_stop_sh_and.bat"/>
+        </exec>
         <echo message="...Stopped"/>
     </target>
 

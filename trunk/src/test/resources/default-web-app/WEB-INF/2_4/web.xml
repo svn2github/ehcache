@@ -134,6 +134,11 @@
         <url-pattern>/index_gzip.html</url-pattern>
     </filter-mapping>
 
+    <!-- ServletContextListeners -->
+    <listener>
+        <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
+    </listener>
+
     <!-- Servlet Declarations -->
     <servlet>
         <servlet-name>IncludeCachedPageServlet</servlet-name>

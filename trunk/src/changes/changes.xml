@@ -4,6 +4,12 @@
 
         <release version="1.2.2" date="2006-12-31" desc="Maintenance release to ehcache-1.2.1">
 
+            <!-- Feature Changes  -->
+            <action dev="Daniel Wiell" issue="1521843" type="add">
+                Added a ShutdownListener which implements ServletContextListener for shutting
+                down all CacheManagers in a web application. 
+            </action>
+
             <!-- Reported Bug fixes -->
             <action dev="Greg Luck" issue="1516447" type="fix">
                 If you put an Element with overridden TTL and TTI values and then replace it

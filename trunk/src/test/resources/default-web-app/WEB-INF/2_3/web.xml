@@ -7,8 +7,10 @@
         <filter-class>net.sf.ehcache.constructs.web.filter.GzipFilter</filter-class>
         <init-param>
             <param-name>exceptionsToLogDifferently</param-name>
-            <param-value>net.sf.ehcache.CacheException, java.lang.NullPointerException</param-value>
-            <description>A comma separate list of fully qualified Throwable class names</description>
+            <param-value>net.sf.ehcache.CacheException,
+                java.lang.NullPointerException</param-value>
+            <description>A comma separate list of fully qualified Throwable class
+                names</description>
         </init-param>
         <init-param>
             <param-name>exceptionsToLogDifferentlyLevel</param-name>
@@ -23,7 +25,8 @@
     </filter>
     <filter>
         <filter-name>SimplePageCachingFilter</filter-name>
-        <filter-class>net.sf.ehcache.constructs.web.filter.SimplePageCachingFilter</filter-class>
+        <filter-class>
+            net.sf.ehcache.constructs.web.filter.SimplePageCachingFilter</filter-class>
         <init-param>
             <param-name>suppressStackTraces</param-name>
             <param-value>false</param-value>
@@ -33,7 +36,8 @@
 
     <filter>
         <filter-name>SimplePageFragmentCachingFilter</filter-name>
-        <filter-class>net.sf.ehcache.constructs.web.filter.SimplePageFragmentCachingFilter</filter-class>
+        <filter-class>
+            net.sf.ehcache.constructs.web.filter.SimplePageFragmentCachingFilter</filter-class>
         <init-param>
             <param-name>suppressStackTraces</param-name>
             <param-value>false</param-value>
@@ -44,7 +48,8 @@
     <!-- Test only filter -->
     <filter>
         <filter-name>SimplePageCachingFilterWithBlankPageProblem</filter-name>
-        <filter-class>net.sf.ehcache.constructs.web.filter.SimplePageCachingFilterWithBlankPageProblem</filter-class>
+        <filter-class>
+            net.sf.ehcache.constructs.web.filter.SimplePageCachingFilterWithBlankPageProblem</filter-class>
         <init-param>
             <param-name>suppressStackTraces</param-name>
             <param-value>false</param-value>
@@ -126,14 +131,21 @@
         <url-pattern>/index_gzip.html</url-pattern>
     </filter-mapping>
 
+    <!-- ServletContextListeners -->
+    <listener>
+        <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
+    </listener>
+
     <!-- Servlet Declarations -->
     <servlet>
         <servlet-name>IncludeCachedPageServlet</servlet-name>
-        <servlet-class>net.sf.ehcache.constructs.web.servlet.IncludeCachedPageServlet</servlet-class>
+        <servlet-class>
+            net.sf.ehcache.constructs.web.servlet.IncludeCachedPageServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ForwardToCachedPageServlet</servlet-name>
-        <servlet-class>net.sf.ehcache.constructs.web.servlet.ForwardToCachedPageServlet</servlet-class>
+        <servlet-class>
+            net.sf.ehcache.constructs.web.servlet.ForwardToCachedPageServlet</servlet-class>
     </servlet>
 
     <!-- Servlet Mappings -->
@@ -145,6 +157,7 @@
         <servlet-name>ForwardToCachedPageServlet</servlet-name>
         <url-pattern>/servletdispatchtocachedpage/ForwardToCachedPageServlet</url-pattern>
     </servlet-mapping>
+
 
 
 </web-app>

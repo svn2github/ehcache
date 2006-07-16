@@ -60,7 +60,7 @@ public class CacheManager {
      * Keeps track of all known CacheManagers. Used to check on conflicts.
      * CacheManagers should remove themselves from this list during shut down.
      */
-    static final List ALL_CACHE_MANAGERS = Collections.synchronizedList(new ArrayList());
+    public static final List ALL_CACHE_MANAGERS = Collections.synchronizedList(new ArrayList());
 
     private static final Log LOG = LogFactory.getLog(CacheManager.class.getName());
 
