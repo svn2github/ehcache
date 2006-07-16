@@ -137,6 +137,7 @@ public abstract class CachingFilter extends Filter {
         // Look up the cached page
         final String key = calculateKey(request);
         PageInfo pageInfo = null;
+        String originalThreadName = Thread.currentThread().getName();
         try {
             checkNoReentry(request);
             Element element = blockingCache.get(key);
@@ -165,7 +166,7 @@ public abstract class CachingFilter extends Filter {
                 pageInfo = (PageInfo) element.getObjectValue();
             }
         } finally {
-            Thread.currentThread().setName("Application Server Thread");
+            Thread.currentThread().setName(originalThreadName);
         }
         return pageInfo;
     }

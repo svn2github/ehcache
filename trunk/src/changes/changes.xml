@@ -30,6 +30,9 @@
                 issues. This issue was created by a patch to fix 1324221 back in October 2005. Resolved
                 by trying the new way and then, if a ClassNotFoundException is thrown, doing it the old way.
             </action>
+            <action dev="Greg Luck" issue="1513436" type="fix">
+                 CachingFilter should not change Thread name. Now sets it back to the original when done.
+            </action>
         </release>
 
         <release version="1.2.1" date="2006-7-2" desc="ehcache-1.2.1">

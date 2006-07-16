@@ -340,15 +340,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Cache.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="389" column="85" selection-start="14228" selection-end="14228" vertical-scroll-proportion="0.014405762">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="CacheTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -370,7 +361,7 @@
       <file leaf-file-name="Primitive.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/store/Primitive.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="25" column="16" selection-start="764" selection-end="764" vertical-scroll-proportion="0.15566038">
+            <state line="25" column="67" selection-start="815" selection-end="815" vertical-scroll-proportion="0.15566038">
               <folding />
             </state>
           </provider>
@@ -406,7 +397,16 @@
       <file leaf-file-name="changes.xml" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="27" column="50" selection-start="1505" selection-end="1512" vertical-scroll-proportion="0.3889556">
+            <state line="33" column="105" selection-start="2033" selection-end="2033" vertical-scroll-proportion="0.47539017">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CachingFilter.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/CachingFilter.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="168" column="63" selection-start="7619" selection-end="7670" vertical-scroll-proportion="0.8223289">
               <folding />
             </state>
           </provider>
@@ -1327,13 +1327,13 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="3" y="22" width="1600" height="998" extended-state="0" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="13" />
       <window_info id="Regex" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.20188902" order="7" />
       <window_info id="Checkstyle" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32962137" order="8" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.33505154" order="0" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.33505154" order="0" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32628062" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25322166" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32293987" order="10" />
@@ -1476,13 +1476,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Ehcache.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="661" column="0" selection-start="26627" selection-end="26627" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerProvider.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="40" column="22" selection-start="1272" selection-end="1272" vertical-scroll-proportion="0.0">
@@ -1549,16 +1542,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="268" column="33" selection-start="9679" selection-end="9679" vertical-scroll-proportion="0.1632653">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/store/Primitive.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="16" selection-start="764" selection-end="764" vertical-scroll-proportion="0.15566038">
+        <state line="25" column="67" selection-start="815" selection-end="815" vertical-scroll-proportion="0.15566038">
           <folding />
         </state>
       </provider>
@@ -1577,9 +1563,23 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="268" column="33" selection-start="9679" selection-end="9679" vertical-scroll-proportion="0.1632653">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/CachingFilter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="168" column="63" selection-start="7619" selection-end="7670" vertical-scroll-proportion="0.8223289">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="27" column="50" selection-start="1505" selection-end="1512" vertical-scroll-proportion="0.3889556">
+        <state line="33" column="105" selection-start="2033" selection-end="2033" vertical-scroll-proportion="0.47539017">
           <folding />
         </state>
       </provider>
