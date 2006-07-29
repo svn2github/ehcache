@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletRequest;
  * <li>An include into an outer page.
  * <li>A content type suitable for suitable for inclusion into the outer page. e.g. text or text/html
  * </ul>
- * For full page see {@link SimplePageFragmentCachingFilter}.
+ * For full page see {@link SimplePageCachingFilter}.
  * <h3>Keys</h3>
  * Pages are cached based on their key. The key for this cache is the URI followed by the query string. An example
  * is <code>/admin/SomePage.jsp?id=1234&name=Beagle</code>.

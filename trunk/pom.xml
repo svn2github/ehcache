@@ -4,7 +4,7 @@
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache</artifactId>
     <packaging>jar</packaging>
-    <version>1.2</version>
+    <version>1.2.2</version>
     <name>ehcache</name>
     <description><![CDATA[
 
@@ -118,8 +118,32 @@ ehcache is a pure Java, in-process cache with the following features:
                 <contribution>Patches</contribution>
             </properties>
         </contributor>
+        <contributor>
+            <name>Mauro Talevi</name>
+            <email/>
+            <url/>
+            <organization/>
+            <organizationUrl/>
+            <roles/>
+            <timezone/>
+            <properties>
+                <contribution>Maven magic</contribution>
+            </properties>
+        </contributor>
     </contributors>
 
+    <repositories>
+        <repository>
+            <id>codehaus-repository</id>
+            <name>Codehaus Repository</name>
+            <url>http://repository.codehaus.org</url>
+        </repository>
+        <repository>
+            <id>apache-snapshot-repository</id>
+            <name>Apache Snapshot Repository</name>
+            <url>http://people.apache.org/repo/m2-snapshot-repository</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -129,12 +153,68 @@ ehcache is a pure Java, in-process cache with the following features:
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>2.1</version>
-            <scope>compile</scope>
+        	<groupId>commons-collections</groupId>
+        	<artifactId>commons-collections</artifactId>
+        	<version>2.1</version>
+        	<scope>compile</scope>
         </dependency>
-    </dependencies>
+        <dependency>
+        	<groupId>org.hibernate</groupId>
+        	<artifactId>hibernate</artifactId>
+        	<version>3.2.0.cr3</version>
+        	<exclusions>
+        		<exclusion>
+        			<groupId>javax.transaction</groupId>
+        			<artifactId>jta</artifactId>
+        		</exclusion>
+        		<exclusion>
+        			<groupId>javax.security</groupId>
+        			<artifactId>jacc</artifactId>
+        		</exclusion>
+        	</exclusions>
+        	<scope>compile</scope>
+        </dependency>
+        <dependency>
+        	<groupId>net.sf.hibernate</groupId>
+        	<artifactId>hibernate</artifactId>
+        	<version>2.1.8</version>
+        	<exclusions>
+        		<exclusion>
+        			<groupId>javax.transaction</groupId>
+        			<artifactId>jta</artifactId>
+        		</exclusion>
+        		<exclusion>
+        			<groupId>javax.security</groupId>
+        			<artifactId>jacc</artifactId>
+        		</exclusion>
+        	</exclusions>
+        	<scope>compile</scope>
+        </dependency>
+        <dependency>
+        	<groupId>javax.servlet</groupId>
+        	<artifactId>servlet-api</artifactId>
+        	<version>2.4</version>
+        	<scope>compile</scope>
+        </dependency>
+        <dependency>
+        	<groupId>junit</groupId>
+        	<artifactId>junit</artifactId>
+        	<version>3.8.1</version>
+        	<scope>test</scope>
+        </dependency>
+        <dependency>
+        	<groupId>httpunit</groupId>
+        	<artifactId>httpunit</artifactId>
+        	<version>1.6</version>
+        	<scope>test</scope>
+        </dependency>
+       <dependency>
+        	<groupId>commons-httpclient</groupId>
+        	<artifactId>commons-httpclient</artifactId>
+        	<version>3.0.1</version>
+        	<scope>test</scope>
+        </dependency>
+     </dependencies>
 
     <licenses>
         <license>
@@ -153,11 +233,20 @@ ehcache is a pure Java, in-process cache with the following features:
 
 
     <distributionManagement>
+        <repository>
+			<id>sf-ehcache-repository</id>
+			<name>SF EHCache Repository</name>
+			<url>scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs/repository</url>
+		</repository>
+		<snapshotRepository>
+            <id>sf-ehcache-snapshot-repository</id>
+			<name>SF EHCache Snapshot Repository</name>
+			<url>scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs/snapshot-repository</url>
+		</snapshotRepository>
         <site>
-            <id>website</id>
+            <id>sf-ehcache-site</id>
+            <name>SF EHCache Site</name>
             <url>scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs</url>
-
-
         </site>
     </distributionManagement>
 
@@ -189,11 +278,30 @@ ehcache is a pure Java, in-process cache with the following features:
                     <template>maven-site.vm</template>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.2</version>
+            </plugin>
             <!-- Ant -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
+                	<execution>
+                        <id>rmic</id>
+                        <phase>compile</phase>
+                        <configuration>
+                            <tasks>
+                                <rmic base="${project.build.outputDirectory}"
+                                includes="**/RMICachePeer.class" excludes="**/*CLOVER*"/>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+
+                <!--
                     <execution>
                         <id>book</id>
                         <phase>validate</phase>
@@ -225,7 +333,19 @@ ehcache is a pure Java, in-process cache with the following features:
                             <goal>run</goal>
                         </goals>
                     </execution>
+                    -->
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/TestSquare.java</exclude>
+                        <exclude>**/constructs/web/**</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
 
             <!-- Clover. This seems to quite broken
@@ -301,6 +421,7 @@ ehcache is a pure Java, in-process cache with the following features:
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.0-beta-3</version>
                 <configuration>
                     <author>true</author>
                     <bottom>true</bottom>

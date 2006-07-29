@@ -2,6 +2,39 @@
 <document>
     <body>
 
+        <release version="1.2.3" date="2006-12-31" desc="Maintenance release to ehcache-1.2.1">
+
+            <!-- Feature Changes  -->
+            <action dev="Daniel Wiell" issue="1521843" type="add">
+                Added a ShutdownListener which implements ServletContextListener for shutting
+                down all CacheManagers in a web application.
+            </action>
+
+            <!-- Reported Bug fixes -->
+            <action dev="Greg Luck" issue="1516447" type="fix">
+                If you put an Element with overridden TTL and TTI values and then replace it
+                with an Element with defaults, the new Element lives forever. putQuiet is not
+                affected by this bug. Thanks to Pete at Goodtech for finding this one.
+            </action>
+            <action dev="Greg Luck" type="fix">
+                Reduce the memory used by flushSpool() in DiskStore.
+                See http://gregluck.com/blog/archives/2006/07/tuning_memory_u.html for details.
+            </action>
+            <action dev="Greg Luck" issue="1521699" type="fix">
+                Cache names with slashes cause problems. Tightened the validation code around setting a cache
+                name. Now throw IllegalArgumentException if a cache name is null or contains '/'. Thanks to Daniel
+                Wiell for repoting this one and suggesting the fix.
+            </action>
+            <action dev="Greg Luck" issue="1517565" type="fix">
+                Loading an element from the disk store fails in some circumstances due to classloading
+                issues. This issue was created by a patch to fix 1324221 back in October 2005. Resolved
+                by trying the new way and then, if a ClassNotFoundException is thrown, doing it the old way.
+            </action>
+            <action dev="Greg Luck" issue="1513436" type="fix">
+                 CachingFilter should not change Thread name. Now sets it back to the original when done.
+            </action>
+        </release>
+
         <release version="1.2.2" date="2006-12-31" desc="Maintenance release to ehcache-1.2.1">
 
             <!-- Feature Changes  -->

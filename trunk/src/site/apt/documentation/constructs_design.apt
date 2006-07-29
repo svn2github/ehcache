@@ -138,7 +138,7 @@ The Design of the {ehcache constructs} package
 
 ** {PageFragmentCachingFilter}
 
-    You notice that an entire page cannot be cached because the data on it very in staleness. Say, an address which changes
+    You notice that an entire page cannot be cached because the data on it vary in staleness. Say, an address which changes
     very infrequently, and the price and availability of inventory, which changes quite a lot. Or you have a portal, with
     lots of components and with different stalenesses. Or you use the replicated cache functionality in ehcache and you
     only want to rebuild the part of the page that got invalidated.
@@ -159,7 +159,7 @@ The Design of the {ehcache constructs} package
 ** {AsynchronousCommandExecutor}
 
    What happens if your JMS server is down? The usual answer it to have two of them. Unfortunately, not all JMS servers
-   do a good job of clustering. Plus if takes twice the hardware.
+   do a good job of clustering. Plus it takes twice the hardware.
 
    Once a message makes it to a JMS server, they can usually be configured to store the message in a database. You are
    pretty safe after that if there is a crash.
@@ -229,7 +229,7 @@ The Design of the {ehcache constructs} package
 
 ** Blocking Cascade
 
-   Lets say you do use the BlockingCache but something goes wrong upstream. Maybe it is something like a database backup
+   Let's say you do use the BlockingCache but something goes wrong upstream. Maybe it is something like a database backup
    that slows the database down for 10 minutes. Or greedy SQL. With the BlockingCache the JDBC connection will eventually
    timeout. The first thread fails. The next queued thread then attempts the same thing. It fails. And so on. While this
    is going on, more and more threads queue up. The result is a Blocking cascade. Eventually, if the slow upstream server
