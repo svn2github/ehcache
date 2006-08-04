@@ -83,7 +83,6 @@
                 over on their own projects.
             </action>
 
-
             <!-- Reported Bug fixes -->
             <action dev="Greg Luck" issue="1190614" type="fix">
                 This was reported by Victor Volle and is a duplicate of 1492900. Fixed. 
@@ -99,13 +98,11 @@
             </action>
             <action dev="Greg Luck" type="fix">
                 Harden all ehcache threads so that RuntimeExceptions and Errors do not stop them. This change, on its own, has been
-                backported to a separate release, ehcache-1.2.0_01. 
+                backported to a separate release, ehcache-1.2.0_01.
             </action>
             <action dev="Greg Luck" type="update">
                 Change spooling mechanism to use less memory, so as to avoid memory spikes. 
             </action>
-
-
         </release>
 
 

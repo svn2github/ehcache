@@ -292,7 +292,7 @@
       <module fileurl="file://$PROJECT_DIR$/ehcache.iml" filepath="$PROJECT_DIR$/ehcache.iml" />
     </modules>
   </component>
-  <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="false" project-jdk-name="1.5" />
+  <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="true" project-jdk-name="1.5" />
   <component name="ProjectRunConfigurationManager" />
   <component name="RmicSettings">
     <option name="IS_EANABLED" value="true" />
@@ -303,15 +303,7 @@
   </component>
   <component name="StarteamVcsAdapter" />
   <component name="VssVcs" />
-  <component name="libraryTable">
-    <library name="java_memcached-release_1.3.2">
-      <CLASSES>
-        <root url="jar://$PROJECT_DIR$/lib/java_memcached-release_1.3.2.jar!/" />
-      </CLASSES>
-      <JAVADOC />
-      <SOURCES />
-    </library>
-  </component>
+  <component name="libraryTable" />
   <component name="uidesigner-configuration">
     <option name="INSTRUMENT_CLASSES" value="true" />
     <option name="COPY_FORMS_RUNTIME_TO_OUTPUT" value="true" />

@@ -7,7 +7,7 @@ Maintenance release to ehcache-1.2.1
 
 Feature Changes:
  -  Added a ShutdownListener which implements ServletContextListener for shutting
-    down all CacheManagers in a web application. 
+    down all CacheManagers in a web application.
 
 Bug Fixes:
  -  If you put an Element with overridden TTL and TTI values and then replace it

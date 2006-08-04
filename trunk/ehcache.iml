@@ -251,19 +251,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/java_memcached-release_1.3.2.jar!/" />
-        </CLASSES>
-        <JAVADOC>
-          <root url="file:///Users/gluck/work/java_memcached-release_1.3.2/javadocs" />
-        </JAVADOC>
-        <SOURCES>
-          <root url="file:///Users/gluck/work/java_memcached-release_1.3.2/src" />
-        </SOURCES>
-      </library>
-    </orderEntry>
     <orderEntryProperties />
   </component>
 </module>
