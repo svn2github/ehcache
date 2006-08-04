@@ -7,6 +7,18 @@
 
 News
 
+* 17 July 2006: ehcache-1.2.2 released
+
+    This is a minor maintenance release to ehcache-1.2.1. It clears all bug reports and feature requests received
+    since ehcache-1.2.1 was released. It also includes the fix in ehcache-1.2.0_02 to reduce memory consumption.
+
+    See the {{{http://sourceforge.net/project/shownotes.php?release_id=432513&group_id=93232}release notes and changelog for details}}.
+
+* 16 July 2006: ehcache-1.2.0-02 released
+
+    Contains a fix to quickly hand back memory when spooling to disk. See {{http://gregluck.com/blog/archives/2006/07/tuning_memory_u.html}}
+    for details on the effect of this change.
+
 * 3 July 2006: ehcache-1.2.1 released
 
     ehcache-1.2.1 is mostly a maintenance release of ehcache. It focuses on simplifying usage

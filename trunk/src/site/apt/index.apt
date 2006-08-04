@@ -15,6 +15,18 @@ Welcome to ehcache
 
 * Latest News
 
+** 17 July 2006: ehcache-1.2.2 released
+
+    This is a minor maintenance release to ehcache-1.2.1. It clears all bug reports and feature requests received
+    since ehcache-1.2.1 was released.
+
+    See the {{{http://sourceforge.net/project/shownotes.php?release_id=432513&group_id=93232}release notes and changelog for details}}.
+
+** 16 July 2006: ehcache-1.2.0-02 released
+
+    Contains a fix to quickly hand back memory when spooling to disk. See {{http://gregluck.com/blog/archives/2006/07/tuning_memory_u.html}}
+    for details on the effect of this change.
+
 ** 3 July 2006: ehcache-1.2.1 released
 
     ehcache-1.2.1 is mostly a maintenance release of ehcache. It focuses on simplifying usage
@@ -60,65 +72,6 @@ Welcome to ehcache
 
     Enabling changes to the ehcache codebase have been made in the ehcache-1.2.1 branch (released 3 July). Work on the
     compatibility API will occur in the 1.3 branch.
-
-
-** 4 June 2006: ehcache-1.2.1RC {{{http://sourceforge.net/project/showfiles.php?group_id=93232}released}}.
-
-   This is a release candidate for ehcache-1.2.1. There are a few very minor bug fixes in this release.
-   The main focus is to resolve upgrade difficulties with client libraries which expect ehcache CacheManagers to be
-   singletons as they were in ehcache-1.1. In ehcache-1.2 any attempt to have two CacheManagers sharing the same
-   configuration resulted in a CacheException being thrown. The check was made on diskStorePath. In ehcache-1.2.1RC
-   multiple CacheManagers sharing the same ehcache.xml configuration is permitted.
-
-   To resolve conflicts with DiskStore paths, the second and subsequent CacheManagers create their data files in a
-   unique subdirectory under the first CacheManager's diskStore path.
-
-   The other potential conflict is in CacheManagerPeerListeners. In the default implementation the conflict is with RMI
-   listener ports. To resolve this conflict the second and subsequent CacheManagers use a free port to listen on.
-
-   For both, warning messages are logged encouraging clients to migrate over to their own ehcache.xml.
-
-   There are also a number of enhancements/new features as follows:
-
-   * New SingletonEhCacheProvider for use by Hibernate in situations where code has been written which relies on the
-     singleton behaviour of ehcache-1.1 and earlier. Most code bases using Hibernate should not require this.
-
-   * Allow cacheEventListenerFactory elements to be added to defaultCache in ehcache.xml. This allows caches created with
-     CacheManager.a ddCache(String cacheName) to receive events. This can be used for example to set default replication
-     settings in defaultCache.
-
-   * To complement full support foe default cache (above), added support for programmatic addition of caches which
-     include CacheReplicators. Also support for removal of these caches with CacheManager.remove(String cacheName).
-
-   * Andy McNutt's JNDI-based manual RMI replication added. See ehcache.xml example for how to use.
-
-   * Support tomcat 5.5 for the servlet filters. Tomcat integration testing, in addition to the Orion one,
-     is also added to the full JUnit test process. Tomcat relies on Servlet 2.4 dispatcher INCLUDE and FORWARD directives
-     for page fragment caching.
-
-   * Support runtime setting of individual Element time to lives (TTLs), time to idles(TTIs) and eternal overrides.
-     If an override is set, the Element expiry ignores the Cache default.
-
-   * Add a cache bootstrap mechanism. This is used to populate a cache when it is first initialized. An abstract factory,
-     BootstrapCacheLoaderFactory has been defined along with an interface BootstrapCacheLoader.
-     The initial concrete implementations are for RMI, so that a new cache entering a cluster gets bootstrapped from a
-     randomly chosen peer.
-
-   Finally, the ehcache-constructs package has been merged into the ehcache module so that there is only one jar to
-   download and install to get all functionaliy. Ehcache-constructs contains J2EE Caching filters and other useful
-   applied caching solutions.
-
-   See the {{{/changes-report.html}change log}} for more details.
-
-   The plan is to rapidly release ehcache-1.2.1 within a week or so. Please report any issues with ehcache-1.2.1RC promptly.
-   Documentation of the new features will be complete during this time.
-
-
-** 3 June 2006: Printable PDF User Guide for ehcache available
-
-  Some people have requested a printable manual for ehcache.
-   Please see{{{http://ehcache.sourceforge.net/EhcacheUserGuide.pdf}EhcacheUserGuide.pdf}}
-
 
  More {{{news.html}news}}...
 

@@ -83,6 +83,7 @@
                 over on their own projects.
             </action>
 
+
             <!-- Reported Bug fixes -->
             <action dev="Greg Luck" issue="1190614" type="fix">
                 This was reported by Victor Volle and is a duplicate of 1492900. Fixed. 
@@ -96,9 +97,15 @@
                 Debug messages generate excess String objects. Added logging level guards around about 6 debug log statements.
                 Thanks to Derek Hulley for pointing this one out.
             </action>
+            <action dev="Greg Luck" type="fix">
+                Harden all ehcache threads so that RuntimeExceptions and Errors do not stop them. This change, on its own, has been
+                backported to a separate release, ehcache-1.2.0_01. 
+            </action>
             <action dev="Greg Luck" type="update">
                 Change spooling mechanism to use less memory, so as to avoid memory spikes. 
             </action>
+
+
         </release>
 
 

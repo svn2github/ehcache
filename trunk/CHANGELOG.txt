@@ -1,5 +1,33 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+ehcache-1.2.2
+=============
+
+Maintenance release to ehcache-1.2.1
+
+Feature Changes:
+ -  Added a ShutdownListener which implements ServletContextListener for shutting
+    down all CacheManagers in a web application. 
+
+Bug Fixes:
+ -  If you put an Element with overridden TTL and TTI values and then replace it
+    with an Element with defaults, the new Element lives forever. putQuiet is not
+    affected by this bug. Thanks to Pete at Goodtech for finding this one.
+
+ -  Reduce the memory used by flushSpool() in DiskStore.
+    See http://gregluck.com/blog/archives/2006/07/tuning_memory_u.html for details.
+
+ -  Cache names with slashes cause problems. Tightened the validation code around setting a cache
+    name. Now throw IllegalArgumentException if a cache name is null or contains '/'. Thanks to Daniel
+    Wiell for repoting this one and suggesting the fix.
+
+ -  Loading an element from the disk store fails in some circumstances due to classloading
+    issues. This issue was created by a patch to fix 1324221 back in October 2005. Resolved
+    by trying the new way and then, if a ClassNotFoundException is thrown, doing it the old way.
+    CachingFilter should not change Thread name. Now sets it back to the original when done.
+
+
+
 ehcache-1.2.1
 =============
 
