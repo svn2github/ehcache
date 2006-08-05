@@ -22,9 +22,11 @@ import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebResponse;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
+import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.CacheManager;
+import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.httpclient.HttpMethod;
 import org.dom4j.Comment;
 import org.dom4j.Document;
 import org.dom4j.io.DOMReader;
@@ -41,6 +43,8 @@ import java.util.List;
  * @version $Id$
  */
 public abstract class AbstractWebTest extends TestCase {
+
+
     /**
      * {@value}
      */
@@ -73,6 +77,27 @@ public abstract class AbstractWebTest extends TestCase {
     private static final Log LOG = LogFactory.getLog(AbstractWebTest.class.getName());
 
     /**
+     * Run web tests in a caching cluster. They use a singleton, so create a second
+     * instance CacheManager with the same config.
+     */
+    private CacheManager instanceManager;
+
+    /**
+     * @throws Exception
+     */
+    protected void setUp() throws Exception {
+        instanceManager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected void tearDown() throws Exception {
+        instanceManager.shutdown();
+    }
+
+
+    /**
      * Checks that the expected string occurs within the content string.
      */
     protected static void assertContains(final String message, final String string, final String content) {
@@ -86,7 +111,6 @@ public abstract class AbstractWebTest extends TestCase {
      * <p/>
      * The request is set to accept gzip encoding. Note that HttpUnit automatically gunzips the response
      * probived the "Content-encoding: gzip" response header is set.
-     *
      */
     protected WebResponse getResponseFromAcceptGzipRequest(final String uri) throws IOException, SAXException {
         final WebConversation conversation = createWebConversation(true);
@@ -336,19 +360,6 @@ public abstract class AbstractWebTest extends TestCase {
         void execute() throws Exception;
     }
 
-    /**
-     * @throws Exception
-     */
-    protected void setUp() throws Exception {
-        //noop
-    }
-
-    /**
-     * @throws Exception
-     */
-    protected void tearDown() throws Exception {
-        //noop
-    }
 
     /**
      * Checks for the page is not blank.
@@ -371,6 +382,7 @@ public abstract class AbstractWebTest extends TestCase {
 
     /**
      * Checks the response can be parsed into an XML document. Will fail if not properly formed.
+     *
      * @param response
      */
     protected void assertPropertlyFormed(WebResponse response) {
@@ -393,6 +405,7 @@ public abstract class AbstractWebTest extends TestCase {
 
     /**
      * Orion returns a length of 0. Tomcat does not set content length at all.
+     *
      * @param httpMethod
      */
     protected void checkNullOrZeroContentLength(HttpMethod httpMethod) {

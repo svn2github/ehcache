@@ -380,6 +380,8 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
         } catch (Exception e) {
             throw new CacheException("Problem unbinding remote cache peers. Initial cause was " + e.getMessage(), e);
         } finally {
+            // It can take several minutes otherwise for the RMI Reaper thread to stop.
+            Runtime.getRuntime().gc();
             removeShutdownHook();
 
         }

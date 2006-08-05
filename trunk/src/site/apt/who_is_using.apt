@@ -29,6 +29,9 @@ be included in the list.
 
  * {{{http://acegisecurity.org/index.html}Acegi}}. A security system for Spring.
 
+ * {{http://labs.jboss.com/portal/kosmos}Kosmos}}. Kosmos stands for Komposite Open Source Monitoring Suite..
+
+
 * Distributions
 
  * {{{http://jpackage.org/}JPackage}}. Java libraries packaged for Linux.
