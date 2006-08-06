@@ -192,13 +192,16 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
     }
 
     /**
-     * Called immediately after an element has been removed. The remove method will block until
+     * Called immediately after an attempt to remove an element. The remove method will block until
      * this method returns.
      * <p/>
-     * This implementation queues the removal notification for in order replication to peers.
-     *
+     * This notification is received regardless of whether the cache had an element matching
+     * the removal key or not. If an element was removed, the element is passed to this method,
+     * otherwise a synthetic element, with only the key set is passed in.
+     * <p/>
      * @param cache   the cache emitting the notification
-     * @param element just deleted
+     * @param element the element just deleted, or a synthetic element with just the key set if
+     *                no element was removed.
      */
     public final void notifyElementRemoved(final Ehcache cache, final Element element) throws CacheException {
         if (!replicateRemovals) {

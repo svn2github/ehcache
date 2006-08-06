@@ -256,8 +256,8 @@ public class Cache implements Ehcache {
                  long diskExpiryThreadIntervalSeconds) {
         this(name, maxElementsInMemory, DEFAULT_MEMORY_STORE_EVICTION_POLICY, overflowToDisk, null,
                 eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, null, null);
-        LOG.warn("An API change between ehcache-1.1 results in the persistence path being set to java.io.tmp when the " +
-                "ehcache-1.1 constructor is used. Please change to the 1.2 constructor");
+        LOG.warn("An API change between ehcache-1.1 and ehcache-1.2 results in the persistence path being set to java.io.tmp" +
+                " when the ehcache-1.1 constructor is used. Please change to the 1.2 constructor");
     }
 
 
@@ -960,18 +960,22 @@ public class Cache implements Ehcache {
 
 
     /**
-     * Expires an {@link Element} from the Cache after an attempt to get it determined that it should be expired.
+     * Removes or expires an {@link Element} from the Cache after an attempt to get it determined that it should be expired.
      * This also removes it from any stores it may be in.
      * <p/>
      * Also notifies the CacheEventListener after the element has expired, but only if an Element
      * with the key actually existed.
-     *
+     * <p/>
+     * If a remove was called, listeners are notified, regardless of whether the element existed or not.
+     * This allows distributed cache listeners to remove elements from a cluster regardless of whether they
+     * existed locally.
      * @param key
      * @param expiry                      if the reason this method is being called is to expire the element
      * @param notifyListeners             whether to notify listeners
      * @param doNotNotifyCacheReplicators whether not to notify cache replicators
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     * todo test 
      */
     private synchronized boolean remove(Object key, boolean expiry, boolean notifyListeners,
                                         boolean doNotNotifyCacheReplicators)
@@ -980,11 +984,14 @@ public class Cache implements Ehcache {
         boolean removed = false;
         Element elementFromMemoryStore;
         elementFromMemoryStore = memoryStore.remove(key);
+        boolean removeNotified = false;
+
         if (elementFromMemoryStore != null) {
             if (notifyListeners) {
                 if (expiry) {
                     registeredEventListeners.notifyElementExpiry(elementFromMemoryStore, doNotNotifyCacheReplicators);
                 } else {
+                    removeNotified = true;
                     registeredEventListeners.notifyElementRemoved(elementFromMemoryStore, doNotNotifyCacheReplicators);
                 }
             }
@@ -1005,9 +1012,17 @@ public class Cache implements Ehcache {
             if (expiry) {
                 registeredEventListeners.notifyElementExpiry(elementFromDiskStore, doNotNotifyCacheReplicators);
             } else {
+                removeNotified = true;
                 registeredEventListeners.notifyElementRemoved(elementFromDiskStore, doNotNotifyCacheReplicators);
             }
             removed = true;
+        }
+
+        //If we are trying to remove an element which does not exist locally, we should still notify so that
+        //cluster invalidations work.
+        if (!expiry && !removeNotified) {
+            Element syntheticElement = new Element(key, null);
+            registeredEventListeners.notifyElementRemoved(syntheticElement, doNotNotifyCacheReplicators);
         }
 
         return removed;

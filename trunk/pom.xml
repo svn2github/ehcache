@@ -4,7 +4,7 @@
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache</artifactId>
     <packaging>jar</packaging>
-    <version>1.2.2</version>
+    <version>1.2.3</version>
     <name>ehcache</name>
     <description><![CDATA[
 
@@ -301,7 +301,6 @@ ehcache is a pure Java, in-process cache with the following features:
                         </goals>
                     </execution>
 
-                <!--
                     <execution>
                         <id>book</id>
                         <phase>validate</phase>
@@ -333,7 +332,6 @@ ehcache is a pure Java, in-process cache with the following features:
                             <goal>run</goal>
                         </goals>
                     </execution>
-                    -->
                 </executions>
             </plugin>
 
@@ -421,7 +419,6 @@ ehcache is a pure Java, in-process cache with the following features:
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.0-beta-3</version>
                 <configuration>
                     <author>true</author>
                     <bottom>true</bottom>

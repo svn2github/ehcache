@@ -63,7 +63,7 @@ import java.util.Set;
  * <p/>
  * This class opens a ServerSocket. The dispose method should be called for orderly closure of that socket. This class
  * has a shutdown hook which calls dispose() as a convenience feature for developers.
- *
+ * todo any inheritors of listener for shutdown thing
  * @author Greg Luck
  * @version $Id$
  */
@@ -71,6 +71,8 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
 
     private static final Log LOG = LogFactory.getLog(RMICacheManagerPeerListener.class.getName());
     private static final int MINIMUM_SENSIBLE_TIMEOUT = 200;
+    private static final int NAMING_UNBIND_RETRY_INTERVAL = 400;
+    private static final int NAMING_UNBIND_MAX_RETRIES = 10;
 
     /**
      * The cache peers. The value is an RMICachePeer.
@@ -139,6 +141,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
 
     /**
      * Assigns a free port to be the listener port.
+     *
      * @throws IllegalStateException if the statis of the listener is not {@link net.sf.ehcache.Status#STATUS_UNINITIALISED}
      */
     protected void assignFreePort(boolean forced) throws IllegalStateException {
@@ -388,14 +391,39 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
     }
 
     /**
-     * Unbinds an RMICachePeer
+     * Unbinds an RMICachePeer and unexports it.
+     * <p/>
+     * We unbind from the registry first before unexporting.
+     * Unbinding first removes the very small possibility of a client
+     * getting the object from the registry while we are trying to unexport it.
+     * <p/>
+     * This method may take up to 4 seconds to complete, if we are having trouble
+     * unexporting the peer.
      *
-     * @param rmiCachePeer
+     * @param rmiCachePeer the bound and exported cache peer
      * @throws Exception
      */
     protected void unbind(RMICachePeer rmiCachePeer) throws Exception {
-        UnicastRemoteObject.unexportObject(rmiCachePeer, false);
         Naming.unbind(rmiCachePeer.getUrl());
+        // Try to gracefully unexport before forcing it.
+        boolean unexported = UnicastRemoteObject.unexportObject(rmiCachePeer, false);
+        for (int count = 1; (count < NAMING_UNBIND_MAX_RETRIES) && !unexported; count++) {
+            try {
+                Thread.sleep(NAMING_UNBIND_RETRY_INTERVAL);
+            } catch (InterruptedException ie) {
+                // break out of the unexportObject loop
+                break;
+            }
+            unexported = UnicastRemoteObject.unexportObject(rmiCachePeer, false);
+        }
+
+        // If we still haven't been able to unexport, force the unexport
+        // as a last resort.
+        if (!unexported) {
+            if (!UnicastRemoteObject.unexportObject(rmiCachePeer, true)) {
+                LOG.warn("Unable to unexport rmiCachePeer: " + rmiCachePeer.getUrl() + ".  Skipping.");
+            }
+        }
     }
 
     /**
@@ -519,8 +547,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
         RMICachePeer rmiCachePeer = (RMICachePeer) cachePeers.remove(cacheName);
         String url = null;
         try {
-            url = rmiCachePeer.getUrl();
-            Naming.unbind(rmiCachePeer.getUrl());
+            unbind(rmiCachePeer);
         } catch (Exception e) {
             throw new CacheException("Error removing Cache Peer "
                     + url + " from listener. Message was: " + e.getMessage(), e);

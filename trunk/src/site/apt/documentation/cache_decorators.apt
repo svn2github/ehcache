@@ -39,6 +39,40 @@ cacheManager.replaceCacheWithDecoratedCache(cache, newBlockingCache);
 
     Any calls to get the cache out of the CacheManager now return the decorated one.
 
+
+    A word of caution. This method should be called in an appropriately synchronized init style method before multiple threads
+    attempt to use it. All threads must be referencing the same decorated cache. An example of a suitable init method is
+    found in <<<CachingFilter>>>:
+
+---
+    /**
+     * The cache holding the web pages. Ensure that all threads for a given cache name are using the same instance of this.
+     */
+    private BlockingCache blockingCache;
+
+    /**
+     * Initialises blockingCache to use
+     *
+     * @throws CacheException The most likely cause is that a cache has not been
+     *                        configured in ehcache's configuration file ehcache.xml for the filter name
+     */
+    public void doInit() throws CacheException {
+        synchronized (this.getClass()) {
+            if (blockingCache == null) {
+                final String cacheName = getCacheName();
+                Ehcache cache = getCacheManager().getEhcache(cacheName);
+                if (!(cache instanceof BlockingCache)) {
+                    //decorate and substitute
+                    BlockingCache newBlockingCache = new BlockingCache(cache);
+                    getCacheManager().replaceCacheWithDecoratedCache(cache, newBlockingCache);
+                }
+                blockingCache = (BlockingCache) getCacheManager().getEhcache(getCacheName());
+            }
+        }
+    }
+---
+
+
 -----
 Ehcache blockingCache = singletonManager.getEhcache("sampleCache1");
 -----

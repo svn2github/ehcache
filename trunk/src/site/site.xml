@@ -33,19 +33,7 @@
             <item name="Getting Started" href="documentation/getting_started.html"/>
             <item name="PDF User Guide" href="EhcacheUserGuide.pdf" />
             <item name="Single Page User Guide" href="EhcacheUserGuide.html" />
-            <item name="Multi Page User Guide" href="documentation/index.html" collapse="true">
-                <item name="Cache Concepts" href="documentation/concepts.html"/>
-                <item name="Storage Options" href="documentation/storage_options.html"/>
-                <item name="Class loading" href="documentation/class_loading.html"/>
-                <item name="Performance" href="documentation/performance_considerations.html"/>
-                <item name="Distributed Caching" href="documentation/distributed_caching.html"/>
-                <item name="VM Shutdown" href="documentation/shutdown_considerations.html"/>
-                <item name="Logging" href="documentation/logging.html"/>
-                <item name="Cache Configuration" href="documentation/configuration.html"/>
-                <item name="CacheManager event listeners" href="documentation/cachemanager_event_listeners.html"/>
-                <item name="Cache event listeners" href="documentation/cache_event_listeners.html"/>
-                <item name="Hibernate Caching" href="documentation/hibernate.html"/>
-            </item>
+            <item name="Multi Page User Guide" href="documentation/index.html"/>
             <item name="Older User Guides" href="documentation/older_guides.html" collapse="true">
                 <item name="ehcache 1.1" href="documentation/documentation-1_1.html"/>
                 <item name="ehcache-constructs 0.5" href="documentation/constructs-0_5.html"/>

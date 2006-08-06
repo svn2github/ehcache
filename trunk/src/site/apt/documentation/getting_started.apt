@@ -24,7 +24,7 @@ Getting Started
 
 * Hibernate
 
-    * Perform the same steps as {{{General Purpose Caching}General Purpose Caching}}.
+    * Perform the same steps as {{{#General Purpose Caching}General Purpose Caching}}.
 
     * Create caches in ehcache.xml.
 

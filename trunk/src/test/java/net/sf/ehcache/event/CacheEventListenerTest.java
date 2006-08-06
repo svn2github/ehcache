@@ -145,10 +145,39 @@ public class CacheEventListenerTest extends TestCase {
         List notifications = CountingCacheEventListener.getCacheElementsRemoved(cache);
         assertEquals(element, notifications.get(0));
 
-        //An unsuccessful remove should not notify
+        //An unsuccessful remove should notify
         cache.remove(key);
         notifications = CountingCacheEventListener.getCacheElementsRemoved(cache);
-        assertEquals(1, notifications.size());
+        assertEquals(2, notifications.size());
+
+        //check for NPE
+        cache.remove(null);
+
+    }
+
+
+    /**
+     * Tests the remove notifier where the element does not exist in the local cache.
+     * Listener notification is required for correct operation of cluster invalidation.
+     */
+    public void testRemoveNotificationWhereElementDidNotExist() {
+
+        Serializable key = "1";
+
+        //Don't Put
+        //cache.put(element);
+
+        //Check removal from MemoryStore
+        cache.remove(key);
+
+
+        List notifications = CountingCacheEventListener.getCacheElementsRemoved(cache);
+        assertEquals(key, ((Element)notifications.get(0)).getKey());
+
+        //An unsuccessful remove should notify
+        cache.remove(key);
+        notifications = CountingCacheEventListener.getCacheElementsRemoved(cache);
+        assertEquals(2, notifications.size());
 
         //check for NPE
         cache.remove(null);
@@ -166,7 +195,6 @@ public class CacheEventListenerTest extends TestCase {
         Element element = new Element(key, value);
 
         cache.getCacheEventNotificationService().registerListener(new TestCacheEventListener());
-
 
         //Put
         cache.put(element);
@@ -199,16 +227,7 @@ public class CacheEventListenerTest extends TestCase {
     class TestCacheEventListener implements CacheEventListener {
 
         /**
-         * Called immediately after an element has been removed. The remove method will block until
-         * this method returns.
-         * <p/>
-         * Ehcache does not chech for
-         * <p/>
-         * As the {@link net.sf.ehcache.Element} has been removed, only what was the key of the element is known.
-         * <p/>
-         *
-         * @param cache   the cache emitting the notification
-         * @param element just deleted
+         * {@inheritDoc}
          */
         public void notifyElementRemoved(final Ehcache cache, final Element element) throws CacheException {
             //

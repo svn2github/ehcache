@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
-    <body>
+    <body>                     
 
         <release version="1.2.3" date="2006-12-31" desc="Maintenance release to ehcache-1.2.1">
 
             <!-- Feature Changes  -->
-            <action dev="Daniel Wiell" type="fix">
-                Added a Runtime.getRuntime().gc() to RMICacheManagerPeerListener to correct a problem
-                where RMI takes a long time (up to a minute) to shutdown. This is due to the non-daemon
-                Reaper thread which is used to initiate RMI garbage collections. This fix only works
-                if explicit GC has not been disabled with  XX:+DisableExplicitGC on java startup.
+            <action dev="Greg Luck" issue="1524597" type="add">
+                Cache.remove doesn't fire listeners if element didn't exist. This stopped cluster
+                removes from working where the local cache does not have the element cached. Thanks
+                to Elijah Epifanov for reporting this one and arguing the case for this behaviour
             </action>
+
+
+            <!-- Reported Bug fixes -->
+            <action dev="Greg Luck" issue="1532610" type="fix">
+                Fix isssue where a distributed cache can take up to a minute to shutdown. This issue
+                affected web container and application server shutdowns.
+                The fix is to unbind RMICachePeers before unexporting them. Thanks to Lennard Fuller
+                and Peter Chiang for finding and fixing this hard one.
+            </action>
+            <action dev="Greg Luck" issue="1529506" type="fix">
+                Fixed a few broken links and inconsistencies in the documentation.
+            </action>
+
 
         </release>
 
