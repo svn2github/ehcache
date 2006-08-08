@@ -10,7 +10,13 @@
                 removes from working where the local cache does not have the element cached. Thanks
                 to Elijah Epifanov for reporting this one and arguing the case for this behaviour
             </action>
-
+            <action dev="Greg Luck" issue="1523915" type="update">
+                Asynchronous replication / soft references.
+                There is a trade off between OutOfMemory risk and replication correctness.
+                Change the RMIAsynchronousCacheReplicator so that Elements are SoftReference, not
+                all EventMessages. The result is that put and update via copy may be SoftReference
+                collected, but remove and update via remove will always go through.
+            </action>
 
             <!-- Reported Bug fixes -->
             <action dev="Greg Luck" issue="1532610" type="fix">
@@ -22,6 +28,7 @@
             <action dev="Greg Luck" issue="1529506" type="fix">
                 Fixed a few broken links and inconsistencies in the documentation.
             </action>
+
 
 
         </release>

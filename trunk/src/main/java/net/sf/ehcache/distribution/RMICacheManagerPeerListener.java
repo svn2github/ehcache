@@ -366,8 +366,8 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
     /**
      * Stop the listener. It
      * <ul>
-     * <li>unexports Remote objects
      * <li>unbinds the objects from the registry
+     * <li>unexports Remote objects
      * </ul>
      */
     public void dispose() throws CacheException {
@@ -383,10 +383,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
         } catch (Exception e) {
             throw new CacheException("Problem unbinding remote cache peers. Initial cause was " + e.getMessage(), e);
         } finally {
-            // It can take several minutes otherwise for the RMI Reaper thread to stop.
-            Runtime.getRuntime().gc();
             removeShutdownHook();
-
         }
     }
 

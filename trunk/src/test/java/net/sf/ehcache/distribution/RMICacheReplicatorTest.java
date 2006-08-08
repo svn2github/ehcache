@@ -865,6 +865,8 @@ public class RMICacheReplicatorTest extends TestCase {
         //remote receiving caches' counting listener should have been notified
         assertEquals(3, CountingCacheEventListener.getCacheElementsUpdated(cache2).size());
 
+
+
         //Remove
         cache1.remove("1");
         cache1.remove("2");

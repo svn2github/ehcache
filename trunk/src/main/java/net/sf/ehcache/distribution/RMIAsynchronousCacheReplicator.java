@@ -24,7 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.Serializable;
-import java.lang.ref.SoftReference;
 import java.rmi.UnmarshalException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -43,7 +42,7 @@ import java.util.List;
  * to get an {@link OutOfMemoryError} using distribution in circumstances when it would not happen if we were
  * just using the DiskStore.
  * <p/>
- * Accordingly, {@link EventMessage}s are held by {@link SoftReference} in the queue,
+ * Accordingly, the Element values in {@link EventMessage}s are held by {@link java.lang.ref.SoftReference} in the queue,
  * so that they can be discarded if required by the GC to avoid an {@link OutOfMemoryError}. A log message
  * will be issued on each flush of the queue if there were any forced discards. One problem with GC collection
  * of SoftReferences is that the VM (JDK1.5 anyway) will do that rather than grow the heap size to the maximum.
@@ -302,6 +301,9 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
 
     /**
      * Extracts CacheEventMessages and attempts to get a hard reference to the underlying EventMessage
+     * <p/>
+     * If an EventMessage has been invalidated due to SoftReference collection of the Element, it is not
+     * propagated. This only affects puts and updates via copy.
      *
      * @param replicationQueueCopy
      * @return a list of EventMessages which were able to be resolved
@@ -310,7 +312,7 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
         List list = new ArrayList();
         for (int i = 0; i < replicationQueueCopy.size(); i++) {
             EventMessage eventMessage = ((CacheEventMessage) replicationQueueCopy.get(i)).getEventMessage();
-            if (eventMessage != null) {
+            if (eventMessage != null && eventMessage.isValid()) {
                 list.add(eventMessage);
             }
         }
@@ -337,20 +339,19 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
 
 
     /**
-     * A wrapper around an EventMessage, which enables the element to enqueued along with
+     * A wrapper around an EventMessage, which enables the element to be enqueued along with
      * what is to be done with it.
      * <p/>
-     * The wrapper holds a {@link SoftReference} to the {@link EventMessage}, so that the queue is never
+     * The wrapper holds a {@link java.lang.ref.SoftReference} to the {@link EventMessage}, so that the queue is never
      * the cause of an {@link OutOfMemoryError}
      */
     private static final class CacheEventMessage {
 
         private final Ehcache cache;
-        private final SoftReference softEventMessage;
+        private final EventMessage eventMessage;
 
         public CacheEventMessage(int event, Ehcache cache, Element element, Serializable key) {
-            EventMessage eventMessage = new EventMessage(event, key, element);
-            softEventMessage = new SoftReference(eventMessage);
+            eventMessage = new EventMessage(event, key, element);
             this.cache = cache;
         }
 
@@ -358,7 +359,7 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
          * Gets the component EventMessage
          */
         public final EventMessage getEventMessage() {
-            return (EventMessage) softEventMessage.get();
+            return eventMessage;
         }
 
     }

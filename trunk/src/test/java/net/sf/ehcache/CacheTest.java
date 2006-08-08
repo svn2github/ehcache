@@ -21,12 +21,10 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 
@@ -1319,28 +1317,6 @@ public class CacheTest extends AbstractCacheTest {
     }
 
 
-    /**
-     * SoftReference behaviour testing.
-     */
-    public void testSoftReferences() {
-        Map map = new HashMap();
-        for (int i = 0; i < 100; i++) {
-            map.put(new Integer(i), new SoftReference(new byte[1000000]));
-        }
-
-        int counter = 0;
-        for (int i = 0; i < 100; i++) {
-            SoftReference softReference = (SoftReference) map.get(new Integer(i));
-            byte[] payload = (byte[]) softReference.get();
-            if (payload != null) {
-                LOG.info("Value found for " + i);
-                counter++;
-            }
-        }
-
-        assertTrue("You should get more than this out of SoftReferences", counter > 32);
-
-    }
 
 
     /**
