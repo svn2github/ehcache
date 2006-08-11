@@ -63,7 +63,6 @@ import java.util.Set;
  * <p/>
  * This class opens a ServerSocket. The dispose method should be called for orderly closure of that socket. This class
  * has a shutdown hook which calls dispose() as a convenience feature for developers.
- * todo any inheritors of listener for shutdown thing
  * @author Greg Luck
  * @version $Id$
  */
@@ -375,7 +374,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             int counter = 0;
             for (Iterator iterator = cachePeers.values().iterator(); iterator.hasNext();) {
                 RMICachePeer rmiCachePeer = (RMICachePeer) iterator.next();
-                unbind(rmiCachePeer);
+                disposeRMICachePeer(rmiCachePeer);
                 counter++;
             }
             LOG.debug(counter + " RMICachePeers unbound from registry in RMI listener");
@@ -385,6 +384,20 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
         } finally {
             removeShutdownHook();
         }
+    }
+
+    /**
+     * A template method to dispose an individual RMICachePeer. This consists of:
+     * <ol>
+     * <li>Unbinding the peer from the naming service
+     * <li>Unexporting the peer
+     * </ol>
+     * Override to specialise behaviour
+     * @param rmiCachePeer  the cache peer to dispose of
+     * @throws Exception thrown if something goes wrong
+     */
+    protected void disposeRMICachePeer(RMICachePeer rmiCachePeer) throws Exception {
+        unbind(rmiCachePeer);
     }
 
     /**

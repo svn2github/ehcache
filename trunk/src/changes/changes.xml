@@ -17,6 +17,10 @@
                 all EventMessages. The result is that put and update via copy may be SoftReference
                 collected, but remove and update via remove will always go through.
             </action>
+            <action dev="Greg Luck" type="update">
+                Change Cache#getQuiet so that cache statistics are not updated. This is a sensible
+                API change and probably always should have worked this way.
+            </action>
 
             <!-- Reported Bug fixes -->
             <action dev="Greg Luck" issue="1532610" type="fix">
@@ -33,7 +37,7 @@
 
         </release>
 
-        <release version="1.2.2" date="2006-12-31" desc="Maintenance release to ehcache-1.2.1">
+        <release version="1.2.2" date="2006-7-17" desc="Maintenance release to ehcache-1.2.1">
 
             <!-- Feature Changes  -->
             <action dev="Daniel Wiell" issue="1521843" type="add">

@@ -57,6 +57,7 @@ public interface Ehcache extends Cloneable {
      * @param element An object. If Serializable it can fully participate in replication and the DiskStore.
      * @throws IllegalStateException    if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      * @throws IllegalArgumentException if the element is null
+     * @throws CacheException
      */
     void put(Element element) throws IllegalArgumentException, IllegalStateException,
             CacheException;
@@ -136,7 +137,7 @@ public interface Ehcache extends Cloneable {
 
     /**
      * Gets an element from the cache, without updating Element statistics. Cache statistics are
-     * still updated.
+     * also not updated.
      * <p/>
      *
      * @param key a serializable value
@@ -627,13 +628,14 @@ public interface Ehcache extends Cloneable {
     /**
      * Sets the CacheManager
      *
-     * @param cacheManager
+     * @param cacheManager the CacheManager for this cache to use.
      */
     void setCacheManager(CacheManager cacheManager);
 
 
     /**
      * Accessor for the BootstrapCacheLoader associated with this cache. For testing purposes.
+     * @return the BootstrapCacheLoader to use
      */
     BootstrapCacheLoader getBootstrapCacheLoader();
 

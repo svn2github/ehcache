@@ -188,7 +188,7 @@ public class Cache implements Ehcache {
 
     private RegisteredEventListeners registeredEventListeners;
 
-    private final String guid = new StringBuffer() .append(localhost) .append("-").append(new UID()).toString();
+    private final String guid = new StringBuffer().append(localhost).append("-").append(new UID()).toString();
 
     private CacheManager cacheManager;
 
@@ -210,12 +210,12 @@ public class Cache implements Ehcache {
      * of the expiry thread, where it checks the disk store for expired elements. It is not the
      * the timeToLiveSeconds.
      *
-     * @param name                Cache name
-     * @param maxElementsInMemory Max elements in memory
-     * @param overflowToDisk      Overflow to disk (boolean)
-     * @param eternal             Whether the elements expire
-     * @param timeToLiveSeconds
-     * @param timeToIdleSeconds
+     * @param name                      the name of the cache
+     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted
+     * @param overflowToDisk            whether to use the disk store
+     * @param eternal                   whether the elements in the cache are eternal, i.e. never expire
+     * @param timeToLiveSeconds         the default amount of time to live for an element from its creation date
+     * @param timeToIdleSeconds         the default amount of time to live for an element from its last accessed or modified date
      * @since 1.0
      */
     public Cache(String name, int maxElementsInMemory, boolean overflowToDisk,
@@ -235,14 +235,14 @@ public class Cache implements Ehcache {
      * <p/>
      * Only the CacheManager can initialise them.
      *
-     * @param name
-     * @param maxElementsInMemory
-     * @param overflowToDisk
-     * @param eternal
-     * @param timeToLiveSeconds
-     * @param timeToIdleSeconds
-     * @param diskPersistent
-     * @param diskExpiryThreadIntervalSeconds
+     * @param name                      the name of the cache
+     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted
+     * @param overflowToDisk            whether to use the disk store
+     * @param eternal                   whether the elements in the cache are eternal, i.e. never expire
+     * @param timeToLiveSeconds         the default amount of time to live for an element from its creation date
+     * @param timeToIdleSeconds         the default amount of time to live for an element from its last accessed or modified date
+     * @param diskPersistent            whether to persist the cache to disk between JVM restarts
+     * @param diskExpiryThreadIntervalSeconds how often to run the disk store expiry thread. A large number of 120 seconds plus is recommended
      *
      * @since 1.1
      */
@@ -271,16 +271,16 @@ public class Cache implements Ehcache {
      * <p/>
      * Only the CacheManager can initialise them.
      *
-     * @param name
-     * @param maxElementsInMemory
+     * @param name                      the name of the cache
+     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted
      * @param memoryStoreEvictionPolicy one of LRU, LFU and FIFO. Optionally null, in which case it will be set to LRU.
-     * @param overflowToDisk
+     * @param overflowToDisk            whether to use the disk store
      * @param diskStorePath             the directory to be used a disk store path. Uses java.io.tmpdir if the argument is null.
-     * @param eternal
-     * @param timeToLiveSeconds
-     * @param timeToIdleSeconds
-     * @param diskPersistent
-     * @param diskExpiryThreadIntervalSeconds
+     * @param eternal                   whether the elements in the cache are eternal, i.e. never expire
+     * @param timeToLiveSeconds         the default amount of time to live for an element from its creation date
+     * @param timeToIdleSeconds         the default amount of time to live for an element from its last accessed or modified date
+     * @param diskPersistent            whether to persist the cache to disk between JVM restarts
+     * @param diskExpiryThreadIntervalSeconds how often to run the disk store expiry thread. A large number of 120 seconds plus is recommended
      *
      * @param registeredEventListeners  a notification service. Optionally null, in which case a new
      *                                  one with no registered listeners will be created.
@@ -322,20 +322,18 @@ public class Cache implements Ehcache {
      * <p/>
      * Only the CacheManager can initialise them.
      *
-     * @param name
-     * @param maxElementsInMemory
+     * @param name                      the name of the cache
+     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted
      * @param memoryStoreEvictionPolicy one of LRU, LFU and FIFO. Optionally null, in which case it will be set to LRU.
-     * @param overflowToDisk
+     * @param overflowToDisk            whether to use the disk store
      * @param diskStorePath             the directory to be used a disk store path. Uses java.io.tmpdir if the argument is null.
-     * @param eternal
-     * @param timeToLiveSeconds
-     * @param timeToIdleSeconds
-     * @param diskPersistent
-     * @param diskExpiryThreadIntervalSeconds
-     *
-     * @param bootstrapCacheLoader
-     * @param registeredEventListeners  a notification service. Optionally null, in which case a new
-     *                                  one with no registered listeners will be created.
+     * @param eternal                   whether the elements in the cache are eternal, i.e. never expire
+     * @param timeToLiveSeconds         the default amount of time to live for an element from its creation date
+     * @param timeToIdleSeconds         the default amount of time to live for an element from its last accessed or modified date
+     * @param diskPersistent            whether to persist the cache to disk between JVM restarts
+     * @param diskExpiryThreadIntervalSeconds how often to run the disk store expiry thread. A large number of 120 seconds plus is recommended
+     * @param registeredEventListeners  a notification service. Optionally null, in which case a new one with no registered listeners will be created.
+     * @param bootstrapCacheLoader      the BootstrapCacheLoader to use to populate the cache when it is first initialised. Null if none is required.
      * @since 1.2.1
      */
     public Cache(String name,
@@ -469,8 +467,8 @@ public class Cache implements Ehcache {
                         Cache.this.shutdownHook = null;
 
                         if (LOG.isDebugEnabled()) {
-                        LOG.debug("VM shutting down with the disk store for " + name
-                                + " still active. The disk store is persistent. Calling dispose...");
+                            LOG.debug("VM shutting down with the disk store for " + name
+                                    + " still active. The disk store is persistent. Calling dispose...");
                         }
                         dispose();
                     }
@@ -678,7 +676,7 @@ public class Cache implements Ehcache {
 
     /**
      * Gets an element from the cache, without updating Element statistics. Cache statistics are
-     * still updated.
+     * not updated.
      * <p/>
      *
      * @param key a serializable value
@@ -695,17 +693,7 @@ public class Cache implements Ehcache {
         if (element == null && overflowToDisk) {
             element = searchInDiskStore(key, false);
         }
-
-        if (element == null) {
-            missCountNotFound++;
-            if (LOG.isTraceEnabled()) {
-                LOG.trace(name + " cache - Miss");
-            }
-            return null;
-        } else {
-            hitCount++;
-            return element;
-        }
+        return element;
     }
 
     /**
@@ -871,7 +859,7 @@ public class Cache implements Ehcache {
      * Also notifies the CacheEventListener after the element was removed, but only if an Element
      * with the key actually existed.
      *
-     * @param key
+     * @param key the element key to operate on
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
@@ -886,7 +874,7 @@ public class Cache implements Ehcache {
      * Also notifies the CacheEventListener after the element was removed, but only if an Element
      * with the key actually existed.
      *
-     * @param key
+     * @param key the element key to operate on
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @since 1.2
@@ -903,7 +891,7 @@ public class Cache implements Ehcache {
      * Also notifies the CacheEventListener after the element was removed, but only if an Element
      * with the key actually existed.
      *
-     * @param key
+     * @param key the element key to operate on
      * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
      *                                    further notification to doNotNotifyCacheReplicators cache peers
      * @return true if the element was removed, false if it was not found in the cache
@@ -921,7 +909,7 @@ public class Cache implements Ehcache {
      * Also notifies the CacheEventListener after the element was removed, but only if an Element
      * with the key actually existed.
      *
-     * @param key
+     * @param key the element key to operate on
      * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
      *                                    further notification to doNotNotifyCacheReplicators cache peers
      * @return true if the element was removed, false if it was not found in the cache
@@ -936,7 +924,7 @@ public class Cache implements Ehcache {
      * stores it may be in.
      * <p/>
      *
-     * @param key
+     * @param key the element key to operate on
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
@@ -949,7 +937,7 @@ public class Cache implements Ehcache {
      * stores it may be in.
      * <p/>
      *
-     * @param key
+     * @param key the element key to operate on
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @since 1.2
@@ -969,17 +957,17 @@ public class Cache implements Ehcache {
      * If a remove was called, listeners are notified, regardless of whether the element existed or not.
      * This allows distributed cache listeners to remove elements from a cluster regardless of whether they
      * existed locally.
-     * @param key
+     *
+     * @param key the element key to operate on
      * @param expiry                      if the reason this method is being called is to expire the element
      * @param notifyListeners             whether to notify listeners
      * @param doNotNotifyCacheReplicators whether not to notify cache replicators
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
-     * todo test 
      */
     private synchronized boolean remove(Object key, boolean expiry, boolean notifyListeners,
                                         boolean doNotNotifyCacheReplicators)
-            throws IllegalStateException, CacheException {
+            throws IllegalStateException {
         checkStatus();
         boolean removed = false;
         Element elementFromMemoryStore;
@@ -1230,7 +1218,7 @@ public class Cache implements Ehcache {
      * Sets the cache name which will name.
      *
      * @param name the name of the cache. Should not be null. Should also not contain any '/' characters, as these interfere
-     * with distribution
+     *             with distribution
      * @throws IllegalArgumentException if an illegal name is used.
      */
     public final void setName(String name) throws IllegalArgumentException {
@@ -1365,8 +1353,7 @@ public class Cache implements Ehcache {
         }
         Cache copy = (Cache) super.clone();
         RegisteredEventListeners registeredEventListenersFromCopy = copy.getCacheEventNotificationService();
-        if (registeredEventListenersFromCopy == null || registeredEventListenersFromCopy.getCacheEventListeners().size() == 0)
-        {
+        if (registeredEventListenersFromCopy == null || registeredEventListenersFromCopy.getCacheEventListeners().size() == 0) {
             copy.registeredEventListeners = new RegisteredEventListeners(copy);
         } else {
             copy.registeredEventListeners = new RegisteredEventListeners(copy);
@@ -1390,6 +1377,7 @@ public class Cache implements Ehcache {
      * Gets the internal DiskStore.
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     * @return the DiskStore referenced by this cache
      */
     final DiskStore getDiskStore() throws IllegalStateException {
         checkStatus();
@@ -1400,6 +1388,7 @@ public class Cache implements Ehcache {
      * Gets the internal MemoryStore.
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     * @return the MemoryStore referenced by this cache
      */
     final MemoryStore getMemoryStore() throws IllegalStateException {
         checkStatus();
@@ -1553,11 +1542,7 @@ public class Cache implements Ehcache {
      * @return true if an Element matching the key is found in the cache. No assertions are made about the state of the Element.
      */
     public boolean isKeyInCache(Object key) {
-        if (isElementInMemory(key)) {
-            return true;
-        } else {
-            return isElementOnDisk(key);
-        }
+        return isElementInMemory(key) || isElementOnDisk(key);
     }
 
     /**
@@ -1602,9 +1587,9 @@ public class Cache implements Ehcache {
     }
 
     /**
-     * Package local setter for use by CacheManager
+     * For use by CacheManager. 
      *
-     * @param cacheManager
+     * @param cacheManager the CacheManager for this cache to use.
      */
     public void setCacheManager(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
@@ -1648,6 +1633,7 @@ public class Cache implements Ehcache {
 
     /**
      * An equals method which follows the contract of {@link Object#equals(Object)}
+     *
      * @param object the reference object with which to compare.
      * @return <code>true</code> if this object is the same as the obj
      *         argument; <code>false</code> otherwise. Same for a Cache means, the same GUID

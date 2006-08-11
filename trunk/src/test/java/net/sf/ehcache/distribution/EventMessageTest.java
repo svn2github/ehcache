@@ -33,7 +33,6 @@ import net.sf.ehcache.Element;
 
 /**
  * Tests Serialization and SoftReferences in EventMessage
- * todo test all fields
  *
  * @author Greg Luck
  * @version $Id$
@@ -77,16 +76,17 @@ public class EventMessageTest extends TestCase {
         oos.writeObject(eventMessage);
         byte[] serializedValue = bout.toByteArray();
         oos.close();
-        EventMessage afterDeserializationStatistics = null;
+        EventMessage eventMessage2 = null;
         ByteArrayInputStream bin = new ByteArrayInputStream(serializedValue);
         ObjectInputStream ois = new ObjectInputStream(bin);
-        afterDeserializationStatistics = (EventMessage) ois.readObject();
+        eventMessage2 = (EventMessage) ois.readObject();
         ois.close();
 
         //Check after Serialization
-        assertEquals("key", afterDeserializationStatistics.getSerializableKey());
-        assertEquals("element", afterDeserializationStatistics.getElement().getObjectValue());
-        assertEquals(EventMessage.PUT, afterDeserializationStatistics.getEvent());
+        assertEquals("key", eventMessage2.getSerializableKey());
+        assertEquals("element", eventMessage2.getElement().getObjectValue());
+        assertEquals(EventMessage.PUT, eventMessage2.getEvent());
+        assertTrue(eventMessage2.isValid());
 
     }
 

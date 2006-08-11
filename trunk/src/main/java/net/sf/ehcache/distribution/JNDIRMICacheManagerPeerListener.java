@@ -17,7 +17,6 @@ package net.sf.ehcache.distribution;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Status;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -33,7 +32,7 @@ import java.util.Iterator;
  * A cache server which exposes available cache operations remotely through RMI.
  * Uses JNDI to bind the remote cache.
  *
- * @author Andy McNutt
+ * @author Andy McNutt                                                                                                           
  * @author Greg Luck
  * @version $Id$
  * @see RMICacheManagerPeerListener
@@ -43,7 +42,15 @@ public class JNDIRMICacheManagerPeerListener extends RMICacheManagerPeerListener
     private static final Log LOG = LogFactory.getLog(JNDIRMICacheManagerPeerListener.class.getName());
 
     /**
-     * Constructor
+     * Constructor with full arguments.
+     *
+     * @param hostName            may be null, in which case the hostName will be looked up. Machines with multiple
+     *                            interfaces should specify this if they do not want it to be the default NIC.
+     * @param port                a port in the range 1025 - 65536
+     * @param cacheManager        the CacheManager this listener belongs to
+     * @param socketTimeoutMillis TCP/IP Socket timeout when waiting on response
+     *                            Constructor
+     * @throws java.net.UnknownHostException
      * @see RMICacheManagerPeerListener
      */
     public JNDIRMICacheManagerPeerListener(String hostName, Integer port, CacheManager cacheManager, Integer socketTimeoutMillis)
@@ -77,10 +84,10 @@ public class JNDIRMICacheManagerPeerListener extends RMICacheManagerPeerListener
     }
 
 
-
     /**
-     * @return
-     * @throws NamingException
+     * Gets the initial context
+     * @return an initial context
+     * @throws NamingException if JNDI goes wrong
      */
     private Context getInitialContext() throws NamingException {
         String initialContextFactory = System.getProperty(Context.INITIAL_CONTEXT_FACTORY);
@@ -95,27 +102,17 @@ public class JNDIRMICacheManagerPeerListener extends RMICacheManagerPeerListener
     }
 
     /**
-     * Stop the listener. It
-     * <ul>
-     * <li>unexports Remote objects
-     * <li>unbinds the objects from JNDI
-     * </ul>
+     * Disposes an individual RMICachePeer. This consists of:
+     * <ol>
+     * <li>Unbinding the peer from the naming service
+     * <li>Unexporting the peer
+     * </ol>
+     * @param rmiCachePeer  the cache peer to dispose of
+     * @throws Exception thrown if something goes wrong
      */
-    public void dispose() throws CacheException {
-        try {
-            int counter = 0;
-            Context initialContext = getInitialContext();
-            for (Iterator iterator = cachePeers.values().iterator(); iterator.hasNext();) {
-                RMICachePeer rmiCachePeer = (RMICachePeer) iterator.next();
-                UnicastRemoteObject.unexportObject(rmiCachePeer, false);
-                initialContext.unbind(rmiCachePeer.getName());
-            }
-            LOG.debug(counter + " RMICachePeers unbound from JNDI in RMI listener");
-            status = Status.STATUS_SHUTDOWN;
-        } catch (Exception e) {
-            throw new CacheException("Problem unbinding remote cache peers. Error was " + e.getMessage(), e);
-        } finally {
-            removeShutdownHook();
-        }
+    protected void disposeRMICachePeer(RMICachePeer rmiCachePeer) throws Exception {
+        getInitialContext().unbind(rmiCachePeer.getName());
+        UnicastRemoteObject.unexportObject(rmiCachePeer, false);
     }
+
 }

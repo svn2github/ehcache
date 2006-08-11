@@ -670,6 +670,34 @@ public class CacheTest extends AbstractCacheTest {
     }
 
     /**
+     * Test cache statistics, including get and getQuiet
+     */
+    public void testCacheStatistics() throws Exception {
+        //Set size so the second element overflows to disk.
+        Cache cache = new Cache("test", 1, true, false, 5, 2);
+        manager.addCache(cache);
+        cache.put(new Element("key1", "value1"));
+        cache.put(new Element("key2", "value1"));
+
+        Element element1 = cache.get("key1");
+        assertEquals("Should be one", 1, element1.getHitCount());
+        assertEquals("Should be one", 1, cache.getHitCount());
+        element1 = cache.getQuiet("key1");
+        assertEquals("Should be one", 1, element1.getHitCount());
+        assertEquals("Should be one", 1, cache.getHitCount());
+        element1 = cache.get("key1");
+        assertEquals("Should be two", 2, element1.getHitCount());
+        assertEquals("Should be two", 2, cache.getHitCount());
+
+
+        assertEquals("Should be 0", 0, cache.getMissCountNotFound());
+        cache.get("doesnotexist");
+        assertEquals("Should be 1", 1, cache.getMissCountNotFound());
+
+
+    }
+
+    /**
      * Checks that getQuiet works how we expect it to
      *
      * @throws Exception
@@ -1315,8 +1343,6 @@ public class CacheTest extends AbstractCacheTest {
         assertTrue(!guid1.equals(guid2));
 
     }
-
-
 
 
     /**
