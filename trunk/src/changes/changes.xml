@@ -21,6 +21,9 @@
                 Change Cache#getQuiet so that cache statistics are not updated. This is a sensible
                 API change and probably always should have worked this way.
             </action>
+            <action dev="Greg Luck" type="update">
+                Open up some classes by removing final keyword and changing the constructors to public.
+            </action>
 
             <!-- Reported Bug fixes -->
             <action dev="Greg Luck" issue="1532610" type="fix">
@@ -50,6 +53,8 @@
                 If you put an Element with overridden TTL and TTI values and then replace it
                 with an Element with defaults, the new Element lives forever. putQuiet is not
                 affected by this bug. Thanks to Pete at Goodtech for finding this one.
+                Note that a symptom of this bug for caches that overflow to disk is an endlessly
+                growing .data file for the Cache.
             </action>
             <action dev="Greg Luck" type="fix">
                 Reduce the memory used by flushSpool() in DiskStore.

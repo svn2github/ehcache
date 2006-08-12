@@ -53,6 +53,7 @@ import java.util.Set;
  *
  * @author Greg Luck
  * @version $Id$
+ * todo include test-jar in next release
  */
 public class Cache implements Ehcache {
 
@@ -1107,7 +1108,8 @@ public class Cache implements Ehcache {
     }
 
     /**
-     * Gets the size of the memory store for this cache
+     * Gets the size of the memory store for this cache. This method relies on calculating
+     * Serialized sizes. If the Element values are not Serializable they will show as zero.
      * <p/>
      * Warning: This method can be very expensive to run. Allow approximately 1 second
      * per 1MB of entries. Running this method could create liveness problems

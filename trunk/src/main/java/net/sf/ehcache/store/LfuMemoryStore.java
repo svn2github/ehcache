@@ -32,10 +32,10 @@ import java.util.Random;
  * <p/>
  * Instead this implementation does not quarantee that
  * the element removed will actually be the least used. Rather, it lets you make statements about confidence intervals
- *  against the likelihood that an element is in some lowest percentile of the hit count distribution. Costs are only
+ * against the likelihood that an element is in some lowest percentile of the hit count distribution. Costs are only
  * incurred on overflow when an element to be evicted must be selected.
  * <p/>
- * * For those with a statistical background the branch of stats which deals with this is hypothesis testing and
+ * For those with a statistical background the branch of stats which deals with this is hypothesis testing and
  * the Student's T distribution. The higher your sample the greater confidence you can have in a hypothesis, in
  * this case whether or not the "lowest" value lies in the bottom half or quarter of the distribution. Adding
  * samples rapidly increases confidence but the return from extra sampling rapidly diminishes.
@@ -48,7 +48,6 @@ import java.util.Random;
  *
  * @author Greg Luck
  * @version $Id$
- *          Warning: Testing of this store reveals some problems with it. Do not use. It may be removed.
  */
 public final class LfuMemoryStore extends MemoryStore {
 

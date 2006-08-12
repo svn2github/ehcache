@@ -439,6 +439,7 @@ public final class Element implements Serializable, Cloneable {
      * @return The serialized size in bytes
      */
     public final long getSerializedSize() {
+
         if (!isSerializable()) {
             return 0;
         }
@@ -549,7 +550,6 @@ public final class Element implements Serializable, Cloneable {
         } else {
             expirationTime = Math.min(ttlExpiry, ttiExpiry);
         }
-
         return expirationTime;
     }
 

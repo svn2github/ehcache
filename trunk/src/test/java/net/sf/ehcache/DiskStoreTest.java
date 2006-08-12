@@ -627,6 +627,43 @@ public class DiskStoreTest extends AbstractCacheTest {
     }
 
     /**
+     * Checks that the expiry thread runs and expires elements which has the effect
+     * of preventing the disk store from continously growing.
+     * Ran for 6 hours through 10000 outer loops. No memory use increase.
+     * Using a key of "key" + i * outer) you get early slots that cannot be reused. The DiskStore
+     * actual size therefore starts at 133890 and ends at 616830. There is quite a lot of space
+     * that cannot be used because of fragmentation. Question? Should an effort be made to coalesce
+     * fragmented space? Unlikely in production to get contiguous fragments as in the first form
+     * of this test.
+     *
+     * Using a key of new Integer(i * outer) the size stays constant at 140800.
+     *
+     *
+     * @throws InterruptedException
+     */
+    public void testExpiryWithSize() throws InterruptedException {
+        DiskStore diskStore = createDiskStore();
+        diskStore.removeAll();
+
+        byte[] data = new byte[1024];
+        for (int outer = 1; outer <= 10; outer++) {
+            for (int i = 0; i < 100; i++) {
+                Element element = new Element(new Integer(i * outer), data);
+                element.setTimeToLive(1);
+                diskStore.put(element);
+            }
+            waitForFlush(diskStore);
+            int predictedSize = 140800;
+            long actualSize = diskStore.getDataFileSize();
+            LOG.info("Predicted Size: " + predictedSize + " Actual Size: " + actualSize);
+            assertEquals(predictedSize, actualSize);
+            LOG.info("Memory Use: " + measureMemoryUse());
+        }
+
+
+    }
+
+    /**
      * Waits for all spooled elements to be written to disk.
      */
     private static void waitForFlush(DiskStore diskStore) throws InterruptedException {

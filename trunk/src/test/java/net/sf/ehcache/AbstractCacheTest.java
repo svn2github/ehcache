@@ -98,7 +98,7 @@ public abstract class AbstractCacheTest extends TestCase {
      */
     protected long measureMemoryUse() throws InterruptedException {
         System.gc();
-        Thread.sleep(3000);
+        Thread.sleep(2000);
         System.gc();
         return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
     }

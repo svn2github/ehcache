@@ -52,7 +52,7 @@ import java.util.List;
  * @author Greg Luck
  * @version $Id$
  */
-public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicator {
+public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicator {
 
     /**
      * The amount of time the replication thread sleeps after it detects the replicationQueue is empty
@@ -80,7 +80,7 @@ public final class RMIAsynchronousCacheReplicator extends RMISynchronousCacheRep
      * @param replicateUpdatesViaCopy
      * @param replicateRemovals
      */
-    protected RMIAsynchronousCacheReplicator(
+    public RMIAsynchronousCacheReplicator(
             boolean replicatePuts,
             boolean replicateUpdates,
             boolean replicateUpdatesViaCopy,

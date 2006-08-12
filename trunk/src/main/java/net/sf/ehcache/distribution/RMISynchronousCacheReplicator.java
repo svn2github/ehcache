@@ -77,7 +77,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
      * @param replicateUpdatesViaCopy
      * @param replicateRemovals
      */
-    protected RMISynchronousCacheReplicator(
+    public RMISynchronousCacheReplicator(
             boolean replicatePuts,
             boolean replicateUpdates,
             boolean replicateUpdatesViaCopy,
@@ -123,6 +123,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
      * Does the actual RMI remote call
      *
      * @param element
+     * @param cache
      * @throws RemoteCacheException if anything goes wrong with the remote call
      */
     private static void replicatePutNotification(Ehcache cache, Element element) throws RemoteCacheException {
@@ -216,6 +217,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
      * Does the actual RMI remote call
      *
      * @param key
+     * @param cache
      * @throws RemoteCacheException if anything goes wrong with the remote call
      */
     private static void replicateRemovalNotification(Ehcache cache, Serializable key) throws RemoteCacheException {
@@ -234,6 +236,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
      * Package protected List of cache peers
      *
      * @param cache
+     * @return
      */
     static List listRemoteCachePeers(Ehcache cache) {
         CacheManagerPeerProvider provider = cache.getCacheManager().getCachePeerProvider();

@@ -856,7 +856,7 @@ public class DiskStore implements Store {
                 return;
             } catch (Throwable t) {
                 LOG.warn(name + "Cache: Expiry thread throwable caught. Message was: "
-                        + t.getMessage() + ". Contimuing...", t);
+                        + t.getMessage() + ". Continuing...", t);
             }
         }
     }

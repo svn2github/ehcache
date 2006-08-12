@@ -331,6 +331,7 @@ public abstract class MemoryStore implements Store {
 
     /**
      * Measures the size of the memory store by measuring the serialized size of all elements.
+     * If the objects are not Serializable they count as 0. 
      * <p/>
      * Warning: This method can be very expensive to run. Allow approximately 1 second
      * per 1MB of entries. Running this method could create liveness problems
