@@ -1,4 +1,4 @@
-<ehcache>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../main/config/ehcache.xsd">
 
     <!--
         Sets the path to the directory where cache data and index files are created.

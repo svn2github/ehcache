@@ -241,3 +241,22 @@ socketTimeoutMillis=2000"/>
     </cache>
 --------------------------------------------
 
+* Common Problems
+
+** Tomcat on Windows
+
+  There is a bug in Tomcat and/or the JDK where any RMI listener will fail to start on Tomcat if
+  the installation path has spaces in it. See http://archives.java.sun.com/cgi-bin/wa?A2=ind0205&L=rmi-users&P=797
+  and http://www.ontotext.com/kim/doc/sys-doc/faq-howto-bugs/known-bugs.html.
+
+  As the default on Windows is to install Tomcat in "Program Files", this issue will occur by default.
+
+** Multicast Blocking
+
+  The automatic peer discovery process relies on multicast. Multicast can be blocked by routers.
+  Virtualisation technologies like Xen and VMWare may be blocking multicast. If so enable it.
+  You may also need to turn it on in the configuration for your network interface card.
+
+  An easy way to tell if your mutlicast is getting through is to use the ehcache remote debugger
+  and watch for the heartbeat packets to arrive.
+

@@ -20,6 +20,8 @@ import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -35,6 +37,7 @@ import java.util.ArrayList;
  * @author Greg Luck
  */
 final class BeanHandler extends DefaultHandler {
+    private static final Log LOG = LogFactory.getLog(BeanHandler.class.getName());
     private final Object bean;
     private ElementInfo element;
     private Locator locator;
@@ -203,6 +206,14 @@ final class BeanHandler extends DefaultHandler {
                 final Object realValue = convert(method.getParameterTypes()[0], attrValue);
                 method.invoke(element.bean, new Object[]{realValue});
                 return;
+            } else {
+                //allow references to an XML schema but do not use it
+                if (element.elementName.equals("ehcache")) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Ignoring ehcache attribute " + attrName);
+                    }
+                    return;
+                }
             }
         } catch (final InvocationTargetException e) {
             throw new SAXException(getLocation() + ": Could not set attribute \"" + attrName + "\"."

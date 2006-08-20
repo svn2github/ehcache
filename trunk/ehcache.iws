@@ -18,18 +18,49 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.ipr" afterPath="$PROJECT_DIR$/ehcache.ipr" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMIAsynchronousCacheReplicator.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMIAsynchronousCacheReplicator.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Element.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Element.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-manual-distributed2.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-manual-distributed2.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-manual-distributed1.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-manual-distributed1.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iml" afterPath="$PROJECT_DIR$/ehcache.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/documentation/faq.apt" afterPath="$PROJECT_DIR$/src/site/apt/documentation/faq.apt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/ehcache-2.xml" afterPath="$PROJECT_DIR$/src/test/resources/ehcache-2.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/config/ehcache.xml" afterPath="$PROJECT_DIR$/src/main/config/ehcache.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed3.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed3.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/ehcache-unloadablecachemanagerlistenerclass.xml" afterPath="$PROJECT_DIR$/src/test/resources/ehcache-unloadablecachemanagerlistenerclass.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/ehcache-nolisteners.xml" afterPath="$PROJECT_DIR$/src/test/resources/ehcache-nolisteners.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/ehcache-policy-test.xml" afterPath="$PROJECT_DIR$/src/test/resources/ehcache-policy-test.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/ehcache-big.xml" afterPath="$PROJECT_DIR$/src/test/resources/ehcache-big.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/Configuration.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/Configuration.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/documentation/distributed_caching.apt" afterPath="$PROJECT_DIR$/src/site/apt/documentation/distributed_caching.apt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed6.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed6.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-florian.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-florian.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/ehcache-disk.xml" afterPath="$PROJECT_DIR$/src/test/resources/ehcache-disk.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed4.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed4.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi6.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi6.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/ehcache-nodefault.xml" afterPath="$PROJECT_DIR$/src/test/resources/ehcache-nodefault.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/config/ehcache.xsd" afterPath="$PROJECT_DIR$/src/main/config/ehcache.xsd" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi3.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi3.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/BeanHandler.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/BeanHandler.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed1.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed1.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi1.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi1.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-manual-distributed3.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-manual-distributed3.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/ehcache-1_1.xml" afterPath="$PROJECT_DIR$/src/test/resources/ehcache-1_1.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi2.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi2.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi4.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi4.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed2.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed2.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/ehcache.xml" afterPath="$PROJECT_DIR$/src/test/resources/ehcache.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-bad-manual-distributed.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-bad-manual-distributed.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMISynchronousCacheReplicator.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMISynchronousCacheReplicator.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/changes/changes.xml" afterPath="$PROJECT_DIR$/src/changes/changes.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed5.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed5.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/LfuMemoryStore.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/LfuMemoryStore.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/AbstractCacheTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/AbstractCacheTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/ehcache-countinglisteners.xml" afterPath="$PROJECT_DIR$/src/test/resources/ehcache-countinglisteners.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-no-caches-replicating.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-no-caches-replicating.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/ehcache-nodisk.xml" afterPath="$PROJECT_DIR$/src/test/resources/ehcache-nodisk.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi5.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi5.xml" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -303,6 +334,19 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ConfigurationFactory.java" line="68" class="net.sf.ehcache.config.ConfigurationFactory" package="net.sf.ehcache.config">
+        <option name="ENABLED" value="true" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
     </line_breakpoints>
     <breakpoint_any>
       <breakpoint>
@@ -391,43 +435,7 @@
       <file leaf-file-name="Cache.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="56" column="16" selection-start="2205" selection-end="2205" vertical-scroll-proportion="0.3037215">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="BlockingCache.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="594" column="25" selection-start="22026" selection-end="22026" vertical-scroll-proportion="0.44417766">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ehcache.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/resources/ehcache.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="201" column="0" selection-start="12339" selection-end="12339" vertical-scroll-proportion="0.3889556">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ehcache.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/config/ehcache.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="352" column="26" selection-start="15033" selection-end="15033" vertical-scroll-proportion="0.620283">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="LfuMemoryStore.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/LfuMemoryStore.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="34" column="3" selection-start="1333" selection-end="1333" vertical-scroll-proportion="0.18396227">
+            <state line="57" column="48" selection-start="2331" selection-end="2331" vertical-scroll-proportion="0.3457383">
               <folding />
             </state>
           </provider>
@@ -436,25 +444,7 @@
       <file leaf-file-name="changes.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="51" column="50" selection-start="2679" selection-end="2686" vertical-scroll-proportion="0.20168068">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DiskStore.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="897" column="26" selection-start="30703" selection-end="30703" vertical-scroll-proportion="0.28537735">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Element.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Element.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="535" column="0" selection-start="16457" selection-end="16457" vertical-scroll-proportion="0.18487395">
+            <state line="3" column="52" selection-start="87" selection-end="87" vertical-scroll-proportion="0.043217286">
               <folding />
             </state>
           </provider>
@@ -463,16 +453,70 @@
       <file leaf-file-name="DiskStoreTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="629" column="38" selection-start="21649" selection-end="21649" vertical-scroll-proportion="0.13443395">
+            <state line="712" column="16" selection-start="24799" selection-end="24799" vertical-scroll-proportion="0.034198113">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AbstractCacheTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/AbstractCacheTest.java">
+      <file leaf-file-name="MemoryStore.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="100" column="22" selection-start="2659" selection-end="2659" vertical-scroll-proportion="0.24056605">
+            <state line="326" column="19" selection-start="10447" selection-end="10447" vertical-scroll-proportion="0.17570755">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RMICachePeer.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICachePeer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="164" column="16" selection-start="5523" selection-end="5523" vertical-scroll-proportion="0.20990565">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RMICacheReplicatorTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="1148" column="17" selection-start="41042" selection-end="41042" vertical-scroll-proportion="0.29411766">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Random.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/Random.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="247" column="106" selection-start="10376" selection-end="10376" vertical-scroll-proportion="0.20400943">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BlockingCache.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="89" column="13" selection-start="4094" selection-end="4094" vertical-scroll-proportion="-10.472989">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ConcurrencyUtil.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/concurrent/ConcurrencyUtil.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="26" column="19" selection-start="932" selection-end="932" vertical-scroll-proportion="0.16981132">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ehcache-distributed1.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed1.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="-2.8811524">
               <folding />
             </state>
           </provider>
@@ -614,6 +658,40 @@
           <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache.ipr" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources/distribution" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
       </PATH>
       <PATH>
         <PATH_ELEMENT>
@@ -692,6 +770,48 @@
         </PATH_ELEMENT>
         <PATH_ELEMENT>
           <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache.ipr" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf/ehcache" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf/ehcache/config" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
@@ -962,6 +1082,52 @@
           <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache/config" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache.ipr" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/config" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
       </PATH>
       <PATH>
         <PATH_ELEMENT>
@@ -984,7 +1150,7 @@
     </subPane>
   </component>
   <component name="ProjectReloadState">
-    <option name="STATE" value="2" />
+    <option name="STATE" value="0" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="0.11111111" version="1" splitterProportion="0.5">
@@ -994,7 +1160,7 @@
       <showLibraryContents />
       <hideEmptyPackages ProjectPane="false" />
       <abbreviatePackageNames />
-      <showStructure ProjectPane="false" PackagesPane="false" Favorites="false" />
+      <showStructure Favorites="false" PackagesPane="false" ProjectPane="false" />
       <autoscrollToSource ProjectPane="false" />
       <autoscrollFromSource />
       <sortByType />
@@ -1026,14 +1192,14 @@
     <property name="RunManagerConfig.compileBeforeRunning" value="true" />
     <property name="cvs_file_history_flatWidth6" value="214" />
     <property name="cvs_file_history_flatOrder0" value="0" />
-    <property name="cvs_file_history_treeWidth4" value="212" />
     <property name="cvs_file_history_treeOrder3" value="3" />
+    <property name="cvs_file_history_treeWidth4" value="212" />
     <property name="cvs_file_history_treeWidth6" value="211" />
     <property name="last_opened_file_path" value="/Users/gluck/Desktop" />
     <property name="cvs_file_history_flatOrder5" value="5" />
     <property name="cvs_file_history_flatWidth5" value="214" />
-    <property name="cvs_file_history_treeWidth3" value="370" />
     <property name="cvs_file_history_treeOrder2" value="2" />
+    <property name="cvs_file_history_treeWidth3" value="370" />
     <property name="cvs_file_history_treeWidth5" value="212" />
     <property name="cvs_file_history_flatOrder6" value="6" />
     <property name="cvs_file_history_flatWidth0" value="370" />
@@ -1074,15 +1240,15 @@
     <option name="referencePos" value="0" />
   </component>
   <component name="RestoreUpdateTree" />
-  <component name="RunManager" selected="JUnit.DiskStoreTest.testExpiryWithSize">
-    <tempConfiguration default="false" name="DiskStoreTest.testExpiryWithSize" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
-      <pattern value="net.sf.ehcache.*" />
+  <component name="RunManager" selected="JUnit.RMICacheReplicatorTest.testBigPutsProgagatesAynchronousMultiThreaded">
+    <tempConfiguration default="false" name="RMICacheReplicatorTest.testBigPutsProgagatesAynchronousMultiThreaded" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+      <pattern value="net.sf.ehcache.distribution.*" />
       <module name="ehcache" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
-      <option name="PACKAGE_NAME" value="net.sf.ehcache" />
-      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.DiskStoreTest" />
-      <option name="METHOD_NAME" value="testExpiryWithSize" />
+      <option name="PACKAGE_NAME" value="net.sf.ehcache.distribution" />
+      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.distribution.RMICacheReplicatorTest" />
+      <option name="METHOD_NAME" value="testBigPutsProgagatesAynchronousMultiThreaded" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="" />
       <option name="PARAMETERS" value="" />
@@ -1091,43 +1257,12 @@
       <option name="TEST_SEARCH_SCOPE">
         <value defaultName="wholeProject" />
       </option>
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="55439" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="true" />
-      </RunnerSettings>
       <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Debug" />
       <ConfigurationWrapper RunnerId="Run" />
       <method>
         <option name="Make" value="true" />
       </method>
     </tempConfiguration>
-    <configuration default="true" type="Application" factoryName="Application" enabled="false" merge="false">
-      <option name="MAIN_CLASS_NAME" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <module name="" />
-      <method>
-        <option name="Make" value="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-    </configuration>
     <configuration default="true" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local">
       <option name="WORKING_DIRECTORY" />
       <option name="HOST" value="localhost" />
@@ -1138,19 +1273,6 @@
       <option name="COMMON_VM_ARGUMENTS" value="" />
       <option name="DEPLOY_TOMCAT_MANAGER" value="false" />
       <option name="BASE_DIRECTORY_NAME" value="" />
-    </configuration>
-    <configuration default="true" type="#com.intellij.j2ee.web.jsr45.JSR45ConfigurationFactory" factoryName="Local">
-      <option name="WORKING_DIRECTORY" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="80" />
-      <option name="LOCAL" value="true" />
-      <option name="OPEN_IN_BROWSER" value="true" />
-      <option name="OPEN_IN_BROWSER_URL" value="/" />
-      <option name="COMMON_VM_ARGUMENTS" value="" />
-      <option name="JSP_PACKAGE" value="" />
-      <option name="VM_OPTS" value="" />
-      <option name="USE_WEBSPHERE51_LINEMAPPING_MODEL" value="false" />
-      <option name="LOCAL_PORT" value="80" />
     </configuration>
     <configuration default="true" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
       <module name="ehcache" />
@@ -1171,12 +1293,18 @@
         <option name="Make" value="true" />
       </method>
     </configuration>
-    <configuration default="true" type="Remote" factoryName="Remote">
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" value="javadebug" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="5005" />
+    <configuration default="true" type="Application" factoryName="Application" enabled="false" merge="false">
+      <option name="MAIN_CLASS_NAME" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <module name="" />
+      <method>
+        <option name="Make" value="true" />
+      </method>
     </configuration>
     <configuration default="true" type="WebLogic Instance" factoryName="Local">
       <option name="WORKING_DIRECTORY" />
@@ -1191,6 +1319,72 @@
       <option name="PASSWORD" value="weblogic" />
       <option name="SERVER_NAME" value="myserver" />
       <option name="DOMAIN_NAME" value="mydomain" />
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+    </configuration>
+    <configuration default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
+    </configuration>
+    <configuration default="true" type="#com.intellij.j2ee.web.jsr45.JSR45ConfigurationFactory" factoryName="Local">
+      <option name="WORKING_DIRECTORY" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="80" />
+      <option name="LOCAL" value="true" />
+      <option name="OPEN_IN_BROWSER" value="true" />
+      <option name="OPEN_IN_BROWSER_URL" value="/" />
+      <option name="COMMON_VM_ARGUMENTS" value="" />
+      <option name="JSP_PACKAGE" value="" />
+      <option name="VM_OPTS" value="" />
+      <option name="USE_WEBSPHERE51_LINEMAPPING_MODEL" value="false" />
+      <option name="LOCAL_PORT" value="80" />
+    </configuration>
+    <configuration default="false" name="Orion" type="Application" factoryName="Application" enabled="false" merge="false">
+      <option name="MAIN_CLASS_NAME" value="com.evermind.server.ApplicationServer" />
+      <option name="VM_PARAMETERS" value="-Djava.util.logging.config.file=$PROJECT_DIR$/build/orion/logging.properties -Xms200m -Xmx800m" />
+      <option name="PROGRAM_PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/build/orion" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <module name="ehcache" />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="50165" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="false" />
+      </RunnerSettings>
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Debug" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method>
+        <option name="Make" value="true" />
+      </method>
+    </configuration>
+    <configuration default="false" name="Unnamed" type="Application" factoryName="Application" enabled="false" merge="false">
+      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.distribution.RMICacheReplicatorTest" />
+      <option name="VM_PARAMETERS" value="-mx32m" />
+      <option name="PROGRAM_PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <module name="ehcache" />
+      <method>
+        <option name="Make" value="true" />
+      </method>
     </configuration>
     <configuration default="false" name="Unnamed" type="#com.intellij.j2ee.web.jsr45.JSR45ConfigurationFactory" factoryName="Local">
       <option name="WORKING_DIRECTORY" />
@@ -1240,6 +1434,9 @@
           <option name="PROGRAM_PARAMETERS" value="" />
         </SHUTDOWN>
       </ConfigurationWrapper>
+      <method>
+        <option name="Make" value="true" />
+      </method>
     </configuration>
     <configuration default="false" name="" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
       <module name="ehcache" />
@@ -1260,34 +1457,6 @@
         <option name="Make" value="true" />
       </method>
     </configuration>
-    <configuration default="false" name="Orion" type="Application" factoryName="Application" enabled="false" merge="false">
-      <option name="MAIN_CLASS_NAME" value="com.evermind.server.ApplicationServer" />
-      <option name="VM_PARAMETERS" value="-Djava.util.logging.config.file=$PROJECT_DIR$/build/orion/logging.properties -Xms200m -Xmx800m" />
-      <option name="PROGRAM_PARAMETERS" value="" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/build/orion" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" value="" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <module name="ehcache" />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="50165" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="false" />
-      </RunnerSettings>
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Debug" />
-      <ConfigurationWrapper RunnerId="Run" />
-    </configuration>
-    <configuration default="false" name="Unnamed" type="Application" factoryName="Application" enabled="false" merge="false">
-      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.distribution.RMICacheReplicatorTest" />
-      <option name="VM_PARAMETERS" value="-mx32m" />
-      <option name="PROGRAM_PARAMETERS" value="" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" value="" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <module name="ehcache" />
-    </configuration>
     <configuration default="false" name="Tomcat" type="Remote" factoryName="Remote">
       <option name="USE_SOCKET_TRANSPORT" value="true" />
       <option name="SERVER_MODE" value="false" />
@@ -1300,6 +1469,9 @@
         <option name="LOCAL" value="false" />
       </RunnerSettings>
       <ConfigurationWrapper RunnerId="Debug" />
+      <method>
+        <option name="Make" value="true" />
+      </method>
     </configuration>
     <configuration default="false" name="Unnamed" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local">
       <option name="WORKING_DIRECTORY" />
@@ -1347,6 +1519,9 @@
           <option name="PROGRAM_PARAMETERS" value=" stop" />
         </SHUTDOWN>
       </ConfigurationWrapper>
+      <method>
+        <option name="Make" value="true" />
+      </method>
     </configuration>
   </component>
   <component name="ScopeViewComponent" />
@@ -1437,11 +1612,11 @@
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24935567" order="1" />
       <window_info id="IDE talk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4075724" order="2" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.43875277" order="2" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18052869" order="2" />
       <window_info id="IDEtalk History" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
       <window_info id="File View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="5" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.38752785" order="4" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.37973273" order="4" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="0" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.54565704" order="9" />
       <window_info id="IG Telemetry" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="11" />
@@ -1567,113 +1742,113 @@
     <option name="myLastEditedConfigurable" value="Local Scopes" />
   </component>
   <component name="com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectRootMasterDetailsConfigurable">
-    <option name="myLastEditedConfigurable" value="ehcache" />
+    <option name="myLastEditedConfigurable" value="1.5" />
   </component>
   <component name="com.intellij.profile.ui.ErrorOptionsConfigurable">
     <option name="myLastEditedConfigurable" value="Project Default" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMIAsynchronousCacheReplicator.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/CachePeer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="390" column="19" selection-start="15293" selection-end="15293" vertical-scroll-proportion="1.3018181">
+        <state line="52" column="0" selection-start="1845" selection-end="1845" vertical-scroll-proportion="0.5704698">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheReplicatorFactory.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Ehcache.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="79" column="23" selection-start="3419" selection-end="3419" vertical-scroll-proportion="0.33272728">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMISynchronousCacheReplicator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="131" column="23" selection-start="4510" selection-end="4510" vertical-scroll-proportion="0.46105263">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/store/LfuMemoryStoreTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="38" column="13" selection-start="1240" selection-end="1240" vertical-scroll-proportion="0.3031579">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/config/ehcache.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="352" column="26" selection-start="15033" selection-end="15033" vertical-scroll-proportion="0.620283">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/LfuMemoryStore.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="3" selection-start="1333" selection-end="1333" vertical-scroll-proportion="0.18396227">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/resources/ehcache.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="201" column="0" selection-start="12339" selection-end="12339" vertical-scroll-proportion="0.3889556">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/AbstractCacheTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="100" column="22" selection-start="2659" selection-end="2659" vertical-scroll-proportion="0.24056605">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Element.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="535" column="0" selection-start="16457" selection-end="16457" vertical-scroll-proportion="0.18487395">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="333" column="59" selection-start="10686" selection-end="10686" vertical-scroll-proportion="0.4105263">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="594" column="25" selection-start="22026" selection-end="22026" vertical-scroll-proportion="0.44417766">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="51" column="50" selection-start="2679" selection-end="2686" vertical-scroll-proportion="0.20168068">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="629" column="38" selection-start="21649" selection-end="21649" vertical-scroll-proportion="0.13443395">
+        <state line="83" column="0" selection-start="3791" selection-end="3791" vertical-scroll-proportion="0.3726852">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="897" column="26" selection-start="30703" selection-end="30703" vertical-scroll-proportion="0.28537735">
+        <state line="255" column="36" selection-start="9088" selection-end="9088" vertical-scroll-proportion="0.33333334">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/FifoMemoryStore.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="79" column="25" selection-start="2638" selection-end="2638" vertical-scroll-proportion="0.36689037">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMISynchronousCacheReplicator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="131" column="16" selection-start="4503" selection-end="4503" vertical-scroll-proportion="0.21816038">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="89" column="13" selection-start="4094" selection-end="4094" vertical-scroll-proportion="-10.472989">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/concurrent/ConcurrencyUtil.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="26" column="19" selection-start="932" selection-end="932" vertical-scroll-proportion="0.16981132">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICachePeer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="164" column="16" selection-start="5523" selection-end="5523" vertical-scroll-proportion="0.20990565">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/Random.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="247" column="106" selection-start="10376" selection-end="10376" vertical-scroll-proportion="0.20400943">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed1.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="-2.8811524">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="326" column="19" selection-start="10447" selection-end="10447" vertical-scroll-proportion="0.17570755">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="712" column="16" selection-start="24799" selection-end="24799" vertical-scroll-proportion="0.034198113">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1148" column="17" selection-start="41042" selection-end="41042" vertical-scroll-proportion="0.29411766">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="3" column="52" selection-start="87" selection-end="87" vertical-scroll-proportion="0.043217286">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="56" column="16" selection-start="2205" selection-end="2205" vertical-scroll-proportion="0.3037215">
+        <state line="57" column="48" selection-start="2331" selection-end="2331" vertical-scroll-proportion="0.3457383">
           <folding />
         </state>
       </provider>

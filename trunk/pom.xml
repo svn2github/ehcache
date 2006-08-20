@@ -172,7 +172,7 @@ ehcache is a pure Java, in-process cache with the following features:
         			<artifactId>jacc</artifactId>
         		</exclusion>
         	</exclusions>
-        	<scope>compile</scope>
+        	<scope>test</scope>
         </dependency>
         <dependency>
         	<groupId>net.sf.hibernate</groupId>
@@ -188,13 +188,13 @@ ehcache is a pure Java, in-process cache with the following features:
         			<artifactId>jacc</artifactId>
         		</exclusion>
         	</exclusions>
-        	<scope>compile</scope>
+        	<scope>test</scope>
         </dependency>
         <dependency>
         	<groupId>javax.servlet</groupId>
         	<artifactId>servlet-api</artifactId>
         	<version>2.4</version>
-        	<scope>compile</scope>
+        	<scope>test</scope>
         </dependency>
         <dependency>
         	<groupId>junit</groupId>
@@ -303,7 +303,7 @@ ehcache is a pure Java, in-process cache with the following features:
 
                     <execution>
                         <id>book</id>
-                        <phase>validate</phase>
+                        <phase>pre-site</phase>
                         <configuration>
                             <tasks>
                                 <ant antfile="${basedir}/build.xml" inheritRefs="true">
@@ -320,7 +320,7 @@ ehcache is a pure Java, in-process cache with the following features:
                     </execution>
                     <execution>
                         <id>singlepageguide</id>
-                        <phase>validate</phase>
+                        <phase>pre-site</phase>
                         <configuration>
                             <tasks>
                                 <ant antfile="${basedir}/build.xml" inheritRefs="true">

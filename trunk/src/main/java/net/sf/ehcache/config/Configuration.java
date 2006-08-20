@@ -56,6 +56,8 @@ public final class Configuration {
         diskStoreConfiguration = diskStoreConfigurationParameter;
     }
 
+    
+
     /**
      * Allows {@link BeanHandler} to add the CacheManagerEventListener to the configuration.
      */

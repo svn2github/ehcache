@@ -1,4 +1,5 @@
-<ehcache>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../main/config/ehcache.xsd">
+
 
     <!--
         Sets the path to the directory where cache data and index files are created.
@@ -152,7 +153,6 @@
                                                replicateUpdates=true,
                                                replicateUpdatesViaCopy=true,
                                                replicateRemovals=true "/>
-
         <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory" />
     </defaultCache>
 
@@ -203,9 +203,6 @@
            memoryStoreEvictionPolicy="LRU"
            diskExpiryThreadIntervalSeconds="1000"
             >
-        <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"
-                                   properties="bootstrapAsynchronously=true,
-                                               maximumChunkSizeBytes=5000000"/>
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
                                    properties="replicateAsynchronously=true,
                                                replicatePuts=true,
@@ -213,6 +210,9 @@
                                                replicateUpdatesViaCopy=true,
                                                replicateRemovals=true "/>
         <cacheEventListenerFactory class="net.sf.ehcache.event.CountingCacheEventListenerFactory"/>
+        <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"
+                                   properties="bootstrapAsynchronously=true,
+                                               maximumChunkSizeBytes=5000000"/>
     </cache>
 
     <!-- Sample cache named sampleCache2. -->

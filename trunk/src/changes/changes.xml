@@ -10,6 +10,12 @@
                 removes from working where the local cache does not have the element cached. Thanks
                 to Elijah Epifanov for reporting this one and arguing the case for this behaviour
             </action>
+            <action dev="Greg Luck" issue="1540653" type="add">
+                Allow references to ehcache.xsd in ehcache XML files. All of the ehcache.xml files
+                have had the schema reference added. This allows easy validation of ehcache.xml
+                configuration files using tools like Eclipse and IntelliJ. Thanks to Gabriel Klein
+                for suggesting this.
+            </action>
             <action dev="Greg Luck" issue="1523915" type="update">
                 Asynchronous replication / soft references.
                 There is a trade off between OutOfMemory risk and replication correctness.
@@ -35,6 +41,18 @@
             <action dev="Greg Luck" issue="1529506" type="fix">
                 Fixed a few broken links and inconsistencies in the documentation.
             </action>
+            <action dev="Greg Luck" issue="1542696" type="fix">
+                Bad dependency scopes in Maven2 POM. Most dependencies are required only at test time.
+                Changed the pom to reflect this.
+            </action>
+            <action dev="Greg Luck" issue="1540322" type="fix">
+                Synchronous replicators in a cluster can deadlock trying to replicate to each other.
+                The deadlock gets resolved by a SocketTimeoutException depending on what you set it
+                too. Reduce synchronization around gets, puts and removes so that listener notification
+                is not synchronized, which resolves this problem. Synchronization still occurs on
+                the stores.
+            </action>
+
 
 
 

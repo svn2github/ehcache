@@ -259,3 +259,17 @@ class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
 
     You can use the distributed debug tool to see what is going on. (See {{{http://ehcache.sourceforge.net/documentation/logging.html}}}).
 
+* I get net.sf.ehcache.CacheException: Problem starting listener for RMICachePeer ... java.rmi.UnmarshalException: error unmarshalling
+arguments; nested exception is: java.net.MalformedURLException: no protocol: Files/Apache. What is going on?
+
+    This issue occurs to any RMI listener started on Tomcat, when Tomcat has spaces in its installation path.
+
+    It is is a JDK bug which can be worked around in Tomcat but is not.
+    See http://archives.java.sun.com/cgi-bin/wa?A2=ind0205&L=rmi-users&P=797 and
+    http://www.ontotext.com/kim/doc/sys-doc/faq-howto-bugs/known-bugs.html.
+
+    The workaround is to remove the spaces in your tomcat installation path.
+
+
+
+

@@ -1,5 +1,4 @@
-<ehcache>
-
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../main/config/ehcache.xsd">
     <!-- Sets the path to the directory where cache .data files are created.
 
          If the path is a Java System Property it is replaced by

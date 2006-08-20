@@ -17,7 +17,6 @@
 package net.sf.ehcache.distribution;
 
 import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
@@ -32,11 +31,12 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.ArrayList;
-import java.rmi.RemoteException;
+import java.util.Random;
 
 /**
  * Tests replication of Cache events
@@ -50,7 +50,7 @@ import java.rmi.RemoteException;
  * @author Greg Luck
  * @version $Id$
  */
-public class RMICacheReplicatorTest extends TestCase {
+public class RMICacheReplicatorTest extends AbstractCacheTest {
 
 
     /**
@@ -64,6 +64,7 @@ public class RMICacheReplicatorTest extends TestCase {
     protected static final boolean SYNCHRONOUS = false;
 
     private static final Log LOG = LogFactory.getLog(RMICacheReplicatorTest.class.getName());
+
 
     /**
      * CacheManager 1 in the cluster
@@ -865,8 +866,6 @@ public class RMICacheReplicatorTest extends TestCase {
         //remote receiving caches' counting listener should have been notified
         assertEquals(3, CountingCacheEventListener.getCacheElementsUpdated(cache2).size());
 
-
-
         //Remove
         cache1.remove("1");
         cache1.remove("2");
@@ -1121,5 +1120,109 @@ public class RMICacheReplicatorTest extends TestCase {
     protected void waitForSlowProgagate() throws InterruptedException {
         Thread.sleep(6000);
     }
+
+
+    /**
+     * This test shows that a distributed deadlock scenario exists for synchronous replication
+     * <p/>
+     * Carefully tailored to exercise:
+     * <ol>
+     * <li>overflow to disk. We put in 20 things and the memory size is 10
+     * <li>each peer is working on the same set of keys thus maximising contention
+     * <li>we do puts, gets and removes to explore all the execution paths
+     * </ol>
+     * If a deadlock occurs, processing will stop until a SocketTimeout exception is thrown and
+     * the deadlock will be released.
+     */
+    public void testBigPutsProgagatesSynchronousMultiThreaded() throws Exception, InterruptedException {
+
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
+        // Run a set of threads, that attempt to fetch the elements
+        final List executables = new ArrayList();
+
+        executables.add(new ClusterExecutable(manager1));
+        executables.add(new ClusterExecutable(manager2));
+        executables.add(new ClusterExecutable(manager3));
+
+        runThreads(executables);
+    }
+
+
+    /**
+     * This test shows that no distributed deadlock exists for asynchronous replication. It is multi thread
+     * and multi process safe.
+     * It uses sampleCache2, which is configured to be asynchronous
+     * <p/>
+     * Carefully tailored to exercise:
+     * <ol>
+     * <li>overflow to disk. We put in 20 things and the memory size is 10
+     * <li>each peer is working on the same set of keys thus maximising contention
+     * <li>we do puts, gets and removes to explore all the execution paths
+     * </ol>
+     */
+    public void testBigPutsProgagatesAynchronousMultiThreaded() throws Exception, InterruptedException {
+
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
+        // Run a set of threads, that attempt to fetch the elements
+        final List executables = new ArrayList();
+
+        executables.add(new ClusterExecutable(manager1));
+        executables.add(new ClusterExecutable(manager2));
+        executables.add(new ClusterExecutable(manager3));
+
+        runThreads(executables);
+    }
+
+    /**
+         * An Exececutable which allows the CacheManager to be set
+         */
+        class ClusterExecutable implements Executable {
+
+            private CacheManager manager;
+
+            /**
+             * Construct with CacheManager
+             * @param manager
+             */
+            public ClusterExecutable(CacheManager manager) {
+                this.manager = manager;
+            }
+
+            /**
+             * Execute
+             * @throws Exception
+             */
+            public void execute() throws Exception {
+                Random random = new Random();
+
+                for (int i = 0; i < 20; i++) {
+                    Integer key = new Integer((i));
+                    int operationSelector = random.nextInt(3);
+                    Cache cache = manager.getCache("sampleCache2");
+                    if (operationSelector == 0) {
+                        cache.get(key);
+                        LOG.info(cache.getGuid() + ": get " + key);
+                    } else if (operationSelector == 1) {
+                        cache.remove(key);
+                        LOG.info(cache.getGuid() + ": remove " + key);
+                    } else {
+                        cache.put(new Element(key,
+                                "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                        + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                        + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                        + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                        + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
+                        LOG.info(cache.getGuid() + ": put " + key);
+                    }
+                }
+
+            }
+        }
 
 }

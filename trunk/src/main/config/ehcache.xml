@@ -1,4 +1,4 @@
-<ehcache>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ehcache.xsd">
 
     <!--
     Sets the path to the directory where cache files are created.
@@ -349,10 +349,10 @@
            timeToIdleSeconds="100"
            timeToLiveSeconds="100"
            overflowToDisk="false">
-        <bootstrapCacheLoaderFactory
-                class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"/>
         <cacheEventListenerFactory
                 class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>
+        <bootstrapCacheLoaderFactory
+                class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"/>
     </cache>
 
 

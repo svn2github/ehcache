@@ -542,7 +542,6 @@ public class CacheManager {
             throw new ObjectExistsException("Cache " + cache.getName() + " already exists");
         }
         cache.setCacheManager(this);
-        //Is an attribute of the CacheManager. Setting the dependency so as not to break constructor compatibility.
         cache.setDiskStorePath(diskStorePath);
         cache.initialise();
         cache.bootstrap();
