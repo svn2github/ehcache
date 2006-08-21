@@ -54,11 +54,7 @@ import java.util.List;
  */
 public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicator {
 
-    /**
-     * The amount of time the replication thread sleeps after it detects the replicationQueue is empty
-     * before checking again.
-     */
-    protected static final int REPLICATION_THREAD_INTERVAL = 1000;
+
 
     private static final Log LOG = LogFactory.getLog(RMIAsynchronousCacheReplicator.class.getName());
 
@@ -66,6 +62,12 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      * A thread which handles replication, so that replication can take place asynchronously and not hold up the cache
      */
     protected Thread replicationThread = new ReplicationThread();
+
+    /**
+     * The amount of time the replication thread sleeps after it detects the replicationQueue is empty
+     * before checking again.
+     */
+    protected int asynchronousReplicationInterval;
 
     /**
      * A queue of updates.
@@ -79,22 +81,25 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      * @param replicateUpdates
      * @param replicateUpdatesViaCopy
      * @param replicateRemovals
+     * @param asynchronousReplicationInterval
      */
     public RMIAsynchronousCacheReplicator(
             boolean replicatePuts,
             boolean replicateUpdates,
             boolean replicateUpdatesViaCopy,
-            boolean replicateRemovals) {
+            boolean replicateRemovals,
+            int asynchronousReplicationInterval) {
         super(replicatePuts,
                 replicateUpdates,
                 replicateUpdatesViaCopy,
                 replicateRemovals);
+        this.asynchronousReplicationInterval = asynchronousReplicationInterval;
         status = Status.STATUS_ALIVE;
         replicationThread.start();
     }
 
     /**
-     * Main method for the replicationQueue thread.
+     * RemoteDebugger method for the replicationQueue thread.
      * <p/>
      * Note that the replicationQueue thread locks the cache for the entire time it is writing elements to the disk.
      */
@@ -103,7 +108,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
             // Wait for elements in the replicationQueue
             while (alive() && replicationQueue != null && replicationQueue.size() == 0) {
                 try {
-                    Thread.sleep(REPLICATION_THREAD_INTERVAL);
+                    Thread.sleep(asynchronousReplicationInterval);
                 } catch (InterruptedException e) {
                     LOG.debug("Spool Thread interrupted.");
                     return;
@@ -237,7 +242,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
 
 
     /**
-     * Gets called once per {@link #REPLICATION_THREAD_INTERVAL}.
+     * Gets called once per {@link #asynchronousReplicationInterval}.
      * <p/>
      * Sends accumulated messages in bulk to each peer. i.e. if ther are 100 messages and 1 peer,
      * 1 RMI invocation results, not 100. Also, if a peer is unavailable this is discovered in only 1 try.
@@ -330,7 +335,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
         }
 
         /**
-         * Main thread method.
+         * RemoteDebugger thread method.
          */
         public final void run() {
             replicationThreadMain();
@@ -388,7 +393,8 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
     public Object clone() throws CloneNotSupportedException {
         //shutup checkstyle
         super.clone();
-        return new RMIAsynchronousCacheReplicator(replicatePuts, replicateUpdates, replicateUpdatesViaCopy, replicateRemovals);
+        return new RMIAsynchronousCacheReplicator(replicatePuts, replicateUpdates,
+                replicateUpdatesViaCopy, replicateRemovals, asynchronousReplicationInterval);
     }
 
 

@@ -61,7 +61,6 @@ public class SelfPopulatingCache extends BlockingCache {
 
     /**
      * Looks up an object, creating it if not found.
-     * @revised 1.2
      */
     public Element get(final Serializable key) throws LockTimeoutException {
         String oldThreadName = Thread.currentThread().getName();

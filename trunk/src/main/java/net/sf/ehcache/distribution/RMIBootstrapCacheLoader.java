@@ -99,7 +99,7 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
         }
 
         /**
-         * Main thread method.
+         * RemoteDebugger thread method.
          */
         public final void run() {
             try {

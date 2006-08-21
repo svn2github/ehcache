@@ -194,4 +194,34 @@ public class Statistics implements Serializable {
     public int getStatisticsAccuracy() {
         return statisticsAccuracy;
     }
+
+    /**
+     * @return the name of the Ehcache, or null is there no associated cache
+     */
+    public String getAssociatedCacheName() {
+        if (cache != null) {
+            return cache.getName();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Returns a {@link String} representation of the {@link Ehcache} statistics.
+     */
+    public final String toString() {
+        StringBuffer dump = new StringBuffer();
+
+        dump.append("[ ")
+                .append(" name = ").append(getAssociatedCacheName())
+                .append(" cacheHits = ").append(cacheHits)
+                .append(" onDiskHits = ").append(onDiskHits)
+                .append(" inMemoryHits = ").append(inMemoryHits)
+                .append(" misses = ").append(misses)
+                .append(" size = ").append(size)
+                .append(" ]");
+
+        return dump.toString();
+    }
+
 }

@@ -208,22 +208,28 @@
                                                replicatePuts=true,
                                                replicateUpdates=true,
                                                replicateUpdatesViaCopy=true,
-                                               replicateRemovals=true "/>
+                                               replicateRemovals=true,
+                                               asynchronousReplicationIntervalMillis=1000"/>
         <cacheEventListenerFactory class="net.sf.ehcache.event.CountingCacheEventListenerFactory"/>
         <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"
                                    properties="bootstrapAsynchronously=true,
                                                maximumChunkSizeBytes=5000000"/>
     </cache>
 
-    <!-- Sample cache named sampleCache2. -->
+    <!-- Sample cache named sampleCache2. This one has a 10ms cache replication interval. -->
     <cache name="sampleCache2"
            maxElementsInMemory="10"
-           eternal="true"
+           eternal="false"
            timeToIdleSeconds="100"
            timeToLiveSeconds="100"
            overflowToDisk="false">
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
-                                   properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+                                   properties="replicateAsynchronously=true,
+                                    replicatePuts=true,
+                                    replicateUpdates=true,
+                                    replicateUpdatesViaCopy=false,
+                                    replicateRemovals=true,
+                                    asynchronousReplicationIntervalMillis=10"/>
     </cache>
 
 

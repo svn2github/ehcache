@@ -520,7 +520,6 @@ public class BlockingCache implements Ehcache {
 
     /**
      * Adds an entry and unlocks it
-     * @revised 1.2
      */
     public void put(Element element) {
 

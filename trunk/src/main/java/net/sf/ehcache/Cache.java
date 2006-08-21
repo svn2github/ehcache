@@ -53,10 +53,11 @@ import java.util.Set;
  *
  * @author Greg Luck
  * @version $Id$
- * todo include test-jar in next release
- * todo Synchronization is now inconsistent as of 171, with the basic operations
+ * todo Synchronization is now inconsistent as of version 171, with the basic operations
  * not synchronized but some others synchronized. All concurrent tests pass so it is probably ok 
- * but needs further thought.
+ * but needs further thought. Write a test that exercises all Cache methods concurrently in
+ * multiple threads
+ * todo a test for RemoteDebugger
  */
 public class Cache implements Ehcache {
 
@@ -249,8 +250,6 @@ public class Cache implements Ehcache {
      * @param diskExpiryThreadIntervalSeconds
      *                            how often to run the disk store expiry thread. A large number of 120 seconds plus is recommended
      * @since 1.1
-     * @deprecated An API change between ehcache-1.1 and ehcache-1.2 results in the persistence path being set to java.io.tmp
-     *             when the ehcache-1.1 constructor is used. Please change to the 1.2 constructor
      */
     public Cache(String name,
                  int maxElementsInMemory,

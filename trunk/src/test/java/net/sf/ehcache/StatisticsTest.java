@@ -116,7 +116,7 @@ public class StatisticsTest extends AbstractCacheTest {
         assertEquals(1, statistics.getInMemoryHits());
         assertEquals(2, statistics.getCacheMisses());
 
-
+        assertNotNull(statistics.toString());
     }
 
 

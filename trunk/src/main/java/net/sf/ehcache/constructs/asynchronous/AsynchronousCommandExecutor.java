@@ -222,7 +222,7 @@ public final class AsynchronousCommandExecutor {
         }
 
         /**
-         * Main thread method.
+         * RemoteDebugger thread method.
          */
         public void run() {
             dispatcherThreadMain();

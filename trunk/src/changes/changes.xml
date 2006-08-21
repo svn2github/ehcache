@@ -16,6 +16,11 @@
                 configuration files using tools like Eclipse and IntelliJ. Thanks to Gabriel Klein
                 for suggesting this.
             </action>
+            <action dev="Greg Luck" issue="1540657" type="add">
+                Added a new property asynchronousReplicationIntervalMillis to the RMICacheReplicator factory
+                configuration to control the interval at which it runs. The default is 1000ms, which
+                is the value it was hardcoded too in earlier versions.
+            </action>
             <action dev="Greg Luck" issue="1523915" type="update">
                 Asynchronous replication / soft references.
                 There is a trade off between OutOfMemory risk and replication correctness.

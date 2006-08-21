@@ -93,7 +93,7 @@ public class CacheManagerTest extends TestCase {
     public void testCreateCacheManagerFromFile() throws CacheException {
         singletonManager = CacheManager.create(AbstractCacheTest.SRC_CONFIG_DIR + "ehcache.xml");
         assertNotNull(singletonManager);
-        assertEquals(5, singletonManager.getCacheNames().length);
+        assertEquals(6, singletonManager.getCacheNames().length);
     }
 
     /**
@@ -104,7 +104,7 @@ public class CacheManagerTest extends TestCase {
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         CacheManager manager = new CacheManager(configuration);
         assertNotNull(manager);
-        assertEquals(5, manager.getCacheNames().length);
+        assertEquals(6, manager.getCacheNames().length);
         manager.shutdown();
     }
 
@@ -119,7 +119,7 @@ public class CacheManagerTest extends TestCase {
             fis.close();
         }
         assertNotNull(singletonManager);
-        assertEquals(5, singletonManager.getCacheNames().length);
+        assertEquals(6, singletonManager.getCacheNames().length);
     }
 
     /**

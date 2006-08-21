@@ -40,15 +40,16 @@ Logging And Debugging
     Many logging systems enable a logging level change to be made without restarting the application.
 
 
-* {Network Monitoring for Distributed Caches}
+* {Remote Network debugging and monitoring for Distributed Caches}
 
-    A simple new tool in ehcache-1.2, {ehcache-test.jar} can be used to debug replicated cache operations.
+    A simple new tool in ehcache-1.2, {ehcache-1.x-remote-debugger.jar} can be used to debug replicated cache operations.
+    It is included in the distribution tarball for ehcache-1.2.3 and higher.
 
     It is invoked using:
 
 --------------------------------------------
 
-java -jar ehcache-test.jar path_to_ehcache.xml cacheToMonitor
+java -jar ehcache-1.x-remote-debugger.jar path_to_ehcache.xml cacheToMonitor
 
 --------------------------------------------
 
@@ -56,8 +57,5 @@ java -jar ehcache-test.jar path_to_ehcache.xml cacheToMonitor
     in the cache. If you are not seeing replication in your application, run up this tool to see what is going on.
 
     It is a command line application, so it can easily be run from a terminal session.
-
-    You can build the tool from source using the ant target <<<test-jar>>>. Copy the resultant ehcache-test.jar and
-    your ehcache.xml configuration to the target machine.
 
     

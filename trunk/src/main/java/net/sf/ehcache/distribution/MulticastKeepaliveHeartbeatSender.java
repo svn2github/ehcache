@@ -195,7 +195,7 @@ public final class MulticastKeepaliveHeartbeatSender {
                     try {
                         socket.leaveGroup(groupMulticastAddress);
                     } catch (IOException e) {
-                        LOG.error("Error leaving mutlicast group. Message was " + e.getMessage());
+                        LOG.error("Error leaving multicast group. Message was " + e.getMessage());
                     }
                     socket.close();
                 }

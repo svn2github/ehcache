@@ -247,6 +247,9 @@
     * replicateUpdatesViaCopy=true | false - whether the new elements are
       copied to other caches (true), or whether a remove message is sent. Defaults to true.
 
+    * asynchronousReplicationIntervalMillis=<number of milliseconds> - The asynchronous
+      replicator runs at a set interval of milliseconds. The default is 1000. The minimum
+      is 10. This property is only applicable if replicateAsynchronously=true
 
     The RMIBootstrapCacheLoader bootstraps caches in clusters where RMICacheReplicators are
     used. It is configured as per the following example:
@@ -372,6 +375,22 @@
                 properties="replicateAsynchronously=false, replicatePuts=false,
                             replicateUpdates=true, replicateUpdatesViaCopy=true,
                             replicateRemovals=false"/>
+    </cache>
+
+    <!--
+    Sample distributed cache named sampleDistributedCache3.
+    This cache replicates using defaults except that the asynchronous replication
+    interval is set to 200ms.
+    -->
+    <cache name="sampleDistributedCache3"
+           maxElementsInMemory="10"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+                class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+                properties="asynchronousReplicationIntervalMillis=200"/>
     </cache>
 
 </ehcache>

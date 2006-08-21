@@ -213,7 +213,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         manager6 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed6.xml");
 
         //Allow detection to occur
-        Thread.sleep(1010);
+        Thread.sleep(10010);
 
         remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
         assertEquals(5, remotePeersOfCache1.size());
@@ -371,7 +371,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     /**
      * Performance and capacity tests.
      * <p/>
-     * The numbers given are for the remote peer tester (java -jar ehcache-test.jar ehcache-distributed1.xml)
+     * The numbers given are for the remote peer tester (java -jar ehcache-1.x-remote-debugger.jar ehcache-distributed1.xml)
      * running on a 10Mbit ethernet network and are measured from the time the peer starts receiving to when
      * it has fully received.
      * <p/>
@@ -397,6 +397,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         }
 
         //Give everything a chance to startup
+        Thread.sleep(10000);
         StopWatch stopWatch = new StopWatch();
         Integer index = null;
         for (int i = 0; i < 2; i++) {
@@ -551,7 +552,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     /**
      * Performance and capacity tests.
      * <p/>
-     * The numbers given are for the remote peer tester (java -jar ehcache-test.jar ehcache-distributed1.xml)
+     * The numbers given are for the remote peer tester (java -jar ehcache-1.x-remote-debugger.jar ehcache-distributed1.xml)
      * running on a 10Mbit ethernet network and are measured from the time the peer starts receiving to when
      * it has fully received.
      * <p/>
@@ -616,7 +617,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * Performance and capacity tests.
      * <p/>
      * 5 seconds to send all notifications synchronously with 5 peers, 2000 Elements and 400 byte payload
-     * The numbers given below are for the remote peer tester (java -jar ehcache-test.jar ehcache-distributed1.xml)
+     * The numbers given below are for the remote peer tester (java -jar ehcache-1.x-remote-debugger.jar ehcache-distributed1.xml)
      * running on a 10Mbit ethernet network and are measured from the time the peer starts receiving to when
      * it has fully received.
      */

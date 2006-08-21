@@ -240,30 +240,32 @@
         </jar>
     </target>
 
-    <!-- Builds a test jar file containing a test application for manual distributed testing. -->
-    <target name="test-jar" depends="compile" description="Builds the application jar">
-        <mkdir dir="${build.dir}/test"/>
-        <jar destfile="${build.dir}/test/${name}-test.jar">
+    <!-- Builds a remote debugger jar  -->
+    <target name="remote-debugger-jar" depends="compile" description="Builds the application jar">
+        <mkdir dir="${dist.dir}/"/>
+        <jar destfile="${dist.dir}/${name}-${version}-remote-debugger.jar">
             <fileset dir="${build.classes.dir}"/>
-            <fileset dir="${test.classes.dir}"/>
+            <fileset dir="${test.classes.dir}">
+                <include name="**/RemoteDebugger.class"/>                
+            </fileset>
             <fileset dir="${basedir}" includes="LICENSE.txt"/>
-            <fileset dir="${test.config.dir}/distribution" includes="ehcache-distributed1.xml"/>
             <zipfileset src="${lib.runtime.dir}/commons-logging-1.0.4.jar"/>
             <zipfileset src="${lib.runtime.dir}/commons-collections-2.1.1.jar"/>
             <manifest>
-                <attribute name="Main-Class" value="net.sf.ehcache.distribution.Main"/>
+                <attribute name="Main-Class" value="net.sf.ehcache.distribution.RemoteDebugger"/>
             </manifest>
         </jar>
     </target>
 
     <!-- Builds a release tar-ball -->
-    <target name="dist-tgz" depends="dist-jar, dist-javadoc, dist-src">
+    <target name="dist-tgz" depends="dist-jar, dist-javadoc, dist-src, remote-debugger-jar">
         <tar destfile="${dist.dir}/${name}-${version}.tgz"
              compression="gzip">
             <tarfileset dir="${dist.dir}" prefix="${name}-${version}">
                 <include name="${name}-${version}.jar"/>
                 <include name="${name}-${version}-${javadoc.zip}"/>
                 <include name="${name}-${version}-src.zip"/>
+                <include name="${name}-${version}-remote-debugger.jar"/>
             </tarfileset>
             <tarfileset dir="${basedir}" prefix="${name}-${version}">
                 <include name="RELEASE_NOTES.txt"/>

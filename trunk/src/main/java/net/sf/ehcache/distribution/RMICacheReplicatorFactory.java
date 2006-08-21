@@ -22,6 +22,9 @@ import net.sf.ehcache.util.PropertyUtil;
 
 import java.util.Properties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Creates an RMICacheReplicator using properties. Config lines look like:
  * <pre>&lt;cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
@@ -36,12 +39,22 @@ import java.util.Properties;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public final class RMICacheReplicatorFactory extends CacheEventListenerFactory {
+public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
+
+    /**
+     * A default for the amount of time the replication thread sleeps after it detects the replicationQueue is empty
+     * before checking again.
+     */
+    protected static final int DEFAULT_ASYNCHRONOUS_REPLICATION_INTERVAL_MILLIS = 1000;
+
+    private static final Log LOG = LogFactory.getLog(RMICacheReplicatorFactory.class.getName());
     private static final String REPLICATE_PUTS = "replicatePuts";
     private static final String REPLICATE_UPDATES = "replicateUpdates";
     private static final String REPLICATE_UPDATES_VIA_COPY = "replicateUpdatesViaCopy";
     private static final String REPLICATE_REMOVALS = "replicateRemovals";
     private static final String REPLICATE_ASYNCHRONOUSLY = "replicateAsynchronously";
+    private static final String ASYNCHRONOUS_REPLICATION_INTERVAL_MILLIS = "asynchronousReplicationIntervalMillis";
+    private static final int MINIMUM_REASONABLE_INTERVAL = 10;
 
     /**
      * Create a <code>CacheEventListener</code> which is also a CacheReplicator.
@@ -53,6 +66,7 @@ public final class RMICacheReplicatorFactory extends CacheEventListenerFactory {
      * <li>replicateUpdatesViaCopy=true
      * <li>replicateRemovals=true;
      * <li>replicateAsynchronously=true
+     * <li>asynchronousReplicationIntervalMillis=1000
      * </ul>
      *
      * @param properties implementation specific properties. These are configured as comma
@@ -66,6 +80,7 @@ public final class RMICacheReplicatorFactory extends CacheEventListenerFactory {
      *                   replicateUpdates=true
      *                   replicateUpdatesViaCopy=true
      *                   replicateRemovals=true
+     *                   asynchronousReplicationIntervalMillis=1000
      *                   "/&gt;</code>
      * @return a constructed CacheEventListener
      */
@@ -75,13 +90,15 @@ public final class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         boolean replicateUpdatesViaCopy = extractReplicateUpdatesViaCopy(properties);
         boolean replicateRemovals = extractReplicateRemovals(properties);
         boolean replicateAsynchronously = extractReplicateAsynchronously(properties);
+        int asynchronousReplicationIntervalMillis = extractReplicationIntervalMilis(properties);
 
         if (replicateAsynchronously) {
             return new RMIAsynchronousCacheReplicator(
                     replicatePuts,
                     replicateUpdates,
                     replicateUpdatesViaCopy,
-                    replicateRemovals);
+                    replicateRemovals,
+                    asynchronousReplicationIntervalMillis);
         } else {
             return new RMISynchronousCacheReplicator(
                     replicatePuts,
@@ -89,6 +106,37 @@ public final class RMICacheReplicatorFactory extends CacheEventListenerFactory {
                     replicateUpdatesViaCopy,
                     replicateRemovals);
         }
+    }
+
+    /**
+     * Extracts the value of asynchronousReplicationIntervalMillis. Sets it to 1000ms if
+     * either not set or there is a problem parsing the number
+     * @param properties
+     */
+    protected int extractReplicationIntervalMilis(Properties properties) {
+        int asynchronousReplicationIntervalMillis;
+        String asynchronousReplicationIntervalMillisString =
+                PropertyUtil.extractAndLogProperty(ASYNCHRONOUS_REPLICATION_INTERVAL_MILLIS, properties);
+        if (asynchronousReplicationIntervalMillisString != null) {
+            try {
+                int asynchronousReplicationIntervalMillisCandidate =
+                        Integer.parseInt(asynchronousReplicationIntervalMillisString);
+                if (asynchronousReplicationIntervalMillisCandidate < MINIMUM_REASONABLE_INTERVAL) {
+                    LOG.warn("Trying to set the asynchronousReplicationIntervalMillis to an unreasonable number." +
+                            " Using the default instead.");
+                    asynchronousReplicationIntervalMillis = DEFAULT_ASYNCHRONOUS_REPLICATION_INTERVAL_MILLIS;
+                } else {
+                    asynchronousReplicationIntervalMillis = asynchronousReplicationIntervalMillisCandidate;
+                }
+            } catch (NumberFormatException e) {
+                LOG.warn("Number format exception trying to set asynchronousReplicationIntervalMillis. " +
+                        "Using the default instead. String value was: '" + asynchronousReplicationIntervalMillisString + "'");
+                asynchronousReplicationIntervalMillis = DEFAULT_ASYNCHRONOUS_REPLICATION_INTERVAL_MILLIS;
+            }
+        } else {
+            asynchronousReplicationIntervalMillis = DEFAULT_ASYNCHRONOUS_REPLICATION_INTERVAL_MILLIS;
+        }
+        return asynchronousReplicationIntervalMillis;
     }
 
     /**

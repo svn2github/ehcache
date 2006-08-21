@@ -173,7 +173,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(true, defaultCache.isOverflowToDisk());
 
         //Check caches
-        assertEquals(5, configurationHelper.createCaches().size());
+        assertEquals(6, configurationHelper.createCaches().size());
 
         //check config
         CacheConfiguration sampleCache1Config = (CacheConfiguration) configuration.getCacheConfigurations().get("sampleCache1");
@@ -729,7 +729,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(true, defaultCache.isOverflowToDisk());
 
         //Check caches
-        assertEquals(5, configurationHelper.createCaches().size());
+        assertEquals(6, configurationHelper.createCaches().size());
 
         //  <cache name="sampleCache1"
         //  maxElementsInMemory="10000"

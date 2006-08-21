@@ -163,6 +163,9 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      */
     public void put(Element element) throws RemoteException, IllegalArgumentException, IllegalStateException {
         cache.put(element, true);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Remote put received. Element is: " + element);
+        }
     }
 
 
@@ -175,6 +178,9 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      * @throws IllegalStateException
      */
     public final boolean remove(Serializable key) throws RemoteException, IllegalStateException {
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Remote remove received for key: " + key);
+        }
         return cache.remove(key, true);
     }
 

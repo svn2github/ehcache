@@ -18,6 +18,7 @@ package net.sf.ehcache.distribution;
 
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.util.PropertyUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -54,7 +55,7 @@ public class JNDIManualRMICacheManagerPeerProviderFactory extends RMICacheManage
      * The jndiUrls are in the format expected by the implementation of your Context.INITIAL_CONTEXT_FACTORY.
      */
     protected CacheManagerPeerProvider createManuallyConfiguredCachePeerProvider(Properties properties) {
-        String urls = extractAndLogProperty(JNDI_URLS, properties);
+        String urls = PropertyUtil.extractAndLogProperty(JNDI_URLS, properties);
         if (urls == null || urls.length() == 0) {
             throw new CacheException(JNDI_URLS + " must be specified when peerDiscovery is manual");
         }
@@ -78,7 +79,7 @@ public class JNDIManualRMICacheManagerPeerProviderFactory extends RMICacheManage
     }
 
     private boolean isStashRemoteCachePeers(Properties properties) {
-        String stashRemoteCachePeersString = extractAndLogProperty(STASH_REMOTE_CACHE_PEERS, properties);
+        String stashRemoteCachePeersString = PropertyUtil.extractAndLogProperty(STASH_REMOTE_CACHE_PEERS, properties);
         boolean stashRemoteCachePeers;
         if (stashRemoteCachePeersString == null || stashRemoteCachePeersString.length() == 0) {
             stashRemoteCachePeers = true;
@@ -89,7 +90,7 @@ public class JNDIManualRMICacheManagerPeerProviderFactory extends RMICacheManage
     }
 
     private boolean isStashContexts(Properties properties) {
-        String stashContextsString = extractAndLogProperty(STASH_CONTEXTS, properties);
+        String stashContextsString = PropertyUtil.extractAndLogProperty(STASH_CONTEXTS, properties);
         boolean stashContexts;
         if (stashContextsString == null || stashContextsString.length() == 0) {
             stashContexts = true;

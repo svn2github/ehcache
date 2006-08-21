@@ -563,7 +563,7 @@ public class DiskStore implements Store {
     }
 
     /**
-     * Main method for the spool thread.
+     * RemoteDebugger method for the spool thread.
      * <p/>
      * Note that the spool thread locks the cache for the entire time it is writing elements to the disk.
      */
@@ -1003,7 +1003,7 @@ public class DiskStore implements Store {
         }
 
         /**
-         * Main thread method.
+         * RemoteDebugger thread method.
          */
         public final void run() {
             spoolThreadMain();
@@ -1021,7 +1021,7 @@ public class DiskStore implements Store {
         }
 
         /**
-         * Main thread method.
+         * RemoteDebugger thread method.
          */
         public final void run() {
             expiryThreadMain();
