@@ -19,7 +19,7 @@ package net.sf.ehcache.constructs.concurrent;
 /**
  * @version $Id$
  * @author Doug Lea
- * RemoteDebugger interface for locks, gates, and conditions.
+ * Main interface for locks, gates, and conditions.
  * <p/>
  * Sync objects isolate waiting and notification for particular
  * logical states, resource availability, events, and the like that are

@@ -18,39 +18,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/documentation/logging.apt" afterPath="$PROJECT_DIR$/src/site/apt/documentation/logging.apt" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/Main.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/concurrent/Sync.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/concurrent/Sync.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/config/ehcache.xml" afterPath="$PROJECT_DIR$/src/main/config/ehcache.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed3.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed3.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMIAsynchronousCacheReplicator.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMIAsynchronousCacheReplicator.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDIManualRMICacheManagerPeerProviderFactory.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDIManualRMICacheManagerPeerProviderFactory.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastKeepaliveHeartbeatSender.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastKeepaliveHeartbeatSender.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/StatisticsTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/StatisticsTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICachePeer.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICachePeer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed6.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed6.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheReplicatorFactory.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheReplicatorFactory.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/asynchronous/AsynchronousCommandExecutor.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/asynchronous/AsynchronousCommandExecutor.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed4.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed4.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerProviderFactory.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerProviderFactory.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RemoteDebugger.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed1.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed1.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/config/ehcache-failsafe.xml" afterPath="$PROJECT_DIR$/src/main/config/ehcache-failsafe.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed2.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed2.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/changes/changes.xml" afterPath="$PROJECT_DIR$/src/changes/changes.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Statistics.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Statistics.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed5.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed5.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMIBootstrapCacheLoader.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMIBootstrapCacheLoader.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/SelfPopulatingCache.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/SelfPopulatingCache.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.properties" afterPath="$PROJECT_DIR$/build.properties" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/concurrent/Sync.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/concurrent/Sync.java" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -440,10 +409,28 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RemoteDebugger.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="RemoteDebugger.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RemoteDebugger.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="56" column="21" selection-start="2007" selection-end="2007" vertical-scroll-proportion="0.4481132">
+            <state line="56" column="21" selection-start="2008" selection-end="2008" vertical-scroll-proportion="0.4481132">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Sync.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/concurrent/Sync.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="246" column="26" selection-start="7618" selection-end="7618" vertical-scroll-proportion="3.3421369">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BlockingCache.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="79" column="18" selection-start="3605" selection-end="3605" vertical-scroll-proportion="0.18847539">
               <folding />
             </state>
           </provider>
@@ -453,15 +440,6 @@
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
           <provider selected="true" editor-type-id="text-editor">
             <state line="59" column="33" selection-start="2493" selection-end="2493" vertical-scroll-proportion="0.332533">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="RMICacheManagerPeerProviderFactory.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerProviderFactory.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="92" column="25" selection-start="4014" selection-end="4014" vertical-scroll-proportion="0.7735849">
               <folding />
             </state>
           </provider>
@@ -498,15 +476,6 @@
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMIDistributedCacheTest.java">
           <provider selected="true" editor-type-id="text-editor">
             <state line="34" column="13" selection-start="1082" selection-end="1082" vertical-scroll-proportion="-0.7688679">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ehcache.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/config/ehcache.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="134" column="67" selection-start="6260" selection-end="6260" vertical-scroll-proportion="0.028301887">
               <folding />
             </state>
           </provider>
@@ -1201,21 +1170,21 @@
   <component name="PropertiesComponent">
     <property name="GoToClass.includeJavaFiles" value="false" />
     <property name="MemberChooser.copyJavadoc" value="false" />
-    <property name="cvs_file_history_treeWidth0" value="370" />
+    <property name="cvs_file_history_treeWidth0" value="374" />
     <property name="cvs_file_history_treeOrder4" value="4" />
-    <property name="cvs_file_history_flatWidth2" value="371" />
+    <property name="cvs_file_history_flatWidth2" value="374" />
     <property name="cvs_file_history_flatOrder4" value="4" />
     <property name="cvs_file_history_treeOrder1" value="1" />
     <property name="GoToFile.includeJavaFiles" value="false" />
     <property name="cvs_file_history_flatOrder1" value="1" />
-    <property name="cvs_file_history_flatWidth1" value="369" />
-    <property name="cvs_file_history_treeWidth1" value="369" />
+    <property name="cvs_file_history_flatWidth1" value="373" />
+    <property name="cvs_file_history_treeWidth1" value="373" />
     <property name="cvs_file_history_treeOrder6" value="6" />
     <property name="GoToClass.includeLibraries" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="cvs_file_history_flatOrder2" value="2" />
     <property name="cvs_file_history_flatWidth4" value="214" />
-    <property name="cvs_file_history_treeWidth2" value="371" />
+    <property name="cvs_file_history_treeWidth2" value="374" />
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="cvs_file_history_flatOrder3" value="3" />
     <property name="RunManagerConfig.showSettingsBeforeRunnig" value="true" />
@@ -1230,12 +1199,12 @@
     <property name="last_opened_file_path" value="/Users/gluck/Desktop" />
     <property name="cvs_file_history_flatOrder5" value="5" />
     <property name="cvs_file_history_flatWidth5" value="214" />
-    <property name="cvs_file_history_treeWidth3" value="370" />
+    <property name="cvs_file_history_treeWidth3" value="374" />
     <property name="cvs_file_history_treeOrder2" value="2" />
     <property name="cvs_file_history_treeWidth5" value="212" />
     <property name="cvs_file_history_flatOrder6" value="6" />
-    <property name="cvs_file_history_flatWidth0" value="370" />
-    <property name="cvs_file_history_flatWidth3" value="370" />
+    <property name="cvs_file_history_flatWidth0" value="374" />
+    <property name="cvs_file_history_flatWidth3" value="374" />
     <property name="cvs_file_history_treeOrder0" value="0" />
     <property name="Tomcat Context Descriptor Default Version" value="5.x" />
   </component>
@@ -1780,20 +1749,6 @@
     <option name="myLastEditedConfigurable" value="Project Default" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheReplicatorFactory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="134" column="19" selection-start="6407" selection-end="6407" vertical-scroll-proportion="1.4295301">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerProvider.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="40" column="22" selection-start="1272" selection-end="1272" vertical-scroll-proportion="0.32214764">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/util/PropertyUtil.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="31" column="19" selection-start="984" selection-end="984" vertical-scroll-proportion="0.10738255">
@@ -1880,7 +1835,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RemoteDebugger.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="56" column="21" selection-start="2007" selection-end="2007" vertical-scroll-proportion="0.4481132">
+        <state line="56" column="21" selection-start="2008" selection-end="2008" vertical-scroll-proportion="0.4481132">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/concurrent/Sync.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="246" column="26" selection-start="7618" selection-end="7618" vertical-scroll-proportion="3.3421369">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="79" column="18" selection-start="3605" selection-end="3605" vertical-scroll-proportion="0.18847539">
           <folding />
         </state>
       </provider>
