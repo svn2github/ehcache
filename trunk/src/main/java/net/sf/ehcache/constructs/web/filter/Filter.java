@@ -332,10 +332,9 @@ public abstract class Filter implements javax.servlet.Filter {
      * <li>Old browsers, notably IE 5 on Macintosh.
      * <li>Search robots such as yahoo. While there are quite a few bots, they only hit individual
      * pages once or twice a day. Note that Googlebot as of August 2004 now accepts GZIP.
-     * <li>Monitoring Scripts. The one by Steve Sulman was requesting once every few seconds and did
-     * not accept GZIP. This amounts to a Denial of Service.
      * <li>Internet Explorer through a proxy. By default HTTP1.1 is enabled but disabled when going
      * through a proxy. 90% of non gzip requests are caused by this.
+     * <li>Site monitoring tools
      * </ul>
      * As of September 2004, about 34% of requests coming from the Internet did not accept GZIP encoding.
      *
