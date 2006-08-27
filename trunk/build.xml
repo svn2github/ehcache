@@ -11,8 +11,8 @@
     </path>
 
     <target name="clean" description="Cleans the build directory">
-        <echo level="SEVERE" message="basedir ${basedir}"/>
-        <echo level="SEVERE" message="${build.working.dir}"/>
+        <echo level="error" message="basedir ${basedir}"/>
+        <echo level="error" message="${build.working.dir}"/>
         <delete dir="${build.dir}"/>
     </target>
 
@@ -339,8 +339,8 @@
 
 
     <!-- Copy the clover jar to your ant lib directory to run these -->
-    <taskdef resource="com/cenqua/ant/antlib.xml" classpath="tools/cenquatasks.jar"/>
-    <extendclasspath path="tools/clover-1.3.12.jar"/>
+    <!--<taskdef resource="com/cenqua/ant/antlib.xml" classpath="tools/cenquatasks.jar"/>-->
+    <!--<extendclasspath path="tools/clover-1.3.12.jar"/>-->
 
     <taskdef resource="clovertasks">
         <classpath refid="project.class.path"/>
