@@ -11,6 +11,8 @@
     </path>
 
     <target name="clean" description="Cleans the build directory">
+        <echo message="basedir ${basedir}"/>
+        <echo message="agent.work.dir ${agent.work.dir}"/>
         <delete dir="${build.dir}"/>
     </target>
 
