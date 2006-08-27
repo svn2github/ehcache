@@ -108,7 +108,8 @@
     </target>
 
 
-    <target name="test" depends="test-non-web, test-orion, test-tomcat" description="Runs Tests">
+    <!--<target name="test" depends="test-non-web, test-orion, test-tomcat" description="Runs Tests"> todo put back -->
+    <target name="test" depends="test-orion, test-tomcat" description="Runs Tests">
         <antcall target="junitreport"/>
     </target>
 
