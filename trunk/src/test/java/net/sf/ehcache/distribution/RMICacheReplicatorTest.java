@@ -953,6 +953,67 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
 
 
     /**
+     * test removeAll sync
+     */
+    public void testRemoveAllAsynchronous() throws Exception {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+        removeAllTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
+    }
+
+    /**
+     * test removeAll async
+     */
+    public void testRemoveAllSynchronous() throws Exception {
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+        removeAllTest(manager1.getCache("sampleCache3"), manager2.getCache("sampleCache3"), SYNCHRONOUS);
+    }
+
+    /**
+     * Tests removeAll initiated from a cache to another cache in a cluster
+     * <p/>
+     * This test goes into an infinite loop if the chain of notifications is not somehow broken.
+     */
+    public void removeAllTest(Ehcache fromCache, Ehcache toCache, boolean asynchronous) throws Exception {
+
+        //removeAll is distributed. Stop it colliding with the rest of the test
+        waitForProgagate();
+
+
+        Serializable key = new Date();
+        Serializable value = new Date();
+        Element element1 = new Element(key, value);
+
+        //Put
+        fromCache.put(element1);
+
+
+        if (asynchronous) {
+            waitForProgagate();
+        }
+
+        //Should have been replicated to cache2.
+        Element element2 = toCache.get(key);
+        assertEquals(element1, element2);
+
+        //Remove
+        fromCache.removeAll();
+        if (asynchronous) {
+            waitForProgagate();
+        }
+
+        //Should have been replicated to cache2.
+        element2 = toCache.get(key);
+        assertNull(element2);
+        assertEquals(0, toCache.getSize());
+
+    }
+
+
+    /**
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
@@ -995,6 +1056,9 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
 
         fromCache.removeAll();
         toCache.removeAll();
+
+        //removeAll is distributed. Stop it colliding with the rest of the test
+        waitForProgagate();
 
         Serializable key = new Date();
         Serializable value = new Date();
@@ -1041,6 +1105,9 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
 
         cache2 = manager2.getCache("sampleCache2");
         cache2.removeAll();
+
+        //removeAll is distributed. Stop it colliding with the rest of the test
+        waitForProgagate();
 
         Serializable key = "1";
         Serializable value = new Date();

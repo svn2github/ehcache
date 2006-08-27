@@ -157,6 +157,68 @@ public class CacheEventListenerTest extends TestCase {
 
 
     /**
+     * Tests the eviction notifier.
+     * sampleCache2 does not overflow, so an evict should trigger a notification
+     */
+    public void testEvictNotificationsWhereNoOverflow() {
+
+        Ehcache cache2 = manager.getCache("sampleCache2");
+
+        //Put 11. 1 should be evicted
+        Element element = null;
+        for (int i = 0; i < 11; i++) {
+            element = new Element("" + i, new Date());
+            cache2.put(element);
+        }
+
+        List notifications = CountingCacheEventListener.getCacheElementsEvicted(cache2);
+        assertEquals(1, notifications.size());
+    }
+
+    /**
+     * Tests the eviction notifier.
+     * sampleCache1 overflows, so the evict should overflow to disk and not trigger a notification
+     */
+    public void testEvictNotificationsWhereOverflow() {
+
+        Ehcache cache1 = manager.getCache("sampleCache1");
+
+        //Put 11. 1 should be evicted
+        Element element = null;
+        for (int i = 0; i < 11; i++) {
+            element = new Element("" + i, new Date());
+            cache1.put(element);
+        }
+
+        List notifications = CountingCacheEventListener.getCacheElementsEvicted(cache1);
+        assertEquals(0, notifications.size());
+    }
+
+    /**
+     * Tests the removeAll notifier.
+     */
+    public void testRemoveAllNotification() {
+
+        Ehcache cache2 = manager.getCache("sampleCache2");
+
+        //Put 11.
+        Element element = null;
+        for (int i = 0; i < 11; i++) {
+            element = new Element("" + i, new Date());
+            cache2.put(element);
+        }
+
+        List notifications = CountingCacheEventListener.getCacheRemoveAlls(cache2);
+        assertEquals(0, notifications.size());
+
+        //Remove all
+        cache2.removeAll();
+        notifications = CountingCacheEventListener.getCacheRemoveAlls(cache2);
+        assertEquals(1, notifications.size());
+    }
+
+
+    /**
      * Tests the remove notifier where the element does not exist in the local cache.
      * Listener notification is required for correct operation of cluster invalidation.
      */
@@ -172,7 +234,7 @@ public class CacheEventListenerTest extends TestCase {
 
 
         List notifications = CountingCacheEventListener.getCacheElementsRemoved(cache);
-        assertEquals(key, ((Element)notifications.get(0)).getKey());
+        assertEquals(key, ((Element) notifications.get(0)).getKey());
 
         //An unsuccessful remove should notify
         cache.remove(key);
@@ -289,6 +351,20 @@ public class CacheEventListenerTest extends TestCase {
          */
         public void notifyElementExpired(final Ehcache cache, final Element element) {
             cache.put(new Element(element.getKey(), "set on notify"));
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void notifyElementEvicted(final Ehcache cache, final Element element) {
+            //
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void notifyRemoveAll(final Ehcache cache) {
+            //
         }
 
         /**
@@ -436,7 +512,7 @@ public class CacheEventListenerTest extends TestCase {
     /**
      * When the <code>MemoryStore</code> overflows, and there is no disk
      * store, then the element gets automatically removed. This should
-     * trigger a remove notification.
+     * trigger an eviction notification.
      */
     public void testEvictionFromLRUMemoryStoreNoExpiry() throws IOException, CacheException, InterruptedException {
         String sampleCache2 = "sampleCache2";
@@ -446,8 +522,8 @@ public class CacheEventListenerTest extends TestCase {
             cache.put(new Element(i + "", new Date()));
         }
         cache.put(new Element(11 + "", new Date()));
-        List removalNotifications = CountingCacheEventListener.getCacheElementsRemoved(cache);
-        assertEquals(1, removalNotifications.size());
+        List evictionNotifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
+        assertEquals(1, evictionNotifications.size());
 
         List expiryNotifications = CountingCacheEventListener.getCacheElementsExpired(cache);
         assertEquals(0, expiryNotifications.size());
@@ -455,8 +531,8 @@ public class CacheEventListenerTest extends TestCase {
 
     /**
      * When the <code>MemoryStore</code> overflows, and there is no disk
-     * store, then the element gets automatically removed. This should
-     * trigger a remove notification.
+     * store, then the element gets automatically evicted. This should
+     * trigger an eviction notification.
      */
     public void testEvictionFromLRUMemoryStoreNotSerializable() throws IOException, CacheException, InterruptedException {
         String sampleCache1 = "sampleCache1";
@@ -470,8 +546,8 @@ public class CacheEventListenerTest extends TestCase {
             cache.put(new Element(i + "", new Date()));
         }
 
-        List removalNotifications2 = CountingCacheEventListener.getCacheElementsRemoved(cache);
-        assertEquals(1, removalNotifications2.size());
+        List evictionNotifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
+        assertEquals(1, evictionNotifications.size());
 
         List expiryNotifications = CountingCacheEventListener.getCacheElementsExpired(cache);
         assertEquals(0, expiryNotifications.size());
@@ -495,7 +571,7 @@ public class CacheEventListenerTest extends TestCase {
         Thread.sleep(1030);
         cache.put(new Element(11 + "", new Date()));
 
-        List removalNotifications = CountingCacheEventListener.getCacheElementsRemoved(cache);
+        List removalNotifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
         assertEquals(0, removalNotifications.size());
 
         List expiryNotifications = CountingCacheEventListener.getCacheElementsExpired(cache);
@@ -504,7 +580,7 @@ public class CacheEventListenerTest extends TestCase {
 
     /**
      * When the <code>MemoryStore</code> overflows, and there is no disk
-     * store, then the element gets automatically removed. This should
+     * store, then the element gets automatically evicted. This should
      * trigger a notification.
      */
     public void testEvictionFromFIFOMemoryStoreNoExpiry() throws IOException, CacheException {
@@ -517,7 +593,7 @@ public class CacheEventListenerTest extends TestCase {
 
         cache.put(new Element(11 + "", new Date()));
 
-        List removalNotifications = CountingCacheEventListener.getCacheElementsRemoved(cache);
+        List removalNotifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
         assertEquals(1, removalNotifications.size());
 
         List expiryNotifications = CountingCacheEventListener.getCacheElementsExpired(cache);
@@ -526,7 +602,7 @@ public class CacheEventListenerTest extends TestCase {
 
     /**
      * When the <code>MemoryStore</code> overflows, and there is no disk
-     * store, then the element gets automatically removed. This should
+     * store, then the element gets automatically evicted. This should
      * trigger a notification.
      * <p/>
      * If the element has expired, it should instead trigger an expiry notification.
@@ -542,8 +618,8 @@ public class CacheEventListenerTest extends TestCase {
         Thread.sleep(1001);
         cache.put(new Element(11 + "", new Date()));
 
-        List removalNotifications = CountingCacheEventListener.getCacheElementsRemoved(cache);
-        assertEquals(0, removalNotifications.size());
+        List notifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
+        assertEquals(0, notifications.size());
 
         List expiryNotifications = CountingCacheEventListener.getCacheElementsExpired(cache);
         assertEquals(1, expiryNotifications.size());
@@ -551,7 +627,7 @@ public class CacheEventListenerTest extends TestCase {
 
     /**
      * When the <code>MemoryStore</code> overflows, and there is no disk
-     * store, then the element gets automatically removed. This should
+     * store, then the element gets automatically evicted. This should
      * trigger a notification.
      */
     public void testEvictionFromLFUMemoryStoreNoExpiry() throws IOException, CacheException {
@@ -564,8 +640,8 @@ public class CacheEventListenerTest extends TestCase {
 
         cache.put(new Element(11 + "", new Date()));
 
-        List removalNotifications = CountingCacheEventListener.getCacheElementsRemoved(cache);
-        assertEquals(1, removalNotifications.size());
+        List notifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
+        assertEquals(1, notifications.size());
 
         List expiryNotifications = CountingCacheEventListener.getCacheElementsExpired(cache);
         assertEquals(0, expiryNotifications.size());
@@ -589,8 +665,8 @@ public class CacheEventListenerTest extends TestCase {
         Thread.sleep(1001);
         cache.put(new Element(11 + "", new Date()));
 
-        List removalNotifications = CountingCacheEventListener.getCacheElementsRemoved(cache);
-        assertEquals(0, removalNotifications.size());
+        List notifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
+        assertEquals(0, notifications.size());
 
         List expiryNotifications = CountingCacheEventListener.getCacheElementsExpired(cache);
         assertEquals(1, expiryNotifications.size());

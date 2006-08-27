@@ -377,7 +377,7 @@ public abstract class MemoryStore implements Store {
         }
 
         if (!spooled) {
-            cache.getCacheEventNotificationService().notifyElementRemoved(element, false);
+            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
         }
     }
 

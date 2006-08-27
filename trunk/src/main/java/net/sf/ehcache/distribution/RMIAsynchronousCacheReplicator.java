@@ -208,6 +208,10 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      *                no element was removed.
      */
     public final void notifyElementRemoved(final Ehcache cache, final Element element) throws CacheException {
+        if (notAlive()) {
+            return;
+        }
+
         if (!replicateRemovals) {
             return;
         }
@@ -220,6 +224,32 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
         }
         addToReplicationQueue(new CacheEventMessage(EventMessage.REMOVE, cache, null, element.getKey()));
     }
+
+
+    /**
+     * Called during {@link net.sf.ehcache.Ehcache#removeAll()} to indicate that the all
+     * elements have been removed from the cache in a bulk operation. The usual
+     * {@link #notifyElementRemoved(net.sf.ehcache.Ehcache,net.sf.ehcache.Element)}
+     * is not called.
+     * <p/>
+     * This notification exists because clearing a cache is a special case. It is often
+     * not practical to serially process notifications where potentially millions of elements
+     * have been bulk deleted.
+     *
+     * @param cache the cache emitting the notification
+     */
+    public void notifyRemoveAll(final Ehcache cache) {
+        if (notAlive()) {
+            return;
+        }
+
+        if (!replicateRemovals) {
+            return;
+        }
+
+        addToReplicationQueue(new CacheEventMessage(EventMessage.REMOVE_ALL, cache, null, null));
+    }
+
 
     /**
      * Adds a message to the queue.

@@ -232,16 +232,6 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
         }
     }
 
-    /**
-     * Package protected List of cache peers
-     *
-     * @param cache
-     * @return a list of {@link CachePeer} peers for the given cache, excluding the local peer.
-     */
-    static List listRemoteCachePeers(Ehcache cache) {
-        CacheManagerPeerProvider provider = cache.getCacheManager().getCachePeerProvider();
-        return provider.listRemoteCachePeers(cache);
-    }
 
     /**
      * {@inheritDoc}
@@ -255,6 +245,74 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
           preseerving coherency.
           */
     }
+
+    /**
+     * Called immediately after an element is evicted from the cache. Evicted in this sense
+     * means evicted from one store and not moved to another, so that it exists nowhere in the
+     * local cache.
+     * <p/>
+     * In a sense the Element has been <i>removed</i> from the cache, but it is different,
+     * thus the separate notification.
+     * <p/>
+     * This replicator does not propagate these events
+     *
+     * @param cache   the cache emitting the notification
+     * @param element the element that has just been evicted
+     */
+    public void notifyElementEvicted(final Ehcache cache, final Element element) {
+        /**
+         * do not notify these
+         */
+    }
+
+
+    /**
+     * Called during {@link net.sf.ehcache.Ehcache#removeAll()} to indicate that the all
+     * elements have been removed from the cache in a bulk operation. The usual
+     * {@link #notifyElementRemoved(net.sf.ehcache.Ehcache,net.sf.ehcache.Element)}
+     * is not called.
+     * <p/>
+     * This notification exists because clearing a cache is a special case. It is often
+     * not practical to serially process notifications where potentially millions of elements
+     * have been bulk deleted.
+     *
+     * @param cache the cache emitting the notification
+     */
+    public void notifyRemoveAll(final Ehcache cache) {
+        if (notAlive()) {
+            return;
+        }
+
+        if (!replicateRemovals) {
+            return;
+        }
+
+        replicateRemoveAllNotification(cache);
+    }
+
+    private void replicateRemoveAllNotification(Ehcache cache) {
+        List cachePeers = listRemoteCachePeers(cache);
+        for (int i = 0; i < cachePeers.size(); i++) {
+            CachePeer cachePeer = (CachePeer) cachePeers.get(i);
+            try {
+                cachePeer.removeAll();
+            } catch (Throwable e) {
+                throw new RemoteCacheException("Error doing removeAll to remote peer. Message was: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Package protected List of cache peers
+     *
+     * @param cache
+     * @return a list of {@link CachePeer} peers for the given cache, excluding the local peer.
+     */
+    static List listRemoteCachePeers(Ehcache cache) {
+        CacheManagerPeerProvider provider = cache.getCacheManager().getCachePeerProvider();
+        return provider.listRemoteCachePeers(cache);
+    }
+
 
     /**
      * @return whether update is through copy or invalidate

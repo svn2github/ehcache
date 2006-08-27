@@ -11,8 +11,9 @@
     </path>
 
     <target name="clean" description="Cleans the build directory">
-        <echo level="error" message="basedir ${basedir}"/>
-        <echo level="error" message="${build.working.dir}"/>
+        <echo message="basedir ${basedir}"/>
+        <!-- Team City -->
+        <echo message="build.working.dir ${build.working.dir}"/>
         <delete dir="${build.dir}"/>
     </target>
 

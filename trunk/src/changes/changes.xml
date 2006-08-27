@@ -21,6 +21,21 @@
                 configuration to control the interval at which it runs. The default is 1000ms, which
                 is the value it was hardcoded too in earlier versions.
             </action>
+            <action dev="Greg Luck" type="add">
+                Added a new notifyRemoveAll cache event notification as requested by users. Called during Ehcache#removeAll() to
+                indicate that the all elements have been removed from the cache in a bulk operation. The usual
+                notifyElementRemoved is not called.
+                This notification exists because clearing a cache is a special case. It is often
+                not practical to serially process notifications where potentially millions of elements
+                have been bulk deleted.
+            </action>
+            <action dev="Greg Luck" type="add">
+                Added a new notifyElementEvicted cache event notification as requested by users. 
+                Called immediately after an element is evicted from the cache. Evicted in this sense
+                means evicted from one store and not moved to another, so that it exists nowhere in the
+                local cache. In a sense the Element has been <i>removed</i> from the cache, but it is different,
+                thus the separate notification. The usual notifyElementRemoved is not called.
+            </action>
             <action dev="Greg Luck" issue="1523915" type="update">
                 Asynchronous replication / soft references.
                 There is a trade off between OutOfMemory risk and replication correctness.

@@ -270,6 +270,15 @@ arguments; nested exception is: java.net.MalformedURLException: no protocol: Fil
 
     The workaround is to remove the spaces in your tomcat installation path.
 
+* Why can't I run multiple applications using ehcache one machine?
+
+   Because of an RMI bug, in JDKs before JDK1.5 such as JDK1.4.2, ehcache is limited to one CacheManager operating in distributed mode per virtual machine.
+   (The bug limits the number of RMI registries to one per virtual machine). Because this is the expected deployment configuration, however,
+    there should be no practical effect. The tell tail error is <<<java.rmi.server.ExportException: internal error: ObjID already in use>>>
+
+    On JDK1.5 and higher it is possible to have multiple CacheManagers per VM each participating in the same or different clusters.
+    Indeed the replication tests do this with 5 CacheManagers on the same VM all run from JUnit. 
+
 
 
 

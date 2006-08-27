@@ -39,6 +39,8 @@ public class CountingCacheEventListener implements CacheEventListener {
     private static final List CACHE_ELEMENTS_UPDATED = Collections.synchronizedList(new ArrayList());
     private static final List CACHE_ELEMENTS_REMOVED = Collections.synchronizedList(new ArrayList());
     private static final List CACHE_ELEMENTS_EXPIRED = Collections.synchronizedList(new ArrayList());
+    private static final List CACHE_ELEMENTS_EVICTED = Collections.synchronizedList(new ArrayList());
+    private static final List CACHE_REMOVE_ALLS = Collections.synchronizedList(new ArrayList());
 
 
     /**
@@ -71,6 +73,22 @@ public class CountingCacheEventListener implements CacheEventListener {
     }
 
     /**
+     * Accessor
+     */
+    public static List getCacheElementsEvicted(Ehcache cache) {
+        return extractListForGivenCache(CACHE_ELEMENTS_EVICTED, cache);
+    }
+
+    /**
+     * Accessor
+     */
+    public static List getCacheRemoveAlls(Ehcache cache) {
+        return extractListForGivenCache(CACHE_REMOVE_ALLS, cache);
+    }
+
+
+
+    /**
      * Resets the counters to 0
      */
     public static void resetCounters() {
@@ -85,6 +103,12 @@ public class CountingCacheEventListener implements CacheEventListener {
         }
         synchronized (CACHE_ELEMENTS_EXPIRED) {
             CACHE_ELEMENTS_EXPIRED.clear();
+        }
+        synchronized (CACHE_ELEMENTS_EVICTED) {
+            CACHE_ELEMENTS_EVICTED.clear();
+        }
+        synchronized (CACHE_REMOVE_ALLS) {
+            CACHE_REMOVE_ALLS.clear();
         }
     }
 
@@ -156,6 +180,21 @@ public class CountingCacheEventListener implements CacheEventListener {
      */
     public void notifyElementExpired(final Ehcache cache, final Element element) {
         CACHE_ELEMENTS_EXPIRED.add(new CounterEntry(cache, element));
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyElementEvicted(final Ehcache cache, final Element element) {
+        CACHE_ELEMENTS_EVICTED.add(new CounterEntry(cache, element));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyRemoveAll(final Ehcache cache) {
+        CACHE_REMOVE_ALLS.add(new CounterEntry(cache, null));
     }
 
     /**

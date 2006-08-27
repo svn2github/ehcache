@@ -782,6 +782,17 @@ public class BlockingCache implements Ehcache {
     }
 
     /**
+     * Removes all cached items.
+     *
+     * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer,
+     *                                    in which case this put should not initiate a further notification to doNotNotifyCacheReplicators cache peers
+     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     */
+    public void removeAll(boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
+        cache.removeAll(doNotNotifyCacheReplicators);
+    }
+
+    /**
      * Flushes all cache items from memory to the disk store, and from the DiskStore to disk.
      *
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}

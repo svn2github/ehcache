@@ -108,7 +108,7 @@ public final class RegisteredEventListeners {
     /**
      * Notifies all registered listeners, in no guaranteed order, that an element has expired
      *
-     * @param element
+     * @param element the Element to perform the notification on
      * @param remoteEvent whether the event came from a remote cache peer
      * @see CacheEventListener#notifyElementExpired
      */
@@ -118,6 +118,42 @@ public final class RegisteredEventListeners {
             CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
             if (!isCircularNotification(remoteEvent, cacheEventListener)) {
                 cacheEventListener.notifyElementExpired(cache, element);
+            }
+        }
+    }
+
+    /**
+     * Notifies all registered listeners, in no guaranteed order, that an element has been
+     * evicted from the cache
+     *
+     * @param element the Element to perform the notification on
+     * @param remoteEvent whether the event came from a remote cache peer
+     * @see CacheEventListener#notifyElementEvicted
+     */
+    public void notifyElementEvicted(Element element, boolean remoteEvent) {
+        Iterator iterator = cacheEventListeners.iterator();
+        while (iterator.hasNext()) {
+            CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
+            if (!isCircularNotification(remoteEvent, cacheEventListener)) {
+                cacheEventListener.notifyElementEvicted(cache, element);
+            }
+        }
+    }
+
+
+    /**
+     * Notifies all registered listeners, in no guaranteed order, that removeAll
+     * has been called and all elements cleared
+     *
+     * @param remoteEvent whether the event came from a remote cache peer
+     * @see CacheEventListener#notifyElementEvicted
+     */
+    public void notifyRemoveAll(boolean remoteEvent) {
+        Iterator iterator = cacheEventListeners.iterator();
+        while (iterator.hasNext()) {
+            CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
+            if (!isCircularNotification(remoteEvent, cacheEventListener)) {
+                cacheEventListener.notifyRemoveAll(cache);
             }
         }
     }
@@ -201,4 +237,6 @@ public final class RegisteredEventListeners {
         }
         return stringBuffer.toString();
     }
+
+
 }

@@ -190,7 +190,10 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
     public final void removeAll() throws RemoteException, IllegalStateException {
-        cache.removeAll();
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Remote removeAll received");
+        }
+        cache.removeAll(true);
     }
 
     /**
@@ -203,8 +206,12 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
             EventMessage eventMessage = (EventMessage) eventMessages.get(i);
             if (eventMessage.getEvent() == EventMessage.PUT) {
                 put(eventMessage.getElement());
-            } else {
+            } else if (eventMessage.getEvent() == EventMessage.REMOVE) {
                 remove(eventMessage.getSerializableKey());
+            } else if (eventMessage.getEvent() == EventMessage.REMOVE_ALL) {
+                removeAll();
+            } else {
+                LOG.error("Unknown event: " + eventMessage);
             }
         }
     }

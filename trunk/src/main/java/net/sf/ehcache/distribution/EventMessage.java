@@ -48,6 +48,12 @@ public final class EventMessage implements Serializable {
     public static final int REMOVE = 1;
 
 
+    /**
+     * A removeAll, which removes all elements from a cache
+     */
+    public static final int REMOVE_ALL = 3;
+
+
     private static final long serialVersionUID = -1489714419687627134L;
 
     /**

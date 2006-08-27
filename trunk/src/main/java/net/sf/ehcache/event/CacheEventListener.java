@@ -28,14 +28,14 @@ import net.sf.ehcache.Element;
  * <li>put Element
  * <li>update Element
  * <li>remove Element
+ * <li>evict Element
  * <li>an Element expires, either because timeToLive or timeToIdle has been reached.
+ * <li>removeAll, which causes all elements to be cleared from the cache
  * </ol>
  * <p/>
  * Callbacks to these methods are synchronous and unsynchronized. It is the responsibility of
  * the implementer to safely handle the potential performance and thread safety issues
  * depending on what their listener is doing.
- * <p/>
- * Events are guaranteed to be notified in the order in which they occurred.
  * <p/>
  * Cache also has putQuiet and removeQuiet methods which do not notify listeners.
  *
@@ -54,6 +54,12 @@ public interface CacheEventListener extends Cloneable {
      * the removal key or not. If an element was removed, the element is passed to this method,
      * otherwise a synthetic element, with only the key set is passed in.
      * <p/>
+     * This notification is not called for the following special cases:
+     * <ol>
+     * <li>removeAll was called. See {@link #notifyRemoveAll(net.sf.ehcache.Ehcache)}
+     * <li>An element was evicted from the cache.
+     * See {@link #notifyElementEvicted(net.sf.ehcache.Ehcache, net.sf.ehcache.Element)}
+     * </ol>
      *
      * @param cache   the cache emitting the notification
      * @param element the element just deleted, or a synthetic element with just the key set if
@@ -119,6 +125,32 @@ public interface CacheEventListener extends Cloneable {
      *                should not call back into Cache.
      */
     void notifyElementExpired(final Ehcache cache, final Element element);
+
+    /**
+     * Called immediately after an element is evicted from the cache. Evicted in this sense
+     * means evicted from one store and not moved to another, so that it exists nowhere in the
+     * local cache.
+     * <p/>
+     * In a sense the Element has been <i>removed</i> from the cache, but it is different,
+     * thus the separate notification.
+     *
+     * @param cache   the cache emitting the notification
+     * @param element the element that has just been evicted
+     */
+    void notifyElementEvicted(final Ehcache cache, final Element element);
+
+    /**
+     * Called during {@link net.sf.ehcache.Ehcache#removeAll()} to indicate that the all
+     * elements have been removed from the cache in a bulk operation. The usual
+     * {@link #notifyElementRemoved(net.sf.ehcache.Ehcache, net.sf.ehcache.Element)}
+     * is not called.
+     * <p/>
+     * This notification exists because clearing a cache is a special case. It is often
+     * not practical to serially process notifications where potentially millions of elements
+     * have been bulk deleted.
+     * @param cache the cache emitting the notification
+     */
+    void notifyRemoveAll(final Ehcache cache);
 
 
     /**

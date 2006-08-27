@@ -24,9 +24,6 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * A Null Object Pattern implementation of CacheEventListener. It simply logs the calls made.
- * <p/>
- * It is used by default.
- *
  * @author Greg Luck
  * @version $Id$
  * @since 1.2
@@ -88,6 +85,20 @@ public class NullCacheEventListener implements CacheEventListener {
         if (LOG.isTraceEnabled()) {
             LOG.trace("notifyElementExpired called for cache " + cache + " for element with key " + element.getObjectKey());
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyElementEvicted(final Ehcache cache, final Element element) {
+        //
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyRemoveAll(final Ehcache cache) {
+        //
     }
 
     /**

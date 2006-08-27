@@ -57,6 +57,7 @@ import java.util.Set;
  * not synchronized but some others synchronized. All concurrent tests pass so it is probably ok 
  * but needs further thought. Write a test that exercises all Cache methods concurrently in
  * multiple threads
+ * todo concurrent removeAll test
  * todo a test for RemoteDebugger
  */
 public class Cache implements Ehcache {
@@ -1022,18 +1023,27 @@ public class Cache implements Ehcache {
         return removed;
     }
 
+    /**
+     * Removes all cached items.
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     */
+    public synchronized void removeAll() throws IllegalStateException, CacheException {
+        removeAll(false);
+    }
+
 
     /**
      * Removes all cached items.
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public final synchronized void removeAll() throws IllegalStateException, CacheException {
+    public synchronized void removeAll(boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
         checkStatus();
         memoryStore.removeAll();
         if (overflowToDisk) {
             diskStore.removeAll();
         }
+        registeredEventListeners.notifyRemoveAll(doNotNotifyCacheReplicators);
     }
 
     /**
