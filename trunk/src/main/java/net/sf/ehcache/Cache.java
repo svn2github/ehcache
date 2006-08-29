@@ -57,8 +57,6 @@ import java.util.Set;
  * not synchronized but some others synchronized. All concurrent tests pass so it is probably ok 
  * but needs further thought. Write a test that exercises all Cache methods concurrently in
  * multiple threads
- * todo concurrent removeAll test
- * todo a test for RemoteDebugger
  */
 public class Cache implements Ehcache {
 

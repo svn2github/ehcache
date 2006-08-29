@@ -239,7 +239,7 @@
         <mkdir dir="${dist.dir}"/>
         <jar destfile="${dist.dir}/${name}-${version}.jar">
             <fileset dir="${build.classes.dir}"/>
-            <fileset dir="${basedir}" includes="LICENSE.txt"/>
+            <fileset dir="${basedir}" includes="LICENSE.txt"/>                                       
         </jar>
     </target>
 
@@ -339,9 +339,9 @@
 
 
 
-    <!-- Copy the clover jar to your ant lib directory to run these -->
-    <taskdef resource="com/cenqua/ant/antlib.xml" classpath="tools/cenquatasks.jar"/>
-    <extendclasspath path="tools/clover-1.3.12.jar"/>
+    <!-- Broken in TeamCity -->
+    <!--<taskdef resource="com/cenqua/ant/antlib.xml" classpath="tools/cenquatasks.jar"/>-->
+    <!--<extendclasspath path="tools/clover-1.3.12.jar"/>-->
 
     <taskdef resource="clovertasks">
         <classpath refid="project.class.path"/>

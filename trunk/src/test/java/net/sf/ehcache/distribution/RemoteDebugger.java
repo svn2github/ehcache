@@ -47,7 +47,8 @@ public final class RemoteDebugger {
      * Additional logging messages can be observed by setting the logging level to debug
      * or trace for net.sf.ehcache.distribution
      *
-     * @param args
+     * @param args path_to_ehcache.xml and a cache name
+     * @throws InterruptedException thrown when it is interrupted. It will keep going until then.
      */
     public static void main(String[] args) throws InterruptedException {
 
@@ -65,26 +66,27 @@ public final class RemoteDebugger {
 
         CacheManager manager = new CacheManager(args[0]);
         String[] cacheNames = manager.getCacheNames();
-        String cacheName = args[1];
-        Ehcache cache = manager.getCache(cacheName);
-        if (cache == null) {
-            StringBuffer sb = new StringBuffer();
+        StringBuffer availableCaches = new StringBuffer();
+        if (args.length == 1) {
             for (int i = 0; i < cacheNames.length; i++) {
                 String name = cacheNames[i];
-                sb.append(name).append(' ');
+                availableCaches.append(name).append(' ');
             }
-            if (cacheName != null) {
-                LOG.error("No cache named " + cacheName + " exists. Available caches are: " + sb);
-            } else {
-                LOG.info("Available caches are: " + sb);
-            }
+            LOG.info("Available caches are: " + availableCaches);
             System.exit(1);
-        }
-        LOG.info(args[1] + " " + cache);
+        } else {
+            String cacheName = args[1];
+            Ehcache cache = manager.getCache(cacheName);
+            if (cache == null) {
+                LOG.error("No cache named " + cacheName + " exists. Available caches are: " + availableCaches);
+            } else {
+                LOG.info("Monitoring cache: " + cacheName);
 
-        while (true) {
-            Thread.sleep(TWO_SECONDS);
-            LOG.info("Cache size: " + cache.getSize());
+                while (true) {
+                    Thread.sleep(TWO_SECONDS);
+                    LOG.info("Cache size: " + cache.getSize());
+                }
+            }
         }
     }
 }

@@ -53,8 +53,7 @@ public final class EventMessage implements Serializable {
      */
     public static final int REMOVE_ALL = 3;
 
-
-    private static final long serialVersionUID = -1489714419687627134L;
+    private static final long serialVersionUID = -293616939110963629L;
 
     /**
      * The event component.

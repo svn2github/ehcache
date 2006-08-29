@@ -57,14 +57,19 @@ public class JNDIRMICacheReplicatorTest extends RMICacheReplicatorTest {
         manager4 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-jndi4.xml");
         manager5 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-jndi5.xml");
 
-//      manager6 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-jndi6.xml");
+        //manager6 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-jndi6.xml");
+
+        //allow cluster to be established
+        Thread.sleep(1000);
 
         cache1 = manager1.getCache(cacheName);
-
         cache1.removeAll();
 
         cache2 = manager2.getCache(cacheName);
         cache2.removeAll();
+
+        //enable distributed removeAlls to finish
+        waitForProgagate();
 
     }
 

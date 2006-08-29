@@ -1462,11 +1462,12 @@ public class CacheTest extends AbstractCacheTest {
      * 200000   50          500
      * 200000   500         800
      * </pre>
+     * todo removeAll
      */
     public void testReadWriteThreads() throws Exception {
 
         final int size = 10000;
-        final int maxTime = 330;
+        final int maxTime = 400;
         final Cache cache = new Cache("test3cache", size, false, true, 30, 30);
         manager.addCache(cache);
 
