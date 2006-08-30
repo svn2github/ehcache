@@ -42,6 +42,11 @@ public class JNDIRMICacheReplicatorTest extends RMICacheReplicatorTest {
     private static final Log LOG = LogFactory.getLog(JNDIRMICacheReplicatorTest.class.getName());
 
     /**
+     * Allows setup to be the same
+     */
+    protected String cacheNameBase = "ehcache-distributed-jndi";
+
+    /**
      * {@inheritDoc}
      * Sets up two caches: cache1 is local. cache2 is to be receive updates
      *
@@ -109,7 +114,7 @@ public class JNDIRMICacheReplicatorTest extends RMICacheReplicatorTest {
         manager6 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-jndi6.xml");
 
         // Allow detection to occur
-        Thread.sleep(1010);
+        Thread.sleep(2000);
 
         remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
         assertEquals(5, remotePeersOfCache1.size());
@@ -213,7 +218,7 @@ public class JNDIRMICacheReplicatorTest extends RMICacheReplicatorTest {
         return new MockContextFactory();
     }
 
-        /**
+    /**
      * Need to wait for async
      *
      * @throws InterruptedException

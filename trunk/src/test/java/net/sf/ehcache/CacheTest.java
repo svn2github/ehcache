@@ -1462,12 +1462,11 @@ public class CacheTest extends AbstractCacheTest {
      * 200000   50          500
      * 200000   500         800
      * </pre>
-     * todo removeAll
      */
     public void testReadWriteThreads() throws Exception {
 
         final int size = 10000;
-        final int maxTime = 400;
+        final int maxTime = 330;
         final Cache cache = new Cache("test3cache", size, false, true, 30, 30);
         manager.addCache(cache);
 
@@ -1519,6 +1518,24 @@ public class CacheTest extends AbstractCacheTest {
                     long end = stopWatch.getElapsedTime();
                     long elapsed = end - start;
                     assertTrue("Remove time outside of allowed range: " + elapsed, elapsed < maxTime);
+                }
+            };
+            executables.add(executable);
+        }
+
+        //some of the time remove the data
+        for (int i = 0; i < 10; i++) {
+            final Executable executable = new Executable() {
+                public void execute() throws Exception {
+                    final StopWatch stopWatch = new StopWatch();
+                    long start = stopWatch.getElapsedTime();
+                    int randomInteger = random.nextInt(20);
+                    if (randomInteger == 3) {
+                        cache.removeAll();
+                    }
+                    long end = stopWatch.getElapsedTime();
+                    long elapsed = end - start;
+                    assertTrue("RemoveAll time outside of allowed range: " + elapsed, elapsed < maxTime);
                 }
             };
             executables.add(executable);

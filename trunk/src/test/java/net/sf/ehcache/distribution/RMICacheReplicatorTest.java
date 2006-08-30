@@ -106,6 +106,11 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     protected Ehcache cache2;
 
     /**
+     * Allows setup to be the same
+     */
+    protected String cacheNameBase = "ehcache-distributed";
+
+    /**
      * {@inheritDoc}
      * Sets up two caches: cache1 is local. cache2 is to be receive updates
      *
@@ -132,7 +137,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         //manager6 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-jndi6.xml");
 
         //allow cluster to be established
-        Thread.sleep(1000);
+        Thread.sleep(1010);
 
         cache1 = manager1.getCache(cacheName);
         cache1.removeAll();
@@ -142,7 +147,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
 
         //enable distributed removeAlls to finish
         waitForProgagate();
-
 
 
     }
@@ -185,6 +189,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         if (manager6 != null) {
             manager6.shutdown();
         }
+        Thread.sleep(50);
     }
 
     /**
@@ -1197,8 +1202,11 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
 
 
     /**
-     * This test shows that a distributed deadlock scenario exists for synchronous replication
-     * if synchronized cache methods are used.
+     * Distributed operations create extra scope for deadlock.
+     * This test checks whether a distributed deadlock scenario exists for synchronous replication
+     * of each distributed operation all at once.
+     * It shows that no distributed deadlock exists for asynchronous replication. It is multi thread
+     * and multi process safe.
      * <p/>
      * Carefully tailored to exercise:
      * <ol>
@@ -1208,9 +1216,8 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * </ol>
      * If a deadlock occurs, processing will stop until a SocketTimeout exception is thrown and
      * the deadlock will be released.
-     * todo not completing
      */
-    public void xTestBigPutsProgagatesSynchronousMultiThreaded() throws Exception, InterruptedException {
+    public void testCacheOperationsSynchronousMultiThreaded() throws Exception, InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -1223,16 +1230,15 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         executables.add(new ClusterExecutable(manager2, "sampleCache3"));
         executables.add(new ClusterExecutable(manager3, "sampleCache3"));
 
-        try {
-            runThreads(executables);
-        } catch (Exception e) {
-            //todo this should not fail. Need to remove synchronized on removeAll.
-        }
+        runThreads(executables);
     }
 
 
     /**
-     * This test shows that no distributed deadlock exists for asynchronous replication. It is multi thread
+     * Distributed operations create extra scope for deadlock.
+     * This test checks whether a distributed deadlock scenario exists for asynchronous replication
+     * of each distributed operation all at once.
+     * It shows that no distributed deadlock exists for asynchronous replication. It is multi thread
      * and multi process safe.
      * It uses sampleCache2, which is configured to be asynchronous
      * <p/>
@@ -1243,7 +1249,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * <li>we do puts, gets and removes to explore all the execution paths
      * </ol>
      */
-    public void testBigPutsProgagatesAynchronousMultiThreaded() throws Exception, InterruptedException {
+    public void testCacheOperationsAynchronousMultiThreaded() throws Exception, InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -1289,10 +1295,10 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
                 Integer key = new Integer((i));
                 int operationSelector = random.nextInt(4);
                 Cache cache = manager.getCache(cacheName);
-                if (operationSelector == 0) {
+                if (operationSelector == 100) {
                     cache.get(key);
                     LOG.info(cache.getGuid() + ": get " + key);
-                } else if (operationSelector == 1) {
+                } else if (operationSelector == 100) {
                     cache.remove(key);
                     LOG.info(cache.getGuid() + ": remove " + key);
                 } else if (operationSelector == 2) {
@@ -1304,8 +1310,11 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
                                     + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
                     LOG.info(cache.getGuid() + ": put " + key);
                 } else {
-                    LOG.info("cache.removeAll()");
-                    cache.removeAll();
+                    //every twelfth time 1/4 * 1/3 = 1/12
+                    if (random.nextInt(3) == 1) {
+                        LOG.info("cache.removeAll()");
+                        cache.removeAll();
+                    }
                 }
             }
 

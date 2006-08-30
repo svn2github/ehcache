@@ -21,7 +21,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.event.RegisteredEventListeners;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -454,8 +453,6 @@ public class DiskStore implements Store {
         try {
             checkActive();
 
-            notifyingRemoveAll();
-
             // Ditch all the elements, and truncate the file
             spool.clear();
             diskElements.clear();
@@ -470,22 +467,6 @@ public class DiskStore implements Store {
             // Clean up
             LOG.error(name + " Cache: Could not rebuild disk store. Initial cause was " + e.getMessage(), e);
             dispose();
-        }
-    }
-
-    private void notifyingRemoveAll() {
-        RegisteredEventListeners listeners = cache.getCacheEventNotificationService();
-        if (!listeners.getCacheEventListeners().isEmpty()) {
-            Object[] keys = getKeyArray();
-            for (int i = 0; i < keys.length; i++) {
-                Serializable key = (Serializable) keys[i];
-                Element element = remove(key);
-                if (element.isExpired()) {
-                    listeners.notifyElementExpiry(element, false);
-                } else {
-                    listeners.notifyElementRemoved(element, false);
-                }
-            }
         }
     }
 

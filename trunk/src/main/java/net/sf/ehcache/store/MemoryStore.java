@@ -20,7 +20,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.event.RegisteredEventListeners;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -184,12 +183,8 @@ public abstract class MemoryStore implements Store {
 
     /**
      * Remove all of the elements from the store.
-     * <p/>
-     * If there are registered <code>CacheEventListener</code>s they are notified of the expiry or removal
-     * of the <code>Element</code> as each is removed.
      */
     public final synchronized void removeAll() throws CacheException {
-        notifyingRemoveAll();
         clear();
     }
 
@@ -198,26 +193,6 @@ public abstract class MemoryStore implements Store {
      */
     protected final void clear() {
         map.clear();
-    }
-
-    /**
-     * If there are registered <code>CacheEventListener</code>s they are notified of the expiry or removal
-     * of the <code>Element</code> as each is removed.
-     */
-    protected final void notifyingRemoveAll() throws CacheException {
-        RegisteredEventListeners listeners = cache.getCacheEventNotificationService();
-        if (!listeners.getCacheEventListeners().isEmpty()) {
-            Object[] keys = getKeyArray();
-            for (int i = 0; i < keys.length; i++) {
-                Object key = keys[i];
-                Element element = remove(key);
-                if (element.isExpired()) {
-                    listeners.notifyElementExpiry(element, false);
-                } else {
-                    listeners.notifyElementRemoved(element, false);
-                }
-            }
-        }
     }
 
     /**

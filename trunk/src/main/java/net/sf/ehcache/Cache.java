@@ -53,10 +53,6 @@ import java.util.Set;
  *
  * @author Greg Luck
  * @version $Id$
- * todo Synchronization is now inconsistent as of version 171, with the basic operations
- * not synchronized but some others synchronized. All concurrent tests pass so it is probably ok 
- * but needs further thought. Write a test that exercises all Cache methods concurrently in
- * multiple threads
  */
 public class Cache implements Ehcache {
 
@@ -515,6 +511,7 @@ public class Cache implements Ehcache {
      * <li>if the element exists in the cache, that an update has occurred, even if the element would be expired
      * if it was requested
      * </ul>
+     * Synchronization is handled within the method.
      *
      * @param element An object. If Serializable it can fully participate in replication and the DiskStore.
      * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
@@ -538,6 +535,7 @@ public class Cache implements Ehcache {
      * <li>if the element exists in the cache, that an update has occurred, even if the element would be expired
      * if it was requested
      * </ul>
+     * Synchronization is handled within the method.
      *
      * @param element                     An object. If Serializable it can fully participate in replication and the DiskStore.
      * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
@@ -557,22 +555,19 @@ public class Cache implements Ehcache {
         if (element == null) {
             throw new IllegalArgumentException("Element cannot be null");
         }
+
         element.resetAccessStatistics();
-
-        boolean elementExists = false;
-        if (registeredEventListeners != null) {
-            Object key = element.getObjectKey();
-            elementExists = isElementInMemory(key) || isElementOnDisk(key);
-        }
-
+        boolean elementExists;
+        Object key = element.getObjectKey();
+        elementExists = isElementInMemory(key) || isElementOnDisk(key);
         if (elementExists) {
             element.updateUpdateStatistics();
         }
-
         applyDefaultsToElementWithoutLifespanSet(element);
 
-        memoryStore.put(element);
-
+        synchronized (this) {
+            memoryStore.put(element);
+        }
         if (elementExists) {
             registeredEventListeners.notifyElementUpdated(element, doNotNotifyCacheReplicators);
         } else {
@@ -593,7 +588,8 @@ public class Cache implements Ehcache {
 
     /**
      * Put an element in the cache, without updating statistics, or updating listeners. This is meant to be used
-     * in conjunction with {@link #getQuiet}
+     * in conjunction with {@link #getQuiet}.
+     * Synchronization is handled within the method.
      *
      * @param element An object. If Serializable it can fully participate in replication and the DiskStore.
      * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
@@ -613,7 +609,9 @@ public class Cache implements Ehcache {
 
         applyDefaultsToElementWithoutLifespanSet(element);
 
-        memoryStore.put(element);
+        synchronized (this) {
+            memoryStore.put(element);
+        }
     }
 
     /**
@@ -621,6 +619,8 @@ public class Cache implements Ehcache {
      * <p/>
      * Note that the Element's lastAccessTime is always the time of this get.
      * Use {@link #getQuiet(Object)} to peak into the Element to see its last access time with get
+     * <p/>
+     * Synchronization is handled within the method.
      *
      * @param key a serializable value
      * @return the element, or null, if it does not exist.
@@ -637,6 +637,8 @@ public class Cache implements Ehcache {
      * <p/>
      * Note that the Element's lastAccessTime is always the time of this get.
      * Use {@link #getQuiet(Object)} to peak into the Element to see its last access time with get
+     * <p/>
+     * Synchronization is handled within the method.
      *
      * @param key an Object value
      * @return the element, or null, if it does not exist.
@@ -648,27 +650,28 @@ public class Cache implements Ehcache {
         checkStatus();
         Element element;
 
-        element = searchInMemoryStore(key, true);
-        if (element == null && overflowToDisk) {
-            element = searchInDiskStore(key, true);
-        }
-
-        if (element == null) {
-            missCountNotFound++;
-            if (LOG.isTraceEnabled()) {
-                LOG.trace(name + " cache - Miss");
+        synchronized (this) {
+            element = searchInMemoryStore(key, true);
+            if (element == null && overflowToDisk) {
+                element = searchInDiskStore(key, true);
             }
-            return null;
-        } else {
-            hitCount++;
-            return element;
+            if (element == null) {
+                missCountNotFound++;
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace(name + " cache - Miss");
+                }
+            } else {
+                hitCount++;
+            }
         }
+        return element;
     }
 
     /**
      * Gets an element from the cache, without updating Element statistics. Cache statistics are
      * still updated.
      * <p/>
+     * Synchronization is handled within the method.
      *
      * @param key a serializable value
      * @return the element, or null, if it does not exist.
@@ -683,6 +686,7 @@ public class Cache implements Ehcache {
      * Gets an element from the cache, without updating Element statistics. Cache statistics are
      * not updated.
      * <p/>
+     * Synchronization is handled within the method.
      *
      * @param key a serializable value
      * @return the element, or null, if it does not exist.
@@ -694,9 +698,11 @@ public class Cache implements Ehcache {
         checkStatus();
         Element element;
 
-        element = searchInMemoryStore(key, false);
-        if (element == null && overflowToDisk) {
-            element = searchInDiskStore(key, false);
+        synchronized (this) {
+            element = searchInMemoryStore(key, false);
+            if (element == null && overflowToDisk) {
+                element = searchInDiskStore(key, false);
+            }
         }
         return element;
     }
@@ -863,6 +869,8 @@ public class Cache implements Ehcache {
      * <p/>
      * Also notifies the CacheEventListener after the element was removed, but only if an Element
      * with the key actually existed.
+     * <p/>
+     * Synchronization is handled within the method.
      *
      * @param key the element key to operate on
      * @return true if the element was removed, false if it was not found in the cache
@@ -878,6 +886,8 @@ public class Cache implements Ehcache {
      * <p/>
      * Also notifies the CacheEventListener after the element was removed, but only if an Element
      * with the key actually existed.
+     * <p/>
+     * Synchronization is handled within the method.
      *
      * @param key the element key to operate on
      * @return true if the element was removed, false if it was not found in the cache
@@ -895,6 +905,8 @@ public class Cache implements Ehcache {
      * <p/>
      * Also notifies the CacheEventListener after the element was removed, but only if an Element
      * with the key actually existed.
+     * <p/>
+     * Synchronization is handled within the method.
      *
      * @param key                         the element key to operate on
      * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
@@ -913,6 +925,8 @@ public class Cache implements Ehcache {
      * <p/>
      * Also notifies the CacheEventListener after the element was removed, but only if an Element
      * with the key actually existed.
+     * <p/>
+     * Synchronization is handled within the method.
      *
      * @param key                         the element key to operate on
      * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
@@ -928,6 +942,7 @@ public class Cache implements Ehcache {
      * Removes an {@link Element} from the Cache, without notifying listeners. This also removes it from any
      * stores it may be in.
      * <p/>
+     * Synchronization is handled within the method.
      *
      * @param key the element key to operate on
      * @return true if the element was removed, false if it was not found in the cache
@@ -941,6 +956,7 @@ public class Cache implements Ehcache {
      * Removes an {@link Element} from the Cache, without notifying listeners. This also removes it from any
      * stores it may be in.
      * <p/>
+     * Synchronization is handled within the method.
      *
      * @param key the element key to operate on
      * @return true if the element was removed, false if it was not found in the cache
@@ -959,6 +975,8 @@ public class Cache implements Ehcache {
      * Also notifies the CacheEventListener after the element has expired, but only if an Element
      * with the key actually existed.
      * <p/>
+     * Synchronization is handled within the method.
+     * <p/>
      * If a remove was called, listeners are notified, regardless of whether the element existed or not.
      * This allows distributed cache listeners to remove elements from a cluster regardless of whether they
      * existed locally.
@@ -976,7 +994,21 @@ public class Cache implements Ehcache {
         checkStatus();
         boolean removed = false;
         Element elementFromMemoryStore;
-        elementFromMemoryStore = memoryStore.remove(key);
+        Element elementFromDiskStore;
+        synchronized (this) {
+            elementFromMemoryStore = memoryStore.remove(key);
+
+            //could have been removed from both places, if there are two copies in the cache
+            elementFromDiskStore = null;
+            if (overflowToDisk) {
+                if ((key instanceof Serializable)) {
+                    Serializable serializableKey = (Serializable) key;
+                    elementFromDiskStore = diskStore.remove(serializableKey);
+                }
+
+            }
+        }
+
         boolean removeNotified = false;
 
         if (elementFromMemoryStore != null) {
@@ -990,17 +1022,6 @@ public class Cache implements Ehcache {
             }
             removed = true;
         }
-
-        //could have been removed from both places, if there are two copies in the cache
-        Element elementFromDiskStore = null;
-        if (overflowToDisk) {
-            if (!(key instanceof Serializable)) {
-                return false;
-            }
-            Serializable serializableKey = (Serializable) key;
-            elementFromDiskStore = diskStore.remove(serializableKey);
-        }
-
         if (elementFromDiskStore != null) {
             if (expiry) {
                 registeredEventListeners.notifyElementExpiry(elementFromDiskStore, doNotNotifyCacheReplicators);
@@ -1010,7 +1031,6 @@ public class Cache implements Ehcache {
             }
             removed = true;
         }
-
         //If we are trying to remove an element which does not exist locally, we should still notify so that
         //cluster invalidations work.
         if (!expiry && !removeNotified) {
@@ -1023,23 +1043,28 @@ public class Cache implements Ehcache {
 
     /**
      * Removes all cached items.
+     * Synchronization is handled within the method.
+     *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public synchronized void removeAll() throws IllegalStateException, CacheException {
+    public void removeAll() throws IllegalStateException, CacheException {
         removeAll(false);
     }
 
 
     /**
      * Removes all cached items.
+     * Synchronization is handled within the method.
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public synchronized void removeAll(boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
+    public void removeAll(boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
         checkStatus();
-        memoryStore.removeAll();
-        if (overflowToDisk) {
-            diskStore.removeAll();
+        synchronized (this) {
+            memoryStore.removeAll();
+            if (overflowToDisk) {
+                diskStore.removeAll();
+            }
         }
         registeredEventListeners.notifyRemoveAll(doNotNotifyCacheReplicators);
     }
@@ -1391,8 +1416,8 @@ public class Cache implements Ehcache {
     /**
      * Gets the internal DiskStore.
      *
-     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @return the DiskStore referenced by this cache
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     final DiskStore getDiskStore() throws IllegalStateException {
         checkStatus();
@@ -1402,8 +1427,8 @@ public class Cache implements Ehcache {
     /**
      * Gets the internal MemoryStore.
      *
-     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @return the MemoryStore referenced by this cache
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     final MemoryStore getMemoryStore() throws IllegalStateException {
         checkStatus();
