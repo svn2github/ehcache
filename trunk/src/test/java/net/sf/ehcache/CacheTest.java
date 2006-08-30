@@ -76,6 +76,7 @@ public class CacheTest extends AbstractCacheTest {
         cache.getDiskStoreHitCount();
         cache.getMissCountExpired();
         cache.getMissCountNotFound();
+
     }
 
     /**

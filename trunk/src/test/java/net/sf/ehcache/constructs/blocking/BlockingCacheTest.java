@@ -16,10 +16,11 @@
 
 package net.sf.ehcache.constructs.blocking;
 
-import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.StopWatch;
+import net.sf.ehcache.CacheTest;
+import net.sf.ehcache.Status;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -36,7 +37,7 @@ import java.util.Map;
  * @author Greg Luck
  * @version $Id$
  */
-public class BlockingCacheTest extends AbstractCacheTest {
+public class BlockingCacheTest extends CacheTest {
     private static final Log LOG = LogFactory.getLog(BlockingCacheTest.class.getName());
     private BlockingCache blockingCache;
 
@@ -53,7 +54,9 @@ public class BlockingCacheTest extends AbstractCacheTest {
      * teardown
      */
     protected void tearDown() throws Exception {
-        blockingCache.removeAll();
+        if (manager.getStatus() == Status.STATUS_ALIVE) {
+            blockingCache.removeAll();
+        }
         super.tearDown();
     }
 
