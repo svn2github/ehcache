@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.distribution;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -307,7 +306,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
         String[] names = cacheManager.getCacheNames();
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
-            Ehcache cache = cacheManager.getCache(name);
+            Ehcache cache = cacheManager.getEhcache(name);
             if (cachePeers.get(name) == null) {
                 if (isDistributed(cache)) {
                     RMICachePeer peer = new RMICachePeer(cache, hostName, port, socketTimeoutMillis);
@@ -511,7 +510,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             return;
         }
 
-        Cache cache = cacheManager.getCache(cacheName);
+        Ehcache cache = cacheManager.getEhcache(cacheName);  
         if (isDistributed(cache)) {
             RMICachePeer rmiCachePeer = null;
             String url = null;

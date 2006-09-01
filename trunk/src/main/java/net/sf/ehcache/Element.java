@@ -48,7 +48,7 @@ public final class Element implements Serializable, Cloneable {
 
     private static final Log LOG = LogFactory.getLog(Element.class.getName());
 
-    private static final int ONE_SECOND = 1000;
+    private static final long ONE_SECOND = 1000L;
 
     /**
      * the cache key.

@@ -114,8 +114,10 @@ public class BlockingCache implements Ehcache {
      */
     protected final Ehcache cache;
 
-
-    private int timeoutMillis;
+    /**
+     * The amount of time to block a thread before a LockTimeoutException is thrown
+     */
+    protected int timeoutMillis;
 
     /**
      * Creates a BlockingCache which decorates the supplied cache.
@@ -476,9 +478,15 @@ public class BlockingCache implements Ehcache {
     }
 
     /**
-     * Looks up an entry.  Blocks if the entry is null.
-     * Relies on the first thread putting an entry in, which releases the lock
+     * Looks up an entry.  Blocks if the entry is null until a call to {@link #put} is done
+     * to put an Element in.
+     * <p/>
      * If a put is not done, the lock is never released
+     * <p/>
+     * Note. If a LockTimeoutException is thrown while doing a {@link #get} it means the lock was never acquired,
+     * therefore it is a threading error to call {@link #put}
+     * @throws LockTimeoutException if timeout millis is non zero and this method has been unable to
+     * acquire a lock in that time
      */
     public Element get(final Object key) throws LockTimeoutException {
         Mutex lock = getLockForKey(key);
@@ -590,9 +598,8 @@ public class BlockingCache implements Ehcache {
      * @see #isExpired
      */
     public Element get(Serializable key) throws IllegalStateException, CacheException {
-        return this.get((Object)key);
+        return this.get((Object) key);
     }
-
 
 
     /**
@@ -915,7 +922,7 @@ public class BlockingCache implements Ehcache {
         return cache.getMissCountExpired();
     }
 
-        /**
+    /**
      * Synchronized version of getName to test liveness of the object lock.
      * <p/>
      * The time taken for this method to return is a useful measure of runtime contention on the cache.
@@ -945,6 +952,7 @@ public class BlockingCache implements Ehcache {
      * <li>A failing method that perhaps fails because a resource is overloaded will be hit by each thread in turn, no matter whether there is a still a user who
      * cares about getting a response.
      * </ol>
+     *
      * @param timeoutMillis the time in ms. Must be a positive number. 0 means wait forever.
      */
     public void setTimeoutMillis(int timeoutMillis) {
@@ -956,6 +964,7 @@ public class BlockingCache implements Ehcache {
 
     /**
      * Gets the time to wait to acquire a lock.
+     *
      * @return the time in ms.
      */
     public int getTimeoutMillis() {

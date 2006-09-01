@@ -84,11 +84,11 @@ public final class EhCacheProvider implements CacheProvider {
      */
     public final Cache buildCache(String name, Properties properties) throws CacheException {
         try {
-            net.sf.ehcache.Ehcache cache = manager.getCache(name);
+            net.sf.ehcache.Ehcache cache = manager.getEhcache(name);
             if (cache == null) {
                 LOG.warn("Could not find a specific ehcache configuration for cache named [" + name + "]; using defaults.");
                 manager.addCache(name);
-                cache = manager.getCache(name);
+                cache = manager.getEhcache(name);
                 EhCacheProvider.LOG.debug("started EHCache region: " + name);
             }
             return new net.sf.ehcache.hibernate.EhCache(cache);

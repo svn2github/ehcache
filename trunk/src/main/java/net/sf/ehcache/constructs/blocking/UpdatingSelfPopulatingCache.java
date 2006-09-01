@@ -24,8 +24,6 @@ import net.sf.ehcache.constructs.concurrent.Mutex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.Serializable;
-
 
 /**
  * A {@link net.sf.ehcache.Cache} backed cache that creates entries on demand.
@@ -65,13 +63,11 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
      * @return a value
      * @throws net.sf.ehcache.CacheException
      */
-    public Element get(final Serializable key) throws LockTimeoutException {
+    public Element get(final Object key) throws LockTimeoutException {
         String oldThreadName = Thread.currentThread().getName();
         setThreadName("get", key);
 
-
         try {
-
 
             Ehcache backingCache = getCache();
             Element element = backingCache.get(key);
@@ -98,7 +94,7 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
         }
     }
 
-    private void update(final Serializable key) {
+    private void update(final Object key) {
         try {
             Ehcache backingCache = getCache();
             final Element element = backingCache.getQuiet(key);

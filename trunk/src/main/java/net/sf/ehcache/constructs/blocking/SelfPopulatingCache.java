@@ -35,10 +35,9 @@ import java.util.Iterator;
  * <p/>
  * The cache is designed to be refreshed. Refreshes operate on the backing cache, and do not
  * degrade performance of {@link #get(java.io.Serializable)} calls.
- *
+ * <p/>
  * Thread safety depends on the factory being used. The UpdatingCacheEntryFactory should be made
  * thread safe. In addition users of returned values should not modify their contents.
- *
  *
  * @author Greg Luck
  * @version $Id$
@@ -60,9 +59,10 @@ public class SelfPopulatingCache extends BlockingCache {
     }
 
     /**
-     * Looks up an object, creating it if not found.
+     * Looks up an entry.  creating it if not found.
      */
-    public Element get(final Serializable key) throws LockTimeoutException {
+    public Element get(final Object key) throws LockTimeoutException {
+
         String oldThreadName = Thread.currentThread().getName();
         setThreadName("get", key);
 
@@ -78,18 +78,34 @@ public class SelfPopulatingCache extends BlockingCache {
                 put(element);
             }
             return element;
+
+        } catch (LockTimeoutException e) {
+            //do not release the lock, because you never acquired it
+            String message = "Timeout after " + timeoutMillis + " waiting on another thread " +
+                    "to fetch object for cache entry \"" + key + "\".";
+            try {
+                throw new LockTimeoutException(message, e);
+            } catch (NoSuchMethodError noSuchMethodError) {
+                //Running 1.3 or lower
+                throw new LockTimeoutException(message);
+            }
+
+
         } catch (final Throwable throwable) {
             // Could not fetch - Ditch the entry from the cache and rethrow
+
             setThreadName("put", key);
-            //must hand back the mutex here
+            //release the lock you acquired
             put(new Element(key, null));
 
             try {
-                throw new LockTimeoutException("Could not fetch object for cache entry \"" + key + "\".", throwable);
-            } catch (NoSuchMethodError e) {
+                throw new CacheException("Could not fetch object for cache entry \"" + key + "\".", throwable);
+            } catch (NoSuchMethodError noSuchMethodError) {
                 //Running 1.3 or lower
                 throw new CacheException("Could not fetch object for cache entry \"" + key + "\".");
             }
+
+
         } finally {
             Thread.currentThread().setName(oldThreadName);
         }
@@ -176,7 +192,7 @@ public class SelfPopulatingCache extends BlockingCache {
      * @throws Exception
      */
     protected void refreshElement(final Element element, Ehcache backingCache)
-        throws Exception {
+            throws Exception {
         Object key = element.getObjectKey();
 
         if (LOG.isTraceEnabled()) {

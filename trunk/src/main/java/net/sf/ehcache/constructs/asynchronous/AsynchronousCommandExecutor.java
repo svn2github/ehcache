@@ -159,7 +159,7 @@ public final class AsynchronousCommandExecutor {
      * @throws AsynchronousCommandException if the {@link #MESSAGE_CACHE} is null
      */
     public Ehcache getMessageCache() throws AsynchronousCommandException {
-        Ehcache cache = cacheManager.getCache(MESSAGE_CACHE);
+        Ehcache cache = cacheManager.getEhcache(MESSAGE_CACHE);
         if (cache == null) {
             throw new AsynchronousCommandException(
                     "ehcache.xml with a configuration entry for " +

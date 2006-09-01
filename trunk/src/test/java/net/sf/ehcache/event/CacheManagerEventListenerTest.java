@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 import net.sf.ehcache.config.CacheConfiguration;
 
 /**
@@ -84,6 +85,8 @@ public class CacheManagerEventListenerTest extends TestCase {
         for (int i = 0; i < 10; i++) {
             manager.addCache("" + i);
         }
+        //make sure that the listener works with Ehcache interface, not just Cache
+        manager.replaceCacheWithDecoratedCache(manager.getCache("9"), new SelfPopulatingCache(manager.getCache("9"), null));
 
         assertNotNull(manager);
         assertEquals(10, manager.getCacheNames().length);

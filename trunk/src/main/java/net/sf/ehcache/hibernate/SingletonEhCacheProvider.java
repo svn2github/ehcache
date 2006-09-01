@@ -86,12 +86,12 @@ public final class SingletonEhCacheProvider implements CacheProvider {
      */
     public final Cache buildCache(String name, Properties properties) throws CacheException {
         try {
-            net.sf.ehcache.Ehcache cache = manager.getCache(name);
+            net.sf.ehcache.Ehcache cache = manager.getEhcache(name);
             if (cache == null) {
                 SingletonEhCacheProvider.LOG.warn("Could not find a specific ehcache configuration for cache named ["
                         + name + "]; using defaults.");
                 manager.addCache(name);
-                cache = manager.getCache(name);
+                cache = manager.getEhcache(name);
                 SingletonEhCacheProvider.LOG.debug("started EHCache region: " + name);
             }
             return new EhCache(cache);

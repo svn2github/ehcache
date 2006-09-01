@@ -141,6 +141,7 @@ public abstract class CachingFilter extends Filter {
         try {
             checkNoReentry(request);
             Element element = blockingCache.get(key);
+            //todo change this logic for the timeout case
             if (element == null || element.getObjectValue() == null) {
                 try {
                     // Page is not cached - build the response, cache it, and send to client

@@ -72,8 +72,14 @@
                 is not synchronized, which resolves this problem. Synchronization still occurs on
                 the stores.
             </action>
-
-
+            <action dev="Greg Luck" issue="1550043" type="fix">
+                Fixed a bug where in BlockingCache and SelfPopulatingCache where setTimeoutMillis
+                was set to a non zero value.
+            </action>
+            <action dev="Greg Luck" issue="1548314" type="fix">
+                Large TTL values cause expire time to be incorrect in Element. Changed ONE_SECOND from
+                an int to a long which fixes the issue. 
+            </action>
 
 
         </release>

@@ -15,7 +15,8 @@
  */
 
 package net.sf.ehcache.constructs.blocking;
-
+                                                    
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.CacheTest;
 import net.sf.ehcache.Ehcache;
@@ -26,9 +27,9 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Test cases for the {@link SelfPopulatingCache}.
  *
- * @version $Id$
  * @author Adam Murdoch
  * @author Greg Luck
+ * @version $Id$
  */
 public class SelfPopulatingCacheTest extends CacheTest {
     private static final Log LOG = LogFactory.getLog(SelfPopulatingCache.class.getName());
@@ -40,11 +41,16 @@ public class SelfPopulatingCacheTest extends CacheTest {
     /**
      * Shared with subclass
      */
-    protected SelfPopulatingCache selfPopulatingCache;          
+    protected SelfPopulatingCache selfPopulatingCache;
     /**
      * Shared with subclass
      */
     protected Ehcache cache;
+
+    /**
+     * Number of factory requests
+     */
+    protected volatile int cacheEntryFactoryRequests;
 
     /**
      * Load up the test cache
@@ -54,6 +60,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
         manager = new CacheManager();
         cache = manager.getCache("sampleIdlingExpiringCache");
         selfPopulatingCache = new SelfPopulatingCache(cache, new CountingCacheEntryFactory("value"));
+        cacheEntryFactoryRequests = 0;
     }
 
     /**
@@ -175,12 +182,12 @@ public class SelfPopulatingCacheTest extends CacheTest {
     /**
      * Tests discarding little used entries.
      * <cache name="sampleIdlingExpiringCache"
-     *   maxElementsInMemory="1"
-     *   eternal="false"
-     *   timeToIdleSeconds="2"
-     *   timeToLiveSeconds="5"
-     *   overflowToDisk="true"
-     *   />
+     * maxElementsInMemory="1"
+     * eternal="false"
+     * timeToIdleSeconds="2"
+     * timeToLiveSeconds="5"
+     * overflowToDisk="true"
+     * />
      */
     public void testDiscardLittleUsed() throws Exception {
         final CacheEntryFactory factory = new CountingCacheEntryFactory("value");
@@ -194,7 +201,6 @@ public class SelfPopulatingCacheTest extends CacheTest {
         assertEquals(2, selfPopulatingCache.getSize());
         Thread.sleep(2001);
 
-
         //Will be two, because counting expired elements
         assertEquals(2, selfPopulatingCache.getSize());
 
@@ -205,13 +211,13 @@ public class SelfPopulatingCacheTest extends CacheTest {
 
     /**
      * Tests discarding little used entries, where refreshing is slow.
-     *  <cache name="sampleIdlingExpiringCache"
-     *  maxElementsInMemory="1"
-     *  eternal="false"
-     *  timeToIdleSeconds="2"
-     *  timeToLiveSeconds="5"
-     *  overflowToDisk="true"
-     *  />
+     * <cache name="sampleIdlingExpiringCache"
+     * maxElementsInMemory="1"
+     * eternal="false"
+     * timeToIdleSeconds="2"
+     * timeToLiveSeconds="5"
+     * overflowToDisk="true"
+     * />
      */
     public void testDiscardLittleUsedSlow() throws Exception {
         final CacheEntryFactory factory = new CacheEntryFactory() {
@@ -223,4 +229,93 @@ public class SelfPopulatingCacheTest extends CacheTest {
         selfPopulatingCache = new SelfPopulatingCache(cache, factory);
     }
 
+
+    /**
+     * Expected: If multiple threads try to retrieve the same key from a
+     * SelfPopulatingCache at the same time, and that key is not yet in the cache,
+     * one thread obtains the lock for that key and uses the CacheEntryFactory to
+     * generate the cache entry and all other threads wait on the lock.
+     * Any and all threads which timeout while waiting for this lock should fail
+     * to acquire the lock for that key and throw an exception.
+     * <p/>
+     * This thread tests for this by having several threads to a cache "get" for
+     * the same key, allowing one to acquire the lock and the others to wait.  The
+     * one that acquires the lock and attempts to generate the cache entry for the
+     * key waits for a period of time long enough to allow all other threads to
+     * timeout waiting for the lock.  Any thread that succeeds in acquiring the lock,
+     * including the first to do so, increment a counter when they begin creating
+     * the cache entry using the CacheEntryFactory.  It is expected that this
+     * counter will only be "1" after all threads complete since all but the
+     * first to acquire it should timeout and throw exceptions.
+     */
+    public void testSelfPopulatingBlocksWithTimeoutSet() throws InterruptedException {
+        selfPopulatingCache = new SelfPopulatingCache(new Cache("TestCache", 50, false, false, 0, 0), new CachePopulator());
+        selfPopulatingCache.setTimeoutMillis(200);
+        manager.addCache(selfPopulatingCache);
+
+        CacheAccessorThread[] cacheAccessorThreads = new CacheAccessorThread[10];
+
+        for (int i = 0; i < cacheAccessorThreads.length; i++) {
+            cacheAccessorThreads[i] = new CacheAccessorThread(selfPopulatingCache, "key1");
+            cacheAccessorThreads[i].start();
+            // Do a slight delay here so that all the timeouts
+            // don't happen simultaneously - this is key to
+            // reproducing the bug
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException ignored) {
+                //
+            }
+        }
+
+        //All of the others should have timed out. The first thread will have returned null.
+        // This thread should be able to have a go, thus setting the count to 2
+        Thread.sleep(500);
+        Thread lateThread = new CacheAccessorThread(selfPopulatingCache, "key1");
+        lateThread.start();
+        lateThread.join();
+
+        assertEquals("Too many cacheAccessorThreads tried to create selfPopulatingCache entry for key1",
+                1, cacheEntryFactoryRequests);
+    }
+
+
+    /**
+     * A thread that accesses a selfpopulating cache
+     */
+    private final class CacheAccessorThread extends Thread {
+        private Ehcache cache;
+        private String key;
+
+        private CacheAccessorThread(Ehcache cache, String key) {
+            this.cache = cache;
+            this.key = key;
+        }
+
+        /**
+         * Thread run method
+         */
+        public void run() {
+            try {
+                cache.get(key);
+            } catch (Exception e) {
+                LOG.info("Exception: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * A cache entry factory that sleeps beyond the lock timeout
+     */
+    private class CachePopulator implements CacheEntryFactory {
+
+        public Object createEntry(Object key) throws Exception {
+            cacheEntryFactoryRequests++;
+            Thread.sleep(1000);
+            return null;
+        }
+    }
+
 }
+
+

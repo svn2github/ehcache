@@ -685,7 +685,7 @@ public class CacheManager {
         }
         for (int i = 0; i < cacheNames.length; i++) {
             String cacheName = cacheNames[i];
-            Ehcache cache = getCache(cacheName);
+            Ehcache cache = getEhcache(cacheName);
             cache.removeAll();
         }
     }
