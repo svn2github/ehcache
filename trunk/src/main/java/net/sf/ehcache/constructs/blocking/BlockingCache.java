@@ -102,7 +102,6 @@ public class BlockingCache implements Ehcache {
     protected final Mutex[] locks = new Mutex[LOCK_NUMBER];
 
     {
-
         for (int i = 0; i < LOCK_NUMBER; i++) {
             locks[i] = new Mutex();
         }
@@ -496,8 +495,10 @@ public class BlockingCache implements Ehcache {
             } else {
                 boolean acquired = lock.attempt(timeoutMillis);
                 if (!acquired) {
-                    StringBuffer message = new StringBuffer("Lock timeout attempting to acquire lock for key ")
-                            .append(key).append(" on cache ").append(cache.getName());
+                    StringBuffer message = new StringBuffer("Lock timeout. Waited more than")
+                            .append(timeoutMillis)
+                            .append("ms to acquire lock for key ")
+                            .append(key).append(" on blocking cache ").append(cache.getName());
                     throw new LockTimeoutException(message.toString());
                 }
             }
@@ -507,7 +508,7 @@ public class BlockingCache implements Ehcache {
                 lock.release();
                 return element;
             } else {
-                //don't release the read lock until we write
+                //don't release the read lock until we put
                 return null;
             }
         } catch (InterruptedException e) {

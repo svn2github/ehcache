@@ -21,6 +21,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
+import net.sf.ehcache.constructs.blocking.LockTimeoutException;
 import net.sf.ehcache.constructs.web.AlreadyCommittedException;
 import net.sf.ehcache.constructs.web.AlreadyGzippedException;
 import net.sf.ehcache.constructs.web.GenericResponseWrapper;
@@ -64,10 +65,13 @@ public abstract class CachingFilter extends Filter {
     /**
      * The cache holding the web pages. Ensure that all threads for a given cache name are using the same instance of this.
      */
-    private BlockingCache blockingCache;
+    protected BlockingCache blockingCache;
 
     /**
-     * Initialises blockingCache to use
+     * Initialises blockingCache to use. The BlockingCache created by this method does not have a lock timeout set.
+     * <p/>
+     * A timeout can be appled using <code>blockingCache.setTimeoutMillis(int timeout)</code> and takes effect immediately
+     * for all new requests
      *
      * @throws CacheException The most likely cause is that a cache has not been
      *                        configured in ehcache's configuration file ehcache.xml for the filter name
@@ -104,6 +108,8 @@ public abstract class CachingFilter extends Filter {
      * @throws AlreadyGzippedException     if a double gzip is attempted
      * @throws AlreadyCommittedException   if the response was committed on the way in or the on the way back
      * @throws FilterNonReentrantException if an attempt is made to reenter this filter in the same request.
+     * @throws LockTimeoutException        if this request is waiting on another that is populating the cache entry
+     *                                     and timeouts while waiting. Only occurs if the BlockingCache has a timeout set.
      * @throws Exception                   for all other exceptions. They will be caught and logged in
      *                                     {@link Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)}
      */
@@ -112,6 +118,7 @@ public abstract class CachingFilter extends Filter {
             throws AlreadyGzippedException,
             AlreadyCommittedException,
             FilterNonReentrantException,
+            LockTimeoutException,
             Exception {
         if (response.isCommitted()) {
             throw new AlreadyCommittedException("Response already committed before doing buildPage.");
@@ -141,7 +148,6 @@ public abstract class CachingFilter extends Filter {
         try {
             checkNoReentry(request);
             Element element = blockingCache.get(key);
-            //todo change this logic for the timeout case
             if (element == null || element.getObjectValue() == null) {
                 try {
                     // Page is not cached - build the response, cache it, and send to client
@@ -166,6 +172,9 @@ public abstract class CachingFilter extends Filter {
             } else {
                 pageInfo = (PageInfo) element.getObjectValue();
             }
+        } catch (LockTimeoutException e) {
+            //do not release the lock, because you never acquired it
+            throw e;
         } finally {
             Thread.currentThread().setName(originalThreadName);
         }

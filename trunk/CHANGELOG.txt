@@ -1,5 +1,85 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+ehcache-1.2.3
+=============
+<!-- Feature additions and changes -->
+<action dev="Greg Luck" issue="1524597" type="add">
+    Cache.remove doesn't fire listeners if element didn't exist. This stopped cluster
+    removes from working where the local cache does not have the element cached. Thanks
+    to Elijah Epifanov for reporting this one and arguing the case for this behaviour
+</action>
+<action dev="Greg Luck" issue="1540653" type="add">
+    Allow references to ehcache.xsd in ehcache XML files. All of the ehcache.xml files
+    have had the schema reference added. This allows easy validation of ehcache.xml
+    configuration files using tools like Eclipse and IntelliJ. Thanks to Gabriel Klein
+    for suggesting this.
+</action>
+<action dev="Greg Luck" issue="1540657" type="add">
+    Added a new property asynchronousReplicationIntervalMillis to the RMICacheReplicator factory
+    configuration to control the interval at which it runs. The default is 1000ms, which
+    is the value it was hardcoded too in earlier versions.
+</action>
+<action dev="Greg Luck" type="add">
+    Added a new notifyRemoveAll cache event notification as requested by users. Called during Ehcache#removeAll() to
+    indicate that the all elements have been removed from the cache in a bulk operation. The usual
+    notifyElementRemoved is not called.
+    This notification exists because clearing a cache is a special case. It is often
+    not practical to serially process notifications where potentially millions of elements
+    have been bulk deleted.
+</action>
+<action dev="Greg Luck" type="add">
+    Added a new notifyElementEvicted cache event notification as requested by users.
+    Called immediately after an element is evicted from the cache. Evicted in this sense
+    means evicted from one store and not moved to another, so that it exists nowhere in the
+    local cache. In a sense the Element has been <i>removed</i> from the cache, but it is different,
+    thus the separate notification. The usual notifyElementRemoved is not called.
+</action>
+<action dev="Greg Luck" issue="1523915" type="update">
+    Asynchronous replication / soft references.
+    There is a trade off between OutOfMemory risk and replication correctness.
+    Change the RMIAsynchronousCacheReplicator so that Elements are SoftReference, not
+    all EventMessages. The result is that put and update via copy may be SoftReference
+    collected, but remove and update via remove will always go through.
+</action>
+<action dev="Greg Luck" type="update">
+    Change Cache#getQuiet so that cache statistics are not updated. This is a sensible
+    API change and probably always should have worked this way.
+</action>
+<action dev="Greg Luck" type="update">
+    Open up some classes by removing final keyword and changing the constructors to public.
+</action>
+
+<!-- Reported Bug fixes -->
+<action dev="Greg Luck" issue="1532610" type="fix">
+    Fix isssue where a distributed cache can take up to a minute to shutdown. This issue
+    affected web container and application server shutdowns.
+    The fix is to unbind RMICachePeers before unexporting them. Thanks to Lennard Fuller
+    and Peter Chiang for finding and fixing this hard one.
+</action>
+<action dev="Greg Luck" issue="1529506" type="fix">
+    Fixed a few broken links and inconsistencies in the documentation.
+</action>
+<action dev="Greg Luck" issue="1542696" type="fix">
+    Bad dependency scopes in Maven2 POM. Most dependencies are required only at test time.
+    Changed the pom to reflect this.
+</action>
+<action dev="Greg Luck" issue="1540322" type="fix">
+    Synchronous replicators in a cluster can deadlock trying to replicate to each other.
+    The deadlock gets resolved by a SocketTimeoutException depending on what you set it
+    too. Reduce synchronization around gets, puts and removes so that listener notification
+    is not synchronized, which resolves this problem. Synchronization still occurs on
+    the stores.
+</action>
+<action dev="Greg Luck" issue="1550043" type="fix">
+    Fixed a bug where in BlockingCache and SelfPopulatingCache where setTimeoutMillis
+    was set to a non zero value.
+</action>
+<action dev="Greg Luck" issue="1548314" type="fix">
+    Large TTL values cause expire time to be incorrect in Element. Changed ONE_SECOND from
+    an int to a long which fixes the issue.
+</action>
+
+
 ehcache-1.2.2
 =============
 

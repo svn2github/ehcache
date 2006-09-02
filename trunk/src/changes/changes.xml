@@ -2,7 +2,7 @@
 <document>
     <body>                     
 
-        <release version="1.2.3" date="2006-12-31" desc="Maintenance release to ehcache-1.2.1">
+        <release version="1.2.3" date="2006-9-2" desc="Maintenance release">
 
             <!-- Feature Changes  -->
             <action dev="Greg Luck" issue="1524597" type="add">

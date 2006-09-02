@@ -1,6 +1,6 @@
 $Id: RELEASE_NOTES.txt,v 1.16 2006/03/01 01:52:03 gregluck Exp $
 
-Release Notes For ehcache version 1.2.2
+Release Notes For ehcache version 1.2.3
 =======================================
 
 Introduction
@@ -34,18 +34,23 @@ Dependencies
 ============
 For JDK1.4, ehcache requires commons-logging from Apache's Jakarta project.
 
-For JDK 1.3, ehcache requires:
+For JDK 1.3, ehcache additionally requires:
 
 - Apache Jakarta's commons-collections, version 2.1.1
 - Apache xerces (xml-apis.jar and xercesImpl.jar), version 2.5
 
 All three dependencies are also Hibernate dependencies, so if you are using ehcache as a Hibernate plugin, dependency requirements are met.
 
+
 Installation
 ============
-Place the ehcache.jar into your classpath. Ensure the required dependencies are in the classpath.
+Place the ehcache-1.2.3.jar into your classpath. Ensure the required dependencies are in the classpath.
 
 Create an ehcache.xml configuration from the one supplied in the distribution and place it in your classpath.
+
+The ehcache-1.2.3-remote-debugger.jar is a tool to be used for distributed debugging. Do not install it in
+your project. See http://ehcache.sourceforge.net/documentation/logging.html for how to use it.
+
 
 Documentation
 =============
@@ -62,3 +67,11 @@ constructor is used.
 This does not cause a runtime error but will cause a compile time error if clients are recompiled against ehcache. In
 this case change the code to not catch an IOException. Catching CacheException is optional.
 
+Known Issues
+============
+
+1. Due to a limitation in RMI, JDK1.5 or higher is required to run multiple distributed CacheManagers on the same machine.
+   Normally distributed caching is used between clusters of machines, so this should not be an issue to many people.
+
+2. RMI listeners are unable to start on all versions of Tomcat, where Tomcat has spaces in its
+   installation path. The default install location on Windows has spaces in the path, so it should be changed.

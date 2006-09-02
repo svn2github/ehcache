@@ -227,7 +227,6 @@ public class BlockingCacheTest extends CacheTest {
             fail();
         } catch (Exception e) {
             assertEquals(LockTimeoutException.class, e.getCause().getClass());
-            assertTrue(e.getCause().getMessage().startsWith("Lock timeout attempting to acquire lock"));
         }
         LOG.debug("Thrash Duration:" + duration);
     }
