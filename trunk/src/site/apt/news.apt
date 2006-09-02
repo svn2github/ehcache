@@ -7,6 +7,40 @@
 
 News
 
+* 2 September 2006: ehcache-1.2.3 released
+
+    This is a maintenance release. It contains eight feature requests and 6 bug fixes received
+    in the two months since ehcache-1.2.2 was released. See the {{{http://ehcache.sourceforge.net/changes-report.html#1.2.3}changelog}}
+    for details.
+
+    All of the feature changes come from the suggestions of people with practical experience
+    using ehcache-1.2. The changes are all fine tuning of the distributed caching
+    functionality rather than large changes.
+
+    The distributed caching functionality was released four months ago. There are many production
+    sites running this now, including that of the maintainer's.
+
+    One of the more difficult aspects of getting distributed caching going is getting past network
+    configurations that swallow multicast. A tool, ehcache-1.2.3-remote-debugger.jar is now included
+    in the distribution so that distributed traffic can be listened in on.
+
+    The number of lines of code in ehcache is now three times bigger than ehcache-1.0. They have increased
+    as the features of ehcache have increased. To complement this increase in complexity, commercial support
+    is now available for ehcache. Contact kluck@gregluck.com for details.
+
+* 1 September 2006: Ehcache three years old and going strong
+
+    [images/wotif_small.gif]
+
+    Ehcache had more than 4000 downloads per month for the last three months in a row. This is up
+    from the 1500 downloads per month it was running at for the two years before then.
+
+    The result is there is now a much larger user community who use ehcache directly, rather than
+    through one of the popular frameworks. This places new demands on the project but also
+    means that most of the code paths and API are being utilised, leading to fewer undiscovered bugs
+    and a continuing evolution of features.
+
+
 * 17 July 2006: ehcache-1.2.2 released
 
     This is a minor maintenance release to ehcache-1.2.1. It clears all bug reports and feature requests received

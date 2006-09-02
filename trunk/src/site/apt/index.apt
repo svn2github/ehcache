@@ -15,63 +15,38 @@ Welcome to ehcache
 
 * Latest News
 
-** 17 July 2006: ehcache-1.2.2 released
+** 2 September 2006: ehcache-1.2.3 released
 
-    This is a minor maintenance release to ehcache-1.2.1. It clears all bug reports and feature requests received
-    since ehcache-1.2.1 was released.
+    This is a maintenance release. It contains eight feature requests and 6 bug fixes received
+    in the two months since ehcache-1.2.2 was released. See the {{{http://ehcache.sourceforge.net/changes-report.html#1.2.3}changelog}}
+    for details.
 
-    See the {{{http://sourceforge.net/project/shownotes.php?release_id=432513&group_id=93232}release notes and changelog for details}}.
+    All of the feature changes come from the suggestions of people with practical experience
+    using ehcache-1.2. The changes are all fine tuning of the distributed caching
+    functionality rather than large changes.
 
-** 16 July 2006: ehcache-1.2.0-02 released
+    The distributed caching functionality was released four months ago. There are many production
+    sites running this now, including that of the maintainer's.
 
-    Contains a fix to quickly hand back memory when spooling to disk. See {{http://gregluck.com/blog/archives/2006/07/tuning_memory_u.html}}
-    for details on the effect of this change.
+    One of the more difficult aspects of getting distributed caching going is getting past network
+    configurations that swallow multicast. A tool, ehcache-1.2.3-remote-debugger.jar is now included
+    in the distribution so that distributed traffic can be listened in on.
 
-** 3 July 2006: ehcache-1.2.1 released
+    The number of lines of code in ehcache is now three times bigger than ehcache-1.0. They have increased
+    as the features of ehcache have increased. To complement this increase in complexity, commercial support
+    is now available for ehcache. Contact kluck@gregluck.com for details.
 
-    ehcache-1.2.1 is mostly a maintenance release of ehcache. It focuses on simplifying usage
-    of new features and easing the migration path between ehcache-1.1 and ehcache-1.2. While
-    ehcache-1.2 is backward compatible, some typical usage scenarios in Hibernate and Spring are
-    not.
+** 1 September 2006: Ehcache three years old and going strong
 
-    See the separate news item on ehcache-1.2.1RC to get the full picture. Changes above ehcache-1.2.1RC are:
+    [images/wotif_small.gif]
 
-*** Improvements
+    Ehcache had more than 4000 downloads per month for the last three months in a row. This is up
+    from the 1500 downloads per month it was running at for the two years before then.
 
-    * Change Blocking cache to use a lock striping technique for its Mutexes. This limits the number
-    of Mutexes to 2048, rather than a number equalling the number of keys, while preserving excellent
-    liveness and safety. Thanks to Olaf Krische for reporting this and Brian Goetz for assisting with
-    a solution.
-
-    * Change BlockingCache and SelfPopulatingCache to act as decorators for Ehcache. Remove now redundant
-    BlockingCacheManager and SelfPopulatingCacheManager. Change signatures of these caches from Serializable
-    to Object. This change is not backward compatible but no libraries use these, so developers can change
-    over on their own projects.
-
-*** Bug fixes
-
-    * Bug 1190614. This was reported by Victor Volle and is a duplicate of 1492900. Fixed.
-    * Bug 1506399. Changing all classloading to the context classloader is sometimes inconvenient. Fallback to
-    * ClassLoaderUtil.class.getClassLoader() if Thread.currentThread().getContextClassLoader()
-    * fails. Thanks to Robert Watkins for reporting this one.
-    * Bug 1508623. Debug messages generate excess String objects. Added logging level guards around about 6 debug log statements.
-      Thanks to Derek Hulley for pointing this one out.
-    * Harden all ehcache threads so that RuntimeExceptions and Errors do not stop them. This change, on its own, has been
-      backported to a separate release, ehcache-1.2.0_01.
-
-** 3 July 2006: ehcache-1.2.0-01 released
-
-    Ehcache-1.2.0-01 is a backport of the thread hardening changes to the 1.2.0 branch. The 1.2.0 release will be
-    supported with backports of other important fixes.
-
-** 27 June 2006: ehcache maintainer added to JSR-107 expert group
-
-    Greg Luck, the maintainer of ehcache, has been added to the JSR-107 expert group. The plan is to add a JSR-107
-    compatibility API to ehcache. The benefit to users is that they can switch to and from ehcache with almost zero
-    code cost, when using the JSR-107 API.
-
-    Enabling changes to the ehcache codebase have been made in the ehcache-1.2.1 branch (released 3 July). Work on the
-    compatibility API will occur in the 1.3 branch.
+    The result is there is now a much larger user community who use ehcache directly, rather than
+    through one of the popular frameworks. This places new demands on the project but also
+    means that most of the code paths and API are being utilised, leading to fewer undiscovered bugs
+    and a continuing evolution of features.
 
  More {{{news.html}news}}...
 

@@ -69,8 +69,7 @@
                 Synchronous replicators in a cluster can deadlock trying to replicate to each other.
                 The deadlock gets resolved by a SocketTimeoutException depending on what you set it
                 too. Reduce synchronization around gets, puts and removes so that listener notification
-                is not synchronized, which resolves this problem. Synchronization still occurs on
-                the stores.
+                is not synchronized, which resolves this problem. 
             </action>
             <action dev="Greg Luck" issue="1550043" type="fix">
                 Fixed a bug where in BlockingCache and SelfPopulatingCache where setTimeoutMillis
