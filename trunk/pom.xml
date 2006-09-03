@@ -69,16 +69,6 @@ ehcache is a pure Java, in-process cache with the following features:
             </roles>
             <timezone>+10</timezone>
         </developer>
-        <developer>
-            <id>bdargan</id>
-            <name>Brett Dargan</name>
-            <email>bdargan at users.sourceforge.net</email>
-            <url>http://www.brettdargan.com/blog/</url>
-            <roles>
-                <role>Developer</role>
-            </roles>
-            <timezone>+10</timezone>
-        </developer>
 
     </developers>
 
