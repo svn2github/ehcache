@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.sf.ehcache</groupId>
@@ -93,7 +94,8 @@ ehcache is a pure Java, in-process cache with the following features:
             </roles>
             <timezone>+10</timezone>
             <properties>
-                <contribution>Created the initial DiskStore. Named ehcache. Threading advice.</contribution>
+                <contribution>Created the initial DiskStore. Named ehcache. Threading advice.
+                </contribution>
             </properties>
         </contributor>
         <contributor>
@@ -153,76 +155,78 @@ ehcache is a pure Java, in-process cache with the following features:
             <scope>compile</scope>
         </dependency>
         <dependency>
-        	<groupId>commons-collections</groupId>
-        	<artifactId>commons-collections</artifactId>
-        	<version>2.1</version>
-        	<scope>compile</scope>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>2.1</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
-        	<groupId>org.hibernate</groupId>
-        	<artifactId>hibernate</artifactId>
-        	<version>3.2.0.cr3</version>
-        	<exclusions>
-        		<exclusion>
-        			<groupId>javax.transaction</groupId>
-        			<artifactId>jta</artifactId>
-        		</exclusion>
-        		<exclusion>
-        			<groupId>javax.security</groupId>
-        			<artifactId>jacc</artifactId>
-        		</exclusion>
-        	</exclusions>
-        	<scope>test</scope>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate</artifactId>
+            <version>3.2.0.cr3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.transaction</groupId>
+                    <artifactId>jta</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.security</groupId>
+                    <artifactId>jacc</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>test</scope>
         </dependency>
         <dependency>
-        	<groupId>net.sf.hibernate</groupId>
-        	<artifactId>hibernate</artifactId>
-        	<version>2.1.8</version>
-        	<exclusions>
-        		<exclusion>
-        			<groupId>javax.transaction</groupId>
-        			<artifactId>jta</artifactId>
-        		</exclusion>
-        		<exclusion>
-        			<groupId>javax.security</groupId>
-        			<artifactId>jacc</artifactId>
-        		</exclusion>
-        	</exclusions>
-        	<scope>test</scope>
+            <groupId>net.sf.hibernate</groupId>
+            <artifactId>hibernate</artifactId>
+            <version>2.1.8</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.transaction</groupId>
+                    <artifactId>jta</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.security</groupId>
+                    <artifactId>jacc</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>test</scope>
         </dependency>
         <dependency>
-        	<groupId>javax.servlet</groupId>
-        	<artifactId>servlet-api</artifactId>
-        	<version>2.4</version>
-        	<scope>test</scope>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.4</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-        	<groupId>junit</groupId>
-        	<artifactId>junit</artifactId>
-        	<version>3.8.1</version>
-        	<scope>test</scope>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-        	<groupId>httpunit</groupId>
-        	<artifactId>httpunit</artifactId>
-        	<version>1.6</version>
-        	<scope>test</scope>
+            <groupId>httpunit</groupId>
+            <artifactId>httpunit</artifactId>
+            <version>1.6</version>
+            <scope>test</scope>
         </dependency>
-       <dependency>
-        	<groupId>commons-httpclient</groupId>
-        	<artifactId>commons-httpclient</artifactId>
-        	<version>3.0.1</version>
-        	<scope>test</scope>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.0.1</version>
+            <scope>test</scope>
         </dependency>
-     </dependencies>
+    </dependencies>
 
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
             <url>http://ehcache.sourceforge.net/LICENSE.txt</url>
             <distribution>repo</distribution>
-            <comments>The license is the standard wording from the Apache license, but with Greg Luck as copyright
-                owner.</comments>
+            <comments>The license is the standard wording from the Apache license, but with
+                Greg Luck as copyright
+                owner.
+            </comments>
         </license>
     </licenses>
 
@@ -234,15 +238,17 @@ ehcache is a pure Java, in-process cache with the following features:
 
     <distributionManagement>
         <repository>
-			<id>sf-ehcache-repository</id>
-			<name>SF EHCache Repository</name>
-			<url>scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs/repository</url>
-		</repository>
-		<snapshotRepository>
+            <id>sf-ehcache-repository</id>
+            <name>SF EHCache Repository</name>
+            <url>scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs/repository</url>
+        </repository>
+        <snapshotRepository>
             <id>sf-ehcache-snapshot-repository</id>
-			<name>SF EHCache Snapshot Repository</name>
-			<url>scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs/snapshot-repository</url>
-		</snapshotRepository>
+            <name>SF EHCache Snapshot Repository</name>
+            <url>
+                scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs/snapshot-repository
+            </url>
+        </snapshotRepository>
         <site>
             <id>sf-ehcache-site</id>
             <name>SF EHCache Site</name>
@@ -262,13 +268,14 @@ ehcache is a pure Java, in-process cache with the following features:
 
     <scm>
         <connection>scm:svn:https://svn.sourceforge.net/svnroot/ehcache</connection>
-        <developerConnection>scm:svn:https://username@svn.sourceforge.net/svnroot/ehcache</developerConnection>
+        <developerConnection>scm:svn:https://username@svn.sourceforge.net/svnroot/ehcache
+        </developerConnection>
         <tag/>
         <url>http://svn.sourceforge.net/viewcvs.cgi/ehcache/</url>
     </scm>
 
     <build>
-        <plugins>
+        <plugins>                                                       
             <!-- Site -->
             <plugin>
                 <artifactId>maven-site-plugin</artifactId>
@@ -287,13 +294,13 @@ ehcache is a pure Java, in-process cache with the following features:
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
-                	<execution>
+                    <execution>
                         <id>rmic</id>
-                        <phase>compile</phase>
+                        <phase>validate</phase>
                         <configuration>
                             <tasks>
                                 <rmic base="${project.build.outputDirectory}"
-                                includes="**/RMICachePeer.class" excludes="**/*CLOVER*"/>
+                                      includes="**/RMICachePeer.class" excludes="**/*CLOVER*"/>
                             </tasks>
                         </configuration>
                         <goals>
@@ -303,7 +310,7 @@ ehcache is a pure Java, in-process cache with the following features:
 
                     <execution>
                         <id>book</id>
-                        <phase>pre-site</phase>
+                        <phase>validate</phase>
                         <configuration>
                             <tasks>
                                 <ant antfile="${basedir}/build.xml" inheritRefs="true">
@@ -320,7 +327,7 @@ ehcache is a pure Java, in-process cache with the following features:
                     </execution>
                     <execution>
                         <id>singlepageguide</id>
-                        <phase>pre-site</phase>
+                        <phase>validate</phase>
                         <configuration>
                             <tasks>
                                 <ant antfile="${basedir}/build.xml" inheritRefs="true">
@@ -432,10 +439,13 @@ ehcache is a pure Java, in-process cache with the following features:
                     <version>true</version>
                     <windowtitle>${project.name} ${project.version} API</windowtitle>
                     <doclet>ydoc.doclets.YStandard</doclet>
-                    <docletPath>${basedir}/tools/ydoc-2.2_02-jdk1.5/lib/ydoc.jar:${basedir}/tools/ydoc-2.2_02-jdk1.5/lib/class2svg.jar:${basedir}/tools/ydoc-2.2_02-jdk1.5/resources:${build.classes.dir}</docletPath>
+                    <docletPath>
+                        ${basedir}/tools/ydoc-2.2_02-jdk1.5/lib/ydoc.jar:${basedir}/tools/ydoc-2.2_02-jdk1.5/lib/class2svg.jar:${basedir}/tools/ydoc-2.2_02-jdk1.5/resources:${build.classes.dir}
+                    </docletPath>
                     <!--<docletpathref>project.class.path</docletpathref>-->
                     <additionalparam>-umlautogen</additionalparam>
-                    <tag name="noinspection" description="IntelliJ Inspection Ignore tag" enabled="false"/>
+                    <tag name="noinspection" description="IntelliJ Inspection Ignore tag"
+                         enabled="false"/>
                 </configuration>
             </plugin>
 
@@ -469,7 +479,8 @@ ehcache is a pure Java, in-process cache with the following features:
                 <artifactId>changes-maven-plugin</artifactId>
                 <configuration>
                     <link_template>
-                        %URL%/index.php?func=detail&amp;group_id=93232&amp;atid=603559&amp;aid=%ISSUE%</link_template>
+                        %URL%/index.php?func=detail&amp;group_id=93232&amp;atid=603559&amp;aid=%ISSUE%
+                    </link_template>
                 </configuration>
                 <reportSets>
                     <reportSet>

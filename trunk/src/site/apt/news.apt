@@ -18,7 +18,7 @@ News
     functionality rather than large changes.
 
     The distributed caching functionality was released four months ago. There are many production
-    sites running this now, including that of the maintainer's.
+    sites running this now, including that of the maintainers.
 
     One of the more difficult aspects of getting distributed caching going is getting past network
     configurations that swallow multicast. A tool, ehcache-1.2.3-remote-debugger.jar is now included
@@ -28,9 +28,9 @@ News
     as the features of ehcache have increased. To complement this increase in complexity, commercial support
     is now available for ehcache. Contact kluck@gregluck.com for details.
 
-* 1 September 2006: Ehcache three years old and going strong
+** 1 September 2006: Ehcache three years old and going strong
 
-    [images/wotif_small.gif]
+[images/downloads.gif]
 
     Ehcache had more than 4000 downloads per month for the last three months in a row. This is up
     from the 1500 downloads per month it was running at for the two years before then.
@@ -39,7 +39,6 @@ News
     through one of the popular frameworks. This places new demands on the project but also
     means that most of the code paths and API are being utilised, leading to fewer undiscovered bugs
     and a continuing evolution of features.
-
 
 * 17 July 2006: ehcache-1.2.2 released
 

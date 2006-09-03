@@ -292,6 +292,7 @@
                 <include name="${name}-${version}.jar"/>
                 <include name="${name}-${version}-javadoc.jar"/>
                 <include name="${name}-${version}-sources.jar"/>
+                <include name="${name}-${version}-remote-debugger.jar"/>
             </fileset>
         </jar>
     </target>
