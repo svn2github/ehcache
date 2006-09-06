@@ -11,11 +11,11 @@
     </path>
 
     <target name="clean" description="Cleans the build directory">
-        <echo message="basedir ${basedir}"/>
+        <delete dir="${build.dir}"/>
     </target>
 
     <!-- Use this for doing releases -->
-    <target name="build" depends="clean, checkstyle, test, dist-tgz, buildnumber"
+    <target name="build" depends="clean, checkstyle, dist-tgz, buildnumber"
             description="Builds a clean distribution"/>
 
     <!-- This is primarily used to make it easy to keep a log of commits, as this file will change for each commit -->

@@ -279,6 +279,19 @@ arguments; nested exception is: java.net.MalformedURLException: no protocol: Fil
     On JDK1.5 and higher it is possible to have multiple CacheManagers per VM each participating in the same or different clusters.
     Indeed the replication tests do this with 5 CacheManagers on the same VM all run from JUnit. 
 
+* How many threads does ehcache use, and how much memory does that consume?
 
+    The amount of memory consumed per thread is determined by the Stack Size. This is set using -Xss.
+    The amount varies by OS.  It is 512KB for Linux. I tend to override the default and set it to 100kb.
+
+    The threads are created per cache as follows:
+
+    * DiskStore expiry thread - if DiskStore is used
+
+    * DiskStore spool thread - if DiskStore is used
+
+    * Replication thread - if asyncrhonous replication is configured.
+
+    If you are not doing any of the above, no extra threads are created
 
 

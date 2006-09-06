@@ -33,6 +33,7 @@ import java.util.List;
 import java.net.HttpURLConnection;
 
 /**
+ * todo do Glassfish integration test with lexius' test
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
