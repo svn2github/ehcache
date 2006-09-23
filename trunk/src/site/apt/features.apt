@@ -238,7 +238,7 @@
     discovery via multicast or manual configuration. Updates are delivered either asynchronously or synchronously
     via custom RMI connections. Additional discovery or delivery schemes can be plugged in by third parties.
 
-    See the {{Distributed}} section for more feature details.
+    See the {{{documentation/distributed_caching.html}Distributed Caching}} documentation for more feature details.
 
 * Extensible
 
@@ -329,7 +329,7 @@
 
 * {J2EE and Applied Caching}
 
- The separately downloadable {{{ehcache-constructs/index.html}ehcache-constructs}} provides high quality implementations for common caching scenarios and patterns.
+  High quality implementations for common caching scenarios and patterns.
 
 ** {Blocking Cache to avoid duplicate processing for concurrent operations}
 

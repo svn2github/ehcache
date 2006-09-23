@@ -16,8 +16,6 @@
   <component name="CodeStyleProjectProfileManger">
     <option name="PROJECT_PROFILE" />
     <option name="USE_PROJECT_LEVEL_SETTINGS" value="false" />
-    <scopes />
-    <profiles />
   </component>
   <component name="CodeStyleSettingsManager">
     <option name="PER_PROJECT_SETTINGS" />
@@ -294,6 +292,7 @@
   </component>
   <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="true" project-jdk-name="1.5" project-jdk-type="JavaSDK" />
   <component name="ProjectRunConfigurationManager" />
+  <component name="RAILS_PROJECT_VIEW_PANE" />
   <component name="RmicSettings">
     <option name="IS_EANABLED" value="true" />
     <option name="DEBUGGING_INFO" value="true" />
@@ -303,6 +302,13 @@
   </component>
   <component name="StarteamVcsAdapter" />
   <component name="VssVcs" />
+  <component name="com.intellij.jsf.UserDefinedFacesConfigs">
+    <option name="USER_DEFINED_CONFIGS">
+      <value>
+        <list size="0" />
+      </value>
+    </option>
+  </component>
   <component name="libraryTable" />
   <component name="uidesigner-configuration">
     <option name="INSTRUMENT_CLASSES" value="true" />
