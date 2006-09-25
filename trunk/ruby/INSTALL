@@ -1,0 +1,8 @@
+ehcache::client requires an ehcache server to be installed first.
+
+ehcache::client can be installed with:
+
+  % ruby setup.rb
+
+Alternatively, you can use the RubyGems version of ehcache::client available as
+ehcache-client.gem from the usual sources.
