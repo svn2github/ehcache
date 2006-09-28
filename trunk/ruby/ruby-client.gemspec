@@ -8,18 +8,18 @@ spec = Gem::Specification.new do |s|
   s.rdoc_options      = %w(--title Ehcache::Client --main README --line-numbers)
   s.extra_rdoc_files  = %w(README ChangeLog LICENCE)
 
-  files   = %w(README LICENCE ChangeLog bin/**/* lib/**/* demo/**/*
-             images/**/* demo/**/* manual.pwd)
+  files   = %w(README LICENCE ChangeLog bin/**/* lib/**/* 
+             images/**/* )
   s.files = FileList[*files]
 
   s.require_paths     = %w(lib)
 
   s.bindir            = %{bin}
-  s.executables       = %w(techbook)
+  
 
   s.author            = %q(Greg Luck)
   s.email             = %q(gregluck@users.sourceforge.net)
-  s.sourceforge_project = %q(ehcache-client)
+#  s.sourceforge_project = %q(ehcache-client)
   s.homepage          = %q(http://ehcache.sf.net/documentation/ruby_client.html)
   description         = []
   File.open("README") do |file|
