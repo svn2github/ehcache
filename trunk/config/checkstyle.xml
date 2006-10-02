@@ -15,7 +15,7 @@
     <module name="StrictDuplicateCode">
         <property name="min" value="30"/>
     </module>
-    <module name="NewlineAtEndOfFile"/>
+    <!--<module name="NewlineAtEndOfFile"/>-->
 
 
     <module name="TreeWalker">

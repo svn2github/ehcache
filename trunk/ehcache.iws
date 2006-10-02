@@ -31,12 +31,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iml" afterPath="$PROJECT_DIR$/ehcache.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ruby-client/Rakefile" afterPath="$PROJECT_DIR$/ruby-client/Rakefile" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/config/checkstyle.xml" afterPath="$PROJECT_DIR$/config/checkstyle.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/ruby-client/ruby-client.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.ipr" afterPath="$PROJECT_DIR$/ehcache.ipr" />
     </list>
     <list name="Delayed Commit (Sun Aug 27 16:28:50 EST 2006)" comment="Trying to get TeamCity going. Down to some clover trouble." />
     <list name="Delayed Commit (Mon Aug 28 18:32:57 EST 2006)" comment="Trying to get TeamCity going. Down to some clover trouble." />
@@ -398,15 +394,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="LocateRegistry.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/rmi/registry/LocateRegistry.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="37" column="16" selection-start="1362" selection-end="1362" vertical-scroll-proportion="0.014117647">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="ShutdownListener.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/ShutdownListener.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -452,14 +439,23 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="build.xml" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="build.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/build.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="17" column="53" selection-start="641" selection-end="641" vertical-scroll-proportion="0.24431138">
+            <state line="2" column="57" selection-start="121" selection-end="121" vertical-scroll-proportion="0.028742515">
               <folding>
                 <marker date="1159777837000" expanded="true" signature="870:907" placeholder="..." />
                 <marker date="1159777837000" expanded="true" signature="985:1226" placeholder="..." />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="checkstyle.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/config/checkstyle.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="17" column="25" selection-start="603" selection-end="606" vertical-scroll-proportion="0.24431138">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -1332,7 +1328,7 @@
     <option name="PERFORM_COMMIT_IN_BACKGROUND" value="false" />
     <option name="PUT_FOCUS_INTO_COMMENT" value="false" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Complete site changes for ehcache-1.2.3 release." />
+    <option name="LAST_COMMIT_MESSAGE" value="Integrated ruby rake build into ant" />
     <option name="SAVE_LAST_COMMIT_MESSAGE" value="true" />
     <option name="CHECKIN_DIALOG_SPLITTER_PROPORTION" value="0.8" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
@@ -1345,7 +1341,6 @@
     <option name="UPDATE_GROUP_BY_PACKAGES" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
-    <MESSAGE value="Minor improvements." />
     <MESSAGE value="Upgrade to latest version of clover" />
     <MESSAGE value="Change example socket timeout to 120000ms, which is also the default. 2000ms is really too short." />
     <MESSAGE value="Get graphics working in LaTeX for book." />
@@ -1355,6 +1350,7 @@
     <MESSAGE value="Trying to get TeamCity going" />
     <MESSAGE value="Trying to get TeamCity going. Down to some clover trouble." />
     <MESSAGE value="Complete site changes for ehcache-1.2.3 release." />
+    <MESSAGE value="Integrated ruby rake build into ant" />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -1436,13 +1432,6 @@
     <option name="myLastEditedConfigurable" value="IDE Profiles" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/CachingFilterTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="56" column="26" selection-start="1894" selection-end="1894" vertical-scroll-proportion="0.022429906">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/RedirectJstl.jsp">
       <provider selected="true" editor-type-id="text-editor">
         <state line="3" column="45" selection-start="165" selection-end="165" vertical-scroll-proportion="0.04235294">
@@ -1536,11 +1525,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/build.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="53" selection-start="641" selection-end="641" vertical-scroll-proportion="0.24431138">
+        <state line="2" column="57" selection-start="121" selection-end="121" vertical-scroll-proportion="0.028742515">
           <folding>
             <marker date="1159777837000" expanded="true" signature="870:907" placeholder="..." />
             <marker date="1159777837000" expanded="true" signature="985:1226" placeholder="..." />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config/checkstyle.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="17" column="25" selection-start="603" selection-end="606" vertical-scroll-proportion="0.24431138">
+          <folding />
         </state>
       </provider>
     </entry>
