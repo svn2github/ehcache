@@ -25,7 +25,7 @@
 
     <!-- Generate Clover code coverage report -->
     <target name="clover"
-            depends="clean, with.clover, checkstyle, test, clover.html, clover-check-coverage"
+            depends="clean, with.clover, checkstyle, ruby-client, test, clover.html, clover-check-coverage"
             description="Runs tests and test coverage">
         <echo message="Use ant build to build a distribution"/>
     </target>
@@ -680,6 +680,13 @@
 
     <target name="create_book">
         <create_artifact extension="pdf"/>
+    </target>
+
+
+    <target name="ruby-client">
+        <exec dir="ruby-client" executable="rake" failonerror="true">
+            <arg line=""/>
+        </exec>
     </target>
 
 

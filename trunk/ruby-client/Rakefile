@@ -1,16 +1,4 @@
 #! /usr/bin/env rake
-#--
-# PDF::Writer for Ruby.
-#   http://rubyforge.org/projects/ruby-pdf/
-#   Copyright 2003 - 2005 Austin Ziegler.
-#   Licensed under a MIT-style licence. See LICENCE in the main distribution
-#   for full licensing information.
-#
-# $Id: Rakefile 151 2005-09-09 22:02:41Z austin $
-#++
-#
-#
-#
 # requires meta_project e.g. sudo gem install meta_project archive-tar-minitar
 
 
@@ -25,14 +13,14 @@ require 'archive/tar/minitar'
 require 'zlib'
 
 #Things to clean
-CLEAN.push('doc')
+CLEAN.push('doc').push('dist')
 #puts "Clean file list" + CLEAN.to_s
 
 
 
 VER = 0.1
 
-DISTDIR = "ruby-client#{VER}"
+DISTDIR = "ruby-client/dist/ruby-client#{VER}"
 TARDIST = "../#{DISTDIR}.tar.gz"
 
 DATE_RE = %r<(\d{4})[./-]?(\d{2})[./-]?(\d{2})(?:[\sT]?(\d{2})[:.]?(\d{2})[:.]?(\d{2})?)?>
@@ -48,6 +36,11 @@ if ENV['RELEASE_DATE']
   ReleaseDate = Time.mktime(year, month, day, hour, minute, second)
 else
   ReleaseDate = nil
+end
+
+
+task :default => [:clean] do |t|
+
 end
 
 
@@ -73,7 +66,16 @@ task :test do |t|
     suite << testcase.suite if testcase < Test::Unit::TestCase
   end
 
-  runner.run(suite)
+  test_result = runner.run(suite)
+  puts "test errors: " + test_result.error_count.to_s
+  puts "test failures: " + test_result.failure_count.to_s
+  if test_result.error_count > 0 or test_result.failure_count > 0
+       #Exit showing error code so that we can detect failure
+       exit(1)
+  end
+
+  
+
 end
 
 spec = eval(File.read("ruby-client.gemspec"))
@@ -83,7 +85,7 @@ task :gem => [ :test ]
 Rake::GemPackageTask.new(spec) do |g|
   g.need_tar    = false
   g.need_zip    = false
-  g.package_dir = ".."
+  g.package_dir = "dist"
 end
 
 desc "Look for TODO and FIXME tags in the code"
@@ -99,9 +101,14 @@ desc "Build a ruby-client .tar.gz distribution."
 task :tar => [ TARDIST ]
 file TARDIST => [ :test ] do |t|
   current = File.basename(Dir.pwd)
+  begin
+    Dir.mkdir('dist')
+  rescue SystemCallError => error
+     puts "dist exists " + error.to_s
+  end
   Dir.chdir("..") do
     begin
-      files = %W(bin/**/* lib/**/* demo/**/* images/**/* ChangeLog README
+      files = %W(bin/**/* lib/**/* demo/**/* images/**/* CHANGELOG README
                  LICENCE setup.rb pre-setup.rb metaconfig)
       files = FileList[files.map { |file| File.join(current, file) }].to_a
       files.map! do |dd|
@@ -182,10 +189,4 @@ task :default => [ :tar, :gem, :docs ]
 
 
 
-task :default => [:greg]
 
-task :greg do
-
-    puts "Greg called"
-
-end

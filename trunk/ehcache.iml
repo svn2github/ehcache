@@ -15,7 +15,7 @@
       <excludeFolder url="file://$MODULE_DIR$/target/orion" />
       <excludeFolder url="file://$MODULE_DIR$/target/site" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.5" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
       <library>
