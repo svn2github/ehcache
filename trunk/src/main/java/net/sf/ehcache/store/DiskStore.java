@@ -17,13 +17,6 @@
 
 package net.sf.ehcache.store;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.Status;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -44,6 +37,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
+import net.sf.ehcache.event.RegisteredEventListeners;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * A disk store implementation.
@@ -78,8 +80,8 @@ public class DiskStore implements Store {
 
     private Map diskElements = Collections.synchronizedMap(new HashMap());
     private List freeSpace = Collections.synchronizedList(new ArrayList());
-    private final Map spool = Collections.synchronizedMap(new HashMap());
-
+    private Map spool = Collections.synchronizedMap(new HashMap());
+    private Object spoolLock = new Object();
 
     private Thread spoolThread;
     private Thread expiryThread;
@@ -220,7 +222,7 @@ public class DiskStore implements Store {
 
             // Check in the spool.  Remove if present
             Element element;
-            synchronized (spool) {
+            synchronized (spoolLock) {
                 element = (Element) spool.remove(key);
             }
             if (element != null) {
@@ -296,7 +298,7 @@ public class DiskStore implements Store {
 
             // Check in the spool.  Remove if present
             Element element;
-            synchronized (spool) {
+            synchronized (spoolLock) {
                 element = (Element) spool.remove(key);
             }
             if (element != null) {
@@ -334,7 +336,7 @@ public class DiskStore implements Store {
             elementKeySet = diskElements.keySet();
         }
         Set spoolKeySet;
-        synchronized (spool) {
+        synchronized (spoolLock) {
             spoolKeySet = spool.keySet();
         }
         Set allKeysSet = new HashSet(elementKeySet.size() + spoolKeySet.size());
@@ -352,7 +354,7 @@ public class DiskStore implements Store {
         try {
             checkActive();
             int spoolSize;
-            synchronized (spool) {
+            synchronized (spoolLock) {
                 spoolSize = spool.size();
             }
             int diskSize;
@@ -385,13 +387,13 @@ public class DiskStore implements Store {
 
             // Spool the element
             if (spoolThread.isAlive()) {
-                synchronized (spool) {
+                synchronized (spoolLock) {
                     spool.put(element.getObjectKey(), element);
                 }
             } else {
                 LOG.error(name + "Cache: Elements cannot be written to disk store because the" +
                         " spool thread has died.");
-                synchronized (spool) {
+                synchronized (spoolLock) {
                     spool.clear();
                 }
             }
@@ -413,7 +415,7 @@ public class DiskStore implements Store {
             checkActive();
 
             // Remove the entry from the spool
-            synchronized (spool) {
+            synchronized (spoolLock) {
                 element = (Element) spool.remove(key);
             }
 
@@ -454,9 +456,9 @@ public class DiskStore implements Store {
             checkActive();
 
             // Ditch all the elements, and truncate the file
-            spool.clear();
-            diskElements.clear();
-            freeSpace.clear();
+            spool = Collections.synchronizedMap(new HashMap());
+            diskElements = Collections.synchronizedMap(new HashMap());
+            freeSpace = Collections.synchronizedList(new ArrayList());
             totalSize = 0;
             randomAccessFile.setLength(0);
             if (persistent) {
@@ -585,23 +587,31 @@ public class DiskStore implements Store {
      * @noinspection SynchronizeOnNonFinalField
      */
     private synchronized void flushSpool() throws IOException {
-        Object[] spoolCopy = createCopyOfSpool();
+        if (spool.size() == 0) {
+            return;
+        }
 
-        for (int i = 0; i < spoolCopy.length; i++) {
-            writeOrReplaceEntry(spoolCopy[i]);
-            spoolCopy[i] = null;
+        Map copyOfSpool = swapSpoolReference();
 
+        Iterator valuesIterator = copyOfSpool.values().iterator();
+        while (valuesIterator.hasNext()) {
+            writeOrReplaceEntry((Element) valuesIterator.next());
+            valuesIterator.remove();
         }
     }
 
-    private Object[] createCopyOfSpool() {
-        Object[] spoolCopy;
-        synchronized (spool) {
-            spoolCopy = spool.values().toArray();
-            spool.clear();
+    private Map swapSpoolReference() {
+        Map copyOfSpool = null;
+        synchronized (spoolLock) {
+            // Copy the reference of the old spool, not the contents. Avoid potential spike in memory usage
+            copyOfSpool = spool;
+
+            // use a new map making the reference swap above SAFE
+            spool = Collections.synchronizedMap(new HashMap());
         }
-        return spoolCopy;
+        return copyOfSpool;
     }
+
 
     private void writeOrReplaceEntry(Object object) throws IOException {
         Element element = (Element) object;
@@ -612,8 +622,6 @@ public class DiskStore implements Store {
         removeOldEntryIfAny(key);
         writeElement(element, key);
     }
-
-
 
 
     private void writeElement(Element element, Serializable key) throws IOException {
@@ -671,6 +679,7 @@ public class DiskStore implements Store {
 
         /**
          * Gets the bytes. Not all may be valid. Use only up to getSize()
+         *
          * @return the underlying byte[]
          */
         public synchronized byte getBytes()[] {
@@ -854,7 +863,7 @@ public class DiskStore implements Store {
         final long now = System.currentTimeMillis();
 
         // Clean up the spool
-        synchronized (spool) {
+        synchronized (spoolLock) {
             for (Iterator iterator = spool.values().iterator(); iterator.hasNext();) {
                 final Element element = (Element) iterator.next();
                 if (element.isExpired()) {
@@ -868,26 +877,33 @@ public class DiskStore implements Store {
             }
         }
 
+        Element element = null;
+        RegisteredEventListeners listeners = cache.getCacheEventNotificationService();
         synchronized (diskElements) {
             // Clean up disk elements
             for (Iterator iterator = diskElements.entrySet().iterator(); iterator.hasNext();) {
                 final Map.Entry entry = (Map.Entry) iterator.next();
                 final DiskElement diskElement = (DiskElement) entry.getValue();
+
                 if (now >= diskElement.expiryTime) {
                     // An expired element
                     if (LOG.isDebugEnabled()) {
                         LOG.debug(name + "Cache: Removing expired spool element " + entry.getKey() + " from Disk Store");
                     }
+
                     iterator.remove();
-                    Element element = null;
-                    try {
-                        element = loadElementFromDiskElement(diskElement);
-                    } catch (Exception exception) {
-                        LOG.error(name + "Cache: Could not remove disk store entry for " + entry.getKey()
-                                + ". Error was " + exception.getMessage(), exception);
+
+                    // only load the element from the file if there is a listener interested in hearing about its expiration 
+                    if (listeners.hasCacheEventListeners()) {
+                        try {
+                            element = loadElementFromDiskElement(diskElement);
+                            notifyExpiryListeners(element);
+                        } catch (Exception exception) {
+                            LOG.error(name + "Cache: Could not remove disk store entry for " + entry.getKey()
+                                    + ". Error was " + exception.getMessage(), exception);
+                        }
                     }
                     freeBlock(diskElement);
-                    notifyExpiryListeners(element);
                 }
             }
         }

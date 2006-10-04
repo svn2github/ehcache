@@ -48,7 +48,7 @@ public interface CacheManagerEventListener {
      * notification because:
      * <ul>
      * <li>the cache will not yet be accessible from the CacheManager.
-     * <li>the addCaches methods whih cause this notification are synchronized on the
+     * <li>the addCaches methods which cause this notification are synchronized on the
      * CacheManager. An attempt to call {@link net.sf.ehcache.CacheManager#getEhcache(String)}
      * will cause a deadlock.
      * </ul>
