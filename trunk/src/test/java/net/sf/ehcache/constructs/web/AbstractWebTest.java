@@ -27,7 +27,6 @@ import net.sf.ehcache.CacheManager;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dom4j.Comment;
 import org.dom4j.Document;
 import org.dom4j.io.DOMReader;
 import org.xml.sax.SAXException;
@@ -246,19 +245,11 @@ public abstract class AbstractWebTest extends TestCase {
      *         <br> <code>&lt;!-- Generated at <%= date %> --></code><br>
      *         scriptlet in the page.
      */
-    protected String getTimestamp(final WebResponse response) {
+    protected String getTimestamp(final WebResponse response) throws Exception {
         String generationPrefix = "Generated at ";
-        Document doc = null;
-        try {
-            doc = createDocument(response);
-        } catch (SAXException e) {
-            LOG.fatal("Error creating SAX Document");
-            fail();
-        }
-        final Comment comment = (Comment) doc.selectNodes("comment()").get(0);
-        final String result = comment.getText().substring(generationPrefix.length()).trim();
-
-        return result;
+        int index = response.getText().indexOf(generationPrefix);
+        String timestamp = response.getText().substring(index, index + 36);
+        return timestamp;
     }
 
     /**
@@ -302,6 +293,7 @@ public abstract class AbstractWebTest extends TestCase {
      * used to extract details from the document.
      */
     protected Document createDocument(final WebResponse response) throws SAXException {
+        response.getDOM();
         final Document doc = new DOMReader().read(response.getDOM());
         return doc;
     }
@@ -386,12 +378,12 @@ public abstract class AbstractWebTest extends TestCase {
      * @param response
      */
     protected void assertPropertlyFormed(WebResponse response) {
-        try {
-            createDocument(response);
-        } catch (SAXException e) {
-            LOG.fatal(e.getMessage(), e);
-            fail();
-        }
+//        try {
+//            createDocument(response);
+//        } catch (SAXException e) {
+//            LOG.fatal(e.getMessage(), e);
+//            fail();
+//        }
         String text = null;
         try {
             text = response.getText();

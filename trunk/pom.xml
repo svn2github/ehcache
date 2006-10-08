@@ -5,7 +5,7 @@
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache</artifactId>
     <packaging>jar</packaging>
-    <version>1.2.3</version>
+    <version>1.2.4</version>
     <name>ehcache</name>
     <description><![CDATA[
 
@@ -206,6 +206,42 @@ ehcache is a pure Java, in-process cache with the following features:
             <version>3.0.1</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.cenqua.clover</groupId>
+            <artifactId>clover</artifactId>
+            <version>1.3.13</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>checkstyle</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>4.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>checkstyle</groupId>
+            <artifactId>checkstyle-optional</artifactId>
+            <version>4.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.0.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>httpunit</groupId>
+            <artifactId>httpunit</artifactId>
+            <version>1.6.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>httpunit</groupId>
+            <artifactId>httpunit</artifactId>
+            <version>1.6.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <licenses>
@@ -265,7 +301,7 @@ ehcache is a pure Java, in-process cache with the following features:
     </scm>
 
     <build>
-        <plugins>                                                       
+        <plugins>
             <!-- Site -->
             <plugin>
                 <artifactId>maven-site-plugin</artifactId>

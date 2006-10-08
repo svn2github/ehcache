@@ -28,9 +28,9 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
-import java.net.HttpURLConnection;
 
 /**
  * todo do Glassfish integration test with lexius' test

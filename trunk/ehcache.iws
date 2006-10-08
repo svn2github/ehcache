@@ -31,11 +31,37 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/RegisteredEventListeners.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/RegisteredEventListeners.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iml" afterPath="$PROJECT_DIR$/ehcache.iml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tools/maven-artifact-ant-2.0.4-dep.jar" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/checkstyle-4.1.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/commons-cli.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/web/dom4j-1.5-rc1.full.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/checkstyle-optional-4.1.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/web/servlet-2.3.jar" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/AbstractWebTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/AbstractWebTest.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/web/commons-codec-1.3.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/commons-beanutils-1.7.0.jar" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.number" afterPath="$PROJECT_DIR$/build.number" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/junit-3.8.1.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/hibernate2.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/web/httpunit.jar" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/CachingFilterTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/CachingFilterTest.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/antlr.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/xml-apis.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/xercesImpl.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/hibernate3.jar" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/jcache.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/jakarta-regexp-1.3.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/web/js.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/web/commons-httpclient-3.0.1.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/cenquatasks.jar" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ruby-client/ruby-client.iml" afterPath="$PROJECT_DIR$/ruby-client/ruby-client.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/CacheManagerEventListener.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/CacheManagerEventListener.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/aptall.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/web/Tidy.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/clover-1.3.12.jar" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.properties" afterPath="$PROJECT_DIR$/build.properties" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
     </list>
     <list name="Delayed Commit (Sun Aug 27 16:28:50 EST 2006)" comment="Trying to get TeamCity going. Down to some clover trouble." />
     <list name="Delayed Commit (Mon Aug 28 18:32:57 EST 2006)" comment="Trying to get TeamCity going. Down to some clover trouble." />
@@ -397,37 +423,51 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="DiskStore.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="621" column="85" selection-start="21100" selection-end="21100" vertical-scroll-proportion="0.024439918">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DiskStoreTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="830" column="82" selection-start="29313" selection-end="29313" vertical-scroll-proportion="0.9287169">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SelfPopulatingCacheTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/SelfPopulatingCacheTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="250" column="56" selection-start="8495" selection-end="8547" vertical-scroll-proportion="0.120162934">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="UpdatingSelfPopulatingCacheTest.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="UpdatingSelfPopulatingCacheTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/UpdatingSelfPopulatingCacheTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="191" column="7" selection-start="7579" selection-end="7579" vertical-scroll-proportion="4.0794296">
+            <state line="147" column="95" selection-start="5632" selection-end="5632" vertical-scroll-proportion="0.23764706">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="pom.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pom.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="7" column="18" selection-start="383" selection-end="383" vertical-scroll-proportion="0.100598805">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AbstractWebTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/AbstractWebTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="300" column="53" selection-start="10757" selection-end="10757" vertical-scroll-proportion="0.07058824">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="build.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/build.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="6" column="68" selection-start="370" selection-end="370" vertical-scroll-proportion="0.08622754">
+              <folding>
+                <marker date="1160267471000" expanded="true" signature="742:839" placeholder="..." />
+                <marker date="1160267471000" expanded="true" signature="946:1012" placeholder="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="build.properties" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/build.properties">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="0" column="7" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -436,7 +476,7 @@
       <file leaf-file-name="Iterator.java" pinned="false" current="false" current-in-tab="false">
         <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/Iterator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="56" column="17" selection-start="1888" selection-end="1888" vertical-scroll-proportion="1.2464359">
+            <state line="56" column="17" selection-start="1888" selection-end="1888" vertical-scroll-proportion="0.72">
               <folding />
             </state>
           </provider>
@@ -445,7 +485,7 @@
       <file leaf-file-name="RegisteredEventListeners.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/RegisteredEventListeners.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="63" column="25" selection-start="1963" selection-end="1963" vertical-scroll-proportion="0.024439918">
+            <state line="63" column="25" selection-start="1963" selection-end="1963" vertical-scroll-proportion="0.014117647">
               <folding />
             </state>
           </provider>
@@ -472,16 +512,7 @@
       <file leaf-file-name="configuration_test.rb" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ruby-client/test/ehcache/configuration_test.rb">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="30" column="0" selection-start="670" selection-end="670" vertical-scroll-proportion="0.73319757">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ServletResponse.class" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar://$PROJECT_DIR$/tools/web/servlet-2.3.jar!/javax/servlet/ServletResponse.class">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="18" column="18" selection-start="511" selection-end="511" vertical-scroll-proportion="0.41547862">
+            <state line="30" column="0" selection-start="670" selection-end="670" vertical-scroll-proportion="0.42352942">
               <folding />
             </state>
           </provider>
@@ -674,6 +705,24 @@
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache.ipr" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/tools" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
     </subPane>
   </component>
   <component name="ProjectReloadState">
@@ -687,7 +736,7 @@
       <showLibraryContents />
       <hideEmptyPackages ProjectPane="false" />
       <abbreviatePackageNames />
-      <showStructure Favorites="false" Scope="false" PackagesPane="false" ProjectPane="false" />
+      <showStructure ProjectPane="false" Scope="false" PackagesPane="false" Favorites="false" />
       <autoscrollToSource ProjectPane="false" />
       <autoscrollFromSource />
       <sortByType />
@@ -790,55 +839,15 @@
         <option name="Make" value="true" />
       </method>
     </tempConfiguration>
-    <configuration default="true" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
-      <module name="ehcache" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" value="" />
-      <option name="PACKAGE_NAME" />
-      <option name="MAIN_CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="TEST_OBJECT" value="class" />
-      <option name="VM_PARAMETERS" value="" />
-      <option name="PARAMETERS" value="" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
-      <option name="ADDITIONAL_CLASS_PATH" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="wholeProject" />
-      </option>
+    <configuration default="true" type="RUBY_RUN_CONFIGURATION_TYPE" factoryName="Ruby">
+      <OPTIONS NAME="SCRIPT_PATH" VALUE="" />
+      <OPTIONS NAME="SCRIPT_ARGS" VALUE="" />
+      <OPTIONS NAME="RUBY_ARGS" VALUE="" />
+      <OPTIONS NAME="WORK DIR" VALUE="" />
+      <OPTIONS NAME="MODULE_NAME" VALUE="ruby-client" />
       <method>
         <option name="Make" value="true" />
       </method>
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-    </configuration>
-    <configuration default="true" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local">
-      <option name="WORKING_DIRECTORY" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="8080" />
-      <option name="LOCAL" value="true" />
-      <option name="OPEN_IN_BROWSER" value="true" />
-      <option name="OPEN_IN_BROWSER_URL" value="/" />
-      <option name="COMMON_VM_ARGUMENTS" value="" />
-      <option name="DEPLOY_TOMCAT_MANAGER" value="false" />
-      <option name="BASE_DIRECTORY_NAME" value="" />
-      <predefined_log_file id="TOMCAT_LOCALHOST_LOG_ID" enabled="true" />
-    </configuration>
-    <configuration default="true" type="Remote" factoryName="Remote">
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" value="javadebug" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="5005" />
     </configuration>
     <configuration default="true" type="Application" factoryName="Application" enabled="false" merge="false">
       <option name="MAIN_CLASS_NAME" />
@@ -849,6 +858,16 @@
       <option name="ALTERNATIVE_JRE_PATH" />
       <option name="ENABLE_SWING_INSPECTOR" value="false" />
       <module name="" />
+      <method>
+        <option name="Make" value="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="RUBY_RUN_CONFIGURATION_TYPE" factoryName="Ruby">
+      <OPTIONS NAME="SCRIPT_PATH" VALUE="" />
+      <OPTIONS NAME="SCRIPT_ARGS" VALUE="" />
+      <OPTIONS NAME="RUBY_ARGS" VALUE="" />
+      <OPTIONS NAME="WORK DIR" VALUE="" />
+      <OPTIONS NAME="MODULE_NAME" VALUE="ruby-client" />
       <method>
         <option name="Make" value="true" />
       </method>
@@ -876,6 +895,32 @@
         <option name="Make" value="true" />
       </method>
     </configuration>
+    <configuration default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
+    </configuration>
+    <configuration default="true" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+      <module name="ehcache" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="PACKAGE_NAME" />
+      <option name="MAIN_CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <option name="ADDITIONAL_CLASS_PATH" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="wholeProject" />
+      </option>
+      <method>
+        <option name="Make" value="true" />
+      </method>
+    </configuration>
     <configuration default="true" type="WebLogic Instance" factoryName="Local">
       <option name="WORKING_DIRECTORY" />
       <option name="HOST" value="localhost" />
@@ -891,6 +936,70 @@
       <option name="DOMAIN_NAME" value="mydomain" />
       <predefined_log_file id="WEBLOGIC_DOMAIN_LOG_FILE" enabled="true" />
       <predefined_log_file id="WEBLOGIC_SERVER_LOG_FILE" enabled="true" />
+    </configuration>
+    <configuration default="true" type="RUBY_RUN_CONFIGURATION_TYPE" factoryName="Ruby">
+      <OPTIONS NAME="SCRIPT_PATH" VALUE="" />
+      <OPTIONS NAME="SCRIPT_ARGS" VALUE="" />
+      <OPTIONS NAME="RUBY_ARGS" VALUE="" />
+      <OPTIONS NAME="WORK DIR" VALUE="" />
+      <OPTIONS NAME="MODULE_NAME" VALUE="ruby-client" />
+      <method>
+        <option name="Make" value="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local">
+      <option name="WORKING_DIRECTORY" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="8080" />
+      <option name="LOCAL" value="true" />
+      <option name="OPEN_IN_BROWSER" value="true" />
+      <option name="OPEN_IN_BROWSER_URL" value="/" />
+      <option name="COMMON_VM_ARGUMENTS" value="" />
+      <option name="DEPLOY_TOMCAT_MANAGER" value="false" />
+      <option name="BASE_DIRECTORY_NAME" value="" />
+      <predefined_log_file id="TOMCAT_LOCALHOST_LOG_ID" enabled="true" />
+    </configuration>
+    <configuration default="true" type="RUBY_RUN_CONFIGURATION_TYPE" factoryName="Ruby">
+      <OPTIONS NAME="SCRIPT_PATH" VALUE="" />
+      <OPTIONS NAME="SCRIPT_ARGS" VALUE="" />
+      <OPTIONS NAME="RUBY_ARGS" VALUE="" />
+      <OPTIONS NAME="WORK DIR" VALUE="" />
+      <OPTIONS NAME="MODULE_NAME" VALUE="ruby-client" />
+      <method>
+        <option name="Make" value="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+    </configuration>
+    <configuration default="true" type="RUBY_RUN_CONFIGURATION_TYPE" factoryName="Ruby">
+      <OPTIONS NAME="SCRIPT_PATH" VALUE="" />
+      <OPTIONS NAME="SCRIPT_ARGS" VALUE="" />
+      <OPTIONS NAME="RUBY_ARGS" VALUE="" />
+      <OPTIONS NAME="WORK DIR" VALUE="" />
+      <OPTIONS NAME="MODULE_NAME" VALUE="ruby-client" />
+      <method>
+        <option name="Make" value="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="RUBY_RUN_CONFIGURATION_TYPE" factoryName="Ruby">
+      <OPTIONS NAME="SCRIPT_PATH" VALUE="" />
+      <OPTIONS NAME="SCRIPT_ARGS" VALUE="" />
+      <OPTIONS NAME="RUBY_ARGS" VALUE="" />
+      <OPTIONS NAME="WORK DIR" VALUE="" />
+      <OPTIONS NAME="MODULE_NAME" VALUE="ruby-client" />
+      <method>
+        <option name="Make" value="true" />
+      </method>
     </configuration>
     <configuration default="false" name="Orion" type="Application" factoryName="Application" enabled="false" merge="false">
       <option name="MAIN_CLASS_NAME" value="com.evermind.server.ApplicationServer" />
@@ -1152,7 +1261,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-4" y="22" width="1600" height="998" extended-state="0" />
+    <frame x="0" y="22" width="1600" height="998" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
@@ -1161,7 +1270,7 @@
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.20155902" order="7" />
       <window_info id="Checkstyle" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32962137" order="8" />
       <window_info id="RDoc" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32989025" order="3" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2672692" order="0" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.26597804" order="0" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32333332" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25322166" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32222223" order="10" />
@@ -1171,7 +1280,7 @@
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24935567" order="1" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3911111" order="2" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3911111" order="2" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18052869" order="2" />
       <window_info id="File View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="5" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="0" />
@@ -1312,27 +1421,6 @@
     <option name="myLastEditedConfigurable" value="IDE Profiles" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/ResponseUtil.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="129" column="101" selection-start="5249" selection-end="5249" vertical-scroll-proportion="1.4084249">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ruby-client/Rakefile">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="6" column="57" selection-start="129" selection-end="129" vertical-scroll-proportion="0.021978023">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="2" column="57" selection-start="121" selection-end="121" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/config/checkstyle.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state line="17" column="25" selection-start="603" selection-end="606" vertical-scroll-proportion="0.025210084">
@@ -1347,16 +1435,44 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="621" column="85" selection-start="21100" selection-end="21100" vertical-scroll-proportion="0.014117647">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="830" column="82" selection-start="29313" selection-end="29313" vertical-scroll-proportion="0.014117647">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/SelfPopulatingCacheTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="250" column="56" selection-start="8495" selection-end="8547" vertical-scroll-proportion="0.014117647">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/UpdatingSelfPopulatingCacheTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="147" column="95" selection-start="5632" selection-end="5632" vertical-scroll-proportion="0.23764706">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/Iterator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="56" column="17" selection-start="1888" selection-end="1888" vertical-scroll-proportion="1.2464359">
+        <state line="56" column="17" selection-start="1888" selection-end="1888" vertical-scroll-proportion="0.72">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/RegisteredEventListeners.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="63" column="25" selection-start="1963" selection-end="1963" vertical-scroll-proportion="0.024439918">
+        <state line="63" column="25" selection-start="1963" selection-end="1963" vertical-scroll-proportion="0.014117647">
           <folding />
         </state>
       </provider>
@@ -1377,43 +1493,41 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ruby-client/test/ehcache/configuration_test.rb">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="0" selection-start="670" selection-end="670" vertical-scroll-proportion="0.73319757">
+        <state line="30" column="0" selection-start="670" selection-end="670" vertical-scroll-proportion="0.42352942">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="jar://$PROJECT_DIR$/tools/web/servlet-2.3.jar!/javax/servlet/ServletResponse.class">
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/AbstractWebTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="18" selection-start="511" selection-end="511" vertical-scroll-proportion="0.41547862">
+        <state line="300" column="53" selection-start="10757" selection-end="10757" vertical-scroll-proportion="0.07058824">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="7" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
+    <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="621" column="85" selection-start="21100" selection-end="21100" vertical-scroll-proportion="0.024439918">
+        <state line="7" column="18" selection-start="383" selection-end="383" vertical-scroll-proportion="0.100598805">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
+    <entry file="file://$PROJECT_DIR$/build.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="830" column="82" selection-start="29313" selection-end="29313" vertical-scroll-proportion="0.9287169">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/SelfPopulatingCacheTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="250" column="56" selection-start="8495" selection-end="8547" vertical-scroll-proportion="0.120162934">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/UpdatingSelfPopulatingCacheTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="191" column="7" selection-start="7579" selection-end="7579" vertical-scroll-proportion="4.0794296">
-          <folding />
+        <state line="6" column="68" selection-start="370" selection-end="370" vertical-scroll-proportion="0.08622754">
+          <folding>
+            <marker date="1160267471000" expanded="true" signature="742:839" placeholder="..." />
+            <marker date="1160267471000" expanded="true" signature="946:1012" placeholder="..." />
+          </folding>
         </state>
       </provider>
     </entry>
