@@ -277,23 +277,33 @@
         </jar>
     </target>
 
+    <artifact:dependencies filesetId="remote-debugger-dependencies.fileset">
+        <dependency groupId="commons-logging" artifactId="commons-logging" version="1.0.4"/>
+        <dependency groupId="commons-collections" artifactId="commons-collections" version="2.1.1"/>
+    </artifact:dependencies>
+
     <!-- Builds a remote debugger jar  -->
     <target name="remote-debugger-jar" depends="compile"
             description="Builds the application jar">
         <mkdir dir="${dist.dir}/"/>
+        <mkdir dir="${dist.dir}/remotedeps"/>
+        <copy todir="${dist.dir}/remotedeps" flatten="true">
+            <fileset refid="remote-debugger-dependencies.fileset"/>
+        </copy>
         <jar destfile="${dist.dir}/${name}-${version}-remote-debugger.jar">
             <fileset dir="${build.classes.dir}"/>
             <fileset dir="${test.classes.dir}">
                 <include name="**/RemoteDebugger.class"/>
             </fileset>
             <fileset dir="${basedir}" includes="LICENSE.txt"/>
-            <zipfileset src="${lib.runtime.dir}/commons-logging-1.0.4.jar"/>
-            <zipfileset src="${lib.runtime.dir}/commons-collections-2.1.1.jar"/>
+            <zipfileset src="${dist.dir}/remotedeps/commons-logging-1.0.4.jar"/>
+            <zipfileset src="${dist.dir}/remotedeps/commons-collections-2.1.1.jar"/>
             <manifest>
                 <attribute name="Main-Class"
                            value="net.sf.ehcache.distribution.RemoteDebugger"/>
             </manifest>
         </jar>
+        <delete dir="${dist.dir}/remotedeps"/>
     </target>
 
     <!-- Builds a release tar-ball -->
