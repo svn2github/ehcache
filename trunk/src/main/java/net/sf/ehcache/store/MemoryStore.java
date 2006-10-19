@@ -234,19 +234,19 @@ public abstract class MemoryStore implements Store {
         Object[] keys = getKeyArray();
         for (int i = 0; i < keys.length; i++) {
             Element element = (Element) map.get(keys[i]);
-
-            if (!element.isSerializable()) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Object with key " + element.getObjectKey()
-                            + " is not Serializable and is not being overflowed to disk.");
+            if (element != null) {
+                if (!element.isSerializable()) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Object with key " + element.getObjectKey()
+                                + " is not Serializable and is not being overflowed to disk.");
+                    }
+                } else {
+                    spoolToDisk(element);
+                    //Don't notify listeners. They are not being removed from the cache, only a store
+                    remove(keys[i]);
                 }
-            } else {
-                spoolToDisk(element);
-                //Don't notify listeners. They are not being removed from the cache, only a store
-                remove(keys[i]);
             }
         }
-
     }
 
     /**
@@ -306,7 +306,7 @@ public abstract class MemoryStore implements Store {
 
     /**
      * Measures the size of the memory store by measuring the serialized size of all elements.
-     * If the objects are not Serializable they count as 0. 
+     * If the objects are not Serializable they count as 0.
      * <p/>
      * Warning: This method can be very expensive to run. Allow approximately 1 second
      * per 1MB of entries. Running this method could create liveness problems

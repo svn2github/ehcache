@@ -224,4 +224,15 @@ public class ElementTest extends AbstractCacheTest {
 
     }
 
+    /**
+     * Checks that isSerializable still works if either key or value is null
+     */
+    public void testIsSerializable() {
+
+        Element element = new Element(null, null);
+        element.isSerializable();
+
+    }
+
+
 }

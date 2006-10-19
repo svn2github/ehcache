@@ -73,9 +73,6 @@ task :test do |t|
        #Exit showing error code so that we can detect failure
        exit(1)
   end
-
-  
-
 end
 
 spec = eval(File.read("ruby-client.gemspec"))
@@ -165,9 +162,6 @@ task :verify_gmail do
   raise "GMAIL_USER environment variable not set!" unless ENV['GMAIL_USER']
   raise "GMAIL_PASSWORD environment variable not set!" unless ENV['GMAIL_PASSWORD']
 end
-
-
-
 
 
 desc "Post a release announcement via GMail."

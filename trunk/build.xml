@@ -277,7 +277,7 @@
         </jar>
     </target>
 
-    <artifact:dependencies filesetId="remote-debugger-dependencies.fileset">
+    <artifact:dependencies filesetId="runtime-dependencies.fileset">
         <dependency groupId="commons-logging" artifactId="commons-logging" version="1.0.4"/>
         <dependency groupId="commons-collections" artifactId="commons-collections" version="2.1.1"/>
     </artifact:dependencies>
@@ -288,7 +288,7 @@
         <mkdir dir="${dist.dir}/"/>
         <mkdir dir="${dist.dir}/remotedeps"/>
         <copy todir="${dist.dir}/remotedeps" flatten="true">
-            <fileset refid="remote-debugger-dependencies.fileset"/>
+            <fileset refid="runtime-dependencies.fileset"/>
         </copy>
         <jar destfile="${dist.dir}/${name}-${version}-remote-debugger.jar">
             <fileset dir="${build.classes.dir}"/>
@@ -470,10 +470,9 @@
     <target name="deploy-default-web-app-orion">
         <unzip dest="${build.dir}" src="${lib.compile.dir}/web/orion.zip"/>
         <copy file="${dist.dir}/${name}-${version}.jar" todir="${build.orion.lib.dir}"/>
-        <copy file="${lib.runtime.dir}/commons-logging-1.0.4.jar"
-              todir="${build.orion.lib.dir}"/>
-        <copy file="${lib.runtime.dir}/commons-collections-2.1.1.jar"
-              todir="${build.orion.lib.dir}"/>
+        <copy todir="${build.orion.lib.dir}" flatten="true">
+            <fileset refid="runtime-dependencies.fileset"/>
+        </copy>
         <copy todir="${build.orion.lib.dir}" flatten="true">
             <fileset refid="clover.fileset"/>
         </copy>
@@ -511,13 +510,14 @@
         <mkdir dir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib"/>
         <copy file="${dist.dir}/${name}-${version}.jar"
               todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib"/>
-        <copy file="${lib.runtime.dir}/commons-collections-2.1.1.jar"
-              todir="${build.tomcat.defaultwebapp.dir}/WEb-INF/lib"/>
+        <copy todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib" flatten="true">
+            <fileset refid="runtime-dependencies.fileset"/>
+        </copy>
         <copy todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib" flatten="true">
             <fileset refid="clover.fileset"/>
         </copy>
         <copy file="${test.config.dir}/ehcache.xml"
-              todir="${build.tomcat.defaultwebapp.dir}/WEb-INF/classes"/>
+              todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/classes"/>
         <copy file="logging.properties" todir="${build.orion.dir}"/>
         <jar destfile="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib/${name}-tests-${version}.jar">
             <fileset dir="${test.classes.dir}"/>
@@ -550,10 +550,9 @@
         <mkdir dir="${build.glassfish.webapp.dir}/WEB-INF/lib"/>
         <copy file="${dist.dir}/${name}-${version}.jar"
               todir="${build.glassfish.webapp.dir}/WEB-INF/lib"/>
-        <copy file="${lib.runtime.dir}/commons-logging-1.0.4.jar"
-              todir="${build.glassfish.webapp.dir}/WEB-INF/lib"/>
-        <copy file="${lib.runtime.dir}/commons-collections-2.1.1.jar"
-              todir="${build.glassfish.webapp.dir}/WEb-INF/lib"/>
+        <copy todir="${build.glassfish.webapp.dir}/WEB-INF/lib" flatten="true">
+            <fileset refid="runtime-dependencies.fileset"/>
+        </copy>
         <copy todir="${build.glassfish.webapp.dir}/WEB-INF/lib" flatten="true">
             <fileset refid="clover.fileset"/>
         </copy>

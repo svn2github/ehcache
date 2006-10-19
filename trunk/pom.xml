@@ -305,7 +305,7 @@ ehcache is a pure Java, in-process cache with the following features:
             <plugin>
                 <artifactId>maven-site-plugin</artifactId>
                 <configuration>
-                    <locales>en</locales>
+                    <locales>en,ja</locales>
                     <templateDirectory>file://${basedir}/src/site/</templateDirectory>
                     <template>maven-site.vm</template>
                 </configuration>
