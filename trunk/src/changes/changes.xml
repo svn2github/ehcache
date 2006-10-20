@@ -1,83 +1,124 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
-    <body>                     
+    <body>
+
+        <release version="1.2.4" date="2006-12-31" desc="Maintenance release">
+
+            <!-- Feature Changes  -->
+            
+
+            <!-- Reported Bug fixes -->
+            <action dev="Greg Luck" issue="1574735" type="fix">
+                Fix typo in lock timeout log message in BlockingCache. Thanks to Matt Magoffin
+                for reporting this bug.
+            </action>
+
+        </release>
 
         <release version="1.2.3" date="2006-9-2" desc="Maintenance release">
 
             <!-- Feature Changes  -->
             <action dev="Greg Luck" issue="1524597" type="add">
-                Cache.remove doesn't fire listeners if element didn't exist. This stopped cluster
-                removes from working where the local cache does not have the element cached. Thanks
-                to Elijah Epifanov for reporting this one and arguing the case for this behaviour
+                Cache.remove doesn't fire listeners if element didn't exist. This stopped
+                cluster
+                removes from working where the local cache does not have the element cached.
+                Thanks
+                to Elijah Epifanov for reporting this one and arguing the case for this
+                behaviour
             </action>
             <action dev="Greg Luck" issue="1540653" type="add">
-                Allow references to ehcache.xsd in ehcache XML files. All of the ehcache.xml files
+                Allow references to ehcache.xsd in ehcache XML files. All of the ehcache.xml
+                files
                 have had the schema reference added. This allows easy validation of ehcache.xml
-                configuration files using tools like Eclipse and IntelliJ. Thanks to Gabriel Klein
+                configuration files using tools like Eclipse and IntelliJ. Thanks to Gabriel
+                Klein
                 for suggesting this.
             </action>
             <action dev="Greg Luck" issue="1540657" type="add">
-                Added a new property asynchronousReplicationIntervalMillis to the RMICacheReplicator factory
-                configuration to control the interval at which it runs. The default is 1000ms, which
+                Added a new property asynchronousReplicationIntervalMillis to the
+                RMICacheReplicator factory
+                configuration to control the interval at which it runs. The default is 1000ms,
+                which
                 is the value it was hardcoded too in earlier versions.
             </action>
             <action dev="Greg Luck" type="add">
-                Added a new notifyRemoveAll cache event notification as requested by users. Called during Ehcache#removeAll() to
-                indicate that the all elements have been removed from the cache in a bulk operation. The usual
+                Added a new notifyRemoveAll cache event notification as requested by users.
+                Called during Ehcache#removeAll() to
+                indicate that the all elements have been removed from the cache in a bulk
+                operation. The usual
                 notifyElementRemoved is not called.
-                This notification exists because clearing a cache is a special case. It is often
-                not practical to serially process notifications where potentially millions of elements
+                This notification exists because clearing a cache is a special case. It is
+                often
+                not practical to serially process notifications where potentially millions of
+                elements
                 have been bulk deleted.
             </action>
             <action dev="Greg Luck" type="add">
-                Added a new notifyElementEvicted cache event notification as requested by users. 
-                Called immediately after an element is evicted from the cache. Evicted in this sense
-                means evicted from one store and not moved to another, so that it exists nowhere in the
-                local cache. In a sense the Element has been <i>removed</i> from the cache, but it is different,
+                Added a new notifyElementEvicted cache event notification as requested by
+                users.
+                Called immediately after an element is evicted from the cache. Evicted in this
+                sense
+                means evicted from one store and not moved to another, so that it exists
+                nowhere in the
+                local cache. In a sense the Element has been
+                <i>removed</i>
+                from the cache, but it is different,
                 thus the separate notification. The usual notifyElementRemoved is not called.
             </action>
             <action dev="Greg Luck" issue="1523915" type="update">
                 Asynchronous replication / soft references.
                 There is a trade off between OutOfMemory risk and replication correctness.
-                Change the RMIAsynchronousCacheReplicator so that Elements are SoftReference, not
-                all EventMessages. The result is that put and update via copy may be SoftReference
+                Change the RMIAsynchronousCacheReplicator so that Elements are SoftReference,
+                not
+                all EventMessages. The result is that put and update via copy may be
+                SoftReference
                 collected, but remove and update via remove will always go through.
             </action>
             <action dev="Greg Luck" type="update">
-                Change Cache#getQuiet so that cache statistics are not updated. This is a sensible
+                Change Cache#getQuiet so that cache statistics are not updated. This is a
+                sensible
                 API change and probably always should have worked this way.
             </action>
             <action dev="Greg Luck" type="update">
-                Open up some classes by removing final keyword and changing the constructors to public.
+                Open up some classes by removing final keyword and changing the constructors to
+                public.
             </action>
 
             <!-- Reported Bug fixes -->
             <action dev="Greg Luck" issue="1532610" type="fix">
-                Fix isssue where a distributed cache can take up to a minute to shutdown. This issue
+                Fix isssue where a distributed cache can take up to a minute to shutdown. This
+                issue
                 affected web container and application server shutdowns.
-                The fix is to unbind RMICachePeers before unexporting them. Thanks to Lennard Fuller
+                The fix is to unbind RMICachePeers before unexporting them. Thanks to Lennard
+                Fuller
                 and Peter Chiang for finding and fixing this hard one.
             </action>
             <action dev="Greg Luck" issue="1529506" type="fix">
                 Fixed a few broken links and inconsistencies in the documentation.
             </action>
             <action dev="Greg Luck" issue="1542696" type="fix">
-                Bad dependency scopes in Maven2 POM. Most dependencies are required only at test time.
+                Bad dependency scopes in Maven2 POM. Most dependencies are required only at
+                test time.
                 Changed the pom to reflect this.
             </action>
             <action dev="Greg Luck" issue="1540322" type="fix">
-                Synchronous replicators in a cluster can deadlock trying to replicate to each other.
-                The deadlock gets resolved by a SocketTimeoutException depending on what you set it
-                too. Reduce synchronization around gets, puts and removes so that listener notification
-                is not synchronized, which resolves this problem. 
+                Synchronous replicators in a cluster can deadlock trying to replicate to each
+                other.
+                The deadlock gets resolved by a SocketTimeoutException depending on what you
+                set it
+                too. Reduce synchronization around gets, puts and removes so that listener
+                notification
+                is not synchronized, which resolves this problem.
             </action>
             <action dev="Greg Luck" issue="1550043" type="fix">
-                Fixed a bug where in BlockingCache and SelfPopulatingCache where setTimeoutMillis
+                Fixed a bug where in BlockingCache and SelfPopulatingCache where
+                setTimeoutMillis
                 was set to a non zero value.
             </action>
             <action dev="Greg Luck" issue="1548314" type="fix">
-                Large TTL values cause expire time to be incorrect in Element. Changed ONE_SECOND from
-                an int to a long which fixes the issue. 
+                Large TTL values cause expire time to be incorrect in Element. Changed
+                ONE_SECOND from
+                an int to a long which fixes the issue.
             </action>
 
 
@@ -88,7 +129,7 @@
             <!-- Feature Changes  -->
             <action dev="Daniel Wiell" issue="1521843" type="add">
                 Added a ShutdownListener which implements ServletContextListener for shutting
-                down all CacheManagers in a web application. 
+                down all CacheManagers in a web application.
             </action>
 
             <!-- Reported Bug fixes -->
@@ -96,7 +137,8 @@
                 If you put an Element with overridden TTL and TTI values and then replace it
                 with an Element with defaults, the new Element lives forever. putQuiet is not
                 affected by this bug. Thanks to Pete at Goodtech for finding this one.
-                Note that a symptom of this bug for caches that overflow to disk is an endlessly
+                Note that a symptom of this bug for caches that overflow to disk is an
+                endlessly
                 growing .data file for the Cache.
             </action>
             <action dev="Greg Luck" type="fix">
@@ -104,54 +146,70 @@
                 See http://gregluck.com/blog/archives/2006/07/tuning_memory_u.html for details.
             </action>
             <action dev="Greg Luck" issue="1521699" type="fix">
-                Cache names with slashes cause problems. Tightened the validation code around setting a cache
-                name. Now throw IllegalArgumentException if a cache name is null or contains '/'. Thanks to Daniel
+                Cache names with slashes cause problems. Tightened the validation code around
+                setting a cache
+                name. Now throw IllegalArgumentException if a cache name is null or contains
+                '/'. Thanks to Daniel
                 Wiell for repoting this one and suggesting the fix.
             </action>
             <action dev="Greg Luck" issue="1517565" type="fix">
-                Loading an element from the disk store fails in some circumstances due to classloading
-                issues. This issue was created by a patch to fix 1324221 back in October 2005. Resolved
-                by trying the new way and then, if a ClassNotFoundException is thrown, doing it the old way.
+                Loading an element from the disk store fails in some circumstances due to
+                classloading
+                issues. This issue was created by a patch to fix 1324221 back in October 2005.
+                Resolved
+                by trying the new way and then, if a ClassNotFoundException is thrown, doing it
+                the old way.
             </action>
             <action dev="Greg Luck" issue="1513436" type="fix">
-                 CachingFilter should not change Thread name. Now sets it back to the original when done.
+                CachingFilter should not change Thread name. Now sets it back to the original
+                when done.
             </action>
         </release>
 
         <release version="1.2.1" date="2006-7-2" desc="ehcache-1.2.1">
             <!-- Feature Changes over 1.2.1RC -->
             <action dev="Greg Luck" issue="1492900" type="add">
-                Change Blocking cache to use a lock striping technique for its Mutexes. This limits the number
-                of Mutexes to 100, rather than a number equalling the number of keys, while preserving excellent
-                liveness and safety. Thanks to Olaf Krische for reporting this and Brian Goetz for assisting with
+                Change Blocking cache to use a lock striping technique for its Mutexes. This
+                limits the number
+                of Mutexes to 100, rather than a number equalling the number of keys, while
+                preserving excellent
+                liveness and safety. Thanks to Olaf Krische for reporting this and Brian Goetz
+                for assisting with
                 a solution.
             </action>
             <action dev="Greg Luck" type="add">
-                Change BlockingCache and SelfPopulatingCache to act as decorators for Ehcache. Remove now redundant
-                BlockingCacheManager and SelfPopulatingCacheManager. Change signatures of these caches from Serializable
-                to Object. This change is not backward compatible but no libraries use these, so developers can change
+                Change BlockingCache and SelfPopulatingCache to act as decorators for Ehcache.
+                Remove now redundant
+                BlockingCacheManager and SelfPopulatingCacheManager. Change signatures of these
+                caches from Serializable
+                to Object. This change is not backward compatible but no libraries use these,
+                so developers can change
                 over on their own projects.
             </action>
 
             <!-- Reported Bug fixes -->
             <action dev="Greg Luck" issue="1190614" type="fix">
-                This was reported by Victor Volle and is a duplicate of 1492900. Fixed. 
+                This was reported by Victor Volle and is a duplicate of 1492900. Fixed.
             </action>
             <action dev="Greg Luck" issue="1506399" type="fix">
-                Changing all classloading to the context classloader is sometimes inconvenient. Fallback to
-                ClassLoaderUtil.class.getClassLoader() if Thread.currentThread().getContextClassLoader()
+                Changing all classloading to the context classloader is sometimes inconvenient.
+                Fallback to
+                ClassLoaderUtil.class.getClassLoader() if
+                Thread.currentThread().getContextClassLoader()
                 fails. Thanks to Robert Watkins for reporting this one.
             </action>
             <action dev="Greg Luck" issue="1508623" type="fix">
-                Debug messages generate excess String objects. Added logging level guards around about 6 debug log statements.
+                Debug messages generate excess String objects. Added logging level guards
+                around about 6 debug log statements.
                 Thanks to Derek Hulley for pointing this one out.
             </action>
             <action dev="Greg Luck" type="fix">
-                Harden all ehcache threads so that RuntimeExceptions and Errors do not stop them. This change, on its own, has been
+                Harden all ehcache threads so that RuntimeExceptions and Errors do not stop
+                them. This change, on its own, has been
                 backported to a separate release, ehcache-1.2.0_01.
             </action>
             <action dev="Greg Luck" type="update">
-                Change spooling mechanism to use less memory, so as to avoid memory spikes. 
+                Change spooling mechanism to use less memory, so as to avoid memory spikes.
             </action>
         </release>
 
@@ -159,73 +217,101 @@
         <release version="1.2.1RC" date="2006-6-4" desc="ehcache-1.2.1RC">
             <!-- Feature Changes over 1.2 -->
             <action dev="Greg Luck" type="add">
-                Added the constructs package which was previously a separate module. The constructs package adds
-                valuable functionality and given that the 1.2 jar size is large, can be added with only a small
+                Added the constructs package which was previously a separate module. The
+                constructs package adds
+                valuable functionality and given that the 1.2 jar size is large, can be added
+                with only a small
                 increase in jar size.
             </action>
             <action dev="Greg Luck" issue="1483735" type="add">
                 Allow zeroconf of RMICacheManagerPeerListenerFactory. A configuration
-                &lt;cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/&gt;
+                &lt;cacheManagerPeerListenerFactory
+                class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/&gt;
                 will now work. The listener port will be automatically assigned a free port.
             </action>
             <action dev="Greg Luck" type="add">
-                New SingletonEhCacheProvider for use by Hibernate in situations where code has been written which relies
-                on the singleton behaviour of ehcache-1.1 and earlier. Most code bases using Hibernate should not
+                New SingletonEhCacheProvider for use by Hibernate in situations where code has
+                been written which relies
+                on the singleton behaviour of ehcache-1.1 and earlier. Most code bases using
+                Hibernate should not
                 require this.
             </action>
             <action dev="Greg Luck" type="add">
-                Allow cacheEventListenerFactory elements to be added to defaultCache in ehcache.xml. This allows
-                caches created with CacheManager.addCache(String cacheName) to receive events. This can be used for
+                Allow cacheEventListenerFactory elements to be added to defaultCache in
+                ehcache.xml. This allows
+                caches created with CacheManager.addCache(String cacheName) to receive events.
+                This can be used for
                 example to set default replication settings in defaultCache.
             </action>
             <action dev="Greg Luck" type="add">
-                To complement full support foe default cache (above), added support for programmatic addition of caches
-                which include CacheReplicators. Also support for removal of these caches with CacheManager.remove(String cacheName).
+                To complement full support foe default cache (above), added support for
+                programmatic addition of caches
+                which include CacheReplicators. Also support for removal of these caches with
+                CacheManager.remove(String cacheName).
             </action>
             <action dev="Greg Luck" type="add">
-                Andy McNutt's JNDI-based manual RMI replication added. See ehcache.xml example for how to use.
+                Andy McNutt's JNDI-based manual RMI replication added. See ehcache.xml example
+                for how to use.
             </action>
             <action dev="Greg Luck" type="add">
-                Support tomcat 5.5 for the servlet filters. Tomcat integration testing, in addition to the Orion one, is also
-                added to the full JUnit test process. Tomcat relies on Servlet 2.4 dispatcher INCLUDE and FORWARD directives
+                Support tomcat 5.5 for the servlet filters. Tomcat integration testing, in
+                addition to the Orion one, is also
+                added to the full JUnit test process. Tomcat relies on Servlet 2.4 dispatcher
+                INCLUDE and FORWARD directives
                 for page fragment caching.
             </action>
             <action dev="Greg Luck" type="add">
-                Support runtime setting of individual Element time to lives, time to idles and eternal overrides.
+                Support runtime setting of individual Element time to lives, time to idles and
+                eternal overrides.
                 If an override is set, the Element expiry ignores the Cache default.
             </action>
             <action dev="Greg Luck" type="add">
-                Add a cache bootstrap mechanism. This is used to populate a cache when it is first initialized. An
-                abstract factory, BootstrapCacheLoaderFactory has been defined along with an interface BootstrapCacheLoader.
-                The initial concrete implementations are for RMI, so that a new cache entering a cluster gets bootstrapped
+                Add a cache bootstrap mechanism. This is used to populate a cache when it is
+                first initialized. An
+                abstract factory, BootstrapCacheLoaderFactory has been defined along with an
+                interface BootstrapCacheLoader.
+                The initial concrete implementations are for RMI, so that a new cache entering
+                a cluster gets bootstrapped
                 from a randomly chosen peer.
             </action>
             <action dev="Greg Luck" type="add">
-                Allow CacheManager instances to use the same ehcache.xml configuration. Automatically resolve conflicts
-                for DiskStore and CacheManagerPeerListener. Log a warning that the conflict existed and what was done to
-                resolve it along with a suggestion to either use ehcache in singleton mode or specify separate ehcache.xml
+                Allow CacheManager instances to use the same ehcache.xml configuration.
+                Automatically resolve conflicts
+                for DiskStore and CacheManagerPeerListener. Log a warning that the conflict
+                existed and what was done to
+                resolve it along with a suggestion to either use ehcache in singleton mode or
+                specify separate ehcache.xml
                 configurations for each CacheManager instance.
             </action>
 
             <!-- Reported Bug fixes -->
             <action dev="Greg Luck" issue="1480442" type="fix">
-                Theoretically possible NPE if a MulticastRMICacheManagerPeerProvider is started and then stopped
-                before a multicast socket connection can be established. Added guard for NPE. Thanks to Roman Kurmanowytsch
+                Theoretically possible NPE if a MulticastRMICacheManagerPeerProvider is started
+                and then stopped
+                before a multicast socket connection can be established. Added guard for NPE.
+                Thanks to Roman Kurmanowytsch
                 for reporting the issue and a fix.
             </action>
             <action dev="Greg Luck" issue="1485765" type="fix">
-                Add shutdown hook to RMICacheManagerPeerListener so that, even if CacheManager.shutdown() is not called,
-                processes still exit cleanly. This is a bug rather than a feature request because Cache has a shutdown
-                hook to always cleanly shut down disk store, and ehcache should be consistent in supporting shutdown hooks.
+                Add shutdown hook to RMICacheManagerPeerListener so that, even if
+                CacheManager.shutdown() is not called,
+                processes still exit cleanly. This is a bug rather than a feature request
+                because Cache has a shutdown
+                hook to always cleanly shut down disk store, and ehcache should be consistent
+                in supporting shutdown hooks.
             </action>
             <action dev="Greg Luck" issue="1486858" type="fix">
-                In GzipFilter and CachingFilter Gzipping an empty response body creates 20 byte responses. Fixed so that
-                this situation is detected and a zero bytes gzipped body, with a content length also of 0 is returned. Can
+                In GzipFilter and CachingFilter Gzipping an empty response body creates 20 byte
+                responses. Fixed so that
+                this situation is detected and a zero bytes gzipped body, with a content length
+                also of 0 is returned. Can
                 occur in 204 and 304 responses.
             </action>
             <action dev="Greg Luck" issue="1488853" type="fix">
-                Changed localhost lookup to a static in Cache, to avoid a potential bottleneck when creating and destroying
-                large numbers of caches rapidly. Thanks to Derek Hully for the bug report and suggested fix.
+                Changed localhost lookup to a static in Cache, to avoid a potential bottleneck
+                when creating and destroying
+                large numbers of caches rapidly. Thanks to Derek Hully for the bug report and
+                suggested fix.
             </action>
         </release>
 
@@ -235,19 +321,25 @@
             <!-- Feature Changes over RC1-->
             <!-- Bug fixes -->
             <action dev="Greg Luck" issue="1473833" type="fix">
-                Changing the API to Object from Serializable breaks projects. Leave the existing Serializable
-                API in place and add new constructors and methods for Object. Add getObjectValue and getObjectKey to
+                Changing the API to Object from Serializable breaks projects. Leave the
+                existing Serializable
+                API in place and add new constructors and methods for Object. Add
+                getObjectValue and getObjectKey to
                 Element.
             </action>
             <action dev="Greg Luck" issue="1474363" type="fix">
-                Closing Cache does not remove reference from DiskStore, preventing Garbage Collection of DiskStore and
+                Closing Cache does not remove reference from DiskStore, preventing Garbage
+                Collection of DiskStore and
                 Cache
-                on dispose of a cache. Fixed to set Cache reference to null on dispose. Thanks to Felix Meschberger for
+                on dispose of a cache. Fixed to set Cache reference to null on dispose. Thanks
+                to Felix Meschberger for
                 the patch.
             </action>
             <action dev="Greg Luck" issue="1474360" type="fix">
-                Closing Cache does not remove shutdown hook, preventing Garbage Collection of a Cache with a persistent
-                DiskStore on dispose of a cache. Fixed to remove the shutdown thread after dispose.
+                Closing Cache does not remove shutdown hook, preventing Garbage Collection of a
+                Cache with a persistent
+                DiskStore on dispose of a cache. Fixed to remove the shutdown thread after
+                dispose.
                 Thanks to Felix Meschberger for the patch.
             </action>
         </release>
@@ -260,42 +352,56 @@
                 License updated to Apache 2.0.
             </action>
             <action dev="Greg Luck" type="update">
-                Following many requests, ehcache no longer requires that Elements contain Serializable keys and values.
-                Ehcache will gracefully degrade for those operations which require Serialization. In particular the
-                MemoryStore and event listeners can be used with Non Serializable elements. WARNING error messages are
-                logged when an operation cannot be completed because the key or value is not Serializable.
+                Following many requests, ehcache no longer requires that Elements contain
+                Serializable keys and values.
+                Ehcache will gracefully degrade for those operations which require
+                Serialization. In particular the
+                MemoryStore and event listeners can be used with Non Serializable elements.
+                WARNING error messages are
+                logged when an operation cannot be completed because the key or value is not
+                Serializable.
             </action>
             <action dev="Greg Luck" type="update">
                 Feature Request 1458049 Wrap original exceptions during configuration.
-                Added an intial cause Throwable field to CacheException to facilitate easier reporting without
+                Added an intial cause Throwable field to CacheException to facilitate easier
+                reporting without
                 breaking pre JDK1.4 compatibility.
             </action>
             <action dev="Greg Luck" type="remove">
-                Removed the old Hibernate plugin from the code base. It has been deprecated since the beginning of the
+                Removed the old Hibernate plugin from the code base. It has been deprecated
+                since the beginning of the
                 1.2 beta series. The plugin is being actively maintained in the
-                Hibernate project. Any project still using net.sf.ehcache.hibernate.Plugin should change their
+                Hibernate project. Any project still using net.sf.ehcache.hibernate.Plugin
+                should change their
                 Hibernate configurations to org.hibernate.cache.EHCacheProvider.
             </action>
             <action dev="Greg Luck" type="add">
-                Feature Request 1081071. Added the ability to specify subdirectories under System Property paths. e.g.
+                Feature Request 1081071. Added the ability to specify subdirectories under
+                System Property paths. e.g.
                 java.io.tmpdir/one
             </action>
             <action dev="Greg Luck" type="add">
-                Feature Request 1025706. Added the ability to specify a system property, net.sf.ehcache.disabled=true,
+                Feature Request 1025706. Added the ability to specify a system property,
+                net.sf.ehcache.disabled=true,
                 to
-                easily disable ehcache. A disabled cache works fully but discards and Elements added to it.
+                easily disable ehcache. A disabled cache works fully but discards and Elements
+                added to it.
             </action>
 
             <!-- Bug fixes -->
             <action dev="Greg Luck" issue="1432458" type="fix">
-                Add protections to the DiskStore spoolThread against programming errors in Elements that can cause it to
+                Add protections to the DiskStore spoolThread against programming errors in
+                Elements that can cause it to
                 die.
-                Secondly, if it does die, disable adding elements to the DiskStore and log an error, so as to gracefully
+                Secondly, if it does die, disable adding elements to the DiskStore and log an
+                error, so as to gracefully
                 degrade.
             </action>
             <action dev="Greg Luck" issue="1369073" type="fix">
-                flush() was using up to double the memory used by a MemoryStore during flush() which could cause an
-                OutOfMemory error on shutdown if memory was constrained. flush no longer causes any memory spike.
+                flush() was using up to double the memory used by a MemoryStore during flush()
+                which could cause an
+                OutOfMemory error on shutdown if memory was constrained. flush no longer causes
+                any memory spike.
                 Thanks to Sergey Nekoval for reporting the bug.
             </action>
         </release>
@@ -305,35 +411,50 @@
          backward compatible with 1.1.">
             <!-- Feature Changes -->
             <action dev="Surya Suravarapu" type="add">
-                Introduced new caching policies in addition to the standard LRU. FIFO and LFU were added. LRU remains
-                the default unless explicitly set in each cache's configuration. Thanks to Surya Suravarapu for working
-                with me on these. The documentation has a new section on caching policies and when to use what.
+                Introduced new caching policies in addition to the standard LRU. FIFO and LFU
+                were added. LRU remains
+                the default unless explicitly set in each cache's configuration. Thanks to
+                Surya Suravarapu for working
+                with me on these. The documentation has a new section on caching policies and
+                when to use what.
             </action>
             <action dev="Greg Luck" type="add">
-                Introduced CacheManagerEventListener and CacheEventListener interfaces and default implementations.
-                These can be configured in ehcache.xml or set programmatically. Thanks to steve at jofti dot com for
+                Introduced CacheManagerEventListener and CacheEventListener interfaces and
+                default implementations.
+                These can be configured in ehcache.xml or set programmatically. Thanks to steve
+                at jofti dot com for
                 help with the specification for these.
             </action>
             <action dev="Greg Luck" type="add">
-                After requests from Jo Walnes, Paul Hammant and others, I have added normal instance constructers to
-                CacheManager which do not act as singletons. The factory singleton methods remain for backward
-                compatibility. CacheManager can now be constructed with a Configuration object programmatically.
+                After requests from Jo Walnes, Paul Hammant and others, I have added normal
+                instance constructers to
+                CacheManager which do not act as singletons. The factory singleton methods
+                remain for backward
+                compatibility. CacheManager can now be constructed with a Configuration object
+                programmatically.
             </action>
             <action dev="Greg Luck" type="add">
-                Since version 1.1, ehcache has had a persistent diskStore, which makes it suitable for storing
-                application state. Added a flush method so that, if the cache is diskPersistent, it can be
-                programmatically flushed, in addition to the automatic flush which happens at shutdown.
+                Since version 1.1, ehcache has had a persistent diskStore, which makes it
+                suitable for storing
+                application state. Added a flush method so that, if the cache is
+                diskPersistent, it can be
+                programmatically flushed, in addition to the automatic flush which happens at
+                shutdown.
             </action>
             <action dev="Greg Luck" type="add">
-                Pluggable Distributed Caching. The default implementation supports cache discovery via multicast or
-                manual configuration. Updates are delivered asynchronously or synchronously via custom RMI connections.
+                Pluggable Distributed Caching. The default implementation supports cache
+                discovery via multicast or
+                manual configuration. Updates are delivered asynchronously or synchronously via
+                custom RMI connections.
                 Additional discovery or delivery schemes can be plugged in by third parties.
             </action>
             <action dev="Greg Luck" type="add">
-                DiskStore is now up to 12 times faster in certain operations and much more scalable.
+                DiskStore is now up to 12 times faster in certain operations and much more
+                scalable.
             </action>
             <action dev="Greg Luck" type="add">
-                Significant (up to 7 fold) DiskStore performance increases, after introduction of finer grained
+                Significant (up to 7 fold) DiskStore performance increases, after introduction
+                of finer grained
                 threading. Thanks to Robert Watkins for reporting on the performance limits.
             </action>
             <action dev="Greg Luck" type="update">
@@ -343,17 +464,20 @@
 
             <!-- Feature Requests -->
             <action dev="Greg Luck" type="update">
-                Feature Request 431481 Distributed: The ability to notify cache event listeners excluding
+                Feature Request 431481 Distributed: The ability to notify cache event listeners
+                excluding
                 CacheReplicators
             </action>
             <action dev="Greg Luck" type="update">
-                Feature Request 1431393 Events from remote in distributed cache should be received by any non
+                Feature Request 1431393 Events from remote in distributed cache should be
+                received by any non
                 CacheReplicator listeners
             </action>
 
             <!-- Patches -->
             <action dev="Greg Luck" type="update">
-                Patch 1158788. Fix for dependencies list... MemoryStore.java to remove Apache commons-collections for
+                Patch 1158788. Fix for dependencies list... MemoryStore.java to remove Apache
+                commons-collections for
                 JDK1.4
                 users
             </action>
@@ -363,7 +487,8 @@
                 change default configuration to use context classloader
             </action>
             <action dev="Greg Luck" issue="1324221" type="fix">
-                Fix for DiskStore to deserialize using Thread.currentThread().getContextClassLoader()
+                Fix for DiskStore to deserialize using
+                Thread.currentThread().getContextClassLoader()
             </action>
             <action dev="Greg Luck" issue="1261613" type="fix">
                 CacheManager.shutdown now uses a Class rather than an instance lock.
@@ -375,45 +500,55 @@
                 DiskStore degrades under load.
             </action>
             <action dev="Greg Luck" issue="1079529" type="fix">
-                Change classloader to Thread.currentThread().getContextClassLoader() for ehache.xml.
+                Change classloader to Thread.currentThread().getContextClassLoader() for
+                ehache.xml.
             </action>
             <action dev="Greg Luck" issue="1414674" type="fix">
                 DiskStore data file is not deleted when index is corrupt.
             </action>
             <action dev="Greg Luck" issue="1224325" type="fix">
-                JavaDoc documentation fix for element.getLastAccessTime returns 0 for element just created
+                JavaDoc documentation fix for element.getLastAccessTime returns 0 for element
+                just created
             </action>
             <action dev="Greg Luck" issue="1247019" type="fix">
-                Documentation should advise using the Hibernate supplied plugin rather than the older one in
+                Documentation should advise using the Hibernate supplied plugin rather than the
+                older one in
                 ehcache which is now deprecated.
             </action>
             <action dev="Greg Luck" issue="" type="fix">
-                Fix bug introduced in 1.2 beta series. Removed Boolean.parseBoolean and java.util.Queue which were
+                Fix bug introduced in 1.2 beta series. Removed Boolean.parseBoolean and
+                java.util.Queue which were
                 introduced
                 in the JDK1.5 API to preserve backward compatibility.
             </action>
             <action dev="Greg Luck" issue="" type="fix">
-                Fix bug introduced in 1.2 beta series. Changed ant script to avoid compiling with clover in dists
+                Fix bug introduced in 1.2 beta series. Changed ant script to avoid compiling
+                with clover in dists
             </action>
             <action dev="Greg Luck" issue="1410374" type="fix">
-                Fix bug introduced in 1.2 beta series. Cannot load configuration from jar (or any non-file URL).
+                Fix bug introduced in 1.2 beta series. Cannot load configuration from jar (or
+                any non-file URL).
             </action>
             <action dev="Greg Luck" issue="1432074" type="fix">
-                Fix bug introduced in 1.2 beta series. NPE on RMICacheManagerPeerProviderFactory when rmiUrls not
+                Fix bug introduced in 1.2 beta series. NPE on
+                RMICacheManagerPeerProviderFactory when rmiUrls not
                 specified. Now throws a meaningful CacheException.
             </action>
             <action dev="Greg Luck" issue="1445694" type="fix">
-                Fix bug introduced in 1.2 beta series. Deadlock on deserialization of a cache entry. Thanks to Felix
+                Fix bug introduced in 1.2 beta series. Deadlock on deserialization of a cache
+                entry. Thanks to Felix
                 Meschberger
                 for reporting the bug and uploading a patch.
             </action>
             <action dev="Greg Luck" issue="1457268" type="fix">
-                Fix bug introduced in 1.2 beta series. Caches created with Cache.addCache(String) share a
+                Fix bug introduced in 1.2 beta series. Caches created with
+                Cache.addCache(String) share a
                 RegisteredEventListeners instance.
                 Thanks to Olaf Ontaine for for reporting the bug and showing how it happens.
             </action>
             <action dev="Greg Luck" issue="1451780" type="fix">
-                Fix bug introduced in 1.2 beta series. RMIAsynchronousCacheReplicator mishandling non-copy updates.
+                Fix bug introduced in 1.2 beta series. RMIAsynchronousCacheReplicator
+                mishandling non-copy updates.
                 Thanks to Randy Puro for a patch.
             </action>
         </release>
@@ -423,7 +558,8 @@
 
             <!-- Feature Changes -->
             <action dev="Greg Luck" type="remove">
-                Split out the entire constructs package. These are now in a new subproject: ehcache-constructs, which
+                Split out the entire constructs package. These are now in a new subproject:
+                ehcache-constructs, which
                 has been released.
                 See http://ehcache.sf.net/ehcache-constructs for more details.
             </action>
@@ -436,7 +572,8 @@
 
             <!-- Bug Fixes -->
             <action dev="Greg Luck" issue="1063908" type="fix">
-                Extra check to make sure that we always close persistent disk store's FileInputStream in the
+                Extra check to make sure that we always close persistent disk store's
+                FileInputStream in the
                 rare case where the ObjectInputStream is null.
             </action>
 
@@ -449,12 +586,15 @@
                 Added SelfPopulatingCacheManager
             </action>
             <action dev="Greg Luck" type="add">
-                Added a new diskExpiryThreadIntervalSeconds configuration option to ehcache.xml, to allow
+                Added a new diskExpiryThreadIntervalSeconds configuration option to
+                ehcache.xml, to allow
                 tuning of the expiry thread per cache.
             </action>
             <action dev="Greg Luck" type="add">
-                Added a new diskPersistent feature and configuration option. diskPersistent makes disk stores
-                persistent between CacheManager and JVM restarts. It enables very long held caches to be configured,
+                Added a new diskPersistent feature and configuration option. diskPersistent
+                makes disk stores
+                persistent between CacheManager and JVM restarts. It enables very long held
+                caches to be configured,
                 useful
                 for very expensive cache entries that are long lives, such as mapping geocodes.
             </action>
@@ -470,20 +610,24 @@
                 cache.calculateInMemorySize() now returns a non-zero value
             </action>
             <action dev="Greg Luck" issue="" type="fix">
-                Bug 1025130 - Null Pointer Exception when no default cache configured. Now we throw a CacheException
+                Bug 1025130 - Null Pointer Exception when no default cache configured. Now we
+                throw a CacheException
                 with a
                 meaningful message.
             </action>
             <action dev="Greg Luck" issue="" type="fix">
-                Bug 1025128 IBM Websphere alway requires commons-collection.jar, even though it is never used. Updated
+                Bug 1025128 IBM Websphere alway requires commons-collection.jar, even though it
+                is never used. Updated
                 requirements
                 to note this.
             </action>
             <action dev="Greg Luck" issue="" type="fix">
-                Patch 1030960. JDK1.4 and higher now chain exception thrown from SelfPopulatingCache.
+                Patch 1030960. JDK1.4 and higher now chain exception thrown from
+                SelfPopulatingCache.
             </action>
             <action dev="Greg Luck" issue="" type="fix">
-                1033061 Fix to Thread naming in SelfPopulatingCache so that the old name is always put back.
+                1033061 Fix to Thread naming in SelfPopulatingCache so that the old name is
+                always put back.
             </action>
             <action dev="Greg Luck" issue="" type="fix">
                 1003659 build script unfriendly to IDE: IDE builds should now work.
@@ -496,24 +640,29 @@
 
             <!-- Feature Changes -->
             <action dev="Greg Luck" type="add">
-                ehcache.xml cache definitions can now omit timeToIdle and/or timeToLive, which are now optional
+                ehcache.xml cache definitions can now omit timeToIdle and/or timeToLive, which
+                are now optional
                 attributes.
                 This will make cache config easier to read for eternal caches.
-                Either omitting the attributes or setting them to 0 causes them not to be considered when calculating
+                Either omitting the attributes or setting them to 0 causes them not to be
+                considered when calculating
                 expiry.
-                Earlier versions of ehcache would have immediately expired all elements if either attribute was set to
+                Earlier versions of ehcache would have immediately expired all elements if
+                either attribute was set to
                 0,
                 so this change should not break any existing code.
             </action>
             <action dev="Greg Luck" type="add">
-                Added getQuiet and putQuiet methods to Cache. These methods are the same as get and put
+                Added getQuiet and putQuiet methods to Cache. These methods are the same as get
+                and put
                 but do not affect statistics.
             </action>
             <action dev="Greg Luck" type="add">
                 Implemented an Element clone method.
             </action>
             <action dev="Greg Luck" type="add">
-                Added calculateInMemorySize() method to Cache to measure the approximate size of a cache's
+                Added calculateInMemorySize() method to Cache to measure the approximate size
+                of a cache's
                 memory footprint.
             </action>
             <action dev="Greg Luck" type="update">
@@ -523,8 +672,10 @@
                 Added many new tests for idle expiry.
             </action>
             <action dev="Greg Luck" type="update">
-                Added tests for the new constructs package. These tests demonstrate concurrency performance
-                differences between blocking cache designs based on notify/notifyAll and Doug Lea's concurrency package.
+                Added tests for the new constructs package. These tests demonstrate concurrency
+                performance
+                differences between blocking cache designs based on notify/notifyAll and Doug
+                Lea's concurrency package.
             </action>
             <action dev="Greg Luck" type="update">
                 Test new xml format scenarios for eternal, time to idle and time to live
@@ -533,9 +684,11 @@
                 Started adding performance tests to ensure there are no regressions over time.
             </action>
             <action dev="Greg Luck" type="add">
-                Added a new constructs package. There are blocking, self populating and self populating collections
+                Added a new constructs package. There are blocking, self populating and self
+                populating collections
                 caches.
-                These are all pull-through caches. They are useful where the cost of creating an entry is high.
+                These are all pull-through caches. They are useful where the cost of creating
+                an entry is high.
 
                 Details follow:
                 <![CDATA[
@@ -567,11 +720,14 @@
                 JavaDoc fixups
             </action>
             <action dev="Greg Luck" issue="" type="fix">
-                Fixed time to idle which was not expiring elements after the idle time had expired. This feature did
-                not seem to be getting used. It is now useable. Fixed the test which was also broken
+                Fixed time to idle which was not expiring elements after the idle time had
+                expired. This feature did
+                not seem to be getting used. It is now useable. Fixed the test which was also
+                broken
             </action>
             <action dev="Greg Luck" issue="" type="fix">
-                Fixed bugs with getSize and getKeys, which were not checking for duplicate keys between
+                Fixed bugs with getSize and getKeys, which were not checking for duplicate keys
+                between
                 the memory and disk stores.
             </action>
         </release>
@@ -581,13 +737,16 @@
 
             <!-- Feature Changes -->
             <action dev="Greg Luck" type="add">
-                Investigated a Hibernate SessionFactory bug and clarified it was not a Hibernate bug. Added test.
+                Investigated a Hibernate SessionFactory bug and clarified it was not a
+                Hibernate bug. Added test.
             </action>
             <action dev="Greg Luck" type="add">
-                Investigated a cache size possible bug and clarified it is not in EHCache. Added test.
+                Investigated a cache size possible bug and clarified it is not in EHCache.
+                Added test.
             </action>
             <action dev="Greg Luck" type="add">
-                Added Clover test coverage reporting. Clover instrumentation is not included in release jars.
+                Added Clover test coverage reporting. Clover instrumentation is not included in
+                release jars.
             </action>
             <action dev="Greg Luck" type="add">
                 Updated Hibernate testing to version 2.1.1
@@ -609,16 +768,19 @@
             <!-- Bug fixes -->
             <action dev="Greg Luck" issue="" type="fix">
                 Cache Configuration
-                Fixed null pointer exception where the disk store path was not specified when use disk store is set to
+                Fixed null pointer exception where the disk store path was not specified when
+                use disk store is set to
                 false
             </action>
             <action dev="Greg Luck" issue="" type="fix">
-                JDK1.3 Compatibility Replaced JDK1.4 Exception constructors with simple message constructors compatible
+                JDK1.3 Compatibility Replaced JDK1.4 Exception constructors with simple message
+                constructors compatible
                 with JDK1.2 and 1.3
             </action>
             <action dev="Greg Luck" issue="" type="fix">
                 Problem with Element expiry
-                Fixed bug where expiry checking on get was calling remove with the element rather than the key.
+                Fixed bug where expiry checking on get was calling remove with the element
+                rather than the key.
             </action>
             <action dev="Greg Luck" issue="" type="fix">
                 Expire thread should not run if the cache is not active
@@ -636,10 +798,13 @@
             <!-- Feature Changes -->
             <action dev="Greg Luck" type="remove">
                 Remove SoftReferences
-                SoftReferences for cache element values has been replaced with standard references.
-                The JDK 1.4.2 JVM was found to remove SoftReferences in normal operation, rather than
+                SoftReferences for cache element values has been replaced with standard
+                references.
+                The JDK 1.4.2 JVM was found to remove SoftReferences in normal operation,
+                rather than
                 the expected behaviour of use only to avoid memory exhaustion. Caches will now
-                behave deterministically. Element values will only be removed when the element is
+                behave deterministically. Element values will only be removed when the element
+                is
                 garbage collected.
             </action>
 
@@ -653,7 +818,8 @@
                 Time to Idle" documentation bug.
             </action>
             <action dev="Greg Luck" issue="" type="fix">
-                Fixed documentation bug in ehcache.xml and ehcache-failsafe.xml where "Time to Live" was
+                Fixed documentation bug in ehcache.xml and ehcache-failsafe.xml where "Time to
+                Live" was
                 incorrectly referred to as "Time to Idle"
             </action>
 
@@ -664,11 +830,14 @@
 
             <!-- Feature Changes -->
             <action dev="Greg Luck" type="add">
-                Changed from JDK1.4 Logging to Commons Logging. This is to permit JDK1.2 and JDK1.3 to use EHCache.
+                Changed from JDK1.4 Logging to Commons Logging. This is to permit JDK1.2 and
+                JDK1.3 to use EHCache.
             </action>
             <action dev="Greg Luck" type="add">
-                Added Apache Commons Collections LRUMap as an alternative backing Map for the MemoryStore. The
-                java.util.LinkedHashMap has been retained and is used automatically for JDK1.4 and higher.
+                Added Apache Commons Collections LRUMap as an alternative backing Map for the
+                MemoryStore. The
+                java.util.LinkedHashMap has been retained and is used automatically for JDK1.4
+                and higher.
             </action>
             <action dev="Greg Luck" type="add">
                 Added LICENSE.txt to the jar in the distribution
@@ -683,7 +852,8 @@
                 toString() methods now report on all fields
             </action>
             <action dev="Greg Luck" issue="" type="fix">
-                Fixed documentation bug in ehcache.xml and ehcache-failsafe.xml where "Time to Live" was
+                Fixed documentation bug in ehcache.xml and ehcache-failsafe.xml where "Time to
+                Live" was
                 incorrectly referred to as "Time to Idle"
             </action>
 

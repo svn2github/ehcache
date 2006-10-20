@@ -110,6 +110,7 @@ public class CacheManagerTest extends TestCase {
 
         Cache cache = cacheFactory.createCache(config);
         assertNotNull(cache);
+        javax.servlet.http.HttpSessionAttributeListener
 
     }
 

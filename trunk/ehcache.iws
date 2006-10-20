@@ -31,14 +31,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/news.apt" afterPath="$PROJECT_DIR$/src/site/apt/news.apt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ruby-client/Rakefile" afterPath="$PROJECT_DIR$/ruby-client/Rakefile" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/changes/changes.xml" afterPath="$PROJECT_DIR$/src/changes/changes.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/index.apt" afterPath="$PROJECT_DIR$/src/site/apt/index.apt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
     </list>
     <list name="Delayed Commit (Sun Aug 27 16:28:50 EST 2006)" comment="Trying to get TeamCity going. Down to some clover trouble." />
     <list name="Delayed Commit (Mon Aug 28 18:32:57 EST 2006)" comment="Trying to get TeamCity going. Down to some clover trouble." />
@@ -427,10 +422,28 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MemoryStore.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="MemoryStore.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="232" column="84" selection-start="7214" selection-end="7214" vertical-scroll-proportion="0.33293414">
+            <state line="223" column="16" selection-start="6900" selection-end="6900" vertical-scroll-proportion="0.2035928">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BlockingCache.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="497" column="92" selection-start="18276" selection-end="18276" vertical-scroll-proportion="0.33293414">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="changes.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="10" column="50" selection-start="282" selection-end="289" vertical-scroll-proportion="0.14371258">
               <folding />
             </state>
           </provider>
@@ -448,7 +461,7 @@
       <file leaf-file-name="ElementTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="227" column="76" selection-start="8104" selection-end="8104" vertical-scroll-proportion="0.9152941">
+            <state line="227" column="76" selection-start="8105" selection-end="8105" vertical-scroll-proportion="0.9152941">
               <folding />
             </state>
           </provider>
@@ -1939,16 +1952,6 @@
     <option name="myLastEditedConfigurable" value="IDE Profiles" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/ruby-client/lib/ehcache/client.rb">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ruby-client/lib/ehcache/configuration.rb">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/GzipFilter.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="39" column="40" selection-start="1515" selection-end="1515" vertical-scroll-proportion="0.014117647">
@@ -2016,7 +2019,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="227" column="76" selection-start="8104" selection-end="8104" vertical-scroll-proportion="0.9152941">
+        <state line="227" column="76" selection-start="8105" selection-end="8105" vertical-scroll-proportion="0.9152941">
           <folding />
         </state>
       </provider>
@@ -2037,7 +2040,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="232" column="84" selection-start="7214" selection-end="7214" vertical-scroll-proportion="0.33293414">
+        <state line="223" column="16" selection-start="6900" selection-end="6900" vertical-scroll-proportion="0.2035928">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="497" column="92" selection-start="18276" selection-end="18276" vertical-scroll-proportion="0.33293414">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="10" column="50" selection-start="282" selection-end="289" vertical-scroll-proportion="0.14371258">
           <folding />
         </state>
       </provider>
