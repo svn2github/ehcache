@@ -1500,7 +1500,11 @@ public class Cache implements Ehcache {
             return false;
         }
         Serializable serializableKey = (Serializable) key;
-        return diskStore != null && diskStore.containsKey(serializableKey);
+        if (!overflowToDisk) {
+            return false;
+        } else {
+            return diskStore != null && diskStore.containsKey(serializableKey);
+        }
     }
 
     /**
@@ -1569,7 +1573,9 @@ public class Cache implements Ehcache {
             }
         }
         //This is called regularly by the expiry thread, but call it here synchronously
-        diskStore.expireElements();
+        if (overflowToDisk) {
+            diskStore.expireElements();
+        }
     }
 
     /**

@@ -31,8 +31,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/documentation/hibernate.apt" afterPath="$PROJECT_DIR$/src/site/apt/documentation/hibernate.apt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/changes/changes.xml" afterPath="$PROJECT_DIR$/src/changes/changes.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
     </list>
     <list name="Delayed Commit (Sun Aug 27 16:28:50 EST 2006)" comment="Trying to get TeamCity going. Down to some clover trouble." />
@@ -395,19 +396,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="client_test.rb" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ruby-client/test/ehcache/client_test.rb">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="16" column="20" selection-start="215" selection-end="215" vertical-scroll-proportion="0.22588235">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="index.apt" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/site/apt/index.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="18" column="24" selection-start="531" selection-end="531" vertical-scroll-proportion="0.25868264">
+            <state line="18" column="24" selection-start="531" selection-end="531" vertical-scroll-proportion="0.40223464">
               <folding />
             </state>
           </provider>
@@ -416,7 +408,7 @@
       <file leaf-file-name="news.apt" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/site/apt/news.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="33" column="38" selection-start="1432" selection-end="1432" vertical-scroll-proportion="0.4742515">
+            <state line="33" column="38" selection-start="1432" selection-end="1432" vertical-scroll-proportion="0.73743016">
               <folding />
             </state>
           </provider>
@@ -425,7 +417,7 @@
       <file leaf-file-name="MemoryStore.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="223" column="16" selection-start="6900" selection-end="6900" vertical-scroll-proportion="0.2035928">
+            <state line="223" column="16" selection-start="6900" selection-end="6900" vertical-scroll-proportion="0.31657356">
               <folding />
             </state>
           </provider>
@@ -434,25 +426,54 @@
       <file leaf-file-name="BlockingCache.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="497" column="92" selection-start="18276" selection-end="18276" vertical-scroll-proportion="0.33293414">
+            <state line="497" column="92" selection-start="18276" selection-end="18276" vertical-scroll-proportion="0.5176909">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="changes.xml" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="changes.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="10" column="50" selection-start="282" selection-end="289" vertical-scroll-proportion="0.14371258">
+            <state line="16" column="32" selection-start="656" selection-end="656" vertical-scroll-proportion="0.3575419">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Element.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Element.java">
+      <file leaf-file-name="hibernate.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/hibernate.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="468" column="20" selection-start="13962" selection-end="13962" vertical-scroll-proportion="0.18922156">
+            <state line="296" column="51" selection-start="10261" selection-end="10261" vertical-scroll-proportion="0.020484172">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="documentation-1_1.html" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/site/resources/documentation/documentation-1_1.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="1852" column="51" selection-start="80267" selection-end="80267" vertical-scroll-proportion="0.109869644">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Cache.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="21" column="20" selection-start="811" selection-end="811" vertical-scroll-proportion="0.15642458">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CHANGELOG.txt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/CHANGELOG.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="163" column="10" selection-start="9583" selection-end="9583" vertical-scroll-proportion="3.6424582">
               <folding />
             </state>
           </provider>
@@ -461,7 +482,7 @@
       <file leaf-file-name="ElementTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="227" column="76" selection-start="8105" selection-end="8105" vertical-scroll-proportion="0.9152941">
+            <state line="227" column="76" selection-start="8105" selection-end="8105" vertical-scroll-proportion="1.4094203">
               <folding />
             </state>
           </provider>
@@ -1263,6 +1284,16 @@
       <option name="USE_WEBSPHERE51_LINEMAPPING_MODEL" value="false" />
       <option name="LOCAL_PORT" value="80" />
     </configuration>
+    <configuration default="true" type="RUBY_RUN_CONFIGURATION_TYPE" factoryName="Ruby">
+      <OPTIONS NAME="SCRIPT_PATH" VALUE="" />
+      <OPTIONS NAME="SCRIPT_ARGS" VALUE="" />
+      <OPTIONS NAME="RUBY_ARGS" VALUE="" />
+      <OPTIONS NAME="WORK DIR" VALUE="" />
+      <OPTIONS NAME="MODULE_NAME" VALUE="ruby-client" />
+      <method>
+        <option name="Make" value="true" />
+      </method>
+    </configuration>
     <configuration default="true" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local">
       <option name="WORKING_DIRECTORY" />
       <option name="HOST" value="localhost" />
@@ -1274,6 +1305,16 @@
       <option name="DEPLOY_TOMCAT_MANAGER" value="false" />
       <option name="BASE_DIRECTORY_NAME" value="" />
       <predefined_log_file id="TOMCAT_LOCALHOST_LOG_ID" enabled="true" />
+    </configuration>
+    <configuration default="true" type="RUBY_RUN_CONFIGURATION_TYPE" factoryName="Ruby">
+      <OPTIONS NAME="SCRIPT_PATH" VALUE="" />
+      <OPTIONS NAME="SCRIPT_ARGS" VALUE="" />
+      <OPTIONS NAME="RUBY_ARGS" VALUE="" />
+      <OPTIONS NAME="WORK DIR" VALUE="" />
+      <OPTIONS NAME="MODULE_NAME" VALUE="ruby-client" />
+      <method>
+        <option name="Make" value="true" />
+      </method>
     </configuration>
     <configuration default="true" type="RUBY_RUN_CONFIGURATION_TYPE" factoryName="Ruby">
       <OPTIONS NAME="SCRIPT_PATH" VALUE="" />
@@ -1403,6 +1444,16 @@
         <option name="Make" value="true" />
       </method>
     </configuration>
+    <configuration default="true" type="RUBY_RUN_CONFIGURATION_TYPE" factoryName="Ruby">
+      <OPTIONS NAME="SCRIPT_PATH" VALUE="" />
+      <OPTIONS NAME="SCRIPT_ARGS" VALUE="" />
+      <OPTIONS NAME="RUBY_ARGS" VALUE="" />
+      <OPTIONS NAME="WORK DIR" VALUE="" />
+      <OPTIONS NAME="MODULE_NAME" VALUE="ruby-client" />
+      <method>
+        <option name="Make" value="true" />
+      </method>
+    </configuration>
     <configuration default="true" type="Application" factoryName="Application" enabled="false" merge="false">
       <option name="MAIN_CLASS_NAME" />
       <option name="VM_PARAMETERS" />
@@ -1412,6 +1463,36 @@
       <option name="ALTERNATIVE_JRE_PATH" />
       <option name="ENABLE_SWING_INSPECTOR" value="false" />
       <module name="" />
+      <method>
+        <option name="Make" value="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="RUBY_RUN_CONFIGURATION_TYPE" factoryName="Ruby">
+      <OPTIONS NAME="SCRIPT_PATH" VALUE="" />
+      <OPTIONS NAME="SCRIPT_ARGS" VALUE="" />
+      <OPTIONS NAME="RUBY_ARGS" VALUE="" />
+      <OPTIONS NAME="WORK DIR" VALUE="" />
+      <OPTIONS NAME="MODULE_NAME" VALUE="ruby-client" />
+      <method>
+        <option name="Make" value="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="RUBY_RUN_CONFIGURATION_TYPE" factoryName="Ruby">
+      <OPTIONS NAME="SCRIPT_PATH" VALUE="" />
+      <OPTIONS NAME="SCRIPT_ARGS" VALUE="" />
+      <OPTIONS NAME="RUBY_ARGS" VALUE="" />
+      <OPTIONS NAME="WORK DIR" VALUE="" />
+      <OPTIONS NAME="MODULE_NAME" VALUE="ruby-client" />
+      <method>
+        <option name="Make" value="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="RUBY_RUN_CONFIGURATION_TYPE" factoryName="Ruby">
+      <OPTIONS NAME="SCRIPT_PATH" VALUE="" />
+      <OPTIONS NAME="SCRIPT_ARGS" VALUE="" />
+      <OPTIONS NAME="RUBY_ARGS" VALUE="" />
+      <OPTIONS NAME="WORK DIR" VALUE="" />
+      <OPTIONS NAME="MODULE_NAME" VALUE="ruby-client" />
       <method>
         <option name="Make" value="true" />
       </method>
@@ -1802,7 +1883,7 @@
       <window_info id="Checkstyle" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32962137" order="8" />
       <window_info id="RDoc" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32989025" order="3" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32924467" order="0" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32333332" order="1" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32333332" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25322166" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32222223" order="10" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3997773" order="6" />
@@ -1848,7 +1929,7 @@
     <option name="PERFORM_COMMIT_IN_BACKGROUND" value="false" />
     <option name="PUT_FOCUS_INTO_COMMENT" value="false" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add test and check for NPE in spoolAllToDisk" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix documentation bug." />
     <option name="SAVE_LAST_COMMIT_MESSAGE" value="true" />
     <option name="CHECKIN_DIALOG_SPLITTER_PROPORTION" value="0.8" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
@@ -1861,7 +1942,6 @@
     <option name="UPDATE_GROUP_BY_PACKAGES" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
-    <MESSAGE value="Change example socket timeout to 120000ms, which is also the default. 2000ms is really too short." />
     <MESSAGE value="Get graphics working in LaTeX for book." />
     <MESSAGE value="Finish DiskStore testing" />
     <MESSAGE value="Move memcached work to a separate branch to be merged later" />
@@ -1871,6 +1951,7 @@
     <MESSAGE value="Complete site changes for ehcache-1.2.3 release." />
     <MESSAGE value="Integrated ruby rake build into ant" />
     <MESSAGE value="Add test and check for NPE in spoolAllToDisk" />
+    <MESSAGE value="Fix documentation bug." />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -1952,37 +2033,9 @@
     <option name="myLastEditedConfigurable" value="IDE Profiles" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/GzipFilter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="40" selection-start="1515" selection-end="1515" vertical-scroll-proportion="0.014117647">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/cache_decorators.apt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="59" column="87" selection-start="2296" selection-end="2296" vertical-scroll-proportion="0.12588236">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="193" column="19" selection-start="7602" selection-end="7602" vertical-scroll-proportion="0.014371257">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state line="120" column="47" selection-start="4238" selection-end="4238" vertical-scroll-proportion="0.014371257">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CHANGELOG.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="163" column="10" selection-start="9583" selection-end="9583" vertical-scroll-proportion="0.014371257">
           <folding />
         </state>
       </provider>
@@ -2012,49 +2065,79 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Element.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="468" column="20" selection-start="13962" selection-end="13962" vertical-scroll-proportion="0.18922156">
+        <state line="468" column="20" selection-start="13962" selection-end="13962" vertical-scroll-proportion="0.29422718">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="227" column="76" selection-start="8105" selection-end="8105" vertical-scroll-proportion="0.9152941">
+        <state line="227" column="76" selection-start="8105" selection-end="8105" vertical-scroll-proportion="1.4094203">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/site/apt/index.apt">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="24" selection-start="531" selection-end="531" vertical-scroll-proportion="0.25868264">
+        <state line="18" column="24" selection-start="531" selection-end="531" vertical-scroll-proportion="0.40223464">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/site/apt/news.apt">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="33" column="38" selection-start="1432" selection-end="1432" vertical-scroll-proportion="0.4742515">
+        <state line="33" column="38" selection-start="1432" selection-end="1432" vertical-scroll-proportion="0.73743016">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="223" column="16" selection-start="6900" selection-end="6900" vertical-scroll-proportion="0.2035928">
+        <state line="223" column="16" selection-start="6900" selection-end="6900" vertical-scroll-proportion="0.31657356">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="21" column="20" selection-start="811" selection-end="811" vertical-scroll-proportion="0.15642458">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CHANGELOG.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="163" column="10" selection-start="9583" selection-end="9583" vertical-scroll-proportion="3.6424582">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="497" column="92" selection-start="18276" selection-end="18276" vertical-scroll-proportion="0.33293414">
+        <state line="497" column="92" selection-start="18276" selection-end="18276" vertical-scroll-proportion="0.5176909">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="10" column="50" selection-start="282" selection-end="289" vertical-scroll-proportion="0.14371258">
+        <state line="16" column="32" selection-start="656" selection-end="656" vertical-scroll-proportion="0.3575419">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/hibernate.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="296" column="51" selection-start="10261" selection-end="10261" vertical-scroll-proportion="0.020484172">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/resources/documentation/documentation-1_1.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1852" column="51" selection-start="80267" selection-end="80267" vertical-scroll-proportion="0.109869644">
           <folding />
         </state>
       </provider>

@@ -12,6 +12,10 @@
                 Fix typo in lock timeout log message in BlockingCache. Thanks to Matt Magoffin
                 for reporting this bug.
             </action>
+            <action dev="Greg Luck" issue="1563017" type="fix">
+                Fixed NullPointerException on Cache.evictExpiredElements() and added some other NPE
+                guards to Cache.
+            </action>
 
         </release>
 
