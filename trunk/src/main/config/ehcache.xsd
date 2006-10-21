@@ -3,13 +3,10 @@
     <xs:element name="ehcache" >
         <xs:complexType>
             <xs:sequence>
-                <xs:element ref="diskStore"/>
-                <xs:element minOccurs="0" maxOccurs="1"
-                            ref="cacheManagerEventListenerFactory"/>
-                <xs:element minOccurs="0" maxOccurs="1"
-                            ref="cacheManagerPeerProviderFactory"/>
-                <xs:element minOccurs="0" maxOccurs="1"
-                            ref="cacheManagerPeerListenerFactory"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="diskStore"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="cacheManagerEventListenerFactory"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="cacheManagerPeerProviderFactory"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="cacheManagerPeerListenerFactory"/>
                 <xs:element ref="defaultCache"/>
                 <xs:element maxOccurs="unbounded" ref="cache"/>
             </xs:sequence>
@@ -17,7 +14,23 @@
     </xs:element>
     <xs:element name="diskStore">
         <xs:complexType>
+             <xs:sequence>
+                <xs:element minOccurs="0" maxOccurs="1" ref="spoolThreadPool"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="expiryThreadPool"/>
+            </xs:sequence>
             <xs:attribute name="path" use="required" />
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="spoolThreadPool">
+        <xs:complexType>
+            <xs:attribute name="threads" use="optional"/>
+            <xs:attribute name="priority" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="expiryThreadPool">
+        <xs:complexType>
+            <xs:attribute name="threads" use="optional"/>
+            <xs:attribute name="priority" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cacheManagerEventListenerFactory">

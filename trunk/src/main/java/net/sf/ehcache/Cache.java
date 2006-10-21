@@ -560,7 +560,7 @@ public class Cache implements Ehcache {
         boolean elementExists;
         Object key = element.getObjectKey();
         elementExists = isElementInMemory(key) || isElementOnDisk(key);
-        if (elementExists) {
+        if (elementExists) {                                                       
             element.updateUpdateStatistics();
         }
         applyDefaultsToElementWithoutLifespanSet(element);

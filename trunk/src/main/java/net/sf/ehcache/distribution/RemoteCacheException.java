@@ -48,10 +48,10 @@ public final class RemoteCacheException extends CacheException {
      * Constructor for the RemoteCacheException object.
      *
      * @param message      the exception detail message
-     * @param initialCause the cause of the exception
+     * @param cause the cause of the exception
      */
-    public RemoteCacheException(String message, Throwable initialCause) {
-        super(message, initialCause);
+    public RemoteCacheException(String message, Throwable cause) {
+        super(message, cause);
     }
 
 }

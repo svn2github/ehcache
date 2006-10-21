@@ -18,12 +18,7 @@
 package net.sf.ehcache;
 
 /**
- * A runtime Cache Exception, compatible with JDK1.3.
- * <p/>
- * Because JDK1.3 does not support chained exceptions or intial cause, this class has its own initialCause
- * field and {@link #getInitialCause} accessor, to aid with debugging. The JDK1.4 initial cause mechanism is
- * not used or populated. 
- * <p/>
+ * A runtime Cache Exception
  *
  * @author Greg Luck
  * @version $Id$
@@ -32,16 +27,10 @@ public class CacheException extends RuntimeException {
 
 
     /**
-     * Enables the cause to be recorded in a way that supports pre-JDK1.4 JDKs.
-     */
-    private final Throwable initialCause;
-
-    /**
      * Constructor for the CacheException object.
      */
     public CacheException() {
         super();
-        initialCause = null;
     }
 
     /**
@@ -50,28 +39,57 @@ public class CacheException extends RuntimeException {
      */
     public CacheException(String message) {
         super(message);
-        initialCause = null;
     }
 
 
+
     /**
-     * Constructor for the CacheException object.
-     * @param message the exception detail message
-     * @param initialCause the cause of the exception which can later be retrieved with the {@link #getInitialCause()}
-     * method
+     * Constructs a new CacheException with the specified detail message and
+     * cause.  <p>Note that the detail message associated with
+     * <code>cause</code> is <i>not</i> automatically incorporated in
+     * this runtime exception's detail message.
+     *
+     * @param  message the detail message (which is saved for later retrieval
+     *         by the {@link #getMessage()} method).
+     * @param  cause the cause (which is saved for later retrieval by the
+     *         {@link #getCause()} method).  (A <tt>null</tt> value is
+     *         permitted, and indicates that the cause is nonexistent or
+     *         unknown.)
+     * @since  1.2.4
      */
-    public CacheException(String message, Throwable initialCause) {
-        super(message);
-        this.initialCause = initialCause;
+    public CacheException(String message, Throwable cause) {
+        super(message, cause);
     }
 
+    /** Constructs a new CacheException with the specified cause and a
+     * detail message of <tt>(cause==null ? null : cause.toString())</tt>
+     * (which typically contains the class and detail message of
+     * <tt>cause</tt>).  This constructor is useful for runtime exceptions
+     * that are little more than wrappers for other throwables.
+     *
+     * @param  cause the cause (which is saved for later retrieval by the
+     *         {@link #getCause()} method).  (A <tt>null</tt> value is
+     *         permitted, and indicates that the cause is nonexistent or
+     *         unknown.)
+     * @since  1.2.4
+     */
+    public CacheException(Throwable cause) {
+        super(cause);
+    }
+
+
     /**
-     * The intiial cause of this Exception.
+     * The initial cause of this Exception.
+     * This method is kept for backward compatibility with earlier versions of ehcache which
+     * had its own chained exceptions mechanism, in case any clients out there are using it.
      * @return the cause or null if this exception has no deeper cause.
+     * @deprecated use getCause instead
      */
     public final Throwable getInitialCause() {
-        return initialCause;
+        return super.getCause();
     }
+
+
 
 
 }

@@ -34,6 +34,7 @@ public final class Configuration {
     private FactoryConfiguration cacheManagerPeerProviderFactoryConfiguration;
     private FactoryConfiguration cacheManagerPeerListenerFactoryConfiguration;
     private FactoryConfiguration cacheManagerEventListenerFactoryConfiguration;
+    private final Map poolConfigurations = new HashMap();
     private final Map cacheConfigurations = new HashMap();
     private String configurationSource;
 
@@ -49,11 +50,11 @@ public final class Configuration {
     /**
      * Allows {@link BeanHandler} to add disk store location to the configuration.
      */
-    public final void addDiskStore(DiskStoreConfiguration diskStoreConfigurationParameter) throws ObjectExistsException {
-        if (diskStoreConfiguration != null) {
+    public final void addDiskStore(DiskStoreConfiguration diskStoreConfiguration) throws ObjectExistsException {
+        if (this.diskStoreConfiguration != null) {
             throw new ObjectExistsException("The Disk Store has already been configured");
         }
-        diskStoreConfiguration = diskStoreConfigurationParameter;
+        this.diskStoreConfiguration = diskStoreConfiguration;
     }
 
     
@@ -90,7 +91,6 @@ public final class Configuration {
         }
     }
 
-
     /**
      * Allows {@link BeanHandler} to add a default configuration to the configuration.
      */
@@ -115,6 +115,9 @@ public final class Configuration {
 
         cacheConfigurations.put(cacheConfiguration.name, cacheConfiguration);
     }
+
+
+    
 
     /**
      * Gets a Map of cacheConfigurations.

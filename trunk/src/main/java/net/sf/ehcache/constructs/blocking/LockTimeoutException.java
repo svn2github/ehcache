@@ -60,11 +60,11 @@ public class LockTimeoutException extends CacheException {
      * Constructor for the LockTimeoutException object.
      *
      * @param message      the exception detail message
-     * @param initialCause the cause of the exception which can later be retrieved with the {@link #getInitialCause()}
+     * @param cause the cause of the exception which can later be retrieved with the {@link #getInitialCause()}
      *                     method
      */
-    public LockTimeoutException(String message, Throwable initialCause) {
-        super(message, initialCause);
+    public LockTimeoutException(String message, Throwable cause) {
+        super(message, cause);
     }
 
 

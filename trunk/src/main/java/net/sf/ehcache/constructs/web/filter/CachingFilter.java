@@ -201,6 +201,7 @@ public abstract class CachingFilter extends Filter {
         chain.doFilter(request, wrapper);
         wrapper.flush();
 
+
         // Return the page info
         return new PageInfo(wrapper.getStatus(), wrapper.getContentType(), wrapper.getHeaders(), wrapper.getCookies(),
                 outstr.toByteArray(), true);

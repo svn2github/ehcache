@@ -22,6 +22,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.util.ThreadPool;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
@@ -87,8 +88,19 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Configuration configuration = ConfigurationFactory.parseConfiguration();
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
-        //Check disk path  <diskStore path="/tmp"/>
+        //Check disk store  <diskStore path="/tmp"/>
         assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
+
+        ThreadPool threadPool = configurationHelper.createDiskStoreSpoolingThreadPool();
+        assertEquals(new Integer(4), threadPool.getConfiguration().getThreads());
+        assertEquals(new Integer(5), threadPool.getConfiguration().getPriority());
+        assertEquals("DiskStore Spool Thread Pool", threadPool.getConfiguration().getName());
+
+
+        threadPool = configurationHelper.createDiskStoreExpiryThreadPool();
+        assertEquals(new Integer(1), threadPool.getConfiguration().getThreads());
+        assertEquals(new Integer(2), threadPool.getConfiguration().getPriority());
+        assertEquals("DiskStore Expiry Thread Pool", threadPool.getConfiguration().getName());
 
         //Check CacheManagerEventListener
         assertEquals(null, configurationHelper.createCacheManagerEventListener());
@@ -123,6 +135,12 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         /** A cache which overflows to disk. The disk store is persistent
          between cache and VM restarts. The disk expiry thread interval is set to 10 minutes, overriding
          the default of 2 minutes.
+
+         <diskStore path="java.io.tmpdir">
+         <spoolThreadPool threads="4" priority="5"/>
+         <expiryThreadPool threads="1" priority="2"/>
+         </diskStore>
+
          <cache name="persistentLongExpiryIntervalCache"
          maxElementsInMemory="500"
          eternal="false"
@@ -161,8 +179,21 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
-        //Check disk path  <diskStore path="/tmp"/>
+        //Check disk store  <diskStore path="/tmp"/>
         assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
+
+        ThreadPool threadPool = configurationHelper.createDiskStoreSpoolingThreadPool();
+        //should equal the number of caches
+        assertEquals(new Integer(2), threadPool.getConfiguration().getThreads());
+        assertEquals(new Integer(5), threadPool.getConfiguration().getPriority());
+        assertEquals("DiskStore Spool Thread Pool", threadPool.getConfiguration().getName());
+
+        threadPool = configurationHelper.createDiskStoreExpiryThreadPool();
+        //ceil(number of caches/5)
+        assertEquals(new Integer(1), threadPool.getConfiguration().getThreads());
+        //defaults to min
+        assertEquals(new Integer(1), threadPool.getConfiguration().getPriority());
+        assertEquals("DiskStore Expiry Thread Pool", threadPool.getConfiguration().getName());
 
         //Check default cache
         Ehcache defaultCache = configurationHelper.createDefaultCache();
@@ -396,6 +427,13 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * Tests that the loader successfully loads from ehcache-nodefault.xml
      * given as a {@link File}
      * <p/>
+     * <diskStore path="java.io.tmpdir">
+     * <spoolThreadPool priority="5"/>
+     * <expiryThreadPool threads="2"/>
+     * </diskStore>
+     * <p/>
+     * <p/>
+     * <p/>
      * <defaultCache
      * maxElementsInMemory="10000"
      * eternal="false"
@@ -409,8 +447,20 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
-        //Check disk path  <diskStore path="/tmp"/>
+        //Check disk
         assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
+
+        ThreadPool threadPool = configurationHelper.createDiskStoreSpoolingThreadPool();
+        //Should use default because was not specified
+        assertEquals(new Integer(2), threadPool.getConfiguration().getThreads());
+        assertEquals(new Integer(7), threadPool.getConfiguration().getPriority());
+        assertEquals("DiskStore Spool Thread Pool", threadPool.getConfiguration().getName());
+
+
+        threadPool = configurationHelper.createDiskStoreExpiryThreadPool();
+        assertEquals(new Integer(20), threadPool.getConfiguration().getThreads());
+        assertEquals(new Integer(1), threadPool.getConfiguration().getPriority());
+        assertEquals("DiskStore Expiry Thread Pool", threadPool.getConfiguration().getName());
 
         //Check default cache
         try {

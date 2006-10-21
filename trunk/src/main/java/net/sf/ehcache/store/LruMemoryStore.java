@@ -45,99 +45,12 @@ public final class LruMemoryStore extends MemoryStore {
         super(cache, diskStore);
 
         try {
-            map = loadMapInstance();
+            map = new SpoolingLinkedHashMap();
         } catch (CacheException e) {
             LOG.error(cache.getName() + "Cache: Cannot start LruMemoryStore. Initial cause was " + e.getMessage(), e);
         }
     }
 
-    /**
-     * Tries to load a {@link java.util.LinkedHashMap} (JDK1.4) and then
-     * tries to load an {@link org.apache.commons.collections.LRUMap}.
-     * <p/>
-     * This way applications running JDK1.4 do not have a dependency
-     * on Apache commons-collections.
-     *
-     * @return a Map, being either {@link java.util.LinkedHashMap} or
-     */
-    private Map loadMapInstance() throws CacheException {
-        //First try to load java.util.LinkedHashMap, which is preferred, but only if not overriden
-        if (System.getProperty("net.sf.ehcache.useLRUMap") == null) {
-
-            try {
-                Class.forName("java.util.LinkedHashMap");
-                Map candidateMap = new SpoolingLinkedHashMap();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(cache.getName() + " Cache: Using SpoolingLinkedHashMap implementation");
-                }
-                return candidateMap;
-            } catch (Exception e) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(cache.getName() + " Cache: Cannot find java.util.LinkedHashMap");
-                }
-            }
-        }
-
-        //Secondly, try and load org.apache.commons.collections.LRUMap
-        try {
-            Class.forName("org.apache.commons.collections.LRUMap");
-            Map candidateMap = new SpoolingLRUMap();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(cache.getName() + " Cache: Using SpoolingLRUMap implementation");
-            }
-            return candidateMap;
-        } catch (Exception e) {
-            //Give up
-            throw new CacheException(cache.getName()
-                    + "Cache: Cannot find org.apache.commons.collections.LRUMap.");
-        }
-    }
-
-
-    /**
-     * An LRU Map implementation based on Apache Commons LRUMap.
-     * <p/>
-     * This is used if {@link java.util.LinkedHashMap} is not found in the classpath.
-     * LinkedHashMap is part of JDK
-     */
-    public final class SpoolingLRUMap extends org.apache.commons.collections.LRUMap {
-
-        /**
-         * Constructor.
-         * The maximum size is set to {@link Ehcache#getMaxElementsInMemory}. If the
-         * LRUMap gets bigger than this, {@link #processRemovedLRU} is called.
-         */
-        public SpoolingLRUMap() {
-            setMaximumSize(cache.getMaxElementsInMemory());
-        }
-
-        /**
-         * Called after the element has been removed.
-         * <p/>
-         * Our choices are to do nothing or spool the element to disk.
-         * <p/>
-         * Note that value will be null when the memory size is set to 0. Thus a null guard is used.
-         *
-         * @param key
-         * @param value
-         */
-        protected final void processRemovedLRU(Object key, Object value) {
-            //Already removed from the map at this point
-            Element element = (Element) value;
-
-            //When max size is 0
-            if (element == null) {
-                return;
-            }
-
-            //check for expiry before going to the trouble of spooling
-            if (element.isExpired()) {
-                notifyExpiry(element);
-            } else {
-                evict(element);
-            }
-        }
-    }
 
     /**
      * An extension of LinkedHashMap which overrides {@link #removeEldestEntry}

@@ -29,6 +29,8 @@ public final class DiskStoreConfiguration {
     private static final Log LOG = LogFactory.getLog(DiskStoreConfiguration.class.getName());
 
     private String path;
+    private ThreadPoolConfiguration spoolThreadPoolConfiguration;
+    private ThreadPoolConfiguration expiryThreadPoolConfiguration;
 
     /**
      * The diskStore path
@@ -82,4 +84,31 @@ public final class DiskStoreConfiguration {
         }
     }
 
+    /**
+     * Allows {@link BeanHandler} to add the spooling thread pool configuration
+     */
+    public final void addSpoolThreadPool(ThreadPoolConfiguration threadPoolConfiguration) {
+        spoolThreadPoolConfiguration = threadPoolConfiguration;
+    }
+
+    /**
+     * Allows {@link BeanHandler} to add the expiry thread pool configuration
+     */
+    public final void addExpiryThreadPool(ThreadPoolConfiguration threadPoolConfiguration) {
+        expiryThreadPoolConfiguration = threadPoolConfiguration;
+    }
+
+    /**
+     * @return
+     */
+    public ThreadPoolConfiguration getSpoolingThreadPoolConfiguration() {
+        return spoolThreadPoolConfiguration;
+    }
+
+    /**
+     * @return
+     */
+    public ThreadPoolConfiguration getExpiryThreadPoolConfiguration() {
+        return expiryThreadPoolConfiguration;
+    }
 }

@@ -7,11 +7,38 @@
 
 Development Roadmap
 
-Several features expected for 1.3 have actually been incorporated in ehcache-1.2. See the {{{/changes-report.html}change log}}
+Several features expected for 1.3 have actually been incorporated in the ehcache-1.2 series. See the {{{/changes-report.html}change log}}
 for more details.
 
 
 * Expected New Features for 1.3
+
+** Implementation of JCACHE specification
+
+ The maintainer of ehcache, Greg Luck, has been admitted to the JSR-107 (JCACHE) expert group.
+
+ Ehcache-1.3 will be an implementation of JSR-107, while maintaining backward compatiblity with ehcache-1.2 and ehcache-1.1.
+
+
+** JMX Instrumentation
+
+ Move to JMX to simplify and standardise efforts to monitor ehcache.
+
+ MBeans for all monitorable objects (cache, thread pools etc).
+
+
+** DiskStore improvements
+    - Granular locks on DiskElements map
+    - Rehash DiskElements map after expiration thread runs. Allow for shrinking the map (copy to new) if a significant amount can be reclaimed. 50%?
+
+** Pluggable Disk Stores
+
+    - Pluggable diskstore + base framework where possible (need more flexible configuration for pluggable configurations i.e.
+      properties or something - thoughts?).
+    - First cut (POC) of BerkleyDB and/or Derby stores
+
+
+* After 1.3
 
 ** JGroups based replication
 
@@ -28,23 +55,6 @@ for more details.
 
  A JMS-based replication mechanism would also be useful.
 
-** Implementation of JCACHE/OpenCache specification
-
- The maintainer of ehcache, Greg Luck, has been admitted to the JSR-107 (JCACHE) expert group.
-
- Ehcache-1.3 will be an implementation of JSR-107, while maintaining backward compatiblity with ehcache-1.2 and ehcache-1.1.
-
-
-** Dropping JDK 1.3 support
-
- By dropping 1.3 support, things like chained exceptions and some new collection types can be used across
- the board, simplifying the codebase. It would also enable creation of new features such as JMX.
-
-** JMX Instrumentation
-
- Create an ehcache MBean to simplify and standardise efforts to monitor ehcache.
-
 * How to suggest features
 
  Please add your feature suggestions to {{{http://sourceforge.net/tracker/?group_id=93232&atid=603562}Feature Requests}}.
-

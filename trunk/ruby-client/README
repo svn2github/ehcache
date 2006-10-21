@@ -1,9 +1,0 @@
-ehcache::client is a Ruby client for the ehcache cache, operating in client server mode.
-
-It uses an ehcache server running somewhere on the network. That ehcache server can be
-part of a cluster, for redundancy, if desired. In that case a load balancer should be used
- in between ehcache::client and the server.
-
-Usage semantics are similar to the ruby memcached client.
-
- 

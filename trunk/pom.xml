@@ -122,6 +122,18 @@ ehcache is a pure Java, in-process cache with the following features:
                 <contribution>Maven magic</contribution>
             </properties>
         </contributor>
+        <contributor>
+            <name>Jody Brownell</name>
+            <email/>
+            <url/>
+            <organization/>
+            <organizationUrl/>
+            <roles/>
+            <timezone/>
+            <properties>
+                <contribution>Patches</contribution>
+            </properties>
+        </contributor>
     </contributors>
 
     <repositories>
@@ -143,11 +155,6 @@ ehcache is a pure Java, in-process cache with the following features:
             <artifactId>commons-logging</artifactId>
             <version>1.0.4</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>2.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>

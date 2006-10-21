@@ -22,6 +22,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.config.ThreadPoolConfiguration;
 import net.sf.ehcache.distribution.RMIBootstrapCacheLoader;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.DiskStore;
@@ -287,6 +288,8 @@ public class CacheManagerTest extends TestCase {
         configuration.addDefaultCache(defaultCacheConfiguration);
 
         DiskStoreConfiguration diskStoreConfiguration = new DiskStoreConfiguration();
+        diskStoreConfiguration.addExpiryThreadPool(new ThreadPoolConfiguration("", new Integer(5), new Integer(5)));
+        diskStoreConfiguration.addSpoolThreadPool(new ThreadPoolConfiguration("", new Integer(5), new Integer(5)));
         diskStoreConfiguration.setPath("java.io.tmpdir");
         configuration.addDiskStore(diskStoreConfiguration);
 

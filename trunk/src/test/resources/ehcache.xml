@@ -1,4 +1,5 @@
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd">
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd">
 
     <!--
         Sets the path to the directory where cache data and index files are created.
@@ -13,7 +14,10 @@
         e.g. java.io.tmpdir on Unix would be /tmp
              java.io.tmpdir/application_cache on Unix would be /tmp/application_cache
          -->
-    <diskStore path="java.io.tmpdir"/>
+        <diskStore path="java.io.tmpdir">
+        <spoolThreadPool threads="4" priority="5"/>
+        <expiryThreadPool threads="1" priority="2"/>
+    </diskStore>
 
 
     <!--
@@ -71,8 +75,9 @@
         The hostname is the hostname of the remote CacheManager peer. The port is the listening port of the RMICacheManagerPeerListener
         of the remote CacheManager peer.
     -->
-    <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
-                                     properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446"/>
+    <cacheManagerPeerProviderFactory
+            class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+            properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446"/>
 
 
     <!--
@@ -102,8 +107,9 @@
             the default NIC IP address and 2000ms respectively.
 
     -->
-    <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
-                                     properties="hostName=, port=, socketTimeoutMillis="/>
+    <cacheManagerPeerListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
+            properties="hostName=, port=, socketTimeoutMillis="/>
 
 
     <!--Default Cache configuration. These will applied to caches programmatically created through
@@ -252,8 +258,9 @@
            timeToIdleSeconds="10000"
            timeToLiveSeconds="10000"
            overflowToDisk="true">
-        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
-                                   properties="replicateAsynchronously=true,
+        <cacheEventListenerFactory
+                class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+                properties="replicateAsynchronously=true,
                                                replicatePuts=true,
                                                replicateUpdates=true,
                                                replicateUpdatesViaCopy=true,
@@ -267,8 +274,9 @@
            timeToIdleSeconds="10000"
            timeToLiveSeconds="10000"
            overflowToDisk="true">
-        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
-                                   properties="replicateAsynchronously=true,
+        <cacheEventListenerFactory
+                class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+                properties="replicateAsynchronously=true,
                                                replicatePuts=true,
                                                replicateUpdates=true,
                                                replicateUpdatesViaCopy=true,
@@ -283,8 +291,9 @@
            timeToIdleSeconds="10000"
            timeToLiveSeconds="10000"
            overflowToDisk="true">
-        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
-                                   properties="replicateAsynchronously=true,
+        <cacheEventListenerFactory
+                class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+                properties="replicateAsynchronously=true,
                                                replicatePuts=true,
                                                replicateUpdates=true,
                                                replicateUpdatesViaCopy=true,
@@ -297,8 +306,9 @@
            timeToIdleSeconds="10000"
            timeToLiveSeconds="10000"
            overflowToDisk="true">
-        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
-                                   properties="replicateAsynchronously=true,
+        <cacheEventListenerFactory
+                class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+                properties="replicateAsynchronously=true,
                                                replicatePuts=true,
                                                replicateUpdates=true,
                                                replicateUpdatesViaCopy=true,
@@ -312,8 +322,9 @@
            timeToIdleSeconds="10000"
            timeToLiveSeconds="10000"
            overflowToDisk="true">
-        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
-                                   properties="replicateAsynchronously=true,
+        <cacheEventListenerFactory
+                class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+                properties="replicateAsynchronously=true,
                                                replicatePuts=true,
                                                replicateUpdates=true,
                                                replicateUpdatesViaCopy=true,
@@ -327,8 +338,9 @@
            timeToIdleSeconds="10000"
            timeToLiveSeconds="10000"
            overflowToDisk="true">
-        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
-                                   properties="replicateAsynchronously=true,
+        <cacheEventListenerFactory
+                class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+                properties="replicateAsynchronously=true,
                                                replicatePuts=true,
                                                replicateUpdates=true,
                                                replicateUpdatesViaCopy=true,

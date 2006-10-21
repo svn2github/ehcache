@@ -24,6 +24,7 @@ import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.store.DiskStore;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -93,6 +94,8 @@ public class CacheManager {
 
     private CacheManagerPeerProvider cacheManagerPeerProvider;
     private CacheManagerPeerListener cacheManagerPeerListener;
+    
+    private ThreadPoolManager threadPoolManager;
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -193,6 +196,9 @@ public class CacheManager {
         }
 
         ConfigurationHelper configurationHelper = new ConfigurationHelper(this, localConfiguration);
+        
+        threadPoolManager = new ThreadPoolManager(configurationHelper);
+        
         configure(configurationHelper);
         addConfiguredCaches(configurationHelper);
 
@@ -626,6 +632,11 @@ public class CacheManager {
         synchronized (CacheManager.class) {
             ALL_CACHE_MANAGERS.remove(this);
 
+            // dispose of thread pools so we do not cause concurrency issues
+            if (threadPoolManager != null) {
+                threadPoolManager.dispose();
+            }
+            
             Collection cacheSet = caches.values();
             for (Iterator iterator = cacheSet.iterator(); iterator.hasNext();) {
                 Ehcache cache = (Ehcache) iterator.next();
@@ -773,6 +784,13 @@ public class CacheManager {
             caches.put(cache.getName(), decoratedCache);
         }
 
+    }
+    
+    /**
+     * Get the thread pool manager for this CacheManager
+     */
+    public ThreadPoolManager getThreadPoolManager() {
+        return threadPoolManager;
     }
 }
 

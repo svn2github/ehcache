@@ -52,7 +52,7 @@
 
     <!-- Generate Clover code coverage report -->
     <target name="clover"
-            depends="clean, with.clover, checkstyle, ruby-client, test, clover.html, clover-check-coverage"
+            depends="clean, with.clover, checkstyle, test, clover.html, clover-check-coverage"
             description="Runs tests and test coverage">
         <echo message="Use ant build to build a distribution"/>
     </target>
@@ -103,10 +103,10 @@
     <target name="compile-src" description="compile src files">
         <mkdir dir="${build.classes.dir}"/>
         <javac destdir="${build.classes.dir}"
-               target="1.3"
+               target="1.4"
                debug="${compiler.debug}"
                deprecation="${compiler.deprecation}"
-               source="1.3">
+               source="1.4">
             <src location="${src.java.dir}"/>
             <classpath refid="project.class.path"/>
         </javac>
@@ -279,7 +279,6 @@
 
     <artifact:dependencies filesetId="runtime-dependencies.fileset">
         <dependency groupId="commons-logging" artifactId="commons-logging" version="1.0.4"/>
-        <dependency groupId="commons-collections" artifactId="commons-collections" version="2.1.1"/>
     </artifact:dependencies>
 
     <!-- Builds a remote debugger jar  -->
@@ -297,7 +296,6 @@
             </fileset>
             <fileset dir="${basedir}" includes="LICENSE.txt"/>
             <zipfileset src="${dist.dir}/remotedeps/commons-logging-1.0.4.jar"/>
-            <zipfileset src="${dist.dir}/remotedeps/commons-collections-2.1.1.jar"/>
             <manifest>
                 <attribute name="Main-Class"
                            value="net.sf.ehcache.distribution.RemoteDebugger"/>
@@ -723,13 +721,6 @@
 
     <target name="create_book">
         <create_artifact extension="pdf"/>
-    </target>
-
-
-    <target name="ruby-client">
-        <exec dir="ruby-client" executable="rake" failonerror="true">
-            <arg line=""/>
-        </exec>
     </target>
 
 

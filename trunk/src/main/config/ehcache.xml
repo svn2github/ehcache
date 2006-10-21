@@ -1,6 +1,9 @@
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ehcache.xsd">
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="ehcache.xsd">
 
     <!--
+    DiskStore configuration
+
     Sets the path to the directory where cache files are created.
 
     If the path is a Java System Property it is replaced by its value in the
@@ -12,8 +15,27 @@
     * java.io.tmpdir - Default temp file path
 
     Subdirectories can be specified below the property e.g. java.io.tmpdir/one
+
+    diskStore contains two optional elements: sppolingThreadPool and expiryThreadPool. This enables
+    control over the number of threads used by ehcache for the DiskStore.
+
+     Spool threads are by the DiskStore to asynchronously move elements spooled from the MemoryStore to disk.
+     For maximum throughput set this to the same size as the number of caches that overflow to disk.
+     The default pool size is the number of caches that overflow to Disk with a priority of 5.
+
+     Expiry threads traverse the contents of the DiskStore searching for elements which have
+     expired. Throughput is not as critical for this function and so the threadCount and priority are
+     naturally lower. Defaults to the number of caches which overflow/5 with the priority set to 1.
+
+     e.g.
+
+     <diskStore path="java.io.tmpdir/caches">
+        <spoolThreadPool threads="4" priority="5"/>
+        <expiryThreadPool threads="1" priority="2"/>
+    </diskStore>
+
     -->
-    <diskStore path="java.io.tmpdir"/>
+    <diskStore path="java.io.tmpdir" />
 
     <!--
     Specifies a CacheManagerEventListenerFactory, be used to create a CacheManagerPeerProvider,
@@ -162,9 +184,10 @@
     <cacheManagerPeerListenerFactory
             class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
 
+
     <!-- Cache configuration.
 
-    The following attributes are required.
+       The following attributes are required.
 
     name:
     Sets the name of the cache. This is used to identify the cache. It must be unique.
@@ -199,8 +222,9 @@
     diskPersistent:
     Whether the disk store persists between restarts of the Virtual Machine.
     The default value is false.
-
-    diskExpiryThreadIntervalSeconds:
+                                                                                                                                   
+    todo move this to DiskStore 
+        diskExpiryThreadIntervalSeconds:
     The number of seconds between runs of the disk expiry thread. The default value
     is 120 seconds.
 
@@ -269,7 +293,6 @@
       chunks. The default chunk size is 5000000 (5MB).
 
     -->
-
 
     <!--
     Mandatory Default Cache configuration. These settings will be applied to caches
