@@ -20,6 +20,7 @@ import net.sf.ehcache.distribution.JVMUtil;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Primitive;
+import net.sf.ehcache.config.DiskStoreConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -920,5 +921,22 @@ public class DiskStoreTest extends AbstractCacheTest {
         LOG.info("Get Elapsed time: " + time);
 
         assertTrue(time < 200);
+    }
+
+    /**
+     * Java is not consistent with trailing file separators, believe it or not!
+     * http://www.rationalpi.com/blog/replyToComment.action?entry=1146628709626&comment=1155660875090
+     * Can we fix c:\temp\\greg?
+     */
+    public void testWindowsAndSolarisTempDirProblem() {
+
+        String originalPath = "c:" + File.separator + "temp" + File.separator + File.separator + "greg";
+        //Fix dup separator
+        String translatedPath = DiskStoreConfiguration.replaceToken(File.separator + File.separator,
+                File.separator, originalPath);
+        assertEquals("c:" + File.separator + "temp" + File.separator + "greg", translatedPath);
+        //Ignore single separators
+        translatedPath = DiskStoreConfiguration.replaceToken(File.separator + File.separator, File.separator, originalPath);
+        assertEquals("c:" + File.separator + "temp" + File.separator + "greg", translatedPath);
     }
 }

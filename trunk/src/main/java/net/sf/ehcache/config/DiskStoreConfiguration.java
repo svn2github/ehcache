@@ -19,6 +19,8 @@ package net.sf.ehcache.config;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.File;
+
 /**
  * A class to represent DiskStore configuration
  * e.g. <diskStore path="java.io.tmpdir" />
@@ -62,6 +64,10 @@ public final class DiskStoreConfiguration {
         String translatedPath = replaceToken(Env.USER_HOME, System.getProperty(Env.USER_HOME), path);
         translatedPath = replaceToken(Env.USER_DIR, System.getProperty(Env.USER_DIR), translatedPath);
         translatedPath = replaceToken(Env.JAVA_IO_TMPDIR, System.getProperty(Env.JAVA_IO_TMPDIR), translatedPath);
+        String separator = File.separator;
+        //Remove duplicate separators: Windows and Solaris
+        translatedPath = replaceToken(File.separator + File.separator, File.separator, translatedPath);
+
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Disk Store Path: " + translatedPath);
@@ -69,7 +75,14 @@ public final class DiskStoreConfiguration {
         this.path = translatedPath;
     }
 
-    private static String replaceToken(final String token, final String replacement, final String source) {
+    /**
+     * Replaces a token with replacement text.
+     * @param token
+     * @param replacement
+     * @param source
+     * @return
+     */
+    public static String replaceToken(final String token, final String replacement, final String source) {
         int foundIndex = source.indexOf(token);
         if (foundIndex == -1) {
             return source;

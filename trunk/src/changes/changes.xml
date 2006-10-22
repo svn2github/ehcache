@@ -27,9 +27,25 @@
                 Fix typo in lock timeout log message in BlockingCache. Thanks to Matt Magoffin
                 for reporting this bug.
             </action>
+            <action dev="Greg Luck" issue="1579761" type="fix">
+                Fix issue where it is not possible to specify a DiskStore path consistently
+                on all operating systems. This is a workaround to a JDK bug. Always create
+                paths like "java.io.tmpdir/cache". Any trailing characters to java.io.tmpdir
+                added for windows and solaris will be removed and placed with a single file
+                separator.
+            </action>
             <action dev="Greg Luck" issue="1563017" type="fix">
                 Fixed NullPointerException on Cache.evictExpiredElements() and added some other NPE
                 guards to Cache.
+            </action>
+            <action dev="Greg Luck" issue="1557579" type="fix">
+                Fixed tmpdir resolution to make it possible to specify a disk path the same way
+                on all OSs.
+            </action>
+
+            <!-- Unreported Bug fixes -->
+            <action dev="Greg Luck" type="fix">
+                Fixed rare ConcurrentModificationException in getBoundCachePeers
             </action>
 
         </release>

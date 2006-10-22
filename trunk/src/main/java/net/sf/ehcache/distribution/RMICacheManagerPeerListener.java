@@ -35,7 +35,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -441,12 +441,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      * @return a list of <code>RMICachePeer</code> objects. The list if not live
      */
     public List getBoundCachePeers() {
-        List cachePeerList = new ArrayList();
-        for (Iterator iterator = cachePeers.values().iterator(); iterator.hasNext();) {
-            RMICachePeer rmiCachePeer = (RMICachePeer) iterator.next();
-            cachePeerList.add(rmiCachePeer);
-        }
-        return cachePeerList;
+        return Arrays.asList(cachePeers.values().toArray());
     }
 
     /**

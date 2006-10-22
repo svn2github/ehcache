@@ -88,8 +88,8 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Configuration configuration = ConfigurationFactory.parseConfiguration();
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
-        //Check disk store  <diskStore path="/tmp"/>
-        assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
+        //Check disk store  <diskStore path="java.io.tmpdir"/>
+        assertEquals(System.getProperty("java.io.tmpdir") , configurationHelper.getDiskStorePath());
 
         ThreadPool threadPool = configurationHelper.createDiskStoreSpoolingThreadPool();
         assertEquals(new Integer(4), threadPool.getConfiguration().getThreads());

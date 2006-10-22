@@ -31,57 +31,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ruby-client/LICENCE" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ruby-client/test/ehcache" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheException.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheException.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ruby-client/CHANGELOG" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ruby-client/lib/ehcache/client.rb" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ruby-client/pre-setup.rb" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ruby-client/metaconfig" afterPath="" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/util/BlockingQueue.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/util/Utils.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ruby-client/ruby-client.iml" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/config/ehcache.xsd" afterPath="$PROJECT_DIR$/src/main/config/ehcache.xsd" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/roadmap.apt" afterPath="$PROJECT_DIR$/src/site/apt/roadmap.apt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ConfigurationHelper.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ConfigurationHelper.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/CachingFilter.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/CachingFilter.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ruby-client" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ruby-client/Rakefile" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ruby-client/lib" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/DiskStoreConfiguration.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/DiskStoreConfiguration.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/ehcache.xml" afterPath="$PROJECT_DIR$/src/test/resources/ehcache.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/LruMemoryStore.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/LruMemoryStore.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/changes/changes.xml" afterPath="$PROJECT_DIR$/src/changes/changes.xml" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ruby-client/test/ehcache/client_test.rb" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.properties" afterPath="$PROJECT_DIR$/build.properties" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RemoteCacheException.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RemoteCacheException.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ruby-client/lib/ehcache/configuration.rb" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/config/ehcache.xml" afterPath="$PROJECT_DIR$/src/main/config/ehcache.xml" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ruby-client/lib/ehcache" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ruby-client/INSTALL" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.ipr" afterPath="$PROJECT_DIR$/ehcache.ipr" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/Configuration.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/Configuration.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ruby-client/ruby-client.gemspec" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/LockTimeoutException.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/LockTimeoutException.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/ehcache-nodefault.xml" afterPath="$PROJECT_DIR$/src/test/resources/ehcache-nodefault.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/CachingFilterTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/CachingFilterTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/util/ThreadPool.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ruby-client/test/ehcache/configuration_test.rb" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/config/ehcache-failsafe.xml" afterPath="$PROJECT_DIR$/src/main/config/ehcache-failsafe.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/ehcache.xml" afterPath="$PROJECT_DIR$/src/test/resources/ehcache.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/changes/changes.xml" afterPath="$PROJECT_DIR$/src/changes/changes.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ThreadPoolConfiguration.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ruby-client/test" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ruby-client/setup.rb" afterPath="" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/ThreadPoolManager.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ruby-client/README" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/DiskStoreConfiguration.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/DiskStoreConfiguration.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/ThreadPoolManager.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/ThreadPoolManager.java" />
     </list>
     <list name="Delayed Commit (Sun Aug 27 16:28:50 EST 2006)" comment="Trying to get TeamCity going. Down to some clover trouble." />
     <list name="Delayed Commit (Mon Aug 28 18:32:57 EST 2006)" comment="Trying to get TeamCity going. Down to some clover trouble." />
@@ -345,19 +302,6 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ConfigurationHelper.java" line="247" class="net.sf.ehcache.config.ConfigurationHelper" package="net.sf.ehcache.config">
-        <option name="ENABLED" value="true" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="false" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
     </line_breakpoints>
     <breakpoint_any>
       <breakpoint>
@@ -443,19 +387,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="ehcache.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/resources/ehcache.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="17" column="14" selection-start="819" selection-end="819" vertical-scroll-proportion="0.21437126">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="ConfigurationFactoryTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="444" column="35" selection-start="20203" selection-end="20203" vertical-scroll-proportion="0.33294117">
+            <state line="82" column="81" selection-start="2868" selection-end="2868" vertical-scroll-proportion="0.34705883">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -463,75 +398,82 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ConfigurationFactory.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ConfigurationFactory.java">
+      <file leaf-file-name="PayloadUtilTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/PayloadUtilTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="149" column="80" selection-start="5537" selection-end="5537" vertical-scroll-proportion="0.8729412">
+            <state line="50" column="95" selection-start="1597" selection-end="1597" vertical-scroll-proportion="0.40941176">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ConfigurationHelper.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ConfigurationHelper.java">
+      <file leaf-file-name="ThreadPoolManager.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/ThreadPoolManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="279" column="41" selection-start="12597" selection-end="12597" vertical-scroll-proportion="0.19176471">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ThreadPoolConfiguration.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ThreadPoolConfiguration.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="47" column="30" selection-start="1249" selection-end="1249" vertical-scroll-proportion="0.46588236">
+            <state line="81" column="96" selection-start="2530" selection-end="2530" vertical-scroll-proportion="0.3670588">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DiskStore.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
+      <file leaf-file-name="RMICacheManagerPeerListener.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="66" column="92" selection-start="2344" selection-end="2344" vertical-scroll-proportion="0.33053893">
+            <state line="442" column="34" selection-start="16508" selection-end="16526" vertical-scroll-proportion="0.47664672">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="changes.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="40" column="50" selection-start="2254" selection-end="2261" vertical-scroll-proportion="0.5748503">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Arrays.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/Arrays.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="2339" column="24" selection-start="85816" selection-end="85816" vertical-scroll-proportion="0.33294117">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Collection.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/Collection.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="158" column="21" selection-start="7307" selection-end="7307" vertical-scroll-proportion="0.4882353">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RMICachePeer.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICachePeer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="40" column="19" selection-start="1347" selection-end="1347" vertical-scroll-proportion="0.19176471">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Timer.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/Timer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="384" column="12" selection-start="17642" selection-end="17642" vertical-scroll-proportion="0.41764706">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
       <file leaf-file-name="ehcache.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/config/ehcache.xml">
+        <entry file="file://$PROJECT_DIR$/src/test/resources/ehcache.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="224" column="131" selection-start="10285" selection-end="10285" vertical-scroll-proportion="0.5670588">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="changes.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="13" column="56" selection-start="775" selection-end="775" vertical-scroll-proportion="0.18682635">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="roadmap.apt" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/site/apt/roadmap.apt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="9" column="91" selection-start="172" selection-end="172" vertical-scroll-proportion="0.12934132">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Thread.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/Thread.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="207" column="32" selection-start="6965" selection-end="6965" vertical-scroll-proportion="0.19176471">
+            <state line="22" column="89" selection-start="999" selection-end="999" vertical-scroll-proportion="0.31616765">
               <folding />
             </state>
           </provider>
@@ -1135,16 +1077,16 @@
     <option name="referencePos" value="0" />
   </component>
   <component name="RestoreUpdateTree" />
-  <component name="RunManager" selected="JUnit.ConfigurationFactoryTest.testLoadConfigurationFromFileNoDefault">
-    <tempConfiguration default="false" name="ConfigurationFactoryTest.testLoadConfigurationFromFileNoDefault" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
-      <pattern value="net.sf.ehcache.config.*" />
+  <component name="RunManager" selected="JUnit.PayloadUtilTest">
+    <tempConfiguration default="false" name="PayloadUtilTest" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+      <pattern value="net.sf.ehcache.distribution.*" />
       <module name="ehcache" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
-      <option name="PACKAGE_NAME" value="net.sf.ehcache.config" />
-      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.config.ConfigurationFactoryTest" />
-      <option name="METHOD_NAME" value="testLoadConfigurationFromFileNoDefault" />
-      <option name="TEST_OBJECT" value="method" />
+      <option name="PACKAGE_NAME" value="net.sf.ehcache.distribution" />
+      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.distribution.PayloadUtilTest" />
+      <option name="METHOD_NAME" value="" />
+      <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" value="" />
       <option name="PARAMETERS" value="" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
@@ -5100,111 +5042,111 @@
     <option name="myLastEditedConfigurable" value="IDE Profiles" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/config/ehcache-failsafe.xml">
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="24" selection-start="1315" selection-end="1330" vertical-scroll-proportion="0.73319757">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/config/ehcache.xsd">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="23" column="27" selection-start="1158" selection-end="1158" vertical-scroll-proportion="0.30117646">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/resources/ehcache-nodefault.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="14" selection-start="765" selection-end="765" vertical-scroll-proportion="0.20119761">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/DiskStoreConfiguration.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="104" column="20" selection-start="4098" selection-end="4098" vertical-scroll-proportion="0.7700599">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="298" column="86" selection-start="12318" selection-end="12318" vertical-scroll-proportion="0.2764706">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/resources/ehcache.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="14" selection-start="819" selection-end="819" vertical-scroll-proportion="0.21437126">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="444" column="35" selection-start="20203" selection-end="20203" vertical-scroll-proportion="0.33294117">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/Thread.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="207" column="32" selection-start="6965" selection-end="6965" vertical-scroll-proportion="0.19176471">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ConfigurationFactory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="149" column="80" selection-start="5537" selection-end="5537" vertical-scroll-proportion="0.8729412">
+        <state line="902" column="76" selection-start="32870" selection-end="32870" vertical-scroll-proportion="0.6313646">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ConfigurationHelper.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="279" column="41" selection-start="12597" selection-end="12597" vertical-scroll-proportion="0.19176471">
+        <state line="229" column="0" selection-start="9499" selection-end="9499" vertical-scroll-proportion="0.3401222">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ThreadPoolConfiguration.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/DiskStoreConfiguration.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="47" column="30" selection-start="1249" selection-end="1249" vertical-scroll-proportion="0.46588236">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="66" column="92" selection-start="2344" selection-end="2344" vertical-scroll-proportion="0.33053893">
+        <state line="63" column="0" selection-start="2394" selection-end="2394" vertical-scroll-proportion="0.34033614">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/config/ehcache.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="224" column="131" selection-start="10285" selection-end="10285" vertical-scroll-proportion="0.5670588">
+        <state line="224" column="131" selection-start="10285" selection-end="10285" vertical-scroll-proportion="5.2301426">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/config/ehcache.xsd">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/resources/ehcache.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="22" column="89" selection-start="999" selection-end="999" vertical-scroll-proportion="0.31616765">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="82" column="81" selection-start="2868" selection-end="2868" vertical-scroll-proportion="0.34705883">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/PayloadUtilTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="50" column="95" selection-start="1597" selection-end="1597" vertical-scroll-proportion="0.40941176">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/Timer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="384" column="12" selection-start="17642" selection-end="17642" vertical-scroll-proportion="0.41764706">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICachePeer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="40" column="19" selection-start="1347" selection-end="1347" vertical-scroll-proportion="0.19176471">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/Collection.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="158" column="21" selection-start="7307" selection-end="7307" vertical-scroll-proportion="0.4882353">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/Arrays.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="2339" column="24" selection-start="85816" selection-end="85816" vertical-scroll-proportion="0.33294117">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/ThreadPoolManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="81" column="96" selection-start="2530" selection-end="2530" vertical-scroll-proportion="0.3670588">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="442" column="34" selection-start="16508" selection-end="16526" vertical-scroll-proportion="0.47664672">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="56" selection-start="775" selection-end="775" vertical-scroll-proportion="0.18682635">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/roadmap.apt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="9" column="91" selection-start="172" selection-end="172" vertical-scroll-proportion="0.12934132">
+        <state line="40" column="50" selection-start="2254" selection-end="2261" vertical-scroll-proportion="0.5748503">
           <folding />
         </state>
       </provider>

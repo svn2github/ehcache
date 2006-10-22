@@ -14,6 +14,7 @@
         e.g. java.io.tmpdir on Unix would be /tmp
              java.io.tmpdir/application_cache on Unix would be /tmp/application_cache
          -->
+        <!-- Add trailing slash and check it does not break things -->
         <diskStore path="java.io.tmpdir">
         <spoolThreadPool threads="4" priority="5"/>
         <expiryThreadPool threads="1" priority="2"/>

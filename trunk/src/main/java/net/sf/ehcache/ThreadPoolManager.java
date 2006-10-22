@@ -60,8 +60,8 @@ public final class ThreadPoolManager {
      */
     public synchronized void dispose() {
         checkAlive();
-        alive = false;
         timer.cancel();
+        alive = false;
         diskStoreSpoolingThreadPool.dispose();
         diskStoreExpiryThreadPool.dispose();
     }
