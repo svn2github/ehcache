@@ -159,9 +159,9 @@ public final class MulticastKeepaliveHeartbeatSender {
          * <p/>
          * <p> If this thread is blocked in an invocation of the {@link
          * Object#wait() wait()}, {@link Object#wait(long) wait(long)}, or {@link
-         * Object#wait(long, int) wait(long, int)} methods of the {@link Object}
+         * Object#wait(long,int) wait(long, int)} methods of the {@link Object}
          * class, or of the {@link #join()}, {@link #join(long)}, {@link
-         * #join(long, int)}, {@link #sleep(long)}, or {@link #sleep(long, int)},
+         * #join(long,int)}, {@link #sleep(long)}, or {@link #sleep(long,int)},
          * methods of this class, then its interrupt status will be cleared and it
          * will receive an {@link InterruptedException}.
          * <p/>
@@ -189,11 +189,11 @@ public final class MulticastKeepaliveHeartbeatSender {
 
         private void closeSocket() {
             try {
-                if (!socket.isClosed()) {
+                if (socket != null && !socket.isClosed()) {
                     try {
                         socket.leaveGroup(groupMulticastAddress);
                     } catch (IOException e) {
-                        LOG.error("Error leaving mutlicast group. Message was " + e.getMessage());
+                        LOG.error("Error leaving multicast group. Message was " + e.getMessage());
                     }
                     socket.close();
                 }
@@ -207,6 +207,7 @@ public final class MulticastKeepaliveHeartbeatSender {
                 socket.close();
             }
         }
+
 
     }
 }
