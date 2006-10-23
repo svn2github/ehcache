@@ -69,14 +69,10 @@ public class DiskStore implements Store {
      */
     public static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
 
-    private static final String SPOOL_POOL_NAME = "spooling-pool";
-    private static final String EXPIRY_POOL_NAME = "expiry-pool";
     private static final Log LOG = LogFactory.getLog(DiskStore.class.getName());
     private static final int MS_PER_SECOND = 1000;
     private static final int SPOOL_THREAD_INTERVAL = 200;
     private static final int ESTIMATED_MINIMUM_PAYLOAD_SIZE = 512;
-    private static final int EXPIRY_POOL_THREAD_COUNT = 1;
-    private static final int SPOOL_POOL_THREAD_COUNT = 2;
     private long expiryThreadInterval;
 
     private final String name;

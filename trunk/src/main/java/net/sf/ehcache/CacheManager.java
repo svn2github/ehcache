@@ -270,6 +270,13 @@ public class CacheManager {
     }
 
     private void detectAndFixDiskStorePathConflict(ConfigurationHelper configurationHelper) {
+        if (diskStorePath == null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("No disk store path defined. Skipping disk store path conflict test.");
+            }
+            return;
+        }
+
         for (int i = 0; i < ALL_CACHE_MANAGERS.size(); i++) {
             CacheManager cacheManager = (CacheManager) ALL_CACHE_MANAGERS.get(i);
             if (diskStorePath.equals(cacheManager.diskStorePath)) {
