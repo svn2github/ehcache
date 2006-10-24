@@ -143,11 +143,31 @@ ehcache is a pure Java, in-process cache with the following features:
             <url>http://repository.codehaus.org</url>
         </repository>
         <repository>
-            <id>apache-snapshot-repository</id>
-            <name>Apache Snapshot Repository</name>
-            <url>http://people.apache.org/repo/m2-snapshot-repository</url>
+            <id>codehaus-snapshots-repository</id>
+            <name>Codehaus Snapshots Repository</name>
+            <url>http://snapshots.repository.codehaus.org</url>
+        </repository>
+        <repository>
+            <id>codehaus-legacy-repository</id>
+            <name>Codehaus Legacy Repository</name>
+            <url>http://dist.codehaus.org</url>
+            <layout>legacy</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
     </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>codehaus-plugin-snapshot-repository</id>
+            <name>Codehaus Plugin Snapshot Repository</name>
+            <url>http://snapshots.maven.codehaus.org/maven2/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
 
     <dependencies>
         <dependency>
