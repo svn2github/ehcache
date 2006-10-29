@@ -777,16 +777,35 @@ public class CacheTest extends AbstractCacheTest {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test2", 1, true, false, 1, 0);
         manager.addCache(cache);
-        cache.put(new Element("key1", "value1"));
+        String key1 = "key1";
+        cache.put(new Element(key1, "value1"));
         cache.put(new Element("key2", "value1"));
         //getSize uses getKeys().size(), so these should be the same
         assertEquals(cache.getSize(), cache.getKeys().size());
         //getKeys does not do an expiry check, so the expired elements are counted
         assertEquals(2, cache.getSize());
+        String keyFromDisk = (String) cache.get(key1).getObjectKey();
+        assertTrue(key1 == keyFromDisk);
         Thread.sleep(1010);
         assertEquals(2, cache.getKeys().size());
         //getKeysWithExpiryCheck does check and gives the correct answer of 0
         assertEquals(0, cache.getKeysWithExpiryCheck().size());
+    }
+
+
+    /**
+     * Answers the question of whether key references are preserved as elements are written to disk.
+     * This is not a mandatory part of the API. If this test breaks in future it should be removed.
+     */
+    public void testKeysEqualsEquals() throws Exception {
+        //Set size so the second element overflows to disk.
+        Cache cache = new Cache("test2", 0, true, false, 1, 0);
+        manager.addCache(cache);
+        String key1 = "key1";
+        cache.put(new Element(key1, "value1"));
+        cache.put(new Element("key2", "value1"));
+        String keyFromDisk = (String) cache.get(key1).getObjectKey();
+        assertTrue(key1 == keyFromDisk);
     }
 
     /**
