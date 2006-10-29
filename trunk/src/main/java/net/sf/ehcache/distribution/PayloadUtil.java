@@ -32,7 +32,7 @@ import java.util.zip.GZIPOutputStream;
  * <p/>
  * Care is taken to fit the payload into the MTU of ethernet, which is 1500 bytes.
  * The algorithms in this class are capable of creating payloads for CacheManagers containing
- * approximately 500 caches to be replicated.
+ * approximately 500 cache peers to be replicated.
  *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$

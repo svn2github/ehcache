@@ -25,6 +25,8 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Sends heartbeats to a multicast group containing a compressed list of URLs. Supports up to approximately
@@ -40,6 +42,7 @@ public final class MulticastKeepaliveHeartbeatSender {
 
     private static final int DEFAULT_HEARTBEAT_INTERVAL = 5000;
     private static final int MINIMUM_HEARTBEAT_INTERVAL = 1000;
+    private static final int MAXIMUM_PEERS_PER_SEND = 150;
 
     private static long heartBeatInterval = DEFAULT_HEARTBEAT_INTERVAL;
 
@@ -86,7 +89,7 @@ public final class MulticastKeepaliveHeartbeatSender {
     private final class MulticastServerThread extends Thread {
 
         private MulticastSocket socket;
-        private byte[] compressedUrlList;
+        private List compressedUrlListList = new ArrayList();
         private int cachePeersHash;
 
 
@@ -99,30 +102,37 @@ public final class MulticastKeepaliveHeartbeatSender {
         }
 
         public final void run() {
-            try {
-                socket = new MulticastSocket(groupMulticastPort.intValue());
-                socket.joinGroup(groupMulticastAddress);
+            while (!stopped) {
+                try {
+                    socket = new MulticastSocket(groupMulticastPort.intValue());
+                    socket.joinGroup(groupMulticastAddress);
 
-                while (!stopped) {
-                    byte[] buffer = createCachePeersPayload();
-                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length, groupMulticastAddress,
-                            groupMulticastPort.intValue());
-                    socket.send(packet);
+                    while (!stopped) {
+                        List buffers = createCachePeersPayload();
+                        for (Iterator iter = buffers.iterator(); iter.hasNext();) {
+                            byte[] buffer = (byte[]) iter.next();
+                            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, groupMulticastAddress,
+                                    groupMulticastPort.intValue());
+                            socket.send(packet);
 
-                    try {
-                        synchronized (this) {
-                            wait(heartBeatInterval);
-                        }
-                    } catch (InterruptedException e) {
-                        if (!stopped) {
-                            LOG.error("Error receiving heartbeat. Initial cause was " + e.getMessage(), e);
+                            try {
+                                synchronized (this) {
+                                    wait(heartBeatInterval);
+                                }
+                            } catch (InterruptedException e) {
+                                if (!stopped) {
+                                    LOG.error("Error receiving heartbeat. Initial cause was " + e.getMessage(), e);
+                                }
+                            }
                         }
                     }
+                } catch (IOException e) {
+                    LOG.debug(e);
+                } catch (Throwable e) {
+                    LOG.info("Unexpected throwable in run thread. Continuing..." + e.getMessage(), e);
+                } finally {
+                    closeSocket();
                 }
-                closeSocket();
-
-            } catch (IOException e) {
-                LOG.debug(e);
             }
         }
 
@@ -134,20 +144,30 @@ public final class MulticastKeepaliveHeartbeatSender {
          *
          * @return a gzipped byte[]
          */
-        private byte[] createCachePeersPayload() {
+        private List createCachePeersPayload() {
             List localCachePeers = cacheManager.getCachePeerListener().getBoundCachePeers();
             int newCachePeersHash = localCachePeers.hashCode();
             if (cachePeersHash != newCachePeersHash) {
                 cachePeersHash = newCachePeersHash;
-                byte[] uncompressedUrlList = PayloadUtil.assembleUrlList(localCachePeers);
-                compressedUrlList = PayloadUtil.gzip(uncompressedUrlList);
-                if (compressedUrlList.length > PayloadUtil.MTU) {
-                    LOG.fatal("Heartbeat is not working. Configure fewer caches for replication. " +
-                            "Size is " + compressedUrlList.length + " but should be no greater than" +
-                            PayloadUtil.MTU);
+
+                compressedUrlListList = new ArrayList();
+                while (localCachePeers.size() > 0) {
+                    int endIndex = Math.min(localCachePeers.size(), MAXIMUM_PEERS_PER_SEND);
+                    List localCachePeersSubList = localCachePeers.subList(0, endIndex);
+                    localCachePeers = localCachePeers.subList(endIndex, localCachePeers.size());
+
+                    byte[] uncompressedUrlList = PayloadUtil.assembleUrlList(localCachePeersSubList);
+                    byte[] compressedUrlList = PayloadUtil.gzip(uncompressedUrlList);
+                    if (compressedUrlList.length > PayloadUtil.MTU) {
+                        LOG.fatal("Heartbeat is not working. Configure fewer caches for replication. " +
+                                "Size is " + compressedUrlList.length + " but should be no greater than" +
+                                PayloadUtil.MTU);
+                    }
+                    compressedUrlListList.add(compressedUrlList);
                 }
+            return compressedUrlListList;
             }
-            return compressedUrlList;
+            return compressedUrlListList;
         }
 
 
@@ -161,9 +181,9 @@ public final class MulticastKeepaliveHeartbeatSender {
          * <p/>
          * <p> If this thread is blocked in an invocation of the {@link
          * Object#wait() wait()}, {@link Object#wait(long) wait(long)}, or {@link
-         * Object#wait(long, int) wait(long, int)} methods of the {@link Object}
+         * Object#wait(long,int) wait(long, int)} methods of the {@link Object}
          * class, or of the {@link #join()}, {@link #join(long)}, {@link
-         * #join(long, int)}, {@link #sleep(long)}, or {@link #sleep(long, int)},
+         * #join(long,int)}, {@link #sleep(long)}, or {@link #sleep(long,int)},
          * methods of this class, then its interrupt status will be cleared and it
          * will receive an {@link InterruptedException}.
          * <p/>
@@ -216,6 +236,7 @@ public final class MulticastKeepaliveHeartbeatSender {
      * Sets the heartbeat interval to something other than the default of 5000ms. This is useful for testing,
      * but not recommended for production. This method is static and so affects the heartbeat interval of all
      * senders. The change takes effect after the next scheduled heartbeat.
+     *
      * @param heartBeatInterval a time in ms, greater than 1000
      */
     static void setHeartBeatInterval(long heartBeatInterval) {
