@@ -45,11 +45,13 @@
 
             <!-- Unreported Bug fixes -->
             <action dev="Greg Luck" type="fix">
-                Fixed rare ConcurrentModificationException in getBoundCachePeers
-            </action>
-            <action dev="Greg Luck" type="fix">
                 Fixed NPE when both DiskStore path is not configured and DiskStorePath is not being used.
                 Thanks to mdillon for the patch.
+            </action>
+
+            <!-- Patches -->
+            <action dev="Greg Luck" type="fix">
+                Fixed rare ConcurrentModificationException in getBoundCachePeers. Thanks to Tony Voss
             </action>
 
         </release>
