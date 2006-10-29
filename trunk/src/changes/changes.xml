@@ -42,6 +42,12 @@
                 Fixed tmpdir resolution to make it possible to specify a disk path the same way
                 on all OSs.
             </action>
+            <action dev="Greg Luck" issue="1585015" type="fix">
+                Synchronous bootstrap and manual peer discovery combination does not work because
+                the first cache to start always fails. This is normal and the CacheManager should
+                cope with it. Added a catch and log a message when this happens. Thanks to Patrick
+                Galley for the bug report.
+            </action>
 
             <!-- Unreported Bug fixes -->
             <action dev="Greg Luck" type="fix">
@@ -50,8 +56,12 @@
             </action>
 
             <!-- Patches -->
-            <action dev="Greg Luck" type="fix">
+            <action dev="Greg Luck" issue="1584776" type="fix">
                 Fixed rare ConcurrentModificationException in getBoundCachePeers. Thanks to Tony Voss
+            </action>
+            <action dev="Greg Luck" issue="1583996" type="fix">
+                Harden heartbeat sender for IOExceptions and large peer sizes. Thanks to Tony Voss
+                for the patch.
             </action>
 
         </release>

@@ -557,7 +557,11 @@ public class CacheManager {
         cache.setCacheManager(this);
         cache.setDiskStorePath(diskStorePath);
         cache.initialise();
-        cache.bootstrap();
+        try {
+            cache.bootstrap();
+        } catch (CacheException e) {
+            LOG.warn("Cache " + cache.getName() + "requested bootstrap but a CacheException occured. " + e.getMessage(), e);
+        }
         caches.put(cache.getName(), cache);
         if (cacheManagerEventListener != null) {
             cacheManagerEventListener.notifyCacheAdded(cache.getName());

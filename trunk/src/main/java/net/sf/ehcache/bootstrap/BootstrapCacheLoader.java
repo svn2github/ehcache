@@ -17,6 +17,7 @@
 package net.sf.ehcache.bootstrap;
 
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.CacheException;
 
 /**
  * @author Greg Luck
@@ -28,7 +29,7 @@ public interface BootstrapCacheLoader {
      * Instructs the loader to load the given cache
      * @param cache
      */
-    void load(Ehcache cache);
+    void load(Ehcache cache) throws CacheException;
 
     /**
      *
