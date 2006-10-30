@@ -63,6 +63,10 @@
                 Harden heartbeat sender for IOExceptions and large peer sizes. Thanks to Tony Voss
                 for the patch.
             </action>
+            <action dev="Greg Luck" issue="1584041" type="fix">
+                Reduce network utilisation for distributed caching through the optimisation of only
+                doing a Naming.lookup(url) when the url has not been seen before.
+            </action>
 
         </release>
 

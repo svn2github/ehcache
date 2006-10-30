@@ -31,7 +31,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/changes/changes.xml" afterPath="$PROJECT_DIR$/src/changes/changes.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastRMICacheManagerPeerProvider.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastRMICacheManagerPeerProvider.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/PageFragmentCachingFilter.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/PageFragmentCachingFilter.java" />
     </list>
     <list name="Delayed Commit (Sun Aug 27 16:28:50 EST 2006)" comment="Trying to get TeamCity going. Down to some clover trouble." />
@@ -381,93 +383,91 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="changes.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="37" column="79" selection-start="2135" selection-end="2135" vertical-scroll-proportion="0.53173655">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="PageFragmentCachingFilter.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="PageFragmentCachingFilter.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/PageFragmentCachingFilter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="28" column="23" selection-start="1022" selection-end="1022" vertical-scroll-proportion="0.04">
+            <state line="90" column="20" selection-start="3574" selection-end="3574" vertical-scroll-proportion="0.81647056">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ServletResponse.class" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar:///Users/gluck/.m2/repository/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar!/javax/servlet/ServletResponse.class">
+      <file leaf-file-name="MulticastRMICacheManagerPeerProvider.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastRMICacheManagerPeerProvider.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="36" column="0" selection-start="876" selection-end="876" vertical-scroll-proportion="0.49411765">
+            <state line="104" column="40" selection-start="4545" selection-end="4545" vertical-scroll-proportion="0.28622755">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RMIBootstrapCacheLoader.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMIBootstrapCacheLoader.java">
+      <file leaf-file-name="Filter.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/Filter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="75" column="16" selection-start="2509" selection-end="2509" vertical-scroll-proportion="0.28705883">
+            <state line="93" column="98" selection-start="3687" selection-end="3687" vertical-scroll-proportion="0.21556886">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RemoteCacheException.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RemoteCacheException.java">
+      <file leaf-file-name="changes.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="28" column="51" selection-start="1005" selection-end="1005" vertical-scroll-proportion="0.19764706">
+            <state line="25" column="110" selection-start="1353" selection-end="1353" vertical-scroll-proportion="0.08023952">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Cache.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
+      <file leaf-file-name="RMIAsynchronousCacheReplicator.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMIAsynchronousCacheReplicator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="446" column="35" selection-start="18358" selection-end="18358" vertical-scroll-proportion="-1.4670658">
+            <state line="246" column="41" selection-start="9720" selection-end="9720" vertical-scroll-proportion="0.4847059">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BootstrapCacheLoader.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/bootstrap/BootstrapCacheLoader.java">
+      <file leaf-file-name="RMICacheManagerPeerProvider.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerProvider.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="31" column="0" selection-start="952" selection-end="952" vertical-scroll-proportion="0.24">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CacheManager.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="552" column="21" selection-start="23788" selection-end="23788" vertical-scroll-proportion="0.46467066">
+            <state line="124" column="47" selection-start="3528" selection-end="3547" vertical-scroll-proportion="0.56235296">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ObjectExistsException.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/ObjectExistsException.java">
+      <file leaf-file-name="MulticastKeepaliveHeartbeatReceiver.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastKeepaliveHeartbeatReceiver.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="25" column="24" selection-start="845" selection-end="845" vertical-scroll-proportion="0.15529412">
+            <state line="156" column="46" selection-start="5530" selection-end="5530" vertical-scroll-proportion="0.5905882">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Ehcache.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Ehcache.java">
+      <file leaf-file-name="ManualRMICacheManagerPeerProvider.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/ManualRMICacheManagerPeerProvider.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="679" column="0" selection-start="27541" selection-end="27541" vertical-scroll-proportion="0.75928146">
+            <state line="29" column="62" selection-start="940" selection-end="940" vertical-scroll-proportion="0.08470588">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="String.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/String.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="478" column="6" selection-start="18812" selection-end="18812" vertical-scroll-proportion="0.3473054">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="StringCoding.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/StringCoding.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="224" column="23" selection-start="6006" selection-end="6006" vertical-scroll-proportion="0.33294117">
               <folding />
             </state>
           </provider>
@@ -925,6 +925,144 @@
         </PATH_ELEMENT>
         <PATH_ELEMENT>
           <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache.ipr" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache.ipr" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache.ipr" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
@@ -5090,78 +5228,6 @@
     <option name="myLastEditedConfigurable" value="IDE Profiles" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/CacheManagerPeerListener.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="49" selection-start="849" selection-end="849" vertical-scroll-proportion="0.1521739">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/List.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="541" column="23" selection-start="23880" selection-end="23880" vertical-scroll-proportion="0.36956522">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/PayloadUtil.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="45" column="30" selection-start="1680" selection-end="1680" vertical-scroll-proportion="0.47826087">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastKeepaliveHeartbeatSender.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="130" column="39" selection-start="4473" selection-end="4473" vertical-scroll-proportion="0.04588235">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/ManualRMICacheManagerPeerProvider.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="49" column="38" selection-start="1624" selection-end="1624" vertical-scroll-proportion="0.35764706">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Ehcache.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="679" column="0" selection-start="27541" selection-end="27541" vertical-scroll-proportion="0.75928146">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="446" column="35" selection-start="18358" selection-end="18358" vertical-scroll-proportion="-1.4670658">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RemoteCacheException.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="28" column="51" selection-start="1005" selection-end="1005" vertical-scroll-proportion="0.19764706">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMIBootstrapCacheLoader.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="75" column="16" selection-start="2509" selection-end="2509" vertical-scroll-proportion="0.28705883">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/bootstrap/BootstrapCacheLoader.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="31" column="0" selection-start="952" selection-end="952" vertical-scroll-proportion="0.24">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/ObjectExistsException.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="25" column="24" selection-start="845" selection-end="845" vertical-scroll-proportion="0.15529412">
@@ -5176,23 +5242,93 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
+    <entry file="jar:///Users/gluck/.m2/repository/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar!/javax/servlet/ServletResponse.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="37" column="79" selection-start="2135" selection-end="2135" vertical-scroll-proportion="0.53173655">
+        <state line="36" column="0" selection-start="876" selection-end="876" vertical-scroll-proportion="0.76086956">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="jar:///Users/gluck/.m2/repository/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar!/javax/servlet/ServletResponse.class">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/PageInfo.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="36" column="0" selection-start="876" selection-end="876" vertical-scroll-proportion="0.49411765">
+        <state line="198" column="17" selection-start="6451" selection-end="6451" vertical-scroll-proportion="0.33294117">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/StringCoding.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="224" column="23" selection-start="6006" selection-end="6006" vertical-scroll-proportion="0.33294117">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/lang/String.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="478" column="6" selection-start="18812" selection-end="18812" vertical-scroll-proportion="0.3473054">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/ManualRMICacheManagerPeerProvider.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="29" column="62" selection-start="940" selection-end="940" vertical-scroll-proportion="0.08470588">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMIAsynchronousCacheReplicator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="246" column="41" selection-start="9720" selection-end="9720" vertical-scroll-proportion="0.4847059">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Users/gluck/Desktop/MulticastRMICacheManagerPeerProvider.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastKeepaliveHeartbeatReceiver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="156" column="46" selection-start="5530" selection-end="5530" vertical-scroll-proportion="0.5905882">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/PageFragmentCachingFilter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="28" column="23" selection-start="1022" selection-end="1022" vertical-scroll-proportion="0.04">
+        <state line="90" column="20" selection-start="3574" selection-end="3574" vertical-scroll-proportion="0.81647056">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/Filter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="93" column="98" selection-start="3687" selection-end="3687" vertical-scroll-proportion="0.21556886">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastRMICacheManagerPeerProvider.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="104" column="40" selection-start="4545" selection-end="4545" vertical-scroll-proportion="0.28622755">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerProvider.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="124" column="47" selection-start="3528" selection-end="3547" vertical-scroll-proportion="0.56235296">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="110" selection-start="1353" selection-end="1353" vertical-scroll-proportion="0.08023952">
           <folding />
         </state>
       </provider>

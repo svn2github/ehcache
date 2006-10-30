@@ -94,15 +94,20 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
     }
 
     /**
-     * Register a new peer.
+     * Register a new peer, but only if the peer is new, otherwise the last seen timestamp is updated.
      * @param rmiUrl
      */
     public final synchronized void registerPeer(String rmiUrl) {
 
         try {
+            CachePeerEntry cachePeerEntry = (CachePeerEntry) peerUrls.get(rmiUrl);
+            if (cachePeerEntry == null) {
             CachePeer cachePeer = lookupRemoteCachePeer(rmiUrl);
-            CachePeerEntry cachePeerEntry = new CachePeerEntry(cachePeer, new Date());
+                cachePeerEntry = new CachePeerEntry(cachePeer, new Date());
             peerUrls.put(rmiUrl, cachePeerEntry);
+            } else {
+                cachePeerEntry.date = new Date();
+            }
         } catch (IOException e) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Unable to lookup remote cache peer for " + rmiUrl + ". Removing from peer list. Cause was: "
@@ -207,7 +212,7 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
     protected static final class CachePeerEntry {
 
         private final CachePeer cachePeer;
-        private final Date date;
+        private Date date;
 
         /**
          * Constructor
