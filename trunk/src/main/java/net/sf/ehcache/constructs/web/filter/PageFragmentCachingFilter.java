@@ -85,6 +85,6 @@ public abstract class PageFragmentCachingFilter extends CachingFilter {
     protected void writeResponse(final HttpServletResponse response, final PageInfo pageInfo) throws IOException {
         // Write the page
         final byte[] cachedPage = pageInfo.getUngzippedBody();
-        response.getOutputStream().write(cachedPage);
+        response.getWriter().write(new String(cachedPage));
     }
 }

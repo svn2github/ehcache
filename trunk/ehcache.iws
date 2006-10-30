@@ -31,10 +31,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/changes/changes.xml" afterPath="$PROJECT_DIR$/src/changes/changes.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/bootstrap/BootstrapCacheLoader.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/bootstrap/BootstrapCacheLoader.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/PageFragmentCachingFilter.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/PageFragmentCachingFilter.java" />
     </list>
     <list name="Delayed Commit (Sun Aug 27 16:28:50 EST 2006)" comment="Trying to get TeamCity going. Down to some clover trouble." />
     <list name="Delayed Commit (Mon Aug 28 18:32:57 EST 2006)" comment="Trying to get TeamCity going. Down to some clover trouble." />
@@ -383,19 +381,28 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="changes.xml" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="changes.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="48" column="42" selection-start="2822" selection-end="2822" vertical-scroll-proportion="0.3736527">
+            <state line="37" column="79" selection-start="2135" selection-end="2135" vertical-scroll-proportion="0.53173655">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ManualRMICacheManagerPeerProvider.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/ManualRMICacheManagerPeerProvider.java">
+      <file leaf-file-name="PageFragmentCachingFilter.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/PageFragmentCachingFilter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="49" column="38" selection-start="1624" selection-end="1624" vertical-scroll-proportion="0.35764706">
+            <state line="28" column="23" selection-start="1022" selection-end="1022" vertical-scroll-proportion="0.04">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ServletResponse.class" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar:///Users/gluck/.m2/repository/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar!/javax/servlet/ServletResponse.class">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="36" column="0" selection-start="876" selection-end="876" vertical-scroll-proportion="0.49411765">
               <folding />
             </state>
           </provider>
@@ -431,7 +438,7 @@
       <file leaf-file-name="BootstrapCacheLoader.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/bootstrap/BootstrapCacheLoader.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="31" column="0" selection-start="951" selection-end="951" vertical-scroll-proportion="0.24">
+            <state line="31" column="0" selection-start="952" selection-end="952" vertical-scroll-proportion="0.24">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -461,15 +468,6 @@
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Ehcache.java">
           <provider selected="true" editor-type-id="text-editor">
             <state line="679" column="0" selection-start="27541" selection-end="27541" vertical-scroll-proportion="0.75928146">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ManualRMICacheManagerPeerProvider.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file:///Users/gluck/Desktop/ManualRMICacheManagerPeerProvider.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="-0.62">
               <folding />
             </state>
           </provider>
@@ -5099,13 +5097,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///Users/gluck/Desktop/MulticastKeepaliveHeartbeatSender.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="160" column="44" selection-start="5864" selection-end="5864" vertical-scroll-proportion="0.49456522">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar:///Users/gluck/work/jdk1.5/src.zip!/java/util/List.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="541" column="23" selection-start="23880" selection-end="23880" vertical-scroll-proportion="0.36956522">
@@ -5123,13 +5114,6 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/MulticastKeepaliveHeartbeatSender.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="130" column="39" selection-start="4473" selection-end="4473" vertical-scroll-proportion="0.04588235">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Users/gluck/Desktop/ManualRMICacheManagerPeerProvider.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="-0.62">
           <folding />
         </state>
       </provider>
@@ -5171,7 +5155,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/bootstrap/BootstrapCacheLoader.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="31" column="0" selection-start="951" selection-end="951" vertical-scroll-proportion="0.24">
+        <state line="31" column="0" selection-start="952" selection-end="952" vertical-scroll-proportion="0.24">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -5194,7 +5178,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="48" column="42" selection-start="2822" selection-end="2822" vertical-scroll-proportion="0.3736527">
+        <state line="37" column="79" selection-start="2135" selection-end="2135" vertical-scroll-proportion="0.53173655">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///Users/gluck/.m2/repository/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar!/javax/servlet/ServletResponse.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="36" column="0" selection-start="876" selection-end="876" vertical-scroll-proportion="0.49411765">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/PageFragmentCachingFilter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="28" column="23" selection-start="1022" selection-end="1022" vertical-scroll-proportion="0.04">
           <folding />
         </state>
       </provider>
