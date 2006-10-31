@@ -357,7 +357,7 @@
     <!-- Create a zip file for src -->
     <target name="dist-src" description="Creates a zip file for src">
         <zip destfile="${dist.dir}/${name}-${version}-src.zip">
-            <zipfileset dir="${src.java.dir}" prefix="src/"/>
+            <zipfileset dir="${src.java.dir}"/>
         </zip>
     </target>
 

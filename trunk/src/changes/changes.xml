@@ -67,6 +67,10 @@
                 Reduce network utilisation for distributed caching through the optimisation of only
                 doing a Naming.lookup(url) when the url has not been seen before.
             </action>
+            <action dev="Greg Luck" type="fix">
+                Various fixes to web package to make filters work on Sun Application Server 9 and Tomcat
+                in addition to Orion.
+            </action>
 
         </release>
 
