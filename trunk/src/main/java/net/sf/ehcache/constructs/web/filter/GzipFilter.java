@@ -33,6 +33,7 @@ import java.util.zip.GZIPOutputStream;
  * See the filter-mappings.xml entry for the gzip filter for the URL patterns
  * which will be gzipped. At present this includes .jsp, .js and .css.
  *
+ * todo handle 302, 301 and 404
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @author <a href="mailto:amurdoch@thoughtworks.com">Adam Murdoch</a>
  * @version $Id$

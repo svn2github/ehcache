@@ -55,6 +55,12 @@
                 Thanks to mdillon for the patch.
             </action>
 
+            <action dev="Greg Luck" type="fix">
+                CachingFilter and its subclasses now work when upstream filters or servlets return
+                404 or 302, 301.
+            </action>
+
+
             <!-- Patches -->
             <action dev="Greg Luck" issue="1584776" type="fix">
                 Fixed rare ConcurrentModificationException in getBoundCachePeers. Thanks to Tony Voss

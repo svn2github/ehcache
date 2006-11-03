@@ -79,6 +79,40 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
     }
 
     /**
+     * Send the error. If the response is not ok, most of the logic is bypassed and the error is sent raw
+     * Also, the content is not cached.
+     * @param i the status code
+     * @param string  the error message
+     * @throws IOException
+     */
+    public void sendError(int i, String string) throws IOException {
+        statusCode = i;
+        super.sendError(i, string);
+    }
+
+    /**
+     * Send the error. If the response is not ok, most of the logic is bypassed and the error is sent raw
+     * Also, the content is not cached.
+     * @param i the status code
+     * @throws IOException
+     */
+    public void sendError(int i) throws IOException {
+        statusCode = i;
+        super.sendError(i);
+    }
+
+    /**
+     * Send the redirect. If the response is not ok, most of the logic is bypassed and the error is sent raw.
+     * Also, the content is not cached.
+     * @param string the URL to redirect to
+     * @throws IOException
+     */
+    public void sendRedirect(String string) throws IOException {
+        statusCode = HttpServletResponse.SC_MOVED_TEMPORARILY;
+        super.sendRedirect(string);
+    }
+
+    /**
      * Sets the status code for this response.
      */
     public void setStatus(final int code, final String msg) {
@@ -222,5 +256,8 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
     public String encodeUrl(String s) {
         return super.encodeURL(s);
     }
+
+
+
 }
 

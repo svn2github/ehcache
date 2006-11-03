@@ -8,9 +8,11 @@
         <init-param>
             <param-name>exceptionsToLogDifferently</param-name>
             <param-value>net.sf.ehcache.CacheException,
-                java.lang.NullPointerException</param-value>
+                java.lang.NullPointerException
+            </param-value>
             <description>A comma separate list of fully qualified Throwable class
-                names</description>
+                names
+            </description>
         </init-param>
         <init-param>
             <param-name>exceptionsToLogDifferentlyLevel</param-name>
@@ -26,7 +28,8 @@
     <filter>
         <filter-name>SimplePageCachingFilter</filter-name>
         <filter-class>
-            net.sf.ehcache.constructs.web.filter.SimplePageCachingFilter</filter-class>
+            net.sf.ehcache.constructs.web.filter.SimplePageCachingFilter
+        </filter-class>
         <init-param>
             <param-name>suppressStackTraces</param-name>
             <param-value>false</param-value>
@@ -37,7 +40,8 @@
     <filter>
         <filter-name>SimplePageFragmentCachingFilter</filter-name>
         <filter-class>
-            net.sf.ehcache.constructs.web.filter.SimplePageFragmentCachingFilter</filter-class>
+            net.sf.ehcache.constructs.web.filter.SimplePageFragmentCachingFilter
+        </filter-class>
         <init-param>
             <param-name>suppressStackTraces</param-name>
             <param-value>false</param-value>
@@ -49,7 +53,8 @@
     <filter>
         <filter-name>SimplePageCachingFilterWithBlankPageProblem</filter-name>
         <filter-class>
-            net.sf.ehcache.constructs.web.filter.SimplePageCachingFilterWithBlankPageProblem</filter-class>
+            net.sf.ehcache.constructs.web.filter.SimplePageCachingFilterWithBlankPageProblem
+        </filter-class>
         <init-param>
             <param-name>suppressStackTraces</param-name>
             <param-value>false</param-value>
@@ -88,6 +93,18 @@
     <filter-mapping>
         <filter-name>SimplePageCachingFilter</filter-name>
         <url-pattern>/reentrant/Footer.jsp</url-pattern>
+    </filter-mapping>
+
+
+    <!-- Test 404 and 302 -->
+    <filter-mapping>
+        <filter-name>SimplePageCachingFilter</filter-name>
+        <url-pattern>/non_ok/PageNotFound.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>SimplePageCachingFilter</filter-name>
+        <url-pattern>/non_ok/SendRedirect.jsp</url-pattern>
     </filter-mapping>
 
 
@@ -140,12 +157,14 @@
     <servlet>
         <servlet-name>IncludeCachedPageServlet</servlet-name>
         <servlet-class>
-            net.sf.ehcache.constructs.web.servlet.IncludeCachedPageServlet</servlet-class>
+            net.sf.ehcache.constructs.web.servlet.IncludeCachedPageServlet
+        </servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ForwardToCachedPageServlet</servlet-name>
         <servlet-class>
-            net.sf.ehcache.constructs.web.servlet.ForwardToCachedPageServlet</servlet-class>
+            net.sf.ehcache.constructs.web.servlet.ForwardToCachedPageServlet
+        </servlet-class>
     </servlet>
 
     <!-- Servlet Mappings -->
@@ -157,7 +176,6 @@
         <servlet-name>ForwardToCachedPageServlet</servlet-name>
         <url-pattern>/servletdispatchtocachedpage/ForwardToCachedPageServlet</url-pattern>
     </servlet-mapping>
-
 
 
 </web-app>

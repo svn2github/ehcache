@@ -418,10 +418,10 @@ public class CachingFilterTest extends AbstractWebTest {
 
 
     /**
-     * A 0 length body should give a 0 length gzip body and content length
+     * A 0 length body should give a 0 length nongzipped body and content length
      * Manual Test: wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:8080/empty_caching_filter/empty.html
      */
-    public void testZeroLengthHTML() throws Exception {
+    public void testIfModifiedZeroLengthHTML() throws Exception {
 
         String url = "http://localhost:8080/empty_caching_filter/empty.html";
         HttpClient httpClient = new HttpClient();
@@ -432,7 +432,6 @@ public class CachingFilterTest extends AbstractWebTest {
         assertTrue(HttpURLConnection.HTTP_OK == responseCode || HttpURLConnection.HTTP_NOT_MODIFIED == responseCode);
         String responseBody = httpMethod.getResponseBodyAsString();
         assertTrue("".equals(responseBody) || null == responseBody);
-        assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
         checkNullOrZeroContentLength(httpMethod);
     }
 
@@ -456,7 +455,7 @@ public class CachingFilterTest extends AbstractWebTest {
         assertEquals(HttpURLConnection.HTTP_NOT_MODIFIED, responseCode);
         String responseBody = httpMethod.getResponseBodyAsString();
         assertEquals(null, responseBody);
-        assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
+        assertNull(httpMethod.getResponseHeader("Content-Encoding"));
         assertNotNull(httpMethod.getResponseHeader("Last-Modified").getValue());
         checkNullOrZeroContentLength(httpMethod);
 
@@ -482,10 +481,50 @@ public class CachingFilterTest extends AbstractWebTest {
         assertEquals(HttpURLConnection.HTTP_NO_CONTENT, responseCode);
         String responseBody = httpMethod.getResponseBodyAsString();
         assertEquals(null, responseBody);
-        assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
+        assertNull(httpMethod.getResponseHeader("Content-Encoding"));
         assertNotNull(httpMethod.getResponseHeader("Last-Modified").getValue());
         checkNullOrZeroContentLength(httpMethod);
 
+    }
+
+    /**
+     * When the servlet container generates a 404 page not found, we want to pass
+     * it through without caching and without adding anything to it.
+     * <p/>
+     * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:8080/non_ok/PageNotFound.jsp
+     */
+    public void test404() throws Exception {
+
+        String url = "http://localhost:8080/non_ok/PageNotFound.jsp";
+        HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = new GetMethod(url);
+        httpMethod.addRequestHeader("If-modified-Since", "Fri, 13 May 3006 23:54:18 GMT");
+        httpMethod.addRequestHeader("Accept-Encoding", "gzip");
+        int responseCode = httpClient.executeMethod(httpMethod);
+        assertEquals(HttpURLConnection.HTTP_NOT_FOUND, responseCode);
+        String responseBody = httpMethod.getResponseBodyAsString();
+        assertNotNull(responseBody);
+        assertNull(httpMethod.getResponseHeader("Content-Encoding"));
+    }
+
+    /**
+     * When the servlet container generates a 404 page not found, we want to pass
+     * it through without caching and without adding anything to it.
+     * <p/>
+     * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:8080/non_ok/SendRedirect.jsp
+     */
+    public void test302() throws Exception {
+
+        String url = "http://localhost:8080/non_ok/SendRedirect.jsp";
+        HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = new GetMethod(url);
+        httpMethod.addRequestHeader("Accept-Encoding", "gzip");
+        int responseCode = httpClient.executeMethod(httpMethod);
+        //httpclient follows redirects, so gets the home page.
+        assertEquals(HttpURLConnection.HTTP_OK, responseCode);
+        String responseBody = httpMethod.getResponseBodyAsString();
+        assertNotNull(responseBody);
+        assertNull(httpMethod.getResponseHeader("Content-Encoding"));
     }
 
 

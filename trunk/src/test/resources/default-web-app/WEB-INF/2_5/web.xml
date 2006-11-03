@@ -70,6 +70,24 @@
     </filter-mapping>
 
 
+    <!-- Test 404 and 302 -->
+    <filter-mapping>
+        <filter-name>SimplePageCachingFilter</filter-name>
+        <url-pattern>/non_ok/PageNotFound.jsp</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>SimplePageCachingFilter</filter-name>
+        <url-pattern>/non_ok/SendRedirect.jsp</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+    </filter-mapping>
+
+
     <!-- Demonstrates how to create a reentrant CachingFilter chain.
          This should result in an FilterNonReentrantException been thrown. -->
     <filter-mapping>
