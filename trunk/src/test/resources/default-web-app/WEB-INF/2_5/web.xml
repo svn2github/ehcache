@@ -74,17 +74,22 @@
     <filter-mapping>
         <filter-name>SimplePageCachingFilter</filter-name>
         <url-pattern>/non_ok/PageNotFound.jsp</url-pattern>
-        <dispatcher>REQUEST</dispatcher>
-        <dispatcher>INCLUDE</dispatcher>
-        <dispatcher>FORWARD</dispatcher>
     </filter-mapping>
 
     <filter-mapping>
         <filter-name>SimplePageCachingFilter</filter-name>
         <url-pattern>/non_ok/SendRedirect.jsp</url-pattern>
-        <dispatcher>REQUEST</dispatcher>
-        <dispatcher>INCLUDE</dispatcher>
-        <dispatcher>FORWARD</dispatcher>
+    </filter-mapping>
+
+        <!-- Test 404 and 302 -->
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/non_ok/PageNotFoundGzip.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/non_ok/SendRedirectGzip.jsp</url-pattern>
     </filter-mapping>
 
 

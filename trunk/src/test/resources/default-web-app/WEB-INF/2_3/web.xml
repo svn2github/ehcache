@@ -107,6 +107,17 @@
         <url-pattern>/non_ok/SendRedirect.jsp</url-pattern>
     </filter-mapping>
 
+        <!-- Test 404 and 302 -->
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/non_ok/PageNotFoundGzip.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/non_ok/SendRedirectGzip.jsp</url-pattern>
+    </filter-mapping>
+
 
     <!-- Demonstrates the blank page problem -->
     <filter-mapping>

@@ -85,7 +85,7 @@ public class GzipFilterTest extends AbstractWebTest {
         assertEquals(HttpURLConnection.HTTP_NOT_MODIFIED, responseCode);
         byte[] responseBody = httpMethod.getResponseBody();
         assertEquals(null, responseBody);
-        assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
+        assertNull(httpMethod.getResponseHeader("Content-Encoding"));
         checkNullOrZeroContentLength(httpMethod);
     }
 
@@ -111,7 +111,7 @@ public class GzipFilterTest extends AbstractWebTest {
         assertEquals(HttpURLConnection.HTTP_NOT_MODIFIED, responseCode);
         byte[] responseBody = httpMethod.getResponseBody();
         assertEquals(null, responseBody);
-        assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
+        assertNull(httpMethod.getResponseHeader("Content-Encoding"));
         assertNotNull(httpMethod.getResponseHeader("Last-Modified").getValue());
         checkNullOrZeroContentLength(httpMethod);
     }
@@ -136,7 +136,7 @@ public class GzipFilterTest extends AbstractWebTest {
         assertEquals(HttpURLConnection.HTTP_NO_CONTENT, responseCode);
         byte[] responseBody = httpMethod.getResponseBody();
         assertEquals(null, responseBody);
-        assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
+        assertNull(httpMethod.getResponseHeader("Content-Encoding"));
         assertNotNull(httpMethod.getResponseHeader("Last-Modified").getValue());
         checkNullOrZeroContentLength(httpMethod);
     }
@@ -164,6 +164,46 @@ public class GzipFilterTest extends AbstractWebTest {
     public void testNonGzipThenGzipBrowserHomePage() throws Exception {
         testNotGzippedWhenNotAcceptEncodingHomePage();
         testGzippedWhenAcceptEncodingHomePage();
+    }
+
+        /**
+     * When the servlet container generates a 404 page not found, we want to pass
+     * it through without caching and without adding anything to it.
+     * <p/>
+     * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:8080/non_ok/PageNotFoundGzip.jsp
+     */
+    public void testNotFound() throws Exception {
+
+        String url = "http://localhost:8080/non_ok/PageNotFoundGzip.jsp";
+        HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = new GetMethod(url);
+        httpMethod.addRequestHeader("If-modified-Since", "Fri, 13 May 3006 23:54:18 GMT");
+        httpMethod.addRequestHeader("Accept-Encoding", "gzip");
+        int responseCode = httpClient.executeMethod(httpMethod);
+        assertEquals(HttpURLConnection.HTTP_NOT_FOUND, responseCode);
+        String responseBody = httpMethod.getResponseBodyAsString();
+        assertNotNull(responseBody);
+        assertNull(httpMethod.getResponseHeader("Content-Encoding"));
+    }
+
+    /**
+     * When the servlet container generates a 404 page not found, we want to pass
+     * it through without caching and without adding anything to it.
+     * <p/>
+     * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:8080/non_ok/SendRedirectGzip.jsp
+     */
+    public void testRedirect() throws Exception {
+
+        String url = "http://localhost:8080/non_ok/SendRedirectGzip.jsp";
+        HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = new GetMethod(url);
+        httpMethod.addRequestHeader("Accept-Encoding", "gzip");
+        int responseCode = httpClient.executeMethod(httpMethod);
+        //httpclient follows redirects, so gets the home page.
+        assertEquals(HttpURLConnection.HTTP_OK, responseCode);
+        String responseBody = httpMethod.getResponseBodyAsString();
+        assertNotNull(responseBody);
+        assertNull(httpMethod.getResponseHeader("Content-Encoding"));
     }
 
 

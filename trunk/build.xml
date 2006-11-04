@@ -147,6 +147,8 @@
         <fail message="One or more tests failed. See the log file for details."/>
     </target>
 
+    <target name="test-web" depends="test-tomcat, test-orion" description="Integration tests for web containers"/>
+
     <target name="test-orion"
             depends="compile, prepare-web-tests, start-orion, run-web-tests-no-check-orion, stop-orion"
             if="tests.failed" description="Runs Tests">

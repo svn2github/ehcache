@@ -32,8 +32,8 @@ import java.util.zip.GZIPOutputStream;
  * <p/>
  * See the filter-mappings.xml entry for the gzip filter for the URL patterns
  * which will be gzipped. At present this includes .jsp, .js and .css.
+ * <p/>
  *
- * todo handle 302, 301 and 404
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @author <a href="mailto:amurdoch@thoughtworks.com">Adam Murdoch</a>
  * @version $Id$
@@ -78,6 +78,12 @@ public class GzipFilter extends Filter {
 
             gzout.close();
 
+            //return on error or redirect code, because response is already committed
+            int statusCode = wrapper.getStatus();
+            if (statusCode != HttpServletResponse.SC_OK) {
+                return;
+            }
+
             //Saneness checks
             byte[] compressedBytes = compressed.toByteArray();
             boolean shouldGzippedBodyBeZero = ResponseUtil.shouldGzippedBodyBeZero(compressedBytes, request);
@@ -101,7 +107,6 @@ public class GzipFilter extends Filter {
             chain.doFilter(request, response);
         }
     }
-
 
 
     /**

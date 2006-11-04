@@ -493,7 +493,7 @@ public class CachingFilterTest extends AbstractWebTest {
      * <p/>
      * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:8080/non_ok/PageNotFound.jsp
      */
-    public void test404() throws Exception {
+    public void testNotFound() throws Exception {
 
         String url = "http://localhost:8080/non_ok/PageNotFound.jsp";
         HttpClient httpClient = new HttpClient();
@@ -513,7 +513,7 @@ public class CachingFilterTest extends AbstractWebTest {
      * <p/>
      * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:8080/non_ok/SendRedirect.jsp
      */
-    public void test302() throws Exception {
+    public void testRedirect() throws Exception {
 
         String url = "http://localhost:8080/non_ok/SendRedirect.jsp";
         HttpClient httpClient = new HttpClient();

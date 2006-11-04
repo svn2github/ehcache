@@ -75,7 +75,7 @@
             </action>
             <action dev="Greg Luck" type="fix">
                 Various fixes to web package to make filters work on Sun Application Server 9 and Tomcat
-                in addition to Orion.
+                in addition to Orion. Add support for errors and redirects passing through filters.
             </action>
 
         </release>
