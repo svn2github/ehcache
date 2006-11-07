@@ -106,4 +106,12 @@ public class SpeedTest extends AbstractWebTest {
         LOG.info("Time for 200 cached page requests: " + time);
 
     }
+
+
+    /**
+     * This is the last test run in the suite. It tells clover to flush.
+     */
+    public void testFlushClover() {
+        ///CLOVER:FLUSH
+    }
 }

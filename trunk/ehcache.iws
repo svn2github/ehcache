@@ -31,17 +31,77 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF/2_5/web.xml" afterPath="$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF/2_5/web.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/GzipFilter.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/GzipFilter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/changes/changes.xml" afterPath="$PROJECT_DIR$/src/changes/changes.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/resources/default-web-app/non_ok/PageNotFoundGzip.jsp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF/2_4/web.xml" afterPath="$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF/2_4/web.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/resources/default-web-app/non_ok/SendRedirectGzip.jsp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF/2_3/web.xml" afterPath="$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF/2_3/web.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/GzipFilterTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/GzipFilterTest.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/LruMemoryStore.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-manual-distributed1.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-manual-distributed1.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/store/LruMemoryStoreTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/store/LruMemoryStoreTest.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/LfuMemoryStore.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/ehcache-2.xml" afterPath="$PROJECT_DIR$/src/test/resources/ehcache-2.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/hibernate/package.html" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/hibernate/package.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed3.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed3.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/ehcache-policy-test.xml" afterPath="$PROJECT_DIR$/src/test/resources/ehcache-policy-test.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/documentation/distributed_caching.apt" afterPath="$PROJECT_DIR$/src/site/apt/documentation/distributed_caching.apt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-florian.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-florian.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/CacheConfiguration.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/CacheConfiguration.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/samples.apt" afterPath="$PROJECT_DIR$/src/site/apt/samples.apt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed4.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed4.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/SpeedTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/SpeedTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/documentation/configuration.apt" afterPath="$PROJECT_DIR$/src/site/apt/documentation/configuration.apt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/site.xml" afterPath="$PROJECT_DIR$/src/site/site.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi6.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi6.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/config/ehcache.xsd" afterPath="$PROJECT_DIR$/src/main/config/ehcache.xsd" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ConfigurationHelper.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ConfigurationHelper.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed1.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed1.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi1.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi1.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/Filter.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/Filter.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/EvictionPolicy.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-manual-distributed3.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-manual-distributed3.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed2.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed2.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/ehcache.xml" afterPath="$PROJECT_DIR$/src/test/resources/ehcache.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/MemoryStoreTester.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/MemoryStoreTester.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed5.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed5.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.properties" afterPath="$PROJECT_DIR$/build.properties" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/site/resources/documentation/EhcacheUserGuide-1.2.3.pdf" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-no-caches-replicating.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-no-caches-replicating.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi5.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi5.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/CachingFilterTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/CachingFilterTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/store/LfuMemoryStoreTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/store/LfuMemoryStoreTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/policies/FifoMap.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/FifoMemoryStore.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-manual-distributed2.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-manual-distributed2.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iml" afterPath="$PROJECT_DIR$/ehcache.iml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/policies/Entry.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStoreEvictionPolicy.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/documentation/storage_options.apt" afterPath="$PROJECT_DIR$/src/site/apt/documentation/storage_options.apt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/config/ehcache.xml" afterPath="$PROJECT_DIR$/src/main/config/ehcache.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/store/FifoMemoryStoreTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/store/FifoMemoryStoreTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/ehcache-nolisteners.xml" afterPath="$PROJECT_DIR$/src/test/resources/ehcache-nolisteners.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/StatisticsTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/StatisticsTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/Configuration.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/Configuration.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed6.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed6.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/policies/package.html" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/policies/LruMap.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/store/ApacheLruMemoryStoreTest.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi3.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi3.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/GenericResponseWrapper.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/GenericResponseWrapper.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/config/ehcache-failsafe.xml" afterPath="$PROJECT_DIR$/src/main/config/ehcache-failsafe.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/policies" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/ApacheLruDiskStoreTest.java" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/policies/LfuMap.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi2.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi2.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi4.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-distributed-jndi4.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/GzipFilter.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/GzipFilter.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-bad-manual-distributed.xml" afterPath="$PROJECT_DIR$/src/test/resources/distribution/ehcache-bad-manual-distributed.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/policies/PolicyMap.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/ehcache-countinglisteners.xml" afterPath="$PROJECT_DIR$/src/test/resources/ehcache-countinglisteners.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Ehcache.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Ehcache.java" />
     </list>
     <list name="Delayed Commit (Sun Aug 27 16:28:50 EST 2006)" comment="Trying to get TeamCity going. Down to some clover trouble." />
     <list name="Delayed Commit (Mon Aug 28 18:32:57 EST 2006)" comment="Trying to get TeamCity going. Down to some clover trouble." />
@@ -162,19 +222,6 @@
   </component>
   <component name="DebuggerManager">
     <line_breakpoints>
-      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java" line="1339" class="net.sf.ehcache.CacheTest" package="net.sf.ehcache">
-        <option name="ENABLED" value="true" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="false" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
       <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/store/FifoMemoryStoreTest.java" line="218" class="net.sf.ehcache.store.FifoMemoryStoreTest" package="net.sf.ehcache.store">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
@@ -188,7 +235,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/MemoryStoreTester.java" line="447" class="net.sf.ehcache.MemoryStoreTester" package="net.sf.ehcache">
+      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/MemoryStoreTester.java" line="448" class="net.sf.ehcache.MemoryStoreTester" package="net.sf.ehcache">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -214,7 +261,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java" line="380" class="net.sf.ehcache.config.ConfigurationFactoryTest" package="net.sf.ehcache.config">
+      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java" line="389" class="net.sf.ehcache.config.ConfigurationFactoryTest" package="net.sf.ehcache.config">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -253,7 +300,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/MemoryStoreTester.java" line="582" class="net.sf.ehcache.MemoryStoreTester" package="net.sf.ehcache">
+      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/MemoryStoreTester.java" line="584" class="net.sf.ehcache.MemoryStoreTester" package="net.sf.ehcache">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -279,7 +326,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/GzipFilter.java" line="63" class="net.sf.ehcache.constructs.web.filter.GzipFilter" package="net.sf.ehcache.constructs.web.filter">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/GzipFilter.java" line="64" class="net.sf.ehcache.constructs.web.filter.GzipFilter" package="net.sf.ehcache.constructs.web.filter">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -292,7 +339,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/GzipFilter.java" line="88" class="net.sf.ehcache.constructs.web.filter.GzipFilter" package="net.sf.ehcache.constructs.web.filter">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/GzipFilter.java" line="89" class="net.sf.ehcache.constructs.web.filter.GzipFilter" package="net.sf.ehcache.constructs.web.filter">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -319,6 +366,45 @@
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
       <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/CachingFilterTest.java" line="433" class="net.sf.ehcache.constructs.web.filter.CachingFilterTest" package="net.sf.ehcache.constructs.web.filter">
+        <option name="ENABLED" value="true" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/store/LfuMemoryStoreTest.java" line="139" class="net.sf.ehcache.store.LfuMemoryStoreTest" package="net.sf.ehcache.store">
+        <option name="ENABLED" value="true" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java" line="134" class="net.sf.ehcache.config.ConfigurationFactoryTest" package="net.sf.ehcache.config">
+        <option name="ENABLED" value="true" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java" line="89" class="net.sf.ehcache.config.ConfigurationFactoryTest" package="net.sf.ehcache.config">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -416,91 +502,91 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="CachingFilterTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/CachingFilterTest.java">
+      <file leaf-file-name="DiskStore.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="464" column="118" selection-start="18793" selection-end="18793" vertical-scroll-proportion="0.3446677">
+            <state line="63" column="13" selection-start="2112" selection-end="2112" vertical-scroll-proportion="0.24431138">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GzipFilter.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/GzipFilter.java">
+      <file leaf-file-name="EvictionPolicy.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/EvictionPolicy.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="35" column="85" selection-start="1274" selection-end="1274" vertical-scroll-proportion="0.21148036">
+            <state line="113" column="59" selection-start="3499" selection-end="3499" vertical-scroll-proportion="0.85882354">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="changes.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
+      <file leaf-file-name="DiskStoreTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="66" column="114" selection-start="3534" selection-end="3534" vertical-scroll-proportion="0.6816074">
+            <state line="432" column="126" selection-start="16381" selection-end="16500" vertical-scroll-proportion="0.25882354">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="build.xml" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="MemoryStoreTester.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/MemoryStoreTester.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="351" column="103" selection-start="9751" selection-end="9751" vertical-scroll-proportion="0.17125748">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="build.xml" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/build.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="141" column="109" selection-start="5491" selection-end="5491" vertical-scroll-proportion="0.39258114">
+            <state line="419" column="65" selection-start="17335" selection-end="17335" vertical-scroll-proportion="0.54610777">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GzipFilterTest.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/GzipFilterTest.java">
+      <file leaf-file-name="SpeedTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/SpeedTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="138" column="69" selection-start="6443" selection-end="6443" vertical-scroll-proportion="0.44976816">
+            <state line="80" column="97" selection-start="2942" selection-end="2942" vertical-scroll-proportion="0.4635294">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ehcache.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/config/ehcache.xml">
+      <file leaf-file-name="build.properties" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/build.properties">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="225" column="4" selection-start="10290" selection-end="10290" vertical-scroll-proportion="0.3323263">
+            <state line="33" column="32" selection-start="951" selection-end="951" vertical-scroll-proportion="0.46588236">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="web.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF/2_4/web.xml">
+      <file leaf-file-name="AbstractCacheTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/AbstractCacheTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="109" column="0" selection-start="4126" selection-end="4462" vertical-scroll-proportion="0.34441087">
+            <state line="70" column="22" selection-start="1857" selection-end="1857" vertical-scroll-proportion="0.21764706">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="web.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF/2_3/web.xml">
+      <file leaf-file-name="LfuMap.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/policies/LfuMap.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="118" column="21" selection-start="4582" selection-end="4582" vertical-scroll-proportion="0.47129908">
+            <state line="66" column="0" selection-start="3028" selection-end="3028" vertical-scroll-proportion="0.1517647">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="web.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF/2_5/web.xml">
+      <file leaf-file-name="Cache.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="76" column="25" selection-start="2935" selection-end="2935" vertical-scroll-proportion="0.163142">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CachingFilter.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/CachingFilter.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="126" column="35" selection-start="5833" selection-end="5833" vertical-scroll-proportion="0.431221">
+            <state line="795" column="104" selection-start="32609" selection-end="32609" vertical-scroll-proportion="0.3005988">
               <folding />
             </state>
           </provider>
@@ -583,7 +669,7 @@
     <option name="INTEGRATE_REVERT_UNCHANGED" value="true" />
   </component>
   <component name="ProjectLevelMessagesProcessor">
-    <session>&lt;jetbrains.buildServer.delayedCommit.RemoteRunSessionData&gt; &lt;myPathToNumber&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java&lt;/string&gt; &lt;string&gt;181&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/build.xml&lt;/string&gt; &lt;string&gt;182&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/ehcache.iws&lt;/string&gt; &lt;string&gt;181&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RemoteDebugger.java&lt;/string&gt; &lt;string&gt;173&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java&lt;/string&gt; &lt;string&gt;181&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java&lt;/string&gt; &lt;string&gt;171&lt;/string&gt; &lt;/entry&gt; &lt;/myPathToNumber&gt; &lt;myBuildTypeIdToBuildStatus&gt; &lt;entry&gt; &lt;string&gt;bt2&lt;/string&gt; &lt;jetbrains.buildServer.messages.Status&gt;1&lt;/jetbrains.buildServer.messages.Status&gt; &lt;/entry&gt; &lt;/myBuildTypeIdToBuildStatus&gt; &lt;myFinishedBuilds&gt; &lt;entry&gt; &lt;string&gt;bt2&lt;/string&gt; &lt;long&gt;29&lt;/long&gt; &lt;/entry&gt; &lt;/myFinishedBuilds&gt; &lt;myChangeId&gt;23&lt;/myChangeId&gt; &lt;myFile&gt;/Users/gluck/Library/Caches/IntelliJIDEA60/buildServer/11567539770900&lt;/myFile&gt; &lt;myComment&gt;Trying to get TeamCity going. Down to some clover trouble.&lt;/myComment&gt; &lt;myPerformCommit&gt;true&lt;/myPerformCommit&gt; &lt;myRequestConfirmation&gt;true&lt;/myRequestConfirmation&gt; &lt;/jetbrains.buildServer.delayedCommit.RemoteRunSessionData&gt;</session>
+    <session>&lt;jetbrains.buildServer.delayedCommit.RemoteRunSessionData&gt; &lt;myPathToNumber&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/build.xml&lt;/string&gt; &lt;string&gt;182&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java&lt;/string&gt; &lt;string&gt;181&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RemoteDebugger.java&lt;/string&gt; &lt;string&gt;173&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/ehcache.iws&lt;/string&gt; &lt;string&gt;181&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java&lt;/string&gt; &lt;string&gt;181&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java&lt;/string&gt; &lt;string&gt;171&lt;/string&gt; &lt;/entry&gt; &lt;/myPathToNumber&gt; &lt;myBuildTypeIdToBuildStatus&gt; &lt;entry&gt; &lt;string&gt;bt2&lt;/string&gt; &lt;jetbrains.buildServer.messages.Status&gt;1&lt;/jetbrains.buildServer.messages.Status&gt; &lt;/entry&gt; &lt;/myBuildTypeIdToBuildStatus&gt; &lt;myFinishedBuilds&gt; &lt;entry&gt; &lt;string&gt;bt2&lt;/string&gt; &lt;long&gt;29&lt;/long&gt; &lt;/entry&gt; &lt;/myFinishedBuilds&gt; &lt;myChangeId&gt;23&lt;/myChangeId&gt; &lt;myFile&gt;/Users/gluck/Library/Caches/IntelliJIDEA60/buildServer/11567539770900&lt;/myFile&gt; &lt;myComment&gt;Trying to get TeamCity going. Down to some clover trouble.&lt;/myComment&gt; &lt;myPerformCommit&gt;true&lt;/myPerformCommit&gt; &lt;myRequestConfirmation&gt;true&lt;/myRequestConfirmation&gt; &lt;/jetbrains.buildServer.delayedCommit.RemoteRunSessionData&gt;</session>
   </component>
   <component name="ProjectLevelVcsManager">
     <OptionsSetting value="true" id="Add" />
@@ -639,24 +725,6 @@
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
         <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/tools" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
           <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
@@ -666,286 +734,6 @@
         </PATH_ELEMENT>
         <PATH_ELEMENT>
           <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources/default-web-app" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources/default-web-app" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF/2_5" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources/default-web-app" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF/2_4" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources/default-web-app" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF/2_3" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources/default-web-app" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources/default-web-app/non_ok" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources/default-web-app" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources/default-web-app/errors" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources/default-web-app" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources/default-web-app/empty_gzip" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources/default-web-app" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/resources/default-web-app/empty_caching_filter" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
@@ -1253,7 +1041,37 @@
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
         <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site/apt" />
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site/resources" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache.ipr" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site/resources" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site/resources/documentation" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
@@ -1334,6 +1152,52 @@
         </PATH_ELEMENT>
         <PATH_ELEMENT>
           <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache/store" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache.ipr" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache/store" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/policies" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
@@ -1634,7 +1498,7 @@
       <showLibraryContents />
       <hideEmptyPackages ProjectPane="false" />
       <abbreviatePackageNames />
-      <showStructure PackagesPane="false" Scope="false" Favorites="false" ProjectPane="false" />
+      <showStructure ProjectPane="false" Scope="false" PackagesPane="false" Favorites="false" />
       <autoscrollToSource ProjectPane="false" />
       <autoscrollFromSource />
       <sortByType />
@@ -1666,14 +1530,14 @@
     <property name="RunManagerConfig.compileBeforeRunning" value="true" />
     <property name="cvs_file_history_flatWidth6" value="214" />
     <property name="cvs_file_history_flatOrder0" value="0" />
-    <property name="cvs_file_history_treeWidth4" value="212" />
     <property name="cvs_file_history_treeOrder3" value="3" />
+    <property name="cvs_file_history_treeWidth4" value="212" />
     <property name="cvs_file_history_treeWidth6" value="211" />
     <property name="last_opened_file_path" value="/Users/gluck/Desktop" />
     <property name="cvs_file_history_flatOrder5" value="5" />
     <property name="cvs_file_history_flatWidth5" value="214" />
-    <property name="cvs_file_history_treeWidth3" value="295" />
     <property name="cvs_file_history_treeOrder2" value="2" />
+    <property name="cvs_file_history_treeWidth3" value="295" />
     <property name="cvs_file_history_treeWidth5" value="212" />
     <property name="cvs_file_history_flatOrder6" value="6" />
     <property name="cvs_file_history_flatWidth0" value="293" />
@@ -1714,16 +1578,16 @@
     <option name="referencePos" value="0" />
   </component>
   <component name="RestoreUpdateTree" />
-  <component name="RunManager" selected="JUnit.GzipFilterTest">
-    <tempConfiguration default="false" name="GzipFilterTest" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+  <component name="RunManager" selected="JUnit.SpeedTest.testFlushClover">
+    <tempConfiguration default="false" name="SpeedTest.testFlushClover" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
       <pattern value="net.sf.ehcache.constructs.web.filter.*" />
       <module name="ehcache" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
       <option name="PACKAGE_NAME" value="net.sf.ehcache.constructs.web.filter" />
-      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.constructs.web.filter.GzipFilterTest" />
-      <option name="METHOD_NAME" value="" />
-      <option name="TEST_OBJECT" value="class" />
+      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.constructs.web.filter.SpeedTest" />
+      <option name="METHOD_NAME" value="testFlushClover" />
+      <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="" />
       <option name="PARAMETERS" value="" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
@@ -1737,53 +1601,6 @@
         <option name="Make" value="true" />
       </method>
     </tempConfiguration>
-    <configuration default="true" type="Remote" factoryName="Remote">
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" value="javadebug" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="5005" />
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-    </configuration>
-    <configuration default="true" type="WebLogic Instance" factoryName="Local">
-      <option name="WORKING_DIRECTORY" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="7001" />
-      <option name="LOCAL" value="true" />
-      <option name="OPEN_IN_BROWSER" value="true" />
-      <option name="OPEN_IN_BROWSER_URL" value="/" />
-      <option name="COMMON_VM_ARGUMENTS" value="" />
-      <option name="DOMAIN_PATH" value="" />
-      <option name="USER" value="weblogic" />
-      <option name="PASSWORD" value="weblogic" />
-      <option name="SERVER_NAME" value="myserver" />
-      <option name="DOMAIN_NAME" value="mydomain" />
-      <predefined_log_file id="WEBLOGIC_DOMAIN_LOG_FILE" enabled="true" />
-      <predefined_log_file id="WEBLOGIC_SERVER_LOG_FILE" enabled="true" />
-    </configuration>
-    <configuration default="true" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local">
-      <option name="WORKING_DIRECTORY" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="8080" />
-      <option name="LOCAL" value="true" />
-      <option name="OPEN_IN_BROWSER" value="true" />
-      <option name="OPEN_IN_BROWSER_URL" value="/" />
-      <option name="COMMON_VM_ARGUMENTS" value="" />
-      <option name="DEPLOY_TOMCAT_MANAGER" value="false" />
-      <option name="BASE_DIRECTORY_NAME" value="" />
-      <predefined_log_file id="TOMCAT_LOCALHOST_LOG_ID" enabled="true" />
-    </configuration>
     <configuration default="true" type="Application" factoryName="Application" enabled="false" merge="false">
       <option name="MAIN_CLASS_NAME" />
       <option name="VM_PARAMETERS" />
@@ -1797,18 +1614,17 @@
         <option name="Make" value="true" />
       </method>
     </configuration>
-    <configuration default="true" type="#com.intellij.j2ee.web.jsr45.JSR45ConfigurationFactory" factoryName="Local">
-      <option name="WORKING_DIRECTORY" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="80" />
-      <option name="LOCAL" value="true" />
-      <option name="OPEN_IN_BROWSER" value="true" />
-      <option name="OPEN_IN_BROWSER_URL" value="/" />
-      <option name="COMMON_VM_ARGUMENTS" value="" />
-      <option name="JSP_PACKAGE" value="" />
-      <option name="VM_OPTS" value="" />
-      <option name="USE_WEBSPHERE51_LINEMAPPING_MODEL" value="false" />
-      <option name="LOCAL_PORT" value="80" />
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
     </configuration>
     <configuration default="true" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
       <module name="ehcache" />
@@ -1828,6 +1644,54 @@
       <method>
         <option name="Make" value="true" />
       </method>
+    </configuration>
+    <configuration default="true" type="#com.intellij.j2ee.web.jsr45.JSR45ConfigurationFactory" factoryName="Local">
+      <option name="WORKING_DIRECTORY" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="80" />
+      <option name="LOCAL" value="true" />
+      <option name="OPEN_IN_BROWSER" value="true" />
+      <option name="OPEN_IN_BROWSER_URL" value="/" />
+      <option name="COMMON_VM_ARGUMENTS" value="" />
+      <option name="JSP_PACKAGE" value="" />
+      <option name="VM_OPTS" value="" />
+      <option name="USE_WEBSPHERE51_LINEMAPPING_MODEL" value="false" />
+      <option name="LOCAL_PORT" value="80" />
+    </configuration>
+    <configuration default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
+    </configuration>
+    <configuration default="true" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local">
+      <option name="WORKING_DIRECTORY" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="8080" />
+      <option name="LOCAL" value="true" />
+      <option name="OPEN_IN_BROWSER" value="true" />
+      <option name="OPEN_IN_BROWSER_URL" value="/" />
+      <option name="COMMON_VM_ARGUMENTS" value="" />
+      <option name="DEPLOY_TOMCAT_MANAGER" value="false" />
+      <option name="BASE_DIRECTORY_NAME" value="" />
+      <predefined_log_file id="TOMCAT_LOCALHOST_LOG_ID" enabled="true" />
+    </configuration>
+    <configuration default="true" type="WebLogic Instance" factoryName="Local">
+      <option name="WORKING_DIRECTORY" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="7001" />
+      <option name="LOCAL" value="true" />
+      <option name="OPEN_IN_BROWSER" value="true" />
+      <option name="OPEN_IN_BROWSER_URL" value="/" />
+      <option name="COMMON_VM_ARGUMENTS" value="" />
+      <option name="DOMAIN_PATH" value="" />
+      <option name="USER" value="weblogic" />
+      <option name="PASSWORD" value="weblogic" />
+      <option name="SERVER_NAME" value="myserver" />
+      <option name="DOMAIN_NAME" value="mydomain" />
+      <predefined_log_file id="WEBLOGIC_DOMAIN_LOG_FILE" enabled="true" />
+      <predefined_log_file id="WEBLOGIC_SERVER_LOG_FILE" enabled="true" />
     </configuration>
     <configuration default="false" name="Orion" type="Application" factoryName="Application" enabled="false" merge="false">
       <option name="MAIN_CLASS_NAME" value="com.evermind.server.ApplicationServer" />
@@ -5519,16 +5383,16 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="22" width="1600" height="998" extended-state="6" />
+    <frame x="3" y="22" width="1600" height="998" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32962137" order="13" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.20111111" order="7" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.20111111" order="7" />
       <window_info id="Checkstyle" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3288889" order="8" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32817537" order="0" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32053176" order="1" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3172147" order="0" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25322166" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32" order="10" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3997773" order="6" />
@@ -5537,10 +5401,10 @@
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24935567" order="1" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3293944" order="8" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3888889" order="2" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.31777778" order="2" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.17988394" order="2" />
       <window_info id="File View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="5" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.5110783" order="4" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.50666666" order="4" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="0" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.5435746" order="9" />
@@ -5549,8 +5413,8 @@
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="0" />
       <window_info id="RDoc" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32989025" order="3" />
       <window_info id="Favorites" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
-      <window_info id="IDEtalk History" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
       <window_info id="CVS File View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="4" />
+      <window_info id="IDEtalk History" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
       <window_info id="Clover" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32946485" order="3" />
       <window_info id="simpleUML" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32946485" order="3" />
       <window_info id="Web" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="2" />
@@ -5673,113 +5537,113 @@
   </component>
   <component name="com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectRootMasterDetailsConfigurable" proportions="0.11111111" version="1">
     <option name="myPlainMode" value="false" />
-    <option name="myLastEditedConfigurable" value="antlr-2.7.2.jar" />
+    <option name="myLastEditedConfigurable" value="servlet-api-2.4.jar" />
   </component>
   <component name="com.intellij.profile.ui.ErrorOptionsConfigurable" proportions="" version="1">
     <option name="myLastEditedConfigurable" value="IDE Profiles" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/non_ok/SendRedirect.jsp">
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="57" vertical-scroll-proportion="0.0">
+        <state line="264" column="103" selection-start="11335" selection-end="11335" vertical-scroll-proportion="0.4077491">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/GenericResponseWrapper.java">
+    <entry file="file://$PROJECT_DIR$/src/test/resources/ehcache-1_1.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="79" column="0" selection-start="2666" selection-end="2666" vertical-scroll-proportion="0.024340771">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="-0.47567567">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/AbstractWebTest.java">
+    <entry file="jar:///Users/gluck/.m2/repository/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar!/javax/servlet/http/HttpServletResponseWrapper.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="391" column="18" selection-start="13568" selection-end="13568" vertical-scroll-proportion="0.6329412">
+        <state line="43" column="16" selection-start="2045" selection-end="2045" vertical-scroll-proportion="0.9081081">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/non_ok/PageNotFoundGzip.jsp">
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+        <state line="1311" column="103" selection-start="45894" selection-end="45894" vertical-scroll-proportion="0.31873113">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF/2_4/web.xml">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/policies/Entry.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="109" column="0" selection-start="4126" selection-end="4462" vertical-scroll-proportion="0.34441087">
+        <state line="27" column="12" selection-start="798" selection-end="798" vertical-scroll-proportion="0.1835294">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF/2_3/web.xml">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/policies/LfuMap.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="118" column="21" selection-start="4582" selection-end="4582" vertical-scroll-proportion="0.47129908">
+        <state line="66" column="0" selection-start="3028" selection-end="3028" vertical-scroll-proportion="0.1517647">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF/2_5/web.xml">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/EvictionPolicy.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="76" column="25" selection-start="2935" selection-end="2935" vertical-scroll-proportion="0.163142">
+        <state line="113" column="59" selection-start="3499" selection-end="3499" vertical-scroll-proportion="0.85882354">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/CachingFilter.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/AbstractCacheTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="126" column="35" selection-start="5833" selection-end="5833" vertical-scroll-proportion="0.431221">
+        <state line="70" column="22" selection-start="1857" selection-end="1857" vertical-scroll-proportion="0.21764706">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/GzipFilter.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="85" selection-start="1274" selection-end="1274" vertical-scroll-proportion="0.21148036">
+        <state line="63" column="13" selection-start="2112" selection-end="2112" vertical-scroll-proportion="0.24431138">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="66" column="114" selection-start="3534" selection-end="3534" vertical-scroll-proportion="0.6816074">
+        <state line="795" column="104" selection-start="32609" selection-end="32609" vertical-scroll-proportion="0.3005988">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="432" column="126" selection-start="16381" selection-end="16500" vertical-scroll-proportion="0.25882354">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="33" column="32" selection-start="951" selection-end="951" vertical-scroll-proportion="0.46588236">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/MemoryStoreTester.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="351" column="103" selection-start="9751" selection-end="9751" vertical-scroll-proportion="0.17125748">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/SpeedTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="80" column="97" selection-start="2942" selection-end="2942" vertical-scroll-proportion="0.4635294">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/build.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="141" column="109" selection-start="5491" selection-end="5491" vertical-scroll-proportion="0.39258114">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/CachingFilterTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="464" column="118" selection-start="18793" selection-end="18793" vertical-scroll-proportion="0.3446677">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/non_ok/SendRedirectGzip.jsp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/config/ehcache.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="225" column="4" selection-start="10290" selection-end="10290" vertical-scroll-proportion="0.3323263">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/GzipFilterTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="138" column="69" selection-start="6443" selection-end="6443" vertical-scroll-proportion="0.44976816">
+        <state line="419" column="65" selection-start="17335" selection-end="17335" vertical-scroll-proportion="0.54610777">
           <folding />
         </state>
       </provider>

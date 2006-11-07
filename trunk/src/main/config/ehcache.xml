@@ -195,12 +195,16 @@
     maxElementsInMemory:
     Sets the maximum number of objects that will be created in memory
 
+	maxElementsOnDisk:
+    Sets the maximum number of objects that will be maintained in the DiskStore
+	The default value is zero, meaning unlimited. 
+
     eternal:
     Sets whether elements are eternal. If eternal,  timeouts are ignored and the
     element is never expired.
 
     overflowToDisk:
-    Sets whether elements can overflow to disk when the in-memory cache
+    Sets whether elements can overflow to disk when the memory store
     has reached the maxInMemory limit.
 
     The following attributes are optional.
@@ -223,16 +227,18 @@
     Whether the disk store persists between restarts of the Virtual Machine.
     The default value is false.
                                                                                                                                    
-    todo move this to DiskStore 
-        diskExpiryThreadIntervalSeconds:
+    diskExpiryThreadIntervalSeconds:
     The number of seconds between runs of the disk expiry thread. The default value
     is 120 seconds.
 
-    memoryStoreEvictionPolicy:
-    Policy would be enforced upon reaching the maxElementsInMemory limit. Default
-    policy is Least Recently Used (specified as LRU). Other policies available -
-    First In First Out (specified as FIFO) and Less Frequently Used
-    (specified as LFU)
+    evictionPolicy :
+    An eviction policy used upon reaching the maximum size of a store.
+    The default policy is Least Recently Used (specified as LRU). Other policies available are
+    First In First Out (specified as FIFO) and Less Frequently Used (specified as LFU).
+    Both stores (MemoryStore and DiskStore) share the same eviction policy.
+    This attribute was known as evictionPolicy prior to ehcache-1.2.4. For
+    backward compatibility evictionPolicy can still be used, but note that it specifies
+    the policy to be used for both the MemoryStore and DiskStore.
 
     Cache elements can also contain sub elements which take the same format of a factory class
     and properties. Defined sub-elements are:
@@ -306,7 +312,7 @@
             overflowToDisk="true"
             diskPersistent="false"
             diskExpiryThreadIntervalSeconds="120"
-            memoryStoreEvictionPolicy="LRU"
+            evictionPolicy="LRU"
             />
 
     <!--
@@ -325,11 +331,12 @@
     -->
     <cache name="sampleCache1"
            maxElementsInMemory="10000"
+           maxElementsOnDisk="1000"
            eternal="false"
            overflowToDisk="true"
            timeToIdleSeconds="300"
            timeToLiveSeconds="600"
-           memoryStoreEvictionPolicy="LFU"
+           evictionPolicy="LFU"
             />
 
 
@@ -343,7 +350,7 @@
            maxElementsInMemory="1000"
            eternal="true"
            overflowToDisk="false"
-           memoryStoreEvictionPolicy="FIFO"
+           evictionPolicy="FIFO"
             />
 
 
@@ -360,7 +367,8 @@
            timeToLiveSeconds="600"
            diskPersistent="true"
            diskExpiryThreadIntervalSeconds="1"
-           memoryStoreEvictionPolicy="LFU"
+           evictionPolicy="LFU"
+           maxElementsOnDisk="20000"
             />
 
 

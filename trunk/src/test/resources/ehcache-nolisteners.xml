@@ -87,7 +87,7 @@
            timeToIdleSeconds="1"
            timeToLiveSeconds="1"
            overflowToDisk="true"
-           memoryStoreEvictionPolicy="LRU"
+           evictionPolicy="LRU"
            diskExpiryThreadIntervalSeconds="1"
             />
 
@@ -107,7 +107,7 @@
            eternal="false"
            timeToLiveSeconds="1"
            overflowToDisk="false"
-           memoryStoreEvictionPolicy="FIFO">
+           evictionPolicy="FIFO">
         <cacheEventListenerFactory class="net.sf.ehcache.event.CountingCacheEventListenerFactory"/>
     </cache>
 
@@ -118,7 +118,7 @@
            eternal="false"
            timeToLiveSeconds="1"
            overflowToDisk="false"
-           memoryStoreEvictionPolicy="LFU">
+           evictionPolicy="LFU">
         <cacheEventListenerFactory class="net.sf.ehcache.event.CountingCacheEventListenerFactory"/>
     </cache>
 

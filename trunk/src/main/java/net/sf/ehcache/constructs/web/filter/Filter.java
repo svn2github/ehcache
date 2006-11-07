@@ -90,6 +90,14 @@ public abstract class Filter implements javax.servlet.Filter {
             } else {
                 chain.doFilter(request, response);
             }
+            // Flush the response
+            String implementationVendor = request.getClass().getPackage().getImplementationVendor();
+            if (implementationVendor != null && implementationVendor.equals("\"Evermind\"")) {
+                httpResponse.getOutputStream().flush();
+            } else {
+                httpResponse.flushBuffer();
+            }
+
         } catch (final Throwable throwable) {
             logThrowable(throwable, httpRequest);
         }

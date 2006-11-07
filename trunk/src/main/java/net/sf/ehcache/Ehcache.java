@@ -17,7 +17,7 @@
 package net.sf.ehcache;
 
 import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.store.EvictionPolicy;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 
 import java.io.Serializable;
@@ -439,6 +439,11 @@ public interface Ehcache extends Cloneable {
      * Gets the maximum number of elements to hold in memory.
      */
     int getMaxElementsInMemory();
+    
+    /**
+     * Gets the maximum number of elements to hold on Disk.
+     */
+    int getMaxElementsOnDisk();
 
     /**
      * The policy used to evict elements from the {@link net.sf.ehcache.store.MemoryStore}.
@@ -451,8 +456,9 @@ public interface Ehcache extends Cloneable {
      * The default value is LRU
      *
      * @since 1.2
+     * @return The eviction policy of the cache
      */
-    MemoryStoreEvictionPolicy getMemoryStoreEvictionPolicy();
+    EvictionPolicy getEvictionPolicy();
 
     /**
      * Returns a {@link String} representation of {@link net.sf.ehcache.Cache}.
@@ -469,6 +475,7 @@ public interface Ehcache extends Cloneable {
      * <li> the value of the element is null.
      * </ol>
      *
+     * @param element the element to check
      * @return true if it has expired
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      * @throws NullPointerException  if the element is null
@@ -478,7 +485,7 @@ public interface Ehcache extends Cloneable {
     /**
      * Clones a cache. This is only legal if the cache has not been
      * initialized. At that point only primitives have been set and no
-     * {@link net.sf.ehcache.store.LruMemoryStore} or {@link net.sf.ehcache.store.DiskStore} has been created.
+     * {@link net.sf.ehcache.store.MemoryStore} or {@link net.sf.ehcache.store.DiskStore} has been created.
      * <p/>
      * A new, empty, RegisteredEventListeners is created on clone.
      * <p/>

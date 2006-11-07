@@ -13,23 +13,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-package net.sf.ehcache;
+package net.sf.ehcache.store.policies;
 
 /**
- * Runs DiskStoreTest using the LRUMap, which is used in JDK1.3 rather than the JDK 1.4 LinkedHashMap
- * @author Greg Luck
+ * A map to encaupsulate the Fifo eviction policy
+ * 
+ * @author Jody Brownell
+ * @since 1.2.4
  * @version $Id$
  */
-public class ApacheLruDiskStoreTest extends DiskStoreTest {
-
-
+public class FifoMap extends LruMap {
     /**
-     * setup test
+     * Default contructor.
      */
-    protected void setUp() throws Exception {
-        System.setProperty("net.sf.ehcache.useLRUMap", "true");
-        super.setUp();
+    public FifoMap() {
+        // create the LruMap using the inserting order for eviction
+        super(false);
     }
-
 }

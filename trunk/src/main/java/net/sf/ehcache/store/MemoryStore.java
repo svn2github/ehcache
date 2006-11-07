@@ -16,15 +16,17 @@
 
 package net.sf.ehcache.store;
 
+import java.util.Iterator;
+import java.util.Map;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.store.policies.PolicyMap;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * An abstract class for the Memory Stores. All Memory store implementations for different
@@ -33,7 +35,7 @@ import java.util.Map;
  * @author <a href="mailto:ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
  * @version $Id$
  */
-public abstract class MemoryStore implements Store {
+public class MemoryStore implements Store {
 
     private static final Log LOG = LogFactory.getLog(MemoryStore.class.getName());
 
@@ -45,7 +47,7 @@ public abstract class MemoryStore implements Store {
     /**
      * Map where items are stored by key.
      */
-    protected Map map;
+    protected PolicyMap map;
 
     /**
      * The DiskStore associated with this MemoryStore.
@@ -68,6 +70,9 @@ public abstract class MemoryStore implements Store {
         this.cache = cache;
         this.diskStore = diskStore;
         status = Status.STATUS_ALIVE;
+        
+        // Create the map with the appropriate policy
+        map = cache.getEvictionPolicy().createPolicyMap();
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Initialized " + this.getClass().getName() + " for " + cache.getName());
@@ -83,22 +88,12 @@ public abstract class MemoryStore implements Store {
      * @return an instance of a MemoryStore, configured with the appropriate eviction policy
      */
     public static MemoryStore create(Ehcache cache, DiskStore diskStore) {
-        MemoryStore memoryStore = null;
-        MemoryStoreEvictionPolicy policy = cache.getMemoryStoreEvictionPolicy();
-
-        if (policy.equals(MemoryStoreEvictionPolicy.LRU)) {
-            memoryStore = new LruMemoryStore(cache, diskStore);
-        } else if (policy.equals(MemoryStoreEvictionPolicy.FIFO)) {
-            memoryStore = new FifoMemoryStore(cache, diskStore);
-        } else if (policy.equals(MemoryStoreEvictionPolicy.LFU)) {
-            memoryStore = new LfuMemoryStore(cache, diskStore);
-        }
-        return memoryStore;
+        return new MemoryStore(cache, diskStore);
     }
 
     /**
-     * Puts an item in the cache. Note that this automatically results in
-     * {@link net.sf.ehcache.store.LruMemoryStore.SpoolingLinkedHashMap#removeEldestEntry} being called.
+     * Puts an item in the cache. If the cache is full the new Elmenent is added
+     * and an element to evict is then found and evicted.
      *
      * @param element the element to add
      */
@@ -112,12 +107,53 @@ public abstract class MemoryStore implements Store {
     /**
      * Allow specialised actions over adding the element to the map.
      *
-     * @param element
+     * @param element the element being put. It should never be evicted, unless the store size
+     * is 0
+     * @throws net.sf.ehcache.CacheException
      */
-    protected void doPut(Element element) throws CacheException {
-        //empty
+    protected void doPut(final Element element) throws CacheException {
+        if (isFull()) {
+            Element elementToEvict = null;
+            if (cache.getMaxElementsInMemory() == 0) {
+                elementToEvict = element;
+            } else {
+                Map.Entry entry = map.findElementToEvict(element);
+                elementToEvict = (Element) entry.getValue();
+            }
+
+            if (elementToEvict.isExpired()) {
+                notifyExpiry(elementToEvict);
+                remove(elementToEvict.getObjectKey());
+                return;
+            }
+            
+            evict(elementToEvict);
+            remove(elementToEvict.getObjectKey());
+        }
     }
 
+    /**
+     * Test method
+     * @return the next element which qualifies for eviction, without nominating what the
+     * new element will be
+     */
+    Element getNextElementToBeEvicted() {
+        Map.Entry entry = map.findElementToEvict(null);
+        if (entry == null) {
+            return null;
+        }
+        
+        return (Element) entry.getValue();
+    }
+    
+    /**
+     * Test method
+     * @return an instance of the PolicyMap used to enforce eviction policies
+     */
+    PolicyMap getPolicyMap() {
+        return map;
+    }
+    
     /**
      * Gets an item from the cache.
      * <p/>

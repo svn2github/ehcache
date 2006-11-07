@@ -33,6 +33,7 @@ import java.util.zip.GZIPOutputStream;
  * See the filter-mappings.xml entry for the gzip filter for the URL patterns
  * which will be gzipped. At present this includes .jsp, .js and .css.
  * <p/>
+ * todo  backport fix to ehcache constructs
  *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @author <a href="mailto:amurdoch@thoughtworks.com">Adam Murdoch</a>

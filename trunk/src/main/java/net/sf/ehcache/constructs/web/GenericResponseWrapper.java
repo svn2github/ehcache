@@ -212,6 +212,7 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
      */
     public void flushBuffer() throws IOException {
         flush();
+        super.flushBuffer();
     }
 
     /**

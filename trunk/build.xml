@@ -18,11 +18,6 @@
     <property name="name" value="${maven.project.name}"/>
     <property name="version" value="${maven.project.version}"/>
 
-    <target name="greg">
-            <echo>Project name and version ${name} ${maven.project.version}</echo>
-    </target>
-
-
     <artifact:dependencies filesetId="dependency.fileset" pathId="dependency.classpath" verbose="false">
         <pom refid="maven.project"/>
     </artifact:dependencies>
@@ -403,26 +398,26 @@
     <target name="with.clover">
         <mkdir dir="${build.log.dir}"/>
         <clover-setup initString="${build.log.dir}/mycoverage.db"
-                      flushpolicy="directed">
+                      flushpolicy="directed" source="1.4">
             <fileset dir="${src.java.dir}/" includes="**/*.java"/>
-            <!-- not working. Support request logged -->
-            <statementContext name="log" regexp=".*LOG.*"/>
+            <statementContext name="log" regexp="^LOG\..*"/>
+            <statementContext name="iflog" regexp="^if \(LOG\.is.*"/>
         </clover-setup>
     </target>
 
     <target name="clover.html" depends="with.clover">
+        
         <clover-report>
             <current outfile="${build.log.dir}/clover">
-                <format type="html" filter="catch"/>
+                <format type="html" filter="log,iflog,catch"/>
             </current>
         </clover-report>
-        <clover-log level="summary" filter="catch"/>
+        <clover-log level="summary" filter="log,iflog,catch"/>
     </target>
 
     <target name="clover-check-coverage" depends="with.clover" if="singleRMIRegistryPerVM">
         <echo message="Java: ${ant.java.version}"/>
-        <clover-check target="${clover.test.coverage.percentage}"
-                      filter="catch" haltOnFailure="true"/>
+        <clover-check target="${clover.test.coverage.percentage}" filter="log,iflog,catch" haltOnFailure="true"/>
     </target>
 
     <!-- JDKs below 1.5 do not support multiple RMI Registries per VM and we must therefore exclude some tests -->

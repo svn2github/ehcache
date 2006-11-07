@@ -14,8 +14,8 @@
         e.g. java.io.tmpdir on Unix would be /tmp
              java.io.tmpdir/application_cache on Unix would be /tmp/application_cache
          -->
-        <!-- Add trailing slash and check it does not break things -->
-        <diskStore path="java.io.tmpdir">
+    <!-- Add trailing slash and check it does not break things -->
+    <diskStore path="java.io.tmpdir">
         <spoolThreadPool threads="4" priority="5"/>
         <expiryThreadPool threads="1" priority="2"/>
     </diskStore>
@@ -139,7 +139,7 @@
                                      The default value is false.
     diskExpiryThreadIntervalSeconds- The number of seconds between runs of the disk expiry thread. The default value
                                      is 120 seconds.
-    memoryStoreEvictionPolicy      - Policy would be enforced upon reaching the maxElementsInMemory limit. Default
+    evictionPolicy      - Policy would be enforced upon reaching the maxElementsInMemory limit. Default
                                      policy is Least Recently Used (specified as LRU). Other policies available -
                                      First In First Out (specified as FIFO) and Less Frequently Used
                                      (specified as LFU)
@@ -187,7 +187,7 @@
                                          The default value is false.
         diskExpiryThreadIntervalSeconds- The number of seconds between runs of the disk expiry thread. The default value
                                          is 120 seconds.
-        memoryStoreEvictionPolicy      - Policy would be enforced upon reaching the maxElementsInMemory limit. Default
+        evictionPolicy      - Policy would be enforced upon reaching the maxElementsInMemory limit. Default
                                          policy is Least Recently Used (specified as LRU). Other policies available -
                                          First In First Out (specified as FIFO) and Less Frequently Used
                                          (specified as LFU)
@@ -200,11 +200,12 @@
     <!-- Sample cache named sampleCache1 -->
     <cache name="sampleCache1"
            maxElementsInMemory="10000"
+           maxElementsOnDisk="1000"
            eternal="false"
            timeToIdleSeconds="360"
            timeToLiveSeconds="1000"
            overflowToDisk="true"
-           memoryStoreEvictionPolicy="LRU">
+           evictionPolicy="LRU">
         <cacheEventListenerFactory class="net.sf.ehcache.event.NullCacheEventListenerFactory"/>
     </cache>
 
@@ -250,6 +251,7 @@
            overflowToDisk="true"
            diskPersistent="true"
            diskExpiryThreadIntervalSeconds="600"
+           memoryStoreEvictionPolicy="LRU"
             />
 
     <!-- Page Caches  for Web filter tests -->

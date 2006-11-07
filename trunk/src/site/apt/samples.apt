@@ -306,7 +306,7 @@ manager.addCache("cache name");
 public Cache(
     String name,
     int maxElementsInMemory,
-    MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
+    MemoryStoreEvictionPolicy evictionPolicy,
     boolean overflowToDisk,
     boolean eternal,
     long timeToLiveSeconds,

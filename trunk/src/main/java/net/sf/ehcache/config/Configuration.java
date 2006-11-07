@@ -34,7 +34,6 @@ public final class Configuration {
     private FactoryConfiguration cacheManagerPeerProviderFactoryConfiguration;
     private FactoryConfiguration cacheManagerPeerListenerFactoryConfiguration;
     private FactoryConfiguration cacheManagerEventListenerFactoryConfiguration;
-    private final Map poolConfigurations = new HashMap();
     private final Map cacheConfigurations = new HashMap();
     private String configurationSource;
 

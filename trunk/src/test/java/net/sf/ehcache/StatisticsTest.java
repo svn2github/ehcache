@@ -55,7 +55,7 @@ public class StatisticsTest extends AbstractCacheTest {
         assertEquals(0, cache.getMissCountExpired());
         assertEquals(0, cache.getMissCountNotFound());
 
-        //key 1 should now be in the LruMemoryStore
+        //key 1 should now be in the MemoryStore
         cache.get("key1");
         assertEquals(2, cache.getHitCount());
         assertEquals(1, cache.getDiskStoreHitCount());
@@ -96,7 +96,7 @@ public class StatisticsTest extends AbstractCacheTest {
         assertEquals(0, statistics.getInMemoryHits());
         assertEquals(0, statistics.getCacheMisses());
 
-        //key 1 should now be in the LruMemoryStore
+        //key 1 should now be in the MemoryStore
         cache.get("key1");
 
         statistics = (Statistics) cache.getStatistics();

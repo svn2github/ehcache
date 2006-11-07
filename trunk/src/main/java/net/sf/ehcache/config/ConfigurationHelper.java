@@ -366,7 +366,7 @@ public final class ConfigurationHelper {
     final Cache createCache(CacheConfiguration cacheConfiguration) {
         Cache cache = new Cache(cacheConfiguration.name,
                 cacheConfiguration.maxElementsInMemory,
-                cacheConfiguration.memoryStoreEvictionPolicy,
+                cacheConfiguration.evictionPolicy,
                 cacheConfiguration.overflowToDisk,
                 getDiskStorePath(),
                 cacheConfiguration.eternal,
@@ -375,7 +375,8 @@ public final class ConfigurationHelper {
                 cacheConfiguration.diskPersistent,
                 cacheConfiguration.diskExpiryThreadIntervalSeconds,
                 null,
-                null);
+                null, 
+                cacheConfiguration.maxElementsOnDisk);
         RegisteredEventListeners listeners = cache.getCacheEventNotificationService();
         registerCacheListeners(cacheConfiguration, listeners);
         BootstrapCacheLoader bootstrapCacheLoader = createBootstrapCacheLoader(

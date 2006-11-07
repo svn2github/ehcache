@@ -35,6 +35,7 @@
             <item name="Single Page User Guide" href="EhcacheUserGuide.html" />
             <item name="Multi Page User Guide" href="documentation/index.html"/>
             <item name="Older User Guides" href="documentation/older_guides.html" collapse="true">
+                <item name="ehcache 1.2.3" href="documentation/EhcacheUserGuide-1.2.3.pdf"/>
                 <item name="ehcache 1.1" href="documentation/documentation-1_1.html"/>
                 <item name="ehcache-constructs 0.5" href="documentation/constructs-0_5.html"/>
             </item>

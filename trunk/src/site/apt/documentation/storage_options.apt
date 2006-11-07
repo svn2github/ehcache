@@ -56,7 +56,7 @@ Storage Options
      the memory store is based on the MemoryStoreEvictionPolicy setting
      specified in the configuration file.
 
-     memoryStoreEvictionPolicy is an optional attribute in ehcache.xml
+     evictionPolicy is an optional attribute in ehcache.xml
      introduced since 1.2. Legal values are LRU (default), LFU and FIFO.
 
      LRU, LFU and FIFO eviction policies are supported. LRU is the default,

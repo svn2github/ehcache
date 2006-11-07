@@ -13,32 +13,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package net.sf.ehcache.store.policies;
 
-package net.sf.ehcache.store;
+import net.sf.ehcache.Element;
+
+import java.util.Map;
 
 /**
- * Runs DiskStoreTest using the LRUMap, which is used in JDK1.3 rather than the JDK 1.4 LinkedHashMap
+ * An interface to encapsulate store eviction policies using Map semantics
+ *
+ * @author Jody Brownell
  * @author Greg Luck
  * @version $Id$
+ * @since 1.2.4
  */
-public class ApacheLruMemoryStoreTest extends LruMemoryStoreTest {
-
-
+public interface PolicyMap extends Map {
     /**
-     * setup test
+     * Find a Map.Entry which is the most eligible entry according to the eviction policy
+     * @param elementJustAdded the element that was just added to the store. We do not want
+     * to evict this unless the store is set to 0 size.
      */
-    protected void setUp() throws Exception {
-        System.setProperty("net.sf.ehcache.useLRUMap", "true");
-        super.setUp();
-    }
-
-    /**
-     * Benchmark to test speed. This uses both memory and disk and tries to be realistic
-     * This one is a little slower than the JDK1.4.2 map.
-     * 2079ms
-     */
-    public void testBenchmarkPutGetSurya() throws Exception {
-        benchmarkPutGetSuryaTest(2500);
-    }
-
+    public Map.Entry findElementToEvict(Element elementJustAdded);
 }

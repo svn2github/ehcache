@@ -18,7 +18,7 @@ package net.sf.ehcache;
 
 import net.sf.ehcache.distribution.JVMUtil;
 import net.sf.ehcache.store.LruMemoryStoreTest;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.store.EvictionPolicy;
 import net.sf.ehcache.store.Store;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -80,7 +80,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
      * @param evictionPolicy
      * @throws CacheException
      */
-    protected void createMemoryStore(MemoryStoreEvictionPolicy evictionPolicy) throws CacheException {
+    protected void createMemoryStore(EvictionPolicy evictionPolicy) throws CacheException {
         cache = new Cache("test", 1000, evictionPolicy, true, null, true, 60, 30, false, 60, null);
         manager.addCache(cache);
         store = cache.getMemoryStore();
@@ -92,7 +92,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
      * @param evictionPolicy
      * @throws CacheException
      */
-    protected void createMemoryStore(MemoryStoreEvictionPolicy evictionPolicy, int memoryStoreSize) throws CacheException {
+    protected void createMemoryStore(EvictionPolicy evictionPolicy, int memoryStoreSize) throws CacheException {
         manager.removeCache("test");
         cache = new Cache("test", memoryStoreSize, evictionPolicy, true, null, true, 60, 30, false, 60, null);
         manager.addCache(cache);
@@ -355,6 +355,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
      * Benchmark to test speed.
      * Original implementation 12seconds
      * This implementation 9 seconds
+     * todo this seems to show a problem with illegal state exception in ThreadPoolManager
      */
     public void benchmarkPutGetSuryaTest(long allowedTime) throws Exception {
         Random random = new Random();
@@ -442,7 +443,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     /**
      * Multi-thread read, put and removeAll test.
      * This checks for memory leaks
-     * using the removeAll which was the known cause of memory leaks with LruMemoryStore in JCS
+     * using the removeAll which was the known cause of memory leaks with MemoryStore in JCS
      */
     public void testMemoryLeak() throws Exception {
         long differenceMemoryCache = thrashCache();
