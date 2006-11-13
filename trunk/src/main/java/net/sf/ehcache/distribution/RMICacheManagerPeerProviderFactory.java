@@ -29,6 +29,7 @@ import java.util.StringTokenizer;
 
 /**
  * Builds a factory based on RMI
+ *
  * @author Greg Luck
  * @version $Id$
  */
@@ -42,6 +43,8 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
     private static final String RMI_URLS = "rmiUrls";
     private static final String MULTICAST_GROUP_PORT = "multicastGroupPort";
     private static final String MULTICAST_GROUP_ADDRESS = "multicastGroupAddress";
+    private static final String MULTICAST_PACKET_TTL = "multicastPacketTimeToLive";
+    private static final int MAXIMUM_TTL = 255;
 
 
     /**
@@ -49,7 +52,7 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
      *                   separated name value pairs in ehcache.xml
      */
     public CacheManagerPeerProvider createCachePeerProvider(CacheManager cacheManager, Properties properties)
-    throws CacheException {
+            throws CacheException {
         String peerDiscovery = PropertyUtil.extractAndLogProperty(PEER_DISCOVERY, properties);
         if (peerDiscovery == null || peerDiscovery.equalsIgnoreCase(AUTOMATIC_PEER_DISCOVERY)) {
             try {
@@ -89,14 +92,26 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
     }
 
     /**
-     * peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446
+     * peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446, multicastPacketTimeToLive=255
      */
     protected CacheManagerPeerProvider createAutomaticallyConfiguredCachePeerProvider(CacheManager cacheManager,
-                                                                             Properties properties) throws IOException {
+                                                                                      Properties properties) throws IOException {
         String groupAddressString = PropertyUtil.extractAndLogProperty(MULTICAST_GROUP_ADDRESS, properties);
         InetAddress groupAddress = InetAddress.getByName(groupAddressString);
         String multicastPortString = PropertyUtil.extractAndLogProperty(MULTICAST_GROUP_PORT, properties);
         Integer multicastPort = new Integer(multicastPortString);
-        return new MulticastRMICacheManagerPeerProvider(cacheManager, groupAddress, multicastPort);
+        String packetTimeToLiveString = PropertyUtil.extractAndLogProperty(MULTICAST_PACKET_TTL, properties);
+        Integer packetTimeToLive;
+        if (packetTimeToLiveString == null) {
+            packetTimeToLive = new Integer(1);
+            LOG.debug("No TTL set. Setting it to the default of 1 which means packets are limited to the same subnet.");
+        } else {
+            packetTimeToLive = new Integer(packetTimeToLiveString);
+            if (packetTimeToLive.intValue() < 0 || packetTimeToLive.intValue() > MAXIMUM_TTL) {
+                throw new CacheException("The TTL must be set to a value between 0 and 255");
+            }
+        }
+        //todo further testing
+        return new MulticastRMICacheManagerPeerProvider(cacheManager, groupAddress, multicastPort, packetTimeToLive);
     }
 }

@@ -29,8 +29,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- * Sends heartbeats to a multicast group containing a compressed list of URLs. Supports up to approximately
- * 500 configured caches.
+ * Sends heartbeats to a multicast group containing a compressed list of URLs.
+ * <p/>
+ * Using the multicast IP protocol, the TTL value indicates the scope or range in which a packet may be forwarded. By convention:
+ * <p/>
+ * 0 is restricted to the same host
+ * 1 is restricted to the same subnet
+ * 32 is restricted to the same site
+ * 64 is restricted to the same region
+ * 128 is restricted to the same continent
+ * 255 is unrestricted
  *
  * @author Greg Luck
  * @version $Id$
@@ -48,6 +56,7 @@ public final class MulticastKeepaliveHeartbeatSender {
 
     private final InetAddress groupMulticastAddress;
     private final Integer groupMulticastPort;
+    private final Integer packetTimeToLive;
     private MulticastServerThread serverThread;
     private boolean stopped;
     private final CacheManager cacheManager;
@@ -57,12 +66,15 @@ public final class MulticastKeepaliveHeartbeatSender {
      *
      * @param multicastAddress
      * @param multicastPort
+     * @param packetTimeToLive
      */
     public MulticastKeepaliveHeartbeatSender(CacheManager cacheManager,
-                                             InetAddress multicastAddress, Integer multicastPort) {
+                                             InetAddress multicastAddress, Integer multicastPort,
+                                             Integer packetTimeToLive) {
         this.cacheManager = cacheManager;
         this.groupMulticastAddress = multicastAddress;
         this.groupMulticastPort = multicastPort;
+        this.packetTimeToLive = packetTimeToLive;
 
     }
 
@@ -105,6 +117,7 @@ public final class MulticastKeepaliveHeartbeatSender {
             while (!stopped) {
                 try {
                     socket = new MulticastSocket(groupMulticastPort.intValue());
+                    socket.setTimeToLive(packetTimeToLive.intValue());
                     socket.joinGroup(groupMulticastAddress);
 
                     while (!stopped) {
@@ -114,15 +127,14 @@ public final class MulticastKeepaliveHeartbeatSender {
                             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, groupMulticastAddress,
                                     groupMulticastPort.intValue());
                             socket.send(packet);
-
-                            try {
-                                synchronized (this) {
-                                    wait(heartBeatInterval);
-                                }
-                            } catch (InterruptedException e) {
-                                if (!stopped) {
-                                    LOG.error("Error receiving heartbeat. Initial cause was " + e.getMessage(), e);
-                                }
+                        }
+                        try {
+                            synchronized (this) {
+                                wait(heartBeatInterval);
+                            }
+                        } catch (InterruptedException e) {
+                            if (!stopped) {
+                                LOG.error("Error receiving heartbeat. Initial cause was " + e.getMessage(), e);
                             }
                         }
                     }
@@ -165,7 +177,6 @@ public final class MulticastKeepaliveHeartbeatSender {
                     }
                     compressedUrlListList.add(compressedUrlList);
                 }
-            return compressedUrlListList;
             }
             return compressedUrlListList;
         }

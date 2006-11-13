@@ -25,6 +25,9 @@ import net.sf.ehcache.StopWatch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.rmi.RemoteException;
 import java.util.List;
 
@@ -237,6 +240,18 @@ public class MulticastRMIPeerProviderTest extends TestCase {
 
         LOG.info("Remote name lookup time in ms: " + time / 1000f);
 
+    }
+
+    /**
+     * Determines that the multicast TTL default is 1, which means that packets are restricted to the same subnet.
+     * peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446, multicastPacketTimeToLive=255
+     */
+    public void testMulticastTTL() throws IOException {
+        InetAddress groupAddress = InetAddress.getByName("230.0.0.1");
+        MulticastSocket socket = new MulticastSocket();
+        socket.joinGroup(groupAddress);
+        int ttl = socket.getTimeToLive();
+        assertEquals(1, ttl);
     }
 
 }

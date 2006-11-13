@@ -74,10 +74,11 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
      * @param groupMulticastPort    1025 to 65536 e.g. 4446
      */
     public MulticastRMICacheManagerPeerProvider(CacheManager cacheManager, InetAddress groupMulticastAddress,
-                                                Integer groupMulticastPort) {
+                                                Integer groupMulticastPort, Integer packetTimeToLive) {
         super(cacheManager);
         heartBeatReceiver = new MulticastKeepaliveHeartbeatReceiver(this, groupMulticastAddress, groupMulticastPort);
-        heartBeatSender = new MulticastKeepaliveHeartbeatSender(cacheManager, groupMulticastAddress, groupMulticastPort);
+        heartBeatSender =
+                new MulticastKeepaliveHeartbeatSender(cacheManager, groupMulticastAddress, groupMulticastPort, packetTimeToLive);
     }
 
     /**
@@ -102,9 +103,9 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
         try {
             CachePeerEntry cachePeerEntry = (CachePeerEntry) peerUrls.get(rmiUrl);
             if (cachePeerEntry == null) {
-            CachePeer cachePeer = lookupRemoteCachePeer(rmiUrl);
+                CachePeer cachePeer = lookupRemoteCachePeer(rmiUrl);
                 cachePeerEntry = new CachePeerEntry(cachePeer, new Date());
-            peerUrls.put(rmiUrl, cachePeerEntry);
+                peerUrls.put(rmiUrl, cachePeerEntry);
             } else {
                 cachePeerEntry.date = new Date();
             }
