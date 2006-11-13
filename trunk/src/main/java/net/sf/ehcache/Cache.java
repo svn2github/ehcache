@@ -51,6 +51,8 @@ import java.util.Set;
  * <p/>
  * Statistics on cache usage are collected and made available through public methods.
  *
+ * todo getKeysNoDuplicate check still required given remove?
+ *
  * @author Greg Luck
  * @version $Id$
  */

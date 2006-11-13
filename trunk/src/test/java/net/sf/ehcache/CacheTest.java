@@ -46,10 +46,29 @@ public class CacheTest extends AbstractCacheTest {
     }
 
     /**
+     * Gets the sample cache 1
+     */
+    protected Ehcache getSampleCache1() {
+        Cache cache = manager.getCache("sampleCache1");
+        return cache;
+    }
+
+    /**
+     * Creates a cache
+     *
+     * @return
+     */
+    protected Ehcache createTestCache() {
+        Cache cache = new Cache("test4", 1000, true, true, 0, 0);
+        manager.addCache(cache);
+        return cache;
+    }
+
+    /**
      * Checks we cannot use a cache after shutdown
      */
     public void testUseCacheAfterManagerShutdown() throws CacheException {
-        Cache cache = manager.getCache("sampleCache1");
+        Ehcache cache = getSampleCache1();
         manager.shutdown();
         Element element = new Element("key", "value");
         try {
@@ -70,14 +89,18 @@ public class CacheTest extends AbstractCacheTest {
         } catch (IllegalStateException e) {
             assertEquals("The sampleCache1 Cache is not alive.", e.getMessage());
         }
-        //ok to get stats
-        cache.getHitCount();
-        cache.getMemoryStoreHitCount();
-        cache.getDiskStoreHitCount();
-        cache.getMissCountExpired();
-        cache.getMissCountNotFound();
+        if (cache instanceof Cache) {
+            Cache castCache = (Cache) cache;
+            //ok to get stats
+            castCache.getHitCount();
+            castCache.getMemoryStoreHitCount();
+            castCache.getDiskStoreHitCount();
+            castCache.getMissCountExpired();
+            castCache.getMissCountNotFound();
+        }
 
     }
+
 
     /**
      * Checks we cannot use a cache outside the manager
@@ -848,8 +871,7 @@ public class CacheTest extends AbstractCacheTest {
      */
     public void testGetKeysPerformance() throws Exception {
         //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test4", 1000, true, true, 0, 0);
-        manager.addCache(cache);
+        Ehcache cache = createTestCache();
 
         for (int i = 0; i < 2000; i++) {
             cache.put(new Element("key" + i, "value"));
@@ -867,14 +889,14 @@ public class CacheTest extends AbstractCacheTest {
         assertTrue("Getting keys took more than 150ms", getKeysTime < 100);
     }
 
+
     /**
      * Checks the expense of checking in-memory size
      * 3467890 bytes in 1601ms for JDK1.4.2
      */
     public void testCalculateInMemorySizePerformanceAndReasonableness() throws Exception {
         //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test4", 1000, true, true, 0, 0);
-        manager.addCache(cache);
+        Ehcache cache = createTestCache();
 
         //Set up object graphs
         for (int i = 0; i < 1000; i++) {
@@ -989,7 +1011,7 @@ public class CacheTest extends AbstractCacheTest {
      * Tests cache, memory store and disk store sizes from config
      */
     public void testSizes() throws Exception {
-        Ehcache cache = manager.getCache("sampleCache1");
+        Ehcache cache = getSampleCache1();
 
         assertEquals(0, cache.getMemoryStoreSize());
 

@@ -21,6 +21,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.StopWatch;
 import net.sf.ehcache.CacheTest;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.Cache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -308,6 +309,30 @@ public class BlockingCacheTest extends CacheTest {
         assertTrue("Retrieval time on known key is " + measuredRetrievalTime
                 + " but should be less than " + requiredRetrievalTime + "ms",
                 measuredRetrievalTime < requiredRetrievalTime);
+    }
+
+    /**
+     * Creates a blocking test cache
+     */
+    protected Ehcache createTestCache() {
+        Ehcache cache = super.createTestCache();
+        return new BlockingCache(cache);
+    }
+
+    /**
+     * Gets the sample cache 1
+     */
+    protected Ehcache getSampleCache1() {
+        Cache cache = manager.getCache("sampleCache1");
+        manager.replaceCacheWithDecoratedCache(cache, new BlockingCache(cache));
+        return manager.getEhcache("sampleCache1");
+    }
+
+    /**
+     * Use to manually test super class tests
+     */
+    public void testInstrumented() throws Exception {
+        super.testSizes();
     }
 }
 

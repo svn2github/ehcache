@@ -707,7 +707,7 @@ public class BlockingCache implements Ehcache {
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
     public List getKeysNoDuplicateCheck() throws IllegalStateException {
-        return getKeysNoDuplicateCheck();
+        return cache.getKeysNoDuplicateCheck();
     }
 
     /**
