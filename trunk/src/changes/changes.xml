@@ -77,7 +77,23 @@
                 Various fixes to web package to make filters work on Sun Application Server 9 and Tomcat
                 in addition to Orion. Add support for errors and redirects passing through filters.
             </action>
-
+            <!--<action dev="Tony Voss" issue="1592324" type="fix">-->
+                <!--Multiple multicast packets sends multiplies heartbeat-->
+            <!--</action>-->
+            <!--<action dev="dguist" issue="1591711" type="fix">-->
+                <!--Infinite recursion in BlockingCache.getKeysNoDuplicateCheck-->
+            <!--</action>-->
+            <!--<action dev="Tony Voss" issue="1588976" type="fix">-->
+                <!--Needed to be able to set the TTL on the multicast socket-->
+            <!--</action>-->
+            <action dev="Tony Voss" issue="1588796" type="fix">
+                Statistics Variables Need to be Longs. Changed internal representation to long in Cache, kept the
+                direct getters for backwards compatible and changed the new Statistics class to be long based. Use
+                getStatistics() to access the longs with out loss of precision.
+            </action>
+            <!--<action dev="Tony Voss" issue="1584041" type="fix">-->
+                <!--Reduced Chattiness of Multicast Heartbeat-->
+            <!--</action>-->
         </release>
 
         <release version="1.2.3" date="2006-9-2" desc="Maintenance release">

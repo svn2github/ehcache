@@ -906,47 +906,6 @@ public class BlockingCache implements Ehcache {
     }
 
     /**
-     * The number of times a requested item was found in the cache.
-     *
-     * @return the number of times a requested item was found in the cache
-     */
-    public int getHitCount() {
-        return cache.getHitCount();
-    }
-
-    /**
-     * Number of times a requested item was found in the Memory Store.
-     *
-     * @return Number of times a requested item was found in the Memory Store.
-     */
-    public int getMemoryStoreHitCount() {
-        return cache.getMemoryStoreHitCount();
-    }
-
-    /**
-     * Number of times a requested item was found in the Disk Store.
-     */
-    public int getDiskStoreHitCount() {
-        return cache.getDiskStoreHitCount();
-    }
-
-    /**
-     * Number of times a requested element was not found in the cache. This
-     * may be because it expired, in which case this will also be recorded in {@link #getMissCountExpired},
-     * or because it was simply not there.
-     */
-    public int getMissCountNotFound() {
-        return cache.getMissCountNotFound();
-    }
-
-    /**
-     * Number of times a requested element was found but was expired.
-     */
-    public int getMissCountExpired() {
-        return cache.getMissCountExpired();
-    }
-
-    /**
      * Synchronized version of getName to test liveness of the object lock.
      * <p/>
      * The time taken for this method to return is a useful measure of runtime contention on the cache.

@@ -158,27 +158,27 @@ public class Cache implements Ehcache {
     /**
      * Cache hit count.
      */
-    private int hitCount;
+    private long hitCount;
 
     /**
      * Memory cache hit count.
      */
-    private int memoryStoreHitCount;
+    private long memoryStoreHitCount;
 
     /**
      * Auxiliary hit counts broken down by auxiliary.
      */
-    private int diskStoreHitCount;
+    private long diskStoreHitCount;
 
     /**
      * Count of misses where element was not found.
      */
-    private int missCountNotFound;
+    private long missCountNotFound;
 
     /**
      * Count of misses where element was expired.
      */
-    private int missCountExpired;
+    private long missCountExpired;
 
     /**
      * The {@link MemoryStore} of this {@link Cache}. All caches have a memory store.
@@ -1154,43 +1154,77 @@ public class Cache implements Ehcache {
 
     /**
      * The number of times a requested item was found in the cache.
-     *
+     * <p/>
+     * The internal representation of this statistic has been changed to a long
+     * to cater for real world situations when an int is not sufficient to hold it.
+     * If the statistic is larger than <code>Integer.MAX_VALUE</code> a nonsensical value
+     * will be returned. Use {@link net.sf.ehcache.Statistics} which contains this statistic.
+     * <p/>
      * @return the number of times a requested item was found in the cache
+     * @deprecated Use {@link net.sf.ehcache.Statistics}
      */
     public final int getHitCount() {
-        return hitCount;
+        return (int) hitCount;
     }
 
     /**
      * Number of times a requested item was found in the Memory Store.
-     *
+     * <p/>
+     * The internal representation of this statistic has been changed to a long
+     * to cater for real world situations when an int is not sufficient to hold it.
+     * If the statistic is larger than <code>Integer.MAX_VALUE</code> a nonsensical value
+     * will be returned. Use {@link net.sf.ehcache.Statistics} which contains this statistic.
+     * <p/>
      * @return Number of times a requested item was found in the Memory Store.
+     * @deprecated Use {@link net.sf.ehcache.Statistics}
      */
     public final int getMemoryStoreHitCount() {
-        return memoryStoreHitCount;
+        return (int) memoryStoreHitCount;
     }
 
     /**
      * Number of times a requested item was found in the Disk Store.
+     * <p/>
+     * The internal representation of this statistic has been changed to a long
+     * to cater for real world situations when an int is not sufficient to hold it.
+     * If the statistic is larger than <code>Integer.MAX_VALUE</code> a nonsensical value
+     * will be returned. Use {@link net.sf.ehcache.Statistics} which contains this statistic.
+     * <p/>
+     * @deprecated Use {@link net.sf.ehcache.Statistics}
      */
     public final int getDiskStoreHitCount() {
-        return diskStoreHitCount;
+        return (int) diskStoreHitCount;
     }
 
     /**
      * Number of times a requested element was not found in the cache. This
      * may be because it expired, in which case this will also be recorded in {@link #getMissCountExpired},
      * or because it was simply not there.
+     * <p/>
+     * The internal representation of this statistic has been changed to a long
+     * to cater for real world situations when an int is not sufficient to hold it.
+     * If the statistic is larger than <code>Integer.MAX_VALUE</code> a nonsensical value
+     * will be returned. Use {@link net.sf.ehcache.Statistics} which contains this statistic.
+     * <p/>
+     * @deprecated Use {@link net.sf.ehcache.Statistics}
      */
     public final int getMissCountNotFound() {
-        return missCountNotFound;
+        return (int) missCountNotFound;
     }
 
     /**
+     *
      * Number of times a requested element was found but was expired.
+     * <p/>
+     * The internal representation of this statistic has been changed to a long
+     * to cater for real world situations when an int is not sufficient to hold it.
+     * If the statistic is larger than <code>Integer.MAX_VALUE</code> a nonsensical value
+     * will be returned. Use {@link net.sf.ehcache.Statistics} which contains this statistic.
+     * <p/>
+     * @deprecated Use {@link net.sf.ehcache.Statistics}
      */
     public final int getMissCountExpired() {
-        return missCountExpired;
+        return (int) missCountExpired;
     }
 
     /**

@@ -63,15 +63,15 @@ public class Statistics implements Serializable {
 
     private final int statisticsAccuracy;
 
-    private final int cacheHits;
+    private final long cacheHits;
 
-    private final int onDiskHits;
+    private final long onDiskHits;
 
-    private final int inMemoryHits;
+    private final long inMemoryHits;
 
-    private final int misses;
+    private final long misses;
 
-    private final int size;
+    private final long size;
 
 
     /**
@@ -85,8 +85,8 @@ public class Statistics implements Serializable {
      * @param misses
      * @param size
      */
-    public Statistics(Ehcache cache, int statisticsAccuracy, int cacheHits, int onDiskHits, int inMemoryHits,
-                      int misses, int size) {
+    public Statistics(Ehcache cache, int statisticsAccuracy, long cacheHits, long onDiskHits, long inMemoryHits,
+                      long misses, long size) {
         this.statisticsAccuracy = statisticsAccuracy;
         this.cacheHits = cacheHits;
         this.onDiskHits = onDiskHits;
@@ -118,7 +118,7 @@ public class Statistics implements Serializable {
      *
      * @return the number of times a requested item was found in the cache
      */
-    public int getCacheHits() {
+    public long getCacheHits() {
         return cacheHits;
     }
 
@@ -127,7 +127,7 @@ public class Statistics implements Serializable {
      *
      * @return the number of times a requested item was found in memory
      */
-    public int getInMemoryHits() {
+    public long getInMemoryHits() {
         return inMemoryHits;
     }
 
@@ -136,14 +136,14 @@ public class Statistics implements Serializable {
      *
      * @return the number of times a requested item was found on Disk, or 0 if there is no disk storage configured.
      */
-    public int getOnDiskHits() {
+    public long getOnDiskHits() {
         return onDiskHits;
     }
 
     /**
      * @return the number of times a requested element was not found in the cache
      */
-    public int getCacheMisses() {
+    public long getCacheMisses() {
         return misses;
 
     }
@@ -181,7 +181,7 @@ public class Statistics implements Serializable {
      *
      * @return the number of elements in the ehcache, with a varying degree of accuracy, depending on accuracy setting.
      */
-    public int getObjectCount() {
+    public long getObjectCount() {
         return size;
 
     }
@@ -191,7 +191,7 @@ public class Statistics implements Serializable {
      *
      * @return one of {@link #STATISTICS_ACCURACY_BEST_EFFORT}, {@link #STATISTICS_ACCURACY_GUARANTEED}, {@link #STATISTICS_ACCURACY_NONE}
      */
-    public int getStatisticsAccuracy() {
+    public long getStatisticsAccuracy() {
         return statisticsAccuracy;
     }
 

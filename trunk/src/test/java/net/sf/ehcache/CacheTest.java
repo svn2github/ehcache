@@ -49,7 +49,7 @@ public class CacheTest extends AbstractCacheTest {
      * Checks we cannot use a cache after shutdown
      */
     public void testUseCacheAfterManagerShutdown() throws CacheException {
-        Ehcache cache = manager.getCache("sampleCache1");
+        Cache cache = manager.getCache("sampleCache1");
         manager.shutdown();
         Element element = new Element("key", "value");
         try {
@@ -84,7 +84,7 @@ public class CacheTest extends AbstractCacheTest {
      */
     public void testUseCacheOutsideManager() throws CacheException {
         //Not put into manager.
-        Ehcache cache = new Cache("testCache", 1, true, false, 5, 2);
+        Cache cache = new Cache("testCache", 1, true, false, 5, 2);
         Element element = new Element("key", "value");
         try {
             cache.getSize();

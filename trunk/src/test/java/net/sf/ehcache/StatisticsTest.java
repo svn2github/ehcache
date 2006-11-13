@@ -181,4 +181,20 @@ public class StatisticsTest extends AbstractCacheTest {
     }
 
 
+    /**
+     * What happens when a long larger than int max value is cast to an int?
+     *
+     * The answer is that negative numbers are reported. The cast value is incorrect.
+     */
+    public void testIntOverflow() {
+
+        long value = Integer.MAX_VALUE;
+        value += Integer.MAX_VALUE;
+        value += Integer.MAX_VALUE;
+        LOG.info("" + value);
+        int valueAsInt = (int) value;
+        LOG.info("" + valueAsInt);
+
+    }
+
 }

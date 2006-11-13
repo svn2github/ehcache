@@ -373,40 +373,9 @@ public interface Ehcache extends Cloneable {
     Status getStatus();
 
     /**
-     * The number of times a requested item was found in the cache.
-     *
-     * @return the number of times a requested item was found in the cache
-     */
-    int getHitCount();
-
-    /**
-     * Number of times a requested item was found in the Memory Store.
-     *
-     * @return Number of times a requested item was found in the Memory Store.
-     */
-    int getMemoryStoreHitCount();
-
-    /**
-     * Number of times a requested item was found in the Disk Store.
-     */
-    int getDiskStoreHitCount();
-
-    /**
-     * Number of times a requested element was not found in the cache. This
-     * may be because it expired, in which case this will also be recorded in {@link #getMissCountExpired},
-     * or because it was simply not there.
-     */
-    int getMissCountNotFound();
-
-    /**
-     * Number of times a requested element was found but was expired.
-     */
-    int getMissCountExpired();
-
-    /**
      * Gets the cache name.
      */
-    String getName();
+    String getName();             
 
     /**
      * Sets the cache name which will name.
