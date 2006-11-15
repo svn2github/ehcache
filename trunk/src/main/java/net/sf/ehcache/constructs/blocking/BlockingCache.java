@@ -188,7 +188,8 @@ public class BlockingCache implements Ehcache {
     }
     
     /**
-     * @see {@link net.sf.ehcache.Cache#getMaxElementsOnDisk()}
+     * @return the maximum number of elements on Disk, or 0 if unlimited
+     * @see net.sf.ehcache.Cache#getMaxElementsOnDisk
      */
     public int getMaxElementsOnDisk() {
         return cache.getMaxElementsOnDisk();

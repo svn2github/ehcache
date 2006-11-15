@@ -80,7 +80,7 @@ public final class DiskStoreConfiguration {
      * @param token
      * @param replacement
      * @param source
-     * @return
+     * @return the String with replacement text applied
      */
     public static String replaceToken(final String token, final String replacement, final String source) {
         int foundIndex = source.indexOf(token);
@@ -112,14 +112,14 @@ public final class DiskStoreConfiguration {
     }
 
     /**
-     * @return
+     * @return the thread pool's configuration
      */
     public ThreadPoolConfiguration getSpoolingThreadPoolConfiguration() {
         return spoolThreadPoolConfiguration;
     }
 
     /**
-     * @return
+     * @return the thread pool's configuration
      */
     public ThreadPoolConfiguration getExpiryThreadPoolConfiguration() {
         return expiryThreadPoolConfiguration;

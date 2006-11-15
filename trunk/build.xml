@@ -18,11 +18,13 @@
     <property name="name" value="${maven.project.name}"/>
     <property name="version" value="${maven.project.version}"/>
 
-    <artifact:dependencies filesetId="dependency.fileset" pathId="dependency.classpath" verbose="false">
+    <artifact:dependencies filesetId="dependency.fileset" pathId="dependency.classpath"
+                           verbose="false">
         <pom refid="maven.project"/>
     </artifact:dependencies>
 
-    <artifact:dependencies filesetId="compile.dependency.fileset" pathId="compile.dependency.classpath" useScope="compile">
+    <artifact:dependencies filesetId="compile.dependency.fileset"
+                           pathId="compile.dependency.classpath" useScope="compile">
         <pom refid="maven.project"/>
     </artifact:dependencies>
 
@@ -55,6 +57,8 @@
     <!-- compiles -->
     <target name="compile" depends="compile-src, rmic, compile-tests"
             description="Performs a compile"/>
+
+    
 
     <!-- Runs checkstyle over the java source -->
     <target name="checkstyle-check">
@@ -142,7 +146,8 @@
         <fail message="One or more tests failed. See the log file for details."/>
     </target>
 
-    <target name="test-web" depends="test-tomcat, test-orion" description="Integration tests for web containers"/>
+    <target name="test-web" depends="test-tomcat, test-orion"
+            description="Integration tests for web containers"/>
 
     <target name="test-orion"
             depends="compile, prepare-web-tests, start-orion, run-web-tests-no-check-orion, stop-orion"
@@ -302,7 +307,7 @@
     </target>
 
     <!-- Builds a release tar-ball -->
-    <target name="dist-tgz" depends="dist-jar, dist-javadoc, dist-src, remote-debugger-jar">
+    <target name="dist-tgz" depends="dist-jar, dist-javadoc, dist-sources, remote-debugger-jar">
         <tar destfile="${dist.dir}/${name}-${version}.tgz"
              compression="gzip">
             <tarfileset dir="${dist.dir}" prefix="${name}-${version}">
@@ -327,8 +332,6 @@
     <target name="maven-bundle" depends="dist-tgz">
         <copy file="${dist.dir}/${name}-${version}-${javadoc.zip}"
               tofile="${dist.dir}/${name}-${version}-javadoc.jar"/>
-        <copy file="${dist.dir}/${name}-${version}-src.zip"
-              tofile="${dist.dir}/${name}-${version}-sources.jar"/>
         <copy file="${basedir}/pom.xml" tofile="${dist.dir}/${name}-${version}.pom"/>
         <copy file="${basedir}/LICENSE.txt" tofile="${dist.dir}/${name}-${version}.license"/>
         <jar destfile="${dist.dir}/${name}-${version}-bundle.jar">
@@ -343,6 +346,22 @@
         </jar>
     </target>
 
+    <target name="upload-to-repository" depends="dist-tgz" description="upload to maven repository">
+        <!--<artifact:install-provider artifactId="wagon-webdav" version="1.0-beta-1"/>-->
+        <artifact:install-provider artifactId="wagon-ssh" version="1.0-beta-1"/>
+        <!--install locally-->
+        <!--<artifact:install file="${dist.dir}/${name}-${version}.jar">-->
+            <!--<pom refid="maven.project"/>-->
+        <!--</artifact:install>-->
+        <!--upload to repository, either release or snapshot depdening on version numbering -->
+        <artifact:deploy file="${dist.dir}/${name}-${version}.jar">
+            <pom refid="maven.project"/>
+        </artifact:deploy>
+        <artifact:deploy file="${dist.dir}/${name}-${version}-sources.jar">
+            <pom refid="maven.project"/>
+        </artifact:deploy>
+    </target>
+
     <!-- Create zip file for javadocs -->
     <target name="dist-javadoc" depends="javadoc"
             description="Creates a zip file for javadocs">
@@ -351,11 +370,11 @@
         </zip>
     </target>
 
-    <!-- Create a zip file for src -->
-    <target name="dist-src" description="Creates a zip file for src">
-        <zip destfile="${dist.dir}/${name}-${version}-src.zip">
+    <!-- Create a jar file for src -->
+    <target name="dist-sources" description="Creates a zip file for src">
+        <jar destfile="${dist.dir}/${name}-${version}-sources.jar">
             <zipfileset dir="${src.java.dir}"/>
-        </zip>
+        </jar>
     </target>
 
     <property name="classpath" refid="project.class.path"/>
@@ -406,7 +425,7 @@
     </target>
 
     <target name="clover.html" depends="with.clover">
-        
+
         <clover-report>
             <current outfile="${build.log.dir}/clover">
                 <format type="html" filter="log,iflog,catch"/>
@@ -417,7 +436,8 @@
 
     <target name="clover-check-coverage" depends="with.clover" if="singleRMIRegistryPerVM">
         <echo message="Java: ${ant.java.version}"/>
-        <clover-check target="${clover.test.coverage.percentage}" filter="log,iflog,catch" haltOnFailure="true"/>
+        <clover-check target="${clover.test.coverage.percentage}" filter="log,iflog,catch"
+                      haltOnFailure="true"/>
     </target>
 
     <!-- JDKs below 1.5 do not support multiple RMI Registries per VM and we must therefore exclude some tests -->
@@ -459,7 +479,7 @@
 
     <artifact:dependencies filesetId="clover.fileset">
         <dependency groupId="com.cenqua.clover" artifactId="clover"
-              version="1.3.13"/>
+                    version="1.3.13"/>
     </artifact:dependencies>
 
     <target name="deploy-default-web-app-orion">
@@ -716,7 +736,7 @@
     </target>
 
 
-    <target name="create_book">
+    <target name="create_book" depends="prepare-book-resources">
         <create_artifact extension="pdf"/>
     </target>
 

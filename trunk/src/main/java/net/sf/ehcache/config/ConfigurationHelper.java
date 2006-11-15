@@ -233,7 +233,7 @@ public final class ConfigurationHelper {
 
     /**
      * Creates the disk store spooling thread pool using either the configuration, or if it is absent
-     * the defaults which are threads equal to the number caches which overflow and a priority of {@link Thread.NORM_PRIORITY}.
+     * the defaults which are threads equal to the number caches which overflow and a priority of <code>Thread.NORM_PRIORITY</code>.
      */
     public ThreadPool createDiskStoreSpoolingThreadPool() {
         DiskStoreConfiguration diskStoreConfiguration = configuration.getDiskStoreConfiguration();
@@ -260,7 +260,7 @@ public final class ConfigurationHelper {
      * Creates the disk store expiry thread pool using either the configuration, or if it is absent
      * the defaults which are threads equal to the number caches which overflow divided by 5, which
      * means that there is one expiry thread for each 5 caches,
-     * and a priority of {@link Thread.MIN_PRIORITY}
+     * and a priority of <code>Thread.MIN_PRIORITY</code>
      */
     public ThreadPool createDiskStoreExpiryThreadPool() {
         DiskStoreConfiguration diskStoreConfiguration = configuration.getDiskStoreConfiguration();
