@@ -90,7 +90,7 @@ public class ThreadPoolConfiguration {
 
     /**
      * Set the number of threads in the pool
-     * @param threads the number of threads to allocate in the pol
+     * @param threads the number of threads to allocate in the pool
      * @throws IllegalArgumentException if threads < 1
      */
     public void setThreads(Integer threads) throws IllegalArgumentException {

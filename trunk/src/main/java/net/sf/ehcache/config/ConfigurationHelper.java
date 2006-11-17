@@ -239,7 +239,7 @@ public final class ConfigurationHelper {
         DiskStoreConfiguration diskStoreConfiguration = configuration.getDiskStoreConfiguration();
         if (diskStoreConfiguration == null || diskStoreConfiguration.getSpoolingThreadPoolConfiguration() == null) {
             ThreadPoolConfiguration threadPoolConfiguration = new ThreadPoolConfiguration();
-            threadPoolConfiguration.setThreads(numberOfCachesThatOverflowToDisk());
+            threadPoolConfiguration.setThreads(calculateDefaultSpoolingThreads());
             threadPoolConfiguration.setPriority(new Integer(Thread.NORM_PRIORITY));
             threadPoolConfiguration.setName("DiskStore Spool Thread Pool");
             return new ThreadPool(threadPoolConfiguration);
@@ -247,7 +247,7 @@ public final class ConfigurationHelper {
             ThreadPoolConfiguration threadPoolConfiguration = diskStoreConfiguration.getSpoolingThreadPoolConfiguration();
             threadPoolConfiguration.setName("DiskStore Spool Thread Pool");
             if (threadPoolConfiguration.getThreads() == null) {
-                threadPoolConfiguration.setThreads(numberOfCachesThatOverflowToDisk());
+                threadPoolConfiguration.setThreads(calculateDefaultSpoolingThreads());
             }
             if (threadPoolConfiguration.getPriority() == null) {
                 threadPoolConfiguration.setPriority(new Integer(Thread.NORM_PRIORITY));
@@ -284,8 +284,27 @@ public final class ConfigurationHelper {
     }
 
     private Integer calculateDefaultExpiryThreads() {
-        return new Integer((int)Math.ceil(numberOfCachesThatOverflowToDisk().intValue()
-                    * REASONABLE_EXPIRY_THREAD_RATIO));
+        Integer defaultOverflowThreads = null;
+        int candidate = (int)Math.ceil(numberOfCachesThatOverflowToDisk().intValue()
+                * REASONABLE_EXPIRY_THREAD_RATIO);
+        if (candidate == 0) {
+            defaultOverflowThreads = new Integer(1);
+        } else {
+            defaultOverflowThreads = new Integer(candidate);
+        }
+        return defaultOverflowThreads;
+    }
+
+
+    private Integer calculateDefaultSpoolingThreads() {
+        Integer defaultOverflowThreads = null;
+       int candidate = (int)Math.ceil(numberOfCachesThatOverflowToDisk().intValue());
+        if (candidate == 0) {
+            defaultOverflowThreads = new Integer(1);
+        } else {
+            defaultOverflowThreads = new Integer(candidate);
+        }
+        return defaultOverflowThreads;
     }
 
     /**
@@ -318,6 +337,7 @@ public final class ConfigurationHelper {
         }
         return caches;
     }
+
 
     /**
      * Calculates the number of caches in the configuration that overflow to disk

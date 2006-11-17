@@ -603,8 +603,6 @@ public class CacheManagerTest extends TestCase {
     }
 
 
-
-
     /**
      * Shows that a decorated cache can be substituted
      */
@@ -644,4 +642,26 @@ public class CacheManagerTest extends TestCase {
         assertEquals("value", element2.getObjectValue());
     }
 
+
+    /**
+     * Test added after bug with multiple cachemanagers and programmatic cache creation
+     */
+    public void testMultipleCacheManagers() {
+        CacheManager[] managers = new CacheManager[2];
+        managers[0] = new CacheManager(makeCacheManagerConfig());
+        managers[1] = new CacheManager(makeCacheManagerConfig());
+
+
+    }
+
+    private static Configuration makeCacheManagerConfig() {
+        Configuration config = new Configuration();
+        CacheConfiguration defaults = new CacheConfiguration();
+        defaults.setEternal(true);
+        defaults.setDiskPersistent(false);
+        defaults.setOverflowToDisk(false);
+        defaults.setMaxElementsInMemory(10);
+        config.setDefaultCacheConfiguration(defaults);
+        return config;
+    }
 }
