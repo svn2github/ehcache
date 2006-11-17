@@ -403,13 +403,11 @@
     </target>
 
 
-    <!-- Broken in TeamCity -->
-    <!--<taskdef resource="com/cenqua/ant/antlib.xml" classpath="tools/cenquatasks.jar"/>-->
-    <!--<extendclasspath path="tools/clover-1.3.13.jar"/>-->
+    <!-- Not Broken in TeamCity 1.1 -->
+    <taskdef resource="com/cenqua/ant/antlib.xml" classpath="tools/cenquatasks.jar"/>
+    <extendclasspath path="tools/clover-1.3.13.jar"/>
 
-    <taskdef resource="clovertasks">
-        <classpath refid="project.class.path"/>
-    </taskdef>
+    <taskdef resource="clovertasks" classpath="tools/clover-1.3.13.jar"/>
     <typedef resource="clovertypes">
         <classpath refid="project.class.path"/>
     </typedef>
@@ -417,7 +415,7 @@
     <target name="with.clover">
         <mkdir dir="${build.log.dir}"/>
         <clover-setup initString="${build.log.dir}/mycoverage.db"
-                      flushpolicy="directed" source="1.4">
+                      flushpolicy="directed">
             <fileset dir="${src.java.dir}/" includes="**/*.java"/>
             <statementContext name="log" regexp="^LOG\..*"/>
             <statementContext name="iflog" regexp="^if \(LOG\.is.*"/>
