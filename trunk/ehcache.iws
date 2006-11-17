@@ -17,11 +17,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ConfigurationHelper.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ConfigurationHelper.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/documentation/hibernate.apt" afterPath="$PROJECT_DIR$/src/site/apt/documentation/hibernate.apt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/changes/changes.xml" afterPath="$PROJECT_DIR$/src/changes/changes.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ThreadPoolConfiguration.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ThreadPoolConfiguration.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/config/ehcache.xsd" afterPath="$PROJECT_DIR$/src/main/config/ehcache.xsd" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -155,16 +155,52 @@
       <file leaf-file-name="CacheManager.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="266" column="0" selection-start="10752" selection-end="10752" vertical-scroll-proportion="0.39379084">
+            <state line="274" column="36" selection-start="11114" selection-end="11114" vertical-scroll-proportion="0.3251634">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ConfigurationFactoryTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java">
+      <file leaf-file-name="ehcache.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/config/ehcache.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="195" column="34" selection-start="8196" selection-end="8196" vertical-scroll-proportion="0.20751634">
+            <state line="37" column="35" selection-start="1580" selection-end="1580" vertical-scroll-proportion="0.7254902">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ehcache.xsd" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/config/ehcache.xsd">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="83" column="73" selection-start="4449" selection-end="4449" vertical-scroll-proportion="1.5885167">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="changes.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="54" column="41" selection-start="3100" selection-end="3100" vertical-scroll-proportion="0.54901963">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="hibernate.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/hibernate.apt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="84" column="45" selection-start="3713" selection-end="3713" vertical-scroll-proportion="0.20751634">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="HibernateAPIUsageTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/hibernate/HibernateAPIUsageTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="52" column="8" selection-start="1588" selection-end="1588" vertical-scroll-proportion="0.20751634">
               <folding />
             </state>
           </provider>
@@ -173,7 +209,7 @@
       <file leaf-file-name="CacheManagerTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="651" column="0" selection-start="25466" selection-end="25466" vertical-scroll-proportion="0.5686275">
+            <state line="648" column="23" selection-start="25322" selection-end="25322" vertical-scroll-proportion="0.50980395">
               <folding />
             </state>
           </provider>
@@ -188,7 +224,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ConfigurationHelper.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="ConfigurationHelper.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ConfigurationHelper.java">
           <provider selected="true" editor-type-id="text-editor">
             <state line="287" column="36" selection-start="12879" selection-end="12879" vertical-scroll-proportion="0.33333334">
@@ -201,24 +237,6 @@
         <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/classes.jar!/java/lang/Math.class">
           <provider selected="true" editor-type-id="text-editor">
             <state line="41" column="24" selection-start="1469" selection-end="1469" vertical-scroll-proportion="0.3141946">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ThreadPoolManager.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/ThreadPoolManager.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="52" column="0" selection-start="1700" selection-end="1700" vertical-scroll-proportion="0.18137255">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="junit101112166.properties" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/junit101112166.properties">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -342,12 +360,29 @@
     </navigator>
   </component>
   <component name="PropertiesComponent">
+    <property name="GoToClass.includeJavaFiles" value="false" />
     <property name="MemberChooser.copyJavadoc" value="false" />
+    <property name="cvs_file_history_treeWidth0" value="290" />
+    <property name="cvs_file_history_flatWidth2" value="254" />
+    <property name="MemberChooser.sorted" value="false" />
+    <property name="cvs_file_history_treeOrder1" value="1" />
+    <property name="cvs_file_history_flatOrder0" value="0" />
+    <property name="cvs_file_history_treeOrder3" value="3" />
+    <property name="GoToFile.includeJavaFiles" value="false" />
+    <property name="cvs_file_history_flatOrder1" value="1" />
+    <property name="cvs_file_history_flatWidth1" value="222" />
+    <property name="cvs_file_history_treeWidth1" value="290" />
+    <property name="cvs_file_history_treeWidth3" value="290" />
+    <property name="cvs_file_history_treeOrder2" value="2" />
     <property name="GoToClass.includeLibraries" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
-    <property name="MemberChooser.sorted" value="false" />
-    <property name="GoToFile.includeJavaFiles" value="false" />
+    <property name="cvs_file_history_flatOrder2" value="2" />
+    <property name="cvs_file_history_flatWidth0" value="44" />
+    <property name="cvs_file_history_flatWidth3" value="640" />
+    <property name="cvs_file_history_treeWidth2" value="290" />
+    <property name="cvs_file_history_flatOrder3" value="3" />
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
+    <property name="cvs_file_history_treeOrder0" value="0" />
   </component>
   <component name="ReadonlyStatusHandler">
     <option name="SHOW_DIALOG" value="true" />
@@ -446,15 +481,15 @@
       </UpdatedFiles>
     </UpdateInfo>
   </component>
-  <component name="RunManager" selected="JUnit.ConfigurationFactoryTest.testLoadConfigurationFromFile">
-    <tempConfiguration default="false" name="ConfigurationFactoryTest.testLoadConfigurationFromFile" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
-      <pattern value="net.sf.ehcache.config.*" />
+  <component name="RunManager" selected="JUnit.CacheManagerTest.testMultipleCacheManagers">
+    <tempConfiguration default="false" name="CacheManagerTest.testMultipleCacheManagers" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+      <pattern value="net.sf.ehcache.*" />
       <module name="ehcache" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="net.sf.ehcache.config" />
-      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.config.ConfigurationFactoryTest" />
-      <option name="METHOD_NAME" value="testLoadConfigurationFromFile" />
+      <option name="PACKAGE_NAME" value="net.sf.ehcache" />
+      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.CacheManagerTest" />
+      <option name="METHOD_NAME" value="testMultipleCacheManagers" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" />
       <option name="PARAMETERS" />
@@ -605,7 +640,7 @@
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="-1" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="7" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24939074" order="0" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="1" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3293944" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3293944" order="-1" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="6" />
@@ -776,23 +811,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="651" column="0" selection-start="25466" selection-end="25466" vertical-scroll-proportion="0.5686275">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="266" column="0" selection-start="10752" selection-end="10752" vertical-scroll-proportion="0.39379084">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/config/ConfigurationFactoryTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="195" column="34" selection-start="8196" selection-end="8196" vertical-scroll-proportion="0.20751634">
+        <state line="195" column="34" selection-start="8196" selection-end="8196" vertical-scroll-proportion="0.33246073">
           <folding />
         </state>
       </provider>
@@ -814,6 +835,55 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ConfigurationHelper.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="287" column="36" selection-start="12879" selection-end="12879" vertical-scroll-proportion="0.33333334">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="648" column="23" selection-start="25322" selection-end="25322" vertical-scroll-proportion="0.50980395">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="274" column="36" selection-start="11114" selection-end="11114" vertical-scroll-proportion="0.3251634">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/config/ehcache.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="37" column="35" selection-start="1580" selection-end="1580" vertical-scroll-proportion="0.7254902">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/config/ehcache.xsd">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="83" column="73" selection-start="4449" selection-end="4449" vertical-scroll-proportion="1.5885167">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/hibernate.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="84" column="45" selection-start="3713" selection-end="3713" vertical-scroll-proportion="0.20751634">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/hibernate/HibernateAPIUsageTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="52" column="8" selection-start="1588" selection-end="1588" vertical-scroll-proportion="0.20751634">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="54" column="41" selection-start="3100" selection-end="3100" vertical-scroll-proportion="0.54901963">
           <folding />
         </state>
       </provider>

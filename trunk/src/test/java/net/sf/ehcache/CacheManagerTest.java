@@ -651,6 +651,9 @@ public class CacheManagerTest extends TestCase {
         managers[0] = new CacheManager(makeCacheManagerConfig());
         managers[1] = new CacheManager(makeCacheManagerConfig());
 
+        managers[0].shutdown();
+        managers[1].shutdown();
+
 
     }
 
