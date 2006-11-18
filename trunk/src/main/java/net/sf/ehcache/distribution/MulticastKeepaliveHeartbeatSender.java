@@ -31,14 +31,18 @@ import java.util.Iterator;
 /**
  * Sends heartbeats to a multicast group containing a compressed list of URLs.
  * <p/>
- * Using the multicast IP protocol, the TTL value indicates the scope or range in which a packet may be forwarded. By convention:
- * <p/>
- * 0 is restricted to the same host
- * 1 is restricted to the same subnet
- * 32 is restricted to the same site
- * 64 is restricted to the same region
- * 128 is restricted to the same continent
- * 255 is unrestricted
+ * You can control how far the multicast packets propagate by setting the badly misnamed "TTL".
+ * Using the multicast IP protocol, the TTL value indicates the scope or range in which a packet may be forwarded.
+ * By convention:
+ * <ul>
+ * <li>0 is restricted to the same host
+ * <li>1 is restricted to the same subnet
+ * <li>32 is restricted to the same site
+ * <li>64 is restricted to the same region
+ * <li>128 is restricted to the same continent
+ * <li>255 is unrestricted
+ * </ul>
+ * You can also control how often the heartbeat sends by setting the interval.
  *
  * @author Greg Luck
  * @version $Id$
@@ -56,25 +60,26 @@ public final class MulticastKeepaliveHeartbeatSender {
 
     private final InetAddress groupMulticastAddress;
     private final Integer groupMulticastPort;
-    private final Integer packetTimeToLive;
+    private final Integer timeToLive;
     private MulticastServerThread serverThread;
     private boolean stopped;
     private final CacheManager cacheManager;
 
     /**
-     * Constructor
+     * Constructor.
      *
+     * @param cacheManager the bound CacheManager. Each CacheManager has a maximum of one sender
      * @param multicastAddress
      * @param multicastPort
-     * @param packetTimeToLive
+     * @param timeToLive See class description for the meaning of this parameter.
      */
     public MulticastKeepaliveHeartbeatSender(CacheManager cacheManager,
                                              InetAddress multicastAddress, Integer multicastPort,
-                                             Integer packetTimeToLive) {
+                                             Integer timeToLive) {
         this.cacheManager = cacheManager;
         this.groupMulticastAddress = multicastAddress;
         this.groupMulticastPort = multicastPort;
-        this.packetTimeToLive = packetTimeToLive;
+        this.timeToLive = timeToLive;
 
     }
 
@@ -117,7 +122,7 @@ public final class MulticastKeepaliveHeartbeatSender {
             while (!stopped) {
                 try {
                     socket = new MulticastSocket(groupMulticastPort.intValue());
-                    socket.setTimeToLive(packetTimeToLive.intValue());
+                    socket.setTimeToLive(timeToLive.intValue());
                     socket.joinGroup(groupMulticastAddress);
 
                     while (!stopped) {
@@ -264,5 +269,13 @@ public final class MulticastKeepaliveHeartbeatSender {
      */
     public static long getHeartBeatInterval() {
         return heartBeatInterval;
+    }
+
+    /**
+     *
+     * @return the TTL
+     */
+    public Integer getTimeToLive() {
+        return timeToLive;
     }
 }

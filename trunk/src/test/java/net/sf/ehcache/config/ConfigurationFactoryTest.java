@@ -92,6 +92,13 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //Check disk store  <diskStore path="java.io.tmpdir"/>
         assertEquals(System.getProperty("java.io.tmpdir") , configurationHelper.getDiskStorePath());
 
+        //Check CacheManagerPeerProvider
+        CacheManagerPeerProvider peerProvider = configurationHelper.createCachePeerProvider();
+
+        //Check TTL
+        assertTrue(peerProvider instanceof MulticastRMICacheManagerPeerProvider);
+        assertEquals(new Integer(1), ((MulticastRMICacheManagerPeerProvider) peerProvider).getHeartBeatSender().getTimeToLive());
+
         ThreadPool threadPool = configurationHelper.createDiskStoreSpoolingThreadPool();
         assertEquals(new Integer(4), threadPool.getConfiguration().getThreads());
         assertEquals(new Integer(5), threadPool.getConfiguration().getPriority());
@@ -184,6 +191,13 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
         //Check disk store  <diskStore path="/tmp"/>
         assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
+
+        //Check CacheManagerPeerProvider
+        CacheManagerPeerProvider peerProvider = configurationHelper.createCachePeerProvider();
+
+        //Check TTL
+        assertTrue(peerProvider instanceof MulticastRMICacheManagerPeerProvider);
+        assertEquals(new Integer(1), ((MulticastRMICacheManagerPeerProvider) peerProvider).getHeartBeatSender().getTimeToLive());
 
         ThreadPool threadPool = configurationHelper.createDiskStoreSpoolingThreadPool();
         //should equal the number of caches
@@ -375,7 +389,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
         //Check CacheManagerPeerProvider
         CacheManagerPeerProvider peerProvider = configurationHelper.createCachePeerProvider();
+
+        //Check TTL
         assertTrue(peerProvider instanceof MulticastRMICacheManagerPeerProvider);
+        assertEquals(new Integer(64), ((MulticastRMICacheManagerPeerProvider) peerProvider).getHeartBeatSender().getTimeToLive());
 
         //check CacheManagerPeerListener
         CacheManagerPeerListener peerListener = configurationHelper.createCachePeerListener();
@@ -393,7 +410,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
                     instanceof CountingCacheEventListener);
         }
 
-        BootstrapCacheLoader bootstrapCacheLoader = ((Cache) sampleCache1).getBootstrapCacheLoader();
+        BootstrapCacheLoader bootstrapCacheLoader = sampleCache1.getBootstrapCacheLoader();
         assertNotNull(bootstrapCacheLoader);
         assertEquals(RMIBootstrapCacheLoader.class, bootstrapCacheLoader.getClass());
         assertEquals(true, bootstrapCacheLoader.isAsynchronous());

@@ -96,6 +96,9 @@ The Design of distributed ehcache
      (specified in RFC1112) and a specific port. Each peer notifies
      the other group members of its membership.
 
+     The configurable multicast time to live can be used to restrict discovery
+     to the host, subnet, site or larger scope.
+
      This approach is simple and allows for dynamic entry and exit
      from the cluster.
 

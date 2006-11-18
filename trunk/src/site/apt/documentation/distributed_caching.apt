@@ -73,6 +73,7 @@ Distributed Caching
     peerDiscovery=automatic
     multicastGroupAddress=multicast address | multicast host name
     multicastGroupPort=port
+    timeToLive=0-255 (See below in common problems before setting this)
 
 *** Example
 
@@ -87,7 +88,7 @@ Distributed Caching
  class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
 
  properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1,
- multicastGroupPort=4446"/>
+ multicastGroupPort=4446, timeToLive=32"/>
 --------------------------------------------
 
 ** {Manual Peer Discovery}
@@ -259,4 +260,22 @@ socketTimeoutMillis=2000"/>
 
   An easy way to tell if your mutlicast is getting through is to use the ehcache remote debugger
   and watch for the heartbeat packets to arrive.
+
+** Multicast Not Progagating Far Enough or Propagating Too Far
+
+  You can control how far the multicast packets propagate by setting the badly misnamed time to live.
+  Using the multicast IP protocol, the timeToLive value indicates the scope or range in which a packet may be forwarded.
+  By convention:
+
+--------
+  0 is restricted to the same host
+  1 is restricted to the same subnet
+  32 is restricted to the same site
+  64 is restricted to the same region
+  128 is restricted to the same continent
+  255 is unrestricted
+--------
+
+  The default value in Java is 1, which propagates to the same subnet. Change the timeToLive property to restrict
+  or expand propagation.
 

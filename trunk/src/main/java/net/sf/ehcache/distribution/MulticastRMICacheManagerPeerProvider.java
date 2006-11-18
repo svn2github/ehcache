@@ -74,11 +74,11 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
      * @param groupMulticastPort    1025 to 65536 e.g. 4446
      */
     public MulticastRMICacheManagerPeerProvider(CacheManager cacheManager, InetAddress groupMulticastAddress,
-                                                Integer groupMulticastPort, Integer packetTimeToLive) {
+                                                Integer groupMulticastPort, Integer timeToLive) {
         super(cacheManager);
         heartBeatReceiver = new MulticastKeepaliveHeartbeatReceiver(this, groupMulticastAddress, groupMulticastPort);
         heartBeatSender =
-                new MulticastKeepaliveHeartbeatSender(cacheManager, groupMulticastAddress, groupMulticastPort, packetTimeToLive);
+                new MulticastKeepaliveHeartbeatSender(cacheManager, groupMulticastAddress, groupMulticastPort, timeToLive);
     }
 
     /**
@@ -243,4 +243,19 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
 
     }
 
+    /**
+     *
+     * @return the MulticastKeepaliveHeartbeatReceiver
+     */
+    public MulticastKeepaliveHeartbeatReceiver getHeartBeatReceiver() {
+        return heartBeatReceiver;
+    }
+
+    /**
+     *
+     * @return the MulticastKeepaliveHeartbeatSender
+     */
+    public MulticastKeepaliveHeartbeatSender getHeartBeatSender() {
+        return heartBeatSender;
+    }
 }

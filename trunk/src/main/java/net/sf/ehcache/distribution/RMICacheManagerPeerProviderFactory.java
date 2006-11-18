@@ -43,7 +43,7 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
     private static final String RMI_URLS = "rmiUrls";
     private static final String MULTICAST_GROUP_PORT = "multicastGroupPort";
     private static final String MULTICAST_GROUP_ADDRESS = "multicastGroupAddress";
-    private static final String MULTICAST_PACKET_TTL = "multicastPacketTimeToLive";
+    private static final String MULTICAST_PACKET_TTL = "timeToLive";
     private static final int MAXIMUM_TTL = 255;
 
 
@@ -101,17 +101,16 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
         String multicastPortString = PropertyUtil.extractAndLogProperty(MULTICAST_GROUP_PORT, properties);
         Integer multicastPort = new Integer(multicastPortString);
         String packetTimeToLiveString = PropertyUtil.extractAndLogProperty(MULTICAST_PACKET_TTL, properties);
-        Integer packetTimeToLive;
+        Integer timeToLive;
         if (packetTimeToLiveString == null) {
-            packetTimeToLive = new Integer(1);
-            LOG.debug("No TTL set. Setting it to the default of 1 which means packets are limited to the same subnet.");
+            timeToLive = new Integer(1);
+            LOG.debug("No TTL set. Setting it to the default of 1, which means packets are limited to the same subnet.");
         } else {
-            packetTimeToLive = new Integer(packetTimeToLiveString);
-            if (packetTimeToLive.intValue() < 0 || packetTimeToLive.intValue() > MAXIMUM_TTL) {
+            timeToLive = new Integer(packetTimeToLiveString);
+            if (timeToLive.intValue() < 0 || timeToLive.intValue() > MAXIMUM_TTL) {
                 throw new CacheException("The TTL must be set to a value between 0 and 255");
             }
         }
-        //todo further testing
-        return new MulticastRMICacheManagerPeerProvider(cacheManager, groupAddress, multicastPort, packetTimeToLive);
+        return new MulticastRMICacheManagerPeerProvider(cacheManager, groupAddress, multicastPort, timeToLive);
     }
 }

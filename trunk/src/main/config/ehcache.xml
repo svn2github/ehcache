@@ -82,13 +82,21 @@
     <cacheManagerPeerProviderFactory
                         class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
                         properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1,
-                                    multicastGroupPort=4446"/>
+                                    multicastGroupPort=4446, timeToLive=32"/>
 
     Valid properties are:
     * peerDiscovery (mandatory) - specify "automatic"
     * multicastGroupAddress (mandatory) - specify a valid multicast group address
     * multicastGroupPort (mandatory) - specify a dedicated port for the multicast heartbeat
       traffic
+    * timeToLive - specify a value between 0 and 255 which determines how far the packets will propagate.
+      By convention, the restrictions are:
+      0   - the same host
+      1   - the same subnet
+      32  - the same site
+      64  - the same region
+      128 - the same continent
+      255 - unrestricted
 
     Configuring Manual Discovery:
     Manual discovery is configured as per the following example:
@@ -136,7 +144,7 @@
             class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
             properties="peerDiscovery=automatic,
                         multicastGroupAddress=230.0.0.1,
-                        multicastGroupPort=4446"/>
+                        multicastGroupPort=4446, timeToLive=1"/>
 
 
     <!--
