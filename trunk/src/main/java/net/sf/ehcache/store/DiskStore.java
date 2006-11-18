@@ -792,6 +792,8 @@ public class DiskStore implements Store {
                     threadPoolManager.executeExpiry(new ExpiryTask());
                 } catch (InterruptedException e) {
                     LOG.warn("Failed submit expiry task for processing", e);
+                } catch (IllegalStateException e) {
+                    LOG.warn(e.getMessage(), e);
                 }
             } else {
                 this.cancel();
@@ -813,6 +815,8 @@ public class DiskStore implements Store {
                     threadPoolManager.executeSpool(new SpoolTask());
                 } catch (InterruptedException e) {
                     LOG.warn("Failed to submit expiry task for processing", e);
+                } catch (IllegalStateException e) {
+                    LOG.warn(e.getMessage(), e);
                 }
             } else {
                 this.cancel();

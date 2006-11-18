@@ -643,11 +643,6 @@ public class CacheManager {
         synchronized (CacheManager.class) {
             ALL_CACHE_MANAGERS.remove(this);
 
-            // dispose of thread pools so we do not cause concurrency issues
-            if (threadPoolManager != null) {
-                threadPoolManager.dispose();
-            }
-            
             Collection cacheSet = caches.values();
             for (Iterator iterator = cacheSet.iterator(); iterator.hasNext();) {
                 Ehcache cache = (Ehcache) iterator.next();
@@ -656,6 +651,11 @@ public class CacheManager {
                 }
             }
             status = Status.STATUS_SHUTDOWN;
+
+            // dispose of thread pools so we do not cause concurrency issues
+            if (threadPoolManager != null) {
+                threadPoolManager.dispose();
+            }
 
             //only delete singleton if the singleton is shutting down.
             if (this == singleton) {

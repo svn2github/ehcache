@@ -82,8 +82,7 @@ public final class ThreadPoolManager {
      */
     protected final void checkAlive() {
         if (!alive) {
-            throw new IllegalStateException(
-                    "ThreadPoolManager no longer active");
+            throw new IllegalStateException("ThreadPoolManager no longer active");
         }
     }
 

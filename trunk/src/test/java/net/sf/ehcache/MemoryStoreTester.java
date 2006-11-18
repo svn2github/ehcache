@@ -355,7 +355,6 @@ public class MemoryStoreTester extends AbstractCacheTest {
      * Benchmark to test speed.
      * Original implementation 12seconds
      * This implementation 9 seconds
-     * todo this seems to show a problem with illegal state exception in ThreadPoolManager
      */
     public void benchmarkPutGetSuryaTest(long allowedTime) throws Exception {
         Random random = new Random();
