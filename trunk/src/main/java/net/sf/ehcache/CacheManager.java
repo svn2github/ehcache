@@ -24,6 +24,7 @@ import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.store.DiskStore;
+import net.sf.ehcache.store.ThreadPoolManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

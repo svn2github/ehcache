@@ -101,7 +101,7 @@ public final class EvictionPolicy {
     }
 
     /**
-     * Create an instance of the map which implements the semantics of the policy 
+     * A factory method to create an instance of the map which implements the semantics of the policy 
      */
     public PolicyMap createPolicyMap() {
         if (this == LRU) {

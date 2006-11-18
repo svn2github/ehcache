@@ -15,14 +15,13 @@
  */
 package net.sf.ehcache.util;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
+import net.sf.ehcache.config.ThreadPoolConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import net.sf.ehcache.config.ThreadPoolConfiguration;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * A simple thread pool implementation 
@@ -149,4 +148,4 @@ public class ThreadPool {
             }
         }
     }
-}
+    }

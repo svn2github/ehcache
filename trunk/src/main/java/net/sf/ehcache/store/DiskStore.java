@@ -42,7 +42,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.ThreadPoolManager;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.policies.LfuMap;
 import net.sf.ehcache.store.policies.PolicyMap;
@@ -81,8 +80,12 @@ public class DiskStore implements Store {
     private boolean active;
     private RandomAccessFile randomAccessFile;
 
-    private PolicyMap policyMap;
-    private Map diskElements;
+    /**
+     * This cannot use synchronizedMap because it needs to be  subtype of Map. Make sure all
+     * access is synchronized.
+     */
+    private PolicyMap diskElements;
+
     private List freeSpace = Collections.synchronizedList(new ArrayList());
     private Map spool = Collections.synchronizedMap(new HashMap());
     private Object spoolLock = new Object();
@@ -262,7 +265,11 @@ public class DiskStore implements Store {
      *         If it returns true, there is an Element there. An attempt to get it may return null if the Element has expired.
      */
     public final boolean containsKey(Object key) {
-        return diskElements.containsKey(key) || spool.containsKey(key);
+        boolean diskElementsContainsKey = false;
+        synchronized (diskElements) {
+            diskElementsContainsKey = diskElements.containsKey(key);
+        }
+        return diskElementsContainsKey || spool.containsKey(key);
     }
 
     private Element loadElementFromDiskElement(DiskElement diskElement) throws IOException, ClassNotFoundException {
@@ -455,7 +462,7 @@ public class DiskStore implements Store {
 
             // Ditch all the elements, and truncate the file
             spool = Collections.synchronizedMap(new HashMap());
-            diskElements = this.createDiskElementMap();
+            diskElements = createDiskElementMap();
             freeSpace = Collections.synchronizedList(new ArrayList());
             totalSize = 0;
             randomAccessFile.setLength(0);
@@ -490,7 +497,9 @@ public class DiskStore implements Store {
 
             //Clear in-memory data structures
             spool.clear();
-            diskElements.clear();
+            synchronized (diskElements) {
+                diskElements.clear();
+            }
             freeSpace.clear();
             if (randomAccessFile != null) {
                 randomAccessFile.close();
@@ -544,7 +553,8 @@ public class DiskStore implements Store {
         }
 
         Map copyOfSpool = swapSpoolReference();
-
+        
+        //does not guarantee insertion order
         Iterator valuesIterator = copyOfSpool.values().iterator();
         while (valuesIterator.hasNext()) {
             writeOrReplaceEntry(valuesIterator.next());
@@ -571,8 +581,6 @@ public class DiskStore implements Store {
         }
         final Serializable key = (Serializable) element.getObjectKey();
         removeOldEntryIfAny(key);
-
-        // Remove the oldest entry from the disk store
         findAndEvictDiskElement(element);
         writeElement(element, key);
     }
@@ -726,7 +734,7 @@ public class DiskStore implements Store {
             try {
                 fin = new FileInputStream(indexFile);
                 objectInputStream = new ObjectInputStream(fin);
-                diskElements = (Map) objectInputStream.readObject();
+                diskElements = (PolicyMap) objectInputStream.readObject();
                 freeSpace = (List) objectInputStream.readObject();
                 success = true;
             } catch (StreamCorruptedException e) {
@@ -859,7 +867,6 @@ public class DiskStore implements Store {
                 }
                 if (active) {
                     expireElements();
-
                     threadPoolManager.scheduleTask(new ExpiryTimer(), expiryThreadInterval * DiskStore.MS_PER_SECOND);
                 }
             } catch (Throwable t) {
@@ -1119,13 +1126,13 @@ public class DiskStore implements Store {
     private void findAndEvictDiskElement(Element elementJustAdded) {
         // ensure the expiry thread waits until we are done with this particular operation
         synchronized (diskElements) {
-            if (this.maxElementsOnDisk > 0 && this.diskElements.size() >= this.maxElementsOnDisk) {
+            if (maxElementsOnDisk > 0 && diskElements.size() >= maxElementsOnDisk) {
                 
                 // Find a DiskElement which is 
-                Map.Entry entry = policyMap.findElementToEvict(elementJustAdded);
+                Map.Entry entry = ((PolicyMap)diskElements).findElementToEvict(elementJustAdded);
                 
                 // actually do the remove :)
-                this.policyMap.remove(entry.getKey());
+                diskElements.remove(entry.getKey());
 
                 // remove the DiskElement and fire any listeners if required
                 evictDiskElement(entry.getKey(), (DiskElement) entry.getValue());
@@ -1153,33 +1160,32 @@ public class DiskStore implements Store {
      * 
      *  maxElementsOnDisk is configured to a value above 0, a DiskElementMap will be returned otherwise a regular map will be returned.
      */
-    private Map createDiskElementMap() {
+    private PolicyMap createDiskElementMap() {
         if (this.maxElementsOnDisk > 0) {
-
+            PolicyMap policyMap;
             // The LFU map is a special case where we want to avoid reading elements from Disk at all costs.
             // Therefore we must use DiskElements instead of elements therefore require a slightly different approach
             if (cache.getEvictionPolicy().equals(EvictionPolicy.LFU)) {
-                this.policyMap = new LfuDiskMap();
+                policyMap = new LfuDiskMap();
             } else {
-                this.policyMap = cache.getEvictionPolicy().createPolicyMap();
+                policyMap = cache.getEvictionPolicy().createPolicyMap();
             }
             // Create a map which implements the policy
-            return Collections.synchronizedMap(this.policyMap);
+            return policyMap;
         } else {
-            
-            // if there is no max, there is no need for a special map
-            return Collections.synchronizedMap(new HashMap());
+            // if there is no max, there is no need for a special map. Use LfuDiskMap which is backed by a HashMap.
+            return new LfuDiskMap();
         }
     }
 
     private void configureDiskElementStoreAndEvictionPolicy() {
-        this.maxElementsOnDisk = this.cache.getMaxElementsOnDisk();
-        this.diskElements = createDiskElementMap();
+        maxElementsOnDisk = cache.getMaxElementsOnDisk();
+        diskElements = createDiskElementMap();
     }
     
     /**
      * todo test
-     * A Lfu Policy for disk elements. 
+     * A Lfu Policy for disk elements.
      * 
      * @since 1.2.4
      * @author Jody Brownell

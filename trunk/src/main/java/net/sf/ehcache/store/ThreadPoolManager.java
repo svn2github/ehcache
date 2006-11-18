@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package net.sf.ehcache;
+package net.sf.ehcache.store;
 
 import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.util.ThreadPool;
@@ -47,7 +47,7 @@ public final class ThreadPoolManager {
      *
      * @param helper  the configuration for the cache instance
      */
-    ThreadPoolManager(ConfigurationHelper helper) {
+    public ThreadPoolManager(ConfigurationHelper helper) {
         timer = new Timer(true);
         diskStoreSpoolingThreadPool = helper.createDiskStoreSpoolingThreadPool();
         diskStoreExpiryThreadPool = helper.createDiskStoreExpiryThreadPool();
@@ -115,6 +115,9 @@ public final class ThreadPoolManager {
         }
         diskStoreSpoolingThreadPool.submit(task);
     }
+
+
+
 
 
 }
