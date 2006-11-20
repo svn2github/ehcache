@@ -49,12 +49,16 @@ import java.util.Date;
 public class DiskStoreTest extends AbstractCacheTest {
     private static final Log LOG = LogFactory.getLog(DiskStoreTest.class.getName());
     private static final int ELEMENT_ON_DISK_SIZE = 1340;
+    private CacheManager manager2;
 
     /**
      * teardown
      */
     protected void tearDown() throws Exception {
         super.tearDown();
+        if (manager2 != null) {
+            manager2.shutdown();
+        }
         deleteFile("persistentLongExpiryIntervalCache");
         deleteFile("fileTest");
         deleteFile("testPersistent");
@@ -87,8 +91,9 @@ public class DiskStoreTest extends AbstractCacheTest {
 
     private DiskStore createAutoPersistentDiskStore(String cacheName) {
         Cache cache = new Cache(cacheName, 10000, true, true, 5, 1, true, 600);
-        cache.setDiskStorePath(System.getProperty("java.io.tmpdir") + File.separator + DiskStore.generateUniqueDirectory());
-        manager.addCache(cache);
+        manager2 = new CacheManager();
+        //manager.setDiskStorePath(System.getProperty("java.io.tmpdir") + File.separator + DiskStore.generateUniqueDirectory());
+        manager2.addCache(cache);
         DiskStore diskStore = cache.getDiskStore();
         return diskStore;
     }
@@ -184,9 +189,8 @@ public class DiskStoreTest extends AbstractCacheTest {
 
     /**
      * Any disk store with an auto generated random directory should not be able to be loaded.
-     * todo Hmmm
      */
-    public void xTtestCannotLoadPersistentStoreWithAutoDir() throws IOException, InterruptedException {
+    public void testCannotLoadPersistentStoreWithAutoDir() throws IOException, InterruptedException {
         //initialise
         String cacheName = "testPersistent";
         DiskStore diskStore = createAutoPersistentDiskStore(cacheName);
@@ -202,12 +206,11 @@ public class DiskStoreTest extends AbstractCacheTest {
         }
         assertEquals(100, diskStore.getSize());
         String diskPath = diskStore.getDataFilePath();
-        manager.removeCache(cacheName);
+        manager2.removeCache(cacheName);
         Thread.sleep(1000);
 
         Cache cache = new Cache(cacheName, 10000, true, true, 5, 1, true, 600);
-        cache.setDiskStorePath(diskPath);
-        manager.addCache(cache);
+        manager2.addCache(cache);
 
         File dataFile = new File(diskStore.getDataFilePath() + File.separator + diskStore.getDataFileName());
         assertTrue("File exists", dataFile.exists());
@@ -1021,10 +1024,13 @@ public class DiskStoreTest extends AbstractCacheTest {
 
     /**
      * Perf test used by Venkat Subramani
+     * Get took 237
+     * <p/>
+     * <p/>
      * Get took 119s with Cache svn21
      * Get took 42s
      * The change was to stop adding DiskStore retrievals into the MemoryStore. This made sense when the only
-     * policy was LRU. In the new version an Elment, once evicted from the MemoryStore, stays in the DiskStore
+     * policy was LRU. In the new version an Element, once evicted from the MemoryStore, stays in the DiskStore
      * until expiry or removal. This avoids a lot of serialization overhead.
      * <p/>
      * Slow tests
@@ -1047,30 +1053,28 @@ public class DiskStoreTest extends AbstractCacheTest {
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
             }
-            //wait to write entries
-            Thread.sleep(2000);
+            long elapsed = stopWatch.getElapsedTime();
+            long putTime = ((elapsed / 1000) - 10);
+            LOG.info("Put Elapsed time: " + putTime);
+            assertTrue(putTime < 8);
+
+            //wait for Disk Store to finish spooling
+            Thread.sleep(4000);
+            Random random = new Random();
+            StopWatch getStopWatch = new StopWatch();
+            long getStart = stopWatch.getElapsedTime();
+
+            for (int k = 0; k < 1000000; k++) {
+                Integer key = new Integer(random.nextInt(500000));
+                cache.get(key);
+            }
+
+            long getElapsedTime = getStopWatch.getElapsedTime();
+            int time = (int) ((getElapsedTime - getStart) / 1000);
+            LOG.info("Get Elapsed time: " + time);
+
+            assertTrue(time < 200);
         }
-        long elapsed = stopWatch.getElapsedTime();
-        long putTime = ((elapsed / 1000) - 10);
-        LOG.info("Put Elapsed time: " + putTime);
-        assertTrue(putTime < 8);
-
-        //wait for Disk Store to finish spooling
-        Thread.sleep(2000);
-        Random random = new Random();
-        StopWatch getStopWatch = new StopWatch();
-        long getStart = stopWatch.getElapsedTime();
-
-        for (int k = 0; k < 1000000; k++) {
-            Integer key = new Integer(random.nextInt(500000));
-            cache.get(key);
-        }
-
-        long getElapsedTime = getStopWatch.getElapsedTime();
-        int time = (int) ((getElapsedTime - getStart) / 1000);
-        LOG.info("Get Elapsed time: " + time);
-
-        assertTrue(time < 200);
     }
 
     /**

@@ -24,7 +24,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * A manger for Thread Pools. Each CacheManager has one ThreadPoolManager.
+ * A manager for Thread Pools. Each CacheManager has one ThreadPoolManager.
  *
  * @author Jody Brownell
  * @author Greg Luck
@@ -116,8 +116,11 @@ public final class ThreadPoolManager {
         diskStoreSpoolingThreadPool.submit(task);
     }
 
-
-
-
-
+    /**
+     * Check whether the ThreadPoolManager is alive
+     * @return true if alive, otherwise false
+     */
+    public boolean isAlive() {
+        return alive;
+    }
 }

@@ -800,6 +800,7 @@ public class Cache implements Ehcache {
         Element element;
         //todo check does not hurt performance
         element = diskStore.remove(serializableKey);
+        //element = diskStore.get(serializableKey);
         if (element != null) {
             if (isExpired(element)) {
                 if (LOG.isDebugEnabled()) {

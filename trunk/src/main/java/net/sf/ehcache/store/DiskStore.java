@@ -54,6 +54,11 @@ import org.apache.commons.logging.LogFactory;
  * <p/>
  * As of ehcache-1.2 (v1.41 of this file) DiskStore has been changed to a mix of finer grained locking using synchronized collections
  * and synchronizing on the whole instance, as was the case with earlier versions.
+ * <p/>
+ * The DiskStore, as of ehcache-1.2.4, supports policy based eviction. When elements are retrieved from the DiskStore
+ * they are removed from there to the MemoryStore. With this limitation, the FIFO policy works fully. LRU does not really
+ * work because a get will remove the element from the map. The LFU policy stores uses the Element hit count, and works
+ * fully. Accordingly LFU is the preferred and default policy for DiskStores with maximum sizes set. 
  *
  * @author Adam Murdoch
  * @author Greg Luck
@@ -840,15 +845,16 @@ public class DiskStore implements Store {
      * @since 1.2.4
      */
     private abstract class BaseTask implements Runnable {
+
         public abstract void run();
 
         // enforce uniqueness
         public int hashCode() {
-            return cache.getName().hashCode();
+            return name.hashCode();
         }
 
         public boolean equals(Object obj) {
-            return cache.getName().equals(obj);
+            return name.equals(obj);
         }
     }
 
@@ -893,7 +899,9 @@ public class DiskStore implements Store {
                     flushSpool();
 
                     // schedule the next flush
-                    threadPoolManager.scheduleTask(new SpoolTimer(), DiskStore.SPOOL_THREAD_INTERVAL);
+                    //if (threadPoolManager.isAlive()) {
+                        threadPoolManager.scheduleTask(new SpoolTimer(), DiskStore.SPOOL_THREAD_INTERVAL);
+                    //}
 
                 } catch (Throwable e) {
                     LOG.error(name + "Cache: Could not flush elements to disk due to " + e.getMessage() + ". Continuing...", e);

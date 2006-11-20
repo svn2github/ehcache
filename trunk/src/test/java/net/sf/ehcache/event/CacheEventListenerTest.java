@@ -262,7 +262,7 @@ public class CacheEventListenerTest extends TestCase {
         cache.put(element);
 
         //expire
-        Thread.sleep(1000);
+        Thread.sleep(1001);
 
         //force expiry
         Element expiredElement = cache.get(key);

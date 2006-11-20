@@ -29,6 +29,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -421,7 +422,12 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      * @throws Exception
      */
     protected void unbind(RMICachePeer rmiCachePeer) throws Exception {
-        Naming.unbind(rmiCachePeer.getUrl());
+        String url = rmiCachePeer.getUrl();
+        try {
+            Naming.unbind(url);
+        } catch (NotBoundException e) {
+            LOG.warn(url + " not bound therefore not unbinding.");
+        }
         // Try to gracefully unexport before forcing it.
         boolean unexported = UnicastRemoteObject.unexportObject(rmiCachePeer, false);
         for (int count = 1; (count < NAMING_UNBIND_MAX_RETRIES) && !unexported; count++) {
