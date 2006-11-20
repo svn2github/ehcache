@@ -16,11 +16,10 @@
 
 package net.sf.ehcache;
 
-import net.sf.ehcache.distribution.JVMUtil;
+import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.EvictionPolicy;
 import net.sf.ehcache.store.Primitive;
-import net.sf.ehcache.config.DiskStoreConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -32,9 +31,9 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import java.util.Date;
 
 /**
  * Test cases for the DiskStore.
@@ -986,7 +985,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * <p/>
      * Slow tests
      */
-    public void xtestMaximumCacheEntriesIn64MBWithOverflowToDisk() throws Exception {
+    public void testMaximumCacheEntriesIn64MBWithOverflowToDisk() throws Exception {
 
         Cache cache = new Cache("test", 1000, EvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);
         manager.addCache(cache);
@@ -1014,11 +1013,7 @@ public class DiskStoreTest extends AbstractCacheTest {
             fail();
         } catch (OutOfMemoryError e) {
             LOG.info("Failed at " + index);
-            if (JVMUtil.isJDK15()) {
-                assertTrue(index.intValue() > 5000000);
-            } else {
-                assertTrue(index.intValue() > 4099000);
-            }
+            assertTrue(index.intValue() >= 4099000);
         }
     }
 
