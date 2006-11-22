@@ -24,7 +24,9 @@ import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.ThreadPoolConfiguration;
 import net.sf.ehcache.distribution.RMIBootstrapCacheLoader;
+import net.sf.ehcache.distribution.RMIAsynchronousCacheReplicator;
 import net.sf.ehcache.event.RegisteredEventListeners;
+import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
 import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
@@ -37,6 +39,8 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Date;
+import java.util.Set;
+import java.util.Iterator;
 
 /**
  * Tests for CacheManager
@@ -429,6 +433,25 @@ public class CacheManagerTest extends TestCase {
 
         //NPE tests
         singletonManager.addCache("");
+    }
+
+     /**
+     * Tests we can add caches from the default where the default has listeners.
+     */
+    public void testAddCacheFromDefaultWithListeners() throws CacheException {
+        singletonManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + File.separator + "distribution"
+                + File.separator + "ehcache-distributed1.xml");
+        singletonManager.addCache("test");
+        Ehcache cache = singletonManager.getCache("test");
+        assertNotNull(cache);
+        assertEquals("test", cache.getName());
+
+        Set listeners = cache.getCacheEventNotificationService().getCacheEventListeners();
+        assertEquals(1, listeners.size());
+         for (Iterator iterator = listeners.iterator(); iterator.hasNext();) {
+             CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
+             assertTrue(cacheEventListener instanceof RMIAsynchronousCacheReplicator);
+         }
     }
 
     /**
