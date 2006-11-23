@@ -14,6 +14,7 @@
  *  limitations under the License.
  */
 
+
 package net.sf.ehcache.store;
 
 import java.io.ByteArrayInputStream;
@@ -36,15 +37,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimerTask;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.store.policies.LfuMap;
-import net.sf.ehcache.store.policies.PolicyMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,11 +52,6 @@ import org.apache.commons.logging.LogFactory;
  * <p/>
  * As of ehcache-1.2 (v1.41 of this file) DiskStore has been changed to a mix of finer grained locking using synchronized collections
  * and synchronizing on the whole instance, as was the case with earlier versions.
- * <p/>
- * The DiskStore, as of ehcache-1.2.4, supports policy based eviction. When elements are retrieved from the DiskStore
- * they are removed from there to the MemoryStore. With this limitation, the FIFO policy works fully. LRU does not really
- * work because a get will remove the element from the map. The LFU policy stores uses the Element hit count, and works
- * fully. Accordingly LFU is the preferred and default policy for DiskStores with maximum sizes set. 
  *
  * @author Adam Murdoch
  * @author Greg Luck
@@ -85,18 +78,15 @@ public class DiskStore implements Store {
     private boolean active;
     private RandomAccessFile randomAccessFile;
 
-    /**
-     * This cannot use synchronizedMap because it needs to be  subtype of Map. Make sure all
-     * access is synchronized.
-     */
-    private PolicyMap diskElements;
-
+    private Map diskElements = Collections.synchronizedMap(new HashMap());
     private List freeSpace = Collections.synchronizedList(new ArrayList());
     private Map spool = Collections.synchronizedMap(new HashMap());
     private Object spoolLock = new Object();
 
+    private Thread spoolThread;
+    private Thread expiryThread;
+
     private Ehcache cache;
-    private final ThreadPoolManager threadPoolManager;
 
     /**
      * If persistent, the disk file will be kept
@@ -123,38 +113,32 @@ public class DiskStore implements Store {
     private long totalSize;
 
     /**
-     * The maximum elements to allow in the disk file.
-     */
-    private long maxElementsOnDisk;
-
-    /**
      * Creates a disk store.
      *
      * @param cache    the {@link net.sf.ehcache.Cache} that the store is part of
      * @param diskPath the directory in which to create data and index files
      */
     public DiskStore(Ehcache cache, String diskPath) {
-        this.status = Status.STATUS_UNINITIALISED;
+        status = Status.STATUS_UNINITIALISED;
         this.cache = cache;
-        this.name = cache.getName();
+        name = cache.getName();
         this.diskPath = diskPath;
         this.expiryThreadInterval = cache.getDiskExpiryThreadIntervalSeconds();
         this.persistent = cache.isDiskPersistent();
-
-        configureDiskElementStoreAndEvictionPolicy();
-
-        threadPoolManager = cache.getCacheManager().getThreadPoolManager();
 
         try {
             initialiseFiles();
 
             active = true;
 
-            threadPoolManager.scheduleTask(new SpoolTimer(), SPOOL_THREAD_INTERVAL);
+            // Always start up the spool thread
+            spoolThread = new SpoolThread();
+            spoolThread.start();
 
             // Start up the expiry thread if not eternal
             if (!cache.isEternal()) {
-                threadPoolManager.scheduleTask(new ExpiryTimer(), expiryThreadInterval * MS_PER_SECOND);
+                expiryThread = new ExpiryThread();
+                expiryThread.start();
             }
 
             status = Status.STATUS_ALIVE;
@@ -164,6 +148,7 @@ public class DiskStore implements Store {
             LOG.error(name + "Cache: Could not create disk store. Initial cause was " + e.getMessage(), e);
         }
     }
+
 
     private void initialiseFiles() throws Exception {
         // Make sure the cache directory exists
@@ -256,8 +241,8 @@ public class DiskStore implements Store {
             element.updateAccessStatistics();
             return element;
         } catch (Exception exception) {
-            LOG.error(name + "Cache: Could not read disk store element for key " + key + ". Error was " + exception.getMessage(),
-                exception);
+            LOG.error(name + "Cache: Could not read disk store element for key " + key + ". Error was "
+                    + exception.getMessage(), exception);
         }
         return null;
     }
@@ -270,11 +255,7 @@ public class DiskStore implements Store {
      *         If it returns true, there is an Element there. An attempt to get it may return null if the Element has expired.
      */
     public final boolean containsKey(Object key) {
-        boolean diskElementsContainsKey = false;
-        synchronized (diskElements) {
-            diskElementsContainsKey = diskElements.containsKey(key);
-        }
-        return diskElementsContainsKey || spool.containsKey(key);
+        return diskElements.containsKey(key) || spool.containsKey(key);
     }
 
     private Element loadElementFromDiskElement(DiskElement diskElement) throws IOException, ClassNotFoundException {
@@ -336,11 +317,12 @@ public class DiskStore implements Store {
             //element.updateAccessStatistics(); Don't update statistics
             return element;
         } catch (Exception e) {
-            LOG.error(name + "Cache: Could not read disk store element for key " + key + ". Initial cause was " + e.getMessage(),
-                e);
+            LOG.error(name + "Cache: Could not read disk store element for key " + key
+                    + ". Initial cause was " + e.getMessage(), e);
         }
         return null;
     }
+
 
     /**
      * Gets an Array of the keys for all elements in the disk store.
@@ -404,12 +386,21 @@ public class DiskStore implements Store {
             checkActive();
 
             // Spool the element
-            synchronized (spoolLock) {
-                spool.put(element.getObjectKey(), element);
+            if (spoolThread.isAlive()) {
+                synchronized (spoolLock) {
+                    spool.put(element.getObjectKey(), element);
+                }
+            } else {
+                LOG.error(name + "Cache: Elements cannot be written to disk store because the" +
+                        " spool thread has died.");
+                synchronized (spoolLock) {
+                    spool.clear();
+                }
             }
+
         } catch (Exception e) {
-            LOG.error(name + "Cache: Could not write disk store element for " + element.getObjectKey() + ". Initial cause was "
-                    + e.getMessage(), e);
+            LOG.error(name + "Cache: Could not write disk store element for " + element.getObjectKey()
+                    + ". Initial cause was " + e.getMessage(), e);
         }
     }
 
@@ -437,8 +428,8 @@ public class DiskStore implements Store {
                 }
             }
         } catch (Exception exception) {
-            String message = name + "Cache: Could not remove disk store entry for " + key + ". Error was "
-                    + exception.getMessage();
+            String message = name + "Cache: Could not remove disk store entry for " + key
+                    + ". Error was " + exception.getMessage();
             LOG.error(message, exception);
             throw new CacheException(message);
         }
@@ -451,7 +442,6 @@ public class DiskStore implements Store {
     private void freeBlock(final DiskElement element) {
         totalSize -= element.payloadSize;
         element.payloadSize = 0;
-        element.hitcount = 0;
         freeSpace.add(element);
     }
 
@@ -467,7 +457,7 @@ public class DiskStore implements Store {
 
             // Ditch all the elements, and truncate the file
             spool = Collections.synchronizedMap(new HashMap());
-            diskElements = createDiskElementMap();
+            diskElements = Collections.synchronizedMap(new HashMap());
             freeSpace = Collections.synchronizedList(new ArrayList());
             totalSize = 0;
             randomAccessFile.setLength(0);
@@ -498,13 +488,22 @@ public class DiskStore implements Store {
 
         // Close the cache
         try {
+            //stop the expiry thread
+            if (expiryThread != null) {
+                expiryThread.interrupt();
+            }
+
+
             flush();
+
+            //stop the spool thread
+            if (spoolThread != null) {
+                spoolThread.interrupt();
+            }
 
             //Clear in-memory data structures
             spool.clear();
-            synchronized (diskElements) {
-                diskElements.clear();
-            }
+            diskElements.clear();
             freeSpace.clear();
             if (randomAccessFile != null) {
                 randomAccessFile.close();
@@ -547,6 +546,41 @@ public class DiskStore implements Store {
     }
 
     /**
+     * RemoteDebugger method for the spool thread.
+     * <p/>
+     * Note that the spool thread locks the cache for the entire time it is writing elements to the disk.
+     */
+    private void spoolThreadMain() {
+        while (true) {
+            // Wait for elements in the spool
+            while (active && spool != null && spool.size() == 0) {
+                try {
+                    Thread.sleep(SPOOL_THREAD_INTERVAL);
+                } catch (InterruptedException e) {
+                    LOG.debug("Spool Thread interrupted.");
+                    return;
+                }
+            }
+
+
+            if (!active) {
+                return;
+            }
+
+
+            if (spool != null && spool.size() != 0) {
+                // Write elements to disk
+                try {
+                    flushSpool();
+                } catch (Throwable e) {
+                    LOG.error(name + "Cache: Could not flush elements to disk due to " + e.getMessage() + ". Continuing...", e);
+                }
+            }
+        }
+    }
+
+
+    /**
      * Flushes all spooled elements to disk.
      * Note that the cache is locked for the entire time that the spool is being flushed.
      *
@@ -558,11 +592,11 @@ public class DiskStore implements Store {
         }
 
         Map copyOfSpool = swapSpoolReference();
-        
+
         //does not guarantee insertion order
         Iterator valuesIterator = copyOfSpool.values().iterator();
         while (valuesIterator.hasNext()) {
-            writeOrReplaceEntry(valuesIterator.next());
+            writeOrReplaceEntry((Element) valuesIterator.next());
             valuesIterator.remove();
         }
     }
@@ -579,6 +613,7 @@ public class DiskStore implements Store {
         return copyOfSpool;
     }
 
+
     private void writeOrReplaceEntry(Object object) throws IOException {
         Element element = (Element) object;
         if (element == null) {
@@ -586,9 +621,9 @@ public class DiskStore implements Store {
         }
         final Serializable key = (Serializable) element.getObjectKey();
         removeOldEntryIfAny(key);
-        findAndEvictDiskElement(element);
         writeElement(element, key);
     }
+
 
     private void writeElement(Element element, Serializable key) throws IOException {
         try {
@@ -615,14 +650,13 @@ public class DiskStore implements Store {
             diskElement.expiryTime = expirationTime;
             totalSize += bufferLength;
             synchronized (diskElements) {
-                // Copy the hit count to support Lfu eviction policy - kludge? probably
-                diskElement.hitcount = element.getHitCount();
                 diskElements.put(key, diskElement);
             }
 
         } catch (Exception e) {
             // Catch any exception that occurs during serialization
-            LOG.error(name + "Cache: Failed to write element to disk '" + key + "'. Initial cause was " + e.getMessage(), e);
+            LOG.error(name + "Cache: Failed to write element to disk '" + key
+                    + "'. Initial cause was " + e.getMessage(), e);
         }
 
     }
@@ -632,6 +666,7 @@ public class DiskStore implements Store {
      * required to complete.
      */
     class MemoryEfficientByteArrayOutputStream extends ByteArrayOutputStream {
+
 
         /**
          * Creates a new byte array output stream, with a buffer capacity of
@@ -660,6 +695,7 @@ public class DiskStore implements Store {
         objstr.close();
         return outstr;
     }
+
 
     private int estimatedPayloadSize() {
         int size = 0;
@@ -739,7 +775,7 @@ public class DiskStore implements Store {
             try {
                 fin = new FileInputStream(indexFile);
                 objectInputStream = new ObjectInputStream(fin);
-                diskElements = (PolicyMap) objectInputStream.readObject();
+                diskElements = (Map) objectInputStream.readObject();
                 freeSpace = (List) objectInputStream.readObject();
                 success = true;
             } catch (StreamCorruptedException e) {
@@ -773,6 +809,7 @@ public class DiskStore implements Store {
 
         //Return the success flag
         return success;
+
     }
 
     private void createNewIndexFile() throws IOException {
@@ -792,120 +829,25 @@ public class DiskStore implements Store {
     }
 
     /**
-     * TimerTask to trigger the scheduling of the expiry task
-     *
-     * @author Jody Brownell
-     * @version $Id$
-     * @since 1.2.4
+     * The main method for the expiry thread.
+     * <p/>
+     * Will run while the cache is active. After the cache shuts down
+     * it will take the expiryThreadInterval to wake up and complete.
      */
-    private class ExpiryTimer extends TimerTask {
-        public void run() {
-            if (active) {
-                try {
-                    threadPoolManager.executeExpiry(new ExpiryTask());
-                } catch (InterruptedException e) {
-                    LOG.warn("Failed submit expiry task for processing", e);
-                } catch (IllegalStateException e) {
-                    LOG.warn(e.getMessage(), e);
-                }
-            } else {
-                this.cancel();
-            }
-        }
-    }
-
-    /**
-     * TimerTask to trigger the scheduling of the spooling task
-     *                                                                    
-     * @author Jody Brownell
-     * @version $Id$
-     * @since 1.2.4
-     */
-    private class SpoolTimer extends TimerTask {
-        public void run() {
-            if (active) {
-                try {
-                    threadPoolManager.executeSpool(new SpoolTask());
-                } catch (InterruptedException e) {
-                    LOG.warn("Failed to submit expiry task for processing", e);
-                } catch (IllegalStateException e) {
-                    LOG.warn(e.getMessage(), e);
-                }
-            } else {
-                this.cancel();
-            }
-        }
-    }
-
-    /**
-     * TimerTask to trigger the removal of expired elements from disk
-     *
-     * @author Jody Brownell
-     * @version $Id$
-     * @since 1.2.4
-     */
-    private abstract class BaseTask implements Runnable {
-
-        public abstract void run();
-
-        // enforce uniqueness
-        public int hashCode() {
-            return name.hashCode();
-        }
-
-        public boolean equals(Object obj) {
-            return name.equals(obj);
-        }
-    }
-
-    /**
-     * Task executed in the thread pool to remove expired elements.
-     *
-     * @author Jody Brownell
-     * @version $Id$
-     * @since 1.2.4
-     */
-    private class ExpiryTask extends BaseTask {
-        public void run() {
+    private void expiryThreadMain() {
+        long expiryThreadIntervalMillis = expiryThreadInterval * MS_PER_SECOND;
+        while (active) {
             try {
+                Thread.sleep(expiryThreadIntervalMillis);
+                expireElements();
+            } catch (InterruptedException e) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Expiring elements...");
+                    LOG.debug(name + "Cache: Expiry thread interrupted on Disk Store.");
                 }
-                if (active) {
-                    expireElements();
-                    threadPoolManager.scheduleTask(new ExpiryTimer(), expiryThreadInterval * DiskStore.MS_PER_SECOND);
-                }
+                return;
             } catch (Throwable t) {
-                LOG.warn(name + "Cache: Expiry thread throwable caught. Message was: " + t.getMessage() + ". Continuing...", t);
-            }
-        }
-    }
-
-    /**
-     * Task executed in the thread pool to flush the spool.
-     *
-     * @author Jody Brownell
-     * @version $Id$
-     * @since 1.2.4
-     */
-    private class SpoolTask extends BaseTask {
-        public void run() {
-            if (active) {
-                try {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Flushing spool with element count: " + spool.size());
-                    }
-
-                    flushSpool();
-
-                    // schedule the next flush
-                    //if (threadPoolManager.isAlive()) {
-                        threadPoolManager.scheduleTask(new SpoolTimer(), DiskStore.SPOOL_THREAD_INTERVAL);
-                    //}
-
-                } catch (Throwable e) {
-                    LOG.error(name + "Cache: Could not flush elements to disk due to " + e.getMessage() + ". Continuing...", e);
-                }
+                LOG.warn(name + "Cache: Expiry thread throwable caught. Message was: "
+                        + t.getMessage() + ". Continuing...", t);
             }
         }
     }
@@ -958,8 +900,8 @@ public class DiskStore implements Store {
                             element = loadElementFromDiskElement(diskElement);
                             notifyExpiryListeners(element);
                         } catch (Exception exception) {
-                            LOG.error(name + "Cache: Could not remove disk store entry for " + entry.getKey() + ". Error was "
-                                    + exception.getMessage(), exception);
+                            LOG.error(name + "Cache: Could not remove disk store entry for " + entry.getKey()
+                                    + ". Error was " + exception.getMessage(), exception);
                         }
                     }
                     freeBlock(diskElement);
@@ -976,16 +918,6 @@ public class DiskStore implements Store {
      */
     private void notifyExpiryListeners(Element element) {
         cache.getCacheEventNotificationService().notifyElementExpiry(element, false);
-    }
-
-    /**
-     * It is enough that an element is evicted here. Notify even though there might be another
-     * element with the same key elsewhere in the stores.
-     *
-     * @param element
-     */
-    private void notifyEvictionListeners(Element element) {
-        cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
     }
 
     /**
@@ -1009,12 +941,10 @@ public class DiskStore implements Store {
         StringBuffer sb = new StringBuffer();
         sb.append("[ dataFile = ").append(dataFile.getAbsolutePath())
                 .append(", active=").append(active)
-                .append(", totalSize=")
-                .append(totalSize)
-                .append(", status=")
-                .append(status)
-                .append(", expiryThreadInterval = ")
-                .append(expiryThreadInterval).append(" ]");
+                .append(", totalSize=").append(totalSize)
+                .append(", status=").append(status)
+                .append(", expiryThreadInterval = ").append(expiryThreadInterval)
+                .append(" ]");
         return sb.toString();
     }
 
@@ -1027,6 +957,7 @@ public class DiskStore implements Store {
     public static String generateUniqueDirectory() {
         return DiskStore.AUTO_DISK_PATH_DIRECTORY_PREFIX + "_" + System.currentTimeMillis();
     }
+
 
     /**
      * A reference to an on-disk elements.
@@ -1056,11 +987,43 @@ public class DiskStore implements Store {
          * The expiry time in milliseconds
          */
         private long expiryTime;
-        
+
+    }
+
+    /**
+     * A background daemon thread that writes objects to the file.
+     */
+    private final class SpoolThread extends Thread {
+        public SpoolThread() {
+            super("Store " + name + " Spool Thread");
+            setDaemon(true);
+            setPriority(2);
+        }
+
         /**
-         * The numbe of times the element has been requested and found in the cache.
+         * RemoteDebugger thread method.
          */
-        private long hitcount;
+        public final void run() {
+            spoolThreadMain();
+        }
+    }
+
+    /**
+     * A background daemon thread that removes expired objects.
+     */
+    private final class ExpiryThread extends Thread {
+        public ExpiryThread() {
+            super("Store " + name + " Expiry Thread");
+            setDaemon(true);
+            setPriority(1);
+        }
+
+        /**
+         * RemoteDebugger thread method.
+         */
+        public final void run() {
+            expiryThreadMain();
+        }
     }
 
     /**
@@ -1131,81 +1094,21 @@ public class DiskStore implements Store {
         return name + ".index";
     }
 
-    private void findAndEvictDiskElement(Element elementJustAdded) {
-        // ensure the expiry thread waits until we are done with this particular operation
-        synchronized (diskElements) {
-            if (maxElementsOnDisk > 0 && diskElements.size() >= maxElementsOnDisk) {
-                
-                // Find a DiskElement which is 
-                Map.Entry entry = ((PolicyMap)diskElements).findElementToEvict(elementJustAdded);
-                
-                // actually do the remove :)
-                diskElements.remove(entry.getKey());
-
-                // remove the DiskElement and fire any listeners if required
-                evictDiskElement(entry.getKey(), (DiskElement) entry.getValue());
-            }
-        }
-    }
-
-    private void evictDiskElement(Object key, DiskElement diskElement) {
-        RegisteredEventListeners listeners = cache.getCacheEventNotificationService();
-        // only load the element from the file if there is a listener interested in hearing about its expiration 
-        if (listeners.hasCacheEventListeners()) {
-            try {
-                Element element = loadElementFromDiskElement(diskElement);
-                notifyEvictionListeners(element);
-            } catch (Exception exception) {
-                LOG.error(name + "Cache: Could not remove disk store entry for " + key + ". Error was " + exception.getMessage(),
-                    exception);
-            }
-        }
-        freeBlock(diskElement);
-    }
 
     /**
-     * Create an instance of a map based on the store configuration. 
-     * 
-     *  maxElementsOnDisk is configured to a value above 0, a DiskElementMap will be returned otherwise a regular map will be returned.
+     * The expiry thread is started provided the cache is not eternal
+     * <p/>
+     * If started it will continue to run until the {@link #dispose()} method is called,
+     * at which time it should be interrupted and then die.
+     *
+     * @return true if an expiryThread was created and is still alive.
      */
-    private PolicyMap createDiskElementMap() {
-        if (this.maxElementsOnDisk > 0) {
-            PolicyMap policyMap;
-            // The LFU map is a special case where we want to avoid reading elements from Disk at all costs.
-            // Therefore we must use DiskElements instead of elements therefore require a slightly different approach
-            if (cache.getEvictionPolicy().equals(EvictionPolicy.LFU)) {
-                policyMap = new LfuDiskMap();
-            } else {
-                policyMap = cache.getEvictionPolicy().createPolicyMap();
-            }
-            // Create a map which implements the policy
-            return policyMap;
+    public final boolean isExpiryThreadAlive() {
+        if (expiryThread == null) {
+            return false;
         } else {
-            // if there is no max, there is no need for a special map. Use LfuDiskMap which is backed by a HashMap.
-            return new LfuDiskMap();
+            return expiryThread.isAlive();
         }
     }
 
-    private void configureDiskElementStoreAndEvictionPolicy() {
-        maxElementsOnDisk = cache.getMaxElementsOnDisk();
-        diskElements = createDiskElementMap();
-    }
-    
-    /**
-     * todo test
-     * A Lfu Policy for disk elements.
-     * 
-     * @since 1.2.4
-     * @author Jody Brownell
-     * @version $Id$
-     */
-    private static class LfuDiskMap extends LfuMap {
-        
-        protected boolean isNewEntryLower(Map.Entry existingLowest, Map.Entry newEntry) {
-            DiskElement lowest = (DiskElement) existingLowest.getValue();
-            DiskElement newElement = (DiskElement) newEntry.getValue();
-            
-            return lowest.hitcount > newElement.hitcount;
-        }
-    }
 }

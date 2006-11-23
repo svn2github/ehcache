@@ -237,7 +237,7 @@ socketTimeoutMillis=2000"/>
            maxElementsInMemory="10"
            eternal="true"
            overflowToDisk="false"
-           evictionPolicy="LFU">
+           memoryStoreEvictionPolicy="LFU">
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>
     </cache>
 --------------------------------------------

@@ -23,8 +23,7 @@
         <pom refid="maven.project"/>
     </artifact:dependencies>
 
-    <artifact:dependencies filesetId="compile.dependency.fileset"
-                           pathId="compile.dependency.classpath" useScope="compile">
+    <artifact:dependencies filesetId="compile.dependency.fileset" pathId="compile.dependency.classpath" useScope="compile">
         <pom refid="maven.project"/>
     </artifact:dependencies>
 
@@ -58,7 +57,7 @@
     <target name="compile" depends="compile-src, rmic, compile-tests"
             description="Performs a compile"/>
 
-    
+
 
     <!-- Runs checkstyle over the java source -->
     <target name="checkstyle-check">
@@ -477,7 +476,7 @@
 
     <artifact:dependencies filesetId="clover.fileset">
         <dependency groupId="com.cenqua.clover" artifactId="clover"
-                    version="1.3.13"/>
+              version="1.3.13"/>
     </artifact:dependencies>
 
     <target name="deploy-default-web-app-orion">

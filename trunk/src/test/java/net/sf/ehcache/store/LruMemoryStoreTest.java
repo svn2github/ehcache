@@ -47,7 +47,7 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        createMemoryStore(EvictionPolicy.LRU);
+        createMemoryStore(MemoryStoreEvictionPolicy.LRU);
     }
 
 
@@ -55,7 +55,7 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
      * Test the LRU policy
      */
     public void testPolicy() throws Exception {
-        createMemoryStore(EvictionPolicy.LRU, 5);
+        createMemoryStore(MemoryStoreEvictionPolicy.LRU, 5);
 
         //Make sure that the store is empty to start with
         assertEquals(0, store.getSize());

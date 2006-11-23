@@ -18,7 +18,7 @@ package net.sf.ehcache;
 
 import net.sf.ehcache.distribution.JVMUtil;
 import net.sf.ehcache.store.LruMemoryStoreTest;
-import net.sf.ehcache.store.EvictionPolicy;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Store;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -80,7 +80,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
      * @param evictionPolicy
      * @throws CacheException
      */
-    protected void createMemoryStore(EvictionPolicy evictionPolicy) throws CacheException {
+    protected void createMemoryStore(MemoryStoreEvictionPolicy evictionPolicy) throws CacheException {
         cache = new Cache("test", 1000, evictionPolicy, true, null, true, 60, 30, false, 60, null);
         manager.addCache(cache);
         store = cache.getMemoryStore();
@@ -92,7 +92,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
      * @param evictionPolicy
      * @throws CacheException
      */
-    protected void createMemoryStore(EvictionPolicy evictionPolicy, int memoryStoreSize) throws CacheException {
+    protected void createMemoryStore(MemoryStoreEvictionPolicy evictionPolicy, int memoryStoreSize) throws CacheException {
         manager.removeCache("test");
         cache = new Cache("test", memoryStoreSize, evictionPolicy, true, null, true, 60, 30, false, 60, null);
         manager.addCache(cache);

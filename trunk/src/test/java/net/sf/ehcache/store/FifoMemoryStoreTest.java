@@ -38,7 +38,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        createMemoryStore(EvictionPolicy.FIFO);
+        createMemoryStore(MemoryStoreEvictionPolicy.FIFO);
     }
 
     /**
@@ -133,17 +133,17 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
 
         // Make sure that the elements are getting removed in the FIFO manner
         store.remove("key1");
-        element = ((MemoryStore)store).getNextElementToBeEvicted();
+        element = ((FifoMemoryStore)store).getFirstElement();
         assertEquals("value2", element.getObjectValue());
         assertEquals(2, store.getSize());
 
         store.remove("key2");
-        element = ((MemoryStore)store).getNextElementToBeEvicted();
+        element = ((FifoMemoryStore)store).getFirstElement();
         assertEquals("value3", element.getObjectValue());
         assertEquals(1, store.getSize());
 
         store.remove("key3");
-        element = ((MemoryStore)store).getNextElementToBeEvicted();
+        element = ((FifoMemoryStore)store).getFirstElement();
         assertNull(element);
         assertEquals(0, store.getSize());
     }
@@ -152,7 +152,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
      * Test the policy
      */
     public void testFifoPolicy() throws Exception {
-        createMemoryStore(EvictionPolicy.FIFO, 5);
+        createMemoryStore(MemoryStoreEvictionPolicy.FIFO, 5);
         fifoPolicyTest();
     }
 

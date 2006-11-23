@@ -5,21 +5,10 @@
         <release version="1.2.4" date="2006-12-31" desc="Minor release">
 
             <!-- Feature Changes  -->
-            <action dev="Greg Luck" type="add">
-                Added thread pools for DiskStore expiry threads and spool threads. Up to now
-                each Cache which overflows uses two threads. The number of threads available for
-                spooling and for expiry can now be set. Defaults if not specified are one thread
-                for spooling for each Cache that overflows, and .2 of am expiry thread. So if you have
-                10 Caches that overflow to disk, you will have 10 spool threads and 2 expiry threads.
-                Thanks to Jody Brownell for this change.
-            </action>
             <action dev="Greg Luck" type="remove">
                 Dropped support for JDK1.3. Resulting changes are proper chained exceptions,
                 and no longer requiring commons-collections. This enables some simplifications
                 in the code base and eases maintenance.
-            </action>
-            <action dev="Greg Luck" type="add">
-                Thread pools for DiskStore expiry and spooling.
             </action>
 
             <!-- Reported Bug fixes -->

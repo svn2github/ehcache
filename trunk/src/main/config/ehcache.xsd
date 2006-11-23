@@ -3,10 +3,13 @@
     <xs:element name="ehcache" >
         <xs:complexType>
             <xs:sequence>
-                <xs:element minOccurs="0" maxOccurs="1" ref="diskStore"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="cacheManagerEventListenerFactory"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="cacheManagerPeerProviderFactory"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="cacheManagerPeerListenerFactory"/>
+                <xs:element ref="diskStore"/>
+                <xs:element minOccurs="0" maxOccurs="1"
+                            ref="cacheManagerEventListenerFactory"/>
+                <xs:element minOccurs="0" maxOccurs="1"
+                            ref="cacheManagerPeerProviderFactory"/>
+                <xs:element minOccurs="0" maxOccurs="1"
+                            ref="cacheManagerPeerListenerFactory"/>
                 <xs:element ref="defaultCache"/>
                 <xs:element maxOccurs="unbounded" ref="cache"/>
             </xs:sequence>
@@ -14,23 +17,7 @@
     </xs:element>
     <xs:element name="diskStore">
         <xs:complexType>
-             <xs:sequence>
-                <xs:element minOccurs="0" maxOccurs="1" ref="spoolThreadPool"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="expiryThreadPool"/>
-            </xs:sequence>
-            <xs:attribute name="path" use="required" />
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="spoolThreadPool">
-        <xs:complexType>
-            <xs:attribute name="threads" use="optional"/>
-            <xs:attribute name="priority" use="optional"/>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="expiryThreadPool">
-        <xs:complexType>
-            <xs:attribute name="threads" use="optional"/>
-            <xs:attribute name="priority" use="optional"/>
+            <xs:attribute name="path" use="optional" />
         </xs:complexType>
     </xs:element>
     <xs:element name="cacheManagerEventListenerFactory">
@@ -61,13 +48,10 @@
             <xs:attribute name="diskPersistent" use="optional" type="xs:boolean"/>
             <xs:attribute name="eternal" use="required" type="xs:boolean"/>
             <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
-            <!-- Deprecated. Use eviction policy. If both specified, evictionPolicy has precedence -->
-            <xs:attribute name="evictionPolicy"  use="optional" type="xs:string"/>
-            <xs:attribute name="memoryStoreEvictionPolicy"  use="optional" type="xs:string"/>
+            <xs:attribute name="memoryStoreEvictionPolicy" use="optional" type="xs:string"/>
             <xs:attribute name="overflowToDisk" use="required" type="xs:boolean"/>
             <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
             <xs:attribute name="timeToLiveSeconds" use="optional" type="xs:integer"/>
-            <xs:attribute name="maxElementsOnDisk" use="optional" type="xs:integer"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cache">
@@ -80,14 +64,11 @@
             <xs:attribute name="diskPersistent" use="optional" type="xs:boolean"/>
             <xs:attribute name="eternal" use="required" type="xs:boolean"/>
             <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
-            <!-- Deprecated. Use eviction policy. If both specified, evictionPolicy has precedence -->
-            <xs:attribute name="evictionPolicy"  use="optional" type="xs:string"/>
-            <xs:attribute name="memoryStoreEvictionPolicy"  use="optional" type="xs:string"/>
+            <xs:attribute name="memoryStoreEvictionPolicy" use="optional" type="xs:string"/>
             <xs:attribute name="name" use="required" type="xs:string"/>
             <xs:attribute name="overflowToDisk" use="required" type="xs:boolean"/>
             <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
             <xs:attribute name="timeToLiveSeconds" use="optional" type="xs:integer"/>
-            <xs:attribute name="maxElementsOnDisk" use="optional" type="xs:integer"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cacheEventListenerFactory">

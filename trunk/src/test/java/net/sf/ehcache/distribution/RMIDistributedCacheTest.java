@@ -26,6 +26,7 @@ import java.rmi.Naming;
 import java.util.Date;
 
 /**
+ *
  * Note these tests need a live network interface running in multicast mode to work
  *
  * @author Greg Luck
@@ -147,7 +148,6 @@ public class RMIDistributedCacheTest extends TestCase {
         lookupCacheName = cache2Peer.getName();
         assertEquals(cacheName2, lookupCacheName);
     }
-
 
 
 }

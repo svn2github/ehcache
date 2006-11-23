@@ -91,7 +91,7 @@ public class CacheTest extends AbstractCacheTest {
         }
         if (cache instanceof Cache) {
             Cache castCache = (Cache) cache;
-            //ok to get stats
+        //ok to get stats
             castCache.getHitCount();
             castCache.getMemoryStoreHitCount();
             castCache.getDiskStoreHitCount();
@@ -1340,7 +1340,7 @@ public class CacheTest extends AbstractCacheTest {
     public void testToString() {
         Ehcache cache = new Cache("testGetMemoryStore", 10, false, false, 100, 200);
         assertTrue(cache.toString().indexOf("testGetMemoryStore") > -1);
-        assertEquals(411, cache.toString().length());
+        assertEquals(389, cache.toString().length());
     }
 
 
@@ -1455,7 +1455,7 @@ public class CacheTest extends AbstractCacheTest {
                 "            overflowToDisk=\"true\" \n" +
                 "            diskPersistent=\"false\" \n" +
                 "            diskExpiryThreadIntervalSeconds=\"120\" \n" +
-                "            evictionPolicy=\"LRU\" \n" +
+                "            memoryStoreEvictionPolicy=\"LRU\" \n" +
                 "            /> " +
                 "\n" +
                 "<cache name=\"testCache\" \n" +
@@ -1466,7 +1466,7 @@ public class CacheTest extends AbstractCacheTest {
                 "       timeToLiveSeconds=\"600\" \n" +
                 "       diskPersistent=\"false\" \n" +
                 "       diskExpiryThreadIntervalSeconds=\"1\" \n" +
-                "       evictionPolicy=\"LFU\" \n" +
+                "       memoryStoreEvictionPolicy=\"LFU\" \n" +
                 "/>           \n" +
                 "<cache name=\"test2Cache\" \n" +
                 "       maxElementsInMemory=\"20000\" \n" +
@@ -1476,7 +1476,7 @@ public class CacheTest extends AbstractCacheTest {
                 "       timeToLiveSeconds=\"600\" \n" +
                 "       diskPersistent=\"false\" \n" +
                 "       diskExpiryThreadIntervalSeconds=\"1\" \n" +
-                "       evictionPolicy=\"LFU\" \n" +
+                "       memoryStoreEvictionPolicy=\"LFU\" \n" +
                 "/> \n" +
                 "</ehcache> ").getBytes();
 

@@ -22,7 +22,6 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.config.ThreadPoolConfiguration;
 import net.sf.ehcache.distribution.RMIBootstrapCacheLoader;
 import net.sf.ehcache.distribution.RMIAsynchronousCacheReplicator;
 import net.sf.ehcache.event.RegisteredEventListeners;
@@ -292,8 +291,6 @@ public class CacheManagerTest extends TestCase {
         configuration.addDefaultCache(defaultCacheConfiguration);
 
         DiskStoreConfiguration diskStoreConfiguration = new DiskStoreConfiguration();
-        diskStoreConfiguration.addExpiryThreadPool(new ThreadPoolConfiguration("", new Integer(5), new Integer(5)));
-        diskStoreConfiguration.addSpoolThreadPool(new ThreadPoolConfiguration("", new Integer(5), new Integer(5)));
         diskStoreConfiguration.setPath("java.io.tmpdir");
         configuration.addDiskStore(diskStoreConfiguration);
 
@@ -435,7 +432,7 @@ public class CacheManagerTest extends TestCase {
         singletonManager.addCache("");
     }
 
-     /**
+    /**
      * Tests we can add caches from the default where the default has listeners.
      */
     public void testAddCacheFromDefaultWithListeners() throws CacheException {
@@ -626,6 +623,8 @@ public class CacheManagerTest extends TestCase {
     }
 
 
+
+
     /**
      * Shows that a decorated cache can be substituted
      */
@@ -678,7 +677,7 @@ public class CacheManagerTest extends TestCase {
         managers[1].shutdown();
 
 
-    }
+}
 
     private static Configuration makeCacheManagerConfig() {
         Configuration config = new Configuration();

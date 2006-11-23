@@ -1,5 +1,4 @@
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd">
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd">
 
     <!-- Sets the path to the directory where cache .data files are created.
 
@@ -10,11 +9,7 @@
          user.home - User's home directory
          user.dir - User's current working directory
          java.io.tmpdir - Default temp file path -->
-    <!-- Test leaving out optional values -->
-    <diskStore path="java.io.tmpdir">
-        <spoolThreadPool priority="7"/>
-        <expiryThreadPool threads="20"/>
-    </diskStore>
+    <diskStore path="java.io.tmpdir"/>
 
 
     <!--Default Cache configuration. These will applied to caches programmatically created through
@@ -96,36 +91,36 @@
         defined on your system. On a standard Linux system this will be /tmp"
         -->
     <cache name="sampleCache1"
-           maxElementsInMemory="10000"
-           eternal="false"
-           timeToIdleSeconds="300"
-           timeToLiveSeconds="600"
-           overflowToDisk="true"
-            />
+        maxElementsInMemory="10000"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        overflowToDisk="true"
+        />
 
     <!-- Sample cache named sampleCache2
         This cache has a maximum of 1000 elements in memory. There is no overflow to disk, so 1000
         is also the maximum cache size. Note that when a cache is eternal, timeToLive and timeToIdle
         are not used and do not need to be specified -->
     <cache name="sampleCacheNoOptionalAttributes"
-           maxElementsInMemory="1000"
-           eternal="true"
-           overflowToDisk="false"
-            />
+        maxElementsInMemory="1000"
+        eternal="true"
+        overflowToDisk="false"
+        />
 
     <!-- Sample cache named sampleCache3. This cache overflows to disk. The disk store is persistent
          between cache and VM restarts. The disk expiry thread interval is set to 10 minutes, overriding
          the default of 2 minutes. -->
 
     <cache name="sampleCache3"
-           maxElementsInMemory="500"
-           eternal="false"
-           timeToIdleSeconds="300"
-           timeToLiveSeconds="600"
-           overflowToDisk="true"
-           diskPersistent="true"
-           diskExpiryThreadIntervalSeconds="1"
-            />
+        maxElementsInMemory="500"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        overflowToDisk="true"
+        diskPersistent="true"
+        diskExpiryThreadIntervalSeconds="1"
+        />
 
 
     <!-- Place configuration for your caches following -->

@@ -20,7 +20,6 @@ import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStoreTester;
 import net.sf.ehcache.StopWatch;
-import net.sf.ehcache.store.policies.LfuMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -32,7 +31,7 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Test class for LfuMap
+ * Test class for LfuMemoryStore
  * <p/>
  * @author <a href="ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
  * @version $Id$
@@ -46,7 +45,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        createMemoryStore(EvictionPolicy.LFU);
+        createMemoryStore(MemoryStoreEvictionPolicy.LFU);
     }
 
 
@@ -89,7 +88,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      * Tests the LFU policy
      */
     public void testLfuPolicy() throws Exception {
-        createMemoryStore(EvictionPolicy.LFU, 4);
+        createMemoryStore(MemoryStoreEvictionPolicy.LFU, 4);
         lfuPolicyTest();
     }
 
@@ -231,16 +230,16 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      * @throws IOException
      */
     public void testSampling() throws IOException {
-        createMemoryStore(EvictionPolicy.LFU, 1000);
-        Map.Entry[] elements = null;
+        createMemoryStore(MemoryStoreEvictionPolicy.LFU, 1000);
+        Element[] elements = null;
         for (int i = 0; i < 10; i++) {
             store.put(new Element("" + i, new Date()));
-            elements = ((LfuMap)((MemoryStore) store).getPolicyMap()).sampleElements(i + 1);
+            elements = ((LfuMemoryStore) store).sampleElements(i + 1);
         }
 
         for (int i = 10; i < 2000; i++) {
             store.put(new Element("" + i, new Date()));
-            elements = ((LfuMap)((MemoryStore) store).getPolicyMap()).sampleElements(10);
+            elements = ((LfuMemoryStore) store).sampleElements(10);
             assertEquals(10, elements.length);
         }
     }
@@ -278,7 +277,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      * @throws IOException
      */
     public void testLowest() throws IOException {
-        createMemoryStore(EvictionPolicy.LFU, 5000);
+        createMemoryStore(MemoryStoreEvictionPolicy.LFU, 5000);
         Element element = null;
         Element newElement = null;
         for (int i = 0; i < 10; i++) {
@@ -289,7 +288,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
                 store.get("" + i);
             }
             if (i > 0) {
-                element = (Element) ((LfuMap)((MemoryStore) store).getPolicyMap()).findElementToEvict(newElement).getValue();
+                element = ((LfuMemoryStore) store).findRelativelyUnused(newElement);
                 assertTrue(!element.equals(newElement));
                 assertTrue(element.getHitCount() < 2);
             }
@@ -309,7 +308,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
             }
 
             stopWatch.getElapsedTime();
-            element = (Element) ((LfuMap)((MemoryStore) store).getPolicyMap()).findElementToEvict(newElement).getValue();
+            element = ((LfuMemoryStore) store).findRelativelyUnused(newElement);
             findTime  += stopWatch.getElapsedTime();
             long lowest = element.getHitCount();
             long bottomQuarter = (Math.round(maximumHitCount / 4.0) + 1);

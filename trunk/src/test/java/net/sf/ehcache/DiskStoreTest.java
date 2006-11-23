@@ -18,7 +18,7 @@ package net.sf.ehcache;
 
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.store.DiskStore;
-import net.sf.ehcache.store.EvictionPolicy;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Primitive;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -75,7 +74,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     }
 
     private DiskStore createDiskStore() {
-        Cache cache = new Cache("testNonPersistent", 10, EvictionPolicy.LRU, true, null, false, 2, 1, false, 1, null, null, 10);
+        Cache cache = new Cache("testNonPersistent", 10000, true, false, 2, 1, false, 1);
         manager.addCache(cache);
         DiskStore diskStore = cache.getDiskStore();
         return diskStore;
@@ -149,6 +148,29 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         assertTrue("File exists", dataFile.exists());
         assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
+    }
+
+    /**
+     * Tests that the expiry thread dies on dispose.
+     */
+    public void testExpiryThreadDiesOnDispose() throws IOException, InterruptedException {
+        Cache cache = new Cache("testNonPersistent", 10000, true, false, 5, 1, false, 100);
+        cache.initialise();
+        DiskStore diskStore = cache.getDiskStore();
+
+        //Put in some data
+        for (int i = 0; i < 100; i++) {
+            byte[] data = new byte[1024];
+            diskStore.put(new Element("key" + (i + 100), data));
+        }
+        waitForFlush(diskStore);
+
+        diskStore.dispose();
+        //Give the expiry thread time to be interrupted and die
+        Thread.sleep(100);
+        assertTrue(!diskStore.isExpiryThreadAlive());
+
+
     }
 
     /**
@@ -391,146 +413,9 @@ public class DiskStoreTest extends AbstractCacheTest {
         assertEquals(value, element.getObjectValue());
     }
 
-    /**
-     * Test elements can be put in the store
-     * memory 10
-     * disk 10
-     */
-    public void testLRUEvictionFromDiskStore() throws IOException, InterruptedException {
-        DiskStore store = createDiskStore();
-        Element element;
-
-        assertEquals(0, store.getSize());
-
-        for (int i = 0; i < 10; i++) {
-            element = new Element("key" + i, "value" + i);
-            store.put(element);
-        }
-        assertEquals(10, store.getSize());
-        assertEquals("value1", store.get("key1").getObjectValue());
-
-        element = new Element("keyNew", "valueNew");
-        store.put(element);
-        assertEquals(10, store.getSize());
-        //check new element not evicted
-        assertEquals("valueNew", store.get("keyNew").getObjectValue());
-
-        //check evicted honours FIFO policy
-        assertNull(store.get("key10"));
-
-        for (int i = 0; i < 2000; i++) {
-            store.put(new Element("" + i, new Date()));
-        }
-        //wait for spool to empty 
-        Thread.sleep(1300);
-
-        assertEquals(10, store.getSize());
-    }
-
-    /**
-     * Test elements can be put in the store
-     * memory 10
-     * disk 10
-     * todo transferring elements between maps plus remove breaks policies. WE should reconsider using policies for disk store
-     * or think about how to do it better
-     */
-    public void testLFUEvictionFromDiskStore() throws IOException, InterruptedException {
-        Cache cache = new Cache("testNonPersistent", 0, EvictionPolicy.LFU, true,
-                null, false, 2000, 1000, false, 1, null, null, 10);
-        manager.addCache(cache);
-        DiskStore store = cache.getDiskStore();
-
-        Element element;
-
-        assertEquals(0, store.getSize());
-
-        for (int i = 0; i < 10; i++) {
-            element = new Element("key" + i, "value" + i);
-            cache.put(element);
-        }
-
-        //allow to move through spool
-        Thread.sleep(210);
-        assertEquals(10, store.getSize());
-
-
-        for (int i = 1; i < 10; i++) {
-            cache.get("key" + i);
-            cache.get("key" + i);
-            cache.get("key" + i);
-            cache.get("key" + i);
-        }
-        //allow to move through spool
-        Thread.sleep(210);
-        assertEquals(10, store.getSize());
-
-        //assertEquals("value1", store.get("key1").getObjectValue());
-
-        element = new Element("keyNew", "valueNew");
-        store.put(element);
-        //allow to get out of spool
-        Thread.sleep(210);
-        assertEquals(10, store.getSize());
-        //check new element not evicted
-        assertEquals("valueNew", store.get("keyNew").getObjectValue());
-
-        //check evicted honours LFU policy
-        //assertNotNull(store.get("key9"));
-        //assertNull(store.get("key0"));
-
-        for (int i = 0; i < 2000; i++) {
-            store.put(new Element("" + i, new Date()));
-        }
-        //wait for spool to empty
-        Thread.sleep(1300);
-
-        assertEquals(10, store.getSize());
-    }
-
-    /**
-     * Test elements can be put in the store
-     * memory 10
-     * disk 10
-     */
-    public void testFIFOEvictionFromDiskStore() throws IOException, InterruptedException {
-        Cache cache = new Cache("testNonPersistent", 10, EvictionPolicy.FIFO, true, null, false, 2, 1, false, 1, null, null, 10);
-        manager.addCache(cache);
-        DiskStore store = cache.getDiskStore();
-
-        Element element;
-
-        assertEquals(0, store.getSize());
-
-        for (int i = 0; i < 10; i++) {
-            element = new Element("key" + i, "value" + i);
-            store.put(element);
-        }
-        assertEquals(10, store.getSize());
-        assertEquals("value1", store.get("key1").getObjectValue());
-
-        element = new Element("keyNew", "valueNew");
-        store.put(element);
-        assertEquals(10, store.getSize());
-        //check new element not evicted
-        assertEquals("valueNew", store.get("keyNew").getObjectValue());
-
-        //check evicted honours FIFO policy
-        assertNull(store.get("key1"));
-
-        for (int i = 0; i < 2000; i++) {
-            store.put(new Element("" + i, new Date()));
-        }
-        //wait for spool to empty
-        Thread.sleep(1300);
-
-        assertEquals(10, store.getSize());
-    }
-
 
     /**
      * Tests the loading of classes
-     *
-     * @throws Exception
      */
     public void testClassloading() throws Exception {
         final DiskStore diskStore = createDiskStore();
@@ -541,6 +426,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         Thread.sleep(1000);
         Element elementOut = diskStore.get("key");
         assertEquals(value, elementOut.getObjectValue());
+
 
 
         Primitive primitive = new Primitive();
@@ -564,6 +450,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         assertEquals(primitive, elementOut.getObjectValue());
 
     }
+
 
 
     /**
@@ -767,8 +654,9 @@ public class DiskStoreTest extends AbstractCacheTest {
      * that cannot be used because of fragmentation. Question? Should an effort be made to coalesce
      * fragmented space? Unlikely in production to get contiguous fragments as in the first form
      * of this test.
-     * <p/>
+     *
      * Using a key of new Integer(i * outer) the size stays constant at 140800.
+     *
      *
      * @throws InterruptedException
      */
@@ -784,7 +672,7 @@ public class DiskStoreTest extends AbstractCacheTest {
                 diskStore.put(element);
             }
             waitForFlush(diskStore);
-            int predictedSize = 14080;
+            int predictedSize = 140800;
             long actualSize = diskStore.getDataFileSize();
             LOG.info("Predicted Size: " + predictedSize + " Actual Size: " + actualSize);
             assertEquals(predictedSize, actualSize);
@@ -909,7 +797,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     public void testOverflowToDiskWithLargeNumberofCacheEntries() throws Exception {
 
         //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test", 1000, EvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);
+        Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);
         manager.addCache(cache);
         int i = 0;
         StopWatch stopWatch = new StopWatch();
@@ -921,6 +809,8 @@ public class DiskStoreTest extends AbstractCacheTest {
                             + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                             + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
         }
+        long time = stopWatch.getElapsedTime();
+        assertTrue(4 < time);
     }
 
 
@@ -931,7 +821,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     public void testOutOfMemoryErrorOnOverflowToDisk() throws Exception {
 
         //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test", 1000, EvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);
+        Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);
         manager.addCache(cache);
         int i = 0;
 
@@ -953,7 +843,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     public void testOverflowToDiskWithLargeNumberofCacheEntriesAndGets() throws Exception {
 
         //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test", 1000, EvictionPolicy.LRU, true, null, true, 500, 500, false, 60, null);
+        Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 60, null);
         manager.addCache(cache);
         Random random = new Random();
         StopWatch stopWatch = new StopWatch();
@@ -972,6 +862,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         long elapsed = stopWatch.getElapsedTime();
         LOG.info("Elapsed time: " + elapsed / 1000);
         assertEquals(100000, cache.getSize());
+        assertTrue(23 < elapsed);
         //Some entries may be in the Memory Store and Disk Store. cache.getSize removes dupes. a look at the
         //disk store size directly does not.
         assertTrue(99000 <= cache.getDiskStore().getSize());
@@ -985,9 +876,9 @@ public class DiskStoreTest extends AbstractCacheTest {
      * <p/>
      * Slow tests
      */
-    public void testMaximumCacheEntriesIn64MBWithOverflowToDisk() throws Exception {
+    public void xTestMaximumCacheEntriesIn64MBWithOverflowToDisk() throws Exception {
 
-        Cache cache = new Cache("test", 1000, EvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);
+        Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);
         manager.addCache(cache);
         StopWatch stopWatch = new StopWatch();
         int i = 0;
@@ -1014,30 +905,29 @@ public class DiskStoreTest extends AbstractCacheTest {
         } catch (OutOfMemoryError e) {
             LOG.info("Failed at " + index);
             assertTrue(index.intValue() >= 4099000);
+            }
         }
-    }
 
-    /**
+   /**
      * Perf test used by Venkat Subramani
-     * Get took 237
-     * <p/>
-     * <p/>
      * Get took 119s with Cache svn21
      * Get took 42s
      * The change was to stop adding DiskStore retrievals into the MemoryStore. This made sense when the only
-     * policy was LRU. In the new version an Element, once evicted from the MemoryStore, stays in the DiskStore
+     * policy was LRU. In the new version an Elment, once evicted from the MemoryStore, stays in the DiskStore
      * until expiry or removal. This avoids a lot of serialization overhead.
      * <p/>
      * Slow tests
+    * 235 with get. 91 for 1.2.3. 169 with remove.
+    * todo test
      */
     public void xTestLargePutGetPerformanceWithOverflowToDisk() throws Exception {
 
-        Cache cache = new Cache("test", 1000, EvictionPolicy.LRU, true, null, true, 500, 500, false, 10000, null);
+        Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 10000, null);
         manager.addCache(cache);
         StopWatch stopWatch = new StopWatch();
         int i = 0;
         int j = 0;
-        Integer index = null;
+        Integer index;
         for (; i < 5; i++) {
             for (j = 0; j < 100000; j++) {
                 index = new Integer(((1000000 * i) + j));
@@ -1048,29 +938,33 @@ public class DiskStoreTest extends AbstractCacheTest {
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
             }
-            long elapsed = stopWatch.getElapsedTime();
-            long putTime = ((elapsed / 1000) - 10);
-            LOG.info("Put Elapsed time: " + putTime);
-            assertTrue(putTime < 8);
-
-            //wait for Disk Store to finish spooling
-            Thread.sleep(4000);
-            Random random = new Random();
-            StopWatch getStopWatch = new StopWatch();
-            long getStart = stopWatch.getElapsedTime();
-
-            for (int k = 0; k < 1000000; k++) {
-                Integer key = new Integer(random.nextInt(500000));
-                cache.get(key);
-            }
-
-            long getElapsedTime = getStopWatch.getElapsedTime();
-            int time = (int) ((getElapsedTime - getStart) / 1000);
-            LOG.info("Get Elapsed time: " + time);
-
-            assertTrue(time < 200);
+            //wait to write entries
+            Thread.sleep(2000);
         }
-    }
+        long elapsed = stopWatch.getElapsedTime();
+        long putTime = ((elapsed / 1000) - 10);
+        LOG.info("Put Elapsed time: " + putTime);
+        assertTrue(putTime < 15);
+
+        //wait for Disk Store to finish spooling
+        Thread.sleep(2000);
+        Random random = new Random();
+        StopWatch getStopWatch = new StopWatch();
+        long getStart = stopWatch.getElapsedTime();
+
+        for (int k = 0; k < 1000000; k++) {
+            Integer key = new Integer(random.nextInt(500000));
+            cache.get(key);
+        }
+
+        long getElapsedTime = getStopWatch.getElapsedTime();
+        int time = (int) ((getElapsedTime - getStart) / 1000);
+        LOG.info("Get Elapsed time: " + time);
+
+        assertTrue(time < 180);
+
+      
+        }
 
     /**
      * Java is not consistent with trailing file separators, believe it or not!

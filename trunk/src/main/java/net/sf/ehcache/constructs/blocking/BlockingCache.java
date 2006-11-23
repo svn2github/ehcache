@@ -26,7 +26,7 @@ import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.constructs.concurrent.ConcurrencyUtil;
 import net.sf.ehcache.constructs.concurrent.Mutex;
 import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.store.EvictionPolicy;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -186,14 +186,6 @@ public class BlockingCache implements Ehcache {
     public int getMaxElementsInMemory() {
         return cache.getMaxElementsInMemory();
     }
-    
-    /**
-     * @return the maximum number of elements on Disk, or 0 if unlimited
-     * @see net.sf.ehcache.Cache#getMaxElementsOnDisk
-     */
-    public int getMaxElementsOnDisk() {
-        return cache.getMaxElementsOnDisk();
-    }
 
     /**
      * The policy used to evict elements from the {@link net.sf.ehcache.store.MemoryStore}.
@@ -204,27 +196,11 @@ public class BlockingCache implements Ehcache {
      * <li>FIFO - first in first out, the oldest element by creation time
      * </ol>
      * The default value is LRU
-     * @deprecated use {@link #getEvictionPolicy()} because since 1.2.4 eviction policies apply to all stores
+     *
      * @since 1.2
      */
-    public EvictionPolicy getMemoryStoreEvictionPolicy() {
-        return cache.getEvictionPolicy();
-    }
-
-    /**
-     * The policy used to evict elements from the stores.
-     * This can be one of:
-     * <ol>
-     * <li>LRU - least recently used
-     * <li>LFU - least frequently used
-     * <li>FIFO - first in first out, the oldest element by creation time
-     * </ol>
-     * The default value is LRU
-     *
-     * @since 1.2.4
-     */
-    public EvictionPolicy getEvictionPolicy() {
-        return cache.getEvictionPolicy();
+    public MemoryStoreEvictionPolicy getMemoryStoreEvictionPolicy() {
+        return cache.getMemoryStoreEvictionPolicy();
     }
 
     /**
@@ -248,7 +224,7 @@ public class BlockingCache implements Ehcache {
     /**
      * Clones a cache. This is only legal if the cache has not been
      * initialized. At that point only primitives have been set and no
-     * {@link net.sf.ehcache.store.MemoryStore} or {@link net.sf.ehcache.store.DiskStore} has been created.
+     * {@link net.sf.ehcache.store.LruMemoryStore} or {@link net.sf.ehcache.store.DiskStore} has been created.
      * <p/>
      * A new, empty, RegisteredEventListeners is created on clone.
      * <p/>

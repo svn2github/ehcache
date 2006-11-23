@@ -30,7 +30,7 @@
                                      The default value is false.
     diskExpiryThreadIntervalSeconds- The number of seconds between runs of the disk expiry thread. The default value
                                      is 120 seconds.
-    evictionPolicy      - Policy would be enforced upon reaching the maxElementsInMemory limit. Default
+    memoryStoreEvictionPolicy      - Policy would be enforced upon reaching the maxElementsInMemory limit. Default
                                      policy is Least Recently Used (specified as LRU). Other policies available -
                                      First In First Out (specified as FIFO) and Less Frequently Used
                                      (specified as LFU)
@@ -59,7 +59,7 @@
            timeToLiveSeconds="600"
            diskPersistent="false"
            diskExpiryThreadIntervalSeconds="1"
-           evictionPolicy="LFU"
+           memoryStoreEvictionPolicy="LFU"
             />
     <cache name="test2Cache"
            maxElementsInMemory="20000"
@@ -69,6 +69,6 @@
            timeToLiveSeconds="600"
            diskPersistent="false"
            diskExpiryThreadIntervalSeconds="1"
-           evictionPolicy="LFU"
+           memoryStoreEvictionPolicy="LFU"
             />
 </ehcache> 

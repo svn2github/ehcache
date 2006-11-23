@@ -252,6 +252,6 @@ public class MulticastRMIPeerProviderTest extends TestCase {
         socket.joinGroup(groupAddress);
         int ttl = socket.getTimeToLive();
         assertEquals(1, ttl);
-    }
+}
 
 }

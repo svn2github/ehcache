@@ -49,11 +49,11 @@ public final class Configuration {
     /**
      * Allows {@link BeanHandler} to add disk store location to the configuration.
      */
-    public final void addDiskStore(DiskStoreConfiguration diskStoreConfiguration) throws ObjectExistsException {
-        if (this.diskStoreConfiguration != null) {
+    public final void addDiskStore(DiskStoreConfiguration diskStoreConfigurationParameter) throws ObjectExistsException {
+        if (diskStoreConfiguration != null) {
             throw new ObjectExistsException("The Disk Store has already been configured");
         }
-        this.diskStoreConfiguration = diskStoreConfiguration;
+        diskStoreConfiguration = diskStoreConfigurationParameter;
     }
 
     
@@ -90,6 +90,7 @@ public final class Configuration {
         }
     }
 
+
     /**
      * Allows {@link BeanHandler} to add a default configuration to the configuration.
      */
@@ -114,9 +115,6 @@ public final class Configuration {
 
         cacheConfigurations.put(cacheConfiguration.name, cacheConfiguration);
     }
-
-
-    
 
     /**
      * Gets a Map of cacheConfigurations.

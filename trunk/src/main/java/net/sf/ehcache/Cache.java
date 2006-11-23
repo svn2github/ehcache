@@ -21,7 +21,7 @@ import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.MemoryStore;
-import net.sf.ehcache.store.EvictionPolicy;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -50,8 +50,6 @@ import java.util.Set;
  * Cache is threadsafe.
  * <p/>
  * Statistics on cache usage are collected and made available through public methods.
- *
- * todo getKeysNoDuplicate check still required given remove?
  *
  * @author Greg Luck
  * @version $Id$
@@ -87,7 +85,8 @@ public class Cache implements Ehcache {
 
     private static final Log LOG = LogFactory.getLog(Cache.class.getName());
 
-    private static final EvictionPolicy DEFAULT_EVICTION_POLICY = EvictionPolicy.LRU;
+    private static final MemoryStoreEvictionPolicy DEFAULT_MEMORY_STORE_EVICTION_POLICY = MemoryStoreEvictionPolicy.LRU;
+
 
     private static InetAddress localhost;
 
@@ -101,6 +100,7 @@ public class Cache implements Ehcache {
 
     private boolean disabled;
 
+
     private String name;
 
     private DiskStore diskStore;
@@ -111,9 +111,7 @@ public class Cache implements Ehcache {
 
     private final int maxElementsInMemory;
 
-    private final int maxElementsOnDisk;
-
-    private EvictionPolicy evictionPolicy;
+    private MemoryStoreEvictionPolicy memoryStoreEvictionPolicy;
 
     private int statisticsAccuracy = Statistics.STATISTICS_ACCURACY_BEST_EFFORT;
 
@@ -157,30 +155,31 @@ public class Cache implements Ehcache {
      */
     private final long timeToIdleSeconds;
 
+
     /**
      * Cache hit count.
      */
-    private long hitCount;
+    private int hitCount;
 
     /**
      * Memory cache hit count.
      */
-    private long memoryStoreHitCount;
+    private int memoryStoreHitCount;
 
     /**
      * Auxiliary hit counts broken down by auxiliary.
      */
-    private long diskStoreHitCount;
+    private int diskStoreHitCount;
 
     /**
      * Count of misses where element was not found.
      */
-    private long missCountNotFound;
+    private int missCountNotFound;
 
     /**
      * Count of misses where element was expired.
      */
-    private long missCountExpired;
+    private int missCountExpired;
 
     /**
      * The {@link MemoryStore} of this {@link Cache}. All caches have a memory store.
@@ -219,11 +218,12 @@ public class Cache implements Ehcache {
      * @param timeToIdleSeconds   the default amount of time to live for an element from its last accessed or modified date
      * @since 1.0
      */
-    public Cache(String name, int maxElementsInMemory, boolean overflowToDisk, boolean eternal, long timeToLiveSeconds,
-            long timeToIdleSeconds) {
-        this(name, maxElementsInMemory, DEFAULT_EVICTION_POLICY, overflowToDisk, null, eternal, timeToLiveSeconds,
-                timeToIdleSeconds, false, DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS, null, null, 0);
+    public Cache(String name, int maxElementsInMemory, boolean overflowToDisk,
+                 boolean eternal, long timeToLiveSeconds, long timeToIdleSeconds) {
+        this(name, maxElementsInMemory, DEFAULT_MEMORY_STORE_EVICTION_POLICY, overflowToDisk,
+                null, eternal, timeToLiveSeconds, timeToIdleSeconds, false, DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS, null, null);
     }
+
 
     /**
      * 1.1 Constructor.
@@ -246,14 +246,19 @@ public class Cache implements Ehcache {
      *                            how often to run the disk store expiry thread. A large number of 120 seconds plus is recommended
      * @since 1.1
      */
-    public Cache(String name, int maxElementsInMemory, boolean overflowToDisk, boolean eternal, long timeToLiveSeconds,
-            long timeToIdleSeconds, boolean diskPersistent, long diskExpiryThreadIntervalSeconds) {
-        this(name, maxElementsInMemory, DEFAULT_EVICTION_POLICY, overflowToDisk, null, eternal, timeToLiveSeconds,
-                timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, null, null, 0);
-        LOG.warn("An API change between ehcache-1.1 and ehcache-1.2 results in the persistence path being set to java.io.tmp"
-                + " when the ehcache-1.1 constructor is used. Please change to the 1.2 constructor");
+    public Cache(String name,
+                 int maxElementsInMemory,
+                 boolean overflowToDisk,
+                 boolean eternal,
+                 long timeToLiveSeconds,
+                 long timeToIdleSeconds,
+                 boolean diskPersistent,
+                 long diskExpiryThreadIntervalSeconds) {
+        this(name, maxElementsInMemory, DEFAULT_MEMORY_STORE_EVICTION_POLICY, overflowToDisk, null,
+                eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, null, null);
+        LOG.warn("An API change between ehcache-1.1 and ehcache-1.2 results in the persistence path being set to java.io.tmp" +
+                " when the ehcache-1.1 constructor is used. Please change to the 1.2 constructor");
     }
-
 
 
     /**
@@ -268,7 +273,7 @@ public class Cache implements Ehcache {
      *
      * @param name                      the name of the cache
      * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted
-     * @param evictionPolicy            one of LRU, LFU and FIFO. Optionally null, in which case it will be set to LRU.
+     * @param memoryStoreEvictionPolicy one of LRU, LFU and FIFO. Optionally null, in which case it will be set to LRU.
      * @param overflowToDisk            whether to use the disk store
      * @param diskStorePath             this parameter is ignored. CacheManager sets it using setter injection.
      * @param eternal                   whether the elements in the cache are eternal, i.e. never expire
@@ -281,15 +286,34 @@ public class Cache implements Ehcache {
      *                                  one with no registered listeners will be created.
      * @since 1.2
      */
-    public Cache(String name, int maxElementsInMemory, EvictionPolicy evictionPolicy,
-            boolean overflowToDisk, String diskStorePath, boolean eternal, long timeToLiveSeconds, long timeToIdleSeconds,
-            boolean diskPersistent, long diskExpiryThreadIntervalSeconds, RegisteredEventListeners registeredEventListeners) {
-        this(name, maxElementsInMemory, evictionPolicy, overflowToDisk, diskStorePath, eternal, timeToLiveSeconds,
-                timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners, null, 0);
+    public Cache(String name,
+                 int maxElementsInMemory,
+                 MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
+                 boolean overflowToDisk,
+                 String diskStorePath,
+                 boolean eternal,
+                 long timeToLiveSeconds,
+                 long timeToIdleSeconds,
+                 boolean diskPersistent,
+                 long diskExpiryThreadIntervalSeconds,
+                 RegisteredEventListeners registeredEventListeners) {
+        this(name,
+                maxElementsInMemory,
+                memoryStoreEvictionPolicy,
+                overflowToDisk,
+                diskStorePath,
+                eternal,
+                timeToLiveSeconds,
+                timeToIdleSeconds,
+                diskPersistent,
+                diskExpiryThreadIntervalSeconds,
+                registeredEventListeners,
+                null);
     }
 
+
     /**
-     * 1.2.4 Constructor
+     * 1.2 Constructor
      * <p/>
      * The {@link net.sf.ehcache.config.ConfigurationFactory} and clients can create these.
      * <p/>
@@ -300,7 +324,7 @@ public class Cache implements Ehcache {
      *
      * @param name                      the name of the cache
      * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted
-     * @param evictionPolicy one of LRU, LFU and FIFO. Optionally null, in which case it will be set to LRU.
+     * @param memoryStoreEvictionPolicy one of LRU, LFU and FIFO. Optionally null, in which case it will be set to LRU.
      * @param overflowToDisk            whether to use the disk store
      * @param diskStorePath             this parameter is ignored. CacheManager sets it using setter injection.
      * @param eternal                   whether the elements in the cache are eternal, i.e. never expire
@@ -311,25 +335,31 @@ public class Cache implements Ehcache {
      *                                  how often to run the disk store expiry thread. A large number of 120 seconds plus is recommended
      * @param registeredEventListeners  a notification service. Optionally null, in which case a new one with no registered listeners will be created.
      * @param bootstrapCacheLoader      the BootstrapCacheLoader to use to populate the cache when it is first initialised. Null if none is required.
-     * @param maxElementsOnDisk         The maximum number of elements in the DiskStore before forced eviction takes place
-     * @since 1.2.4
+     * @since 1.2.1
      */
-    public Cache(String name, int maxElementsInMemory, EvictionPolicy evictionPolicy,
-            boolean overflowToDisk, String diskStorePath, boolean eternal, long timeToLiveSeconds, long timeToIdleSeconds,
-            boolean diskPersistent, long diskExpiryThreadIntervalSeconds, RegisteredEventListeners registeredEventListeners,
-            BootstrapCacheLoader bootstrapCacheLoader, int maxElementsOnDisk) {
+    public Cache(String name,
+                 int maxElementsInMemory,
+                 MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
+                 boolean overflowToDisk,
+                 String diskStorePath,
+                 boolean eternal,
+                 long timeToLiveSeconds,
+                 long timeToIdleSeconds,
+                 boolean diskPersistent,
+                 long diskExpiryThreadIntervalSeconds,
+                 RegisteredEventListeners registeredEventListeners,
+                 BootstrapCacheLoader bootstrapCacheLoader) {
 
         changeStatus(Status.STATUS_UNINITIALISED);
 
         setName(name);
         this.maxElementsInMemory = maxElementsInMemory;
-        this.evictionPolicy = evictionPolicy;
+        this.memoryStoreEvictionPolicy = memoryStoreEvictionPolicy;
         this.overflowToDisk = overflowToDisk;
         this.eternal = eternal;
         this.timeToLiveSeconds = timeToLiveSeconds;
         this.timeToIdleSeconds = timeToIdleSeconds;
         this.diskPersistent = diskPersistent;
-        this.maxElementsOnDisk = maxElementsOnDisk;
 
         if (diskStorePath == null) {
             this.diskStorePath = System.getProperty("java.io.tmpdir");
@@ -351,13 +381,14 @@ public class Cache implements Ehcache {
         }
 
         // For backward compatibility with 1.1 and earlier
-        if (evictionPolicy == null) {
-            this.evictionPolicy = DEFAULT_EVICTION_POLICY;
+        if (memoryStoreEvictionPolicy == null) {
+            this.memoryStoreEvictionPolicy = DEFAULT_MEMORY_STORE_EVICTION_POLICY;
         }
 
         this.bootstrapCacheLoader = bootstrapCacheLoader;
 
     }
+
 
     /**
      * Newly created caches do not have a {@link net.sf.ehcache.store.MemoryStore} or a {@link net.sf.ehcache.store.DiskStore}.
@@ -373,8 +404,8 @@ public class Cache implements Ehcache {
 
             if (maxElementsInMemory == 0) {
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Cache: " + name + " has a maxElementsInMemory of 0. It is strongly recommended to "
-                            + "have a maximumSize of at least 1. Performance is halved by not using a MemoryStore.");
+                    LOG.warn("Cache: " + name + " has a maxElementsInMemory of 0. It is strongly recommended to " +
+                            "have a maximumSize of at least 1. Performance is halved by not using a MemoryStore.");
                 }
             }
 
@@ -384,11 +415,13 @@ public class Cache implements Ehcache {
 
             memoryStore = MemoryStore.create(this, diskStore);
 
+
             if (diskPersistent) {
                 addShutdownHook();
             }
 
             changeStatus(Status.STATUS_ALIVE);
+
 
         }
 
@@ -420,6 +453,7 @@ public class Cache implements Ehcache {
         this.status = status;
     }
 
+
     /**
      * Some caches might be persistent, so we want to add a shutdown hook if that is the
      * case, so that the data and index can be written to disk.
@@ -447,6 +481,7 @@ public class Cache implements Ehcache {
         shutdownHook = localShutdownHook;
     }
 
+
     /**
      * Remove the shutdown hook to prevent leaving orphaned caches around. This
      * is called by {@link #dispose()} AFTER the status has been set to shutdown.
@@ -462,6 +497,7 @@ public class Cache implements Ehcache {
             shutdownHook = null;
         }
     }
+
 
     /**
      * Put an element in the cache.
@@ -481,9 +517,11 @@ public class Cache implements Ehcache {
      * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
      * @throws IllegalArgumentException if the element is null
      */
-    public final void put(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
+    public final void put(Element element) throws IllegalArgumentException, IllegalStateException,
+            CacheException {
         put(element, false);
     }
+
 
     /**
      * Put an element in the cache.
@@ -506,7 +544,8 @@ public class Cache implements Ehcache {
      * @throws IllegalArgumentException if the element is null
      */
     public final void put(Element element, boolean doNotNotifyCacheReplicators) throws IllegalArgumentException,
-            IllegalStateException, CacheException {
+            IllegalStateException,
+            CacheException {
         checkStatus();
 
         if (disabled) {
@@ -546,6 +585,7 @@ public class Cache implements Ehcache {
         }
     }
 
+
     /**
      * Put an element in the cache, without updating statistics, or updating listeners. This is meant to be used
      * in conjunction with {@link #getQuiet}.
@@ -555,7 +595,8 @@ public class Cache implements Ehcache {
      * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
      * @throws IllegalArgumentException if the element is null
      */
-    public final void putQuiet(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
+    public final void putQuiet(Element element) throws IllegalArgumentException, IllegalStateException,
+            CacheException {
         checkStatus();
 
         if (disabled) {
@@ -589,6 +630,7 @@ public class Cache implements Ehcache {
     public final Element get(Serializable key) throws IllegalStateException, CacheException {
         return get((Object) key);
     }
+
 
     /**
      * Gets an element from the cache. Updates Element Statistics
@@ -681,10 +723,10 @@ public class Cache implements Ehcache {
     public final synchronized List getKeys() throws IllegalStateException, CacheException {
         checkStatus();
         /* An element with the same key can exist in both the memory store and the
-         disk store at the same time. Because the memory store is always searched first
-         these duplicates do not cause problems when getting elements/
+            disk store at the same time. Because the memory store is always searched first
+            these duplicates do not cause problems when getting elements/
 
-         This method removes these duplicates before returning the list of keys*/
+            This method removes these duplicates before returning the list of keys*/
         List allKeyList = new ArrayList();
         List keyList = Arrays.asList(memoryStore.getKeyArray());
         allKeyList.addAll(keyList);
@@ -740,6 +782,7 @@ public class Cache implements Ehcache {
         nonExpiredKeys.trimToSize();
         return nonExpiredKeys;
     }
+
 
     /**
      * Returns a list of all elements in the cache, whether or not they are expired.
@@ -798,9 +841,11 @@ public class Cache implements Ehcache {
         }
         Serializable serializableKey = (Serializable) key;
         Element element;
-        //todo check does not hurt performance
-        element = diskStore.remove(serializableKey);
-        //element = diskStore.get(serializableKey);
+        if (updateStatistics) {
+            element = diskStore.get(serializableKey);
+        } else {
+            element = diskStore.getQuiet(serializableKey);
+        }
         if (element != null) {
             if (isExpired(element)) {
                 if (LOG.isDebugEnabled()) {
@@ -810,9 +855,6 @@ public class Cache implements Ehcache {
                 remove(key, true, true, false);
                 element = null;
             } else {
-                if (updateStatistics) {
-                    element.updateAccessStatistics();
-                }
                 diskStoreHitCount++;
                 //Put the item back into memory to preserve policies in the memory store and to save updated statistics
                 memoryStore.put(element);
@@ -855,6 +897,7 @@ public class Cache implements Ehcache {
     public final boolean remove(Object key) throws IllegalStateException {
         return remove(key, false);
     }
+
 
     /**
      * Removes an {@link Element} from the Cache. This also removes it from any
@@ -924,6 +967,7 @@ public class Cache implements Ehcache {
         return remove(key, false, false, false);
     }
 
+
     /**
      * Removes or expires an {@link Element} from the Cache after an attempt to get it determined that it should be expired.
      * This also removes it from any stores it may be in.
@@ -944,7 +988,8 @@ public class Cache implements Ehcache {
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    private boolean remove(Object key, boolean expiry, boolean notifyListeners, boolean doNotNotifyCacheReplicators)
+    private boolean remove(Object key, boolean expiry, boolean notifyListeners,
+                           boolean doNotNotifyCacheReplicators)
             throws IllegalStateException {
         checkStatus();
         boolean removed = false;
@@ -1006,6 +1051,7 @@ public class Cache implements Ehcache {
         removeAll(false);
     }
 
+
     /**
      * Removes all cached items.
      * Synchronization is handled within the method.
@@ -1048,6 +1094,7 @@ public class Cache implements Ehcache {
         }
     }
 
+
     /**
      * Flushes all cache items from memory to the disk store, and from the DiskStore to disk.
      *
@@ -1064,6 +1111,7 @@ public class Cache implements Ehcache {
             throw new CacheException("Unable to flush cache: " + name + ". Initial cause was " + e.getMessage(), e);
         }
     }
+
 
     /**
      * Gets the size of the cache. This is a subtle concept. See below.
@@ -1093,7 +1141,7 @@ public class Cache implements Ehcache {
     public final synchronized int getSize() throws IllegalStateException, CacheException {
         checkStatus();
         /* The memory store and the disk store can simultaneously contain elements with the same key
-         Cache size is the size of the union of the two key sets.*/
+            Cache size is the size of the union of the two key sets.*/
         return getKeys().size();
     }
 
@@ -1113,6 +1161,7 @@ public class Cache implements Ehcache {
         checkStatus();
         return memoryStore.getSizeInBytes();
     }
+
 
     /**
      * Returns the number of elements in the memory store.
@@ -1149,11 +1198,13 @@ public class Cache implements Ehcache {
         return status;
     }
 
+
     private void checkStatus() throws IllegalStateException {
         if (!status.equals(Status.STATUS_ALIVE)) {
             throw new IllegalStateException("The " + name + " Cache is not alive.");
         }
     }
+
 
     /**
      * The number of times a requested item was found in the cache.
@@ -1293,13 +1344,6 @@ public class Cache implements Ehcache {
     }
 
     /**
-     * Gets the maximum number of elements to hold on Disk
-     */
-    public int getMaxElementsOnDisk() {
-        return maxElementsOnDisk;
-    }
-
-    /**
      * The policy used to evict elements from the {@link net.sf.ehcache.store.MemoryStore}.
      * This can be one of:
      * <ol>
@@ -1308,27 +1352,13 @@ public class Cache implements Ehcache {
      * <li>FIFO - first in first out, the oldest element by creation time
      * </ol>
      * The default value is LRU
-     * @deprecated use {@link #getEvictionPolicy()}
+     *
      * @since 1.2
      */
-    public final EvictionPolicy getMemoryStoreEvictionPolicy() {
-        return evictionPolicy;
+    public final MemoryStoreEvictionPolicy getMemoryStoreEvictionPolicy() {
+        return memoryStoreEvictionPolicy;
     }
 
-    /**
-     * The policy used to evict elements from the {@link net.sf.ehcache.store.MemoryStore}.
-     * This can be one of:
-     * <ol>
-     * <li>LRU - least recently used
-     * <li>LFU - least frequently used
-     * <li>FIFO - first in first out, the oldest element by creation time
-     * </ol>
-     * The default value is LRU
-     * @since 1.2
-     */
-    public final EvictionPolicy getEvictionPolicy() {
-        return evictionPolicy;
-    }
     /**
      * Returns a {@link String} representation of {@link Cache}.
      */
@@ -1341,8 +1371,7 @@ public class Cache implements Ehcache {
                 .append(" eternal = ").append(eternal)
                 .append(" overflowToDisk = ").append(overflowToDisk)
                 .append(" maxElementsInMemory = ").append(maxElementsInMemory)
-                .append(" maxElementsOnDisk = ").append(maxElementsOnDisk)
-                .append(" memoryStoreEvictionPolicy = ").append(evictionPolicy)
+                .append(" memoryStoreEvictionPolicy = ").append(memoryStoreEvictionPolicy)
                 .append(" timeToLiveSeconds = ").append(timeToLiveSeconds)
                 .append(" timeToIdleSeconds = ").append(timeToIdleSeconds)
                 .append(" diskPersistent = ").append(diskPersistent)
@@ -1380,10 +1409,11 @@ public class Cache implements Ehcache {
         }
     }
 
+
     /**
      * Clones a cache. This is only legal if the cache has not been
      * initialized. At that point only primitives have been set and no
-     * {@link net.sf.ehcache.store.MemoryStore} or {@link net.sf.ehcache.store.DiskStore} has been created.
+     * {@link net.sf.ehcache.store.LruMemoryStore} or {@link net.sf.ehcache.store.DiskStore} has been created.
      * <p/>
      * A new, empty, RegisteredEventListeners is created on clone.
      * <p/>
@@ -1464,6 +1494,7 @@ public class Cache implements Ehcache {
         return registeredEventListeners;
     }
 
+
     /**
      * Whether an Element is stored in the cache in Memory, indicating a very low cost of retrieval.
      *
@@ -1530,6 +1561,7 @@ public class Cache implements Ehcache {
     public final CacheManager getCacheManager() {
         return cacheManager;
     }
+
 
     /**
      * Resets statistics counters back to 0.
@@ -1630,8 +1662,8 @@ public class Cache implements Ehcache {
         } else if (statisticsAccuracy == Statistics.STATISTICS_ACCURACY_NONE) {
             size = getKeysNoDuplicateCheck().size();
         }
-        return new Statistics(this, statisticsAccuracy, hitCount, diskStoreHitCount, memoryStoreHitCount, missCountExpired
-                + missCountNotFound, size);
+        return new Statistics(this, statisticsAccuracy, hitCount, diskStoreHitCount, memoryStoreHitCount,
+                missCountExpired + missCountNotFound, size);
     }
 
     /**
@@ -1642,6 +1674,7 @@ public class Cache implements Ehcache {
     public void setCacheManager(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
     }
+
 
     /**
      * Accessor for the BootstrapCacheLoader associated with this cache. For testing purposes.
@@ -1663,6 +1696,7 @@ public class Cache implements Ehcache {
         this.bootstrapCacheLoader = bootstrapCacheLoader;
     }
 
+
     /**
      * DiskStore paths can conflict between CacheManager instances. This method allows the path to be changed.
      *
@@ -1675,6 +1709,7 @@ public class Cache implements Ehcache {
         }
         this.diskStorePath = diskStorePath;
     }
+
 
     /**
      * An equals method which follows the contract of {@link Object#equals(Object)}
@@ -1695,6 +1730,7 @@ public class Cache implements Ehcache {
         Ehcache other = (Ehcache) object;
         return guid.equals(other.getGuid());
     }
+
 
     /**
      * Returns a hash code value for the object. This method is
@@ -1736,5 +1772,6 @@ public class Cache implements Ehcache {
     public int hashCode() {
         return guid.hashCode();
     }
+
 
 }

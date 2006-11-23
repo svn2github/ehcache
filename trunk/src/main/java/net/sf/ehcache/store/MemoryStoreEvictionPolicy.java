@@ -16,12 +16,6 @@
 
 package net.sf.ehcache.store;
 
-import net.sf.ehcache.store.policies.FifoMap;
-import net.sf.ehcache.store.policies.LfuMap;
-import net.sf.ehcache.store.policies.LruMap;
-import net.sf.ehcache.store.policies.PolicyMap;
-import net.sf.ehcache.CacheException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -40,24 +34,25 @@ import org.apache.commons.logging.LogFactory;
  * @version $Id$
  * @since 1.2
  */
-public final class EvictionPolicy {
+public final class MemoryStoreEvictionPolicy {
 
     /**
      * LRU - least recently used.
      */
-    public static final EvictionPolicy LRU = new EvictionPolicy("LRU");
+    public static final MemoryStoreEvictionPolicy LRU = new MemoryStoreEvictionPolicy("LRU");
 
     /**
      * LFU - least frequently used.
      */
-    public static final EvictionPolicy LFU = new EvictionPolicy("LFU");
+
+    public static final MemoryStoreEvictionPolicy LFU = new MemoryStoreEvictionPolicy("LFU");
 
     /**
      * FIFO - first in first out, the oldest element by creation time.
      */
-    public static final EvictionPolicy FIFO = new EvictionPolicy("FIFO");
+    public static final MemoryStoreEvictionPolicy FIFO = new MemoryStoreEvictionPolicy("FIFO");
 
-    private static final Log LOG = LogFactory.getLog(EvictionPolicy.class.getName());
+    private static final Log LOG = LogFactory.getLog(MemoryStoreEvictionPolicy.class.getName());
 
     // for debug only
     private final String myName;
@@ -66,7 +61,7 @@ public final class EvictionPolicy {
      * This class should not be subclassed or have instances created.
      * @param policy
      */
-    private EvictionPolicy(String policy) {
+    private MemoryStoreEvictionPolicy(String policy) {
         myName = policy;
     }
 
@@ -83,7 +78,7 @@ public final class EvictionPolicy {
      * @param policy either LRU, LFU or FIFO
      * @return one of the static instances
      */
-    public static EvictionPolicy fromString(String policy) {
+    public static MemoryStoreEvictionPolicy fromString(String policy) {
         if (policy != null) {
             if (policy.equalsIgnoreCase("LRU")) {
                 return LRU;
@@ -95,23 +90,9 @@ public final class EvictionPolicy {
         }
 
         if (LOG.isWarnEnabled()) {
-            LOG.warn("The evictionPolicy of " + policy + " cannot be resolved. The policy will be set to LRU");
+            LOG.warn("The memoryStoreEvictionPolicy of " + policy + " cannot be resolved. The policy will be" +
+                    " set to LRU");
         }
         return LRU;
-    }
-
-    /**
-     * A factory method to create an instance of the map which implements the semantics of the policy 
-     */
-    public PolicyMap createPolicyMap() {
-        if (this == LRU) {
-            return new LruMap();
-        } else if (this == FIFO) {
-            return new FifoMap();
-        } else if (this == LFU) {
-            return new LfuMap();
-        } else {
-            throw new CacheException("Illegal policy map");
-        }
     }
 }

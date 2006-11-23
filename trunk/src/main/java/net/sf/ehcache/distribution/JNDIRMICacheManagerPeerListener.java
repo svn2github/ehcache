@@ -32,7 +32,7 @@ import java.util.Iterator;
  * A cache server which exposes available cache operations remotely through RMI.
  * Uses JNDI to bind the remote cache.
  *
- * @author Andy McNutt
+ * @author Andy McNutt                                                                                                           
  * @author Greg Luck
  * @version $Id$
  * @see RMICacheManagerPeerListener
@@ -70,13 +70,13 @@ public class JNDIRMICacheManagerPeerListener extends RMICacheManagerPeerListener
             populateListOfRemoteCachePeers();
 
             synchronized (cachePeers) {
-                for (Iterator iterator = cachePeers.values().iterator(); iterator.hasNext();) {
-                    rmiCachePeer = (RMICachePeer) iterator.next();
-                    peerName = rmiCachePeer.getName();
-                    LOG.debug("binding " + peerName);
-                    initialContext.rebind(peerName, rmiCachePeer);
-                    counter++;
-                }
+            for (Iterator iterator = cachePeers.values().iterator(); iterator.hasNext();) {
+                rmiCachePeer = (RMICachePeer) iterator.next();
+                peerName = rmiCachePeer.getName();
+                LOG.debug("binding " + peerName);
+                initialContext.rebind(peerName, rmiCachePeer);
+                counter++;
+            }
             }
             LOG.debug(counter + " RMICachePeers bound in JNDI for RMI listener");
         } catch (Exception e) {
@@ -111,7 +111,7 @@ public class JNDIRMICacheManagerPeerListener extends RMICacheManagerPeerListener
      * <li>Unexporting the peer
      * </ol>
      *
-     * @param rmiCachePeer the cache peer to dispose of
+     * @param rmiCachePeer  the cache peer to dispose of
      * @throws Exception thrown if something goes wrong
      */
     protected void disposeRMICachePeer(RMICachePeer rmiCachePeer) throws Exception {

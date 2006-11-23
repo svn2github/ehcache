@@ -16,7 +16,7 @@
 
 package net.sf.ehcache.config;
 
-import net.sf.ehcache.store.EvictionPolicy;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,6 @@ import java.util.List;
  * overflowToDisk="true"
  * diskPersistent="true"
  * diskExpiryThreadIntervalSeconds="120"
- * maxElementsOnDisk="10000"
  * />
  *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
@@ -51,11 +50,6 @@ public class CacheConfiguration {
     protected int maxElementsInMemory;
 
     /**
-     * the maximum objects to be held in the {@link net.sf.ehcache.store.DiskStore}.
-     */
-    protected int maxElementsOnDisk;
-
-    /**
      * The policy used to evict elements from the {@link net.sf.ehcache.store.MemoryStore}.
      * This can be one of:
      * <ol>
@@ -67,7 +61,7 @@ public class CacheConfiguration {
      *
      * @since 1.2
      */
-    protected EvictionPolicy evictionPolicy;
+    protected MemoryStoreEvictionPolicy memoryStoreEvictionPolicy;
 
 
     /**
@@ -135,18 +129,9 @@ public class CacheConfiguration {
 
     /**
      * Sets the eviction policy. An invalid argument will set it to null.
-     *
-     * @deprecated use {@link #setEvictionPolicy(String)}
      */
-    public final void setMemoryStoreEvictionPolicy(String evictionPolicy) {
-        this.evictionPolicy = EvictionPolicy.fromString(evictionPolicy);
-    }
-
-    /**
-     * Sets the eviction policy. An invalid argument will set it to null.
-     */
-    public final void setEvictionPolicy(String evictionPolicy) {
-        this.evictionPolicy = EvictionPolicy.fromString(evictionPolicy);
+    public final void setMemoryStoreEvictionPolicy(String memoryStoreEvictionPolicy) {
+        this.memoryStoreEvictionPolicy = MemoryStoreEvictionPolicy.fromString(memoryStoreEvictionPolicy);
     }
 
     /**
@@ -182,13 +167,6 @@ public class CacheConfiguration {
      */
     public final void setDiskPersistent(boolean diskPersistent) {
         this.diskPersistent = diskPersistent;
-    }
-
-    /**
-     * Sets the maximum number elements on Disk. 0 means unlimited.
-     */
-    public void setMaxElementsOnDisk(int maxElementsOnDisk) {
-        this.maxElementsOnDisk = maxElementsOnDisk;
     }
 
     /**
@@ -247,15 +225,8 @@ public class CacheConfiguration {
     /**
      * Accessor
      */
-    public int getMaxElementsOnDisk() {
-        return maxElementsOnDisk;
-    }
-
-    /**
-     * Accessor
-     */
-    public EvictionPolicy getMemoryStoreEvictionPolicy() {
-        return evictionPolicy;
+    public MemoryStoreEvictionPolicy getMemoryStoreEvictionPolicy() {
+        return memoryStoreEvictionPolicy;
     }
 
     /**

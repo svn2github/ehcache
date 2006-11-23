@@ -24,8 +24,6 @@ import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.store.DiskStore;
-import net.sf.ehcache.store.ThreadPoolManager;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -95,8 +93,6 @@ public class CacheManager {
 
     private CacheManagerPeerProvider cacheManagerPeerProvider;
     private CacheManagerPeerListener cacheManagerPeerListener;
-    
-    private ThreadPoolManager threadPoolManager;
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -197,9 +193,6 @@ public class CacheManager {
         }
 
         ConfigurationHelper configurationHelper = new ConfigurationHelper(this, localConfiguration);
-        
-        threadPoolManager = new ThreadPoolManager(configurationHelper);
-        
         configure(configurationHelper);
         addConfiguredCaches(configurationHelper);
 
@@ -559,7 +552,7 @@ public class CacheManager {
         cache.setDiskStorePath(diskStorePath);
         cache.initialise();
         try {
-            cache.bootstrap();
+        cache.bootstrap();
         } catch (CacheException e) {
             LOG.warn("Cache " + cache.getName() + "requested bootstrap but a CacheException occured. " + e.getMessage(), e);
         }
@@ -652,11 +645,6 @@ public class CacheManager {
                 }
             }
             status = Status.STATUS_SHUTDOWN;
-
-            // dispose of thread pools so we do not cause concurrency issues
-            if (threadPoolManager != null) {
-                threadPoolManager.dispose();
-            }
 
             //only delete singleton if the singleton is shutting down.
             if (this == singleton) {
@@ -796,13 +784,6 @@ public class CacheManager {
             caches.put(cache.getName(), decoratedCache);
         }
 
-    }
-    
-    /**
-     * Get the thread pool manager for this CacheManager
-     */
-    public ThreadPoolManager getThreadPoolManager() {
-        return threadPoolManager;
     }
 }
 

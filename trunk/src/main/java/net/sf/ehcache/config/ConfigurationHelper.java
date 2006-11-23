@@ -33,8 +33,6 @@ import net.sf.ehcache.event.CacheManagerEventListenerFactory;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.PropertyUtil;
-import net.sf.ehcache.util.ThreadPool;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -60,7 +58,6 @@ import java.util.Set;
 public final class ConfigurationHelper {
 
     private static final Log LOG = LogFactory.getLog(ConfigurationHelper.class.getName());
-    private static final float REASONABLE_EXPIRY_THREAD_RATIO = .2F;
 
     private Configuration configuration;
     private CacheManager cacheManager;
@@ -84,7 +81,7 @@ public final class ConfigurationHelper {
      * A factory method to create a RegisteredEventListeners
      */
     protected static void registerCacheListeners(CacheConfiguration cacheConfiguration,
-                                                 RegisteredEventListeners registeredEventListeners) {
+                                                RegisteredEventListeners registeredEventListeners) {
         List cacheEventListenerConfigurations = cacheConfiguration.cacheEventListenerConfigurations;
         for (int i = 0; i < cacheEventListenerConfigurations.size(); i++) {
             CacheConfiguration.CacheEventListenerFactoryConfiguration factoryConfiguration =
@@ -232,82 +229,6 @@ public final class ConfigurationHelper {
     }
 
     /**
-     * Creates the disk store spooling thread pool using either the configuration, or if it is absent
-     * the defaults which are threads equal to the number caches which overflow and a priority of <code>Thread.NORM_PRIORITY</code>.
-     */
-    public ThreadPool createDiskStoreSpoolingThreadPool() {
-        DiskStoreConfiguration diskStoreConfiguration = configuration.getDiskStoreConfiguration();
-        if (diskStoreConfiguration == null || diskStoreConfiguration.getSpoolingThreadPoolConfiguration() == null) {
-            ThreadPoolConfiguration threadPoolConfiguration = new ThreadPoolConfiguration();
-            threadPoolConfiguration.setThreads(calculateDefaultSpoolingThreads());
-            threadPoolConfiguration.setPriority(new Integer(Thread.NORM_PRIORITY));
-            threadPoolConfiguration.setName("DiskStore Spool Thread Pool");
-            return new ThreadPool(threadPoolConfiguration);
-        } else {
-            ThreadPoolConfiguration threadPoolConfiguration = diskStoreConfiguration.getSpoolingThreadPoolConfiguration();
-            threadPoolConfiguration.setName("DiskStore Spool Thread Pool");
-            if (threadPoolConfiguration.getThreads() == null) {
-                threadPoolConfiguration.setThreads(calculateDefaultSpoolingThreads());
-            }
-            if (threadPoolConfiguration.getPriority() == null) {
-                threadPoolConfiguration.setPriority(new Integer(Thread.NORM_PRIORITY));
-            }
-            return new ThreadPool(threadPoolConfiguration);
-        }
-    }
-
-    /**
-     * Creates the disk store expiry thread pool using either the configuration, or if it is absent
-     * the defaults which are threads equal to the number caches which overflow divided by 5, which
-     * means that there is one expiry thread for each 5 caches,
-     * and a priority of <code>Thread.MIN_PRIORITY</code>
-     */
-    public ThreadPool createDiskStoreExpiryThreadPool() {
-        DiskStoreConfiguration diskStoreConfiguration = configuration.getDiskStoreConfiguration();
-        if (diskStoreConfiguration == null || diskStoreConfiguration.getExpiryThreadPoolConfiguration() == null) {
-            ThreadPoolConfiguration threadPoolConfiguration = new ThreadPoolConfiguration();
-            threadPoolConfiguration.setThreads(calculateDefaultExpiryThreads());
-            threadPoolConfiguration.setPriority(new Integer(Thread.MIN_PRIORITY));
-            threadPoolConfiguration.setName("DiskStore Expiry Thread Pool");
-            return new ThreadPool(threadPoolConfiguration);
-        } else {
-            ThreadPoolConfiguration threadPoolConfiguration = diskStoreConfiguration.getExpiryThreadPoolConfiguration();
-            threadPoolConfiguration.setName("DiskStore Expiry Thread Pool");
-            if (threadPoolConfiguration.getThreads() == null) {
-                threadPoolConfiguration.setThreads(calculateDefaultExpiryThreads());
-            }
-            if (threadPoolConfiguration.getPriority() == null) {
-                threadPoolConfiguration.setPriority(new Integer(Thread.MIN_PRIORITY));
-            }
-            return new ThreadPool(threadPoolConfiguration);
-        }
-    }
-
-    private Integer calculateDefaultExpiryThreads() {
-        Integer defaultOverflowThreads = null;
-        int candidate = (int)Math.ceil(numberOfCachesThatOverflowToDisk().intValue()
-                * REASONABLE_EXPIRY_THREAD_RATIO);
-        if (candidate == 0) {
-            defaultOverflowThreads = new Integer(1);
-        } else {
-            defaultOverflowThreads = new Integer(candidate);
-        }
-        return defaultOverflowThreads;
-    }
-
-
-    private Integer calculateDefaultSpoolingThreads() {
-        Integer defaultOverflowThreads = null;
-       int candidate = (int)Math.ceil(numberOfCachesThatOverflowToDisk().intValue());
-        if (candidate == 0) {
-            defaultOverflowThreads = new Integer(1);
-        } else {
-            defaultOverflowThreads = new Integer(candidate);
-        }
-        return defaultOverflowThreads;
-    }
-
-    /**
      * @return the Default Cache
      * @throws net.sf.ehcache.CacheException if there is no default cache
      */
@@ -336,23 +257,6 @@ public final class ConfigurationHelper {
             caches.add(cache);
         }
         return caches;
-    }
-
-
-    /**
-     * Calculates the number of caches in the configuration that overflow to disk
-     */
-    public final Integer numberOfCachesThatOverflowToDisk() {
-        int count = 0;
-        Set cacheConfigurations = configuration.getCacheConfigurations().entrySet();
-        for (Iterator iterator = cacheConfigurations.iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            CacheConfiguration cacheConfiguration = (CacheConfiguration) entry.getValue();
-            if (cacheConfiguration.overflowToDisk) {
-                count++;
-            }
-        }
-        return new Integer(count);
     }
 
     /**
@@ -386,7 +290,7 @@ public final class ConfigurationHelper {
     final Cache createCache(CacheConfiguration cacheConfiguration) {
         Cache cache = new Cache(cacheConfiguration.name,
                 cacheConfiguration.maxElementsInMemory,
-                cacheConfiguration.evictionPolicy,
+                cacheConfiguration.memoryStoreEvictionPolicy,
                 cacheConfiguration.overflowToDisk,
                 getDiskStorePath(),
                 cacheConfiguration.eternal,
@@ -395,8 +299,7 @@ public final class ConfigurationHelper {
                 cacheConfiguration.diskPersistent,
                 cacheConfiguration.diskExpiryThreadIntervalSeconds,
                 null,
-                null, 
-                cacheConfiguration.maxElementsOnDisk);
+                null);
         RegisteredEventListeners listeners = cache.getCacheEventNotificationService();
         registerCacheListeners(cacheConfiguration, listeners);
         BootstrapCacheLoader bootstrapCacheLoader = createBootstrapCacheLoader(
@@ -405,13 +308,10 @@ public final class ConfigurationHelper {
         return cache;
     }
 
-
     /**
      * @return the Configuration used
      */
     public final Configuration getConfigurationBean() {
         return configuration;
     }
-
-
 }

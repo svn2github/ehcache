@@ -22,8 +22,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.store.EvictionPolicy;
-import net.sf.ehcache.util.ThreadPool;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
@@ -90,7 +88,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
         //Check disk store  <diskStore path="java.io.tmpdir"/>
-        assertEquals(System.getProperty("java.io.tmpdir") , configurationHelper.getDiskStorePath());
+        assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
 
         //Check CacheManagerPeerProvider
         CacheManagerPeerProvider peerProvider = configurationHelper.createCachePeerProvider();
@@ -98,17 +96,6 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //Check TTL
         assertTrue(peerProvider instanceof MulticastRMICacheManagerPeerProvider);
         assertEquals(new Integer(1), ((MulticastRMICacheManagerPeerProvider) peerProvider).getHeartBeatSender().getTimeToLive());
-
-        ThreadPool threadPool = configurationHelper.createDiskStoreSpoolingThreadPool();
-        assertEquals(new Integer(4), threadPool.getConfiguration().getThreads());
-        assertEquals(new Integer(5), threadPool.getConfiguration().getPriority());
-        assertEquals("DiskStore Spool Thread Pool", threadPool.getConfiguration().getName());
-
-
-        threadPool = configurationHelper.createDiskStoreExpiryThreadPool();
-        assertEquals(new Integer(1), threadPool.getConfiguration().getThreads());
-        assertEquals(new Integer(2), threadPool.getConfiguration().getPriority());
-        assertEquals("DiskStore Expiry Thread Pool", threadPool.getConfiguration().getName());
 
         //Check CacheManagerEventListener
         assertEquals(null, configurationHelper.createCacheManagerEventListener());
@@ -139,17 +126,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(360, sampleCache1.getTimeToIdleSeconds());
         assertEquals(1000, sampleCache1.getTimeToLiveSeconds());
         assertEquals(true, sampleCache1.isOverflowToDisk());
-        assertEquals(1000, sampleCache1.getMaxElementsOnDisk());
 
         /** A cache which overflows to disk. The disk store is persistent
          between cache and VM restarts. The disk expiry thread interval is set to 10 minutes, overriding
          the default of 2 minutes.
-
-         <diskStore path="java.io.tmpdir">
-         <spoolThreadPool threads="4" priority="5"/>
-         <expiryThreadPool threads="1" priority="2"/>
-         </diskStore>
-
          <cache name="persistentLongExpiryIntervalCache"
          maxElementsInMemory="500"
          eternal="false"
@@ -167,7 +147,6 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(true, persistentLongExpiryIntervalCache.isOverflowToDisk());
         assertEquals(true, persistentLongExpiryIntervalCache.isDiskPersistent());
         assertEquals(600, persistentLongExpiryIntervalCache.getDiskExpiryThreadIntervalSeconds());
-        assertEquals(EvictionPolicy.LRU, persistentLongExpiryIntervalCache.getEvictionPolicy());
     }
 
 
@@ -189,28 +168,12 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
-        //Check disk store  <diskStore path="/tmp"/>
-        assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
-
         //Check CacheManagerPeerProvider
         CacheManagerPeerProvider peerProvider = configurationHelper.createCachePeerProvider();
 
         //Check TTL
         assertTrue(peerProvider instanceof MulticastRMICacheManagerPeerProvider);
         assertEquals(new Integer(1), ((MulticastRMICacheManagerPeerProvider) peerProvider).getHeartBeatSender().getTimeToLive());
-
-        ThreadPool threadPool = configurationHelper.createDiskStoreSpoolingThreadPool();
-        //should equal the number of caches
-        assertEquals(new Integer(2), threadPool.getConfiguration().getThreads());
-        assertEquals(new Integer(5), threadPool.getConfiguration().getPriority());
-        assertEquals("DiskStore Spool Thread Pool", threadPool.getConfiguration().getName());
-
-        threadPool = configurationHelper.createDiskStoreExpiryThreadPool();
-        //ceil(number of caches/5)
-        assertEquals(new Integer(1), threadPool.getConfiguration().getThreads());
-        //defaults to min
-        assertEquals(new Integer(1), threadPool.getConfiguration().getPriority());
-        assertEquals("DiskStore Expiry Thread Pool", threadPool.getConfiguration().getName());
 
         //Check default cache
         Ehcache defaultCache = configurationHelper.createDefaultCache();
@@ -219,9 +182,6 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(120, defaultCache.getTimeToIdleSeconds());
         assertEquals(120, defaultCache.getTimeToLiveSeconds());
         assertEquals(true, defaultCache.isOverflowToDisk());
-        assertEquals(10000, defaultCache.getMaxElementsInMemory());
-        assertEquals(0, defaultCache.getMaxElementsOnDisk());
-
 
         //Check caches
         assertEquals(6, configurationHelper.createCaches().size());
@@ -246,7 +206,6 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals("sampleCache1", sampleCache1.getName());
         assertEquals(false, sampleCache1.isEternal());
         assertEquals(300, sampleCache1.getTimeToIdleSeconds());
-        assertEquals(1000, sampleCache1.getMaxElementsOnDisk());
         assertEquals(600, sampleCache1.getTimeToLiveSeconds());
         assertEquals(true, sampleCache1.isOverflowToDisk());
     }
@@ -280,8 +239,6 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(5, defaultCache.getTimeToIdleSeconds());
         assertEquals(10, defaultCache.getTimeToLiveSeconds());
         assertEquals(true, defaultCache.isOverflowToDisk());
-        assertEquals(10, defaultCache.getMaxElementsInMemory());
-        assertEquals(0, defaultCache.getMaxElementsOnDisk());
 
         //Check caches
         assertEquals(8, configurationHelper.createCaches().size());
@@ -453,13 +410,6 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * Tests that the loader successfully loads from ehcache-nodefault.xml
      * given as a {@link File}
      * <p/>
-     * <diskStore path="java.io.tmpdir">
-     * <spoolThreadPool priority="5"/>
-     * <expiryThreadPool threads="2"/>
-     * </diskStore>
-     * <p/>
-     * <p/>
-     * <p/>
      * <defaultCache
      * maxElementsInMemory="10000"
      * eternal="false"
@@ -473,20 +423,8 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
-        //Check disk
+        //Check disk path  <diskStore path="/tmp"/>
         assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
-
-        ThreadPool threadPool = configurationHelper.createDiskStoreSpoolingThreadPool();
-        //Should use default because was not specified
-        assertEquals(new Integer(2), threadPool.getConfiguration().getThreads());
-        assertEquals(new Integer(7), threadPool.getConfiguration().getPriority());
-        assertEquals("DiskStore Spool Thread Pool", threadPool.getConfiguration().getName());
-
-
-        threadPool = configurationHelper.createDiskStoreExpiryThreadPool();
-        assertEquals(new Integer(20), threadPool.getConfiguration().getThreads());
-        assertEquals(new Integer(1), threadPool.getConfiguration().getPriority());
-        assertEquals("DiskStore Expiry Thread Pool", threadPool.getConfiguration().getName());
 
         //Check default cache
         try {

@@ -17,7 +17,7 @@
 package net.sf.ehcache;
 
 import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.store.EvictionPolicy;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 
 import java.io.Serializable;
@@ -375,7 +375,7 @@ public interface Ehcache extends Cloneable {
     /**
      * Gets the cache name.
      */
-    String getName();             
+    String getName();
 
     /**
      * Sets the cache name which will name.
@@ -408,11 +408,6 @@ public interface Ehcache extends Cloneable {
      * Gets the maximum number of elements to hold in memory.
      */
     int getMaxElementsInMemory();
-    
-    /**
-     * Gets the maximum number of elements to hold on Disk.
-     */
-    int getMaxElementsOnDisk();
 
     /**
      * The policy used to evict elements from the {@link net.sf.ehcache.store.MemoryStore}.
@@ -425,9 +420,8 @@ public interface Ehcache extends Cloneable {
      * The default value is LRU
      *
      * @since 1.2
-     * @return The eviction policy of the cache
      */
-    EvictionPolicy getEvictionPolicy();
+    MemoryStoreEvictionPolicy getMemoryStoreEvictionPolicy();
 
     /**
      * Returns a {@link String} representation of {@link net.sf.ehcache.Cache}.

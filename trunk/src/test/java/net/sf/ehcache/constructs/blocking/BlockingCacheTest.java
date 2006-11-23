@@ -317,7 +317,7 @@ public class BlockingCacheTest extends CacheTest {
     protected Ehcache createTestCache() {
         Ehcache cache = super.createTestCache();
         return new BlockingCache(cache);
-    }
+}
 
     /**
      * Gets the sample cache 1

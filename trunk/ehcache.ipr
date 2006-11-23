@@ -13,10 +13,6 @@
   <component name="BuildJarProjectSettings">
     <option name="BUILD_JARS_ON_MAKE" value="false" />
   </component>
-  <component name="CodeStyleManager">
-    <option name="USE_DEFAULT_CODE_STYLE_SCHEME" value="true" />
-    <option name="CODE_STYLE_SCHEME" value="" />
-  </component>
   <component name="CodeStyleProjectProfileManger">
     <option name="PROJECT_PROFILE" />
     <option name="USE_PROJECT_LEVEL_SETTINGS" value="false" />
@@ -28,12 +24,22 @@
   <component name="CompilerConfiguration">
     <option name="DEFAULT_COMPILER" value="Javac" />
     <option name="DEPLOY_AFTER_MAKE" value="0" />
-    <resourceExtensions />
+    <resourceExtensions>
+      <entry name=".+\.(properties|xml|html|dtd|tld)" />
+      <entry name=".+\.(gif|png|jpeg|jpg)" />
+    </resourceExtensions>
     <wildcardResourcePatterns>
-      <entry name="!?*.java" />
+      <entry name="?*.properties" />
+      <entry name="?*.xml" />
+      <entry name="?*.html" />
+      <entry name="?*.dtd" />
+      <entry name="?*.tld" />
+      <entry name="?*.gif" />
+      <entry name="?*.png" />
+      <entry name="?*.jpeg" />
+      <entry name="?*.jpg" />
     </wildcardResourcePatterns>
   </component>
-  <component name="DataSourceManager" />
   <component name="DataSourceManagerImpl" />
   <component name="DependenciesAnalyzeManager">
     <option name="myForwardDirection" value="false" />
@@ -62,13 +68,7 @@
     <option name="OUTPUT_DIRECTORY" />
   </component>
   <component name="GUI Designer component loader factory" />
-  <component name="IdProvider" IDEtalkID="803623EA3A8F8D875FAD58B633B81677" />
-  <component name="ImportConfiguration">
-    <option name="VENDOR" />
-    <option name="RELEASE_TAG" />
-    <option name="LOG_MESSAGE" />
-    <option name="CHECKOUT_AFTER_IMPORT" value="true" />
-  </component>
+  <component name="IdProvider" IDEtalkID="45826F7464415DED10CD02190C2601A5" />
   <component name="InspectionProjectProfileManager">
     <option name="PROJECT_PROFILE" value="Project Default" />
     <option name="USE_PROJECT_LEVEL_SETTINGS" value="false" />
@@ -95,11 +95,36 @@
             <option name="myVal" value="100" />
           </server>
         </used_levels>
+        <inspection_tool class="ExternalizableWithSerializationMethods" level="WARNING" enabled="true" />
+        <inspection_tool class="ReadObjectInitialization" level="WARNING" enabled="true" />
+        <inspection_tool class="NonSerializableWithSerializationMethods" level="WARNING" enabled="true" />
+        <inspection_tool class="NonSerializableWithSerialVersionUIDField" level="WARNING" enabled="true" />
+        <inspection_tool class="ReadObjectAndWriteObjectPrivate" level="WARNING" enabled="true" />
+        <inspection_tool class="ReadResolveAndWriteReplaceProtected" level="WARNING" enabled="true" />
+        <inspection_tool class="SerializableWithUnconstructableAncestor" level="WARNING" enabled="true" />
+        <inspection_tool class="SerializableHasSerializationMethods" level="WARNING" enabled="true">
+          <option name="m_ignoreSerializableDueToInheritance" value="true" />
+        </inspection_tool>
+        <inspection_tool class="SerializableHasSerialVersionUIDField" level="WARNING" enabled="true">
+          <option name="m_ignoreSerializableDueToInheritance" value="true" />
+        </inspection_tool>
+        <inspection_tool class="SerializableInnerClassHasSerialVersionUIDField" level="WARNING" enabled="true">
+          <option name="m_ignoreSerializableDueToInheritance" value="true" />
+        </inspection_tool>
+        <inspection_tool class="SerializableInnerClassWithNonSerializableOuterClass" level="WARNING" enabled="true">
+          <option name="m_ignoreSerializableDueToInheritance" value="true" />
+        </inspection_tool>
+        <inspection_tool class="SerialPersistentFieldsWithWrongSignature" level="WARNING" enabled="true" />
+        <inspection_tool class="SerialVersionUIDNotStaticFinal" level="WARNING" enabled="true" />
+        <inspection_tool class="TransientFieldInNonSerializableClass" level="WARNING" enabled="true" />
+        <inspection_tool class="ThrowablePrintStackTrace" level="WARNING" enabled="true" />
+        <inspection_tool class="ThreadDumpStack" level="WARNING" enabled="true" />
+        <inspection_tool class="SuppressionAnnotation" level="WARNING" enabled="true" />
+        <inspection_tool class="ObsoleteCollection" level="WARNING" enabled="true" />
+        <inspection_tool class="SystemOutErr" level="WARNING" enabled="true" />
+        <inspection_tool class="InstanceofCatchParameter" level="WARNING" enabled="true" />
       </profile>
     </profiles>
-  </component>
-  <component name="JUnitProjectSettings">
-    <option name="TEST_RUNNER" value="UI" />
   </component>
   <component name="JavacSettings">
     <option name="DEBUGGING_INFO" value="true" />
@@ -111,19 +136,19 @@
   <component name="JavadocGenerationManager">
     <option name="OUTPUT_DIRECTORY" />
     <option name="OPTION_SCOPE" value="protected" />
-    <option name="OPTION_HIERARCHY" value="false" />
-    <option name="OPTION_NAVIGATOR" value="false" />
-    <option name="OPTION_INDEX" value="false" />
-    <option name="OPTION_SEPARATE_INDEX" value="false" />
+    <option name="OPTION_HIERARCHY" value="true" />
+    <option name="OPTION_NAVIGATOR" value="true" />
+    <option name="OPTION_INDEX" value="true" />
+    <option name="OPTION_SEPARATE_INDEX" value="true" />
     <option name="OPTION_DOCUMENT_TAG_USE" value="false" />
     <option name="OPTION_DOCUMENT_TAG_AUTHOR" value="false" />
     <option name="OPTION_DOCUMENT_TAG_VERSION" value="false" />
-    <option name="OPTION_DOCUMENT_TAG_DEPRECATED" value="false" />
-    <option name="OPTION_DEPRECATED_LIST" value="false" />
-    <option name="OTHER_OPTIONS" />
+    <option name="OPTION_DOCUMENT_TAG_DEPRECATED" value="true" />
+    <option name="OPTION_DEPRECATED_LIST" value="true" />
+    <option name="OTHER_OPTIONS" value="" />
     <option name="HEAP_SIZE" />
     <option name="LOCALE" />
-    <option name="OPEN_IN_BROWSER" value="false" />
+    <option name="OPEN_IN_BROWSER" value="true" />
   </component>
   <component name="JikesSettings">
     <option name="JIKES_PATH" value="" />
@@ -263,17 +288,14 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ehcache.iml" filepath="$PROJECT_DIR$/ehcache.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ruby-client/ruby-client.iml" filepath="$PROJECT_DIR$/ruby-client/ruby-client.iml" />
     </modules>
   </component>
   <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="true" project-jdk-name="1.5" project-jdk-type="JavaSDK" />
   <component name="ProjectRunConfigurationManager" />
   <component name="RAILS_PROJECT_VIEW_PANE" />
-  <component name="RUBY_DOC_SETTINGS">
-    <RUBY_DOC NAME="DEFAULTS" VALUE="TRUE" />
-    <RUBY_DOC NAME="NUMBER" VALUE="0" />
-  </component>
   <component name="RmicSettings">
-    <option name="IS_EANABLED" value="false" />
+    <option name="IS_EANABLED" value="true" />
     <option name="DEBUGGING_INFO" value="true" />
     <option name="GENERATE_NO_WARNINGS" value="false" />
     <option name="GENERATE_IIOP_STUBS" value="false" />

@@ -38,7 +38,7 @@
                                          The default value is false.
         diskExpiryThreadIntervalSeconds- The number of seconds between runs of the disk expiry thread. The default value
                                          is 120 seconds.
-        evictionPolicy      - Policy would be enforced upon reaching the maxElementsInMemory limit. Default
+        memoryStoreEvictionPolicy      - Policy would be enforced upon reaching the maxElementsInMemory limit. Default
                                          policy is Least Recently Used (specified as LRU). Other policies available -
                                          First In First Out (specified as FIFO) and Less Frequently Used
                                          (specified as LFU)
@@ -52,7 +52,7 @@
         overflowToDisk="true"
         diskPersistent="false"
         diskExpiryThreadIntervalSeconds="120"
-        evictionPolicy="LFU"
+        memoryStoreEvictionPolicy="LFU"
         />
 
     <!--Predefined caches.  Add your cache configuration settings here.
@@ -84,7 +84,7 @@
                                          The default value is false.
         diskExpiryThreadIntervalSeconds- The number of seconds between runs of the disk expiry thread. The default value
                                          is 120 seconds.
-        evictionPolicy      - Policy would be enforced upon reaching the maxElementsInMemory limit. Default
+        memoryStoreEvictionPolicy      - Policy would be enforced upon reaching the maxElementsInMemory limit. Default
                                          policy is Least Recently Used (specified as LRU). Other policies available -
                                          First In First Out (specified as FIFO) and Less Frequently Used
                                          (specified as LFU)
@@ -105,7 +105,7 @@
         overflowToDisk="true"
         timeToIdleSeconds="300"
         timeToLiveSeconds="600"
-        evictionPolicy="LFU"
+        memoryStoreEvictionPolicy="LFU"
         />
 
     <!-- Sample cache named sampleCache2
@@ -118,7 +118,7 @@
         overflowToDisk="false"
         timeToIdleSeconds="300"
         timeToLiveSeconds="600"
-        evictionPolicy="FIFO"
+        memoryStoreEvictionPolicy="FIFO"
         />
 
     <!-- Sample cache named sampleCache3. This cache overflows to disk. The disk store is persistent
@@ -133,7 +133,7 @@
         timeToLiveSeconds="600"
         diskPersistent="true"
         diskExpiryThreadIntervalSeconds="1"
-        evictionPolicy="LFU"
+        memoryStoreEvictionPolicy="LFU"
         />
 
 
@@ -152,7 +152,7 @@
         overflowToDisk="true"
         timeToIdleSeconds="300"
         timeToLiveSeconds="600"
-        evictionPolicy="LFU"
+        memoryStoreEvictionPolicy="LFU"
         />
 
 
