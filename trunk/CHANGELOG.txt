@@ -1,5 +1,98 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+ehcache-1.2.4
+=============
+
+<!-- Feature Changes  -->
+<action dev="Greg Luck" type="remove">
+    Dropped support for JDK1.3. Resulting changes are proper chained exceptions,
+    and no longer requiring commons-collections. This enables some simplifications
+    in the code base and eases maintenance.
+</action>
+<action dev="Greg Luck/Jody Brownell" type="add">
+    Added a maxElementsOnDiskStore attribute to cache. This lets disk stores be
+    bounded. LFU eviction is used to decide which element to evict.
+</action>
+<action dev="Greg Luck/Jody Brownell" type="add">
+    Combined the DiskStore's expiry and spool threads. They were competing for the
+    same locks anyway. This reduces the maximum number of threads used from 2 to 1 per
+    DiskStore.
+</action>
+<action dev="Tony Voss" issue="1588976" type="add">
+    Enable the timeToLive to be set on the cacheManagerPeerProviderFactory. This enables
+    the spread of multicast packets to be controlled from a single host to the Internet.
+    The default is 1, which is the same as the Java default so the default behavior will not
+    change for existing users.
+</action>
+
+<!-- Reported Bug fixes -->
+<action dev="Greg Luck" issue="1574735" type="fix">
+    Fix typo in lock timeout log message in BlockingCache. Thanks to Matt Magoffin
+    for reporting this bug.
+</action>
+<action dev="Greg Luck" issue="1579761" type="fix">
+    Fix issue where it is not possible to specify a DiskStore path consistently
+    on all operating systems. This is a workaround to a JDK bug. Always create
+    paths like "java.io.tmpdir/cache". Any trailing characters to java.io.tmpdir
+    added for windows and solaris will be removed and placed with a single file
+    separator.
+</action>
+<action dev="Greg Luck" issue="1563017" type="fix">
+    Fixed NullPointerException on Cache.evictExpiredElements() and added some other NPE
+    guards to Cache.
+</action>
+<action dev="Greg Luck" issue="1585015" type="fix">
+    Synchronous bootstrap and manual peer discovery combination does not work because
+    the first cache to start always fails. This is normal and the CacheManager should
+    cope with it. Added a catch and log a message when this happens. Thanks to Patrick
+    Galley for the bug report.
+</action>
+<action dev="Greg Luck" issue="1589004" type="fix">
+    ehcache.xsd diskStore path defined as xs:NCName
+</action>
+<action dev="Greg Luck" issue="1589451" type="fix">
+    Fix documentation error: Ehcache provider package inconsistent
+</action>
+
+<!-- Unreported Bug fixes -->
+<action dev="Greg Luck" issue="1593099" type="fix">
+    Fixed NPE when both DiskStore path is not configured and DiskStorePath is not being used.
+    Thanks to mdillon for the patch. This was also reported under the above bug number.
+</action>
+
+<action dev="Greg Luck" type="fix">
+    CachingFilter and its subclasses now work when upstream filters or servlets return
+    404 or 302, 301.
+</action>
+
+<!-- Patches -->
+<action dev="Greg Luck" issue="1584776" type="fix">
+    Fixed rare ConcurrentModificationException in getBoundCachePeers. Thanks to Tony Voss
+</action>
+<action dev="Greg Luck" issue="1583996" type="fix">
+    Harden heartbeat sender for IOExceptions and large peer sizes. Thanks to Tony Voss
+    for the patch.
+</action>
+<action dev="Greg Luck" issue="1584041" type="fix">
+    Reduce network utilisation for distributed caching through the optimisation of only
+    doing a Naming.lookup(url) when the url has not been seen before.
+</action>
+<action dev="Greg Luck" type="fix">
+    Various fixes to web package to make filters work on Sun Application Server 9 and Tomcat
+    in addition to Orion. Add support for errors and redirects passing through filters.
+</action>
+<action dev="Tony Voss" issue="1592324" type="fix">
+    Multiple multicast packets sends multiple heartbeats
+</action>
+<action dev="dguist" issue="1591711" type="fix">
+    Infinite recursion in BlockingCache.getKeysNoDuplicateCheck
+</action>
+<action dev="Tony Voss" issue="1588796" type="fix">
+    Statistics Variables Need to be Longs. Changed internal representation to long in Cache, kept the
+    direct getters for backwards compatible and changed the new Statistics class to be long based. Use
+    getStatistics() to access the longs with out loss of precision.
+</action>
+
 ehcache-1.2.3
 =============
 <!-- Feature additions and changes -->

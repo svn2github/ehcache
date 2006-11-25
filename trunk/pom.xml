@@ -209,13 +209,13 @@
             <groupId>checkstyle</groupId>
             <artifactId>checkstyle</artifactId>
             <version>4.1</version>
-            <scope>compile</scope>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>checkstyle</groupId>
             <artifactId>checkstyle-optional</artifactId>
             <version>4.1</version>
-            <scope>compile</scope>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>commons-httpclient</groupId>

@@ -81,7 +81,6 @@ public final class LfuPolicy {
     /**
      * Generates a random sample from a population
      * @param populationSize the size to draw from
-     * @return
      */
     public static int[] generateRandomSample(int populationSize) {
         int sampleSize = LfuPolicy.calculateSampleSize(populationSize);
