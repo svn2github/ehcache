@@ -246,6 +246,19 @@ public class CacheManagerTest extends TestCase {
 
     }
 
+
+    /**
+     * The expiry threads and spool threads share are now combined. This should save some.
+     *
+     * ehcache-big.xml has 70 caches that overflow to disk. Check that the DiskStore is not using
+     * more than 1 thread per DiskStore.
+     *                     
+     */
+    public void testCacheManagerThreads() throws CacheException, InterruptedException {
+        singletonManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-big.xml");
+        assertTrue(countThreads() < 80);
+    }
+
     /**
      * It should be possible to create a new CacheManager instance with the same disk configuration,
      * provided the first was shutdown. Note that any persistent disk stores will be available to the second cache manager.
@@ -445,10 +458,10 @@ public class CacheManagerTest extends TestCase {
 
         Set listeners = cache.getCacheEventNotificationService().getCacheEventListeners();
         assertEquals(1, listeners.size());
-         for (Iterator iterator = listeners.iterator(); iterator.hasNext();) {
-             CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
-             assertTrue(cacheEventListener instanceof RMIAsynchronousCacheReplicator);
-         }
+        for (Iterator iterator = listeners.iterator(); iterator.hasNext();) {
+            CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
+            assertTrue(cacheEventListener instanceof RMIAsynchronousCacheReplicator);
+        }
     }
 
     /**
@@ -557,9 +570,9 @@ public class CacheManagerTest extends TestCase {
 
     private int countThreads() {
 
-/**
- * A class for visiting threads
- */
+        /**
+         * A class for visiting threads
+         */
         class ThreadVisitor {
 
             private int threadCount;
@@ -623,8 +636,6 @@ public class CacheManagerTest extends TestCase {
     }
 
 
-
-
     /**
      * Shows that a decorated cache can be substituted
      */
@@ -677,7 +688,7 @@ public class CacheManagerTest extends TestCase {
         managers[1].shutdown();
 
 
-}
+    }
 
     private static Configuration makeCacheManagerConfig() {
         Configuration config = new Configuration();

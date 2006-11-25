@@ -87,8 +87,7 @@ public class DiskStore implements Store {
     private Map spool = Collections.synchronizedMap(new HashMap());
     private Object spoolLock = new Object();
 
-    private Thread spoolThread;
-    private Thread expiryThread;
+    private Thread spoolAndExpiryThread;
 
     private Ehcache cache;
 
@@ -122,6 +121,11 @@ public class DiskStore implements Store {
     private long maxElementsOnDisk;
 
     /**
+     * Whether the cache is eternal
+     */
+    private boolean eternal;
+
+    /**
      * Creates a disk store.
      *
      * @param cache    the {@link net.sf.ehcache.Cache} that the store is part of
@@ -135,6 +139,7 @@ public class DiskStore implements Store {
         expiryThreadInterval = cache.getDiskExpiryThreadIntervalSeconds();
         persistent = cache.isDiskPersistent();
         maxElementsOnDisk = cache.getMaxElementsOnDisk();
+        eternal = cache.isEternal();
 
 
         try {
@@ -143,14 +148,8 @@ public class DiskStore implements Store {
             active = true;
 
             // Always start up the spool thread
-            spoolThread = new SpoolThread();
-            spoolThread.start();
-
-            // Start up the expiry thread if not eternal
-            if (!cache.isEternal()) {
-                expiryThread = new ExpiryThread();
-                expiryThread.start();
-            }
+            spoolAndExpiryThread = new SpoolAndExpiryThread();
+            spoolAndExpiryThread.start();
 
             status = Status.STATUS_ALIVE;
         } catch (final Exception e) {
@@ -397,7 +396,7 @@ public class DiskStore implements Store {
             checkActive();
 
             // Spool the element
-            if (spoolThread.isAlive()) {
+            if (spoolAndExpiryThread.isAlive()) {
                 synchronized (spoolLock) {
                     spool.put(element.getObjectKey(), element);
                 }
@@ -507,17 +506,12 @@ public class DiskStore implements Store {
 
         // Close the cache
         try {
-            //stop the expiry thread
-            if (expiryThread != null) {
-                expiryThread.interrupt();
-            }
-
 
             flush();
 
             //stop the spool thread
-            if (spoolThread != null) {
-                spoolThread.interrupt();
+            if (spoolAndExpiryThread != null) {
+                spoolAndExpiryThread.interrupt();
             }
 
             //Clear in-memory data structures
@@ -565,35 +559,62 @@ public class DiskStore implements Store {
     }
 
     /**
-     * RemoteDebugger method for the spool thread.
-     * <p/>
-     * Note that the spool thread locks the cache for the entire time it is writing elements to the disk.
+     * both flushing and expiring contend for the same lock on diskElement, so
+     * might as well do them sequentially in the one thread.
+     *
+     * This thread is protected from Throwables by only calling methods that guard
+     * against these.
      */
-    private void spoolThreadMain() {
+    private void spoolAndExpiryThreadMain() {
+        long nextExpiryTime = System.currentTimeMillis();
         while (true) {
-            // Wait for elements in the spool
-            while (active && spool != null && spool.size() == 0) {
-                try {
-                    Thread.sleep(SPOOL_THREAD_INTERVAL);
-                } catch (InterruptedException e) {
-                    LOG.debug("Spool Thread interrupted.");
-                    return;
-                }
-            }
 
+            try {
+                Thread.sleep(SPOOL_THREAD_INTERVAL);
+            } catch (InterruptedException e) {
+                LOG.debug("Spool Thread interrupted.");
+                return;
+            }
 
             if (!active) {
                 return;
             }
 
+            throwableSafeFlushSpoolIfRequired();
 
-            if (spool != null && spool.size() != 0) {
-                // Write elements to disk
-                try {
-                    flushSpool();
-                } catch (Throwable e) {
-                    LOG.error(name + "Cache: Could not flush elements to disk due to " + e.getMessage() + ". Continuing...", e);
-                }
+            if (!active) {
+                return;
+            }
+            nextExpiryTime = throwableSafeExpireElementsIfRequired(nextExpiryTime);
+
+
+        }
+    }
+
+    private long throwableSafeExpireElementsIfRequired(long nextExpiryTime) {
+
+        long updatedNextExpiryTime = nextExpiryTime;
+
+        // Expire elements
+        if (!eternal && System.currentTimeMillis() > nextExpiryTime) {
+            try {
+                updatedNextExpiryTime += expiryThreadInterval * MS_PER_SECOND;
+                expireElements();
+            } catch (Throwable e) {
+                LOG.error(name + " Cache: Could not expire elements from disk due to "
+                        + e.getMessage() + ". Continuing...", e);
+            }
+        }
+        return updatedNextExpiryTime;
+    }
+
+    private void throwableSafeFlushSpoolIfRequired() {
+        if (spool != null && spool.size() != 0) {
+            // Write elements to disk
+            try {
+                flushSpool();
+            } catch (Throwable e) {
+                LOG.error(name + " Cache: Could not flush elements to disk due to " + e.getMessage() + ". Continuing...", e);
             }
         }
     }
@@ -853,30 +874,6 @@ public class DiskStore implements Store {
     }
 
     /**
-     * The main method for the expiry thread.
-     * <p/>
-     * Will run while the cache is active. After the cache shuts down
-     * it will take the expiryThreadInterval to wake up and complete.
-     */
-    private void expiryThreadMain() {
-        long expiryThreadIntervalMillis = expiryThreadInterval * MS_PER_SECOND;
-        while (active) {
-            try {
-                Thread.sleep(expiryThreadIntervalMillis);
-                expireElements();
-            } catch (InterruptedException e) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(name + "Cache: Expiry thread interrupted on Disk Store.");
-                }
-                return;
-            } catch (Throwable t) {
-                LOG.warn(name + "Cache: Expiry thread throwable caught. Message was: "
-                        + t.getMessage() + ". Continuing...", t);
-            }
-        }
-    }
-
-    /**
      * Removes expired elements.
      * <p/>
      * Note that the DiskStore cannot efficiently expire based on TTI. It does it on TTL. However any gets out
@@ -1046,8 +1043,8 @@ public class DiskStore implements Store {
     /**
      * A background daemon thread that writes objects to the file.
      */
-    private final class SpoolThread extends Thread {
-        public SpoolThread() {
+    private final class SpoolAndExpiryThread extends Thread {
+        public SpoolAndExpiryThread() {
             super("Store " + name + " Spool Thread");
             setDaemon(true);
             setPriority(2);
@@ -1057,25 +1054,7 @@ public class DiskStore implements Store {
          * RemoteDebugger thread method.
          */
         public final void run() {
-            spoolThreadMain();
-        }
-    }
-
-    /**
-     * A background daemon thread that removes expired objects.
-     */
-    private final class ExpiryThread extends Thread {
-        public ExpiryThread() {
-            super("Store " + name + " Expiry Thread");
-            setDaemon(true);
-            setPriority(1);
-        }
-
-        /**
-         * RemoteDebugger thread method.
-         */
-        public final void run() {
-            expiryThreadMain();
+            spoolAndExpiryThreadMain();
         }
     }
 
@@ -1148,18 +1127,18 @@ public class DiskStore implements Store {
     }
 
     /**
-     * The expiry thread is started provided the cache is not eternal
+     * The spool thread is started when the disk store is created.
      * <p/>
-     * If started it will continue to run until the {@link #dispose()} method is called,
+     * It will continue to run until the {@link #dispose()} method is called,
      * at which time it should be interrupted and then die.
      *
-     * @return true if an expiryThread was created and is still alive.
+     * @return true if the spoolThread is still alive.
      */
-    public final boolean isExpiryThreadAlive() {
-        if (expiryThread == null) {
+    public final boolean isSpoolThreadAlive() {
+        if (spoolAndExpiryThread == null) {
             return false;
         } else {
-            return expiryThread.isAlive();
+            return spoolAndExpiryThread.isAlive();
         }
     }
 

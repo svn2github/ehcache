@@ -1233,7 +1233,7 @@ public class CacheTest extends AbstractCacheTest {
      * Tests what happens when an Element throws an Error on serialization. This mimics
      * what a nasty error like OutOfMemoryError could do.
      * <p/>
-     * Before a change to the SpoolThread to handle this situation this test failed and generated the following log message.
+     * Before a change to the SpoolAndExpiryThread to handle this situation this test failed and generated the following log message.
      * Jun 28, 2006 7:17:16 PM net.sf.ehcache.store.DiskStore put
      * SEVERE: testThreadKillerCache: Elements cannot be written to disk store because the spool thread has died.
      *

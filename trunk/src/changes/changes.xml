@@ -2,13 +2,28 @@
 <document>
     <body>
 
-        <release version="1.2.4" date="2006-12-31" desc="Minor release">
+        <release version="1.2.4" date="2006-11-26" desc="Minor release">
 
             <!-- Feature Changes  -->
             <action dev="Greg Luck" type="remove">
                 Dropped support for JDK1.3. Resulting changes are proper chained exceptions,
                 and no longer requiring commons-collections. This enables some simplifications
                 in the code base and eases maintenance.
+            </action>
+            <action dev="Greg Luck/Jody Brownell" type="add">
+                Added a maxElementsOnDiskStore attribute to cache. This lets disk stores be
+                bounded. LFU eviction is used to decide which element to evict.
+            </action>
+            <action dev="Greg Luck/Jody Brownell" type="add">
+                Combined the DiskStore's expiry and spool threads. They were competing for the
+                same locks anyway. This reduces the maximum number of threads used from 2 to 1 per
+                DiskStore.
+            </action>
+            <action dev="Tony Voss" issue="1588976" type="add">
+                Enable the timeToLive to be set on the cacheManagerPeerProviderFactory. This enables
+                the spread of multicast packets to be controlled from a single host to the Internet.
+                The default is 1, which is the same as the Java default so the default behavior will not
+                change for existing users.
             </action>
 
             <!-- Reported Bug fixes -->
@@ -26,10 +41,6 @@
             <action dev="Greg Luck" issue="1563017" type="fix">
                 Fixed NullPointerException on Cache.evictExpiredElements() and added some other NPE
                 guards to Cache.
-            </action>
-            <action dev="Greg Luck" issue="1557579" type="fix">
-                Fixed tmpdir resolution to make it possible to specify a disk path the same way
-                on all OSs.
             </action>
             <action dev="Greg Luck" issue="1585015" type="fix">
                 Synchronous bootstrap and manual peer discovery combination does not work because
@@ -55,7 +66,6 @@
                 404 or 302, 301.
             </action>
 
-
             <!-- Patches -->
             <action dev="Greg Luck" issue="1584776" type="fix">
                 Fixed rare ConcurrentModificationException in getBoundCachePeers. Thanks to Tony Voss
@@ -73,13 +83,10 @@
                 in addition to Orion. Add support for errors and redirects passing through filters.
             </action>
             <action dev="Tony Voss" issue="1592324" type="fix">
-                Multiple multicast packets sends multiplies heartbeat
+                Multiple multicast packets sends multiple heartbeats
             </action>
             <action dev="dguist" issue="1591711" type="fix">
                 Infinite recursion in BlockingCache.getKeysNoDuplicateCheck
-            </action>
-            <action dev="Tony Voss" issue="1588976" type="fix">
-                Needed to be able to set the TTL on the multicast socket
             </action>
             <action dev="Tony Voss" issue="1588796" type="fix">
                 Statistics Variables Need to be Longs. Changed internal representation to long in Cache, kept the

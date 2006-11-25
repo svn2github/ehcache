@@ -148,6 +148,9 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(true, persistentLongExpiryIntervalCache.isOverflowToDisk());
         assertEquals(true, persistentLongExpiryIntervalCache.isDiskPersistent());
         assertEquals(600, persistentLongExpiryIntervalCache.getDiskExpiryThreadIntervalSeconds());
+
+
+        //check the number of threads
     }
 
 

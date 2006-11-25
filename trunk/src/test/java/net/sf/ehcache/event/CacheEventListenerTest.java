@@ -30,7 +30,7 @@ import java.util.List;
 
 /**
  * Tests the cache listener functionality
- *
+ *           todo test eviction from DiskStore
  * @author Greg Luck
  * @version $Id$
  */

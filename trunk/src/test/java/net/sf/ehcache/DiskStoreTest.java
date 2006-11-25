@@ -152,9 +152,9 @@ public class DiskStoreTest extends AbstractCacheTest {
     }
 
     /**
-     * Tests that the expiry thread dies on dispose.
+     * Tests that the spool thread dies on dispose.
      */
-    public void testExpiryThreadDiesOnDispose() throws IOException, InterruptedException {
+    public void testSpoolThreadDiesOnDispose() throws IOException, InterruptedException {
         Cache cache = new Cache("testNonPersistent", 10000, true, false, 5, 1, false, 100);
         cache.initialise();
         DiskStore diskStore = cache.getDiskStore();
@@ -167,9 +167,9 @@ public class DiskStoreTest extends AbstractCacheTest {
         waitForFlush(diskStore);
 
         diskStore.dispose();
-        //Give the expiry thread time to be interrupted and die
+        //Give the spool thread time to be interrupted and die
         Thread.sleep(100);
-        assertTrue(!diskStore.isExpiryThreadAlive());
+        assertTrue(!diskStore.isSpoolThreadAlive());
 
 
     }

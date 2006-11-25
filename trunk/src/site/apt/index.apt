@@ -15,10 +15,24 @@ Welcome to ehcache
 
 * Latest News
 
-** 19 October 2006: Japanese version of the site coming
+** 26 November 2006: ehcache-1.2.4 released
 
-    Masao Nadai is completing a japanese version (???) of ehcache (?????). Stay tuned. 
+    This is a maintenance release.
 
+    It contains four feature and fifteen bug fixes received
+    in the two months since ehcache-1.2.3 was released. See the {{{http://ehcache.sourceforge.net/changes-report.html#1.2.4}changelog}}
+    for details.
+
+    Eight of the changes in this release are scalability improvements contributed by users running very large ehcache
+    deployments. The distributed caching changes stem from a user who is using ehcache in a multi-subnet cluster of 20 nodes.
+
+    The Caching and Gzip filters in the web package have been updated to work on Glassfish and Tomcat.
+
+    The distributed caching functionality in ehcache is now 6 months ago.
+
+    The maintainer has now been running ehcache distributed in production for four months without incident.
+
+    Ehcache has no open bugs or patches at the time of release.
 
 ** 2 September 2006: ehcache-1.2.3 released
 
