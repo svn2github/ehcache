@@ -930,7 +930,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * <p/>
      * Slow tests
      */
-    public void xTestMaximumCacheEntriesIn64MBWithOverflowToDisk() throws Exception {
+    public void testMaximumCacheEntriesIn64MBWithOverflowToDisk() throws Exception {
 
         Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);
         manager.addCache(cache);
@@ -972,7 +972,6 @@ public class DiskStoreTest extends AbstractCacheTest {
      * <p/>
      * Slow tests
     * 235 with get. 91 for 1.2.3. 169 with remove.
-    * todo test
      */
     public void xTestLargePutGetPerformanceWithOverflowToDisk() throws Exception {
 

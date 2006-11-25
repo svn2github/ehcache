@@ -123,6 +123,7 @@
     <!-- Sample cache named sampleCache1 -->
     <cache name="sampleCache1"
            maxElementsInMemory="10"
+           maxElementsOnDisk="10"
            eternal="false"
            timeToIdleSeconds="1"
            timeToLiveSeconds="1"

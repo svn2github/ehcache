@@ -30,7 +30,6 @@ import java.util.List;
 
 /**
  * Tests the cache listener functionality
- *           todo test eviction from DiskStore
  * @author Greg Luck
  * @version $Id$
  */
@@ -680,6 +679,26 @@ public class CacheEventListenerTest extends TestCase {
         }
         assertEquals(10, notifications.size());
 
+    }
+
+
+    /**
+     * Tests that elements evicted from disk are notified to any listeners.
+     */
+    public void testEvictionFromDiskStoreNoExpiry() throws IOException, CacheException, InterruptedException {
+        //Overflow 10 elements to disk store which is maximum
+        for (int i = 0; i < 20; i++) {
+            Element element = new Element("" + i, new Date());
+            cache.put(element);
+        }
+        cache.put(new Element(21 + "", new Date()));
+        Thread.sleep(300);
+
+        List notifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
+        assertEquals(1, notifications.size());
+
+        List expiryNotifications = CountingCacheEventListener.getCacheElementsExpired(cache);
+        assertEquals(0, expiryNotifications.size());
     }
 
 }
