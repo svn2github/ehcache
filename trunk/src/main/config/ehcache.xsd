@@ -52,6 +52,7 @@
             <xs:attribute name="overflowToDisk" use="required" type="xs:boolean"/>
             <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
             <xs:attribute name="timeToLiveSeconds" use="optional" type="xs:integer"/>
+            <xs:attribute name="maxElementsOnDisk" use="optional" type="xs:integer"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cache">
@@ -69,6 +70,7 @@
             <xs:attribute name="overflowToDisk" use="required" type="xs:boolean"/>
             <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
             <xs:attribute name="timeToLiveSeconds" use="optional" type="xs:integer"/>
+            <xs:attribute name="maxElementsOnDisk" use="optional" type="xs:integer"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cacheEventListenerFactory">

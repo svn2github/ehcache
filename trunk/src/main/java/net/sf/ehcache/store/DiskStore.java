@@ -52,6 +52,10 @@ import org.apache.commons.logging.LogFactory;
  * <p/>
  * As of ehcache-1.2 (v1.41 of this file) DiskStore has been changed to a mix of finer grained locking using synchronized collections
  * and synchronizing on the whole instance, as was the case with earlier versions.
+ * <p/>
+ * The DiskStore, as of ehcache-1.2.4, supports eviction using an LFU policy, if a maximum disk
+ * store size is set. LFU uses statistics held at the Element level which survive moving between
+ * maps in the MemoryStore and DiskStores.
  *
  * @author Adam Murdoch
  * @author Greg Luck
@@ -113,6 +117,11 @@ public class DiskStore implements Store {
     private long totalSize;
 
     /**
+     * The maximum elements to allow in the disk file.
+     */
+    private long maxElementsOnDisk;
+
+    /**
      * Creates a disk store.
      *
      * @param cache    the {@link net.sf.ehcache.Cache} that the store is part of
@@ -123,8 +132,10 @@ public class DiskStore implements Store {
         this.cache = cache;
         name = cache.getName();
         this.diskPath = diskPath;
-        this.expiryThreadInterval = cache.getDiskExpiryThreadIntervalSeconds();
-        this.persistent = cache.isDiskPersistent();
+        expiryThreadInterval = cache.getDiskExpiryThreadIntervalSeconds();
+        persistent = cache.isDiskPersistent();
+        maxElementsOnDisk = cache.getMaxElementsOnDisk();
+
 
         try {
             initialiseFiles();
@@ -438,11 +449,19 @@ public class DiskStore implements Store {
 
     /**
      * Marks a block as free.
+     *
+     * @param diskElement the DiskElement to move to the free space list
      */
-    private void freeBlock(final DiskElement element) {
-        totalSize -= element.payloadSize;
-        element.payloadSize = 0;
-        freeSpace.add(element);
+    private void freeBlock(final DiskElement diskElement) {
+        totalSize -= diskElement.payloadSize;
+        diskElement.payloadSize = 0;
+
+        //reset Element meta data
+        diskElement.key = null;
+        diskElement.hitcount = 0;
+        diskElement.expiryTime = 0;
+
+        freeSpace.add(diskElement);
     }
 
     /**
@@ -596,7 +615,7 @@ public class DiskStore implements Store {
         //does not guarantee insertion order
         Iterator valuesIterator = copyOfSpool.values().iterator();
         while (valuesIterator.hasNext()) {
-            writeOrReplaceEntry((Element) valuesIterator.next());
+            writeOrReplaceEntry(valuesIterator.next());
             valuesIterator.remove();
         }
     }
@@ -621,6 +640,9 @@ public class DiskStore implements Store {
         }
         final Serializable key = (Serializable) element.getObjectKey();
         removeOldEntryIfAny(key);
+        if (maxElementsOnDisk > 0 && diskElements.size() >= maxElementsOnDisk) {
+            evictLfuDiskElement();
+        }
         writeElement(element, key);
     }
 
@@ -647,7 +669,9 @@ public class DiskStore implements Store {
 
             // Add to index, update stats
             diskElement.payloadSize = bufferLength;
+            diskElement.key = key;
             diskElement.expiryTime = expirationTime;
+            diskElement.hitcount = element.getHitCount();
             totalSize += bufferLength;
             synchronized (diskElements) {
                 diskElements.put(key, diskElement);
@@ -961,10 +985,13 @@ public class DiskStore implements Store {
 
     /**
      * A reference to an on-disk elements.
+     * <p/>
+     * Copies of expiryTime and hitcount are held here as a performance optimisation, so
+     * that we do not need to load the data from Disk to get this often used information.
      *
      * @noinspection SerializableHasSerializationMethods
      */
-    private static final class DiskElement implements Serializable {
+    private static final class DiskElement implements Serializable, LfuPolicy.Metadata {
 
         private static final long serialVersionUID = -717310932566592289L;
 
@@ -984,10 +1011,36 @@ public class DiskStore implements Store {
         private int blockSize;
 
         /**
+         * The key this element is mapped with in DiskElements. This is only a reference
+         * to the key. It is used in DiskElements and therefore the only memory cost is the
+         * reference.
+         */
+        private Object key;
+
+        /**
          * The expiry time in milliseconds
          */
         private long expiryTime;
 
+        /**
+         * The numbe of times the element has been requested and found in the cache.
+         */
+        private long hitcount;
+
+
+        /**
+         * @return the key of this object
+         */
+        public Object getKey() {
+            return key;
+        }
+
+        /**
+         * @return the hit count for the element
+         */
+        public long getHitCount() {
+            return hitcount;
+        }
     }
 
     /**
@@ -1094,7 +1147,6 @@ public class DiskStore implements Store {
         return name + ".index";
     }
 
-
     /**
      * The expiry thread is started provided the cache is not eternal
      * <p/>
@@ -1110,5 +1162,58 @@ public class DiskStore implements Store {
             return expiryThread.isAlive();
         }
     }
+
+    private void evictLfuDiskElement() {
+        synchronized (diskElements) {
+            DiskElement diskElement = findRelativelyUnused();
+            diskElements.remove(diskElement.key);
+            notifyEvictionListeners(diskElement);
+            freeBlock(diskElement);
+        }
+    }
+
+    /**
+     * Find a "relatively" unused disk element, but not the element just added.
+     */
+    private DiskElement findRelativelyUnused() {
+        LfuPolicy.Metadata[] elements = sampleElements(diskElements);
+        LfuPolicy.Metadata metadata = LfuPolicy.leastHit(elements, null);
+        return (DiskElement) metadata;
+    }
+
+    /**
+     * Uses random numbers to sample the entire map.
+     *
+     * @return an array of sampled elements
+     */
+    private LfuPolicy.Metadata[] sampleElements(Map map) {
+        int[] offsets = LfuPolicy.generateRandomSample(map.size());
+        DiskElement[] elements = new DiskElement[offsets.length];
+        Iterator iterator = map.values().iterator();
+        for (int i = 0; i < offsets.length; i++) {
+            for (int j = 0; j < offsets[i]; j++) {
+                iterator.next();
+            }
+            elements[i] = (DiskElement) iterator.next();
+        }
+        return elements;
+    }
+
+    private void notifyEvictionListeners(DiskElement diskElement) {
+        RegisteredEventListeners listeners = cache.getCacheEventNotificationService();
+        // only load the element from the file if there is a listener interested in hearing about its expiration
+        if (listeners.hasCacheEventListeners()) {
+            Element element = null;
+            try {
+                element = loadElementFromDiskElement(diskElement);
+                cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+            } catch (Exception exception) {
+                LOG.error(name + "Cache: Could not notify disk store eviction of " + element.getObjectKey() +
+                        ". Error was " + exception.getMessage(), exception);
+            }
+        }
+
+    }
+
 
 }

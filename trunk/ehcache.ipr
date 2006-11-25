@@ -288,7 +288,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ehcache.iml" filepath="$PROJECT_DIR$/ehcache.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ruby-client/ruby-client.iml" filepath="$PROJECT_DIR$/ruby-client/ruby-client.iml" />
     </modules>
   </component>
   <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="true" project-jdk-name="1.5" project-jdk-type="JavaSDK" />

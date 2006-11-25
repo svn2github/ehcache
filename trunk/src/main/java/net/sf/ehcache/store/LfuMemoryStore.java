@@ -99,68 +99,81 @@ public final class LfuMemoryStore extends MemoryStore {
      * Find a "relatively" unused element, but not the element just added.
      */
     final Element findRelativelyUnused(Element elementJustAdded) {
-        Element[] elements = sampleElements(calculateSampleSize());
-        return lowestElementFromArray(elements, elementJustAdded);
+        LfuPolicy.Metadata[] elements = sampleElements(map.size());
+        LfuPolicy.Metadata metadata = LfuPolicy.leastHit(elements, new ElementMetadata(elementJustAdded));
+        return (Element) map.get(metadata.getKey());
     }
 
-    private int calculateSampleSize() {
-        if (map.size() < DEFAULT_SAMPLE_SIZE) {
-            return map.size();
-        } else {
-            return DEFAULT_SAMPLE_SIZE;
-        }
-
-    }
-
-    /**
+        /**
      * Uses random numbers to sample the entire map.
      *
-     * @param sampleSize how many samples to take
      * @return an array of sampled elements
      */
-    final Element[] sampleElements(int sampleSize) {
-        int[] offsets = generateRandomOffsets(sampleSize);
-        Element[] elements = new Element[sampleSize];
+     LfuPolicy.Metadata[] sampleElements(int size) {
+        int[] offsets = LfuPolicy.generateRandomSample(size);
+        ElementMetadata[] elements = new ElementMetadata[offsets.length];
         Iterator iterator = map.values().iterator();
-        for (int i = 0; i < sampleSize; i++) {
+        for (int i = 0; i < offsets.length; i++) {
             for (int j = 0; j < offsets[i]; j++) {
                 iterator.next();
             }
-            elements[i] = (Element) iterator.next();
+            elements[i] = new ElementMetadata((Element) iterator.next());
         }
         return elements;
     }
 
-    private static Element lowestElementFromArray(Element[] elements, Element elementJustAdded) {
-        //edge condition when Memory Store configured to size 0
-        if (elements.length == 1) {
-            return elementJustAdded;
+
+    /**
+     * A Metadata wrapper for Element
+     */
+    private class ElementMetadata implements LfuPolicy.Metadata {
+
+        private Element element;
+
+        public ElementMetadata(Element element) {
+            this.element = element;
         }
-        Element lowestElement = null;
-        for (int i = 0; i < elements.length; i++) {
-            Element element = elements[i];
-            if (lowestElement == null) {
-                if (!element.equals(elementJustAdded)) {
-                    lowestElement = element;
-                }
+
+
+        /**
+         * @return the key of this object
+         */
+        public Object getKey() {
+            return element.getKey();
+        }
+
+        /**
+         * @return the hit count for the element
+         */
+        public long getHitCount() {
+            return element.getHitCount();
+        }
+
+
+        /**
+         * Hashcode implementation
+         */
+        public int hashCode() {
+            if (element != null) {
+                return element.getKey().hashCode();
             } else {
-                if (element.getHitCount() < lowestElement.getHitCount() && !element.equals(elementJustAdded)) {
-                    lowestElement = element;
-                }
+                return 0;
             }
         }
-        return lowestElement;
+
+        /**
+         * Delegates to {@link Element#equals(Object)}
+         */
+        public boolean equals(Object object) {
+            if (object != null && object instanceof LfuPolicy.Metadata) {
+                LfuPolicy.Metadata metadata = (LfuPolicy.Metadata) object;
+                return this.getKey().equals(metadata.getKey());
+            } else {
+                return false;
+            }
+        }
     }
 
-    private int[] generateRandomOffsets(int sampleSize) {
-        int size = map.size();
-        int[] offsets = new int[sampleSize];
-        int maxOffset = size / sampleSize;
-        for (int i = 0; i < sampleSize; i++) {
-            offsets[i] = random.nextInt(maxOffset);
-        }
-        return offsets;
-    }
 }
 
 

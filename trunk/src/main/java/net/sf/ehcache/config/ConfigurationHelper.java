@@ -259,6 +259,23 @@ public final class ConfigurationHelper {
         return caches;
     }
 
+
+    /**
+     * Calculates the number of caches in the configuration that overflow to disk
+     */
+    public final Integer numberOfCachesThatOverflowToDisk() {
+        int count = 0;
+        Set cacheConfigurations = configuration.getCacheConfigurations().entrySet();
+        for (Iterator iterator = cacheConfigurations.iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            CacheConfiguration cacheConfiguration = (CacheConfiguration) entry.getValue();
+            if (cacheConfiguration.overflowToDisk) {
+                count++;
+            }
+        }
+        return new Integer(count);
+    }
+
     /**
      * Creates a cache from configuration where the configuration cache name matches the given name
      *
@@ -299,7 +316,8 @@ public final class ConfigurationHelper {
                 cacheConfiguration.diskPersistent,
                 cacheConfiguration.diskExpiryThreadIntervalSeconds,
                 null,
-                null);
+                null,
+                cacheConfiguration.maxElementsOnDisk);
         RegisteredEventListeners listeners = cache.getCacheEventNotificationService();
         registerCacheListeners(cacheConfiguration, listeners);
         BootstrapCacheLoader bootstrapCacheLoader = createBootstrapCacheLoader(

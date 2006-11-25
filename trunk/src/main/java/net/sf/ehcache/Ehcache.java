@@ -410,6 +410,11 @@ public interface Ehcache extends Cloneable {
     int getMaxElementsInMemory();
 
     /**
+     * Gets the maximum number of elements to hold on Disk.
+     */
+    int getMaxElementsOnDisk();
+
+    /**
      * The policy used to evict elements from the {@link net.sf.ehcache.store.MemoryStore}.
      * This can be one of:
      * <ol>

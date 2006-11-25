@@ -188,6 +188,14 @@ public class BlockingCache implements Ehcache {
     }
 
     /**
+     * @return the maximum number of elements on Disk, or 0 if unlimited
+     * @see net.sf.ehcache.Cache#getMaxElementsOnDisk
+     */
+    public int getMaxElementsOnDisk() {
+        return cache.getMaxElementsOnDisk();
+    }
+
+    /**
      * The policy used to evict elements from the {@link net.sf.ehcache.store.MemoryStore}.
      * This can be one of:
      * <ol>

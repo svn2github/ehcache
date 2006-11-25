@@ -32,6 +32,7 @@ import java.util.List;
  * overflowToDisk="true"
  * diskPersistent="true"
  * diskExpiryThreadIntervalSeconds="120"
+ * maxElementsOnDisk="10000"
  * />
  *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
@@ -48,6 +49,11 @@ public class CacheConfiguration {
      * the maximum objects to be held in the {@link net.sf.ehcache.store.MemoryStore}.
      */
     protected int maxElementsInMemory;
+
+    /**
+     * the maximum objects to be held in the {@link net.sf.ehcache.store.DiskStore}.
+     */
+    protected int maxElementsOnDisk;
 
     /**
      * The policy used to evict elements from the {@link net.sf.ehcache.store.MemoryStore}.
@@ -170,6 +176,13 @@ public class CacheConfiguration {
     }
 
     /**
+     * Sets the maximum number elements on Disk. 0 means unlimited.
+     */
+    public void setMaxElementsOnDisk(int maxElementsOnDisk) {
+        this.maxElementsOnDisk = maxElementsOnDisk;
+    }
+
+    /**
      * Sets the interval in seconds between runs of the disk expiry thread.
      * <p/>
      * 2 minutes is the default.
@@ -220,6 +233,13 @@ public class CacheConfiguration {
      */
     public int getMaxElementsInMemory() {
         return maxElementsInMemory;
+    }
+
+    /**
+     * Accessor
+     */
+    public int getMaxElementsOnDisk() {
+        return maxElementsOnDisk;
     }
 
     /**

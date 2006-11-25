@@ -142,6 +142,11 @@ Storage Options
      sets the interval between runs of the expiry thread. Warning: setting this to a low value
      is not recommended. It can cause excessive <<<DiskStore>>> locking and high cpu utilisation. The default value is 120 seconds.
 
+ ** Eviction Strategy
+
+     If the <<<maxElementsOnDisk>>> attribute is set, elements will be evicted from the <<<DiskStore>>> when it exceeds that amount.
+     The LFU algorithm is used for these evictions. It is not configurable to use another algorithm.
+
  ** Serializable Objects
 
      Only Serializable objects can be stored in a <<<DiskStore>>>. A {{{http://java.sun.com/j2se/1.4.2/docs/api/java/io/NotSerializableException.html}NotSerializableException}}

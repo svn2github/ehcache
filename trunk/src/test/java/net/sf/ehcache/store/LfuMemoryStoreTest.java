@@ -122,7 +122,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         store.put(element);
         assertEquals(4, store.getSize());
 
-        //Now access the elements to boost the hits count
+        //Now access the elements to boost the hit count
         store.get("key1");
         store.get("key1");
         store.get("key3");
@@ -231,7 +231,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      */
     public void testSampling() throws IOException {
         createMemoryStore(MemoryStoreEvictionPolicy.LFU, 1000);
-        Element[] elements = null;
+        LfuPolicy.Metadata[] elements = null;
         for (int i = 0; i < 10; i++) {
             store.put(new Element("" + i, new Date()));
             elements = ((LfuMemoryStore) store).sampleElements(i + 1);
@@ -275,6 +275,9 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      * A 99.99% confidence interval can be achieved that the "lowest" element is actually in the bottom quarter of the
      * hit count distribution.
      * @throws IOException
+     * Performance:
+     * With a sample size of 10: 523ms for 5000 runs = 104 ?s per run
+     * With a sample size of 30: 628ms for 5000 runs = 125 ?s per run
      */
     public void testLowest() throws IOException {
         createMemoryStore(MemoryStoreEvictionPolicy.LFU, 5000);
@@ -319,7 +322,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
             }
         }
         LOG.info("Find time: " + findTime);
-        assertTrue(findTime < 1500);
+        assertTrue(findTime < 1000);
         LOG.info("Selections not in lowest quartile: " + lowestQuarterNotIdentified);
         assertTrue(lowestQuarterNotIdentified < 5);
 

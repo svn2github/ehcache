@@ -183,6 +183,10 @@
     maxElementsInMemory:
     Sets the maximum number of objects that will be created in memory
 
+	maxElementsOnDisk:
+    Sets the maximum number of objects that will be maintained in the DiskStore
+	The default value is zero, meaning unlimited.
+
     eternal:
     Sets whether elements are eternal. If eternal,  timeouts are ignored and the
     element is never expired.
@@ -291,6 +295,7 @@
             timeToIdleSeconds="120"
             timeToLiveSeconds="120"
             overflowToDisk="true"
+            maxElementsOnDisk="10000000"
             diskPersistent="false"
             diskExpiryThreadIntervalSeconds="120"
             memoryStoreEvictionPolicy="LRU"
@@ -312,6 +317,7 @@
     -->
     <cache name="sampleCache1"
            maxElementsInMemory="10000"
+           maxElementsOnDisk="1000"
            eternal="false"
            overflowToDisk="true"
            timeToIdleSeconds="300"

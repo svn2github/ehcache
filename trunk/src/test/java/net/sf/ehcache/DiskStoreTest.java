@@ -33,6 +33,7 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Date;
 
 /**
  * Test cases for the DiskStore.
@@ -413,6 +414,59 @@ public class DiskStoreTest extends AbstractCacheTest {
         assertEquals(value, element.getObjectValue());
     }
 
+
+    /**
+     *
+     */
+    public void testLFUEvictionFromDiskStore() throws IOException, InterruptedException {
+        Cache cache = new Cache("testNonPersistent", 0, MemoryStoreEvictionPolicy.LFU, true,
+                null, false, 2000, 1000, false, 1, null, null, 10);
+        manager.addCache(cache);
+        DiskStore store = cache.getDiskStore();
+
+        Element element;
+
+        assertEquals(0, store.getSize());
+
+        for (int i = 0; i < 10; i++) {
+            element = new Element("key" + i, "value" + i);
+            cache.put(element);
+        }
+
+        //allow to move through spool
+        Thread.sleep(210);
+        assertEquals(10, store.getSize());
+
+
+        for (int i = 1; i < 10; i++) {
+            cache.get("key" + i);
+            cache.get("key" + i);
+            cache.get("key" + i);
+            cache.get("key" + i);
+        }
+        //allow to move through spool
+        Thread.sleep(210);
+        assertEquals(10, store.getSize());
+
+        element = new Element("keyNew", "valueNew");
+        store.put(element);
+
+        //allow to get out of spool
+        Thread.sleep(210);
+        assertEquals(10, store.getSize());
+        //check new element not evicted
+        assertNotNull(store.get(element.getObjectKey()));
+        //check evicted honours LFU policy
+        assertNull(store.get("key0"));
+
+        for (int i = 0; i < 2000; i++) {
+            store.put(new Element("" + i, new Date()));
+        }
+        //wait for spool to empty
+        Thread.sleep(1300);
+
+        assertEquals(10, store.getSize());
+    }
 
     /**
      * Tests the loading of classes

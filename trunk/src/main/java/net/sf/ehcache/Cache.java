@@ -111,6 +111,8 @@ public class Cache implements Ehcache {
 
     private final int maxElementsInMemory;
 
+    private final int maxElementsOnDisk;
+
     private MemoryStoreEvictionPolicy memoryStoreEvictionPolicy;
 
     private int statisticsAccuracy = Statistics.STATISTICS_ACCURACY_BEST_EFFORT;
@@ -313,7 +315,7 @@ public class Cache implements Ehcache {
 
 
     /**
-     * 1.2 Constructor
+     * 1.2.1 Constructor
      * <p/>
      * The {@link net.sf.ehcache.config.ConfigurationFactory} and clients can create these.
      * <p/>
@@ -350,6 +352,60 @@ public class Cache implements Ehcache {
                  RegisteredEventListeners registeredEventListeners,
                  BootstrapCacheLoader bootstrapCacheLoader) {
 
+        this(name,
+                maxElementsInMemory,
+                memoryStoreEvictionPolicy,
+                overflowToDisk,
+                diskStorePath,
+                eternal,
+                timeToLiveSeconds,
+                timeToIdleSeconds,
+                diskPersistent,
+                diskExpiryThreadIntervalSeconds,
+                registeredEventListeners,
+                bootstrapCacheLoader,
+                0);
+    }
+
+    /**
+     * 1.2.4 Constructor
+     * <p/>
+     * The {@link net.sf.ehcache.config.ConfigurationFactory} and clients can create these.
+     * <p/>
+     * A client can specify their own settings here and pass the {@link Cache} object
+     * into {@link CacheManager#addCache} to specify parameters other than the defaults.
+     * <p/>
+     * Only the CacheManager can initialise them.
+     *
+     * @param name                      the name of the cache
+     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted
+     * @param memoryStoreEvictionPolicy one of LRU, LFU and FIFO. Optionally null, in which case it will be set to LRU.
+     * @param overflowToDisk            whether to use the disk store
+     * @param diskStorePath             this parameter is ignored. CacheManager sets it using setter injection.
+     * @param eternal                   whether the elements in the cache are eternal, i.e. never expire
+     * @param timeToLiveSeconds         the default amount of time to live for an element from its creation date
+     * @param timeToIdleSeconds         the default amount of time to live for an element from its last accessed or modified date
+     * @param diskPersistent            whether to persist the cache to disk between JVM restarts
+     * @param diskExpiryThreadIntervalSeconds
+     *                                  how often to run the disk store expiry thread. A large number of 120 seconds plus is recommended
+     * @param registeredEventListeners  a notification service. Optionally null, in which case a new one with no registered listeners will be created.
+     * @param bootstrapCacheLoader      the BootstrapCacheLoader to use to populate the cache when it is first initialised. Null if none is required.
+     * @since 1.2.4
+     */
+    public Cache(String name,
+                 int maxElementsInMemory,
+                 MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
+                 boolean overflowToDisk,
+                 String diskStorePath,
+                 boolean eternal,
+                 long timeToLiveSeconds,
+                 long timeToIdleSeconds,
+                 boolean diskPersistent,
+                 long diskExpiryThreadIntervalSeconds,
+                 RegisteredEventListeners registeredEventListeners,
+                 BootstrapCacheLoader bootstrapCacheLoader,
+                 int maxElementsOnDisk) {
+
         changeStatus(Status.STATUS_UNINITIALISED);
 
         setName(name);
@@ -360,6 +416,7 @@ public class Cache implements Ehcache {
         this.timeToLiveSeconds = timeToLiveSeconds;
         this.timeToIdleSeconds = timeToIdleSeconds;
         this.diskPersistent = diskPersistent;
+        this.maxElementsOnDisk = maxElementsOnDisk;
 
         if (diskStorePath == null) {
             this.diskStorePath = System.getProperty("java.io.tmpdir");
@@ -1344,6 +1401,13 @@ public class Cache implements Ehcache {
     }
 
     /**
+     * Gets the maximum number of elements to hold on Disk
+     */
+    public int getMaxElementsOnDisk() {
+        return maxElementsOnDisk;
+    }
+
+    /**
      * The policy used to evict elements from the {@link net.sf.ehcache.store.MemoryStore}.
      * This can be one of:
      * <ol>
@@ -1371,6 +1435,7 @@ public class Cache implements Ehcache {
                 .append(" eternal = ").append(eternal)
                 .append(" overflowToDisk = ").append(overflowToDisk)
                 .append(" maxElementsInMemory = ").append(maxElementsInMemory)
+                .append(" maxElementsOnDisk = ").append(maxElementsOnDisk)
                 .append(" memoryStoreEvictionPolicy = ").append(memoryStoreEvictionPolicy)
                 .append(" timeToLiveSeconds = ").append(timeToLiveSeconds)
                 .append(" timeToIdleSeconds = ").append(timeToIdleSeconds)

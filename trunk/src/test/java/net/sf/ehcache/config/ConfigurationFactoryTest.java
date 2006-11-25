@@ -126,6 +126,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(360, sampleCache1.getTimeToIdleSeconds());
         assertEquals(1000, sampleCache1.getTimeToLiveSeconds());
         assertEquals(true, sampleCache1.isOverflowToDisk());
+        assertEquals(1000, sampleCache1.getMaxElementsOnDisk());
 
         /** A cache which overflows to disk. The disk store is persistent
          between cache and VM restarts. The disk expiry thread interval is set to 10 minutes, overriding
@@ -168,6 +169,9 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
+        //Check disk store  <diskStore path="/tmp"/>
+        assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
+
         //Check CacheManagerPeerProvider
         CacheManagerPeerProvider peerProvider = configurationHelper.createCachePeerProvider();
 
@@ -182,6 +186,9 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(120, defaultCache.getTimeToIdleSeconds());
         assertEquals(120, defaultCache.getTimeToLiveSeconds());
         assertEquals(true, defaultCache.isOverflowToDisk());
+        assertEquals(10000, defaultCache.getMaxElementsInMemory());
+        assertEquals(10000000, defaultCache.getMaxElementsOnDisk());
+
 
         //Check caches
         assertEquals(6, configurationHelper.createCaches().size());
@@ -206,6 +213,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals("sampleCache1", sampleCache1.getName());
         assertEquals(false, sampleCache1.isEternal());
         assertEquals(300, sampleCache1.getTimeToIdleSeconds());
+        assertEquals(1000, sampleCache1.getMaxElementsOnDisk());
         assertEquals(600, sampleCache1.getTimeToLiveSeconds());
         assertEquals(true, sampleCache1.isOverflowToDisk());
     }
@@ -239,6 +247,8 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(5, defaultCache.getTimeToIdleSeconds());
         assertEquals(10, defaultCache.getTimeToLiveSeconds());
         assertEquals(true, defaultCache.isOverflowToDisk());
+        assertEquals(10, defaultCache.getMaxElementsInMemory());
+        assertEquals(0, defaultCache.getMaxElementsOnDisk());
 
         //Check caches
         assertEquals(8, configurationHelper.createCaches().size());

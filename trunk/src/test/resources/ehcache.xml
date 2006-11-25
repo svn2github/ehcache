@@ -193,6 +193,7 @@
     <!-- Sample cache named sampleCache1 -->
     <cache name="sampleCache1"
            maxElementsInMemory="10000"
+           maxElementsOnDisk="1000"
            eternal="false"
            timeToIdleSeconds="360"
            timeToLiveSeconds="1000"

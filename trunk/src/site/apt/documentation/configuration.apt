@@ -27,9 +27,8 @@
 
 --------------------------------------------
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           elementFormDefault="qualified">
-    <xs:element name="ehcache">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="ehcache" >
         <xs:complexType>
             <xs:sequence>
                 <xs:element ref="diskStore"/>
@@ -46,7 +45,7 @@
     </xs:element>
     <xs:element name="diskStore">
         <xs:complexType>
-            <xs:attribute name="path" use="required" type="xs:NCName"/>
+            <xs:attribute name="path" use="optional" />
         </xs:complexType>
     </xs:element>
     <xs:element name="cacheManagerEventListenerFactory">
@@ -70,38 +69,36 @@
     <xs:element name="defaultCache">
         <xs:complexType>
             <xs:sequence>
-                <xs:element minOccurs="0" ref="cacheEventListenerFactory"/>
-                <xs:element minOccurs="0" ref="bootstrapCacheLoaderFactory"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheEventListenerFactory"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
             </xs:sequence>
-            <xs:attribute name="diskExpiryThreadIntervalSeconds"
-                          use="optional" type="xs:integer"/>
+            <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
             <xs:attribute name="diskPersistent" use="optional" type="xs:boolean"/>
             <xs:attribute name="eternal" use="required" type="xs:boolean"/>
-            <xs:attribute name="maxElementsInMemory" use="required"
-                          type="xs:integer"/>
-            <xs:attribute name="memoryStoreEvictionPolicy" use="optional"
-                          type="xs:NCName"/>
+            <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
+            <xs:attribute name="memoryStoreEvictionPolicy" use="optional" type="xs:string"/>
             <xs:attribute name="overflowToDisk" use="required" type="xs:boolean"/>
             <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
             <xs:attribute name="timeToLiveSeconds" use="optional" type="xs:integer"/>
+            <xs:attribute name="maxElementsOnDisk" use="optional" type="xs:integer"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cache">
         <xs:complexType>
             <xs:sequence>
-                <xs:element minOccurs="0" ref="cacheEventListenerFactory"/>
-                <xs:element minOccurs="0" ref="bootstrapCacheLoaderFactory"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheEventListenerFactory"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
             </xs:sequence>
-            <xs:attribute name="diskExpiryThreadIntervalSeconds" type="xs:integer"/>
-            <xs:attribute name="diskPersistent" type="xs:boolean"/>
+            <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
+            <xs:attribute name="diskPersistent" use="optional" type="xs:boolean"/>
             <xs:attribute name="eternal" use="required" type="xs:boolean"/>
-            <xs:attribute name="maxElementsInMemory" use="required"
-                          type="xs:integer"/>
-            <xs:attribute name="memoryStoreEvictionPolicy" type="xs:NCName"/>
-            <xs:attribute name="name" use="required" type="xs:NCName"/>
+            <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
+            <xs:attribute name="memoryStoreEvictionPolicy" use="optional" type="xs:string"/>
+            <xs:attribute name="name" use="required" type="xs:string"/>
             <xs:attribute name="overflowToDisk" use="required" type="xs:boolean"/>
-            <xs:attribute name="timeToIdleSeconds" type="xs:integer"/>
-            <xs:attribute name="timeToLiveSeconds" type="xs:integer"/>
+            <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
+            <xs:attribute name="timeToLiveSeconds" use="optional" type="xs:integer"/>
+            <xs:attribute name="maxElementsOnDisk" use="optional" type="xs:integer"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cacheEventListenerFactory">
@@ -117,6 +114,7 @@
         </xs:complexType>
     </xs:element>
 </xs:schema>
+
 --------------------------------------------
 
 * ehcache-failsafe.xml
@@ -141,7 +139,8 @@
             timeToIdleSeconds="120"
             timeToLiveSeconds="120"
             overflowToDisk="true"
-            diskPersistent="true"
+            maxElementsOnDisk="10000000"
+            diskPersistent="false"
             diskExpiryThreadIntervalSeconds="120"
             memoryStoreEvictionPolicy="LRU"
             />
@@ -164,9 +163,8 @@
 
    The sample ehcache.xml, which is included in the ehcache distribution is shown below:
 
----
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="ehcache.xsd">
+---------------------
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ehcache.xsd">
 
     <!--
     DiskStore configuration
@@ -230,13 +228,21 @@
     <cacheManagerPeerProviderFactory
                         class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
                         properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1,
-                                    multicastGroupPort=4446"/>
+                                    multicastGroupPort=4446, timeToLive=32"/>
 
     Valid properties are:
     * peerDiscovery (mandatory) - specify "automatic"
     * multicastGroupAddress (mandatory) - specify a valid multicast group address
     * multicastGroupPort (mandatory) - specify a dedicated port for the multicast heartbeat
       traffic
+    * timeToLive - specify a value between 0 and 255 which determines how far the packets will propagate.
+      By convention, the restrictions are:
+      0   - the same host
+      1   - the same subnet
+      32  - the same site
+      64  - the same region
+      128 - the same continent
+      255 - unrestricted
 
     Configuring Manual Discovery:
     Manual discovery is configured as per the following example:
@@ -284,7 +290,7 @@
             class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
             properties="peerDiscovery=automatic,
                         multicastGroupAddress=230.0.0.1,
-                        multicastGroupPort=4446"/>
+                        multicastGroupPort=4446, timeToLive=1"/>
 
 
     <!--
@@ -332,6 +338,7 @@
     <cacheManagerPeerListenerFactory
             class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
 
+
     <!-- Cache configuration.
 
     The following attributes are required.
@@ -341,6 +348,10 @@
 
     maxElementsInMemory:
     Sets the maximum number of objects that will be created in memory
+
+	maxElementsOnDisk:
+    Sets the maximum number of objects that will be maintained in the DiskStore
+	The default value is zero, meaning unlimited.
 
     eternal:
     Sets whether elements are eternal. If eternal,  timeouts are ignored and the
@@ -450,6 +461,7 @@
             timeToIdleSeconds="120"
             timeToLiveSeconds="120"
             overflowToDisk="true"
+            maxElementsOnDisk="10000000"
             diskPersistent="false"
             diskExpiryThreadIntervalSeconds="120"
             memoryStoreEvictionPolicy="LRU"
@@ -471,6 +483,7 @@
     -->
     <cache name="sampleCache1"
            maxElementsInMemory="10000"
+           maxElementsOnDisk="1000"
            eternal="false"
            overflowToDisk="true"
            timeToIdleSeconds="300"
@@ -563,5 +576,6 @@
     </cache>
 
 </ehcache>
----
+
+---------------------
    
