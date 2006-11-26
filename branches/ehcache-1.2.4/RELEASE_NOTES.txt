@@ -1,0 +1,70 @@
+$Id: RELEASE_NOTES.txt,v 1.16 2006/03/01 01:52:03 gregluck Exp $
+
+Release Notes For ehcache version 1.2.4RC
+=========================================
+
+Introduction
+============
+ehcache is a pure Java, in-process cache with the following features:
+
+   1. Fast.
+   2. Simple.
+   3. Multiple eviction policies: LRU, LFU and FIFO.
+   4. Caches can be in memory or on disk.
+   5. Disk Stores can be persistent between VM restarts.
+   6. Distributed caching using multicast and RMI, with a pluggable API.
+   7. Cache and CacheManager listeners
+   8. Supports multiple Caches per CacheManager, and multiple CacheManagers per application.
+   9. Acts as a pluggable cache for Hibernate 3.1, 3 and 2.1.
+   10. Small foot print. Both in terms of size and memory requirements.
+   11. Minimal dependencies apart from J2SE.
+   12. Fully documented. See the online Documentation and the online JavaDoc.
+   13. Comprehensive Test Coverage. See the clover test report.
+   14. Available under the Apache 1.1 license. EHCache's copyright and licensing has been reviewed and approved by the Apache Software Foundation, making EHCache suitable for use in Apache projects.
+   15. Production tested. EHCache is used on a large and very busy eCommerce site.
+   16. Web caching, pull-through caches and other common caching implementations are provided in the ehcache-constructs module.
+
+Java Requirements
+=================
+ehcache supports 1.4, 1.5 and 1.6 at runtime. When compiling from source, the build process requires at least JDK1.5.
+
+ehcache does not work with JDK1.3 or lower.
+
+Dependencies
+============
+Ehcache requires commons-logging from Apache's Jakarta project.
+
+
+Installation
+============
+Place the ehcache-1.2.4.jar into your classpath. Ensure the required dependencies are in the classpath.
+
+Create an ehcache.xml configuration from the one supplied in the distribution and place it in your classpath.
+
+The ehcache-1.2.4-remote-debugger.jar is a tool to be used for distributed debugging. Do not install it in
+your project. See http://ehcache.sourceforge.net/documentation/logging.html for how to use it.
+
+
+Documentation
+=============
+See http://ehcache.sourceforge.net/documentation for full documentation.
+
+The JavaDoc is in the distribution and also online at http://ehcache.sourceforge.net/javadoc.
+
+Compatibility With Ehcache 1.1
+==============================
+1. Due to an internal reorganisation in the code base the DiskStore path will default to java.io.tmp when the ehcache-1.1
+constructor is used.
+
+2. APIs are the same. CacheException is now a runtime exception. Additionally, IOException is no longer thrown.
+This does not cause a runtime error but will cause a compile time error if clients are recompiled against ehcache. In
+this case change the code to not catch an IOException. Catching CacheException is optional.
+
+Known Issues
+============
+
+1. Due to a limitation in RMI, JDK1.5 or higher is required to run multiple distributed CacheManagers on the same machine.
+   Normally distributed caching is used between clusters of machines, so this should not be an issue to many people.
+
+2. RMI listeners are unable to start on all versions of Tomcat, where Tomcat has spaces in its
+   installation path. The default install location on Windows has spaces in the path, so it should be changed.

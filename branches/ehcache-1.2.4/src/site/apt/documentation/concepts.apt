@@ -1,0 +1,190 @@
+
+{Key Ehcache Concepts}
+
+
+* Key Ehcache Classes
+
+[apidocs/net/sf/ehcache/package] Top Level Package Diagram
+
+    Ehcache consists of a <<<CacheManager>>>, which manages caches. Caches contain elements,
+    which are essentially name value pairs. Caches are physically implemented either in-memory, or on disk.
+
+** {CacheManager}
+
+[apidocs/net/sf/ehcache/CacheManager] CacheManager Class Diagram
+
+    The <<<CacheManager>>> comprises Caches which in turn comprise Elements.
+
+    Creation of, access to and removal of caches is controlled by the <<<CacheManager>>>.
+
+*** CacheManager Creation Modes
+
+   <<<CacheManager>>> supports two creation modes: singleton and instance.
+
+**** {Singleton Mode}
+
+    Ehcache-1.1 supported only one <<<CacheManager>>>
+    instance which was a singleton. CacheManager can still be used in this
+    way using the static factory methods.
+
+**** {Instance Mode}
+
+    From ehcache-1.2, CacheManager has constructors which mirror the
+    various static create methods. This enables multiple CacheManagers to
+    be created and used concurrently. Each CacheManager requires its own
+    configuration.
+
+    If the Caches under management use only the MemoryStore, there
+    are no special considerations. If Caches use the DiskStore, the
+    diskStore path specified in each CacheManager configuration should be
+    unique. When a new CacheManager is created, a check is made that there
+    are no other CacheManagers using the same diskStore path. If there are,
+    a CacheException is thrown. If a CacheManager is part of a cluster,
+    there will also be listener ports which must be unique.
+
+**** {Mixed Singleton and Instance Mode}
+
+    If an application creates instances of CacheManager using a
+    constructor, and also calls a static create method, there will exist a
+    singleton instance of CacheManager which will be returned each time the
+    create method is called together with any other instances created via
+    constructor. The two types will coexist peacefully.
+
+
+
+** {Ehcache}
+
+[apidocs/net/sf/ehcache/Ehcache] Ehcache Interface Diagram
+
+    All caches implement the <<<Ehcache>>> interface. A cache has a name and attributes. Each cache contains Elements.
+
+    A Cache in ehcache is analogous to a cache region in other caching systems.
+
+    Cache elements are stored in the <<<MemoryStore>>>. Optionally
+    they also overflow to a <<<DiskStore>>>.
+
+** {Element}
+
+[apidocs/net/sf/ehcache/Element] Element Class Diagram
+
+    An element is an atomic entry in a cache. It has a key, a value and a record of
+    accesses. Elements are put into and removed from caches. They can also
+    expire and be removed by the Cache, depending on the Cache settings.
+
+    As of ehcache-1.2 there is an API for Objects in addition to the one for Serializable. Non-serializable Objects can
+    use all parts of ehcache except for DiskStore and replication. If an attempt is made to persist or replicate them
+    they are discarded without error and with a DEBUG level log message.
+
+    The APIs are identical except for the return methods from Element. Two new methods on
+    Element: getObjectValue and getKeyValue are the only API differences between the Serializable and Object APIs. This
+    makes it very easy to start with caching Objects and then change your Objects to Seralizable to participate in
+    the extra features when needed. Also a large number of Java classes are simply not Serializable.
+
+
+* {Cache Size and Eviction}
+
+    A cache eviction algorithm is a way of deciding which <<<Element>>> to evict when the cache is full.
+
+    In ehcache the <<<MemoryStore>>> has a fixed limited size set by <<<maxElementsInMemory>>>.
+    The <<<DiskStore>>> can be optionally limited with <<<maxElementOnDisk>>>. If this is unset the the <<<DiskStore>>>
+    is unlimited.
+
+    If a cache is set to only use a <<<MemoryStore>>> then the cache will
+    also be full when the <<<MemoryStore>>> is full, otherwise it will overflow to the <<<DiskStore>>>.
+
+    The eviction algorithms in ehcache thus determine when the <<<MemoryStore>>> evicts an element.
+
+    If there is no
+    <<<DiskStore>>> this will also be a cache eviction, otherwise it will cause an overflow to disk.
+
+
+** {Supported Eviction Algorithms}
+
+    The idea here is, given a limit on the number of items to cache, how to choose the thing to evict that
+    gives the <best> result.
+
+    In 1966 Laszlo Belady showed that the most efficient caching algorithm would be to always discard the
+    information that will not be needed for the longest time in the future. This it a theoretical result
+    that is unimplementable without domain knowledge. The Least Recently Used ("LRU") algorithm is often used as
+    a proxy. It works pretty well because of the locality of reference phenonemon. As a result, LRU is the default
+    eviction algorithm in ehcache, as it is in most caches.
+
+    Ehcache users may sometimes have a good domain knowledge. Accordingly, ehcache provides three eviction
+    algorithms to choose from for the <<<MemoryStore>>>.
+
+** {<<<MemoryStore>>> Eviction Algorithms}
+
+    The <<<MemoryStore>>> supports three eviction algorithms: LRU, LFU and FIFO.
+
+    The default is LRU.
+
+
+*** {Least Recently Used} ({LRU})
+
+     The eldest element, is the Least Recently Used (LRU). The last used
+     timestamp is updated when an element is put into the cache or an
+     element is retrieved from the cache with a get call.
+
+*** {Less Frequently Used} ({LFU})
+
+     For each get call on the element the number of hits is updated. When a
+     put call is made for a new element (and assuming that the max limit is
+     reached) the element with least number of hits,
+     the Less Frequently Used element, is evicted.
+
+     If cache element use follows a pareto distribution, this algorithm may give better
+     results than LRU.
+
+     LFU is an algorithm unique to ehcache. It takes a random sample of the Elements and
+     evicts the smallest. Using the sample size of 30 elements, empirical testing shows
+     that an Element in the lowest quartile of use is evicted 99.99% of the time.
+
+*** First In First Out ({FIFO})
+
+     Elements are evicted in the same order as they come in. When a put call
+     is made for a new element (and assuming that the max limit is reached
+     for the memory store) the element that was placed first (First-In) in
+     the store is the candidate for eviction (First-Out).
+
+     This algorithm is used if the use of an element makes it less likely to be used
+     in the future. An example here would be an authentication cache.
+
+** {<<<DiskStore>>> Eviction Algorithms}
+
+   The <<<DiskStore>>> uses the Less Frequently Used eviction to evict when it is full.
+
+
+* {Cache Usage Patterns}
+
+    Caches can be used in different ways. Each of these ways follows a cache usage pattern.
+    Ehcache supports the following:
+
+    * direct manipulation
+
+    * pull-through
+
+    * self-populating
+
+** Direct Manipulation
+
+    Here, to put something in the cache you do <<<cache.put(Element element)>>> and to get something
+    from the cache you do <<<cache.get(Object key)>>>.
+
+    You are aware you are using a cache and you are doing so consciously.
+
+** Self Populating
+
+    Here, you just do gets to the cache using <<<cache.get(Object key)>>>. The cache itself knows
+    how to populate an entry.
+
+    See the SelfPopulatingCache for more on this pattern.
+
+
+
+
+
+
+
+
+     
+
