@@ -273,11 +273,11 @@
             <name>gluck_repository</name>
         </snapshotRepository>
         <!--<snapshotRepository>-->
-            <!--<id>sf-ehcache-snapshot-repository</id>-->
-            <!--<name>SF EHCache Snapshot Repository</name>-->
-            <!--<url>-->
-                <!--scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs/snapshot-repository-->
-            <!--</url>-->
+        <!--<id>sf-ehcache-snapshot-repository</id>-->
+        <!--<name>SF EHCache Snapshot Repository</name>-->
+        <!--<url>-->
+        <!--scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs/snapshot-repository-->
+        <!--</url>-->
         <!--</snapshotRepository>-->
         <site>
             <id>sf-ehcache-site</id>
@@ -309,6 +309,7 @@
             <!-- Site -->
             <plugin>
                 <artifactId>maven-site-plugin</artifactId>
+                <version>2.0-beta-4</version>
                 <configuration>
                     <locales>en,ja</locales>
                     <templateDirectory>file://${basedir}/src/site/</templateDirectory>
@@ -350,37 +351,37 @@
                         </goals>
                     </execution>
 
-                    <!--<execution>-->
-                    <!--<id>book</id>-->
-                    <!--<phase>validate</phase>-->
-                    <!--<configuration>-->
-                    <!--<tasks>-->
-                    <!--<ant antfile="${basedir}/build.xml" inheritRefs="true">-->
-                    <!--<target name="generate-checkstyle-config"/>-->
-                    <!--</ant>-->
-                    <!--<ant antfile="${basedir}/build.xml" inheritRefs="true">-->
-                    <!--<target name="book"/>-->
-                    <!--</ant>-->
-                    <!--</tasks>-->
-                    <!--</configuration>-->
-                    <!--<goals>-->
-                    <!--<goal>run</goal>-->
-                    <!--</goals>-->
-                    <!--</execution>-->
-                    <!--<execution>-->
-                    <!--<id>singlepageguide</id>-->
-                    <!--<phase>validate</phase>-->
-                    <!--<configuration>-->
-                    <!--<tasks>-->
-                    <!--<ant antfile="${basedir}/build.xml" inheritRefs="true">-->
-                    <!--<target name="singlepageguide"/>-->
-                    <!--</ant>-->
-                    <!--</tasks>-->
-                    <!--</configuration>-->
-                    <!--<goals>-->
-                    <!--<goal>run</goal>-->
-                    <!--</goals>-->
-                    <!--</execution>-->
+                    <execution>
+                        <id>book</id>
+                        <phase>validate</phase>
+                        <configuration>
+                            <tasks>
+                                <ant antfile="${basedir}/build.xml" inheritRefs="true">
+                                    <target name="generate-checkstyle-config"/>
+                                </ant>
+                                <ant antfile="${basedir}/build.xml" inheritRefs="true">
+                                    <target name="book"/>
+                                </ant>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>singlepageguide</id>
+                        <phase>validate</phase>
+                        <configuration>
+                            <tasks>
+                                <ant antfile="${basedir}/build.xml" inheritRefs="true">
+                                    <target name="singlepageguide"/>
+                                </ant>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
 
@@ -553,8 +554,9 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>taglist-maven-plugin</artifactId>
+                <version>2.0-beta-1</version>
                 <configuration>
-                    <tags>todo</tags>
+                    <tags>todo, TODO, @todo</tags>
                 </configuration>
             </plugin>
 

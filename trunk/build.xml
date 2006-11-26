@@ -312,14 +312,13 @@
             <tarfileset dir="${dist.dir}" prefix="${name}-${version}">
                 <include name="${name}-${version}.jar"/>
                 <include name="${name}-${version}-${javadoc.zip}"/>
-                <include name="${name}-${version}-src.zip"/>
+                <include name="${name}-${version}-sources.jar"/>
                 <include name="${name}-${version}-remote-debugger.jar"/>
             </tarfileset>
             <tarfileset dir="${basedir}" prefix="${name}-${version}">
                 <include name="RELEASE_NOTES.txt"/>
                 <include name="LICENSE.txt"/>
                 <include name="CHANGELOG.txt"/>
-                <include name="lib/**"/>
             </tarfileset>
             <tarfileset dir="${src.config.dir}" prefix="${name}-${version}">
                 <include name="ehcache.*"/>
@@ -660,7 +659,6 @@
         <antcall target="create_singlepageguide" inheritall="true"/>
 
         <copy file="${build.dir}/book/EhcacheUserGuide.html" todir="${build.dir}/site"/>
-        <copy file="${build.dir}/book/book.css" todir="${build.dir}/site"/>
         <copy file="src/site/resources/images/apt_toc.gif" todir="${build.dir}/site"/>
     </target>
 
@@ -700,9 +698,7 @@
     <target name="prepare-book-resources" depends="compile, ydoc"/>
 
     <!-- Produce the ydocs images for the book and singlepage guide.  -->
-    <target
-            name="ydoc"
-            description="Creates the javadocs">
+    <target name="ydoc" description="Creates the javadocs">
 
         <javadoc
                 sourcepath="${src.java.dir}"

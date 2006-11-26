@@ -15,9 +15,9 @@ Welcome to ehcache
 
 * Latest News
 
-** 26 November 2006: ehcache-1.2.4 released
+** 26 November 2006: ehcache-1.2.4RC released
 
-    This is a maintenance release.
+    This is a candidate for a maintenance release.
 
     It contains four feature and fifteen bug fixes received
     in the two months since ehcache-1.2.3 was released. See the {{{http://ehcache.sourceforge.net/changes-report.html#1.2.4}changelog}}
