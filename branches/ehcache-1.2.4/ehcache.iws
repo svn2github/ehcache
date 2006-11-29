@@ -1,0 +1,883 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4" relativePaths="false">
+  <component name="BookmarkManager" />
+  <component name="BuildServerSettings">
+    <option name="USER_ID" value="1" />
+    <option name="USER_NAME" value="Greg Luck" />
+    <option name="SERVER_URL" value="http://localhost:8111/" />
+    <option name="INSPECTIONS_BUILD_TYPE_NAME" />
+    <option name="INSPECTIONS_PROJECT_ID" />
+    <option name="LOGIN" value="gluck" />
+    <option name="PERFORM_COMMIT" value="true" />
+    <option name="REQUEST_CONFIRMATON" value="false" />
+    <option name="STATUS_DIALOG_SPLITTER_PROPORTION" value="0.8" />
+    <option name="SHOW_FAILED_DIALOG" value="true" />
+  </component>
+  <component name="ChangeBrowserSettings">
+    <option name="MAIN_SPLITTER_PROPORTION" value="0.3" />
+    <option name="MESSAGES_SPLITTER_PROPORTION" value="0.8" />
+    <option name="USE_DATE_BEFORE_FILTER" value="false" />
+    <option name="USE_DATE_AFTER_FILTER" value="false" />
+    <option name="USE_CHANGE_BEFORE_FILTER" value="true" />
+    <option name="USE_CHANGE_AFTER_FILTER" value="true" />
+    <option name="DATE_BEFORE" />
+    <option name="DATE_AFTER" />
+    <option name="CHANGE_BEFORE" value="HEAD" />
+    <option name="CHANGE_AFTER" value="240" />
+    <option name="USE_USER_FILTER" value="false" />
+    <option name="USER" value="" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/ehcache.iws" />
+    </list>
+  </component>
+  <component name="ChangeListSynchronizer" />
+  <component name="ChangesViewManager" flattened_view="true" />
+  <component name="CheckinPanelState" />
+  <component name="Commander">
+    <leftPanel />
+    <rightPanel />
+    <splitter proportion="0.5" />
+  </component>
+  <component name="CompilerWorkspaceConfiguration">
+    <option name="COMPILE_IN_BACKGROUND" value="false" />
+    <option name="AUTO_SHOW_ERRORS_IN_EDITOR" value="true" />
+    <option name="CLOSE_MESSAGE_VIEW_IF_SUCCESS" value="true" />
+    <option name="COMPILE_DEPENDENT_FILES" value="false" />
+    <option name="CLEAR_OUTPUT_DIRECTORY" value="false" />
+    <option name="ASSERT_NOT_NULL" value="true" />
+  </component>
+  <component name="CoverageDataManager" />
+  <component name="Cvs2Configuration">
+    <option name="PRUNE_EMPTY_DIRECTORIES" value="true" />
+    <option name="MERGING_MODE" value="0" />
+    <option name="MERGE_WITH_BRANCH1_NAME" value="HEAD" />
+    <option name="MERGE_WITH_BRANCH2_NAME" value="HEAD" />
+    <option name="RESET_STICKY" value="false" />
+    <option name="CREATE_NEW_DIRECTORIES" value="true" />
+    <option name="DEFAULT_TEXT_FILE_SUBSTITUTION" value="kv" />
+    <option name="PROCESS_UNKNOWN_FILES" value="false" />
+    <option name="PROCESS_DELETED_FILES" value="false" />
+    <option name="PROCESS_IGNORED_FILES" value="false" />
+    <option name="RESERVED_EDIT" value="false" />
+    <option name="CHECKOUT_DATE_OR_REVISION_SETTINGS">
+      <value>
+        <option name="BRANCH" value="" />
+        <option name="DATE" value="" />
+        <option name="USE_BRANCH" value="false" />
+        <option name="USE_DATE" value="false" />
+      </value>
+    </option>
+    <option name="UPDATE_DATE_OR_REVISION_SETTINGS">
+      <value>
+        <option name="BRANCH" value="" />
+        <option name="DATE" value="" />
+        <option name="USE_BRANCH" value="false" />
+        <option name="USE_DATE" value="false" />
+      </value>
+    </option>
+    <option name="SHOW_CHANGES_REVISION_SETTINGS">
+      <value>
+        <option name="BRANCH" value="" />
+        <option name="DATE" value="" />
+        <option name="USE_BRANCH" value="false" />
+        <option name="USE_DATE" value="false" />
+      </value>
+    </option>
+    <option name="SHOW_OUTPUT" value="false" />
+    <option name="ADD_WATCH_INDEX" value="0" />
+    <option name="REMOVE_WATCH_INDEX" value="0" />
+    <option name="UPDATE_KEYWORD_SUBSTITUTION" />
+    <option name="MAKE_NEW_FILES_READONLY" value="false" />
+    <option name="SHOW_CORRUPTED_PROJECT_FILES" value="0" />
+    <option name="TAG_AFTER_PROJECT_COMMIT" value="false" />
+    <option name="OVERRIDE_EXISTING_TAG_FOR_PROJECT" value="true" />
+    <option name="TAG_AFTER_PROJECT_COMMIT_NAME" value="" />
+    <option name="CLEAN_COPY" value="false" />
+  </component>
+  <component name="DaemonCodeAnalyzer">
+    <disable_hints />
+  </component>
+  <component name="DebuggerManager">
+    <line_breakpoints>
+      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java" line="664" class="net.sf.ehcache.store.DiskStore" package="net.sf.ehcache.store">
+        <option name="ENABLED" value="true" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/ConfigurationFactory.java" line="94" class="net.sf.ehcache.config.ConfigurationFactory" package="net.sf.ehcache.config">
+        <option name="ENABLED" value="true" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+    </line_breakpoints>
+    <breakpoint_any>
+      <breakpoint>
+        <option name="NOTIFY_CAUGHT" value="true" />
+        <option name="NOTIFY_UNCAUGHT" value="true" />
+        <option name="ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint>
+        <option name="NOTIFY_CAUGHT" value="true" />
+        <option name="NOTIFY_UNCAUGHT" value="true" />
+        <option name="ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+    </breakpoint_any>
+    <breakpoint_rules />
+    <ui_properties>
+      <property name="exception_breakpoints_flattenPackages" value="true" />
+      <property name="line_breakpoints_groupByClasses" value="true" />
+      <property name="exception_breakpoints_groupByMethods" value="false" />
+      <property name="method_breakpoints_viewId" value="TABLE" />
+      <property name="line_breakpoints_viewId" value="TABLE" />
+      <property name="exception_breakpoints_groupByClasses" value="true" />
+      <property name="method_breakpoints_groupByMethods" value="false" />
+      <property name="field_breakpoints_flattenPackages" value="true" />
+      <property name="line_breakpoints_flattenPackages" value="true" />
+      <property name="exception_breakpoints_viewId" value="TABLE" />
+      <property name="field_breakpoints_groupByClasses" value="true" />
+      <property name="method_breakpoints_flattenPackages" value="true" />
+      <property name="field_breakpoints_viewId" value="TABLE" />
+      <property name="line_breakpoints_groupByMethods" value="false" />
+      <property name="method_breakpoints_groupByClasses" value="true" />
+      <property name="field_breakpoints_groupByMethods" value="false" />
+    </ui_properties>
+  </component>
+  <component name="ErrorTreeViewConfiguration">
+    <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
+    <option name="HIDE_WARNINGS" value="false" />
+  </component>
+  <component name="FavoritesManager">
+    <favorites_list name="ehcache" />
+  </component>
+  <component name="FavoritesProjectViewPane">
+    <subPane subId="ehcache">
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" />
+          <option name="myItemType" value="com.intellij.ide.favoritesTreeView.FavoritesTreeNodeDescriptor" />
+        </PATH_ELEMENT>
+      </PATH>
+    </subPane>
+  </component>
+  <component name="FileEditorManager">
+    <leaf>
+      <file leaf-file-name="pom.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pom.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="366" column="31" selection-start="12895" selection-end="12895" vertical-scroll-proportion="0.014371257">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="preface.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/preface.apt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="5" column="16" selection-start="98" selection-end="98" vertical-scroll-proportion="0.07058824">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="build.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/build.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="661" column="38" selection-start="27479" selection-end="27479" vertical-scroll-proportion="0.014371257">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CacheConfiguration.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/CacheConfiguration.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="package.html" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/asynchronous/package.html">
+          <provider editor-type-id="HtmlPreview">
+            <state />
+          </provider>
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="6" column="0" selection-start="53" selection-end="53" vertical-scroll-proportion="0.08955224">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="LfuPolicy.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/LfuPolicy.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="83" column="7" selection-start="2729" selection-end="2729" vertical-scroll-proportion="0.5235294">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RELEASE_NOTES.txt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/RELEASE_NOTES.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="3" column="41" selection-start="149" selection-end="149" vertical-scroll-proportion="0.014371257">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="changes.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="27" column="0" selection-start="1493" selection-end="1493" vertical-scroll-proportion="0.014371257">
+              <folding>
+                <marker date="1164793121000" expanded="true" signature="138:5435" placeholder="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CHANGELOG.txt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/CHANGELOG.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="0" column="21" selection-start="21" selection-end="21" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="news.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/news.apt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="9" column="2" selection-start="53" selection-end="147" vertical-scroll-proportion="0.014371257">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FindManager">
+    <FindUsagesManager>
+      <setting name="OPEN_NEW_TAB" value="false" />
+    </FindUsagesManager>
+  </component>
+  <component name="HierarchyBrowserManager">
+    <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
+    <option name="SORT_ALPHABETICALLY" value="false" />
+    <option name="HIDE_CLASSES_WHERE_METHOD_NOT_IMPLEMENTED" value="false" />
+  </component>
+  <component name="InspectionManager">
+    <option name="AUTOSCROLL_TO_SOURCE" value="false" />
+    <option name="SPLITTER_PROPORTION" value="0.5" />
+    <option name="GROUP_BY_SEVERITY" value="false" />
+    <option name="FILTER_RESOLVED_ITEMS" value="true" />
+    <option name="ANALYZE_TEST_SOURCES" value="true" />
+    <option name="SHOW_DIFF_WITH_PREVIOUS_RUN" value="false" />
+    <option name="SCOPE_TYPE" value="1" />
+    <option name="CUSTOM_SCOPE_NAME" value="" />
+    <option name="SHOW_ONLY_DIFF" value="false" />
+    <option name="myCurrentProfileName" value="Default" />
+  </component>
+  <component name="InspectionPassRegistrar" />
+  <component name="J2EEProjectPane" />
+  <component name="JetStyle.JetStylePlugin">
+    <jetstyle-conf>
+      <checkstyle-configuration url="$PROJECT_DIR$/target/log/checkstyle.xml" />
+    </jetstyle-conf>
+  </component>
+  <component name="JspContextManager" />
+  <component name="ModuleEditorState">
+    <option name="LAST_EDITED_MODULE_NAME" />
+    <option name="LAST_EDITED_TAB_NAME" />
+  </component>
+  <component name="NamedScopeManager" />
+  <component name="PackagesPane">
+    <subPane>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache.ipr" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+        </PATH_ELEMENT>
+      </PATH>
+    </subPane>
+  </component>
+  <component name="PerforceChangeBrowserSettings">
+    <option name="USE_CLIENT_FILTER" value="true" />
+    <option name="CLIENT" value="" />
+  </component>
+  <component name="PerforceDirect.Settings">
+    <option name="useP4CONFIG" value="true" />
+    <option name="port" value="&lt;perforce_server&gt;:1666" />
+    <option name="client" value="" />
+    <option name="user" value="" />
+    <option name="passwd" value="" />
+    <option name="showCmds" value="false" />
+    <option name="useNativeApi" value="false" />
+    <option name="pathToExec" value="p4" />
+    <option name="useCustomPathToExec" value="false" />
+    <option name="SYNC_FORCE" value="false" />
+    <option name="SYNC_RUN_RESOLVE" value="true" />
+    <option name="REVERT_UNCHANGED_FILES" value="true" />
+    <option name="CHARSET" value="none" />
+    <option name="SHOW_BRANCHES_HISTORY" value="true" />
+    <option name="ENABLED" value="true" />
+    <option name="USE_LOGIN" value="false" />
+    <option name="LOGIN_SILENTLY" value="false" />
+    <option name="INTEGRATE_RUN_RESOLVE" value="true" />
+    <option name="INTEGRATE_REVERT_UNCHANGED" value="true" />
+    <option name="SERVER_TIMEOUT" value="20000" />
+  </component>
+  <component name="ProjectLevelMessagesProcessor" />
+  <component name="ProjectLevelVcsManager">
+    <OptionsSetting value="true" id="Add" />
+    <OptionsSetting value="true" id="Remove" />
+    <OptionsSetting value="true" id="Checkin" />
+    <OptionsSetting value="true" id="Checkout" />
+    <OptionsSetting value="true" id="Update" />
+    <OptionsSetting value="true" id="Status" />
+    <OptionsSetting value="true" id="Edit" />
+    <OptionsSetting value="true" id="Undo Check Out" />
+    <OptionsSetting value="true" id="Compare with SourceSafe Version" />
+    <OptionsSetting value="true" id="Get Latest Version" />
+    <ConfirmationsSetting value="0" id="Add" />
+    <ConfirmationsSetting value="0" id="Remove" />
+  </component>
+  <component name="ProjectPane">
+    <subPane>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache.ipr" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+      </PATH>
+    </subPane>
+  </component>
+  <component name="ProjectReloadState">
+    <option name="STATE" value="2" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="0.11111111" version="1" splitterProportion="0.5">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <showStructure Scope="false" ProjectPane="false" PackagesPane="false" Favorites="false" />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+    </navigator>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="GoToClass.includeJavaFiles" value="false" />
+    <property name="MemberChooser.copyJavadoc" value="false" />
+    <property name="cvs_file_history_treeWidth0" value="370" />
+    <property name="cvs_file_history_flatWidth2" value="338" />
+    <property name="MemberChooser.sorted" value="false" />
+    <property name="cvs_file_history_treeOrder1" value="1" />
+    <property name="cvs_file_history_flatOrder0" value="0" />
+    <property name="cvs_file_history_treeOrder3" value="3" />
+    <property name="GoToFile.includeJavaFiles" value="false" />
+    <property name="last_opened_file_path" value="/Users/gluck/Desktop" />
+    <property name="cvs_file_history_flatOrder1" value="1" />
+    <property name="cvs_file_history_flatWidth1" value="306" />
+    <property name="cvs_file_history_treeWidth1" value="370" />
+    <property name="cvs_file_history_treeOrder2" value="2" />
+    <property name="cvs_file_history_treeWidth3" value="370" />
+    <property name="GoToClass.includeLibraries" value="false" />
+    <property name="cvs_file_history_flatOrder2" value="2" />
+    <property name="MemberChooser.showClasses" value="true" />
+    <property name="cvs_file_history_flatWidth0" value="128" />
+    <property name="cvs_file_history_flatWidth3" value="723" />
+    <property name="cvs_file_history_treeWidth2" value="370" />
+    <property name="cvs_file_history_flatOrder3" value="3" />
+    <property name="GoToClass.toSaveIncludeLibraries" value="false" />
+    <property name="cvs_file_history_treeOrder0" value="0" />
+  </component>
+  <component name="ReadonlyStatusHandler">
+    <option name="SHOW_DIALOG" value="true" />
+  </component>
+  <component name="RecentsManager" />
+  <component name="RestoreUpdateTree" />
+  <component name="RunManager" selected="JUnit.CacheEventListenerTest.testEvictionFromDiskStoreWithExpiry">
+    <tempConfiguration default="false" name="CacheEventListenerTest.testEvictionFromDiskStoreWithExpiry" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+      <pattern value="net.sf.ehcache.event.*" />
+      <module name="ehcache" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="net.sf.ehcache.event" />
+      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.event.CacheEventListenerTest" />
+      <option name="METHOD_NAME" value="testEvictionFromDiskStoreWithExpiry" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ADDITIONAL_CLASS_PATH" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="wholeProject" />
+      </option>
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method>
+        <option name="Make" value="true" />
+      </method>
+    </tempConfiguration>
+    <configuration default="true" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+      <module name="" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ADDITIONAL_CLASS_PATH" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="wholeProject" />
+      </option>
+      <method>
+        <option name="Make" value="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+    </configuration>
+    <configuration default="true" type="Application" factoryName="Application" enabled="false" merge="false">
+      <option name="MAIN_CLASS_NAME" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <module name="" />
+    </configuration>
+    <configuration default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
+    </configuration>
+    <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
+      <Host>localhost</Host>
+      <Port>5050</Port>
+    </configuration>
+  </component>
+  <component name="ScopeViewComponent">
+    <subPane subId="Project">
+      <PATH>
+        <PATH_ELEMENT USER_OBJECT="Root">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+      </PATH>
+    </subPane>
+  </component>
+  <component name="SelectInManager" />
+  <component name="StarteamConfiguration">
+    <option name="SERVER" value="" />
+    <option name="PORT" value="49201" />
+    <option name="USER" value="" />
+    <option name="PASSWORD" value="" />
+    <option name="PROJECT" value="" />
+    <option name="VIEW" value="" />
+    <option name="ALTERNATIVE_WORKING_PATH" value="" />
+    <option name="LOCK_ON_CHECKOUT" value="false" />
+    <option name="UNLOCK_ON_CHECKIN" value="false" />
+  </component>
+  <component name="StructuralSearchPlugin" />
+  <component name="StructureViewFactory">
+    <option name="AUTOSCROLL_MODE" value="true" />
+    <option name="AUTOSCROLL_FROM_SOURCE" value="false" />
+    <option name="ACTIVE_ACTIONS" value="" />
+  </component>
+  <component name="Struts Assistant">
+    <option name="showInputs" value="true" />
+    <option name="resources">
+      <value>
+        <option name="strutsPath" />
+        <option name="strutsHelp" />
+      </value>
+    </option>
+    <option name="selectedTaglibs" />
+    <option name="selectedTaglibs" />
+    <option name="myStrutsValidationEnabled" value="true" />
+    <option name="myTilesValidationEnabled" value="true" />
+    <option name="myValidatorValidationEnabled" value="true" />
+    <option name="myReportErrorsAsWarnings" value="true" />
+  </component>
+  <component name="SvnChangesBrowserSettings">
+    <option name="USE_AUTHOR_FIELD" value="false" />
+    <option name="AUTHOR" value="" />
+    <option name="LOCATION" value="https://svn.sourceforge.net/svnroot/ehcache/trunk" />
+    <option name="USE_PROJECT_SETTINGS" value="true" />
+    <option name="USE_ALTERNATE_LOCATION" value="false" />
+  </component>
+  <component name="SvnConfiguration">
+    <option name="USER" value="" />
+    <option name="PASSWORD" value="" />
+    <option name="PROCESS_UNRESOLVED" value="false" />
+    <option name="LAST_MERGED_REVISION" />
+    <option name="UPDATE_RUN_STATUS" value="true" />
+    <option name="UPDATE_RECURSIVELY" value="true" />
+    <option name="MERGE_DRY_RUN" value="false" />
+    <configuration useDefault="false">/Users/gluck/.subversion</configuration>
+    <remoteStatus />
+    <upgradeMode>auto</upgradeMode>
+  </component>
+  <component name="TodoView" selected-index="0">
+    <todo-panel id="selected-file">
+      <are-packages-shown value="false" />
+      <are-modules-shown value="false" />
+      <flatten-packages value="false" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <are-modules-shown value="false" />
+      <flatten-packages value="false" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-2" y="22" width="1600" height="998" extended-state="0" />
+    <editor active="true" />
+    <layout>
+      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
+      <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
+      <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="7" />
+      <window_info id="Checkstyle" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32946485" order="0" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3288889" order="1" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3288889" order="8" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="6" />
+      <window_info id="Module Dependencies" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
+      <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
+      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.46555555" order="2" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24951644" order="2" />
+      <window_info id="File View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39777777" order="4" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="0" />
+      <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32988167" order="8" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
+      <window_info id="SVN Properties" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33" order="8" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="0" />
+      <window_info id="Web" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="2" />
+      <window_info id="EJB" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="3" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="5" />
+    </layout>
+  </component>
+  <component name="VCS.FileViewConfiguration">
+    <option name="SELECTED_STATUSES" value="DEFAULT" />
+    <option name="SELECTED_COLUMNS" value="DEFAULT" />
+    <option name="SHOW_FILTERS" value="true" />
+    <option name="CUSTOMIZE_VIEW" value="true" />
+    <option name="SHOW_FILE_HISTORY_AS_TREE" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="OFFER_MOVE_TO_ANOTHER_CHANGELIST_ON_PARTIAL_COMMIT" value="true" />
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="PERFORM_UPDATE_IN_BACKGROUND" value="false" />
+    <option name="PERFORM_COMMIT_IN_BACKGROUND" value="false" />
+    <option name="PUT_FOCUS_INTO_COMMENT" value="false" />
+    <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
+    <option name="LAST_COMMIT_MESSAGE" />
+    <option name="SAVE_LAST_COMMIT_MESSAGE" value="true" />
+    <option name="CHECKIN_DIALOG_SPLITTER_PROPORTION" value="0.8" />
+    <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
+    <option name="FILE_HISTORY_DIALOG_COMMENTS_SPLITTER_PROPORTION" value="0.8" />
+    <option name="FILE_HISTORY_DIALOG_SPLITTER_PROPORTION" value="0.5" />
+    <option name="ERROR_OCCURED" value="false" />
+    <option name="ACTIVE_VCS_NAME" value="svn" />
+    <option name="UPDATE_GROUP_BY_PACKAGES" value="false" />
+    <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
+    <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
+  </component>
+  <component name="VssConfiguration">
+    <option name="CLIENT_PATH" value="" />
+    <option name="SRCSAFEINI_PATH" value="" />
+    <option name="USER_NAME" value="" />
+    <option name="PWD" value="" />
+    <option name="VSS_IS_INITIALIZED" value="true" />
+    <CheckoutOptions>
+      <option name="COMMENT" value="" />
+      <option name="DO_NOT_GET_LATEST_VERSION" value="false" />
+      <option name="REPLACE_WRITABLE" value="false" />
+      <option name="RECURSIVE" value="false" />
+    </CheckoutOptions>
+    <CheckinOptions>
+      <option name="COMMENT" value="" />
+      <option name="KEEP_CHECKED_OUT" value="false" />
+      <option name="RECURSIVE" value="false" />
+    </CheckinOptions>
+    <AddOptions>
+      <option name="COMMENT" value="" />
+      <option name="STORE_ONLY_LATEST_VERSION" value="false" />
+      <option name="CHECK_OUT_IMMEDIATELY" value="false" />
+      <option name="FILE_TYPE" value="0" />
+    </AddOptions>
+    <UndocheckoutOptions>
+      <option name="MAKE_WRITABLE" value="false" />
+      <option name="REPLACE_LOCAL_COPY" value="0" />
+      <option name="RECURSIVE" value="false" />
+    </UndocheckoutOptions>
+    <GetOptions>
+      <option name="REPLACE_WRITABLE" value="0" />
+      <option name="MAKE_WRITABLE" value="false" />
+      <option name="ANSWER_NEGATIVELY" value="false" />
+      <option name="ANSWER_POSITIVELY" value="false" />
+      <option name="RECURSIVE" value="false" />
+    </GetOptions>
+  </component>
+  <component name="antWorkspaceConfiguration">
+    <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
+    <option name="FILTER_TARGETS" value="false" />
+    <buildFile url="file://$PROJECT_DIR$/build.xml">
+      <antCommandLine value="" />
+      <runInBackground value="false" />
+      <targetFilters>
+        <filter targetName="javadoc" isVisible="true" />
+        <filter targetName="fast-book" isVisible="false" />
+        <filter targetName="prepare-web-tests" isVisible="true" />
+        <filter targetName="start-orion" isVisible="true" />
+        <filter targetName="buildnumber" isVisible="false" />
+        <filter targetName="run-web-tests-no-check-orion" isVisible="false" />
+        <filter targetName="upload-to-repository" isVisible="true" />
+        <filter targetName="compile-tests" isVisible="false" />
+        <filter targetName="junitreport" isVisible="false" />
+        <filter targetName="stop-tomcat" isVisible="true" />
+        <filter targetName="prepare-book-resources" isVisible="false" />
+        <filter targetName="ydoc" isVisible="true" />
+        <filter targetName="clover.html" isVisible="false" />
+        <filter targetName="compile" isVisible="true" />
+        <filter targetName="test-tomcat" isVisible="true" />
+        <filter targetName="stop-orion" isVisible="true" />
+        <filter targetName="with.clover" isVisible="false" />
+        <filter targetName="singlepageguide" isVisible="false" />
+        <filter targetName="checkstyle" isVisible="false" />
+        <filter targetName="copy-tools-lib" isVisible="false" />
+        <filter targetName="maven-bundle" isVisible="false" />
+        <filter targetName="deploy-default-web-app-orion" isVisible="false" />
+        <filter targetName="checkstyle-check" isVisible="false" />
+        <filter targetName="test" isVisible="true" />
+        <filter targetName="rmic" isVisible="false" />
+        <filter targetName="run-web-tests-no-check-tomcat" isVisible="false" />
+        <filter targetName="dist-jar" isVisible="true" />
+        <filter targetName="deploy-default-web-app-tomcat" isVisible="false" />
+        <filter targetName="remote-debugger-jar" isVisible="true" />
+        <filter targetName="run-tests-no-check" isVisible="false" />
+        <filter targetName="compile-src" isVisible="true" />
+        <filter targetName="dist-sources" isVisible="true" />
+        <filter targetName="create_singlepageguide" isVisible="false" />
+        <filter targetName="test-web" isVisible="true" />
+        <filter targetName="test-orion" isVisible="true" />
+        <filter targetName="create_book" isVisible="false" />
+        <filter targetName="build" isVisible="true" />
+        <filter targetName="dist-javadoc" isVisible="true" />
+        <filter targetName="test-non-web" isVisible="true" />
+        <filter targetName="clean" isVisible="true" />
+        <filter targetName="book" isVisible="false" />
+        <filter targetName="clover-check-coverage" isVisible="false" />
+        <filter targetName="generate-checkstyle-config" isVisible="false" />
+        <filter targetName="clover" isVisible="true" />
+        <filter targetName="dist-tgz" isVisible="false" />
+        <filter targetName="start-tomcat" isVisible="true" />
+        <filter targetName="deploy-default-web-app-glassfish" isVisible="false" />
+      </targetFilters>
+      <treeView value="true" />
+      <verbose value="true" />
+      <viewClosedWhenNoErrors value="false" />
+    </buildFile>
+  </component>
+  <component name="com.intellij.ide.util.scopeChooser.ScopeChooserConfigurable" proportions="" version="1">
+    <option name="myLastEditedConfigurable" />
+  </component>
+  <component name="com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectRootMasterDetailsConfigurable" proportions="0.11111111" version="1">
+    <option name="myPlainMode" value="false" />
+    <option name="myLastEditedConfigurable" value="Modules" />
+  </component>
+  <component name="com.intellij.profile.ui.ErrorOptionsConfigurable" proportions="" version="1">
+    <option name="myLastEditedConfigurable" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/test/resources/ehcache-countinglisteners.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="124" column="32" selection-start="8271" selection-end="8271" vertical-scroll-proportion="0.64547676">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/RegisteredEventListeners.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="150" column="30" selection-start="5778" selection-end="5778" vertical-scroll-proportion="0.2797075">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1184" column="33" selection-start="40182" selection-end="40182" vertical-scroll-proportion="1.1184211">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/event/CacheEventListenerTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="686" column="34" selection-start="25339" selection-end="25339" vertical-scroll-proportion="0.9605263">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/index.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="17" column="3" selection-start="478" selection-end="478" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="366" column="31" selection-start="12895" selection-end="12895" vertical-scroll-proportion="0.014371257">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/preface.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="5" column="16" selection-start="98" selection-end="98" vertical-scroll-proportion="0.07058824">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="661" column="38" selection-start="27479" selection-end="27479" vertical-scroll-proportion="0.014371257">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/CacheConfiguration.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/asynchronous/package.html">
+      <provider editor-type-id="HtmlPreview">
+        <state />
+      </provider>
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="6" column="0" selection-start="53" selection-end="53" vertical-scroll-proportion="0.08955224">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/LfuPolicy.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="83" column="7" selection-start="2729" selection-end="2729" vertical-scroll-proportion="0.5235294">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/RELEASE_NOTES.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="3" column="41" selection-start="149" selection-end="149" vertical-scroll-proportion="0.014371257">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CHANGELOG.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="21" selection-start="21" selection-end="21" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/news.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="9" column="2" selection-start="53" selection-end="147" vertical-scroll-proportion="0.014371257">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="27" column="0" selection-start="1493" selection-end="1493" vertical-scroll-proportion="0.014371257">
+          <folding>
+            <marker date="1164793121000" expanded="true" signature="138:5435" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
+

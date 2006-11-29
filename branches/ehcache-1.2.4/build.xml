@@ -29,7 +29,6 @@
 
     <!-- Set up project.class.path -->
     <path id="project.class.path">
-        <fileset dir="${lib.runtime.dir}" includes="**/*.jar,**/*.zip"/>
         <path refid="dependency.classpath"/>
     </path>
 
