@@ -117,6 +117,7 @@
         </contributor>
     </contributors>
 
+    <!-- Release pom.xmls for the central repository cannot specify there own repositories
     <repositories>
         <repository>
             <id>codehaus-repository</id>
@@ -133,7 +134,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </pluginRepository>
-    </pluginRepositories>
+    </pluginRepositories> -->
 
 
     <dependencies>

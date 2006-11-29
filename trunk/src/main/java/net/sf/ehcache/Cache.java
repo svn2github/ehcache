@@ -135,13 +135,6 @@ public class Cache implements Ehcache {
     private final boolean diskPersistent;
 
     /**
-     * The shutdown hook thread for {@link #diskPersistent} caches. This thread
-     * must be unregistered as a shutdown hook, when the cache is disposed.
-     * Otherwise the cache is not GC-able.
-     */
-    private Thread shutdownHook;
-
-    /**
      * Whether elements are eternal, which is the same as non-expiring.
      */
     private final boolean eternal;
@@ -471,15 +464,7 @@ public class Cache implements Ehcache {
             }
 
             memoryStore = MemoryStore.create(this, diskStore);
-
-
-            if (diskPersistent) {
-                addShutdownHook();
-            }
-
             changeStatus(Status.STATUS_ALIVE);
-
-
         }
 
         if (LOG.isDebugEnabled()) {
@@ -511,49 +496,8 @@ public class Cache implements Ehcache {
     }
 
 
-    /**
-     * Some caches might be persistent, so we want to add a shutdown hook if that is the
-     * case, so that the data and index can be written to disk.
-     */
-    private void addShutdownHook() {
-        Thread localShutdownHook = new Thread() {
-            public void run() {
-                synchronized (this) {
-                    if (status.equals(Status.STATUS_ALIVE)) {
-                        // clear shutdown hook reference to prevent
-                        // removeShutdownHook to remove it during shutdown
-                        Cache.this.shutdownHook = null;
-
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("VM shutting down with the disk store for " + name
-                                    + " still active. The disk store is persistent. Calling dispose...");
-                        }
-                        dispose();
-                    }
-                }
-            }
-        };
-
-        Runtime.getRuntime().addShutdownHook(localShutdownHook);
-        shutdownHook = localShutdownHook;
-    }
 
 
-    /**
-     * Remove the shutdown hook to prevent leaving orphaned caches around. This
-     * is called by {@link #dispose()} AFTER the status has been set to shutdown.
-     */
-    private void removeShutdownHook() {
-        if (shutdownHook != null) {
-            // remove shutdown hook
-            Runtime.getRuntime().removeShutdownHook(shutdownHook);
-
-            // run the shutdown thread to remove it from its thread group
-            shutdownHook.start();
-
-            shutdownHook = null;
-        }
-    }
 
 
     /**
@@ -1145,10 +1089,6 @@ public class Cache implements Ehcache {
         registeredEventListeners.dispose();
 
         changeStatus(Status.STATUS_SHUTDOWN);
-
-        if (diskPersistent) {
-            removeShutdownHook();
-        }
     }
 
 

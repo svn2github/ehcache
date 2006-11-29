@@ -95,6 +95,18 @@ public class CacheManager {
     private CacheManagerPeerListener cacheManagerPeerListener;
 
     /**
+     * The shutdown hook thread for CacheManager. This ensures that the CacheManager and Caches are left in a
+     * consistent state on a CTRL-C or kill.
+     * <p/>
+     * This thread must be unregistered as a shutdown hook, when the CacheManager is disposed.
+     * Otherwise the CacheManager is not GC-able.
+     * <p/>
+     * Of course kill -9 or abrupt termination will not run the shutdown hook. In this case, various
+     * sanity checks are made at start up. 
+     */
+    private Thread shutdownHook;
+
+    /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
      * an ehcache.xml file. This constructor gives complete control over the creation of the CacheManager.
      * <p/>
@@ -203,6 +215,8 @@ public class CacheManager {
         if (cacheManagerPeerProvider != null) {
             cacheManagerPeerProvider.init();
         }
+
+        addShutdownHook();
     }
 
     /**
@@ -473,6 +487,50 @@ public class CacheManager {
     }
 
     /**
+     * Some caches might be persistent, so we want to add a shutdown hook if that is the
+     * case, so that the data and index can be written to disk.
+     */
+    private void addShutdownHook() {
+        Thread localShutdownHook = new Thread() {
+            public void run() {
+                synchronized (this) {
+                    if (status.equals(Status.STATUS_ALIVE)) {
+                        // clear shutdown hook reference to prevent
+                        // removeShutdownHook to remove it during shutdown
+                        shutdownHook = null;
+
+                        if (LOG.isInfoEnabled()) {
+                            LOG.info("VM shutting down with the CacheManager still active. Calling shutdown.");
+                        }
+                        shutdown();
+                    }
+                }
+            }
+        };
+
+        Runtime.getRuntime().addShutdownHook(localShutdownHook);
+        shutdownHook = localShutdownHook;
+    }
+
+
+
+    /**
+     * Remove the shutdown hook to prevent leaving orphaned CacheManagers around. This
+     * is called by {@link #shutdown()}} AFTER the status has been set to shutdown.
+     */
+    private void removeShutdownHook() {
+        if (shutdownHook != null) {
+            // remove shutdown hook
+            Runtime.getRuntime().removeShutdownHook(shutdownHook);
+
+            // run the shutdown thread to remove it from its thread group
+            shutdownHook.start();
+
+            shutdownHook = null;
+        }
+    }
+
+    /**
      * Adds a {@link Ehcache} based on the defaultCache with the given name.
      * <p/>
      * Memory and Disk stores will be configured for it and it will be added
@@ -650,6 +708,7 @@ public class CacheManager {
             if (this == singleton) {
                 singleton = null;
             }
+            removeShutdownHook();
         }
     }
 
