@@ -252,11 +252,14 @@ public class CacheManagerTest extends TestCase {
      *
      * ehcache-big.xml has 70 caches that overflow to disk. Check that the DiskStore is not using
      * more than 1 thread per DiskStore.
+     *
+     * ehcache-1.2.3 had 126 threads for this test.
+     * ehcache-1.2.4 has 71. 70 for the DiskStore thread and one shutdown hook
      *                     
      */
     public void testCacheManagerThreads() throws CacheException, InterruptedException {
         singletonManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-big.xml");
-        assertTrue(countThreads() < 80);
+        assertTrue(countThreads() <= 71);
     }
 
     /**
