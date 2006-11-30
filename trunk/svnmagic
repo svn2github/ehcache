@@ -2,7 +2,7 @@ To merge from trunk to branch.
 
 1. Find the branch point on the branch.
 
-svn log --verbose --stop-on-copy
+svn log --stop-on-copy .
 
 This will stop at the branch point
 
@@ -17,4 +17,23 @@ svn merge -r 246:248 . ../branches/ehcache-1.2.4
 4. Commit with a commit message that indicated the merge so you know it for next time
 
 e.g. svn commit -m "Merge from trunk svn merge -r 246:248 . ../branches/ehcache-1.2.4"
+
+
+
+To merge from branch to trunk
+
+
+1. Find the branch point on the branch.
+
+svn log --stop-on-copy .
+
+This will stop at the branch point
+
+2. Do the merge from trunk
+
+svn merge --force -r 74:HEAD  ../branches/ehcache-1.2.4 
+
+3. Commit with a commit message that indicated the merge so you know it for next time
+
+e.g. svn commit -m "Merge from branch revision 74 to trunk"
 
