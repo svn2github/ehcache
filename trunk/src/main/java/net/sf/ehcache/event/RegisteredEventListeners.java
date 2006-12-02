@@ -19,8 +19,10 @@ package net.sf.ehcache.event;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.jcache.CacheListenerAdaptor;
 import net.sf.ehcache.distribution.CacheReplicator;
 
+import javax.cache.CacheListener;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -215,7 +217,22 @@ public final class RegisteredEventListeners {
      * @return true if the listener was present
      */
     public final boolean unregisterListener(CacheEventListener cacheEventListener) {
+        if (cacheEventListener instanceof CacheListenerAdaptor) {
+            removeCacheListenerAdaptor(((CacheListenerAdaptor)cacheEventListener).getCacheListener());
+        }
         return cacheEventListeners.remove(cacheEventListener);
+    }
+
+    private void removeCacheListenerAdaptor(CacheListener cacheListener) {
+        for (Iterator iterator = cacheEventListeners.iterator(); iterator.hasNext();) {
+            CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
+            if (cacheEventListener instanceof CacheListenerAdaptor) {
+                if (((CacheListenerAdaptor)cacheEventListener).getCacheListener() == cacheListener) {
+                    cacheEventListeners.remove(cacheEventListener);
+                    break;
+                }
+            }
+        }
     }
 
     /**

@@ -1,0 +1,91 @@
+JSR107 (JCACHE) Support
+
+* {JSR107 Implementation}
+
+    Ehcache provides an implementation of JSR107 via the <<<net.sf.cache.jcache>>> package.
+
+* Problems With JSR107
+
+    If you are using ehcache through the jcache interface you need to be aware of some problems
+    and limitations in the specification.
+
+
+** Entry
+-------
+    int getHits();
+-------
+
+    Bugs have been reported against ehcache for using ints for hits. Some usages require longs
+
+    Once you get to Integer.MAX_VALUE the counter rolls over. See the following test:
+
+
+-----
+    public void testIntOverflow() {
+        long value = Integer.MAX_VALUE;
+        value += Integer.MAX_VALUE;
+        value += 5;
+        LOG.info("" + value);
+        int valueAsInt = (int) value;
+        LOG.info("" + valueAsInt);
+        assertEquals(3, valueAsInt);
+    }
+-----
+
+
+
+** CacheStatistics
+
+---------
+
+
+public interface CacheStatistics {
+
+    public static final int STATISTICS_ACCURACY_NONE = 0;
+    public static final int STATISTICS_ACCURACY_BEST_EFFORT = 1;
+    public static final int STATISTICS_ACCURACY_GUARANTEED = 2;
+
+    public int getStatisticsAccuracy();
+
+    public int getObjectCount();
+
+    public int getCacheHits();
+
+    public int getCacheMisses();
+
+    public void clearStatistics();
+
+---------
+
+    Once again <<<getCacheHits>>> and <<<getCacheMisses>>> should be longs.
+
+
+** CacheListener
+
+-----
+
+    /**
+     *  Interface describing various events that can happen as elements are added to
+     *  or removed from a cache
+     */
+    public interface CacheListener {
+        /** Triggered when a cache mapping is created due to the cache loader being consulted */
+        public void onLoad(Object key);
+
+        /** Triggered when a cache mapping is created due to calling Cache.put() */
+        public void onPut(Object key);
+
+        /** Triggered when a cache mapping is removed due to eviction */
+        public void onEvict(Object key);
+
+        /** Triggered when a cache mapping is removed due to calling Cache.remove() */
+        public void onRemove(Object key);
+
+        public void onClear();
+    }
+
+-----
+
+    Listeners often need not just the key, but the cache Entry itself. This listener interface
+    is extremely limiting.
+

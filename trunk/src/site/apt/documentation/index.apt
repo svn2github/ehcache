@@ -42,3 +42,5 @@ ehcache 1.2.4 User Guide
     * {{{./hibernate.html}Hibernate Caching}}
 
     * {{{./faq.html}FAQ}}
+
+    * {{{./jsr107.html}JSR107 (JCACHE) Support}}

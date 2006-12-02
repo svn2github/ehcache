@@ -23,13 +23,16 @@
         <pom refid="maven.project"/>
     </artifact:dependencies>
 
-    <artifact:dependencies filesetId="compile.dependency.fileset" pathId="compile.dependency.classpath" useScope="compile">
+    <artifact:dependencies filesetId="compile.dependency.fileset"
+                           pathId="compile.dependency.classpath" useScope="compile">
         <pom refid="maven.project"/>
     </artifact:dependencies>
 
     <!-- Set up project.class.path -->
     <path id="project.class.path">
         <path refid="dependency.classpath"/>
+        <!--Overcome Maven Antlib bugs -->
+        <path location="tools/jcache-not_released.jar"/>
     </path>
 
     <target name="clean" description="Cleans the build directory">
@@ -55,7 +58,6 @@
     <!-- compiles -->
     <target name="compile" depends="compile-src, rmic, compile-tests"
             description="Performs a compile"/>
-
 
 
     <!-- Runs checkstyle over the java source -->
@@ -108,6 +110,9 @@
             <classpath refid="project.class.path"/>
         </javac>
         <copy file="${src.config.dir}/ehcache-failsafe.xml" todir="${build.classes.dir}"/>
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${src.config.dir}/jcache"/>
+        </copy>
     </target>
 
 
@@ -305,7 +310,8 @@
     </target>
 
     <!-- Builds a release tar-ball -->
-    <target name="dist-tgz" depends="dist-jar, dist-javadoc, dist-sources, remote-debugger-jar">
+    <target name="dist-tgz"
+            depends="dist-jar, dist-javadoc, dist-sources, remote-debugger-jar">
         <tar destfile="${dist.dir}/${name}-${version}.tgz"
              compression="gzip">
             <tarfileset dir="${dist.dir}" prefix="${name}-${version}">
@@ -343,12 +349,13 @@
         </jar>
     </target>
 
-    <target name="upload-to-repository" depends="dist-tgz" description="upload to maven repository">
+    <target name="upload-to-repository" depends="dist-tgz"
+            description="upload to maven repository">
         <!--<artifact:install-provider artifactId="wagon-webdav" version="1.0-beta-1"/>-->
         <artifact:install-provider artifactId="wagon-ssh" version="1.0-beta-1"/>
         <!--install locally-->
         <!--<artifact:install file="${dist.dir}/${name}-${version}.jar">-->
-            <!--<pom refid="maven.project"/>-->
+        <!--<pom refid="maven.project"/>-->
         <!--</artifact:install>-->
         <!--upload to repository, either release or snapshot depdening on version numbering -->
         <artifact:deploy file="${dist.dir}/${name}-${version}.jar">
@@ -474,7 +481,7 @@
 
     <artifact:dependencies filesetId="clover.fileset">
         <dependency groupId="com.cenqua.clover" artifactId="clover"
-              version="1.3.13"/>
+                    version="1.3.13"/>
     </artifact:dependencies>
 
     <target name="deploy-default-web-app-orion">
@@ -690,6 +697,7 @@
                 <arg value="cache_event_listeners.apt"/>
                 <arg value="faq.apt"/>
                 <arg value="nameandlogo.apt"/>
+                <arg value="jsr107.apt"/>
             </exec>
         </sequential>
     </macrodef>

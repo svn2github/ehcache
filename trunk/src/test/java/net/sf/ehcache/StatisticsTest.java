@@ -28,7 +28,6 @@ import java.io.ObjectInputStream;
 /**
  * Tests for the statistics class
  *
- *
  * @author Greg Luck
  * @version $Id$
  */
@@ -169,7 +168,6 @@ public class StatisticsTest extends AbstractCacheTest {
         afterDeserializationStatistics = (Statistics) ois.readObject();
         ois.close();
 
-
         //Check after Serialization
         assertEquals(2, afterDeserializationStatistics.getCacheHits());
         assertEquals(1, afterDeserializationStatistics.getOnDiskHits());
@@ -183,18 +181,19 @@ public class StatisticsTest extends AbstractCacheTest {
 
     /**
      * What happens when a long larger than int max value is cast to an int?
-     *
+     * <p/>
      * The answer is that negative numbers are reported. The cast value is incorrect.
      */
     public void testIntOverflow() {
 
         long value = Integer.MAX_VALUE;
         value += Integer.MAX_VALUE;
-        value += Integer.MAX_VALUE;
+        value += 5;
         LOG.info("" + value);
         int valueAsInt = (int) value;
         LOG.info("" + valueAsInt);
+        assertEquals(3, valueAsInt);
 
-}
+    }
 
 }

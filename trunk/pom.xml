@@ -5,7 +5,7 @@
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache</artifactId>
     <packaging>jar</packaging>
-    <version>1.2.4RC</version>
+    <version>1.2.4</version>
     <!--<version>1.2.4-SNAPSHOT</version>-->
     <name>ehcache</name>
     <description><![CDATA[Ehcache is a widely used pure Java, distributed in-process cache]]>
@@ -236,6 +236,14 @@
             <version>1.6.1</version>
             <scope>test</scope>
         </dependency>
+        <!-- This is in here for completeness but does not work for Ant. See http://jira.codehaus.org/browse/MANT-21
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>jcache</artifactId>
+            <version>not_released</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/tools/jcache.jar</systemPath>
+        </dependency> -->
     </dependencies>
 
     <licenses>
