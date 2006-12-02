@@ -15,12 +15,12 @@ Welcome to ehcache
 
 * Latest News
 
-** 26 November 2006: ehcache-1.2.4RC released
+** 3 December 2006: ehcache-1.2.4 released
 
-    This is a candidate for a maintenance release.
+    This is the final release of ehcache-1.2.4, following on from the release candidate a week earlier.
 
     It contains four feature and fifteen bug fixes received
-    in the two months since ehcache-1.2.3 was released. See the {{{http://ehcache.sourceforge.net/changes-report.html#1.2.4}changelog}}
+    in the three months since ehcache-1.2.3 was released. See the {{{http://ehcache.sourceforge.net/changes-report.html#1.2.4}changelog}}
     for details.
 
     Eight of the changes in this release are scalability improvements contributed by users running very large ehcache
@@ -28,9 +28,12 @@ Welcome to ehcache
 
     The Caching and Gzip filters in the web package have been updated to work on Glassfish and Tomcat.
 
-    The distributed caching functionality in ehcache is now 6 months ago.
+    The distributed caching functionality in ehcache is now 6 months ago and is widely used. Moreover the maintainer has now
+    been running ehcache distributed in production for four months without incident. This functionality can now be considered
+    mature.
 
-    The maintainer has now been running ehcache distributed in production for four months without incident.
+    Another area that has improved in this release is a large reduction in thread use. Ehcache used to use three threads
+    per DiskStore. Now it uses one.
 
     Ehcache has no open bugs or patches at the time of release.
 
