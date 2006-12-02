@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <web-app xmlns="http://java.sun.com/xml/ns/javaee"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd "
-    version="2.5">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd "
+         version="2.5">
 
     <filter>
         <filter-name>GzipFilter</filter-name>
         <filter-class>net.sf.ehcache.constructs.web.filter.GzipFilter</filter-class>
         <init-param>
             <param-name>exceptionsToLogDifferently</param-name>
-            <param-value>net.sf.ehcache.CacheException, java.lang.NullPointerException</param-value>
+            <param-value>net.sf.ehcache.CacheException, java.lang.NullPointerException
+            </param-value>
         </init-param>
         <init-param>
             <param-name>exceptionsToLogDifferentlyLevel</param-name>
@@ -23,7 +24,8 @@
     </filter>
     <filter>
         <filter-name>SimplePageCachingFilter</filter-name>
-        <filter-class>net.sf.ehcache.constructs.web.filter.SimplePageCachingFilter</filter-class>
+        <filter-class>net.sf.ehcache.constructs.web.filter.SimplePageCachingFilter
+        </filter-class>
         <init-param>
             <param-name>suppressStackTraces</param-name>
             <param-value>false</param-value>
@@ -32,7 +34,8 @@
 
     <filter>
         <filter-name>SimplePageFragmentCachingFilter</filter-name>
-        <filter-class>net.sf.ehcache.constructs.web.filter.SimplePageFragmentCachingFilter</filter-class>
+        <filter-class>net.sf.ehcache.constructs.web.filter.SimplePageFragmentCachingFilter
+        </filter-class>
         <init-param>
             <param-name>suppressStackTraces</param-name>
             <param-value>false</param-value>
@@ -42,7 +45,9 @@
     <!-- Test only filter -->
     <filter>
         <filter-name>SimplePageCachingFilterWithBlankPageProblem</filter-name>
-        <filter-class>net.sf.ehcache.constructs.web.filter.SimplePageCachingFilterWithBlankPageProblem</filter-class>
+        <filter-class>
+            net.sf.ehcache.constructs.web.filter.SimplePageCachingFilterWithBlankPageProblem
+        </filter-class>
         <init-param>
             <param-name>suppressStackTraces</param-name>
             <param-value>false</param-value>
@@ -81,7 +86,7 @@
         <url-pattern>/non_ok/SendRedirect.jsp</url-pattern>
     </filter-mapping>
 
-        <!-- Test 404 and 302 -->
+    <!-- Test 404 and 302 -->
     <filter-mapping>
         <filter-name>GzipFilter</filter-name>
         <url-pattern>/non_ok/PageNotFoundGzip.jsp</url-pattern>
@@ -90,6 +95,15 @@
     <filter-mapping>
         <filter-name>GzipFilter</filter-name>
         <url-pattern>/non_ok/SendRedirectGzip.jsp</url-pattern>
+    </filter-mapping>
+
+    <!--Test forwards -->
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/non_ok/ForwardFromGzip.jsp</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
     </filter-mapping>
 
 
@@ -165,11 +179,13 @@
     <!-- Servlet Declarations -->
     <servlet>
         <servlet-name>IncludeCachedPageServlet</servlet-name>
-        <servlet-class>net.sf.ehcache.constructs.web.servlet.IncludeCachedPageServlet</servlet-class>
+        <servlet-class>net.sf.ehcache.constructs.web.servlet.IncludeCachedPageServlet
+        </servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ForwardToCachedPageServlet</servlet-name>
-        <servlet-class>net.sf.ehcache.constructs.web.servlet.ForwardToCachedPageServlet</servlet-class>
+        <servlet-class>net.sf.ehcache.constructs.web.servlet.ForwardToCachedPageServlet
+        </servlet-class>
     </servlet>
 
     <!-- Servlet Mappings -->

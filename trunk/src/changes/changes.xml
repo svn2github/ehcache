@@ -20,12 +20,12 @@
             </action>
             <action dev="Greg Luck/Jody Brownell" type="add">
                 Added a maxElementsOnDiskStore attribute to cache. This lets disk stores be
-                bounded. LFU eviction is used to decide which element to evict.
+                bounded. ehcacheLFU eviction is used to decide which element to evict.
             </action>
             <action dev="Greg Luck/Jody Brownell" type="add">
                 Combined the DiskStore's expiry and spool threads. They were competing for the
                 same locks anyway. This reduces the maximum number of threads used from 2 to 1 per
-                DiskStore.
+                DiskStorwe.
             </action>
             <action dev="Tony Voss" issue="1588976" type="add">
                 Enable the timeToLive to be set on the cacheManagerPeerProviderFactory. This enables
