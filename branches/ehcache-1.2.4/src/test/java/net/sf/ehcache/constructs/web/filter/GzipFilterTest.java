@@ -206,6 +206,24 @@ public class GzipFilterTest extends AbstractWebTest {
         assertNull(httpMethod.getResponseHeader("Content-Encoding"));
     }
 
+    /**
+     * When the servlet container forwards to a page does it work?
+     * <p/>
+     * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:8080/non_ok/ForwardFromGzip.jsp
+     */
+    public void testForward() throws Exception {
+
+        String url = "http://localhost:8080/non_ok/ForwardFromGzip.jsp";
+        HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = new GetMethod(url);
+        httpMethod.addRequestHeader("Accept-Encoding", "gzip");
+        int responseCode = httpClient.executeMethod(httpMethod);
+        //httpclient follows redirects, so gets the home page.
+        assertEquals(HttpURLConnection.HTTP_OK, responseCode);
+        String responseBody = httpMethod.getResponseBodyAsString();
+        assertNotNull(responseBody);
+        assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
+    }
 
 }
 

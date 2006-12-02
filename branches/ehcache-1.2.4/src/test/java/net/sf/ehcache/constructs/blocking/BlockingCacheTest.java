@@ -244,38 +244,38 @@ public class BlockingCacheTest extends CacheTest {
         LOG.debug("Thrash Duration:" + duration);
     }
 
-    /**
-     * This method tries to get the cache to slow up.
-     * It creates 300 threads, does blocking gets and monitors the liveness right the way through
-     */
-    private long thrashCache(final BlockingCache cache, final int numberOfThreads,
-                             final long liveness, final long retrievalTime) throws Exception {
-        StopWatch stopWatch = new StopWatch();
+        /**
+         * This method tries to get the cache to slow up.
+         * It creates 300 threads, does blocking gets and monitors the liveness right the way through
+         */
+        private long thrashCache(final BlockingCache cache, final int numberOfThreads,
+                                 final long liveness, final long retrievalTime) throws Exception {
+            StopWatch stopWatch = new StopWatch();
 
-        // Create threads that do gets
-        final List executables = new ArrayList();
-        for (int i = 0; i < numberOfThreads; i++) {
-            final Executable executable = new Executable() {
-                public void execute() throws Exception {
-                    for (int i = 0; i < 10; i++) {
-                        final String key = "key" + i;
-                        Object value = cache.get(key);
-                        checkLiveness(cache, liveness);
-                        if (value == null) {
-                            cache.put(new Element(key, "value" + i));
+            // Create threads that do gets
+            final List executables = new ArrayList();
+            for (int i = 0; i < numberOfThreads; i++) {
+                final Executable executable = new Executable() {
+                    public void execute() throws Exception {
+                        for (int i = 0; i < 10; i++) {
+                            final String key = "key" + i;
+                            Object value = cache.get(key);
+                            checkLiveness(cache, liveness);
+                            if (value == null) {
+                                cache.put(new Element(key, "value" + i));
+                            }
+                            //The key will be in. Now check we can get it quickly
+                            checkRetrievalOnKnownKey(cache, retrievalTime, key);
                         }
-                        //The key will be in. Now check we can get it quickly
-                        checkRetrievalOnKnownKey(cache, retrievalTime, key);
                     }
-                }
-            };
-            executables.add(executable);
-        }
+                };
+                executables.add(executable);
+            }
 
-        runThreads(executables);
-        cache.removeAll();
-        return stopWatch.getElapsedTime();
-    }
+            runThreads(executables);
+            cache.removeAll();
+            return stopWatch.getElapsedTime();
+        }
 
     /**
      * Checks that the liveness method returns in less than a given amount of time.
