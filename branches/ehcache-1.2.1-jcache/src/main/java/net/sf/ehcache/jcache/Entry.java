@@ -23,7 +23,7 @@ import javax.cache.CacheEntry;
  * An implementation of CacheEntry.
  *
  * A CacheEntry is metadata about an entry in the cache. It does not include the value.
- *
+ *                   
  * @author Greg Luck
  * @version $Id$
  */
@@ -128,9 +128,9 @@ public class Entry implements CacheEntry {
      * Gets the hit count on this element. A new element has a hit count of 0.
      * @return the number of hits this Element has had. If the Element was updated, the hit count is reset to 0.
      */
-    public long getHits() {
+    public int getHits() {
         if (element != null) {
-            return element.getHitCount();
+            return (int) element.getHitCount();
         } else {
             return 0;
         }
