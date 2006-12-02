@@ -118,6 +118,15 @@
         <url-pattern>/non_ok/SendRedirectGzip.jsp</url-pattern>
     </filter-mapping>
 
+    <!--Test forwards -->
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/non_ok/ForwardFromGzip.jsp</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+    </filter-mapping>
+
     <!-- Demonstrates the blank page problem -->
     <filter-mapping>
         <filter-name>SimplePageCachingFilterWithBlankPageProblem</filter-name>
