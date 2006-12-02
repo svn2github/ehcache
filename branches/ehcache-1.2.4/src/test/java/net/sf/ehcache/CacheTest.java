@@ -27,6 +27,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.event.RegisteredEventListeners;
+
 
 /**
  * Tests for a Cache
@@ -1586,6 +1590,64 @@ public class CacheTest extends AbstractCacheTest {
         runThreads(executables);
         long end = System.currentTimeMillis();
         LOG.info("Total time for the test: " + (end - start) + " ms");
+    }
+
+
+    /**
+     * Tests added from 1606323 Elements not stored in memory or on disk. This was supposedly
+     * a bug but works.
+     * This test passes.
+     * @throws Exception  
+     */
+    public void testTimeToLive15552000() throws Exception {
+        long timeToLiveSeconds = 15552000;
+        doRunTest(timeToLiveSeconds);
+    }
+
+    /**
+     * This test passes.
+     * @throws Exception
+     */
+    public void testTimeToLive604800() throws Exception {
+        long timeToLiveSeconds = 604800;
+        doRunTest(timeToLiveSeconds);
+    }
+
+    private void doRunTest(long timeToLiveSeconds) {
+        String name = "memoryAndDiskCache";
+        int maxElementsInMemory = 1000;
+        MemoryStoreEvictionPolicy memoryStoreEvictionPolicy = MemoryStoreEvictionPolicy.LRU;
+        boolean overflowToDisk = true;
+        String diskStorePath = "java.io.tmp.dir/cache";
+        boolean eternal = false;
+        long timeToIdleSeconds = 0;
+        boolean diskPersistent = true;
+        long diskExpiryThreadIntervalSeconds = 3600;
+        RegisteredEventListeners registeredEventListeners = null;
+        BootstrapCacheLoader bootstrapCacheLoader = null;
+
+        Cache memoryAndDisk = new Cache(
+                name,
+                maxElementsInMemory,
+                memoryStoreEvictionPolicy,
+                overflowToDisk,
+                diskStorePath,
+                eternal,
+                timeToLiveSeconds,
+                timeToIdleSeconds,
+                diskPersistent,
+                diskExpiryThreadIntervalSeconds,
+                registeredEventListeners,
+                bootstrapCacheLoader);
+
+        this.manager.addCache(memoryAndDisk);
+
+        String key = "test";
+        Object value = new Object();
+
+        memoryAndDisk.put(new Element(key, value));
+
+        assertTrue(memoryAndDisk.isElementInMemory(key));
     }
 
 
