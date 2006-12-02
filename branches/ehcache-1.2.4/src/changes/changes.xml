@@ -2,7 +2,7 @@
 <document>
     <body>
 
-        <release version="1.2.4" date="2006-12-31" desc="Final 1.2.4 release">
+        <release version="1.2.4" date="2006-12-3" desc="Final 1.2.4 release">
 
             <!-- Feature Changes  -->
             <action dev="Greg Luck" type="update">
