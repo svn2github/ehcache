@@ -1597,9 +1597,9 @@ public class CacheTest extends AbstractCacheTest {
      * Tests added from 1606323 Elements not stored in memory or on disk. This was supposedly
      * a bug but works.
      * This test passes.
-     * @throws Exception
+     * @throws Exception  
      */
-    public void testTimeToLive_15552000() throws Exception {
+    public void testTimeToLive15552000() throws Exception {
         long timeToLiveSeconds = 15552000;
         doRunTest(timeToLiveSeconds);
     }
@@ -1608,7 +1608,7 @@ public class CacheTest extends AbstractCacheTest {
      * This test passes.
      * @throws Exception
      */
-    public void testTimeToLive_604800() throws Exception {
+    public void testTimeToLive604800() throws Exception {
         long timeToLiveSeconds = 604800;
         doRunTest(timeToLiveSeconds);
     }
