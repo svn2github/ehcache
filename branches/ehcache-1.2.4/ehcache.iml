@@ -20,7 +20,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/junit/junit/3.8.1/junit-3.8.1.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/junit/junit/3.8.1/junit-3.8.1.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -29,7 +33,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/checkstyle/checkstyle-optional/4.1/checkstyle-optional-4.1.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/nekohtml/nekohtml/0.9.1/nekohtml-0.9.1.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -38,7 +46,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/nekohtml/nekohtml/0.9.1/nekohtml-0.9.1.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/checkstyle/checkstyle-optional/4.1/checkstyle-optional-4.1.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -47,7 +59,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/org/hibernate/hibernate/3.2.0.cr3/hibernate-3.2.0.cr3.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/org/hibernate/hibernate/3.2.0.cr3/hibernate-3.2.0.cr3.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -56,7 +72,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/rhino/js/1.5R4.1/js-1.5R4.1.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/rhino/js/1.5R4.1/js-1.5R4.1.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -65,7 +85,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -74,7 +98,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -83,7 +111,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/commons-collections/commons-collections/2.1/commons-collections-2.1.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/commons-collections/commons-collections/2.1/commons-collections-2.1.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -92,7 +124,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -101,7 +137,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/cglib/cglib/2.1_3/cglib-2.1_3.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/cglib/cglib/2.1_3/cglib-2.1_3.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -110,7 +150,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/asm/asm-attrs/1.5.3/asm-attrs-1.5.3.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/asm/asm-attrs/1.5.3/asm-attrs-1.5.3.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -119,7 +163,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/checkstyle/checkstyle/4.1/checkstyle-4.1.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/checkstyle/checkstyle/4.1/checkstyle-4.1.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -128,7 +176,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/jtidy/jtidy/4aug2000r7-dev/jtidy-4aug2000r7-dev.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/jtidy/jtidy/4aug2000r7-dev/jtidy-4aug2000r7-dev.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -137,7 +189,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/asm/asm/1.5.3/asm-1.5.3.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/asm/asm/1.5.3/asm-1.5.3.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -146,7 +202,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/httpunit/httpunit/1.6.1/httpunit-1.6.1.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/httpunit/httpunit/1.6.1/httpunit-1.6.1.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -155,7 +215,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/com/cenqua/clover/clover/1.3.13/clover-1.3.13.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/com/cenqua/clover/clover/1.3.13/clover-1.3.13.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -164,7 +228,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/xerces/xercesImpl/2.6.2/xercesImpl-2.6.2.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/commons-codec/commons-codec/1.2/commons-codec-1.2.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -173,7 +241,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/commons-codec/commons-codec/1.2/commons-codec-1.2.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/xerces/xercesImpl/2.6.2/xercesImpl-2.6.2.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -182,7 +254,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/commons-beanutils/commons-beanutils-core/1.7.0/commons-beanutils-core-1.7.0.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/commons-beanutils/commons-beanutils-core/1.7.0/commons-beanutils-core-1.7.0.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -191,7 +267,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/net/sf/hibernate/hibernate/2.1.8/hibernate-2.1.8.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/net/sf/hibernate/hibernate/2.1.8/hibernate-2.1.8.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -200,7 +280,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/antlr/antlr/2.7.2/antlr-2.7.2.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/antlr/antlr/2.7.2/antlr-2.7.2.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -209,7 +293,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/commons-httpclient/commons-httpclient/3.0.1/commons-httpclient-3.0.1.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/commons-httpclient/commons-httpclient/3.0.1/commons-httpclient-3.0.1.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -218,7 +306,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+<<<<<<< .mine
+          <root url="jar:///.m2/repository/xerces/xmlParserAPIs/2.2.1/xmlParserAPIs-2.2.1.jar!/" />
+=======
           <root url="jar:///Users/gluck/.m2/repository/xerces/xmlParserAPIs/2.2.1/xmlParserAPIs-2.2.1.jar!/" />
+>>>>>>> .r250
         </CLASSES>
         <JAVADOC />
         <SOURCES />
