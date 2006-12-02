@@ -144,7 +144,7 @@
         <fail message="One or more tests failed. See the log file for details."/>
     </target>
 
-    <target name="test-web" depends="test-tomcat, test-orion"
+    <target name="test-web" depends="test-orion, test-tomcat"
             description="Integration tests for web containers"/>
 
     <target name="test-orion"
