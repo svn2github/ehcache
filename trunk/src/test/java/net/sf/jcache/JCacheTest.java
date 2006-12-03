@@ -24,6 +24,7 @@ import javax.cache.Cache;
 import javax.cache.CacheEntry;
 import javax.cache.CacheException;
 import javax.cache.CacheManager;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -1325,21 +1326,13 @@ public class JCacheTest extends AbstractCacheTest {
 //        assertEquals(element1, elementFromDiskStore);
 //        assertTrue(element1 != elementFromDiskStore);
 //    }
-//
-//    /**
-//     * Tests the uniqueness of the GUID
-//     */
+
+    /**
+     * Tests the uniqueness of the GUID
+     * Not part of jsr107
+     */
 //    public void testGuid() {
-//        Ehcache cache1 = new Cache("testGetMemoryStore", 10, false, false, 100, 200);
-//        Ehcache cache2 = new Cache("testGetMemoryStore", 10, false, false, 100, 200);
-//        String guid1 = cache1.getGuid();
-//        String guid2 = cache2.getGuid();
-//        assertEquals(cache1.getName(), cache2.getName());
-//        assertTrue(!guid1.equals(guid2));
-//
-//    }
-//
-//
+
 //    /**
 //     * Does the Object API work?
 //     */
@@ -1371,27 +1364,23 @@ public class JCacheTest extends AbstractCacheTest {
 //        assertEquals(objectValue, retrievedElement.getObjectValue());
 //
 //    }
-//
-//
-//    /**
-//     * Does the Serializable API work?
-//     */
-//    public void testAPISerializableCompatibility() {
-//        //Set size so the second element overflows to disk.
-//        Cache cache = new Cache("test", 5, true, false, 5, 2);
-//        manager.addCache(cache);
-//
-//        //Try object compatibility
-//        Serializable key = new String();
-//        Element objectElement = new Element(key, new String());
-//        cache.put(objectElement);
-//        Object retrievedObject = cache.get(key);
-//        assertEquals(retrievedObject, objectElement);
-//
-//        //Test that equals works
-//        assertEquals(objectElement, retrievedObject);
-//    }
-//
+
+
+    /**
+     * Does the Serializable API work?
+     */
+    public void testAPISerializableCompatibility() throws CacheException {
+        //Set size so the second element overflows to disk.
+        Cache cache = getTest2Cache();
+
+        //Try object compatibility
+        Serializable key = new String("key");
+        Serializable serializableValue = new String("value");
+        cache.put(key, serializableValue);
+        cache.put("key2", serializableValue);
+        assertEquals(serializableValue, cache.get(key));
+    }
+
 //    /**
 //     * Test issues reported.
 //     */

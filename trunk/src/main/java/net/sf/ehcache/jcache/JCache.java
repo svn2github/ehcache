@@ -305,7 +305,7 @@ public class JCache implements javax.cache.Cache {
     public boolean containsValue(Object value) {
         return cache.isValueInCache(value);
     }
-
+                                                                               
     /**
      * Returns the value to which this map maps the specified key.  Returns
      * <tt>null</tt> if the map contains no mapping for this key.  A return
@@ -325,7 +325,12 @@ public class JCache implements javax.cache.Cache {
      * @see #containsKey(Object)
      */
     public Object get(Object key) {
-        return cache.get(key);
+        Element element = cache.get(key);
+        if (element == null) {
+            return null;
+        } else {
+            return element.getObjectValue();
+        }
     }
 
     /**
