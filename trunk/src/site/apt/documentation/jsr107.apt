@@ -89,3 +89,59 @@ public interface CacheStatistics {
     Listeners often need not just the key, but the cache Entry itself. This listener interface
     is extremely limiting.
 
+
+
+** javax.cache.CacheFactory
+
+    A property is specified in the resource services/javax.cache.CacheFactory for a CacheFactory.
+
+    The factory then resolves the CacheManager which must be a singleton.
+
+    A singleton CacheManager works in simple scenarios. But there are many where you want multiple
+    CacheManagers in an application. Ehcache supports both singleton creation semantics and
+    instances and defines the way both can coexist.
+
+    The singleton CacheManager is a limitation of the specification.
+
+    (Alternatives: Some form of annotation and injection scheme)
+
+    
+
+** javax.cache.CacheManager
+
+    CacheManager does not have the following features:
+
+    shutdown the CacheManager - there is no way to free resources or persist. Implementations
+    may utilise a shutdown hook, but that does not work for application server redeployments,
+    where a shutdown listener must be used
+
+    remove caches from the CacheManager - once its there it is there until JVM shutdown. This does
+    not work well for dynamic creation, destruction and recreation of caches.
+
+
+
+** javax.cache.Cache
+
+    *   The spec is silent on whether a Cache can be used in the absence of a CacheManager. Requiring
+        a CacheManager makes a central place where concerns affecting all caches can be managed, not
+        just a way of looking them up. For example, configuration for persistence and distribution.
+
+    *   Cache does not have a lifecycle. There is no startup and no shutdown. There is no way, other than
+        a shutdown hook, to free resources or perform persistence operations. Once again this will not
+        work for redeployment of applications in an app server.
+
+    *   There is no mechanism for creating a new cache from a default configuration such as
+        a <<<public void registerCache(String cacheName)>>> on CacheManager. This feature is considered
+        indispensable by frameworks such as Hibernate.
+
+    *   Cache does not have a <<<getName()>>> method. A cache has a name; that is how it is retrieved
+        from the CacheManager. But it does not know its own name. This forces API users to keep track
+        of the name themselves for reporting exceptions and log messages.
+
+
+
+
+    
+    
+
+

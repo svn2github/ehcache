@@ -55,6 +55,11 @@
         <echo message="Use ant build to build a distribution"/>
     </target>
 
+    <target name="qa"
+            depends="clean, with.clover, checkstyle, compile, javadoc"
+            description="QA checks before check-in and full run on continous integration server">
+    </target>
+
     <!-- compiles -->
     <target name="compile" depends="compile-src, rmic, compile-tests"
             description="Performs a compile"/>

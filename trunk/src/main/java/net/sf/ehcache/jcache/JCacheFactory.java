@@ -25,7 +25,10 @@ import javax.cache.CacheFactory;
 import java.util.Map;
 
 /**
- * A CacheFactory implementation fo JCache
+ * A CacheFactory implementation for JCache.
+ *
+ * This factory uses ehcache in singleton CacheManager mode i.e. one per classloader.
+ *
  * @author Greg Luck
  * @version $Id$
  */
@@ -48,6 +51,7 @@ public class JCacheFactory implements CacheFactory {
      *            long timeToIdleSeconds,
      *            boolean diskPersistent,
      *            long diskExpiryThreadIntervalSeconds
+     *            int maxElementsOnDisk
      *
      * Note that the following cannot be set:
      * <ol>
@@ -55,7 +59,7 @@ public class JCacheFactory implements CacheFactory {
      * <li>RegisteredEventListeners - register any of these after cache creation
      * <li>BootstrapCacheLoader - not supported here
      * </ol>
-     * @return a newly created JCache
+     * @return a newly created JCache registered in the singleton CacheManager
      * @throws CacheException
      */
     public Cache createCache(Map environment) throws CacheException {
@@ -85,14 +89,25 @@ public class JCacheFactory implements CacheFactory {
         String diskPersistentString = PropertyUtil.extractAndLogProperty("diskPersistentSeconds", environment);
         boolean diskPersistent = Boolean.parseBoolean(diskPersistentString);
 
+        long diskExpiryThreadIntervalSeconds = 0;
         String diskExpiryThreadIntervalSecondsString =
                 PropertyUtil.extractAndLogProperty("diskExpiryThreadIntervalSeconds", environment);
-        long diskExpiryThreadIntervalSeconds = Long.parseLong(diskExpiryThreadIntervalSecondsString);
+        if (diskExpiryThreadIntervalSecondsString != null) {
+            diskExpiryThreadIntervalSeconds = Long.parseLong(diskExpiryThreadIntervalSecondsString);
+        }
+
+        int maxElementsOnDisk = 0;
+        String maxElementsOnDiskString =
+                        PropertyUtil.extractAndLogProperty("maxElementsOnDisk", environment);
+        if (maxElementsOnDiskString != null) {
+            maxElementsOnDisk = Integer.parseInt(maxElementsOnDiskString);
+        }
+
 
         Ehcache cache = new net.sf.ehcache.Cache(name, maxElementsInMemory, memoryStoreEvictionPolicy,
                 overflowToDisk, null, eternal,
                 timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds,
-                null, null);
+                null, null, maxElementsOnDisk);
 
 
         net.sf.ehcache.CacheManager.getInstance().addCache(cache);

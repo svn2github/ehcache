@@ -69,7 +69,9 @@ public abstract class AbstractCacheTest extends TestCase {
      * teardown
      */
     protected void tearDown() throws Exception {
-        manager.shutdown();
+        if (manager != null) {
+            manager.shutdown();
+        }
     }
 
 
