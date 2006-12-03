@@ -58,13 +58,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.ipr" afterPath="$PROJECT_DIR$/ehcache.ipr" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.number" afterPath="$PROJECT_DIR$/build.number" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/documentation/preface.apt" afterPath="$PROJECT_DIR$/src/site/apt/documentation/preface.apt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iml" afterPath="$PROJECT_DIR$/ehcache.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$" afterPath="$PROJECT_DIR$" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/documentation/faq.apt" afterPath="$PROJECT_DIR$/src/site/apt/documentation/faq.apt" />
     </list>
     <list name="Delayed Commit (Sat Dec 02 16:04:27 EST 2006)" comment="Merge the jcache branch into trunk." />
     <list name="Failed commit: Delayed Commit (Sat Dec 02 16:04:27 EST 2006)" comment="Merge the jcache branch into trunk." />
@@ -271,10 +267,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="pom.xml" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="pom.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="8" column="22" selection-start="416" selection-end="416" vertical-scroll-proportion="0.11497006">
+            <state line="8" column="22" selection-start="416" selection-end="416" vertical-scroll-proportion="0.014371257">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="faq.apt" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/faq.apt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="284" column="65" selection-start="12830" selection-end="12830" vertical-scroll-proportion="2.279042">
               <folding />
             </state>
           </provider>
@@ -358,7 +363,7 @@
     <option name="SERVER_TIMEOUT" value="20000" />
   </component>
   <component name="ProjectLevelMessagesProcessor">
-    <session>&lt;jetbrains.buildServer.delayedCommit.RemoteRunSessionData&gt; &lt;myPathToNumber&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/site/apt/documentation/index.apt&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/ehcache.iml&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/RegisteredEventListeners.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/site/apt/documentation/jsr107.apt&lt;/string&gt; &lt;null/&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/CacheListenerAdaptor.java&lt;/string&gt; &lt;string&gt;248&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/pom.xml&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/ehcache.ipr&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java&lt;/string&gt; &lt;string&gt;248&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheFactory.java&lt;/string&gt; &lt;string&gt;248&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/jcache/CacheManagerTest.java&lt;/string&gt; &lt;string&gt;248&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/tools/jcache-not_released.jar&lt;/string&gt; &lt;null/&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/build.xml&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/RELEASE_NOTES.txt&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/Entry.java&lt;/string&gt; &lt;string&gt;248&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/StatisticsTest.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;/myPathToNumber&gt; &lt;myPathToCheckSum&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java&lt;/string&gt; &lt;string&gt;464279b495bee8788221e80dfc033c6f&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java&lt;/string&gt; &lt;string&gt;dcb94348eb52d7e92c3dc36662cf8f08&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java&lt;/string&gt; &lt;string&gt;8ab7c24a55f945ef69005228c2fb93e4&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/site/apt/documentation/index.apt&lt;/string&gt; &lt;string&gt;35d8a77b0915470db37e67f352bb3314&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/ehcache.iml&lt;/string&gt; &lt;string&gt;565ccdec2e4185b6c32e09657cef61bc&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/RegisteredEventListeners.java&lt;/string&gt; &lt;string&gt;23fcbdf8f763c38a842570986423a38e&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java&lt;/string&gt; &lt;string&gt;a72be5dc3d012f256868caab2c223db3&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java&lt;/string&gt; &lt;string&gt;dfb525138748c39ac815fe7cf2a46b82&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/site/apt/documentation/jsr107.apt&lt;/string&gt; &lt;string&gt;a8a40906c4ba0b0d7229c6782468e56c&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/CacheListenerAdaptor.java&lt;/string&gt; &lt;string&gt;19508d367186a4ab0273f58f469f83cc&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/pom.xml&lt;/string&gt; &lt;string&gt;0b90d964e57ded599ed20d65917e1787&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/ehcache.ipr&lt;/string&gt; &lt;string&gt;0a48cf2858d624abe7b3878c3074200c&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java&lt;/string&gt; &lt;string&gt;61e8bc973523557ef913ed24f90e9625&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheFactory.java&lt;/string&gt; &lt;string&gt;f2616b59df29796d2155cb812b271694&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/jcache/CacheManagerTest.java&lt;/string&gt; &lt;string&gt;ddb8448b462eb89cac0a1475e8ec2810&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/tools/jcache-not_released.jar&lt;/string&gt; &lt;string&gt;e2e59fe7ecfab79448d0a0892b227ff0&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/build.xml&lt;/string&gt; &lt;string&gt;871b71ab813ba762e67ae41990338911&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/RELEASE_NOTES.txt&lt;/string&gt; &lt;string&gt;40d1907ece1967bade7c882c1f5054b4&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/Entry.java&lt;/string&gt; &lt;string&gt;fbd34c171275a97a5cde56a09b9cc28f&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/StatisticsTest.java&lt;/string&gt; &lt;string&gt;a864661db13a699ad4574173a6fc2261&lt;/string&gt; &lt;/entry&gt; &lt;/myPathToCheckSum&gt; &lt;myBuildTypeIdToBuildStatus&gt; &lt;entry&gt; &lt;string&gt;bt1&lt;/string&gt; &lt;jetbrains.buildServer.messages.Status&gt;4&lt;/jetbrains.buildServer.messages.Status&gt; &lt;/entry&gt; &lt;/myBuildTypeIdToBuildStatus&gt; &lt;myFinishedBuilds&gt; &lt;entry&gt; &lt;string&gt;bt1&lt;/string&gt; &lt;long&gt;60&lt;/long&gt; &lt;/entry&gt; &lt;/myFinishedBuilds&gt; &lt;myChangeId&gt;58&lt;/myChangeId&gt; &lt;myFile&gt;/Users/gluck/Library/Caches/IntelliJIDEA60/buildServer/11650394666970&lt;/myFile&gt; &lt;myComment&gt;Merge the jcache branch into trunk.&lt;/myComment&gt; &lt;myPerformCommit&gt;true&lt;/myPerformCommit&gt; &lt;myRequestConfirmation&gt;false&lt;/myRequestConfirmation&gt; &lt;/jetbrains.buildServer.delayedCommit.RemoteRunSessionData&gt;</session>
+    <session>&lt;jetbrains.buildServer.delayedCommit.RemoteRunSessionData&gt; &lt;myPathToNumber&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/site/apt/documentation/index.apt&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/ehcache.iml&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/RegisteredEventListeners.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/site/apt/documentation/jsr107.apt&lt;/string&gt; &lt;null/&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/CacheListenerAdaptor.java&lt;/string&gt; &lt;string&gt;248&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/pom.xml&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/ehcache.ipr&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java&lt;/string&gt; &lt;string&gt;248&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/jcache/CacheManagerTest.java&lt;/string&gt; &lt;string&gt;248&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheFactory.java&lt;/string&gt; &lt;string&gt;248&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/tools/jcache-not_released.jar&lt;/string&gt; &lt;null/&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/build.xml&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/RELEASE_NOTES.txt&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/StatisticsTest.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/Entry.java&lt;/string&gt; &lt;string&gt;248&lt;/string&gt; &lt;/entry&gt; &lt;/myPathToNumber&gt; &lt;myPathToCheckSum&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java&lt;/string&gt; &lt;string&gt;464279b495bee8788221e80dfc033c6f&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java&lt;/string&gt; &lt;string&gt;dcb94348eb52d7e92c3dc36662cf8f08&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java&lt;/string&gt; &lt;string&gt;8ab7c24a55f945ef69005228c2fb93e4&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/site/apt/documentation/index.apt&lt;/string&gt; &lt;string&gt;35d8a77b0915470db37e67f352bb3314&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/ehcache.iml&lt;/string&gt; &lt;string&gt;565ccdec2e4185b6c32e09657cef61bc&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/RegisteredEventListeners.java&lt;/string&gt; &lt;string&gt;23fcbdf8f763c38a842570986423a38e&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java&lt;/string&gt; &lt;string&gt;a72be5dc3d012f256868caab2c223db3&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java&lt;/string&gt; &lt;string&gt;dfb525138748c39ac815fe7cf2a46b82&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/site/apt/documentation/jsr107.apt&lt;/string&gt; &lt;string&gt;a8a40906c4ba0b0d7229c6782468e56c&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/CacheListenerAdaptor.java&lt;/string&gt; &lt;string&gt;19508d367186a4ab0273f58f469f83cc&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/pom.xml&lt;/string&gt; &lt;string&gt;0b90d964e57ded599ed20d65917e1787&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/ehcache.ipr&lt;/string&gt; &lt;string&gt;0a48cf2858d624abe7b3878c3074200c&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java&lt;/string&gt; &lt;string&gt;61e8bc973523557ef913ed24f90e9625&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/jcache/CacheManagerTest.java&lt;/string&gt; &lt;string&gt;ddb8448b462eb89cac0a1475e8ec2810&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheFactory.java&lt;/string&gt; &lt;string&gt;f2616b59df29796d2155cb812b271694&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/tools/jcache-not_released.jar&lt;/string&gt; &lt;string&gt;e2e59fe7ecfab79448d0a0892b227ff0&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/build.xml&lt;/string&gt; &lt;string&gt;871b71ab813ba762e67ae41990338911&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/RELEASE_NOTES.txt&lt;/string&gt; &lt;string&gt;40d1907ece1967bade7c882c1f5054b4&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/StatisticsTest.java&lt;/string&gt; &lt;string&gt;a864661db13a699ad4574173a6fc2261&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/Entry.java&lt;/string&gt; &lt;string&gt;fbd34c171275a97a5cde56a09b9cc28f&lt;/string&gt; &lt;/entry&gt; &lt;/myPathToCheckSum&gt; &lt;myBuildTypeIdToBuildStatus&gt; &lt;entry&gt; &lt;string&gt;bt1&lt;/string&gt; &lt;jetbrains.buildServer.messages.Status&gt;4&lt;/jetbrains.buildServer.messages.Status&gt; &lt;/entry&gt; &lt;/myBuildTypeIdToBuildStatus&gt; &lt;myFinishedBuilds&gt; &lt;entry&gt; &lt;string&gt;bt1&lt;/string&gt; &lt;long&gt;60&lt;/long&gt; &lt;/entry&gt; &lt;/myFinishedBuilds&gt; &lt;myChangeId&gt;58&lt;/myChangeId&gt; &lt;myFile&gt;/Users/gluck/Library/Caches/IntelliJIDEA60/buildServer/11650394666970&lt;/myFile&gt; &lt;myComment&gt;Merge the jcache branch into trunk.&lt;/myComment&gt; &lt;myPerformCommit&gt;true&lt;/myPerformCommit&gt; &lt;myRequestConfirmation&gt;false&lt;/myRequestConfirmation&gt; &lt;/jetbrains.buildServer.delayedCommit.RemoteRunSessionData&gt;</session>
   </component>
   <component name="ProjectLevelVcsManager">
     <OptionsSetting value="true" id="Add" />
@@ -431,7 +436,7 @@
       <showLibraryContents />
       <hideEmptyPackages />
       <abbreviatePackageNames />
-      <showStructure PackagesPane="false" ProjectPane="false" Scope="false" Favorites="false" />
+      <showStructure Favorites="false" PackagesPane="false" Scope="false" ProjectPane="false" />
       <autoscrollToSource />
       <autoscrollFromSource />
       <sortByType />
@@ -469,100 +474,7 @@
     <option name="SHOW_DIALOG" value="true" />
   </component>
   <component name="RecentsManager" />
-  <component name="RestoreUpdateTree">
-    <UpdateInfo date="12/3/06 10:11 AM" ActionInfo="_Update">
-      <UpdatedFiles>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Updated from server" />
-          <option name="myStatusName" value="Changed on server" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="CHANGED_ON_SERVER" />
-          <FILE-GROUP>
-            <option name="myUpdateName" value="Updated" />
-            <option name="myStatusName" value="Changed" />
-            <option name="mySupportsDeletion" value="false" />
-            <option name="myCanBeAbsent" value="false" />
-            <option name="myId" value="UPDATED" />
-          </FILE-GROUP>
-          <FILE-GROUP>
-            <option name="myUpdateName" value="Created" />
-            <option name="myStatusName" value="Created" />
-            <option name="mySupportsDeletion" value="false" />
-            <option name="myCanBeAbsent" value="false" />
-            <option name="myId" value="CREATED" />
-          </FILE-GROUP>
-          <FILE-GROUP>
-            <option name="myUpdateName" value="Deleted" />
-            <option name="myStatusName" value="Deleted" />
-            <option name="mySupportsDeletion" value="false" />
-            <option name="myCanBeAbsent" value="true" />
-            <option name="myId" value="REMOVED_FROM_REPOSITORY" />
-          </FILE-GROUP>
-          <FILE-GROUP>
-            <option name="myUpdateName" value="Restored" />
-            <option name="myStatusName" value="Will be restored" />
-            <option name="mySupportsDeletion" value="false" />
-            <option name="myCanBeAbsent" value="false" />
-            <option name="myId" value="RESTORED" />
-          </FILE-GROUP>
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Modified" />
-          <option name="myStatusName" value="Modified" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="MODIFIED" />
-          <PATH>$PROJECT_DIR$</PATH>
-          <PATH>$PROJECT_DIR$/ehcache.iml</PATH>
-          <PATH>$PROJECT_DIR$/ehcache.ipr</PATH>
-          <PATH>$PROJECT_DIR$/ehcache.iws</PATH>
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Skipped" />
-          <option name="myStatusName" value="Skipped" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="SKIPPED" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Merged with conflicts" />
-          <option name="myStatusName" value="Will be merged with conflicts" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="MERGED_WITH_CONFLICTS" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Merged" />
-          <option name="myStatusName" value="Will be merged" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="MERGED" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Not in repository" />
-          <option name="myStatusName" value="Not in repository" />
-          <option name="mySupportsDeletion" value="true" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="UNKNOWN" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Locally added" />
-          <option name="myStatusName" value="Locally added" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="LOCALLY_ADDED" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Locally removed" />
-          <option name="myStatusName" value="Locally removed" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="LOCALLY_REMOVED" />
-        </FILE-GROUP>
-      </UpdatedFiles>
-    </UpdateInfo>
-  </component>
+  <component name="RestoreUpdateTree" />
   <component name="RunManager" selected="JUnit.StatisticsTest.testIntOverflow">
     <tempConfiguration default="false" name="StatisticsTest.testIntOverflow" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
       <pattern value="net.sf.ehcache.*" />
@@ -936,7 +848,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="22" selection-start="416" selection-end="416" vertical-scroll-proportion="0.11497006">
+        <state line="8" column="22" selection-start="416" selection-end="416" vertical-scroll-proportion="0.014371257">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/faq.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="284" column="65" selection-start="12830" selection-end="12830" vertical-scroll-proportion="2.279042">
           <folding />
         </state>
       </provider>

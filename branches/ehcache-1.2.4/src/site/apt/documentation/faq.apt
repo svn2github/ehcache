@@ -2,15 +2,11 @@ Frequently Asked Questions
 
 * Does ehcache run on {JDK1.3}?
 
- Yes. It runs on JDK1.3, 1.4 and 5. The restriction for JDK1.3 is
-  that you must either use the precompiled ehcache.jar or build
-it using JDK1.4 with a target of 1.3. This is because ehcache makes use of some JDK1.4
-features but substitutes alternatives at runtime if it does not find
-those features.
+ Versions prior to ehcache-1.2.4 do. From 1.2.4 onwards, JDK1.4 if the minimum supported JDK.
 
 * Can you use more than one instance of ehcache in a single VM?
 
- As of ehcache-1.2, yes. Create your CacheManager using new
+ Yes. Create your CacheManager using new
 CacheManager(...) and keep hold of the reference. The singleton
 approach accessible with the getInstance(...) method is still available
 too. Remember that ehcache can supports hundreds of
@@ -62,7 +58,7 @@ high performance CacheEntryFactories for SelfPopulatingCaches.
 
 * Can non-Serializable objects be stored in a cache?
 
- As of ehcache-1.2, they can be stored in caches with MemoryStores.
+ Yes, they can be stored in caches with MemoryStores.
 
  Elements attempted to be replicated or overflowed to disk will be removed and a warning logged
   if not Serializable.
@@ -281,17 +277,14 @@ arguments; nested exception is: java.net.MalformedURLException: no protocol: Fil
 
 * How many threads does ehcache use, and how much memory does that consume?
 
+    The CacheManager creates one shutdown hook. Each DiskStore uses one Thread. If your cache
+    overflows to Disk it uses a DiskStore.
+
+    If your cache replicates asynchronously, a thread is used per cache to handle it.
+
+    Versions prior to ehcache-1.2.4 used 3 threads per DiskStore.
+
     The amount of memory consumed per thread is determined by the Stack Size. This is set using -Xss.
     The amount varies by OS.  It is 512KB for Linux. I tend to override the default and set it to 100kb.
-
-    The threads are created per cache as follows:
-
-    * DiskStore expiry thread - if DiskStore is used
-
-    * DiskStore spool thread - if DiskStore is used
-
-    * Replication thread - if asyncrhonous replication is configured.
-
-    If you are not doing any of the above, no extra threads are created
 
 
