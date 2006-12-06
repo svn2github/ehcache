@@ -178,7 +178,7 @@ public class JCache implements javax.cache.Cache {
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
     public CacheStatistics getCacheStatistics() throws IllegalStateException {
-        return (javax.cache.CacheStatistics) cache.getStatistics();
+        return new JCacheStatistics(cache.getStatistics());
     }
 
     /**

@@ -33,8 +33,11 @@ JSR107 (JCACHE) Support
 -----
 
 
+** javax.cache.CacheStatistics
 
-** CacheStatistics
+    *   getObjectCount() is a strange name. How about getSize()? If a cache entry is an object graph
+        each entry will have more than one "object" in it. But the cache size is what is really meant,
+        so why not call it that?
 
 ---------
 
@@ -137,6 +140,9 @@ public interface CacheStatistics {
     *   Cache does not have a <<<getName()>>> method. A cache has a name; that is how it is retrieved
         from the CacheManager. But it does not know its own name. This forces API users to keep track
         of the name themselves for reporting exceptions and log messages.
+
+
+
 
 
 

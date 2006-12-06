@@ -36,6 +36,7 @@ import java.io.Serializable;
  *
  * @author Greg Luck
  * @version $Id$
+ *          todo JMXify
  */
 public class Statistics implements Serializable {
 
@@ -50,9 +51,9 @@ public class Statistics implements Serializable {
     public static final int STATISTICS_ACCURACY_GUARANTEED = 1;
 
     /**
-      * Fast but not accurate setting.
-      */
-     public static final int STATISTICS_ACCURACY_NONE = 2;
+     * Fast but not accurate setting.
+     */
+    public static final int STATISTICS_ACCURACY_NONE = 2;
 
 
     private static final Log LOG = LogFactory.getLog(Statistics.class.getName());
@@ -77,7 +78,7 @@ public class Statistics implements Serializable {
     /**
      * Creates a new statistics object, associated with a Cache
      *
-     * @param cache The cache that {@link #clearStatistics()} will call, if not disconnected
+     * @param cache              The cache that {@link #clearStatistics()} will call, if not disconnected
      * @param statisticsAccuracy
      * @param cacheHits
      * @param onDiskHits
@@ -99,7 +100,6 @@ public class Statistics implements Serializable {
     /**
      * Clears the statistic counters to 0 for the associated Cache.
      */
-
     public void clearStatistics() {
         if (cache == null) {
             throw new IllegalStateException("This statistics object no longer references a Cache.");
@@ -183,7 +183,6 @@ public class Statistics implements Serializable {
      */
     public long getObjectCount() {
         return size;
-
     }
 
     /**
@@ -191,7 +190,7 @@ public class Statistics implements Serializable {
      *
      * @return one of {@link #STATISTICS_ACCURACY_BEST_EFFORT}, {@link #STATISTICS_ACCURACY_GUARANTEED}, {@link #STATISTICS_ACCURACY_NONE}
      */
-    public long getStatisticsAccuracy() {
+    public int getStatisticsAccuracy() {
         return statisticsAccuracy;
     }
 
