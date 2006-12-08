@@ -426,7 +426,7 @@ public class JCache implements javax.cache.Cache {
      * @return a set view of the keys contained in this map.
      */
     public Set keySet() {
-        List list = cache.getKeysNoDuplicateCheck();
+        List list = cache.getKeys();
         Set set = new HashSet();
         set.addAll(list);
         return set;

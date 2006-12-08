@@ -71,6 +71,11 @@ public interface CacheStatistics {
         Ehcache supports this behaviour.
 
 
+    *   There is no method to estimate memory use of a cache. Ehcache serializes each Element to a
+        byte[] one at a time and adds the serialized sizes up. Not perfect but better than nothing
+        and works on older JDKs.
+
+
 
 
 ** CacheListener

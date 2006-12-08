@@ -926,13 +926,13 @@ public class CacheTest extends AbstractCacheTest {
      */
     public void testGetSizeAfterExpiry() throws Exception {
         //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test", 1, true, false, 5, 2);
+        Cache cache = new Cache("test", 1, true, false, 1, 0);
         manager.addCache(cache);
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
 
         //Let the idle expire
-        Thread.sleep(5010);
+        Thread.sleep(1010);
         assertEquals(null, cache.get("key1"));
         assertEquals(null, cache.get("key2"));
 

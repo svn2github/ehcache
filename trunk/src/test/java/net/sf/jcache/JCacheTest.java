@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Tests for a Cache
@@ -120,7 +121,6 @@ public class JCacheTest extends AbstractCacheTest {
         Cache cache = singletonManager.getCache("test4");
         if (cache == null) {
             Map env = new HashMap();
-            env = new HashMap();
             env.put("name", "test4");
             env.put("maxElementsInMemory", "1000");
             env.put("overflowToDisk", "true");
@@ -826,80 +826,64 @@ public class JCacheTest extends AbstractCacheTest {
         assertEquals(0, cache.getCacheStatistics().getObjectCount());
     }
 
-//    /**
-//     * Checks the expense of checking for duplicates
-//     * Typical Results Duplicate Check: 8ms versus 3ms for No Duplicate Check
-//     * <p/>
-//     * 66ms for 1000, 6ms for no duplicate/expiry
-//     * 187565 for 100000, where 500 is the in-memory size. 964ms without checking expiry. 134ms for getKeysNoDuplicateCheckTime
-//     * 18795 for 100000, where 50000 is in-memory size. 873ms without checking expiry. 158ms for getKeysNoDuplicateCheckTime
-//     */
-//    public void testGetKeysPerformance() throws Exception {
-//        //Set size so the second element overflows to disk.
-//        Ehcache cache = createTestCache();
-//
-//        for (int i = 0; i < 2000; i++) {
-//            cache.put(new Element("key" + i, "value"));
-//        }
-//        //let the notifiers cool down
-//        Thread.sleep(1000);
-//        StopWatch stopWatch = new StopWatch();
-//        List keys = cache.getKeys();
-//        assertTrue("Should be 2000 keys. ", keys.size() == 2000);
-//        long getKeysTime = stopWatch.getElapsedTime();
-//        cache.getKeysNoDuplicateCheck();
-//        long getKeysNoDuplicateCheckTime = stopWatch.getElapsedTime();
-//        LOG.info("Time to get 1000 keys: With Duplicate Check: " + getKeysTime
-//                + " Without Duplicate Check: " + getKeysNoDuplicateCheckTime);
-//        assertTrue("Getting keys took more than 150ms", getKeysTime < 100);
-//    }
-//
-//
-//    /**
-//     * Checks the expense of checking in-memory size
-//     * 3467890 bytes in 1601ms for JDK1.4.2
-//     */
+    /**
+     * Checks the expense of checking for duplicates
+     * JSR107 has only one keyset command. It returns a Set rather than a list, so
+     * duplicates are automatically handled.
+     *
+     * 31ms for 2000 keys, half in memory and half on disk
+     *
+     * todo check is ehcache duplicate check is actually required
+     */
+    public void testGetKeysPerformance() throws Exception {
+        Cache cache = getTest4Cache();
+
+        for (int i = 0; i < 2000; i++) {
+            cache.put("key" + i, "value");
+        }
+        //Add some duplicates
+        cache.put("key0", "value");
+        cache.put("key1", "value");
+        cache.put("key2", "value");
+        cache.put("key3", "value");
+        cache.put("key4", "value");
+        //let the spool be written
+        Thread.sleep(1000);
+        StopWatch stopWatch = new StopWatch();
+        Set keys = cache.keySet();
+        assertTrue("Should be 2000 keys. ", keys.size() == 2000);
+        long getKeysTime = stopWatch.getElapsedTime();
+
+        LOG.info("Time to get 2000 keys: With Duplicate Check: " + getKeysTime);
+        assertTrue("Getting keys took more than 100ms", getKeysTime < 100);
+    }
+
+
+    /**
+     * Checks the expense of checking in-memory size
+     * 3467890 bytes in 1601ms for JDK1.4.2
+     * N/A to jsr107
+     */
 //    public void testCalculateInMemorySizePerformanceAndReasonableness() throws Exception {
-//        //Set size so the second element overflows to disk.
-//        Ehcache cache = createTestCache();
-//
-//        //Set up object graphs
-//        for (int i = 0; i < 1000; i++) {
-//            HashMap map = new HashMap(100);
-//            for (int j = 0; j < 100; j++) {
-//                map.put("key" + j, new String[]{"adfdafs", "asdfdsafa", "sdfasdf"});
-//            }
-//            cache.put(new Element("key" + i, map));
-//        }
-//
-//        StopWatch stopWatch = new StopWatch();
-//        long size = cache.calculateInMemorySize();
-//        assertTrue("Size is " + size + ". Check it for reasonableness.", size > 100000 && size < 5000000);
-//        long elapsed = stopWatch.getElapsedTime();
-//        LOG.info("In-memory size in bytes: " + size
-//                + " time to calculate in ms: " + elapsed);
-//        assertTrue("Calculate memory size takes less than 3.5 seconds", elapsed < 3500);
-//    }
-//
-//
-//    /**
-//     * Expire elements and verify size is correct.
-//     */
-//    public void testGetSizeAfterExpiry() throws Exception {
-//        //Set size so the second element overflows to disk.
-//        Cache cache = new Cache("test", 1, true, false, 5, 2);
-//        manager.addCache(cache);
-//        cache.put(new Element("key1", "value1"));
-//        cache.put(new Element("key2", "value1"));
-//
-//        //Let the idle expire
-//        Thread.sleep(5010);
-//        assertEquals(null, cache.get("key1"));
-//        assertEquals(null, cache.get("key2"));
-//
-//        assertEquals(0, cache.getSize());
-//    }
-//
+
+
+    /**
+     * Expire elements and verify size is correct.
+     */
+    public void testGetSizeAfterExpiry() throws Exception {
+        //Set size so the second element overflows to disk.
+        Cache cache = getTest2Cache();
+        cache.put("key1", "value1");
+        cache.put("key2", "value1");
+
+        //Let the idle expire
+        Thread.sleep(1010);
+        assertEquals(null, cache.get("key1"));
+        assertEquals(null, cache.get("key2"));
+
+        assertEquals(0, cache.getCacheStatistics().getObjectCount());
+    }
+
 //    /**
 //     * Test create and access times
 //     */
