@@ -501,4 +501,10 @@ public class JCache implements javax.cache.Cache {
     }
 
 
+    /**
+     * Gets the backing Ehcache
+     */
+    public Ehcache getBackingCache() {
+        return cache;
+    }
 }

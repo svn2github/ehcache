@@ -33,6 +33,9 @@ import java.io.Serializable;
  * <p/>
  * Because this class maintains a reference to an Ehcache, any references held to this class will precent the Ehcache
  * from getting garbage collected.
+ * <p/>
+ * The {@link #STATISTICS_ACCURACY_BEST_EFFORT}, {@link #STATISTICS_ACCURACY_GUARANTEED} and {@link #STATISTICS_ACCURACY_NONE}
+ * constants have the same values as in JSR107.
  *
  * @author Greg Luck
  * @version $Id$
@@ -41,19 +44,19 @@ import java.io.Serializable;
 public class Statistics implements Serializable {
 
     /**
+     * Fast but not accurate setting.
+     */
+    public static final int STATISTICS_ACCURACY_NONE = 0;
+
+    /**
      * Best efforts accuracy setting.
      */
-    public static final int STATISTICS_ACCURACY_BEST_EFFORT = 0;
+    public static final int STATISTICS_ACCURACY_BEST_EFFORT = 1;
 
     /**
      * Guaranteed accuracy setting.
      */
-    public static final int STATISTICS_ACCURACY_GUARANTEED = 1;
-
-    /**
-     * Fast but not accurate setting.
-     */
-    public static final int STATISTICS_ACCURACY_NONE = 2;
+    public static final int STATISTICS_ACCURACY_GUARANTEED = 2;
 
 
     private static final Log LOG = LogFactory.getLog(Statistics.class.getName());

@@ -39,6 +39,10 @@ JSR107 (JCACHE) Support
         each entry will have more than one "object" in it. But the cache size is what is really meant,
         so why not call it that?
 
+
+    *   Once again <<<getCacheHits>>> and <<<getCacheMisses>>> should be longs.
+
+
 ---------
 
 
@@ -60,7 +64,13 @@ public interface CacheStatistics {
 
 ---------
 
-    Once again <<<getCacheHits>>> and <<<getCacheMisses>>> should be longs.
+
+    *   There is a <<<getStatisticsAccuracy()>>> method but not a corresponding setStatisticsAccuracy
+        method on Cache, so that you can alter the accuracy of the Statistics returned.
+
+        Ehcache supports this behaviour.
+
+
 
 
 ** CacheListener

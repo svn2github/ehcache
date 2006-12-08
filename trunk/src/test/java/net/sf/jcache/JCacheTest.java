@@ -17,6 +17,9 @@
 package net.sf.jcache;
 
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.StopWatch;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.jcache.JCache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -24,9 +27,13 @@ import javax.cache.Cache;
 import javax.cache.CacheEntry;
 import javax.cache.CacheException;
 import javax.cache.CacheManager;
+import javax.cache.CacheStatistics;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.List;
 
 /**
  * Tests for a Cache
@@ -54,6 +61,9 @@ public class JCacheTest extends AbstractCacheTest {
      */
     protected void tearDown() throws Exception {
         super.tearDown();
+        getTest1Cache().clear();
+        getTest2Cache().clear();
+        getTest4Cache().clear();
     }
 
     /**
@@ -69,24 +79,25 @@ public class JCacheTest extends AbstractCacheTest {
      * <cacheEventListenerFactory class="net.sf.ehcache.event.NullCacheEventListenerFactory"/>
      * </cache>
      */
-    protected Cache getSampleCache1() throws CacheException {
-        Cache cache = singletonManager.getCache("sampleCache1");
+    protected Cache getTest1Cache() throws CacheException {
+        Cache cache = singletonManager.getCache("test1");
         if (cache == null) {
             //sampleCache1
             Map env = new HashMap();
-            env.put("name", "sampleCache1");
+            env.put("name", "test1");
             env.put("maxElementsInMemory", "10000");
             env.put("maxElementsOnDisk", "1000");
             env.put("memoryStoreEvictionPolicy", "LRU");
             env.put("overflowToDisk", "true");
             env.put("eternal", "false");
             env.put("timeToLiveSeconds", "1000");
-            env.put("timeToIdleSeconds", "5");
+            env.put("timeToIdleSeconds", "1000");
             env.put("diskPersistent", "false");
             env.put("diskExpiryThreadIntervalSeconds", "120");
-            singletonManager.getCacheFactory().createCache(env);
+            cache = singletonManager.getCacheFactory().createCache(env);
+            singletonManager.registerCache("test1", cache);            
         }
-        return singletonManager.getCache("sampleCache1");
+        return singletonManager.getCache("test1");
     }
 
     private Cache getTest2Cache() throws CacheException {
@@ -106,7 +117,7 @@ public class JCacheTest extends AbstractCacheTest {
     }
 
     private Cache getTest4Cache() throws CacheException {
-        Cache cache = singletonManager.getCache("test2");
+        Cache cache = singletonManager.getCache("test4");
         if (cache == null) {
             Map env = new HashMap();
             env = new HashMap();
@@ -743,30 +754,31 @@ public class JCacheTest extends AbstractCacheTest {
 //        assertNull(nullValueElement.getObjectValue());
 //
 //    }
-//
-//    /**
-//     * Test getKeys after expiry
-//     * <p/>
-//     * Makes sure that if an element is expired, its key should also be expired
-//     */
-//    public void testGetKeysAfterExpiry() throws Exception {
-//        //Set size so the second element overflows to disk.
-//        Cache cache = new Cache("test2", 1, true, false, 1, 0);
-//        manager.addCache(cache);
-//        String key1 = "key1";
-//        cache.put(new Element(key1, "value1"));
-//        cache.put(new Element("key2", "value1"));
-//        //getSize uses getKeys().size(), so these should be the same
-//        assertEquals(cache.getSize(), cache.getKeys().size());
-//        //getKeys does not do an expiry check, so the expired elements are counted
-//        assertEquals(2, cache.getSize());
-//        String keyFromDisk = (String) cache.get(key1).getObjectKey();
-//        assertTrue(key1 == keyFromDisk);
-//        Thread.sleep(1010);
-//        assertEquals(2, cache.getKeys().size());
-//        //getKeysWithExpiryCheck does check and gives the correct answer of 0
-//        assertEquals(0, cache.getKeysWithExpiryCheck().size());
-//    }
+
+    /**
+     * Test getKeys after expiry
+     * <p/>
+     * Makes sure that if an element is expired, its key should also be expired
+     */
+    public void testGetKeysAfterExpiry() throws Exception {
+        //Set size so the second element overflows to disk.
+        Cache cache = getTest2Cache();
+        String key1 = "key1";
+        cache.put(key1, "value1");
+        cache.put("key2", "value1");
+        //getSize uses getKeys().size(), so these should be the same
+        assertEquals(cache.getCacheStatistics().getObjectCount(), cache.keySet().size());
+        //getKeys does not do an expiry check, so the expired elements are counted
+        assertEquals(2, cache.getCacheStatistics().getObjectCount());
+        String keyFromDisk = (String) cache.getCacheEntry(key1).getKey();
+        assertTrue(key1 == keyFromDisk);
+        Thread.sleep(1010);
+        assertEquals(2, cache.keySet().size());
+        //getKeysWithExpiryCheck does check and gives the correct answer of 0
+        Ehcache ehcache = ((JCache)cache).getBackingCache();
+        ehcache.setStatisticsAccuracy(CacheStatistics.STATISTICS_ACCURACY_GUARANTEED);
+        assertEquals(0, cache.getCacheStatistics().getObjectCount());
+    }
 
 
     /**
@@ -784,36 +796,36 @@ public class JCacheTest extends AbstractCacheTest {
         assertTrue(key1 == keyFromDisk);
     }
 
-//    /**
-//     * Test size after multiple calls, with put and remove
-//     */
-//    public void testSizeMultipleCallsWithPutAndRemove() throws Exception {
-//        //Set size so the second element overflows to disk.
-//        Cache cache = new Cache("test3", 1, true, true, 0, 0);
-//        manager.addCache(cache);
-//        cache.put(new Element("key1", "value1"));
-//        cache.put(new Element("key2", "value1"));
-//
-//        //key1 should be in the Disk Store
-//        assertEquals(2, cache.getSize());
-//        assertEquals(2, cache.getSize());
-//        assertEquals(2, cache.getSize());
-//        assertEquals(2, cache.getSize());
-//        assertEquals(2, cache.getSize());
-//        cache.remove("key1");
-//        assertEquals(1, cache.getSize());
-//        assertEquals(1, cache.getSize());
-//        assertEquals(1, cache.getSize());
-//        assertEquals(1, cache.getSize());
-//        assertEquals(1, cache.getSize());
-//        cache.remove("key2");
-//        assertEquals(0, cache.getSize());
-//        assertEquals(0, cache.getSize());
-//        assertEquals(0, cache.getSize());
-//        assertEquals(0, cache.getSize());
-//        assertEquals(0, cache.getSize());
-//    }
-//
+    /**
+     * Test size after multiple calls, with put and remove
+     */
+    public void testSizeMultipleCallsWithPutAndRemove() throws Exception {
+        //Set size so the second element overflows to disk.
+        //Cache cache = new Cache("test3", 1, true, true, 0, 0);
+        Cache cache = getTest2Cache();
+        cache.put("key1", "value1");
+        cache.put("key2", "value1");
+
+        //key1 should be in the Disk Store
+        assertEquals(2, cache.getCacheStatistics().getObjectCount());
+        assertEquals(2, cache.getCacheStatistics().getObjectCount());
+        assertEquals(2, cache.getCacheStatistics().getObjectCount());
+        assertEquals(2, cache.getCacheStatistics().getObjectCount());
+        assertEquals(2, cache.getCacheStatistics().getObjectCount());
+        cache.remove("key1");
+        assertEquals(1, cache.getCacheStatistics().getObjectCount());
+        assertEquals(1, cache.getCacheStatistics().getObjectCount());
+        assertEquals(1, cache.getCacheStatistics().getObjectCount());
+        assertEquals(1, cache.getCacheStatistics().getObjectCount());
+        assertEquals(1, cache.getCacheStatistics().getObjectCount());
+        cache.remove("key2");
+        assertEquals(0, cache.getCacheStatistics().getObjectCount());
+        assertEquals(0, cache.getCacheStatistics().getObjectCount());
+        assertEquals(0, cache.getCacheStatistics().getObjectCount());
+        assertEquals(0, cache.getCacheStatistics().getObjectCount());
+        assertEquals(0, cache.getCacheStatistics().getObjectCount());
+    }
+
 //    /**
 //     * Checks the expense of checking for duplicates
 //     * Typical Results Duplicate Check: 8ms versus 3ms for No Duplicate Check
@@ -964,7 +976,7 @@ public class JCacheTest extends AbstractCacheTest {
 //     * Tests cache, memory store and disk store sizes from config
 //     */
 //    public void testSizes() throws Exception {
-//        Ehcache cache = getSampleCache1();
+//        Ehcache cache = getTest1Cache();
 //
 //        assertEquals(0, cache.getMemoryStoreSize());
 //
@@ -1333,37 +1345,26 @@ public class JCacheTest extends AbstractCacheTest {
      */
 //    public void testGuid() {
 
-//    /**
-//     * Does the Object API work?
-//     */
-//    public void testAPIObjectCompatibility() {
-//        //Set size so the second element overflows to disk.
-//        Cache cache = new Cache("test", 5, true, false, 5, 2);
-//        manager.addCache(cache);
-//
-//        Object objectKey = new Object();
-//        Object objectValue = new Object();
-//        Element objectElement = new Element(objectKey, objectValue);
-//        cache.put(objectElement);
-//
-//        //Cannot get it back using get
-//        Element retrievedElement = cache.get(objectKey);
-//        assertNotNull(retrievedElement);
-//        try {
-//            retrievedElement.getObjectValue();
-//        } catch (CacheException e) {
-//            //expected
-//        }
-//
-//        //Test that equals works
-//        retrievedElement = cache.get(objectKey);
-//        assertEquals(objectElement, retrievedElement);
-//
-//        //Can with getObjectValue
-//        retrievedElement = cache.get(objectKey);
-//        assertEquals(objectValue, retrievedElement.getObjectValue());
-//
-//    }
+    /**
+     * Does the Object API work?
+     * jsr107 is an object API
+     */
+    public void testAPIObjectCompatibility() throws CacheException {
+        Cache cache = getTest1Cache();
+
+        Object objectKey = new Object();
+        Object objectValue = new Object();
+
+        cache.put(objectKey, objectValue);
+
+        //Cannot get it back using get
+        Object retrievedElement = cache.get(objectKey);
+        assertNotNull(retrievedElement);
+
+        //Test that equals works
+        assertEquals(objectValue, retrievedElement);
+
+    }
 
 
     /**
@@ -1381,156 +1382,107 @@ public class JCacheTest extends AbstractCacheTest {
         assertEquals(serializableValue, cache.get(key));
     }
 
-//    /**
-//     * Test issues reported.
-//     */
+    /**
+     * Test issues reported. N/A
+     */
 //    public void testDiskStoreFlorian() {
-//        manager.shutdown();
-//
-//        byte[] config = ("<ehcache> \n" +
-//                "<diskStore path=\"java.io.tmpdir\"/> \n" +
-//                "<defaultCache \n" +
-//                "            maxElementsInMemory=\"10000\" \n" +
-//                "            eternal=\"false\" \n" +
-//                "            timeToIdleSeconds=\"120\" \n" +
-//                "            timeToLiveSeconds=\"120\" \n" +
-//                "            overflowToDisk=\"true\" \n" +
-//                "            diskPersistent=\"false\" \n" +
-//                "            diskExpiryThreadIntervalSeconds=\"120\" \n" +
-//                "            memoryStoreEvictionPolicy=\"LRU\" \n" +
-//                "            /> " +
-//                "\n" +
-//                "<cache name=\"testCache\" \n" +
-//                "       maxElementsInMemory=\"20000\" \n" +
-//                "       eternal=\"false\" \n" +
-//                "       overflowToDisk=\"false\" \n" +
-//                "       timeToIdleSeconds=\"300\" \n" +
-//                "       timeToLiveSeconds=\"600\" \n" +
-//                "       diskPersistent=\"false\" \n" +
-//                "       diskExpiryThreadIntervalSeconds=\"1\" \n" +
-//                "       memoryStoreEvictionPolicy=\"LFU\" \n" +
-//                "/>           \n" +
-//                "<cache name=\"test2Cache\" \n" +
-//                "       maxElementsInMemory=\"20000\" \n" +
-//                "       eternal=\"false\" \n" +
-//                "       overflowToDisk=\"true\" \n" +
-//                "       timeToIdleSeconds=\"300\" \n" +
-//                "       timeToLiveSeconds=\"600\" \n" +
-//                "       diskPersistent=\"false\" \n" +
-//                "       diskExpiryThreadIntervalSeconds=\"1\" \n" +
-//                "       memoryStoreEvictionPolicy=\"LFU\" \n" +
-//                "/> \n" +
-//                "</ehcache> ").getBytes();
-//
-//
-//        CacheManager cacheManager = new CacheManager(new ByteArrayInputStream(config));
-//        Cache cache = new Cache("test3cache", 20000, true, false, 50, 30);
-//        assertTrue(cache.isOverflowToDisk());
-//        cacheManager.addCache(cache);
-//
-//        for (int i = 0; i < 25000; i++) {
-//            cache.put(new Element(i + "", "value"));
-//        }
-//
-//        assertEquals(5000, cache.getDiskStoreSize());
-//    }
-//
-//
-//    /**
-//     * Multi-thread read-write test with 20 threads
-//     * Just use MemoryStore to put max stress on cache
-//     * Values that work:
-//     * <pre>
-//     * size     threads     maxTime
-//     * 10000    50          200
-//     * 200000   50          500
-//     * 200000   500         800
-//     * </pre>
-//     */
-//    public void testReadWriteThreads() throws Exception {
-//
-//        final int size = 10000;
-//        final int maxTime = 330;
-//        final Cache cache = new Cache("test3cache", size, false, true, 30, 30);
-//        manager.addCache(cache);
-//
-//        long start = System.currentTimeMillis();
-//        final List executables = new ArrayList();
-//        final Random random = new Random();
-//
-//        for (int i = 0; i < size; i++) {
-//            cache.put(new Element("" + i, "value"));
-//        }
-//
-//        // 50% of the time get data
-//        for (int i = 0; i < 30; i++) {
-//            final Executable executable = new Executable() {
-//                public void execute() throws Exception {
-//                    final StopWatch stopWatch = new StopWatch();
-//                    long start = stopWatch.getElapsedTime();
-//                    cache.get("key" + random.nextInt(size));
-//                    long end = stopWatch.getElapsedTime();
-//                    long elapsed = end - start;
-//                    assertTrue("Get time outside of allowed range: " + elapsed, elapsed < maxTime);
-//                }
-//            };
-//            executables.add(executable);
-//        }
-//
-//        //25% of the time add data
-//        for (int i = 0; i < 10; i++) {
-//            final Executable executable = new Executable() {
-//                public void execute() throws Exception {
-//                    final StopWatch stopWatch = new StopWatch();
-//                    long start = stopWatch.getElapsedTime();
-//                    cache.put(new Element("key" + random.nextInt(size), "value"));
-//                    long end = stopWatch.getElapsedTime();
-//                    long elapsed = end - start;
-//                    assertTrue("Put time outside of allowed range: " + elapsed, elapsed < maxTime);
-//                }
-//            };
-//            executables.add(executable);
-//        }
-//
-//        //25% of the time remove the data
-//        for (int i = 0; i < 10; i++) {
-//            final Executable executable = new Executable() {
-//                public void execute() throws Exception {
-//                    final StopWatch stopWatch = new StopWatch();
-//                    long start = stopWatch.getElapsedTime();
-//                    cache.remove("key" + random.nextInt(size));
-//                    long end = stopWatch.getElapsedTime();
-//                    long elapsed = end - start;
-//                    assertTrue("Remove time outside of allowed range: " + elapsed, elapsed < maxTime);
-//                }
-//            };
-//            executables.add(executable);
-//        }
-//
-//        //some of the time remove the data
-//        for (int i = 0; i < 10; i++) {
-//            final Executable executable = new Executable() {
-//                public void execute() throws Exception {
-//                    final StopWatch stopWatch = new StopWatch();
-//                    long start = stopWatch.getElapsedTime();
-//                    int randomInteger = random.nextInt(20);
-//                    if (randomInteger == 3) {
-//                        cache.removeAll();
-//                    }
-//                    long end = stopWatch.getElapsedTime();
-//                    long elapsed = end - start;
-//                    assertTrue("RemoveAll time outside of allowed range: " + elapsed, elapsed < maxTime);
-//                }
-//            };
-//            executables.add(executable);
-//        }
-//
-//        runThreads(executables);
-//        long end = System.currentTimeMillis();
-//        LOG.info("Total time for the test: " + (end - start) + " ms");
-//    }
-//
-//
+
+
+
+    /**
+     * Multi-thread read-write test with 20 threads
+     * Just use MemoryStore to put max stress on cache
+     * Values that work:
+     * <pre>
+     * size     threads     maxTime
+     * 10000    50          200
+     * 200000   50          500
+     * 200000   500         800
+     * </pre>
+     */
+    public void testReadWriteThreads() throws Exception {
+
+        final int size = 10000;
+        final int maxTime = 330;
+        final Cache cache = getTest1Cache();
+
+        long start = System.currentTimeMillis();
+        final List executables = new ArrayList();
+        final Random random = new Random();
+
+        for (int i = 0; i < size; i++) {
+            cache.put("" + i, "value");
+        }
+
+        // 50% of the time get data
+        for (int i = 0; i < 30; i++) {
+            final Executable executable = new Executable() {
+                public void execute() throws Exception {
+                    final StopWatch stopWatch = new StopWatch();
+                    long start = stopWatch.getElapsedTime();
+                    cache.get("key" + random.nextInt(size));
+                    long end = stopWatch.getElapsedTime();
+                    long elapsed = end - start;
+                    assertTrue("Get time outside of allowed range: " + elapsed, elapsed < maxTime);
+                }
+            };
+            executables.add(executable);
+        }
+
+        //25% of the time add data
+        for (int i = 0; i < 10; i++) {
+            final Executable executable = new Executable() {
+                public void execute() throws Exception {
+                    final StopWatch stopWatch = new StopWatch();
+                    long start = stopWatch.getElapsedTime();
+                    cache.put("key" + random.nextInt(size), "value");
+                    long end = stopWatch.getElapsedTime();
+                    long elapsed = end - start;
+                    assertTrue("Put time outside of allowed range: " + elapsed, elapsed < maxTime);
+                }
+            };
+            executables.add(executable);
+        }
+
+        //25% of the time remove the data
+        for (int i = 0; i < 10; i++) {
+            final Executable executable = new Executable() {
+                public void execute() throws Exception {
+                    final StopWatch stopWatch = new StopWatch();
+                    long start = stopWatch.getElapsedTime();
+                    cache.remove("key" + random.nextInt(size));
+                    long end = stopWatch.getElapsedTime();
+                    long elapsed = end - start;
+                    assertTrue("Remove time outside of allowed range: " + elapsed, elapsed < maxTime);
+                }
+            };
+            executables.add(executable);
+        }
+
+        //some of the time remove the data
+        for (int i = 0; i < 10; i++) {
+            final Executable executable = new Executable() {
+                public void execute() throws Exception {
+                    final StopWatch stopWatch = new StopWatch();
+                    long start = stopWatch.getElapsedTime();
+                    int randomInteger = random.nextInt(20);
+                    if (randomInteger == 3) {
+                        cache.clear();
+                    }
+                    long end = stopWatch.getElapsedTime();
+                    long elapsed = end - start;
+                    assertTrue("RemoveAll time outside of allowed range: " + elapsed, elapsed < maxTime);
+                }
+            };
+            executables.add(executable);
+        }
+
+        runThreads(executables);
+        long end = System.currentTimeMillis();
+        LOG.info("Total time for the test: " + (end - start) + " ms");
+    }
+
+
 //    /**
 //     * Tests added from 1606323 Elements not stored in memory or on disk. This was supposedly
 //     * a bug but works.
