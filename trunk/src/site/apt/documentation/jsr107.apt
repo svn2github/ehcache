@@ -10,14 +10,79 @@ JSR107 (JCACHE) Support
     and limitations in the specification.
 
 
-** Entry
--------
-    int getHits();
--------
 
-    Bugs have been reported against ehcache for using ints for hits. Some usages require longs
 
-    Once you get to Integer.MAX_VALUE the counter rolls over. See the following test:
+** javax.cache.CacheManager
+
+    CacheManager does not have the following features:
+
+    *   shutdown the CacheManager - there is no way to free resources or persist. Implementations
+        may utilise a shutdown hook, but that does not work for application server redeployments,
+        where a shutdown listener must be used.
+
+    *   List caches in the CacheManager. There is no way to iterate over, or get a list of caches.
+
+    *   remove caches from the CacheManager - once its there it is there until JVM shutdown. This does
+        not work well for dynamic creation, destruction and recreation of caches.
+
+
+
+** javax.cache.CacheFactory
+
+    A property is specified in the resource services/javax.cache.CacheFactory for a CacheFactory.
+
+    The factory then resolves the CacheManager which must be a singleton.
+
+    A singleton CacheManager works in simple scenarios. But there are many where you want multiple
+    CacheManagers in an application. Ehcache supports both singleton creation semantics and
+    instances and defines the way both can coexist.
+
+    The singleton CacheManager is a limitation of the specification.
+
+    (Alternatives: Some form of annotation and injection scheme)
+
+
+**  javax.cache.Cache
+
+    *   The spec is silent on whether a Cache can be used in the absence of a CacheManager. Requiring
+        a CacheManager makes a central place where concerns affecting all caches can be managed, not
+        just a way of looking them up. For example, configuration for persistence and distribution.
+
+    *   Cache does not have a lifecycle. There is no startup and no shutdown. There is no way, other than
+        a shutdown hook, to free resources or perform persistence operations. Once again this will not
+        work for redeployment of applications in an app server.
+
+    *   There is no mechanism for creating a new cache from a default configuration such as
+        a <<<public void registerCache(String cacheName)>>> on CacheManager. This feature is considered
+        indispensable by frameworks such as Hibernate.
+
+    *   Cache does not have a <<<getName()>>> method. A cache has a name; that is how it is retrieved
+        from the CacheManager. But it does not know its own name. This forces API users to keep track
+        of the name themselves for reporting exceptions and log messages.
+
+    *   Cache does not support setting a TTL override on a put. e.g. <<<put(Object key, Object value, long timeToLive)>>>.
+        This is a useful feature.
+
+    *   The spec is silent on whether the cache accepts null keys and elements. Ehcache allows all implementations. i.e.
+
+------
+        cache.put(null, null);
+        assertNull(cache.get(null));
+        cache.put(null, "value");
+        assertEquals("value", cache.get(null));
+        cache.put("key", null);
+        assertEquals(null, cache.get("key"));
+------
+
+        <<<null>>> is effectively a valid key. However because <<<null>>> id not an instance of <<<Serializable>>> null-keyed
+        entries will be limited to in-process memory.
+
+**  javax.cache.CacheEntry
+
+    *   getHits() returns int. It should return long because production cache systems have entries hit more
+        than Integer.MAX_VALUE times.
+
+        Once you get to Integer.MAX_VALUE the counter rolls over. See the following test:
 
 
 -----
@@ -75,9 +140,6 @@ public interface CacheStatistics {
         byte[] one at a time and adds the serialized sizes up. Not perfect but better than nothing
         and works on older JDKs.
 
-
-
-
 ** CacheListener
 
 -----
@@ -106,67 +168,6 @@ public interface CacheStatistics {
 
     Listeners often need not just the key, but the cache Entry itself. This listener interface
     is extremely limiting.
-
-
-
-** javax.cache.CacheFactory
-
-    A property is specified in the resource services/javax.cache.CacheFactory for a CacheFactory.
-
-    The factory then resolves the CacheManager which must be a singleton.
-
-    A singleton CacheManager works in simple scenarios. But there are many where you want multiple
-    CacheManagers in an application. Ehcache supports both singleton creation semantics and
-    instances and defines the way both can coexist.
-
-    The singleton CacheManager is a limitation of the specification.
-
-    (Alternatives: Some form of annotation and injection scheme)
-
-    
-
-** javax.cache.CacheManager
-
-    CacheManager does not have the following features:
-
-    *   shutdown the CacheManager - there is no way to free resources or persist. Implementations
-        may utilise a shutdown hook, but that does not work for application server redeployments,
-        where a shutdown listener must be used.
-
-    *   List caches in the CacheManager. There is no way to iterate over, or get a list of caches.
-
-    *   remove caches from the CacheManager - once its there it is there until JVM shutdown. This does
-        not work well for dynamic creation, destruction and recreation of caches.
-
-
-
-**  javax.cache.Cache
-
-    *   The spec is silent on whether a Cache can be used in the absence of a CacheManager. Requiring
-        a CacheManager makes a central place where concerns affecting all caches can be managed, not
-        just a way of looking them up. For example, configuration for persistence and distribution.
-
-    *   Cache does not have a lifecycle. There is no startup and no shutdown. There is no way, other than
-        a shutdown hook, to free resources or perform persistence operations. Once again this will not
-        work for redeployment of applications in an app server.
-
-    *   There is no mechanism for creating a new cache from a default configuration such as
-        a <<<public void registerCache(String cacheName)>>> on CacheManager. This feature is considered
-        indispensable by frameworks such as Hibernate.
-
-    *   Cache does not have a <<<getName()>>> method. A cache has a name; that is how it is retrieved
-        from the CacheManager. But it does not know its own name. This forces API users to keep track
-        of the name themselves for reporting exceptions and log messages.
-
-    *   Cache does not support setting a TTL override on a put. e.g. <<<put(Object key, Object value, long timeToLive)>>>.
-        This is a useful feature.
-
-
-**  javax.cache.CacheEntry
-
-    *   getHits() returns int. It should return long because production cache systems have entries hit more
-        than Integer.MAX_VALUE times.
-
 
 
 

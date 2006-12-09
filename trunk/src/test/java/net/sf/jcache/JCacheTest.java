@@ -19,6 +19,7 @@ package net.sf.jcache;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.StopWatch;
+import net.sf.ehcache.ThreadKiller;
 import net.sf.ehcache.jcache.JCache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -129,7 +130,6 @@ public class JCacheTest extends AbstractCacheTest {
         return CacheManager.getInstance().getCache("test4");
     }
 
-
     /**
      * Checks we cannot use a cache after shutdown
      * test cannot be implemented due to lack of lifecycle support in jsr107
@@ -189,7 +189,6 @@ public class JCacheTest extends AbstractCacheTest {
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
     }
-
 
     /**
      * Test expiry based on time to live where an Eelment override is set on TTL
@@ -333,7 +332,6 @@ public class JCacheTest extends AbstractCacheTest {
         assertNull(cache.get("key2"));
     }
 
-
 //    /**
 //     * Tests that a cache created from defaults will expire as per
 //     * the default expiry policy.
@@ -409,7 +407,6 @@ public class JCacheTest extends AbstractCacheTest {
         assertNull(cache.get("key2"));
     }
 
-
     /**
      * Test expiry based on time to idle.
      * jsr107 has no put quiet
@@ -422,7 +419,7 @@ public class JCacheTest extends AbstractCacheTest {
      * timeToIdleSeconds="5"
      * timeToLiveSeconds="10"
      * overflowToDisk="true"
-     *
+     * <p/>
      * jsr107 has no put quiet
      */
     public void testElementStatistics() throws Exception {
@@ -448,8 +445,8 @@ public class JCacheTest extends AbstractCacheTest {
     public void testCacheStatistics() throws Exception {
         //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("testCacheStatistics", 1, true, false, 5, 2);
-                manager.addCache(ehcache);
-                Cache cache = new JCache(ehcache);
+        manager.addCache(ehcache);
+        Cache cache = new JCache(ehcache);
         cache.put("key1", "value1");
         cache.put("key2", "value1");
 
@@ -542,7 +539,7 @@ public class JCacheTest extends AbstractCacheTest {
         Thread.sleep(1010);
         assertEquals(2, cache.keySet().size());
         //getKeysWithExpiryCheck does check and gives the correct answer of 0
-        Ehcache ehcache = ((JCache)cache).getBackingCache();
+        Ehcache ehcache = ((JCache) cache).getBackingCache();
         ehcache.setStatisticsAccuracy(CacheStatistics.STATISTICS_ACCURACY_GUARANTEED);
         assertEquals(0, cache.getCacheStatistics().getObjectCount());
     }
@@ -597,9 +594,9 @@ public class JCacheTest extends AbstractCacheTest {
      * Checks the expense of checking for duplicates
      * JSR107 has only one keyset command. It returns a Set rather than a list, so
      * duplicates are automatically handled.
-     *
+     * <p/>
      * 31ms for 2000 keys, half in memory and half on disk
-     *
+     * <p/>
      * todo check is ehcache duplicate check is actually required
      */
     public void testGetKeysPerformance() throws Exception {
@@ -624,7 +621,6 @@ public class JCacheTest extends AbstractCacheTest {
         LOG.info("Time to get 2000 keys: With Duplicate Check: " + getKeysTime);
         assertTrue("Getting keys took more than 100ms", getKeysTime < 100);
     }
-
 
     /**
      * Checks the expense of checking in-memory size
@@ -651,376 +647,137 @@ public class JCacheTest extends AbstractCacheTest {
         assertEquals(0, cache.getCacheStatistics().getObjectCount());
     }
 
- 
-
-//    /**
-//     * Tests initialisation failures
-//     */
+    /**
+     * Tests initialisation failures
+     * jsr107 has no lifecycle management
+     */
 //    public void testInitialiseFailures() {
-//        try {
-//            Cache cache = new Cache("testInitialiseFailures2", 1, false, false, 5, 1);
-//            cache.initialise();
-//
-//            cache.initialise();
-//            fail("Should have thrown IllegalArgumentException");
-//        } catch (IllegalStateException e) {
-//            //noop
-//        }
-//    }
-//
-//    /**
-//     * Tests putting nulls throws correct exception
-//     *
-//     * @throws Exception
-//     */
-//    public void testPutFailures() throws Exception {
-//        Cache cache = new Cache("testPutFailures", 1, false, false, 5, 1);
-//        manager.addCache(cache);
-//
-//        try {
-//            cache.put(null);
-//            fail("Should have thrown IllegalArgumentException");
-//        } catch (IllegalArgumentException e) {
-//            //noop
-//        }
-//
-//        try {
-//            cache.putQuiet(null);
-//            fail("Should have thrown IllegalArgumentException");
-//        } catch (IllegalArgumentException e) {
-//            //noop
-//        }
-//
-//        //Null Elements like this are OK
-//        cache.putQuiet(new Element(null, null));
-//    }
-//
-//    /**
-//     * Tests cache, memory store and disk store sizes from config
-//     */
-//    public void testSizes() throws Exception {
-//        Ehcache cache = getTest1Cache();
-//
-//        assertEquals(0, cache.getMemoryStoreSize());
-//
-//        for (int i = 0; i < 10010; i++) {
-//            cache.put(new Element("key" + i, "value1"));
-//        }
-//        assertEquals(10010, cache.getSize());
-//        assertEquals(10000, cache.getMemoryStoreSize());
-//        assertEquals(10, cache.getDiskStoreSize());
-//
-//        //NonSerializable
-//        cache.put(new Element(new Object(), Object.class));
-//
-//        assertEquals(10011, cache.getSize());
-//        assertEquals(10000, cache.getMemoryStoreSize());
-//        assertEquals(11, cache.getDiskStoreSize());
-//
-//
-//        cache.remove("key4");
-//        cache.remove("key3");
-//
-//        assertEquals(10009, cache.getSize());
-//        assertEquals(10000, cache.getMemoryStoreSize());
-//        assertEquals(9, cache.getDiskStoreSize());
-//
-//
-//        cache.removeAll();
-//        assertEquals(0, cache.getSize());
-//        assertEquals(0, cache.getMemoryStoreSize());
-//        assertEquals(0, cache.getDiskStoreSize());
-//
-//    }
-//
-//    /**
-//     * Tests flushing the cache
-//     *
-//     * @throws Exception
-//     */
+
+
+    /**
+     * Tests putting nulls throws correct exception
+     *
+     * @throws Exception
+     */
+    public void testNullTreatment() throws Exception {
+        Ehcache ehcache = new net.sf.ehcache.Cache("testNullTreatment", 1, false, false, 5, 1);
+        manager.addCache(ehcache);
+        Cache cache = new JCache(ehcache);
+
+        try {
+            cache.put(null, null);
+            assertNull(cache.get(null));
+            cache.put(null, "value");
+            assertEquals("value", cache.get(null));
+            cache.put("key", null);
+            assertEquals(null, cache.get("key"));
+            assertFalse(null instanceof Serializable);
+        } catch (Exception e) {
+            fail("Should not have thrown an Execption");
+        }
+    }
+
+    /**
+     * Tests cache, memory store and disk store sizes from config
+     * jsr107 does not breakdowns of store sizes.
+     */
+    public void testSizes() throws Exception {
+        Cache cache = getTest1Cache();
+        assertEquals(0, cache.getCacheStatistics().getObjectCount());
+
+        for (int i = 0; i < 10010; i++) {
+            cache.put("key" + i, "value1");
+        }
+        assertEquals(10010, cache.getCacheStatistics().getObjectCount());
+
+        //NonSerializable
+        cache.put(new Object(), Object.class);
+
+        assertEquals(10011, cache.getCacheStatistics().getObjectCount());
+
+        cache.remove("key4");
+        cache.remove("key3");
+
+        assertEquals(10009, cache.getCacheStatistics().getObjectCount());
+
+        cache.clear();
+        assertEquals(0, cache.getCacheStatistics().getObjectCount());
+
+    }
+
+    /**
+     * Tests flushing the cache
+     * jsr107 does not specify a disk store and therefore does not have a flush.
+     */
 //    public void testFlushWhenOverflowToDisk() throws Exception {
-//        Cache cache = new Cache("testGetMemoryStoreSize", 50, true, false, 100, 200);
-//        manager.addCache(cache);
-//
-//        assertEquals(0, cache.getMemoryStoreSize());
-//
-//        for (int i = 0; i < 100; i++) {
-//            cache.put(new Element("" + i, new Date()));
-//        }
-//        //Not spoolable, should get ignored
-//        cache.put(new Element("key", new Object()));
-//        cache.put(new Element(new Object(), new Object()));
-//        cache.put(new Element(new Object(), "value"));
-//
-//        //these "null" Elements are keyed the same way and only count as one
-//        cache.put(new Element(null, null));
-//        cache.put(new Element(null, null));
-//
-//        cache.put(new Element("nullValue", null));
-//
-//        assertEquals(50, cache.getMemoryStoreSize());
-//        assertEquals(55, cache.getDiskStoreSize());
-//
-//        cache.flush();
-//        assertEquals(0, cache.getMemoryStoreSize());
-//        //Non Serializable Elements gets discarded
-//        assertEquals(100, cache.getDiskStoreSize());
-//
-//    }
-//
-//
-//    /**
-//     * When flushing large MemoryStores, OutOfMemory issues can happen if we are
-//     * not careful to move each to Element to the DiskStore, rather than copy them all
-//     * and then delete them from the MemoryStore.
-//     * <p/>
-//     * This test manipulates a MemoryStore right on the edge of what can fit into the 64MB standard VM size.
-//     * An inefficient spool will cause an OutOfMemoryException.
-//     *
-//     * @throws Exception
-//     */
-//    public void testMemoryEfficiencyOfFlushWhenOverflowToDisk() throws Exception {
-//        Cache cache = new Cache("testGetMemoryStoreSize", 40000, true, false, 100, 200);
-//        manager.addCache(cache);
-//
-//        assertEquals(0, cache.getMemoryStoreSize());
-//
-//        for (int i = 0; i < 80000; i++) {
-//            cache.put(new Element("" + i, new byte[480]));
-//        }
-//
-//        assertEquals(40000, cache.getMemoryStoreSize());
-//        assertEquals(40000, cache.getDiskStoreSize());
-//
-//        long beforeMemory = measureMemoryUse();
-//        cache.flush();
-//
-//        //It takes a while to write all the Elements to disk
-//        Thread.sleep(5000);
-//
-//        long afterMemory = measureMemoryUse();
-//        long memoryIncrease = afterMemory - beforeMemory;
-//        assertTrue(memoryIncrease < 40000000);
-//
-//        assertEquals(0, cache.getMemoryStoreSize());
-//        assertEquals(80000, cache.getDiskStoreSize());
-//
-//    }
-//
-//
-//    /**
-//     * Tests using elements with null values. They should work as normal.
-//     *
-//     * @throws Exception
-//     */
-//    public void testElementWithNullValue() throws Exception {
-//        Cache cache = new Cache("testElementWithNullValue", 10, false, false, 100, 200);
-//        manager.addCache(cache);
-//
-//        Object key1 = new Object();
-//        Element element = new Element(key1, null);
-//        cache.put(element);
-//        assertNotNull(cache.get(key1));
-//        assertNotNull(cache.getQuiet(key1));
-//        assertSame(element, cache.get(key1));
-//        assertSame(element, cache.getQuiet(key1));
-//        assertNull(cache.get(key1).getObjectValue());
-//        assertNull(cache.getQuiet(key1).getObjectValue());
-//
-//        assertEquals(false, cache.isExpired(element));
-//    }
-//
-//
-//    /**
-//     * Tests put works correctly for Elements with overriden TTL
-//     *
-//     * @throws Exception
-//     */
+
+    /**
+     * Tests put works correctly for Elements with overriden TTL
+     * jsr107 does not support overriding TTL on a per entry basis
+     *
+     */
 //    public void testPutWithOverriddenTTLAndTTI() throws Exception {
-//        Cache cache = new Cache("testElementWithNullValue", 10, false, false, 1, 1);
-//        manager.addCache(cache);
-//
-//        Object key = new Object();
-//        Element element = new Element(key, "value");
-//        element.setTimeToLive(2);
-//        cache.put(element);
-//        Thread.sleep(1010);
-//        assertNotNull(cache.get(key));
-//        assertSame(element, cache.get(key));
-//
-//
-//        Element element2 = new Element(key, "value");
-//        cache.put(element2);
-//        Thread.sleep(1010);
-//        assertNull(cache.get(key));
-//
-//        Element element3 = new Element(key, "value");
-//        element3.setTimeToLive(2);
-//        cache.put(element3);
-//        Thread.sleep(1500);
-//        assertSame(element3, cache.get(key));
-//
-//    }
-//
-//
-//    /**
-//     * Tests putQuiet works correctly for Elements with overriden TTL
-//     *
-//     * @throws Exception
-//     */
-//    public void testPutQuietWithOverriddenTTLAndTTI() throws Exception {
-//        Cache cache = new Cache("testElementWithNullValue", 10, false, false, 1, 1);
-//        manager.addCache(cache);
-//
-//        Object key = new Object();
-//        Element element = new Element(key, "value");
-//        element.setTimeToLive(2);
-//        cache.putQuiet(element);
-//        Thread.sleep(1010);
-//        assertNotNull(cache.get(key));
-//        assertSame(element, cache.get(key));
-//
-//
-//        Element element2 = new Element(key, "value");
-//        cache.putQuiet(element2);
-//        Thread.sleep(1010);
-//        assertNull(cache.get(key));
-//
-//        Element element3 = new Element(key, "value");
-//        element3.setTimeToLive(2);
-//        cache.putQuiet(element3);
-//        Thread.sleep(1500);
-//        assertSame(element3, cache.get(key));
-//
-//    }
-//
-//
-//    /**
-//     * Tests using elements with null values. They should work as normal.
-//     *
-//     * @throws Exception
-//     */
-//    public void testNonSerializableElement() throws Exception {
-//        Cache cache = new Cache("testElementWithNonSerializableValue", 1, true, false, 100, 200);
-//        manager.addCache(cache);
-//
-//        Element element1 = new Element("key1", new Object());
-//        Element element2 = new Element("key2", new Object());
-//        cache.put(element1);
-//        cache.put(element2);
-//
-//        //Removed because could not overflow
-//        assertNull(cache.get("key1"));
-//
-//        //Second one should be in the MemoryStore and retrievable
-//        assertNotNull(cache.get("key2"));
-//    }
-//
-//
-//    /**
-//     * Tests what happens when an Element throws an Error on serialization. This mimics
-//     * what a nasty error like OutOfMemoryError could do.
-//     * <p/>
-//     * Before a change to the SpoolAndExpiryThread to handle this situation this test failed and generated
-// the following log message.
-//     * Jun 28, 2006 7:17:16 PM net.sf.ehcache.store.DiskStore put
-//     * SEVERE: testThreadKillerCache: Elements cannot be written to disk store because the spool thread has died.
-//     *
-//     * @throws Exception
-//     */
-//    public void testSpoolThreadHandlesThreadKiller() throws Exception {
-//        Cache cache = new Cache("testThreadKiller", 1, true, false, 100, 200);
-//        manager.addCache(cache);
-//
-//        Element elementThreadKiller = new Element("key", new ThreadKiller());
-//        cache.put(elementThreadKiller);
-//        Element element1 = new Element("key1", "one");
-//        Element element2 = new Element("key2", "two");
-//        cache.put(element1);
-//        cache.put(element2);
-//
-//        Thread.sleep(2000);
-//
-//        assertNotNull(cache.get("key1"));
-//        assertNotNull(cache.get("key2"));
-//    }
-//
-//    /**
-//     * Tests disk store and memory store size
-//     *
-//     * @throws Exception
-//     */
+
+
+    /**
+     * Tests using elements with null values. They should work as normal.
+     *
+     * @throws Exception
+     */
+    public void testNonSerializableElement() throws Exception {
+        Ehcache ehcache = new net.sf.ehcache.Cache("testElementWithNonSerializableValue", 1, true, false, 100, 200);
+        manager.addCache(ehcache);
+        Cache cache = new JCache(ehcache);
+
+        cache.put("key1", new Object());
+        cache.put("key2", new Object());
+
+        //Removed because could not overflow
+        assertNull(cache.get("key1"));
+
+        //Second one should be in the MemoryStore and retrievable
+        assertNotNull(cache.get("key2"));
+    }
+
+
+    /**
+     * Tests what happens when an Element throws an Error on serialization. This mimics
+     * what a nasty error like OutOfMemoryError could do.
+     * <p/>
+     * Before a change to the SpoolAndExpiryThread to handle this situation this test failed and generated
+     * the following log message.
+     * Jun 28, 2006 7:17:16 PM net.sf.ehcache.store.DiskStore put
+     * SEVERE: testThreadKillerCache: Elements cannot be written to disk store because the spool thread has died.
+     *
+     * @throws Exception
+     */
+    public void testSpoolThreadHandlesThreadKiller() throws Exception {
+        Ehcache ehcache = new net.sf.ehcache.Cache("testThreadKiller", 1, true, false, 100, 200);
+        manager.addCache(ehcache);
+        Cache cache = new JCache(ehcache);
+
+        cache.put("key", new ThreadKiller());
+        cache.put("key1", "one");
+        cache.put("key2", "two");
+
+        Thread.sleep(2000);
+
+        assertNotNull(cache.get("key1"));
+        assertNotNull(cache.get("key2"));
+    }
+
+    /**
+     * Tests disk store and memory store size
+     * jsr107 does not support getting store sizes
+     */
 //    public void testGetDiskStoreSize() throws Exception {
-//        Cache cache = new Cache("testGetDiskStoreSize", 1, true, false, 100, 200);
-//        manager.addCache(cache);
-//        assertEquals(0, cache.getDiskStoreSize());
-//
-//        cache.put(new Element("key1", "value1"));
-//        assertEquals(0, cache.getDiskStoreSize());
-//        assertEquals(1, cache.getSize());
-//
-//        cache.put(new Element("key2", "value2"));
-//        assertEquals(2, cache.getSize());
-//        assertEquals(1, cache.getDiskStoreSize());
-//        assertEquals(1, cache.getMemoryStoreSize());
-//
-//        cache.put(new Element("key3", "value3"));
-//        cache.put(new Element("key4", "value4"));
-//        assertEquals(4, cache.getSize());
-//        assertEquals(3, cache.getDiskStoreSize());
-//        assertEquals(1, cache.getMemoryStoreSize());
-//
-//        // remove last element inserted (is in memory store)
-//        assertNotNull(cache.getMemoryStore().get("key4"));
-//        cache.remove("key4");
-//        assertEquals(3, cache.getSize());
-//        assertEquals(3, cache.getDiskStoreSize());
-//        assertEquals(0, cache.getMemoryStoreSize());
-//
-//        // remove key1 element
-//        assertNotNull(cache.getDiskStore().get("key1"));
-//        cache.remove("key1");
-//        assertEquals(2, cache.getSize());
-//        assertEquals(2, cache.getDiskStoreSize());
-//        assertEquals(0, cache.getMemoryStoreSize());
-//
-//        // add another
-//        cache.put(new Element("key5", "value5"));
-//        assertEquals(3, cache.getSize());
-//        assertEquals(2, cache.getDiskStoreSize());
-//        assertEquals(1, cache.getMemoryStoreSize());
-//
-//        // remove all
-//        cache.removeAll();
-//        assertEquals(0, cache.getSize());
-//        assertEquals(0, cache.getDiskStoreSize());
-//        assertEquals(0, cache.getMemoryStoreSize());
-//
-//        //Check behaviour of NonSerializable objects
-//        cache.put(new Element(new Object(), new Object()));
-//        cache.put(new Element(new Object(), new Object()));
-//        cache.put(new Element(new Object(), new Object()));
-//        assertEquals(1, cache.getSize());
-//        assertEquals(0, cache.getDiskStoreSize());
-//        assertEquals(1, cache.getMemoryStoreSize());
-//
-//    }
-//
-//    /**
-//     * Tests that attempting to clone a cache fails with the right exception.
-//     *
-//     * @throws Exception
-//     */
+
+    /**
+     * Tests that attempting to clone a cache fails with the right exception.
+     * jsr107 does not make clone available
+     *
+     */
 //    public void testCloneFailures() throws Exception {
-//        Cache cache = new Cache("testGetMemoryStore", 10, false, false, 100, 200);
-//        manager.addCache(cache);
-//        try {
-//            cache.clone();
-//            fail("Should have thrown CloneNotSupportedException");
-//        } catch (CloneNotSupportedException e) {
-//            //noop
-//        }
-//    }
 
 
     /**
@@ -1034,13 +791,11 @@ public class JCacheTest extends AbstractCacheTest {
         assertTrue(380 < cache.toString().length());
     }
 
-
     /**
      * When does equals mean the same thing as == for an element?
      * NA JSR107 does not have elements
      */
 //    public void testEquals() throws CacheException, InterruptedException {
-
 
     /**
      * Tests the uniqueness of the GUID
@@ -1089,7 +844,6 @@ public class JCacheTest extends AbstractCacheTest {
      * Test issues reported. N/A
      */
 //    public void testDiskStoreFlorian() {
-
 
 
     /**
