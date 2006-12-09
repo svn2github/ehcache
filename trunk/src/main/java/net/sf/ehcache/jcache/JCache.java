@@ -73,13 +73,13 @@ public class JCache implements javax.cache.Cache {
 
     /**
      * Add a listener to the list of cache listeners. The behaviour of JCACHE and Ehcache listeners is a little
-     * different. See {@link CacheListenerAdaptor} for details on how each event is adapted.
+     * different. See {@link JCacheListenerAdaptor} for details on how each event is adapted.
      *
      * @param cacheListener a JCACHE CacheListener
-     * @see CacheListenerAdaptor
+     * @see JCacheListenerAdaptor
      */
     public void addListener(CacheListener cacheListener) {
-        CacheListenerAdaptor cacheListenerAdaptor = new CacheListenerAdaptor(cacheListener);
+        JCacheListenerAdaptor cacheListenerAdaptor = new JCacheListenerAdaptor(cacheListener);
         cache.getCacheEventNotificationService().registerListener(cacheListenerAdaptor);
     }
 
@@ -136,7 +136,7 @@ public class JCache implements javax.cache.Cache {
     public CacheEntry getCacheEntry(Object key) {
         Element element = cache.get(key);
         if (element != null) {
-            return new net.sf.ehcache.jcache.Entry(element);
+            return new net.sf.ehcache.jcache.JCacheEntry(element);
         } else {
             return null;
         }
@@ -248,10 +248,10 @@ public class JCache implements javax.cache.Cache {
      * Remove a listener from the list of cache listeners
      *
      * @param cacheListener a JCACHE CacheListener
-     * @see CacheListenerAdaptor
+     * @see JCacheListenerAdaptor
      */
     public void removeListener(CacheListener cacheListener) {
-        CacheListenerAdaptor cacheListenerAdaptor = new CacheListenerAdaptor(cacheListener);
+        JCacheListenerAdaptor cacheListenerAdaptor = new JCacheListenerAdaptor(cacheListener);
         cache.getCacheEventNotificationService().unregisterListener(cacheListenerAdaptor);
     }
 
@@ -485,7 +485,7 @@ public class JCache implements javax.cache.Cache {
             Object key = list.get(i);
             Element element = cache.get(key);
             if (element != null) {
-                set.add(new net.sf.ehcache.jcache.Entry(element));
+                set.add(new net.sf.ehcache.jcache.JCacheEntry(element));
             }
         }
         return set;
@@ -506,5 +506,14 @@ public class JCache implements javax.cache.Cache {
      */
     public Ehcache getBackingCache() {
         return cache;
+    }
+
+
+    /**
+     * Returns a {@link String} representation of the underlying {@link net.sf.ehcache.Cache}.
+     * @return a string representation of the object.
+     */
+    public String toString() {
+        return cache.toString();
     }
 }
