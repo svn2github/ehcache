@@ -154,27 +154,27 @@ public class Cache implements Ehcache {
     /**
      * Cache hit count.
      */
-    private int hitCount;
+    private long hitCount;
 
     /**
      * Memory cache hit count.
      */
-    private int memoryStoreHitCount;
+    private long memoryStoreHitCount;
 
     /**
-     * Auxiliary hit counts broken down by auxiliary.
+     * DiskStore hit count.
      */
-    private int diskStoreHitCount;
+    private long diskStoreHitCount;
 
     /**
      * Count of misses where element was not found.
      */
-    private int missCountNotFound;
+    private long missCountNotFound;
 
     /**
      * Count of misses where element was expired.
      */
-    private int missCountExpired;
+    private long missCountExpired;
 
     /**
      * The {@link MemoryStore} of this {@link Cache}. All caches have a memory store.
@@ -1369,7 +1369,7 @@ public class Cache implements Ehcache {
     public final String toString() {
         StringBuffer dump = new StringBuffer();
 
-        dump.append("[ ")
+        dump.append("[")
                 .append(" name = ").append(name)
                 .append(" status = ").append(status)
                 .append(" eternal = ").append(eternal)

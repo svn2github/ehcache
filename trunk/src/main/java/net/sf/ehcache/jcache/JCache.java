@@ -350,8 +350,13 @@ public class JCache implements javax.cache.Cache {
      *         <tt>null</tt> values.
      */
     public Object put(Object key, Object value) {
-        Element element = cache.get(key);
+        Element element = null;
+        if (cache.isKeyInCache(key)) {
+            element = cache.getQuiet(key);
+        }
+
         cache.put(new Element(key, value));
+
         if (element != null) {
             return element.getValue();
         } else {

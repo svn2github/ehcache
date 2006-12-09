@@ -129,12 +129,14 @@ public interface CacheStatistics {
 
     CacheManager does not have the following features:
 
-    shutdown the CacheManager - there is no way to free resources or persist. Implementations
-    may utilise a shutdown hook, but that does not work for application server redeployments,
-    where a shutdown listener must be used
+    *   shutdown the CacheManager - there is no way to free resources or persist. Implementations
+        may utilise a shutdown hook, but that does not work for application server redeployments,
+        where a shutdown listener must be used.
 
-    remove caches from the CacheManager - once its there it is there until JVM shutdown. This does
-    not work well for dynamic creation, destruction and recreation of caches.
+    *   List caches in the CacheManager. There is no way to iterate over, or get a list of caches.
+
+    *   remove caches from the CacheManager - once its there it is there until JVM shutdown. This does
+        not work well for dynamic creation, destruction and recreation of caches.
 
 
 

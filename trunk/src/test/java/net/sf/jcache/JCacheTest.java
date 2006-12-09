@@ -45,15 +45,11 @@ import java.util.Set;
 public class JCacheTest extends AbstractCacheTest {
     private static final Log LOG = LogFactory.getLog(JCacheTest.class.getName());
 
-    private CacheManager singletonManager;
-
-
     /**
      * setup test
      */
     protected void setUp() throws Exception {
         super.setUp();
-        singletonManager = javax.cache.CacheManager.getInstance();
     }
 
 
@@ -62,7 +58,6 @@ public class JCacheTest extends AbstractCacheTest {
      * limits to what we can do here under jsr107
      */
     protected void tearDown() throws Exception {
-        super.tearDown();
         getTest1Cache().clear();
         getTest2Cache().clear();
         getTest4Cache().clear();
@@ -82,7 +77,7 @@ public class JCacheTest extends AbstractCacheTest {
      * </cache>
      */
     protected Cache getTest1Cache() throws CacheException {
-        Cache cache = singletonManager.getCache("test1");
+        Cache cache = CacheManager.getInstance().getCache("test1");
         if (cache == null) {
             //sampleCache1
             Map env = new HashMap();
@@ -96,14 +91,14 @@ public class JCacheTest extends AbstractCacheTest {
             env.put("timeToIdleSeconds", "1000");
             env.put("diskPersistent", "false");
             env.put("diskExpiryThreadIntervalSeconds", "120");
-            cache = singletonManager.getCacheFactory().createCache(env);
-            singletonManager.registerCache("test1", cache);            
+            cache = CacheManager.getInstance().getCacheFactory().createCache(env);
+            CacheManager.getInstance().registerCache("test1", cache);
         }
-        return singletonManager.getCache("test1");
+        return CacheManager.getInstance().getCache("test1");
     }
 
     private Cache getTest2Cache() throws CacheException {
-        Cache cache = singletonManager.getCache("test2");
+        Cache cache = CacheManager.getInstance().getCache("test2");
         if (cache == null) {
             Map env = new HashMap();
             env.put("name", "test2");
@@ -112,14 +107,14 @@ public class JCacheTest extends AbstractCacheTest {
             env.put("eternal", "false");
             env.put("timeToLiveSeconds", "1");
             env.put("timeToIdleSeconds", "0");
-            cache = singletonManager.getCacheFactory().createCache(env);
-            singletonManager.registerCache("test2", cache);
+            cache = CacheManager.getInstance().getCacheFactory().createCache(env);
+            CacheManager.getInstance().registerCache("test2", cache);
         }
-        return singletonManager.getCache("test2");
+        return CacheManager.getInstance().getCache("test2");
     }
 
     private Cache getTest4Cache() throws CacheException {
-        Cache cache = singletonManager.getCache("test4");
+        Cache cache = CacheManager.getInstance().getCache("test4");
         if (cache == null) {
             Map env = new HashMap();
             env.put("name", "test4");
@@ -128,10 +123,10 @@ public class JCacheTest extends AbstractCacheTest {
             env.put("eternal", "true");
             env.put("timeToLiveSeconds", "0");
             env.put("timeToIdleSeconds", "0");
-            cache = singletonManager.getCacheFactory().createCache(env);
-            singletonManager.registerCache("test4", cache);
+            cache = CacheManager.getInstance().getCacheFactory().createCache(env);
+            CacheManager.getInstance().registerCache("test4", cache);
         }
-        return singletonManager.getCache("test4");
+        return CacheManager.getInstance().getCache("test4");
     }
 
 
@@ -315,7 +310,7 @@ public class JCacheTest extends AbstractCacheTest {
      */
     public void testExpiryBasedOnTimeToLive() throws Exception {
         //Set size so the second element overflows to disk.
-        Ehcache ehcache = new net.sf.ehcache.Cache("test", 1, true, false, 3, 0);
+        Ehcache ehcache = new net.sf.ehcache.Cache("testExpiryBasedOnTimeToLive", 1, true, false, 3, 0);
         manager.addCache(ehcache);
         Cache cache = new JCache(ehcache);
 
@@ -361,7 +356,7 @@ public class JCacheTest extends AbstractCacheTest {
      */
     public void testNoIdleOrExpiryBasedOnTimeToLiveForEternal() throws Exception {
         //Set size so the second element overflows to disk.
-        Ehcache ehcache = new net.sf.ehcache.Cache("test", 1, true, true, 5, 2);
+        Ehcache ehcache = new net.sf.ehcache.Cache("testNoIdleOrExpiryBasedOnTimeToLiveForEternal", 1, true, true, 5, 2);
         manager.addCache(ehcache);
         Cache cache = new JCache(ehcache);
 
@@ -383,189 +378,149 @@ public class JCacheTest extends AbstractCacheTest {
         assertNotNull(cache.get("key2"));
     }
 
-//    /**
-//     * Test expiry based on time to idle.
-//     */
-//    public void testExpiryBasedOnTimeToIdle() throws Exception {
-//        //Set size so the second element overflows to disk.
-//        Cache cache = new Cache("test", 1, true, false, 6, 2);
-//        manager.addCache(cache);
-//        cache.put(new Element("key1", "value1"));
-//        cache.put(new Element("key2", "value1"));
-//
-//        //Test time to idle
-//        Element element1 = cache.get("key1");
-//        Element element2 = cache.get("key2");
-//        assertNotNull(element1);
-//        assertNotNull(element2);
-//        Thread.sleep(2010);
-//        assertNull(cache.get("key1"));
-//        assertNull(cache.get("key2"));
-//
-//        //Test effect of get
-//        cache.put(new Element("key1", "value1"));
-//        cache.put(new Element("key2", "value1"));
-//        Thread.sleep(1010);
-//        assertNotNull(cache.get("key1"));
-//        assertNotNull(cache.get("key2"));
-//
-//        Thread.sleep(2010);
-//        assertNull(cache.get("key1"));
-//        assertNull(cache.get("key2"));
-//    }
-//
-//
-//    /**
-//     * Test expiry based on time to idle.
-//     */
+    /**
+     * Test expiry based on time to idle.
+     */
+    public void testExpiryBasedOnTimeToIdle() throws Exception {
+        //Set size so the second element overflows to disk.
+        Ehcache ehcache = new net.sf.ehcache.Cache("testExpiryBasedOnTimeToIdle", 1, true, false, 6, 2);
+        manager.addCache(ehcache);
+        Cache cache = new JCache(ehcache);
+
+        cache.put("key1", "value1");
+        cache.put("key2", "value1");
+
+        //Test time to idle
+        assertNotNull(cache.get("key1"));
+        assertNotNull(cache.get("key2"));
+        Thread.sleep(2010);
+        assertNull(cache.get("key1"));
+        assertNull(cache.get("key2"));
+
+        //Test effect of get
+        cache.put("key1", "value1");
+        cache.put("key2", "value1");
+        Thread.sleep(1010);
+        assertNotNull(cache.get("key1"));
+        assertNotNull(cache.get("key2"));
+
+        Thread.sleep(2010);
+        assertNull(cache.get("key1"));
+        assertNull(cache.get("key2"));
+    }
+
+
+    /**
+     * Test expiry based on time to idle.
+     * jsr107 has no put quiet
+     */
 //    public void testExpiryBasedOnTimeToIdleAfterPutQuiet() throws Exception {
-//        //Set size so the second element overflows to disk.
-//        Cache cache = new Cache("test", 1, true, false, 5, 3);
-//        manager.addCache(cache);
-//        cache.put(new Element("key1", "value1"));
-//        cache.put(new Element("key2", "value1"));
-//
-//        //Test time to idle
-//        Element element1 = cache.get("key1");
-//        Element element2 = cache.get("key2");
-//        assertNotNull(element1);
-//        assertNotNull(element2);
-//
-//        //Now, getQuiet and check still times out 2 seconds after last get
-//        Thread.sleep(1010);
-//        element1 = cache.getQuiet("key1");
-//        element2 = cache.getQuiet("key2");
-//        Thread.sleep(2010);
-//        assertNull(cache.getQuiet("key1"));
-//        assertNull(cache.getQuiet("key2"));
-//
-//        //Now put back in with putQuiet. Should be immediately expired
-//        cache.putQuiet((Element) element1.clone());
-//        cache.putQuiet((Element) element2.clone());
-//        assertNull(cache.get("key1"));
-//        element2 = cache.get("key2");
-//        assertNull(element2);
-//    }
-//
-//    /**
-//     * Test element statistics, including get and getQuiet
-//     * eternal="false"
-//     * timeToIdleSeconds="5"
-//     * timeToLiveSeconds="10"
-//     * overflowToDisk="true"
-//     */
-//    public void testElementStatistics() throws Exception {
-//        //Set size so the second element overflows to disk.
-//        Cache cache = new Cache("test", 1, true, false, 5, 2);
-//        manager.addCache(cache);
-//        cache.put(new Element("key1", "value1"));
-//        cache.put(new Element("key2", "value1"));
-//
-//        Element element1 = cache.get("key1");
-//        assertEquals("Should be one", 1, element1.getHitCount());
-//        element1 = cache.getQuiet("key1");
-//        assertEquals("Should be one", 1, element1.getHitCount());
-//        element1 = cache.get("key1");
-//        assertEquals("Should be two", 2, element1.getHitCount());
-//    }
-//
-//    /**
-//     * Test cache statistics, including get and getQuiet
-//     */
-//    public void testCacheStatistics() throws Exception {
-//        //Set size so the second element overflows to disk.
-//        Cache cache = new Cache("test", 1, true, false, 5, 2);
-//        manager.addCache(cache);
-//        cache.put(new Element("key1", "value1"));
-//        cache.put(new Element("key2", "value1"));
-//
-//        Element element1 = cache.get("key1");
-//        assertEquals("Should be one", 1, element1.getHitCount());
-//        assertEquals("Should be one", 1, cache.getHitCount());
-//        element1 = cache.getQuiet("key1");
-//        assertEquals("Should be one", 1, element1.getHitCount());
-//        assertEquals("Should be one", 1, cache.getHitCount());
-//        element1 = cache.get("key1");
-//        assertEquals("Should be two", 2, element1.getHitCount());
-//        assertEquals("Should be two", 2, cache.getHitCount());
-//
-//
-//        assertEquals("Should be 0", 0, cache.getMissCountNotFound());
-//        cache.get("doesnotexist");
-//        assertEquals("Should be 1", 1, cache.getMissCountNotFound());
-//
-//
-//    }
-//
-//    /**
-//     * Checks that getQuiet works how we expect it to
-//     *
-//     * @throws Exception
-//     */
+
+    /**
+     * Test element statistics, including get and getQuiet
+     * eternal="false"
+     * timeToIdleSeconds="5"
+     * timeToLiveSeconds="10"
+     * overflowToDisk="true"
+     *
+     * jsr107 has no put quiet
+     */
+    public void testElementStatistics() throws Exception {
+        //Set size so the second element overflows to disk.
+        Ehcache ehcache = new net.sf.ehcache.Cache("testElementStatistics", 1, true, false, 5, 2);
+        manager.addCache(ehcache);
+        Cache cache = new JCache(ehcache);
+
+        cache.put("key1", "value1");
+        cache.put("key2", "value1");
+
+        CacheEntry cacheEntry = cache.getCacheEntry("key1");
+        assertEquals("Should be one", 1, cacheEntry.getHits());
+
+        cacheEntry = cache.getCacheEntry("key1");
+        assertEquals("Should be two", 2, cacheEntry.getHits());
+    }
+
+    /**
+     * Test cache statistics, including get.
+     * Reconcile CacheEntry stats with cache stats and make sure they agree
+     */
+    public void testCacheStatistics() throws Exception {
+        //Set size so the second element overflows to disk.
+        Ehcache ehcache = new net.sf.ehcache.Cache("testCacheStatistics", 1, true, false, 5, 2);
+                manager.addCache(ehcache);
+                Cache cache = new JCache(ehcache);
+        cache.put("key1", "value1");
+        cache.put("key2", "value1");
+
+        CacheEntry cacheEntry = cache.getCacheEntry("key1");
+        assertEquals("Should be one", 1, cacheEntry.getHits());
+        assertEquals("Should be one", 1, cache.getCacheStatistics().getCacheHits());
+
+
+        cacheEntry = cache.getCacheEntry("key1");
+        assertEquals("Should be one", 2, cacheEntry.getHits());
+        assertEquals("Should be one", 2, cache.getCacheStatistics().getCacheHits());
+
+        cacheEntry = cache.getCacheEntry("key2");
+        assertEquals("Should be one", 1, cacheEntry.getHits());
+        assertEquals("Should be one", 3, cache.getCacheStatistics().getCacheHits());
+
+        assertEquals("Should be 0", 0, cache.getCacheStatistics().getCacheMisses());
+        cache.get("doesnotexist");
+        assertEquals("Should be 1", 1, cache.getCacheStatistics().getCacheMisses());
+
+
+    }
+
+    /**
+     * Checks that getQuiet works how we expect it to
+     * not supported in jsr107
+     */
 //    public void testGetQuietAndPutQuiet() throws Exception {
-//        //Set size so the second element overflows to disk.
-//        Cache cache = new Cache("test", 1, true, false, 5, 2);
-//        manager.addCache(cache);
-//        cache.put(new Element("key1", "value1"));
-//        cache.put(new Element("key2", "value1"));
-//
-//        Element element1 = cache.get("key1");
-//        long lastAccessedElement1 = element1.getLastAccessTime();
-//        long hitCountElement1 = element1.getHitCount();
-//        assertEquals("Should be two", 1, element1.getHitCount());
-//
-//        element1 = cache.getQuiet("key1");
-//        element1 = cache.getQuiet("key1");
-//        Element clonedElement1 = (Element) element1.clone();
-//        cache.putQuiet(clonedElement1);
-//        element1 = cache.getQuiet("key1");
-//        assertEquals("last access time should be unchanged",
-//                lastAccessedElement1, element1.getLastAccessTime());
-//        assertEquals("hit count should be unchanged",
-//                hitCountElement1, element1.getHitCount());
-//        element1 = cache.get("key1");
-//        assertEquals("Should be two", 2, element1.getHitCount());
-//    }
-//
-//    /**
-//     * Test size with put and remove.
-//     * <p/>
-//     * It checks that size makes sense, and also that getKeys.size() matches getSize()
-//     */
-//    public void testSizeWithPutAndRemove() throws Exception {
-//        //Set size so the second element overflows to disk.
-//        Cache cache = new Cache("test2", 1, true, true, 0, 0);
-//        manager.addCache(cache);
-//        cache.put(new Element("key1", "value1"));
-//        cache.put(new Element("key2", "value1"));
-//        int sizeFromGetSize = cache.getSize();
-//        int sizeFromKeys = cache.getKeys().size();
-//        assertEquals(sizeFromGetSize, sizeFromKeys);
-//        assertEquals(2, cache.getSize());
-//        cache.put(new Element("key1", "value1"));
-//        cache.put(new Element("key1", "value1"));
-//
-//        //key1 should be in the Disk Store
-//        assertEquals(cache.getSize(), cache.getKeys().size());
-//        assertEquals(2, cache.getSize());
-//        //there were two of these, so size will now be one
-//        cache.remove("key1");
-//        assertEquals(cache.getSize(), cache.getKeys().size());
-//        assertEquals(1, cache.getSize());
-//        cache.remove("key2");
-//        assertEquals(cache.getSize(), cache.getKeys().size());
-//        assertEquals(0, cache.getSize());
-//
-//        //try null values
-//        cache.put(new Element("nullValue1", null));
-//        cache.put(new Element("nullValue2", null));
-//        //Cannot overflow therefore just one
-//        assertEquals(1, cache.getSize());
-//        Element nullValueElement = cache.get("nullValue2");
-//        assertNull(nullValueElement.getValue());
-//        assertNull(nullValueElement.getObjectValue());
-//
-//    }
+
+    /**
+     * Test size with put and remove.
+     * <p/>
+     * It checks that size makes sense, and also that getKeys.size() matches getSize()
+     */
+    public void testSizeWithPutAndRemove() throws Exception {
+        //Set size so the second element overflows to disk.
+        Ehcache ehcache = new net.sf.ehcache.Cache("testSizeWithPutAndRemove", 1, true, true, 0, 0);
+        manager.addCache(ehcache);
+        Cache cache = new JCache(ehcache);
+
+        cache.put("key1", "value1");
+        cache.put("key2", "value1");
+
+        int sizeFromGetSize = cache.getCacheStatistics().getObjectCount();
+        int sizeFromKeys = cache.keySet().size();
+        assertEquals(sizeFromGetSize, sizeFromKeys);
+        assertEquals(2, cache.getCacheStatistics().getObjectCount());
+        cache.put("key1", "value1");
+        cache.put("key1", "value1");
+
+        //key1 should be in the Disk Store
+        assertEquals(cache.getCacheStatistics().getObjectCount(), cache.keySet().size());
+        assertEquals(2, cache.getCacheStatistics().getObjectCount());
+        //there were two of these, so size will now be one
+        cache.remove("key1");
+        assertEquals(cache.getCacheStatistics().getObjectCount(), cache.keySet().size());
+        assertEquals(1, cache.getCacheStatistics().getObjectCount());
+        cache.remove("key2");
+        assertEquals(cache.getCacheStatistics().getObjectCount(), cache.keySet().size());
+        assertEquals(0, cache.getCacheStatistics().getObjectCount());
+
+        //try null values
+        cache.clear();
+        cache.put("nullValue1", null);
+        cache.put("nullValue2", null);
+        //Cannot overflow therefore just one
+        assertEquals(1, cache.getCacheStatistics().getObjectCount());
+        Object nullValue = cache.get("nullValue2");
+        assertNull(nullValue);
+
+    }
 
     /**
      * Test getKeys after expiry
@@ -1073,8 +1028,10 @@ public class JCacheTest extends AbstractCacheTest {
      */
     public void testToString() throws CacheException {
         Cache cache = getTest2Cache();
+        cache.clear();
+        LOG.info(cache);
         assertTrue(cache.toString().indexOf("test2") > -1);
-        assertEquals(384, cache.toString().length());
+        assertTrue(380 < cache.toString().length());
     }
 
 
