@@ -19,7 +19,7 @@ package net.sf.ehcache.event;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.jcache.CacheListenerAdaptor;
+import net.sf.ehcache.jcache.JCacheListenerAdaptor;
 import net.sf.ehcache.distribution.CacheReplicator;
 
 import javax.cache.CacheListener;
@@ -217,8 +217,8 @@ public final class RegisteredEventListeners {
      * @return true if the listener was present
      */
     public final boolean unregisterListener(CacheEventListener cacheEventListener) {
-        if (cacheEventListener instanceof CacheListenerAdaptor) {
-            removeCacheListenerAdaptor(((CacheListenerAdaptor)cacheEventListener).getCacheListener());
+        if (cacheEventListener instanceof JCacheListenerAdaptor) {
+            removeCacheListenerAdaptor(((JCacheListenerAdaptor)cacheEventListener).getCacheListener());
         }
         return cacheEventListeners.remove(cacheEventListener);
     }
@@ -226,8 +226,8 @@ public final class RegisteredEventListeners {
     private void removeCacheListenerAdaptor(CacheListener cacheListener) {
         for (Iterator iterator = cacheEventListeners.iterator(); iterator.hasNext();) {
             CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
-            if (cacheEventListener instanceof CacheListenerAdaptor) {
-                if (((CacheListenerAdaptor)cacheEventListener).getCacheListener() == cacheListener) {
+            if (cacheEventListener instanceof JCacheListenerAdaptor) {
+                if (((JCacheListenerAdaptor)cacheEventListener).getCacheListener() == cacheListener) {
                     cacheEventListeners.remove(cacheEventListener);
                     break;
                 }
