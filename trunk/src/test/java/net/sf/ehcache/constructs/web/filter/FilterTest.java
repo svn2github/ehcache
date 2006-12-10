@@ -19,6 +19,10 @@ package net.sf.ehcache.constructs.web.filter;
 import com.meterware.httpunit.HttpInternalErrorException;
 import net.sf.ehcache.constructs.web.AbstractWebTest;
 
+import java.io.IOException;
+
+import org.xml.sax.SAXException;
+
 /**
  * {@link Filter#doFilter} captures all exceptions passed up to it from subclasses.
  *
@@ -56,4 +60,18 @@ public class FilterTest extends AbstractWebTest {
             //expected
         }
     }
+
+    /**
+     * The GzipFilter's init-params are not set up for IllegalArgumentException.
+     * Check that the default behaviour applies. This needs to be done manually at present.
+     */
+    public void testHandlingOfIOException() throws IOException, SAXException {
+        try {
+            getResponseFromAcceptGzipRequest("/errors/IOException.jsp");
+            fail();
+        } catch (HttpInternalErrorException e) {
+            //expected
+        }
+    }
+
 }

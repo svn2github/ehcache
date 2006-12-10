@@ -149,6 +149,11 @@
         <url-pattern>/errors/IllegalArgumentException.jsp</url-pattern>
     </filter-mapping>
 
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/errors/IOException.jsp</url-pattern>
+    </filter-mapping>
+
 
     <!-- Empty responses. -->
     <filter-mapping>

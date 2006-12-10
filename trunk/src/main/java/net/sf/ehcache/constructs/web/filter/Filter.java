@@ -16,8 +16,10 @@
 
 package net.sf.ehcache.constructs.web.filter;
 
-import org.apache.commons.logging.Log;
+import java.io.IOException;
+
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -75,12 +77,13 @@ public abstract class Filter implements javax.servlet.Filter {
 
     /**
      * Performs the filtering.  This method calls template method
-     * {@link #doFilter(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, javax.servlet.FilterChain) } which does the filtering.
+     * {@link #doFilter(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse,javax.servlet.FilterChain) } which does the filtering.
      * This method takes care of error reporting and handling.
      * Errors are reported at {@link Log#warn(Object)} level because http tends to produce lots of errors.
+     * @throws IOException if an IOException occurs during this method it will be rethrown and will not be wrapped
      */
     public final void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
-            throws ServletException {
+            throws ServletException, IOException {
         final HttpServletRequest httpRequest = (HttpServletRequest) request;
         final HttpServletResponse httpResponse = (HttpServletResponse) response;
         try {
@@ -90,14 +93,6 @@ public abstract class Filter implements javax.servlet.Filter {
             } else {
                 chain.doFilter(request, response);
             }
-            // Flush the response
-            String implementationVendor = request.getClass().getPackage().getImplementationVendor();
-            if (implementationVendor != null && implementationVendor.equals("\"Evermind\"")) {
-                httpResponse.getOutputStream().flush();
-            } else {
-                httpResponse.flushBuffer();
-            }
-
         } catch (final Throwable throwable) {
             logThrowable(throwable, httpRequest);
         }
@@ -114,12 +109,15 @@ public abstract class Filter implements javax.servlet.Filter {
         return httpRequest.getAttribute(NO_FILTER) == null;
     }
 
-
-    private void logThrowable(final Throwable throwable, final HttpServletRequest httpRequest) throws ServletException {
+    /**
+     * This method should throw IOExceptions, not wrap them.
+     */
+    private void logThrowable(final Throwable throwable, final HttpServletRequest httpRequest)
+            throws ServletException, IOException {
         StringBuffer messageBuffer = new StringBuffer("Throwable thrown during doFilter on request with URI: ")
-                    .append(httpRequest.getRequestURI())
-                    .append(" and Query: ")
-                    .append(httpRequest.getQueryString());
+                .append(httpRequest.getRequestURI())
+                .append(" and Query: ")
+                .append(httpRequest.getQueryString());
         String message = messageBuffer.toString();
         boolean matchFound = matches(throwable);
         if (matchFound) {
@@ -135,7 +133,11 @@ public abstract class Filter implements javax.servlet.Filter {
             } catch (Exception e) {
                 LOG.fatal("Could not invoke Log method for " + exceptionsToLogDifferentlyLevel, e);
             }
-            throw new ServletException(message, throwable);
+            if (throwable instanceof IOException) {
+                throw (IOException) throwable;
+            } else {
+                throw new ServletException(message, throwable);
+            }
         } else {
 
             if (suppressStackTraces) {
@@ -144,7 +146,11 @@ public abstract class Filter implements javax.servlet.Filter {
             } else {
                 LOG.warn(messageBuffer.append(throwable.getMessage()), throwable);
             }
-            throw new ServletException(throwable);
+            if (throwable instanceof IOException) {
+                throw (IOException) throwable;
+            } else {
+                throw new ServletException(throwable);
+            }
         }
     }
 
@@ -185,7 +191,6 @@ public abstract class Filter implements javax.servlet.Filter {
 
             this.filterConfig = config;
             processInitParams(config);
-
 
             // Attempt to initialise this filter
             doInit();
@@ -291,7 +296,6 @@ public abstract class Filter implements javax.servlet.Filter {
     }
 
 
-
     /**
      * A template method that performs any Filter specific destruction tasks.
      * Called from {@link #destroy()}
@@ -301,7 +305,7 @@ public abstract class Filter implements javax.servlet.Filter {
 
     /**
      * A template method that performs the filtering for a request.
-     * Called from {@link #doFilter(ServletRequest, ServletResponse, FilterChain)}.
+     * Called from {@link #doFilter(ServletRequest,ServletResponse,FilterChain)}.
      */
     protected abstract void doFilter(final HttpServletRequest httpRequest, final HttpServletResponse httpResponse,
                                      final FilterChain chain) throws Throwable;
