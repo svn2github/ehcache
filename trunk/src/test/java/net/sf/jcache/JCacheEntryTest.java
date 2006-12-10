@@ -46,23 +46,23 @@ public class JCacheEntryTest extends AbstractCacheTest {
      * limits to what we can do here under jsr107
      */
     protected void tearDown() throws Exception {
-        getTest2Cache().clear();
+        getTestCache().clear();
     }
 
-    private Cache getTest2Cache() throws CacheException {
-        Cache cache = CacheManager.getInstance().getCache("test2");
+    private Cache getTestCache() throws CacheException {
+        Cache cache = CacheManager.getInstance().getCache("testCacheEntry");
         if (cache == null) {
             Map env = new HashMap();
-            env.put("name", "test2");
+            env.put("name", "testCacheEntry");
             env.put("maxElementsInMemory", "1");
             env.put("overflowToDisk", "true");
             env.put("eternal", "false");
             env.put("timeToLiveSeconds", "1");
             env.put("timeToIdleSeconds", "0");
             cache = CacheManager.getInstance().getCacheFactory().createCache(env);
-            CacheManager.getInstance().registerCache("test2", cache);
+            CacheManager.getInstance().registerCache("testCacheEntry", cache);
         }
-        return CacheManager.getInstance().getCache("test2");
+        return CacheManager.getInstance().getCache("testCacheEntry");
     }
 
 
@@ -74,7 +74,7 @@ public class JCacheEntryTest extends AbstractCacheTest {
      */
     public void testAccessTimes() throws Exception {
         //Set size so the second element overflows to disk.
-        Cache cache = getTest2Cache();
+        Cache cache = getTestCache();
 
         CacheEntry entry = new JCacheEntry(new Element("key1", "value1"));
         long creationTime = entry.getCreationTime();
@@ -85,10 +85,15 @@ public class JCacheEntryTest extends AbstractCacheTest {
         cache.put(entry.getKey(), entry.getValue());
 
         entry = cache.getCacheEntry("key1");
+        long entryCreationTime = entry.getCreationTime();
         assertNotNull(entry);
-        assertEquals(creationTime, entry.getCreationTime());
+        cache.get("key1");
+        cache.get("key1");
+        cache.get("key1");
+        //check creation time does not change
+        assertEquals(entryCreationTime, entry.getCreationTime());
         assertTrue(entry.getLastAccessTime() != 0);
-        assertTrue(entry.getHits() == 1);
+        assertTrue(entry.getHits() == 4);
 
     }
 

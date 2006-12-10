@@ -201,7 +201,7 @@ public class JCacheTest extends AbstractCacheTest {
      */
     public void testNoOverflowToDisk() throws Exception {
         //Set size so the second element overflows to disk.
-        Ehcache ehcache = new net.sf.ehcache.Cache("test", 1, false, true, 500, 200);
+        Ehcache ehcache = new net.sf.ehcache.Cache("testNoOverflowToDisk", 1, false, true, 500, 200);
         manager.addCache(ehcache);
         Cache cache = new JCache(ehcache);
         cache.put("key1", "value1");
@@ -289,7 +289,7 @@ public class JCacheTest extends AbstractCacheTest {
         }
         time = stopWatch.getElapsedTime();
         LOG.info("Time for m500d500Cache: " + time);
-        assertTrue("Time to put and get 5000 entries into m500d500Cache", time < 2000);
+        assertTrue("Time to put and get 5000 entries into m500d500Cache", time < 4000);
 
     }
 
