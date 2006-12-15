@@ -19,6 +19,7 @@ package net.sf.ehcache;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.config.CacheConfiguration;
 
 import java.io.Serializable;
 import java.util.List;
@@ -663,4 +664,10 @@ public interface Ehcache extends Cloneable {
      */
     public void dispose() throws IllegalStateException;
 
+    /**
+     * Gets the cache configuration this cache was created with.
+     * <p/>
+     * Things like listeners that are added dynamically are excluded.
+     */
+    CacheConfiguration getCacheConfiguration();
 }

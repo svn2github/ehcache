@@ -42,6 +42,7 @@
     <suppress checks="IllegalType" files="Cache.java"/>
     <suppress checks="ParameterNumber" files="Cache.java"/>
     <suppress checks="FileLengthCheck" files="Cache.java"/>
+    <suppress checks="ExecutableStatementCount" files="Cache.java"/>
     <suppress checks="ThrowsCountCheck" files="CachingFilter.java"/>
 
     <!-- We need to return LinkedList -->

@@ -80,14 +80,14 @@ public class CacheConfiguration {
      * the time to idle for an element before it expires. Is only used
      * if the element is not eternal.A value of 0 means do not check for idling.
      */
-    protected int timeToIdleSeconds;
+    protected long timeToIdleSeconds;
 
     /**
      * Sets the time to idle for an element before it expires. Is only used
      * if the element is not eternal. This attribute is optional in the configuration.
      * A value of 0 means do not check time to live.
      */
-    protected int timeToLiveSeconds;
+    protected long timeToLiveSeconds;
 
     /**
      * whether elements can overflow to disk when the in-memory cache
@@ -135,9 +135,18 @@ public class CacheConfiguration {
 
     /**
      * Sets the eviction policy. An invalid argument will set it to null.
+     * @param memoryStoreEvictionPolicy a String representation of the policy. One of "LRU", "LFU" or "FIFO".
      */
     public final void setMemoryStoreEvictionPolicy(String memoryStoreEvictionPolicy) {
         this.memoryStoreEvictionPolicy = MemoryStoreEvictionPolicy.fromString(memoryStoreEvictionPolicy);
+    }
+
+    /**
+     * Sets the eviction policy. This method has a strange name to workaround a problem with XML parsing.
+     *
+     */
+    public final void setMemoryStoreEvictionPolicyFromObject(MemoryStoreEvictionPolicy memoryStoreEvictionPolicy) {
+        this.memoryStoreEvictionPolicy = memoryStoreEvictionPolicy;
     }
 
     /**
@@ -150,14 +159,14 @@ public class CacheConfiguration {
     /**
      * Sets the time to idle for an element before it expires. Is only used if the element is not eternal.
      */
-    public final void setTimeToIdleSeconds(int timeToIdleSeconds) {
+    public final void setTimeToIdleSeconds(long timeToIdleSeconds) {
         this.timeToIdleSeconds = timeToIdleSeconds;
     }
 
     /**
      * Sets the time to idle for an element before it expires. Is only used if the element is not eternal.
      */
-    public final void setTimeToLiveSeconds(int timeToLiveSeconds) {
+    public final void setTimeToLiveSeconds(long timeToLiveSeconds) {
         this.timeToLiveSeconds = timeToLiveSeconds;
     }
 
@@ -189,7 +198,7 @@ public class CacheConfiguration {
      * This is not the same thing as time to live or time to idle. When the thread runs it checks
      * these things. So this value is how often we check for expiry.
      */
-    public final void setDiskExpiryThreadIntervalSeconds(int diskExpiryThreadIntervalSeconds) {
+    public final void setDiskExpiryThreadIntervalSeconds(long diskExpiryThreadIntervalSeconds) {
         this.diskExpiryThreadIntervalSeconds = diskExpiryThreadIntervalSeconds;
     }
 
@@ -259,14 +268,14 @@ public class CacheConfiguration {
     /**
      * Accessor
      */
-    public int getTimeToIdleSeconds() {
+    public long getTimeToIdleSeconds() {
         return timeToIdleSeconds;
     }
 
     /**
      * Accessor
      */
-    public int getTimeToLiveSeconds() {
+    public long getTimeToLiveSeconds() {
         return timeToLiveSeconds;
     }
 

@@ -22,6 +22,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.constructs.concurrent.ConcurrencyUtil;
 import net.sf.ehcache.constructs.concurrent.Mutex;
@@ -482,6 +483,15 @@ public class BlockingCache implements Ehcache {
      */
     public void dispose() throws IllegalStateException {
         cache.dispose();
+    }
+
+    /**
+     * Gets the cache configuration this cache was created with.
+     * <p/>
+     * Things like listeners that are added dynamically are excluded.
+     */
+    public CacheConfiguration getCacheConfiguration() {
+        return cache.getCacheConfiguration();
     }
 
     /**
