@@ -135,10 +135,20 @@ public interface CacheStatistics {
 
         Ehcache supports this behaviour.
 
-
     *   There is no method to estimate memory use of a cache. Ehcache serializes each Element to a
         byte[] one at a time and adds the serialized sizes up. Not perfect but better than nothing
         and works on older JDKs.
+
+    *   CacheStatistics is obtained using <<<cache.getCacheStatistics()>>> It then has getters for values.
+        In this way it feels like a value object. The ehcache implementation is Serializable so that
+        it can act as a DTO. However it also has a clearStatistics() method. This method clear counters
+        on the Cache. Clearly CacheStatistics must hold a reference to Cache to enable this to happen.
+
+        But what if you are really using it as a value object and have serialized it? The ehcache implementation marks the Cache
+        reference as <<<transient>>>. If clearStatistics() is called when the cache reference is no longer
+        there, an IllegalStateException is thrown.
+
+        A much better solution would be to move clearStatistics() to Cache.
 
 ** CacheListener
 

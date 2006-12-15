@@ -20,6 +20,7 @@ package net.sf.ehcache.jcache;
 import net.sf.ehcache.Statistics;
 
 import javax.cache.CacheStatistics;
+import java.io.Serializable;
 
 /**
  * A jsr107 CacheStatistics decorator for an ehcache Statistics class.
@@ -39,7 +40,7 @@ import javax.cache.CacheStatistics;
  * @author Greg Luck
  * @version $Id$
  */
-public class JCacheStatistics implements CacheStatistics {
+public class JCacheStatistics implements CacheStatistics, Serializable {
 
 
     private Statistics statistics;

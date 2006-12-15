@@ -42,6 +42,7 @@ import java.util.Set;
  *
  * @author Greg Luck, Claus Ibsen
  * @version $Id$
+ * todo release interface API as net.sf.opencache
  */
 public class JCacheTest extends AbstractCacheTest {
     private static final Log LOG = LogFactory.getLog(JCacheTest.class.getName());

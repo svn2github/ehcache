@@ -89,7 +89,7 @@ public class StatisticsTest extends AbstractCacheTest {
         //key1 should be in the Disk Store
         cache.get("key1");
 
-        Statistics statistics = (Statistics) cache.getStatistics();
+        Statistics statistics = cache.getStatistics();
         assertEquals(1, statistics.getCacheHits());
         assertEquals(1, statistics.getOnDiskHits());
         assertEquals(0, statistics.getInMemoryHits());
@@ -98,7 +98,7 @@ public class StatisticsTest extends AbstractCacheTest {
         //key 1 should now be in the LruMemoryStore
         cache.get("key1");
 
-        statistics = (Statistics) cache.getStatistics();
+        statistics = cache.getStatistics();
         assertEquals(2, statistics.getCacheHits());
         assertEquals(1, statistics.getOnDiskHits());
         assertEquals(1, statistics.getInMemoryHits());
@@ -109,13 +109,43 @@ public class StatisticsTest extends AbstractCacheTest {
 
         //key 1 should now be expired
         cache.get("key1");
-        statistics = (Statistics) cache.getStatistics();
+        statistics = cache.getStatistics();
         assertEquals(2, statistics.getCacheHits());
         assertEquals(1, statistics.getOnDiskHits());
         assertEquals(1, statistics.getInMemoryHits());
         assertEquals(2, statistics.getCacheMisses());
 
         assertNotNull(statistics.toString());
+    }
+
+
+    /**
+     * Test statistics directly from Statistics Object
+     */
+    public void testClearStatistics() throws InterruptedException {
+        //Set size so the second element overflows to disk.
+        Cache cache = new Cache("test", 1, true, false, 5, 2);
+        manager.addCache(cache);
+
+
+        cache.put(new Element("key1", "value1"));
+        cache.put(new Element("key2", "value1"));
+        //key1 should be in the Disk Store
+        cache.get("key1");
+
+        Statistics statistics = cache.getStatistics();
+        assertEquals(1, statistics.getCacheHits());
+        assertEquals(1, statistics.getOnDiskHits());
+        assertEquals(0, statistics.getInMemoryHits());
+        assertEquals(0, statistics.getCacheMisses());
+
+        //clear stats
+        statistics.clearStatistics();
+        statistics = cache.getStatistics();
+        assertEquals(0, statistics.getCacheHits());
+        assertEquals(0, statistics.getOnDiskHits());
+        assertEquals(0, statistics.getInMemoryHits());
+        assertEquals(0, statistics.getCacheMisses());
     }
 
 
