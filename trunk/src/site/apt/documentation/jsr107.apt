@@ -4,7 +4,7 @@ JSR107 (JCACHE) Support
 
     Ehcache provides an implementation of JSR107 via the <<<net.sf.cache.jcache>>> package.
 
-* Problems With JSR107
+* Problems With Specific Interfaces in JSR107
 
     If you are using ehcache through the jcache interface you need to be aware of some problems
     and limitations in the specification.
@@ -178,6 +178,14 @@ public interface CacheStatistics {
 
     Listeners often need not just the key, but the cache Entry itself. This listener interface
     is extremely limiting.
+
+
+
+*   Other Areas
+
+**  JMX
+
+     JSR107 is silent on JMX which has been included in the JDK since 1.5.
 
 
 
