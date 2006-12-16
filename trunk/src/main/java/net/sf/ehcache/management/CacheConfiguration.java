@@ -17,24 +17,47 @@
 package net.sf.ehcache.management;
 
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.CacheException;
+
+import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
+import java.io.Serializable;
 
 
 /**
  * A JMX MBean implementation and decorator to net.sf.ehcache.CacheConfiguration
+ *
  * @author Greg Luck
  * @version $Id$
+ * @since 1.3
  */
-public class CacheConfiguration implements CacheConfigurationMBean {
+public class CacheConfiguration implements CacheConfigurationMBean, Serializable {
+
+    private static final long serialVersionUID = -8944774509593267228L;
 
     private net.sf.ehcache.config.CacheConfiguration cacheConfiguration;
 
+    private ObjectName objectName;
+
     /**
      * Constructs using a backing CacheConfiguration
-     * @param cacheConfiguration
+     *
+     * @param cache
      */
-    public CacheConfiguration(net.sf.ehcache.config.CacheConfiguration cacheConfiguration) {
-        this.cacheConfiguration = cacheConfiguration;
+    public CacheConfiguration(net.sf.ehcache.Ehcache cache) {
+        createObjectName(cache);
+        cacheConfiguration = cache.getCacheConfiguration();
     }
+
+    private void createObjectName(net.sf.ehcache.Ehcache cache) {
+        try {
+            objectName = new ObjectName("sf.net.ehcache:type=CacheConfiguration,CacheManager="
+                    + cache.getCacheManager() + ",name=" + getName());
+        } catch (MalformedObjectNameException e) {
+            throw new CacheException(e);
+        }
+    }
+
 
     /**
      * Accessor
@@ -104,5 +127,13 @@ public class CacheConfiguration implements CacheConfigurationMBean {
      */
     public long getDiskExpiryThreadIntervalSeconds() {
         return cacheConfiguration.getDiskExpiryThreadIntervalSeconds();
+    }
+
+
+    /**
+     * @return the object name for this MBean
+     */
+    ObjectName getObjectName() {
+        return objectName;
     }
 }

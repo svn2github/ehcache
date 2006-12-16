@@ -19,6 +19,7 @@ package net.sf.ehcache.management;
 /**
  * @author Greg Luck
  * @version $Id$
+ * @since 1.3
  */
 public interface CacheStatisticsMBean {
 

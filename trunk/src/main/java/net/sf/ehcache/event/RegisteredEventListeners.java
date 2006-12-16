@@ -38,7 +38,7 @@ import java.util.Set;
 public final class RegisteredEventListeners {
 
     /**
-     * A Map of CacheEventListeners keyed by listener class.
+     * A Set of CacheEventListeners keyed by listener instance.
      * CacheEventListener implementations that will be notified of this cache's events.
      *
      * @see CacheEventListener

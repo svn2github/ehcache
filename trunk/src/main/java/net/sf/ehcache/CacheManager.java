@@ -23,6 +23,7 @@ import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.event.CacheManagerEventListener;
+import net.sf.ehcache.event.CacheManagerEventListenerRegistry;
 import net.sf.ehcache.store.DiskStore;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -85,14 +86,15 @@ public class CacheManager {
     private String diskStorePath;
 
     /**
-     * The CacheManagerEventListener which will be notified of significant events.
+     * A name for this CacheManager to distinguish it from others.
      */
-    private CacheManagerEventListener cacheManagerEventListener;
+    private String name;
 
     private Status status;
 
     private CacheManagerPeerProvider cacheManagerPeerProvider;
     private CacheManagerPeerListener cacheManagerPeerListener;
+    private CacheManagerEventListenerRegistry cacheManagerEventListenerRegistry = new CacheManagerEventListenerRegistry();
 
     /**
      * The shutdown hook thread for CacheManager. This ensures that the CacheManager and Caches are left in a
@@ -102,7 +104,7 @@ public class CacheManager {
      * Otherwise the CacheManager is not GC-able.
      * <p/>
      * Of course kill -9 or abrupt termination will not run the shutdown hook. In this case, various
-     * sanity checks are made at start up. 
+     * sanity checks are made at start up.
      */
     private Thread shutdownHook;
 
@@ -206,17 +208,20 @@ public class CacheManager {
 
         ConfigurationHelper configurationHelper = new ConfigurationHelper(this, localConfiguration);
         configure(configurationHelper);
-        addConfiguredCaches(configurationHelper);
 
         status = Status.STATUS_ALIVE;
-        if (cacheManagerPeerListener != null) {
-            cacheManagerPeerListener.init();
-        }
+
+
+
         if (cacheManagerPeerProvider != null) {
             cacheManagerPeerProvider.init();
         }
 
+        cacheManagerEventListenerRegistry.init();
+
         addShutdownHook();
+
+        addConfiguredCaches(configurationHelper);
     }
 
     /**
@@ -264,15 +269,17 @@ public class CacheManager {
 
         diskStorePath = configurationHelper.getDiskStorePath();
         detectAndFixDiskStorePathConflict(configurationHelper);
-
-        cacheManagerEventListener = configurationHelper.createCacheManagerEventListener();
+        //todo support multiple CacheManagerEventListeners in the config
+        cacheManagerEventListenerRegistry.registerListener(configurationHelper.createCacheManagerEventListener());
 
         cacheManagerPeerListener = configurationHelper.createCachePeerListener();
+        cacheManagerEventListenerRegistry.registerListener(cacheManagerPeerListener);
         detectAndFixCacheManagerPeerListenerConflict(configurationHelper);
 
         ALL_CACHE_MANAGERS.add(this);
 
         cacheManagerPeerProvider = configurationHelper.createCachePeerProvider();
+
         defaultCache = configurationHelper.createDefaultCache();
 
     }
@@ -467,7 +474,7 @@ public class CacheManager {
      * Consider using the {@link #getEhcache(String)} method which returns an interface
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
-     * @throws ClassCastException is the Ehcache found is not a Cache
+     * @throws ClassCastException    is the Ehcache found is not a Cache
      * @see #getEhcache(String)
      *
      */
@@ -581,7 +588,7 @@ public class CacheManager {
      */
     public synchronized void addCache(Cache cache) throws IllegalStateException,
             ObjectExistsException, CacheException {
-        addCache((Ehcache)cache);
+        addCache((Ehcache) cache);
     }
 
     /**
@@ -610,17 +617,12 @@ public class CacheManager {
         cache.setDiskStorePath(diskStorePath);
         cache.initialise();
         try {
-        cache.bootstrap();
+            cache.bootstrap();
         } catch (CacheException e) {
             LOG.warn("Cache " + cache.getName() + "requested bootstrap but a CacheException occured. " + e.getMessage(), e);
         }
         caches.put(cache.getName(), cache);
-        if (cacheManagerEventListener != null) {
-            cacheManagerEventListener.notifyCacheAdded(cache.getName());
-        }
-        if (cacheManagerPeerListener != null && status.equals(Status.STATUS_ALIVE)) {
-            cacheManagerPeerListener.notifyCacheAdded(cache.getName());
-        }
+        cacheManagerEventListenerRegistry.notifyCacheAdded(cache.getName());
     }
 
     /**
@@ -664,12 +666,7 @@ public class CacheManager {
         Ehcache cache = (Ehcache) caches.remove(cacheName);
         if (cache != null && cache.getStatus().equals(Status.STATUS_ALIVE)) {
             cache.dispose();
-            if (cacheManagerEventListener != null) {
-                cacheManagerEventListener.notifyCacheRemoved(cache.getName());
-            }
-            if (cacheManagerPeerListener != null && status.equals(Status.STATUS_ALIVE)) {
-                cacheManagerPeerListener.notifyCacheRemoved(cache.getName());
-            }
+            cacheManagerEventListenerRegistry.notifyCacheRemoved(cache.getName());
         }
     }
 
@@ -689,9 +686,9 @@ public class CacheManager {
         if (cacheManagerPeerProvider != null) {
             cacheManagerPeerProvider.dispose();
         }
-        if (cacheManagerPeerListener != null) {
-            cacheManagerPeerListener.dispose();
-        }
+
+        cacheManagerEventListenerRegistry.dispose();
+
         synchronized (CacheManager.class) {
             ALL_CACHE_MANAGERS.remove(this);
 
@@ -781,21 +778,33 @@ public class CacheManager {
     }
 
     /**
-     * Gets the CacheManager event listener.
+     * Returns the composite listener. A notification sent to this listener will notify all registered
+     * listeners.
      *
      * @return null if none
+     * @see "getCacheManagerEventListenerRegistry"
      */
     public CacheManagerEventListener getCacheManagerEventListener() {
-        return cacheManagerEventListener;
+        return cacheManagerEventListenerRegistry;
     }
 
     /**
-     * Sets the CacheManager event listener. Any existing listener is disposed and removed first.
+     * Same as getCacheManagerEventListenerRegistry().registerListener(cacheManagerEventListener);
+     * Left for backward compatiblity
      *
      * @param cacheManagerEventListener the listener to set.
+     * @deprecated Use getCacheManagerEventListenerRegistry instead
+     * @see "getCacheManagerEventListenerRegistry"
      */
     public void setCacheManagerEventListener(CacheManagerEventListener cacheManagerEventListener) {
-        this.cacheManagerEventListener = cacheManagerEventListener;
+        getCacheManagerEventListenerRegistry().registerListener(cacheManagerEventListener);
+    }
+
+    /**
+     * Gets the CacheManagerEventListenerRegistry. Add and remove listeners here.
+     */
+    public CacheManagerEventListenerRegistry getCacheManagerEventListenerRegistry() {
+        return cacheManagerEventListenerRegistry;
     }
 
     /**
@@ -829,6 +838,7 @@ public class CacheManager {
      * Note that any overwritten Ehcache methods will take on new behaviours without casting. Casting is only required
      * for new methods that the decorator introduces.
      * For more information see the well known Gang of Four Decorator pattern.
+     *
      * @param cache
      * @param decoratedCache An implementation of Ehcache that wraps the original cache.
      * @throws CacheException if the two caches do not equal each other.
@@ -843,6 +853,36 @@ public class CacheManager {
             caches.put(cache.getName(), decoratedCache);
         }
 
+    }
+
+    /**
+     * Gets the name of the CacheManager. This is useful for distinguishing multiple CacheManagers
+     * @return the name, or null if there is not one.
+     * @see #toString() which uses either the name or Object.toString()
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the name of the CacheManager. This is useful for distinguishing multiple CacheManagers
+     * in a monitoring situation.
+     * @param name a name with characters legal in a JMX ObjectName
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+
+    /**
+     * @return either the name of this CacheManager, or if unset, Object.toString()
+     */
+    public String toString() {
+        if (name != null) {
+            return name;
+        } else {
+            return super.toString();
+        }
     }
 }
 

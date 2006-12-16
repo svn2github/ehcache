@@ -20,10 +20,14 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.Ehcache;
 
+import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
+
 /**
  * A JMX MBean implementation for Cache
  * @author Greg Luck
  * @version $Id$
+ * @since 1.3
  */
 public class Cache implements CacheMBean {
 
@@ -31,6 +35,7 @@ public class Cache implements CacheMBean {
      * An Ehcache backing instance
      */
     private Ehcache cache;
+    private ObjectName objectName;
 
 
     /**
@@ -46,10 +51,20 @@ public class Cache implements CacheMBean {
      * Only the CacheManager can initialise them.
      *
      * @param cache An ehcache
-     * @since 1.3
+     * @throws net.sf.ehcache.CacheException
      */
-    public Cache(Ehcache cache) {
+    public Cache(Ehcache cache) throws CacheException {
         this.cache = cache;
+        createObjectName(cache);
+    }
+
+    private void createObjectName(Ehcache cache) {
+        try {
+            objectName = new ObjectName("sf.net.ehcache:type=Cache,CacheManager="
+                    + cache.getCacheManager() + ",name=" + getName());
+        } catch (MalformedObjectNameException e) {
+            throw new CacheException(e);
+        }
     }
 
 
@@ -91,7 +106,7 @@ public class Cache implements CacheMBean {
      * Gets the JMX read-only CacheConfiguration
      */
     public CacheConfiguration getCacheConfiguration() {
-        return new CacheConfiguration(cache.getCacheConfiguration()); 
+        return new CacheConfiguration(cache);
     }
 
     /**
@@ -99,5 +114,13 @@ public class Cache implements CacheMBean {
      */
     public CacheStatistics getStatistics() {
         return new CacheStatistics(cache.getStatistics());
+    }
+
+
+    /**
+     * @return the object name for this MBean
+     */
+    ObjectName getObjectName() {
+        return objectName;
     }
 }

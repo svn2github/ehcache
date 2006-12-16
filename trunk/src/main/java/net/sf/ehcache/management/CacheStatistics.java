@@ -17,11 +17,16 @@
 package net.sf.ehcache.management;
 
 import net.sf.ehcache.Statistics;
+import net.sf.ehcache.CacheException;
+
+import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
+import java.io.Serializable;
 
 
 /**
  * A JMX CacheStatistics decorator for an ehcache Statistics class.
- *
+ * <p/>
  * An immutable Cache statistics implementation}
  * <p/>
  * This is like a value object, with the added ability to clear cache statistics on the cache.
@@ -36,11 +41,15 @@ import net.sf.ehcache.Statistics;
  *
  * @author Greg Luck
  * @version $Id$
+ * @since 1.3
  */
-public class CacheStatistics implements CacheStatisticsMBean {
+public class CacheStatistics implements CacheStatisticsMBean, Serializable {
 
+    private static final long serialVersionUID = 8085302752781762030L;
 
     private Statistics statistics;
+
+    private ObjectName objectName;
 
     /**
      * Constructs an object from an ehcache statistics object
@@ -48,8 +57,19 @@ public class CacheStatistics implements CacheStatisticsMBean {
      * @param statistics the Statistics object this object decorates.
      */
     public CacheStatistics(Statistics statistics) {
-            this.statistics = statistics;
+        this.statistics = statistics;
+        createObjectName(statistics.getAssociatedCache());
     }
+
+    private void createObjectName(net.sf.ehcache.Ehcache cache) {
+        try {
+            objectName = new ObjectName("sf.net.ehcache:type=CacheStatistics,CacheManager="
+                    + cache.getCacheManager() + ",name=" + cache.getName());
+        } catch (MalformedObjectNameException e) {
+            throw new CacheException(e);
+        }
+    }
+
 
     /**
      * Accurately measuring statistics can be expensive. Returns the current accuracy setting used
@@ -80,6 +100,7 @@ public class CacheStatistics implements CacheStatisticsMBean {
      * <p/>
      * Warning. This statistic is recorded as a long. If the statistic is large than Integer#MAX_VALUE
      * precision will be lost.
+     *
      * @return the number of times a requested item was found in the cache
      */
     public long getCacheHits() {
@@ -107,6 +128,7 @@ public class CacheStatistics implements CacheStatisticsMBean {
     /**
      * Warning. This statistic is recorded as a long. If the statistic is large than Integer#MAX_VALUE
      * precision will be lost.
+     *
      * @return the number of times a requested element was not found in the cache
      */
     public long getCacheMisses() {
@@ -149,6 +171,14 @@ public class CacheStatistics implements CacheStatisticsMBean {
      */
     public long getObjectCount() {
         return statistics.getObjectCount();
+    }
+
+
+    /**
+     * @return the object name for this MBean
+     */
+    ObjectName getObjectName() {
+        return objectName;
     }
 
 }

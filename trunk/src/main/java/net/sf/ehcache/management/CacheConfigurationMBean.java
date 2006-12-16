@@ -22,6 +22,7 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
  * A JMX MBean interface for the configuration of a cache
  * @author Greg Luck
  * @version $Id$
+ * @since 1.3
  */
 public interface CacheConfigurationMBean {
 

@@ -17,7 +17,6 @@
 package net.sf.ehcache.distribution;
 
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CacheManagerEventListener;
 
 import java.util.List;
@@ -29,29 +28,12 @@ import java.util.List;
  */
 public interface CacheManagerPeerListener extends CacheManagerEventListener {
 
-
-    /**
-     * Call to start the listeners and do any other network initialisation.
-     * @throws CacheException
-     */
-    void init() throws CacheException;
-
-    /**
-     * Stop the listener and free any resources.
-     * @throws CacheException
-     */
-    void dispose() throws CacheException;
-
     /**
      * All of the caches which are listenting for remote changes.
      * @return a list of <code>CachePeer</code> objects
      */
     List getBoundCachePeers();
 
-    /**
-     * Returns the listener status.
-     */
-    Status getStatus();
 
 
     /**
@@ -66,11 +48,8 @@ public interface CacheManagerPeerListener extends CacheManagerEventListener {
     /**
      * If a conflict is detected in unique resource use, this method signals the listener to attempt
      * automatic resolution of the resource conflict.
-     * @throws IllegalStateException if the statis of the listener is not {@link Status#STATUS_UNINITIALISED}
+     * @throws IllegalStateException if the statis of the listener is not {@link net.sf.ehcache.Status#STATUS_UNINITIALISED}
      */
     void attemptResolutionOfUniqueResourceConflict() throws IllegalStateException, CacheException;
-
-
-
 
 }

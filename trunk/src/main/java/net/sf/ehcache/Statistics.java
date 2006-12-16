@@ -39,7 +39,6 @@ import java.io.Serializable;
  *
  * @author Greg Luck
  * @version $Id$
- *          todo JMXify
  */
 public class Statistics implements Serializable {
 
@@ -198,11 +197,24 @@ public class Statistics implements Serializable {
     }
 
     /**
-     * @return the name of the Ehcache, or null is there no associated cache
+     * @return the name of the Ehcache, or null if a reference is no longer held to the cache,
+     * as, it would be after deserialization.
      */
     public String getAssociatedCacheName() {
         if (cache != null) {
             return cache.getName();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @return the name of the Ehcache, or null if a reference is no longer held to the cache,
+     * as, it would be after deserialization.
+     */
+    public Ehcache getAssociatedCache() {
+        if (cache != null) {
+            return cache;
         } else {
             return null;
         }

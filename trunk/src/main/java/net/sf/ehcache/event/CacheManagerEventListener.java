@@ -16,10 +16,21 @@
 
 package net.sf.ehcache.event;
 
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Status;
+
 /**
  * Allows implementers to register callback methods that will be executed when a
  * <code>CacheManager</code> event occurs.
- * The events include:
+ *
+ * The lifecycle events are:
+ * <ol>
+ * <li>init
+ * <li>dispose
+ * </ol>
+ *
+ *
+ * Cache change events are:
  * <ol>
  * <li>adding a <code>Cache</code>
  * <li>removing a <code>Cache</code>
@@ -35,6 +46,24 @@ package net.sf.ehcache.event;
  */
 public interface CacheManagerEventListener {
 
+    /**
+     * Call to start the listeners and do any other required initialisation.
+     * @throws CacheException - all exceptions are wrapped in CacheException
+     */
+    void init() throws CacheException;
+
+
+    /**
+     * Returns the listener status.
+     * @return the status at the point in time the method is called
+     */
+    Status getStatus();
+
+    /**
+     * Stop the listener and free any resources.
+     * @throws CacheException - all exceptions are wrapped in CacheException
+     */
+    void dispose() throws CacheException;
 
     /**
      * Called immediately after a cache has been added and activated.

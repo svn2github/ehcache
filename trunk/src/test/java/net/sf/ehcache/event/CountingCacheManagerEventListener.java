@@ -16,6 +16,9 @@
 
 package net.sf.ehcache.event;
 
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Status;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +54,33 @@ public class CountingCacheManagerEventListener implements CacheManagerEventListe
      */
     public static List getCacheNamesRemoved() {
         return cacheNamesRemoved;
+    }
+
+    /**
+     * Call to start the listeners and do any other required initialisation.
+     *
+     * @throws net.sf.ehcache.CacheException - all exceptions are wrapped in CacheException
+     */
+    public void init() throws CacheException {
+        //noop
+    }
+
+    /**
+     * Returns the listener status.
+     *
+     * @return the status at the point in time the method is called
+     */
+    public Status getStatus() {
+        return Status.STATUS_ALIVE;
+    }
+
+    /**
+     * Stop the listener and free any resources.
+     *
+     * @throws net.sf.ehcache.CacheException - all exceptions are wrapped in CacheException
+     */
+    public void dispose() throws CacheException {
+        //noop
     }
 
     /**

@@ -23,6 +23,7 @@ import java.util.List;
 /**
  * @author Greg Luck
  * @version $Id$
+ * @since 1.3
  */
 public interface CacheManagerMBean {
 

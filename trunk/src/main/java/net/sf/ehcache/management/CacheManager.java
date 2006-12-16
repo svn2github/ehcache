@@ -17,24 +17,39 @@
 package net.sf.ehcache.management;
 
 import net.sf.ehcache.Status;
+import net.sf.ehcache.CacheException;
 
+import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 import java.util.List;
 import java.util.ArrayList;
 
 /**
  * @author Greg Luck
  * @version $Id$
+ * @since 1.3
  */
 public class CacheManager implements CacheManagerMBean {
 
     private net.sf.ehcache.CacheManager cacheManager;
+    private ObjectName objectName;
 
     /**
      * Create a management CacheManager
      * @param cacheManager
+     * @throws net.sf.ehcache.CacheException
      */
-    public CacheManager(net.sf.ehcache.CacheManager cacheManager) {
+    public CacheManager(net.sf.ehcache.CacheManager cacheManager) throws CacheException {
         this.cacheManager = cacheManager;
+        createObjectName(cacheManager);
+    }
+
+    private void createObjectName(net.sf.ehcache.CacheManager cacheManager) {
+        try {
+            objectName = new ObjectName("sf.net.ehcache:type=CacheManager,name=" + cacheManager.toString());
+        } catch (MalformedObjectNameException e) {
+            throw new CacheException(e);
+        }
     }
 
     /**
@@ -95,5 +110,13 @@ public class CacheManager implements CacheManagerMBean {
             cacheList.add(cache);
         }
         return cacheList;
+    }
+
+
+    /**
+     * @return the object name for this MBean
+     */
+    ObjectName getObjectName() {
+        return objectName;
     }
 }

@@ -83,15 +83,6 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MAVEN_REPOSITORY_PATH$/commons-collections/commons-collections/2.1/commons-collections-2.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
           <root url="jar://$MAVEN_REPOSITORY_PATH$/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar!/" />
         </CLASSES>
         <JAVADOC />

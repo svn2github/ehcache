@@ -80,7 +80,7 @@ public class CacheManagerEventListenerTest extends TestCase {
 
         CacheManager manager = new CacheManager();
         manager.removalAll();
-        manager.setCacheManagerEventListener(countingCacheManagerEventListener);
+        manager.getCacheManagerEventListenerRegistry().registerListener(countingCacheManagerEventListener);
 
         for (int i = 0; i < 10; i++) {
             manager.addCache("" + i);

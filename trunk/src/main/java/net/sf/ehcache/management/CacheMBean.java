@@ -24,8 +24,7 @@ import net.sf.ehcache.Status;
  *
  * @author Greg Luck
  * @version $Id$
- *
- *
+ * @since 1.3
  */
 public interface CacheMBean {
 

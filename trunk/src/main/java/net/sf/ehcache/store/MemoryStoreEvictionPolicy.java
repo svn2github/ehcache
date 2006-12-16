@@ -19,10 +19,12 @@ package net.sf.ehcache.store;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.Serializable;
+
 /**
  * A typesafe enumeration of eviction policies.
  * The policy used to evict elements from the {@link net.sf.ehcache.store.MemoryStore}.
- * This can be one of:
+ * This can be one of:                                                                
  * <ol>
  * <li>LRU - least recently used
  * <li>LFU - least frequently used
@@ -34,7 +36,7 @@ import org.apache.commons.logging.LogFactory;
  * @version $Id$
  * @since 1.2
  */
-public final class MemoryStoreEvictionPolicy {
+public final class MemoryStoreEvictionPolicy implements Serializable {
 
     /**
      * LRU - least recently used.
