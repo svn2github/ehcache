@@ -20,8 +20,8 @@ import junit.framework.TestCase;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 
 /**
  * Uses a counting listener to make sure all the notifications came through
@@ -56,14 +56,17 @@ public class CacheManagerEventListenerTest extends TestCase {
         CacheManager manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-countinglisteners.xml");
         assertNotNull(manager);
         assertEquals(10, manager.getCacheNames().length);
-        assertEquals(10, CountingCacheManagerEventListener.getCacheNamesAdded().size());
+        //We do not notify initial config (as of 1,3)
+        assertEquals(0, CountingCacheManagerEventListener.getCacheNamesAdded().size());
 
-        for (int i = 0; i < 10; i++) {
-            String cacheName = (String) CountingCacheManagerEventListener.getCacheNamesAdded().get(i);
+
+        String[] cacheNames = manager.getCacheNames();
+        for (int i = 0; i < cacheNames.length; i++) {
+            String cacheName = cacheNames[i];
             manager.removeCache(cacheName);
             assertEquals(i + 1, CountingCacheManagerEventListener.getCacheNamesRemoved().size());
-
         }
+
         manager.shutdown();
     }
 
