@@ -30,12 +30,15 @@ import net.sf.ehcache.Status;
  * </ol>
  *
  *
- * Cache change events are:
+ * CacheManager change events are:
  * <ol>
  * <li>adding a <code>Cache</code>
  * <li>removing a <code>Cache</code>
  * </ol>
- * <p/>
+ *
+ * Note that the caches that are part of the initial configuration are not considered "changes".
+ * It is only caches added or removed beyond the initial config.
+ *
  * Callbacks to these methods are synchronous and unsynchronized. It is the responsibility of
  * the implementer to safely handle the potential performance and thread safety issues
  * depending on what their listener is doing.
@@ -48,6 +51,7 @@ public interface CacheManagerEventListener {
 
     /**
      * Call to start the listeners and do any other required initialisation.
+     * init should also handle any work to do with the caches that are part of the initial configuration.
      * @throws CacheException - all exceptions are wrapped in CacheException
      */
     void init() throws CacheException;

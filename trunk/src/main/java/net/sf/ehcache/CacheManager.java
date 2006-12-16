@@ -208,20 +208,16 @@ public class CacheManager {
 
         ConfigurationHelper configurationHelper = new ConfigurationHelper(this, localConfiguration);
         configure(configurationHelper);
+        addConfiguredCaches(configurationHelper);
 
         status = Status.STATUS_ALIVE;
-
-
+        cacheManagerEventListenerRegistry.init();
 
         if (cacheManagerPeerProvider != null) {
             cacheManagerPeerProvider.init();
         }
 
-        cacheManagerEventListenerRegistry.init();
-
         addShutdownHook();
-
-        addConfiguredCaches(configurationHelper);
     }
 
     /**
@@ -622,7 +618,11 @@ public class CacheManager {
             LOG.warn("Cache " + cache.getName() + "requested bootstrap but a CacheException occured. " + e.getMessage(), e);
         }
         caches.put(cache.getName(), cache);
-        cacheManagerEventListenerRegistry.notifyCacheAdded(cache.getName());
+
+        //Don't notify initial config. The init method of each listener should take care of this.
+        if (status.equals(Status.STATUS_ALIVE)) {
+            cacheManagerEventListenerRegistry.notifyCacheAdded(cache.getName());
+        }
     }
 
     /**
