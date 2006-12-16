@@ -299,55 +299,37 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
+      <file leaf-file-name="ManualRMIPeerProviderTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/ManualRMIPeerProviderTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="25" column="32" selection-start="914" selection-end="914" vertical-scroll-proportion="0.14117648">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MulticastRMIPeerProviderTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/MulticastRMIPeerProviderTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="115" column="43" selection-start="3574" selection-end="3574" vertical-scroll-proportion="0.014117647">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="CacheManager.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="228" column="40" selection-start="8973" selection-end="8973" vertical-scroll-proportion="0.59469026">
+            <state line="618" column="72" selection-start="26477" selection-end="26477" vertical-scroll-proportion="0.014371257">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CacheManagerEventListener.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/CacheManagerEventListener.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="53" column="105" selection-start="1825" selection-end="1825" vertical-scroll-proportion="0.6413793">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ManagementBeanRegistry.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/ManagementBeanRegistry.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="115" column="16" selection-start="4968" selection-end="4968" vertical-scroll-proportion="0.33275864">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="JNDIRMICacheManagerPeerListener.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDIRMICacheManagerPeerListener.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="69" column="47" selection-start="2869" selection-end="2869" vertical-scroll-proportion="0.57931036">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Naming.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/rmi/Naming.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="159" column="0" selection-start="5952" selection-end="5952" vertical-scroll-proportion="0.7258621">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="RMICacheReplicatorTest.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="RMICacheReplicatorTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="44" column="64" selection-start="1465" selection-end="1465" vertical-scroll-proportion="0.14336284">
+            <state line="239" column="74" selection-start="7228" selection-end="7228" vertical-scroll-proportion="0.014371257">
               <folding />
             </state>
           </provider>
@@ -356,27 +338,43 @@
       <file leaf-file-name="LruMemoryStore.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/LruMemoryStore.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="52" column="0" selection-start="1861" selection-end="1861" vertical-scroll-proportion="0.66206896">
+            <state line="52" column="0" selection-start="1861" selection-end="1861" vertical-scroll-proportion="0.014117647">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FifoMemoryStore.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="FifoMemoryStore.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/FifoMemoryStore.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="26" column="56" selection-start="914" selection-end="914" vertical-scroll-proportion="0.24827586">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
+            <state line="27" column="80" selection-start="936" selection-end="936" vertical-scroll-proportion="0.014117647">
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="JNDIRMICacheReplicatorTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/JNDIRMICacheReplicatorTest.java">
+      <file leaf-file-name="CacheManagerPeerProvider.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/CacheManagerPeerProvider.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="58" column="0" selection-start="2036" selection-end="2036" vertical-scroll-proportion="0.33275864">
+            <state line="28" column="39" selection-start="985" selection-end="985" vertical-scroll-proportion="0.15529412">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CacheManagerPeerListener.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/CacheManagerPeerListener.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="28" column="64" selection-start="1004" selection-end="1004" vertical-scroll-proportion="0.15529412">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CacheManagerEventListener.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/CacheManagerEventListener.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="88" column="0" selection-start="3219" selection-end="3219" vertical-scroll-proportion="0.6623529">
               <folding />
             </state>
           </provider>
@@ -385,7 +383,7 @@
       <file leaf-file-name="RMICacheManagerPeerListener.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="189" column="16" selection-start="7158" selection-end="7158" vertical-scroll-proportion="0.33274338">
+            <state line="463" column="16" selection-start="17612" selection-end="17612" vertical-scroll-proportion="0.014371257">
               <folding />
             </state>
           </provider>
@@ -469,7 +467,7 @@
     <option name="SERVER_TIMEOUT" value="20000" />
   </component>
   <component name="ProjectLevelMessagesProcessor">
-    <session>&lt;jetbrains.buildServer.delayedCommit.RemoteRunSessionData&gt; &lt;myPathToNumber&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/site/apt/documentation/jsr107.apt&lt;/string&gt; &lt;null/&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheFactory.java&lt;/string&gt; &lt;string&gt;248&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/jcache/CacheManagerTest.java&lt;/string&gt; &lt;string&gt;248&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/site/apt/documentation/index.apt&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/ehcache.iml&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/ehcache.ipr&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/CacheListenerAdaptor.java&lt;/string&gt; &lt;string&gt;248&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/RegisteredEventListeners.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/pom.xml&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java&lt;/string&gt; &lt;string&gt;248&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/build.xml&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/RELEASE_NOTES.txt&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/StatisticsTest.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/tools/jcache-not_released.jar&lt;/string&gt; &lt;null/&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/Entry.java&lt;/string&gt; &lt;string&gt;248&lt;/string&gt; &lt;/entry&gt; &lt;/myPathToNumber&gt; &lt;myPathToCheckSum&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/site/apt/documentation/jsr107.apt&lt;/string&gt; &lt;string&gt;a8a40906c4ba0b0d7229c6782468e56c&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheFactory.java&lt;/string&gt; &lt;string&gt;f2616b59df29796d2155cb812b271694&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/jcache/CacheManagerTest.java&lt;/string&gt; &lt;string&gt;ddb8448b462eb89cac0a1475e8ec2810&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/site/apt/documentation/index.apt&lt;/string&gt; &lt;string&gt;35d8a77b0915470db37e67f352bb3314&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/ehcache.iml&lt;/string&gt; &lt;string&gt;565ccdec2e4185b6c32e09657cef61bc&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/ehcache.ipr&lt;/string&gt; &lt;string&gt;0a48cf2858d624abe7b3878c3074200c&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/CacheListenerAdaptor.java&lt;/string&gt; &lt;string&gt;19508d367186a4ab0273f58f469f83cc&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/RegisteredEventListeners.java&lt;/string&gt; &lt;string&gt;23fcbdf8f763c38a842570986423a38e&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java&lt;/string&gt; &lt;string&gt;8ab7c24a55f945ef69005228c2fb93e4&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/pom.xml&lt;/string&gt; &lt;string&gt;0b90d964e57ded599ed20d65917e1787&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java&lt;/string&gt; &lt;string&gt;61e8bc973523557ef913ed24f90e9625&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/build.xml&lt;/string&gt; &lt;string&gt;871b71ab813ba762e67ae41990338911&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/RELEASE_NOTES.txt&lt;/string&gt; &lt;string&gt;40d1907ece1967bade7c882c1f5054b4&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java&lt;/string&gt; &lt;string&gt;dfb525138748c39ac815fe7cf2a46b82&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java&lt;/string&gt; &lt;string&gt;a72be5dc3d012f256868caab2c223db3&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/StatisticsTest.java&lt;/string&gt; &lt;string&gt;a864661db13a699ad4574173a6fc2261&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/tools/jcache-not_released.jar&lt;/string&gt; &lt;string&gt;e2e59fe7ecfab79448d0a0892b227ff0&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java&lt;/string&gt; &lt;string&gt;464279b495bee8788221e80dfc033c6f&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java&lt;/string&gt; &lt;string&gt;dcb94348eb52d7e92c3dc36662cf8f08&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/Entry.java&lt;/string&gt; &lt;string&gt;fbd34c171275a97a5cde56a09b9cc28f&lt;/string&gt; &lt;/entry&gt; &lt;/myPathToCheckSum&gt; &lt;myBuildTypeIdToBuildStatus&gt; &lt;entry&gt; &lt;string&gt;bt1&lt;/string&gt; &lt;jetbrains.buildServer.messages.Status&gt;4&lt;/jetbrains.buildServer.messages.Status&gt; &lt;/entry&gt; &lt;/myBuildTypeIdToBuildStatus&gt; &lt;myFinishedBuilds&gt; &lt;entry&gt; &lt;string&gt;bt1&lt;/string&gt; &lt;long&gt;60&lt;/long&gt; &lt;/entry&gt; &lt;/myFinishedBuilds&gt; &lt;myChangeId&gt;58&lt;/myChangeId&gt; &lt;myFile&gt;/Users/gluck/Library/Caches/IntelliJIDEA60/buildServer/11650394666970&lt;/myFile&gt; &lt;myComment&gt;Merge the jcache branch into trunk.&lt;/myComment&gt; &lt;myPerformCommit&gt;true&lt;/myPerformCommit&gt; &lt;myRequestConfirmation&gt;false&lt;/myRequestConfirmation&gt; &lt;/jetbrains.buildServer.delayedCommit.RemoteRunSessionData&gt;</session>
+    <session>&lt;jetbrains.buildServer.delayedCommit.RemoteRunSessionData&gt; &lt;myPathToNumber&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/site/apt/documentation/jsr107.apt&lt;/string&gt; &lt;null/&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheFactory.java&lt;/string&gt; &lt;string&gt;248&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/jcache/CacheManagerTest.java&lt;/string&gt; &lt;string&gt;248&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/site/apt/documentation/index.apt&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/ehcache.iml&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/ehcache.ipr&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/CacheListenerAdaptor.java&lt;/string&gt; &lt;string&gt;248&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/RegisteredEventListeners.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/pom.xml&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java&lt;/string&gt; &lt;string&gt;248&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/build.xml&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/RELEASE_NOTES.txt&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/StatisticsTest.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java&lt;/string&gt; &lt;string&gt;252&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/tools/jcache-not_released.jar&lt;/string&gt; &lt;null/&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/Entry.java&lt;/string&gt; &lt;string&gt;248&lt;/string&gt; &lt;/entry&gt; &lt;/myPathToNumber&gt; &lt;myPathToCheckSum&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/site/apt/documentation/jsr107.apt&lt;/string&gt; &lt;string&gt;a8a40906c4ba0b0d7229c6782468e56c&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheFactory.java&lt;/string&gt; &lt;string&gt;f2616b59df29796d2155cb812b271694&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/jcache/CacheManagerTest.java&lt;/string&gt; &lt;string&gt;ddb8448b462eb89cac0a1475e8ec2810&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/site/apt/documentation/index.apt&lt;/string&gt; &lt;string&gt;35d8a77b0915470db37e67f352bb3314&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/ehcache.iml&lt;/string&gt; &lt;string&gt;565ccdec2e4185b6c32e09657cef61bc&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/ehcache.ipr&lt;/string&gt; &lt;string&gt;0a48cf2858d624abe7b3878c3074200c&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/CacheListenerAdaptor.java&lt;/string&gt; &lt;string&gt;19508d367186a4ab0273f58f469f83cc&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/RegisteredEventListeners.java&lt;/string&gt; &lt;string&gt;23fcbdf8f763c38a842570986423a38e&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java&lt;/string&gt; &lt;string&gt;8ab7c24a55f945ef69005228c2fb93e4&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/pom.xml&lt;/string&gt; &lt;string&gt;0b90d964e57ded599ed20d65917e1787&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java&lt;/string&gt; &lt;string&gt;61e8bc973523557ef913ed24f90e9625&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/build.xml&lt;/string&gt; &lt;string&gt;871b71ab813ba762e67ae41990338911&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/RELEASE_NOTES.txt&lt;/string&gt; &lt;string&gt;40d1907ece1967bade7c882c1f5054b4&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java&lt;/string&gt; &lt;string&gt;dfb525138748c39ac815fe7cf2a46b82&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/test/java/net/sf/ehcache/StatisticsTest.java&lt;/string&gt; &lt;string&gt;a864661db13a699ad4574173a6fc2261&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java&lt;/string&gt; &lt;string&gt;a72be5dc3d012f256868caab2c223db3&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java&lt;/string&gt; &lt;string&gt;dcb94348eb52d7e92c3dc36662cf8f08&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java&lt;/string&gt; &lt;string&gt;464279b495bee8788221e80dfc033c6f&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/tools/jcache-not_released.jar&lt;/string&gt; &lt;string&gt;e2e59fe7ecfab79448d0a0892b227ff0&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/Entry.java&lt;/string&gt; &lt;string&gt;fbd34c171275a97a5cde56a09b9cc28f&lt;/string&gt; &lt;/entry&gt; &lt;/myPathToCheckSum&gt; &lt;myBuildTypeIdToBuildStatus&gt; &lt;entry&gt; &lt;string&gt;bt1&lt;/string&gt; &lt;jetbrains.buildServer.messages.Status&gt;4&lt;/jetbrains.buildServer.messages.Status&gt; &lt;/entry&gt; &lt;/myBuildTypeIdToBuildStatus&gt; &lt;myFinishedBuilds&gt; &lt;entry&gt; &lt;string&gt;bt1&lt;/string&gt; &lt;long&gt;60&lt;/long&gt; &lt;/entry&gt; &lt;/myFinishedBuilds&gt; &lt;myChangeId&gt;58&lt;/myChangeId&gt; &lt;myFile&gt;/Users/gluck/Library/Caches/IntelliJIDEA60/buildServer/11650394666970&lt;/myFile&gt; &lt;myComment&gt;Merge the jcache branch into trunk.&lt;/myComment&gt; &lt;myPerformCommit&gt;true&lt;/myPerformCommit&gt; &lt;myRequestConfirmation&gt;false&lt;/myRequestConfirmation&gt; &lt;/jetbrains.buildServer.delayedCommit.RemoteRunSessionData&gt;</session>
     <session>&lt;jetbrains.buildServer.delayedCommit.RemoteRunSessionData&gt; &lt;myPathToNumber&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/site/apt/documentation/jsr107.apt&lt;/string&gt; &lt;string&gt;272&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java&lt;/string&gt; &lt;string&gt;272&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/Statistics.java&lt;/string&gt; &lt;string&gt;272&lt;/string&gt; &lt;/entry&gt; &lt;/myPathToNumber&gt; &lt;myPathToCheckSum&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/site/apt/documentation/jsr107.apt&lt;/string&gt; &lt;string&gt;2b5d62da838bfef5493a8ea61c9061d7&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java&lt;/string&gt; &lt;string&gt;37487fa15447baca20f285cbc64f6cdf&lt;/string&gt; &lt;/entry&gt; &lt;entry&gt; &lt;string&gt;$PROJECT_DIR$/src/main/java/net/sf/ehcache/Statistics.java&lt;/string&gt; &lt;string&gt;19e4fd4ca7cfa6978a6d17fd12862d82&lt;/string&gt; &lt;/entry&gt; &lt;/myPathToCheckSum&gt; &lt;myBuildTypeIdToBuildStatus&gt; &lt;entry&gt; &lt;string&gt;bt1&lt;/string&gt; &lt;jetbrains.buildServer.messages.Status&gt;4&lt;/jetbrains.buildServer.messages.Status&gt; &lt;/entry&gt; &lt;/myBuildTypeIdToBuildStatus&gt; &lt;myFinishedBuilds&gt; &lt;entry&gt; &lt;string&gt;bt1&lt;/string&gt; &lt;long&gt;82&lt;/long&gt; &lt;/entry&gt; &lt;/myFinishedBuilds&gt; &lt;myChangeId&gt;80&lt;/myChangeId&gt; &lt;myFile&gt;/Users/gluck/Library/Caches/IntelliJIDEA60/buildServer/11655634465770&lt;/myFile&gt; &lt;myComment&gt;Created extra JCacheTests. Changed the ints that the Statistics constants map to.&lt;/myComment&gt; &lt;myPerformCommit&gt;true&lt;/myPerformCommit&gt; &lt;myRequestConfirmation&gt;false&lt;/myRequestConfirmation&gt; &lt;/jetbrains.buildServer.delayedCommit.RemoteRunSessionData&gt;</session>
   </component>
   <component name="ProjectLevelVcsManager">
@@ -1313,7 +1311,7 @@
       <showLibraryContents />
       <hideEmptyPackages />
       <abbreviatePackageNames />
-      <showStructure PackagesPane="false" ProjectPane="false" Scope="false" Favorites="false" />
+      <showStructure Favorites="false" PackagesPane="false" Scope="false" ProjectPane="false" />
       <autoscrollToSource />
       <autoscrollFromSource />
       <sortByType />
@@ -1581,7 +1579,7 @@
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.29222223" order="2" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.29222223" order="2" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24951644" order="2" />
       <window_info id="File View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39777777" order="4" />
@@ -1610,7 +1608,7 @@
     <option name="PERFORM_COMMIT_IN_BACKGROUND" value="false" />
     <option name="PUT_FOCUS_INTO_COMMENT" value="false" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactored CacheManagerEventListeners to hook in JMX. Got JMX ready for testing with a few todos. Removed the commons-collections stuff again(came back in a merge)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added some JMX tests" />
     <option name="SAVE_LAST_COMMIT_MESSAGE" value="true" />
     <option name="CHECKIN_DIALOG_SPLITTER_PROPORTION" value="0.8" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
@@ -1623,6 +1621,7 @@
     <option name="UPDATE_GROUP_BY_PACKAGES" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
+    <MESSAGE value="Another JCacheTest implemented." />
     <MESSAGE value="Another 2 JCacheTest tests implemented." />
     <MESSAGE value="Created new JCacheStatistics which wraps Statistics." />
     <MESSAGE value="Created extra JCacheTests. Changed the ints that the Statistics constants map to." />
@@ -1632,7 +1631,6 @@
     <MESSAGE value="Tested JCacheStatistics" />
     <MESSAGE value="Initial JMX MBeans based on standard MBeans" />
     <MESSAGE value="Added some JMX tests" />
-    <MESSAGE value="Refactored CacheManagerEventListeners to hook in JMX. Got JMX ready for testing with a few todos. Removed the commons-collections stuff again(came back in a merge)" />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -1685,6 +1683,42 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/CacheManagerEventListenerRegistry.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="52" column="26" selection-start="1623" selection-end="1623" vertical-scroll-proportion="0.32705882">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheStatistics.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="47" column="4" selection-start="1789" selection-end="1789" vertical-scroll-proportion="0.16886227">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/ManagementBeanRegistry.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="51" column="9" selection-start="2213" selection-end="2213" vertical-scroll-proportion="0.21411765">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStoreEvictionPolicy.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="26" column="86" selection-start="983" selection-end="983" vertical-scroll-proportion="0.20689656">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/event/CountingCacheManagerEventListener.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="42" column="76" selection-start="1246" selection-end="1246" vertical-scroll-proportion="0.5097345">
@@ -1699,6 +1733,34 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/MulticastRMIPeerProviderTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="115" column="43" selection-start="3574" selection-end="3574" vertical-scroll-proportion="0.014117647">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="618" column="72" selection-start="26477" selection-end="26477" vertical-scroll-proportion="0.014371257">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="239" column="74" selection-start="7228" selection-end="7228" vertical-scroll-proportion="0.014371257">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/LruMemoryStore.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="52" column="0" selection-start="1861" selection-end="1861" vertical-scroll-proportion="0.014117647">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/CacheManagerPeerProvider.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="28" column="39" selection-start="985" selection-end="985" vertical-scroll-proportion="0.15529412">
@@ -1708,88 +1770,28 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/CacheManagerPeerListener.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="28" column="64" selection-start="1004" selection-end="1004" vertical-scroll-proportion="0.19764706">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/MulticastRMIPeerProviderTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="115" column="43" selection-start="3574" selection-end="3574" vertical-scroll-proportion="0.22705883">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/LruMemoryStore.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="52" column="0" selection-start="1861" selection-end="1861" vertical-scroll-proportion="0.66206896">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/FifoMemoryStore.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="26" column="56" selection-start="914" selection-end="914" vertical-scroll-proportion="0.24827586">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/JNDIRMICacheReplicatorTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="58" column="0" selection-start="2036" selection-end="2036" vertical-scroll-proportion="0.33275864">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/rmi/Naming.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="159" column="0" selection-start="5952" selection-end="5952" vertical-scroll-proportion="0.7258621">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="189" column="16" selection-start="7158" selection-end="7158" vertical-scroll-proportion="0.33274338">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/JNDIRMICacheManagerPeerListener.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="69" column="47" selection-start="2869" selection-end="2869" vertical-scroll-proportion="0.57931036">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="228" column="40" selection-start="8973" selection-end="8973" vertical-scroll-proportion="0.59469026">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/ManagementBeanRegistry.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="115" column="16" selection-start="4968" selection-end="4968" vertical-scroll-proportion="0.33275864">
+        <state line="28" column="64" selection-start="1004" selection-end="1004" vertical-scroll-proportion="0.15529412">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/CacheManagerEventListener.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="53" column="105" selection-start="1825" selection-end="1825" vertical-scroll-proportion="0.6413793">
+        <state line="88" column="0" selection-start="3219" selection-end="3219" vertical-scroll-proportion="0.6623529">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/distribution/RMICacheManagerPeerListener.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="44" column="64" selection-start="1465" selection-end="1465" vertical-scroll-proportion="0.14336284">
+        <state line="463" column="16" selection-start="17612" selection-end="17612" vertical-scroll-proportion="0.014371257">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/FifoMemoryStore.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="27" column="80" selection-start="936" selection-end="936" vertical-scroll-proportion="0.014117647">
           <folding />
         </state>
       </provider>
