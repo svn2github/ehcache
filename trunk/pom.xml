@@ -306,9 +306,8 @@
     </mailingLists>
 
     <scm>
-        <connection>scm:svn:https://svn.sourceforge.net/svnroot/ehcache</connection>
-        <developerConnection>scm:svn:https://username@svn.sourceforge.net/svnroot/ehcache
-        </developerConnection>
+        <connection>scm:svn:https://ehcache.svn.sourceforge.net/svnroot/ehcache</connection>
+        <developerConnection>scm:svn:https://username@ehcache.svn.sourceforge.net/svnroot/ehcache</developerConnection>
         <tag/>
         <url>http://svn.sourceforge.net/viewcvs.cgi/ehcache/</url>
     </scm>

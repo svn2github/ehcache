@@ -58,27 +58,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheManager.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheManager.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheStatisticsMBean.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheStatisticsMBean.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/ManagementBeanRegistry.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/management/JMXAgentTest.java" afterPath="" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/management/MBeanServerRegistrationTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheStatistics.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheStatistics.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStoreEvictionPolicy.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStoreEvictionPolicy.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheConfigurationMBean.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheConfigurationMBean.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Statistics.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Statistics.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/Cache.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/Cache.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/CacheConfiguration.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/CacheConfiguration.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/package.html" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/package.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/RegistrationService.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheConfiguration.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheConfiguration.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
     </list>
     <list name="Delayed Commit (Sat Dec 02 16:04:27 EST 2006)" comment="Merge the jcache branch into trunk." />
     <list name="Failed commit: Delayed Commit (Sat Dec 02 16:04:27 EST 2006)" comment="Merge the jcache branch into trunk." />
     <list name="Delayed Commit (Tue Dec 05 16:53:38 EST 2006)" comment="Another 2 JCacheTest tests implemented." />
     <list name="Delayed Commit (Fri Dec 08 17:37:26 EST 2006)" comment="Created extra JCacheTests. Changed the ints that the Statistics constants map to." />
+    <list name="Failed commit: Default" comment="Added some JMX tests" />
+    <list name="Failed commit: Default (2)" comment="Added some JMX tests" />
   </component>
   <component name="ChangeListSynchronizer" />
   <component name="ChangesViewManager" flattened_view="true" />
@@ -338,33 +326,31 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="RegistrationService.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/RegistrationService.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="37" column="68" selection-start="1664" selection-end="1664" vertical-scroll-proportion="0.32470587">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="CacheConfiguration.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheConfiguration.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="55" column="41" selection-start="1727" selection-end="1727" vertical-scroll-proportion="0.21411765">
+            <state line="55" column="41" selection-start="1727" selection-end="1727" vertical-scroll-proportion="0.33272395">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MBeanServerRegistrationTest.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="MBeanServerRegistrationTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/management/MBeanServerRegistrationTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="42" column="26" selection-start="1387" selection-end="1387" vertical-scroll-proportion="0.39529413">
+            <state line="49" column="78" selection-start="1560" selection-end="1560" vertical-scroll-proportion="0.21937843">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="pom.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/pom.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="309" column="97" selection-start="10717" selection-end="10717" vertical-scroll-proportion="0.7443609">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -372,7 +358,7 @@
       <file leaf-file-name="Cache.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="1717" column="20" selection-start="69064" selection-end="69064" vertical-scroll-proportion="0.26946107">
+            <state line="1717" column="20" selection-start="69064" selection-end="69064" vertical-scroll-proportion="0.42293233">
               <folding />
             </state>
           </provider>
@@ -381,7 +367,7 @@
       <file leaf-file-name="CacheConfigurationMBean.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheConfigurationMBean.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="40" column="31" selection-start="1073" selection-end="1073" vertical-scroll-proportion="0.3552941">
+            <state line="40" column="31" selection-start="1073" selection-end="1073" vertical-scroll-proportion="0.5521024">
               <folding />
             </state>
           </provider>
@@ -390,7 +376,7 @@
       <file leaf-file-name="Cache.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/Cache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="62" column="41" selection-start="1979" selection-end="1979" vertical-scroll-proportion="0.21411765">
+            <state line="62" column="41" selection-start="1979" selection-end="1979" vertical-scroll-proportion="0.33272395">
               <folding />
             </state>
           </provider>
@@ -399,7 +385,7 @@
       <file leaf-file-name="MBeanServer.class" pinned="false" current="false" current-in-tab="false">
         <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/classes.jar!/javax/management/MBeanServer.class">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="23" column="18" selection-start="2558" selection-end="2558" vertical-scroll-proportion="0.31616765">
+            <state line="23" column="18" selection-start="2558" selection-end="2558" vertical-scroll-proportion="0.49624062">
               <folding />
             </state>
           </provider>
@@ -408,7 +394,7 @@
       <file leaf-file-name="ManagementFactory.java" pinned="false" current="false" current-in-tab="false">
         <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/lang/management/ManagementFactory.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="504" column="26" selection-start="18292" selection-end="18292" vertical-scroll-proportion="1.2505882">
+            <state line="504" column="26" selection-start="18292" selection-end="18292" vertical-scroll-proportion="1.9433272">
               <folding />
             </state>
           </provider>
@@ -417,7 +403,7 @@
       <file leaf-file-name="CacheManager.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="48" column="41" selection-start="1559" selection-end="1559" vertical-scroll-proportion="0.21411765">
+            <state line="48" column="41" selection-start="1559" selection-end="1559" vertical-scroll-proportion="0.33272395">
               <folding />
             </state>
           </provider>
@@ -426,7 +412,7 @@
       <file leaf-file-name="CacheStatistics.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheStatistics.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="65" column="41" selection-start="2361" selection-end="2361" vertical-scroll-proportion="0.21197605">
+            <state line="65" column="41" selection-start="2361" selection-end="2361" vertical-scroll-proportion="0.33270678">
               <folding />
             </state>
           </provider>
@@ -1638,7 +1624,7 @@
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32946485" order="0" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3288889" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3288889" order="8" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3288889" order="8" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="6" />
       <window_info id="Module Dependencies" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
@@ -1749,13 +1735,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheStatisticsMBean.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="103" column="14" selection-start="4337" selection-end="4337" vertical-scroll-proportion="0.7700599">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/config/CacheConfiguration.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="131" column="25" selection-start="4071" selection-end="4071" vertical-scroll-proportion="0.31294116">
@@ -1789,7 +1768,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/RegistrationService.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="37" column="68" selection-start="1664" selection-end="1664" vertical-scroll-proportion="0.32470587">
+        <state line="37" column="68" selection-start="1664" selection-end="1664" vertical-scroll-proportion="0.50457036">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -1798,66 +1777,73 @@
     </entry>
     <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/lang/management/ManagementFactory.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="504" column="26" selection-start="18292" selection-end="18292" vertical-scroll-proportion="1.2505882">
+        <state line="504" column="26" selection-start="18292" selection-end="18292" vertical-scroll-proportion="1.9433272">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/classes.jar!/javax/management/MBeanServer.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="23" column="18" selection-start="2558" selection-end="2558" vertical-scroll-proportion="0.31616765">
+        <state line="23" column="18" selection-start="2558" selection-end="2558" vertical-scroll-proportion="0.49624062">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/Cache.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="62" column="41" selection-start="1979" selection-end="1979" vertical-scroll-proportion="0.21411765">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheConfiguration.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="55" column="41" selection-start="1727" selection-end="1727" vertical-scroll-proportion="0.21411765">
+        <state line="62" column="41" selection-start="1979" selection-end="1979" vertical-scroll-proportion="0.33272395">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheManager.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="48" column="41" selection-start="1559" selection-end="1559" vertical-scroll-proportion="0.21411765">
+        <state line="48" column="41" selection-start="1559" selection-end="1559" vertical-scroll-proportion="0.33272395">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheStatistics.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="65" column="41" selection-start="2361" selection-end="2361" vertical-scroll-proportion="0.21197605">
+        <state line="65" column="41" selection-start="2361" selection-end="2361" vertical-scroll-proportion="0.33270678">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1717" column="20" selection-start="69064" selection-end="69064" vertical-scroll-proportion="0.26946107">
+        <state line="1717" column="20" selection-start="69064" selection-end="69064" vertical-scroll-proportion="0.42293233">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheConfigurationMBean.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="40" column="31" selection-start="1073" selection-end="1073" vertical-scroll-proportion="0.3552941">
+        <state line="40" column="31" selection-start="1073" selection-end="1073" vertical-scroll-proportion="0.5521024">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheConfiguration.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="55" column="41" selection-start="1727" selection-end="1727" vertical-scroll-proportion="0.33272395">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/management/MBeanServerRegistrationTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="42" column="26" selection-start="1387" selection-end="1387" vertical-scroll-proportion="0.39529413">
+        <state line="49" column="78" selection-start="1560" selection-end="1560" vertical-scroll-proportion="0.21937843">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="309" column="97" selection-start="10717" selection-end="10717" vertical-scroll-proportion="0.7443609">
+          <folding />
         </state>
       </provider>
     </entry>
