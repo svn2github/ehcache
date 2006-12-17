@@ -62,6 +62,9 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
                 statistics.getAssociatedCache().getName());
     }
 
+    /**
+     * Creates an object name using the scheme "net.sf.ehcache:type=CacheStatistics,CacheManager=<cacheManagerName>,name=<cacheName>"
+     */
     static ObjectName createObjectName(String cacheManagerName, String cacheName) {
         ObjectName objectName;
         try {

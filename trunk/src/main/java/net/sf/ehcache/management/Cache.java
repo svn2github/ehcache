@@ -58,6 +58,9 @@ public class Cache implements CacheMBean {
         objectName = createObjectName(cache.getCacheManager().toString(), cache.getName());
     }
 
+    /**
+     * Creates an object name using the scheme "net.sf.ehcache:type=Cache,CacheManager=<cacheManagerName>,name=<cacheName>"
+     */
     static ObjectName createObjectName(String cacheManagerName, String cacheName) {
         ObjectName objectName;
         try {
