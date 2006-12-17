@@ -266,11 +266,11 @@
 
     <distributionManagement>
         <!-- Private repository -->
-        <repository>
-            <url>scp://localhost//Users/gluck/gluck_repository</url>
-            <id>gluck_repository</id>
-            <name>gluck_repository</name>
-        </repository>
+        <!--<repository>-->
+            <!--<url>scp://localhost//Users/gluck/gluck_repository</url>-->
+            <!--<id>gluck_repository</id>-->
+            <!--<name>gluck_repository</name>-->
+        <!--</repository>-->
         <!--<repository>-->
         <!--<id>sf-ehcache-repository</id>-->
         <!--<name>SF EHCache Repository</name>-->
