@@ -57,7 +57,6 @@ public class Statistics implements Serializable {
      */
     public static final int STATISTICS_ACCURACY_GUARANTEED = 2;
 
-
     private static final Log LOG = LogFactory.getLog(Statistics.class.getName());
 
     private static final long serialVersionUID = 3606940454221918725L;
@@ -194,6 +193,20 @@ public class Statistics implements Serializable {
      */
     public int getStatisticsAccuracy() {
         return statisticsAccuracy;
+    }
+
+    /**
+     * Accurately measuring statistics can be expensive. Returns the current accuracy setting.
+     * @return a human readable description of the accuracy setting. One of "None", "Best Effort" or "Guaranteed".
+     */
+    public String getStatisticsAccuracyDescription() {
+        if (statisticsAccuracy == 0) {
+            return "None";
+        } else if (statisticsAccuracy == 1) {
+            return "Best Effort";
+        } else {
+            return "Guaranteed";
+        }
     }
 
     /**

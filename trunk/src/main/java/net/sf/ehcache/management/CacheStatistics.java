@@ -63,7 +63,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
 
     private void createObjectName(net.sf.ehcache.Ehcache cache) {
         try {
-            objectName = new ObjectName("sf.net.ehcache:type=CacheStatistics,CacheManager="
+            objectName = new ObjectName("net.sf.ehcache:type=CacheStatistics,CacheManager="
                     + cache.getCacheManager() + ",name=" + cache.getName());
         } catch (MalformedObjectNameException e) {
             throw new CacheException(e);
@@ -79,6 +79,14 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public int getStatisticsAccuracy() {
         return statistics.getStatisticsAccuracy();
+    }
+
+    /**
+     * Accurately measuring statistics can be expensive. Returns the current accuracy setting.
+     * @return a human readable description of the accuracy setting. One of "None", "Best Effort" or "Guaranteed".
+     */
+    public String getStatisticsAccuracyDescription() {
+        return statistics.getStatisticsAccuracyDescription();
     }
 
     /**

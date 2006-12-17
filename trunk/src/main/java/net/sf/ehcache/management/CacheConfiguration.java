@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.management;
 
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.CacheException;
 
 import javax.management.ObjectName;
@@ -39,6 +38,8 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
 
     private ObjectName objectName;
 
+    private String name;
+
     /**
      * Constructs using a backing CacheConfiguration
      *
@@ -47,12 +48,13 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
     public CacheConfiguration(net.sf.ehcache.Ehcache cache) {
         createObjectName(cache);
         cacheConfiguration = cache.getCacheConfiguration();
+        name = cacheConfiguration.getName();
     }
 
     private void createObjectName(net.sf.ehcache.Ehcache cache) {
         try {
-            objectName = new ObjectName("sf.net.ehcache:type=CacheConfiguration,CacheManager="
-                    + cache.getCacheManager() + ",name=" + getName());
+            objectName = new ObjectName("net.sf.ehcache:type=CacheConfiguration,CacheManager="
+                    + cache.getCacheManager() + ",name=" + cache.getName());
         } catch (MalformedObjectNameException e) {
             throw new CacheException(e);
         }
@@ -63,8 +65,9 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
      * Accessor
      */
     public String getName() {
-        return cacheConfiguration.getName();
+        return name;
     }
+
 
     /**
      * Accessor
@@ -82,9 +85,10 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
 
     /**
      * Accessor
+     * @return a String representation of the policy
      */
-    public MemoryStoreEvictionPolicy getMemoryStoreEvictionPolicy() {
-        return cacheConfiguration.getMemoryStoreEvictionPolicy();
+    public String getMemoryStoreEvictionPolicy() {
+        return cacheConfiguration.getMemoryStoreEvictionPolicy().toString();
     }
 
     /**

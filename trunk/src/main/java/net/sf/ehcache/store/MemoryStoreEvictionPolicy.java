@@ -56,7 +56,6 @@ public final class MemoryStoreEvictionPolicy implements Serializable {
 
     private static final Log LOG = LogFactory.getLog(MemoryStoreEvictionPolicy.class.getName());
 
-    // for debug only
     private final String myName;
 
     /**

@@ -60,7 +60,7 @@ public class Cache implements CacheMBean {
 
     private void createObjectName(Ehcache cache) {
         try {
-            objectName = new ObjectName("sf.net.ehcache:type=Cache,CacheManager="
+            objectName = new ObjectName("net.sf.ehcache:type=Cache,CacheManager="
                     + cache.getCacheManager() + ",name=" + getName());
         } catch (MalformedObjectNameException e) {
             throw new CacheException(e);

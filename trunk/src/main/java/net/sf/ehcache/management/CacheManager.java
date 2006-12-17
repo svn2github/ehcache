@@ -46,7 +46,7 @@ public class CacheManager implements CacheManagerMBean {
 
     private void createObjectName(net.sf.ehcache.CacheManager cacheManager) {
         try {
-            objectName = new ObjectName("sf.net.ehcache:type=CacheManager,name=" + cacheManager.toString());
+            objectName = new ObjectName("net.sf.ehcache:type=CacheManager,name=" + cacheManager.toString());
         } catch (MalformedObjectNameException e) {
             throw new CacheException(e);
         }

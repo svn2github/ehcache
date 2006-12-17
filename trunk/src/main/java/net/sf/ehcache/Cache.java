@@ -101,9 +101,6 @@ public class Cache implements Ehcache {
 
     private boolean disabled;
 
-
-    private String name;
-
     private DiskStore diskStore;
 
     private String diskStorePath;
@@ -364,10 +361,8 @@ public class Cache implements Ehcache {
 
         changeStatus(Status.STATUS_UNINITIALISED);
 
-        setName(name);
-
         configuration = new CacheConfiguration();
-
+        configuration.setName(name);
         configuration.setMaxElementsInMemory(maxElementsInMemory);
         configuration.setMemoryStoreEvictionPolicyFromObject(memoryStoreEvictionPolicy);
         configuration.setOverflowToDisk(overflowToDisk);
@@ -408,7 +403,7 @@ public class Cache implements Ehcache {
     }
 
     /**
-     * 1.2.4 Constructor
+     * 1.3 Constructor
      * <p/>
      * The {@link net.sf.ehcache.config.ConfigurationFactory} and clients can create these.
      * <p/>
@@ -418,9 +413,11 @@ public class Cache implements Ehcache {
      * Only the CacheManager can initialise them.
      *
      * @param configuration an object representing the configuration of the cache
+     * todo hook this up properly
      */
     public Cache(CacheConfiguration configuration) {
         this.configuration = configuration;
+        throw new CacheException("not fully implemented yet");
     }
 
 
@@ -432,13 +429,14 @@ public class Cache implements Ehcache {
     public void initialise() {
         synchronized (this) {
             if (!status.equals(Status.STATUS_UNINITIALISED)) {
-                throw new IllegalStateException("Cannot initialise the " + name
+                throw new IllegalStateException("Cannot initialise the " + configuration.getName()
                         + " cache because its status is not STATUS_UNINITIALISED");
             }
 
             if (configuration.getMaxElementsInMemory() == 0) {
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Cache: " + name + " has a maxElementsInMemory of 0. It is strongly recommended to " +
+                    LOG.warn("Cache: " + configuration.getName()
+                            + " has a maxElementsInMemory of 0. It is strongly recommended to " +
                             "have a maximumSize of at least 1. Performance is halved by not using a MemoryStore.");
                 }
             }
@@ -452,12 +450,12 @@ public class Cache implements Ehcache {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Initialised cache: " + name);
+            LOG.debug("Initialised cache: " + configuration.getName());
         }
 
         if (disabled) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Cache: " + name + " is disabled because the " + NET_SF_EHCACHE_DISABLED
+                LOG.warn("Cache: " + configuration.getName() + " is disabled because the " + NET_SF_EHCACHE_DISABLED
                         + " property was set to true. No elements will be added to the cache.");
             }
         }
@@ -639,7 +637,7 @@ public class Cache implements Ehcache {
             if (element == null) {
                 missCountNotFound++;
                 if (LOG.isTraceEnabled()) {
-                    LOG.trace(name + " cache - Miss");
+                    LOG.trace(configuration.getName() + " cache - Miss");
                 }
             } else {
                 hitCount++;
@@ -804,7 +802,7 @@ public class Cache implements Ehcache {
         if (element != null) {
             if (isExpired(element)) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(name + " Memory cache hit, but element expired");
+                    LOG.debug(configuration.getName() + " Memory cache hit, but element expired");
                 }
                 missCountExpired++;
                 remove(key, true, true, false);
@@ -830,7 +828,7 @@ public class Cache implements Ehcache {
         if (element != null) {
             if (isExpired(element)) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(name + " cache - Disk Store hit, but element expired");
+                    LOG.debug(configuration.getName() + " cache - Disk Store hit, but element expired");
                 }
                 missCountExpired++;
                 remove(key, true, true, false);
@@ -1094,7 +1092,8 @@ public class Cache implements Ehcache {
                 diskStore.flush();
             }
         } catch (IOException e) {
-            throw new CacheException("Unable to flush cache: " + name + ". Initial cause was " + e.getMessage(), e);
+            throw new CacheException("Unable to flush cache: " + configuration.getName()
+                    + ". Initial cause was " + e.getMessage(), e);
         }
     }
 
@@ -1187,7 +1186,7 @@ public class Cache implements Ehcache {
 
     private void checkStatus() throws IllegalStateException {
         if (!status.equals(Status.STATUS_ALIVE)) {
-            throw new IllegalStateException("The " + name + " Cache is not alive.");
+            throw new IllegalStateException("The " + configuration.getName() + " Cache is not alive.");
         }
     }
 
@@ -1275,7 +1274,7 @@ public class Cache implements Ehcache {
      * Gets the cache name.
      */
     public final String getName() {
-        return name;
+        return configuration.getName();
     }
 
     /**
@@ -1289,13 +1288,7 @@ public class Cache implements Ehcache {
         if (!status.equals(Status.STATUS_UNINITIALISED)) {
             throw new IllegalStateException("Only unitialised caches can have their names set.");
         }
-        if (name == null) {
-            throw new IllegalArgumentException("Cache name cannot be null.");
-        }
-        if (name.indexOf('/') != -1) {
-            throw new IllegalArgumentException("Cache name cannot contain '/' characters.");
-        }
-        this.name = name;
+        configuration.setName(name);
     }
 
     /**
@@ -1395,7 +1388,7 @@ public class Cache implements Ehcache {
         StringBuffer dump = new StringBuffer();
 
         dump.append("[")
-                .append(" name = ").append(name)
+                .append(" name = ").append(configuration.getName())
                 .append(" status = ").append(status)
                 .append(" eternal = ").append(configuration.isEternal())
                 .append(" overflowToDisk = ").append(configuration.isOverflowToDisk())
@@ -1706,7 +1699,8 @@ public class Cache implements Ehcache {
      */
     public void setBootstrapCacheLoader(BootstrapCacheLoader bootstrapCacheLoader) throws CacheException {
         if (!status.equals(Status.STATUS_UNINITIALISED)) {
-            throw new CacheException("A bootstrap cache loader can only be set before the cache is initialized. " + name);
+            throw new CacheException("A bootstrap cache loader can only be set before the cache is initialized. "
+                    + configuration.getName());
         }
         this.bootstrapCacheLoader = bootstrapCacheLoader;
     }
@@ -1720,7 +1714,8 @@ public class Cache implements Ehcache {
      */
     public void setDiskStorePath(String diskStorePath) throws CacheException {
         if (!status.equals(Status.STATUS_UNINITIALISED)) {
-            throw new CacheException("A DiskStore path can only be set before the cache is initialized. " + name);
+            throw new CacheException("A DiskStore path can only be set before the cache is initialized. "
+                    + configuration.getName());
         }
         this.diskStorePath = diskStorePath;
     }

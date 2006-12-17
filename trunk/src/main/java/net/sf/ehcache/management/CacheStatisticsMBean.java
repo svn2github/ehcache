@@ -98,6 +98,13 @@ public interface CacheStatisticsMBean {
      */
     public int getStatisticsAccuracy();
 
+
+    /**
+     * Accurately measuring statistics can be expensive. Returns the current accuracy setting.
+     * @return a human readable description of the accuracy setting. One of "None", "Best Effort" or "Guaranteed".
+     */
+    public String getStatisticsAccuracyDescription();
+
     /**
      * @return the name of the Ehcache, or null is there no associated cache
      */

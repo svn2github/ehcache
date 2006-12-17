@@ -123,6 +123,12 @@ public class CacheConfiguration {
      * Sets the name of the cache. This must be unique.
      */
     public final void setName(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("Cache name cannot be null.");
+        }
+        if (name.indexOf('/') != -1) {
+            throw new IllegalArgumentException("Cache name cannot contain '/' characters.");
+        }
         this.name = name;
     }
 

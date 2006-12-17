@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.management;
 
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-
 /**
  * A JMX MBean interface for the configuration of a cache
  * @author Greg Luck
@@ -44,8 +42,9 @@ public interface CacheConfigurationMBean {
 
     /**
      * Accessor
+     * @return a String representation of the policy
      */
-    public MemoryStoreEvictionPolicy getMemoryStoreEvictionPolicy();
+    public String getMemoryStoreEvictionPolicy();
 
     /**
      * Accessor
