@@ -58,16 +58,19 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public CacheStatistics(Statistics statistics) {
         this.statistics = statistics;
-        createObjectName(statistics.getAssociatedCache());
+        objectName = createObjectName(statistics.getAssociatedCache().getCacheManager().toString(),
+                statistics.getAssociatedCache().getName());
     }
 
-    private void createObjectName(net.sf.ehcache.Ehcache cache) {
+    static ObjectName createObjectName(String cacheManagerName, String cacheName) {
+        ObjectName objectName;
         try {
             objectName = new ObjectName("net.sf.ehcache:type=CacheStatistics,CacheManager="
-                    + cache.getCacheManager() + ",name=" + cache.getName());
+                    + cacheManagerName + ",name=" + cacheName);
         } catch (MalformedObjectNameException e) {
             throw new CacheException(e);
         }
+        return objectName;
     }
 
 

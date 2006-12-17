@@ -38,26 +38,25 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
 
     private ObjectName objectName;
 
-    private String name;
-
     /**
      * Constructs using a backing CacheConfiguration
      *
      * @param cache
      */
     public CacheConfiguration(net.sf.ehcache.Ehcache cache) {
-        createObjectName(cache);
         cacheConfiguration = cache.getCacheConfiguration();
-        name = cacheConfiguration.getName();
+        objectName = createObjectName(cache.getCacheManager().toString(), cache.getName());
     }
 
-    private void createObjectName(net.sf.ehcache.Ehcache cache) {
+    static ObjectName createObjectName(String cacheManagerName, String cacheName) {
+        ObjectName objectName;
         try {
             objectName = new ObjectName("net.sf.ehcache:type=CacheConfiguration,CacheManager="
-                    + cache.getCacheManager() + ",name=" + cache.getName());
+                    + cacheManagerName + ",name=" + cacheName);
         } catch (MalformedObjectNameException e) {
             throw new CacheException(e);
         }
+        return objectName;
     }
 
 
@@ -65,7 +64,7 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
      * Accessor
      */
     public String getName() {
-        return name;
+        return cacheConfiguration.getName();
     }
 
 

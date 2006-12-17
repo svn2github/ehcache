@@ -31,6 +31,7 @@ import java.util.List;
  * These tests use the JDK1.5 platform mbean server
  * @author Greg Luck
  * @version $Id$
+ * todo directly check the registered object names
  */
 public class MBeanServerRegistrationTest extends AbstractCacheTest {
 
@@ -66,6 +67,18 @@ public class MBeanServerRegistrationTest extends AbstractCacheTest {
      */
     public void testRegistrationServiceFourTrue() throws Exception {
         RegistrationService.registerMBeans(manager, mBeanServer, true, true, true, true);
+        assertEquals(37, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+    }
+
+    /**
+     * Integration test for the registration service
+     */
+    public void testRegistrationServiceListensForCacheChanges() throws Exception {
+        RegistrationService.registerMBeans(manager, mBeanServer, true, true, true, true);
+        assertEquals(37, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+        manager.addCache("new cache");
+        assertEquals(40, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+        manager.removeCache("sampleCache1");
         assertEquals(37, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
     }
 

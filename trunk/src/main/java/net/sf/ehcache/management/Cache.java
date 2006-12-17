@@ -55,16 +55,18 @@ public class Cache implements CacheMBean {
      */
     public Cache(Ehcache cache) throws CacheException {
         this.cache = cache;
-        createObjectName(cache);
+        objectName = createObjectName(cache.getCacheManager().toString(), cache.getName());
     }
 
-    private void createObjectName(Ehcache cache) {
+    static ObjectName createObjectName(String cacheManagerName, String cacheName) {
+        ObjectName objectName;
         try {
             objectName = new ObjectName("net.sf.ehcache:type=Cache,CacheManager="
-                    + cache.getCacheManager() + ",name=" + getName());
+                    + cacheManagerName + ",name=" + cacheName);
         } catch (MalformedObjectNameException e) {
             throw new CacheException(e);
         }
+        return objectName;
     }
 
 

@@ -24,6 +24,9 @@ import org.apache.commons.logging.LogFactory;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanRegistrationException;
+import javax.management.NotCompliantMBeanException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -118,34 +121,54 @@ public final class RegistrationService implements CacheManagerEventListener {
     public void init() throws CacheException {
         CacheManager cacheManager = new CacheManager(backingCacheManager);
         try {
-            if (registerCacheManager) {
-                mBeanServer.registerMBean(cacheManager, cacheManager.getObjectName());
-                registeredObjectNames.add(cacheManager.getObjectName());
-            }
+            registerCacheManager(cacheManager);
 
             List caches = cacheManager.getCaches();
             for (int i = 0; i < caches.size(); i++) {
                 Cache cache = (Cache) caches.get(i);
-                if (registerCaches) {
-                    mBeanServer.registerMBean(cache, cache.getObjectName());
-                    registeredObjectNames.add(cache.getObjectName());
-                }
-                if (registerCacheStatistics) {
-                    CacheStatistics cacheStatistics = cache.getStatistics();
-                    mBeanServer.registerMBean(cacheStatistics, cacheStatistics.getObjectName());
-                    registeredObjectNames.add(cacheStatistics.getObjectName());
-                }
-                if (registerCacheConfigurations) {
-                    CacheConfiguration cacheConfiguration = cache.getCacheConfiguration();
-                    mBeanServer.registerMBean(cacheConfiguration, cacheConfiguration.getObjectName());
-                    registeredObjectNames.add(cacheConfiguration.getObjectName());
-                }
+                registerCachesIfRequired(cache);
+                registerCacheStatisticsIfRequired(cache);
+                registerCacheConfigurationIfRequired(cache);
             }
         } catch (Exception e) {
             throw new CacheException(e);
         }
         status = Status.STATUS_ALIVE;
         backingCacheManager.getCacheManagerEventListenerRegistry().registerListener(this);
+    }
+
+    private void registerCacheManager(CacheManager cacheManager) throws InstanceAlreadyExistsException,
+            MBeanRegistrationException, NotCompliantMBeanException {
+        if (registerCacheManager) {
+            mBeanServer.registerMBean(cacheManager, cacheManager.getObjectName());
+            registeredObjectNames.add(cacheManager.getObjectName());
+        }
+    }
+
+    private void registerCacheConfigurationIfRequired(Cache cache) throws InstanceAlreadyExistsException,
+            MBeanRegistrationException, NotCompliantMBeanException {
+        if (registerCacheConfigurations) {
+            CacheConfiguration cacheConfiguration = cache.getCacheConfiguration();
+            mBeanServer.registerMBean(cacheConfiguration, cacheConfiguration.getObjectName());
+            registeredObjectNames.add(cacheConfiguration.getObjectName());
+        }
+    }
+
+    private void registerCacheStatisticsIfRequired(Cache cache) throws InstanceAlreadyExistsException,
+            MBeanRegistrationException, NotCompliantMBeanException {
+        if (registerCacheStatistics) {
+            CacheStatistics cacheStatistics = cache.getStatistics();
+            mBeanServer.registerMBean(cacheStatistics, cacheStatistics.getObjectName());
+            registeredObjectNames.add(cacheStatistics.getObjectName());
+        }
+    }
+
+    private void registerCachesIfRequired(Cache cache) throws InstanceAlreadyExistsException,
+            MBeanRegistrationException, NotCompliantMBeanException {
+        if (registerCaches) {
+            mBeanServer.registerMBean(cache, cache.getObjectName());
+            registeredObjectNames.add(cache.getObjectName());
+        }
     }
 
     /**
@@ -199,12 +222,12 @@ public final class RegistrationService implements CacheManagerEventListener {
      * @see net.sf.ehcache.event.CacheEventListener
      */
     public void notifyCacheAdded(String cacheName) {
-        //todo register other items
-        if (registerCaches) {
+        if (registerCaches || registerCacheStatistics || registerCacheConfigurations) {
             Cache cache = new Cache(backingCacheManager.getCache(cacheName));
             try {
-                mBeanServer.registerMBean(cache, cache.getObjectName());
-                registeredObjectNames.add(cache.getObjectName());
+                registerCachesIfRequired(cache);
+                registerCacheStatisticsIfRequired(cache);
+                registerCacheConfigurationIfRequired(cache);
             } catch (Exception e) {
                 LOG.error("Error registering cache for management for " + cache.getObjectName()
                         + " . Error was " + e.getMessage(), e);
@@ -225,15 +248,37 @@ public final class RegistrationService implements CacheManagerEventListener {
      * @param cacheName the name of the <code>Cache</code> the operation relates to
      */
     public void notifyCacheRemoved(String cacheName) {
-        if (registerCaches) {
-            Cache cache = new Cache(backingCacheManager.getCache(cacheName));
-            try {
-                mBeanServer.unregisterMBean(cache.getObjectName());
-            } catch (Exception e) {
-                LOG.error("Error registering cache for management for " + cache.getObjectName()
-                        + " . Error was " + e.getMessage(), e);
+
+        ObjectName objectName = null;
+        try {
+            if (registerCaches) {
+                objectName = Cache.createObjectName(backingCacheManager.toString(), cacheName);
+                mBeanServer.unregisterMBean(objectName);
+                registeredObjectNames.remove(objectName);
             }
-            registeredObjectNames.remove(cache.getObjectName());
+            if (registerCacheConfigurations) {
+                objectName = CacheConfiguration.createObjectName(backingCacheManager.toString(), cacheName);
+                mBeanServer.unregisterMBean(objectName);
+                registeredObjectNames.remove(objectName);
+            }
+            if (registerCacheStatistics) {
+                objectName = CacheStatistics.createObjectName(backingCacheManager.toString(), cacheName);
+                mBeanServer.unregisterMBean(objectName);
+                registeredObjectNames.remove(objectName);
+            }
+        } catch (Exception e) {
+            LOG.error("Error unregistering cache for management for " + objectName
+                    + " . Error was " + e.getMessage(), e);
         }
+
+    }
+
+    /**
+     * Gets a list of the object names that this service knows about. These will be removed
+     * on CacheManager shutdown and as caches are added and removed.
+     * @return the live list
+     */
+    public List getRegisteredObjectNames() {
+        return registeredObjectNames;
     }
 }
