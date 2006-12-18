@@ -16,11 +16,10 @@
 
 package net.sf.ehcache.management;
 
-import net.sf.ehcache.Status;
-
 import java.util.List;
 
 /**
+ * An MBean interface for those attributes and operations we wish to expose on net.sf.ehcache.CacheManager
  * @author Greg Luck
  * @version $Id$
  * @since 1.3
@@ -31,9 +30,9 @@ public interface CacheManagerMBean {
     /**
      * Gets the status attribute of the Ehcache
      *
-     * @return The status value from the Status enum class
+     * @return The status value, as a String from the Status enum class
      */
-    public Status getStatus();
+    public String getStatus();
 
 
 

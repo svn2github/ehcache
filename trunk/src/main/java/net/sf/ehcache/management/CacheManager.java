@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.management;
 
-import net.sf.ehcache.Status;
 import net.sf.ehcache.CacheException;
 
 import javax.management.ObjectName;
@@ -25,6 +24,9 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
+ * An MBean implementation for those attributes and operations we wish to expose on net.sf.ehcache.CacheManager.
+ * This class is not Serializable because it is an adapter around a net.sf.ehcache.CacheManager, which is itself
+ * not Serializable. 
  * @author Greg Luck
  * @version $Id$
  * @since 1.3
@@ -41,24 +43,29 @@ public class CacheManager implements CacheManagerMBean {
      */
     public CacheManager(net.sf.ehcache.CacheManager cacheManager) throws CacheException {
         this.cacheManager = cacheManager;
-        createObjectName(cacheManager);
+        objectName = createObjectName(cacheManager);
     }
 
-    private void createObjectName(net.sf.ehcache.CacheManager cacheManager) {
+    /**
+     * Creates an object name using the scheme "net.sf.ehcache:type=CacheManager,name=<cacheManagerName>"
+     */
+    static ObjectName createObjectName(net.sf.ehcache.CacheManager cacheManager) {
+        ObjectName objectName;
         try {
             objectName = new ObjectName("net.sf.ehcache:type=CacheManager,name=" + cacheManager.toString());
         } catch (MalformedObjectNameException e) {
             throw new CacheException(e);
         }
+        return objectName;
     }
 
     /**
      * Gets the status attribute of the Ehcache
      *
-     * @return The status value from the Status enum class
+     * @return The status value, as a String from the Status enum class
      */
-    public Status getStatus() {
-        return cacheManager.getStatus();
+    public String getStatus() {
+        return cacheManager.getStatus().toString();
     }
 
     /**

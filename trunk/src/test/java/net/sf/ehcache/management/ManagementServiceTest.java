@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.management;
 
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -26,16 +28,21 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.util.List;
+import java.io.File;
 
 /**
  * These tests use the JDK1.5 platform mbean server
+ * To interactively examine behaviour, add a Thread.sleep(...) and add -Dcom.sun.management.jmxremote to the java
+ * invocation. 
+ *
  * @author Greg Luck
  * @version $Id$
- * todo directly check the registered object names
+ *          todo test web mbeanserver
+ *          todo remote connection from jconsole
  */
-public class MBeanServerRegistrationTest extends AbstractCacheTest {
+public class ManagementServiceTest extends AbstractCacheTest {
 
-    private static final Log LOG = LogFactory.getLog(MBeanServerRegistrationTest.class.getName());
+    private static final Log LOG = LogFactory.getLog(ManagementServiceTest.class.getName());
     private MBeanServer mBeanServer;
 
 
@@ -48,7 +55,6 @@ public class MBeanServerRegistrationTest extends AbstractCacheTest {
     }
 
     private void createMBeanServer() {
-        //todo deal with 1.4
         mBeanServer = ManagementFactory.getPlatformMBeanServer();
     }
 
@@ -66,7 +72,7 @@ public class MBeanServerRegistrationTest extends AbstractCacheTest {
      * Integration test for the registration service
      */
     public void testRegistrationServiceFourTrue() throws Exception {
-        RegistrationService.registerMBeans(manager, mBeanServer, true, true, true, true);
+        ManagementService.registerMBeans(manager, mBeanServer, true, true, true, true);
         assertEquals(37, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
     }
 
@@ -74,19 +80,50 @@ public class MBeanServerRegistrationTest extends AbstractCacheTest {
      * Integration test for the registration service
      */
     public void testRegistrationServiceListensForCacheChanges() throws Exception {
-        RegistrationService.registerMBeans(manager, mBeanServer, true, true, true, true);
+        ManagementService.registerMBeans(manager, mBeanServer, true, true, true, true);
         assertEquals(37, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
         manager.addCache("new cache");
         assertEquals(40, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
         manager.removeCache("sampleCache1");
         assertEquals(37, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+//        Thread.sleep(1000000);
+    }
+
+    /**
+     * Integration test for the registration service
+     */
+    public void testMultipleCacheManagers() throws Exception {
+        ManagementService.registerMBeans(manager, mBeanServer, true, true, true, true);
+        assertEquals(37, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+        File file = new File(AbstractCacheTest.SRC_CONFIG_DIR + "ehcache.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        net.sf.ehcache.CacheManager secondCacheManager = new net.sf.ehcache.CacheManager(configuration);
+        ManagementService.registerMBeans(secondCacheManager, mBeanServer, true, true, true, true);
+        assertEquals(56, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+        secondCacheManager.shutdown();
+        assertEquals(37, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+
+    }
+
+    /**
+     * todo
+     */
+    public void testStatisticsMBeanUpdatesAsStatsChange() {
+
+    }
+
+    /**
+     * todo
+     */
+    public void test14MBeanServer() {
+
     }
 
     /**
      * Integration test for the registration service
      */
     public void testRegistrationServiceThreeTrue() throws Exception {
-        RegistrationService.registerMBeans(manager, mBeanServer, true, true, true, false);
+        ManagementService.registerMBeans(manager, mBeanServer, true, true, true, false);
         assertEquals(25, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
 
     }
@@ -95,7 +132,7 @@ public class MBeanServerRegistrationTest extends AbstractCacheTest {
      * Integration test for the registration service
      */
     public void testRegistrationServiceTwoTrue() throws Exception {
-        RegistrationService.registerMBeans(manager, mBeanServer, true, true, false, false);
+        ManagementService.registerMBeans(manager, mBeanServer, true, true, false, false);
         assertEquals(13, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
 
     }
@@ -104,7 +141,7 @@ public class MBeanServerRegistrationTest extends AbstractCacheTest {
      * Integration test for the registration service
      */
     public void testRegistrationServiceOneTrue() throws Exception {
-        RegistrationService.registerMBeans(manager, mBeanServer, true, false, false, false);
+        ManagementService.registerMBeans(manager, mBeanServer, true, false, false, false);
         assertEquals(1, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
 
     }
@@ -113,7 +150,7 @@ public class MBeanServerRegistrationTest extends AbstractCacheTest {
      * Integration test for the registration service
      */
     public void testRegistrationServiceNoneTrue() throws Exception {
-        RegistrationService.registerMBeans(manager, mBeanServer, false, false, false, false);
+        ManagementService.registerMBeans(manager, mBeanServer, false, false, false, false);
         assertEquals(0, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
 
     }
@@ -126,7 +163,7 @@ public class MBeanServerRegistrationTest extends AbstractCacheTest {
         Ehcache ehcache = new net.sf.ehcache.Cache("testNoOverflowToDisk", 1, false, true, 500, 200);
         manager.addCache(ehcache);
 
-        ehcache.put(new Element("key1", "value1"));                                    
+        ehcache.put(new Element("key1", "value1"));
         ehcache.put(new Element("key2", "value1"));
         assertNull(ehcache.get("key1"));
         assertNotNull(ehcache.get("key2"));

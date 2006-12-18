@@ -17,7 +17,6 @@
 package net.sf.ehcache.management;
 
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Status;
 import net.sf.ehcache.Ehcache;
 
 import javax.management.ObjectName;
@@ -94,10 +93,10 @@ public class Cache implements CacheMBean {
     /**
      * Gets the status attribute of the Cache.
      *
-     * @return The status value from the Status enum class
+     * @return The status value as a String from the Status enum class
      */
-    public Status getStatus() {
-        return cache.getStatus();
+    public String getStatus() {
+        return cache.getStatus().toString();
     }
 
     /**

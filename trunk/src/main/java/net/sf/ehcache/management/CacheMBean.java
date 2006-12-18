@@ -17,7 +17,6 @@
 package net.sf.ehcache.management;
 
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Status;
 
 /**
  * A management bean for a cache
@@ -50,7 +49,7 @@ public interface CacheMBean {
      *
      * @return The status value from the Status enum class
      */
-    Status getStatus();
+    String getStatus();
 
 
     /**
