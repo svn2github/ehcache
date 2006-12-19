@@ -59,7 +59,7 @@
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/ManualRMICacheReplicatorTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/ManualRMICacheReplicatorTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/ManualRMICacheReplicatorTest.java" />
     </list>
     <list name="Delayed Commit (Sat Dec 02 16:04:27 EST 2006)" comment="Merge the jcache branch into trunk." />
     <list name="Failed commit: Delayed Commit (Sat Dec 02 16:04:27 EST 2006)" comment="Merge the jcache branch into trunk." />
@@ -303,7 +303,7 @@
       <file leaf-file-name="ManualRMICacheReplicatorTest.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/ManualRMICacheReplicatorTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="14" column="3" selection-start="608" selection-end="608" vertical-scroll-proportion="0.0">
+            <state line="554" column="17" selection-start="19350" selection-end="19350" vertical-scroll-proportion="-0.5209205">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -1960,7 +1960,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/ManualRMICacheReplicatorTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="3" selection-start="608" selection-end="608" vertical-scroll-proportion="0.0">
+        <state line="554" column="17" selection-start="19350" selection-end="19350" vertical-scroll-proportion="-0.5209205">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

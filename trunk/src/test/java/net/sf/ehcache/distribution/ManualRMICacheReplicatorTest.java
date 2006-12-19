@@ -552,7 +552,7 @@ public class ManualRMICacheReplicatorTest extends AbstractCacheTest {
      * <p/>
      * 4 seconds to get all remove notifications with 6 peers, 5000 Elements and 400 byte payload
      */
-    public void testBigRemovesProgagatesAsynchronous() throws CacheException, InterruptedException {
+    public void xtestBigRemovesProgagatesAsynchronous() throws CacheException, InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -615,7 +615,7 @@ public class ManualRMICacheReplicatorTest extends AbstractCacheTest {
      * running on a 10Mbit ethernet network and are measured from the time the peer starts receiving to when
      * it has fully received.
      */
-    public void testBigPutsProgagatesSynchronous() throws CacheException, InterruptedException {
+    public void xtestBigPutsProgagatesSynchronous() throws CacheException, InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
