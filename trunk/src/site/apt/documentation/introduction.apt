@@ -30,8 +30,8 @@ Introduction
     The Long Tail is itself a vernacular term for a Power Law probability distribution. They don't just appear in ecommerce,
     but throughout nature. One form of a Power Law distribution is the Pareto distribution, commonly know as the 80:20 rule.
 
-    This phenomenon is useful for caching. If 20% of objects are used 80% of the time, and the a way can be found to
-    reduce the cost of obtaining that 20% the system performance will improve.
+    This phenomenon is useful for caching. If 20% of objects are used 80% of the time and a way can be found to reduce the
+    cost of obtaining that 20%, then the system performance will improve.
 
 
 * Will an Application Benefit from Caching?
