@@ -42,6 +42,8 @@ import junit.framework.AssertionFailedError;
 
 /**
  * Tests the manually configured caches
+ *
+ * todo get these tests/or remove them and address startup issue
  * @author Greg Luck
  * @version $Id$
  */

@@ -18,6 +18,7 @@ package net.sf.ehcache.management;
 
 import net.sf.ehcache.Statistics;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
 
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
@@ -47,19 +48,21 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
 
     private static final long serialVersionUID = 8085302752781762030L;
 
+    private Ehcache ehcache;
     private Statistics statistics;
 
     private ObjectName objectName;
+    private long lastUpdated;
 
     /**
      * Constructs an object from an ehcache statistics object
      *
-     * @param statistics the Statistics object this object decorates.
+     * @param ehcache the backing ehcache
      */
-    public CacheStatistics(Statistics statistics) {
-        this.statistics = statistics;
-        objectName = createObjectName(statistics.getAssociatedCache().getCacheManager().toString(),
-                statistics.getAssociatedCache().getName());
+    public CacheStatistics(Ehcache ehcache) {
+        this.ehcache = ehcache;
+        objectName = createObjectName(ehcache.getCacheManager().getName(),
+                ehcache.getName());
     }
 
     /**
@@ -84,7 +87,15 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * @return one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}, {@link Statistics#STATISTICS_ACCURACY_GUARANTEED}, {@link Statistics#STATISTICS_ACCURACY_NONE}
      */
     public int getStatisticsAccuracy() {
+        updateIfNeeded();
         return statistics.getStatisticsAccuracy();
+    }
+
+    private void updateIfNeeded() {
+        if (System.currentTimeMillis() != lastUpdated) {
+            statistics = ehcache.getStatistics();
+            lastUpdated = System.currentTimeMillis();
+        }
     }
 
     /**
@@ -92,6 +103,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * @return a human readable description of the accuracy setting. One of "None", "Best Effort" or "Guaranteed".
      */
     public String getStatisticsAccuracyDescription() {
+        updateIfNeeded();
         return statistics.getStatisticsAccuracyDescription();
     }
 
@@ -118,6 +130,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * @return the number of times a requested item was found in the cache
      */
     public long getCacheHits() {
+        updateIfNeeded();
         return statistics.getCacheHits();
     }
 
@@ -127,6 +140,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * @return the number of times a requested item was found in memory
      */
     public long getInMemoryHits() {
+        updateIfNeeded();
         return statistics.getInMemoryHits();
     }
 
@@ -136,6 +150,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * @return the number of times a requested item was found on Disk, or 0 if there is no disk storage configured.
      */
     public long getOnDiskHits() {
+        updateIfNeeded();
         return statistics.getOnDiskHits();
     }
 
@@ -146,6 +161,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * @return the number of times a requested element was not found in the cache
      */
     public long getCacheMisses() {
+        updateIfNeeded();
         return statistics.getCacheMisses();
 
     }
@@ -184,6 +200,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * @return the number of elements in the ehcache, with a varying degree of accuracy, depending on accuracy setting.
      */
     public long getObjectCount() {
+        updateIfNeeded();
         return statistics.getObjectCount();
     }
 

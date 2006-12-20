@@ -857,11 +857,15 @@ public class CacheManager {
 
     /**
      * Gets the name of the CacheManager. This is useful for distinguishing multiple CacheManagers
-     * @return the name, or null if there is not one.
+     * @return the name, or the output of toString() if it is not set.
      * @see #toString() which uses either the name or Object.toString()
      */
     public String getName() {
-        return name;
+        if (name != null) {
+            return name;
+        } else {
+            return super.toString();
+        }
     }
 
     /**
@@ -878,11 +882,7 @@ public class CacheManager {
      * @return either the name of this CacheManager, or if unset, Object.toString()
      */
     public String toString() {
-        if (name != null) {
-            return name;
-        } else {
-            return super.toString();
-        }
+        return getName();
     }
 }
 

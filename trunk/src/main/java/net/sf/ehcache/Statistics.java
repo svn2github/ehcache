@@ -120,7 +120,7 @@ public class Statistics implements Serializable {
      * @return the number of times a requested item was found in the cache
      */
     public long getCacheHits() {
-        return cacheHits;
+            return cacheHits;
     }
 
     /**

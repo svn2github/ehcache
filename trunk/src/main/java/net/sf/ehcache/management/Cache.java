@@ -117,7 +117,7 @@ public class Cache implements CacheMBean {
      * Gets the JMX cache statistics
      */
     public CacheStatistics getStatistics() {
-        return new CacheStatistics(cache.getStatistics());
+        return new CacheStatistics(cache);
     }
 
 

@@ -16,19 +16,19 @@
 
 package net.sf.ehcache.management;
 
-import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ConfigurationFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.util.List;
-import java.io.File;
 
 /**
  * These tests use the JDK1.5 platform mbean server
@@ -106,9 +106,17 @@ public class ManagementServiceTest extends AbstractCacheTest {
     }
 
     /**
-     * todo
+     * Checks that Statistics updates
      */
-    public void testStatisticsMBeanUpdatesAsStatsChange() {
+    public void testStatisticsMBeanUpdatesAsStatsChange() throws Exception {
+        ManagementService.registerMBeans(manager, mBeanServer, false, false, false, true);
+        Ehcache cache = manager.getCache("sampleCache1");
+        ObjectName cacheName = CacheStatistics.createObjectName(manager.getName(), cache.getName());
+        assertEquals(new Long(0), mBeanServer.getAttribute(cacheName, "ObjectCount"));
+        cache.put(new Element("1", "value"));
+        cache.get("1");
+        assertEquals(new Long(1), mBeanServer.getAttribute(cacheName, "ObjectCount"));
+
 
     }
 
