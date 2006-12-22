@@ -25,20 +25,27 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.management.MBeanServer;
+import javax.management.MBeanServerConnection;
+import javax.management.MBeanServerFactory;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorServer;
+import javax.management.remote.JMXConnectorServerFactory;
+import javax.management.remote.JMXServiceURL;
 import java.io.File;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.rmi.registry.LocateRegistry;
 import java.util.List;
 
 /**
  * These tests use the JDK1.5 platform mbean server
  * To interactively examine behaviour, add a Thread.sleep(...) and add -Dcom.sun.management.jmxremote to the java
- * invocation. 
+ * invocation.
  *
  * @author Greg Luck
  * @version $Id$
- *          todo test web mbeanserver
- *          todo remote connection from jconsole
  */
 public class ManagementServiceTest extends AbstractCacheTest {
 
@@ -58,6 +65,10 @@ public class ManagementServiceTest extends AbstractCacheTest {
         mBeanServer = ManagementFactory.getPlatformMBeanServer();
     }
 
+    private MBeanServer create14MBeanServer() {
+        return MBeanServerFactory.createMBeanServer("SimpleAgent");
+    }
+
     /**
      * teardown
      */
@@ -72,6 +83,15 @@ public class ManagementServiceTest extends AbstractCacheTest {
      * Integration test for the registration service
      */
     public void testRegistrationServiceFourTrue() throws Exception {
+        ManagementService.registerMBeans(manager, mBeanServer, true, true, true, true);
+        assertEquals(37, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+    }
+
+    /**
+     * Integration test for the registration service
+     */
+    public void testRegistrationServiceFourTrueUsing14MBeanServer() throws Exception {
+        mBeanServer = create14MBeanServer();
         ManagementService.registerMBeans(manager, mBeanServer, true, true, true, true);
         assertEquals(37, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
     }
@@ -117,13 +137,6 @@ public class ManagementServiceTest extends AbstractCacheTest {
         cache.get("1");
         assertEquals(new Long(1), mBeanServer.getAttribute(cacheName, "ObjectCount"));
 
-
-    }
-
-    /**
-     * todo
-     */
-    public void test14MBeanServer() {
 
     }
 
@@ -223,5 +236,29 @@ public class ManagementServiceTest extends AbstractCacheTest {
         }
         mBeanServer.unregisterMBean(name);
     }
+
+    /**
+     * A manual test to ensure that everything makes sense from the JMX web server.
+     * Note that this test creates a Registry which will keep running until the JVM Exists. There
+     * is no way to stop it.
+     * todo check Serializability
+     */
+    public void testJMXConnectorServer() throws InterruptedException, IOException, MalformedObjectNameException {
+
+        ManagementService.registerMBeans(manager, mBeanServer, true, true, true, true);
+
+        LocateRegistry.createRegistry(55000);
+        String serverUrl = "service:jmx:rmi:///jndi/rmi://localhost:55000/server";
+        JMXServiceURL url = new JMXServiceURL(serverUrl);
+        JMXConnectorServer cs = JMXConnectorServerFactory.newJMXConnectorServer(url, null, mBeanServer);
+        cs.start();
+        JMXConnector connector = cs.toJMXConnector(null);
+        connector.connect(null);
+        MBeanServerConnection connection = connector.getMBeanServerConnection();
+
+        assertEquals(37, connection.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+        cs.stop();
+    }
+
 
 }
