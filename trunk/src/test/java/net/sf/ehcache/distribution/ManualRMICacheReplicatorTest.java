@@ -126,8 +126,8 @@ public class ManualRMICacheReplicatorTest extends AbstractCacheTest {
 
         //manager6 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed-jndi6.xml");
 
-        //allow cluster to be established
-//        Thread.sleep(5010);
+        //Give things a breather
+        Thread.sleep(1010);
 
         cache1 = manager1.getCache(cacheName);
         cache1.removeAll();
@@ -457,7 +457,7 @@ public class ManualRMICacheReplicatorTest extends AbstractCacheTest {
 
         assertEquals(2000, cache1.getSize());
 
-        Thread.sleep(7000);
+        Thread.sleep(8000);
         assertEquals(2000, manager2.getCache("sampleCache1").getSize());
 //        assertEquals(2000, manager3.getCache("sampleCache1").getSize());
 //        assertEquals(2000, manager4.getCache("sampleCache1").getSize());
