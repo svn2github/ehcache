@@ -27,7 +27,6 @@ import org.apache.commons.logging.LogFactory;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerFactory;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorServer;
@@ -210,40 +209,39 @@ public class ManagementServiceTest extends AbstractCacheTest {
      * Can we register the CacheManager MBean?
      */
     public void testListCachesFromManager() throws Exception {
-        //Set size so the second element overflows to disk.
-        Ehcache ehcache = new net.sf.ehcache.Cache("testNoOverflowToDisk", 1, false, true, 500, 200);
-        manager.addCache(ehcache);
+        ManagementService.registerMBeans(manager, mBeanServer, true, false, false, false);
+       
+        Ehcache ehcache = manager.getCache("sampleCache1");
 
         ehcache.put(new Element("key1", "value1"));
         ehcache.put(new Element("key2", "value1"));
-        assertNull(ehcache.get("key1"));
+        assertNotNull(ehcache.get("key1"));
         assertNotNull(ehcache.get("key2"));
 
-        ObjectName name = new ObjectName("net.sf.ehcache:type=CacheManager,name=1");
-        CacheManager cacheManager = new CacheManager(manager);
-        mBeanServer.registerMBean(cacheManager, name);
+        ObjectName name = CacheManager.createObjectName(manager);
 
         Object object = mBeanServer.getAttribute(name, "Status");
         LOG.info(object);
 
         List caches = (List) mBeanServer.getAttribute(name, "Caches");
-        assertEquals(13, caches.size());
+        assertEquals(12, caches.size());
 
         for (int i = 0; i < caches.size(); i++) {
             Cache cache = (Cache) caches.get(i);
             String cacheName = cache.getName();
-            LOG.info(cacheName);
+            CacheStatistics cacheStatistics = cache.getStatistics();
+            CacheConfiguration cacheConfiguration = cache.getCacheConfiguration();
+            LOG.info(cacheName + " " + cacheStatistics + " " + cacheConfiguration);
         }
-        mBeanServer.unregisterMBean(name);
     }
 
     /**
      * A manual test to ensure that everything makes sense from the JMX web server.
      * Note that this test creates a Registry which will keep running until the JVM Exists. There
      * is no way to stop it.
-     * todo check Serializability
+     * todo fix Serializability
      */
-    public void testJMXConnectorServer() throws InterruptedException, IOException, MalformedObjectNameException {
+    public void testJMXConnectorServer() throws Exception {
 
         ManagementService.registerMBeans(manager, mBeanServer, true, true, true, true);
 
@@ -255,8 +253,24 @@ public class ManagementServiceTest extends AbstractCacheTest {
         JMXConnector connector = cs.toJMXConnector(null);
         connector.connect(null);
         MBeanServerConnection connection = connector.getMBeanServerConnection();
-
         assertEquals(37, connection.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+
+
+        Ehcache ehcache = manager.getCache("sampleCache1");
+
+        ehcache.put(new Element("key1", "value1"));
+        ehcache.put(new Element("key2", "value1"));
+        assertNotNull(ehcache.get("key1"));
+        assertNotNull(ehcache.get("key2"));
+
+        ObjectName name = CacheManager.createObjectName(manager);
+
+        try {
+            List caches = (List) connection.getAttribute(name, "Caches");
+        } catch (IOException e) {
+            //this happens with current implementation, due to serializability failure
+        }
+
         cs.stop();
     }
 
