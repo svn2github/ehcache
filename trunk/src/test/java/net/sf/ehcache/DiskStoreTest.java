@@ -152,6 +152,29 @@ public class DiskStoreTest extends AbstractCacheTest {
     }
 
     /**
+     * An integration test, at the CacheManager level, to make sure persistence works
+     * todo Does not work for ehcache-disk.xml but works for the config in ehcache.xml. Why?
+     */
+    public void testPersistentStoreFromCacheManager() throws IOException, InterruptedException, CacheException {
+        //initialise
+        CacheManager manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
+        Ehcache cache = manager.getCache("persistentLongExpiryIntervalCache");
+
+        for (int i = 0; i < 100; i++) {
+            byte[] data = new byte[1024];
+            cache.put(new Element("key" + (i + 100), data));
+        }
+        assertEquals(100, cache.getSize());
+
+        manager.shutdown();
+
+        manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
+        cache = manager.getCache("persistentLongExpiryIntervalCache");
+        assertEquals(100, cache.getSize());
+
+    }
+
+    /**
      * Tests that the spool thread dies on dispose.
      */
     public void testSpoolThreadDiesOnDispose() throws IOException, InterruptedException {
@@ -482,7 +505,6 @@ public class DiskStoreTest extends AbstractCacheTest {
         assertEquals(value, elementOut.getObjectValue());
 
 
-
         Primitive primitive = new Primitive();
         primitive.integerPrimitive = 123;
         primitive.longPrimitive = 456L;
@@ -504,7 +526,6 @@ public class DiskStoreTest extends AbstractCacheTest {
         assertEquals(primitive, elementOut.getObjectValue());
 
     }
-
 
 
     /**
@@ -708,9 +729,8 @@ public class DiskStoreTest extends AbstractCacheTest {
      * that cannot be used because of fragmentation. Question? Should an effort be made to coalesce
      * fragmented space? Unlikely in production to get contiguous fragments as in the first form
      * of this test.
-     *
+     * <p/>
      * Using a key of new Integer(i * outer) the size stays constant at 140800.
-     *
      *
      * @throws InterruptedException
      */
@@ -959,10 +979,10 @@ public class DiskStoreTest extends AbstractCacheTest {
         } catch (OutOfMemoryError e) {
             LOG.info("Failed at " + index);
             assertTrue(index.intValue() >= 4099000);
-            }
         }
+    }
 
-   /**
+    /**
      * Perf test used by Venkat Subramani
      * Get took 119s with Cache svn21
      * Get took 42s
@@ -971,7 +991,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * until expiry or removal. This avoids a lot of serialization overhead.
      * <p/>
      * Slow tests
-    * 235 with get. 91 for 1.2.3. 169 with remove.
+     * 235 with get. 91 for 1.2.3. 169 with remove.
      */
     public void xTestLargePutGetPerformanceWithOverflowToDisk() throws Exception {
 
@@ -1016,8 +1036,8 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         assertTrue(time < 180);
 
-      
-        }
+
+    }
 
     /**
      * Java is not consistent with trailing file separators, believe it or not!

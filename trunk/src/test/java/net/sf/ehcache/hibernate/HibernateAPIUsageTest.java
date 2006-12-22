@@ -18,11 +18,16 @@ package net.sf.ehcache.hibernate;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheTest;
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.cfg.Environment;
 
 import java.io.Serializable;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
@@ -74,7 +79,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
      */
     public void testAPIAsUsedByHibernate3() {
 
-        /*Shutdown cache manager so that hibernate can start one using the same cache.xml disk path
+        /*Shutdown cache manager so that hibernate can start one using the same ehcache.xml disk path
           because it does not use the singleton CacheManager any more */
         manager.shutdown();
 
@@ -165,7 +170,6 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
 
         //start up second provider pointing to ehcache-failsage.xml because it is there
         org.hibernate.cache.EhCacheProvider provider2 = new org.hibernate.cache.EhCacheProvider();
-
 
         //Fire up a second provider, CacheManager and cache concurrently
         Properties properties = new Properties();
@@ -327,6 +331,69 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
 
     }
 
+
+    /**
+     * An integration test, at the CacheManager level, to make sure persistence works
+     */
+    public void testPersistentStoreFromCacheManager() throws IOException, InterruptedException, CacheException {
+
+        manager.shutdown();
+
+        //initialise
+        CacheManager manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
+        Ehcache cache = manager.getCache("persistentLongExpiryIntervalCache");
+
+        for (int i = 0; i < 100; i++) {
+            byte[] data = new byte[1024];
+            cache.put(new Element("key" + (i + 100), data));
+        }
+        assertEquals(100, cache.getSize());
+
+        manager.shutdown();
+
+        net.sf.ehcache.hibernate.EhCacheProvider provider = new net.sf.ehcache.hibernate.EhCacheProvider();
+        provider.start(null);
+        org.hibernate.cache.Cache hibernateCache = provider.buildCache("persistentLongExpiryIntervalCache", null);
+
+        assertEquals(100, hibernateCache.getElementCountInMemory() + hibernateCache.getElementCountOnDisk());
+
+        provider.stop();
+
+
+    }
+
+
+    /**
+     * An integration test, at the CacheManager level, to make sure persistence works
+     */
+    public void testPersistentStoreFromCacheManagerUsingHibernate321Provider() throws Exception {
+
+        manager.shutdown();
+
+        //initialise
+        CacheManager manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
+        Ehcache cache = manager.getCache("persistentLongExpiryIntervalCache");
+        cache.removeAll();
+
+        for (int i = 0; i < 100; i++) {
+            byte[] data = new byte[1024];
+            cache.put(new Element("key" + (i + 100), data));
+        }
+        assertEquals(100, cache.getSize());
+
+        manager.shutdown();
+
+        //Create hibernate using ehcache
+        org.hibernate.cache.EhCacheProvider provider = new org.hibernate.cache.EhCacheProvider();
+        provider.start(null);
+        org.hibernate.cache.Cache hibernateCache = provider.buildCache("persistentLongExpiryIntervalCache", null);
+
+        assertEquals(100, hibernateCache.getElementCountInMemory() + hibernateCache.getElementCountOnDisk());
+
+         provider.stop();
+
+    }
+
     /**
      * Test ehcache packaged provider and EhCache with Hibernate-3.1.3
      * Leave broken timeout until get clarification from Emmanuel
@@ -340,7 +407,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
      */
     public void testNewHibernateEhcacheAndProviderNewFeatures() {
 
-        /*Shutdown cache manager so that hibernate can start one using the same cache.xml disk path
+        /*Shutdown cache manager so that hibernate can start one using the same ehcache.xml disk path
           because it does not use the singleton CacheManager any more */
         manager.shutdown();
 
@@ -348,7 +415,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         provider.start(null);
         org.hibernate.cache.Cache cache = provider.buildCache("sampleCache1", null);
 
-        //start up second provider pointing to ehcache-failsage.xml because it is there
+        //start up second provider pointing to ehcache-failsafe.xml because it is there
         net.sf.ehcache.hibernate.EhCacheProvider provider2 = new net.sf.ehcache.hibernate.EhCacheProvider();
 
         //Fire up a second provider, CacheManager and cache concurrently
@@ -445,7 +512,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
      */
     public void testNewHibernateSingletonEhcacheAndProviderNewFeatures() {
 
-        /*Shutdown cache manager so that hibernate can start one using the same cache.xml disk path
+        /*Shutdown cache manager so that hibernate can start one using the same ehcache.xml disk path
           because it does not use the singleton CacheManager any more */
         manager.shutdown();
 
