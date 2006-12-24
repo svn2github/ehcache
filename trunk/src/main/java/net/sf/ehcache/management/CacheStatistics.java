@@ -16,13 +16,12 @@
 
 package net.sf.ehcache.management;
 
-import net.sf.ehcache.Statistics;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Statistics;
 
-import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
-import java.io.Serializable;
+import javax.management.ObjectName;
 
 
 /**
@@ -44,7 +43,7 @@ import java.io.Serializable;
  * @version $Id$
  * @since 1.3
  */
-public class CacheStatistics implements CacheStatisticsMBean, Serializable {
+public class CacheStatistics implements CacheStatisticsMBean {
 
     private static final long serialVersionUID = 8085302752781762030L;
 

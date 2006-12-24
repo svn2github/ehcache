@@ -24,6 +24,9 @@ import net.sf.ehcache.config.ConfigurationFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import javax.management.JMException;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanInfo;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerFactory;
@@ -36,7 +39,9 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.rmi.registry.LocateRegistry;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * These tests use the JDK1.5 platform mbean server
@@ -130,11 +135,11 @@ public class ManagementServiceTest extends AbstractCacheTest {
     public void testStatisticsMBeanUpdatesAsStatsChange() throws Exception {
         ManagementService.registerMBeans(manager, mBeanServer, false, false, false, true);
         Ehcache cache = manager.getCache("sampleCache1");
-        ObjectName cacheName = CacheStatistics.createObjectName(manager.getName(), cache.getName());
-        assertEquals(new Long(0), mBeanServer.getAttribute(cacheName, "ObjectCount"));
+        ObjectName name = CacheStatistics.createObjectName(manager.getName(), cache.getName());
+        assertEquals(new Long(0), mBeanServer.getAttribute(name, "ObjectCount"));
         cache.put(new Element("1", "value"));
         cache.get("1");
-        assertEquals(new Long(1), mBeanServer.getAttribute(cacheName, "ObjectCount"));
+        assertEquals(new Long(1), mBeanServer.getAttribute(name, "ObjectCount"));
 
 
     }
@@ -210,7 +215,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
      */
     public void testListCachesFromManager() throws Exception {
         ManagementService.registerMBeans(manager, mBeanServer, true, false, false, false);
-       
+
         Ehcache ehcache = manager.getCache("sampleCache1");
 
         ehcache.put(new Element("key1", "value1"));
@@ -236,10 +241,35 @@ public class ManagementServiceTest extends AbstractCacheTest {
     }
 
     /**
-     * A manual test to ensure that everything makes sense from the JMX web server.
+     * Shows that all MBeans are fully traversable locally
+     * @throws JMException
+     */
+    public void testTraversalUsingMBeanServer() throws JMException {
+        //Test CacheManager
+        //not all attributes are accessible due to serializability constraints
+        traverseMBeanAttributesUsingMBeanServer("CacheManager");
+
+        //Test Cache
+        //not all attributes are accessible due to serializability constraints
+        traverseMBeanAttributesUsingMBeanServer("Cache");
+
+        //Test CacheStatistics
+        traverseMBeanAttributesUsingMBeanServer("CacheStatistics");
+
+        //Test CacheConfiguration
+        traverseMBeanAttributesUsingMBeanServer("CacheConfiguration");
+
+    }
+
+
+    /**
+     * Creates an RMI JMXConnectorServer, connects to it and demonstrates what attributes are traversable.
+     * The answer is not all.
+     *
      * Note that this test creates a Registry which will keep running until the JVM Exists. There
-     * is no way to stop it.
-     * todo fix Serializability
+     * is no way to stop it but it should do no harm.
+     *
+     *
      */
     public void testJMXConnectorServer() throws Exception {
 
@@ -263,15 +293,47 @@ public class ManagementServiceTest extends AbstractCacheTest {
         assertNotNull(ehcache.get("key1"));
         assertNotNull(ehcache.get("key2"));
 
-        ObjectName name = CacheManager.createObjectName(manager);
+        //Test CacheManager
+        //not all attributes are accessible due to serializability constraints
+        //traverseMBeanAttributes(connection, "CacheManager");
 
-        try {
-            List caches = (List) connection.getAttribute(name, "Caches");
-        } catch (IOException e) {
-            //this happens with current implementation, due to serializability failure
-        }
+        //Test Cache
+        //not all attributes are accessible due to serializability constraints
+        //traverseMBeanAttributes(connection, "Cache");
+
+        //Test CacheStatistics
+        traverseMBeanAttributes(connection, "CacheStatistics");
+
+        //Test CacheConfiguration
+        traverseMBeanAttributes(connection, "CacheConfiguration");
 
         cs.stop();
+    }
+
+    private void traverseMBeanAttributes(MBeanServerConnection connection, String type) throws JMException, IOException {
+        Set objectNames = connection.queryNames(new ObjectName("net.sf.ehcache:type=" + type + ",*"), null);
+        for (Iterator iterator = objectNames.iterator(); iterator.hasNext();) {
+            ObjectName objectName = (ObjectName) iterator.next();
+            MBeanInfo mBeanInfo = connection.getMBeanInfo(objectName);
+            MBeanAttributeInfo[] attributes = mBeanInfo.getAttributes();
+            for (int i = 0; i < attributes.length; i++) {
+                MBeanAttributeInfo attribute = attributes[i];
+                LOG.info(attribute.getName() + " " + connection.getAttribute(objectName, attribute.getName()));
+            }
+        }
+    }
+
+    private void traverseMBeanAttributesUsingMBeanServer(String type) throws JMException {
+        Set objectNames = mBeanServer.queryNames(new ObjectName("net.sf.ehcache:type=" + type + ",*"), null);
+        for (Iterator iterator = objectNames.iterator(); iterator.hasNext();) {
+            ObjectName objectName = (ObjectName) iterator.next();
+            MBeanInfo mBeanInfo = mBeanServer.getMBeanInfo(objectName);
+            MBeanAttributeInfo[] attributes = mBeanInfo.getAttributes();
+            for (int i = 0; i < attributes.length; i++) {
+                MBeanAttributeInfo attribute = attributes[i];
+                LOG.info(attribute.getName() + " " + mBeanServer.getAttribute(objectName, attribute.getName()));
+            }
+        }
     }
 
 
