@@ -1,5 +1,5 @@
 
-ehcache 1.2.4 User Guide
+ehcache 1.3.0 User Guide
 
     * {{{./preface.html}Preface}}
 
@@ -28,6 +28,8 @@ ehcache 1.2.4 User Guide
     * {{{./shutdown_considerations.html}Virtual Machine Shutdown Considerations}}
 
     * {{{./logging.html}Logging & Debugging}}
+
+    * {{{./jmx.html}JMX Management & Monitoring}}
 
     * {{{./configuration.html}Cache Configuration}}
 

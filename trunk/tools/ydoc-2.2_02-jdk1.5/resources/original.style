@@ -126,10 +126,10 @@ uml_display_order_methods=LEX-IC
 # as well as all classes Test in any packages
 #
 #
-uml_exclude_pattern_associations=
-uml_exclude_pattern_dependencies=
-uml_exclude_pattern_generalizations=
-uml_exclude_pattern_realizations=
+uml_exclude_pattern_associations=java.lang.*,java.util.*,org.apache.commons.logging.*
+uml_exclude_pattern_dependencies=java.lang.*,java.util.*,org.apache.commons.logging.*
+uml_exclude_pattern_generalizations=java.lang.*,java.util.*,org.apache.commons.logging.*
+uml_exclude_pattern_realizations=java.lang.*,java.util.*,org.apache.commons.logging.*
 
 #uml_display_parameters=
 

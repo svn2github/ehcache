@@ -77,6 +77,7 @@
     <!-- Runs checkstyle over the java source -->
     <target name="checkstyle" depends="generate-checkstyle-config, checkstyle-check"
             unless="checkstyle.up-to-date">
+        <echo message="up-to-date: ${checkstyle.up-to-date}"/>
         <taskdef name="checkstyle" classname="com.puppycrawl.tools.checkstyle.CheckStyleTask">
             <classpath>
                 <path location="${test.classes.dir}"/>
@@ -624,10 +625,9 @@
         <copy todir="${build.orion.dir}" file="${java.home}/../lib/tools.jar"/>
     </target>
 
-    <target name="book" depends="prepare-book-resources, fast-book"/>
 
     <!-- Requres LaTeX and netpbm-->
-    <target name="fast-book">
+    <target name="book">
         <mkdir dir="${build.dir}/book"/>
         <copy todir="${build.dir}/book/images">
             <fileset dir="src/site/resources/images"/>
@@ -688,6 +688,7 @@
                 <arg value="samples.apt"/>
                 <arg value="dependencies.apt"/>
                 <arg value="logging.apt"/>
+                <arg value="jmx.apt"/>
                 <arg value="class_loading.apt"/>
                 <arg value="performance_considerations.apt"/>
                 <arg value="cache_decorators.apt"/>
@@ -707,8 +708,11 @@
         </sequential>
     </macrodef>
 
-    <target name="prepare-book-resources" depends="compile, ydoc"/>
-
+    <target name="prepare-book-resources" depends="checkstyle-check" unless="checkstyle.up-to-date" >
+        <antcall target="compile"/>
+        <antcall target="ydoc"/>
+    </target>
+    
     <!-- Produce the ydocs images for the book and singlepage guide.  -->
     <target name="ydoc" description="Creates the javadocs">
 

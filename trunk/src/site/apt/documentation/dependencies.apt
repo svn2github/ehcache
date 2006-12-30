@@ -15,11 +15,14 @@ Java Requirements, Dependencies and Maven POM snippet
     Indeed the replication tests do this with 5 CacheManagers on the same VM all run from JUnit.
 
 
-* Dependencies
+* Mandatory Dependencies
 
-    Ehcache requires {{{http://jakarta.apache.org/commons/logging.html}commons-logging}}
+    Ehcache requires {{{http://jakarta.apache.org/commons/logging.html}commons-logging}} commons-logging is a very common dependency, and is therefore not included in the distribution.
 
-    commons-logging is a very common dependency, and is therefore not included in the distribution.
+* Optional Dependencies
+
+    The management package of ehcache requires JMX. Version 1.3 or higher will work. This is optional and only required if you are using the
+    <<<ManagementService>>>.
 
 
 * Maven pom.xml snippet

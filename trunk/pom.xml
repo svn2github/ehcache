@@ -230,12 +230,13 @@
             <version>1.6.1</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>httpunit</groupId>
-            <artifactId>httpunit</artifactId>
-            <version>1.6.1</version>
-            <scope>test</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>javax.management</groupId>-->
+            <!--<artifactId>jmx</artifactId>-->
+            <!--<version>1.3</version>-->
+            <!--<scope>system</scope>-->
+        <!--</dependency>-->
+        
         <!-- This is in here for completeness but does not work for Ant. See http://jira.codehaus.org/browse/MANT-21
         <dependency>
             <groupId>javax.cache</groupId>

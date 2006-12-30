@@ -48,6 +48,8 @@ import java.util.Set;
  * To interactively examine behaviour, add a Thread.sleep(...) and add -Dcom.sun.management.jmxremote to the java
  * invocation.
  *
+ * On Mac OS X, add -Dcom.sun.management.jmxremote to the java command line for JConsole to see the test
+ *
  * @author Greg Luck
  * @version $Id$
  */
@@ -140,6 +142,8 @@ public class ManagementServiceTest extends AbstractCacheTest {
         cache.put(new Element("1", "value"));
         cache.get("1");
         assertEquals(new Long(1), mBeanServer.getAttribute(name, "ObjectCount"));
+
+        Thread.sleep(1000000);
 
 
     }

@@ -44,6 +44,7 @@ import java.util.Set;
  * <p/>
  * The second purpose of this class (and this package) is to keep management concerns away from the core ehcache packages.
  * That way, JMX is not a required dependency, but rather an optional one.
+ * todo apt documentation
  *
  * @author Greg Luck
  * @version $Id$
@@ -83,12 +84,12 @@ public final class ManagementService implements CacheManagerEventListener {
      * as they are added and disposed of from the CacheManager. When the CacheManager itself shutsdown
      * all registered MBeans will be unregistered.
      *
-     * @param cacheManager
-     * @param mBeanServer
-     * @param registerCacheManager
-     * @param registerCaches
-     * @param registerCacheConfigurations
-     * @param registerCacheStatistics
+     * @param cacheManager the CacheManager to listen to
+     * @param mBeanServer the MBeanServer to register MBeans to
+     * @param registerCacheManager Whether to register the CacheManager MBean
+     * @param registerCaches Whether to register the Cache MBeans
+     * @param registerCacheConfigurations Whether to register the CacheConfiguration MBeans
+     * @param registerCacheStatistics Whether to register the CacheStatistics MBeans
      */
     public static void registerMBeans(
             net.sf.ehcache.CacheManager cacheManager,

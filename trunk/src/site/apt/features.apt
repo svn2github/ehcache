@@ -55,6 +55,7 @@
 
    * {{{#Cache event listeners}Cache event listeners}}
 
+ * {{{#JMX Enabled}JMX Enabled}}
 
  * Distributed
 
@@ -287,6 +288,21 @@
     * <<<notifyElementUpdated>>>
 
     * <<<notifyElementExpired>>>
+
+
+* {JMX Enabled}
+
+    Ehcache-1.3 is JMX enabled. You can monitor and manage the following MBeans:
+
+     * CacheManager
+
+     * Cache
+
+     * CacheConfiguration
+
+     * CacheStatistics
+
+    See the net.sf.ehcache.management package.
 
 * {Distributed Caching}
 

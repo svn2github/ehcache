@@ -28,6 +28,7 @@
 
      * {{{#Creating a new cache with custom parameters}Creating a new cache with custom parameters}}
 
+ *  {{{#Registering CacheStatistics in an MBeanServer}Registering CacheStatistics in an MBeanServer}}
 
  * {{{#Browse the JUnit Tests}Browse the JUnit Tests}}
 
@@ -337,6 +338,18 @@ public Cache(
 --------------------------------------------
 
    The cache is not usable until it has been added.
+
+
+*   {Registering CacheStatistics in an MBeanServer}
+
+    This example shows how to register CacheStatistics in the JDK1.5 platform MBeanServer, which
+    works with the JConsole management agent.
+
+---
+    CacheManager manager = new CacheManager();
+    MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+    ManagementService.registerMBeans(manager, mBeanServer, false, false, false, true);
+---
 
 * {Browse the JUnit Tests}
 
