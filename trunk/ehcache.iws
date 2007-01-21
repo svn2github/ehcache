@@ -31,22 +31,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/site/apt/documentation/jmx.apt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/ManagementService.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/ManagementService.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/jcache/CacheManagerTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/jcache/CacheManagerTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/site/resources/images/uml/ManagementService.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/samples.apt" afterPath="$PROJECT_DIR$/src/site/apt/samples.apt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/features.apt" afterPath="$PROJECT_DIR$/src/site/apt/features.apt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/documentation/dependencies.apt" afterPath="$PROJECT_DIR$/src/site/apt/documentation/dependencies.apt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/site/resources/images/uml/management_package.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/documentation/preface.apt" afterPath="$PROJECT_DIR$/src/site/apt/documentation/preface.apt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheFactory.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheFactory.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheEntry.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheEntry.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/RegisteredEventListeners.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/RegisteredEventListeners.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iml" afterPath="$PROJECT_DIR$/ehcache.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheStatistics.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheStatistics.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/jcache/JCacheStatisticsTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/jcache/JCacheStatisticsTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/documentation/jsr107.apt" afterPath="$PROJECT_DIR$/src/site/apt/documentation/jsr107.apt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheListenerAdaptor.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheListenerAdaptor.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/documentation/index.apt" afterPath="$PROJECT_DIR$/src/site/apt/documentation/index.apt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/management/ManagementServiceTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/management/ManagementServiceTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/site/resources/images/JConsoleExample.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/package.html" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/package.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tools/ydoc-2.2_02-jdk1.5/resources/original.style" afterPath="$PROJECT_DIR$/tools/ydoc-2.2_02-jdk1.5/resources/original.style" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/jcache/JCacheEntryTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/jcache/JCacheEntryTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/jcache/JCacheTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/jcache/JCacheTest.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/jcache-not_released.jar" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -230,46 +231,60 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="jmx.apt" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/jmx.apt">
+      <file leaf-file-name="pom.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="30" column="0" selection-start="1268" selection-end="1427" vertical-scroll-proportion="0.5494506">
+            <state line="215" column="88" selection-start="7019" selection-end="7019" vertical-scroll-proportion="0.48622754">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="samples.apt" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/site/apt/samples.apt">
+      <file leaf-file-name="RegisteredEventListeners.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/RegisteredEventListeners.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="12" column="109" selection-start="422" selection-end="422" vertical-scroll-proportion="0.26373628">
+            <state line="18" column="7" selection-start="648" selection-end="648" vertical-scroll-proportion="0.014117647">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="features.apt" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/site/apt/features.apt">
+      <file leaf-file-name="JCache.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="304" column="4" selection-start="10646" selection-end="10646" vertical-scroll-proportion="0.49717513">
+            <state line="18" column="7" selection-start="649" selection-end="649" vertical-scroll-proportion="0.014371257">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="preface.apt" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/preface.apt">
+      <file leaf-file-name="maven-v4_0_0.xsd" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/config/maven-v4_0_0.xsd">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="11" column="102" selection-start="345" selection-end="345" vertical-scroll-proportion="0.24175824">
+            <state line="869" column="39" selection-start="41571" selection-end="41571" vertical-scroll-proportion="0.014371257">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="JConsoleExample.png" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/site/resources/images/JConsoleExample.png">
-          <provider selected="true" editor-type-id="images">
+      <file leaf-file-name="overview.html" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/overview.html">
+          <provider editor-type-id="HtmlPreview">
             <state />
+          </provider>
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="12" column="72" selection-start="231" selection-end="231" vertical-scroll-proportion="0.18250951">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SelfPopulatingCacheTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/SelfPopulatingCacheTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="39" column="96" selection-start="1370" selection-end="1370" vertical-scroll-proportion="0.014117647">
+              <folding />
+            </state>
           </provider>
         </entry>
       </file>
@@ -279,7 +294,7 @@
             <state />
           </provider>
           <provider selected="true" editor-type-id="text-editor">
-            <state line="16" column="48" selection-start="620" selection-end="620" vertical-scroll-proportion="0.384">
+            <state line="16" column="48" selection-start="620" selection-end="620" vertical-scroll-proportion="0.23880596">
               <folding />
             </state>
           </provider>
@@ -288,7 +303,7 @@
       <file leaf-file-name="build.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/build.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="707" column="105" selection-start="29502" selection-end="29502" vertical-scroll-proportion="0.43502825">
+            <state line="406" column="12" selection-start="16836" selection-end="16836" vertical-scroll-proportion="0.014371257">
               <folding />
             </state>
           </provider>
@@ -297,7 +312,7 @@
       <file leaf-file-name="dependencies.apt" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/dependencies.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="28" column="46" selection-start="1287" selection-end="1287" vertical-scroll-proportion="0.63276833">
+            <state line="28" column="46" selection-start="1287" selection-end="1287" vertical-scroll-proportion="0.40239522">
               <folding />
             </state>
           </provider>
@@ -306,16 +321,7 @@
       <file leaf-file-name="ManagementServiceTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/management/ManagementServiceTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="55" column="13" selection-start="2034" selection-end="2034" vertical-scroll-proportion="-4.74359">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="AbstractCacheTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/AbstractCacheTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="64" column="44" selection-start="1763" selection-end="1795" vertical-scroll-proportion="0.41758242">
+            <state line="55" column="13" selection-start="2034" selection-end="2034" vertical-scroll-proportion="0.014117647">
               <folding />
             </state>
           </provider>
@@ -366,7 +372,20 @@
     <option name="LAST_EDITED_TAB_NAME" />
   </component>
   <component name="NamedScopeManager" />
-  <component name="PackagesPane" />
+  <component name="PackagesPane">
+    <subPane>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache.ipr" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="ehcache" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+        </PATH_ELEMENT>
+      </PATH>
+    </subPane>
+  </component>
   <component name="PerforceChangeBrowserSettings">
     <option name="USE_CLIENT_FILTER" value="true" />
     <option name="CLIENT" value="" />
@@ -474,231 +493,7 @@
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
         <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/tools" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/tools" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/tools/ydoc-2.2_02-jdk1.5" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/tools" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/tools/ydoc-2.2_02-jdk1.5" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/tools/ydoc-2.2_02-jdk1.5/resources" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/tools" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/tools/ydoc-2.2_02-jdk1.5" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/tools/ydoc-2.2_02-jdk1.5/lib" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/tools" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/tools/ydoc-2.2_02-jdk1.5" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/tools/ydoc-2.2_02-jdk1.5/doc" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
           <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf/ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf/ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf/ehcache/management" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
@@ -747,126 +542,6 @@
         </PATH_ELEMENT>
         <PATH_ELEMENT>
           <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site/resources" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site/resources" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site/resources/images" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site/resources" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site/resources/images" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site/resources/images/uml" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site/apt" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site/apt" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/site/apt/documentation" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
@@ -921,18 +596,6 @@
           <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main/java/net/sf/ehcache/management" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
       </PATH>
       <PATH>
         <PATH_ELEMENT>
@@ -948,36 +611,14 @@
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
         <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/main" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/config" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
     </subPane>
   </component>
   <component name="ProjectReloadState">
-    <option name="STATE" value="0" />
+    <option name="STATE" value="2" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="0.11111111" version="1" splitterProportion="0.5">
@@ -987,7 +628,7 @@
       <showLibraryContents />
       <hideEmptyPackages />
       <abbreviatePackageNames />
-      <showStructure ProjectPane="false" Favorites="false" />
+      <showStructure ProjectPane="false" PackagesPane="false" Scope="false" Favorites="false" />
       <autoscrollToSource />
       <autoscrollFromSource />
       <sortByType />
@@ -1017,17 +658,29 @@
   </component>
   <component name="RecentsManager" />
   <component name="RestoreUpdateTree" />
-  <component name="RunManager" selected="JUnit.ManagementServiceTest.testStatisticsMBeanUpdatesAsStatsChange">
-    <configuration default="true" type="Application" factoryName="Application" enabled="false" merge="false">
-      <option name="MAIN_CLASS_NAME" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+  <component name="RunManager" selected="JUnit.ElementTest.testIsSerializable">
+    <tempConfiguration default="false" name="ElementTest.testIsSerializable" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+      <pattern value="net.sf.ehcache.*" />
+      <module name="ehcache" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <module name="" />
-    </configuration>
+      <option name="PACKAGE_NAME" value="net.sf.ehcache" />
+      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.ElementTest" />
+      <option name="METHOD_NAME" value="testIsSerializable" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ADDITIONAL_CLASS_PATH" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="wholeProject" />
+      </option>
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method>
+        <option name="Make" value="true" />
+      </method>
+    </tempConfiguration>
     <configuration default="true" type="Remote" factoryName="Remote">
       <option name="USE_SOCKET_TRANSPORT" value="true" />
       <option name="SERVER_MODE" value="false" />
@@ -1053,6 +706,16 @@
       <method>
         <option name="Make" value="true" />
       </method>
+    </configuration>
+    <configuration default="true" type="Application" factoryName="Application" enabled="false" merge="false">
+      <option name="MAIN_CLASS_NAME" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <module name="" />
     </configuration>
     <configuration default="true" type="Applet" factoryName="Applet">
       <module name="" />
@@ -1089,7 +752,16 @@
       </method>
     </configuration>
   </component>
-  <component name="ScopeViewComponent" />
+  <component name="ScopeViewComponent">
+    <subPane subId="Project">
+      <PATH>
+        <PATH_ELEMENT USER_OBJECT="Root">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+      </PATH>
+    </subPane>
+  </component>
   <component name="SelectInManager" />
   <component name="StarteamConfiguration">
     <option name="SERVER" value="" />
@@ -1163,7 +835,7 @@
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="7" />
       <window_info id="Checkstyle" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24951644" order="0" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24564797" order="0" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
@@ -1173,7 +845,7 @@
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33" order="2" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="2" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="2" />
       <window_info id="File View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="4" />
@@ -1201,7 +873,7 @@
     <option name="PERFORM_COMMIT_IN_BACKGROUND" value="false" />
     <option name="PUT_FOCUS_INTO_COMMENT" value="false" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Finished JMX testing for now" />
+    <option name="LAST_COMMIT_MESSAGE" value="JMX documentation" />
     <option name="SAVE_LAST_COMMIT_MESSAGE" value="true" />
     <option name="CHECKIN_DIALOG_SPLITTER_PROPORTION" value="0.8" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
@@ -1215,6 +887,7 @@
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
     <MESSAGE value="Finished JMX testing for now" />
+    <MESSAGE value="JMX documentation" />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -1250,7 +923,9 @@
       <option name="ANSWER_NEGATIVELY" value="false" />
       <option name="ANSWER_POSITIVELY" value="false" />
       <option name="RECURSIVE" value="false" />
+      <option name="VERSION" />
     </GetOptions>
+    <VssConfigurableExcludedFilesTag />
   </component>
   <component name="WebViewSettings">
     <webview flattenPackages="false" showMembers="false" autoscrollToSource="false" />
@@ -1270,58 +945,73 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheStatistics.java">
+    <entry file="file://$PROJECT_DIR$/src/site/resources/images/JConsoleExample.png">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="73" column="64" selection-start="2618" selection-end="2733" vertical-scroll-proportion="0.7175141">
+        <state line="181" column="90" selection-start="6822" selection-end="6822" vertical-scroll-proportion="0.09647059">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheConfiguration.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/SelfPopulatingCache.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="57" column="64" selection-start="1916" selection-end="2034" vertical-scroll-proportion="0.85714287">
+        <state line="44" column="46" selection-start="1645" selection-end="1645" vertical-scroll-proportion="0.014117647">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/CacheMBean.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/blocking/BlockingCache.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="25" selection-start="1021" selection-end="1021" vertical-scroll-proportion="0.43956044">
+        <state line="103" column="131" selection-start="4570" selection-end="4570" vertical-scroll-proportion="0.014371257">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/management/Cache.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="36" selection-start="2211" selection-end="2316" vertical-scroll-proportion="0.26373628">
+        <state line="40" column="13" selection-start="1225" selection-end="1225" vertical-scroll-proportion="0.014117647">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/AbstractCacheTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/event/RegisteredEventListeners.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="64" column="44" selection-start="1763" selection-end="1795" vertical-scroll-proportion="0.41758242">
+        <state line="18" column="7" selection-start="648" selection-end="648" vertical-scroll-proportion="0.014117647">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/dependencies.apt">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="28" column="46" selection-start="1287" selection-end="1287" vertical-scroll-proportion="0.63276833">
+        <state line="18" column="7" selection-start="649" selection-end="649" vertical-scroll-proportion="0.014371257">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build.xml">
+    <entry file="file://$PROJECT_DIR$/config/maven-v4_0_0.xsd">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="707" column="105" selection-start="29502" selection-end="29502" vertical-scroll-proportion="0.43502825">
+        <state line="869" column="39" selection-start="41571" selection-end="41571" vertical-scroll-proportion="0.014371257">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tools/ydoc-2.2_02-jdk1.5/resources/ydoc.properties">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/overview.html">
+      <provider editor-type-id="HtmlPreview">
+        <state />
+      </provider>
       <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="12" selection-start="469" selection-end="469" vertical-scroll-proportion="0.6593407">
+        <state line="12" column="72" selection-start="231" selection-end="231" vertical-scroll-proportion="0.18250951">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/blocking/SelfPopulatingCacheTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="39" column="96" selection-start="1370" selection-end="1370" vertical-scroll-proportion="0.014117647">
           <folding />
         </state>
       </provider>
@@ -1331,47 +1021,35 @@
         <state />
       </provider>
       <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="48" selection-start="620" selection-end="620" vertical-scroll-proportion="0.384">
+        <state line="16" column="48" selection-start="620" selection-end="620" vertical-scroll-proportion="0.23880596">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="406" column="12" selection-start="16836" selection-end="16836" vertical-scroll-proportion="0.014371257">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/dependencies.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="28" column="46" selection-start="1287" selection-end="1287" vertical-scroll-proportion="0.40239522">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/management/ManagementServiceTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="55" column="13" selection-start="2034" selection-end="2034" vertical-scroll-proportion="-4.74359">
+        <state line="55" column="13" selection-start="2034" selection-end="2034" vertical-scroll-proportion="0.014117647">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/samples.apt">
+    <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="109" selection-start="422" selection-end="422" vertical-scroll-proportion="0.26373628">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/jmx.apt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="0" selection-start="1268" selection-end="1427" vertical-scroll-proportion="0.5494506">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/preface.apt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="11" column="102" selection-start="345" selection-end="345" vertical-scroll-proportion="0.24175824">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/resources/images/JConsoleExample.png">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/site/apt/features.apt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="304" column="4" selection-start="10646" selection-end="10646" vertical-scroll-proportion="0.49717513">
+        <state line="215" column="88" selection-start="7019" selection-end="7019" vertical-scroll-proportion="0.48622754">
           <folding />
         </state>
       </provider>

@@ -19,10 +19,10 @@ package net.sf.jcache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.cache.CacheManager;
-import javax.cache.Cache;
-import javax.cache.CacheException;
-import javax.cache.CacheEntry;
+import net.sf.jsr107cache.CacheManager;
+import net.sf.jsr107cache.Cache;
+import net.sf.jsr107cache.CacheException;
+import net.sf.jsr107cache.CacheEntry;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Element;

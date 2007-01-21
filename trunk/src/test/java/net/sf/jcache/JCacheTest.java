@@ -24,11 +24,11 @@ import net.sf.ehcache.jcache.JCache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.cache.Cache;
-import javax.cache.CacheEntry;
-import javax.cache.CacheException;
-import javax.cache.CacheManager;
-import javax.cache.CacheStatistics;
+import net.sf.jsr107cache.Cache;
+import net.sf.jsr107cache.CacheEntry;
+import net.sf.jsr107cache.CacheException;
+import net.sf.jsr107cache.CacheManager;
+import net.sf.jsr107cache.CacheStatistics;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -20,10 +20,10 @@ import junit.framework.TestCase;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
-import javax.cache.Cache;
-import javax.cache.CacheException;
-import javax.cache.CacheFactory;
-import javax.cache.CacheManager;
+import net.sf.jsr107cache.Cache;
+import net.sf.jsr107cache.CacheException;
+import net.sf.jsr107cache.CacheFactory;
+import net.sf.jsr107cache.CacheManager;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,8 +70,8 @@ public class CacheManagerTest extends TestCase {
 
 
     /**
-     * CacheManager requires a resource called javax.cache.CacheFactory containing the fully
-     * qualified class name of a cache factory be at /META-INF/services/javax.cache.CacheFactory.
+     * CacheManager requires a resource called net.sf.jsr107cache.CacheFactory containing the fully
+     * qualified class name of a cache factory be at /META-INF/services/net.sf.jsr107cache.CacheFactory.
      *
      * @throws CacheException
      */
@@ -84,8 +84,8 @@ public class CacheManagerTest extends TestCase {
 
 
     /**
-     * CacheManager requires a resource called javax.cache.CacheFactory containing the fully
-     * qualified class name of a cache factory be at /META-INF/services/javax.cache.CacheFactory.
+     * CacheManager requires a resource called net.sf.jsr107cache.CacheFactory containing the fully
+     * qualified class name of a cache factory be at /META-INF/services/net.sf.jsr107cache.CacheFactory.
      *
      * Create a cache using found factory
      *

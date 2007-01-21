@@ -22,7 +22,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.jcache.JCacheListenerAdaptor;
 import net.sf.ehcache.distribution.CacheReplicator;
 
-import javax.cache.CacheListener;
+import net.sf.jsr107cache.CacheListener;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;

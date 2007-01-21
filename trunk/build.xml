@@ -77,7 +77,6 @@
     <!-- Runs checkstyle over the java source -->
     <target name="checkstyle" depends="generate-checkstyle-config, checkstyle-check"
             unless="checkstyle.up-to-date">
-        <echo message="up-to-date: ${checkstyle.up-to-date}"/>
         <taskdef name="checkstyle" classname="com.puppycrawl.tools.checkstyle.CheckStyleTask">
             <classpath>
                 <path location="${test.classes.dir}"/>

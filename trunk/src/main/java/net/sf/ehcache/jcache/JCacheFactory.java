@@ -19,9 +19,9 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.util.PropertyUtil;
 
-import javax.cache.Cache;
-import javax.cache.CacheException;
-import javax.cache.CacheFactory;
+import net.sf.jsr107cache.Cache;
+import net.sf.jsr107cache.CacheException;
+import net.sf.jsr107cache.CacheFactory;
 import java.util.Map;
 
 /**

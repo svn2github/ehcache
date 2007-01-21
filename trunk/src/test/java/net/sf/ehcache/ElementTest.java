@@ -230,7 +230,8 @@ public class ElementTest extends AbstractCacheTest {
     public void testIsSerializable() {
 
         Element element = new Element(null, null);
-        element.isSerializable();
+        assertTrue(element.isSerializable());
+
 
     }
 

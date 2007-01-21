@@ -12,7 +12,7 @@ JSR107 (JCACHE) Support
 
 
 
-** javax.cache.CacheManager
+** net.sf.jsr107cache.CacheManager
 
     CacheManager does not have the following features:
 
@@ -27,9 +27,9 @@ JSR107 (JCACHE) Support
 
 
 
-** javax.cache.CacheFactory
+** net.sf.jsr107cache.CacheFactory
 
-    A property is specified in the resource services/javax.cache.CacheFactory for a CacheFactory.
+    A property is specified in the resource services/net.sf.jsr107cache.CacheFactory for a CacheFactory.
 
     The factory then resolves the CacheManager which must be a singleton.
 
@@ -42,7 +42,7 @@ JSR107 (JCACHE) Support
     (Alternatives: Some form of annotation and injection scheme)
 
 
-**  javax.cache.Cache
+**  net.sf.jsr107cache.Cache
 
     *   The spec is silent on whether a Cache can be used in the absence of a CacheManager. Requiring
         a CacheManager makes a central place where concerns affecting all caches can be managed, not
@@ -77,7 +77,7 @@ JSR107 (JCACHE) Support
         <<<null>>> is effectively a valid key. However because <<<null>>> id not an instance of <<<Serializable>>> null-keyed
         entries will be limited to in-process memory.
 
-**  javax.cache.CacheEntry
+**  net.sf.jsr107cache.CacheEntry
 
     *   getHits() returns int. It should return long because production cache systems have entries hit more
         than Integer.MAX_VALUE times.
@@ -98,7 +98,7 @@ JSR107 (JCACHE) Support
 -----
 
 
-** javax.cache.CacheStatistics
+** net.sf.jsr107cache.CacheStatistics
 
     *   getObjectCount() is a strange name. How about getSize()? If a cache entry is an object graph
         each entry will have more than one "object" in it. But the cache size is what is really meant,

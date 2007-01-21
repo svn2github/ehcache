@@ -22,8 +22,8 @@ import net.sf.ehcache.jcache.JCache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.cache.Cache;
-import javax.cache.CacheStatistics;
+import net.sf.jsr107cache.Cache;
+import net.sf.jsr107cache.CacheStatistics;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

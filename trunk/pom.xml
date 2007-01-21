@@ -230,21 +230,28 @@
             <version>1.6.1</version>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>javax.management</groupId>-->
-            <!--<artifactId>jmx</artifactId>-->
-            <!--<version>1.3</version>-->
-            <!--<scope>system</scope>-->
-        <!--</dependency>-->
-        
-        <!-- This is in here for completeness but does not work for Ant. See http://jira.codehaus.org/browse/MANT-21
         <dependency>
-            <groupId>javax.cache</groupId>
-            <artifactId>jcache</artifactId>
-            <version>not_released</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/tools/jcache.jar</systemPath>
-        </dependency> -->
+            <groupId>net.sf.jsr107cache</groupId>
+            <artifactId>jsr107cache</artifactId>
+            <version>1.0</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!--<dependency>-->
+        <!--<groupId>javax.management</groupId>-->
+        <!--<artifactId>jmx</artifactId>-->
+        <!--<version>1.3</version>-->
+        <!--<scope>system</scope>-->
+        <!--</dependency>-->
+
+        <!-- This is in here for completeness but does not work for Ant. See http://jira.codehaus.org/browse/MANT-21
+       <dependency>
+           <groupId>net.sf.jsr107cache</groupId>
+           <artifactId>jcache</artifactId>
+           <version>not_released</version>
+           <scope>system</scope>
+           <systemPath>${basedir}/tools/jcache.jar</systemPath>
+       </dependency> -->
     </dependencies>
 
     <licenses>
@@ -268,9 +275,9 @@
     <distributionManagement>
         <!-- Private repository -->
         <!--<repository>-->
-            <!--<url>scp://localhost//Users/gluck/gluck_repository</url>-->
-            <!--<id>gluck_repository</id>-->
-            <!--<name>gluck_repository</name>-->
+        <!--<url>scp://localhost//Users/gluck/gluck_repository</url>-->
+        <!--<id>gluck_repository</id>-->
+        <!--<name>gluck_repository</name>-->
         <!--</repository>-->
         <!--<repository>-->
         <!--<id>sf-ehcache-repository</id>-->
@@ -308,7 +315,9 @@
 
     <scm>
         <connection>scm:svn:https://ehcache.svn.sourceforge.net/svnroot/ehcache</connection>
-        <developerConnection>scm:svn:https://username@ehcache.svn.sourceforge.net/svnroot/ehcache</developerConnection>
+        <developerConnection>
+            scm:svn:https://username@ehcache.svn.sourceforge.net/svnroot/ehcache
+        </developerConnection>
         <tag/>
         <url>http://svn.sourceforge.net/viewcvs.cgi/ehcache/</url>
     </scm>

@@ -19,10 +19,10 @@ package net.sf.ehcache.jcache;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
-import javax.cache.CacheEntry;
-import javax.cache.CacheException;
-import javax.cache.CacheListener;
-import javax.cache.CacheStatistics;
+import net.sf.jsr107cache.CacheEntry;
+import net.sf.jsr107cache.CacheException;
+import net.sf.jsr107cache.CacheListener;
+import net.sf.jsr107cache.CacheStatistics;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,7 +43,7 @@ import java.util.Set;
  * @author Greg Luck
  * @version $Id$
  */
-public class JCache implements javax.cache.Cache {
+public class JCache implements net.sf.jsr107cache.Cache {
 
 
     /**
