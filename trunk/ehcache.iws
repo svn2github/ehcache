@@ -31,28 +31,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/JCacheEntryTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/JCacheEntryTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/java/net/sf/jcache/CacheFactory" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/java/net/sf/jcache/JCacheTest.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/JCacheTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/JCacheTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/config/jcache/META-INF/services/net.sf.jsr107cache.CacheFactory" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iml" afterPath="$PROJECT_DIR$/ehcache.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/JCacheStatisticsTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/JCacheStatisticsTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheListenerAdaptor.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheListenerAdaptor.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/java/net/sf/jcache/META-INF" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/java/net/sf/jcache/META-INF/services/javax.cache.CacheFactory" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/management/ManagementServiceTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/management/ManagementServiceTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/META-INF/services/net.sf.jsr107cache.CacheFactory" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/java/net/sf/jcache/CacheManagerTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/java/net/sf/jcache" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/java/net/sf/jcache/JCacheStatisticsTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/java/net/sf/jcache/META-INF/services" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/java/net/sf/jcache/JCacheEntryTest.java" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java" />
     </list>
   </component>
@@ -240,7 +219,7 @@
       <file leaf-file-name="ElementTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="215" column="22" selection-start="7758" selection-end="7758" vertical-scroll-proportion="0.8754579">
+            <state line="215" column="19" selection-start="7758" selection-end="7758" vertical-scroll-proportion="0.8754579">
               <folding />
             </state>
           </provider>
@@ -267,7 +246,7 @@
       <file leaf-file-name="JCacheEntryTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/JCacheEntryTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="28" column="12" selection-start="954" selection-end="954" vertical-scroll-proportion="0.30769232">
+            <state line="28" column="0" selection-start="954" selection-end="954" vertical-scroll-proportion="0.30769232">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -278,7 +257,7 @@
       <file leaf-file-name="JCacheStatisticsTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/JCacheStatisticsTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="20" column="13" selection-start="727" selection-end="727" vertical-scroll-proportion="0.13186814">
+            <state line="37" column="13" selection-start="1206" selection-end="1206" vertical-scroll-proportion="0.2893773">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -289,7 +268,7 @@
       <file leaf-file-name="JCacheTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/JCacheTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="53" column="90" selection-start="1620" selection-end="1620" vertical-scroll-proportion="0.45787546">
+            <state line="53" column="0" selection-start="1619" selection-end="1619" vertical-scroll-proportion="0.45787546">
               <folding />
             </state>
           </provider>
@@ -304,10 +283,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="JCache.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="JCache.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="115" column="44" selection-start="4461" selection-end="4490" vertical-scroll-proportion="-1.2259887">
+            <state line="34" column="87" selection-start="1113" selection-end="1113" vertical-scroll-proportion="0.15819208">
               <folding />
             </state>
           </provider>
@@ -322,7 +301,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="pom.xml" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="pom.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
             <state line="216" column="88" selection-start="7076" selection-end="7076" vertical-scroll-proportion="0.2259887">
@@ -549,48 +528,6 @@
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
         <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf/jcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf/jcache/META-INF" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="ehcache" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
           <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf/ehcache" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
@@ -618,10 +555,6 @@
         </PATH_ELEMENT>
         <PATH_ELEMENT>
           <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/net/sf" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
         <PATH_ELEMENT>
@@ -1093,12 +1026,12 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="OFFER_MOVE_TO_ANOTHER_CHANGELIST_ON_PARTIAL_COMMIT" value="true" />
-    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="PERFORM_UPDATE_IN_BACKGROUND" value="false" />
     <option name="PERFORM_COMMIT_IN_BACKGROUND" value="false" />
     <option name="PUT_FOCUS_INTO_COMMENT" value="false" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="JMX documentation" />
+    <option name="LAST_COMMIT_MESSAGE" value="Build good. Changed the META-INF JCACHE factory file to net.sf.jsr107cache and fixed a broken test" />
     <option name="SAVE_LAST_COMMIT_MESSAGE" value="true" />
     <option name="CHECKIN_DIALOG_SPLITTER_PROPORTION" value="0.8" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
@@ -1113,6 +1046,7 @@
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
     <MESSAGE value="Finished JMX testing for now" />
     <MESSAGE value="JMX documentation" />
+    <MESSAGE value="Build good. Changed the META-INF JCACHE factory file to net.sf.jsr107cache and fixed a broken test" />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -1207,7 +1141,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="215" column="22" selection-start="7758" selection-end="7758" vertical-scroll-proportion="0.8754579">
+        <state line="215" column="19" selection-start="7758" selection-end="7758" vertical-scroll-proportion="0.8754579">
           <folding />
         </state>
       </provider>
@@ -1228,16 +1162,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/JCacheEntryTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="28" column="12" selection-start="954" selection-end="954" vertical-scroll-proportion="0.30769232">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/JCacheStatisticsTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="20" column="13" selection-start="727" selection-end="727" vertical-scroll-proportion="0.13186814">
+        <state line="28" column="0" selection-start="954" selection-end="954" vertical-scroll-proportion="0.30769232">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -1246,7 +1171,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/JCacheTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="53" column="90" selection-start="1620" selection-end="1620" vertical-scroll-proportion="0.45787546">
+        <state line="53" column="0" selection-start="1619" selection-end="1619" vertical-scroll-proportion="0.45787546">
           <folding />
         </state>
       </provider>
@@ -1254,13 +1179,6 @@
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/ManualRMICacheReplicatorTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="45" column="3" selection-start="1377" selection-end="1377" vertical-scroll-proportion="0.21978022">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="115" column="44" selection-start="4461" selection-end="4490" vertical-scroll-proportion="-1.2259887">
           <folding />
         </state>
       </provider>
@@ -1275,6 +1193,22 @@
     <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state line="216" column="88" selection-start="7076" selection-end="7076" vertical-scroll-proportion="0.2259887">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/JCacheStatisticsTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="37" column="13" selection-start="1206" selection-end="1206" vertical-scroll-proportion="0.2893773">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="34" column="87" selection-start="1113" selection-end="1113" vertical-scroll-proportion="0.15819208">
           <folding />
         </state>
       </provider>
