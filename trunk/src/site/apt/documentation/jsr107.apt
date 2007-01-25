@@ -77,6 +77,16 @@ JSR107 (JCACHE) Support
         <<<null>>> is effectively a valid key. However because <<<null>>> id not an instance of <<<Serializable>>> null-keyed
         entries will be limited to in-process memory.
 
+
+    *   The <<<load(Object key)>>>, <<<loadAll(Collection keys)>>> and <<<getAll(Collection collection)>>> methods
+        specify in the javadoc that they should be asynchronous. Now, most load methods work off a database or some other
+        relatively slow resource (otherwise there would be no need to have a cache in the first place).
+
+        To be asynchronous, each 
+
+
+
+
 **  net.sf.jsr107cache.CacheEntry
 
     *   getHits() returns int. It should return long because production cache systems have entries hit more
@@ -150,7 +160,7 @@ public interface CacheStatistics {
 
         A much better solution would be to move clearStatistics() to Cache.
 
-** CacheListener
+** net.sf.jsr107cache.CacheListener
 
 -----
 
@@ -176,8 +186,11 @@ public interface CacheStatistics {
 
 -----
 
-    Listeners often need not just the key, but the cache Entry itself. This listener interface
-    is extremely limiting.
+    *   Listeners often need not just the key, but the cache Entry itself. This listener interface
+        is extremely limiting.
+
+    *   Ehcache has a removeAll notification. There is no analogue in JCACHE. No notification is done.
+
 
 
 
