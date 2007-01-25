@@ -23,6 +23,8 @@ import net.sf.jsr107cache.CacheEntry;
 import net.sf.jsr107cache.CacheException;
 import net.sf.jsr107cache.CacheListener;
 import net.sf.jsr107cache.CacheStatistics;
+import net.sf.jsr107cache.CacheLoader;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,6 +54,9 @@ public class JCache implements net.sf.jsr107cache.Cache {
     private Ehcache cache;
 
 
+    private CacheLoader loader;
+
+
     /**
      * A constructor for JCache.
      *
@@ -67,8 +72,9 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * @param cache An ehcache
      * @since 1.3
      */
-    public JCache(Ehcache cache) {
+    public JCache(Ehcache cache, CacheLoader loader) {
         this.cache = cache;
+        this.loader = loader;
     }
 
     /**

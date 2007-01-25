@@ -225,13 +225,14 @@ public class ElementTest extends AbstractCacheTest {
     }
 
     /**
-     * Checks that isSerializable still works if either key or value is null
+     * Tests that isSerializable does not blow up is if either key or value is null
+     * A null, null will not be serializable
      */
     public void testIsSerializable() {
 
         Element element = new Element(null, null);
-        assertTrue(element.isSerializable());
-
+        assertFalse(element.isKeySerializable());
+        assertFalse(element.isSerializable());
 
     }
 

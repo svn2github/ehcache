@@ -14,13 +14,12 @@
  *  limitations under the License.
  */
 
-package net.sf.jcache;
+package net.sf.ehcache.jcache;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.StopWatch;
 import net.sf.ehcache.ThreadKiller;
-import net.sf.ehcache.jcache.JCache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -42,7 +41,6 @@ import java.util.Set;
  *
  * @author Greg Luck, Claus Ibsen
  * @version $Id$
- * todo release interface API as net.sf.opencache
  */
 public class JCacheTest extends AbstractCacheTest {
     private static final Log LOG = LogFactory.getLog(JCacheTest.class.getName());
@@ -139,7 +137,7 @@ public class JCacheTest extends AbstractCacheTest {
 
     /**
      * Checks we cannot use a cache outside the manager
-     * todo is the jsr107 silent on whether you can do this?
+     * Is the jsr107 silent on whether you can do this?
      */
 //    public void testUseCacheOutsideManager() throws CacheException {
 
@@ -151,7 +149,7 @@ public class JCacheTest extends AbstractCacheTest {
 
     /**
      * Test using a cache which has been removed and replaced.
-     * todo is the jsr107 silent on whether you can do this?
+     * Is the jsr107 silent on whether you can do this?
      */
 //    public void testStaleCacheReference() throws CacheException {
 

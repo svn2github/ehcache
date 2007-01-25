@@ -231,11 +231,18 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>net.sf.jsr107cache</groupId>
-            <artifactId>jsr107cache</artifactId>
-            <version>1.0</version>
+            <groupId>backport-util-concurrent</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+            <version>3.0</version>
             <scope>compile</scope>
         </dependency>
+        <!--Waiting to be added to central. Added to tools in the meantime -->
+        <!--<dependency>-->
+        <!--<groupId>net.sf.jsr107cache</groupId>-->
+        <!--<artifactId>jsr107cache</artifactId>-->
+        <!--<version>1.0</version>-->
+        <!--<scope>compile</scope>-->
+        <!--</dependency>-->
 
         <!--<dependency>-->
         <!--<groupId>javax.management</groupId>-->
@@ -244,14 +251,7 @@
         <!--<scope>system</scope>-->
         <!--</dependency>-->
 
-        <!-- This is in here for completeness but does not work for Ant. See http://jira.codehaus.org/browse/MANT-21
-       <dependency>
-           <groupId>net.sf.jsr107cache</groupId>
-           <artifactId>jcache</artifactId>
-           <version>not_released</version>
-           <scope>system</scope>
-           <systemPath>${basedir}/tools/jcache.jar</systemPath>
-       </dependency> -->
+
     </dependencies>
 
     <licenses>

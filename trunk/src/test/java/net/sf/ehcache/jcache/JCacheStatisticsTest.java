@@ -14,11 +14,10 @@
  *  limitations under the License.
  */
 
-package net.sf.jcache;
+package net.sf.ehcache.jcache;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.jcache.JCache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

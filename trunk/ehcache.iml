@@ -205,15 +205,6 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MAVEN_REPOSITORY_PATH$/net/sf/jsr107cache/jsr107cache/1.0/jsr107cache-1.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
           <root url="jar://$MAVEN_REPOSITORY_PATH$/xerces/xmlParserAPIs/2.2.1/xmlParserAPIs-2.2.1.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -224,6 +215,15 @@
       <library>
         <CLASSES>
           <root url="jar://$MAVEN_REPOSITORY_PATH$/commons-httpclient/commons-httpclient/3.0.1/commons-httpclient-3.0.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/tools/jsr107cache-1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.jcache;
+package net.sf.ehcache.jcache;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,7 +26,6 @@ import net.sf.jsr107cache.CacheEntry;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.jcache.JCacheEntry;
 
 import java.util.Map;
 import java.util.HashMap;

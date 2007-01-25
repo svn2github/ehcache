@@ -141,7 +141,9 @@ public class JCacheListenerAdaptor implements CacheEventListener {
      * @param element the element that has just been evicted
      */
     public void notifyElementEvicted(final Ehcache cache, final Element element) {
-        //todo
+        if (element != null) {
+            cacheListener.onEvict(element.getObjectKey());
+        }
     }
 
     /**
@@ -153,11 +155,14 @@ public class JCacheListenerAdaptor implements CacheEventListener {
      * This notification exists because clearing a cache is a special case. It is often
      * not practical to serially process notifications where potentially millions of elements
      * have been bulk deleted.
+     * <p/>
+     * Note: There is no analogue in JCACHE to this method. It is not possible to know what
+     * elements were removed. Accordingly, no notification is done.
      *
      * @param cache the cache emitting the notification
      */
     public void notifyRemoveAll(final Ehcache cache) {
-        //todo
+        //noop
     }
 
     /**
