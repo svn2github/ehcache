@@ -32,7 +32,8 @@
     <path id="project.class.path">
         <path refid="dependency.classpath"/>
         <!--Overcome Maven Antlib bugs -->
-        <!--<path location="tools/jsr107cache-1.0.jar"/>-->
+        <path location="tools/jmxremote-1_0_1.jar"/>
+        <path location="tools/jmxri-1.2.1.jar"/>
     </path>
 
     <target name="clean" description="Cleans the build directory">

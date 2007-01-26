@@ -37,7 +37,7 @@ import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 import java.io.File;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
+import java.lang.reflect.Method;
 import java.rmi.registry.LocateRegistry;
 import java.util.Iterator;
 import java.util.List;
@@ -68,7 +68,14 @@ public class ManagementServiceTest extends AbstractCacheTest {
     }
 
     private void createMBeanServer() {
-        mBeanServer = ManagementFactory.getPlatformMBeanServer();
+        try {
+            Class managementFactoryClass = Class.forName("java.lang.management.ManagementFactory");
+            Method method = managementFactoryClass.getMethod("getPlatformMBeanServer", null);
+            mBeanServer = (MBeanServer) method.invoke(null, null);
+        } catch (Exception e) {
+            LOG.info("JDK1.5 ManagementFactory not found. Falling back to JMX1.2.1", e);
+            mBeanServer = MBeanServerFactory.createMBeanServer("SimpleAgent");
+        }
     }
 
     private MBeanServer create14MBeanServer() {
@@ -141,6 +148,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
         assertEquals(new Long(0), mBeanServer.getAttribute(name, "ObjectCount"));
         cache.put(new Element("1", "value"));
         cache.get("1");
+        Thread.sleep(5);
         assertEquals(new Long(1), mBeanServer.getAttribute(name, "ObjectCount"));
 
 //        Thread.sleep(1000000);
