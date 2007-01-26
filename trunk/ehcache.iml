@@ -25,6 +25,17 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+          <root url="jar://$MAVEN_REPOSITORY_PATH$/backport-util-concurrent/backport-util-concurrent/3.0/backport-util-concurrent-3.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="file:///Users/gluck/work/backport-util-concurrent-Java50-3.0/src" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
           <root url="jar://$MAVEN_REPOSITORY_PATH$/nekohtml/nekohtml/0.9.1/nekohtml-0.9.1.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -52,7 +63,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MAVEN_REPOSITORY_PATH$/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY_PATH$/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -61,7 +72,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MAVEN_REPOSITORY_PATH$/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY_PATH$/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -124,6 +135,15 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+          <root url="jar://$MAVEN_REPOSITORY_PATH$/httpunit/httpunit/1.6.1/httpunit-1.6.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
           <root url="jar://$MAVEN_REPOSITORY_PATH$/asm/asm/1.5.3/asm-1.5.3.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -134,15 +154,6 @@
       <library>
         <CLASSES>
           <root url="jar://$MAVEN_REPOSITORY_PATH$/commons-collections/commons-collections/2.1.1/commons-collections-2.1.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MAVEN_REPOSITORY_PATH$/httpunit/httpunit/1.6.1/httpunit-1.6.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

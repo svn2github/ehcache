@@ -20,14 +20,14 @@ import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.StopWatch;
 import net.sf.ehcache.ThreadKiller;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheEntry;
 import net.sf.jsr107cache.CacheException;
 import net.sf.jsr107cache.CacheManager;
 import net.sf.jsr107cache.CacheStatistics;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,7 +40,7 @@ import java.util.Set;
  * Tests for a Cache
  *
  * @author Greg Luck, Claus Ibsen
- * @version $Id$
+ * @version $Id:JCacheTest.java 318 2007-01-25 01:48:35Z gregluck $
  */
 public class JCacheTest extends AbstractCacheTest {
     private static final Log LOG = LogFactory.getLog(JCacheTest.class.getName());
@@ -598,6 +598,7 @@ public class JCacheTest extends AbstractCacheTest {
      * 31ms for 2000 keys, half in memory and half on disk
      * <p/>
      * todo check is ehcache duplicate check is actually required
+     * todo changed to 200ms
      */
     public void testGetKeysPerformance() throws Exception {
         Cache cache = getTest4Cache();
@@ -619,7 +620,7 @@ public class JCacheTest extends AbstractCacheTest {
         long getKeysTime = stopWatch.getElapsedTime();
 
         LOG.info("Time to get 2000 keys: With Duplicate Check: " + getKeysTime);
-        assertTrue("Getting keys took more than 100ms", getKeysTime < 100);
+        assertTrue("Getting keys took more than 200ms: " + getKeysTime, getKeysTime < 200);
     }
 
     /**
@@ -939,4 +940,7 @@ public class JCacheTest extends AbstractCacheTest {
         long end = System.currentTimeMillis();
         LOG.info("Total time for the test: " + (end - start) + " ms");
     }
+
+
+
 }

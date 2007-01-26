@@ -26,9 +26,10 @@ import org.apache.commons.logging.LogFactory;
 import java.io.Serializable;
 import java.rmi.dgc.VMID;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Stack;
+
+import edu.emory.mathcs.backport.java.util.Queue;
+import edu.emory.mathcs.backport.java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Handles the asynchronous execution of commands. This class contains subtle threading interactions and should
@@ -133,8 +134,8 @@ public final class AsynchronousCommandExecutor {
      * @return the queue of messages, or if none existed, a new queue
      * @throws AsynchronousCommandException
      */
-    synchronized LinkedList getQueue() throws AsynchronousCommandException {
-        LinkedList queue;
+    synchronized Queue getQueue() throws AsynchronousCommandException {
+        Queue queue;
         Ehcache cache = getMessageCache();
         Element element;
         try {
@@ -143,11 +144,11 @@ public final class AsynchronousCommandExecutor {
             throw new AsynchronousCommandException("Unable to retrieve queue.", e);
         }
         if (element == null) {
-            queue = new LinkedList();
+            queue = new ConcurrentLinkedQueue();
             Element queueElement = new Element(QUEUE_KEY, queue);
             cache.put(queueElement);
         } else {
-            queue = (LinkedList) element.getValue();
+            queue = (Queue) element.getValue();
         }
         return queue;
     }
@@ -276,7 +277,7 @@ public final class AsynchronousCommandExecutor {
         if (LOG.isDebugEnabled()) {
             LOG.debug("executeCommands invoked. " + countCachedPublishCommands() + " messages to be sent.");
         }
-        LinkedList queue = null;
+        Queue queue = null;
         InstrumentedCommand instrumentedCommand = null;
         try {
             queue = getQueue();

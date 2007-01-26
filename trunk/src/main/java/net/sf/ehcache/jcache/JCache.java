@@ -47,7 +47,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
 
 
     /**
-     * An Ehcache backing instance
+     * An Ehcache backing instance                                                               
      */
     private Ehcache cache;
 
