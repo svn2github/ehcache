@@ -75,10 +75,10 @@ public class JCacheFactory implements CacheFactory {
                 MemoryStoreEvictionPolicy.fromString(memoryStoreEvictionPolicyString);
 
         String overflowToDiskString = PropertyUtil.extractAndLogProperty("overflowToDisk", environment);
-        boolean overflowToDisk = Boolean.getBoolean(overflowToDiskString);
+        boolean overflowToDisk = PropertyUtil.parseBoolean(overflowToDiskString);
 
         String eternalString = PropertyUtil.extractAndLogProperty("eternal", environment);
-        boolean eternal = Boolean.getBoolean(eternalString);
+        boolean eternal = PropertyUtil.parseBoolean(eternalString);
 
         String timeToLiveSecondsString = PropertyUtil.extractAndLogProperty("timeToLiveSeconds", environment);
         long timeToLiveSeconds = Long.parseLong(timeToLiveSecondsString);
@@ -87,7 +87,7 @@ public class JCacheFactory implements CacheFactory {
         long timeToIdleSeconds = Long.parseLong(timeToIdleSecondsString);
 
         String diskPersistentString = PropertyUtil.extractAndLogProperty("diskPersistentSeconds", environment);
-        boolean diskPersistent = Boolean.getBoolean(diskPersistentString);
+        boolean diskPersistent = PropertyUtil.parseBoolean(diskPersistentString);
 
         long diskExpiryThreadIntervalSeconds = 0;
         String diskExpiryThreadIntervalSecondsString =

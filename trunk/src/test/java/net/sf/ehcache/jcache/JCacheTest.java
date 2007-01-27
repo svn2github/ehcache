@@ -826,6 +826,9 @@ public class JCacheTest extends AbstractCacheTest {
     }
 
 
+
+
+
     /**
      * Does the Serializable API work?
      */
@@ -835,10 +838,11 @@ public class JCacheTest extends AbstractCacheTest {
 
         //Try object compatibility
         Serializable key = new String("key");
-        Serializable serializableValue = new String("value");
+        Serializable serializableValue = new String("retrievedValue");
         cache.put(key, serializableValue);
         cache.put("key2", serializableValue);
-        assertEquals(serializableValue, cache.get(key));
+        Object retrievedValue = cache.get(key);
+        assertEquals(serializableValue, retrievedValue);
     }
 
     /**
