@@ -66,6 +66,9 @@ public class JCache implements net.sf.jsr107cache.Cache {
      */
     private Ehcache cache;
 
+    private CacheLoader cacheLoader;
+    
+
     /**
      * A ThreadPoolExecutor which uses a thread pool to schedule loads in the order in which they are requested.
      * <p/>
@@ -73,10 +76,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * are used until actually needed. Threads are added to the pool up to a maximum of 10. The keep alive
      * time is 60 seconds, after which, if they are not required they will be stopped and collected.
      */
-    private ThreadPoolExecutor executor;
-
-    private CacheLoader cacheLoader;
-
+    private ThreadPoolExecutor executorService;
 
     /**
      * A constructor for JCache.
@@ -97,7 +97,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
      */
     public JCache(Ehcache cache, CacheLoader cacheLoader) {
         this.cache = cache;
-        executor = new ThreadPoolExecutor(EXECUTOR_CORE_POOL_SIZE, EXECUTOR_MAXIMUM_POOL_SIZE,
+        executorService = new ThreadPoolExecutor(EXECUTOR_CORE_POOL_SIZE, EXECUTOR_MAXIMUM_POOL_SIZE,
                 EXECUTOR_KEEP_ALIVE_TIME, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
         this.cacheLoader = cacheLoader;
     }
@@ -285,7 +285,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * @return a Future which can be used to monitor execution
      */
     Future asynchronousLoad(final Object key) {
-        Future future = executor.submit(new Runnable() {
+        Future future = executorService.submit(new Runnable() {
 
             /**
              * Calls the CacheLoader and puts the result in the Cache
@@ -342,7 +342,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * @return a Future which can be used to monitor execution
      */
     Future asynchronousLoadAll(final Collection keys) {
-        Future future = executor.submit(new Runnable() {
+        Future future = executorService.submit(new Runnable() {
 
             /**
              * Calls the CacheLoader and puts the result in the Cache
@@ -653,5 +653,13 @@ public class JCache implements net.sf.jsr107cache.Cache {
      */
     public String toString() {
         return cache.toString();
+    }
+
+
+    /**
+     * Gets the executor service. This is not publically accessible.
+     */
+    ThreadPoolExecutor getExecutorService() {
+        return executorService;
     }
 }

@@ -16,6 +16,10 @@
 
 package net.sf.ehcache.jcache;
 
+import edu.emory.mathcs.backport.java.util.concurrent.Callable;
+import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException;
+import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
+import edu.emory.mathcs.backport.java.util.concurrent.Future;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.StopWatch;
@@ -23,6 +27,7 @@ import net.sf.ehcache.ThreadKiller;
 import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheEntry;
 import net.sf.jsr107cache.CacheException;
+import net.sf.jsr107cache.CacheLoader;
 import net.sf.jsr107cache.CacheManager;
 import net.sf.jsr107cache.CacheStatistics;
 import org.apache.commons.logging.Log;
@@ -30,7 +35,9 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -171,7 +178,6 @@ public class JCacheTest extends AbstractCacheTest {
      * />
      */
     public void testExpiryBasedOnTimeToLiveWhenNoIdle() throws Exception {
-        //Set size so the second element overflows to disk.
         Cache cache = new JCache(manager.getCache("sampleCacheNoIdle"), null);
         cache.put("key1", "value1");
         cache.put("key2", "value1");
@@ -199,7 +205,6 @@ public class JCacheTest extends AbstractCacheTest {
      * Test overflow to disk = false
      */
     public void testNoOverflowToDisk() throws Exception {
-        //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("testNoOverflowToDisk", 1, false, true, 500, 200);
         manager.addCache(ehcache);
         Cache cache = new JCache(ehcache, null);
@@ -826,9 +831,6 @@ public class JCacheTest extends AbstractCacheTest {
     }
 
 
-
-
-
     /**
      * Does the Serializable API work?
      */
@@ -945,6 +947,122 @@ public class JCacheTest extends AbstractCacheTest {
         LOG.info("Total time for the test: " + (end - start) + " ms");
     }
 
+    /**
+     * Tests the Executor with a single item
+     */
+    public void testAsynchronousLoad() throws InterruptedException, ExecutionException {
+
+        CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
+        JCache jcache = new JCache(manager.getCache("sampleCache1"), countingCacheLoader);
+        ExecutorService executorService = jcache.getExecutorService();
+
+
+        Future future = jcache.asynchronousLoad("key1");
+        assertFalse(future.isDone());
+
+        Object object = future.get();
+        assertTrue(future.isDone());
+        assertNull(object);
+
+        assertFalse(executorService.isShutdown());
+
+        assertEquals(1, countingCacheLoader.loadCounter);
+    }
+
+
+    /**
+     * Tests the QueuedExecutor with a single item
+     */
+    public void testMultipleQueuedExecutor() throws InterruptedException, ExecutionException {
+
+        CacheLoader countingCacheLoader = new CountingCacheLoader();
+        JCache jcache = new JCache(manager.getCache("sampleCache1"), countingCacheLoader);
+        ExecutorService executorService = jcache.getExecutorService();
+
+
+        Future[] futures = new Future[100];
+
+        for (int i = 0; i < 100; i++) {
+
+            final int i1 = i;
+            futures[i] = executorService.submit(new Callable() {
+
+                /**
+                 * Computes a result, or throws an exception if unable to do so.
+                 *
+                 * @return computed result
+                 * @throws Exception if unable to compute a result
+                 */
+                public Object call() throws Exception {
+                    return new Integer(i1);
+                }
+            });
+        }
+
+        for (int i = 0; i < 100; i++) {
+
+            assertTrue(futures[0] != null);
+        }
+
+
+    }
+
+    /**
+     * A cache loader that counts the number of things it has loaded, useful for testing.
+     */
+    class CountingCacheLoader implements CacheLoader {
+
+
+        private int loadCounter;
+        private int loadAllCounter;
+        private Random random = new Random();
+
+        /**
+         * loads an object. Application writers should implement this
+         * method to customize the loading of cache object. This method is called
+         * by the caching service when the requested object is not in the cache.
+         * <p/>
+         *
+         * @param key the key identifying the object being loaded
+         * @return The object that is to be stored in the cache.
+         * @throws net.sf.jsr107cache.CacheException
+         *
+         */
+        public Object load(Object key) throws CacheException {
+            try {
+                Thread.sleep(random.nextInt(490) + 10);
+            } catch (InterruptedException e) {
+                LOG.error("Interrupted");
+            }
+            return new Integer(loadCounter++);
+        }
+
+        /**
+         * loads multiple object. Application writers should implement this
+         * method to customize the loading of cache object. This method is called
+         * by the caching service when the requested object is not in the cache.
+         * <p/>
+         *
+         * @param keys a Collection of keys identifying the objects to be loaded
+         * @return A Map of objects that are to be stored in the cache.
+         * @throws net.sf.jsr107cache.CacheException
+         *
+         */
+
+        public Map loadAll(Collection keys) throws CacheException {
+            Map map = new HashMap(keys.size());
+            for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+                Object key = iterator.next();
+                try {
+                    Thread.sleep(random.nextInt(50));
+                } catch (InterruptedException e) {
+                    LOG.error("Interrupted");
+                }
+                map.put(key, new Integer(loadAllCounter++));
+            }
+            return map;
+        }
+    }
 
 
 }
