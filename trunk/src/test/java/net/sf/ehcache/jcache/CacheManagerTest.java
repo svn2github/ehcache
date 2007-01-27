@@ -131,7 +131,7 @@ public class CacheManagerTest extends TestCase {
         singletonManager = CacheManager.getInstance();
         Ehcache ehcache = new net.sf.ehcache.Cache("name", 10, MemoryStoreEvictionPolicy.LFU,
                 false, null, false, 10, 10, false, 60, null);
-        singletonManager.registerCache("test", new JCache(ehcache));
+        singletonManager.registerCache("test", new JCache(ehcache, null));
         Cache cache = singletonManager.getCache("test");
         assertNotNull(cache);
     }

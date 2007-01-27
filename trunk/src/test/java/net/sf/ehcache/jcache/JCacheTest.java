@@ -172,7 +172,7 @@ public class JCacheTest extends AbstractCacheTest {
      */
     public void testExpiryBasedOnTimeToLiveWhenNoIdle() throws Exception {
         //Set size so the second element overflows to disk.
-        Cache cache = new JCache(manager.getCache("sampleCacheNoIdle"));
+        Cache cache = new JCache(manager.getCache("sampleCacheNoIdle"), null);
         cache.put("key1", "value1");
         cache.put("key2", "value1");
         assertNotNull(cache.get("key1"));
@@ -202,7 +202,7 @@ public class JCacheTest extends AbstractCacheTest {
         //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("testNoOverflowToDisk", 1, false, true, 500, 200);
         manager.addCache(ehcache);
-        Cache cache = new JCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
         cache.put("key1", "value1");
         cache.put("key2", "value1");
         assertNull(cache.get("key1"));
@@ -229,7 +229,7 @@ public class JCacheTest extends AbstractCacheTest {
         //Memory only Typical 192ms
         Ehcache ehcache = new net.sf.ehcache.Cache("testMemoryOnly", 5000, false, false, 5, 2);
         manager.addCache(ehcache);
-        Cache memoryOnlyCache = new JCache(ehcache);
+        Cache memoryOnlyCache = new JCache(ehcache, null);
 
         time = stopWatch.getElapsedTime();
         for (int i = 0; i < 5000; i++) {
@@ -246,7 +246,7 @@ public class JCacheTest extends AbstractCacheTest {
         // 273 ms v1.42 DiskStore
         Ehcache diskOnlyEhcache = new net.sf.ehcache.Cache("testDiskOnly", 0, true, false, 5, 2);
         manager.addCache(diskOnlyEhcache);
-        Cache diskOnlyCache = new JCache(ehcache);
+        Cache diskOnlyCache = new JCache(ehcache, null);
         time = stopWatch.getElapsedTime();
         for (int i = 0; i < 5000; i++) {
             Integer key = new Integer(i);
@@ -262,7 +262,7 @@ public class JCacheTest extends AbstractCacheTest {
         // 56 ms v1.42 DiskStore
         Ehcache m1d999Ehcache = new net.sf.ehcache.Cache("m1d999Cache", 1, true, false, 5, 2);
         manager.addCache(m1d999Ehcache);
-        Cache m1d999Cache = new JCache(m1d999Ehcache);
+        Cache m1d999Cache = new JCache(m1d999Ehcache, null);
         time = stopWatch.getElapsedTime();
         for (int i = 0; i < 5000; i++) {
             Integer key = new Integer(i);
@@ -278,7 +278,7 @@ public class JCacheTest extends AbstractCacheTest {
         // 47 ms v1.42 DiskStore
         Ehcache m500d500Ehcache = new net.sf.ehcache.Cache("m500d500Cache", 500, true, false, 5, 2);
         manager.addCache(m500d500Ehcache);
-        Cache m500d500Cache = new JCache(m1d999Ehcache);
+        Cache m500d500Cache = new JCache(m1d999Ehcache, null);
 
         time = stopWatch.getElapsedTime();
         for (int i = 0; i < 5000; i++) {
@@ -311,7 +311,7 @@ public class JCacheTest extends AbstractCacheTest {
         //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("testExpiryBasedOnTimeToLive", 1, true, false, 3, 0);
         manager.addCache(ehcache);
-        Cache cache = new JCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
 
         cache.put("key1", "value1");
         cache.put("key2", "value1");
@@ -356,7 +356,7 @@ public class JCacheTest extends AbstractCacheTest {
         //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("testNoIdleOrExpiryBasedOnTimeToLiveForEternal", 1, true, true, 5, 2);
         manager.addCache(ehcache);
-        Cache cache = new JCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
 
         cache.put("key1", "value1");
         cache.put("key2", "value1");
@@ -383,7 +383,7 @@ public class JCacheTest extends AbstractCacheTest {
         //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("testExpiryBasedOnTimeToIdle", 1, true, false, 6, 2);
         manager.addCache(ehcache);
-        Cache cache = new JCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
 
         cache.put("key1", "value1");
         cache.put("key2", "value1");
@@ -426,7 +426,7 @@ public class JCacheTest extends AbstractCacheTest {
         //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("testElementStatistics", 1, true, false, 5, 2);
         manager.addCache(ehcache);
-        Cache cache = new JCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
 
         cache.put("key1", "value1");
         cache.put("key2", "value1");
@@ -446,7 +446,7 @@ public class JCacheTest extends AbstractCacheTest {
         //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("testCacheStatistics", 1, true, false, 5, 2);
         manager.addCache(ehcache);
-        Cache cache = new JCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
         cache.put("key1", "value1");
         cache.put("key2", "value1");
 
@@ -485,7 +485,7 @@ public class JCacheTest extends AbstractCacheTest {
         //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("testSizeWithPutAndRemove", 1, true, true, 0, 0);
         manager.addCache(ehcache);
-        Cache cache = new JCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
 
         cache.put("key1", "value1");
         cache.put("key2", "value1");
@@ -663,7 +663,7 @@ public class JCacheTest extends AbstractCacheTest {
     public void testNullTreatment() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testNullTreatment", 1, false, false, 5, 1);
         manager.addCache(ehcache);
-        Cache cache = new JCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
 
         try {
             cache.put(null, null);
@@ -728,7 +728,7 @@ public class JCacheTest extends AbstractCacheTest {
     public void testNonSerializableElement() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testElementWithNonSerializableValue", 1, true, false, 100, 200);
         manager.addCache(ehcache);
-        Cache cache = new JCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
 
         cache.put("key1", new Object());
         cache.put("key2", new Object());
@@ -755,7 +755,7 @@ public class JCacheTest extends AbstractCacheTest {
     public void testSpoolThreadHandlesThreadKiller() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testThreadKiller", 1, true, false, 100, 200);
         manager.addCache(ehcache);
-        Cache cache = new JCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
 
         cache.put("key", new ThreadKiller());
         cache.put("key1", "one");

@@ -37,7 +37,9 @@
           <root url="jar://$MAVEN_REPOSITORY_PATH$/backport-util-concurrent/backport-util-concurrent/3.0/backport-util-concurrent-3.0.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="file:///Users/gluck/work/backport-util-concurrent-Java50-3.0/src" />
+        </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
@@ -226,7 +228,9 @@
           <root url="jar://$MAVEN_REPOSITORY_PATH$/net/sf/jsr107cache/jsr107cache/1.0/jsr107cache-1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="file:///Users/gluck/work/jsr107cache/trunk/src/main/java" />
+        </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">

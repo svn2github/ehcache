@@ -33,7 +33,7 @@ import java.io.ObjectOutputStream;
  * Tests for the statistics class
  *
  * @author Greg Luck
- * @version $Id$
+ * @version $Id:JCacheStatisticsTest.java 318 2007-01-25 01:48:35Z gregluck $
  */
 public class JCacheStatisticsTest extends AbstractCacheTest {
 
@@ -47,7 +47,7 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
         //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("test", 1, true, false, 5, 2);
         manager.addCache(ehcache);
-        Cache cache = new JCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
         cache.put("key1", "value1");
         cache.put("key2", "value1");
         //key1 should be in the Disk Store
@@ -82,7 +82,7 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
      */
     public void testCacheStatisticsDegradesElegantlyWhenCacheDisposed() {
         Ehcache ehcache = new net.sf.ehcache.Cache("test", 1, true, false, 5, 2);
-        Cache cache = new JCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
         try {
             CacheStatistics statistics = cache.getCacheStatistics();
             fail();
@@ -101,7 +101,7 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
 
         Ehcache ehcache = new net.sf.ehcache.Cache("test", 1, true, false, 5, 2);
         manager.addCache(ehcache);
-        Cache cache = new JCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
         cache.put("key1", "value1");
         cache.put("key2", "value1");
         cache.get("key1");
@@ -141,7 +141,7 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
         //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("test", 1, true, false, 5, 2);
         manager.addCache(ehcache);
-        Cache cache = new JCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
 
         cache.put("key1", "value1");
         cache.put("key2", "value1");

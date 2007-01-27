@@ -37,6 +37,7 @@
     <suppress checks="NPathComplexity" files="Cache.java"/>
     <suppress checks="NPathComplexity" files="CacheManager.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="DiskStore.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="JCache.java"/>
     <suppress checks="ClassFanOutComplexity" files="DiskStore.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="ElementTest.java"/>
     <suppress checks="IllegalType" files="Cache.java"/>

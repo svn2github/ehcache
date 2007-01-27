@@ -111,8 +111,8 @@ public class JCacheFactory implements CacheFactory {
 
 
         net.sf.ehcache.CacheManager.getInstance().addCache(cache);
-
-        return new JCache(cache);
+        //todo add loader
+        return new JCache(cache, null);
 
     }
 }
