@@ -33,7 +33,6 @@
     <list default="true" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/JCacheTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/JCacheTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheFactory.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheFactory.java" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -309,7 +308,7 @@
       <file leaf-file-name="JCacheFactory.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheFactory.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="89" column="33" selection-start="3945" selection-end="3945" vertical-scroll-proportion="0.7875458">
+            <state line="113" column="25" selection-start="5072" selection-end="5072" vertical-scroll-proportion="0.7582418">
               <folding />
             </state>
           </provider>
@@ -1337,7 +1336,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCacheFactory.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="89" column="33" selection-start="3945" selection-end="3945" vertical-scroll-proportion="0.7875458">
+        <state line="113" column="25" selection-start="5072" selection-end="5072" vertical-scroll-proportion="0.7582418">
           <folding />
         </state>
       </provider>
