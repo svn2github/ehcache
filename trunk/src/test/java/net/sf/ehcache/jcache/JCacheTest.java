@@ -54,7 +54,7 @@ public class JCacheTest extends AbstractCacheTest {
     protected void setUp() throws Exception {
         super.setUp();
         System.gc();
-        Thread.sleep(1000);
+        Thread.sleep(100);
         System.gc();
     }
 

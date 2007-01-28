@@ -192,7 +192,9 @@ public interface CacheStatistics {
     *   Listeners often need not just the key, but the cache Entry itself. This listener interface
         is extremely limiting.
 
-    *   Ehcache has a removeAll notification. There is no analogue in JCACHE. No notification is done.
+    *   There is no onUpdate notification method.
+
+    *   There is no onExpired notification method.
 
 
 

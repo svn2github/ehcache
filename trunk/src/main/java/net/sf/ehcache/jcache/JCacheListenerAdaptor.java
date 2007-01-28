@@ -162,7 +162,7 @@ public class JCacheListenerAdaptor implements CacheEventListener {
      * @param cache the cache emitting the notification
      */
     public void notifyRemoveAll(final Ehcache cache) {
-        //noop
+        cacheListener.onClear();
     }
 
     /**
