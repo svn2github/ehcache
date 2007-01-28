@@ -82,12 +82,11 @@ JSR107 (JCACHE) Support
         specify in the javadoc that they should be asynchronous. Now, most load methods work off a database or some other
         relatively slow resource (otherwise there would be no need to have a cache in the first place).
 
-        To avoid running out of threads, these load requests need to be queued and use a finite number of threads.
+        To avoid running out of threads, these load requests need to be queued and use a finite number of threads. The
+        ehcache implementation does that. However, due to the lack of lifecycle management, there is no immediate way to free
+        resources such as thread pools.
 
-    *   The <<<load>>> method ignores a request if the element is already loaded in for that key. It should also ignore
-        requests where a previous request has been made but has not yet completed. This will stop a slow resource such as a
-        database from being overloaded with multiple requests for the same thing, making it run even slower.
-
+    *   The <<<load>>> method ignores a request if the element is already loaded in for that key. 
 
 
 

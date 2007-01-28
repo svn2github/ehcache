@@ -288,6 +288,11 @@
   </component>
   <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="false" project-jdk-name="1.5" project-jdk-type="JavaSDK" />
   <component name="ProjectRunConfigurationManager" />
+  <component name="RAILS_PROJECT_VIEW_PANE" />
+  <component name="RUBY_DOC_SETTINGS">
+    <RUBY_DOC NAME="DEFAULTS" VALUE="TRUE" />
+    <RUBY_DOC NAME="NUMBER" VALUE="0" />
+  </component>
   <component name="RmicSettings">
     <option name="IS_EANABLED" value="false" />
     <option name="DEBUGGING_INFO" value="true" />
@@ -311,7 +316,7 @@
     <option name="DEFAULT_LAYOUT_MANAGER" value="GridLayoutManager" />
   </component>
   <UsedPathMacros>
-    <macro name="MAVEN_REPOSITORY_PATH" />
+    <macro name="MAVEN_LOCAL_REPOSITORY_PATH" />
   </UsedPathMacros>
 </project>
 

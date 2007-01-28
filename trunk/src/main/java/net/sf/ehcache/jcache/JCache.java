@@ -47,7 +47,10 @@ import java.util.Set;
  * in the same class due to conflicts with method signatures.
  * <p/>
  * This implementation is a decorator for Ehcache, and should exhibit the same
- * characteristics as Ehcache.
+ * underlying characteristics as Ehcache.
+ * <p/>
+ * Note that JCACHE contains no lifecyle methods. JCaches cannot be stopped. Any resources, such
+ * as loader threads cannot be released, although they will die off after 60 seconds.
  *
  * @author Greg Luck
  * @version $Id$
@@ -137,33 +140,36 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * <p/>
      * The Ehcache native API provides similar functionality to loaders using the
      * decorator {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
-     *
-     * @param collection
+     * <p/>
+     * Note. If the getAll exceeds the maximum cache
+     * size, the returned map will necessarily be less than the number specified.
+     * @param keys
      * @return a populated Map of the Cache
      */
-    public Map getAll(Collection collection) throws CacheException {
+    public Map getAll(Collection keys) throws CacheException {
 
         Map map;
 
         try {
-            map = new HashMap(collection.size());
-            List list = cache.getKeysNoDuplicateCheck();
-            List futures = new ArrayList(collection.size());
+            map = new HashMap(keys.size());
+            List futures = new ArrayList(keys.size());
 
-            for (int i = 0; i < list.size(); i++) {
-                Object key = list.get(i);
-                Element element = cache.get(key);
-                if (element != null) {
-                    map.put(key, element.getValue());
+            for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+                Object key =  iterator.next();
+
+                if (cache.isKeyInCache(key)) {
+                    map.put(key, get(key));
                 } else {
                     futures.add(new KeyedFuture(key, asynchronousLoad(key)));
                 }
             }
-            //now wait for everything to complete.
+
+            //now wait for everything to load.
             for (int i = 0; i < futures.size(); i++) {
                 KeyedFuture keyedFuture = (KeyedFuture) futures.get(i);
                 keyedFuture.future.get();
-                map.put(keyedFuture.key, cache.get(keyedFuture.key));
+                Object key = keyedFuture.key;
+                map.put(key, get(key));
             }
 
         } catch (ExecutionException e) {
@@ -276,6 +282,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
             }
             return;
         }
+
         asynchronousLoad(key);
     }
 
@@ -563,7 +570,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * @return a set view of the keys contained in this map.
      */
     public Set keySet() {
-        List list = cache.getKeys();
+        List list = cache.getKeysNoDuplicateCheck();
         Set set = new HashSet();
         set.addAll(list);
         return set;

@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.jcache;
 
-import edu.emory.mathcs.backport.java.util.concurrent.Callable;
 import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException;
 import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
 import edu.emory.mathcs.backport.java.util.concurrent.Future;
@@ -46,7 +45,7 @@ import java.util.Set;
 /**
  * Tests for a Cache
  *
- * @author Greg Luck, Claus Ibsen
+ * @author Greg Luck
  * @version $Id:JCacheTest.java 318 2007-01-25 01:48:35Z gregluck $
  */
 public class JCacheTest extends AbstractCacheTest {
@@ -57,6 +56,9 @@ public class JCacheTest extends AbstractCacheTest {
      */
     protected void setUp() throws Exception {
         super.setUp();
+        System.gc();
+        Thread.sleep(1000);
+        System.gc();
     }
 
 
@@ -68,6 +70,7 @@ public class JCacheTest extends AbstractCacheTest {
         getTest1Cache().clear();
         getTest2Cache().clear();
         getTest4Cache().clear();
+        manager.getCache("sampleCache1").removeAll();
     }
 
     /**
@@ -293,8 +296,7 @@ public class JCacheTest extends AbstractCacheTest {
         }
         time = stopWatch.getElapsedTime();
         LOG.info("Time for m500d500Cache: " + time);
-        //todo blown out from 2000 
-        assertTrue("Time to put and get 5000 entries into m500d500Cache", time < 4000);
+        assertTrue("Time to put and get 5000 entries into m500d500Cache", time < 2000);
 
     }
 
@@ -602,11 +604,9 @@ public class JCacheTest extends AbstractCacheTest {
      * <p/>
      * 31ms for 2000 keys, half in memory and half on disk
      * <p/>
-     * todo check is ehcache duplicate check is actually required
-     * todo changed to 200ms
      */
     public void testGetKeysPerformance() throws Exception {
-        Cache cache = getTest4Cache();
+        Cache cache = getTest2Cache();
 
         for (int i = 0; i < 2000; i++) {
             cache.put("key" + i, "value");
@@ -625,7 +625,7 @@ public class JCacheTest extends AbstractCacheTest {
         long getKeysTime = stopWatch.getElapsedTime();
 
         LOG.info("Time to get 2000 keys: With Duplicate Check: " + getKeysTime);
-        assertTrue("Getting keys took more than 200ms: " + getKeysTime, getKeysTime < 200);
+        assertTrue("Getting keys took more than 200ms: " + getKeysTime, getKeysTime < 100);
     }
 
     /**
@@ -863,12 +863,11 @@ public class JCacheTest extends AbstractCacheTest {
      * 200000   50          500
      * 200000   500         800
      * </pre>
-     * todo time slipped out from 330
      */
     public void testReadWriteThreads() throws Exception {
 
         final int size = 10000;
-        final int maxTime = 700;
+        final int maxTime = 330;
         final Cache cache = getTest1Cache();
 
         long start = System.currentTimeMillis();
@@ -948,7 +947,7 @@ public class JCacheTest extends AbstractCacheTest {
     }
 
     /**
-     * Tests the Executor with a single item
+     * Tests the async load with a single item
      */
     public void testAsynchronousLoad() throws InterruptedException, ExecutionException {
 
@@ -966,49 +965,107 @@ public class JCacheTest extends AbstractCacheTest {
 
         assertFalse(executorService.isShutdown());
 
+        assertEquals(1, jcache.size());
         assertEquals(1, countingCacheLoader.loadCounter);
     }
 
 
-    /**
-     * Tests the QueuedExecutor with a single item
-     */
-    public void testMultipleQueuedExecutor() throws InterruptedException, ExecutionException {
 
-        CacheLoader countingCacheLoader = new CountingCacheLoader();
+    /**
+     * Tests the public API load method with a single item
+     */
+    public void testLoad() throws InterruptedException, ExecutionException, CacheException {
+
+        CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
         JCache jcache = new JCache(manager.getCache("sampleCache1"), countingCacheLoader);
         ExecutorService executorService = jcache.getExecutorService();
 
+        jcache.load("key1");
 
-        Future[] futures = new Future[100];
+        Thread.sleep(500);
 
-        for (int i = 0; i < 100; i++) {
+        assertFalse(executorService.isShutdown());
 
-            final int i1 = i;
-            futures[i] = executorService.submit(new Callable() {
+        assertEquals(1, jcache.size());
+        assertEquals(1, countingCacheLoader.loadCounter);
+    }
 
-                /**
-                 * Computes a result, or throws an exception if unable to do so.
-                 *
-                 * @return computed result
-                 * @throws Exception if unable to compute a result
-                 */
-                public Object call() throws Exception {
-                    return new Integer(i1);
-                }
-            });
+    /**
+     * Tests the loadAll async method
+     */
+    public void testAsynchronousLoadAll() throws InterruptedException, ExecutionException {
+
+        CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
+        JCache jcache = new JCache(manager.getCache("sampleCache1"), countingCacheLoader);
+        ExecutorService executorService = jcache.getExecutorService();
+
+        List keys = new ArrayList();
+        for (int i = 0; i < 1000; i++) {
+            keys.add(new Integer(i));
         }
 
-        for (int i = 0; i < 100; i++) {
+        Future future = jcache.asynchronousLoadAll(keys);
+        assertFalse(future.isDone());
 
-            assertTrue(futures[0] != null);
+        Object object = future.get();
+        assertTrue(future.isDone());
+        assertNull(object);
+
+        assertFalse(executorService.isShutdown());
+
+        assertEquals(1000, jcache.size());
+        assertEquals(1000, countingCacheLoader.loadAllCounter);
+    }
+
+    /**
+     * Tests the loadAll Public API method
+     */
+    public void testLoadAll() throws InterruptedException, ExecutionException, CacheException {
+
+        CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
+        JCache jcache = new JCache(manager.getCache("sampleCache1"), countingCacheLoader);
+        ExecutorService executorService = jcache.getExecutorService();
+
+        List keys = new ArrayList();
+        for (int i = 0; i < 1000; i++) {
+            keys.add(new Integer(i));
         }
 
+        jcache.loadAll(keys);
+        Thread.sleep(3000);
 
+        assertFalse(executorService.isShutdown());
+
+        assertEquals(1000, jcache.size());
+        assertEquals(1000, countingCacheLoader.loadAllCounter);
+    }
+
+
+    /**
+     * Tests the loadAll Public API method
+     */
+    public void testGetAll() throws InterruptedException, ExecutionException, CacheException {
+
+        CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
+        JCache jcache = new JCache(manager.getCache("sampleCache1"), countingCacheLoader);
+        ExecutorService executorService = jcache.getExecutorService();
+
+        List keys = new ArrayList();
+        for (int i = 0; i < 1000; i++) {
+            keys.add(new Integer(i));
+        }
+
+        jcache.getAll(keys);
+
+        assertFalse(executorService.isShutdown());
+
+        assertEquals(1000, jcache.size());
+        assertEquals(1000, countingCacheLoader.loadCounter);
     }
 
     /**
      * A cache loader that counts the number of things it has loaded, useful for testing.
+     * Each load has a random delay to introduce some nice threading entropy
      */
     class CountingCacheLoader implements CacheLoader {
 
@@ -1030,7 +1087,7 @@ public class JCacheTest extends AbstractCacheTest {
          */
         public Object load(Object key) throws CacheException {
             try {
-                Thread.sleep(random.nextInt(490) + 10);
+                Thread.sleep(random.nextInt(3) + 1);
             } catch (InterruptedException e) {
                 LOG.error("Interrupted");
             }
@@ -1054,7 +1111,7 @@ public class JCacheTest extends AbstractCacheTest {
             for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
                 Object key = iterator.next();
                 try {
-                    Thread.sleep(random.nextInt(50));
+                    Thread.sleep(random.nextInt(4));
                 } catch (InterruptedException e) {
                     LOG.error("Interrupted");
                 }
