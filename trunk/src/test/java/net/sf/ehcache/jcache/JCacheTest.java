@@ -26,7 +26,6 @@ import net.sf.ehcache.ThreadKiller;
 import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheEntry;
 import net.sf.jsr107cache.CacheException;
-import net.sf.jsr107cache.CacheLoader;
 import net.sf.jsr107cache.CacheManager;
 import net.sf.jsr107cache.CacheStatistics;
 import org.apache.commons.logging.Log;
@@ -34,9 +33,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -101,6 +98,7 @@ public class JCacheTest extends AbstractCacheTest {
             env.put("timeToIdleSeconds", "1000");
             env.put("diskPersistent", "false");
             env.put("diskExpiryThreadIntervalSeconds", "120");
+            env.put("cacheLoaderFactoryClassName", "net.sf.ehcache.jcache.CountingCacheLoaderFactory");
             cache = CacheManager.getInstance().getCacheFactory().createCache(env);
             CacheManager.getInstance().registerCache("test1", cache);
         }
@@ -950,7 +948,7 @@ public class JCacheTest extends AbstractCacheTest {
         assertFalse(executorService.isShutdown());
 
         assertEquals(1, jcache.size());
-        assertEquals(1, countingCacheLoader.loadCounter);
+        assertEquals(1, countingCacheLoader.getLoadCounter());
     }
 
 
@@ -971,7 +969,7 @@ public class JCacheTest extends AbstractCacheTest {
         assertFalse(executorService.isShutdown());
 
         assertEquals(1, jcache.size());
-        assertEquals(1, countingCacheLoader.loadCounter);
+        assertEquals(1, countingCacheLoader.getLoadCounter());
     }
 
     /**
@@ -998,7 +996,7 @@ public class JCacheTest extends AbstractCacheTest {
         assertFalse(executorService.isShutdown());
 
         assertEquals(1000, jcache.size());
-        assertEquals(1000, countingCacheLoader.loadAllCounter);
+        assertEquals(1000, countingCacheLoader.getLoadAllCounter());
     }
 
     /**
@@ -1021,7 +1019,7 @@ public class JCacheTest extends AbstractCacheTest {
         assertFalse(executorService.isShutdown());
 
         assertEquals(1000, jcache.size());
-        assertEquals(1000, countingCacheLoader.loadAllCounter);
+        assertEquals(1000, countingCacheLoader.getLoadAllCounter());
     }
 
 
@@ -1044,65 +1042,7 @@ public class JCacheTest extends AbstractCacheTest {
         assertFalse(executorService.isShutdown());
 
         assertEquals(1000, jcache.size());
-        assertEquals(1000, countingCacheLoader.loadCounter);
-    }
-
-    /**
-     * A cache loader that counts the number of things it has loaded, useful for testing.
-     * Each load has a random delay to introduce some nice threading entropy
-     */
-    class CountingCacheLoader implements CacheLoader {
-
-
-        private int loadCounter;
-        private int loadAllCounter;
-        private Random random = new Random();
-
-        /**
-         * loads an object. Application writers should implement this
-         * method to customize the loading of cache object. This method is called
-         * by the caching service when the requested object is not in the cache.
-         * <p/>
-         *
-         * @param key the key identifying the object being loaded
-         * @return The object that is to be stored in the cache.
-         * @throws net.sf.jsr107cache.CacheException
-         *
-         */
-        public Object load(Object key) throws CacheException {
-            try {
-                Thread.sleep(random.nextInt(3) + 1);
-            } catch (InterruptedException e) {
-                LOG.error("Interrupted");
-            }
-            return new Integer(loadCounter++);
-        }
-
-        /**
-         * loads multiple object. Application writers should implement this
-         * method to customize the loading of cache object. This method is called
-         * by the caching service when the requested object is not in the cache.
-         * <p/>
-         *
-         * @param keys a Collection of keys identifying the objects to be loaded
-         * @return A Map of objects that are to be stored in the cache.
-         * @throws net.sf.jsr107cache.CacheException
-         *
-         */
-
-        public Map loadAll(Collection keys) throws CacheException {
-            Map map = new HashMap(keys.size());
-            for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-                Object key = iterator.next();
-                try {
-                    Thread.sleep(random.nextInt(4));
-                } catch (InterruptedException e) {
-                    LOG.error("Interrupted");
-                }
-                map.put(key, new Integer(loadAllCounter++));
-            }
-            return map;
-        }
+        assertEquals(1000, countingCacheLoader.getLoadCounter());
     }
 
 

@@ -265,7 +265,6 @@ public class CacheManager {
 
         diskStorePath = configurationHelper.getDiskStorePath();
         detectAndFixDiskStorePathConflict(configurationHelper);
-        //todo support multiple CacheManagerEventListeners in the config
         cacheManagerEventListenerRegistry.registerListener(configurationHelper.createCacheManagerEventListener());
 
         cacheManagerPeerListener = configurationHelper.createCachePeerListener();

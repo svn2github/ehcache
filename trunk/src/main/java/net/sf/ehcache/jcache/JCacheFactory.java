@@ -17,11 +17,15 @@ package net.sf.ehcache.jcache;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.PropertyUtil;
-
 import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheException;
 import net.sf.jsr107cache.CacheFactory;
+import net.sf.jsr107cache.CacheLoader;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.Map;
 
 /**
@@ -34,6 +38,9 @@ import java.util.Map;
  */
 public class JCacheFactory implements CacheFactory {
 
+
+    private static final Log LOG = LogFactory.getLog(JCacheFactory.class.getName());
+
     /**
      * Creates a new implementation specific Cache object using the environment parameters.
      *
@@ -41,7 +48,7 @@ public class JCacheFactory implements CacheFactory {
      *
      * Create caches are registered with a singleton ehcache CacheManager.
      *
-     * @param environment String value for the following properties:
+     * @param environment String values for the following properties:
      *            String name,
      *            int maxElementsInMemory,
      *            MemoryStoreEvictionPolicy memoryStoreEvictionPolicy (one of LFU, LRU or FIFO)
@@ -50,8 +57,10 @@ public class JCacheFactory implements CacheFactory {
      *            long timeToLiveSeconds,
      *            long timeToIdleSeconds,
      *            boolean diskPersistent,
-     *            long diskExpiryThreadIntervalSeconds
-     *            int maxElementsOnDisk
+     *            long diskExpiryThreadIntervalSeconds,
+     *            int maxElementsOnDisk,
+     *            String cacheLoaderFactoryClassName
+     *
      *
      * Note that the following cannot be set:
      * <ol>
@@ -65,54 +74,71 @@ public class JCacheFactory implements CacheFactory {
     public Cache createCache(Map environment) throws CacheException {
 
 
-        String name = PropertyUtil.extractAndLogProperty("name", environment);
+        CacheLoader cacheLoader = null;
+        Ehcache cache = null;
+        try {
+            String name = PropertyUtil.extractAndLogProperty("name", environment);
 
-        String maxElementsInMemoryString = PropertyUtil.extractAndLogProperty("maxElementsInMemory", environment);
-        int maxElementsInMemory = Integer.parseInt(maxElementsInMemoryString);
+            String maxElementsInMemoryString = PropertyUtil.extractAndLogProperty("maxElementsInMemory", environment);
+            int maxElementsInMemory = Integer.parseInt(maxElementsInMemoryString);
 
-        String memoryStoreEvictionPolicyString = PropertyUtil.extractAndLogProperty("memoryStoreEvictionPolicy", environment);
-        MemoryStoreEvictionPolicy memoryStoreEvictionPolicy =
-                MemoryStoreEvictionPolicy.fromString(memoryStoreEvictionPolicyString);
+            String memoryStoreEvictionPolicyString = PropertyUtil.extractAndLogProperty("memoryStoreEvictionPolicy", environment);
+            MemoryStoreEvictionPolicy memoryStoreEvictionPolicy =
+                    MemoryStoreEvictionPolicy.fromString(memoryStoreEvictionPolicyString);
 
-        String overflowToDiskString = PropertyUtil.extractAndLogProperty("overflowToDisk", environment);
-        boolean overflowToDisk = PropertyUtil.parseBoolean(overflowToDiskString);
+            String overflowToDiskString = PropertyUtil.extractAndLogProperty("overflowToDisk", environment);
+            boolean overflowToDisk = PropertyUtil.parseBoolean(overflowToDiskString);
 
-        String eternalString = PropertyUtil.extractAndLogProperty("eternal", environment);
-        boolean eternal = PropertyUtil.parseBoolean(eternalString);
+            String eternalString = PropertyUtil.extractAndLogProperty("eternal", environment);
+            boolean eternal = PropertyUtil.parseBoolean(eternalString);
 
-        String timeToLiveSecondsString = PropertyUtil.extractAndLogProperty("timeToLiveSeconds", environment);
-        long timeToLiveSeconds = Long.parseLong(timeToLiveSecondsString);
+            String timeToLiveSecondsString = PropertyUtil.extractAndLogProperty("timeToLiveSeconds", environment);
+            long timeToLiveSeconds = Long.parseLong(timeToLiveSecondsString);
 
-        String timeToIdleSecondsString = PropertyUtil.extractAndLogProperty("timeToIdleSeconds", environment);
-        long timeToIdleSeconds = Long.parseLong(timeToIdleSecondsString);
+            String timeToIdleSecondsString = PropertyUtil.extractAndLogProperty("timeToIdleSeconds", environment);
+            long timeToIdleSeconds = Long.parseLong(timeToIdleSecondsString);
 
-        String diskPersistentString = PropertyUtil.extractAndLogProperty("diskPersistentSeconds", environment);
-        boolean diskPersistent = PropertyUtil.parseBoolean(diskPersistentString);
+            String diskPersistentString = PropertyUtil.extractAndLogProperty("diskPersistentSeconds", environment);
+            boolean diskPersistent = PropertyUtil.parseBoolean(diskPersistentString);
 
-        long diskExpiryThreadIntervalSeconds = 0;
-        String diskExpiryThreadIntervalSecondsString =
-                PropertyUtil.extractAndLogProperty("diskExpiryThreadIntervalSeconds", environment);
-        if (diskExpiryThreadIntervalSecondsString != null) {
-            diskExpiryThreadIntervalSeconds = Long.parseLong(diskExpiryThreadIntervalSecondsString);
+            long diskExpiryThreadIntervalSeconds = 0;
+            String diskExpiryThreadIntervalSecondsString =
+                    PropertyUtil.extractAndLogProperty("diskExpiryThreadIntervalSeconds", environment);
+            if (diskExpiryThreadIntervalSecondsString != null) {
+                diskExpiryThreadIntervalSeconds = Long.parseLong(diskExpiryThreadIntervalSecondsString);
+            }
+
+            int maxElementsOnDisk = 0;
+            String maxElementsOnDiskString =
+                            PropertyUtil.extractAndLogProperty("maxElementsOnDisk", environment);
+            if (maxElementsOnDiskString != null) {
+                maxElementsOnDisk = Integer.parseInt(maxElementsOnDiskString);
+            }
+
+            cacheLoader = null;
+            String cacheLoaderFactoryClassName =
+                            PropertyUtil.extractAndLogProperty("cacheLoaderFactoryClassName", environment);
+            if (cacheLoaderFactoryClassName == null) {
+                LOG.debug("cacheLoaderFactoryClassName not configured. Skipping...");
+            } else {
+                CacheLoaderFactory factory = (CacheLoaderFactory)
+                        ClassLoaderUtil.createNewInstance(cacheLoaderFactoryClassName);
+                cacheLoader = factory.createCacheLoader(environment);
+            }
+
+
+            cache = new net.sf.ehcache.Cache(name, maxElementsInMemory, memoryStoreEvictionPolicy,
+                    overflowToDisk, null, eternal,
+                    timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds,
+                    null, null, maxElementsOnDisk);
+
+            net.sf.ehcache.CacheManager.getInstance().addCache(cache);
+        } catch (net.sf.ehcache.CacheException e) {
+            throw new CacheException(e.getMessage(), e);
         }
 
-        int maxElementsOnDisk = 0;
-        String maxElementsOnDiskString =
-                        PropertyUtil.extractAndLogProperty("maxElementsOnDisk", environment);
-        if (maxElementsOnDiskString != null) {
-            maxElementsOnDisk = Integer.parseInt(maxElementsOnDiskString);
-        }
 
-
-        Ehcache cache = new net.sf.ehcache.Cache(name, maxElementsInMemory, memoryStoreEvictionPolicy,
-                overflowToDisk, null, eternal,
-                timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds,
-                null, null, maxElementsOnDisk);
-
-
-        net.sf.ehcache.CacheManager.getInstance().addCache(cache);
-        //todo add loader
-        return new JCache(cache, null);
+        return new JCache(cache, cacheLoader);
 
     }
 }

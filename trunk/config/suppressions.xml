@@ -8,8 +8,7 @@
     <suppress checks="usage.UnusedParameter" files="Test.java"/>
     <suppress checks="usage.UnusedPrivateMethod" files="Test.java"/>
     <suppress checks="StrictDuplicateCode" files="Test.java"/>
-    <suppress checks="MagicNumberCheck" files="Test.java"/>
-    <suppress checks="MagicNumberCheck" files="Tester.java"/>
+    <suppress checks="MagicNumberCheck" files="test[/\\]"/>
     <suppress checks="CyclomaticComplexity" files="Test.java"/>
     <suppress checks="NPathComplexity" files="Test.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="Test.java"/>

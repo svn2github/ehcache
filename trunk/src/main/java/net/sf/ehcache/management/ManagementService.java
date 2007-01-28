@@ -44,7 +44,6 @@ import java.util.Set;
  * <p/>
  * The second purpose of this class (and this package) is to keep management concerns away from the core ehcache packages.
  * That way, JMX is not a required dependency, but rather an optional one.
- * todo apt documentation
  *
  * @author Greg Luck
  * @version $Id$
@@ -186,7 +185,6 @@ public final class ManagementService implements CacheManagerEventListener {
     public void dispose() throws CacheException {
         Set registeredObjectNames = null;
 
-        //todo use getName for CacheManager
         try {
             //CacheManager MBean
             registeredObjectNames = mBeanServer.queryNames(CacheManager.createObjectName(backingCacheManager), null);

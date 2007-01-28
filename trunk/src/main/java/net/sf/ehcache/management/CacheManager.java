@@ -52,7 +52,7 @@ public class CacheManager implements CacheManagerMBean {
     static ObjectName createObjectName(net.sf.ehcache.CacheManager cacheManager) {
         ObjectName objectName;
         try {
-            objectName = new ObjectName("net.sf.ehcache:type=CacheManager,name=" + cacheManager.toString());
+            objectName = new ObjectName("net.sf.ehcache:type=CacheManager,name=" + cacheManager.getName());
         } catch (MalformedObjectNameException e) {
             throw new CacheException(e);
         }

@@ -106,6 +106,14 @@ public class JCache implements net.sf.jsr107cache.Cache {
     }
 
     /**
+     * Setter for the CacheLoader. Changing the CacheLoader takes immediate effect.
+     * @param cacheLoader the loader to dynamically load new cache entries
+     */
+    public void setCacheLoader(CacheLoader cacheLoader) {
+        this.cacheLoader = cacheLoader;
+    }
+
+    /**
      * Add a listener to the list of cache listeners. The behaviour of JCACHE and Ehcache listeners is a little
      * different. See {@link JCacheListenerAdaptor} for details on how each event is adapted.
      *
@@ -178,6 +186,14 @@ public class JCache implements net.sf.jsr107cache.Cache {
             throw new CacheException(e.getMessage(), e);
         }
         return map;
+    }
+
+    /**
+     * Gets the CacheLoader registered in this cache
+     * @return the loader, or null if there is none
+     */
+    CacheLoader getCacheLoader() {
+        return cacheLoader;
     }
 
     /**
