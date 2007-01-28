@@ -259,7 +259,7 @@ public class CacheManagerTest extends TestCase {
      */
     public void testCacheManagerThreads() throws CacheException, InterruptedException {
         singletonManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-big.xml");
-        assertTrue(countThreads() <= 71);
+        assertTrue("More than 75 threads", countThreads() <= 75);
     }
 
     /**

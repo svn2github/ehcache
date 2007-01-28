@@ -542,29 +542,13 @@ public class JCacheTest extends AbstractCacheTest {
         //getKeys does not do an expiry check, so the expired elements are counted
         assertEquals(2, cache.getCacheStatistics().getObjectCount());
         String keyFromDisk = (String) cache.getCacheEntry(key1).getKey();
-        assertTrue(key1 == keyFromDisk);
+        assertTrue(key1.equals(keyFromDisk));
         Thread.sleep(1010);
         assertEquals(2, cache.keySet().size());
         //getKeysWithExpiryCheck does check and gives the correct answer of 0
         Ehcache ehcache = ((JCache) cache).getBackingCache();
         ehcache.setStatisticsAccuracy(CacheStatistics.STATISTICS_ACCURACY_GUARANTEED);
         assertEquals(0, cache.getCacheStatistics().getObjectCount());
-    }
-
-
-    /**
-     * Answers the question of whether key references are preserved as elements are written to disk.
-     * This is not a mandatory part of the API. If this test breaks in future it should be removed.
-     */
-    public void testKeysEqualsEquals() throws Exception {
-        //Set size so the second element overflows to disk.
-        Cache cache = getTest2Cache();
-        String key1 = "key1";
-        cache.put(key1, "value1");
-        cache.put("key2", "value1");
-        CacheEntry cacheEntry = cache.getCacheEntry(key1);
-        String keyFromDisk = (String) cacheEntry.getKey();
-        assertTrue(key1 == keyFromDisk);
     }
 
     /**
@@ -866,7 +850,7 @@ public class JCacheTest extends AbstractCacheTest {
      */
     public void testReadWriteThreads() throws Exception {
 
-        final int size = 10000;
+        final int size = 9000;
         final int maxTime = 330;
         final Cache cache = getTest1Cache();
 
@@ -923,7 +907,7 @@ public class JCacheTest extends AbstractCacheTest {
             executables.add(executable);
         }
 
-        //some of the time remove the data
+        //some of the time clear the data
         for (int i = 0; i < 10; i++) {
             final Executable executable = new Executable() {
                 public void execute() throws Exception {

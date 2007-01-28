@@ -34,18 +34,16 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/backport-util-concurrent/backport-util-concurrent/3.0/backport-util-concurrent-3.0.jar!/" />
+          <root url="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/nekohtml/nekohtml/0.9.1/nekohtml-0.9.1.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="file:///Users/gluck/work/backport-util-concurrent-Java50-3.0/src" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/nekohtml/nekohtml/0.9.1/nekohtml-0.9.1.jar!/" />
+          <root url="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/backport-util-concurrent/backport-util-concurrent/3.0/backport-util-concurrent-3.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -237,24 +235,6 @@
       <library>
         <CLASSES>
           <root url="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/xerces/xmlParserAPIs/2.2.1/xmlParserAPIs-2.2.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/tools/jmxri-1.2.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/tools/jmxremote-1_0_1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
