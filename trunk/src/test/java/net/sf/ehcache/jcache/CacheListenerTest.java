@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2006 Greg Luck
+ *  Copyright 2003-2007 Greg Luck
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -76,8 +76,8 @@ public class CacheListenerTest extends AbstractCacheTest {
             env.put("memoryStoreEvictionPolicy", "LRU");
             env.put("overflowToDisk", "true");
             env.put("eternal", "false");
-            env.put("timeToLiveSeconds", "1000");
-            env.put("timeToIdleSeconds", "1000");
+            env.put("timeToLiveSeconds", "1");
+            env.put("timeToIdleSeconds", "1");
             env.put("diskPersistent", "false");
             env.put("diskExpiryThreadIntervalSeconds", "120");
             env.put("cacheLoaderFactoryClassName", "net.sf.ehcache.jcache.CountingCacheLoaderFactory");
@@ -148,6 +148,37 @@ public class CacheListenerTest extends AbstractCacheTest {
 
     }
 
+    /**
+     * Tests the expiry notifier. These are mapped to evictions in the JCache adaptor.
+     */
+    public void testExpiryNotifications() throws InterruptedException, net.sf.jsr107cache.CacheException {
+
+        Serializable key = "1";
+        Serializable value = new Date();
+
+        Cache cache = getTest1Cache();
+        CountingCacheListener countingCacheListener = new CountingCacheListener();
+        cache.addListener(countingCacheListener);
+
+        //Put
+        cache.put(key, value);
+
+        //expire
+        Thread.sleep(1001);
+
+        //force expiry
+        Object expired = cache.get(key);
+        assertEquals(null, expired);
+
+        //Check counting listener
+        List notifications = countingCacheListener.getCacheElementsEvicted();
+        assertEquals(1, notifications.size());
+
+        //check for NPE
+        cache.remove(null);
+
+    }
+
 
     /**
      * Tests the eviction notifier.
@@ -158,7 +189,6 @@ public class CacheListenerTest extends AbstractCacheTest {
         JCache cache2 = new JCache(manager.getCache("sampleCache2"), null);
         CountingCacheListener countingCacheListener = new CountingCacheListener();
         cache2.addListener(countingCacheListener);
-
 
         //1 should be evicted
         for (int i = 0; i < 1001; i++) {
@@ -180,7 +210,6 @@ public class CacheListenerTest extends AbstractCacheTest {
         CountingCacheListener countingCacheListener = new CountingCacheListener();
         cache1.addListener(countingCacheListener);
 
-
         //1 should be evicted
         for (int i = 0; i < 10001; i++) {
             cache1.put("" + i, new Date());
@@ -198,7 +227,6 @@ public class CacheListenerTest extends AbstractCacheTest {
         JCache cache2 = new JCache(manager.getCache("sampleCache2"), null);
         CountingCacheListener countingCacheListener = new CountingCacheListener();
         cache2.addListener(countingCacheListener);
-
 
         //Put 11.
         for (int i = 0; i < 11; i++) {
@@ -226,7 +254,6 @@ public class CacheListenerTest extends AbstractCacheTest {
         Cache cache = getTest1Cache();
         CountingCacheListener countingCacheListener = new CountingCacheListener();
         cache.addListener(countingCacheListener);
-
 
         //Don't Put
         //cache.put(element);
@@ -295,6 +322,5 @@ public class CacheListenerTest extends AbstractCacheTest {
         assertEquals(0, removalNotifications.size());
 
     }
-
-
+    
 }

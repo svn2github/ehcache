@@ -111,6 +111,15 @@ JSR107 (JCACHE) Support
 -----
 
 
+    *   <<<getCost()>>> requirs the CacheEntry to know where it is. If it is in a DiskStore then its cost
+        of retrieval could be higher than if it is in heap memory. Ehcache elements do not have this concept,
+        and it is not implemented. i.e. getCost always returns 0. Also, if it is in the DiskStore, when you
+        retrieve it is in then in the MemoryStore and its retrieval cost is a lot lower. I do not see the point
+        of this method.
+
+    *   <<<getLastUpdateTime()>>> is the time the last "update was made". JCACHE does not support updates, only puts    
+
+
 ** net.sf.jsr107cache.CacheStatistics
 
     *   getObjectCount() is a strange name. How about getSize()? If a cache entry is an object graph
@@ -192,9 +201,9 @@ public interface CacheStatistics {
     *   Listeners often need not just the key, but the cache Entry itself. This listener interface
         is extremely limiting.
 
-    *   There is no onUpdate notification method.
+    *   There is no onUpdate notification method. These are mapped to JCACHE's onPut notification.
 
-    *   There is no onExpired notification method.
+    *   There is no onExpired notification method. These are mapped to JCACHE's onEvict notification. 
 
 
 

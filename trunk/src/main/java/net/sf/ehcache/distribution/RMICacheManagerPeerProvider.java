@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2006 Greg Luck
+ *  Copyright 2003-2007 Greg Luck
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.

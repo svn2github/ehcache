@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2006 Greg Luck
+ *  Copyright 2003-2007 Greg Luck
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import java.util.HashMap;
  * Tests for CacheEntry
  *
  * @author Greg Luck
- * @version $Id$
+ * @version $Id:JCacheEntryTest.java 318 2007-01-25 01:48:35Z gregluck $
  */
 public class JCacheEntryTest extends AbstractCacheTest {
     private static final Log LOG = LogFactory.getLog(JCacheTest.class.getName());
@@ -65,14 +65,12 @@ public class JCacheEntryTest extends AbstractCacheTest {
     }
 
 
-
     /**
      * Test create and access times
      * jsr107 does not allow a CacheEntry to be put into a cache. So testing
      * recycling of elements is pointless.
      */
     public void testAccessTimes() throws Exception {
-        //Set size so the second element overflows to disk.
         Cache cache = getTestCache();
 
         CacheEntry entry = new JCacheEntry(new Element("key1", "value1"));
@@ -96,5 +94,127 @@ public class JCacheEntryTest extends AbstractCacheTest {
 
     }
 
+    /**
+     * This implementation does not have a notion of cost.
+     */
+    public void testCost() throws Exception {
+        Cache cache = getTestCache();
+
+        CacheEntry entry = new JCacheEntry(new Element("key1", "value1"));
+        assertEquals(0, entry.getCost());
+    }
+
+
+    /**
+     * Check the expiry time is correct.
+     */
+    public void testExpirationTime() throws Exception {
+
+        Cache cache = getTestCache();
+        CacheEntry entry = new JCacheEntry(new Element("key1", "value1"));
+        cache.put(entry.getKey(), entry.getValue());
+        CacheEntry retrievedEntry = cache.getCacheEntry(entry.getKey());
+
+        //test expiry time s 1000ms after create time.
+        assertTrue(retrievedEntry.getExpirationTime() > (System.currentTimeMillis() + 995));
+        assertTrue(retrievedEntry.getExpirationTime() < (System.currentTimeMillis() + 1005));
+    }
+
+    /**
+     * Each get should cause a hit.
+     */
+    public void testHits() throws Exception {
+
+        Cache cache = getTestCache();
+        CacheEntry entry = new JCacheEntry(new Element("key1", "value1"));
+        assertEquals(0, entry.getHits());
+
+        cache.put(entry.getKey(), entry.getValue());
+        CacheEntry retrievedEntry = cache.getCacheEntry(entry.getKey());
+
+        assertEquals(1, retrievedEntry.getHits());
+
+        cache.get(entry.getKey());
+        retrievedEntry = cache.getCacheEntry(entry.getKey());
+
+        assertEquals(3, retrievedEntry.getHits());
+
+    }
+
+    /**
+     * Last access time should be 0 if not accessed and then the last get time.
+     */
+    public void testLastAccessTime() throws Exception {
+
+        Cache cache = getTestCache();
+        CacheEntry entry = new JCacheEntry(new Element("key1", "value1"));
+        assertEquals(0, entry.getLastAccessTime());
+
+        cache.put(entry.getKey(), entry.getValue());
+        CacheEntry retrievedEntry = cache.getCacheEntry(entry.getKey());
+
+        //test access is in the last 5ms
+        assertTrue(retrievedEntry.getLastAccessTime() <= System.currentTimeMillis());
+
+    }
+
+    /**
+     * 0 when first created. 0 when first put. 1 when replaced.
+     */
+    public void testLastUpdateTime() throws Exception {
+
+        Cache cache = getTestCache();
+        CacheEntry entry = new JCacheEntry(new Element("key1", "value1"));
+        assertEquals(0, entry.getLastUpdateTime());
+
+        cache.put(entry.getKey(), entry.getValue());
+        //update it
+        cache.put(entry.getKey(), entry.getValue());
+        CacheEntry retrievedEntry = cache.getCacheEntry(entry.getKey());
+
+        //test update is in the last 5ms
+        assertTrue(retrievedEntry.getLastUpdateTime() > System.currentTimeMillis() - 10);
+        assertTrue(retrievedEntry.getLastUpdateTime() <= System.currentTimeMillis());
+
+    }
+
+    /**
+     * 0 when first created. 1 when first put. > 2 when replaced.
+     */
+    public void testVersion() throws Exception {
+
+        Cache cache = getTestCache();
+        CacheEntry entry = new JCacheEntry(new Element("key1", "value1"));
+        assertEquals(1, entry.getVersion());
+
+
+        cache.put(entry.getKey(), entry.getValue());
+        //update it
+        cache.put(entry.getKey(), entry.getValue());
+        CacheEntry retrievedEntry = cache.getCacheEntry(entry.getKey());
+
+        assertTrue(retrievedEntry.getVersion() >= 2);
+    }
+
+
+    /**
+     * valid when first created. valid if not expired, invalid if expired.
+     */
+    public void testIsValid() throws Exception {
+
+        Cache cache = getTestCache();
+        CacheEntry entry = new JCacheEntry(new Element("key1", "value1"));
+        assertEquals(true, entry.isValid());
+
+
+        cache.put(entry.getKey(), entry.getValue());
+        CacheEntry retrievedEntry = cache.getCacheEntry(entry.getKey());
+        assertEquals(true, retrievedEntry.isValid());
+
+
+        Thread.sleep(1001);
+        assertEquals(false, retrievedEntry.isValid());
+
+    }
 
 }

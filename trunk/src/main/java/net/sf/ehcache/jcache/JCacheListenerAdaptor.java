@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2006 Greg Luck
+ *  Copyright 2003-2007 Greg Luck
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -166,7 +166,7 @@ public class JCacheListenerAdaptor implements CacheEventListener {
     }
 
     /**
-     * Give the replicator a chance to cleanup and free resources when no longer needed.
+     * Give the listener a chance to cleanup and free resources when no longer needed.
      * <p/>
      * JCACHE CacheListener does not support on dispose. This method does not delegate to anything.
      * JCACHE CacheListener implementations should consider registering a CacheManagerEventListener
