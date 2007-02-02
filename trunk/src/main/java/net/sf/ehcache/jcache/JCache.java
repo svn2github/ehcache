@@ -70,7 +70,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
     private Ehcache cache;
 
     private CacheLoader cacheLoader;
-    
+
 
     /**
      * A ThreadPoolExecutor which uses a thread pool to schedule loads in the order in which they are requested.
@@ -107,6 +107,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
 
     /**
      * Setter for the CacheLoader. Changing the CacheLoader takes immediate effect.
+     *
      * @param cacheLoader the loader to dynamically load new cache entries
      */
     public void setCacheLoader(CacheLoader cacheLoader) {
@@ -151,6 +152,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * <p/>
      * Note. If the getAll exceeds the maximum cache
      * size, the returned map will necessarily be less than the number specified.
+     *
      * @param keys
      * @return a populated Map of the Cache
      */
@@ -163,7 +165,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
             List futures = new ArrayList(keys.size());
 
             for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-                Object key =  iterator.next();
+                Object key = iterator.next();
 
                 if (cache.isKeyInCache(key)) {
                     map.put(key, get(key));
@@ -190,6 +192,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
 
     /**
      * Gets the CacheLoader registered in this cache
+     *
      * @return the loader, or null if there is none
      */
     CacheLoader getCacheLoader() {
@@ -206,6 +209,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
 
         /**
          * Full constructor
+         *
          * @param key
          * @param future
          */
@@ -386,6 +390,8 @@ public class JCache implements net.sf.jsr107cache.Cache {
     /**
      * The peek method will return the object associated with "key" if it currently exists (and is valid) in the cache.
      * If not, a null is returned. With "peek" the CacheLoader will not be invoked and other caches in the system will not be searched.
+     * <p/>
+     * In ehcache peek bahaves the same way as {@link #get}
      *
      * @param key
      * @return the value stored in the cache by key, or null if it does not exist
@@ -452,13 +458,25 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * <tt>(value==null ? v==null : value.equals(v))</tt>.  This operation
      * will probably require time linear in the map size for most
      * implementations of the <tt>Map</tt> interface.
+     * <p/>
+     * Warning: This method is extremely slow. Ehcache is designed for efficient
+     * retrieval using keys, not values.
      *
      * @param value value whose presence in this map is to be tested.
      * @return <tt>true</tt> if this map maps one or more keys to the
      *         specified value.
      */
     public boolean containsValue(Object value) {
-        return cache.isValueInCache(value);
+        long start = System.currentTimeMillis();
+        
+        boolean inCache = cache.isValueInCache(value);
+        long end = System.currentTimeMillis();
+
+        if (LOG.isWarnEnabled()) {
+            LOG.warn("Performance Warning: containsValue is not recommended. This call took "
+                    + (end - start) + " ms");
+        }
+        return inCache;
     }
 
     /**
@@ -552,13 +570,16 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * (optional operation).  The effect of this call is equivalent to that
      * of calling {@link #put(Object,Object) put(k, v)} on this map once
      * for each mapping from key <tt>k</tt> to value <tt>v</tt> in the
-     * specified map.  The behavior of this operation is unspecified if the
+     *N specified map.  The behavior of this operation is unspecified if the
      * specified map is modified while the operation is in progress.
      *
      * @param sourceMap Mappings to be stored in this map.
      */
 
     public void putAll(Map sourceMap) {
+        if (sourceMap == null) {
+            return;
+        }
         for (Iterator iterator = sourceMap.keySet().iterator(); iterator.hasNext();) {
             Object key = iterator.next();
             cache.put(new Element(key, sourceMap.get(key)));
@@ -570,7 +591,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
      */
     public void clear() {
         cache.removeAll();
-    }
+    }                                                      
 
     /**
      * Returns a set view of the keys contained in this map.  The set is
@@ -583,10 +604,11 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * <tt>removeAll</tt> <tt>retainAll</tt>, and <tt>clear</tt> operations.
      * It does not support the add or <tt>addAll</tt> operations.
      *
+     * todo ehcache implementation in not live.
      * @return a set view of the keys contained in this map.
      */
     public Set keySet() {
-        List list = cache.getKeysNoDuplicateCheck();
+        List list = cache.getKeys();
         Set set = new HashSet();
         set.addAll(list);
         return set;

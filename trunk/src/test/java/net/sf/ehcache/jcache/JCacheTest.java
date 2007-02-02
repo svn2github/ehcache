@@ -38,9 +38,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.Date;
 
 /**
  * Tests for a Cache
+ * <p/>
+ * todo Listener registration using config
  *
  * @author Greg Luck
  * @version $Id:JCacheTest.java 318 2007-01-25 01:48:35Z gregluck $
@@ -217,6 +220,130 @@ public class JCacheTest extends AbstractCacheTest {
 
 
     /**
+     * Test isEmpty
+     */
+    public void testIsEmpty() throws Exception {
+        Ehcache ehcache = new net.sf.ehcache.Cache("testIsEmpty", 1, true, true, 500, 200);
+        manager.addCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
+        assertTrue(cache.isEmpty());
+
+        cache.put("key1", "value1");
+        assertFalse(cache.isEmpty());
+        cache.put("key2", "value1");
+        assertFalse(cache.isEmpty());
+
+
+        assertNotNull(cache.get("key1"));
+        assertNotNull(cache.get("key2"));
+    }
+
+    /**
+     * Test containsKey
+     */
+    public void testContainsKey() throws Exception {
+        Ehcache ehcache = new net.sf.ehcache.Cache("testContainsKey", 1, true, true, 500, 200);
+        manager.addCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
+        assertFalse(cache.containsKey("key1"));
+        assertFalse(cache.containsKey("key2"));
+
+        cache.put("key1", "value1");
+        assertTrue(cache.containsKey("key1"));
+        assertFalse(cache.containsKey("key2"));
+
+        cache.put("key2", "value1");
+        assertTrue(cache.containsKey("key1"));
+        assertTrue(cache.containsKey("key2"));
+
+        assertNotNull(cache.get("key1"));
+        assertNotNull(cache.get("key2"));
+    }
+
+
+    /**
+     * Test containsValue
+     */
+    public void testContainsValue() throws Exception {
+        Ehcache ehcache = new net.sf.ehcache.Cache("testContainsValue", 2, true, true, 500, 200);
+        manager.addCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
+        assertFalse(cache.containsValue("value1"));
+        assertFalse(cache.containsValue(null));
+
+        cache.put("key1", null);
+        assertFalse(cache.containsValue("value1"));
+        assertTrue(cache.containsValue(null));
+
+        cache.put("key2", "value1");
+        assertTrue(cache.containsValue("value1"));
+        assertTrue(cache.containsValue(null));
+
+        assertNull(cache.get("key1"));
+        assertNotNull(cache.get("key2"));
+    }
+
+    /**
+     * Tests putAll
+     */
+    public void testPutAll() {
+        Ehcache ehcache = new net.sf.ehcache.Cache("testPutAll", 2, true, true, 500, 200);
+        manager.addCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
+        assertTrue(cache.isEmpty());
+
+        cache.putAll(null);
+        assertTrue(cache.isEmpty());
+
+        cache.putAll(new HashMap());
+        assertTrue(cache.isEmpty());
+
+        Map map = new HashMap();
+        for (int i = 0; i < 10; i++) {
+            map.put(i + "", new Date());
+        }
+
+        cache.putAll(map);
+        assertEquals(10, cache.size());
+    }
+
+    /**
+     * Tests clear()
+     */
+    public void testClear() {
+        Ehcache ehcache = new net.sf.ehcache.Cache("testClear", 2, true, true, 500, 200);
+        manager.addCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
+
+        assertTrue(cache.isEmpty());
+        cache.clear();
+        assertTrue(cache.isEmpty());
+
+        cache.put("1", new Date());
+        cache.clear();
+        assertTrue(cache.isEmpty());
+    }
+
+
+    /**
+     * Test the keyset method
+     */
+    public void testKeySet() {
+        Ehcache ehcache = new net.sf.ehcache.Cache("testKeySet", 2, true, true, 500, 200);
+        manager.addCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
+
+        for (int i = 0; i < 10; i++) {
+            cache.put(i + "", new Date());
+        }
+        //duplicate
+        cache.put(0 + "", new Date());
+        Set set = cache.keySet();
+        assertEquals(10, set.size());
+    }
+
+
+    /**
      * Performance tests for a range of Memory Store - Disk Store combinations.
      * <p/>
      * This demonstrates that a memory only store is approximately an order of magnitude
@@ -335,6 +462,36 @@ public class JCacheTest extends AbstractCacheTest {
         Thread.sleep(1001);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
+    }
+
+
+    /**
+     * Test expiry based on time to live.
+     * This test uses peek, which behaves the same as get
+     */
+    public void testExpiryBasedOnTimeToLiveUsingPeek() throws Exception {
+        //Set size so the second element overflows to disk.
+        Ehcache ehcache = new net.sf.ehcache.Cache("testExpiryBasedOnTimeToLiveUsingPeek", 1, true, false, 3, 0);
+        manager.addCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
+
+        cache.put("key1", "value1");
+        cache.put("key2", "value1");
+
+        //Test time to live
+        assertNotNull(cache.peek("key1"));
+        assertNotNull(cache.peek("key2"));
+        Thread.sleep(1001);
+        //Test time to live
+        assertNotNull(cache.peek("key1"));
+        assertNotNull(cache.peek("key2"));
+        Thread.sleep(1001);
+        //Test time to live
+        assertNotNull(cache.peek("key1"));
+        assertNotNull(cache.peek("key2"));
+        Thread.sleep(1001);
+        assertNull(cache.peek("key1"));
+        assertNull(cache.peek("key2"));
     }
 
 //    /**
@@ -950,7 +1107,6 @@ public class JCacheTest extends AbstractCacheTest {
         assertEquals(1, jcache.size());
         assertEquals(1, countingCacheLoader.getLoadCounter());
     }
-
 
 
     /**

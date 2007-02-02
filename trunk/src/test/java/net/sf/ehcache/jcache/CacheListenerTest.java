@@ -92,26 +92,36 @@ public class CacheListenerTest extends AbstractCacheTest {
      */
     public void testPutNotifications() throws net.sf.jsr107cache.CacheException {
 
-        Serializable key = new Date();
-        Serializable value = new Date();
 
         Cache cache = getTest1Cache();
+
+
+        cache.put("1", new Date());
+
 
         CountingCacheListener countingCacheListener = new CountingCacheListener();
         cache.addListener(countingCacheListener);
 
-        //Put
-        cache.put(key, value);
+        cache.put("2", new Date());
 
         List notifications = countingCacheListener.getCacheElementsPut();
 
+        //The one put before we registered the listener should not have been received
         assertTrue(notifications.size() == 1);
-        assertEquals(key, notifications.get(0));
+        assertEquals("2", notifications.get(0));
 
         //A put which updates records as two puts, because JCache does not have an update notification
-        cache.put(key, value);
+        cache.put("2", new Date());
         notifications = countingCacheListener.getCacheElementsPut();
         assertTrue(notifications.size() == 2);
+
+        cache.removeListener(countingCacheListener);
+
+        //Now put another value. It should not be received
+        cache.put("3", new Date());
+        notifications = countingCacheListener.getCacheElementsPut();
+        assertTrue(notifications.size() == 2);
+
 
     }
 
@@ -322,5 +332,5 @@ public class CacheListenerTest extends AbstractCacheTest {
         assertEquals(0, removalNotifications.size());
 
     }
-    
+
 }

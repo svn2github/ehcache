@@ -234,6 +234,14 @@ public class ElementTest extends AbstractCacheTest {
         assertFalse(element.isKeySerializable());
         assertFalse(element.isSerializable());
 
+
+        Element elementWithNullValue = new Element("1", null);
+        assertFalse(elementWithNullValue.isSerializable());
+
+
+        Object object = null;
+        assertFalse(object instanceof Serializable);
+
     }
 
 

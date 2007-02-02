@@ -413,7 +413,7 @@ public class Cache implements Ehcache {
      * Only the CacheManager can initialise them.
      *
      * @param configuration an object representing the configuration of the cache
-     * todo hook this up properly
+     *                      todo hook this up properly
      */
     public Cache(CacheConfiguration configuration) {
         this.configuration = configuration;
@@ -1645,11 +1645,28 @@ public class Cache implements Ehcache {
      * @return true if an Element matching the key is found in the cache. No assertions are made about the state of the Element.
      */
     public boolean isValueInCache(Object value) {
-        List keys = getKeys();
+        boolean isSerializable = value instanceof Serializable;
+        List keys;
+        if (isSerializable) {
+            keys = getKeys();
+        } else {
+            keys = Arrays.asList(memoryStore.getKeyArray());
+        }
+
         for (int i = 0; i < keys.size(); i++) {
-            Element element = (Element) keys.get(i);
-            if (element != null && element.getObjectValue().equals(value)) {
-                return true;
+            Object key = keys.get(i);
+            Element element = get(key);
+            if (element != null) {
+                Object elementValue = element.getValue();
+                if (elementValue == null) {
+                    if (value == null) {
+                        return true;
+                    }
+                } else {
+                    if (elementValue.equals(value)) {
+                        return true;
+                    }
+                }
             }
         }
         return false;
@@ -1683,7 +1700,6 @@ public class Cache implements Ehcache {
         this.cacheManager = cacheManager;
     }
 
-
     /**
      * Accessor for the BootstrapCacheLoader associated with this cache. For testing purposes.
      */
@@ -1705,7 +1721,6 @@ public class Cache implements Ehcache {
         this.bootstrapCacheLoader = bootstrapCacheLoader;
     }
 
-
     /**
      * DiskStore paths can conflict between CacheManager instances. This method allows the path to be changed.
      *
@@ -1719,7 +1734,6 @@ public class Cache implements Ehcache {
         }
         this.diskStorePath = diskStorePath;
     }
-
 
     /**
      * An equals method which follows the contract of {@link Object#equals(Object)}
@@ -1740,7 +1754,6 @@ public class Cache implements Ehcache {
         Ehcache other = (Ehcache) object;
         return guid.equals(other.getGuid());
     }
-
 
     /**
      * Returns a hash code value for the object. This method is
