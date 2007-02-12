@@ -95,7 +95,7 @@ public class CacheTest extends AbstractCacheTest {
         }
         if (cache instanceof Cache) {
             Cache castCache = (Cache) cache;
-        //ok to get stats
+            //ok to get stats
             castCache.getHitCount();
             castCache.getMemoryStoreHitCount();
             castCache.getDiskStoreHitCount();
@@ -1395,7 +1395,6 @@ public class CacheTest extends AbstractCacheTest {
      * Does the Object API work?
      */
     public void testAPIObjectCompatibility() {
-        //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 5, true, false, 5, 2);
         manager.addCache(cache);
 
@@ -1428,7 +1427,6 @@ public class CacheTest extends AbstractCacheTest {
      * Does the Serializable API work?
      */
     public void testAPISerializableCompatibility() {
-        //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 5, true, false, 5, 2);
         manager.addCache(cache);
 
@@ -1597,7 +1595,8 @@ public class CacheTest extends AbstractCacheTest {
      * Tests added from 1606323 Elements not stored in memory or on disk. This was supposedly
      * a bug but works.
      * This test passes.
-     * @throws Exception  
+     *
+     * @throws Exception
      */
     public void testTimeToLive15552000() throws Exception {
         long timeToLiveSeconds = 15552000;
@@ -1606,6 +1605,7 @@ public class CacheTest extends AbstractCacheTest {
 
     /**
      * This test passes.
+     *
      * @throws Exception
      */
     public void testTimeToLive604800() throws Exception {
@@ -1648,6 +1648,56 @@ public class CacheTest extends AbstractCacheTest {
         memoryAndDisk.put(new Element(key, value));
 
         assertTrue(memoryAndDisk.isElementInMemory(key));
+    }
+
+    /**
+     * Tests get from a finalize method, following a mailing list post from Felix Satyaputr
+     * 
+     * @throws InterruptedException
+     */
+    public void testGetQuietFromFinalize() throws InterruptedException {
+
+
+        final Cache cache = new Cache("test", 1, true, false, 5, 2);
+        manager.addCache(cache);
+
+        cache.put(new Element("key", "value"));
+        cache.put(new Element("key2", "value"));
+        cache.put(new Element("key3", "value"));
+        cache.put(new Element("key4", "value"));
+        cache.put(new Element("key5", "value"));
+
+        //wait for overflow to kick in
+        Thread.sleep(200);
+
+        createTestObject();
+
+        //try to get object finalized
+        System.gc();
+        Thread.sleep(200);
+        System.gc();
+
+
+    }
+
+    private void createTestObject() {
+        new TestObject();
+    }
+
+
+    /**
+     * A class with a finalize implementation.
+     */
+    class TestObject {
+
+        /**
+         * Override the Object finalize method
+         */
+        protected void finalize() throws Throwable {
+            manager.getCache("test").getQuiet("key");
+            LOG.info("finalize run from thread " + Thread.currentThread().getName());
+            super.finalize();
+        }
     }
 
 
