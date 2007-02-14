@@ -25,6 +25,7 @@ import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.event.CacheManagerEventListenerRegistry;
 import net.sf.ehcache.store.DiskStore;
+import net.sf.ehcache.util.PropertyUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -52,6 +53,7 @@ import java.util.Set;
  * CacheManager.
  * </ol>
  * <p/>
+ *
  * @author Greg Luck
  * @version $Id$
  */
@@ -63,6 +65,13 @@ public class CacheManager {
      */
     public static final List ALL_CACHE_MANAGERS = Collections.synchronizedList(new ArrayList());
 
+
+    /**
+     * System property to disable creation of a shutdown hook for CacheManager. Set this property
+     * to true to disable.
+     */
+    public static final String DISABLE_SHUTDOWN_HOOK_PROPERTY = "net.sf.ehcache.disableShutdownHook";
+    
     private static final Log LOG = LogFactory.getLog(CacheManager.class.getName());
 
     /**
@@ -471,7 +480,6 @@ public class CacheManager {
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @throws ClassCastException    is the Ehcache found is not a Cache
      * @see #getEhcache(String)
-     *
      */
     public synchronized Cache getCache(String name) throws IllegalStateException, ClassCastException {
         checkStatus();
@@ -493,6 +501,13 @@ public class CacheManager {
      * case, so that the data and index can be written to disk.
      */
     private void addShutdownHook() {
+
+        String shutdownHookProperty = System.getProperty(DISABLE_SHUTDOWN_HOOK_PROPERTY);
+        boolean disabled = PropertyUtil.parseBoolean(shutdownHookProperty);
+        if (disabled) {
+            LOG.info("The CacheManager shutdown hook is disabled because " + DISABLE_SHUTDOWN_HOOK_PROPERTY + " is set to true.");
+        }
+
         Thread localShutdownHook = new Thread() {
             public void run() {
                 synchronized (this) {
@@ -513,7 +528,6 @@ public class CacheManager {
         Runtime.getRuntime().addShutdownHook(localShutdownHook);
         shutdownHook = localShutdownHook;
     }
-
 
 
     /**
@@ -674,6 +688,11 @@ public class CacheManager {
      * <p/>
      * If the shutdown occurs on the singleton, then the singleton is removed, so that if a singleton access method
      * is called, a new singleton will be created.
+     * <p/>
+     * Note the CacheManager normally registers a shutdown hook to handle cases where the JVM is shutdown without calling
+     * this method. The shutdown hook then calls this method. If that behavour is not desired, add the following system property:
+     * <p/>
+     * <code>net.sf.ehcache.disableShutdownHook=true</code>
      */
     public void shutdown() {
         if (status.equals(Status.STATUS_SHUTDOWN)) {
@@ -792,8 +811,8 @@ public class CacheManager {
      * Left for backward compatiblity
      *
      * @param cacheManagerEventListener the listener to set.
-     * @deprecated Use getCacheManagerEventListenerRegistry instead
      * @see "getCacheManagerEventListenerRegistry"
+     * @deprecated Use getCacheManagerEventListenerRegistry instead
      */
     public void setCacheManagerEventListener(CacheManagerEventListener cacheManagerEventListener) {
         getCacheManagerEventListenerRegistry().registerListener(cacheManagerEventListener);
@@ -856,6 +875,7 @@ public class CacheManager {
 
     /**
      * Gets the name of the CacheManager. This is useful for distinguishing multiple CacheManagers
+     *
      * @return the name, or the output of toString() if it is not set.
      * @see #toString() which uses either the name or Object.toString()
      */
@@ -870,6 +890,7 @@ public class CacheManager {
     /**
      * Sets the name of the CacheManager. This is useful for distinguishing multiple CacheManagers
      * in a monitoring situation.
+     *
      * @param name a name with characters legal in a JMX ObjectName
      */
     public void setName(String name) {

@@ -255,7 +255,7 @@ public final class MulticastKeepaliveHeartbeatSender {
      *
      * @param heartBeatInterval a time in ms, greater than 1000
      */
-    static void setHeartBeatInterval(long heartBeatInterval) {
+    public static void setHeartBeatInterval(long heartBeatInterval) {
         if (heartBeatInterval < MINIMUM_HEARTBEAT_INTERVAL) {
             LOG.warn("Trying to set heartbeat interval too low. Using MINIMUM_HEARTBEAT_INTERVAL instead.");
             MulticastKeepaliveHeartbeatSender.heartBeatInterval = MINIMUM_HEARTBEAT_INTERVAL;
