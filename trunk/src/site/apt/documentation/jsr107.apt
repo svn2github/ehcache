@@ -86,7 +86,35 @@ JSR107 (JCACHE) Support
         ehcache implementation does that. However, due to the lack of lifecycle management, there is no immediate way to free
         resources such as thread pools.
 
-    *   The <<<load>>> method ignores a request if the element is already loaded in for that key. 
+    *   The <<<load>>> method ignores a request if the element is already loaded in for that key.
+
+
+    *   The <<<values()>>> method states that it
+
+----
+    /**
+     * Returns a collection view of the values contained in this map.  The
+     * collection is backed by the map, so changes to the map are reflected in
+     * the collection, and vice-versa.  If the map is modified while an
+     * iteration over the collection is in progress (except through the
+     * iterator's own <tt>remove</tt> operation), the results of the
+     * iteration are undefined.  The collection supports element removal,
+     * which removes the corresponding mapping from the map, via the
+     * <tt>Iterator.remove</tt>, <tt>Collection.remove</tt>,
+     * <tt>removeAll</tt>, <tt>retainAll</tt> and <tt>clear</tt> operations.
+     * It does not support the add or <tt>addAll</tt> operations.
+     * <p/>
+     *
+     * @return a collection view of the values contained in this map.
+     */
+    public Collection values() {
+----
+
+        It is not practical or desirable to support this contract. Ehcache has multiple maps for storage
+        of elements so there is no single backing map. Allowing changes to propagate from a change in the collection
+        maps would break the public interface of the cache and introduce subtle threading issues.
+
+        The ehcache implementation returns a new collection which is not connected to internal structures in ehcache.
 
 
 

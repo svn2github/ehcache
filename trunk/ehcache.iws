@@ -31,16 +31,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/GzipFilterTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/GzipFilterTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/resources/default-web-app/MultiLanguagePage.jsp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/CacheManager.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/ElementTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/GenericResponseWrapper.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/GenericResponseWrapper.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/default-web-app/GzipOnlyPage.jsp" afterPath="$PROJECT_DIR$/src/test/resources/default-web-app/GzipOnlyPage.jsp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/AbstractWebTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/AbstractWebTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Element.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/Element.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/changes/changes.xml" afterPath="$PROJECT_DIR$/src/changes/changes.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/JCacheTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/JCacheTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/site/apt/documentation/jsr107.apt" afterPath="$PROJECT_DIR$/src/site/apt/documentation/jsr107.apt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -113,20 +107,7 @@
   </component>
   <component name="DebuggerManager">
     <line_breakpoints>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java" line="326" class="Class at JCache.java:326" package="net.sf.ehcache.jcache">
-        <option name="ENABLED" value="true" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="false" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/JCacheTest.java" line="281" class="net.sf.ehcache.jcache.JCacheTest" package="net.sf.ehcache.jcache">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java" line="329" class="Class at JCache.java:329" package="net.sf.ehcache.jcache">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
         <option name="LOG_ENABLED" value="false" />
@@ -252,91 +233,91 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="GenericResponseWrapper.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/GenericResponseWrapper.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="162" column="27" selection-start="4855" selection-end="4855" vertical-scroll-proportion="0.12705882">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="GzipFilterTest.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="GzipFilterTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/GzipFilterTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="29" column="2" selection-start="1045" selection-end="1045" vertical-scroll-proportion="0.11497006">
+            <state line="34" column="0" selection-start="1242" selection-end="1242" vertical-scroll-proportion="0.18682635">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MultiLanguagePage.jsp" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/MultiLanguagePage.jsp">
+      <file leaf-file-name="JCacheTest.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/JCacheTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="17" column="100" selection-start="668" selection-end="668" vertical-scroll-proportion="0.24431138">
+            <state line="318" column="59" selection-start="10615" selection-end="10615" vertical-scroll-proportion="0.42705882">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PrintWriter.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/io/PrintWriter.java">
+      <file leaf-file-name="Cache.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file:///Users/gluck/work/jsr107cache/trunk/src/main/java/net/sf/jsr107cache/Cache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="269" column="14" selection-start="10182" selection-end="10182" vertical-scroll-proportion="0.51529413">
+            <state line="24" column="22" selection-start="1041" selection-end="1041" vertical-scroll-proportion="0.11647059">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Writer.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/io/Writer.java">
+      <file leaf-file-name="JCache.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="260" column="10" selection-start="7773" selection-end="7773" vertical-scroll-proportion="0.6188235">
+            <state line="382" column="97" selection-start="16397" selection-end="16397" vertical-scroll-proportion="0.28502995">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ResponseUtil.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/ResponseUtil.java">
+      <file leaf-file-name="jsr107.apt" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/jsr107.apt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="119" column="16" selection-start="4760" selection-end="4760" vertical-scroll-proportion="0.73176473">
+            <state line="116" column="117" selection-start="5480" selection-end="5480" vertical-scroll-proportion="0.4635294">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Filter.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/Filter.java">
+      <file leaf-file-name="Ehcache.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Ehcache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="43" column="22" selection-start="1487" selection-end="1487" vertical-scroll-proportion="-3.5413175">
+            <state line="206" column="0" selection-start="9225" selection-end="9225" vertical-scroll-proportion="0.21317366">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GzipFilter.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/GzipFilter.java">
+      <file leaf-file-name="Cache.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="75" column="23" selection-start="2781" selection-end="2781" vertical-scroll-proportion="0.31764707">
+            <state line="782" column="35" selection-start="33000" selection-end="33000" vertical-scroll-proportion="0.38562873">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ByteArrayOutputStream.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/io/ByteArrayOutputStream.java">
+      <file leaf-file-name="MemoryStore.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="134" column="26" selection-start="4203" selection-end="4203" vertical-scroll-proportion="0.19058824">
+            <state line="302" column="24" selection-start="9504" selection-end="9504" vertical-scroll-proportion="0.37058824">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ServletResponseWrapper.class" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar!/javax/servlet/ServletResponseWrapper.class">
+      <file leaf-file-name="Map.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/util/Map.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="20" column="31" selection-start="893" selection-end="893" vertical-scroll-proportion="0.2682353">
+            <state line="130" column="0" selection-start="6332" selection-end="6332" vertical-scroll-proportion="0.44117647">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="HashMap.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/util/HashMap.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="341" column="21" selection-start="12868" selection-end="12868" vertical-scroll-proportion="0.24352941">
               <folding />
             </state>
           </provider>
@@ -1299,21 +1280,22 @@
     </key>
   </component>
   <component name="RestoreUpdateTree" />
-  <component name="RunManager" selected="JUnit.net.sf.ehcache.constructs.web in ehcache">
-    <tempConfiguration default="false" name="net.sf.ehcache.constructs.web in ehcache" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+  <component name="RunManager" selected="JUnit.JCacheTest">
+    <tempConfiguration default="false" name="JCacheTest" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+      <pattern value="net.sf.ehcache.jcache.*" />
       <module name="ehcache" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="net.sf.ehcache.constructs.web" />
-      <option name="MAIN_CLASS_NAME" />
+      <option name="PACKAGE_NAME" value="net.sf.ehcache.jcache" />
+      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.jcache.JCacheTest" />
       <option name="METHOD_NAME" />
-      <option name="TEST_OBJECT" value="package" />
+      <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" />
       <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="ADDITIONAL_CLASS_PATH" />
       <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="singleModule" />
+        <value defaultName="wholeProject" />
       </option>
       <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Run" />
@@ -1662,107 +1644,107 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar!/javax/servlet/http/HttpServletResponseWrapper.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="11" column="28" selection-start="545" selection-end="545" vertical-scroll-proportion="0.25477707">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/classes.jar!/sun/nio/cs/StreamEncoder.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="48" column="25" selection-start="2374" selection-end="2374" vertical-scroll-proportion="1.1974522">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/classes.jar!/sun/nio/cs/UTF_8.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="25" selection-start="1422" selection-end="1422" vertical-scroll-proportion="0.7346072">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/nio/charset/CharsetEncoder.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="118" column="20" selection-start="4836" selection-end="4836" vertical-scroll-proportion="0.024691358">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/io/OutputStreamWriter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="129" column="53" selection-start="4166" selection-end="4166" vertical-scroll-proportion="0.5345455">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar!/javax/servlet/ServletResponseWrapper.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="20" column="31" selection-start="893" selection-end="893" vertical-scroll-proportion="0.2682353">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/Filter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="43" column="22" selection-start="1487" selection-end="1487" vertical-scroll-proportion="-3.5413175">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/ResponseUtil.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="119" column="16" selection-start="4760" selection-end="4760" vertical-scroll-proportion="0.73176473">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/io/ByteArrayOutputStream.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="134" column="26" selection-start="4203" selection-end="4203" vertical-scroll-proportion="0.19058824">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/GzipFilter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="75" column="23" selection-start="2781" selection-end="2781" vertical-scroll-proportion="0.31764707">
+        <state line="75" column="23" selection-start="2781" selection-end="2781" vertical-scroll-proportion="0.4909091">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/io/Writer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="260" column="10" selection-start="7773" selection-end="7773" vertical-scroll-proportion="0.6188235">
+        <state line="260" column="10" selection-start="7773" selection-end="7773" vertical-scroll-proportion="0.9563636">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/io/PrintWriter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="269" column="14" selection-start="10182" selection-end="10182" vertical-scroll-proportion="0.51529413">
+        <state line="269" column="14" selection-start="10182" selection-end="10182" vertical-scroll-proportion="0.79636365">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/MultiLanguagePage.jsp">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="100" selection-start="668" selection-end="668" vertical-scroll-proportion="0.24431138">
+        <state line="17" column="100" selection-start="668" selection-end="668" vertical-scroll-proportion="0.3813084">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/GenericResponseWrapper.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="162" column="27" selection-start="4855" selection-end="4855" vertical-scroll-proportion="0.12705882">
+        <state line="162" column="27" selection-start="4855" selection-end="4855" vertical-scroll-proportion="0.19636364">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/GzipFilterTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="29" column="2" selection-start="1045" selection-end="1045" vertical-scroll-proportion="0.11497006">
+        <state line="34" column="0" selection-start="1242" selection-end="1242" vertical-scroll-proportion="0.18682635">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/util/HashMap.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="341" column="21" selection-start="12868" selection-end="12868" vertical-scroll-proportion="0.24352941">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/util/Map.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="130" column="0" selection-start="6332" selection-end="6332" vertical-scroll-proportion="0.44117647">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/MemoryStore.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="302" column="24" selection-start="9504" selection-end="9504" vertical-scroll-proportion="0.37058824">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="782" column="35" selection-start="33000" selection-end="33000" vertical-scroll-proportion="0.38562873">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Ehcache.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="206" column="0" selection-start="9225" selection-end="9225" vertical-scroll-proportion="0.21317366">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Users/gluck/work/jsr107cache/trunk/src/main/java/net/sf/jsr107cache/Cache.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="24" column="22" selection-start="1041" selection-end="1041" vertical-scroll-proportion="0.11647059">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/site/apt/documentation/jsr107.apt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="116" column="117" selection-start="5480" selection-end="5480" vertical-scroll-proportion="0.4635294">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/jcache/JCache.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="382" column="97" selection-start="16397" selection-end="16397" vertical-scroll-proportion="0.28502995">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/JCacheTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="318" column="59" selection-start="10615" selection-end="10615" vertical-scroll-proportion="0.42705882">
           <folding />
         </state>
       </provider>

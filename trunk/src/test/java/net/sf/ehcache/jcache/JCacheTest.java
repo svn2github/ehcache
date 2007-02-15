@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.Date;
+import java.util.Collection;
 
 /**
  * Tests for a Cache
@@ -239,6 +240,34 @@ public class JCacheTest extends AbstractCacheTest {
     }
 
     /**
+     * Test isEmpty
+     */
+    public void testEvict() throws Exception {
+        Ehcache ehcache = new net.sf.ehcache.Cache("testEvict", 1, true, false, 1, 200);
+        manager.addCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
+        assertTrue(cache.isEmpty());
+
+        cache.put("key1", "value1");
+        cache.put("key2", "value1");
+        //no invalid
+        cache.evict();
+        assertFalse(cache.isEmpty());
+
+        Thread.sleep(1010);
+        cache.evict();
+        assertNull(cache.get("key1"));
+        assertNull(cache.get("key2"));
+
+        cache.put("key1", "value1");
+        cache.put("key2", "value1");
+        Thread.sleep(1010);
+        assertNull(cache.get("key1"));
+        assertNull(cache.get("key2"));
+
+    }
+
+    /**
      * Test containsKey
      */
     public void testContainsKey() throws Exception {
@@ -281,6 +310,30 @@ public class JCacheTest extends AbstractCacheTest {
 
         assertNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
+    }
+
+    /**
+     * Test the get values method.
+     */
+    public void testGetValues() throws Exception {
+        Ehcache ehcache = new net.sf.ehcache.Cache("testGetValue", 2, true, true, 500, 200);
+        manager.addCache(ehcache);
+                                                                                      
+        CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
+        JCache jcache = new JCache(manager.getCache("sampleCache1"), countingCacheLoader);
+
+        List keys = new ArrayList();
+        for (int i = 0; i < 1000; i++) {
+            keys.add(new Integer(i));
+        }
+        jcache.loadAll(keys);
+        jcache.put(new Integer(1), new Date());
+        Thread.sleep(3000);
+        assertEquals(1000, jcache.size());
+
+        Collection values = jcache.values();
+        assertEquals(1000, values.size());
+
     }
 
     /**
@@ -585,7 +638,6 @@ public class JCacheTest extends AbstractCacheTest {
      * jsr107 has no put quiet
      */
     public void testElementStatistics() throws Exception {
-        //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("testElementStatistics", 1, true, false, 5, 2);
         manager.addCache(ehcache);
         Cache cache = new JCache(ehcache, null);
@@ -601,11 +653,26 @@ public class JCacheTest extends AbstractCacheTest {
     }
 
     /**
+     * Check getting a cache entry where it does not exist
+     */
+    public void testNullCacheEntry() {
+        Ehcache ehcache = new net.sf.ehcache.Cache("testNullCacheEntry", 1, true, false, 5, 2);
+        manager.addCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
+
+        cache.put("key1", "value1");
+
+        CacheEntry cacheEntry = cache.getCacheEntry("key1");
+        assertNotNull(cacheEntry);
+        CacheEntry cacheEntry2 = cache.getCacheEntry("keyDoesNotExist");
+        assertNull(cacheEntry2);
+    }
+
+    /**
      * Test cache statistics, including get.
      * Reconcile CacheEntry stats with cache stats and make sure they agree
      */
     public void testCacheStatistics() throws Exception {
-        //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("testCacheStatistics", 1, true, false, 5, 2);
         manager.addCache(ehcache);
         Cache cache = new JCache(ehcache, null);
@@ -1128,6 +1195,32 @@ public class JCacheTest extends AbstractCacheTest {
         assertEquals(1, countingCacheLoader.getLoadCounter());
     }
 
+
+    /**
+     * Tests that the setLoader method allows the loader to be changed
+     */
+    public void testLoadWithDynamicLoaderInjection() throws InterruptedException, ExecutionException, CacheException {
+
+        //null loader so no loading happens
+        JCache jcache = new JCache(manager.getCache("sampleCache1"), null);
+        jcache.load("key1");
+        assertEquals(0, jcache.size());
+
+
+        CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
+        jcache.setCacheLoader(countingCacheLoader);
+
+        jcache.load("key1");
+        Thread.sleep(500);
+
+        ExecutorService executorService = jcache.getExecutorService();
+        assertFalse(executorService.isShutdown());
+
+        assertEquals(1, jcache.size());
+        assertEquals(1, countingCacheLoader.getLoadCounter());
+    }
+
+
     /**
      * Tests the loadAll async method
      */
@@ -1164,10 +1257,18 @@ public class JCacheTest extends AbstractCacheTest {
         JCache jcache = new JCache(manager.getCache("sampleCache1"), countingCacheLoader);
         ExecutorService executorService = jcache.getExecutorService();
 
+        //check null works ok
+        jcache.loadAll(null);
+
         List keys = new ArrayList();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 999; i++) {
             keys.add(new Integer(i));
         }
+        //make on key null
+        keys.add(null);
+
+        //pre populate only 1 element
+        jcache.put(new Integer(1), "");
 
         jcache.loadAll(keys);
         Thread.sleep(3000);
@@ -1175,12 +1276,12 @@ public class JCacheTest extends AbstractCacheTest {
         assertFalse(executorService.isShutdown());
 
         assertEquals(1000, jcache.size());
-        assertEquals(1000, countingCacheLoader.getLoadAllCounter());
+        assertEquals(999, countingCacheLoader.getLoadAllCounter());
     }
 
 
     /**
-     * Tests the loadAll Public API method
+     * Tests the getAll Public API method
      */
     public void testGetAll() throws InterruptedException, ExecutionException, CacheException {
 
@@ -1188,17 +1289,26 @@ public class JCacheTest extends AbstractCacheTest {
         JCache jcache = new JCache(manager.getCache("sampleCache1"), countingCacheLoader);
         ExecutorService executorService = jcache.getExecutorService();
 
+        //check null
+        Map map = jcache.getAll(null);
+        assertNotNull(map);
+        assertEquals(0, map.size());
+
+
         List keys = new ArrayList();
         for (int i = 0; i < 1000; i++) {
             keys.add(new Integer(i));
         }
+
+        //pre populate only 1 element
+        jcache.put(new Integer(1), "");
 
         jcache.getAll(keys);
 
         assertFalse(executorService.isShutdown());
 
         assertEquals(1000, jcache.size());
-        assertEquals(1000, countingCacheLoader.getLoadCounter());
+        assertEquals(999, countingCacheLoader.getLoadCounter());
     }
 
 

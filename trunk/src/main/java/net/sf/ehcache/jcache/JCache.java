@@ -154,11 +154,14 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * size, the returned map will necessarily be less than the number specified.
      *
      * @param keys
-     * @return a populated Map of the Cache
+     * @return a Map populated from the Cache. If there are no elements, an empty Map is returned.
      */
     public Map getAll(Collection keys) throws CacheException {
 
-        Map map;
+        Map map = new HashMap(0);
+        if (keys == null) {
+            return map;
+        }
 
         try {
             map = new HashMap(keys.size());
@@ -360,6 +363,9 @@ public class JCache implements net.sf.jsr107cache.Cache {
             }
             return;
         }
+        if (keys == null) {
+            return;
+        }
         asynchronousLoadAll(keys);
     }
 
@@ -370,14 +376,19 @@ public class JCache implements net.sf.jsr107cache.Cache {
      */
     Future asynchronousLoadAll(final Collection keys) {
         Future future = executorService.submit(new Runnable() {
-
             /**
              * Calls the CacheLoader and puts the result in the Cache
              */
             public void run() {
                 try {
-
-                    Map map = cacheLoader.loadAll(keys);
+                    List nonLoadedKeys = new ArrayList(keys.size());
+                    for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+                        Object key = iterator.next();
+                        if (!cache.isKeyInCache(key)) {
+                            nonLoadedKeys.add(key);
+                        }
+                    }
+                    Map map = cacheLoader.loadAll(nonLoadedKeys);
                     putAll(map);
                 } catch (CacheException e) {
                     LOG.debug("CacheException during load. Load will not be completed. Cause was " + e.getCause(), e);
@@ -468,7 +479,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
      */
     public boolean containsValue(Object value) {
         long start = System.currentTimeMillis();
-        
+
         boolean inCache = cache.isValueInCache(value);
         long end = System.currentTimeMillis();
 
@@ -570,7 +581,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * (optional operation).  The effect of this call is equivalent to that
      * of calling {@link #put(Object,Object) put(k, v)} on this map once
      * for each mapping from key <tt>k</tt> to value <tt>v</tt> in the
-     *N specified map.  The behavior of this operation is unspecified if the
+     * N specified map.  The behavior of this operation is unspecified if the
      * specified map is modified while the operation is in progress.
      *
      * @param sourceMap Mappings to be stored in this map.
@@ -591,7 +602,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
      */
     public void clear() {
         cache.removeAll();
-    }                                                      
+    }
 
     /**
      * Returns a set view of the keys contained in this map.  The set is
@@ -603,8 +614,9 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * the map, via the <tt>Iterator.remove</tt>, <tt>Set.remove</tt>,
      * <tt>removeAll</tt> <tt>retainAll</tt>, and <tt>clear</tt> operations.
      * It does not support the add or <tt>addAll</tt> operations.
-     *
+     * <p/>
      * todo ehcache implementation in not live.
+     *
      * @return a set view of the keys contained in this map.
      */
     public Set keySet() {
@@ -626,7 +638,8 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * <tt>removeAll</tt>, <tt>retainAll</tt> and <tt>clear</tt> operations.
      * It does not support the add or <tt>addAll</tt> operations.
      * <p/>
-     * Contradicting the above Map contract, whether or not changes to an entry affect the entry in the cache is undefined.
+     * Contradicting the above Map contract, whether cache changes after this method returns are not
+     * reflected in the Collection. This is because ehcache is not backed by a single map.
      *
      * @return a collection view of the values contained in this map.
      */
