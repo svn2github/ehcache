@@ -229,7 +229,7 @@ public final class Element implements Serializable, Cloneable {
      * Equals comparison with another element, based on the key.
      */
     public final boolean equals(Object object) {
-        if (object == null) {
+        if (object == null || !(object instanceof Element)) {
             return false;
         }
 

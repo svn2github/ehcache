@@ -71,7 +71,7 @@ public class CacheManager {
      * to true to disable.
      */
     public static final String DISABLE_SHUTDOWN_HOOK_PROPERTY = "net.sf.ehcache.disableShutdownHook";
-    
+
     private static final Log LOG = LogFactory.getLog(CacheManager.class.getName());
 
     /**
@@ -506,6 +506,7 @@ public class CacheManager {
         boolean disabled = PropertyUtil.parseBoolean(shutdownHookProperty);
         if (disabled) {
             LOG.info("The CacheManager shutdown hook is disabled because " + DISABLE_SHUTDOWN_HOOK_PROPERTY + " is set to true.");
+            return;
         }
 
         Thread localShutdownHook = new Thread() {
@@ -695,35 +696,37 @@ public class CacheManager {
      * <code>net.sf.ehcache.disableShutdownHook=true</code>
      */
     public void shutdown() {
-        if (status.equals(Status.STATUS_SHUTDOWN)) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("CacheManager already shutdown");
-            }
-            return;
-        }
-        if (cacheManagerPeerProvider != null) {
-            cacheManagerPeerProvider.dispose();
-        }
-
-        cacheManagerEventListenerRegistry.dispose();
-
         synchronized (CacheManager.class) {
-            ALL_CACHE_MANAGERS.remove(this);
-
-            Collection cacheSet = caches.values();
-            for (Iterator iterator = cacheSet.iterator(); iterator.hasNext();) {
-                Ehcache cache = (Ehcache) iterator.next();
-                if (cache != null) {
-                    cache.dispose();
+            if (status.equals(Status.STATUS_SHUTDOWN)) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("CacheManager already shutdown");
                 }
+                return;
             }
-            status = Status.STATUS_SHUTDOWN;
+            if (cacheManagerPeerProvider != null) {
+                cacheManagerPeerProvider.dispose();
+            }
 
-            //only delete singleton if the singleton is shutting down.
-            if (this == singleton) {
-                singleton = null;
+            cacheManagerEventListenerRegistry.dispose();
+
+            synchronized (CacheManager.class) {
+                ALL_CACHE_MANAGERS.remove(this);
+
+                Collection cacheSet = caches.values();
+                for (Iterator iterator = cacheSet.iterator(); iterator.hasNext();) {
+                    Ehcache cache = (Ehcache) iterator.next();
+                    if (cache != null) {
+                        cache.dispose();
+                    }
+                }
+                status = Status.STATUS_SHUTDOWN;
+
+                //only delete singleton if the singleton is shutting down.
+                if (this == singleton) {
+                    singleton = null;
+                }
+                removeShutdownHook();
             }
-            removeShutdownHook();
         }
     }
 

@@ -244,5 +244,17 @@ public class ElementTest extends AbstractCacheTest {
 
     }
 
+    /**
+     * Tests the robustness of equals
+     */
+    public void testEquals() {
+
+        Element element = new Element("key", "value");
+        assertFalse(element.equals("dog"));
+        assertTrue(element.equals(element));
+        assertFalse(element.equals(null));
+        assertFalse(element.equals(new Element("cat", "hat")));
+    }
+
 
 }

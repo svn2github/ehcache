@@ -19,12 +19,11 @@ package net.sf.ehcache.constructs.web.filter;
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebResponse;
 import net.sf.ehcache.constructs.web.AbstractWebTest;
-
-import java.net.HttpURLConnection;
-
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
+
+import java.net.HttpURLConnection;
 
 /**
  * Test cases for the Caching filter and Gzip.
@@ -49,6 +48,8 @@ public class GzipFilterTest extends AbstractWebTest {
         String responseURL = response.getURL().toString();
         assertEquals(url, responseURL);
         assertNotSame("gzip", response.getHeaderField("Content-Encoding"));
+
+
     }
 
 
@@ -67,6 +68,13 @@ public class GzipFilterTest extends AbstractWebTest {
         String responseURL = response.getURL().toString();
         assertEquals(url, responseURL);
         assertEquals("gzip", response.getHeaderField("Content-Encoding"));
+
+        //Check that we are dealing with Cyrillic characters ok
+        int result = response.getText().indexOf("?");
+
+//        assertTrue(response.getText().indexOf("?") == -1);
+        //Check non ascii symbol
+//        assertTrue(response.getText().indexOf("?") == -1);
     }
 
     /**

@@ -10,10 +10,11 @@
 <%@ page session="false" %>
 <html>
 <body>
-This page is only included in the gzip filter, not in any caching filters and is thus a pure gzip page.
+This page is not filtered at all.
 <p/>
-Here are some Cyrillic characters: <%="? ? ? ? ?" %>
+Here are some Cyrillic characters: <%="М м Б Ц ц" %>
 <p/>
-Here is a symbol: <%="?" %>
+Here is a symbol: <%="↑" %>
+
 </body>
 </html>

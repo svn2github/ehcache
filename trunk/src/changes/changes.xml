@@ -19,6 +19,16 @@
                 as well. Catching these and rethrowing them as ServletException causes these IllegalStateException
                 in Glassfish.
             </action>
+            <action dev="Greg Luck" issue="1616492" type="fix">
+                JBoss, Spring and some other applications have shutdown hooks. A race condition existed in
+                CacheManager#shutdown() such that multiple shutdown hook threads could attempt to shutdown
+                the CacheManager at the same time. Added class synchronization to prevent this and also
+                added a check for the system property net.sf.ehcache.disableShutdownHook=true which will disable
+                addition of the shutdown hook. Reported by various people.
+            </action>
+            <action dev="Greg Luck" issue="1618798" type="fix">
+                Element#equals(Object) causes ClassCastException when the comparison object is not an Element. Fixed.
+            </action>
 
         </release>
 

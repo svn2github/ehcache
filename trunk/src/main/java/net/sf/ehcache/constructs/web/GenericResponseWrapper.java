@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -34,13 +35,14 @@ import java.util.List;
 
 /**
  * Provides a wrapper for {@link javax.servlet.http.HttpServletResponseWrapper}.
- * <p>
+ * <p/>
  * It is used to wrap the real Response so that we can modify it after
  * that the target of the request has delivered its response.
- * <p>
+ * <p/>
  * It uses the Wrapper pattern.
- * @version $Id$
+ *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
+ * @version $Id$
  */
 public class GenericResponseWrapper extends HttpServletResponseWrapper implements Serializable {
 
@@ -81,8 +83,9 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
     /**
      * Send the error. If the response is not ok, most of the logic is bypassed and the error is sent raw
      * Also, the content is not cached.
-     * @param i the status code
-     * @param string  the error message
+     *
+     * @param i      the status code
+     * @param string the error message
      * @throws IOException
      */
     public void sendError(int i, String string) throws IOException {
@@ -93,6 +96,7 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
     /**
      * Send the error. If the response is not ok, most of the logic is bypassed and the error is sent raw
      * Also, the content is not cached.
+     *
      * @param i the status code
      * @throws IOException
      */
@@ -104,6 +108,7 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
     /**
      * Send the redirect. If the response is not ok, most of the logic is bypassed and the error is sent raw.
      * Also, the content is not cached.
+     *
      * @param string the URL to redirect to
      * @throws IOException
      */
@@ -123,7 +128,6 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
 
     /**
      * Returns the status code for this response.
-     *
      */
     public int getStatus() {
         return statusCode;
@@ -159,12 +163,13 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
         return contentType;
     }
 
+
     /**
      * Gets the print writer.
      */
-    public PrintWriter getWriter() {
+    public PrintWriter getWriter() throws IOException {
         if (writer == null) {
-            writer = new PrintWriter(outstr, true);
+            writer = new PrintWriter(new OutputStreamWriter(outstr, getCharacterEncoding()), true);
         }
         return writer;
     }

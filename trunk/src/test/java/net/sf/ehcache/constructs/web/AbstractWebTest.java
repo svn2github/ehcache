@@ -99,9 +99,9 @@ public abstract class AbstractWebTest extends TestCase {
     /**
      * Checks that the expected string occurs within the content string.
      */
-    protected static void assertContains(final String message, final String string, final String content) {
+    protected static void assertContains(final String string, final String content) {
         if (content.indexOf(string) == -1) {
-            throw new AssertionFailedError(message + ": '" + content + "' does not contain '" + string + "'");
+            throw new AssertionFailedError(content + "' does not contain '" + string + "'");
         }
     }
 
