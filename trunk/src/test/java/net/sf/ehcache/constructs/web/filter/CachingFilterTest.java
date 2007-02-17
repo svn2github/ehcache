@@ -18,6 +18,7 @@ package net.sf.ehcache.constructs.web.filter;
 
 import com.meterware.httpunit.HttpInternalErrorException;
 import com.meterware.httpunit.WebResponse;
+import com.meterware.httpunit.WebConversation;
 import junit.framework.AssertionFailedError;
 import net.sf.ehcache.constructs.web.AbstractWebTest;
 import net.sf.ehcache.constructs.web.PageInfo;
@@ -64,6 +65,33 @@ public class CachingFilterTest extends AbstractWebTest {
         httpClient.executeMethod(httpMethod);
         byte[] responseBody = httpMethod.getResponseBody();
         assertTrue(PageInfo.isGzipped(responseBody));
+    }
+
+    /**
+     * <p/>
+     * Also checks a fixed bug in Unicode encoding.
+     */
+    public void testGzippedWhenAcceptEncodingHomePage() throws Exception {
+        WebConversation client = createWebConversation(true);
+        client.getClientProperties().setAcceptGzip(true);
+        String url = buildUrl("/CachedLogin.jsp");
+
+        //do it twice to make sure we exercise both paths.
+        for (int i = 0; i < 2; i++) {
+            WebResponse response = client.getResponse(url);
+
+            assertNotNull(response);
+            assertEquals(HttpURLConnection.HTTP_OK, response.getResponseCode());
+
+            String responseURL = response.getURL().toString();
+            assertEquals(url, responseURL);
+            assertEquals("gzip", response.getHeaderField("Content-Encoding"));
+
+            //Check that we are dealing with Cyrillic characters ok
+            assertTrue(response.getText().indexOf("&#8593;") != -1);
+            //Check non ascii symbol
+            assertTrue(response.getText().indexOf("&#1052;") != -1);
+        }
     }
 
     /**

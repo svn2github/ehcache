@@ -70,11 +70,9 @@ public class GzipFilterTest extends AbstractWebTest {
         assertEquals("gzip", response.getHeaderField("Content-Encoding"));
 
         //Check that we are dealing with Cyrillic characters ok
-        int result = response.getText().indexOf("?");
-
-//        assertTrue(response.getText().indexOf("?") == -1);
+        assertTrue(response.getText().indexOf("&#8593;") != -1);
         //Check non ascii symbol
-//        assertTrue(response.getText().indexOf("?") == -1);
+        assertTrue(response.getText().indexOf("&#1052;") != -1);
     }
 
     /**

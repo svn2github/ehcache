@@ -1,8 +1,9 @@
+<%@ page contentType="text/html; charset=utf-8" %>
+<!--<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">-->
+<%@ include file="/include/Common.jsp" %>
 <%
     response.setDateHeader("Last-Modified", System.currentTimeMillis());
 %>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<%@ include file="/include/Common.jsp" %>
 <html>
 <head>
 <title>Login Page</title>
@@ -19,7 +20,7 @@
 		</tr>
 
 		<tr>
-			<td style="background: url(/image/4WotsHot_side.gif) repeat-y;"/></td>
+			<td style="background: url(/image/4WotsHot_side.gif) repeat-y;">
 			<td style="padding:10px 0px">
 				<table border="0">
 					<tr>
@@ -32,19 +33,24 @@
 					</tr>
 				</table>
 			</td>
-			<td style="background: url(/image/3WotsHot_side.gif) repeat-y;"/></td>
+			<td style="background: url(/image/3WotsHot_side.gif) repeat-y;"/>
 		</tr>
 		<tr>
-			<td style="background: url(/image/4WotsHot_side.gif) repeat-y;"/></td>
+			<td style="background: url(/image/4WotsHot_side.gif) repeat-y;"/>
 			<td align="center"><input type="image" src="/image/login_button.gif" alt="Log In" width="70" height="17" vspace="0" border="0"></td>
-			<td style="background: url(/image/3WotsHot_side.gif) repeat-y;"/></td>
+			<td style="background: url(/image/3WotsHot_side.gif) repeat-y;"/>
 		</tr>
         <tr>
-			<td style="background: url(/image/1WotsHot_bot.gif) no-repeat;height:10px;"/></td>
-			<td style="background: url(/image/WotsHot_bot.gif) repeat-x;"/></td>
-			<td style="background: url(/image/3WotsHot_bot.gif) no-repeat bottom right;"/></td>
+			<td style="background: url(/image/1WotsHot_bot.gif) no-repeat;height:10px;"/>
+			<td style="background: url(/image/WotsHot_bot.gif) repeat-x;"/>
+			<td style="background: url(/image/3WotsHot_bot.gif) no-repeat bottom right;"/>
 		</tr>
 	</table>
 </form>
-
+Unicode Text: <%="М м Б Ц ц" %>
+Here are some symbols:  ↑ (&#8593;)
+<p/>
+Here are some Cyrillic characters:  М м Б Ц ц (&#1052; &#1084; &#1041; &#1062; &#1094;)
+<p/>
+Here are some Cyrillic characters: <%="М м Б Ц ц" %>
 <jsp:include page="/include/Footer.jsp"/>
