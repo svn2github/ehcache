@@ -1202,7 +1202,7 @@ public class ManualRMICacheReplicatorTest extends AbstractCacheTest {
      * If a deadlock occurs, processing will stop until a SocketTimeout exception is thrown and
      * the deadlock will be released.
      */
-    public void testCacheOperationsSynchronousMultiThreaded() throws Exception, InterruptedException {
+    public void xTestCacheOperationsSynchronousMultiThreaded() throws Exception, InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;

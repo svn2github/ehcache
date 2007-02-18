@@ -31,8 +31,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/ManualRMICacheReplicatorTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/ManualRMICacheReplicatorTest.java" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -322,19 +322,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="CacheTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java">
+      <file leaf-file-name="StopWatch.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="1697" column="12" selection-start="59001" selection-end="59001" vertical-scroll-proportion="1.3072727">
+            <state line="53" column="51" selection-start="2181" selection-end="2181" vertical-scroll-proportion="0.2581818">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="StopWatch.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java">
+      <file leaf-file-name="ManualRMICacheReplicatorTest.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/ManualRMICacheReplicatorTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="74" column="63" selection-start="3060" selection-end="3060" vertical-scroll-proportion="0.7163636">
+            <state line="1204" column="18" selection-start="42656" selection-end="42656" vertical-scroll-proportion="0.4">
               <folding />
             </state>
           </provider>
@@ -1870,13 +1870,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="331" column="43" selection-start="11289" selection-end="11289" vertical-scroll-proportion="0.022429906">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4-sources.jar!/org/apache/commons/logging/impl/SimpleLog.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="77" column="32" selection-start="3557" selection-end="3557" vertical-scroll-proportion="1.1127273">
@@ -1901,13 +1894,6 @@
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="716" column="21" selection-start="27826" selection-end="27826" vertical-scroll-proportion="1.2705667">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="1697" column="12" selection-start="59001" selection-end="59001" vertical-scroll-proportion="1.3072727">
           <folding />
         </state>
       </provider>
@@ -1968,9 +1954,23 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1697" column="12" selection-start="59001" selection-end="59001" vertical-scroll-proportion="1.3072727">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="74" column="63" selection-start="3060" selection-end="3060" vertical-scroll-proportion="0.7163636">
+        <state line="53" column="51" selection-start="2181" selection-end="2181" vertical-scroll-proportion="0.2581818">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/ManualRMICacheReplicatorTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1204" column="18" selection-start="42656" selection-end="42656" vertical-scroll-proportion="0.4">
           <folding />
         </state>
       </provider>
