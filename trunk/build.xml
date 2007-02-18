@@ -185,12 +185,12 @@
             <isset property="test.case"/>
         </condition>
 
-        <junit printSummary="withOutAndErr" failureproperty="tests.failed" fork="true" forkmode="perTest" dir="${basedir}" showoutput="true">
+        <echo message="net.sf.ehcache.speedAdjustmentFactor ${net.sf.ehcache.speedAdjustmentFactor}"/>
+        <junit printSummary="withOutAndErr" failureproperty="tests.failed" fork="true"
+        forkmode="perTest" dir="${basedir}" showoutput="true" newenvironment="false">
             <jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog"/>
-            <!--<jvmarg value="-Xmx256m"/>-->
             <sysproperty key="java.io.tmpdir" value="${build.tmp.dir}"/>
-            <!--Example of how to set the speedAdjustmentFactor-->
-            <!--<sysproperty key="net.sf.ehcache.speedAdjustmentFactor" value="1"/>-->
+            <sysproperty key="net.sf.ehcache.speedAdjustmentFactor" value="${net.sf.ehcache.speedAdjustmentFactor}"/>
             <classpath>
                 <path location="${test.classes.dir}"/>
                 <path location="${build.classes.dir}"/>
@@ -224,8 +224,8 @@
             <jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog"/>
             <!--<jvmarg value="-Xmx256m"/>-->
             <sysproperty key="java.io.tmpdir" value="${build.tmp.dir}"/>
-            <!--Example of how to set the speedAdjustmentFactor-->
-            <!--<sysproperty key="net.sf.ehcache.speedAdjustmentFactor" value="1"/>-->
+            <sysproperty key="net.sf.ehcache.speedAdjustmentFactor" value="${net.sf.ehcache.speedAdjustmentFactor}"/>
+
             <classpath>
                 <path location="${test.classes.dir}"/>
                 <path location="${build.classes.dir}"/>
@@ -259,9 +259,8 @@
             <jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog"/>
             <!--<jvmarg value="-Xmx256m"/>-->
             <sysproperty key="java.io.tmpdir" value="${build.tmp.dir}"/>
-            <!--Example of how to set the speedAdjustmentFactor-->
-            <!--<sysproperty key="net.sf.ehcache.speedAdjustmentFactor" value="1"/>-->
-            <classpath>
+            <sysproperty key="net.sf.ehcache.speedAdjustmentFactor" value="${net.sf.ehcache.speedAdjustmentFactor}"/>
+s            <classpath>
                 <path location="${test.classes.dir}"/>
                 <path location="${build.classes.dir}"/>
                 <path refid="project.class.path"/>

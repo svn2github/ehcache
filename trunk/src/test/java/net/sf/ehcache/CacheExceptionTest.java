@@ -30,6 +30,7 @@ public class CacheExceptionTest extends AbstractCacheTest {
      * This will fail on JDK1.3 and lower.
      */
     public void testFullConstructor() {
+        new StopWatch();
         try {
             throw new CacheException("test");
         } catch (CacheException e) {

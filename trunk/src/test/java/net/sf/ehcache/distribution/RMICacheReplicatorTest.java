@@ -1302,7 +1302,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
                     }
                 } else if (operationSelector == 100) {
                     cache.remove(key);
-                    if(LOG.isDebugEnabled()) {
+                    if (LOG.isDebugEnabled()) {
                         LOG.debug(cache.getGuid() + ": remove " + key);
                     }
                 } else if (operationSelector == 2) {
