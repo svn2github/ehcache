@@ -430,7 +430,7 @@ public class ManualRMICacheReplicatorTest extends AbstractCacheTest {
      * Performance and capacity tests.
      * <p/>
      */
-    public void testBootstrap() throws CacheException, InterruptedException, RemoteException {
+    public void xTestBootstrap() throws CacheException, InterruptedException, RemoteException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
