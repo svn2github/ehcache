@@ -32,10 +32,7 @@
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheExceptionTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheExceptionTest.java" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -328,16 +325,16 @@
       <file leaf-file-name="CacheTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="1697" column="12" selection-start="59001" selection-end="59001" vertical-scroll-proportion="1.3144424">
+            <state line="1697" column="12" selection-start="59001" selection-end="59001" vertical-scroll-proportion="1.3072727">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="StopWatch.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="StopWatch.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="40" column="98" selection-start="1882" selection-end="1882" vertical-scroll-proportion="0.05667276">
+            <state line="74" column="63" selection-start="3060" selection-end="3060" vertical-scroll-proportion="0.7163636">
               <folding />
             </state>
           </provider>
@@ -346,7 +343,7 @@
       <file leaf-file-name="Cache.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="213" column="127" selection-start="8417" selection-end="8417" vertical-scroll-proportion="0.02255639">
+            <state line="213" column="127" selection-start="8417" selection-end="8417" vertical-scroll-proportion="0.022429906">
               <folding />
             </state>
           </provider>
@@ -355,7 +352,7 @@
       <file leaf-file-name="Float.java" pinned="false" current="false" current-in-tab="false">
         <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/lang/Float.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="392" column="24" selection-start="16943" selection-end="16943" vertical-scroll-proportion="0.021937843">
+            <state line="392" column="24" selection-start="16943" selection-end="16943" vertical-scroll-proportion="0.021818181">
               <folding />
             </state>
           </provider>
@@ -364,7 +361,7 @@
       <file leaf-file-name="build.properties" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/build.properties">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="18" column="30" selection-start="455" selection-end="455" vertical-scroll-proportion="0.39488116">
+            <state line="18" column="30" selection-start="455" selection-end="455" vertical-scroll-proportion="0.3927273">
               <folding />
             </state>
           </provider>
@@ -373,7 +370,7 @@
       <file leaf-file-name="AbstractCacheTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/AbstractCacheTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="24" column="89" selection-start="745" selection-end="745" vertical-scroll-proportion="0.021937843">
+            <state line="24" column="89" selection-start="745" selection-end="745" vertical-scroll-proportion="0.021818181">
               <folding />
             </state>
           </provider>
@@ -382,19 +379,17 @@
       <file leaf-file-name="LogFactoryImpl.java" pinned="false" current="false" current-in-tab="false">
         <entry file="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4-sources.jar!/org/apache/commons/logging/impl/LogFactoryImpl.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="39" column="43" selection-start="1357" selection-end="1387" vertical-scroll-proportion="0.021937843">
+            <state line="39" column="43" selection-start="1357" selection-end="1387" vertical-scroll-proportion="0.021818181">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="build.xml" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="build.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/build.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="262" column="1" selection-start="11012" selection-end="11012" vertical-scroll-proportion="0.18045112">
-              <folding>
-                <marker date="1171798859000" expanded="true" signature="9486:9673" placeholder="..." />
-              </folding>
+            <state line="255" column="55" selection-start="10525" selection-end="10525" vertical-scroll-proportion="0.022429906">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -402,7 +397,7 @@
       <file leaf-file-name="CacheExceptionTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheExceptionTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="17" column="84" selection-start="634" selection-end="634" vertical-scroll-proportion="0.06581353">
+            <state line="26" column="24" selection-start="811" selection-end="811" vertical-scroll-proportion="0.26181817">
               <folding />
             </state>
           </provider>
@@ -411,7 +406,7 @@
       <file leaf-file-name="RMICacheReplicatorTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="1304" column="23" selection-start="46083" selection-end="46083" vertical-scroll-proportion="0.33270678">
+            <state line="1304" column="23" selection-start="46083" selection-end="46083" vertical-scroll-proportion="0.84299064">
               <folding />
             </state>
           </provider>
@@ -1466,29 +1461,7 @@
     </key>
   </component>
   <component name="RestoreUpdateTree" />
-  <component name="RunManager" selected="JUnit.CacheManagerTest.testTmpDir">
-    <tempConfiguration default="false" name="CacheManagerTest.testTmpDir" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
-      <pattern value="net.sf.ehcache.*" />
-      <module name="ehcache" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="net.sf.ehcache" />
-      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.CacheManagerTest" />
-      <option name="METHOD_NAME" value="testTmpDir" />
-      <option name="TEST_OBJECT" value="method" />
-      <option name="VM_PARAMETERS" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ADDITIONAL_CLASS_PATH" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="wholeProject" />
-      </option>
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method>
-        <option name="Make" value="true" />
-      </method>
-    </tempConfiguration>
+  <component name="RunManager" selected="JUnit.CacheExceptionTest.testFullConstructor">
     <configuration default="true" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
       <module name="" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
@@ -1643,6 +1616,28 @@
         <option name="Make" value="true" />
       </method>
     </configuration>
+    <configuration default="false" name="CacheExceptionTest.testFullConstructor" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+      <pattern value="net.sf.ehcache.*" />
+      <module name="ehcache" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="PACKAGE_NAME" value="net.sf.ehcache" />
+      <option name="MAIN_CLASS_NAME" value="net.sf.ehcache.CacheExceptionTest" />
+      <option name="METHOD_NAME" value="testFullConstructor" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" value="-Dnet.sf.ehcache.speedAdjustmentFactor=1.1" />
+      <option name="PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <option name="ADDITIONAL_CLASS_PATH" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="wholeProject" />
+      </option>
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method>
+        <option name="Make" value="true" />
+      </method>
+    </configuration>
     <configuration default="false" name="AppServer" type="Remote" factoryName="Remote">
       <option name="USE_SOCKET_TRANSPORT" value="true" />
       <option name="SERVER_MODE" value="false" />
@@ -1759,7 +1754,7 @@
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.34498835" order="7" />
-      <window_info id="Checkstyle" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3288889" order="8" />
+      <window_info id="Checkstyle" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3288889" order="8" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2927144" order="0" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32777777" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
@@ -1770,7 +1765,7 @@
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32555556" order="2" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32555556" order="2" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24951644" order="2" />
       <window_info id="File View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39666668" order="4" />
@@ -1912,73 +1907,71 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1697" column="12" selection-start="59001" selection-end="59001" vertical-scroll-proportion="1.3144424">
+        <state line="1697" column="12" selection-start="59001" selection-end="59001" vertical-scroll-proportion="1.3072727">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="213" column="127" selection-start="8417" selection-end="8417" vertical-scroll-proportion="0.02255639">
+        <state line="213" column="127" selection-start="8417" selection-end="8417" vertical-scroll-proportion="0.022429906">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/lang/Float.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="392" column="24" selection-start="16943" selection-end="16943" vertical-scroll-proportion="0.021937843">
+        <state line="392" column="24" selection-start="16943" selection-end="16943" vertical-scroll-proportion="0.021818181">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/build.properties">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="30" selection-start="455" selection-end="455" vertical-scroll-proportion="0.39488116">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/AbstractCacheTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="24" column="89" selection-start="745" selection-end="745" vertical-scroll-proportion="0.021937843">
+        <state line="18" column="30" selection-start="455" selection-end="455" vertical-scroll-proportion="0.3927273">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1304" column="23" selection-start="46083" selection-end="46083" vertical-scroll-proportion="0.33270678">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="40" column="98" selection-start="1882" selection-end="1882" vertical-scroll-proportion="0.05667276">
+        <state line="1304" column="23" selection-start="46083" selection-end="46083" vertical-scroll-proportion="0.84299064">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4-sources.jar!/org/apache/commons/logging/impl/LogFactoryImpl.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="43" selection-start="1357" selection-end="1387" vertical-scroll-proportion="0.021937843">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheExceptionTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="84" selection-start="634" selection-end="634" vertical-scroll-proportion="0.06581353">
+        <state line="39" column="43" selection-start="1357" selection-end="1387" vertical-scroll-proportion="0.021818181">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/build.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="262" column="1" selection-start="11012" selection-end="11012" vertical-scroll-proportion="0.18045112">
-          <folding>
-            <marker date="1171798859000" expanded="true" signature="9486:9673" placeholder="..." />
-          </folding>
+        <state line="255" column="55" selection-start="10525" selection-end="10525" vertical-scroll-proportion="0.022429906">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheExceptionTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="26" column="24" selection-start="811" selection-end="811" vertical-scroll-proportion="0.26181817">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/AbstractCacheTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="24" column="89" selection-start="745" selection-end="745" vertical-scroll-proportion="0.021818181">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="74" column="63" selection-start="3060" selection-end="3060" vertical-scroll-proportion="0.7163636">
+          <folding />
         </state>
       </provider>
     </entry>

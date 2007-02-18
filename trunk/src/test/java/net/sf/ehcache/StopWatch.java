@@ -66,8 +66,16 @@ public class StopWatch {
                 PropertyUtil.extractAndLogProperty("net.sf.ehcache.speedAdjustmentFactor", System.getProperties());
 
         if (speedAdjustmentFactorString != null) {
-            speedAdjustmentFactor = Float.parseFloat(speedAdjustmentFactorString);
+            try {
+                speedAdjustmentFactor = Float.parseFloat(speedAdjustmentFactorString);
+            } catch (NumberFormatException e) {
+                LOG.info("Consider setting system property 'net.sf.ehcache.speedAdjustmentFactor=n' " +
+                    "where n is the number of times your machine is slower than the reference machine, " +
+                    "which is currently a dual G5 PowerMac. e.g. 1.2, which then enables elasped time " +
+                    "measurement to be adjusted accordingly.");
+            }
             LOG.info("Using speedAjustmentFactor of " + speedAdjustmentFactor);
+
         } else {
             LOG.info("Consider setting system property 'net.sf.ehcache.speedAdjustmentFactor=n' " +
                     "where n is the number of times your machine is slower than the reference machine, " +
