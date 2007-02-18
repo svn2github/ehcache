@@ -31,9 +31,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/CachingFilterTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/CachingFilterTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/default-web-app/include/Common.jsp" afterPath="$PROJECT_DIR$/src/test/resources/default-web-app/include/Common.jsp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/GzipFilterTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/GzipFilterTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/default-web-app/GzipOnlyPage.jsp" afterPath="$PROJECT_DIR$/src/test/resources/default-web-app/GzipOnlyPage.jsp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/AbstractWebTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/AbstractWebTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/SpeedTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/SpeedTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tools/web/apache-tomcat-5.5.17.tgz" afterPath="$PROJECT_DIR$/tools/web/apache-tomcat-5.5.17.tgz" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/CachingFilterTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/CachingFilterTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/default-web-app/non_ok/SendRedirect.jsp" afterPath="$PROJECT_DIR$/src/test/resources/default-web-app/non_ok/SendRedirect.jsp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/default-web-app/non_ok/SendRedirectGzip.jsp" afterPath="$PROJECT_DIR$/src/test/resources/default-web-app/non_ok/SendRedirectGzip.jsp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tools/web/orion.zip" afterPath="$PROJECT_DIR$/tools/web/orion.zip" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/default-web-app/MultiLanguagePage.jsp" afterPath="$PROJECT_DIR$/src/test/resources/default-web-app/MultiLanguagePage.jsp" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -326,7 +335,7 @@
       <file leaf-file-name="CachingFilterTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/CachingFilterTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="47" column="80" selection-start="1614" selection-end="1614" vertical-scroll-proportion="0.15568863">
+            <state line="150" column="81" selection-start="5646" selection-end="5646" vertical-scroll-proportion="0.73457944">
               <folding />
             </state>
           </provider>
@@ -335,7 +344,7 @@
       <file leaf-file-name="web.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF/2_3/web.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="80" selection-start="902" selection-end="902" vertical-scroll-proportion="0.2682353">
+            <state line="19" column="80" selection-start="902" selection-end="902" vertical-scroll-proportion="0.41454545">
               <folding />
             </state>
           </provider>
@@ -344,7 +353,7 @@
       <file leaf-file-name="CachingFilter.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/CachingFilter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="186" column="20" selection-start="8572" selection-end="8572" vertical-scroll-proportion="0.20239522">
+            <state line="186" column="20" selection-start="8572" selection-end="8572" vertical-scroll-proportion="0.31588784">
               <folding />
             </state>
           </provider>
@@ -359,10 +368,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Common.jsp" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="Common.jsp" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/include/Common.jsp">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="8" column="0" selection-start="327" selection-end="327" vertical-scroll-proportion="0.112941176">
+            <state line="8" column="0" selection-start="327" selection-end="327" vertical-scroll-proportion="0.17454545">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="build.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/build.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="467" column="23" selection-start="19340" selection-end="19340" vertical-scroll-proportion="0.33084112">
               <folding />
             </state>
           </provider>
@@ -371,25 +389,7 @@
       <file leaf-file-name="PageFragmentCachingFilter.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/PageFragmentCachingFilter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="64" column="23" selection-start="2315" selection-end="2315" vertical-scroll-proportion="0.44941175">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="changes.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="7" column="38" selection-start="222" selection-end="222" vertical-scroll-proportion="0.100598805">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="build.properties" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/build.properties">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="23" column="29" selection-start="690" selection-end="690" vertical-scroll-proportion="0.32470587">
+            <state line="64" column="23" selection-start="2315" selection-end="2315" vertical-scroll-proportion="0.69454545">
               <folding />
             </state>
           </provider>
@@ -398,7 +398,7 @@
       <file leaf-file-name="MultiLanguagePage.jsp" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/MultiLanguagePage.jsp">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="22" column="24" selection-start="795" selection-end="795" vertical-scroll-proportion="0.31616765">
+            <state line="22" column="4" selection-start="795" selection-end="795" vertical-scroll-proportion="0.49345794">
               <folding />
             </state>
           </provider>
@@ -407,7 +407,16 @@
       <file leaf-file-name="GzipFilterTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/GzipFilterTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="51" column="113" selection-start="1926" selection-end="1926" vertical-scroll-proportion="0.4311377">
+            <state line="41" column="26" selection-start="1555" selection-end="1555" vertical-scroll-proportion="0.31028038">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AbstractWebTest.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/AbstractWebTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="147" column="32" selection-start="4683" selection-end="4683" vertical-scroll-proportion="0.35454544">
               <folding />
             </state>
           </provider>
@@ -1812,7 +1821,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="22" width="1600" height="998" extended-state="0" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
@@ -1829,7 +1838,7 @@
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32555556" order="2" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32555556" order="2" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24951644" order="2" />
       <window_info id="File View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39666668" order="4" />
@@ -1932,20 +1941,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar!/javax/servlet/http/HttpServlet.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="42" column="0" selection-start="3306" selection-end="3306" vertical-scroll-proportion="0.92655367">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/StatusTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="51" column="75" selection-start="1601" selection-end="1601" vertical-scroll-proportion="0.13369964">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/StatisticsTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="167" column="80" selection-start="5768" selection-end="5768" vertical-scroll-proportion="0.6666667">
@@ -1981,44 +1976,23 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/MultiLanguagePage.jsp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="24" selection-start="795" selection-end="795" vertical-scroll-proportion="0.31616765">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/GzipFilterTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="51" column="113" selection-start="1926" selection-end="1926" vertical-scroll-proportion="0.4311377">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/CachingFilterTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="47" column="80" selection-start="1614" selection-end="1614" vertical-scroll-proportion="0.15568863">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/PageFragmentCachingFilter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="64" column="23" selection-start="2315" selection-end="2315" vertical-scroll-proportion="0.44941175">
+        <state line="64" column="23" selection-start="2315" selection-end="2315" vertical-scroll-proportion="0.69454545">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF/2_3/web.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="80" selection-start="902" selection-end="902" vertical-scroll-proportion="0.2682353">
+        <state line="19" column="80" selection-start="902" selection-end="902" vertical-scroll-proportion="0.41454545">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/CachingFilter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="186" column="20" selection-start="8572" selection-end="8572" vertical-scroll-proportion="0.20239522">
+        <state line="186" column="20" selection-start="8572" selection-end="8572" vertical-scroll-proportion="0.31588784">
           <folding />
         </state>
       </provider>
@@ -2032,7 +2006,42 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/include/Common.jsp">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="0" selection-start="327" selection-end="327" vertical-scroll-proportion="0.112941176">
+        <state line="8" column="0" selection-start="327" selection-end="327" vertical-scroll-proportion="0.17454545">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="467" column="23" selection-start="19340" selection-end="19340" vertical-scroll-proportion="0.33084112">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/CachingFilterTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="150" column="81" selection-start="5646" selection-end="5646" vertical-scroll-proportion="0.73457944">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/MultiLanguagePage.jsp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="22" column="4" selection-start="795" selection-end="795" vertical-scroll-proportion="0.49345794">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/filter/GzipFilterTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="41" column="26" selection-start="1555" selection-end="1555" vertical-scroll-proportion="0.31028038">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/constructs/web/AbstractWebTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="147" column="32" selection-start="4683" selection-end="4683" vertical-scroll-proportion="0.35454544">
           <folding />
         </state>
       </provider>

@@ -465,7 +465,7 @@
             <arg line="orion_sh_and.bat"/>
         </exec>
         <waitfor maxwait="10000" checkevery="1500">
-            <http url="http://localhost:8080"/>
+            <http url="http://localhost:9080"/>
         </waitfor>
         <echo message="...Started"/>
     </target>
@@ -474,7 +474,7 @@
     <target name="stop-orion" description="Stops the Orion server">
         <echo>Stopping Orion</echo>
         <waitfor maxwait="5000" checkevery="500">
-            <http url="http://localhost:8080/Exit.jsp"/>
+            <http url="http://localhost:9080/Exit.jsp"/>
         </waitfor>
         <echo message="...Stopped"/>
     </target>
@@ -607,7 +607,7 @@
             <arg line="tomcat_sh_and.bat"/>
         </exec>
         <waitfor maxwait="10000" checkevery="1500">
-            <http url="http://localhost:8080"/>
+            <http url="http://localhost:9080"/>
         </waitfor>
         <echo message="...Started"/>
     </target>

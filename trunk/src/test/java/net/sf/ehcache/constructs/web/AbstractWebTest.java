@@ -145,7 +145,7 @@ public abstract class AbstractWebTest extends TestCase {
      * @return
      */
     protected String buildUrl(String uri) {
-        return "http://localhost:8080" + uri;
+        return "http://localhost:9080" + uri;
     }
 
     /**

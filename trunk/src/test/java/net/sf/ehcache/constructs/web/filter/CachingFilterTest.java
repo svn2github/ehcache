@@ -18,7 +18,6 @@ package net.sf.ehcache.constructs.web.filter;
 
 import com.meterware.httpunit.HttpInternalErrorException;
 import com.meterware.httpunit.WebResponse;
-import com.meterware.httpunit.WebConversation;
 import junit.framework.AssertionFailedError;
 import net.sf.ehcache.constructs.web.AbstractWebTest;
 import net.sf.ehcache.constructs.web.PageInfo;
@@ -65,33 +64,6 @@ public class CachingFilterTest extends AbstractWebTest {
         httpClient.executeMethod(httpMethod);
         byte[] responseBody = httpMethod.getResponseBody();
         assertTrue(PageInfo.isGzipped(responseBody));
-    }
-
-    /**
-     * <p/>
-     * Also checks a fixed bug in Unicode encoding.
-     */
-    public void testGzippedWhenAcceptEncodingHomePage() throws Exception {
-        WebConversation client = createWebConversation(true);
-        client.getClientProperties().setAcceptGzip(true);
-        String url = buildUrl("/CachedLogin.jsp");
-
-        //do it twice to make sure we exercise both paths.
-        for (int i = 0; i < 2; i++) {
-            WebResponse response = client.getResponse(url);
-
-            assertNotNull(response);
-            assertEquals(HttpURLConnection.HTTP_OK, response.getResponseCode());
-
-            String responseURL = response.getURL().toString();
-            assertEquals(url, responseURL);
-            assertEquals("gzip", response.getHeaderField("Content-Encoding"));
-
-            //Check that we are dealing with Cyrillic characters ok
-            assertTrue(response.getText().indexOf("&#8593;") != -1);
-            //Check non ascii symbol
-            assertTrue(response.getText().indexOf("&#1052;") != -1);
-        }
     }
 
     /**
@@ -154,11 +126,11 @@ public class CachingFilterTest extends AbstractWebTest {
      * a jsp:include
      * <p/>
      * Fails when client request gzip
-     * wget -S  --header='Accept-encoding: gzip' http://localhost:8080/legaldispatchtocachedpage/Include.jsp
-     * --15:01:49--  http://localhost:8080/legaldispatchtocachedpage/Include.jsp
+     * wget -S  --header='Accept-encoding: gzip' http://localhost:9080/legaldispatchtocachedpage/Include.jsp
+     * --15:01:49--  http://localhost:9080/legaldispatchtocachedpage/Include.jsp
      * => `Include.jsp.9'
      * Resolving localhost... done.
-     * Connecting to localhost[127.0.0.1]:8080... connected.
+     * Connecting to localhost[127.0.0.1]:9080... connected.
      * HTTP request sent, awaiting response...
      * 1 HTTP/1.1 200 OK
      * 2 Date: Mon, 22 Nov 2004 05:01:48 GMT
@@ -217,11 +189,11 @@ public class CachingFilterTest extends AbstractWebTest {
      * <p/>
      * If we did not throw an error the client would get a strange result:
      * <pre>
-     * wget -S  --header='Accept-encoding: gzip' http://localhost:8080/servletdispatchtocachedpage/IncludeCachedPageServlet
-     * --20:43:29--  http://localhost:8080/servletdispatchtocachedpage/IncludeCachedPageServlet
+     * wget -S  --header='Accept-encoding: gzip' http://localhost:9080/servletdispatchtocachedpage/IncludeCachedPageServlet
+     * --20:43:29--  http://localhost:9080/servletdispatchtocachedpage/IncludeCachedPageServlet
      * => `IncludeCachedPageServlet.2'
      * Resolving localhost... done.
-     * Connecting to localhost[127.0.0.1]:8080... connected.
+     * Connecting to localhost[127.0.0.1]:9080... connected.
      * HTTP request sent, awaiting response...
      * 1 HTTP/1.1 200 OK
      * 2 Date: Mon, 22 Nov 2004 10:43:28 GMT
@@ -269,11 +241,11 @@ public class CachingFilterTest extends AbstractWebTest {
      * This sequence returns a valid page with 0 bytes!
      * This will be seen as an empty page in the browser.
      * wget response looks like:
-     * wget -S  --header='Accept-encoding: gzip' http://localhost:8080//blankpageproblem/Include.jsp
-     * --10:13:00--  http://localhost:8080/legaldispatchtocachedpage/Include.jsp
+     * wget -S  --header='Accept-encoding: gzip' http://localhost:9080//blankpageproblem/Include.jsp
+     * --10:13:00--  http://localhost:9080/legaldispatchtocachedpage/Include.jsp
      * => `Include.jsp.2'
      * Resolving localhost... done.
-     * Connecting to localhost[127.0.0.1]:8080... connected.
+     * Connecting to localhost[127.0.0.1]:9080... connected.
      * HTTP request sent, awaiting response...
      * 1 HTTP/1.1 200 OK
      * 2 Date: Mon, 22 Nov 2004 00:13:00 GMT
@@ -311,11 +283,11 @@ public class CachingFilterTest extends AbstractWebTest {
      * Tests including a page cached with SimplePageCachingFilter, after setting Filter.noFilter(true)
      * This works. It does not produce a blank page.
      * wget response looks like:
-     * wget -S  --header='Accept-encoding: gzip' http://localhost:8080/legaldispatchtocachedpage/IncludeWithNoFilter.jsp
-     * --13:19:12--  http://localhost:8080/legaldispatchtocachedpage/IncludeWithNoFilter.jsp
+     * wget -S  --header='Accept-encoding: gzip' http://localhost:9080/legaldispatchtocachedpage/IncludeWithNoFilter.jsp
+     * --13:19:12--  http://localhost:9080/legaldispatchtocachedpage/IncludeWithNoFilter.jsp
      * => `IncludeWithNoFilter.jsp'
      * Resolving localhost... done.
-     * Connecting to localhost[127.0.0.1]:8080... connected.
+     * Connecting to localhost[127.0.0.1]:9080... connected.
      * HTTP request sent, awaiting response...
      * 1 HTTP/1.1 200 OK
      * 2 Date: Mon, 22 Nov 2004 03:19:12 GMT
@@ -349,16 +321,16 @@ public class CachingFilterTest extends AbstractWebTest {
      * This works fine.
      * <p/>
      * wget response looks like:
-     * wget -S  --header='Accept-encoding: gzip' http://localhost:8080/legaldispatchtocachedpage/Forward.jsp
-     * --10:17:43--  http://localhost:8080/legaldispatchtocachedpage/Forward.jsp
+     * wget -S  --header='Accept-encoding: gzip' http://localhost:9080/legaldispatchtocachedpage/Forward.jsp
+     * --10:17:43--  http://localhost:9080/legaldispatchtocachedpage/Forward.jsp
      * => `Forward.jsp'
      * Resolving localhost... done.
-     * Connecting to localhost[127.0.0.1]:8080... connected.
+     * Connecting to localhost[127.0.0.1]:9080... connected.
      * HTTP request sent, awaiting response...
      * 1 HTTP/1.1 200 OK
      * 2 Date: Mon, 22 Nov 2004 00:17:56 GMT
      * 3 Server: Orion/2.0.3
-     * 4 Content-Location: http://localhost:8080/CachedLogin.jsp
+     * 4 Content-Location: http://localhost:9080/CachedLogin.jsp
      * 5 Content-Length: 735
      * 6 Set-Cookie: JSESSIONID=ICDJCBCHOFKO; Path=/
      * 7 Cache-Control: private
@@ -382,16 +354,16 @@ public class CachingFilterTest extends AbstractWebTest {
      * This works fine.
      * <p/>
      * wget response looks like:
-     * wget -S  --header='Accept-encoding: gzip' http://localhost:8080/legaldispatchtocachedpage/Forward.jsp
-     * --10:17:43--  http://localhost:8080/legaldispatchtocachedpage/Forward.jsp
+     * wget -S  --header='Accept-encoding: gzip' http://localhost:9080/legaldispatchtocachedpage/Forward.jsp
+     * --10:17:43--  http://localhost:9080/legaldispatchtocachedpage/Forward.jsp
      * => `Forward.jsp'
      * Resolving localhost... done.
-     * Connecting to localhost[127.0.0.1]:8080... connected.
+     * Connecting to localhost[127.0.0.1]:9080... connected.
      * HTTP request sent, awaiting response...
      * 1 HTTP/1.1 200 OK
      * 2 Date: Mon, 22 Nov 2004 00:17:56 GMT
      * 3 Server: Orion/2.0.3
-     * 4 Content-Location: http://localhost:8080/CachedLogin.jsp
+     * 4 Content-Location: http://localhost:9080/CachedLogin.jsp
      * 5 Content-Length: 735
      * 6 Set-Cookie: JSESSIONID=ICDJCBCHOFKO; Path=/
      * 7 Cache-Control: private
@@ -447,11 +419,11 @@ public class CachingFilterTest extends AbstractWebTest {
 
     /**
      * A 0 length body should give a 0 length nongzipped body and content length
-     * Manual Test: wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:8080/empty_caching_filter/empty.html
+     * Manual Test: wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:9080/empty_caching_filter/empty.html
      */
     public void testIfModifiedZeroLengthHTML() throws Exception {
 
-        String url = "http://localhost:8080/empty_caching_filter/empty.html";
+        String url = "http://localhost:9080/empty_caching_filter/empty.html";
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(url);
         httpMethod.addRequestHeader("If-modified-Since", "Fri, 13 May 3006 23:54:18 GMT");
@@ -470,11 +442,11 @@ public class CachingFilterTest extends AbstractWebTest {
      * retry loop, and presumably some other web clients, the content length should be 0
      * and the body 0.
      * <p/>
-     * wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:8080/empty_caching_filter/SC_NOT_MODIFIED.jsp
+     * wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:9080/empty_caching_filter/SC_NOT_MODIFIED.jsp
      */
     public void testNotModifiedJSPGzipFilter() throws Exception {
 
-        String url = "http://localhost:8080/empty_caching_filter/SC_NOT_MODIFIED.jsp";
+        String url = "http://localhost:9080/empty_caching_filter/SC_NOT_MODIFIED.jsp";
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(url);
         httpMethod.addRequestHeader("If-modified-Since", "Fri, 13 May 3006 23:54:18 GMT");
@@ -496,11 +468,11 @@ public class CachingFilterTest extends AbstractWebTest {
      * retry loop, and presumably some other web clients, the content length should be 0
      * and the body 0.
      * <p/>
-     * Manual Test: wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:8080/empty_caching_filter/SC_NO_CONTENT.jsp
+     * Manual Test: wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:9080/empty_caching_filter/SC_NO_CONTENT.jsp
      */
     public void testNoContentJSPGzipFilter() throws Exception {
 
-        String url = "http://localhost:8080/empty_caching_filter/SC_NO_CONTENT.jsp";
+        String url = "http://localhost:9080/empty_caching_filter/SC_NO_CONTENT.jsp";
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(url);
         httpMethod.addRequestHeader("If-modified-Since", "Fri, 13 May 3006 23:54:18 GMT");
@@ -519,11 +491,11 @@ public class CachingFilterTest extends AbstractWebTest {
      * When the servlet container generates a 404 page not found, we want to pass
      * it through without caching and without adding anything to it.
      * <p/>
-     * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:8080/non_ok/PageNotFound.jsp
+     * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:9080/non_ok/PageNotFound.jsp
      */
     public void testNotFound() throws Exception {
 
-        String url = "http://localhost:8080/non_ok/PageNotFound.jsp";
+        String url = "http://localhost:9080/non_ok/PageNotFound.jsp";
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(url);
         httpMethod.addRequestHeader("If-modified-Since", "Fri, 13 May 3006 23:54:18 GMT");
@@ -539,11 +511,11 @@ public class CachingFilterTest extends AbstractWebTest {
      * When the servlet container generates a 404 page not found, we want to pass
      * it through without caching and without adding anything to it.
      * <p/>
-     * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:8080/non_ok/SendRedirect.jsp
+     * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:9080/non_ok/SendRedirect.jsp
      */
     public void testRedirect() throws Exception {
 
-        String url = "http://localhost:8080/non_ok/SendRedirect.jsp";
+        String url = "http://localhost:9080/non_ok/SendRedirect.jsp";
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(url);
         httpMethod.addRequestHeader("Accept-Encoding", "gzip");
