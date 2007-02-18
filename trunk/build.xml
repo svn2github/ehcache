@@ -129,6 +129,7 @@
 
     <target name="compile-tests" depends="compile-src">
         <mkdir dir="${test.classes.dir}"/>
+        <mkdir dir="${build.tmp.dir}"/>
         <javac destdir="${test.classes.dir}"
                target="1.3"
                debug="${compiler.debug}"
@@ -142,6 +143,7 @@
         </javac>
         <copy file="${test.config.dir}/ehcache.xml" todir="${test.classes.dir}"/>
         <copy file="${test.config.dir}/ehcache-2.xml" todir="${test.classes.dir}"/>
+        <copy file="${test.config.dir}/simplelog.properties" todir="${test.classes.dir}"/>
     </target>
 
 
@@ -183,9 +185,12 @@
             <isset property="test.case"/>
         </condition>
 
-        <junit printSummary="true" failureproperty="tests.failed" fork="true" dir="${basedir}">
-            <sysproperty key="java.util.logging.config.file"
-                         file="${test.logging.properties.file}"/>
+        <junit printSummary="withOutAndErr" failureproperty="tests.failed" fork="true" forkmode="perTest" dir="${basedir}" showoutput="true">
+            <jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog"/>
+            <!--<jvmarg value="-Xmx256m"/>-->
+            <sysproperty key="java.io.tmpdir" value="${build.tmp.dir}"/>
+            <!--Example of how to set the speedAdjustmentFactor-->
+            <!--<sysproperty key="net.sf.ehcache.speedAdjustmentFactor" value="1"/>-->
             <classpath>
                 <path location="${test.classes.dir}"/>
                 <path location="${build.classes.dir}"/>
@@ -215,9 +220,12 @@
             <isset property="test.case"/>
         </condition>
 
-        <junit printSummary="true" failureproperty="tests.failed" fork="true" dir="${basedir}">
-            <sysproperty key="java.util.logging.config.file"
-                         file="${test.logging.properties.file}"/>
+        <junit printSummary="withOutAndErr" failureproperty="tests.failed" fork="true" forkmode="perTest" dir="${basedir}" showoutput="true">
+            <jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog"/>
+            <!--<jvmarg value="-Xmx256m"/>-->
+            <sysproperty key="java.io.tmpdir" value="${build.tmp.dir}"/>
+            <!--Example of how to set the speedAdjustmentFactor-->
+            <!--<sysproperty key="net.sf.ehcache.speedAdjustmentFactor" value="1"/>-->
             <classpath>
                 <path location="${test.classes.dir}"/>
                 <path location="${build.classes.dir}"/>
@@ -247,9 +255,12 @@
             <isset property="test.case"/>
         </condition>
 
-        <junit printSummary="true" failureproperty="tests.failed" fork="true" dir="${basedir}">
-            <sysproperty key="java.util.logging.config.file"
-                         file="${test.logging.properties.file}"/>
+        <junit printSummary="withOutAndErr" failureproperty="tests.failed" fork="true" forkmode="perTest" dir="${basedir}" showoutput="true">
+            <jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog"/>
+            <!--<jvmarg value="-Xmx256m"/>-->
+            <sysproperty key="java.io.tmpdir" value="${build.tmp.dir}"/>
+            <!--Example of how to set the speedAdjustmentFactor-->
+            <!--<sysproperty key="net.sf.ehcache.speedAdjustmentFactor" value="1"/>-->
             <classpath>
                 <path location="${test.classes.dir}"/>
                 <path location="${build.classes.dir}"/>

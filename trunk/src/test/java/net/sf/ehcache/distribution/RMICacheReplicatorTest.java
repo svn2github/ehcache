@@ -1297,10 +1297,14 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
                 Cache cache = manager.getCache(cacheName);
                 if (operationSelector == 100) {
                     cache.get(key);
-                    LOG.info(cache.getGuid() + ": get " + key);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(cache.getGuid() + ": get " + key);
+                    }
                 } else if (operationSelector == 100) {
                     cache.remove(key);
-                    LOG.info(cache.getGuid() + ": remove " + key);
+                    if(LOG.isDebugEnabled()) {
+                        LOG.debug(cache.getGuid() + ": remove " + key);
+                    }
                 } else if (operationSelector == 2) {
                     cache.put(new Element(key,
                             "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -1308,11 +1312,13 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
                                     + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                     + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                     + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
-                    LOG.info(cache.getGuid() + ": put " + key);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(cache.getGuid() + ": put " + key);
+                    }
                 } else {
                     //every twelfth time 1/4 * 1/3 = 1/12
                     if (random.nextInt(3) == 1) {
-                        LOG.info("cache.removeAll()");
+                        LOG.debug("cache.removeAll()");
                         cache.removeAll();
                     }
                 }

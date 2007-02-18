@@ -16,28 +16,112 @@
 
 package net.sf.ehcache;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import net.sf.ehcache.util.PropertyUtil;
+
 /**
+ * A timer service used to check performance of tests.
+ * <p/>
+ * To enable this to work for different machines the following is done:
+ * <ul>
+ * <li>SimpleLog is used for logging with a known logging level controlled by <code>simplelog.properties</code>
+ * which is copied to the test classpath. This removes logging as a source of differences.
+ * Messages are sent to stderr which also makes it easy to see messages on remote continuous integration
+ * machines.
+ * <li>A speedAdjustmentFactor is used to equalize machines. It is supplied as a the System Property
+ * 'net.sf.ehcache.speedAdjustmentFactor=n', where n is the number of times the machine is slower
+ * than the reference machine e.g. 1.1. This factor is then used to adjust "elapsedTime"
+ * as returned by this class. Elapsed Time is therefore not true time, but notional time equalized with the reference
+ * machine. If you get performance tests failing add this property.
+ * </ul>
+ *
  * @author Greg Luck
  * @version $Id$
- * A stop watch that can be useful for instrumenting for performance
+ *          A stop watch that can be useful for instrumenting for performance
  */
 public class StopWatch {
 
+    private static final Log LOG = LogFactory.getLog(StopWatch.class.getName());
+
+
     private static final String SUFFIX = "ms";
-                                         
+
+
+    /**
+     * An attempt to adjust performance tests to different machines.
+     */
+    private static float speedAdjustmentFactor = 1;
+
+
     /**
      * Used for performance benchmarking
      */
     private long timeStamp = System.currentTimeMillis();
 
 
+    static {
+
+        String speedAdjustmentFactorString =
+                PropertyUtil.extractAndLogProperty("net.sf.ehcache.speedAdjustmentFactor", System.getProperties());
+
+        if (speedAdjustmentFactorString != null) {
+            speedAdjustmentFactor = Float.parseFloat(speedAdjustmentFactorString);
+            LOG.info("Using speedAjustmentFactor of " + speedAdjustmentFactor);
+        } else {
+            LOG.info("Consider setting system property 'net.sf.ehcache.speedAdjustmentFactor=n' " +
+                    "where n is the number of times your machine is slower than the reference machine, " +
+                    "which is currently a dual G5 PowerMac. e.g. 1.2, which then enables elasped time measurement to be adjusted accordingly.");
+        }
+
+    }
+
+//    static {
+//
+//        float referenceTime = 2050;
+//        CacheManager singletonManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-big.xml");
+//
+//        String[] names = singletonManager.getCacheNames();
+//        for (int i = 0; i < names.length; i++) {
+//            String name = names[i];
+//            Ehcache cache = singletonManager.getCache(name);
+//            for (int j = 0; i < 100; i++) {
+//                cache.put(new Element(new Integer(j), "value"));
+//            }
+//        }
+//        long start = System.currentTimeMillis();
+//        for (int repeats = 0; repeats < 5000; repeats++) {
+//            for (int i = 0; i < names.length; i++) {
+//                String name = names[i];
+//                Ehcache cache = singletonManager.getCache(name);
+//                for (int j = 0; i < 100; i++) {
+//                    Element element = cache.get(name + j);
+//                    if ((element == null)) {
+//                        cache.put(new Element(new Integer(j), "value"));
+//                    }
+//                }
+//            }
+//        }
+//        long elapsedTime = System.currentTimeMillis() - start;
+//
+//        LOG.error("It took this machine: " + elapsedTime + " to perform a time trial compared with the reference time of "
+//                + referenceTime + "ms");
+//
+//        speedAdjustmentFactor = elapsedTime / referenceTime;
+//
+//        LOG.error("Elapsed stopwatch times will be adjusted divided by " + speedAdjustmentFactor);
+//    }
+
+
     /**
      * Gets the time elapsed between now and for the first time, the creation
      * time of the class, and after that, between each call to this method
+     * <p/>
+     * Note this method returns notional time elapsed. See class description
      */
     public long getElapsedTime() {
         long now = System.currentTimeMillis();
-        long elapsed = now - timeStamp;
+        long elapsed = (long) ((now - timeStamp) / speedAdjustmentFactor);
         timeStamp = now;
         return elapsed;
     }

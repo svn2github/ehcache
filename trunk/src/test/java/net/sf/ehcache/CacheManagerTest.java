@@ -50,6 +50,8 @@ import java.util.Iterator;
 public class CacheManagerTest extends TestCase {
     private static final Log LOG = LogFactory.getLog(CacheManagerTest.class.getName());
 
+    
+
     /**
      * the CacheManager Singleton instance
      */
@@ -80,6 +82,8 @@ public class CacheManagerTest extends TestCase {
             assertFalse(CacheManager.ALL_CACHE_MANAGERS.contains(instanceManager));
         }
     }
+
+
 
 
     /**
@@ -568,6 +572,7 @@ public class CacheManagerTest extends TestCase {
             }
         }
         long elapsedTime = stopWatch.getElapsedTime();
+        LOG.info("Time taken was: " + elapsedTime);
         assertTrue("Time taken was: " + elapsedTime, elapsedTime < 5000);
     }
 
@@ -593,7 +598,7 @@ public class CacheManagerTest extends TestCase {
                     // Get thread
                     Thread thread = threads[i];
                     threadCount++;
-                    LOG.info(thread);
+                    LOG.debug(thread);
                 }
 
                 // Get thread subgroups of `group'
@@ -702,5 +707,19 @@ public class CacheManagerTest extends TestCase {
         defaults.setMaxElementsInMemory(10);
         config.setDefaultCacheConfiguration(defaults);
         return config;
+    }
+
+    /**
+     * Make sure we can manipulate tmpdir. This is so continous integration builds can get
+     * the disk path zapped each run.
+     * 
+     */
+    public void testTmpDir() {
+        String tmp = System.getProperty("java.io.tmpdir");
+        System.setProperty("java.io.tmpdir", "greg");
+        assertEquals("greg", System.getProperty("java.io.tmpdir"));
+        System.setProperty("java.io.tmpdir", tmp);
+        assertEquals(tmp, System.getProperty("java.io.tmpdir"));
+
     }
 }
