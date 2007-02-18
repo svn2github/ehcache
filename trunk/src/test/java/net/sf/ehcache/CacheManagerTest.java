@@ -259,7 +259,8 @@ public class CacheManagerTest extends TestCase {
      */
     public void testCacheManagerThreads() throws CacheException, InterruptedException {
         singletonManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-big.xml");
-        assertTrue("More than 75 threads", countThreads() <= 75);
+        int threads = countThreads();
+        assertTrue("More than 75 threads: " + threads , countThreads() <= 75);
     }
 
     /**
@@ -567,8 +568,7 @@ public class CacheManagerTest extends TestCase {
             }
         }
         long elapsedTime = stopWatch.getElapsedTime();
-        LOG.info("Time taken was: " + elapsedTime);
-        assertTrue(elapsedTime < 5000);
+        assertTrue("Time taken was: " + elapsedTime, elapsedTime < 5000);
     }
 
     private int countThreads() {

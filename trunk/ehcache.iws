@@ -32,7 +32,7 @@
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/ManualRMICacheReplicatorTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/ManualRMICacheReplicatorTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -331,24 +331,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="web.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/WEB-INF/2_3/web.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="80" selection-start="902" selection-end="902" vertical-scroll-proportion="0.41454545">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CachingFilter.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/filter/CachingFilter.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="186" column="20" selection-start="8572" selection-end="8572" vertical-scroll-proportion="0.31588784">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="CachedLogin.jsp" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/CachedLogin.jsp">
           <provider selected="true" editor-type-id="text-editor">
@@ -403,10 +385,28 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ManualRMICacheReplicatorTest.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="ManualRMICacheReplicatorTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/ManualRMICacheReplicatorTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="432" column="18" selection-start="14500" selection-end="14500" vertical-scroll-proportion="0.33271027">
+            <state line="446" column="80" selection-start="15096" selection-end="15096" vertical-scroll-proportion="0.646729">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CacheManagerTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/CacheManagerTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="140" column="12" selection-start="4566" selection-end="4566" vertical-scroll-proportion="0.8690909">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CacheManagerTest.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="153" column="21" selection-start="5843" selection-end="5843" vertical-scroll-proportion="0.6109091">
               <folding />
             </state>
           </provider>
@@ -1932,20 +1932,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/resources/default-web-app/GzipOnlyPage.jsp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="0" selection-start="789" selection-end="975" vertical-scroll-proportion="0.53503186">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/constructs/web/GenericResponseWrapper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="162" column="22" selection-start="4850" selection-end="4850" vertical-scroll-proportion="3.1358025">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/changes/changes.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state line="7" column="38" selection-start="222" selection-end="222" vertical-scroll-proportion="0.100598805">
@@ -2032,7 +2018,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/ManualRMICacheReplicatorTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="432" column="18" selection-start="14500" selection-end="14500" vertical-scroll-proportion="0.33271027">
+        <state line="446" column="80" selection-start="15096" selection-end="15096" vertical-scroll-proportion="0.646729">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/jcache/CacheManagerTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="140" column="12" selection-start="4566" selection-end="4566" vertical-scroll-proportion="0.8690909">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheManagerTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="153" column="21" selection-start="5843" selection-end="5843" vertical-scroll-proportion="0.6109091">
           <folding />
         </state>
       </provider>
