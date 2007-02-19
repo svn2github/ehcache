@@ -260,7 +260,7 @@
             <!--<jvmarg value="-Xmx256m"/>-->
             <sysproperty key="java.io.tmpdir" value="${build.tmp.dir}"/>
             <sysproperty key="net.sf.ehcache.speedAdjustmentFactor" value="${net.sf.ehcache.speedAdjustmentFactor}"/>
-s            <classpath>
+            <classpath>
                 <path location="${test.classes.dir}"/>
                 <path location="${build.classes.dir}"/>
                 <path refid="project.class.path"/>
