@@ -53,6 +53,12 @@ public class StopWatch {
      */
     private static float speedAdjustmentFactor = 1;
 
+    /**
+     * Get the speed adjustment factor
+     */
+    public static float getSpeedAdjustmentFactor() {
+        return speedAdjustmentFactor;
+    }
 
     /**
      * Used for performance benchmarking

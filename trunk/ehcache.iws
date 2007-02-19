@@ -31,6 +31,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
     </list>
@@ -322,15 +323,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Cache.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="213" column="127" selection-start="8417" selection-end="8417" vertical-scroll-proportion="0.022514071">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="Float.java" pinned="false" current="false" current-in-tab="false">
         <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/lang/Float.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -343,7 +335,16 @@
       <file leaf-file-name="DiskStoreTest.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="123" column="0" selection-start="4363" selection-end="5407" vertical-scroll-proportion="0.06569343">
+            <state line="770" column="56" selection-start="27888" selection-end="27888" vertical-scroll-proportion="0.6569343">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="StopWatch.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="57" column="32" selection-start="2237" selection-end="2237" vertical-scroll-proportion="0.5729927">
               <folding />
             </state>
           </provider>
@@ -352,7 +353,7 @@
       <file leaf-file-name="DiskStore.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="427" column="31" selection-start="14874" selection-end="14879" vertical-scroll-proportion="0.33211678">
+            <state line="64" column="13" selection-start="2195" selection-end="2195" vertical-scroll-proportion="-22.202555">
               <folding />
             </state>
           </provider>
@@ -1893,13 +1894,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="53" column="51" selection-start="2181" selection-end="2181" vertical-scroll-proportion="0.014117647">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/AbstractCacheTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="24" column="3" selection-start="745" selection-end="745" vertical-scroll-proportion="0.021937843">
@@ -1931,13 +1925,6 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="213" column="127" selection-start="8417" selection-end="8417" vertical-scroll-proportion="0.022514071">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/lang/Float.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="396" column="53" selection-start="17071" selection-end="17071" vertical-scroll-proportion="0.10948905">
           <folding />
         </state>
       </provider>
@@ -1984,16 +1971,30 @@
         </state>
       </provider>
     </entry>
+    <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/lang/Float.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="396" column="53" selection-start="17071" selection-end="17071" vertical-scroll-proportion="0.10948905">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="427" column="31" selection-start="14874" selection-end="14879" vertical-scroll-proportion="0.33211678">
+        <state line="64" column="13" selection-start="2195" selection-end="2195" vertical-scroll-proportion="-22.202555">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="57" column="32" selection-start="2237" selection-end="2237" vertical-scroll-proportion="0.5729927">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="123" column="0" selection-start="4363" selection-end="5407" vertical-scroll-proportion="0.06569343">
+        <state line="770" column="56" selection-start="27888" selection-end="27888" vertical-scroll-proportion="0.6569343">
           <folding />
         </state>
       </provider>

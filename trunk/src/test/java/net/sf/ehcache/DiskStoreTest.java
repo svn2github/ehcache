@@ -768,7 +768,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 //                Thread.sleep(50);
 //            }
 //        }
-        Thread.sleep(250);
+        Thread.sleep((long) (250 * StopWatch.getSpeedAdjustmentFactor()));
     }
 
 //    /**
