@@ -187,7 +187,7 @@
 
         <echo message="net.sf.ehcache.speedAdjustmentFactor ${net.sf.ehcache.speedAdjustmentFactor}"/>
         <junit printSummary="withOutAndErr" failureproperty="tests.failed" fork="true"
-        forkmode="perTest" dir="${basedir}" showoutput="false" newenvironment="false">
+        forkmode="perTest" dir="${basedir}" showoutput="true" newenvironment="false">
             <jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog"/>
             <sysproperty key="java.io.tmpdir" value="${build.tmp.dir}"/>
             <sysproperty key="net.sf.ehcache.speedAdjustmentFactor" value="${net.sf.ehcache.speedAdjustmentFactor}"/>
