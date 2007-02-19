@@ -31,9 +31,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -323,15 +323,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="ManualRMICacheReplicatorTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/ManualRMICacheReplicatorTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="1214" column="73" selection-start="43090" selection-end="43090" vertical-scroll-proportion="0.24812031">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="Cache.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/Cache.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -350,10 +341,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DiskStoreTest.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="DiskStoreTest.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="767" column="23" selection-start="27870" selection-end="27870" vertical-scroll-proportion="0.66179156">
+            <state line="35" column="13" selection-start="1168" selection-end="1168" vertical-scroll-proportion="0.33272395">
               <folding />
             </state>
           </provider>
@@ -362,7 +353,16 @@
       <file leaf-file-name="DiskStore.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="64" column="13" selection-start="2195" selection-end="2195" vertical-scroll-proportion="-1.2687386">
+            <state line="556" column="16" selection-start="19090" selection-end="19090" vertical-scroll-proportion="0.33272395">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Map.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/util/Map.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="105" column="12" selection-start="5375" selection-end="5375" vertical-scroll-proportion="0.33272395">
               <folding />
             </state>
           </provider>
@@ -386,10 +386,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="pom.xml" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="pom.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="7" column="18" selection-start="383" selection-end="383" vertical-scroll-proportion="0.15789473">
+            <state line="25" column="91" selection-start="990" selection-end="990" vertical-scroll-proportion="0.56390977">
               <folding />
             </state>
           </provider>
@@ -1893,13 +1893,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="1697" column="12" selection-start="59001" selection-end="59001" vertical-scroll-proportion="1.3072727">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="53" column="51" selection-start="2181" selection-end="2181" vertical-scroll-proportion="0.014117647">
@@ -1970,20 +1963,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="64" column="13" selection-start="2195" selection-end="2195" vertical-scroll-proportion="-1.2687386">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="767" column="23" selection-start="27870" selection-end="27870" vertical-scroll-proportion="0.66179156">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/build.properties">
       <provider selected="true" editor-type-id="text-editor">
         <state line="3" column="97" selection-start="67" selection-end="67" vertical-scroll-proportion="0.06581353">
@@ -1993,7 +1972,28 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="7" column="18" selection-start="383" selection-end="383" vertical-scroll-proportion="0.15789473">
+        <state line="25" column="91" selection-start="990" selection-end="990" vertical-scroll-proportion="0.56390977">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/src.jar!/src/java/util/Map.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="105" column="12" selection-start="5375" selection-end="5375" vertical-scroll-proportion="0.33272395">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="556" column="16" selection-start="19090" selection-end="19090" vertical-scroll-proportion="0.33272395">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="35" column="13" selection-start="1168" selection-end="1168" vertical-scroll-proportion="0.33272395">
           <folding />
         </state>
       </provider>

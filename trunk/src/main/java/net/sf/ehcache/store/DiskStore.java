@@ -554,7 +554,7 @@ public class DiskStore implements Store {
      *
      * @return false if there are elements waiting, otherwise true
      */
-    public final synchronized boolean isSpoolEmpty() {
+    public final boolean isSpoolEmpty() {
         return (!active || spool.size() == 0);
     }
 
