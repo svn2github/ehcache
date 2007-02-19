@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
+import java.io.File;
 
 /**
  * Test cases for the DiskStore.
@@ -192,41 +193,41 @@ public class DiskStoreTest extends AbstractCacheTest {
 
     }
 
-//    /**
-//     * Tests that we can save and load a persistent store in a repeatable way
-//     */
-//    public void testLoadPersistentStore() throws IOException, InterruptedException {
-//        //initialise
-//        String cacheName = "testLoadPersistent";
-//        DiskStore diskStore = createPersistentDiskStore(cacheName);
-//        diskStore.removeAll();
-//
-//
-//        for (int i = 0; i < 100; i++) {
-//            byte[] data = new byte[1024];
-//            diskStore.put(new Element("key" + (i + 100), data));
-//
-//            waitForFlush(diskStore);
-//            assertEquals("On the " + i + " iteration: ", ELEMENT_ON_DISK_SIZE * (i + 1), diskStore.getDataFileSize());
-//        }
-//        assertEquals(100, diskStore.getSize());
-//        manager.removeCache(cacheName);
-//        Thread.sleep(3000);
-//        //check that we can create and dispose several times with no problems and no lost data
-//        for (int i = 0; i < 10; i++) {
-//            diskStore = createPersistentDiskStore(cacheName);
-//            File dataFile = new File(diskStore.getDataFilePath() + File.separator + diskStore.getDataFileName());
-//            assertTrue("File exists", dataFile.exists());
-//            assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
-//            assertEquals(100, diskStore.getSize());
-//
-//            manager.removeCache(cacheName);
-//
-//            assertTrue("File exists", dataFile.exists());
-//            assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
-//        }
-//    }
-//
+    /**
+     * Tests that we can save and load a persistent store in a repeatable way
+     */
+    public void testLoadPersistentStore() throws IOException, InterruptedException {
+        //initialise
+        String cacheName = "testLoadPersistent";
+        DiskStore diskStore = createPersistentDiskStore(cacheName);
+        diskStore.removeAll();
+
+
+        for (int i = 0; i < 100; i++) {
+            byte[] data = new byte[1024];
+            diskStore.put(new Element("key" + (i + 100), data));
+
+            waitForFlush(diskStore);
+            assertEquals("On the " + i + " iteration: ", ELEMENT_ON_DISK_SIZE * (i + 1), diskStore.getDataFileSize());
+        }
+        assertEquals(100, diskStore.getSize());
+        manager.removeCache(cacheName);
+        Thread.sleep(3000);
+        //check that we can create and dispose several times with no problems and no lost data
+        for (int i = 0; i < 10; i++) {
+            diskStore = createPersistentDiskStore(cacheName);
+            File dataFile = new File(diskStore.getDataFilePath() + File.separator + diskStore.getDataFileName());
+            assertTrue("File exists", dataFile.exists());
+            assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
+            assertEquals(100, diskStore.getSize());
+
+            manager.removeCache(cacheName);
+
+            assertTrue("File exists", dataFile.exists());
+            assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
+        }
+    }
+
 //    /**
 //     * Any disk store with an auto generated random directory should not be able to be loaded.
 //     */
@@ -764,7 +765,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 //                Thread.sleep(10);
 //            }
 //        }
-        Thread.sleep(2000);
+        Thread.sleep(250);
     }
 
 //    /**
