@@ -32,7 +32,7 @@
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
     </list>
   </component>
@@ -353,7 +353,7 @@
       <file leaf-file-name="DiskStoreTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="743" column="85" selection-start="27047" selection-end="27047" vertical-scroll-proportion="0.02559415">
+            <state line="767" column="23" selection-start="27870" selection-end="27870" vertical-scroll-proportion="0.66179156">
               <folding />
             </state>
           </provider>
@@ -362,7 +362,7 @@
       <file leaf-file-name="DiskStore.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="64" column="13" selection-start="2195" selection-end="2195" vertical-scroll-proportion="0.33272395">
+            <state line="64" column="13" selection-start="2195" selection-end="2195" vertical-scroll-proportion="-1.2687386">
               <folding />
             </state>
           </provider>
@@ -377,19 +377,28 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="build.xml" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="build.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/build.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="189" column="60" selection-start="7582" selection-end="7582" vertical-scroll-proportion="0.5714286">
+            <state line="177" column="82" selection-start="7044" selection-end="7044" vertical-scroll-proportion="0.30075186">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="pom.xml" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="pom.xml" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="245" column="48" selection-start="8053" selection-end="8053" vertical-scroll-proportion="0.067669176">
+            <state line="7" column="18" selection-start="383" selection-end="383" vertical-scroll-proportion="0.15789473">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="build.properties" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/build.properties">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="3" column="97" selection-start="67" selection-end="67" vertical-scroll-proportion="0.06581353">
               <folding />
             </state>
           </provider>
@@ -399,15 +408,6 @@
         <entry file="file://$PROJECT_DIR$/pom.xml.rej">
           <provider selected="true" editor-type-id="text-editor">
             <state line="12" column="0" selection-start="332" selection-end="538" vertical-scroll-proportion="0.2632541">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="RMICacheReplicatorTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/distribution/RMICacheReplicatorTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="1304" column="23" selection-start="46083" selection-end="46083" vertical-scroll-proportion="0.8947368">
               <folding />
             </state>
           </provider>
@@ -1907,13 +1907,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="30" selection-start="455" selection-end="455" vertical-scroll-proportion="0.39488116">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/AbstractCacheTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="24" column="3" selection-start="745" selection-end="745" vertical-scroll-proportion="0.021937843">
@@ -1956,20 +1949,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="64" column="13" selection-start="2195" selection-end="2195" vertical-scroll-proportion="0.33272395">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="743" column="85" selection-start="27047" selection-end="27047" vertical-scroll-proportion="0.02559415">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4-sources.jar!/org/apache/commons/logging/impl/LogFactoryImpl.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="39" column="43" selection-start="1357" selection-end="1387" vertical-scroll-proportion="0.021937843">
@@ -1984,16 +1963,37 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
+    <entry file="file://$PROJECT_DIR$/build.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="245" column="48" selection-start="8053" selection-end="8053" vertical-scroll-proportion="0.067669176">
+        <state line="177" column="82" selection-start="7044" selection-end="7044" vertical-scroll-proportion="0.30075186">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build.xml">
+    <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="189" column="60" selection-start="7582" selection-end="7582" vertical-scroll-proportion="0.5714286">
+        <state line="64" column="13" selection-start="2195" selection-end="2195" vertical-scroll-proportion="-1.2687386">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="767" column="23" selection-start="27870" selection-end="27870" vertical-scroll-proportion="0.66179156">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="3" column="97" selection-start="67" selection-end="67" vertical-scroll-proportion="0.06581353">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="7" column="18" selection-start="383" selection-end="383" vertical-scroll-proportion="0.15789473">
           <folding />
         </state>
       </provider>
