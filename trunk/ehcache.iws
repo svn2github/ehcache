@@ -31,7 +31,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
     </list>
@@ -335,7 +334,7 @@
       <file leaf-file-name="DiskStoreTest.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="770" column="56" selection-start="27888" selection-end="27888" vertical-scroll-proportion="0.6569343">
+            <state line="770" column="31" selection-start="27863" selection-end="27863" vertical-scroll-proportion="0.6569343">
               <folding />
             </state>
           </provider>
@@ -344,7 +343,7 @@
       <file leaf-file-name="StopWatch.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="57" column="32" selection-start="2237" selection-end="2237" vertical-scroll-proportion="0.5729927">
+            <state line="57" column="7" selection-start="2237" selection-end="2237" vertical-scroll-proportion="0.5729927">
               <folding />
             </state>
           </provider>
@@ -368,19 +367,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="LogFactoryImpl.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4-sources.jar!/org/apache/commons/logging/impl/LogFactoryImpl.java">
+      <file leaf-file-name="build.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/build.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="39" column="43" selection-start="1357" selection-end="1387" vertical-scroll-proportion="0.02189781">
+            <state line="145" column="45" selection-start="5734" selection-end="5734" vertical-scroll-proportion="0.60787994">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="build.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/build.xml">
+      <file leaf-file-name="simplelog.properties" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/resources/simplelog.properties">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="177" column="82" selection-start="7044" selection-end="7044" vertical-scroll-proportion="0.30018762">
+            <state line="17" column="0" selection-start="1301" selection-end="1301" vertical-scroll-proportion="0.38273922">
               <folding />
             </state>
           </provider>
@@ -1894,13 +1893,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/AbstractCacheTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="24" column="3" selection-start="745" selection-end="745" vertical-scroll-proportion="0.021937843">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/CacheExceptionTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="26" column="24" selection-start="811" selection-end="811" vertical-scroll-proportion="0.2632541">
@@ -1929,23 +1921,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4-sources.jar!/org/apache/commons/logging/impl/LogFactoryImpl.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="43" selection-start="1357" selection-end="1387" vertical-scroll-proportion="0.02189781">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/pom.xml.rej">
       <provider selected="true" editor-type-id="text-editor">
         <state line="12" column="0" selection-start="332" selection-end="538" vertical-scroll-proportion="0.26277372">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="177" column="82" selection-start="7044" selection-end="7044" vertical-scroll-proportion="0.30018762">
           <folding />
         </state>
       </provider>
@@ -1987,14 +1965,35 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="57" column="32" selection-start="2237" selection-end="2237" vertical-scroll-proportion="0.5729927">
+        <state line="57" column="7" selection-start="2237" selection-end="2237" vertical-scroll-proportion="0.5729927">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4-sources.jar!/org/apache/commons/logging/impl/LogFactoryImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="39" column="43" selection-start="1357" selection-end="1387" vertical-scroll-proportion="0.02189781">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="145" column="45" selection-start="5734" selection-end="5734" vertical-scroll-proportion="0.60787994">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/resources/simplelog.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="17" column="0" selection-start="1301" selection-end="1301" vertical-scroll-proportion="0.38273922">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="770" column="56" selection-start="27888" selection-end="27888" vertical-scroll-proportion="0.6569343">
+        <state line="770" column="31" selection-start="27863" selection-end="27863" vertical-scroll-proportion="0.6569343">
           <folding />
         </state>
       </provider>
