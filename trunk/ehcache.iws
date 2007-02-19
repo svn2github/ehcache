@@ -33,7 +33,6 @@
     <list default="true" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -344,7 +343,7 @@
       <file leaf-file-name="DiskStoreTest.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="751" column="83" selection-start="27376" selection-end="27376" vertical-scroll-proportion="0.20072992">
+            <state line="767" column="30" selection-start="27879" selection-end="27879" vertical-scroll-proportion="0.85583943">
               <folding />
             </state>
           </provider>
@@ -1994,7 +1993,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="751" column="83" selection-start="27376" selection-end="27376" vertical-scroll-proportion="0.20072992">
+        <state line="767" column="30" selection-start="27879" selection-end="27879" vertical-scroll-proportion="0.85583943">
           <folding />
         </state>
       </provider>
