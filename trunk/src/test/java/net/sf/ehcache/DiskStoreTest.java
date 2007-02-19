@@ -145,29 +145,29 @@ public class DiskStoreTest extends AbstractCacheTest {
 //        assertTrue("File exists", dataFile.exists());
 //        assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
 //    }
-//
-//    /**
-//     * An integration test, at the CacheManager level, to make sure persistence works
-//     * todo Does not work for ehcache-disk.xml but works for the config in ehcache.xml. Why?
-//     */
-//    public void testPersistentStoreFromCacheManager() throws IOException, InterruptedException, CacheException {
-//        //initialise
-//        CacheManager manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
-//        Ehcache cache = manager.getCache("persistentLongExpiryIntervalCache");
-//
-//        for (int i = 0; i < 100; i++) {
-//            byte[] data = new byte[1024];
-//            cache.put(new Element("key" + (i + 100), data));
-//        }
-//        assertEquals(100, cache.getSize());
-//
-//        manager.shutdown();
-//
-//        manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
-//        cache = manager.getCache("persistentLongExpiryIntervalCache");
-//        assertEquals(100, cache.getSize());
-//
-//    }
+
+    /**
+     * An integration test, at the CacheManager level, to make sure persistence works
+     * todo Does not work for ehcache-disk.xml but works for the config in ehcache.xml. Why?
+     */
+    public void testPersistentStoreFromCacheManager() throws IOException, InterruptedException, CacheException {
+        //initialise
+        CacheManager manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
+        Ehcache cache = manager.getCache("persistentLongExpiryIntervalCache");
+
+        for (int i = 0; i < 100; i++) {
+            byte[] data = new byte[1024];
+            cache.put(new Element("key" + (i + 100), data));
+        }
+        assertEquals(100, cache.getSize());
+
+        manager.shutdown();
+
+        manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
+        cache = manager.getCache("persistentLongExpiryIntervalCache");
+        assertEquals(100, cache.getSize());
+
+    }
 
     /**
      * Tests that the spool thread dies on dispose.
@@ -755,15 +755,16 @@ public class DiskStoreTest extends AbstractCacheTest {
      * Waits for all spooled elements to be written to disk.
      */
     private static void waitForFlush(DiskStore diskStore) throws InterruptedException {
-        while (true) {
-            if (diskStore.isSpoolEmpty()) {
-                //Do not return until spool is empty
-                return;
-            } else {
-                //Wait for 100ms before checking again
-                Thread.sleep(10);
-            }
-        }
+//        while (true) {
+//            if (diskStore.isSpoolEmpty()) {
+//                //Do not return until spool is empty
+//                return;
+//            } else {
+//                //Wait for 100ms before checking again
+//                Thread.sleep(10);
+//            }
+//        }
+        Thread.sleep(2000);
     }
 
 //    /**
