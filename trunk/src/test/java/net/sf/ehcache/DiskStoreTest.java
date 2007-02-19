@@ -18,6 +18,7 @@ package net.sf.ehcache;
 
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.store.Primitive;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,9 +27,13 @@ import java.io.IOException;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.Random;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Test cases for the DiskStore.

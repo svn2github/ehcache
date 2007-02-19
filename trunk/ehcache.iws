@@ -31,7 +31,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
     </list>
@@ -332,16 +331,16 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DiskStoreTest.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="DiskStoreTest.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="767" column="87" selection-start="26763" selection-end="26763" vertical-scroll-proportion="0.39781022">
+            <state line="524" column="8" selection-start="19397" selection-end="19397" vertical-scroll-proportion="0.33211678">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="StopWatch.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="StopWatch.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java">
           <provider selected="true" editor-type-id="text-editor">
             <state line="60" column="0" selection-start="2298" selection-end="2298" vertical-scroll-proportion="0.72627735">
@@ -1985,16 +1984,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="767" column="87" selection-start="26763" selection-end="26763" vertical-scroll-proportion="0.39781022">
+        <state line="60" column="0" selection-start="2298" selection-end="2298" vertical-scroll-proportion="0.72627735">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/StopWatch.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="60" column="0" selection-start="2298" selection-end="2298" vertical-scroll-proportion="0.72627735">
+        <state line="524" column="8" selection-start="19397" selection-end="19397" vertical-scroll-proportion="0.33211678">
           <folding />
         </state>
       </provider>
