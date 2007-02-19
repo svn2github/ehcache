@@ -97,55 +97,55 @@ public class DiskStoreTest extends AbstractCacheTest {
     public void testNothing() {
         //just tests setup and teardown
     }
-//
-//    /**
-//     * Tests that a file is created with the right size after puts, and that the file is
-//     * deleted on disposal
-//     */
-//    public void testNonPersistentStore() throws IOException, InterruptedException {
-//        DiskStore diskStore = createNonExpiringDiskStore();
-//        File dataFile = new File(diskStore.getDataFilePath() + File.separator + diskStore.getDataFileName());
-//
-//        for (int i = 0; i < 100; i++) {
-//            byte[] data = new byte[1024];
-//            diskStore.put(new Element("key" + (i + 100), data));
-//            waitForFlush(diskStore);
-//            int predictedSize = ELEMENT_ON_DISK_SIZE * (i + 1);
-//            long actualSize = diskStore.getDataFileSize();
-//            assertEquals("On the " + i + " iteration: ", predictedSize, actualSize);
-//        }
-//
-//        assertEquals(100, diskStore.getSize());
-//        diskStore.dispose();
-//        Thread.sleep(1);
-//        assertFalse("File exists", dataFile.exists());
-//    }
-//
-//    /**
-//     * Tests that a file is created with the right size after puts, and that the file is not
-//     * deleted on disposal
-//     * <p/>
-//     * This test uses a preconfigured cache from the test cache.xml. Note that teardown causes
-//     * an exception because the disk store is being shut down twice.
-//     */
-//    public void testPersistentStore() throws IOException, InterruptedException, CacheException {
-//        //initialise
-//        DiskStore diskStore = createPersistentDiskStoreFromCacheManager();
-//        diskStore.removeAll();
-//
-//        File dataFile = new File(diskStore.getDataFilePath() + File.separator + diskStore.getDataFileName());
-//
-//        for (int i = 0; i < 100; i++) {
-//            byte[] data = new byte[1024];
-//            diskStore.put(new Element("key" + (i + 100), data));
-//        }
-//        waitForFlush(diskStore);
-//        assertEquals(100, diskStore.getSize());
-//        diskStore.dispose();
-//
-//        assertTrue("File exists", dataFile.exists());
-//        assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
-//    }
+
+    /**
+     * Tests that a file is created with the right size after puts, and that the file is
+     * deleted on disposal
+     */
+    public void testNonPersistentStore() throws IOException, InterruptedException {
+        DiskStore diskStore = createNonExpiringDiskStore();
+        File dataFile = new File(diskStore.getDataFilePath() + File.separator + diskStore.getDataFileName());
+
+        for (int i = 0; i < 100; i++) {
+            byte[] data = new byte[1024];
+            diskStore.put(new Element("key" + (i + 100), data));
+            waitForFlush(diskStore);
+            int predictedSize = ELEMENT_ON_DISK_SIZE * (i + 1);
+            long actualSize = diskStore.getDataFileSize();
+            assertEquals("On the " + i + " iteration: ", predictedSize, actualSize);
+        }
+
+        assertEquals(100, diskStore.getSize());
+        diskStore.dispose();
+        Thread.sleep(1);
+        assertFalse("File exists", dataFile.exists());
+    }
+
+    /**
+     * Tests that a file is created with the right size after puts, and that the file is not
+     * deleted on disposal
+     * <p/>
+     * This test uses a preconfigured cache from the test cache.xml. Note that teardown causes
+     * an exception because the disk store is being shut down twice.
+     */
+    public void testPersistentStore() throws IOException, InterruptedException, CacheException {
+        //initialise
+        DiskStore diskStore = createPersistentDiskStoreFromCacheManager();
+        diskStore.removeAll();
+
+        File dataFile = new File(diskStore.getDataFilePath() + File.separator + diskStore.getDataFileName());
+
+        for (int i = 0; i < 100; i++) {
+            byte[] data = new byte[1024];
+            diskStore.put(new Element("key" + (i + 100), data));
+        }
+        waitForFlush(diskStore);
+        assertEquals(100, diskStore.getSize());
+        diskStore.dispose();
+
+        assertTrue("File exists", dataFile.exists());
+        assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
+    }
 
     /**
      * An integration test, at the CacheManager level, to make sure persistence works
