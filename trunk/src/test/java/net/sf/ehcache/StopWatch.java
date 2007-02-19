@@ -53,17 +53,19 @@ public class StopWatch {
      */
     private static float speedAdjustmentFactor = 1;
 
+
+    /**
+     * Used for performance benchmarking
+     */
+    private long timeStamp = System.currentTimeMillis();
+    
+
     /**
      * Get the speed adjustment factor
      */
     public static float getSpeedAdjustmentFactor() {
         return speedAdjustmentFactor;
     }
-
-    /**
-     * Used for performance benchmarking
-     */
-    private long timeStamp = System.currentTimeMillis();
 
 
     static {
