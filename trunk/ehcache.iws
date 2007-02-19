@@ -31,7 +31,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -348,10 +349,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DiskStoreTest.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="DiskStoreTest.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="989" column="2" selection-start="37226" selection-end="37226" vertical-scroll-proportion="0.018281536">
+            <state line="758" column="0" selection-start="27669" selection-end="27669" vertical-scroll-proportion="0.37659964">
               <folding />
             </state>
           </provider>
@@ -384,10 +385,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="build.xml" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="build.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/build.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="262" column="0" selection-start="11011" selection-end="11011" vertical-scroll-proportion="0.44548872">
+            <state line="271" column="76" selection-start="11444" selection-end="11444" vertical-scroll-proportion="0.64849627">
               <folding />
             </state>
           </provider>
@@ -1982,16 +1983,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
+    <entry file="file://$PROJECT_DIR$/build.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="989" column="2" selection-start="37226" selection-end="37226" vertical-scroll-proportion="0.018281536">
+        <state line="271" column="76" selection-start="11444" selection-end="11444" vertical-scroll-proportion="0.64849627">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build.xml">
+    <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="262" column="0" selection-start="11011" selection-end="11011" vertical-scroll-proportion="0.44548872">
+        <state line="758" column="0" selection-start="27669" selection-end="27669" vertical-scroll-proportion="0.37659964">
           <folding />
         </state>
       </provider>

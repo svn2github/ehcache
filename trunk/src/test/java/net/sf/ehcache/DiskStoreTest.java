@@ -20,6 +20,8 @@ import net.sf.ehcache.store.DiskStore;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.IOException;
+
 /**
  * Test cases for the DiskStore.
  *
@@ -166,30 +168,30 @@ public class DiskStoreTest extends AbstractCacheTest {
 //        assertEquals(100, cache.getSize());
 //
 //    }
-//
-//    /**
-//     * Tests that the spool thread dies on dispose.
-//     */
-//    public void testSpoolThreadDiesOnDispose() throws IOException, InterruptedException {
-//        Cache cache = new Cache("testNonPersistent", 10000, true, false, 5, 1, false, 100);
-//        cache.initialise();
-//        DiskStore diskStore = cache.getDiskStore();
-//
-//        //Put in some data
-//        for (int i = 0; i < 100; i++) {
-//            byte[] data = new byte[1024];
-//            diskStore.put(new Element("key" + (i + 100), data));
-//        }
-//        waitForFlush(diskStore);
-//
-//        diskStore.dispose();
-//        //Give the spool thread time to be interrupted and die
-//        Thread.sleep(100);
-//        assertTrue(!diskStore.isSpoolThreadAlive());
-//
-//
-//    }
-//
+
+    /**
+     * Tests that the spool thread dies on dispose.
+     */
+    public void testSpoolThreadDiesOnDispose() throws IOException, InterruptedException {
+        Cache cache = new Cache("testNonPersistent", 10000, true, false, 5, 1, false, 100);
+        cache.initialise();
+        DiskStore diskStore = cache.getDiskStore();
+
+        //Put in some data
+        for (int i = 0; i < 100; i++) {
+            byte[] data = new byte[1024];
+            diskStore.put(new Element("key" + (i + 100), data));
+        }
+        waitForFlush(diskStore);
+
+        diskStore.dispose();
+        //Give the spool thread time to be interrupted and die
+        Thread.sleep(100);
+        assertTrue(!diskStore.isSpoolThreadAlive());
+
+
+    }
+
 //    /**
 //     * Tests that we can save and load a persistent store in a repeatable way
 //     */
@@ -748,22 +750,22 @@ public class DiskStoreTest extends AbstractCacheTest {
 //
 //
 //    }
-//
-//    /**
-//     * Waits for all spooled elements to be written to disk.
-//     */
-//    private static void waitForFlush(DiskStore diskStore) throws InterruptedException {
-//        while (true) {
-//            if (diskStore.isSpoolEmpty()) {
-//                //Do not return until spool is empty
-//                return;
-//            } else {
-//                //Wait for 100ms before checking again
-//                Thread.sleep(10);
-//            }
-//        }
-//    }
-//
+
+    /**
+     * Waits for all spooled elements to be written to disk.
+     */
+    private static void waitForFlush(DiskStore diskStore) throws InterruptedException {
+        while (true) {
+            if (diskStore.isSpoolEmpty()) {
+                //Do not return until spool is empty
+                return;
+            } else {
+                //Wait for 100ms before checking again
+                Thread.sleep(10);
+            }
+        }
+    }
+
 //    /**
 //     * Multi-thread read-only test. Will fail on memory constrained VMs
 //     */
