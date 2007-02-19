@@ -756,13 +756,14 @@ public class DiskStoreTest extends AbstractCacheTest {
      * Waits for all spooled elements to be written to disk.
      */
     private static void waitForFlush(DiskStore diskStore) throws InterruptedException {
+        Thread.sleep(50);
         while (true) {
             if (diskStore.isSpoolEmpty()) {
                 //Do not return until spool is empty
                 return;
             } else {
                 //Wait for 100ms before checking again
-                Thread.sleep(10);
+                Thread.sleep(20);
             }
         }
     }

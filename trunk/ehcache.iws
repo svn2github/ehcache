@@ -33,7 +33,6 @@
     <list default="true" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" afterPath="$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ehcache.iws" afterPath="$PROJECT_DIR$/ehcache.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java" afterPath="$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -344,7 +343,7 @@
       <file leaf-file-name="DiskStoreTest.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="767" column="17" selection-start="27834" selection-end="27834" vertical-scroll-proportion="0.5521024">
+            <state line="765" column="30" selection-start="27827" selection-end="27827" vertical-scroll-proportion="0.5082267">
               <folding />
             </state>
           </provider>
@@ -353,7 +352,7 @@
       <file leaf-file-name="DiskStore.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="550" column="56" selection-start="18914" selection-end="18914" vertical-scroll-proportion="0.20109689">
+            <state line="568" column="83" selection-start="19541" selection-end="19541" vertical-scroll-proportion="0.5959781">
               <folding />
             </state>
           </provider>
@@ -1986,14 +1985,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="550" column="56" selection-start="18914" selection-end="18914" vertical-scroll-proportion="0.20109689">
+        <state line="568" column="83" selection-start="19541" selection-end="19541" vertical-scroll-proportion="0.5959781">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="767" column="17" selection-start="27834" selection-end="27834" vertical-scroll-proportion="0.5521024">
+        <state line="765" column="30" selection-start="27827" selection-end="27827" vertical-scroll-proportion="0.5082267">
           <folding />
         </state>
       </provider>
