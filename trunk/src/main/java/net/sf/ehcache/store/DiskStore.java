@@ -84,7 +84,7 @@ public class DiskStore implements Store {
 
     private Map diskElements = Collections.synchronizedMap(new HashMap());
     private List freeSpace = Collections.synchronizedList(new ArrayList());
-    private Map spool = Collections.synchronizedMap(new HashMap());
+    private Map spool = new HashMap();
     private Object spoolLock = new Object();
 
     private Thread spoolAndExpiryThread;
@@ -555,13 +555,19 @@ public class DiskStore implements Store {
      * @return false if there are elements waiting, otherwise true
      */
     public final boolean isSpoolEmpty() {
-        return (!active || spool.size() == 0);
+        if (!active) {
+            return false;
+        } else {
+            synchronized (spoolLock) {
+                return (spool.size() == 0);
+            }
+        }
     }
 
     /**
      * both flushing and expiring contend for the same lock on diskElement, so
      * might as well do them sequentially in the one thread.
-     *
+     * <p/>
      * This thread is protected from Throwables by only calling methods that guard
      * against these.
      */

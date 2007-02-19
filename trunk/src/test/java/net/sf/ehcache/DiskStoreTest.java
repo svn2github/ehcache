@@ -759,8 +759,10 @@ public class DiskStoreTest extends AbstractCacheTest {
         Thread.sleep(50);
         while (true) {
             if (diskStore.isSpoolEmpty()) {
-                //Do not return until spool is empty
-                return;
+                Thread.sleep(20);
+                if (diskStore.isSpoolEmpty()) {
+                    return;
+                } 
             } else {
                 //Wait for 100ms before checking again
                 Thread.sleep(20);
