@@ -765,7 +765,6 @@ public class DiskStoreTest extends AbstractCacheTest {
                 Thread.sleep(10);
             }
         }
-        Thread.sleep(400);
     }
 
 //    /**

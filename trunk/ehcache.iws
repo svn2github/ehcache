@@ -344,7 +344,7 @@
       <file leaf-file-name="DiskStoreTest.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="35" column="13" selection-start="1168" selection-end="1168" vertical-scroll-proportion="0.33272395">
+            <state line="767" column="17" selection-start="27834" selection-end="27834" vertical-scroll-proportion="0.5521024">
               <folding />
             </state>
           </provider>
@@ -353,7 +353,7 @@
       <file leaf-file-name="DiskStore.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="556" column="16" selection-start="19090" selection-end="19090" vertical-scroll-proportion="0.33272395">
+            <state line="550" column="56" selection-start="18914" selection-end="18914" vertical-scroll-proportion="0.20109689">
               <folding />
             </state>
           </provider>
@@ -1986,14 +1986,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/net/sf/ehcache/store/DiskStore.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="556" column="16" selection-start="19090" selection-end="19090" vertical-scroll-proportion="0.33272395">
+        <state line="550" column="56" selection-start="18914" selection-end="18914" vertical-scroll-proportion="0.20109689">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/net/sf/ehcache/DiskStoreTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="13" selection-start="1168" selection-end="1168" vertical-scroll-proportion="0.33272395">
+        <state line="767" column="17" selection-start="27834" selection-end="27834" vertical-scroll-proportion="0.5521024">
           <folding />
         </state>
       </provider>
