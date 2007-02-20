@@ -1,0 +1,16 @@
+#v=1
+toc=1
+index=1
+lang=en
+paper=a4
+latex.documentclass=book
+# Full list of latex packages /sw/share/texmf-dist/tex/latex
+#latex.usepackage.5=a4wide
+#latex.usepackage.5=textfit
+#latex.usepackage.6=fancyvrb
+#latex.pagestyle=textfit
+html.css=/css/book.css
+html.paging=0
+.gif.eps=giftopnm %F | pnmtops --noturn -scale=0.45 -rle > %G
+.png.eps=pngtopnm -mix -background=rgb:ff/ff/ff %F | pnmtops --noturn -scale=0.45 -rle > %G
+.fig.jpg=fig2dev -L jpeg %F %G
