@@ -758,7 +758,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * Waits for all spooled elements to be written to disk.
      */
     private static void waitShorter() throws InterruptedException {
-        Thread.sleep((long) (200 + 100 * StopWatch.getSpeedAdjustmentFactor()));
+        Thread.sleep((long) (300 + 100 * StopWatch.getSpeedAdjustmentFactor()));
     }
 
 
@@ -766,7 +766,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * Waits for all spooled elements to be written to disk.
      */
     private static void waitLonger() throws InterruptedException {
-        Thread.sleep((long) (200 + 500 * StopWatch.getSpeedAdjustmentFactor()));
+        Thread.sleep((long) (300 + 500 * StopWatch.getSpeedAdjustmentFactor()));
     }
 
 
@@ -978,7 +978,7 @@ public class DiskStoreTest extends AbstractCacheTest {
             LOG.info("Elapsed time: " + elapsed / 1000);
             fail();
         } catch (OutOfMemoryError e) {
-            LOG.info("Failed at " + index);
+            LOG.info("All heap consumed after " + index + " entries created.");
             assertTrue(index.intValue() >= 4099000);
         }
     }
