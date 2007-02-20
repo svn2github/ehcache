@@ -655,6 +655,7 @@
 
         <property name="extension" value="pdf"/>
         <antcall target="create_book" inheritall="true"/>
+    	<mkdir dir="${build.dir}/site"/>
         <copy file="${build.dir}/book/EhcacheUserGuide.pdf" todir="${build.dir}/site"/>
     </target>
 

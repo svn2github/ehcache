@@ -832,7 +832,7 @@
                 See the tests for examples of how to use this package.
                 <br/><br/>
                 This package requires Doug Lea's concurrency library. A copy is provided in the tools directory
-                when you check out the project by cvs. Or, you can get it from http://gee.cs.oswego.edu/dl/cpj/
+                when you check out the project by SVN. Or, you can get it from http://gee.cs.oswego.edu/dl/cpj/
                 Note that if you are not using the constructs package, you do not need the concurrency library.
                 ]]>
             </action>

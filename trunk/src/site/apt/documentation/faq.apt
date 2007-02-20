@@ -113,8 +113,8 @@ time.
 * Where is the source code? The source code is distributed in the root directory of the download.
 
  It is called ehcache-x.x.zip. It is also available from SourceForge
-{{{http://cvs.sourceforge.net/viewcvs.py/ehcache/}online}} or
-through {{{http://sourceforge.net/cvs/?group_id=93232}cvs}}.
+{{{http://ehcache.svn.sourceforge.net/viewvc/ehcache/}online}} or
+through {{{http://sourceforge.net/svn/?group_id=93232}SVN}}.
 
 * How do you get statistics on an Element without affecting them?
 

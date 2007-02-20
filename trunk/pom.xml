@@ -360,7 +360,7 @@
                 <executions>
                     <execution>
                         <id>rmic</id>
-                        <phase>validate</phase>
+                        <phase>compile</phase>
                         <configuration>
                             <tasks>
                                 <rmic base="${project.build.outputDirectory}"
