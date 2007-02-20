@@ -352,12 +352,9 @@ public class DiskStoreTest extends AbstractCacheTest {
         byte[] data = new byte[1024];
         for (int i = 0; i < 100; i++) {
             diskStore.put(new Element("key" + (i + 100), data));
-            waitShorter();
-            int predictedSize = ELEMENT_ON_DISK_SIZE * (i + 1);
-            long actualSize = diskStore.getDataFileSize();
-            assertEquals("On the " + i + " iteration: ", predictedSize, actualSize);
         }
-
+        waitShorter();
+        assertEquals(ELEMENT_ON_DISK_SIZE * 100, diskStore.getDataFileSize());
         assertEquals(100, diskStore.getSize());
         manager.removeCache(cacheName);
 
