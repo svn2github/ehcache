@@ -148,7 +148,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
         assertEquals(new Long(0), mBeanServer.getAttribute(name, "ObjectCount"));
         cache.put(new Element("1", "value"));
         cache.get("1");
-        Thread.sleep(5);
+        Thread.sleep(20);
         assertEquals(new Long(1), mBeanServer.getAttribute(name, "ObjectCount"));
 
 //        Thread.sleep(1000000);

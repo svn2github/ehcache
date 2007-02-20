@@ -71,7 +71,7 @@ public class RMICacheManagerPeerTest extends TestCase {
      * Shutdown the cache
      */
     protected void tearDown() throws InterruptedException {
-        Thread.sleep(10);
+        Thread.sleep(20);
         if (peerListener != null) {
             peerListener.dispose();
         }

@@ -137,7 +137,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         //manager6 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-jndi6.xml");
 
         //allow cluster to be established
-        Thread.sleep(1010);
+        Thread.sleep(1020);
 
         cache1 = manager1.getCache(cacheName);
         cache1.removeAll();

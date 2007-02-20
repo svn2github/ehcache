@@ -174,7 +174,7 @@ public class CacheListenerTest extends AbstractCacheTest {
         cache.put(key, value);
 
         //expire
-        Thread.sleep(1001);
+        Thread.sleep(1020);
 
         //force expiry
         Object expired = cache.get(key);

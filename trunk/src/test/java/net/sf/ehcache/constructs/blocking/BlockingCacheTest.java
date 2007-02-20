@@ -148,7 +148,7 @@ public class BlockingCacheTest extends CacheTest {
 
         // Put the entry
         blockingCache.put(element);
-        Thread.sleep(10);
+        Thread.sleep(30);
         assertEquals(1, threadResults.size());
         assertEquals(element, threadResults.get(0));
 

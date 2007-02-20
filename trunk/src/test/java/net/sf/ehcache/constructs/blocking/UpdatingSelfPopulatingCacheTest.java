@@ -83,7 +83,7 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
             selfPopulatingCache.get("key");
             fail();
         } catch (final Exception e) {
-            Thread.sleep(1);
+            Thread.sleep(20);
 
             // Check the error
             assertEquals("Could not fetch object for cache entry \"key\".", e.getMessage());

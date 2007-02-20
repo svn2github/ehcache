@@ -110,7 +110,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
             selfPopulatingCache.get("key");
             fail();
         } catch (final Exception e) {
-            Thread.sleep(1);
+            Thread.sleep(20);
             // Check the error
             assertEquals("Could not fetch object for cache entry \"key\".", e.getMessage());
         }
@@ -199,7 +199,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
         assertEquals(2, selfPopulatingCache.getSize());
         selfPopulatingCache.refresh();
         assertEquals(2, selfPopulatingCache.getSize());
-        Thread.sleep(2001);
+        Thread.sleep(2020);
 
         //Will be two, because counting expired elements
         assertEquals(2, selfPopulatingCache.getSize());
@@ -262,7 +262,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
             // don't happen simultaneously - this is key to
             // reproducing the bug
             try {
-                Thread.sleep(20);
+                Thread.sleep(40);
             } catch (InterruptedException ignored) {
                 //
             }

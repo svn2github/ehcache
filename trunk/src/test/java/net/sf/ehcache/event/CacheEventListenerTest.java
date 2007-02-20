@@ -261,7 +261,7 @@ public class CacheEventListenerTest extends TestCase {
         cache.put(element);
 
         //expire
-        Thread.sleep(1001);
+        Thread.sleep(1020);
 
         //force expiry
         Element expiredElement = cache.get(key);
@@ -542,7 +542,7 @@ public class CacheEventListenerTest extends TestCase {
             cache.put(new Element(i + "", new Date()));
         }
 
-        Thread.sleep(1001);
+        Thread.sleep(1020);
         cache.put(new Element(11 + "", new Date()));
 
         List notifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
@@ -589,7 +589,7 @@ public class CacheEventListenerTest extends TestCase {
             cache.put(new Element(i + "", new Date()));
         }
 
-        Thread.sleep(1001);
+        Thread.sleep(1020);
         cache.put(new Element(11 + "", new Date()));
 
         List notifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
@@ -617,7 +617,7 @@ public class CacheEventListenerTest extends TestCase {
 
         //Check expiry from memory store in 1 second
         cache.put(element);
-        Thread.sleep(1001);
+        Thread.sleep(1020);
 
         //Trigger expiry
         cache.get(key);
@@ -641,7 +641,7 @@ public class CacheEventListenerTest extends TestCase {
         }
 
         //Wait for expiry
-        Thread.sleep(1001);
+        Thread.sleep(1020);
 
         //Trigger expiry
         for (int i = 0; i < 20; i++) {
@@ -670,7 +670,7 @@ public class CacheEventListenerTest extends TestCase {
         }
 
         //Wait for expiry and expiry thread
-        Thread.sleep(2100);
+        Thread.sleep(2120);
 
         List notifications = CountingCacheEventListener.getCacheElementsExpired(cache);
         for (int i = 0; i < notifications.size(); i++) {

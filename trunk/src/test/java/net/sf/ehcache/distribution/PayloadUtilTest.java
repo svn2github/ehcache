@@ -84,7 +84,7 @@ public class PayloadUtilTest extends TestCase {
             byte[] compressed = PayloadUtil.gzip(payload.getBytes());
             //make sure we don't forget to close the stream
             assertTrue(compressed.length > 300);
-            Thread.sleep(10);
+            Thread.sleep(20);
         }
         int hashCode = payload.hashCode();
         StopWatch stopWatch = new StopWatch();
@@ -114,7 +114,7 @@ public class PayloadUtilTest extends TestCase {
             byte[] uncompressed = PayloadUtil.ungzip(compressed);
             uncompressed.hashCode();
             assertEquals(original.length, uncompressed.length);
-            Thread.sleep(10);
+            Thread.sleep(20);
         }
         StopWatch stopWatch = new StopWatch();
         for (int i = 0; i < 10000; i++) {

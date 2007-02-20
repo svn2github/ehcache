@@ -127,7 +127,7 @@ public class ManualRMICacheReplicatorTest extends AbstractCacheTest {
         //manager6 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed-jndi6.xml");
 
         //Give things a breather
-        Thread.sleep(1010);
+        Thread.sleep(1020);
 
         cache1 = manager1.getCache(cacheName);
         cache1.removeAll();

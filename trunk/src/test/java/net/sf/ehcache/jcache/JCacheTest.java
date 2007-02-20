@@ -195,7 +195,7 @@ public class JCacheTest extends AbstractCacheTest {
         assertNotNull(cache.get("key2"));
 
         //Test time to live.
-        Thread.sleep(5001);
+        Thread.sleep(5020);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
     }
@@ -254,14 +254,14 @@ public class JCacheTest extends AbstractCacheTest {
         cache.evict();
         assertFalse(cache.isEmpty());
 
-        Thread.sleep(1010);
+        Thread.sleep(1020);
         cache.evict();
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
 
         cache.put("key1", "value1");
         cache.put("key2", "value1");
-        Thread.sleep(1010);
+        Thread.sleep(1020);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
 
@@ -504,15 +504,15 @@ public class JCacheTest extends AbstractCacheTest {
         //Test time to live
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
-        Thread.sleep(1001);
+        Thread.sleep(1020);
         //Test time to live
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
-        Thread.sleep(1001);
+        Thread.sleep(1020);
         //Test time to live
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
-        Thread.sleep(1001);
+        Thread.sleep(1020);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
     }
@@ -534,15 +534,15 @@ public class JCacheTest extends AbstractCacheTest {
         //Test time to live
         assertNotNull(cache.peek("key1"));
         assertNotNull(cache.peek("key2"));
-        Thread.sleep(1001);
+        Thread.sleep(1020);
         //Test time to live
         assertNotNull(cache.peek("key1"));
         assertNotNull(cache.peek("key2"));
-        Thread.sleep(1001);
+        Thread.sleep(1020);
         //Test time to live
         assertNotNull(cache.peek("key1"));
         assertNotNull(cache.peek("key2"));
-        Thread.sleep(1001);
+        Thread.sleep(1020);
         assertNull(cache.peek("key1"));
         assertNull(cache.peek("key2"));
     }
@@ -581,12 +581,12 @@ public class JCacheTest extends AbstractCacheTest {
         assertNotNull(cache.get("key2"));
 
         //Check that we did not idle out
-        Thread.sleep(2010);
+        Thread.sleep(2020);
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
 
         //Check that we did not expire out
-        Thread.sleep(3010);
+        Thread.sleep(3020);
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
     }
@@ -606,18 +606,18 @@ public class JCacheTest extends AbstractCacheTest {
         //Test time to idle
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
-        Thread.sleep(2010);
+        Thread.sleep(2020);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
 
         //Test effect of get
         cache.put("key1", "value1");
         cache.put("key2", "value1");
-        Thread.sleep(1010);
+        Thread.sleep(1020);
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
 
-        Thread.sleep(2010);
+        Thread.sleep(2020);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
     }
@@ -765,7 +765,7 @@ public class JCacheTest extends AbstractCacheTest {
         assertEquals(2, cache.getCacheStatistics().getObjectCount());
         String keyFromDisk = (String) cache.getCacheEntry(key1).getKey();
         assertTrue(key1.equals(keyFromDisk));
-        Thread.sleep(1010);
+        Thread.sleep(1020);
         assertEquals(2, cache.keySet().size());
         //getKeysWithExpiryCheck does check and gives the correct answer of 0
         Ehcache ehcache = ((JCache) cache).getBackingCache();
@@ -852,7 +852,7 @@ public class JCacheTest extends AbstractCacheTest {
         cache.put("key2", "value1");
 
         //Let the idle expire
-        Thread.sleep(1010);
+        Thread.sleep(1020);
         assertEquals(null, cache.get("key1"));
         assertEquals(null, cache.get("key2"));
 

@@ -65,7 +65,7 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
         assertEquals(0, statistics.getCacheMisses());
 
         //Let the idle expire
-        Thread.sleep(5010);
+        Thread.sleep(5020);
 
         //key 1 should now be expired
         cache.get("key1");
