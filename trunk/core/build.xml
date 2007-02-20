@@ -688,7 +688,7 @@
         <attribute name="extension" default="NOT SET"/>
         <element name="some-tasks" optional="yes"/>
         <sequential>
-            <copy file="src/site/apt/.aptconvert" todir="${user.home}"/>            
+            <copy file="src/site/apt/.aptconvert" todir="${env.HOME}"/>            
             <exec executable="aptconvert" newenvironment="false" dir="${build.dir}/book"
                   spawn="false">
                 <arg value="EhcacheUserGuide.@{extension}"/>
