@@ -758,7 +758,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * Waits for all spooled elements to be written to disk.
      */
     private static void waitShorter() throws InterruptedException {
-        Thread.sleep((long) (200 + 50 * StopWatch.getSpeedAdjustmentFactor()));
+        Thread.sleep((long) (200 + 100 * StopWatch.getSpeedAdjustmentFactor()));
     }
 
 
