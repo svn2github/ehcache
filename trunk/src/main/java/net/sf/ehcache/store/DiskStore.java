@@ -17,6 +17,14 @@
 
 package net.sf.ehcache.store;
 
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
+import net.sf.ehcache.event.RegisteredEventListeners;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -37,15 +45,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.Status;
-import net.sf.ehcache.event.RegisteredEventListeners;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * A disk store implementation.
@@ -546,21 +545,6 @@ public class DiskStore implements Store {
         if (persistent) {
             flushSpool();
             writeIndex();
-        }
-    }
-
-    /**
-     * Whether there are any elements waiting to be spooled to disk.
-     *
-     * @return false if there are elements waiting, otherwise true
-     */
-    public final boolean isSpoolEmpty() {
-        if (!active) {
-            return false;
-        } else {
-            synchronized (spoolLock) {
-                return (spool.size() == 0);
-            }
         }
     }
 
