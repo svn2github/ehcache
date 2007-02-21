@@ -262,7 +262,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
             // don't happen simultaneously - this is key to
             // reproducing the bug
             try {
-                Thread.sleep(40);
+                Thread.sleep(20);
             } catch (InterruptedException ignored) {
                 //
             }
