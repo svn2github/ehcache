@@ -1580,7 +1580,7 @@ public class CacheTest extends AbstractCacheTest {
                     long end = stopWatch.getElapsedTime();
                     long elapsed = end - start;
                     //remove all is slower
-                    assertTrue("RemoveAll time outside of allowed range: " + elapsed, elapsed < (maxTime * 2));
+                    assertTrue("RemoveAll time outside of allowed range: " + elapsed, elapsed < (maxTime * 3));
                 }
             };
             executables.add(executable);
