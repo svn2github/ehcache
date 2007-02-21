@@ -239,7 +239,7 @@ public class BlockingCacheTest extends CacheTest {
     public void testThrashBlockingCacheReasonableTimeout() throws Exception {
         Ehcache cache = manager.getCache("sampleCache1");
         blockingCache = new BlockingCache(cache);
-        blockingCache.setTimeoutMillis(400);
+        blockingCache.setTimeoutMillis((int) (400 / StopWatch.getSpeedAdjustmentFactor()));
         long duration = thrashCache(blockingCache, 50, 400L, 1000L);
         LOG.debug("Thrash Duration:" + duration);
     }

@@ -1271,7 +1271,7 @@ public class JCacheTest extends AbstractCacheTest {
         jcache.put(new Integer(1), "");
 
         jcache.loadAll(keys);
-        Thread.sleep(3000);
+        Thread.sleep((long) (3000 / StopWatch.getSpeedAdjustmentFactor()));
 
         assertFalse(executorService.isShutdown());
 
