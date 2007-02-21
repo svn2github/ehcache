@@ -212,7 +212,7 @@ public class JCacheEntryTest extends AbstractCacheTest {
         assertEquals(true, retrievedEntry.isValid());
 
 
-        Thread.sleep(1001);
+        Thread.sleep(1020);
         assertEquals(false, retrievedEntry.isValid());
 
     }
