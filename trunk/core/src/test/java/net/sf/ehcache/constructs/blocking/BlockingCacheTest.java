@@ -205,11 +205,12 @@ public class BlockingCacheTest extends CacheTest {
     /**
      * Thrashes a BlockingCache and looks for liveness problems
      * Note. These timings are without logging. Turn logging off to run this test.
+     * todo parabuild needed increment
      */
     public void testThrashBlockingCache() throws Exception {
         Ehcache cache = manager.getCache("sampleCache1");
         blockingCache = new BlockingCache(cache);
-        long duration = thrashCache(blockingCache, 50, 400L, 1000L);
+        long duration = thrashCache(blockingCache, 50, 500L, 1000L);
         LOG.debug("Thrash Duration:" + duration);
     }
 
@@ -239,7 +240,7 @@ public class BlockingCacheTest extends CacheTest {
     public void testThrashBlockingCacheReasonableTimeout() throws Exception {
         Ehcache cache = manager.getCache("sampleCache1");
         blockingCache = new BlockingCache(cache);
-        blockingCache.setTimeoutMillis((int) (400 / StopWatch.getSpeedAdjustmentFactor()));
+        blockingCache.setTimeoutMillis((int) (400 * StopWatch.getSpeedAdjustmentFactor()));
         long duration = thrashCache(blockingCache, 50, 400L, 1000L);
         LOG.debug("Thrash Duration:" + duration);
     }

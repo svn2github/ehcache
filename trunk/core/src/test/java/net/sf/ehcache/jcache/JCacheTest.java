@@ -328,7 +328,7 @@ public class JCacheTest extends AbstractCacheTest {
         }
         jcache.loadAll(keys);
         jcache.put(new Integer(1), new Date());
-        Thread.sleep(3000);
+        Thread.sleep((long) (3000 * StopWatch.getSpeedAdjustmentFactor()));
         assertEquals(1000, jcache.size());
 
         Collection values = jcache.values();
@@ -1073,7 +1073,7 @@ public class JCacheTest extends AbstractCacheTest {
     public void testReadWriteThreads() throws Exception {
 
         final int size = 9000;
-        final int maxTime = 330;
+        final int maxTime = (int) (330 * StopWatch.getSpeedAdjustmentFactor());
         final Cache cache = getTest1Cache();
 
         long start = System.currentTimeMillis();
@@ -1271,12 +1271,13 @@ public class JCacheTest extends AbstractCacheTest {
         jcache.put(new Integer(1), "");
 
         jcache.loadAll(keys);
-        Thread.sleep((long) (3000 / StopWatch.getSpeedAdjustmentFactor()));
+        Thread.sleep((long) (3000 * StopWatch.getSpeedAdjustmentFactor()));
 
         assertFalse(executorService.isShutdown());
 
         assertEquals(1000, jcache.size());
         assertEquals(999, countingCacheLoader.getLoadAllCounter());
+        
     }
 
 
