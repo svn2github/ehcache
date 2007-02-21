@@ -1192,14 +1192,14 @@ public class CacheTest extends AbstractCacheTest {
         Element element = new Element(key, "value");
         element.setTimeToLive(2);
         cache.putQuiet(element);
-        Thread.sleep(1010);
+        Thread.sleep(1020);
         assertNotNull(cache.get(key));
         assertSame(element, cache.get(key));
 
 
         Element element2 = new Element(key, "value");
         cache.putQuiet(element2);
-        Thread.sleep(1010);
+        Thread.sleep(1020);
         assertNull(cache.get(key));
 
         Element element3 = new Element(key, "value");
@@ -1510,7 +1510,7 @@ public class CacheTest extends AbstractCacheTest {
     public void testReadWriteThreads() throws Exception {
 
         final int size = 10000;
-        final int maxTime = 330;
+        final int maxTime = 400;
         final Cache cache = new Cache("test3cache", size, false, true, 30, 30);
         manager.addCache(cache);
 
@@ -1580,7 +1580,7 @@ public class CacheTest extends AbstractCacheTest {
                     long end = stopWatch.getElapsedTime();
                     long elapsed = end - start;
                     //remove all is slower
-                    assertTrue("RemoveAll time outside of allowed range: " + elapsed, elapsed < (maxTime + 200));
+                    assertTrue("RemoveAll time outside of allowed range: " + elapsed, elapsed < (maxTime * 2));
                 }
             };
             executables.add(executable);
