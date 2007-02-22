@@ -476,10 +476,12 @@
     <!-- Start up the test instance of the Orion server -->
     <target name="start-orion" description="Starts the Orion server">
         <echo>Starting Orion on ${os.name}</echo>
-        <exec dir="${build.orion.dir}" spawn="true" os="Mac OS X, Linux, AIX, Solaris" executable="sh">
+        <exec dir="${build.orion.dir}" spawn="true" os="Mac OS X, Linux, AIX, Solaris"
+              executable="sh">
             <arg line="orion_sh_and.bat"/>
         </exec>
-        <exec dir="${build.orion.dir}" spawn="true" os="Windows XP, Windows 2000" executable="cmd">
+        <exec dir="${build.orion.dir}" spawn="true" os="Windows XP, Windows 2000"
+              executable="cmd">
             <arg value="/c"/>
             <arg value="orion_sh_and.bat"/>
         </exec>
@@ -532,13 +534,10 @@
             <fileset dir="${test.config.dir}/default-web-app/WEB-INF/2_3"/>
         </copy>
 
-        <condition property="unix">
-            <and>
-                <os family="unix"/>
+        <condition property="not_mac">
                 <not>
                     <os name="Mac OS X"/>
                 </not>
-            </and>
         </condition>
         <antcall target="copy-tools-lib"/>
     </target>
@@ -572,15 +571,6 @@
         <copy todir="${build.tomcat.defaultwebapp.dir}/WEB-INF">
             <fileset dir="${test.config.dir}/default-web-app/WEB-INF/2_4/"/>
         </copy>
-
-        <condition property="unix">
-            <and>
-                <os family="unix"/>
-                <not>
-                    <os name="Mac OS X"/>
-                </not>
-            </and>
-        </condition>
     </target>
 
 
@@ -622,10 +612,12 @@
     <!-- Start up the test instance of the Tomcat server -->
     <target name="start-tomcat" description="Starts the Orion server">
         <echo>Starting Tomcat on ${os.name}</echo>
-        <exec dir="${build.tomcat.dir}/bin" spawn="true" os="Mac OS X, Linux, AIX, Solaris" executable="sh">
+        <exec dir="${build.tomcat.dir}/bin" spawn="true" os="Mac OS X, Linux, AIX, Solaris"
+              executable="sh">
             <arg line="tomcat_sh_and.bat"/>
         </exec>
-        <exec dir="${build.tomcat.dir}/bin" spawn="true" os="Windows XP, Windows 2000" executable="cmd">
+        <exec dir="${build.tomcat.dir}/bin" spawn="true" os="Windows XP, Windows 2000"
+              executable="cmd">
             <arg value="/c"/>
             <arg value="tomcat_sh_and.bat"/>
         </exec>
@@ -644,8 +636,9 @@
         <echo message="...Stopped"/>
     </target>
 
-    <target name="copy-tools-lib" if="unix">
-        <copy todir="${build.orion.dir}" file="${java.home}/../lib/tools.jar"/>
+    <target name="copy-tools-lib" if="not_mac">
+        <!--<copy todir="${build.orion.dir}" file="${java.home}/../lib/tools.jar"/>-->
+        <copy todir="${build.orion.dir}" file="${java.home}/lib/tools.jar"/>
     </target>
 
 
