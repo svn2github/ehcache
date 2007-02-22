@@ -19,6 +19,7 @@ package net.sf.ehcache.constructs.asynchronous;
 import junit.framework.TestCase;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.StopWatch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -101,7 +102,7 @@ public class AsynchronousCommandExecutorTest extends TestCase {
     }
 
     private void waitForProcessing() throws InterruptedException {
-        Thread.sleep(1900);
+        Thread.sleep((long) (1700 + (200 * StopWatch.getSpeedAdjustmentFactor())));
     }
 
     private void assertCommandsInCache(int number) throws CacheException {

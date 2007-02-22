@@ -187,10 +187,11 @@
 
         <echo message="net.sf.ehcache.speedAdjustmentFactor ${net.sf.ehcache.speedAdjustmentFactor}"/>
         <junit printSummary="withOutAndErr" failureproperty="tests.failed" fork="true"
-        forkmode="perTest" dir="${basedir}" showoutput="true" newenvironment="false">
+               forkmode="perTest" dir="${basedir}" showoutput="true" newenvironment="false">
             <jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog"/>
             <sysproperty key="java.io.tmpdir" value="${build.tmp.dir}"/>
-            <sysproperty key="net.sf.ehcache.speedAdjustmentFactor" value="${net.sf.ehcache.speedAdjustmentFactor}"/>
+            <sysproperty key="net.sf.ehcache.speedAdjustmentFactor"
+                         value="${net.sf.ehcache.speedAdjustmentFactor}"/>
             <classpath>
                 <path location="${test.classes.dir}"/>
                 <path location="${build.classes.dir}"/>
@@ -220,11 +221,13 @@
             <isset property="test.case"/>
         </condition>
 
-        <junit printSummary="withOutAndErr" failureproperty="tests.failed" fork="true" forkmode="perTest" dir="${basedir}" showoutput="true">
+        <junit printSummary="withOutAndErr" failureproperty="tests.failed" fork="true"
+               forkmode="perTest" dir="${basedir}" showoutput="true">
             <jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog"/>
             <!--<jvmarg value="-Xmx256m"/>-->
             <sysproperty key="java.io.tmpdir" value="${build.tmp.dir}"/>
-            <sysproperty key="net.sf.ehcache.speedAdjustmentFactor" value="${net.sf.ehcache.speedAdjustmentFactor}"/>
+            <sysproperty key="net.sf.ehcache.speedAdjustmentFactor"
+                         value="${net.sf.ehcache.speedAdjustmentFactor}"/>
 
             <classpath>
                 <path location="${test.classes.dir}"/>
@@ -255,11 +258,13 @@
             <isset property="test.case"/>
         </condition>
 
-        <junit printSummary="withOutAndErr" failureproperty="tests.failed" fork="true" forkmode="perTest" dir="${basedir}" showoutput="true">
+        <junit printSummary="withOutAndErr" failureproperty="tests.failed" fork="true"
+               forkmode="perTest" dir="${basedir}" showoutput="true">
             <jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog"/>
             <!--<jvmarg value="-Xmx256m"/>-->
             <sysproperty key="java.io.tmpdir" value="${build.tmp.dir}"/>
-            <sysproperty key="net.sf.ehcache.speedAdjustmentFactor" value="${net.sf.ehcache.speedAdjustmentFactor}"/>
+            <sysproperty key="net.sf.ehcache.speedAdjustmentFactor"
+                         value="${net.sf.ehcache.speedAdjustmentFactor}"/>
             <classpath>
                 <path location="${test.classes.dir}"/>
                 <path location="${build.classes.dir}"/>
@@ -471,8 +476,12 @@
     <!-- Start up the test instance of the Orion server -->
     <target name="start-orion" description="Starts the Orion server">
         <echo>Starting Orion on ${os.name}</echo>
-        <exec dir="${build.orion.dir}" spawn="true" os="Mac OS X, Linux" executable="sh">
+        <exec dir="${build.orion.dir}" spawn="true" os="Mac OS X, Linux, AIX, Solaris" executable="sh">
             <arg line="orion_sh_and.bat"/>
+        </exec>
+        <exec dir="${build.orion.dir}" spawn="true" os="Windows XP, Windows 2000" executable="cmd">
+            <arg value="/c"/>
+            <arg value="orion_sh_and.bat"/>
         </exec>
         <waitfor maxwait="10000" checkevery="1500">
             <http url="http://localhost:9080"/>
@@ -613,8 +622,12 @@
     <!-- Start up the test instance of the Tomcat server -->
     <target name="start-tomcat" description="Starts the Orion server">
         <echo>Starting Tomcat on ${os.name}</echo>
-        <exec dir="${build.tomcat.dir}/bin" spawn="true" os="Mac OS X, Linux" executable="sh">
+        <exec dir="${build.tomcat.dir}/bin" spawn="true" os="Mac OS X, Linux, AIX, Solaris" executable="sh">
             <arg line="tomcat_sh_and.bat"/>
+        </exec>
+        <exec dir="${build.tomcat.dir}/bin" spawn="true" os="Windows XP, Windows 2000" executable="cmd">
+            <arg value="/c"/>
+            <arg value="tomcat_sh_and.bat"/>
         </exec>
         <waitfor maxwait="10000" checkevery="1500">
             <http url="http://localhost:9080"/>
@@ -655,7 +668,7 @@
 
         <property name="extension" value="pdf"/>
         <antcall target="create_book" inheritall="true"/>
-    	<mkdir dir="${build.dir}/site"/>
+        <mkdir dir="${build.dir}/site"/>
         <copy file="${build.dir}/book/EhcacheUserGuide.pdf" todir="${build.dir}/site"/>
     </target>
 
@@ -688,7 +701,7 @@
         <attribute name="extension" default="NOT SET"/>
         <element name="some-tasks" optional="yes"/>
         <sequential>
-            <copy file="src/site/apt/.aptconvert" todir="${env.HOME}"/>            
+            <copy file="src/site/apt/.aptconvert" todir="${env.HOME}"/>
             <exec executable="aptconvert" newenvironment="false" dir="${build.dir}/book"
                   spawn="false">
                 <arg value="EhcacheUserGuide.@{extension}"/>
@@ -720,11 +733,12 @@
         </sequential>
     </macrodef>
 
-    <target name="prepare-book-resources" depends="checkstyle-check" unless="checkstyle.up-to-date" >
+    <target name="prepare-book-resources" depends="checkstyle-check"
+            unless="checkstyle.up-to-date">
         <antcall target="compile"/>
         <antcall target="ydoc"/>
     </target>
-    
+
     <!-- Produce the ydocs images for the book and singlepage guide.  -->
     <target name="ydoc" description="Creates the javadocs">
 
