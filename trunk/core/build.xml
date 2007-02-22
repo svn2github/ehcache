@@ -637,8 +637,7 @@
     </target>
 
     <target name="copy-tools-lib" if="not_mac">
-        <!--<copy todir="${build.orion.dir}" file="${java.home}/../lib/tools.jar"/>-->
-        <copy todir="${build.orion.dir}" file="${java.home}/lib/tools.jar"/>
+        <copy todir="${build.orion.dir}" file="${java.home}/../lib/tools.jar"/>
     </target>
 
 
