@@ -521,10 +521,8 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         org.hibernate.cache.Cache cache = provider.buildCache("sampleCache1", null);
 
         net.sf.ehcache.hibernate.SingletonEhCacheProvider provider2 = new net.sf.ehcache.hibernate.SingletonEhCacheProvider();
-        provider.start(null);
+        provider2.start(null);
         org.hibernate.cache.Cache cache2 = provider.buildCache("sampleCache1", null);
-
-//        assertTrue(cache == cache2);
 
         //Check created and name
         assertNotNull(cache.getRegionName());
@@ -535,10 +533,10 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         Object value = new Object();
 
         cache.put(key, value);
-        assertEquals(value, cache.get(key));
+        assertEquals(value, cache2.get(key));
         assertEquals(value, cache.read(key));
         cache2.put(key, value);
-        assertEquals(value, cache2.get(key));
+        assertEquals(value, cache.get(key));
         assertEquals(value, cache2.read(key));
 
         cache.remove(key);

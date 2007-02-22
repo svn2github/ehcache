@@ -1073,7 +1073,7 @@ public class JCacheTest extends AbstractCacheTest {
     public void testReadWriteThreads() throws Exception {
 
         final int size = 9000;
-        final int maxTime = (int) (330 * StopWatch.getSpeedAdjustmentFactor());
+        final int maxTime = (int) (400 * StopWatch.getSpeedAdjustmentFactor());
         final Cache cache = getTest1Cache();
 
         long start = System.currentTimeMillis();

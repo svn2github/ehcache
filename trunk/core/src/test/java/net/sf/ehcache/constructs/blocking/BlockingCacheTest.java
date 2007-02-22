@@ -241,7 +241,8 @@ public class BlockingCacheTest extends CacheTest {
         Ehcache cache = manager.getCache("sampleCache1");
         blockingCache = new BlockingCache(cache);
         blockingCache.setTimeoutMillis((int) (400 * StopWatch.getSpeedAdjustmentFactor()));
-        long duration = thrashCache(blockingCache, 50, 400L, 1000L);
+        //todo linux builds
+        long duration = thrashCache(blockingCache, 50, 400L, (long) (1000L * StopWatch.getSpeedAdjustmentFactor()));
         LOG.debug("Thrash Duration:" + duration);
     }
 
