@@ -41,6 +41,15 @@ public class EventMessageTest extends TestCase {
 
     private static final Log LOG = LogFactory.getLog(EventMessageTest.class.getName());
 
+
+    /**
+     * Force the VM to grow to its full size. This stops SoftReferences from being reclaimed in favour of
+     * Heap growth. Only an issue when a VM is cold.
+     */
+    protected void forceVMGrowth() {
+        byte[] forceVMGrowth = new byte[50000000];
+    }
+
     /**
      * SoftReference behaviour testing.
      */
