@@ -981,7 +981,8 @@ public class DiskStoreTest extends AbstractCacheTest {
             LOG.info("All heap consumed after " + index + " entries created.");
             //todo brought down from 4099000 for 64 bit Linux builds. Pointer size?
             int expectedMax = 4000000;
-            assertTrue("Less than " + expectedMax + " achieved." , index.intValue() >= expectedMax);
+            assertTrue("Achieved " + index.intValue() + " which was less than the expected value of " + expectedMax,
+                    index.intValue() >= expectedMax);
         }
     }
 
