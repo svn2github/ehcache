@@ -30,6 +30,7 @@ import java.io.ObjectInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.AbstractCacheTest;
 
 /**
  * Tests Serialization and SoftReferences in EventMessage
@@ -43,17 +44,10 @@ public class EventMessageTest extends TestCase {
 
 
     /**
-     * Force the VM to grow to its full size. This stops SoftReferences from being reclaimed in favour of
-     * Heap growth. Only an issue when a VM is cold.
-     */
-    protected void forceVMGrowth() {
-        byte[] forceVMGrowth = new byte[50000000];
-    }
-
-    /**
      * SoftReference behaviour testing.
      */
     public void testSoftReferences() {
+        AbstractCacheTest.forceVMGrowth();
         Map map = new HashMap();
         for (int i = 0; i < 100; i++) {
             map.put(new Integer(i), new SoftReference(new byte[1000000]));
@@ -68,7 +62,7 @@ public class EventMessageTest extends TestCase {
                 counter++;
             }
         }
-
+        //todo take higher
         assertTrue("You should get more than " + counter + " out of SoftReferences", counter >= 23);
 
     }

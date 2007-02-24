@@ -76,6 +76,26 @@ public abstract class AbstractCacheTest extends TestCase {
 
 
     /**
+     * Force the VM to grow to its full size. This stops SoftReferences from being reclaimed in favour of
+     * Heap growth. Only an issue when a VM is cold.
+     */
+    static public void forceVMGrowth() {
+        allocateFiftyMegabytes();
+        System.gc();
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            //
+        }
+        System.gc();
+    }
+
+    private static void allocateFiftyMegabytes() {
+        byte[] forceVMGrowth = new byte[50000000];
+    }
+
+
+    /**
      * @param name
      * @throws IOException
      */
