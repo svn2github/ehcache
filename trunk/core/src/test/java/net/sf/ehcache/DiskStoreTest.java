@@ -955,8 +955,6 @@ public class DiskStoreTest extends AbstractCacheTest {
      * hierarchy. In addition, we observe that when a sufficiently large heap is available, the IBM JDK 1.4.0 VM is
      * 1.7% slower on average in 64-bit mode than in 32-bit mode. Copyright © 2005 John Wiley & Sons, Ltd.
      * </pre>
-     * <p/>
-     * <p/>
      * The reason that it is not infinite is because of a small amount of memory used (about 12 bytes) used for
      * the disk store index in this case.
      * <p/>
