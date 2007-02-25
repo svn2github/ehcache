@@ -770,8 +770,6 @@ public class DiskStoreTest extends AbstractCacheTest {
     }
 
 
-
-
     /**
      * Multi-thread read-only test. Will fail on memory constrained VMs
      */
@@ -944,7 +942,20 @@ public class DiskStoreTest extends AbstractCacheTest {
     }
 
     /**
-     * Runs out of memory at 5,099,999 elements with the standard 64MB VM size.
+     * Runs out of memory at 5,099,999 elements with the standard 64MB VM size on 32 bit architectures.
+     * Around 3,099,999 for AMD64. Why? See abstract citation below from
+     * http://www3.interscience.wiley.com/cgi-bin/abstract/111082816/ABSTRACT?CRETRY=1&SRETRY=0
+     * <pre>
+     * By running the PowerPC machine in both 32-bit and 64-bit mode we are able to compare 32-bit and 64-bit VMs.
+     * We conclude that the space an object takes in the heap in 64-bit mode is 39.3% larger on average than in
+     * 32-bit mode. We identify three reasons for this: (i) the larger pointer size, (ii) the increased header
+     * and (iii) the increased alignment. The minimally required heap size is 51.1% larger on average in 64-bit
+     * than in 32-bit mode. From our experimental setup using hardware performance monitors, we observe that 64-bit
+     * computing typically results in a significantly larger number of data cache misses at all levels of the memory
+     * hierarchy. In addition, we observe that when a sufficiently large heap is available, the IBM JDK 1.4.0 VM is
+     * 1.7% slower on average in 64-bit mode than in 32-bit mode. Copyright © 2005 John Wiley & Sons, Ltd.
+     * </pre>
+     * <p/>
      * <p/>
      * The reason that it is not infinite is because of a small amount of memory used (about 12 bytes) used for
      * the disk store index in this case.
@@ -979,8 +990,7 @@ public class DiskStoreTest extends AbstractCacheTest {
             fail();
         } catch (OutOfMemoryError e) {
             LOG.info("All heap consumed after " + index + " entries created.");
-            //todo brought down from 4099000 for 64 bit Linux builds. Pointer size?
-            int expectedMax = 4000000;
+            int expectedMax = 3090000;
             assertTrue("Achieved " + index.intValue() + " which was less than the expected value of " + expectedMax,
                     index.intValue() >= expectedMax);
         }
