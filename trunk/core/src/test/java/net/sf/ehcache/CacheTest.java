@@ -305,7 +305,7 @@ public class CacheTest extends AbstractCacheTest {
         assertNotNull(cache.get("key2"));
 
         //Test time to idle. Should not idle out because not specified
-        Thread.sleep(1020);
+        Thread.sleep(1050);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
 
@@ -336,7 +336,7 @@ public class CacheTest extends AbstractCacheTest {
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
 
-        Thread.sleep(5020);
+        Thread.sleep(5050);
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
 
@@ -626,18 +626,18 @@ public class CacheTest extends AbstractCacheTest {
         Element element2 = cache.get("key2");
         assertNotNull(element1);
         assertNotNull(element2);
-        Thread.sleep(2020);
+        Thread.sleep(2050);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
 
         //Test effect of get
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
-        Thread.sleep(1020);
+        Thread.sleep(1050);
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
 
-        Thread.sleep(2020);
+        Thread.sleep(2050);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
     }
@@ -660,10 +660,10 @@ public class CacheTest extends AbstractCacheTest {
         assertNotNull(element2);
 
         //Now, getQuiet and check still times out 2 seconds after last get
-        Thread.sleep(1020);
+        Thread.sleep(1050);
         element1 = cache.getQuiet("key1");
         element2 = cache.getQuiet("key2");
-        Thread.sleep(2020);
+        Thread.sleep(2050);
         assertNull(cache.getQuiet("key1"));
         assertNull(cache.getQuiet("key2"));
 
@@ -813,7 +813,7 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(2, cache.getSize());
         String keyFromDisk = (String) cache.get(key1).getObjectKey();
         assertTrue(key1 == keyFromDisk);
-        Thread.sleep(1020);
+        Thread.sleep(1050);
         assertEquals(2, cache.getKeys().size());
         //getKeysWithExpiryCheck does check and gives the correct answer of 0
         assertEquals(0, cache.getKeysWithExpiryCheck().size());
@@ -1160,14 +1160,14 @@ public class CacheTest extends AbstractCacheTest {
         Element element = new Element(key, "value");
         element.setTimeToLive(2);
         cache.put(element);
-        Thread.sleep(1020);
+        Thread.sleep(1050);
         assertNotNull(cache.get(key));
         assertSame(element, cache.get(key));
 
 
         Element element2 = new Element(key, "value");
         cache.put(element2);
-        Thread.sleep(1020);
+        Thread.sleep(1050);
         assertNull(cache.get(key));
 
         Element element3 = new Element(key, "value");
@@ -1192,14 +1192,14 @@ public class CacheTest extends AbstractCacheTest {
         Element element = new Element(key, "value");
         element.setTimeToLive(2);
         cache.putQuiet(element);
-        Thread.sleep(1020);
+        Thread.sleep(1050);
         assertNotNull(cache.get(key));
         assertSame(element, cache.get(key));
 
 
         Element element2 = new Element(key, "value");
         cache.putQuiet(element2);
-        Thread.sleep(1020);
+        Thread.sleep(1050);
         assertNull(cache.get(key));
 
         Element element3 = new Element(key, "value");

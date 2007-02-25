@@ -63,7 +63,7 @@ public class EventMessageTest extends TestCase {
             }
         }
         //todo take higher
-        assertTrue("You should get more than " + counter + " out of SoftReferences", counter >= 23);
+        assertTrue("You should get more than " + counter + " out of SoftReferences", counter >= 13);
 
     }
 
