@@ -161,13 +161,13 @@
             description="Integration tests for web containers"/>
 
     <target name="test-orion"
-            depends="compile, prepare-web-tests, start-orion, run-web-tests-no-check-orion, stop-orion"
+            depends="compile, prepare-web-tests, start-orion, run-web-tests-no-check-orion, stop-web-container"
             if="tests.failed" description="Runs Tests">
         <fail message="One or more tests failed. See the log file for details."/>
     </target>
 
     <target name="test-tomcat"
-            depends="compile, prepare-web-tests, start-tomcat, run-web-tests-no-check-tomcat, stop-tomcat"
+            depends="compile, prepare-web-tests, start-tomcat, run-web-tests-no-check-tomcat, stop-web-container"
             if="tests.failed" description="Runs Tests">
         <fail message="One or more tests failed. See the log file for details."/>
     </target>
@@ -491,13 +491,12 @@
         <echo message="...Started"/>
     </target>
 
-    <!-- Stop the test instance of the Orion server -->
-    <target name="stop-orion" description="Stops the Orion server">
-        <echo>Stopping Orion</echo>
+    <!-- Stop the test instance of the web server -->
+    <target name="stop-web-container" description="Stops the web server">
         <waitfor maxwait="5000" checkevery="500">
             <http url="http://localhost:9080/Exit.jsp"/>
         </waitfor>
-        <echo message="...Stopped"/>
+        <echo message="...Stopped Web Server"/>
     </target>
 
     <target name="prepare-web-tests"
@@ -627,19 +626,9 @@
         <echo message="...Started"/>
     </target>
 
-    <!-- Stop the test instance of the Tomcat server -->
-    <target name="stop-tomcat" description="Stops the Orion server">
-        <echo>Stopping Tomcat</echo>
-        <exec dir="${build.tomcat.dir}/bin" spawn="true" os="Mac OS X, Linux" executable="sh">
-            <arg line="tomcat_stop_sh_and.bat"/>
-        </exec>
-        <echo message="...Stopped"/>
-    </target>
-
     <target name="copy-tools-lib" if="not_mac">
         <copy todir="${build.orion.dir}" file="${java.home}/../lib/tools.jar"/>
     </target>
-
 
     <!-- Requres LaTeX and netpbm-->
     <target name="book">
@@ -725,8 +714,7 @@
         </sequential>
     </macrodef>
 
-    <target name="prepare-book-resources" depends="checkstyle-check"
-            unless="checkstyle.up-to-date">
+    <target name="prepare-book-resources" depends="checkstyle-check">
         <antcall target="compile"/>
         <antcall target="ydoc"/>
     </target>

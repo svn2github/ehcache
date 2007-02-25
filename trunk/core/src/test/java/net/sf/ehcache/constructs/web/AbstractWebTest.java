@@ -229,11 +229,11 @@ public abstract class AbstractWebTest extends TestCase {
      */
     protected void checkTimeStamps(WebResponse webResponse1, WebResponse webResponse2,
                                    boolean shouldTimestampsBeEqual) throws Exception {
-        LOG.fatal("Should timestamps be equal: " + shouldTimestampsBeEqual);
+        LOG.debug("Should timestamps be equal: " + shouldTimestampsBeEqual);
         String firstGeneratedTimestamp = getTimestamp(webResponse1);
-        LOG.fatal("First time stamp: " + firstGeneratedTimestamp);
+        LOG.debug("First time stamp: " + firstGeneratedTimestamp);
         String secondGeneratedTimestamp = getTimestamp(webResponse2);
-        LOG.fatal("Second time stamp: " + secondGeneratedTimestamp);
+        LOG.debug("Second time stamp: " + secondGeneratedTimestamp);
 
 
         // Use assert equals because it provides more information if the assertion fails

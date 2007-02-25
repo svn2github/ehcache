@@ -9,7 +9,7 @@
     </parent>
     <artifactId>ehcache</artifactId>
     <packaging>jar</packaging>
-    <name>ehcache core</name>
+    <name>ehcache-core</name>
 
     <dependencies>
 
@@ -207,7 +207,7 @@
                                     <target name="generate-checkstyle-config"/>
                                 </ant>
                                 <ant antfile="${basedir}/build.xml" inheritRefs="true">
-                                    <target name="book"/>
+                                    <target name="create_book"/>
                                 </ant>
                             </tasks>
                         </configuration>
@@ -221,7 +221,7 @@
                         <configuration>
                             <tasks>
                                 <ant antfile="${basedir}/build.xml" inheritRefs="true">
-                                    <target name="singlepageguide"/>
+                                    <target name="create_singlepageguide"/>
                                 </ant>
                             </tasks>
                         </configuration>

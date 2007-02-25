@@ -77,15 +77,15 @@ public class StopWatch {
             try {
                 speedAdjustmentFactor = Float.parseFloat(speedAdjustmentFactorString);
             } catch (NumberFormatException e) {
-                LOG.fatal("Consider setting system property 'net.sf.ehcache.speedAdjustmentFactor=n' " +
+                LOG.debug("Consider setting system property 'net.sf.ehcache.speedAdjustmentFactor=n' " +
                     "where n is the number of times your machine is slower than the reference machine, " +
                     "which is currently a dual G5 PowerMac. e.g. 1.2, which then enables elasped time " +
                     "measurement to be adjusted accordingly.");
             }
-            LOG.fatal("Using speedAjustmentFactor of " + speedAdjustmentFactor);
+            LOG.debug("Using speedAjustmentFactor of " + speedAdjustmentFactor);
 
         } else {
-            LOG.fatal("Consider setting system property 'net.sf.ehcache.speedAdjustmentFactor=n' " +
+            LOG.debug("Consider setting system property 'net.sf.ehcache.speedAdjustmentFactor=n' " +
                     "where n is the number of times your machine is slower than the reference machine, " +
                     "which is currently a dual G5 PowerMac. e.g. 1.2, which then enables elasped time " +
                     "measurement to be adjusted accordingly.");
@@ -97,7 +97,7 @@ public class StopWatch {
         } catch (InterruptedException e) {
             //
         }
-        LOG.fatal("100 measures as " + stopWatch.getElapsedTime());
+        LOG.debug("100 measures as " + stopWatch.getElapsedTime());
 
 
     }
