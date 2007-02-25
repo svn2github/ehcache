@@ -1,0 +1,23 @@
+<assembly>
+	<id>bin</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<fileSets>
+		<fileSet>
+			<directory>../core</directory>
+			<outputDirectory>/</outputDirectory>
+            <includes>
+                <include>*.txt</include>
+            </includes>            
+		</fileSet>
+	</fileSets>
+	<dependencySets>
+		<dependencySet>
+			<outputDirectory>/</outputDirectory>
+			<outputFileNameMapping>${artifactId}.${extension}</outputFileNameMapping>
+            <unpack>false</unpack>
+            <scope>runtime</scope>
+		</dependencySet>
+	</dependencySets>
+</assembly>
