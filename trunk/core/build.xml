@@ -167,7 +167,7 @@
     </target>
 
     <target name="test-tomcat"
-            depends="compile, prepare-web-tests, start-tomcat, run-web-tests-no-check-tomcat, stop-web-container"
+            depends="compile, prepare-web-tests, start-tomcat, run-web-tests-no-check-tomcat, stop-tomcat"
             if="tests.failed" description="Runs Tests">
         <fail message="One or more tests failed. See the log file for details."/>
     </target>
@@ -493,6 +493,15 @@
 
     <!-- Stop the test instance of the web server -->
     <target name="stop-web-container" description="Stops the web server">
+        <waitfor maxwait="5000" checkevery="500">
+            <http url="http://localhost:9080/Exit.jsp"/>
+        </waitfor>
+        <echo message="...Stopped Web Server"/>
+    </target>
+
+
+    <!-- Stop the test instance of the web server -->
+    <target name="stop-tomcat" description="Stops the web server">
         <waitfor maxwait="5000" checkevery="500">
             <http url="http://localhost:9080/Exit.jsp"/>
         </waitfor>
