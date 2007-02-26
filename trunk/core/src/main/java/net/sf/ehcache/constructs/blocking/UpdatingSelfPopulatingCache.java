@@ -94,6 +94,10 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
         }
     }
 
+    /**
+     * Element can never be null. Add a null guard just in case.
+     * @param key
+     */
     private void update(final Object key) {
         try {
             Ehcache backingCache = getCache();
@@ -103,6 +107,7 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
                 if (LOG.isTraceEnabled()) {
                     LOG.trace(getName() + ": entry with key " + key + " has been removed - skipping it");
                 }
+                return;
             }
 
             refreshElement(element, backingCache);

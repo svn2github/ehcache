@@ -45,18 +45,21 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
         selfPopulatingCache = new UpdatingSelfPopulatingCache(cache, factory);
 
 
+        //test null
+        Element element = selfPopulatingCache.get(null);
+
         // Lookup
-        Element element = selfPopulatingCache.get("key");
+        element = selfPopulatingCache.get("key");
         assertSame(value, element.getObjectValue());
-        assertEquals(1, factory.getCount());
+        assertEquals(2, factory.getCount());
 
         Object actualValue = selfPopulatingCache.get("key").getObjectValue();
         assertSame(value, actualValue);
-        assertEquals(2, factory.getCount());
+        assertEquals(3, factory.getCount());
 
         actualValue = selfPopulatingCache.get("key").getObjectValue();
         assertSame(value, actualValue);
-        assertEquals(3, factory.getCount());
+        assertEquals(4, factory.getCount());
     }
 
     /**
