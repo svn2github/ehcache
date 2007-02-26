@@ -39,7 +39,7 @@
                 <item name="ehcache 1.1" href="documentation/documentation-1_1.html"/>
                 <item name="ehcache-constructs 0.5" href="documentation/constructs-0_5.html"/>
             </item>
-            <item name="JavaDoc" href="apidocs/index.html"/>
+            <item name="JavaDoc" href="javadoc/index.html"/>
             <item name="FAQ" href="/documentation/faq.html"/>
             <item name="Whitepaper on distributed caching" href="documentation/distributed_design.html"/>
             <item name="Whitepaper on caching constructs" href="documentation/constructs_design.html"/>

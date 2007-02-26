@@ -7,6 +7,25 @@
 
 News
 
+
+* 26 February 2007: ehcache-1.3 on the way
+
+    Development of the 1.3 release has been underway since December.
+
+    New features in 1.3 are:
+
+    * JCACHE implementation. This is a full implementation of JSR107.
+
+    * JMX instrumentation. Register a variety of MBeans from your  ehcache instance with your MBeanServer of choice.
+      Care has been taken to make this implementation friendly to a wide variety of JMX NMSs.
+
+* 22 February 2007: JavaOne Session.
+
+    For anyone attending JavaOne 2007 at the Moscone Centre in San Francisco, the maintainer of ehcache, Greg Luck,
+    will be presenting a session entitled "Distributed Caching, Using the JCACHE API and ehcache, Including a Case Study".
+    This will be a practical session covering much of the recent features added to ehcache.
+
+
 * 26 November 2006: ehcache-1.2.4RC released
 
     This is a candidate for a maintenance release.

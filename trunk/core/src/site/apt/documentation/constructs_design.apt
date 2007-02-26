@@ -88,7 +88,7 @@ The Design of the {ehcache constructs} package
 
     Enter the BlockingCache.
 
-[apidocs/net/sf/ehcache/constructs/blocking/BlockingCache] Blocking Cache
+[javadoc/net/sf/ehcache/constructs/blocking/BlockingCache] Blocking Cache
 
     It is blocking because all threads requesting the same key wait for the first thread to complete. Once the first
     thread has completed the other threads simply obtain the cache entry and return.

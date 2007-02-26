@@ -733,7 +733,7 @@
 
         <javadoc
                 sourcepath="${src.java.dir}"
-                destdir="${build.dir}/book/apidocs"
+                destdir="${build.dir}/book/javadoc"
                 packagenames="net.sf.*"
                 Package="true"
                 overview="${src.java.dir}/net/sf/ehcache/overview.html"
