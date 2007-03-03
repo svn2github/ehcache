@@ -207,7 +207,7 @@
                                     <target name="generate-checkstyle-config"/>
                                 </ant>
                                 <ant antfile="${basedir}/build.xml" inheritRefs="true">
-                                    <target name="create_book"/>
+                                    <target name="book"/>
                                 </ant>
                             </tasks>
                         </configuration>
@@ -221,7 +221,7 @@
                         <configuration>
                             <tasks>
                                 <ant antfile="${basedir}/build.xml" inheritRefs="true">
-                                    <target name="create_singlepageguide"/>
+                                    <target name="singlepageguide"/>
                                 </ant>
                             </tasks>
                         </configuration>

@@ -693,7 +693,7 @@
         <sequential>
             <copy file="src/site/apt/.aptconvert" todir="${env.HOME}"/>
             <exec executable="aptconvert" newenvironment="false" dir="${build.dir}/book"
-                  spawn="false">
+                  spawn="false" failifexecutionfails="true" failonerror="true">
                 <arg value="EhcacheUserGuide.@{extension}"/>
                 <arg value="preface.apt"/>
                 <arg value="introduction.apt"/>
@@ -716,14 +716,14 @@
                 <arg value="constructs_design.apt"/>
                 <arg value="cachemanager_event_listeners.apt"/>
                 <arg value="cache_event_listeners.apt"/>
+                <arg value="jsr107.apt"/>
                 <arg value="faq.apt"/>
                 <arg value="nameandlogo.apt"/>
-                <arg value="jsr107.apt"/>
             </exec>
         </sequential>
     </macrodef>
 
-    <target name="prepare-book-resources" depends="checkstyle-check">
+    <target name="prepare-book-resources">
         <antcall target="compile"/>
         <antcall target="ydoc"/>
     </target>

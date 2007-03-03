@@ -20,7 +20,7 @@ wotif.com for the purpose of making it available to the community under an Apach
 
 [images/novell.gif]
 
- The ehcache project gratefully acknowledges the contriubtion of Novell, Inc, who granted a license to the authors of
+ The ehcache project gratefully acknowledges the contribution of Novell, Inc, who granted a license to the authors of
  the AsynchronousCommandExecutor and associated code for the purposes of making it available to the communtiy
  under an Apache open source license.
 
@@ -59,3 +59,9 @@ open source licenses of {{{http://atlassian.com/software/jira/}JIRA}}, an issue 
 [images/yworks.gif]
 
  {{{http://www.yworks.com/en/products_ydoc.htm}yWorks}}, for a free open source license to use yDoc, the UML extension to JavaDoc.
+
+
+
+* Continous Integration
+
+ 

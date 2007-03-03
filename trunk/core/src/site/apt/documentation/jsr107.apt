@@ -1,16 +1,116 @@
-JSR107 (JCACHE) Support
+{JSR107 (JCACHE) Support}
 
 * {JSR107 Implementation}
 
     Ehcache provides an implementation of JSR107 via the <<<net.sf.cache.jcache>>> package.
 
-* Problems With Specific Interfaces in JSR107
 
-    If you are using ehcache through the jcache interface you need to be aware of some problems
+* {Using JCACHE}
+
+
+** Creating JCaches
+
+    JCaches can be created in two ways:
+
+     * as an ehcache decorator
+
+     * from JCache's CacheManager
+
+
+*** Creating a JCache using an ehcache decorator
+
+
+   <<<manager>>> in the following sample is an net.sf.ehcache.CacheManager
+
+---
+       net.sf.jsr107cache.Cache cache = new JCache(manager.getCache("sampleCacheNoIdle"), null);
+---
+
+
+*** Creating a JCache using the JCache CacheManager
+
+    The JCache CacheManager only works as a singleton. You obtain it with <<<getInstance>>>
+
+    The CacheManager uses a CacheFactory to create Caches. The CacheFactory is specified
+    using the {{{http://java.sun.com/j2se/1.3/docs/guide/jar/jar.html#Service%20Provider}Service Provider Interface}}
+    mechanism introduced in JDK1.3.
+
+    The factory is specified in the <<<META-INF/services/net.sf.jsr107cache.CacheFactory>>> resource file. This would normally
+    be packaged in a jar. The default value for the ehcache implementation is <<<net.sf.ehcache.jcache.JCacheFactory>>>
+
+    The configuration for a cache is assembled as a map of properties. Valid properties can be found in the JavaDoc
+      for the {{{http://ehcache.sourceforge.net/xref/net/sf/ehcache/jcache/JCacheFactory.html#74}JCacheFactory.createCache()}} method.
+
+    See the following full example.
+
+---
+        CacheManager singletonManager = CacheManager.getInstance();
+        CacheFactory cacheFactory = singletonManager.getCacheFactory();
+        assertNotNull(cacheFactory);
+
+        Map config = new HashMap();
+        config.put("name", "test");
+        config.put("maxElementsInMemory", "10");
+        config.put("memoryStoreEvictionPolicy", "LFU");
+        config.put("overflowToDisk", "true");
+        config.put("eternal", "false");
+        config.put("timeToLiveSeconds", "5");
+        config.put("timeToIdleSeconds", "5");
+        config.put("diskPersistent", "false");
+        config.put("diskExpiryThreadIntervalSeconds", "120");
+
+        Cache cache = cacheFactory.createCache(config);
+        singletonManager.registerCache("test", cache);
+---
+
+**  Getting a JCache
+
+
+    Once a cache is registered in CacheManager, you get it from there.
+
+    The following example shows how to get a Cache.
+
+---
+        manager = CacheManager.getInstance();
+        Ehcache ehcache = new net.sf.ehcache.Cache("UseCache", 10, MemoryStoreEvictionPolicy.LFU,
+                false, null, false, 10, 10, false, 60, null);
+        manager.registerCache("test", new JCache(ehcache, null));
+        Cache cache = manager.getCache("test");
+---
+
+
+**  Using a JCache
+
+    The {{{http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/jcache/JCache.html}JavaDoc}} is the best place to learn how to use a JCache.
+
+    The main point to remember is that JCache implements Map and that is the best way to think about it.
+
+     JCache also has some interesting asynchronous methods such as <<<load>>> and <<<loadAll>>> which can be used to preload the JCache.
+
+
+
+* Problems and Limitations in JSR107
+
+    If you are used to the richer API that ehcache provides, you need to be aware of some problems
     and limitations in the specification.
 
+    You can generally work around these by getting the <<<Ehcache>>> backing cache. You can then
+    access the extra features available in ehcache.
 
 
+---
+    /**
+     * Gets the backing Ehcache
+     */
+    public Ehcache getBackingCache() {
+        return cache;
+    }
+---
+
+
+    The following is both a critique of JCache and notes on the Ehcache implementation. As a member
+    of the JSR107 Expert Group these notes are also intended to be used to improve the specification.
+    
 
 ** net.sf.jsr107cache.CacheManager
 
