@@ -140,11 +140,12 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
 
         try {
 
+            //Estimate element size
             Element sampleElement = null;
             List keys = cachePeer.getKeys();
             for (int i = 0; i < keys.size(); i++) {
                 Serializable key = (Serializable) keys.get(i);
-                sampleElement = cachePeer.getQuiet((Serializable) keys.get(0));
+                sampleElement = cachePeer.getQuiet(key);
                 if (sampleElement != null) {
                     break;
                 }

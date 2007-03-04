@@ -33,6 +33,10 @@
                 GzipFilter corrupts UTF-8 encoded non-Latin characters. Fixed. Thanks to Matt Raible and Kolodin Kolinko
                 for the bug report and Kolodin for the patch. This issue also affected the CachingFilter.
             </action>
+            <action dev="Greg Luck" issue="1664030" type="fix">
+                Fix bug in RMIBootstrapCacheLoader.doLoad. If the first element in the remote cache is null, no bootstrapping
+                will take place. Fixed. Thanks to Ben Piper for reporting this one and the fix.
+            </action>
 
         </release>
 

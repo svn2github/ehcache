@@ -65,6 +65,7 @@
             <item name="PMD" href="/pmd.html"/>
             <item name="ToDos" href="/taglist.html"/>
             <item name="Clover Test Coverage" href="/clover/index.html"/>
+            <item name="Parabuild Build Status" href="http://parabuild.viewtier.com:8080/parabuild/index.htm?cid=cc8f"/>
         </menu>
 
     </body>

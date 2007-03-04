@@ -64,4 +64,7 @@ open source licenses of {{{http://atlassian.com/software/jira/}JIRA}}, an issue 
 
 * Continous Integration
 
+[images/viewtier_logo.gif]
+
  
+ {{{http://viewtier.com/}Viewtier Systems}} for providing a server running Parbuild for continous integration testing of ehcache. 
