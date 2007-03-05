@@ -16,9 +16,6 @@
     <suppress checks="FileLengthCheck" files="Test.java"/>    
     <suppress checks="PackageHtml" files="test[/\\]"/>
     <suppress checks="" files="Primitive.java"/>
-
-
-    <!-- JNDI -->
     <suppress checks="IllegalTypeCheck" files="test[/\\]"/>
 
 

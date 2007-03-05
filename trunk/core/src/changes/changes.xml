@@ -40,7 +40,10 @@
              <action dev="Greg Luck" issue="1661328" type="fix">
                 Fix bug for the combination of Automatic Peer Discovery and synchronous bootstrapping. 
             </action>
-
+            <action dev="Greg Luck" type="remove">
+                Removed the JNDI manual listener and peer provider. This was proving difficult to maintain. Custom
+                listeners and providers are pluggable and can be added as an extension to ehcache. 
+            </action>
         </release>
 
         <release version="1.2.4" date="2006-12-31" desc="Final 1.2.4 release">

@@ -260,31 +260,6 @@
     The hostname is the hostname of the remote CacheManager peer. The port is the listening
     port of the RMICacheManagerPeerListener of the remote CacheManager peer.
 
-    An alternate CacheManagerPeerProviderFactory can be used for JNDI discovery of other
-    CacheManagers in the cluster. Only manual discovery is supported.
-
-    For cacheManagerPeerProviderFactory specify class
-    net.sf.ehcache.distribution.JNDIManualRMICacheManagerPeerProviderFactoryerFactory.
-
-    Correspondingly for cacheManagerPeerListenerFactory specify class
-    net.sf.ehcache.distribution.JNDIRMICacheManagerPeerListenerFactoryory.
-
-    Configuring JNDI Manual Discovery:
-    Manual JNDI discovery is configured as per the following example:
-    <cacheManagerPeerProviderFactory class=
-        "net.sf.ehcache.distribution.JNDIManualRMICacheManagerPeerProviderFactoryerFactory"
-        properties="peerDiscovery=manual, stashContexts=true, stashRemoteCachePeers=true,
-              jndiUrls=t3//server1:40000/sampleCache1|t3//server2:40000/sampleCache1
-              |t3//server1:40000/sampleCache2|t3//server2:40000/sampleCache2"/>
-
-    Valid properties are:
-    * peerDiscovery (mandatory) - specify "manual"
-    * stashContexts (optional) - specify "true" or "false".  Defaults to true.
-      java.naming.Context objects are stashed for performance.
-    * stashRemoteCachePeers (optional) - specify "true" or "false".  Defaults to true.
-      CachePeer objects are stashed for performance.
-    * jndiUrls (mandatory) - specify a pipe separated list of jndiUrls,
-      in the form protocol//hostname:port
     -->
     <cacheManagerPeerProviderFactory
             class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
@@ -323,16 +298,6 @@
     * socketTimeoutMillis - the number of ms client sockets will stay open when sending
       messages to the listener. This should be long enough for the slowest message.
       If not specified it defaults 120000ms.
-
-
-    An alternate CacheManagerPeerListenerFactory can be also be used for JNDI binding of
-    listeners for messages from cache replicators participating in the cluster. For
-    cacheManagerPeerListenerFactory specify
-    class net.sf.ehcache.distribution.JNDIRMICacheManagerPeerListenerFactory.
-    Correspondingly for cacheManagerPeerProviderFactory specify class
-    net.sf.ehcache.distribution.JNDIManualRMICacheManagerPeerProviderFactoryerFactory.
-    Properties for JNDIRMICacheManagerPeerListenerFactory are the same as
-    RMICacheManagerPeerListenerFactory.
 
     -->
     <cacheManagerPeerListenerFactory
