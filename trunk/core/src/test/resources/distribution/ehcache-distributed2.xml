@@ -187,7 +187,7 @@
            eternal="false"
            timeToIdleSeconds="100"
            timeToLiveSeconds="100"
-           overflowToDisk="false">
+           overflowToDisk="true">
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
                                    properties="replicateAsynchronously=true,
                                     replicatePuts=true,
@@ -195,6 +195,9 @@
                                     replicateUpdatesViaCopy=false,
                                     replicateRemovals=true,
                                     asynchronousReplicationIntervalMillis=10"/>
+        <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"
+                                   properties="bootstrapAsynchronously=false,
+                                               maximumChunkSizeBytes=5000000"/>
     </cache>
 
 

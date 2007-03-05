@@ -169,7 +169,7 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
             }
             //get leftovers
             fetchAndPutElements(cache, requestChunk, cachePeer);
-            LOG.debug("Bootstrapping " + cache.getName() + " from " + cachePeer + " finished. "
+            LOG.debug("Bootstrap of " + cache.getName() + " from " + cachePeer + " finished. "
                     + keys.size() + " keys requested.");
         } catch (Throwable t) {
             throw new RemoteCacheException("Error bootstrapping from remote peer. Message was: " + t.getMessage(), t);

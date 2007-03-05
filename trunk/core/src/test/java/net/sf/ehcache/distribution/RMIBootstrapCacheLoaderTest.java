@@ -16,15 +16,13 @@
 
 package net.sf.ehcache.distribution;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.StopWatch;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.AbstractCacheTest;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.event.CountingCacheEventListener;
 import junit.framework.TestCase;
+import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.event.CountingCacheEventListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -78,15 +76,6 @@ public class RMIBootstrapCacheLoaderTest extends TestCase {
      * The name of the cache under test
      */
     protected String cacheName = "sampleCache1";
-    /**
-     * CacheManager 1 of 2s cache being replicated
-     */
-    protected Ehcache cache1;
-
-    /**
-     * CacheManager 2 of 2s cache being replicated
-     */
-    protected Ehcache cache2;
 
     /**
      * {@inheritDoc}
@@ -99,10 +88,6 @@ public class RMIBootstrapCacheLoaderTest extends TestCase {
             return;
         }
 
-        //Required to get SoftReference tests to pass. The VM clean up SoftReferences rather than allocating
-        // memory to -Xmx!
-        //forceVMGrowth();
-        //System.gc();
         MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
 
         CountingCacheEventListener.resetCounters();
@@ -111,14 +96,9 @@ public class RMIBootstrapCacheLoaderTest extends TestCase {
 
         //manager6 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-jndi6.xml");
 
-        cache1 = manager1.getCache(cacheName);
-        cache1.removeAll();
-
-        cache2 = manager2.getCache(cacheName);
-        cache2.removeAll();
 
         //allow cluster to be established
-        Thread.sleep(1000);
+        Thread.sleep(3000);
     }
 
     /**
@@ -164,7 +144,7 @@ public class RMIBootstrapCacheLoaderTest extends TestCase {
     /**
      * Tests loading from bootstrap
      */
-    public void testBootstrapFromCluster() throws CacheException, InterruptedException {
+    public void testBootstrapFromClusterWithAsyncLoader() throws CacheException, InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -173,12 +153,11 @@ public class RMIBootstrapCacheLoaderTest extends TestCase {
         forceVMGrowth();
 
         //Give everything a chance to startup
-        StopWatch stopWatch = new StopWatch();
         Integer index = null;
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 1000; j++) {
                 index = new Integer(((1000 * i) + j));
-                cache1.put(new Element(index,
+                manager1.getCache("sampleCache1").put(new Element(index,
                         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -187,18 +166,53 @@ public class RMIBootstrapCacheLoaderTest extends TestCase {
             }
 
         }
-        long elapsed = stopWatch.getElapsedTime();
-        long putTime = ((elapsed / 1000));
-        LOG.info("Put Elapsed time: " + putTime);
+        assertEquals(2000, manager1.getCache("sampleCache1").getSize());
 
-        assertEquals(2000, cache1.getSize());
-
-        Thread.sleep(5000);
+        Thread.sleep(8000);
         assertEquals(2000, manager2.getCache("sampleCache1").getSize());
 
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
         Thread.sleep(5000);
         assertEquals(2000, manager3.getCache("sampleCache1").getSize());
+
+
+    }
+
+    /**
+     * Tests loading from bootstrap
+     */
+    public void testBootstrapFromClusterWithSyncLoader() throws CacheException, InterruptedException {
+
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
+        forceVMGrowth();
+
+        //Give everything a chance to startup
+        Integer index = null;
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 1000; j++) {
+                index = new Integer(((1000 * i) + j));
+                manager1.getCache("sampleCache2").put(new Element(index,
+                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
+            }
+
+        }
+
+        assertEquals(2000, manager1.getCache("sampleCache2").getSize());
+
+        Thread.sleep(8000);
+        assertEquals(2000, manager2.getCache("sampleCache2").getSize());
+
+        manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
+        //Should not need to wait because the load is synchronous
+        //Thread.sleep(10000);
+        assertEquals(2000, manager3.getCache("sampleCache2").getSize());
 
 
     }

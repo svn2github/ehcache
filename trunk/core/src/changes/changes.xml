@@ -37,6 +37,9 @@
                 Fix bug in RMIBootstrapCacheLoader.doLoad. If the first element in the remote cache is null, no bootstrapping
                 will take place. Fixed. Thanks to Ben Piper for reporting this one and the fix.
             </action>
+             <action dev="Greg Luck" issue="1661328" type="fix">
+                Fix bug for the combination of Automatic Peer Discovery and synchronous bootstrapping. 
+            </action>
 
         </release>
 

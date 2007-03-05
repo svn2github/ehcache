@@ -196,7 +196,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             synchronized (cachePeers) {
                 for (Iterator iterator = cachePeers.values().iterator(); iterator.hasNext();) {
                     rmiCachePeer = (RMICachePeer) iterator.next();
-                    bind(rmiCachePeer);
+                    bind(rmiCachePeer.getUrl(), rmiCachePeer);
                     counter++;
                 }
             }
@@ -218,8 +218,8 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      *
      * @param rmiCachePeer
      */
-    protected void bind(RMICachePeer rmiCachePeer) throws Exception {
-        Naming.rebind(rmiCachePeer.getUrl(), rmiCachePeer);
+    protected void bind(String peerName, RMICachePeer rmiCachePeer) throws Exception {
+        Naming.rebind(peerName, rmiCachePeer);
     }
 
     /**
@@ -481,7 +481,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             try {
                 rmiCachePeer = new RMICachePeer(cache, hostName, port, socketTimeoutMillis);
                 url = rmiCachePeer.getUrl();
-                bind(rmiCachePeer);
+                bind(url, rmiCachePeer);
             } catch (Exception e) {
                 throw new CacheException("Problem starting listener for RMICachePeer "
                         + url + ". Initial cause was " + e.getMessage(), e);

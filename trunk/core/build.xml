@@ -529,7 +529,6 @@
             <fileset refid="clover.fileset"/>
         </copy>
         <copy file="${test.config.dir}/ehcache.xml" todir="${build.orion.lib.dir}"/>
-        <copy file="logging.properties" todir="${build.orion.dir}"/>
         <jar destfile="${build.orion.lib.dir}/${name}-tests-${version}.jar">
             <fileset dir="${test.classes.dir}"/>
         </jar>
@@ -567,7 +566,6 @@
         </copy>
         <copy file="${test.config.dir}/ehcache.xml"
               todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/classes"/>
-        <copy file="logging.properties" todir="${build.orion.dir}"/>
         <jar destfile="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib/${name}-tests-${version}.jar">
             <fileset dir="${test.classes.dir}"/>
         </jar>

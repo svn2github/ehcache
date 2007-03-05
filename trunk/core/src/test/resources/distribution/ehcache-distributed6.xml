@@ -191,6 +191,9 @@
                                     replicateUpdatesViaCopy=false, 
                                     replicateRemovals=true,
                                     asynchronousReplicationIntervalMillis=10"/>
+        <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"
+                                   properties="bootstrapAsynchronously=false,
+                                               maximumChunkSizeBytes=5000000"/>
     </cache>
 
 

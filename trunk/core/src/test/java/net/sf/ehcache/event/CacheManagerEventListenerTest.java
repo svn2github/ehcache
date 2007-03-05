@@ -56,8 +56,7 @@ public class CacheManagerEventListenerTest extends TestCase {
         CacheManager manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-countinglisteners.xml");
         assertNotNull(manager);
         assertEquals(10, manager.getCacheNames().length);
-        //We do not notify initial config (as of 1,3)
-        assertEquals(0, CountingCacheManagerEventListener.getCacheNamesAdded().size());
+        assertEquals(10, CountingCacheManagerEventListener.getCacheNamesAdded().size());
 
 
         String[] cacheNames = manager.getCacheNames();

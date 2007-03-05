@@ -217,16 +217,16 @@ public class CacheManager {
 
         ConfigurationHelper configurationHelper = new ConfigurationHelper(this, localConfiguration);
         configure(configurationHelper);
-        addConfiguredCaches(configurationHelper);
-
         status = Status.STATUS_ALIVE;
-        cacheManagerEventListenerRegistry.init();
-
         if (cacheManagerPeerProvider != null) {
             cacheManagerPeerProvider.init();
         }
-
+        cacheManagerEventListenerRegistry.init();
         addShutdownHook();
+
+        //do this last
+        addConfiguredCaches(configurationHelper);
+
     }
 
     /**
