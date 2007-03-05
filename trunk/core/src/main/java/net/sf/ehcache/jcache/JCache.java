@@ -606,16 +606,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
 
     /**
      * Returns a set view of the keys contained in this map.  The set is
-     * backed by the map, so changes to the map are reflected in the set, and
-     * vice-versa.  If the map is modified while an iteration over the set is
-     * in progress (except through the iterator's own <tt>remove</tt>
-     * operation), the results of the iteration are undefined.  The set
-     * supports element removal, which removes the corresponding mapping from
-     * the map, via the <tt>Iterator.remove</tt>, <tt>Set.remove</tt>,
-     * <tt>removeAll</tt> <tt>retainAll</tt>, and <tt>clear</tt> operations.
-     * It does not support the add or <tt>addAll</tt> operations.
-     * <p/>
-     * todo ehcache implementation in not live.
+     * not live because ehcache is not backed by a simple map.
      *
      * @return a set view of the keys contained in this map.
      */

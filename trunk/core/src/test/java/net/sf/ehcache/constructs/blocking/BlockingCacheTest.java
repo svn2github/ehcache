@@ -205,7 +205,6 @@ public class BlockingCacheTest extends CacheTest {
     /**
      * Thrashes a BlockingCache and looks for liveness problems
      * Note. These timings are without logging. Turn logging off to run this test.
-     * todo parabuild needed increment
      */
     public void testThrashBlockingCache() throws Exception {
         Ehcache cache = manager.getCache("sampleCache1");
@@ -241,7 +240,6 @@ public class BlockingCacheTest extends CacheTest {
         Ehcache cache = manager.getCache("sampleCache1");
         blockingCache = new BlockingCache(cache);
         blockingCache.setTimeoutMillis((int) (400 * StopWatch.getSpeedAdjustmentFactor()));
-        //todo linux builds
         long duration = thrashCache(blockingCache, 50, 400L, (long) (1000L * StopWatch.getSpeedAdjustmentFactor()));
         LOG.debug("Thrash Duration:" + duration);
     }

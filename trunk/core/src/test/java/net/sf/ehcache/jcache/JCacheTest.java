@@ -43,9 +43,6 @@ import java.util.Collection;
 
 /**
  * Tests for a Cache
- * <p/>
- * todo Listener registration using config
- *
  * @author Greg Luck
  * @version $Id:JCacheTest.java 318 2007-01-25 01:48:35Z gregluck $
  */

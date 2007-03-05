@@ -62,12 +62,15 @@ public class JCacheFactory implements CacheFactory {
      *            String cacheLoaderFactoryClassName
      *
      *
-     * Note that the following cannot be set:
+     * Note that the following cannot be set using this factory method:
      * <ol>
      * <li>diskStorePath - this is set on the CacheManager and ignored here
      * <li>RegisteredEventListeners - register any of these after cache creation
      * <li>BootstrapCacheLoader - not supported here
      * </ol>
+     * If you need this functionality create a JCache by decorating an Ehcache and put the
+     * resulting JCache in the manager.
+     * 
      * @return a newly created JCache registered in the singleton CacheManager
      * @throws CacheException
      */
