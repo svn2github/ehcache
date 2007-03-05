@@ -280,7 +280,6 @@ public class MemoryStoreTester extends AbstractCacheTest {
         final Random random = new Random();
         StopWatch stopWatch = new StopWatch();
 
-
         // Add a bunch of entries
         for (int i = 0; i < 500; i++) {
             // Use a random length value
@@ -562,7 +561,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
      * Takes too long to run therefore switch off
      * <p/>
      * These memory size asserts were 100,000 and 60,000. The ApacheLRU map does not get quite as high numbers.
-     * todo turn back on after parabuild stabilises 
+     * This test varies according to architecture. 64 bit architectures 
      */
     public void xTestMemoryStoreOutOfMemoryLimit() throws Exception {
         //Set size so the second element overflows to disk.
