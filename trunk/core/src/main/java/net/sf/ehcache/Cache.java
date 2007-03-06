@@ -372,6 +372,7 @@ public class Cache implements Ehcache {
         configuration.setDiskPersistent(diskPersistent);
         configuration.setMaxElementsOnDisk(maxElementsOnDisk);
 
+
         if (diskStorePath == null) {
             this.diskStorePath = System.getProperty("java.io.tmpdir");
         } else {
@@ -401,25 +402,6 @@ public class Cache implements Ehcache {
         statisticsAccuracy = Statistics.STATISTICS_ACCURACY_BEST_EFFORT;
 
     }
-
-    /**
-     * 1.3 Constructor
-     * <p/>
-     * The {@link net.sf.ehcache.config.ConfigurationFactory} and clients can create these.
-     * <p/>
-     * A client can specify their own settings here and pass the {@link Cache} object
-     * into {@link CacheManager#addCache} to specify parameters other than the defaults.
-     * <p/>
-     * Only the CacheManager can initialise them.
-     *
-     * @param configuration an object representing the configuration of the cache
-     *                      todo hook this up properly
-     */
-    public Cache(CacheConfiguration configuration) {
-        this.configuration = configuration;
-        throw new CacheException("not fully implemented yet");
-    }
-
 
     /**
      * Newly created caches do not have a {@link net.sf.ehcache.store.MemoryStore} or a {@link net.sf.ehcache.store.DiskStore}.
