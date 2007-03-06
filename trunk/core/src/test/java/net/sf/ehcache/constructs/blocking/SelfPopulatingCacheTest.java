@@ -15,7 +15,7 @@
  */
 
 package net.sf.ehcache.constructs.blocking;
-                                                    
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.CacheTest;
@@ -247,10 +247,11 @@ public class SelfPopulatingCacheTest extends CacheTest {
      * the cache entry using the CacheEntryFactory.  It is expected that this
      * counter will only be "1" after all threads complete since all but the
      * first to acquire it should timeout and throw exceptions.
-     * todo can turned off for parabuild?
+     * <p/>
+     * We then test that a thread that comes along later increments the counter.
      */
-    public void testSelfPopulatingBlocksWithTimeoutSet() throws InterruptedException {
-        selfPopulatingCache = new SelfPopulatingCache(new Cache("TestCache", 50, false, false, 0, 0), new CachePopulator());
+    public void testSelfPopulatingBlocksWithTimeoutSetNull() throws InterruptedException {
+        selfPopulatingCache = new SelfPopulatingCache(new Cache("TestCache", 50, false, false, 0, 0), new NullCachePopulator());
         selfPopulatingCache.setTimeoutMillis(200);
         manager.addCache(selfPopulatingCache);
 
@@ -260,8 +261,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
             cacheAccessorThreads[i] = new CacheAccessorThread(selfPopulatingCache, "key1");
             cacheAccessorThreads[i].start();
             // Do a slight delay here so that all the timeouts
-            // don't happen simultaneously - this is key to
-            // reproducing the bug
+            // don't happen simultaneously - this is key
             try {
                 Thread.sleep(20);
             } catch (InterruptedException ignored) {
@@ -271,12 +271,83 @@ public class SelfPopulatingCacheTest extends CacheTest {
 
         //All of the others should have timed out. The first thread will have returned null.
         // This thread should be able to have a go, thus setting the count to 2
-        Thread.sleep(500);
+        Thread.sleep(1000);
         Thread lateThread = new CacheAccessorThread(selfPopulatingCache, "key1");
         lateThread.start();
         lateThread.join();
 
         assertEquals("Too many cacheAccessorThreads tried to create selfPopulatingCache entry for key1",
+                2, cacheEntryFactoryRequests);
+    }
+
+
+    /**
+     * Creating 11 Threads which attempt to get a null entry will result, eventually, in 11
+     * calls to the CacheEntryFactory
+     * @throws InterruptedException
+     */
+    public void testSelfPopulatingBlocksWithoutTimeoutSetNull() throws InterruptedException {
+        selfPopulatingCache = new SelfPopulatingCache(new Cache("TestCache", 50, false, false, 0, 0), new NullCachePopulator());
+        //selfPopulatingCache.setTimeoutMillis(200);
+        manager.addCache(selfPopulatingCache);
+
+        CacheAccessorThread[] cacheAccessorThreads = new CacheAccessorThread[10];
+
+        for (int i = 0; i < cacheAccessorThreads.length; i++) {
+            cacheAccessorThreads[i] = new CacheAccessorThread(selfPopulatingCache, "key1");
+            cacheAccessorThreads[i].start();
+            // Do a slight delay here so that all the timeouts
+            // don't happen simultaneously - this is key
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException ignored) {
+                //
+            }
+        }
+
+        //All of the others should have timed out. The first thread will have returned null.
+        // This thread should be able to have a go, thus setting the count to 2
+        Thread.sleep(12000);
+        Thread lateThread = new CacheAccessorThread(selfPopulatingCache, "key1");
+        lateThread.start();
+        lateThread.join();
+
+        assertEquals("The wrong number of cacheAccessorThreads tried to create selfPopulatingCache entry for key1",
+                11, cacheEntryFactoryRequests);
+    }
+
+    /**
+     * Creating 11 Threads which attempt to get a non-null entry will result in 1
+     * call to the CacheEntryFactory
+     * @throws InterruptedException
+     */
+    public void testSelfPopulatingBlocksWithoutTimeoutSetNonNull() throws InterruptedException {
+        selfPopulatingCache = new SelfPopulatingCache(new Cache("TestCache", 50, false, false, 0, 0), new NonNullCachePopulator());
+        //selfPopulatingCache.setTimeoutMillis(200);
+        manager.addCache(selfPopulatingCache);
+
+        CacheAccessorThread[] cacheAccessorThreads = new CacheAccessorThread[10];
+
+        for (int i = 0; i < cacheAccessorThreads.length; i++) {
+            cacheAccessorThreads[i] = new CacheAccessorThread(selfPopulatingCache, "key1");
+            cacheAccessorThreads[i].start();
+            // Do a slight delay here so that all the timeouts
+            // don't happen simultaneously - this is key
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException ignored) {
+                //
+            }
+        }
+
+        //All of the others should have timed out. The first thread will have returned null.
+        // This thread should be able to have a go, thus setting the count to 2
+        Thread.sleep(2000);
+        Thread lateThread = new CacheAccessorThread(selfPopulatingCache, "key1");
+        lateThread.start();
+        lateThread.join();
+
+        assertEquals("The wrong number of cacheAccessorThreads tried to create selfPopulatingCache entry for key1",
                 1, cacheEntryFactoryRequests);
     }
 
@@ -308,7 +379,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
     /**
      * A cache entry factory that sleeps beyond the lock timeout
      */
-    private class CachePopulator implements CacheEntryFactory {
+    private class NullCachePopulator implements CacheEntryFactory {
 
         public Object createEntry(Object key) throws Exception {
             cacheEntryFactoryRequests++;
@@ -317,6 +388,18 @@ public class SelfPopulatingCacheTest extends CacheTest {
         }
     }
 
+
+    /**
+     * A cache entry factory that sleeps beyond the lock timeout
+     */
+    private class NonNullCachePopulator implements CacheEntryFactory {
+
+        public Object createEntry(Object key) throws Exception {
+            cacheEntryFactoryRequests++;
+            Thread.sleep(1000);
+            return "value";
+        }
+    }
 }
 
 
