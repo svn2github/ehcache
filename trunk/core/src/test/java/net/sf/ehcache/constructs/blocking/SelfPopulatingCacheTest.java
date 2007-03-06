@@ -322,7 +322,8 @@ public class SelfPopulatingCacheTest extends CacheTest {
      * @throws InterruptedException
      */
     public void testSelfPopulatingBlocksWithoutTimeoutSetNonNull() throws InterruptedException {
-        selfPopulatingCache = new SelfPopulatingCache(new Cache("TestCache", 50, false, false, 0, 0), new NonNullCachePopulator());
+        selfPopulatingCache = new SelfPopulatingCache(new Cache("TestCache", 50, false, false, 0, 0),
+                new NonNullCachePopulator());
         //selfPopulatingCache.setTimeoutMillis(200);
         manager.addCache(selfPopulatingCache);
 

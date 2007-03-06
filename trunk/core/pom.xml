@@ -2,14 +2,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>net.sf.ehcache</groupId>
-        <artifactId>ehcache-parent</artifactId>
-        <version>1.3.0-SNAPSHOT</version>
-    </parent>
+    <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache</artifactId>
+    <name>ehcache</name>
+    <version>1.3.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>ehcache-core</name>
+    <description><![CDATA[Ehcache is a widely used pure Java, distributed in-process cache]]>
+    </description>
+    <url>http://ehcache.sf.net</url>
+    <inceptionYear>2003</inceptionYear>
 
     <dependencies>
 
@@ -18,44 +19,6 @@
             <artifactId>commons-logging</artifactId>
             <version>1.0.4</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate</artifactId>
-            <version>3.2.1.ga</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.transaction</groupId>
-                    <artifactId>jta</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>javax.security</groupId>
-                    <artifactId>jacc</artifactId>
-                </exclusion>
-            </exclusions>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.hibernate</groupId>
-            <artifactId>hibernate</artifactId>
-            <version>2.1.8</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.transaction</groupId>
-                    <artifactId>jta</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>javax.security</groupId>
-                    <artifactId>jacc</artifactId>
-                </exclusion>
-            </exclusions>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.4</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -76,12 +39,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.cenqua.clover</groupId>
-            <artifactId>clover</artifactId>
-            <version>1.3.13</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>checkstyle</groupId>
             <artifactId>checkstyle</artifactId>
             <version>4.1</version>
@@ -93,31 +50,14 @@
             <version>4.1</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-            <version>3.0.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>httpunit</groupId>
-            <artifactId>httpunit</artifactId>
-            <version>1.6.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>backport-util-concurrent</groupId>
-            <artifactId>backport-util-concurrent</artifactId>
-            <version>3.0</version>
-            <scope>compile</scope>
-        </dependency>
+
+
         <dependency>
             <groupId>net.sf.jsr107cache</groupId>
             <artifactId>jsr107cache</artifactId>
             <version>1.0</version>
             <scope>compile</scope>
         </dependency>
-
         <!--<dependency>-->
         <!--<groupId>javax.management</groupId>-->
         <!--<artifactId>jmx</artifactId>-->
@@ -125,14 +65,253 @@
         <!--<scope>system</scope>-->
         <!--</dependency>-->
         <dependency>
+            <groupId>backport-util-concurrent</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+            <version>3.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
             <version>1.6.1</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
-
-
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate</artifactId>
+            <version>3.2.1.ga</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.transaction</groupId>
+                    <artifactId>jta</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.security</groupId>
+                    <artifactId>jacc</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.hibernate</groupId>
+            <artifactId>hibernate</artifactId>
+            <version>2.1.8</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.transaction</groupId>
+                    <artifactId>jta</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.security</groupId>
+                    <artifactId>jacc</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.4</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.cenqua.clover</groupId>
+            <artifactId>clover</artifactId>
+            <version>1.3.13</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
+    <developers>
+        <developer>
+            <id>gregluck</id>
+            <name>Greg Luck</name>
+            <email>gregluck at users.sourceforge.net</email>
+            <url>http://gregluck.com</url>
+            <roles>
+                <role>Maintainer</role>
+                <role>Developer</role>
+            </roles>
+            <timezone>+10</timezone>
+            <properties>
+                <skype>gregrluck</skype>
+                <yahoo>gregrluck</yahoo>
+            </properties>
+        </developer>
+        <developer>
+            <id>ssuravarapu</id>
+            <name>Surya Suravarapu</name>
+            <email>ssuravarapu at users.sourceforge.net</email>
+            <url></url>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+        <developer>
+            <id>oneovthafew</id>
+            <name>Gavin King</name>
+            <email>oneovthafew at users.sourceforge.net</email>
+            <url>http://hibernate.org</url>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+10</timezone>
+        </developer>
+
+    </developers>
+
+    <contributors>
+        <contributor>
+            <name>Adam Murdoch</name>
+            <email/>
+            <url/>
+            <organization/>
+            <organizationUrl/>
+            <roles>
+                <role>Former Developer</role>
+            </roles>
+            <timezone>+10</timezone>
+            <properties>
+                <contribution>Created the initial DiskStore. Named ehcache. Threading advice.
+                </contribution>
+            </properties>
+        </contributor>
+        <contributor>
+            <name>Ben Houston</name>
+            <email/>
+            <url/>
+            <organization/>
+            <organizationUrl/>
+            <roles/>
+            <timezone/>
+            <properties/>
+        </contributor>
+        <contributor>
+            <name>Claus Ibsen</name>
+            <email/>
+            <url/>
+            <organization/>
+            <organizationUrl/>
+            <roles/>
+            <timezone/>
+            <properties>
+                <contribution>Patches</contribution>
+            </properties>
+        </contributor>
+        <contributor>
+            <name>Mauro Talevi</name>
+            <email/>
+            <url/>
+            <organization/>
+            <organizationUrl/>
+            <roles/>
+            <timezone/>
+            <properties>
+                <contribution>Maven magic and feature suggestions</contribution>
+            </properties>
+        </contributor>
+        <contributor>
+            <name>Jody Brownell</name>
+            <email/>
+            <url/>
+            <organization/>
+            <organizationUrl/>
+            <roles/>
+            <timezone/>
+            <properties>
+                <contribution>Patches</contribution>
+            </properties>
+        </contributor>
+    </contributors>
+
+    <!-- Release pom.xmls for the central repository cannot specify there own repositories
+    <repositories>
+        <repository>
+            <id>codehaus-repository</id>
+            <name>Codehaus Repository</name>
+            <url>http://repository.codehaus.org</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>codehaus-plugin-snapshot-repository</id>
+            <name>Codehaus Plugin Snapshot Repository</name>
+            <url>http://snapshots.maven.codehaus.org/maven2/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories> -->
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://ehcache.sourceforge.net/LICENSE.txt</url>
+            <distribution>repo</distribution>
+            <comments>The license is the standard wording from the Apache license, but with
+                Greg Luck as copyright
+                owner.
+            </comments>
+        </license>
+    </licenses>
+
+    <issueManagement>
+        <system>Sourceforge</system>
+        <url>http://sourceforge.net/tracker/?group_id=93232&amp;atid=603559</url>
+    </issueManagement>
+
+
+    <distributionManagement>
+        <!-- Private repository -->
+        <!--<repository>-->
+        <!--<url>scp://localhost//Users/gluck/gluck_repository</url>-->
+        <!--<id>gluck_repository</id>-->
+        <!--<name>gluck_repository</name>-->
+        <!--</repository>-->
+        <!--<repository>-->
+        <!--<id>sf-ehcache-repository</id>-->
+        <!--<name>SF EHCache Repository</name>-->
+        <!--<url>scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs/repository</url>-->
+        <!--</repository>-->
+        <snapshotRepository>
+            <url>scp://localhost//Users/gluck/gluck_repository</url>
+            <id>gluck_repository</id>
+            <name>gluck_repository</name>
+        </snapshotRepository>
+        <!--<snapshotRepository>-->
+        <!--<id>sf-ehcache-snapshot-repository</id>-->
+        <!--<name>SF EHCache Snapshot Repository</name>-->
+        <!--<url>-->
+        <!--scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs/snapshot-repository-->
+        <!--</url>-->
+        <!--</snapshotRepository>-->
+        <site>
+            <id>sf-ehcache-site</id>
+            <name>SF EHCache Site</name>
+            <url>scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs</url>
+        </site>
+    </distributionManagement>
+
+    <mailingLists>
+        <mailingList>
+            <name>ehcache-list@lists.sourceforge.net</name>
+            <subscribe>http://lists.sourceforge.net/lists/listinfo/ehcache-list</subscribe>
+            <unsubscribe>http://lists.sourceforge.net/lists/listinfo/ehcache-list</unsubscribe>
+            <post>ehcache-list@lists.sourceforge.net</post>
+            <archive>http://sourceforge.net/mailarchive/forum.php?forum=ehcache-list</archive>
+        </mailingList>
+    </mailingLists>
+
+    <scm>
+        <connection>scm:svn:https://ehcache.svn.sourceforge.net/svnroot/ehcache</connection>
+        <developerConnection>
+            scm:svn:https://username@ehcache.svn.sourceforge.net/svnroot/ehcache
+        </developerConnection>
+        <tag/>
+        <url>http://svn.sourceforge.net/viewcvs.cgi/ehcache/</url>
+    </scm>
+
 
     <build>
         <plugins>
@@ -146,7 +325,7 @@
                 </configuration>
             </plugin>
 
-	    <!-- javadoc -->
+            <!-- javadoc -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
