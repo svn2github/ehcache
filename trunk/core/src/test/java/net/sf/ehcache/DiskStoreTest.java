@@ -159,11 +159,10 @@ public class DiskStoreTest extends AbstractCacheTest {
 
     /**
      * An integration test, at the CacheManager level, to make sure persistence works
-     * todo Does not work for ehcache-disk.xml but works for the config in ehcache.xml. Why?
      */
     public void testPersistentStoreFromCacheManager() throws IOException, InterruptedException, CacheException {
-        //initialise
-        CacheManager manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
+        //initialise with an instance CacheManager so that the following line actually does something
+        CacheManager manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-disk.xml");
         Ehcache cache = manager.getCache("persistentLongExpiryIntervalCache");
 
         for (int i = 0; i < 100; i++) {
@@ -174,7 +173,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         manager.shutdown();
 
-        manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
+        manager =  new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-disk.xml");
         cache = manager.getCache("persistentLongExpiryIntervalCache");
         assertEquals(100, cache.getSize());
 
