@@ -1510,7 +1510,6 @@ public class CacheTest extends AbstractCacheTest {
     public void testReadWriteThreads() throws Exception {
 
         final int size = 10000;
-        //todo increased for linux builds
         final int maxTime = (int) (400 * StopWatch.getSpeedAdjustmentFactor());
         final Cache cache = new Cache("test3cache", size, false, true, 30, 30);
         manager.addCache(cache);
@@ -1581,7 +1580,6 @@ public class CacheTest extends AbstractCacheTest {
                     long end = stopWatch.getElapsedTime();
                     long elapsed = end - start;
                     //remove all is slower
-                    //todo tweaked for parabuild
                     assertTrue("RemoveAll time outside of allowed range: " + elapsed, elapsed < (maxTime * 3));
                 }
             };
