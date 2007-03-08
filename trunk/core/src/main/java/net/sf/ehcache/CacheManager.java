@@ -540,9 +540,6 @@ public class CacheManager {
             // remove shutdown hook
             Runtime.getRuntime().removeShutdownHook(shutdownHook);
 
-            // run the shutdown thread to remove it from its thread group
-            shutdownHook.start();
-
             shutdownHook = null;
         }
     }
@@ -698,8 +695,8 @@ public class CacheManager {
     public void shutdown() {
         synchronized (CacheManager.class) {
             if (status.equals(Status.STATUS_SHUTDOWN)) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("CacheManager already shutdown");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("CacheManager already shutdown");
                 }
                 return;
             }
