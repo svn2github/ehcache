@@ -538,8 +538,17 @@ public class CacheManager {
     private void removeShutdownHook() {
         if (shutdownHook != null) {
             // remove shutdown hook
-            Runtime.getRuntime().removeShutdownHook(shutdownHook);
-
+            try {
+                Runtime.getRuntime().removeShutdownHook(shutdownHook);
+            } catch (IllegalStateException e) {
+                //This will be thrown if the VM is shutting down. In this case
+                //we do not need to worry about leaving references to CacheManagers lying
+                //around and the call is ok to fail.
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("IllegalStateException due to attempt to remove a shutdown" +
+                            "hook while the VM is actually shutting down.", e);
+                }
+            }
             shutdownHook = null;
         }
     }

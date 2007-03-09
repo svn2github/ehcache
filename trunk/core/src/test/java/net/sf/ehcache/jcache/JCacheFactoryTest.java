@@ -48,7 +48,7 @@ public class JCacheFactoryTest extends AbstractCacheTest {
 
         //sampleCache1
         Map env = new HashMap();
-        env.put("name", "test1");
+        env.put("name", "test1factory");
         env.put("maxElementsInMemory", "10000");
         env.put("maxElementsOnDisk", "1000");
         env.put("memoryStoreEvictionPolicy", "LRU");

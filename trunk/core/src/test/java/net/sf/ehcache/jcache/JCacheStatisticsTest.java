@@ -45,9 +45,27 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
      */
     public void testStatisticsFromStatisticsObject() throws InterruptedException {
         //Set size so the second element overflows to disk.
-        Ehcache ehcache = new net.sf.ehcache.Cache("test", 1, true, false, 5, 2);
+        Ehcache ehcache = new net.sf.ehcache.Cache("testStatistics", 1, true, false, 5, 2);
         manager.addCache(ehcache);
-        Cache cache = new JCache(ehcache, null);
+        JCache cache = new JCache(ehcache, null);
+        exerciseStatistics(cache);
+
+        //Exercise aftter setting accuracy
+        ehcache = new net.sf.ehcache.Cache("testStatistics2", 1, true, false, 5, 2);
+        manager.addCache(ehcache);
+        cache = new JCache(ehcache, null);
+        cache.setStatisticsAccuracy(CacheStatistics.STATISTICS_ACCURACY_NONE);
+        exerciseStatistics(cache);
+
+        ehcache = new net.sf.ehcache.Cache("testStatistics4", 1, true, false, 5, 2);
+        manager.addCache(ehcache);
+        cache = new JCache(ehcache, null);
+        cache.setStatisticsAccuracy(CacheStatistics.STATISTICS_ACCURACY_BEST_EFFORT);
+        exerciseStatistics(cache);
+
+    }
+
+    private void exerciseStatistics(Cache cache) throws InterruptedException {
         cache.put("key1", "value1");
         cache.put("key2", "value1");
         //key1 should be in the Disk Store
@@ -72,7 +90,6 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
         statistics = cache.getCacheStatistics();
         assertEquals(2, statistics.getCacheHits());
         assertEquals(2, statistics.getCacheMisses());
-
         assertNotNull(statistics.toString());
     }
 

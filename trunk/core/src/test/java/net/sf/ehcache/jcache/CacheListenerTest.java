@@ -88,17 +88,32 @@ public class CacheListenerTest extends AbstractCacheTest {
     }
 
     /**
+     * Tests operations not normally called.
+     * @throws net.sf.jsr107cache.CacheException
+     * @throws CloneNotSupportedException
+     */
+    public void testSundryOperations() throws net.sf.jsr107cache.CacheException, CloneNotSupportedException {
+
+        Cache cache = getTest1Cache();
+        cache.put("1", new Date());
+        CountingCacheListener countingCacheListener = new CountingCacheListener();
+        JCacheListenerAdaptor jCacheListenerAdaptor = new JCacheListenerAdaptor(countingCacheListener);
+        try {
+            jCacheListenerAdaptor.clone();
+        } catch (CloneNotSupportedException e) {
+            assertEquals("Cannot clone JCacheListenerAdaptor", e.getMessage());
+        }
+
+        assertEquals(countingCacheListener, jCacheListenerAdaptor.getCacheListener());
+    }
+
+    /**
      * Tests the put listener.
      */
     public void testPutNotifications() throws net.sf.jsr107cache.CacheException {
 
-
         Cache cache = getTest1Cache();
-
-
         cache.put("1", new Date());
-
-
         CountingCacheListener countingCacheListener = new CountingCacheListener();
         cache.addListener(countingCacheListener);
 

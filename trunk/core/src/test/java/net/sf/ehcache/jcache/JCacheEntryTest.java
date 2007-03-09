@@ -29,6 +29,7 @@ import net.sf.ehcache.Element;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
 
 /**
  * Tests for CacheEntry
@@ -118,6 +119,24 @@ public class JCacheEntryTest extends AbstractCacheTest {
         //test expiry time s 1000ms after create time.
         assertTrue(retrievedEntry.getExpirationTime() > (System.currentTimeMillis() + 995));
         assertTrue(retrievedEntry.getExpirationTime() < (System.currentTimeMillis() + 1005));
+    }
+
+    /**
+     * Check the expiry time is correct.
+     */
+    public void testCannotSet() throws Exception {
+
+        Cache cache = getTestCache();
+        CacheEntry entry = new JCacheEntry(new Element("key1", "value1"));
+        cache.put(entry.getKey(), entry.getValue());
+        CacheEntry retrievedEntry = cache.getCacheEntry(entry.getKey());
+
+        try {
+            retrievedEntry.setValue("test value");
+        } catch (UnsupportedOperationException e) {
+            assertEquals("Ehcache does not support modification of Elements. They are immutable.", e.getMessage());
+        }
+
     }
 
     /**
@@ -214,6 +233,30 @@ public class JCacheEntryTest extends AbstractCacheTest {
 
         Thread.sleep(1020);
         assertEquals(false, retrievedEntry.isValid());
+
+    }
+
+
+
+    /**
+     * Test getting the entry set
+     */
+    public void testEntrySet() throws Exception {
+
+        JCache jcache = (JCache) getTestCache();
+        CacheEntry entry = new JCacheEntry(new Element("key1", "value1"));
+        assertEquals(true, entry.isValid());
+
+        jcache.put(entry.getKey(), entry.getValue());
+
+        //Entry Set works
+        Set entries = jcache.entrySet();
+        assertEquals(1, entries.size());
+
+        //Entry Set is not live
+        jcache.remove("key1");
+        assertEquals(1, entries.size());
+
 
     }
 

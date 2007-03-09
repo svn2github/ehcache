@@ -143,6 +143,7 @@
         </javac>
         <copy file="${test.config.dir}/ehcache.xml" todir="${test.classes.dir}"/>
         <copy file="${test.config.dir}/ehcache-2.xml" todir="${test.classes.dir}"/>
+        <copy file="${test.config.dir}/spring/ehcache-beans.xml" todir="${test.classes.dir}/spring"/>
         <copy file="${test.config.dir}/simplelog.properties" todir="${test.classes.dir}"/>
     </target>
 

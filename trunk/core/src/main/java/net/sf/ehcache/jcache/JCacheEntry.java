@@ -85,7 +85,7 @@ public class JCacheEntry implements CacheEntry {
      *                                       is not supported by the backing map.
      */
     public Object setValue(Object value) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Ehcache does not support modification of Elements. They are immutable");
+        throw new UnsupportedOperationException("Ehcache does not support modification of Elements. They are immutable.");
     }
 
     /**
