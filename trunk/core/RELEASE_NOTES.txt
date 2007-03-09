@@ -24,6 +24,8 @@ ehcache is a pure Java, in-process cache with the following features:
    14. Available under the Apache 1.1 license. EHCache's copyright and licensing has been reviewed and approved by the Apache Software Foundation, making EHCache suitable for use in Apache projects.
    15. Production tested. EHCache is used on a large and very busy eCommerce site.
    16. Web caching, pull-through caches and other common caching implementations are provided in the ehcache-constructs module.
+   17. Full JMX monitoring implementation
+   18. Complete JCACHE (JSR107) implementation.
 
 Java Requirements
 =================

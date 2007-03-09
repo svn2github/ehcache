@@ -34,6 +34,10 @@
 
     * {{{#Distributed}Distributed Caching}}
 
+ * Standards Based
+
+    * {{{#Full implementation of JSR107 JCACHE API}Full implementation of JSR107 JCACHE API}}
+
 
  * Extensible
 
@@ -55,7 +59,9 @@
 
    * {{{#Cache event listeners}Cache event listeners}}
 
+
  * {{{#JMX Enabled}JMX Enabled}}
+
 
  * Distributed
 
@@ -240,6 +246,19 @@
     via custom RMI connections. Additional discovery or delivery schemes can be plugged in by third parties.
 
     See the {{{documentation/distributed_caching.html}Distributed Caching}} documentation for more feature details.
+
+
+* Standards Based
+
+** {Full implementation of JSR107 JCACHE API}
+
+    Ehcache offers the the most complete implementation of JSR107 JCACHE to date.
+
+    Because JCACHE has not yet been released the JCACHE API that Ehcache implements has been released as net.sf.jsr107cache.
+
+    Implementers can code to the JCACHE API which will create portability to other caching solutions in the future.
+
+    The maintainer of ehcache, Greg Luck, is on the expert committee for JSR107.  
 
 * Extensible
 

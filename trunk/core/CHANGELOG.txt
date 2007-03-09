@@ -1,5 +1,53 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+ehcache-1.3.0
+=============
+
+<!-- Feature Changes  -->
+<action dev="Greg Luck" type="add">
+    Added a net.sf.ehcache.jcache package, which is an implementation of JSR107, backed by ehcache.
+</action>
+<action dev="Greg Luck" type="add">
+    Added a net.sf.ehcache.management package, which contains full JMX instrumentation for ehcache.
+</action>
+
+<action dev="Tony Voss" issue="1588796" type="fix">
+    Statistics Variables Need to be Longs. Changed internal representation to long in Cache, kept the
+    direct getters for backwards compatible and changed the new Statistics class to be long based. Use
+    getStatistics() to access the longs with out loss of precision.
+    Reapplied. Somehow this got lost from 1.2.4.
+</action>
+<action dev="Chris Ryan" type="fix">
+    Filter was rethrowing IOException as ServletException. The spec is clear that IOException is thrown
+    as well. Catching these and rethrowing them as ServletException causes these IllegalStateException
+    in Glassfish.
+</action>
+<action dev="Greg Luck" issue="1616492" type="fix">
+    JBoss, Spring and some other applications have shutdown hooks. A race condition existed in
+    CacheManager#shutdown() such that multiple shutdown hook threads could attempt to shutdown
+    the CacheManager at the same time. Added class synchronization to prevent this and also
+    added a check for the system property net.sf.ehcache.disableShutdownHook=true which will disable
+    addition of the shutdown hook. Reported by various people.
+</action>
+<action dev="Greg Luck" issue="1618798" type="fix">
+    Element#equals(Object) causes ClassCastException when the comparison object is not an Element. Fixed.
+</action>
+<action dev="Greg Luck" issue="1636876" type="fix">
+    GzipFilter corrupts UTF-8 encoded non-Latin characters. Fixed. Thanks to Matt Raible and Kolodin Kolinko
+    for the bug report and Kolodin for the patch. This issue also affected the CachingFilter.
+</action>
+<action dev="Greg Luck" issue="1664030" type="fix">
+    Fix bug in RMIBootstrapCacheLoader.doLoad. If the first element in the remote cache is null, no bootstrapping
+    will take place. Fixed. Thanks to Ben Piper for reporting this one and the fix.
+</action>
+ <action dev="Greg Luck" issue="1661328" type="fix">
+    Fix bug for the combination of Automatic Peer Discovery and synchronous bootstrapping.
+</action>
+<action dev="Greg Luck" type="remove">
+    Removed the JNDI manual listener and peer provider. This was proving difficult to maintain. Custom
+    listeners and providers are pluggable and can be added as an extension to ehcache.
+</action>
+
 ehcache-1.2.4
 =============
 

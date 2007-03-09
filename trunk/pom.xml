@@ -13,9 +13,9 @@
     <inceptionYear>2003</inceptionYear>
 
     <modules>
-        <module>core</module>
-        <module>site</module>
-        <module>distribution</module>
+        <!--<module>core</module>-->
+        <!--<module>site</module>-->
+        <!--<module>distribution</module>-->
     </modules>
 
     <dependencyManagement>
