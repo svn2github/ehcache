@@ -354,7 +354,8 @@
     </target>
 
     <!-- Builds a maven upload bundle -->
-    <target name="maven-bundle" depends="dist-tgz">
+    <target name="maven-bundle" depends="clean, dist-tgz">
+	<echo message="This maven command is currently corrupting the archives. Do not use" />
         <copy file="${dist.dir}/${name}-${version}-${javadoc.zip}"
               tofile="${dist.dir}/${name}-${version}-javadoc.jar"/>
         <copy file="${basedir}/pom.xml" tofile="${dist.dir}/${name}-${version}.pom"/>

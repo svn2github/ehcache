@@ -270,12 +270,12 @@ public class CacheTest extends AbstractCacheTest {
         assertNotNull(cache.get("key2"));
 
         //Test time to idle. Should not idle out because not specified
-        Thread.sleep(2000);
+        Thread.sleep(1000);
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
 
         //Test time to live.
-        Thread.sleep(3020);
+        Thread.sleep(4020);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
     }

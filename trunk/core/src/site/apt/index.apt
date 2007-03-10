@@ -15,7 +15,7 @@ Welcome to ehcache
 
 * Latest News
 
-** 9 March 2007: ehcache-1.3 released
+** 9 March 2007: ehcache-1.3 beta released
 
     New features in 1.3 are:
 
@@ -26,7 +26,7 @@ Welcome to ehcache
 
     In adding these new packages care has been taken not to disturb the existing packages. Only bug fixes have
     been applied to those. 8 bug fixes, representing all those reported since 1.2.4 have been fixed. Ehcache has no open bugs
-    or patches at the time of release.
+    or patches at the time of release. See the {{{http://ehcache.sourceforge.net/changes-report.html#1.2.4}changelog}} for details.
 
 ** 22 February 2007: JavaOne Session.
 
