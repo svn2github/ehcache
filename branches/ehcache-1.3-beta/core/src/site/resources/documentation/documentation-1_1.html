@@ -1,0 +1,2026 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <link rel="STYLESHEET" type="text/css"
+ href="../css/site.css">
+</head>
+<body>
+<div id="page-logo"> <img src="../images/ehcache_logo_trans.gif"
+ alt="ehcache" align="left">Documentation for Version 1.1<br>
+</div>
+<div id="page-buttons">
+<a href="http://sourceforge.net/projects/ehcache/">Summary</a>&nbsp;|&nbsp;
+<a href="http://sourceforge.net/project/admin/?group_id=93232">Admin</a>&nbsp;|&nbsp;
+<a href="../"><span class="tabs">Home Page</span></a>&nbsp;|&nbsp; <a
+ href="http://sourceforge.net/forum/?group_id=93232">Forums</a>&nbsp;|&nbsp;
+<a href="http://sourceforge.net/tracker/?group_id=93232">Tracker</a>&nbsp;|&nbsp;
+<a href="http://sourceforge.net/tracker/?group_id=93232&amp;atid=603559">Bugs</a>&nbsp;|&nbsp;
+<a href="http://sourceforge.net/tracker/?group_id=93232&amp;atid=603560">Support</a>&nbsp;|&nbsp;
+<a href="http://sourceforge.net/tracker/?group_id=93232&amp;atid=603561">Patches</a>&nbsp;|&nbsp;
+<a href="http://sourceforge.net/tracker/?group_id=93232&amp;atid=603562">RFE</a>&nbsp;|&nbsp;
+<a href="http://sourceforge.net/mail/?group_id=93232">Lists</a>&nbsp;|&nbsp;
+<a href="http://sourceforge.net/pm/?group_id=93232">Tasks</a>&nbsp;|&nbsp;
+<span class="tabs">Docs</span>&nbsp;|&nbsp;
+<a href="http://sourceforge.net/news/?group_id=93232">News</a>&nbsp;|&nbsp;
+<a href="http://sourceforge.net/svn/?group_id=93232">SVN</a>&nbsp;|&nbsp;
+<a href="http://sourceforge.net/project/showfiles.php?group_id=93232">Files</a><br>
+</div>
+<br>
+<div class="toc">Table of Contents</div>
+<ul id="mozToc">
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5--><li><a href="#mozTocId747622">1
+Installation
+    </a>
+    <ul>
+      <li><a href="#mozTocId366944">Java
+Requirements</a></li>
+      <li><a href="#mozTocId477330">Dependencies</a></li>
+      <li><a href="#mozTocId109260">Step-by-step
+Installation Instructions
+        </a>
+        <ul>
+          <li><a href="#mozTocId415254">For Use with
+Hibernate or Spring
+            </a></li>
+          <li><a href="#mozTocId635920">For Use&nbsp; as a
+General Purpose Cache</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#mozTocId62268">2 CacheConcepts</a>
+    <ul>
+      <li><a href="#mozTocId515122">CacheManager</a></li>
+      <li><a href="#mozTocId506897">Cache</a></li>
+      <li><a href="#mozTocId538282">Element</a></li>
+    </ul>
+  </li>
+  <li><a href="#mozTocId134137">3 Storage Options
+    </a>
+    <ul>
+      <li><a href="#mozTocId616325">Memory
+Store</a>
+        <ul>
+          <li><a href="#mozTocId546410">Safety
+            </a></li>
+          <li><a href="#mozTocId571221">Backed By JDK
+LinkedHashMap</a></li>
+          <li><a href="#mozTocId729258">Fast</a></li>
+          <li><a href="#mozTocId356646">Memory Use,
+Spooling and Expiry Strategy</a></li>
+        </ul>
+      </li>
+      <li><a href="#mozTocId451888">DiskStore</a>
+        <ul>
+          <li><a href="#mozTocId691220">Storage Files
+            </a></li>
+          <li><a href="#mozTocId592884">Expiry
+Strategy</a></li>
+          <li><a href="#mozTocId874158">Serializable Objects
+Only
+            </a></li>
+          <li><a href="#mozTocId520626">Safety</a></li>
+          <li><a href="#mozTocId581616">Persistence</a></li>
+          <li><a href="#mozTocId429679">Fragmentation</a></li>
+          <li><a href="#mozTocId75">Speed</a>
+            <ul>
+              <li><a href="#mozTocId268906">Serialization</a></li>
+              <li><a href="#mozTocId956746">RAMFS</a></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#mozTocId723172">4
+Performance Considerations</a></li>
+  <li><a href="#mozTocId763298">5
+Distributed Caching </a></li>
+  <li><a href="#mozTocId183156">6 Virtual Machine
+Shutdown Considerations</a></li>
+  <li><a href="#mozTocId265501">7 Logging</a></li>
+  <li><a href="#mozTocId430833">8 Obtaining the
+Source Code</a>
+    <ul>
+      <li><a href="#mozTocId688132">Online
+        </a></li>
+      <li><a href="#mozTocId244950">CVS</a></li>
+    </ul>
+  </li>
+  <li><a href="#mozTocId258426">9 Cache Configuration</a>
+    <ul>
+      <li><a href="#mozTocId711412">Declarative versus
+Programmatic Configuration</a></li>
+      <li><a href="#mozTocId532466">Declarative
+Configuration
+        </a>
+        <ul>
+          <li><a href="#mozTocId248253">The ehcache schema:
+ehcache.xsd</a></li>
+          <li><a href="#mozTocId478118">diskStore</a>
+            <ul>
+              <li><a href="#mozTocId626463">path</a></li>
+            </ul>
+          </li>
+          <li><a href="#mozTocId822608">defaultCache</a></li>
+          <li><a href="#mozTocId13934">cache</a></li>
+          <li><a href="#mozTocId27759">defaultCache and cache
+attributes</a>
+            <ul>
+              <li><a href="#mozTocId975884">name</a></li>
+              <li><a href="#mozTocId61214">eternal
+                </a></li>
+              <li><a href="#mozTocId734465">maxElementsInMemory </a></li>
+              <li><a href="#mozTocId477913">overflowToDisk</a></li>
+              <li><a href="#mozTocId103087">timeToIdleSeconds</a></li>
+              <li><a href="#mozTocId384335">timeToLiveSeconds</a></li>
+              <li><a href="#mozTocId607199">diskPersistent</a></li>
+              <li><a href="#mozTocId389950">diskExpiryThreadIntervalSeconds</a></li>
+            </ul>
+          </li>
+          <li><a href="#mozTocId91516">Sample ehcache.xml</a></li>
+          <li><a href="#mozTocId606083">Installing ehcache.xml</a></li>
+        </ul>
+      </li>
+      <li><a href="#mozTocId382717">Failsafe Configuration</a></li>
+      <li><a href="#mozTocId882604">Programmatic
+Configuration
+        </a></li>
+    </ul>
+  </li>
+  <li><a href="#mozTocId470653">10 Code
+Samples
+    </a>
+    <ul>
+      <li><a href="#mozTocId239314">Using the
+CacheManager</a></li>
+      <li><a href="#mozTocId173194">Using Caches</a></li>
+    </ul>
+  </li>
+  <li><a href="#mozTocId116611">11 Using ehcache as a
+Hibernate plugin</a>
+    <ul>
+      <li><a href="#mozTocId462917">Ensuring ehcache is
+enabled
+        </a></li>
+      <li><a href="#mozTocId35065">Hibernate Mapping
+Files</a>
+        <ul>
+          <li><a href="#mozTocId100235">read-write</a></li>
+          <li><a href="#mozTocId79788">nonstrict-read-write</a></li>
+          <li><a href="#mozTocId554731">read-only</a></li>
+        </ul>
+      </li>
+      <li><a href="#mozTocId615685">Hibernate Doclet
+&nbsp;&nbsp; </a></li>
+      <li><a href="#mozTocId880238">Configuration with
+ehcache.xml</a>
+        <ul>
+          <li><a href="#mozTocId75146">Domain Objects</a>
+            <ul>
+              <li><a href="#mozTocId984535">Hibernate
+CacheConcurrencyStrategy</a></li>
+            </ul>
+          </li>
+          <li><a href="#mozTocId514248">Collections</a>
+            <ul>
+              <li><a href="#mozTocId649727">Hibernate
+CacheConcurrencyStrategy</a></li>
+            </ul>
+          </li>
+          <li><a href="#mozTocId681722">Queries</a>
+            <ul>
+              <li><a href="#mozTocId80024">StandardQueryCache</a></li>
+              <li><a href="#mozTocId68258">UpdateTimestampsCache</a></li>
+              <li><a href="#mozTocId131070">Named Query Caches</a></li>
+              <li><a href="#mozTocId182189">Using Query Caches</a></li>
+              <li><a href="#mozTocId509074">Hibernate
+CacheConcurrencyStrategy</a></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><a href="#mozTocId930677">Hibernate Caching
+Performance Tips</a>
+        <ul>
+          <li><a href="#mozTocId812198">In-Process Cache</a></li>
+          <li><a href="#mozTocId928709">Object Id</a></li>
+          <li><a href="#mozTocId590937">Session.load</a></li>
+          <li><a href="#mozTocId353023">Session.find and
+Query.find</a></li>
+          <li><a href="#mozTocId835456">Session.iterate and
+Query.iterate
+            </a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<br>
+<h1><a class="mozTocH1" name="mozTocId747622"></a>1 Installation<br>
+</h1>
+<h2><a class="mozTocH2" name="mozTocId366944"></a><span
+ style="font-weight: bold;">Java
+Requirements</span></h2>
+Ehcache supports
+JDK1.2, 1.3, 1.4 and 5 at runtime. When compiling from source, the
+build
+process requires JDK 1.4 or 5. <span><br>
+<br>
+Ehcache does not work with JDK1.1.</span>
+<h2><a class="mozTocH2" name="mozTocId477330"></a>Dependencies</h2>
+<p>For JDK1.4 and JDK5, ehcache requires <a
+ href="http://jakarta.apache.org/commons/logging.html">commons-logging</a>
+and <a href="http://jakarta.apache.org/commons/collections/">commons-collections
+3.1</a> from Apache's Jakarta project.&nbsp; The commons-collections
+library provided in hibernate is 2.1, so you will need to upgrade it if
+working with Hibernate.<br>
+</p>
+<p>For JDK1.2 and JDK
+1.3, ehcache also requires Apache <a
+ href="http://xml.apache.org/xerces2-j/">xerces</a>
+(xml-apis.jar and xercesImpl.jar), version 2.5.<br>
+</p>
+<p>The dependencies are also Hibernate dependencies, so if you are
+using ehcache as a Hibernate plugin, dependency requirements are met.<br>
+</p>
+<h2><a class="mozTocH2" name="mozTocId109260"></a>Step-by-step
+Installation Instructions<br>
+</h2>
+<h3><a class="mozTocH4" name="mozTocId415254"></a>For Use with
+Hibernate or Spring<br>
+</h3>
+There is nothing to do. Hibernate and Spring include ehcache.<br>
+<br>
+<h3><a class="mozTocH4" name="mozTocId635920"></a>For Use&nbsp; as a
+General Purpose Cache</h3>
+This assumes you do not have Hibernate installed.<br>
+<br>
+The steps are:<br>
+<ol>
+  <li>Place
+the ehcache-X.X.jar into your classpath. </li>
+  <li>Ensure that any libraries required to satisfy <a
+ href="#mozTocId477330">dependencies</a>
+are also in the classpath.</li>
+  <li>As an optional step, configure an appropriate <a
+ href="#mozTocId265501">logging</a>
+level.<br>
+  </li>
+</ol>
+<h1><a class="mozTocH1" name="mozTocId62268"></a>2 CacheConcepts</h1>
+<p>ehcache consists
+of a <code>CacheManager</code>, which manages caches. Caches contain
+elements,
+which are essentially name value pairs. Caches are physically
+implemented either in-memory, or on disk.
+</p>
+<h2><a class="mozTocH2" name="mozTocId515122"></a>CacheManager<span
+ style="font-weight: bold;"></span></h2>
+The Cache
+Manager is made up of Caches which contain elements.&nbsp;
+Creation of, access to and removal of caches is controlled by the
+<code>CacheManager</code>. You may only have one <code>CacheManager</code>
+per class loader, as
+it expects to be a singleton. If an application has more than one,
+ensure a separate configuration file is used for each. Otherwise disk
+caches will conflict.<br>
+<h2><a class="mozTocH4" name="mozTocId506897"></a>Cache</h2>
+A cache has a
+name and attributes. Each cache contains elements.<br>
+<span style="font-weight: bold;"><br>
+</span>The JCACHE JSR also has groups, which is an association between
+objects
+in the same cache. They may be invalidated together or have the same
+element attributes. While groups may be useful, they are not used in
+Hibernate and has not been implemented in ehcache.<br>
+<br>
+Cache elements are stored in the <code>MemoryStore</code>. Optionally
+they also
+overflow
+to a <code>DiskStore</code>.<br>
+<h2><a class="mozTocH4" name="mozTocId538282"></a>Element</h2>
+An element is an
+atomic entry in a cache. It has a key, a value and a record of
+accesses. Elements are put into and removed from caches. They can also
+expire and be removed by the Cache, depending on the Cache settings.<br>
+<h1><a class="mozTocH1" name="mozTocId134137"></a>3 Storage Options<br>
+</h1>
+Ehcache has two
+physical stores:<br>
+<ol>
+  <li>a MemoryStore and <br>
+  </li>
+  <li>a DiskStore</li>
+</ol>
+<h2><a class="mozTocH2" name="mozTocId616325"></a><span
+ style="font-family: monospace;"><span style="font-weight: bold;"></span></span>Memory
+Store</h2>
+<span style="font-weight: bold;"><code></code></span>
+The <code>MemoryStore</code>
+is
+always enabled. It is not directly manipulated, but is a component of
+every cache.<br>
+<br>
+It has the following characteristics:<br>
+<h3><a class="mozTocH4" name="mozTocId546410"></a>Safety<br>
+</h3>
+Thread safe for
+use by multiple concurrent threads. <br>
+<br>
+Tested for memory leaks. See MemoryCacheTest#testMemoryLeak. This test
+passes for ehcache but exploits a number of memory leaks in JCS. JCS
+will give an OutOfMemory error with a default 64M in 10 seconds.<br>
+<h3><a class="mozTocH4" name="mozTocId571221"></a>Backed By JDK
+LinkedHashMap</h3>
+The <code>MemoryStore</code>
+for JDK1.4 and JDK 5 it is backed by an extended <a
+ href="http://java.sun.com/j2se/1.4.2/docs/api/">LinkedHashMap</a>.
+This provides a combined linked list and a hash map, and is ideally
+suited for caching. Using this standard Java class simplifies the
+implementation of the memory cache.&nbsp; It directly supports
+obtaining the least recently used element.<br>
+<br>
+For JDK1.2 and JDK1.3, the LRUMap from Apache Commons is used. It
+provides similar features to LinkedHashMap.<br>
+<br>
+The implementation is determined dynamically at runtime. LinkedHashMap
+is preferred if found in the classpath.<br>
+<h3><a class="mozTocH4" name="mozTocId729258"></a>Fast</h3>
+ehcache is
+faster than JCS. Here are some benchmarks from MemoryStoreTest.<br>
+<br style="font-weight: bold;">
+<table>
+  <tbody>
+    <tr>
+      <th>Benchmark<br>
+      </th>
+      <th>ehcache<br>
+      </th>
+      <th>JCS </th>
+      <th>Difference </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">insert 5 million typical
+CacheElements. Then get each of them by key.<br>
+      </td>
+      <td style="vertical-align: top;">&nbsp;22.704s<br>
+      </td>
+      <td style="vertical-align: top;">42.176s<br>
+      </td>
+      <td style="vertical-align: top;">79% faster<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">insert 5,000,000 typical
+CacheElements and get each of them by key. Then remove them one at a
+time by key<br>
+      </td>
+      <td style="vertical-align: top;">14.999s<br>
+      </td>
+      <td style="vertical-align: top;">44.536s<br>
+      </td>
+      <td style="vertical-align: top;">293% faster<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<h3><a class="mozTocH4" name="mozTocId356646"></a>Memory Use,
+Spooling and Expiry Strategy</h3>
+All caches
+specify their maximum in-memory size, in terms of the number of
+elements,
+at configuration time. <br>
+<br>
+When an element is added to a cache and it goes beyond its maximum
+memory size, an existing element is either deleted, if overflowToDisk
+is false, or evaluated for spooling to disk, if overflowToDisk is true.
+In the latter case, a check for expiry is carried out. If it is expired
+it is deleted;&nbsp; if not it is spooled. The eviction of an item from
+the
+memory store is based on an LRU algorithm. <br>
+or all the eviction policies there are also <a
+ href="http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/Cache.html#putQuiet%28net.sf.ehcache.Element%29">putQuiet</a>
+and <a
+ href="http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/Cache.html#getQuiet%28java.io.Serializable%29">getQuiet</a>
+methods which do not update the last used timestamp.<br>
+<br>
+When there is a <a
+ href="http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/Cache.html#get%28java.io.Serializable%29">get</a>
+or a <a
+ href="http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/Cache.html#getQuiet%28java.io.Serializable%29">getQuiet</a>
+on an element, it is
+checked for expiry. If
+expired, it is removed and null is returned.<br>
+<br>
+Note that at any point in time there will usually be some expired
+elements in the
+cache.&nbsp; Memory sizing of an application must always take into
+account the maximum size of each cache. There is a convenience method
+which can provide an estimate of the size in bytes of the <code>MemoryStore</code>.
+See <a
+ href="http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/Cache.html#calculateInMemorySize%28%29">calculateInMemorySize().</a>
+It returns the serialized size of the cache. Do not use this method in
+production. It is very slow. It is only meant to provide a rough
+estimate. <br>
+<br>
+The alternative would have been to have an expiry thread. This is a
+trade-off between lower memory use and short locking periods and cpu
+utilisation. The design is in favour of the latter. For those concerned
+with memory use, simply reduce the <code>maxElementsInMemory</code>.<br>
+<br>
+<h2><a class="mozTocH2" name="mozTocId451888"></a>DiskStore<span
+ style="font-weight: bold;"></span></h2>
+<span style="font-weight: bold;"><code></code></span>The disk cache
+provides a disk spooling facility.<br>
+<br>
+It has the following characteristics:<br>
+<h3><a class="mozTocH3" name="mozTocId691220"></a>Storage Files<br>
+</h3>
+The disk cache
+creates one file per
+cache called "cache name.data".&nbsp;
+if the <code>DiskStore</code> is configured to be persistent, a "cache
+name.index" file is also created.<br>
+<br>
+Files are created in the directory specified by the diskStore
+configuration element. The default configuration is "java.io.tmpdir",
+which causes files to be created in the system's temporary
+directory.&nbsp; Following is a list of Java system properties which
+are supported as values for diskStore:<br>
+<ul>
+  <li>user.home
+- User's home directory</li>
+  <li>user.dir -
+User's current working
+directory</li>
+  <li>java.io.tmpdir
+- Default temp file
+path</li>
+</ul>
+Apart from
+these, any directory can
+be specified using syntax appropriate to the operating system. e.g. for
+Unix "/home/application/cache".<br>
+<h3><a class="mozTocH4" name="mozTocId592884"></a>Expiry
+Strategy</h3>
+One thread per
+cache is used to
+remove expired
+elements. The optional attribute&nbsp; <code>diskExpiryThreadIntervalSeconds</code>
+sets the interval between runs of the expiry thread. <span
+ style="font-weight: bold;">Warning</span>: setting this to a low value
+is not recommended. It can cause excessive <code>DiskStore</code>
+locking and high cpu utilisation. The default value is 120 seconds. <code></code>
+<h3><a class="mozTocH4" name="mozTocId874158"></a>Serializable Objects
+Only<br>
+</h3>
+Only
+Serializable
+objects can be stored in a <code>DiskStore</code>. A <a
+ href="http://java.sun.com/j2se/1.4.2/docs/api/java/io/NotSerializableException.html">NotSerializableException</a>
+will be thrown if the object is not serializable.<span class="postbody">
+</span>
+<h3><a class="mozTocH4" name="mozTocId520626"></a>Safety</h3>
+<span class="postbody"><code>DiskStore</code>s are thread safe. </span><br>
+<h3><a class="mozTocH4" name="mozTocId581616"></a>Persistence</h3>
+<code>DiskStore</code>
+persistence is controlled
+by the <span style="font-style: italic;">diskPersistent&nbsp; </span>configuration
+element. If false or omitted, <code>DiskStore</code>s will not persist
+between
+<code>CacheManager</code> restarts. The data file for each cache will
+be deleted,
+if it
+exists, both on shutdown and startup. No data from a previous instance
+<code>CacheManager</code> is available.<br>
+<br>
+If <span style="font-style: italic;">diskPersistent</span> is true,
+the data file, and an index file, are saved. Cache Elements are
+available to a new <code>CacheManager</code>. This <code>CacheManager</code>
+may be in the same
+VM instance, or a new one.<br>
+<br>
+The data file is updated continuously during operation of the Disk
+Store. New elements are spooled to disk, and deleted when expired. The
+index file is only written when dispose is called on the <code>DiskStore</code>.
+This happens when the CacheManager is shut down, a Cache is disposed,
+or the VM is being shut down.&nbsp; It is recommended that the
+CacheManager <a
+ href="http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/CacheManager.html#shutdown%28%29">shutdown()</a>
+method be used. See <a href="mozTocId183156">Virtual Machine Shutdown
+Considerations</a> for guidance on how to safely shut the Virtual
+Machine down.<br>
+<br>
+When a <code>DiskStore</code> is persisted, the following steps take
+place:<br>
+<ol>
+  <li>Any non-expired Elements of the <code>MemoryStore</code> are
+flushed to the
+DiskStore</li>
+  <li>Elements
+awaiting spooling are
+spooled to the data file</li>
+  <li>The free
+list and element list are
+serialized to the index file</li>
+</ol>
+On startup the
+following steps take
+place:<br>
+<ol>
+  <li>An attempt is made to read the index file. If it does not exist
+or cannot be read successfully, due to disk corruption, upgrade of
+ehcache, change in JDK version etc, then the data file is deleted and
+the <code>DiskStore</code> starts with no Elements in it. <br>
+  </li>
+  <li>If the index file is read successfully, the free list and element
+list are loaded into memory. Once this is done, the index file contents
+are removed. This way, if there is a dirty shutdown, when restarted,
+ehcache will delete the dirt index and data files.</li>
+  <li>The <code>DiskStore</code> starts. All data is available.</li>
+  <li>The expiry thread starts. It will delete Elements which have
+expired. <br>
+  </li>
+</ol>
+These actions favour safety over persistence. Ehcache is a cache, not a
+database. If a file gets dirty, all data is deleted. Once started there
+is further checking for corruption. When a get is done, if the Element
+cannot be successfully derserialized, it is deleted, and null is
+returned. These measures prevent corrupt and inconsistent data being
+returned.<br>
+<h3><a class="mozTocH4" name="mozTocId429679"></a>Fragmentation</h3>
+Expiring an
+element
+frees its space on the file. This space is available for reuse by new
+elements.&nbsp; The element is also removed from the in-memory index of
+elements.<br>
+<h3><a class="mozTocH4" name="mozTocId75"></a>Speed</h3>
+<span class="postbody">Spool requests are placed in-memory and then
+asynchronously written to disk. There is one thread per cache.&nbsp; An
+in-memory index of elements on disk is maintained to quickly resolve
+whether a key exists on disk, and if so to seek it and read it. <br>
+<br>
+</span>
+<h4><a name="mozTocId268906" class="mozTocH4"></a>Serialization</h4>
+<span class="postbody">
+Writes to and from the disk use <a
+ href="http://java.sun.com/j2se/1.4.2/docs/api/java/io/ObjectOutputStream.html">ObjectInputStream</a>
+and the Java serialization mechanism. This is not required for the
+Memory Cache. So the disk cache will never be as fast. <br>
+<br>
+Serialization speed is affected by the size of the objects being
+serialized and their type. It has been found in the ElementTest test
+that:<br>
+</span>
+<ul>
+  <li>The serialization time for a Java object being a large Map of
+String arrays was 126ms, where the a serialized size was 349,225 bytes.<br>
+  </li>
+  <li>The serialization time for a byte[] was 7ms, where the serialized
+size was 310,232 bytes</li>
+</ul>
+Byte arrays are 20 times faster to serialize. Make use of byte arrays
+to increase DiskStore performance.<br>
+<span class="postbody"><br>
+</span>
+<h4><a name="mozTocId956746" class="mozTocH4"></a><span class="postbody">RAMFS</span></h4>
+<span class="postbody">However <span style="font-style: italic;">disks</span>
+can be of
+different speeds. The disk cache can be sped up by using a faster disk.
+On some operating systems there are a plethora of file systems to
+choose from. For example, the Disk Cache has been successfully used
+with Linux' RAMFS file system. This file system simply consists of
+memory. Linux presents it as a file system. The Disk Cache treats it
+like a normal disk - it is just way faster. With this type of file
+system, object serialization becomes the limiting factor to performance.<br>
+<br>
+</span><span class="postbody"></span><br>
+<span class="postbody"><br>
+</span>
+<h1><a class="mozTocH1" name="mozTocId723172"></a><span class="postbody">4
+Performance Considerations</span></h1>
+<span class="postbody">Ehcache comes with a </span><code>MemoryStore</code>
+and a <code>DiskStore</code>. The <code>MemoryStore</code> is
+approximately
+an order of magnitude faster than the <code>DiskStore</code>. The
+reason is that
+the <code>DiskStore</code> incurs the following extra overhead:
+<ul>
+  <li>Serialization of the key and value </li>
+  <li>Ejection from the <code>MemoryStore</code> using an LRU
+algorithm </li>
+  <li>Reading from disk </li>
+</ul>
+Note that writing to disk is not a synchronous performance overhead
+because it is handled by a separate thread.
+<p>A Cache should alway have its <code>maximumSize</code> attribute
+set to 1 or higher. A Cache with a maximum
+size of 1 has twice the performance of a disk only cache, i.e. one
+where the <code>maximumSize</code> is
+set to 0. For this reason a warning will be issued if a Cache is
+created with a 0 <code>maximumSize</code>. <br>
+<span class="postbody"></span>
+</p>
+<h1><a class="mozTocH1" name="mozTocId763298"></a><span class="postbody">5
+Distributed Caching </span></h1>
+<span class="postbody"></span>Ehcache is not a distributed cache. There
+are no plans to make it a distributed cache. The key design goals of
+ehcache are simplicity and provability. Adding a distribution mechanism
+to ehcache conflicts with those goals. Moreover, a requirement for
+distribution is far less common than for requirements such as memory
+and disk storage.<br>
+<br>
+Ehcache does however support distribution. Many of the open source
+distributed caches use the <a
+ href="http://www.jgroups.org/javagroupsnew/docs/">JGroups</a> project
+for distribution framework. Or, if you are using J2EE it is
+straightforward to expose the <code>CacheManager</code>
+via an EJB session bean. <br>
+<br>
+A <code>CacheManager</code> can access <code>Cache</code>s and
+Elements. Elements are <code>serializable</code>. and can be sent over
+a network using RMI or another protocol. <br>
+<br>
+<h1><a class="mozTocH2" name="mozTocId183156"></a>6 Virtual Machine
+Shutdown Considerations</h1>
+The DiskStore can optionally be configured to persist between
+CacheManager and Virtual Machine instances. See&nbsp; documentation on
+the <a href="mozTocId607199">diskPersistent</a>&nbsp; cache attribute
+for information on how to do this.<br>
+<br>
+When diskPersistent is turned on for a cache, a Virtual Machine
+shutdown hook is added to enable the DiskStore to persist itself. When
+the Virtual Machine shuts down, the the hook runs and, if the cache is
+not already disposed, it calls dispose. Any elements in the MemoryStore
+are spooled to the DiskStore. The DiskStore then flushes the spool, and
+writes the index to disk. <br>
+<br>
+The cache shutdown hooks will run when:<br>
+<ul>
+  <li>a program exists normally. e.g. System.exit() is called, or the
+last non-daemon thread exits</li>
+  <li>the Virtual Machine is terminated. e.g. CTRL-C. This corresponds
+to <code>kill -SIGTERM pid</code> or <code>kill -15 pid</code> on
+Unix
+systems.<br>
+  </li>
+</ul>
+The cache shutdown hooks will not run when:<br>
+<ul>
+  <li>the Virtual Machine aborts<br>
+  </li>
+  <li>A SIGKILL signal is sent to the Virtual Machine process on Unix
+systems. e.g. <code>kill -SIGKILL pid</code> or <code>kill -9 pid</code><br>
+  </li>
+  <li>A <code>TerminateProcess<span
+ style="font-family: verdana,arial,sans-serif;"></span></code> call is
+sent to the process on Windows systems.</li>
+</ul>
+If dispose was not called on the cache either by
+CacheManager.shutdown() or the shutdown hook, then the DiskStore will
+be corrupt when the application is next started. If this happens, it
+will be detected and the DiskStore file will be automatically truncated
+and a log warning level message is emitted.<span
+ style="font-style: italic;"></span> The cache will work normally,
+except that it will have lost all data.<br>
+&nbsp;<br>
+<h1><a class="mozTocH1" name="mozTocId265501"></a>7 Logging</h1>
+Ehcache uses
+the Apache Commons Logging library. It acts as a thin bridge between
+logging statements in the code and logging infrastructure detected in
+the classpath. It will use in order of preference: log4j, JDK1.4
+logging and then its own <code>SimpleLog</code> .&nbsp; This enables
+ehcache to use logging infrastructures compatible with Java versions
+from JDK1.2 to JDK5. It does create a dependency on Apache Commons
+Logging, however many projects, including Hibernate, share the same
+dependency.<br>
+<br>
+For normal production use, use the <code>WARN</code> level in log4J
+and the <code>WARNING</code> level for JDK1.4 logging.&nbsp; <br>
+<h1><a class="mozTocH1" name="mozTocId430833"></a>8 Obtaining the
+Source Code</h1>
+The source code is distributed in the root directory of the download.
+It is called ehcache-x.x.zip. It is also available from SourceForge
+online or through cvs.<br>
+<br>
+<h2><a class="mozTocH2" name="mozTocId688132"></a>Online<br>
+</h2>
+The source code can be viewed online via <a
+ href="http://cvs.sourceforge.net/viewcvs.py/ehcache/">viewcvs.</a><br>
+<h2><a class="mozTocH2" name="mozTocId244950"></a>CVS</h2>
+You can check out the sourcecode anonymously using cvs as follows:<br>
+<br>
+<table>
+  <tbody>
+    <tr>
+      <td> 1. cvs
+-d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/ehcache login <br>
+2. cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/ehcache co
+ehcache </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<tt></tt>
+<h1><a class="mozTocH1" name="mozTocId258426"></a>9 <a class="mozTocH2"
+ name="mozTocId880411"></a>Cache Configuration</h1>
+<h2><a class="mozTocH4" name="mozTocId711412"></a>Declarative versus
+Programmatic Configuration</h2>
+Declarative
+configuration refers to the practice of declaring configuration at
+design time. Programmatic configuration to the practice of configuring
+at runtime.<br>
+<br>
+In ehcache the
+following must always be configured declaratively:<br>
+<ol>
+  <li>The directory in which <code>DiskStore</code>s are to be
+created. (diskStore
+element)<br>
+  </li>
+  <li>Default configuration for caches created without declarative or
+programmatic configuration.&nbsp; (defaultCache element)<br>
+  </li>
+</ol>
+Individual caches can be configured either declaratively or
+programmatically. <br>
+<br>
+<span style="font-weight: normal;">It is better practice to configure
+caches declaratively because:</span>
+<ol>
+  <li>It is easy if you have all of your configuration in one place.
+Caches consume memory, and disk space. They need to be carefully tuned.
+You can see the total effect in a configuration file. You could do this
+code, but it would not as visible.</li>
+  <li>It is possible to change configuration without doing a recompile.</li>
+  <li>Common configuration errors can be checked for at start-up,
+rather than causing a runtime error.</li>
+</ol>
+The programmatic facility is provided primarily so that new caches can
+be dynamically created at runtime.<br>
+<h2><a class="mozTocH4" name="mozTocId532466"></a>Declarative
+Configuration<br>
+</h2>
+<h3><a class="mozTocH3" name="mozTocId248253"></a>The ehcache schema:
+ehcache.xsd</h3>
+Ehcache looks for an ehcache.xml file. These must be configured in
+accordance with the following schema:<br>
+<br>
+<table>
+  <tbody>
+    <tr>
+      <td>&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>
+&lt;xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+elementFormDefault="qualified"&gt;<br>
+&nbsp; &lt;xs:element name="ehcache"&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;xs:complexType&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;xs:sequence&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;xs:element
+ref="diskStore"/&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;xs:element
+ref="defaultCache"/&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;xs:element
+maxOccurs="unbounded" ref="cache"/&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/xs:sequence&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;/xs:complexType&gt;<br>
+&nbsp; &lt;/xs:element&gt;<br>
+&nbsp; &lt;xs:element name="diskStore"&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;xs:complexType&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;xs:attribute name="path"
+use="required" type="xs:NCName"/&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;/xs:complexType&gt;<br>
+&nbsp; &lt;/xs:element&gt;<br>
+&nbsp; &lt;xs:element name="defaultCache"&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;xs:complexType&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;xs:attribute name="eternal"
+use="required" type="xs:boolean"/&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;xs:attribute
+name="maxElementsInMemory" use="required" type="xs:integer"/&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;xs:attribute name="overflowToDisk"
+use="required" type="xs:boolean"/&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;xs:attribute
+name="timeToIdleSeconds" use="optional" type="xs:integer"/&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;xs:attribute
+name="timeToLiveSeconds" use="optional" type="xs:integer"/&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;xs:attribute name="diskPersistent"
+use="optional" type="xs:integer"/&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;xs:attribute
+name="diskExpiryThreadIntervalSeconds" use="optional"
+type="xs:integer"/&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;/xs:complexType&gt;<br>
+&nbsp; &lt;/xs:element&gt;<br>
+&nbsp; &lt;xs:element name="cache"&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;xs:complexType&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;xs:attribute name="eternal"
+use="required" type="xs:boolean"/&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;xs:attribute
+name="maxElementsInMemory" use="required" type="xs:integer"/&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;xs:attribute name="name"
+use="required" type="xs:NCName"/&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;xs:attribute name="overflowToDisk"
+use="required" type="xs:boolean"/&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;xs:attribute
+name="timeToIdleSeconds" use="optional" type="xs:integer"/&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;xs:attribute
+name="timeToLiveSeconds" use="optional" type="xs:integer"/&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;xs:attribute name="diskPersistent"
+use="optional" type="xs:integer"/&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;xs:attribute
+name="diskExpiryThreadIntervalSeconds" use="optional"
+type="xs:integer"/&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;/xs:complexType&gt;<br>
+&nbsp; &lt;/xs:element&gt;<br>
+&lt;/xs:schema&gt;</td>
+    </tr>
+  </tbody>
+</table>
+The schema is also provided in the root directory of the ehcache
+distribution. <br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId478118"></a>diskStore</h3>
+The diskStore element is required, regardless of whether or not it is
+intended to use any DiskStores.<br>
+<h4><a class="mozTocH4" name="mozTocId626463"></a>path</h4>
+This is a required attribute.<br>
+<br>
+It sets the path used by any DiskStore objects for creating data and
+index files. <br>
+<br>
+Legal values must be a relative or absolute path to a directory with
+syntax legal for the operating system ehcache is running on.&nbsp; If
+the directory does not exist an attempt is made to create it.<br>
+<br>
+If the path value is a Java System Property (e.g. "user.home") it is
+replaced by its runtime value in the Virtual Machine.<br>
+<br>
+The following Java System Properties are understood:<br>
+<table>
+  <tbody>
+    <tr>
+      <td>user.home&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - User's home
+directory<br>
+user.dir&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - User's current working
+directory<br>
+java.io.tmpdir - Default temporary directory <br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<h3><a class="mozTocH3" name="mozTocId822608"></a>defaultCache</h3>
+The defaultCache element contains configuration used by ehcache to
+create caches, where a cache element matching the cache name does not
+exist. It is a template. <br>
+<br>
+An example of it use is in Hibernate. When you specify that a Domain
+Object is cacheable Hibernate creates a new cache using the fully
+qualified class name of the Domain Object as the cache name. No
+configuration information is provided. Ehcache automatically creates
+the new caches using the defaultCache settings as a template.<br>
+<br>
+While the defaultCache is a great convenience, it is preferable for
+each Cache to be configured individually. For this reason a log warning
+level message is issued each time a cache is created based on the
+defaultCache values. &nbsp; <br>
+<h3><a class="mozTocH3" name="mozTocId13934"></a>cache</h3>
+The cache element contains configuration used by ehcache to create each
+cache. When the CacheManager is created it parses ehcache.xml for cache
+elements and creates a cache for each one with the settings provided.<br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId27759"></a>defaultCache and cache
+attributes</h3>
+defaultCache and cache share the same attributes, except that an
+additional name attribute is required for the cache element.<br>
+<h4><a class="mozTocH4" name="mozTocId975884"></a>name</h4>
+This is a required attribute for cache elements only. The defaultCache
+does not have a name attribute.<br>
+<br>
+Legal values are any legal String value. Names must be unique. Ehcache
+will throw a CacheException if an attempt is made to create two caches
+with the same name.<br>
+<br>
+Hibernate users should use the fully qualified class name of the
+DomainObject being cached.&nbsp; There are different rules for other
+types of Hibernate cache. For more on Hibernate naming see&nbsp;
+<a href="#mozTocId116611">Using ehcache as a Hibernate Plugin</a>. <br>
+<br>
+<h4><a class="mozTocH4" name="mozTocId61214"></a><a name="eternal_"></a>eternal
+<br>
+</h4>
+This is a required attribute.<br>
+<br>
+Whether or not the cache is eternal. An eternal cache does not expire
+its elements.<br>
+<br>
+Legal values are "true" or "false".<br>
+<br>
+<h4><a class="mozTocH4" name="mozTocId734465"></a>maxElementsInMemory <br>
+</h4>
+This is a required attribute.<br>
+<br>
+Legal values are integers between 0 and Integer.MAX_VALUE.<br>
+<br>
+It is the maximum number of elements to store in the MemoryStore. It is
+strongly recommended for performance reasons that this value is at
+least 1. If not a warning will be issued at Cache creation time.<br>
+<br>
+<h4><a class="mozTocH4" name="mozTocId477913"></a>overflowToDisk</h4>
+This is a required attribute.<br>
+<br>
+Legal values are "true" or "false".<br>
+<br>
+Whether or not to use the DiskStore when the number of Elements has
+exceeded the maxElementsInMemory of the MemoryStore. <br>
+<br>
+Entries to be removed from the MemoryStore, when it overflows, are
+determined using a least recently used algorithm ("LRU"). Used means
+inserted or accessed. If false, the LRU Element is discarded. If true,
+it is transferred to the DiskStore.<br>
+<h4><a class="mozTocH4" name="mozTocId103087"></a>timeToIdleSeconds</h4>
+This is an optional attribute.<br>
+<br>
+Legal values are integers between 0 and Integer.MAX_VALUE.<br>
+<br>
+It is the number of seconds that an Element should live since it was
+last used. Used means inserted or accessed. <br>
+<br>
+0 has a special meaning, which is not to check the Element for time to
+idle, i.e. it will idle forever.<br>
+<br>
+The default value is 0.<br>
+<br>
+<h4><a class="mozTocH4" name="mozTocId384335"></a>timeToLiveSeconds</h4>
+This is an optional attribute.<br>
+<br>
+Legal values are integers between 0 and Integer.MAX_VALUE.<br>
+<br>
+It is the number of seconds that an Element should live since it was
+created. Created means inserted into a cache using the Cache.put method.<br>
+<br>
+0 has a special meaning, which is not to check the Element for time to
+live, i.e. it will live forever.<br>
+<br>
+The default value is 0.<br>
+<br>
+<h4><a class="mozTocH4" name="mozTocId607199"></a>diskPersistent</h4>
+This is an optional attribute. <br>
+<br>
+Legal values are "true" or "false".<br>
+<br>
+Whether or not the DiskStore should be persisted between CacheManager
+shutdowns and Virtual Machine restarts.<br>
+<br>
+<h4><a class="mozTocH4" name="mozTocId389950"></a>diskExpiryThreadIntervalSeconds</h4>
+This is an optional attribute.<br>
+<br>
+Legal values are integers between 0 and Integer.MAX_VALUE.<br>
+<br>
+It is how long to the disk expiry thread should sleep between
+successive runs. Setting this value too low could cause performance
+problems. A setting of 0 is not recommended. It will cause 100% cpu
+load.<br>
+<br>
+The default value is 120 seconds.<br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId91516"></a>Sample ehcache.xml</h3>
+A sample
+ehcache.xml configuration file is included in the root directory of the
+ehcache
+distribution. It is reproduced below.<br>
+<br>
+The sample includes a diskStore element, a defaultCache element and
+three cache elements. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<table>
+  <tbody>
+    <tr>
+      <td>&lt;ehcache&gt;<br>
+      <br>
+&nbsp;&nbsp;&nbsp; &lt;!-- Sets the path to the directory where cache
+.data files are created.<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If the path is a Java
+System Property it is replaced by<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; its value in the
+running VM.<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The following
+properties are translated:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user.home - User's
+home directory<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user.dir - User's
+current working directory<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; java.io.tmpdir -
+Default temp file path --&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;diskStore path="java.io.tmpdir"/&gt;<br>
+      <br>
+      <br>
+&nbsp;&nbsp;&nbsp; &lt;!--Default Cache configuration. These will
+applied to caches programmatically created through<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the CacheManager.<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The following attributes are
+required:<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+maxElementsInMemory&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Sets the maximum number of objects that will be created in memory<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+eternal&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Sets whether elements are eternal. If eternal,&nbsp; timeouts are
+ignored and the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+element is never expired.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+overflowToDisk&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Sets whether elements can overflow to disk when the in-memory cache<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+has reached the maxInMemory limit.<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The following attributes are
+optional:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+timeToIdleSeconds&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Sets the time to idle for an element before it expires.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+i.e. The maximum amount of time between accesses before an element
+expires<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Is only used if the element is not eternal.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Optional attribute. A value of 0 means that an Element can idle for
+infinity.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+The default value is 0.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+timeToLiveSeconds&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Sets the time to live for an element before it expires.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+i.e. The maximum time between creation time and when an element expires.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Is only used if the element is not eternal.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Optional attribute. A value of 0 means that and Element can live for
+infinity.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+The default value is 0.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+diskPersistent&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Whether the disk store persists between restarts of the Virtual
+Machine.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+The default value is false.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+diskExpiryThreadIntervalSeconds- The number of seconds between runs of
+the disk expiry thread. The default value<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+is 120 seconds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --&gt;<br>
+      <br>
+&nbsp;&nbsp;&nbsp; &lt;defaultCache<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxElementsInMemory="10000"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eternal="false"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeToIdleSeconds="120"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeToLiveSeconds="120"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; overflowToDisk="true"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; diskPersistent="false"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+diskExpiryThreadIntervalSeconds="120"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /&gt;<br>
+      <br>
+&nbsp;&nbsp;&nbsp; &lt;!--Predefined caches.&nbsp; Add your cache
+configuration settings here.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If you do not have a
+configuration for your cache a WARNING will be issued when the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CacheManager starts<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The following attributes are
+required:<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Sets the name of the cache. This is used to identify the cache.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+It must be unique.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+maxElementsInMemory&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Sets the maximum number of objects that will be created in memory<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+eternal&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Sets whether elements are eternal. If eternal,&nbsp; timeouts are
+ignored and the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+element is never expired.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+overflowToDisk&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Sets whether elements can overflow to disk when the in-memory cache<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+has reached the maxInMemory limit.<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The following attributes are
+optional:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+timeToIdleSeconds&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Sets the time to idle for an element before it expires.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+i.e. The maximum amount of time between accesses before an element
+expires<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Is only used if the element is not eternal.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Optional attribute. A value of 0 means that an Element can idle for
+infinity.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+The default value is 0.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+timeToLiveSeconds&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Sets the time to live for an element before it expires.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+i.e. The maximum time between creation time and when an element expires.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Is only used if the element is not eternal.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Optional attribute. A value of 0 means that and Element can live for
+infinity.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+The default value is 0.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+diskPersistent&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Whether the disk store persists between restarts of the Virtual
+Machine.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+The default value is false.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+diskExpiryThreadIntervalSeconds- The number of seconds between runs of
+the disk expiry thread. The default value<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+is 120 seconds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --&gt;<br>
+      <br>
+&nbsp;&nbsp;&nbsp; &lt;!-- Sample cache named sampleCache1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This cache contains a
+maximum in memory of 10000 elements, and will expire<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; an element if it is idle for
+more than 5 minutes and lives for more than<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 10 minutes.<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If there are more than 10000
+elements it will overflow to the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; disk cache, which in this
+configuration will go to wherever java.io.tmp is<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defined on your system. On a
+standard Linux system this will be /tmp"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;cache name="sampleCache1"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxElementsInMemory="10000"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eternal="false"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; overflowToDisk="true"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeToIdleSeconds="300"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeToLiveSeconds="600"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /&gt;<br>
+      <br>
+&nbsp;&nbsp;&nbsp; &lt;!-- Sample cache named sampleCache2<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This cache has a maximum of
+1000 elements in memory. There is no overflow to disk, so 1000<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; is also the maximum cache
+size. Note that when a cache is eternal, timeToLive and timeToIdle<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; are not used and do not need
+to be specified --&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;cache name="sampleCache2"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxElementsInMemory="1000"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eternal="true"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; overflowToDisk="false"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /&gt;<br>
+      <br>
+&nbsp;&nbsp;&nbsp; &lt;!-- Sample cache named sampleCache3. This cache
+overflows to disk. The disk store is persistent<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; between cache and VM
+restarts. The disk expiry thread interval is set to 10 minutes,
+overriding<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the default of 2
+minutes. --&gt;<br>
+      <br>
+&nbsp;&nbsp;&nbsp; &lt;cache name="sampleCache3"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxElementsInMemory="500"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eternal="false"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; overflowToDisk="true"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeToIdleSeconds="300"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeToLiveSeconds="600"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; diskPersistent="true"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+diskExpiryThreadIntervalSeconds="1"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /&gt;<br>
+      <br>
+&nbsp;&nbsp;&nbsp; &lt;!-- Place configuration for your caches
+following --&gt;<br>
+      <br>
+&lt;/ehcache&gt;<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<h3><a class="mozTocH3" name="mozTocId606083"></a>Installing ehcache.xml</h3>
+<br>
+By default the CacheManager.create() method expects to find ehcache.xml
+as a resource in the classpath. It uses
+Configurator.getClass().getResource(/"ehcache.xml"). The ehcache.xml
+file should be placed at the root of the classpath, not in a package.
+If placed in a jar, it should be in the root level directory of the jar.<br>
+<br>
+If ehcache cannot find ehcache.xml
+it
+will instead use the <a href="mozTocId382717">failsafe configuration</a>.<br>
+<br>
+The CacheManager can also obtain ehcache.xml in other ways. See <a
+ href="mozTocId239314">Creating a CacheManager</a>.<br>
+<h2><a class="mozTocH4" name="mozTocId382717"></a>Failsafe Configuration</h2>
+Ehcache comes
+with a
+failsafe configuration declared in the ehcache-failsafe.xml file, which
+is provided in the ehcache.jar. It is only used when no ehcache.xml
+configuration file is found in the classpath, and CacheManager is
+created without any arguments. If it is used a log warning level
+message will be issued.<br>
+<br>
+Ehcache deliberately
+avoids placing an ehcache.xml configuration file in the JAR archive so
+as to avoid frustrating classpath precedence problems.<br>
+<br>
+The failsafe configuration provides ehcache with the minimum to
+function: specified diskStore and defaultCache elements. It sets the <code>DiskStore</code>
+path attribute to the value given by the Java system property
+"java.io.tmpdir"
+(/tmp on Unix-like systems) and sets the default cache to reasonable
+values. ehcache-failsafe.xml is reproduced here:<br>
+<br>
+<table>
+  <tbody>
+    <tr>
+      <td>&lt;ehcache&gt;<br>
+      <br>
+&nbsp;&nbsp;&nbsp; &lt;!-- Sets the path to the directory where cache
+.data files are created.<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If the path is a Java
+System Property it is replaced by<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; its value in the
+running VM.<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The following
+properties are translated:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user.home - User's
+home directory<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user.dir - User's
+current working directory<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; java.io.tmpdir -
+Default temp file path --&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;diskStore path="java.io.tmpdir"/&gt;<br>
+      <br>
+      <br>
+&nbsp;&nbsp;&nbsp; &lt;!--Default Cache configuration. These will
+applied to caches programmatically created through<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the CacheManager.<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The following attributes are
+required:<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+maxElementsInMemory&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Sets the maximum number of objects that will be created in memory<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+eternal&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Sets whether elements are eternal. If eternal,&nbsp; timeouts are
+ignored and the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+element is never expired.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+overflowToDisk&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Sets whether elements can overflow to disk when the in-memory cache<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+has reached the maxInMemory limit.<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The following attributes are
+optional:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+timeToIdleSeconds&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Sets the time to idle for an element before it expires.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+i.e. The maximum amount of time between accesses before an element
+expires<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Is only used if the element is not eternal.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Optional attribute. A value of 0 means that an Element can idle for
+infinity.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+The default value is 0.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+timeToLiveSeconds&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Sets the time to live for an element before it expires.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+i.e. The maximum time between creation time and when an element expires.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Is only used if the element is not eternal.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Optional attribute. A value of 0 means that and Element can live for
+infinity.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+The default value is 0.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+diskPersistent&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Whether the disk store persists between restarts of the Virtual
+Machine.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+The default value is false.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+diskExpiryThreadIntervalSeconds- The number of seconds between runs of
+the disk expiry thread. The default value<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+is 120 seconds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --&gt;<br>
+      <br>
+&nbsp;&nbsp;&nbsp; &lt;defaultCache<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxElementsInMemory="10000"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eternal="false"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; overflowToDisk="true"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeToIdleSeconds="120"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeToLiveSeconds="120"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; diskPersistent="false"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+diskExpiryThreadIntervalSeconds="120"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /&gt;<br>
+&lt;/ehcache&gt;<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<h2><a class="mozTocH4" name="mozTocId882604"></a>Programmatic
+Configuration<br>
+</h2>
+The
+configuration for
+a Cache can be specified programmatically in the Cache constructor:<br>
+<br>
+<table>
+  <tbody>
+    <tr>
+      <td>&nbsp;public Cache(String name,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+int maxElementsInMemory,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+boolean overflowToDisk,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+boolean eternal,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+long timeToLiveSeconds,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+long timeToIdleSeconds,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+boolean diskPersistent,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+long diskExpiryThreadIntervalSeconds) {<br>
+&nbsp;&nbsp; ...<br>
+}<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+Here is an example
+which creates a cache called test. <br>
+<table>
+  <tbody>
+    <tr>
+      <td>//Create
+a CacheManager using defaults<br>
+CacheManager manager = CacheManager.create();<br>
+//Create a Cache specifying its configuration.<br>
+Cache testCache = new Cache("test", maxElements, true, false, 60, 30,
+false, 0);<br>
+manager.addCache(cache);<br>
+      <br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+Once the cache is created, add it to the list of caches managed by the
+CacheManager:<br>
+<br>
+<table>
+  <tbody>
+    <tr>
+      <td>manager.addCache(testCache);<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+The cache is not usable until it has been added.<br>
+<h1><a class="mozTocH1" name="mozTocId470653"></a>10 Code
+Samples<br>
+</h1>
+Ehcache comes
+with a comprehensive JUnit test suite. The test suite shows you how to
+use all the features of ehcache.<br>
+<br>
+Following are code samples for the most common tasks.<br>
+<br>
+For comprehensive code samples see the test source code:<br>
+<ol>
+  <li>In CVS online with <a
+ href="http://cvs.sourceforge.net/viewcvs.py/ehcache/ehcache/test/java/net/sf/ehcache/">viewcvs</a></li>
+  <li>In the source distributed with the download</li>
+</ol>
+<br>
+<h2><a class="mozTocH2" name="mozTocId239314"></a>Using the
+CacheManager</h2>
+<br>
+<a class="mozTocH4" name="mozTocId499657"></a>Create a
+CacheManager using defaults
+<table>
+  <tbody>
+    <tr>
+      <td>CacheManager
+manager = CacheManager.create();<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<span
+ style="font-weight: bold; font-family: helvetica,arial,sans-serif;"></span>
+<br>
+<a class="mozTocH4" name="mozTocId256754"></a>Create a
+CacheManager specifying a configuration file.<br>
+<table>
+  <tbody>
+    <tr>
+      <td>CacheManager
+manager = CacheManager.create("src/config/ehcache.xml");<br>
+      <br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<a class="mozTocH4" name="mozTocId734762"></a>Create a
+CacheManager from a configuration resource in the classpath.<br>
+<table>
+  <tbody>
+    <tr>
+      <td>URL
+url = getClass().getResource("/anothername.xml");<br>
+CacheManager manager = CacheManager.create(url);<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+Create a
+CacheManager from a configuration in an InputStream.
+<table>
+  <tbody>
+    <tr>
+      <td>InputStream fis = new FileInputStream(new
+File("src/config/ehcache.xml").getAbsolutePath());<br>
+try {<br>
+&nbsp;&nbsp;&nbsp; manager = CacheManager.create(fis);<br>
+} finally {<br>
+&nbsp;&nbsp;&nbsp; fis.close();<br>
+}<br>
+&nbsp;&nbsp;&nbsp; <br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<a class="mozTocH4" name="mozTocId572176"></a>Shutdown the
+CacheManager
+<table>
+  <tbody>
+    <tr>
+      <td>manager.shutdown();<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<h2><a class="mozTocH2" name="mozTocId173194"></a>Using Caches</h2>
+<br>
+<a class="mozTocH4" name="mozTocId760136"></a>Obtain a Cache
+called "sampleCache1" which has been preconfigured
+in the configuration file
+<table>
+  <tbody>
+    <tr>
+      <td>Cache
+cache = manager.getCache("sampleCache1");<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<a class="mozTocH4" name="mozTocId95037"></a>Create a new Cache
+called "test" which does not exist, using
+defaults<br>
+<table>
+  <tbody>
+    <tr>
+      <td>CacheManager
+manager = CacheManager.create();<br>
+manager.addCache("test");<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<a class="mozTocH4" name="mozTocId422265"></a>Create a new Cache
+called "test", specifying its properties.<br>
+<table>
+  <tbody>
+    <tr>
+      <td>CacheManager
+manager = CacheManager.create();<br>
+Cache cache = new Cache("test", 1, true, false, 5, 2);<br>
+manager.addCache(cache);<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<a class="mozTocH4" name="mozTocId328262"></a>Put an element
+into a cache<br>
+<table>
+  <tbody>
+    <tr>
+      <td>Element
+element = new Element("key1", "value1"<br>
+cache.put(new Element(element);<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<a class="mozTocH4" name="mozTocId360932"></a>Get an element
+from a cache<br>
+<table>
+  <tbody>
+    <tr>
+      <td>Element
+element = cache.get("key1");<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<h1><a class="mozTocH1" name="mozTocId116611"></a>11 Using ehcache as a
+Hibernate plugin</h1>
+Ehcache
+easily integrates with&nbsp; the <a href="hibernate.org">Hibernate</a>
+Object/Relational persistence and query service. Gavin King, the
+maintainer of Hibernate, is also a committer to the ehcache project.
+This ensures ehcache will remain a first class cache for Hibernate.
+Since Hibernate 2.1, ehcache has been the default cache,
+for Hibernate.<br>
+<br>
+The net.sf.ehcache.hibernate package provides classes integrating
+ehcache with Hibernate. Hibernate is an application of ehcache. Ehcache
+is also widely used a general-purpose Java cache.<br>
+<br>
+To use ehcache with Hibernate do the following:<br>
+<ol>
+  <li>Ensure ehcache is enabled in the Hibernate configuration (it
+should already be)<br>
+  </li>
+  <li>Add the cache element to the Hibernate mapping file, either
+manually, or via hibernatedoclet for each Domain Object you wish to
+cache</li>
+  <li>Add the cache element to the Hibernate mapping file, either
+manually, or via hibernatedoclet for each Domain Object collection you
+wish to cache</li>
+  <li>Add the cache element to the Hibernate mapping file, either
+manually, or via hibernatedoclet for each Hibernate query you wish to
+cache</li>
+  <li>Create a cache element in ehcache.xml<br>
+  </li>
+</ol>
+Each of these steps is illustrated using a fictional Country Domain
+Object.<br>
+<br>
+For more about cache configuration in Hibernate see the <a
+ href="http://www.hibernate.org/hib_docs/reference/en/html_single/">Hibernate
+documentation</a>. Parts of this chapter are drawn from Hibernate
+documentation and source code comments. They are reproduced here for
+convenience in using ehcache.<br>
+<br>
+<h2><a class="mozTocH2" name="mozTocId462917"></a>Ensuring ehcache is
+enabled<br>
+</h2>
+<br>
+To ensure ehcache is enabled, verify that the
+hibernate.cache.provider_class property is set to
+net.sf.ehcache.hibernate.Provider in the Hibernate configuration file;
+typically hibernate.cfg.xml. By default it should already be.<br>
+<br>
+<table>
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">&lt;property
+name="hibernate.cache.provider_class"&gt;net.sf.ehcache.hibernate.Provider&lt;/property&gt;</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+The provider can also be set programmatically in Hiberante using
+Configuration.setProperty("hibernate.cache.provider_class",
+"net.sf.ehcache.hibernate.Provider").
+<h2><a class="mozTocH4" name="mozTocId35065"></a>Hibernate Mapping
+Files</h2>
+In Hibernate,
+each domain object requires a mapping file.<br>
+<br>
+For example
+to enable cache entries for
+the domain object com.somecompany.someproject.domain.Country there
+would be a mapping file something like the following:<br>
+<br>
+<table>
+  <tbody>
+    <tr>
+      <td>&lt;hibernate-mapping&gt;<br>
+&nbsp;&nbsp;&nbsp;
+&lt;class<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+name="com.somecompany.someproject.domain.Country"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+table="ut_Countries"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+dynamic-update="false"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+dynamic-insert="false"<br>
+&nbsp;&nbsp;&nbsp;
+&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <br>
+...<br>
+      <br>
+&lt;/hibernate-mapping&gt; </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+To enable
+caching, add the following element.<br>
+<br>
+<table>
+  <tbody>
+    <tr>
+      <td>&lt;cache
+usage="read-write|nonstrict-read-write|read-only" /&gt; </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+e.g.<br>
+<br>
+<table>
+  <tbody>
+    <tr>
+      <td>&lt;cache
+usage="read-write" /&gt; </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<h3><a name="mozTocId100235" class="mozTocH3"></a>read-write</h3>
+Caches data that is sometimes updated while maintaining the semantics
+of "read committed" isolation level. If the database is set to
+"repeatable&nbsp; read", this concurrency strategy almost maintains the
+semantics.&nbsp; Repeatable read isolation is compromised in the case
+of concurrent writes.&nbsp; <br>
+<br>
+This is an "asynchronous" concurrency strategy.<br>
+<h3><a name="mozTocId79788" class="mozTocH3"></a>nonstrict-read-write</h3>
+Caches data that is sometimes updated without ever locking the
+cache.&nbsp; If concurrent access to an item is possible, this
+concurrency strategy&nbsp; makes no guarantee that the item returned
+from the cache is the latest&nbsp; version available in the database.
+Configure your cache timeout accordingly! <br>
+This is an "asynchronous" concurrency strategy.<br>
+<br>
+This policy is the fastest. It does not use synchronized methods
+whereas read-write and read-only both do.<br>
+<h3><a name="mozTocId554731" class="mozTocH3"></a>read-only</h3>
+Caches data that is never updated.<br>
+<br>
+<h2><a class="mozTocH2" name="mozTocId615685"></a>Hibernate Doclet
+&nbsp;&nbsp; </h2>
+Hibernate Doclet, part of the <a href="http://xdoclet.sourceforge.net">XDoclet</a>
+project, can be used to generate Hibernate mapping files from markup in
+JavaDoc comments.<br>
+<br>
+Following is an example of a Class level JavaDoc which configures a
+read-write cache for the Country Domain Object:<br>
+<br>
+<table>
+  <tbody>
+    <tr>
+      <td><br>
+/**<br>
+&nbsp;* A Country Domain Object<br>
+&nbsp;* <br>
+&nbsp;* @hibernate.class table="COUNTRY"<br>
+&nbsp;* @hibernate.cache usage="read-write"<br>
+&nbsp;*/<br>
+public class Country implements Serializable
+{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <br>
+      <br>
+...<br>
+      <br>
+}<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<code></code>The @hibernate.cache usage tag should be set to one
+of&nbsp; read-write, nonstrict-read-write and read-only.<br>
+<br>
+<h2><a class="mozTocH4" name="mozTocId880238"></a>Configuration with
+ehcache.xml</h2>
+Because ehcache.xml has a defaultCache, caches will always be created
+when required by Hibernate. However more control can be exerted by
+specifying a configuration per cache, based on its name.<br>
+<br>
+In particular, because Hibernate caches are populated from databases,
+there is potential for them to get very large. This can be controlled
+by capping their maxElementsInMemory and specifying whether to
+overflowToDisk beyond that. <br>
+<br>
+Hibernate uses a specific convention for the naming of caches of Domain
+Objects, Collections, and Queries.<br>
+<h3><a class="mozTocH3" name="mozTocId75146"></a>Domain Objects</h3>
+Hibernate
+creates caches named after the fully qualified name of Domain
+Objects. <br>
+<br>
+So, for example
+to create a cache for
+com.somecompany.someproject.domain.Country create a cache configuration
+entry similar to the following in ehcache.xml.<br>
+<br>
+<table>
+  <tbody>
+    <tr>
+      <td>&lt;cache
+name="com.somecompany.someproject.domain.Country"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+maxElementsInMemory="10000"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+eternal="false"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+timeToIdleSeconds="300"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+timeToLiveSeconds="600"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+overflowToDisk="true"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+/&gt; </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<h4><a name="mozTocId984535" class="mozTocH4"></a>Hibernate
+CacheConcurrencyStrategy</h4>
+read-write, nonstrict-read-write and read-only policies apply to Domain
+Objects.<br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId514248"></a>Collections</h3>
+Hibernate creates collection caches named after the fully qualified
+name of the Domain Object followed by "." followed by the collection
+field name.<br>
+<br>
+For example, a Country domain object has a set of
+advancedSearchFacilities.&nbsp; The Hibernate doclet for the accessor
+looks like:<br>
+<br>
+<table>
+  <tbody>
+    <tr>
+      <td><br>
+&nbsp;&nbsp;&nbsp; /**<br>
+&nbsp;&nbsp;&nbsp;&nbsp; * Returns the advanced search facilities that
+should appear for this country.<br>
+&nbsp;&nbsp;&nbsp;&nbsp; * @hibernate.set cascade="all" inverse="true"<br>
+&nbsp;&nbsp;&nbsp;&nbsp; * @hibernate.collection-key column="COUNTRY_ID"<br>
+&nbsp;&nbsp;&nbsp;&nbsp; * @hibernate.collection-one-to-many
+class="com.wotif.jaguar.domain.AdvancedSearchFacility"<br>
+&nbsp;&nbsp;&nbsp;&nbsp; * @hibernate.cache usage="read-write" <br>
+&nbsp;&nbsp;&nbsp;&nbsp; */<br>
+&nbsp;&nbsp;&nbsp; public Set getAdvancedSearchFacilities()&nbsp; {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return
+advancedSearchFacilities;<br>
+&nbsp;&nbsp;&nbsp; }<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+You need an additional cache configured for the set. The ehcache.xml
+configuration looks like:<br>
+<table>
+  <tbody>
+    <tr>
+      <td><br>
+&lt;cache name="com.somecompany.someproject.domain.Country"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxElementsInMemory="50"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eternal="false"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeToLiveSeconds="600"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; overflowToDisk="true"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /&gt;<br>
+&lt;cache
+name="com.somecompany.someproject.Country.advancedSearchFacilities"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxElementsInMemory="450"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eternal="false"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeToLiveSeconds="600"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; overflowToDisk="true"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /&gt;<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4><a name="mozTocId649727" class="mozTocH4"></a>Hibernate
+CacheConcurrencyStrategy</h4>
+read-write, nonstrict-read-write and read-only policies apply to Domain
+Object collections.<br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId681722"></a>Queries</h3>
+Hibernate allows the caching of query results. Two caches, one called
+"net.sf.hibernate.cache.StandardQueryCache" in version 2.1.4 and higher
+and&nbsp; "net.sf.hibernate.cache.QueryCache" in versions 2.1.0
+- 2.1.3, and one called "net.sf.hibernate.cache.UpdateTimestampsCache"
+are always used.<br>
+<br>
+<h4><a name="mozTocId80024" class="mozTocH4"></a>StandardQueryCache</h4>
+This cache is used if you use a query&nbsp; cache without setting a
+name. A typical ehcache.xml configuration is:<br>
+<br>
+<table>
+  <tbody>
+    <tr>
+      <td>&nbsp;&nbsp;&nbsp; &lt;cache
+name="net.sf.hibernate.cache.StandardQueryCache"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxElementsInMemory="5"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eternal="false"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeToLiveSeconds="120"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; overflowToDisk="true"/&gt;<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<h4><a name="mozTocId68258" class="mozTocH4"></a>UpdateTimestampsCache</h4>
+<br>
+Tracks the timestamps of the most recent updates to particular tables.
+It is important that the cache timeout of the underlying cache
+implementation be set to a higher value than the timeouts of any of the
+query caches. In fact, it is recommend that the the underlying cache
+not be configured for expiry at all.<br>
+<br>
+A typical ehcache.xml configuration is:<br>
+<br>
+<table>
+  <tbody>
+    <tr>
+      <td>&nbsp;&nbsp;&nbsp; &lt;cache
+name="net.sf.hibernate.cache.UpdateTimestampsCache"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxElementsInMemory="5000"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eternal="true"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; overflowToDisk="true"/&gt;<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<h4><a name="mozTocId131070" class="mozTocH4"></a>Named Query Caches</h4>
+In addition, a QueryCache can be given a specific name in Hibernate
+using Query.setCacheRegion(String name). The name of the cache in
+ehcache.xml is then the name given in that method. The name can be
+whatever you want, but by convention you should use "query." followed
+by a descriptive name.<br>
+<br>
+E.g.<br>
+<br>
+<table>
+  <tbody>
+    <tr>
+      <td>&lt;cache name="query.AdministrativeAreasPerCountry"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxElementsInMemory="5"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eternal="false"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeToLiveSeconds="86400"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; overflowToDisk="true"/&gt; </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<h4><a name="mozTocId182189" class="mozTocH4"></a>Using Query Caches</h4>
+For example, let's say we have a common query running against the
+Country Domain.<br>
+<br>
+Code to use a query cache follows:<br>
+<br>
+<table>
+  <tbody>
+    <tr>
+      <td>public List getStreetTypes(final Country country) throws
+HibernateException {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; final Session session =
+createSession();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; try {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+final Query query = session.createQuery(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"select st.id, st.name"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
++ " from StreetType st "<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
++ " where st.country.id = :countryId "<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
++ " order by st.sortOrder desc, st.name");<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+query.setLong("countryId", country.getId().longValue());<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+query.setCacheable(true);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+query.setCacheRegion("query.StreetTypes");<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return query.list();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } finally {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+session.close();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp; } </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+The <code>query.setCacheable(true);</code> line caches the query.<br>
+<br>
+The <code>query.setCacheRegion("query.StreetTypes");</code> line sets
+the name of the Query Cache.<br>
+<br>
+<h4><a name="mozTocId509074" class="mozTocH4"></a>Hibernate
+CacheConcurrencyStrategy</h4>
+None of read-write, nonstrict-read-write and read-only policies apply
+to Domain Objects. Cache policies are not configurable for query cache.
+They act like a non-locking read only cache.<br>
+<br>
+<h2><a class="mozTocH2" name="mozTocId930677"></a>Hibernate Caching
+Performance Tips</h2>
+To get the most out of ehcache with Hibernate, Hibernate's use of it's
+in-process cache is important to understand. <br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId812198"></a>In-Process Cache</h3>
+From Hibernate's point of view, Ehcache is an in-process cache. Cached
+objects are accessible across different sessions. They are common to
+the Java process.<br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId928709"></a>Object Id</h3>
+Hibernate identifies cached objects via an object id. This is normally
+the primary key of a database row.<br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId590937"></a>Session.load</h3>
+Session.load will always try to use the cache.<br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId353023"></a>Session.find and
+Query.find</h3>
+Session.find does not use the cache for the primary object. Hibernate
+will try to use the cache for any associated objects. Session.find does
+however cause the cache to be populated.<br>
+<br>
+Query.find works in exactly the same way.<br>
+<br>
+Use these where the chance of getting a cache hit is low.<br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId835456"></a>Session.iterate and
+Query.iterate<br>
+</h3>
+Session.iterate always uses the cache for the primary object and any
+associated objects.<br>
+<br>
+Query.iterate works in exactly the same way.<br>
+<br>
+Use these where the chance of getting a cache hit is high.<br>
+<br>
+<br>
+<hr><a href="http://sourceforge.net"><img
+ style="border: 0px solid ; width: 88px; height: 31px;"
+ alt="SourceForge.net" src="../images/sflogo.php.png"></a><br>
+</body>
+</html>

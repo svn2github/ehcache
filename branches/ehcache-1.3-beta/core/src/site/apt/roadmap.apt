@@ -1,0 +1,60 @@
+ ------
+ Development Roadmap
+ ------
+ ------
+ Date
+ ------
+
+Development Roadmap
+
+Several features expected for 1.3 have actually been incorporated in the ehcache-1.2 series. See the {{{/changes-report.html}change log}}
+for more details.
+
+
+* Expected New Features for 1.3
+
+** Implementation of JCACHE specification
+
+ The maintainer of ehcache, Greg Luck, has been admitted to the JSR-107 (JCACHE) expert group.
+
+ Ehcache-1.3 will be an implementation of JSR-107, while maintaining backward compatiblity with ehcache-1.2 and ehcache-1.1.
+
+
+** JMX Instrumentation
+
+ Move to JMX to simplify and standardise efforts to monitor ehcache.
+
+ MBeans for all monitorable objects (cache, thread pools etc).
+
+
+** DiskStore improvements
+    - Granular locks on DiskElements map
+    - Rehash DiskElements map after expiration thread runs. Allow for shrinking the map (copy to new) if a significant amount can be reclaimed. 50%?
+
+** Pluggable Disk Stores
+
+    - Pluggable diskstore + base framework where possible (need more flexible configuration for pluggable configurations i.e.
+      properties or something - thoughts?).
+    - First cut (POC) of BerkleyDB and/or Derby stores
+
+
+* After 1.3
+
+** JGroups based replication
+
+ Work is near completion (by Surya) on a JGRoups replication implementation to complement the current RMI one.
+ Use of JGroups for peer discovery and replication will be a configuration option.
+ This should make it into the 1.2.1 maintenance release.
+
+** SoftReferenceMemoryStore
+
+ A MemoryStore built using SoftReferences. This would enable potentially much large MemoryStores with no risk of
+ OutOfMemory errors. SoftReferences are already used in ehcache for the asynchronous replication spool.
+
+** More distribution mechanisms
+
+ A JMS-based replication mechanism would also be useful.
+
+* How to suggest features
+
+ Please add your feature suggestions to {{{http://sourceforge.net/tracker/?group_id=93232&atid=603562}Feature Requests}}.
