@@ -15,7 +15,7 @@
     <!-- Default properties -->
     <property file="build.properties"/>
 
-    <property name="name" value="${maven.project.name}"/>
+    <property name="name" value="${maven.project.artifactId}"/>
     <property name="version" value="${maven.project.version}"/>
 
     <artifact:dependencies filesetId="dependency.fileset" pathId="dependency.classpath"
