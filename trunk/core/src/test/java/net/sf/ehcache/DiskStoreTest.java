@@ -250,10 +250,9 @@ public class DiskStoreTest extends AbstractCacheTest {
             byte[] data = new byte[1024];
             diskStore.put(new Element("key" + (i + 100), data));
         }
-        waitShorter();
+        waitLonger();
         assertEquals(ELEMENT_ON_DISK_SIZE * 100, diskStore.getDataFileSize());
         assertEquals(100, diskStore.getSize());
-        String diskPath = diskStore.getDataFilePath();
         manager2.removeCache(cacheName);
         Thread.sleep(1000);
 

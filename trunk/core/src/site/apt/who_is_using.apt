@@ -31,6 +31,9 @@ be included in the list.
 
  * {{{http://labs.jboss.com/portal/kosmos}Kosmos}}. Kosmos stands for Komposite Open Source Monitoring Suite..
 
+ * {{{http://tudu.sourceforge.net}Tudu Lists}}. Online list management.
+
+ * {{{http://dev.lutece.paris.fr}Lutece}}. Lutece is an Open Source Java/ XML portal.
 
 * Distributions
 
@@ -38,8 +41,5 @@ be included in the list.
 
  * {{{http://maven.apache.org/}Maven}}. A software project management and comprehension tool.
 
-* Commercial Products
-
- * {{{http://atlassian.com/software/confluence/}Confluence}}. A Java based enterprise Wiki.
 
  Contact Greg Luck if you want to be included on this list.

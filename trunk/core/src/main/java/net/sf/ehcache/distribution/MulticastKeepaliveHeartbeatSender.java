@@ -46,6 +46,7 @@ import java.util.Iterator;
  *
  * @author Greg Luck
  * @version $Id$
+ * todo change thread name
  */
 public final class MulticastKeepaliveHeartbeatSender {
 
@@ -68,10 +69,10 @@ public final class MulticastKeepaliveHeartbeatSender {
     /**
      * Constructor.
      *
-     * @param cacheManager the bound CacheManager. Each CacheManager has a maximum of one sender
+     * @param cacheManager     the bound CacheManager. Each CacheManager has a maximum of one sender
      * @param multicastAddress
      * @param multicastPort
-     * @param timeToLive See class description for the meaning of this parameter.
+     * @param timeToLive       See class description for the meaning of this parameter.
      */
     public MulticastKeepaliveHeartbeatSender(CacheManager cacheManager,
                                              InetAddress multicastAddress, Integer multicastPort,
@@ -120,37 +121,37 @@ public final class MulticastKeepaliveHeartbeatSender {
 
         public final void run() {
             while (!stopped) {
-            try {
-                socket = new MulticastSocket(groupMulticastPort.intValue());
+                try {
+                    socket = new MulticastSocket(groupMulticastPort.intValue());
                     socket.setTimeToLive(timeToLive.intValue());
-                socket.joinGroup(groupMulticastAddress);
+                    socket.joinGroup(groupMulticastAddress);
 
-                while (!stopped) {
+                    while (!stopped) {
                         List buffers = createCachePeersPayload();
                         for (Iterator iter = buffers.iterator(); iter.hasNext();) {
                             byte[] buffer = (byte[]) iter.next();
-                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length, groupMulticastAddress,
-                            groupMulticastPort.intValue());
-                    socket.send(packet);
+                            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, groupMulticastAddress,
+                                    groupMulticastPort.intValue());
+                            socket.send(packet);
                         }
-                    try {
-                        synchronized (this) {
-                            wait(heartBeatInterval);
-                        }
-                    } catch (InterruptedException e) {
-                        if (!stopped) {
-                            LOG.error("Error receiving heartbeat. Initial cause was " + e.getMessage(), e);
+                        try {
+                            synchronized (this) {
+                                wait(heartBeatInterval);
+                            }
+                        } catch (InterruptedException e) {
+                            if (!stopped) {
+                                LOG.error("Error receiving heartbeat. Initial cause was " + e.getMessage(), e);
+                            }
                         }
                     }
-                }
-            } catch (IOException e) {
-                LOG.debug(e);
+                } catch (IOException e) {
+                    LOG.debug(e);
                 } catch (Throwable e) {
                     LOG.info("Unexpected throwable in run thread. Continuing..." + e.getMessage(), e);
                 } finally {
                     closeSocket();
+                }
             }
-        }
         }
 
         /**
@@ -175,14 +176,14 @@ public final class MulticastKeepaliveHeartbeatSender {
 
                     byte[] uncompressedUrlList = PayloadUtil.assembleUrlList(localCachePeersSubList);
                     byte[] compressedUrlList = PayloadUtil.gzip(uncompressedUrlList);
-                if (compressedUrlList.length > PayloadUtil.MTU) {
-                    LOG.fatal("Heartbeat is not working. Configure fewer caches for replication. " +
-                            "Size is " + compressedUrlList.length + " but should be no greater than" +
-                            PayloadUtil.MTU);
-                }
+                    if (compressedUrlList.length > PayloadUtil.MTU) {
+                        LOG.fatal("Heartbeat is not working. Configure fewer caches for replication. " +
+                                "Size is " + compressedUrlList.length + " but should be no greater than" +
+                                PayloadUtil.MTU);
+                    }
                     compressedUrlListList.add(compressedUrlList);
+                }
             }
-        }
             return compressedUrlListList;
         }
 
@@ -197,9 +198,9 @@ public final class MulticastKeepaliveHeartbeatSender {
          * <p/>
          * <p> If this thread is blocked in an invocation of the {@link
          * Object#wait() wait()}, {@link Object#wait(long) wait(long)}, or {@link
-         * Object#wait(long, int) wait(long, int)} methods of the {@link Object}
+         * Object#wait(long,int) wait(long, int)} methods of the {@link Object}
          * class, or of the {@link #join()}, {@link #join(long)}, {@link
-         * #join(long, int)}, {@link #sleep(long)}, or {@link #sleep(long, int)},
+         * #join(long,int)}, {@link #sleep(long)}, or {@link #sleep(long,int)},
          * methods of this class, then its interrupt status will be cleared and it
          * will receive an {@link InterruptedException}.
          * <p/>
@@ -272,10 +273,9 @@ public final class MulticastKeepaliveHeartbeatSender {
     }
 
     /**
-     *
      * @return the TTL
      */
     public Integer getTimeToLive() {
         return timeToLive;
-}
+    }
 }

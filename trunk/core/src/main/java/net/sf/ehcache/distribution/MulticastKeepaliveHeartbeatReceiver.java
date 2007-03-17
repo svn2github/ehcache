@@ -35,6 +35,7 @@ import java.util.List;
  *
  * @author Greg Luck
  * @version $Id$
+ * todo set thread name
  */
 public final class MulticastKeepaliveHeartbeatReceiver {
 

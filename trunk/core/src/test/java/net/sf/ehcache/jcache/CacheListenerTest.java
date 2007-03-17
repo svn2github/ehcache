@@ -105,6 +105,9 @@ public class CacheListenerTest extends AbstractCacheTest {
         }
 
         assertEquals(countingCacheListener, jCacheListenerAdaptor.getCacheListener());
+
+        //this calls a noop. For completeness
+        jCacheListenerAdaptor.dispose();
     }
 
     /**
