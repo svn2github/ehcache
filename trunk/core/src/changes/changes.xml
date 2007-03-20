@@ -43,7 +43,7 @@
                 Element#equals(Object) causes ClassCastException when the comparison object is not an Element. Fixed.
             </action>
             <action dev="Greg Luck" issue="1636876" type="fix">
-                GzipFilter corrupts UTF-8 encoded non-Latin characters. Fixed. Thanks to Matt Raible and Kolodin Kolinko
+                GzipFilter corrupts UTF-8 encoded non-Latin characters. Fixed. Thanks to Matt Raible and Konstantin Kolinko
                 for the bug report and Kolodin for the patch. This issue also affected the CachingFilter.
             </action>
             <action dev="Greg Luck" issue="1664030" type="fix">
