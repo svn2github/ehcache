@@ -27,12 +27,7 @@
                 <version>1.0</version>
                 <scope>compile</scope>
             </dependency>
-            <!--<dependency>-->
-            <!--<groupId>javax.management</groupId>-->
-            <!--<artifactId>jmx</artifactId>-->
-            <!--<version>1.3</version>-->
-            <!--<scope>system</scope>-->
-            <!--</dependency>-->
+            <!-- Provided scope -->
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
@@ -89,6 +84,14 @@
                 <version>2.4</version>
                 <scope>provided</scope>
             </dependency>
+            <!--<dependency>-->
+            <!--<groupId>javax.management</groupId>-->
+            <!--<artifactId>jmx</artifactId>-->
+            <!--<version>1.3</version>-->
+            <!--<scope>system</scope>-->
+            <!--</dependency>-->            
+            
+            <!-- Test scope -->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -112,7 +115,7 @@
                 <artifactId>clover</artifactId>
                 <version>1.3.13</version>
                 <scope>test</scope>
-            </dependency>
+            </dependency>            
             <dependency>
                 <groupId>checkstyle</groupId>
                 <artifactId>checkstyle</artifactId>
@@ -137,8 +140,92 @@
                 <version>1.6.1</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring</artifactId>
+                <version>2.0.2</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aop</artifactId>
+                <version>2.0.2</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aspects</artifactId>
+                <version>2.0.2</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-mock</artifactId>
+                <version>2.0.2</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.acegisecurity</groupId>
+                <artifactId>acegi-security</artifactId>
+                <version>1.0.3</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
+   <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.2</version>
+            </plugin>
+      
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.3</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-idea-plugin</artifactId>
+                <configuration>
+                    <downloadSources>true</downloadSources>
+                    <downloadJavadocs>false</downloadJavadocs>
+                </configuration>
+            </plugin>
+
+            <!-- Clover. This seems to quite broken
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clover-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <cloverDatabase>${basedir}/target/log/mycoverage.db</cloverDatabase>
+                    <cloverOutputDirectory>${basedir}/clover_html</cloverOutputDirectory>
+                    <targetPercentage>85.9%</targetPercentage>
+                    <licenseFile>/Users/gluck/work/ehcache/tools/clover.license</licenseFile>
+                </configuration>
+            </plugin>   -->
+
+
+        </plugins>
+    </build>
 
     <developers>
         <developer>
