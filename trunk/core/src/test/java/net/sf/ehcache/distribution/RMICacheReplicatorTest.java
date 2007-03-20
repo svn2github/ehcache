@@ -338,6 +338,72 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     }
 
     /**
+     * Tests what happens when a CacheManager in the cluster comes and goes. In ehcache-1.2.4 this would cause the new RMI CachePeers in the CacheManager to
+     * be permanently corrupt.
+     */
+    public void testPutProgagatesFromAndToEveryCacheManagerAndCacheDirty() throws CacheException, InterruptedException {
+
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
+
+        manager3.shutdown();
+
+        Thread.sleep(11010);
+
+        manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
+        Thread.sleep(11010);
+
+        //Put
+        String[] cacheNames = manager1.getCacheNames();
+        int numberOfCaches = getNumberOfReplicatingCachesInCacheManager();
+        Arrays.sort(cacheNames);
+        for (int i = 0; i < cacheNames.length; i++) {
+            String name = cacheNames[i];
+            manager1.getCache(name).put(new Element("" + i, new Integer(i)));
+            //Add some non serializable elements that should not get propagated
+            manager1.getCache(name).put(new Element("nonSerializable" + i, new Object()));
+        }
+
+        waitForProgagate();
+
+        int count2 = 0;
+        int count3 = 0;
+        int count4 = 0;
+        int count5 = 0;
+        for (int i = 0; i < cacheNames.length; i++) {
+            String name = cacheNames[i];
+            Element element2 = manager2.getCache(name).get("" + i);
+            if (element2 != null) {
+                count2++;
+            }
+            Element nonSerializableElement2 = manager2.getCache(name).get("nonSerializable" + i);
+            if (nonSerializableElement2 != null) {
+                count2++;
+            }
+            Element element3 = manager3.getCache(name).get("" + i);
+            if (element3 != null) {
+                count3++;
+            }
+            Element element4 = manager4.getCache(name).get("" + i);
+            if (element4 != null) {
+                count4++;
+            }
+            Element element5 = manager5.getCache(name).get("" + i);
+            if (element5 != null) {
+                count5++;
+            }
+        }
+        assertEquals(numberOfCaches, count2);
+        assertEquals(numberOfCaches, count3);
+        assertEquals(numberOfCaches, count4);
+        assertEquals(numberOfCaches, count5);
+
+
+    }
+
+    /**
      * Enables long stabilty runs using replication to be done.
      * <p/>
      * This test has been run in a profile for 15 hours without any observed issues.

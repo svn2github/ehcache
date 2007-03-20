@@ -102,7 +102,7 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
 
         try {
             CachePeerEntry cachePeerEntry = (CachePeerEntry) peerUrls.get(rmiUrl);
-            if (cachePeerEntry == null) {
+            if (cachePeerEntry == null || stale(cachePeerEntry.date)) {
                 CachePeer cachePeer = lookupRemoteCachePeer(rmiUrl);
                 cachePeerEntry = new CachePeerEntry(cachePeer, new Date());
                 peerUrls.put(rmiUrl, cachePeerEntry);
@@ -114,7 +114,7 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
                 LOG.debug("Unable to lookup remote cache peer for " + rmiUrl + ". Removing from peer list. Cause was: "
                         + e.getMessage());
             }
-            peerUrls.remove(rmiUrl);
+            unregisterPeer(rmiUrl);
         } catch (NotBoundException e) {
             peerUrls.remove(rmiUrl);
             if (LOG.isDebugEnabled()) {

@@ -320,7 +320,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
                     LOG.debug("Unable to send message to remote peer.  Message was: " + e.getMessage());
                 }
             } catch (Throwable t) {
-                LOG.debug("Unable to send message to remote peer.  Message was: " + t.getMessage());
+                LOG.warn("Unable to send message to remote peer.  Message was: " + t.getMessage(), t);
             }
         }
         if (LOG.isWarnEnabled()) {

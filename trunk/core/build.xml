@@ -1,4 +1,4 @@
-<project name="ehcache" default="clover" xmlns:artifact="urn:maven-artifact-ant">
+<project name="ehcache" default="build" xmlns:artifact="urn:maven-artifact-ant">
 
     <!-- Load Maven antlib and make pom.xml available as maven.project -->
     <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="urn:maven-artifact-ant">

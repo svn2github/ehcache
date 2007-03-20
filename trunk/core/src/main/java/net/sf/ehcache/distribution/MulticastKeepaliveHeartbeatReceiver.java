@@ -35,7 +35,6 @@ import java.util.List;
  *
  * @author Greg Luck
  * @version $Id$
- * todo set thread name
  */
 public final class MulticastKeepaliveHeartbeatReceiver {
 
@@ -89,6 +88,13 @@ public final class MulticastKeepaliveHeartbeatReceiver {
      */
     private final class MulticastReceiverThread extends Thread {
 
+        /**
+         * Constructor
+         */
+        public MulticastReceiverThread() {
+            super("Multicast Heartbeat Receiver Thread");
+            setDaemon(true);
+        }
 
         public final void run() {
             byte[] buf = new byte[PayloadUtil.MTU];

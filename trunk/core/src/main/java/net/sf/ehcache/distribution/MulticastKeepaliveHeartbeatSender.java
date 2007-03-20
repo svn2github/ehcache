@@ -46,7 +46,6 @@ import java.util.Iterator;
  *
  * @author Greg Luck
  * @version $Id$
- * todo change thread name
  */
 public final class MulticastKeepaliveHeartbeatSender {
 
@@ -115,7 +114,7 @@ public final class MulticastKeepaliveHeartbeatSender {
          * Constructor
          */
         public MulticastServerThread() {
-            super("Multicast Server Thread");
+            super("Multicast Heartbeat Sender Thread");
             setDaemon(true);
         }
 
