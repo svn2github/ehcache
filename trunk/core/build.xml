@@ -62,7 +62,7 @@
     </target>
 
     <!-- compiles -->
-    <target name="compile" depends="compile-src, rmic, compile-tests"
+    <target name="compile" depends="compile-src, compile-debugger, rmic, compile-tests"
             description="Performs a compile"/>
 
 
@@ -121,7 +121,23 @@
         </copy>
     </target>
 
+    <!-- Compiles the debugger classes -->
+    <target name="compile-debugger" description="compile debugger files">
+        <mkdir dir="${debugger.classes.dir}"/>
+        <javac destdir="${debugger.classes.dir}"
+               target="1.4"
+               debug="${compiler.debug}"
+               deprecation="${compiler.deprecation}"
+               source="1.4">
+            <src location="${debugger.java.dir}"/>
+            <classpath>
+                <path path="${build.classes.dir}"/>
+                <path refid="project.class.path"/>
+            </classpath>
+        </javac>
+    </target>
 
+	
     <target name="rmic">
         <rmic base="${build.classes.dir}" includes="**/RMICachePeer.class"
               excludes="**/*CLOVER*"/>
@@ -318,7 +334,7 @@
         </copy>
         <jar destfile="${dist.dir}/${name}-${version}-remote-debugger.jar">
             <fileset dir="${build.classes.dir}"/>
-            <fileset dir="${test.classes.dir}">
+            <fileset dir="${debugger.classes.dir}">
                 <include name="**/RemoteDebugger.class"/>
             </fileset>
             <fileset dir="${basedir}" includes="LICENSE.txt"/>
