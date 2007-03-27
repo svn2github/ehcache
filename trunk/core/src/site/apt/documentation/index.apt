@@ -17,6 +17,8 @@ ehcache 1.3.0 User Guide
 
     * {{{./performance_considerations.html}Performance Considerations}}
 
+    * {{{./garbage_collection.html}Garbage Collection}}
+
     * {{{./cache_decorators.html}Cache Decorators}} 
 
     * {{{./j2ee_servlet_caching.html}J2EE Servlet Caching}} 
