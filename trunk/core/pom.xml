@@ -173,21 +173,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <configuration>
-                    <configLocation>target/log/checkstyle.xml</configLocation>
+                    <configLocation>${basedir}/config/checkstyle.xml</configLocation>
+                    <propertiesLocation>${basedir}/config/checkstyle.properties</propertiesLocation>
                     <enableRSS>false</enableRSS>
-                </configuration>
-            </plugin>
-
-            <!-- Ant deps for Checkstyle plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <configuration>
-                    <tasks>
-                        <ant antfile="${basedir}/build.xml" inheritRefs="true">
-                            <target name="generate-checkstyle-config"/>
-                        </ant>
-                    </tasks>
                 </configuration>
             </plugin>
 
@@ -195,10 +183,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.0</version>
                 <configuration>
                     <author>true</author>
                     <bottom>true</bottom>
-                    <destDir>target/site/javadoc</destDir>
+                    <destDir>${project.build.directory}/site/javadoc</destDir>
                     <header><![CDATA[<a href="/" target="_top">ehcache</a>]]></header>
                     <minmemory>128m</minmemory>
                     <maxmemory>512</maxmemory>
@@ -207,22 +196,16 @@
                     <use>true</use>
                     <version>true</version>
                     <windowtitle>${project.name} ${project.version} API</windowtitle>
+                    <!-- Can't find doclet in path:  Trails project has this working - 
+                         http://docs.codehaus.org/display/TRAILS/Maven2+settings.xml
                     <doclet>ydoc.doclets.YStandard</doclet>
-                    <docletPath>
-                        ${basedir}/tools/ydoc-2.2_02-jdk1.5/lib/ydoc.jar:${basedir}/tools/ydoc-2.2_02-jdk1.5/lib/class2svg.jar:${basedir}/tools/ydoc-2.2_02-jdk1.5/resources:${build.classes.dir}
-                    </docletPath>
-                    <!--<docletpathref>project.class.path</docletpathref>-->
+                    <docletPath>${ydoc.home}/lib/ydoc.jar:${ydoc.home}/lib/class2svg.jar:${ydoc.home}/resources:${project.outputDirectory}</docletPath>
                     <additionalparam>-umlautogen</additionalparam>
+                    -->
                     <tag name="noinspection" description="IntelliJ Inspection Ignore tag"
                          enabled="false"/>
                 </configuration>
-            </plugin>
-
-            <!-- Clover
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clover-plugin</artifactId>
-            </plugin> -->
+            </plugin>         
 
             <!-- PMD and CPD -->
             <plugin>
@@ -284,19 +267,15 @@
                     <outputDirectory>${project.build.directory}/site</outputDirectory>
                 </configuration>
             </plugin>
-
-            <!-- Surefire
-            <plugin>
-               <groupId>org.codehaus.mojo</groupId>
-               <artifactId>surefire-report-maven-plugin</artifactId>
-            </plugin> -->
-
+          
         </plugins>
     </reporting>
 
 
     <properties>
         <licenseFile>${basedir}/tools/clover.license</licenseFile>
+        <ydoc.home>${basedir}/tools/ydoc-2.2_02-jdk1.5</ydoc.home>
+        <ydoc.license>${basedir}/tools/ydoc-2.2_02-jdk1.5/resources/ydoc.license</ydoc.license>
         <net.sf.ehcache.speedAdjustmentFactor>1</net.sf.ehcache.speedAdjustmentFactor>
     </properties>
 </project>
