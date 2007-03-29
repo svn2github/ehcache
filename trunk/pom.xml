@@ -226,6 +226,24 @@
 
         </plugins>
     </build>
+    
+     <profiles>
+        <profile>
+            <!-- No-test profile:  equivalent to -Dmaven.test.skip=true -->
+            <id>nt</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+     </profiles>
 
     <developers>
         <developer>
