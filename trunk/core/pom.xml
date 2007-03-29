@@ -271,6 +271,14 @@
         </plugins>
     </reporting>
 
+    <!-- Note: site URL repeated here to ensure correct deployment path -->
+    <distributionManagement>
+        <site>
+            <id>sf-ehcache-site</id>
+            <name>SF EHCache Site</name>
+            <url>scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs</url>
+        </site>
+    </distributionManagement>
 
     <properties>
         <licenseFile>${basedir}/tools/clover.license</licenseFile>
