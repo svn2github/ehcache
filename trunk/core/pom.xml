@@ -115,6 +115,78 @@
                             <goal>run</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>userguide</id>
+                        <phase>site</phase>
+                        <configuration>
+                            <tasks>
+                              <property name="userguide" value="${project.build.directory}/userguide" />
+                              <mkdir dir="${userguide}" />
+                              <copy todir="${userguide}/images">
+                                <fileset dir="src/site/resources/images" />
+                              </copy>
+                              <copy todir="${userguide}">
+                                <fileset dir="src/site/apt/documentation">
+                                  <include name="*.apt" />
+                                </fileset>
+                                <fileset dir="src/site/apt">
+                                  <include name="features.apt" />
+                                  <include name="samples.apt" />
+                                  <include name="nameandlogo.apt" />
+                                </fileset>
+                              </copy>
+                              <copy todir="${userguide}">
+                                <fileset dir="${project.build.directory}/site/">
+                                  <include name="javadoc/**" />
+                                  <include name="xref/**" />
+                                  <include name="xref-test/**" />
+                                </fileset>
+                              </copy>
+                              <macrodef name="create_userguide">
+                                <attribute name="extension" default="NOT SET" />
+                                <element name="some-tasks" optional="yes" />
+                                <sequential>
+                                  <copy file="src/site/apt/.aptconvert" todir="${env.HOME}" />
+                                  <exec executable="aptconvert" newenvironment="false" dir="${userguide}" spawn="false"
+                                    failifexecutionfails="true" failonerror="true">
+                                    <arg value="EhcacheUserGuide.@{extension}" />
+                                    <arg value="preface.apt" />
+                                    <arg value="introduction.apt" />
+                                    <arg value="getting_started.apt" />
+                                    <arg value="features.apt" />
+                                    <arg value="concepts.apt" />
+                                    <arg value="samples.apt" />
+                                    <arg value="dependencies.apt" />
+                                    <arg value="logging.apt" />
+                                    <arg value="jmx.apt" />
+                                    <arg value="class_loading.apt" />
+                                    <arg value="performance_considerations.apt" />
+                                    <arg value="cache_decorators.apt" />
+                                    <arg value="configuration.apt" />
+                                    <arg value="storage_options.apt" />
+                                    <arg value="shutdown_considerations.apt" />
+                                    <arg value="hibernate.apt" />
+                                    <arg value="distributed_design.apt" />
+                                    <arg value="distributed_caching.apt" />
+                                    <arg value="constructs_design.apt" />
+                                    <arg value="cachemanager_event_listeners.apt" />
+                                    <arg value="cache_event_listeners.apt" />
+                                    <arg value="jsr107.apt" />
+                                    <arg value="faq.apt" />
+                                    <arg value="nameandlogo.apt" />
+                                  </exec>
+                                  <copy file="${userguide}/EhcacheUserGuide.@{extension}" todir="${project.build.directory}/site" />
+                                </sequential>
+                              </macrodef>
+                              <create_userguide extension="html" />
+                              <create_userguide extension="pdf" />
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    
                 </executions>
             </plugin>
             <plugin>
