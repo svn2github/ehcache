@@ -15,7 +15,7 @@
     <modules>
         <module>core</module>
         <module>debugger</module>
-        <module>site</module>
+        <!-- module>site</module -->
         <module>distribution</module>
     </modules>
 
