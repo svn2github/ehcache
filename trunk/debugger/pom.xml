@@ -26,7 +26,7 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>shade-maven-plugin</artifactId>
-            <version>1.0-alpha-4</version>
+            <version>1.0-alpha-5-SNAPSHOT</version>
             <executions>
               <execution>
                 <phase>package</phase>
@@ -34,17 +34,8 @@
                   <goal>shade</goal>
                 </goals>
                 <configuration>
-                  <!-- Add any artifact that should not be included in the uber jar -->
-                  <artifactSet>
-                    <excludes>
-                    </excludes>
-                  </artifactSet>
-                  <!-- Note: requires at least one relocation config - even if dummy - it fails otherwise -->
-                  <relocations>
-                    <relocation>
-                      <pattern>package.to.relocate</pattern>
-                    </relocation>
-                  </relocations>
+                  <shadedArtifactAttached>true</shadedArtifactAttached>
+                  <shadedClassifierName>remote</shadedClassifierName>
                 </configuration>
               </execution>
             </executions>

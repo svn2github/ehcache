@@ -21,6 +21,8 @@
             <groupId>${pom.groupId}</groupId>
             <artifactId>ehcache-debugger</artifactId>
             <version>${pom.version}</version>
+            <type>jar</type>
+            <classifier>remote</classifier>
          </dependency>
 	</dependencies>
 

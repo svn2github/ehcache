@@ -349,7 +349,8 @@
         </contributor>
     </contributors>
 
-    <!-- Release pom.xmls for the central repository cannot specify there own repositories
+    <!-- Release pom.xmls for the central repository cannot specify there own repositories 
+         MT:  Don't understand comment -->
     <repositories>
         <repository>
             <id>codehaus-repository</id>
@@ -361,12 +362,12 @@
         <pluginRepository>
             <id>codehaus-plugin-snapshot-repository</id>
             <name>Codehaus Plugin Snapshot Repository</name>
-            <url>http://snapshots.maven.codehaus.org/maven2/</url>
+            <url>http://snapshots.repository.codehaus.org</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
         </pluginRepository>
-    </pluginRepositories> -->
+    </pluginRepositories>
 
     <licenses>
         <license>
