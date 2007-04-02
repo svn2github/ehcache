@@ -23,27 +23,32 @@
     </dependencies>
     <build>
         <plugins>
-            <!-- Fails for some reason now
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>minijar-maven-plugin</artifactId>
-                <version>1.0-alpha-2</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>ueberjar</goal>
-                        </goals>
-                        <configuration>
-                            <stripUnusedClasses>
-                                false
-                            </stripUnusedClasses>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>shade-maven-plugin</artifactId>
+            <version>1.0-alpha-4</version>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>shade</goal>
+                </goals>
+                <configuration>
+                  <!-- Add any artifact that should not be included in the uber jar -->
+                  <artifactSet>
+                    <excludes>
+                    </excludes>
+                  </artifactSet>
+                  <!-- Note: requires at least one relocation config - even if dummy - it fails otherwise -->
+                  <relocations>
+                    <relocation>
+                      <pattern>package.to.relocate</pattern>
+                    </relocation>
+                  </relocations>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
-
     </build>
 </project>
