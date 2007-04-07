@@ -158,37 +158,44 @@ public class JCache implements net.sf.jsr107cache.Cache {
      */
     public Map getAll(Collection keys) throws CacheException {
 
-        Map map = new HashMap(0);
         if (keys == null) {
-            return map;
+            return new HashMap(0);
         }
+        Map map = new HashMap(keys.size());
 
-        try {
-            map = new HashMap(keys.size());
-            List futures = new ArrayList(keys.size());
+        if (cacheLoader != null) {
+            try {
+                map = new HashMap(keys.size());
+                List futures = new ArrayList(keys.size());
 
+                for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+                    Object key = iterator.next();
+
+                    if (cache.isKeyInCache(key)) {
+                        map.put(key, get(key));
+                    } else {
+                        futures.add(new KeyedFuture(key, asynchronousLoad(key)));
+                    }
+                }
+
+                //now wait for everything to load.
+                for (int i = 0; i < futures.size(); i++) {
+                    KeyedFuture keyedFuture = (KeyedFuture) futures.get(i);
+                    keyedFuture.future.get();
+                    Object key = keyedFuture.key;
+                    map.put(key, get(key));
+                }
+
+            } catch (ExecutionException e) {
+                throw new CacheException(e.getMessage(), e);
+            } catch (InterruptedException e) {
+                throw new CacheException(e.getMessage(), e);
+            }
+        } else {
             for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
                 Object key = iterator.next();
-
-                if (cache.isKeyInCache(key)) {
-                    map.put(key, get(key));
-                } else {
-                    futures.add(new KeyedFuture(key, asynchronousLoad(key)));
-                }
-            }
-
-            //now wait for everything to load.
-            for (int i = 0; i < futures.size(); i++) {
-                KeyedFuture keyedFuture = (KeyedFuture) futures.get(i);
-                keyedFuture.future.get();
-                Object key = keyedFuture.key;
                 map.put(key, get(key));
             }
-
-        } catch (ExecutionException e) {
-            throw new CacheException(e.getMessage(), e);
-        } catch (InterruptedException e) {
-            throw new CacheException(e.getMessage(), e);
         }
         return map;
     }

@@ -1283,12 +1283,20 @@ public class JCacheTest extends AbstractCacheTest {
      */
     public void testGetAll() throws InterruptedException, ExecutionException, CacheException {
 
+        JCache jcache = new JCache(manager.getCache("sampleCache1"), null);
+
+        //check null CacheLoader
+        Map map = jcache.getAll(null);
+        assertNotNull(map);
+        assertEquals(0, map.size());
+
+
         CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
-        JCache jcache = new JCache(manager.getCache("sampleCache1"), countingCacheLoader);
+        jcache.setCacheLoader(countingCacheLoader);
         ExecutorService executorService = jcache.getExecutorService();
 
         //check null
-        Map map = jcache.getAll(null);
+        map = jcache.getAll(null);
         assertNotNull(map);
         assertEquals(0, map.size());
 
