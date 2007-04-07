@@ -417,7 +417,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
     public Object peek(Object key) {
         Element element = cache.get(key);
         if (element != null) {
-            return element.getValue();
+            return element.getObjectValue();
         } else {
             return null;
         }
@@ -549,7 +549,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
         cache.put(new Element(key, value));
 
         if (element != null) {
-            return element.getValue();
+            return element.getObjectValue();
         } else {
             return null;
         }
@@ -577,7 +577,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
         Element element = cache.get(key);
         cache.remove(key);
         if (element != null) {
-            return element.getValue();
+            return element.getObjectValue();
         } else {
             return null;
         }
@@ -648,7 +648,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
             Object key = list.get(i);
             Element element = cache.get(key);
             if (element != null) {
-                set.add(element.getValue());
+                set.add(element.getObjectValue());
             }
         }
         return set;

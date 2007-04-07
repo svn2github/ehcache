@@ -319,12 +319,16 @@ public class JCacheTest extends AbstractCacheTest {
         CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
         JCache jcache = new JCache(manager.getCache("sampleCache1"), countingCacheLoader);
 
+        /** A class which is not Serializable */
+        class NonSerializable { }
+
         List keys = new ArrayList();
         for (int i = 0; i < 1000; i++) {
             keys.add(new Integer(i));
         }
         jcache.loadAll(keys);
         jcache.put(new Integer(1), new Date());
+        jcache.put(new Integer(2), new NonSerializable());
         Thread.sleep((long) (3000 * StopWatch.getSpeedAdjustmentFactor()));
         assertEquals(1000, jcache.size());
 
@@ -720,7 +724,11 @@ public class JCacheTest extends AbstractCacheTest {
         int sizeFromKeys = cache.keySet().size();
         assertEquals(sizeFromGetSize, sizeFromKeys);
         assertEquals(2, cache.getCacheStatistics().getObjectCount());
-        cache.put("key1", "value1");
+
+        /** A class which is not Serializable */
+        class NonSerializable { }
+        
+        cache.put("key1", new NonSerializable());
         cache.put("key1", "value1");
 
         //key1 should be in the Disk Store
