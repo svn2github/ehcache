@@ -189,14 +189,25 @@
                     
                 </executions>
             </plugin>
+
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.3</version>
+                <inherited>true</inherited>
                 <configuration>
+                    <skip>${test.unit.skip}</skip>
+                    <includes>
+                        <include>**/*UnitTest.java</include>
+                    </includes>
                     <excludes>
+                        <exclude>**/*$*</exclude>
+                        <exclude>**/Abstract*Test.java</exclude>
                         <exclude>**/constructs/web/**</exclude>
                     </excludes>
                     <forkMode>pertest</forkMode>
+                    <childDelegation>false</childDelegation>
                     <printSummary>true</printSummary>
                     <redirectOutputToFile>true</redirectOutputToFile>
                     <systemProperties>
@@ -214,7 +225,24 @@
                         </property>
                     </systemProperties>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-tests</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${test.int.skip}</skip>
+                            <includes>
+                                <include>**/*IntegrationTest.java</include>
+                                <include>**/*WebTest.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
+
         </plugins>
     </build>
 
