@@ -309,6 +309,47 @@ public class JCacheTest extends AbstractCacheTest {
         assertNotNull(cache.get("key2"));
     }
 
+
+    /**
+     * Test the get method.
+     */
+    public void testGet() throws Exception {
+        Ehcache ehcache = new net.sf.ehcache.Cache("testGet", 10, true, true, 500, 200);
+        manager.addCache(ehcache);
+        JCache jcache = new JCache(manager.getCache("sampleCache1"), null);
+
+        //existing entry with null value, no loader
+        jcache.put("key", null);
+        Object value = jcache.get("key");
+        assertNull(value);
+
+        //existing entry with null value, with loader
+        CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
+        jcache.setCacheLoader(countingCacheLoader);
+        value = jcache.get("key");
+        assertNull(value);
+
+        //no entry with matching key in cache, no loader
+        jcache.remove("key");
+        jcache.setCacheLoader(null);
+        jcache.put("key", null);
+        value = jcache.get("key");
+        assertNull(value);
+
+        //no entry with matching key in cache, with loader
+        jcache.remove("key");
+        jcache.setCacheLoader(countingCacheLoader);
+        value = jcache.get("key");
+        assertEquals(new Integer(0), value);
+
+        //cache hit
+        jcache.put("key2", "value");
+        value = jcache.get("key2");
+        assertEquals("value", value);
+
+    }
+
+
     /**
      * Test the get values method.
      */

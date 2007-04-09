@@ -141,6 +141,8 @@
 
     (Alternatives: Some form of annotation and injection scheme)
 
+    todo how to create caches from configuration?
+
 
 **  net.sf.jsr107cache.Cache
 
@@ -188,8 +190,9 @@
 
     *   The <<<load>>> method ignores a request if the element is already loaded in for that key.
 
+    *   <<<get>>> and <<<getAll>>> are inconsistent. <<<getAll>>> throws CacheException, but <<<get>>> does not. They both should.
 
-    *   The <<<values()>>> method states that it
+
 
 ----
     /**
@@ -331,7 +334,15 @@ public interface CacheStatistics {
 
     *   There is no onUpdate notification method. These are mapped to JCACHE's onPut notification.
 
-    *   There is no onExpired notification method. These are mapped to JCACHE's onEvict notification. 
+    *   There is no onExpired notification method. These are mapped to JCACHE's onEvict notification.
+
+
+** net.sf.jsr107cache.CacheLoader
+
+    *   JCache can store null values against a key. In this case, on JCache#<<<get>>> or <<<getAll>>>
+        should an implementation attempt to load these values again? They might have been null in the
+        system the CacheLoader loads from, but now aren't. The ehcache implementation will still return nulls,
+        which is probably the correct behaviour. This point should be clarified.
 
 
 

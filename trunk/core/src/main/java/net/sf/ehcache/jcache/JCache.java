@@ -204,8 +204,9 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * Gets the CacheLoader registered in this cache
      *
      * @return the loader, or null if there is none
+     * @proposed addition to jsr107
      */
-    CacheLoader getCacheLoader() {
+    public CacheLoader getCacheLoader() {
         return cacheLoader;
     }
 
@@ -498,25 +499,59 @@ public class JCache implements net.sf.jsr107cache.Cache {
     }
 
     /**
-     * Returns the value to which this map maps the specified key.  Returns
-     * <tt>null</tt> if the map contains no mapping for this key.  A return
-     * value of <tt>null</tt> does not <i>necessarily</i> indicate that the
-     * map contains no mapping for the key; it's also possible that the map
-     * explicitly maps the key to <tt>null</tt>.  The <tt>containsKey</tt>
-     * operation may be used to distinguish these two cases.
+     * The get method will return, from the cache, the object associated with
+     * the argument "key".
      * <p/>
-     * <p>More formally, if this map contains a mapping from a key
-     * <tt>k</tt> to a value <tt>v</tt> such that <tt>(key==null ? k==null :
-     * key.equals(k))</tt>, then this method returns <tt>v</tt>; otherwise
-     * it returns <tt>null</tt>.  (There can be at most one such mapping.)
+     * If the object is not in the cache, the associated
+     * cache loader will be called. If no loader is associated with the object,
+     * a null is returned.
+     * <p/>
+     * If a problem is encountered during the retrieving
+     * or loading of the object, an exception (to be defined) will be thrown. (Until it is
+     * defined, the ehcache implementation throws a RuntimeException.)
+     * <p/>
+     * If the "arg" argument is set, the arg object will be passed to the
+     * CacheLoader.load method.  The cache will not dereference the object.
+     * If no "arg" value is provided a null will be passed to the load method.
+     * <p/>
+     * The storing of null values in the cache is permitted, however, the get
+     * method will not distinguish returning a null stored in the cache and
+     * not finding the object in the cache. In both cases a null is returned.
+     * <p/>
+     * Cache statistics are only updated for the initial attempt to get the cached entry.
      *
      * @param key key whose associated value is to be returned.
      * @return the value to which this map maps the specified key, or
-     *         <tt>null</tt> if the map contains no mapping for this key.
+     *         <tt>null</tt> if the map contains no mapping for this key after an attempt has been
+     *         made to load it.
+     * @throws RuntimeException JSR107 should really throw a CacheException here, but the
+     *                          spec does not allow it. Instead throw a RuntimeException if the underlying load method
+     *                          throws a CacheException.
      * @see #containsKey(Object)
+     * todo consider removing async stuff
      */
-    public Object get(Object key) {
+    public Object get(Object key) throws RuntimeException {
+
         Element element = cache.get(key);
+        if (element != null) {
+            return element.getObjectValue();
+        }
+
+        if (cacheLoader == null) {
+            return null;
+        }
+
+        try {
+            //only allow one thread to load the missing key
+            synchronized (key) {
+                Future future = asynchronousLoad(key);
+                //wait for result
+                future.get();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Exception on load", e);
+        }
+        element = cache.getQuiet(key);
         if (element == null) {
             return null;
         } else {

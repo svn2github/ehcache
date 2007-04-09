@@ -24,6 +24,11 @@ Java Requirements, Dependencies and Maven POM snippet
     The management package of ehcache requires JMX. Version 1.3 or higher will work. This is optional and only required if you are using the
     <<<ManagementService>>>.
 
+* Backport Concurrent
+
+    Backport Concurrent is a dependency for use of the JCache API. Rather than using the library which maven will pull down, users should consider
+    using the JDK5 version, which is faster, if they are running JDK5. See {{http://dcl.mathcs.emory.edu/util/backport-util-concurrent}}.
+
 
 * Maven pom.xml snippet
 

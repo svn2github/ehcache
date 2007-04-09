@@ -196,7 +196,7 @@ public class CacheListenerTest extends AbstractCacheTest {
 
         //force expiry
         Object expired = cache.get(key);
-        assertEquals(null, expired);
+        assertEquals(new Integer(0), expired);
 
         //Check counting listener
         List notifications = countingCacheListener.getCacheElementsEvicted();
