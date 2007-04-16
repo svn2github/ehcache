@@ -125,6 +125,10 @@
     *   remove caches from the CacheManager - once its there it is there until JVM shutdown. This does
         not work well for dynamic creation, destruction and recreation of caches.
 
+    *   CacheManager does not provide a standard way to configure caches. A Map can be populated with properties
+        and passed to the factory, but there is no way a configuration file can be configured. This should
+        be standardised so that declarative cache configuration, rather than programmatic, can be achieved.
+
 
 
 ** net.sf.jsr107cache.CacheFactory

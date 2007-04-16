@@ -1,3 +1,4 @@
+
 <project name="ehcache" default="build" xmlns:artifact="urn:maven-artifact-ant">
 
     <!-- Load Maven antlib and make pom.xml available as maven.project -->

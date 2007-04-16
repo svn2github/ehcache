@@ -86,7 +86,7 @@ final class PayloadUtil {
             }
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Cache peers: " + sb);
+            LOG.debug("Cache peers for this CacheManager to be advertised: " + sb);
         }
         return sb.toString().getBytes();
     }

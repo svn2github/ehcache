@@ -38,10 +38,10 @@ import java.util.List;
  */
 public class CachingFilterTest extends AbstractWebTest {
 
-    private String cachedPageUrl = "/CachedLogin.jsp";
+    private String cachedPageUrl = "/CachedPage.jsp";
 
     private void resetCachedPageUrl() {
-        cachedPageUrl = "/CachedLogin.jsp";
+        cachedPageUrl = "/CachedPage.jsp";
     }
 
 
@@ -331,7 +331,7 @@ public class CachingFilterTest extends AbstractWebTest {
      * 1 HTTP/1.1 200 OK
      * 2 Date: Mon, 22 Nov 2004 00:17:56 GMT
      * 3 Server: Orion/2.0.3
-     * 4 Content-Location: http://localhost:9080/CachedLogin.jsp
+     * 4 Content-Location: http://localhost:9080/CachedPage.jsp
      * 5 Content-Length: 735
      * 6 Set-Cookie: JSESSIONID=ICDJCBCHOFKO; Path=/
      * 7 Cache-Control: private
@@ -364,7 +364,7 @@ public class CachingFilterTest extends AbstractWebTest {
      * 1 HTTP/1.1 200 OK
      * 2 Date: Mon, 22 Nov 2004 00:17:56 GMT
      * 3 Server: Orion/2.0.3
-     * 4 Content-Location: http://localhost:9080/CachedLogin.jsp
+     * 4 Content-Location: http://localhost:9080/CachedPage.jsp
      * 5 Content-Length: 735
      * 6 Set-Cookie: JSESSIONID=ICDJCBCHOFKO; Path=/
      * 7 Cache-Control: private

@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * A Front Controller for the /CachedLogin.jsp page.
+ * A Front Controller for the /CachedPage.jsp page.
  * <p/>
  *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
@@ -39,7 +39,7 @@ public class IncludeCachedPageServlet extends HttpServlet {
      * @param response
      */
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/CachedLogin.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/CachedPage.jsp");
             dispatcher.include(request, response);
     }
 }
