@@ -53,7 +53,7 @@
     <!-- This is a filter chain. They are executed in the order below. Do not change the order. -->
     <filter-mapping>
         <filter-name>SimplePageCachingFilter</filter-name>
-        <url-pattern>/CachedLogin.jsp</url-pattern>
+        <url-pattern>/CachedPage.jsp</url-pattern>
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>INCLUDE</dispatcher>
         <dispatcher>FORWARD</dispatcher>

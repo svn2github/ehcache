@@ -2,5 +2,5 @@
 <%
     request.setAttribute(Filter.NO_FILTER, "true"); // prevent further filter use for jsp:includes
 %>
-<jsp:include page="/CachedLogin.jsp"/>
+<jsp:include page="/CachedPage.jsp"/>
 <% return; %>

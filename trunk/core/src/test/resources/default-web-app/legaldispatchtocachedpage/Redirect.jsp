@@ -1,3 +1,3 @@
 <%
-    response.sendRedirect("/CachedLogin.jsp");
+    response.sendRedirect("/CachedPage.jsp");
 %>

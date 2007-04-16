@@ -1,1 +1,1 @@
-<jsp:forward page="/CachedLogin.jsp"/>
+<jsp:forward page="/CachedPage.jsp"/>

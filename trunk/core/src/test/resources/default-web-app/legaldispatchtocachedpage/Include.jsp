@@ -1,1 +1,1 @@
-<jsp:include page="/CachedLogin.jsp"/><% return; %>
+<jsp:include page="/CachedPage.jsp"/><% return; %>

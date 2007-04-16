@@ -1,4 +1,4 @@
 <html>
 Some text
 </html>
-<jsp:forward page="CachedLogin.jsp"/>
+<jsp:forward page="CachedPage.jsp"/>
