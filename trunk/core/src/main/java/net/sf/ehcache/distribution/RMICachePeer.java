@@ -147,7 +147,9 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
         for (int i = 0; i < keys.size(); i++) {
             Serializable key = (Serializable) keys.get(i);
             Element element = cache.getQuiet(key);
-            elements.add(element);
+            if (element != null) {
+                elements.add(element);
+            }
         }
         return elements;
     }

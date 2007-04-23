@@ -8,7 +8,9 @@
                 Fix issue reported by Fredrik Bertilsson regarding peers entering and leaving a cluster, where the reentered peer would never get
                 updates.
             </action>
-
+            <action dev="Greg Luck" type="fix" issue="1703340">
+                Fixed RMICachePeer.getElements so that it does not allow null elements.
+            </action>
         </release>
 
         <release version="1.3-beta" date="2006-3-9" desc="Beta for 1.3 release">

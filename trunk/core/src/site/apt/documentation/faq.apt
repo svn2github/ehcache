@@ -294,7 +294,7 @@ arguments; nested exception is: java.net.MalformedURLException: no protocol: Fil
 
     If you are not doing any of the above, no extra threads are created
 
-* If I restart/reload a web application in Tomcat that has a CacheManager that is part of a cluster, the CacheManager is unable to rejoing the cluster.
+* If I restart/reload a web application in Tomcat that has a CacheManager that is part of a cluster, the CacheManager is unable to rejoin the cluster.
   If I set logging for net.sf.ehcache.distribution to FINE I see the following exception: "FINE: Unable to lookup remote cache peer for .... Removing from peer list. Cause was: error unmarshalling return; nested exception is:
         java.io.EOFException.
 
