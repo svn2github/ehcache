@@ -55,7 +55,6 @@ import java.util.List;
 public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicator {
 
 
-
     private static final Log LOG = LogFactory.getLog(RMIAsynchronousCacheReplicator.class.getName());
 
     /**
@@ -82,6 +81,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      * @param replicateUpdatesViaCopy
      * @param replicateRemovals
      * @param asynchronousReplicationInterval
+     *
      */
     public RMIAsynchronousCacheReplicator(
             boolean replicatePuts,
@@ -203,6 +203,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      * the removal key or not. If an element was removed, the element is passed to this method,
      * otherwise a synthetic element, with only the key set is passed in.
      * <p/>
+     *
      * @param cache   the cache emitting the notification
      * @param element the element just deleted, or a synthetic element with just the key set if
      *                no element was removed.
@@ -361,7 +362,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
         public ReplicationThread() {
             super("Replication Thread");
             setDaemon(true);
-            setPriority(2);
+            setPriority(Thread.NORM_PRIORITY);
         }
 
         /**
@@ -400,14 +401,11 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
     }
 
     /**
-     * Give the replicator a chance to cleanup and free resources when no longer needed
+     * Give the replicator a chance to flush the replication queue, then cleanup and free resources when no longer needed
      */
     public final void dispose() {
         status = Status.STATUS_SHUTDOWN;
-        synchronized (replicationQueue) {
-            replicationQueue.clear();
-        }
-
+        flushReplicationQueue();
     }
 
 

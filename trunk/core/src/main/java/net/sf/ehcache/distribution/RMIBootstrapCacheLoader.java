@@ -95,7 +95,7 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
             super("Bootstrap Thread for cache " + cache.getName());
             this.cache = cache;
             setDaemon(true);
-            setPriority(2);
+            setPriority(Thread.NORM_PRIORITY);
         }
 
         /**

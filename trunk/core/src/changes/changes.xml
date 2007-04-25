@@ -2,7 +2,7 @@
 <document>
     <body>
 
-        <release version="1.3" date="2006-12-21" desc="1.3 release">
+        <release version="1.3-beta2" date="2006-12-21" desc="1.3 release">
 
             <action dev="Greg Luck" type="fix">
                 Fix issue reported by Fredrik Bertilsson regarding peers entering and leaving a cluster, where the reentered peer would never get
@@ -10,6 +10,16 @@
             </action>
             <action dev="Greg Luck" type="fix" issue="1703340">
                 Fixed RMICachePeer.getElements so that it does not allow null elements.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="1681308">
+                 DiskStore SpoolThread is too slow under Java 1.6. The Spooling Thread was set to 2, on a scale of 1 to 10
+                from lowest to highest priority. Under JDK 1.6, this setting did not allocate enough CPU to enable the
+                spool to be cleared in a given situation, whereas under JDK1.5 it did. This seems to be a bug in JDK6.
+                The priority is now set to Thread.NORMAL_PRIORITY, which is 5. 
+            </action>
+            <action dev="Greg Luck" type="fix" issue="1684223">
+                Distributed cache - flushing replicationQueue on dispose. We should flush the replication queue rather than
+                clear it on dispose.
             </action>
         </release>
 

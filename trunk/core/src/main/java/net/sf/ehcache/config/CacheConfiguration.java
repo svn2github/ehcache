@@ -38,7 +38,7 @@ import java.util.List;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class CacheConfiguration {
+public class CacheConfiguration implements Cloneable {
 
     /**
      * the name of the cache.
@@ -118,6 +118,17 @@ public class CacheConfiguration {
      * The BootstrapCacheLoaderFactoryConfiguration.
      */
     protected BootstrapCacheLoaderFactoryConfiguration bootstrapCacheLoaderFactoryConfiguration;
+
+
+    /**
+     * Clones this object, following the usual contract.
+     * @return a copy, which independent other than configurations than cannot change.
+     * @throws CloneNotSupportedException
+     */
+    public Object clone() throws CloneNotSupportedException {
+        CacheConfiguration copy = (CacheConfiguration) super.clone();
+        return copy;        
+    }
 
     /**
      * Sets the name of the cache. This must be unique.

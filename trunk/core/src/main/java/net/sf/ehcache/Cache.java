@@ -107,7 +107,7 @@ public class Cache implements Ehcache {
 
     private Status status;
 
-    private final CacheConfiguration configuration;
+    private CacheConfiguration configuration;
 
     /**
      * Cache hit count.
@@ -1431,6 +1431,7 @@ public class Cache implements Ehcache {
             throw new CloneNotSupportedException("Cannot clone an initialized cache.");
         }
         Cache copy = (Cache) super.clone();
+        copy.configuration = (CacheConfiguration) configuration.clone();
         RegisteredEventListeners registeredEventListenersFromCopy = copy.getCacheEventNotificationService();
         if (registeredEventListenersFromCopy == null || registeredEventListenersFromCopy.getCacheEventListeners().size() == 0) {
             copy.registeredEventListeners = new RegisteredEventListeners(copy);

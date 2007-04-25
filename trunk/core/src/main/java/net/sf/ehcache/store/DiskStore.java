@@ -1037,7 +1037,7 @@ public class DiskStore implements Store {
         public SpoolAndExpiryThread() {
             super("Store " + name + " Spool Thread");
             setDaemon(true);
-            setPriority(2);
+            setPriority(Thread.NORM_PRIORITY);
         }
 
         /**

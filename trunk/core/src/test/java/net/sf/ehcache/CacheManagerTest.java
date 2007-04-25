@@ -519,6 +519,21 @@ public class CacheManagerTest extends TestCase {
     }
 
     /**
+     * Does clone work ok?
+     * todo check others
+     */
+    public void testCachesCreatedFromDefaultDoNotInteract() {
+        singletonManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
+        singletonManager.addCache("newfromdefault1");
+        Cache newfromdefault1 = singletonManager.getCache("newfromdefault1");
+        singletonManager.addCache("newfromdefault2");
+        Cache newfromdefault2 = singletonManager.getCache("newfromdefault2");
+
+        assertTrue(newfromdefault1 != newfromdefault2);
+        assertFalse(newfromdefault1.getName().equals(newfromdefault2.getName()));
+    }
+
+    /**
      * Test using a cache which has been removed and replaced.
      */
     public void testStaleCacheReference() throws CacheException {

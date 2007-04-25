@@ -583,7 +583,7 @@ public class CacheManager {
         try {
             cache = (Ehcache) defaultCache.clone();
         } catch (CloneNotSupportedException e) {
-            LOG.error("Failure adding cache. Initial cause was " + e.getMessage(), e);
+            throw new CacheException("Failure adding cache. Initial cause was " + e.getMessage(), e);
         }
         if (cache != null) {
             cache.setName(cacheName);
