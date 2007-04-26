@@ -27,7 +27,6 @@ import java.util.List;
  *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
- * todo update doco with new deps and create building from source section. add latest questions to faq
  */
 public abstract class AbstractCacheTest extends TestCase {
 

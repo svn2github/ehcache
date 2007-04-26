@@ -47,6 +47,8 @@ ehcache 1.3.0 User Guide
 
     * {{{./jsr107.html}JSR107 (JCACHE) Support}}
 
+    * {{{./building.html}Building From Source}}
+
     * {{{./faq.html}FAQ}}
 
 

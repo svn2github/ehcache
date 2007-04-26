@@ -734,6 +734,7 @@
                 <arg value="cachemanager_event_listeners.apt"/>
                 <arg value="cache_event_listeners.apt"/>
                 <arg value="jsr107.apt"/>
+                <arg value="building.apt"/>
                 <arg value="faq.apt"/>
                 <arg value="nameandlogo.apt"/>
             </exec>

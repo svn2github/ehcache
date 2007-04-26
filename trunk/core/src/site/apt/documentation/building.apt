@@ -1,0 +1,52 @@
+Building from Source
+
+*   Building an ehcache distribution from source
+
+    To build Ehcache from source:
+
+    [[1]] Check the source out from the subversion repository.
+
+    [[1]] Ensure you have a valid JAVA_HOME and ANT_HOME configured with binaries for both in your PATH
+
+    [[1]] From within the ehcache/core directory, type <<<ant>>>
+
+
+*   Running Tests for Ehcache
+
+    To run the test suite for Ehcache:
+
+    [[1]] Check the source out from the subversion repository.
+
+    [[1]] Ensure you have a valid JAVA_HOME and ANT_HOME configured with binaries for both in your PATH
+
+    [[1]] From within the ehcache/core directory, type <<<ant test>>>
+
+    [[1]] If some performance tests fail, add a <<<-D net.sf.ehcache.speedAdjustmentFactor=x>>> System property to
+            your command line, where x is how many times your machine is slower than the reference machine. Try setting
+            it to 5 for a start.
+
+*   Building the Site
+
+    (These instructions are for project maintainers)
+
+    You need the following unix utilities installed:
+
+    * Maven 2.0.5
+
+    * latex or tetex
+
+    * ghostscript
+
+    * pdftk
+
+    * aptconvert
+
+    * netpbm
+
+    You also need a yDoc license.
+
+    With all that, build the site as below:
+
+---
+    mvn site:site
+---
