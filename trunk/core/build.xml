@@ -726,7 +726,7 @@
                 <arg value="cache_decorators.apt"/>
                 <arg value="configuration.apt"/>
                 <arg value="storage_options.apt"/>
-                <arg value="shutdown_considerations.apt"/>
+                <arg value="shutdown.apt"/>
                 <arg value="hibernate.apt"/>
                 <arg value="distributed_design.apt"/>
                 <arg value="distributed_caching.apt"/>

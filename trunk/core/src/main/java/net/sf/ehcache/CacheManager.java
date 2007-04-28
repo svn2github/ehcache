@@ -67,10 +67,9 @@ public class CacheManager {
 
 
     /**
-     * System property to disable creation of a shutdown hook for CacheManager. Set this property
-     * to true to disable.
+     * System property to enable creation of a shutdown hook for CacheManager.
      */
-    public static final String DISABLE_SHUTDOWN_HOOK_PROPERTY = "net.sf.ehcache.disableShutdownHook";
+    public static final String ENABLE_SHUTDOWN_HOOK_PROPERTY = "net.sf.ehcache.enableShutdownHook";
 
     private static final Log LOG = LogFactory.getLog(CacheManager.class.getName());
 
@@ -222,7 +221,7 @@ public class CacheManager {
             cacheManagerPeerProvider.init();
         }
         cacheManagerEventListenerRegistry.init();
-        addShutdownHook();
+        addShutdownHookIfRequired();
 
         //do this last
         addConfiguredCaches(configurationHelper);
@@ -500,34 +499,35 @@ public class CacheManager {
      * Some caches might be persistent, so we want to add a shutdown hook if that is the
      * case, so that the data and index can be written to disk.
      */
-    private void addShutdownHook() {
+    private void addShutdownHookIfRequired() {
 
-        String shutdownHookProperty = System.getProperty(DISABLE_SHUTDOWN_HOOK_PROPERTY);
-        boolean disabled = PropertyUtil.parseBoolean(shutdownHookProperty);
-        if (disabled) {
-            LOG.info("The CacheManager shutdown hook is disabled because " + DISABLE_SHUTDOWN_HOOK_PROPERTY + " is set to true.");
+        String shutdownHookProperty = System.getProperty(ENABLE_SHUTDOWN_HOOK_PROPERTY);
+        boolean enabled = PropertyUtil.parseBoolean(shutdownHookProperty);
+        if (!enabled) {
             return;
-        }
+        } else {
+            LOG.info("The CacheManager shutdown hook is enabled because " + ENABLE_SHUTDOWN_HOOK_PROPERTY + " is set to true.");
 
-        Thread localShutdownHook = new Thread() {
-            public void run() {
-                synchronized (this) {
-                    if (status.equals(Status.STATUS_ALIVE)) {
-                        // clear shutdown hook reference to prevent
-                        // removeShutdownHook to remove it during shutdown
-                        shutdownHook = null;
+            Thread localShutdownHook = new Thread() {
+                public void run() {
+                    synchronized (this) {
+                        if (status.equals(Status.STATUS_ALIVE)) {
+                            // clear shutdown hook reference to prevent
+                            // removeShutdownHook to remove it during shutdown
+                            shutdownHook = null;
 
-                        if (LOG.isInfoEnabled()) {
-                            LOG.info("VM shutting down with the CacheManager still active. Calling shutdown.");
+                            if (LOG.isInfoEnabled()) {
+                                LOG.info("VM shutting down with the CacheManager still active. Calling shutdown.");
+                            }
+                            shutdown();
                         }
-                        shutdown();
                     }
                 }
-            }
-        };
+            };
 
-        Runtime.getRuntime().addShutdownHook(localShutdownHook);
-        shutdownHook = localShutdownHook;
+            Runtime.getRuntime().addShutdownHook(localShutdownHook);
+            shutdownHook = localShutdownHook;
+        }
     }
 
 
@@ -696,10 +696,9 @@ public class CacheManager {
      * If the shutdown occurs on the singleton, then the singleton is removed, so that if a singleton access method
      * is called, a new singleton will be created.
      * <p/>
-     * Note the CacheManager normally registers a shutdown hook to handle cases where the JVM is shutdown without calling
-     * this method. The shutdown hook then calls this method. If that behavour is not desired, add the following system property:
+     * By default there is no shutdown hook (ehcache-1.3-beta2 and higher).
      * <p/>
-     * <code>net.sf.ehcache.disableShutdownHook=true</code>
+     * Set the system property net.sf.ehcache.enableShutdownHook=true to turn it on.
      */
     public void shutdown() {
         synchronized (CacheManager.class) {

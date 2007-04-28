@@ -27,7 +27,7 @@ ehcache 1.3.0 User Guide
 
     * {{{./distributed_design.html}Distributed Design}}
 
-    * {{{./shutdown_considerations.html}Virtual Machine Shutdown Considerations}}
+    * {{{./shutdown.html}Shutting Down Ehcache}}
 
     * {{{./logging.html}Logging & Debugging}}
 
