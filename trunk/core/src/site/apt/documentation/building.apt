@@ -1,5 +1,15 @@
 Building from Source
 
+*   Building Approach
+
+    Ehcache is transitioning, slowly, from a full ant based build to a Maven build. At present ant is used
+    to build, but using Maven Antlib for dependency resolution.
+
+    The website and documentation are built using Maven.
+
+    Because of the transition, the ant based ehcache build is in a sub-directory called core in the ehcache
+    directory.
+
 *   Building an ehcache distribution from source
 
     To build Ehcache from source:

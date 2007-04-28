@@ -520,7 +520,6 @@ public class CacheManagerTest extends TestCase {
 
     /**
      * Does clone work ok?
-     * todo check others
      */
     public void testCachesCreatedFromDefaultDoNotInteract() {
         singletonManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
@@ -531,6 +530,9 @@ public class CacheManagerTest extends TestCase {
 
         assertTrue(newfromdefault1 != newfromdefault2);
         assertFalse(newfromdefault1.getName().equals(newfromdefault2.getName()));
+        //status is an enum style class, so it ok for them to point to the same instance if they are the same
+        assertTrue(newfromdefault1.getStatus() == newfromdefault2.getStatus());
+        assertFalse(newfromdefault1.getGuid() == newfromdefault2.getGuid());
     }
 
     /**

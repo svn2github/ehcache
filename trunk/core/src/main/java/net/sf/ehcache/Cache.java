@@ -141,7 +141,7 @@ public class Cache implements Ehcache {
 
     private RegisteredEventListeners registeredEventListeners;
 
-    private final String guid = new StringBuffer().append(localhost).append("-").append(new UID()).toString();
+    private String guid;
 
     private CacheManager cacheManager;
 
@@ -360,6 +360,8 @@ public class Cache implements Ehcache {
                  int maxElementsOnDisk) {
 
         changeStatus(Status.STATUS_UNINITIALISED);
+
+        guid = createGuid();
 
         configuration = new CacheConfiguration();
         configuration.setName(name);
@@ -1432,6 +1434,8 @@ public class Cache implements Ehcache {
         }
         Cache copy = (Cache) super.clone();
         copy.configuration = (CacheConfiguration) configuration.clone();
+        copy.guid = createGuid();
+
         RegisteredEventListeners registeredEventListenersFromCopy = copy.getCacheEventNotificationService();
         if (registeredEventListenersFromCopy == null || registeredEventListenersFromCopy.getCacheEventListeners().size() == 0) {
             copy.registeredEventListeners = new RegisteredEventListeners(copy);
@@ -1779,5 +1783,12 @@ public class Cache implements Ehcache {
         return guid.hashCode();
     }
 
+
+    /**
+     * Create globally unique ID for this cache.
+     */
+    private String createGuid() {
+        return new StringBuffer().append(localhost).append("-").append(new UID()).toString();
+    }
 
 }

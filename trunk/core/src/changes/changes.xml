@@ -21,6 +21,10 @@
                 Distributed cache - flushing replicationQueue on dispose. We should flush the replication queue rather than
                 clear it on dispose.
             </action>
+            <action dev="Greg Luck" type="fix" issue="1704257">
+                Fix clone problem introduced in 1.3-beta. This affects caches created from the default cache. 
+                Thanks to Erik Voorbraak for reporting this.
+            </action>
         </release>
 
         <release version="1.3-beta" date="2006-3-9" desc="Beta for 1.3 release">
