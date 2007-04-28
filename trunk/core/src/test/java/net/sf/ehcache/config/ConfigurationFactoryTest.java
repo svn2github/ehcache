@@ -826,4 +826,18 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Configuration configuration = new Configuration();
         configuration.setSource("programmatic");
     }
+
+
+    /**
+     * Tests that you cannot use the name default for a cache.
+     */
+    public void testLoadConfigurationFromInvalidXMLFileWithDefaultCacheNameUsed() throws Exception {
+        File file = new File(TEST_CONFIG_DIR + "ehcache-withdefaultset.xml");
+        try {
+            Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        } catch (CacheException e) {
+            assertTrue(e.getMessage().contains("The Default Cache has already been configured"));
+        }
+
+    }
 }
