@@ -563,44 +563,52 @@
 
     <macrodef name="deploy-default-web-app-tomcat_macro">
         <attribute name="port-prefix" default="NOT SET"/>
+        <attribute name="build.tomcat.dir" default="${build.dir}/tomcat@{port-prefix}"/>
+        <attribute name="build.tomcat.defaultwebapp.dir" default="@{build.tomcat.dir}/webapps/ROOT"/>
         <sequential>
 
-            <copy todir="${build.tomcat.dir}" overwrite="true">
+
+
+            <copy todir="@{build.tomcat.dir}" overwrite="true">
                 <fileset dir="${env.TOMCAT_HOME}"/>
             </copy>
-            <mkdir dir="${build.tomcat.defaultwebapp.dir}"/>
-            <mkdir dir="${build.tomcat.defaultwebapp.dir}/WEB-INF/classes"/>
-            <mkdir dir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib"/>
+            <mkdir dir="@{build.tomcat.defaultwebapp.dir}"/>
+            <mkdir dir="@{build.tomcat.defaultwebapp.dir}/WEB-INF/classes"/>
+            <mkdir dir="@{build.tomcat.defaultwebapp.dir}/WEB-INF/lib"/>
             <!--ehcache needs to go into common to overcome classloading issues between tomcat and RMI on distributed apps-->
-            <!--tomcat 5.5-->
-            <copy file="${dist.dir}/${name}-${version}.jar" todir="${build.tomcat.dir}/common/lib" overwrite="true"/>
             <!--tomcat 6-->
-            <copy file="${dist.dir}/${name}-${version}.jar" todir="${build.tomcat.dir}/lib" overwrite="true"/>
-            <copy todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib" flatten="true" overwrite="true">
+            <copy todir="@{build.tomcat.dir}/lib" flatten="true" overwrite="true">
+                <fileset file="${dist.dir}/${name}-${version}.jar" />
                 <fileset refid="runtime-dependencies.fileset"/>
-            </copy>
-            <copy todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib" flatten="true" overwrite="true">
                 <fileset refid="clover.fileset"/>
             </copy>
-            <copy file="${test.config.dir}/ehcache.xml" todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/classes"
+
+            <!--tomcat 5.5-->
+            <copy todir="@{build.tomcat.dir}/common/lib" flatten="true" overwrite="true">
+                <fileset file="${dist.dir}/${name}-${version}.jar" />
+                <fileset refid="runtime-dependencies.fileset"/>
+                <fileset refid="clover.fileset"/>
+            </copy>
+
+            <copy file="${test.config.dir}/ehcache.xml" todir="@{build.tomcat.defaultwebapp.dir}/WEB-INF/classes"
                   overwrite="true"/>
-            <jar destfile="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib/${name}-tests-${version}.jar">
+            <jar destfile="@{build.tomcat.defaultwebapp.dir}/WEB-INF/lib/${name}-tests-${version}.jar">
                 <fileset dir="${test.classes.dir}"/>
             </jar>
-            <copy todir="${build.tomcat.defaultwebapp.dir}" overwrite="true">
+            <copy todir="@{build.tomcat.defaultwebapp.dir}" overwrite="true">
                 <fileset dir="${test.config.dir}/default-web-app">
                     <exclude name="**/WEB-INF/**"/>
                 </fileset>
             </copy>
-            <copy todir="${build.tomcat.defaultwebapp.dir}/WEB-INF" overwrite="true">
+            <copy todir="@{build.tomcat.defaultwebapp.dir}/WEB-INF" overwrite="true">
                 <fileset dir="${test.config.dir}/default-web-app/WEB-INF/2_4/"/>
             </copy>
 
             <!--Fix up ports-->
-            <replace file="${build.tomcat.dir}/conf/server.xml" token="8080" value="@{port-prefix}80"/>
-            <replace file="${build.tomcat.dir}/conf/server.xml" token="8005" value="@{port-prefix}81"/>
-            <replace file="${build.tomcat.dir}/conf/server.xml" token="8443" value="@{port-prefix}82"/>
-            <replace file="${build.tomcat.dir}/conf/server.xml" token="8009" value="@{port-prefix}83"/>
+            <replace file="@{build.tomcat.dir}/conf/server.xml" token="8080" value="@{port-prefix}80"/>
+            <replace file="@{build.tomcat.dir}/conf/server.xml" token="8005" value="@{port-prefix}81"/>
+            <replace file="@{build.tomcat.dir}/conf/server.xml" token="8443" value="@{port-prefix}82"/>
+            <replace file="@{build.tomcat.dir}/conf/server.xml" token="8009" value="@{port-prefix}83"/>
         </sequential>
     </macrodef>
 
@@ -646,14 +654,15 @@
 
     <macrodef name="start-tomcat-macro">
         <attribute name="port-prefix" default="NOT SET"/>
+        <attribute name="build.tomcat.dir" default="${build.dir}/tomcat@{port-prefix}"/>
         <sequential>
-            <echo>Starting Tomcat on ${os.name}</echo>
-            <exec dir="${build.tomcat.dir}/bin" spawn="true" os="Mac OS X, Linux, AIX, Solaris"
+            <echo>Starting Tomcat on ${os.name} on port @{port-prefix}80</echo>
+            <exec dir="@{build.tomcat.dir}/bin" spawn="true" os="Mac OS X, Linux, AIX, Solaris"
                   executable="java">
                 <arg line="-jar bootstrap.jar"/>
             </exec>
             <!--todo fix-->
-            <exec dir="${build.tomcat.dir}/bin" spawn="true" os="Windows XP, Windows 2000"
+            <exec dir="@{build.tomcat.dir}/bin" spawn="true" os="Windows XP, Windows 2000"
                   executable="cmd">
                 <arg value="/c"/>
                 <arg value="tomcat_sh_and.bat"/>
@@ -665,6 +674,19 @@
         </sequential>
     </macrodef>
 
+    <target name="deploy-and-start-multiple-tomcats" depends="compile, dist-jar" description="Allows manual testing of tomcat apps">
+        <deploy-default-web-app-tomcat_macro port-prefix="80"/>
+        <start-tomcat-macro port-prefix="80"/>
+
+        <deploy-default-web-app-tomcat_macro port-prefix="81"/>
+        <start-tomcat-macro port-prefix="81"/>
+    </target>
+
+
+    <target name="stop-multiple-tomcats" description="Stops multiple manual testing tomcats">
+        <stop-web-container-macro port-prefix="80"/>
+        <stop-web-container-macro port-prefix="81"/>
+    </target>
 
     <!-- Start up the test instance of the Tomcat server -->
     <target name="start-tomcat" description="Starts the Orion server">
