@@ -165,8 +165,8 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      */
     public void put(Element element) throws RemoteException, IllegalArgumentException, IllegalStateException {
         cache.put(element, true);
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Remote put received. Element is: " + element);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Remote put received. Element is: " + element);
         }
     }
 
@@ -180,8 +180,8 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      * @throws IllegalStateException
      */
     public final boolean remove(Serializable key) throws RemoteException, IllegalStateException {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Remote remove received for key: " + key);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Remote remove received for key: " + key);
         }
         return cache.remove(key, true);
     }
@@ -192,8 +192,8 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
     public final void removeAll() throws RemoteException, IllegalStateException {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Remote removeAll received");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Remote removeAll received");
         }
         cache.removeAll(true);
     }

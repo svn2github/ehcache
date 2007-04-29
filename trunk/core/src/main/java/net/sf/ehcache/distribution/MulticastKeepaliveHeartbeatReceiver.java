@@ -126,8 +126,8 @@ public final class MulticastKeepaliveHeartbeatReceiver {
                 return;
             }
             rmiUrls = rmiUrls.trim();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("rmiUrls received " + rmiUrls);
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("rmiUrls received " + rmiUrls);
             }
             for (StringTokenizer stringTokenizer = new StringTokenizer(rmiUrls,
                     PayloadUtil.URL_DELIMITER); stringTokenizer.hasMoreTokens();) {
