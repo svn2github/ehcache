@@ -29,7 +29,7 @@ Building from Source
 
     [[1]] Ensure you have a valid JAVA_HOME and ANT_HOME configured with binaries for both in your PATH
 
-    [[1]] The integration tests use Tomcat. Define TOMCAT_HOME to point to a Tomcat 6 installation.
+    [[1]] The integration tests rely on a standard Tomcat to be installed. Define TOMCAT_HOME to point to a Tomcat 5 or 6 installation.
 
     [[1]] From within the ehcache/core directory, type <<<ant test>>>
 

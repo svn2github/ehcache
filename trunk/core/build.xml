@@ -1,4 +1,3 @@
-
 <project name="ehcache" default="build" xmlns:artifact="urn:maven-artifact-ant">
 
     <!-- Load Maven antlib and make pom.xml available as maven.project -->
@@ -138,7 +137,7 @@
         </javac>
     </target>
 
-	
+
     <target name="rmic">
         <rmic base="${build.classes.dir}" includes="**/RMICachePeer.class"
               excludes="**/*CLOVER*"/>
@@ -179,7 +178,7 @@
             description="Integration tests for web containers"/>
 
     <target name="test-orion"
-            depends="compile, prepare-web-tests, start-orion, run-web-tests-no-check-orion, stop-web-container"
+            depends="compile, prepare-web-tests, start-orion, run-web-tests-no-check-orion, stop-orion"
             if="tests.failed" description="Runs Tests">
         <fail message="One or more tests failed. See the log file for details."/>
     </target>
@@ -372,7 +371,7 @@
 
     <!-- Builds a maven upload bundle -->
     <target name="maven-bundle" depends="clean, dist-tgz">
-	<echo message="This maven command is currently corrupting the archives. Do not use" />
+        <echo message="This maven command is currently corrupting the archives. Do not use"/>
         <copy file="${dist.dir}/${name}-${version}-${javadoc.zip}"
               tofile="${dist.dir}/${name}-${version}-javadoc.jar"/>
         <copy file="${basedir}/pom.xml" tofile="${dist.dir}/${name}-${version}.pom"/>
@@ -510,22 +509,16 @@
         <echo message="...Started"/>
     </target>
 
-    <!-- Stop the test instance of the web server -->
-    <target name="stop-web-container" description="Stops the web server">
-        <waitfor maxwait="5000" checkevery="500">
-            <http url="http://localhost:9080/Exit.jsp"/>
-        </waitfor>
-        <echo message="...Stopped Web Server"/>
-    </target>
+    <macrodef name="stop-web-container-macro">
+        <attribute name="port-prefix" default="NOT SET"/>
+        <sequential>
+            <echo message="...Stopped Web Server"/>
+            <waitfor maxwait="5000" checkevery="500">
+                <http url="http://localhost:@{port-prefix}80/Exit.jsp"/>
+            </waitfor>
+        </sequential>
+    </macrodef>
 
-
-    <!-- Stop the test instance of the web server -->
-    <target name="stop-tomcat" description="Stops the web server">
-        <waitfor maxwait="5000" checkevery="500">
-            <http url="http://localhost:9080/Exit.jsp"/>
-        </waitfor>
-        <echo message="...Stopped Web Server"/>
-    </target>
 
     <target name="prepare-web-tests"
             depends="compile, dist-jar, deploy-default-web-app-orion, deploy-default-web-app-tomcat"
@@ -561,9 +554,9 @@
         </copy>
 
         <condition property="not_mac">
-                <not>
-                    <os name="Mac OS X"/>
-                </not>
+            <not>
+                <os name="Mac OS X"/>
+            </not>
         </condition>
         <antcall target="copy-tools-lib"/>
     </target>
@@ -572,41 +565,42 @@
         <attribute name="port-prefix" default="NOT SET"/>
         <sequential>
 
-        <copy todir="${build.tomcat.dir}" overwrite="true">
-            <fileset dir="${env.TOMCAT_HOME}"/>
-        </copy>
-        <mkdir dir="${build.tomcat.defaultwebapp.dir}"/>
-        <mkdir dir="${build.tomcat.defaultwebapp.dir}/WEB-INF/classes"/>
-        <mkdir dir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib"/>
-        <!--ehcache needs to go into common to overcome classloading issues between tomcat and RMI on distributed apps-->
-        <!--tomcat 5.5-->
-        <copy file="${dist.dir}/${name}-${version}.jar" todir="${build.tomcat.dir}/common/lib" overwrite="true"/>
-        <!--tomcat 6-->
-        <copy file="${dist.dir}/${name}-${version}.jar" todir="${build.tomcat.dir}/lib" overwrite="true"/>
-        <copy todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib" flatten="true" overwrite="true">
-            <fileset refid="runtime-dependencies.fileset"/>
-        </copy>
-        <copy todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib" flatten="true" overwrite="true">
-            <fileset refid="clover.fileset"/>
-        </copy>
-        <copy file="${test.config.dir}/ehcache.xml" todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/classes" overwrite="true"/>
-        <jar destfile="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib/${name}-tests-${version}.jar">
-            <fileset dir="${test.classes.dir}"/>
-        </jar>
-        <copy todir="${build.tomcat.defaultwebapp.dir}" overwrite="true">
-            <fileset dir="${test.config.dir}/default-web-app">
-                <exclude name="**/WEB-INF/**"/>
-            </fileset>
-        </copy>
-        <copy todir="${build.tomcat.defaultwebapp.dir}/WEB-INF" overwrite="true">
-            <fileset dir="${test.config.dir}/default-web-app/WEB-INF/2_4/"/>
-        </copy>
+            <copy todir="${build.tomcat.dir}" overwrite="true">
+                <fileset dir="${env.TOMCAT_HOME}"/>
+            </copy>
+            <mkdir dir="${build.tomcat.defaultwebapp.dir}"/>
+            <mkdir dir="${build.tomcat.defaultwebapp.dir}/WEB-INF/classes"/>
+            <mkdir dir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib"/>
+            <!--ehcache needs to go into common to overcome classloading issues between tomcat and RMI on distributed apps-->
+            <!--tomcat 5.5-->
+            <copy file="${dist.dir}/${name}-${version}.jar" todir="${build.tomcat.dir}/common/lib" overwrite="true"/>
+            <!--tomcat 6-->
+            <copy file="${dist.dir}/${name}-${version}.jar" todir="${build.tomcat.dir}/lib" overwrite="true"/>
+            <copy todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib" flatten="true" overwrite="true">
+                <fileset refid="runtime-dependencies.fileset"/>
+            </copy>
+            <copy todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib" flatten="true" overwrite="true">
+                <fileset refid="clover.fileset"/>
+            </copy>
+            <copy file="${test.config.dir}/ehcache.xml" todir="${build.tomcat.defaultwebapp.dir}/WEB-INF/classes"
+                  overwrite="true"/>
+            <jar destfile="${build.tomcat.defaultwebapp.dir}/WEB-INF/lib/${name}-tests-${version}.jar">
+                <fileset dir="${test.classes.dir}"/>
+            </jar>
+            <copy todir="${build.tomcat.defaultwebapp.dir}" overwrite="true">
+                <fileset dir="${test.config.dir}/default-web-app">
+                    <exclude name="**/WEB-INF/**"/>
+                </fileset>
+            </copy>
+            <copy todir="${build.tomcat.defaultwebapp.dir}/WEB-INF" overwrite="true">
+                <fileset dir="${test.config.dir}/default-web-app/WEB-INF/2_4/"/>
+            </copy>
 
-        <!--Fix up ports-->
-        <replace file="${build.tomcat.dir}/conf/server.xml" token="8080" value="@{port-prefix}80"/>
-        <replace file="${build.tomcat.dir}/conf/server.xml" token="8005" value="@{port-prefix}81"/>
-        <replace file="${build.tomcat.dir}/conf/server.xml" token="8443" value="@{port-prefix}82"/>
-        <replace file="${build.tomcat.dir}/conf/server.xml" token="8009" value="@{port-prefix}83"/>
+            <!--Fix up ports-->
+            <replace file="${build.tomcat.dir}/conf/server.xml" token="8080" value="@{port-prefix}80"/>
+            <replace file="${build.tomcat.dir}/conf/server.xml" token="8005" value="@{port-prefix}81"/>
+            <replace file="${build.tomcat.dir}/conf/server.xml" token="8443" value="@{port-prefix}82"/>
+            <replace file="${build.tomcat.dir}/conf/server.xml" token="8009" value="@{port-prefix}83"/>
         </sequential>
     </macrodef>
 
@@ -650,23 +644,40 @@
     </target>
 
 
+    <macrodef name="start-tomcat-macro">
+        <attribute name="port-prefix" default="NOT SET"/>
+        <sequential>
+            <echo>Starting Tomcat on ${os.name}</echo>
+            <exec dir="${build.tomcat.dir}/bin" spawn="true" os="Mac OS X, Linux, AIX, Solaris"
+                  executable="java">
+                <arg line="-jar bootstrap.jar"/>
+            </exec>
+            <!--todo fix-->
+            <exec dir="${build.tomcat.dir}/bin" spawn="true" os="Windows XP, Windows 2000"
+                  executable="cmd">
+                <arg value="/c"/>
+                <arg value="tomcat_sh_and.bat"/>
+            </exec>
+            <waitfor maxwait="10000" checkevery="1500">
+                <http url="http://localhost:@{port-prefix}80"/>
+            </waitfor>
+            <echo message="...Started"/>
+        </sequential>
+    </macrodef>
+
+
     <!-- Start up the test instance of the Tomcat server -->
     <target name="start-tomcat" description="Starts the Orion server">
-        <echo>Starting Tomcat on ${os.name}</echo>
-        <exec dir="${build.tomcat.dir}/bin" spawn="true" os="Mac OS X, Linux, AIX, Solaris"
-              executable="java">
-            <arg line="-jar bootstrap.jar"/>
-        </exec>
-        <!--todo fix-->
-        <exec dir="${build.tomcat.dir}/bin" spawn="true" os="Windows XP, Windows 2000"
-              executable="cmd">
-            <arg value="/c"/>
-            <arg value="tomcat_sh_and.bat"/>
-        </exec>
-        <waitfor maxwait="10000" checkevery="1500">
-            <http url="http://localhost:9080"/>
-        </waitfor>
-        <echo message="...Started"/>
+        <start-tomcat-macro port-prefix="90"/>
+    </target>
+
+
+    <target name="stop-tomcat" description="Stops tomcat">
+        <stop-web-container-macro port-prefix="90"/>
+    </target>
+
+    <target name="stop-orion" description="Stops orion">
+        <stop-web-container-macro port-prefix="90"/>
     </target>
 
     <target name="copy-tools-lib" if="not_mac">
