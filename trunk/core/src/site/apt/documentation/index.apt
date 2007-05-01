@@ -43,7 +43,9 @@ ehcache 1.3.0 User Guide
 
     * {{{./constructs_design.html}Constructs Design}}
 
-    * {{{./hibernate.html}Hibernate Caching}}
+    * {{{./hibernate.html}Using ehcache with Hibernate}}
+
+    * {{{./tomcat.html}Using ehcache with Tomcat}}
 
     * {{{./jsr107.html}JSR107 (JCACHE) Support}}
 

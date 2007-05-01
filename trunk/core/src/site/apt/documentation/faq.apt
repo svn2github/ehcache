@@ -1,5 +1,6 @@
 Frequently Asked Questions
 
+
 * Does ehcache run on {JDK1.3}?
 
  Yes. It runs on JDK1.3, 1.4 and 5. The restriction for JDK1.3 is
@@ -216,7 +217,7 @@ CacheManagerTest#testCreateShutdownCreate()
 
 * What is the minimum config to get distributed caching going?
 
-     The minimum configuration you need to get distributed going is:
+     The minimum configuration you need to get distributed caching going is:
 
 ---
     <cacheManagerPeerProviderFactory
@@ -259,16 +260,7 @@ class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
 
     You can use the distributed debug tool to see what is going on. (See {{{http://ehcache.sourceforge.net/documentation/logging.html}}}).
 
-* I get net.sf.ehcache.CacheException: Problem starting listener for RMICachePeer ... java.rmi.UnmarshalException: error unmarshalling
-arguments; nested exception is: java.net.MalformedURLException: no protocol: Files/Apache. What is going on?
 
-    This issue occurs to any RMI listener started on Tomcat, when Tomcat has spaces in its installation path.
-
-    It is is a JDK bug which can be worked around in Tomcat but is not.
-    See http://archives.java.sun.com/cgi-bin/wa?A2=ind0205&L=rmi-users&P=797 and
-    http://www.ontotext.com/kim/doc/sys-doc/faq-howto-bugs/known-bugs.html.
-
-    The workaround is to remove the spaces in your tomcat installation path.
 
 * Why can't I run multiple applications using ehcache on one machine?
 
@@ -294,12 +286,11 @@ arguments; nested exception is: java.net.MalformedURLException: no protocol: Fil
 
     If you are not doing any of the above, no extra threads are created
 
-* If I restart/reload a web application in Tomcat that has a CacheManager that is part of a cluster, the CacheManager is unable to rejoin the cluster.
-  If I set logging for net.sf.ehcache.distribution to FINE I see the following exception: "FINE: Unable to lookup remote cache peer for .... Removing from peer list. Cause was: error unmarshalling return; nested exception is:
-        java.io.EOFException.
 
-  The Tomcat and RMI classloaders do not get along that well. Move ehcache.jar to $TOMCAT_HOME/common/lib. This fixes the problem. This issue happens
-  with anything that uses RMI.
+* I am using Tomcat 5, 5.5 or 6 and I am having a problem. What can I do?
+
+    Tomcat is such a common deployment option for applications using ehcache that there is a chapter on known
+    issues and recommended practices. See the Using Ehcache with Tomcat chapter.
 
              
 
