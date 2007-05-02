@@ -388,33 +388,23 @@
 
 
     <distributionManagement>
-        <!-- Private repository -->
-        <!--<repository>-->
-        <!--<url>scp://localhost//Users/gluck/gluck_repository</url>-->
-        <!--<id>gluck_repository</id>-->
-        <!--<name>gluck_repository</name>-->
-        <!--</repository>-->
-        <!--<repository>-->
-        <!--<id>sf-ehcache-repository</id>-->
-        <!--<name>SF EHCache Repository</name>-->
-        <!--<url>scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs/repository</url>-->
-        <!--</repository>-->
+        <!--  
+          The server id here defined must also appear in ~/.m2/settings.xml with username
+        -->    
         <snapshotRepository>
-            <url>scp://localhost//Users/gluck/gluck_repository</url>
             <id>gluck_repository</id>
             <name>gluck_repository</name>
+            <url>scp://localhost//Users/gluck/gluck_repository</url>
         </snapshotRepository>
-        <!--<snapshotRepository>-->
-        <!--<id>sf-ehcache-snapshot-repository</id>-->
-        <!--<name>SF EHCache Snapshot Repository</name>-->
-        <!--<url>-->
-        <!--scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs/snapshot-repository-->
-        <!--</url>-->
-        <!--</snapshotRepository>-->
+        <repository>
+            <id>sourceforge.net</id>
+            <name>SF EHCache Repository</name>
+            <url>scp://shell.sf.net:/home/groups/e/eh/ehcache/htdocs/repository</url>
+        </repository>
         <site>
-            <id>sf-ehcache-site</id>
+            <id>sourceforge.net</id>
             <name>SF EHCache Site</name>
-            <url>scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs</url>
+            <url>scp://shell.sf.net:/home/groups/e/eh/ehcache/htdocs</url>
         </site>
     </distributionManagement>
 

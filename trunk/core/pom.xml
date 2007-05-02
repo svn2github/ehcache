@@ -382,10 +382,13 @@
 
     <!-- Note: site URL repeated here to ensure correct deployment path -->
     <distributionManagement>
+        <!--  
+          The server id here defined must also appear in ~/.m2/settings.xml with username
+        -->        
         <site>
-            <id>sf-ehcache-site</id>
+            <id>sourceforge.net</id>
             <name>SF EHCache Site</name>
-            <url>scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs</url>
+            <url>scp://shell.sf.net:/home/groups/e/eh/ehcache/htdocs</url>
         </site>
     </distributionManagement>
 
