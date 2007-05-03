@@ -257,7 +257,7 @@ public abstract class MemoryStore implements Store {
      *
      * @param element The Element
      */
-    protected final void spoolToDisk(Element element) {
+    protected void spoolToDisk(Element element) {
         diskStore.put(element);
         if (LOG.isDebugEnabled()) {
             LOG.debug(cache.getName() + "Cache: spool to disk done for: " + element.getObjectKey());

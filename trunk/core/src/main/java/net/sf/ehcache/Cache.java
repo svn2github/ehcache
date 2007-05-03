@@ -425,9 +425,7 @@ public class Cache implements Ehcache {
                 }
             }
 
-            if (configuration.isOverflowToDisk()) {
-                diskStore = new DiskStore(this, diskStorePath);
-            }
+            createDiskStore();
 
             memoryStore = MemoryStore.create(this, diskStore);
             changeStatus(Status.STATUS_ALIVE);
@@ -442,6 +440,15 @@ public class Cache implements Ehcache {
                 LOG.warn("Cache: " + configuration.getName() + " is disabled because the " + NET_SF_EHCACHE_DISABLED
                         + " property was set to true. No elements will be added to the cache.");
             }
+        }
+    }
+
+    /**
+     * Creates a disk store.
+     */
+    protected void createDiskStore() {
+        if (configuration.isOverflowToDisk()) {
+            diskStore = new DiskStore(this, diskStorePath);
         }
     }
 
@@ -475,10 +482,14 @@ public class Cache implements Ehcache {
      * if it was requested
      * </ul>
      * Synchronization is handled within the method.
+     * <p/>
+     * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
+     * This exception should be caught in those cirucmstances.
      *
      * @param element An object. If Serializable it can fully participate in replication and the DiskStore.
      * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
      * @throws IllegalArgumentException if the element is null
+     * @throws CacheException
      */
     public final void put(Element element) throws IllegalArgumentException, IllegalStateException,
             CacheException {
@@ -499,6 +510,9 @@ public class Cache implements Ehcache {
      * if it was requested
      * </ul>
      * Synchronization is handled within the method.
+     * <p/>
+     * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
+     * This exception should be caught in those cirucmstances.
      *
      * @param element                     An object. If Serializable it can fully participate in replication and the DiskStore.
      * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
@@ -553,7 +567,10 @@ public class Cache implements Ehcache {
      * Put an element in the cache, without updating statistics, or updating listeners. This is meant to be used
      * in conjunction with {@link #getQuiet}.
      * Synchronization is handled within the method.
-     *
+     * <p/>
+     * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
+     * This exception should be caught in those cirucmstances. 
+     * <p/>
      * @param element An object. If Serializable it can fully participate in replication and the DiskStore.
      * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
      * @throws IllegalArgumentException if the element is null
@@ -834,7 +851,9 @@ public class Cache implements Ehcache {
      * with the key actually existed.
      * <p/>
      * Synchronization is handled within the method.
-     *
+     * <p/>
+     * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
+     * This exception should be caught in those cirucmstances.
      * @param key the element key to operate on
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
@@ -851,7 +870,10 @@ public class Cache implements Ehcache {
      * with the key actually existed.
      * <p/>
      * Synchronization is handled within the method.
-     *
+     * <p/>
+     * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
+     * This exception should be caught in those cirucmstances.
+     * <p/>
      * @param key the element key to operate on
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
@@ -870,7 +892,9 @@ public class Cache implements Ehcache {
      * with the key actually existed.
      * <p/>
      * Synchronization is handled within the method.
-     *
+     * <p/>
+     * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
+     * This exception should be caught in those cirucmstances.
      * @param key                         the element key to operate on
      * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
      *                                    further notification to doNotNotifyCacheReplicators cache peers
@@ -920,7 +944,9 @@ public class Cache implements Ehcache {
      * stores it may be in.
      * <p/>
      * Synchronization is handled within the method.
-     *
+     * <p/>
+     * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
+     * This exception should be caught in those cirucmstances.
      * @param key the element key to operate on
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
@@ -943,7 +969,9 @@ public class Cache implements Ehcache {
      * If a remove was called, listeners are notified, regardless of whether the element existed or not.
      * This allows distributed cache listeners to remove elements from a cluster regardless of whether they
      * existed locally.
-     *
+     * <p/>
+     * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
+     * This exception should be caught in those cirucmstances.
      * @param key                         the element key to operate on
      * @param expiry                      if the reason this method is being called is to expire the element
      * @param notifyListeners             whether to notify listeners
@@ -1007,7 +1035,9 @@ public class Cache implements Ehcache {
     /**
      * Removes all cached items.
      * Synchronization is handled within the method.
-     *
+     * <p/>
+     * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
+     * This exception should be caught in those cirucmstances.
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     public void removeAll() throws IllegalStateException, CacheException {
@@ -1018,7 +1048,9 @@ public class Cache implements Ehcache {
     /**
      * Removes all cached items.
      * Synchronization is handled within the method.
-     *
+     * <p/>
+     * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
+     * This exception should be caught in those cirucmstances.
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     public void removeAll(boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {

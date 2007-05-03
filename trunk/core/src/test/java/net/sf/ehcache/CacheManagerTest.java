@@ -436,6 +436,7 @@ public class CacheManagerTest extends TestCase {
     public void testAddCache() throws CacheException {
         singletonManager = CacheManager.create();
         singletonManager.addCache("test");
+        singletonManager.addCache("test2");
         Ehcache cache = singletonManager.getCache("test");
         assertNotNull(cache);
         assertEquals("test", cache.getName());

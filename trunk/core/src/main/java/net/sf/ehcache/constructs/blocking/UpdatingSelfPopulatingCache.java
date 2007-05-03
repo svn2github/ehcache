@@ -98,7 +98,7 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
      * Element can never be null. Add a null guard just in case.
      * @param key
      */
-    private void update(final Object key) {
+    protected void update(final Object key) {
         try {
             Ehcache backingCache = getCache();
             final Element element = backingCache.getQuiet(key);

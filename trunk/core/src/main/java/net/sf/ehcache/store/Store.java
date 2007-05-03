@@ -40,6 +40,21 @@ public interface Store {
     Element get(Object key);
 
     /**
+     * Gets an {@link Element} from the Disk Store, without updating statistics
+     *
+     * @return The element
+     */
+    public Element getQuiet(final Object key);
+
+    /**
+     * Gets an Array of the keys for all elements in the disk store.
+     *
+     * @return An Object[] of {@link java.io.Serializable} keys
+     * @noinspection SynchronizeOnNonFinalField
+     */
+    public Object[] getKeyArray();
+
+    /**
      * Removes an item from the cache.
      *
      * @since signature changed in 1.2 from boolean to Element to support notifications
