@@ -6,7 +6,7 @@
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-parent</artifactId>
         <version>1.3-beta2</version>
-    </parent>    
+    </parent>
     <name>Ehcache Core</name>
     <artifactId>ehcache</artifactId>
     <packaging>jar</packaging>
@@ -61,7 +61,7 @@
         <dependency>
             <groupId>checkstyle</groupId>
             <artifactId>checkstyle-optional</artifactId>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>com.cenqua.clover</groupId>
             <artifactId>clover</artifactId>
@@ -87,7 +87,7 @@
             <artifactId>acegi-security</artifactId>
         </dependency>
     </dependencies>
-  
+
     <build>
         <testResources>
             <testResource>
@@ -108,7 +108,7 @@
                         <configuration>
                             <tasks>
                                 <rmic base="${project.build.outputDirectory}"
-                                    includes="**/RMICachePeer.class"/>
+                                      includes="**/RMICachePeer.class"/>
                             </tasks>
                         </configuration>
                         <goals>
@@ -120,77 +120,81 @@
                         <phase>site</phase>
                         <configuration>
                             <tasks>
-                              <property name="userguide" value="${project.build.directory}/userguide" />
-                              <mkdir dir="${userguide}" />
-                              <copy todir="${userguide}/images">
-                                <fileset dir="src/site/resources/images" />
-                              </copy>
-                              <copy todir="${userguide}">
-                                <fileset dir="src/site/apt/documentation">
-                                  <include name="*.apt" />
-                                </fileset>
-                                <fileset dir="src/site/apt">
-                                  <include name="features.apt" />
-                                  <include name="samples.apt" />
-                                  <include name="nameandlogo.apt" />
-                                </fileset>
-                              </copy>
-                              <copy todir="${userguide}">
-                                <fileset dir="${project.build.directory}/site/">
-                                  <include name="javadoc/**" />
-                                  <include name="xref/**" />
-                                  <include name="xref-test/**" />
-                                </fileset>
-                              </copy>
-                              <macrodef name="create_userguide">
-                                <attribute name="extension" default="NOT SET" />
-                                <element name="some-tasks" optional="yes" />
-                                <sequential>
-                                  <copy file="src/site/apt/.aptconvert" todir="${env.HOME}" />
-                                  <exec executable="aptconvert" newenvironment="false" dir="${userguide}" spawn="false"
-                                    failifexecutionfails="true" failonerror="true">
-                                    <arg value="EhcacheUserGuide.@{extension}" />
-                                    <arg value="preface.apt" />
-                                    <arg value="introduction.apt" />
-                                    <arg value="getting_started.apt" />
-                                    <arg value="features.apt" />
-                                    <arg value="concepts.apt" />
-                                    <arg value="samples.apt" />
-                                    <arg value="dependencies.apt" />
-                                    <arg value="logging.apt" />
-                                    <arg value="jmx.apt" />
-                                    <arg value="class_loading.apt" />
-                                    <arg value="performance_considerations.apt" />
-                                    <arg value="cache_decorators.apt" />
-                                    <arg value="configuration.apt" />
-                                    <arg value="storage_options.apt" />
-                                    <arg value="shutdown.apt" />
-                                    <arg value="hibernate.apt" />
-                                    <arg value="distributed_design.apt" />
-                                    <arg value="distributed_caching.apt" />
-                                    <arg value="constructs_design.apt" />
-                                    <arg value="cachemanager_event_listeners.apt" />
-                                    <arg value="cache_event_listeners.apt" />
-                                    <arg value="jsr107.apt" />
-                                    <arg value="faq.apt" />
-                                    <arg value="nameandlogo.apt" />
-                                  </exec>
-                                  <copy file="${userguide}/EhcacheUserGuide.@{extension}" todir="${project.build.directory}/site" />
-                                </sequential>
-                              </macrodef>
-                              <create_userguide extension="html" />
-                              <create_userguide extension="pdf" />
+                                <property name="userguide" value="${project.build.directory}/userguide"/>
+                                <mkdir dir="${userguide}"/>
+                                <copy todir="${userguide}/images">
+                                    <fileset dir="src/site/resources/images"/>
+                                </copy>
+                                <copy todir="${userguide}">
+                                    <fileset dir="src/site/apt/documentation">
+                                        <include name="*.apt"/>
+                                    </fileset>
+                                    <fileset dir="src/site/apt">
+                                        <include name="features.apt"/>
+                                        <include name="samples.apt"/>
+                                        <include name="nameandlogo.apt"/>
+                                    </fileset>
+                                </copy>
+                                <copy todir="${userguide}">
+                                    <fileset dir="${project.build.directory}/site/">
+                                        <include name="javadoc/**"/>
+                                        <include name="xref/**"/>
+                                        <include name="xref-test/**"/>
+                                    </fileset>
+                                </copy>
+                                <macrodef name="create_userguide">
+                                    <attribute name="extension" default="NOT SET"/>
+                                    <element name="some-tasks" optional="yes"/>
+                                    <sequential>
+                                        <copy file="src/site/apt/.aptconvert" todir="${env.HOME}"/>
+                                        <exec executable="aptconvert" newenvironment="false" dir="${userguide}"
+                                              spawn="false"
+                                              failifexecutionfails="true" failonerror="true">
+                                            <arg value="EhcacheUserGuide.@{extension}"/>
+                                            <arg value="preface.apt"/>
+                                            <arg value="introduction.apt"/>
+                                            <arg value="getting_started.apt"/>
+                                            <arg value="features.apt"/>
+                                            <arg value="concepts.apt"/>
+                                            <arg value="samples.apt"/>
+                                            <arg value="dependencies.apt"/>
+                                            <arg value="logging.apt"/>
+                                            <arg value="jmx.apt"/>
+                                            <arg value="class_loading.apt"/>
+                                            <arg value="performance_considerations.apt"/>
+                                            <arg value="cache_decorators.apt"/>
+                                            <arg value="configuration.apt"/>
+                                            <arg value="storage_options.apt"/>
+                                            <arg value="shutdown.apt"/>
+                                            <arg value="hibernate.apt"/>
+                                            <arg value="distributed_design.apt"/>
+                                            <arg value="distributed_caching.apt"/>
+                                            <arg value="constructs_design.apt"/>
+                                            <arg value="cachemanager_event_listeners.apt"/>
+                                            <arg value="cache_event_listeners.apt"/>
+                                            <arg value="jsr107.apt"/>
+                                            <arg value="tomcat.apt"/>
+                                            <arg value="building.apt"/>
+                                            <arg value="faq.apt"/>
+                                            <arg value="nameandlogo.apt"/>
+                                        </exec>
+                                        <copy file="${userguide}/EhcacheUserGuide.@{extension}"
+                                              todir="${project.build.directory}/site"/>
+                                    </sequential>
+                                </macrodef>
+                                <create_userguide extension="html"/>
+                                <create_userguide extension="pdf"/>
                             </tasks>
                         </configuration>
                         <goals>
                             <goal>run</goal>
                         </goals>
                     </execution>
-                    
+
                 </executions>
             </plugin>
 
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -304,8 +308,12 @@
                 <version>2.0</version>
                 <configuration>
                     <doclet>ydoc.doclets.YStandard</doclet>
-                    <docletPath>${ydoc.home}/lib/ydoc.jar${path.separator}${ydoc.home}/lib/class2svg.jar${path.separator}${ydoc.home}/resources</docletPath>
-                    <additionalparam>-license ${ydoc.license} -filter ydoc.filters.ExcludeFilter -filterpath ${ydoc.home}/lib/ydoc.jar -umlautogen</additionalparam>                
+                    <docletPath>
+                        ${ydoc.home}/lib/ydoc.jar${path.separator}${ydoc.home}/lib/class2svg.jar${path.separator}${ydoc.home}/resources
+                    </docletPath>
+                    <additionalparam>-license ${ydoc.license} -filter ydoc.filters.ExcludeFilter -filterpath
+                        ${ydoc.home}/lib/ydoc.jar -umlautogen
+                    </additionalparam>
                     <author>true</author>
                     <bottom>true</bottom>
                     <destDir>${project.build.directory}/site/javadoc</destDir>
@@ -320,7 +328,7 @@
                     <tag name="noinspection" description="IntelliJ Inspection Ignore tag"
                          enabled="false"/>
                 </configuration>
-            </plugin>         
+            </plugin>
 
             <!-- PMD and CPD -->
             <plugin>
@@ -357,7 +365,7 @@
                     </reportSet>
                 </reportSets>
             </plugin>
-          
+
             <!-- ToDos -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -376,7 +384,7 @@
                     <outputDirectory>${project.build.directory}/site</outputDirectory>
                 </configuration>
             </plugin>
-          
+
         </plugins>
     </reporting>
 
@@ -384,7 +392,7 @@
     <distributionManagement>
         <!--  
           The server id here defined must also appear in ~/.m2/settings.xml with username
-        -->        
+        -->
         <site>
             <id>sourceforge.net</id>
             <name>SF EHCache Site</name>
