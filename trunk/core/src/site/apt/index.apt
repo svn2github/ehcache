@@ -17,7 +17,8 @@ Welcome to ehcache
 
 ** 4 May 2007: ehcache-1.3 beta 2 released
 
-    Beta 2 has 7 fixes over beta 1, together with 2 minor feature changes.  
+    Ehcache-1.3-beta2 has 7 fixes over beta 1. See the {{{http://ehcache.sourceforge.net/changes-report.html#1.3-beta2}changelog}} for details.
+    A final release should be out in the next few weeks.
 
 ** 9 March 2007: ehcache-1.3 beta released
 

@@ -18,7 +18,7 @@ JMX Management and Monitoring
     If you wish to monitor ehcache but not use JMX, just use the existing public methods on <<<Cache>>> and <<<CacheStatistics>>>.
 
 
-[images/uml/management_package] The Management Package
+[images/uml/management_package.png] The Management Package
 
 *   Dependencies
 
@@ -72,7 +72,7 @@ JMX Management and Monitoring
 
     The <<<ManagementService>>> class is the API entry point.
 
-[images/uml/ManagementService] ManagementService
+[images/uml/ManagementService.png] ManagementService
 
     There is only one method, <<<ManagementService.registerMBeans>>> which is used to initiate JMX registration
     of an ehcache CacheManager's instrumented MBeans. The <<<ManagementService>>> is a <<<CacheManagerEventListener>>> and
@@ -128,7 +128,7 @@ JMX Management and Monitoring
 
     CacheStatistics MBeans are then registered.
 
-[images/JConsoleExample] CacheStatistics MBeans in JConsole
+[images/JConsoleExample.png] CacheStatistics MBeans in JConsole
 
 
 

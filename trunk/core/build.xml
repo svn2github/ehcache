@@ -708,6 +708,7 @@
 
     <!-- Requres LaTeX and netpbm-->
     <target name="book">
+        <copy file="src/site/apt/.aptconvert" todir="${env.HOME}"/>
         <mkdir dir="${build.dir}/book"/>
         <copy todir="${build.dir}/book/images">
             <fileset dir="src/site/resources/images"/>
@@ -721,10 +722,25 @@
                 <include name="samples.apt"/>
                 <include name="nameandlogo.apt"/>
             </fileset>
+            <fileset dir="src/site/resources/book"/>
         </copy>
+
+        <replace dir="${build.dir}/book" token=".jpg" includes="*.apt"/>
+        <replace dir="${build.dir}/book" token=".gif" includes="*.apt"/>
+        <replace dir="${build.dir}/book" token=".png" includes="*.apt"/>
 
         <property name="extension" value="pdf"/>
         <antcall target="create_book" inheritall="true"/>
+
+        <exec executable="pdftk" newenvironment="false" dir="${build.dir}/book" spawn="false">
+            <arg value="title_page.pdf"/>
+            <arg value="EhcacheUserGuide.pdf"/>
+            <arg value="cat"/>
+            <arg value="output"/>
+            <arg value="TempEhcacheUserGuide.pdf"/>
+        </exec>
+        <move file="${build.dir}/book/TempEhcacheUserGuide.pdf" tofile="${build.dir}/book/EhcacheUserGuide.pdf"/>
+
         <mkdir dir="${build.dir}/site"/>
         <copy file="${build.dir}/book/EhcacheUserGuide.pdf" todir="${build.dir}/site"/>
     </target>
@@ -748,6 +764,11 @@
                 <include name="nameandlogo.apt"/>
             </fileset>
         </copy>
+
+        <replace dir="${build.dir}/book" token=".jpg" includes="*.apt"/>
+        <replace dir="${build.dir}/book" token=".gif" includes="*.apt"/>
+        <replace dir="${build.dir}/book" token=".png" includes="*.apt"/>
+
         <antcall target="create_singlepageguide" inheritall="true"/>
 
         <copy file="${build.dir}/book/EhcacheUserGuide.html" todir="${build.dir}/site"/>
@@ -811,7 +832,7 @@
                 use="true"
                 windowtitle="${name}"
                 doclet="ydoc.doclets.YStandard"
-                docletpath="${basedir}/tools/ydoc-2.2_02-jdk1.5/lib/ydoc.jar:${basedir}/tools/ydoc-2.2_02-jdk1.5/lib/class2svg.jar:${basedir}/tools/ydoc-2.2_02-jdk1.5/resources:${build.classes.dir}"
+                docletpath="${ydoc.home}/lib/ydoc.jar:${ydoc.home}/lib/class2svg.jar:${ydoc.home}/resources:${build.classes.dir}:${ydoc.home}/licenses/ydoc.license"
                 additionalparam="-umlautogen">
             <tag name="noinspection" description="IntelliJ Inspection Ignore tag"
                  enabled="false"/>

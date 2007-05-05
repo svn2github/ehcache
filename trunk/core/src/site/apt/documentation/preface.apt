@@ -1,11 +1,3 @@
-     ------
-     Ehcache v1.3.0 User Guide
-     ------
-     Greg Luck
-     ------
-     9 March 2007
-     ------
-
 Preface
 
     This is a book about ehcache, a widely used open source Java cache. Ehcache has grown in size and scope since it
