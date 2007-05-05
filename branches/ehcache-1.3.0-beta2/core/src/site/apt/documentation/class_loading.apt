@@ -1,0 +1,85 @@
+Class loading and Class Loaders
+
+    Class loading within the plethora of environments ehcache can be running is a somewhat vexed issue.
+
+    Since ehcache-1.2 all classloading is done in a standard way in one utility class: <<<ClassLoaderUtil>>>.
+
+* {Plugin class loading}
+
+    Ehcache allows plugins for events and distribution. These are loaded and created as follows:
+
+--------------------------------------------
+    /**
+     * Creates a new class instance. Logs errors along the way. Classes are loaded using the
+     * ehcache standard classloader.
+     *
+     * @param className a fully qualified class name
+     * @return null if the instance cannot be loaded
+     */
+    public static Object createNewInstance(String className) throws CacheException {
+        Class clazz;
+        Object newInstance;
+        try {
+            clazz = Class.forName(className, true, getStandardClassLoader());
+        } catch (ClassNotFoundException e) {
+            //try fallback
+            try {
+                clazz = Class.forName(className, true, getFallbackClassLoader());
+            } catch (ClassNotFoundException ex) {
+                throw new CacheException("Unable to load class " + className +
+                        ". Initial cause was " + e.getMessage(), e);
+            }
+        }
+
+        try {
+            newInstance = clazz.newInstance();
+        } catch (IllegalAccessException e) {
+            throw new CacheException("Unable to load class " + className +
+                    ". Initial cause was " + e.getMessage(), e);
+        } catch (InstantiationException e) {
+            throw new CacheException("Unable to load class " + className +
+                    ". Initial cause was " + e.getMessage(), e);
+        }
+        return newInstance;
+    }
+
+    /**
+     * Gets the <code>ClassLoader</code> that all classes in ehcache, and extensions, should
+     * use for classloading. All ClassLoading in ehcache should use this one. This is the only
+     * thing that seems to work for all of the class loading situations found in the wild.
+     * @return the thread context class loader.
+     */
+    public static ClassLoader getStandardClassLoader() {
+        return Thread.currentThread().getContextClassLoader();
+    }
+
+    /**
+     * Gets a fallback <code>ClassLoader</code> that all classes in ehcache, and extensions,
+     * should use for classloading. This is used if the context class loader does not work.
+     * @return the <code>ClassLoaderUtil.class.getClassLoader();</code>
+     */
+    public static ClassLoader getFallbackClassLoader() {
+        return ClassLoaderUtil.class.getClassLoader();
+    }
+--------------------------------------------
+
+    If this does not work for some reason a CacheException is thrown with a
+    detailed error message.
+
+* {Loading of ehcache.xml resources}
+
+    If the configuration is otherwise unspecified, ehcache looks for a
+    configuration in the following order:
+
+      * Thread.currentThread().getContextClassLoader().getResource("/ehcache.xml")
+
+      * ConfigurationFactory.class.getResource("/ehcache.xml")
+
+      * ConfigurationFactory.class.getResource("/ehcache-failsafe.xml")
+
+
+    Ehcache uses the first configuration found.
+
+    Note the use of "/ehcache.xml" which requires that ehcache.xml be
+    placed at the root of the classpath, i.e. not in any package.
+

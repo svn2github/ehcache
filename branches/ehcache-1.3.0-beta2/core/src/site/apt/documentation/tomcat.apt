@@ -1,0 +1,44 @@
+Using ehcache with Tomcat
+
+    Ehcache is probably used most commonly with Tomcat. This chapter documents some known issues with Tomcat
+    and recommended practices.
+
+    Ehcache's own caching and gzip filter integration tests run against Tomcat 5.5 and Tomcat 6. Tomcat will
+    continue to be tested against ehcache. Accordingly Tomcat is tier one for ehcache.
+
+*   Tomcat Known Issues
+
+    Because Tomcat is so widely used, over time a list of known issues has been compiled. These issues and their solutions are listed below.
+
+**  If I restart/reload a web application in Tomcat that has a CacheManager that is part of a cluster, the CacheManager is unable to rejoin the cluster.
+    If I set logging for net.sf.ehcache.distribution to FINE I see the following exception: "FINE: Unable to lookup remote cache peer for .... Removing from peer list. Cause was: error unmarshalling return; nested exception is:
+        java.io.EOFException.
+
+    The Tomcat and RMI classloaders do not get along that well. Move ehcache.jar to $TOMCAT_HOME/common/lib. This fixes the problem. This issue happens
+    with anything that uses RMI, not just ehcache.
+
+
+**   I get net.sf.ehcache.CacheException: Problem starting listener for RMICachePeer ... java.rmi.UnmarshalException: error unmarshalling
+    arguments; nested exception is: java.net.MalformedURLException: no protocol: Files/Apache. What is going on?
+
+    This issue occurs to any RMI listener started on Tomcat whenever Tomcat has spaces in its installation path.
+
+    It is is a JDK bug which can be worked around in Tomcat.
+
+    See http://archives.java.sun.com/cgi-bin/wa?A2=ind0205&L=rmi-users&P=797 and http://www.ontotext.com/kim/doc/sys-doc/faq-howto-bugs/known-bugs.html.
+
+    The workaround is to remove the spaces in your tomcat installation path.
+
+**  Multiple Host Entries in Tomcat's server.xml stops replication from occurring
+
+    The presence of multiple <Host> entries in Tomcat's server.xml prevents replication from occuring.
+
+    The peer discover works so that the peers are found, but cache replication fails.
+
+    (This issue has not been reproduced but is reported here in case anyone has an issue.)
+
+    The workaround is to use a single <Host> entry. 
+
+
+    
+
