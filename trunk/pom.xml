@@ -418,7 +418,7 @@
             scm:svn:https://username@ehcache.svn.sourceforge.net/svnroot/ehcache
         </developerConnection>
         <tag/>
-        <url>http://svn.sourceforge.net/viewcvs.cgi/ehcache/</url>
+        <url>http://ehcache.svn.sourceforge.net/viewvc/ehcache</url>
     </scm>
 
    
