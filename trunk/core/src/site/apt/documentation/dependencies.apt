@@ -17,7 +17,7 @@ Java Requirements, Dependencies and Maven POM snippet
 
 * Mandatory Dependencies
 
-    Ehcache requires {{{http://jakarta.apache.org/commons/logging.html}commons-logging}} commons-logging is a very common dependency, and is therefore not included in the distribution.
+    Ehcache requires {{{http://jakarta.apache.org/commons/logging/}commons-logging}} commons-logging is a very common dependency, and is therefore not included in the distribution.
 
 * Optional Dependencies
 
