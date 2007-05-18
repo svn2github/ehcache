@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.List;
 import java.lang.reflect.Method;
 
-import net.sf.ehcache.management.ManagementServiceTest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -37,22 +36,22 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class AbstractCacheTest extends TestCase {
 
-    private static final Log LOG = LogFactory.getLog(AbstractCacheTest.class.getName());
-
     /**
      * Where the config is
      */
     public static final String SRC_CONFIG_DIR = "src/main/config/";
+
     /**
      * Where the test config is
      */
     public static final String TEST_CONFIG_DIR = "src/test/resources/";
-
-
     /**
      * Where the test classes are compiled.
      */
     public static final String TEST_CLASSES_DIR = "target/test-classes/";
+
+
+    private static final Log LOG = LogFactory.getLog(AbstractCacheTest.class.getName());
 
     /**
      * name for sample cache 1
