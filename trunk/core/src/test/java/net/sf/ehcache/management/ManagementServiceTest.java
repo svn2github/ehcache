@@ -64,18 +64,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        createMBeanServer();
-    }
-
-    private void createMBeanServer() {
-        try {
-            Class managementFactoryClass = Class.forName("java.lang.management.ManagementFactory");
-            Method method = managementFactoryClass.getMethod("getPlatformMBeanServer", null);
-            mBeanServer = (MBeanServer) method.invoke(null, null);
-        } catch (Exception e) {
-            LOG.info("JDK1.5 ManagementFactory not found. Falling back to JMX1.2.1", e);
-            mBeanServer = MBeanServerFactory.createMBeanServer("SimpleAgent");
-        }
+        mBeanServer = createMBeanServer();
     }
 
     private MBeanServer create14MBeanServer() {
@@ -119,7 +108,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
         assertEquals(40, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
         manager.removeCache("sampleCache1");
         assertEquals(37, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
-//        Thread.sleep(1000000);
+        Thread.sleep(1000000);
     }
 
     /**

@@ -25,6 +25,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.StopWatch;
 import net.sf.ehcache.ThreadKiller;
+import net.sf.ehcache.management.ManagementService;
 import net.sf.ehcache.event.CountingCacheEventListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -412,6 +413,8 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     public void manualStabilityTest() throws InterruptedException {
         forceVMGrowth();
+
+        ManagementService.registerMBeans(manager3, createMBeanServer(), true, true, true, true);
         while (true) {
             testBigPutsProgagatesAsynchronous();
         }

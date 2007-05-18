@@ -381,7 +381,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      * The wrapper holds a {@link java.lang.ref.SoftReference} to the {@link EventMessage}, so that the queue is never
      * the cause of an {@link OutOfMemoryError}
      */
-    private static final class CacheEventMessage {
+    private static class CacheEventMessage {
 
         private final Ehcache cache;
         private final EventMessage eventMessage;

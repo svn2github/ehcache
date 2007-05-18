@@ -893,6 +893,32 @@ public class CacheTest extends AbstractCacheTest {
         assertTrue("Getting keys took more than 150ms", getKeysTime < 100);
     }
 
+    /**
+     *
+     * @throws Exception
+     */
+    public void testCachePerformance() throws Exception {
+        //Set size so the second element overflows to disk.
+        Ehcache cache = createTestCache();
+        StopWatch stopWatch = new StopWatch();
+        for (int i = 0; i < 10000; i++) {
+            cache.put(new Element("key" + i, "value"));
+        }
+        LOG.info("Put time: " + stopWatch.getElapsedTime());
+
+        for (int i = 0; i < 10000; i++) {
+            cache.get(new Element("key" + i, "value"));
+        }
+        LOG.info("Get time: " + stopWatch.getElapsedTime());
+
+        for (int i = 0; i < 10000; i++) {
+            cache.remove("key" + i);
+        }
+        LOG.info("Remove time: " + stopWatch.getElapsedTime());
+
+
+    }
+
 
     /**
      * Checks the expense of checking in-memory size
@@ -1653,7 +1679,7 @@ public class CacheTest extends AbstractCacheTest {
 
     /**
      * Tests get from a finalize method, following a mailing list post from Felix Satyaputr
-     * 
+     *
      * @throws InterruptedException
      */
     public void testGetQuietFromFinalize() throws InterruptedException {

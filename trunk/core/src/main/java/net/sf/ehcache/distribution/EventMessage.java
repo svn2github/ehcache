@@ -34,7 +34,7 @@ import java.lang.ref.SoftReference;
  * @version $Id$
  * @noinspection SerializableHasSerializationMethods
  */
-public final class EventMessage implements Serializable {
+public class EventMessage implements Serializable {
 
 
 

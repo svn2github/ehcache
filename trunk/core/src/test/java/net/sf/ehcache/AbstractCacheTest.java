@@ -18,9 +18,16 @@ package net.sf.ehcache;
 
 import junit.framework.TestCase;
 
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.lang.reflect.Method;
+
+import net.sf.ehcache.management.ManagementServiceTest;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Common fields and methods required by most test cases
@@ -29,6 +36,8 @@ import java.util.List;
  * @version $Id$
  */
 public abstract class AbstractCacheTest extends TestCase {
+
+    private static final Log LOG = LogFactory.getLog(AbstractCacheTest.class.getName());
 
     /**
      * Where the config is
@@ -161,6 +170,21 @@ public abstract class AbstractCacheTest extends TestCase {
         // Throw any error that happened
         if (errors[0] != null) {
             throw new Exception("Test thread failed.", errors[0]);
+        }
+    }
+
+    /**
+     * Obtains an MBeanServer, which varies with Java version
+     * @return
+     */
+    public MBeanServer createMBeanServer() {
+        try {
+            Class managementFactoryClass = Class.forName("java.lang.management.ManagementFactory");
+            Method method = managementFactoryClass.getMethod("getPlatformMBeanServer", null);
+            return (MBeanServer) method.invoke(null, null);
+        } catch (Exception e) {
+            LOG.info("JDK1.5 ManagementFactory not found. Falling back to JMX1.2.1", e);
+            return MBeanServerFactory.createMBeanServer("SimpleAgent");
         }
     }
 
