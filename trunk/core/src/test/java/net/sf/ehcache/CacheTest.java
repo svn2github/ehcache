@@ -894,33 +894,6 @@ public class CacheTest extends AbstractCacheTest {
     }
 
     /**
-     *
-     * @throws Exception
-     */
-    public void testCachePerformance() throws Exception {
-        //Set size so the second element overflows to disk.
-        Ehcache cache = createTestCache();
-        StopWatch stopWatch = new StopWatch();
-        for (int i = 0; i < 10000; i++) {
-            cache.put(new Element("key" + i, "value"));
-        }
-        LOG.info("Put time: " + stopWatch.getElapsedTime());
-
-        for (int i = 0; i < 10000; i++) {
-            cache.get(new Element("key" + i, "value"));
-        }
-        LOG.info("Get time: " + stopWatch.getElapsedTime());
-
-        for (int i = 0; i < 10000; i++) {
-            cache.remove("key" + i);
-        }
-        LOG.info("Remove time: " + stopWatch.getElapsedTime());
-
-
-    }
-
-
-    /**
      * Checks the expense of checking in-memory size
      * 3467890 bytes in 1601ms for JDK1.4.2
      */
@@ -953,7 +926,7 @@ public class CacheTest extends AbstractCacheTest {
     public void testGetSizeAfterExpiry() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 1, 0);
-        manager.addCache(cache);
+        manager.addCache(cache);                                                               
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
 
