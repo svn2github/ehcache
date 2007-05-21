@@ -25,8 +25,14 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.rmi.RemoteException;
+import java.util.Set;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.StringTokenizer;
 import java.util.List;
+
+import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
+import edu.emory.mathcs.backport.java.util.concurrent.Executors;
 
 /**
  * Receives heartbeats from any {@link MulticastKeepaliveHeartbeatSender}s out there.
@@ -37,9 +43,10 @@ import java.util.List;
  * @version $Id$
  */
 public final class MulticastKeepaliveHeartbeatReceiver {
-
     private static final Log LOG = LogFactory.getLog(MulticastKeepaliveHeartbeatReceiver.class.getName());
 
+    private ExecutorService processingThreadPool;
+    private Set rmiUrlsProcessingQueue = Collections.synchronizedSet(new HashSet());
     private final InetAddress groupMulticastAddress;
     private final Integer groupMulticastPort;
     private MulticastReceiverThread receiverThread;
@@ -67,21 +74,22 @@ public final class MulticastKeepaliveHeartbeatReceiver {
      * @throws IOException
      */
     final void init() throws IOException {
-
         socket = new MulticastSocket(groupMulticastPort.intValue());
         socket.joinGroup(groupMulticastAddress);
         receiverThread = new MulticastReceiverThread();
         receiverThread.start();
+        processingThreadPool = Executors.newCachedThreadPool();
     }
 
     /**
      * Shutdown the heartbeat.
      */
     public final void dispose() {
+        LOG.debug("dispose called");
+        processingThreadPool.shutdownNow();
         stopped = true;
         receiverThread.interrupt();
     }
-
 
     /**
      * A multicast receiver which continously receives heartbeats.
@@ -129,11 +137,50 @@ public final class MulticastKeepaliveHeartbeatReceiver {
             if (LOG.isTraceEnabled()) {
                 LOG.trace("rmiUrls received " + rmiUrls);
             }
-            for (StringTokenizer stringTokenizer = new StringTokenizer(rmiUrls,
-                    PayloadUtil.URL_DELIMITER); stringTokenizer.hasMoreTokens();) {
-                String rmiUrl = stringTokenizer.nextToken();
-                registerNotification(rmiUrl);
+            processRmiUrls(rmiUrls);
+        }
+
+        /**
+         * This method forks a new executor to process the received heartbeat in a thread pool.
+         * That way each remote cache manager cannot interfere with others.
+         * <p/>
+         * In the worst case, we have as many concurrent threads as remote cache managers.
+         *
+         * @param rmiUrls
+         */
+        private void processRmiUrls(final String rmiUrls) {
+            if (rmiUrlsProcessingQueue.contains(rmiUrls)) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("We are already processing these rmiUrls. Another heartbeat came before we finished: " + rmiUrls);
+                }
+                return;
             }
+
+            processingThreadPool.execute(new Runnable() {
+                public void run() {
+                    try {
+                        // Add the rmiUrls we are processing.
+                        rmiUrlsProcessingQueue.add(rmiUrls);
+                        for (StringTokenizer stringTokenizer = new StringTokenizer(rmiUrls,
+                                PayloadUtil.URL_DELIMITER); stringTokenizer.hasMoreTokens();) {
+                            if (stopped) {
+                                return;
+                            }
+                            String rmiUrl = stringTokenizer.nextToken();
+                            registerNotification(rmiUrl);
+                            if (!peerProvider.peerUrls.containsKey(rmiUrl)) {
+                                if (LOG.isDebugEnabled()) {
+                                    LOG.debug("Aborting processing of rmiUrls since failed to add rmiUrl: " + rmiUrl);
+                                }
+                                return;
+                            }
+                        }
+                    } finally {
+                        // Remove the rmiUrls we just processed
+                        rmiUrlsProcessingQueue.remove(rmiUrls);
+                    }
+                }
+            });
         }
 
 

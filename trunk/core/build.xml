@@ -322,6 +322,7 @@
 
     <artifact:dependencies filesetId="runtime-dependencies.fileset">
         <dependency groupId="commons-logging" artifactId="commons-logging" version="1.0.4"/>
+        <dependency groupId="backport-util-concurrent" artifactId="backport-util-concurrent" version="3.0"/>
     </artifact:dependencies>
 
     <!-- Builds a remote debugger jar  -->

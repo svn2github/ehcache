@@ -2,7 +2,17 @@
 <document>
     <body>
 
-        <release version="1.3-beta2" date="2007-5-1" desc="Beta 2 for 1.3 release">
+        <release version="1.3.0-beta3" date="2007-12-31" desc="Beta 3 for 1.3 release">
+
+            <action dev="Greg Luck" type="fix" issue="1715492">
+                Problems when peer lookup fails when receiving heartbeats because heartbeat receiving is multi-threaded. This issue
+                affects dirty or misconfigured networks or clusters. It hardens ehcache so that valid peers can still form a cluster
+                in the presence of Naming.lookup() problems with one or more peers. Thanks to Daniel Weill and Fredrik Bertilson for
+                reporting this and Daniel for supplying a patch.
+            </action>
+        </release>
+
+        <release version="1.3.0-beta2" date="2007-5-1" desc="Beta 2 for 1.3 release">
 
             <action dev="Greg Luck" type="fix">
                 Fix issue reported by Fredrik Bertilsson regarding peers entering and leaving a cluster, where the reentered peer would never get

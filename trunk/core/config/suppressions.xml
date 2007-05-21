@@ -41,6 +41,7 @@
     <suppress checks="FileLengthCheck" files="Cache.java"/>
     <suppress checks="ExecutableStatementCount" files="Cache.java"/>
     <suppress checks="ThrowsCountCheck" files="CachingFilter.java"/>
+    <suppress checks="AnonInnerLengthCheck" files="MulticastKeepaliveHeartbeatReceiver.java"/>
 
     <!-- We need to return LinkedList -->
     <suppress checks="IllegalType" files="AsynchronousCommandExecutor.java"/>

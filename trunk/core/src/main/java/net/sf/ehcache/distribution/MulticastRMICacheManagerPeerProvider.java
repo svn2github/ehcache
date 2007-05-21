@@ -96,15 +96,19 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
 
     /**
      * Register a new peer, but only if the peer is new, otherwise the last seen timestamp is updated.
+     * <p/>
+     * This method is thread-safe. It relies on peerUrls being a synchronizedMap
+     *
      * @param rmiUrl
      */
-    public final synchronized void registerPeer(String rmiUrl) {
-
+    public final void registerPeer(String rmiUrl) {
         try {
             CachePeerEntry cachePeerEntry = (CachePeerEntry) peerUrls.get(rmiUrl);
             if (cachePeerEntry == null || stale(cachePeerEntry.date)) {
+                //can take seconds if there is a problem
                 CachePeer cachePeer = lookupRemoteCachePeer(rmiUrl);
                 cachePeerEntry = new CachePeerEntry(cachePeer, new Date());
+                //synchronized due to peerUrls being a synchronizedMap
                 peerUrls.put(rmiUrl, cachePeerEntry);
             } else {
                 cachePeerEntry.date = new Date();
@@ -244,7 +248,6 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
     }
 
     /**
-     *
      * @return the MulticastKeepaliveHeartbeatReceiver
      */
     public MulticastKeepaliveHeartbeatReceiver getHeartBeatReceiver() {
@@ -252,7 +255,6 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
     }
 
     /**
-     *
      * @return the MulticastKeepaliveHeartbeatSender
      */
     public MulticastKeepaliveHeartbeatSender getHeartBeatSender() {
