@@ -24,18 +24,21 @@
         <xs:complexType>
             <xs:attribute name="class" use="required"/>
             <xs:attribute name="properties" use="optional"/>
+            <xs:attribute name="propertySeparator" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cacheManagerPeerProviderFactory">
         <xs:complexType>
             <xs:attribute name="class" use="required"/>
             <xs:attribute name="properties" use="optional"/>
+            <xs:attribute name="propertySeparator" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cacheManagerPeerListenerFactory">
         <xs:complexType>
             <xs:attribute name="class" use="required"/>
             <xs:attribute name="properties" use="optional"/>
+            <xs:attribute name="propertySeparator" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="defaultCache">
@@ -77,12 +80,14 @@
         <xs:complexType>
             <xs:attribute name="class" use="required"/>
             <xs:attribute name="properties" use="optional"/>
+            <xs:attribute name="propertySeparator" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="bootstrapCacheLoaderFactory">
         <xs:complexType>
             <xs:attribute name="class" use="required"/>
             <xs:attribute name="properties" use="optional"/>
+            <xs:attribute name="propertySeparator" use="optional"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>

@@ -111,7 +111,8 @@ public final class ConfigurationHelper {
         } else {
             CacheEventListenerFactory factory = (CacheEventListenerFactory)
                     ClassLoaderUtil.createNewInstance(className);
-            Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties());
+            Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
+                    factoryConfiguration.getPropertySeparator());
             cacheEventListener = factory.createCacheEventListener(properties);
         }
         return cacheEventListener;
@@ -136,7 +137,8 @@ public final class ConfigurationHelper {
         } else {
             BootstrapCacheLoaderFactory factory = (BootstrapCacheLoaderFactory)
                     ClassLoaderUtil.createNewInstance(className);
-            Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties());
+            Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
+                    factoryConfiguration.getPropertySeparator());
             return factory.createBootstrapCacheLoader(properties);
         }
         return bootstrapCacheLoader;
@@ -162,7 +164,8 @@ public final class ConfigurationHelper {
             CacheManagerPeerProviderFactory cacheManagerPeerProviderFactory =
                     (CacheManagerPeerProviderFactory)
                             ClassLoaderUtil.createNewInstance(className);
-            Properties properties = PropertyUtil.parseProperties(cachePeerProviderFactoryConfiguration.properties);
+            Properties properties = PropertyUtil.parseProperties(cachePeerProviderFactoryConfiguration.getProperties(),
+                    cachePeerProviderFactoryConfiguration.getPropertySeparator());
             return cacheManagerPeerProviderFactory.createCachePeerProvider(cacheManager, properties);
         }
     }
@@ -185,7 +188,8 @@ public final class ConfigurationHelper {
         } else {
             CacheManagerPeerListenerFactory cacheManagerPeerListenerFactory = (CacheManagerPeerListenerFactory)
                     ClassLoaderUtil.createNewInstance(className);
-            Properties properties = PropertyUtil.parseProperties(cachePeerListenerFactoryConfiguration.properties);
+            Properties properties = PropertyUtil.parseProperties(cachePeerListenerFactoryConfiguration.getProperties(),
+                    cachePeerListenerFactoryConfiguration.getPropertySeparator());
             return cacheManagerPeerListenerFactory.createCachePeerListener(cacheManager, properties);
         }
     }
@@ -210,7 +214,8 @@ public final class ConfigurationHelper {
         } else {
             CacheManagerEventListenerFactory factory = (CacheManagerEventListenerFactory)
                     ClassLoaderUtil.createNewInstance(className);
-            Properties properties = PropertyUtil.parseProperties(cacheManagerEventListenerFactoryConfiguration.properties);
+            Properties properties = PropertyUtil.parseProperties(cacheManagerEventListenerFactoryConfiguration.properties,
+                    cacheManagerEventListenerFactoryConfiguration.getPropertySeparator());
             return factory.createCacheManagerEventListener(properties);
         }
     }

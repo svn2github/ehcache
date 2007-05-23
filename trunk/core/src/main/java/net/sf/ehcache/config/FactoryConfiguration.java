@@ -32,6 +32,11 @@ public class FactoryConfiguration {
      */
     protected String properties;
 
+    /**
+     * A property separator. By default it is a comma, but other separators can be configured.
+     */
+    protected String propertySeparator;
+
 
     /**
      * Sets the class name.
@@ -65,4 +70,17 @@ public class FactoryConfiguration {
         return properties;
     }
 
+    /**
+     * Getter
+     */
+    public String getPropertySeparator() {
+        return propertySeparator;
+    }
+
+    /**
+     * Setter
+     */
+    public void setPropertySeparator(String propertySeparator) {
+        this.propertySeparator = propertySeparator;
+    }
 }

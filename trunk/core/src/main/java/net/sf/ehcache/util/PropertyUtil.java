@@ -32,6 +32,7 @@ import java.util.Map;
 public final class PropertyUtil {
 
     private static final Log LOG = LogFactory.getLog(PropertyUtil.class.getName());
+    private static final String DEFAULT_PROPERTY_SEPARATOR = ",";
 
     /**
      * Utility class therefore no constructor.
@@ -81,14 +82,18 @@ public final class PropertyUtil {
      * @param propertiesString a comma separated list such as <code>"propertyA=s, propertyB=t"</code>
      * @return a newly constructed properties object
      */
-    public static Properties parseProperties(String propertiesString) {
+    public static Properties parseProperties(String propertiesString, String propertySeparator) {
+        String propertySeparatorLocal = propertySeparator;
         if (propertiesString == null) {
             LOG.debug("propertiesString is null.");
             return null;
         }
+        if (propertySeparator == null) {
+            propertySeparatorLocal = DEFAULT_PROPERTY_SEPARATOR;
+        }
         Properties properties = new Properties();
         String propertyLines = propertiesString.trim();
-        propertyLines = propertyLines.replace(',', '\n');
+        propertyLines = propertyLines.replace(propertySeparatorLocal, "\n");
         try {
             properties.load(new ByteArrayInputStream(propertyLines.getBytes()));
         } catch (IOException e) {
