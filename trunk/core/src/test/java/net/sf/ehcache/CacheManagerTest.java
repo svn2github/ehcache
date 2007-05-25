@@ -27,6 +27,7 @@ import net.sf.ehcache.distribution.RMIAsynchronousCacheReplicator;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.DiskStore;
+import net.sf.ehcache.store.Store;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
 import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 import net.sf.ehcache.constructs.blocking.CountingCacheEntryFactory;
@@ -489,8 +490,8 @@ public class CacheManagerTest extends TestCase {
         RegisteredEventListeners listeners2 = cache2.getCacheEventNotificationService();
         assertTrue(listeners1 != listeners2);
 
-        DiskStore diskStore1 = cache1.getDiskStore();
-        DiskStore diskStore2 = cache2.getDiskStore();
+        Store diskStore1 = cache1.getDiskStore();
+        Store diskStore2 = cache2.getDiskStore();
         assertTrue(diskStore1 != diskStore2);
 
     }

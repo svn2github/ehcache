@@ -22,6 +22,7 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.store.Store;
 import net.sf.ehcache.config.CacheConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -101,7 +102,7 @@ public class Cache implements Ehcache {
 
     private boolean disabled;
 
-    private DiskStore diskStore;
+    private Store diskStore;
 
     private String diskStorePath;
 
@@ -425,7 +426,7 @@ public class Cache implements Ehcache {
                 }
             }
 
-            createDiskStore();
+            this.diskStore = createDiskStore();
 
             memoryStore = MemoryStore.create(this, diskStore);
             changeStatus(Status.STATUS_ALIVE);
@@ -446,9 +447,11 @@ public class Cache implements Ehcache {
     /**
      * Creates a disk store.
      */
-    protected void createDiskStore() {
+    protected Store createDiskStore() {
         if (configuration.isOverflowToDisk()) {
-            diskStore = new DiskStore(this, diskStorePath);
+            return new DiskStore(this, diskStorePath);
+        } else {
+            return null;
         }
     }
 
@@ -1495,7 +1498,7 @@ public class Cache implements Ehcache {
      * @return the DiskStore referenced by this cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    final DiskStore getDiskStore() throws IllegalStateException {
+    final Store getDiskStore() throws IllegalStateException {
         checkStatus();
         return diskStore;
     }

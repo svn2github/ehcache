@@ -9,7 +9,9 @@
                 Add the ability to specify the property separator for the properties element in factory configurations.
                 This is a new attribute propertySeparator that can be used in ehcache.xml configuration files. 
             </action>
-
+            <action dev="Greg Luck" type="update">
+                Enable the DiskStore to be pluggable in the Store hierarchy. There is no factory configuration as yet for this. 
+            </action>
             <action dev="Greg Luck" type="fix" issue="1715492">
                 Problems when peer lookup fails when receiving heartbeats because heartbeat receiving is single-threaded. This issue
                 affects dirty or misconfigured networks or clusters. It hardens ehcache so that valid peers can still form a cluster

@@ -42,7 +42,7 @@ public final class FifoMemoryStore extends MemoryStore {
      * First tries to use {@link java.util.LinkedHashMap}. If not found uses
      * Jakarta Commons collections.
      */
-    public FifoMemoryStore(Ehcache cache, DiskStore diskStore) {
+    public FifoMemoryStore(Ehcache cache, Store diskStore) {
         super(cache, diskStore);
         map = new LinkedHashMap();
     }

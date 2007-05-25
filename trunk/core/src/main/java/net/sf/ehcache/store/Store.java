@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.store;
 
+import java.io.IOException;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
@@ -93,5 +95,16 @@ public interface Store {
      *  1.2
      */
     boolean containsKey(Object key);
+    
+    /**
+     * Expire all elements.
+     */
+    public void expireElements();
+    
+    /**
+     * Flush elements to persistent store.
+     * @throws IOException if any IO error occurs
+     */
+    public void flush() throws IOException;
 
 }

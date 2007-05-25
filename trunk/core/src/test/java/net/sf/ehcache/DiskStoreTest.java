@@ -70,21 +70,21 @@ public class DiskStoreTest extends AbstractCacheTest {
     private DiskStore createNonExpiringDiskStore() {
         Cache cache = new Cache("testNonPersistent", 10000, true, true, 2, 1, false, 1);
         manager.addCache(cache);
-        DiskStore diskStore = cache.getDiskStore();
+        DiskStore diskStore = (DiskStore)cache.getDiskStore();
         return diskStore;
     }
 
     private DiskStore createDiskStore() {
         Cache cache = new Cache("testNonPersistent", 10000, true, false, 2, 1, false, 1);
         manager.addCache(cache);
-        DiskStore diskStore = cache.getDiskStore();
+        DiskStore diskStore = (DiskStore)cache.getDiskStore();
         return diskStore;
     }
 
     private DiskStore createPersistentDiskStore(String cacheName) {
         Cache cache = new Cache(cacheName, 10000, true, true, 5, 1, true, 600);
         manager.addCache(cache);
-        DiskStore diskStore = cache.getDiskStore();
+        DiskStore diskStore = (DiskStore)cache.getDiskStore();
         return diskStore;
     }
 
@@ -93,13 +93,13 @@ public class DiskStoreTest extends AbstractCacheTest {
         manager2 = new CacheManager();
         //manager.setDiskStorePath(System.getProperty("java.io.tmpdir") + File.separator + DiskStore.generateUniqueDirectory());
         manager2.addCache(cache);
-        DiskStore diskStore = cache.getDiskStore();
+        DiskStore diskStore = (DiskStore)cache.getDiskStore();
         return diskStore;
     }
 
     private DiskStore createPersistentDiskStoreFromCacheManager() {
         Cache cache = manager.getCache("persistentLongExpiryIntervalCache");
-        return cache.getDiskStore();
+        return (DiskStore)cache.getDiskStore();
     }
 
 
@@ -185,7 +185,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     public void testSpoolThreadDiesOnDispose() throws IOException, InterruptedException {
         Cache cache = new Cache("testNonPersistent", 10000, true, false, 5, 1, false, 100);
         cache.initialise();
-        DiskStore diskStore = cache.getDiskStore();
+        DiskStore diskStore = (DiskStore)cache.getDiskStore();
 
         //Put in some data
         for (int i = 0; i < 100; i++) {
@@ -444,7 +444,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         Cache cache = new Cache("testNonPersistent", 0, MemoryStoreEvictionPolicy.LFU, true,
                 null, false, 2000, 1000, false, 1, null, null, 10);
         manager.addCache(cache);
-        DiskStore store = cache.getDiskStore();
+        DiskStore store = (DiskStore)cache.getDiskStore();
 
         Element element;
 

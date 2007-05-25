@@ -41,7 +41,7 @@ public final class LruMemoryStore extends MemoryStore {
      * Constructor for the LruMemoryStore object
      * The backing {@link java.util.LinkedHashMap} is created with LRU by access order.
      */
-    public LruMemoryStore(Ehcache cache, DiskStore diskStore) {
+    public LruMemoryStore(Ehcache cache, Store diskStore) {
         super(cache, diskStore);
 
         try {

@@ -23,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Random;
 
 /**
  * Less Frequently Used (LFU) implementation of the memory store. Actually keeping track of the least used, then the
@@ -53,14 +52,10 @@ public final class LfuMemoryStore extends MemoryStore {
 
     private static final Log LOG = LogFactory.getLog(LfuMemoryStore.class.getName());
 
-    private static final int DEFAULT_SAMPLE_SIZE = 30;
-
-    private final Random random = new Random();
-
     /**
      * Constructor for the LfuMemoryStore object.
      */
-    protected LfuMemoryStore(Ehcache cache, DiskStore diskStore) {
+    protected LfuMemoryStore(Ehcache cache, Store diskStore) {
         super(cache, diskStore);
         map = new HashMap();
     }
@@ -104,7 +99,7 @@ public final class LfuMemoryStore extends MemoryStore {
         return (Element) map.get(metadata.getKey());
     }
 
-        /**
+    /**
      * Uses random numbers to sample the entire map.
      *
      * @return an array of sampled elements

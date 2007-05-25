@@ -50,7 +50,7 @@ public abstract class MemoryStore implements Store {
     /**
      * The DiskStore associated with this MemoryStore.
      */
-    protected final DiskStore diskStore;
+    protected final Store diskStore;
 
     /**
      * status.
@@ -63,7 +63,7 @@ public abstract class MemoryStore implements Store {
      * @param cache
      * @param diskStore
      */
-    protected MemoryStore(Ehcache cache, DiskStore diskStore) {
+    protected MemoryStore(Ehcache cache, Store diskStore) {
         status = Status.STATUS_UNINITIALISED;
         this.cache = cache;
         this.diskStore = diskStore;
@@ -82,7 +82,7 @@ public abstract class MemoryStore implements Store {
      * @param diskStore
      * @return an instance of a MemoryStore, configured with the appropriate eviction policy
      */
-    public static MemoryStore create(Ehcache cache, DiskStore diskStore) {
+    public static MemoryStore create(Ehcache cache, Store diskStore) {
         MemoryStore memoryStore = null;
         MemoryStoreEvictionPolicy policy = cache.getMemoryStoreEvictionPolicy();
 
@@ -372,5 +372,13 @@ public abstract class MemoryStore implements Store {
         return map.size() > cache.getMaxElementsInMemory();
     }
 
+    /**
+     * Expire all elsments.
+     * <p/>
+     * This is a default implementation which does nothing.
+     */
+    public void expireElements() {
+        //empty implementation
+    }
 
 }
