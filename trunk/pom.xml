@@ -196,13 +196,28 @@
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <configuration>
+                        <tagBase> https://ehcache.svn.sourceforge.net/svnroot/ehcache/tags</tagBase>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-idea-plugin</artifactId>
                     <configuration>
                         <downloadSources>true</downloadSources>
                         <downloadJavadocs>false</downloadJavadocs>
                     </configuration>
                 </plugin>
-
+                
+                <plugin>             
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>cobertura-maven-plugin</artifactId>
+                    <version>2.0</version> 
+                    <!-- Do not upgrade until http://jira.codehaus.org/browse/MCOBERTURA-61 fixed -->
+                </plugin>                
+                
                 <!-- Clover. This seems to quite broken
              <plugin>
              <groupId>org.apache.maven.plugins</groupId>
@@ -223,7 +238,6 @@
              <licenseFile>/Users/gluck/work/ehcache/tools/clover.license</licenseFile>
              </configuration>
              </plugin>   -->
-
             </plugins>
         </pluginManagement>
     </build>
