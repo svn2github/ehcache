@@ -3,8 +3,6 @@ package net.sf.ehcache.distribution;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * A distributed testing tool for manual distributed testing of ehcache on cluster nodes.
