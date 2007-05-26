@@ -48,7 +48,7 @@ import java.util.Iterator;
  * @author Greg Luck
  * @version $Id$
  */
-public final class LfuMemoryStore extends MemoryStore {
+public class LfuMemoryStore extends MemoryStore {
 
     private static final Log LOG = LogFactory.getLog(LfuMemoryStore.class.getName());
 

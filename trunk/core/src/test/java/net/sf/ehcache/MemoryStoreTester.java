@@ -563,7 +563,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
      * These memory size asserts were 100,000 and 60,000. The ApacheLRU map does not get quite as high numbers.
      * This test varies according to architecture. 64 bit architectures 
      */
-    public void xTestMemoryStoreOutOfMemoryLimit() throws Exception {
+    public void testMemoryStoreOutOfMemoryLimit() throws Exception {
         //Set size so the second element overflows to disk.
         cache = new Cache("memoryLimitTest", 1000000, false, false, 500, 500);
         manager.addCache(cache);

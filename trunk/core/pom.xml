@@ -119,7 +119,7 @@
 
                     <execution>
                         <id>book</id>
-                        <phase>validate</phase>
+                        <phase>site</phase>
                         <configuration>
                             <tasks>
                                 <ant antfile="${basedir}/build.xml" inheritRefs="true">
@@ -136,7 +136,7 @@
                     </execution>
                     <execution>
                         <id>singlepageguide</id>
-                        <phase>validate</phase>
+                        <phase>site</phase>
                         <configuration>
                             <tasks>
                                 <ant antfile="${basedir}/build.xml" inheritRefs="true">

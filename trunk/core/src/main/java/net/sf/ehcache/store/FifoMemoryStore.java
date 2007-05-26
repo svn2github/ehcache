@@ -33,7 +33,7 @@ import java.util.Set;
  * @author <a href="mailto:ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
  * @version $Id$
  */
-public final class FifoMemoryStore extends MemoryStore {
+public class FifoMemoryStore extends MemoryStore {
     private static final Log LOG = LogFactory.getLog(FifoMemoryStore.class.getName());
 
     /**

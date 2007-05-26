@@ -71,6 +71,12 @@ public class DiskStore implements Store {
      */
     public static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
 
+    /**
+     * Set a buffer size for the spool of approx 30MB
+     * todo maybe make this configurable, rather than one size fits all
+     */
+    private static final int DEFAULT_SPOOL_BUFFER_SIZE = 30000000;
+
     private static final Log LOG = LogFactory.getLog(DiskStore.class.getName());
     private static final int MS_PER_SECOND = 1000;
     private static final int SPOOL_THREAD_INTERVAL = 200;
@@ -123,6 +129,8 @@ public class DiskStore implements Store {
      * Whether the cache is eternal
      */
     private boolean eternal;
+    private int lastElementSize;
+
 
     /**
      * Creates a disk store.
@@ -388,7 +396,7 @@ public class DiskStore implements Store {
      * Puts an element into the disk store.
      * <p/>
      * This method is not synchronized. It is however threadsafe. It uses fine-grained
-     * synchronization on the spool
+     * synchronization on the spool.
      */
     public final void put(final Element element) {
         try {
@@ -411,6 +419,20 @@ public class DiskStore implements Store {
             LOG.error(name + "Cache: Could not write disk store element for " + element.getObjectKey()
                     + ". Initial cause was " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * In some circumstances data can be written so quickly to the spool that the VM runs out of memory
+     * while waiting for the spooling to disk.
+     * <p/>
+     * This is a very simple and quick test which estimates the spool size based on the last element's written size.
+     *
+     * @return
+     */
+    public boolean backedUp() {
+        long estimatedSpoolSize = spool.size() * lastElementSize;
+        return estimatedSpoolSize > DEFAULT_SPOOL_BUFFER_SIZE;
+
     }
 
     /**
@@ -666,26 +688,28 @@ public class DiskStore implements Store {
             MemoryEfficientByteArrayOutputStream buffer = null;
             try {
                 buffer = serializeEntry(element);
+
+                bufferLength = buffer.size();
+                DiskElement diskElement = checkForFreeBlock(bufferLength);
+
+                // Write the record
+                randomAccessFile.seek(diskElement.position);
+                randomAccessFile.write(buffer.toByteArray(), 0, bufferLength);
+                buffer = null;
+
+                // Add to index, update stats
+                diskElement.payloadSize = bufferLength;
+                diskElement.key = key;
+                diskElement.expiryTime = expirationTime;
+                diskElement.hitcount = element.getHitCount();
+                totalSize += bufferLength;
+                lastElementSize = bufferLength;
+                synchronized (diskElements) {
+                    diskElements.put(key, diskElement);
+                }
             } catch (OutOfMemoryError e) {
                 LOG.error("OutOfMemoryError on serialize: " + key);
 
-            }
-            bufferLength = buffer.size();
-            DiskElement diskElement = checkForFreeBlock(bufferLength);
-
-            // Write the record
-            randomAccessFile.seek(diskElement.position);
-            randomAccessFile.write(buffer.toByteArray(), 0, bufferLength);
-            buffer = null;
-
-            // Add to index, update stats
-            diskElement.payloadSize = bufferLength;
-            diskElement.key = key;
-            diskElement.expiryTime = expirationTime;
-            diskElement.hitcount = element.getHitCount();
-            totalSize += bufferLength;
-            synchronized (diskElements) {
-                diskElements.put(key, diskElement);
             }
 
         } catch (Exception e) {

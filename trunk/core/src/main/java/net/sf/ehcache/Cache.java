@@ -89,8 +89,12 @@ public class Cache implements Ehcache {
 
     private static final MemoryStoreEvictionPolicy DEFAULT_MEMORY_STORE_EVICTION_POLICY = MemoryStoreEvictionPolicy.LRU;
 
-
     private static InetAddress localhost;
+
+    /**
+     * The amount of time to wait if a store gets backed up
+     */
+    private static final int BACK_OFF_TIME_MILLIS = 5;
 
     static {
         try {
@@ -545,15 +549,36 @@ public class Cache implements Ehcache {
         }
         applyDefaultsToElementWithoutLifespanSet(element);
 
+        backOffIfDiskSpoolFull();
+
+
         synchronized (this) {
             memoryStore.put(element);
         }
+
         if (elementExists) {
             registeredEventListeners.notifyElementUpdated(element, doNotNotifyCacheReplicators);
         } else {
             registeredEventListeners.notifyElementPut(element, doNotNotifyCacheReplicators);
         }
 
+    }
+
+    /**
+     * wait outside of synchronized block so as not to block readers
+     * If the disk store spool is full wait a short time to give it a chance to
+     * catch up.
+     */
+    private void backOffIfDiskSpoolFull() {
+
+        if (diskStore != null && diskStore.backedUp()) {
+            //back off to avoid OutOfMemoryError
+            try {
+                Thread.sleep(BACK_OFF_TIME_MILLIS);
+            } catch (InterruptedException e) {
+                //do not care if this happens
+            }
+        }
     }
 
     private void applyDefaultsToElementWithoutLifespanSet(Element element) {

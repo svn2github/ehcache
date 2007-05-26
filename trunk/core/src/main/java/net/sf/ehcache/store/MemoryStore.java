@@ -375,10 +375,17 @@ public abstract class MemoryStore implements Store {
     /**
      * Expire all elsments.
      * <p/>
-     * This is a default implementation which does nothing.
+     * This is a default implementation which does nothing. Expiry on demand is only
+     * implemented for disk stores.
      */
     public void expireElements() {
         //empty implementation
     }
 
+    /**
+     * Memory stores are never backed up and always return false
+     */
+    public boolean backedUp() {
+        return false;
+    }
 }

@@ -926,7 +926,7 @@ public class CacheTest extends AbstractCacheTest {
     public void testGetSizeAfterExpiry() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 1, 0);
-        manager.addCache(cache);                                                               
+        manager.addCache(cache);
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
 
@@ -1120,6 +1120,31 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(0, cache.getMemoryStoreSize());
         assertEquals(80000, cache.getDiskStoreSize());
 
+    }
+
+    /**
+     * Shows the effect of jamming large amounts of puts into a cache that overflows to disk.
+     * The DiskStore should cause puts to back off and avoid an out of memory error.
+     */
+    public void testBehaviourOnDiskStoreBackUp() throws Exception {
+        Cache cache = new Cache("testGetMemoryStoreSize", 10, true, false, 100, 200, false, 0);
+        manager.addCache(cache);
+
+        assertEquals(0, cache.getMemoryStoreSize());
+
+        Element a = null;
+        int i = 0;
+        try {
+            for (; i < 200000; i++) {
+                String key = i + "";
+                String value = key;
+                a = new Element(key, value + "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
+                cache.put(a);
+            }
+        } catch (OutOfMemoryError e) {
+            LOG.info("OutOfMemoryError: " + e.getMessage() + " " + i);
+            fail();
+        }
     }
 
 

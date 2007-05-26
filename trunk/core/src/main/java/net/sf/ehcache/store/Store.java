@@ -107,4 +107,11 @@ public interface Store {
      */
     public void flush() throws IOException;
 
+    /**
+     * Some store types, such as the disk stores can get backed up
+     * when puts come in to fast.
+     * @return true if the store is backed up.
+     */
+    public boolean backedUp();
+
 }

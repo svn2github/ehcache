@@ -34,7 +34,7 @@ import java.util.Map;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public final class LruMemoryStore extends MemoryStore {
+public class LruMemoryStore extends MemoryStore {
     private static final Log LOG = LogFactory.getLog(LruMemoryStore.class.getName());
 
     /**
