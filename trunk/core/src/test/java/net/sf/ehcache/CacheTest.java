@@ -294,6 +294,7 @@ public class CacheTest extends AbstractCacheTest {
     public void testExpiryBasedOnTimeToIdleElementOverride() throws Exception {
         //Set size so the second element overflows to disk.
         Ehcache cache = manager.getCache("sampleCacheNoIdle");
+        assertEquals(30, cache.getCacheConfiguration().getDiskSpoolBufferSizeMB());
         Element element1 = new Element("key1", "value1");
         element1.setTimeToIdle(1);
         cache.put(element1);

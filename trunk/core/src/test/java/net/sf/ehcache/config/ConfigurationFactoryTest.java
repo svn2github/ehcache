@@ -203,6 +203,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(300, sampleCache1Config.getTimeToIdleSeconds());
         assertEquals(600, sampleCache1Config.getTimeToLiveSeconds());
         assertEquals(true, sampleCache1Config.isOverflowToDisk());
+        assertEquals(20, sampleCache1Config.getDiskSpoolBufferSizeMB());
 
         //  <cache name="sampleCache1"
         //  maxElementsInMemory="10000"

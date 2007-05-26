@@ -85,6 +85,11 @@ public class Cache implements Ehcache {
      */
     public static final long DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS = 120;
 
+    /**
+     * Set a buffer size for the spool of approx 30MB
+     */
+    private static final int DEFAULT_SPOOL_BUFFER_SIZE = 30;
+
     private static final Log LOG = LogFactory.getLog(Cache.class.getName());
 
     private static final MemoryStoreEvictionPolicy DEFAULT_MEMORY_STORE_EVICTION_POLICY = MemoryStoreEvictionPolicy.LRU;
@@ -94,7 +99,7 @@ public class Cache implements Ehcache {
     /**
      * The amount of time to wait if a store gets backed up
      */
-    private static final int BACK_OFF_TIME_MILLIS = 5;
+    private static final int BACK_OFF_TIME_MILLIS = 50;
 
     static {
         try {
@@ -364,6 +369,65 @@ public class Cache implements Ehcache {
                  BootstrapCacheLoader bootstrapCacheLoader,
                  int maxElementsOnDisk) {
 
+
+        this(name,
+                maxElementsInMemory,
+                memoryStoreEvictionPolicy,
+                overflowToDisk,
+                diskStorePath,
+                eternal,
+                timeToLiveSeconds,
+                timeToIdleSeconds,
+                diskPersistent,
+                diskExpiryThreadIntervalSeconds,
+                registeredEventListeners,
+                bootstrapCacheLoader,
+                maxElementsOnDisk,
+                0);
+
+    }
+
+    /**
+     * 1.2.4 Constructor
+     * <p/>
+     * The {@link net.sf.ehcache.config.ConfigurationFactory} and clients can create these.
+     * <p/>
+     * A client can specify their own settings here and pass the {@link Cache} object
+     * into {@link CacheManager#addCache} to specify parameters other than the defaults.
+     * <p/>
+     * Only the CacheManager can initialise them.
+     *
+     * @param name                      the name of the cache. Note that "default" is a reserved name for the defaultCache.
+     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted
+     * @param memoryStoreEvictionPolicy one of LRU, LFU and FIFO. Optionally null, in which case it will be set to LRU.
+     * @param overflowToDisk            whether to use the disk store
+     * @param diskStorePath             this parameter is ignored. CacheManager sets it using setter injection.
+     * @param eternal                   whether the elements in the cache are eternal, i.e. never expire
+     * @param timeToLiveSeconds         the default amount of time to live for an element from its creation date
+     * @param timeToIdleSeconds         the default amount of time to live for an element from its last accessed or modified date
+     * @param diskPersistent            whether to persist the cache to disk between JVM restarts
+     * @param diskExpiryThreadIntervalSeconds
+     *                                  how often to run the disk store expiry thread. A large number of 120 seconds plus is recommended
+     * @param registeredEventListeners  a notification service. Optionally null, in which case a new one with no registered listeners will be created.
+     * @param bootstrapCacheLoader      the BootstrapCacheLoader to use to populate the cache when it is first initialised. Null if none is required.
+     * @param diskSpoolBufferSizeMB     the amount of memory to allocate the write buffer for puts to the DiskStore.
+     * @since 1.2.4
+     */
+    public Cache(String name,
+                 int maxElementsInMemory,
+                 MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
+                 boolean overflowToDisk,
+                 String diskStorePath,
+                 boolean eternal,
+                 long timeToLiveSeconds,
+                 long timeToIdleSeconds,
+                 boolean diskPersistent,
+                 long diskExpiryThreadIntervalSeconds,
+                 RegisteredEventListeners registeredEventListeners,
+                 BootstrapCacheLoader bootstrapCacheLoader,
+                 int maxElementsOnDisk,
+                 int diskSpoolBufferSizeMB) {
+
         changeStatus(Status.STATUS_UNINITIALISED);
 
         guid = createGuid();
@@ -397,6 +461,12 @@ public class Cache implements Ehcache {
             configuration.setDiskExpiryThreadIntervalSeconds(DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS);
         } else {
             configuration.setDiskExpiryThreadIntervalSeconds(diskExpiryThreadIntervalSeconds);
+        }
+
+        if (diskSpoolBufferSizeMB == 0) {
+            configuration.setDiskSpoolBufferSizeMB(DEFAULT_SPOOL_BUFFER_SIZE);
+        } else {
+            configuration.setDiskSpoolBufferSizeMB(diskSpoolBufferSizeMB);
         }
 
         // For backward compatibility with 1.1 and earlier
@@ -597,8 +667,9 @@ public class Cache implements Ehcache {
      * Synchronization is handled within the method.
      * <p/>
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
-     * This exception should be caught in those cirucmstances. 
+     * This exception should be caught in those cirucmstances.
      * <p/>
+     *
      * @param element An object. If Serializable it can fully participate in replication and the DiskStore.
      * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
      * @throws IllegalArgumentException if the element is null
@@ -882,6 +953,7 @@ public class Cache implements Ehcache {
      * <p/>
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
      * This exception should be caught in those cirucmstances.
+     *
      * @param key the element key to operate on
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
@@ -902,6 +974,7 @@ public class Cache implements Ehcache {
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
      * This exception should be caught in those cirucmstances.
      * <p/>
+     *
      * @param key the element key to operate on
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
@@ -923,6 +996,7 @@ public class Cache implements Ehcache {
      * <p/>
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
      * This exception should be caught in those cirucmstances.
+     *
      * @param key                         the element key to operate on
      * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
      *                                    further notification to doNotNotifyCacheReplicators cache peers
@@ -975,6 +1049,7 @@ public class Cache implements Ehcache {
      * <p/>
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
      * This exception should be caught in those cirucmstances.
+     *
      * @param key the element key to operate on
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
@@ -1000,6 +1075,7 @@ public class Cache implements Ehcache {
      * <p/>
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
      * This exception should be caught in those cirucmstances.
+     *
      * @param key                         the element key to operate on
      * @param expiry                      if the reason this method is being called is to expire the element
      * @param notifyListeners             whether to notify listeners
@@ -1066,6 +1142,7 @@ public class Cache implements Ehcache {
      * <p/>
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
      * This exception should be caught in those cirucmstances.
+     *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     public void removeAll() throws IllegalStateException, CacheException {
@@ -1079,6 +1156,7 @@ public class Cache implements Ehcache {
      * <p/>
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
      * This exception should be caught in those cirucmstances.
+     *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     public void removeAll(boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {

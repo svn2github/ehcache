@@ -322,7 +322,8 @@ public final class ConfigurationHelper {
                 cacheConfiguration.diskExpiryThreadIntervalSeconds,
                 null,
                 null,
-                cacheConfiguration.maxElementsOnDisk);
+                cacheConfiguration.maxElementsOnDisk,
+                cacheConfiguration.diskSpoolBufferSizeMB);
         RegisteredEventListeners listeners = cache.getCacheEventNotificationService();
         registerCacheListeners(cacheConfiguration, listeners);
         BootstrapCacheLoader bootstrapCacheLoader = createBootstrapCacheLoader(

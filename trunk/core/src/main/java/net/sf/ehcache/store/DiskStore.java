@@ -56,6 +56,7 @@ import java.util.Set;
  * store size is set. LFU uses statistics held at the Element level which survive moving between
  * maps in the MemoryStore and DiskStores.
  *
+ * todo doco for buffer
  * @author Adam Murdoch
  * @author Greg Luck
  * @author patches contributed: Ben Houston
@@ -71,16 +72,12 @@ public class DiskStore implements Store {
      */
     public static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
 
-    /**
-     * Set a buffer size for the spool of approx 30MB
-     * todo maybe make this configurable, rather than one size fits all
-     */
-    private static final int DEFAULT_SPOOL_BUFFER_SIZE = 30000000;
-
     private static final Log LOG = LogFactory.getLog(DiskStore.class.getName());
     private static final int MS_PER_SECOND = 1000;
     private static final int SPOOL_THREAD_INTERVAL = 200;
     private static final int ESTIMATED_MINIMUM_PAYLOAD_SIZE = 512;
+    private static final int ONE_MEGABYTE = 1048576;
+
     private long expiryThreadInterval;
 
     private final String name;
@@ -108,6 +105,7 @@ public class DiskStore implements Store {
 
     private File dataFile;
 
+
     /**
      * Used to persist elements
      */
@@ -123,13 +121,13 @@ public class DiskStore implements Store {
     /**
      * The maximum elements to allow in the disk file.
      */
-    private long maxElementsOnDisk;
-
+    private final long maxElementsOnDisk;
     /**
      * Whether the cache is eternal
      */
     private boolean eternal;
     private int lastElementSize;
+    private int diskSpoolBufferSizeBytes;
 
 
     /**
@@ -147,6 +145,8 @@ public class DiskStore implements Store {
         persistent = cache.isDiskPersistent();
         maxElementsOnDisk = cache.getMaxElementsOnDisk();
         eternal = cache.isEternal();
+        diskSpoolBufferSizeBytes = cache.getCacheConfiguration().getDiskSpoolBufferSizeMB() * ONE_MEGABYTE;
+
 
 
         try {
@@ -431,7 +431,10 @@ public class DiskStore implements Store {
      */
     public boolean backedUp() {
         long estimatedSpoolSize = spool.size() * lastElementSize;
-        return estimatedSpoolSize > DEFAULT_SPOOL_BUFFER_SIZE;
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("A back up on cache puts occurred. Consider increasing diskSpoolBufferSizeMB for cache " + name);
+        }
+        return estimatedSpoolSize > diskSpoolBufferSizeBytes;
 
     }
 

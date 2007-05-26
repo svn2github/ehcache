@@ -59,6 +59,10 @@
                         <groupId>javax.security</groupId>
                         <artifactId>jacc</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>net.sf.ehcache</groupId>
+                        <artifactId>ehcache</artifactId>
+                    </exclusion>
                 </exclusions>
                 <scope>provided</scope>
             </dependency>
@@ -74,6 +78,10 @@
                     <exclusion>
                         <groupId>javax.security</groupId>
                         <artifactId>jacc</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>net.sf.ehcache</groupId>
+                        <artifactId>ehcache</artifactId>
                     </exclusion>
                 </exclusions>
                 <scope>provided</scope>

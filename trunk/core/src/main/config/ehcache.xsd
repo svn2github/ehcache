@@ -48,6 +48,7 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
             </xs:sequence>
             <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
+            <xs:attribute name="diskSpoolBufferSizeMB" use="optional" type="xs:integer"/>
             <xs:attribute name="diskPersistent" use="optional" type="xs:boolean"/>
             <xs:attribute name="eternal" use="required" type="xs:boolean"/>
             <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
@@ -65,6 +66,7 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
             </xs:sequence>
             <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
+            <xs:attribute name="diskSpoolBufferSizeMB" use="optional" type="xs:integer"/>
             <xs:attribute name="diskPersistent" use="optional" type="xs:boolean"/>
             <xs:attribute name="eternal" use="required" type="xs:boolean"/>
             <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>

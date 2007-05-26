@@ -100,6 +100,12 @@ public class CacheConfiguration implements Cloneable {
      */
     protected boolean diskPersistent;
 
+
+    /**
+     * The size of the disk spool used to buffer writes
+     */
+    protected int diskSpoolBufferSizeMB;
+
     /**
      * The interval in seconds between runs of the disk expiry thread.
      * <p/>
@@ -199,6 +205,21 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setDiskPersistent(boolean diskPersistent) {
         this.diskPersistent = diskPersistent;
+    }
+
+    /**
+     * Getter
+     */
+    public int getDiskSpoolBufferSizeMB() {
+        return diskSpoolBufferSizeMB;
+    }
+
+    /**
+     * Sets the disk spool size
+     * @param diskSpoolBufferSizeMB a postive number
+     */
+    public void setDiskSpoolBufferSizeMB(int diskSpoolBufferSizeMB) {
+        this.diskSpoolBufferSizeMB = diskSpoolBufferSizeMB;
     }
 
     /**

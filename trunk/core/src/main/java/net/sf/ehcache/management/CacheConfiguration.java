@@ -131,6 +131,13 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
     /**
      * Accessor
      */
+    public int getDiskSpoolBufferSizeMB() {
+        return cacheConfiguration.getDiskSpoolBufferSizeMB();
+    }
+
+    /**
+     * Accessor
+     */
     public long getDiskExpiryThreadIntervalSeconds() {
         return cacheConfiguration.getDiskExpiryThreadIntervalSeconds();
     }

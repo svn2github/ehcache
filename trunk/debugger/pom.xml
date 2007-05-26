@@ -10,11 +10,12 @@
     <packaging>jar</packaging>
     <description>Ehcache bundled with RemoteDebugger</description>
     <dependencies>
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>ehcache</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
+        <!--todo check debugger. This is commented out because it keeps pulling down old versions of ehcache-->
+        <!--<dependency>-->
+            <!--<groupId>${pom.groupId}</groupId>-->
+            <!--<artifactId>ehcache</artifactId>-->
+            <!--<version>${pom.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
