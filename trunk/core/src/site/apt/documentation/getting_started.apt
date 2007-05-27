@@ -2,7 +2,7 @@
 Getting Started
 
     Ehcache can be used directly. It can also be used with the popular Hibernate Object/Relational tool. Finally, it
-    can be used for J2EE Servlet Caching.
+    can be used for JEE Servlet Caching.
 
     This quick guide gets you started on each of these. The rest of the documentation can be explored for a deeper
      understanding.
@@ -30,7 +30,7 @@ Getting Started
 
     See {{{./hibernate.html}Hibernate Caching}} for more information.
 
-* J2EE Servlet Caching
+* JEE Servlet Caching
 
     * Perform the same steps as {{{General Purpose Caching}General Purpose Caching}}.
 
@@ -44,7 +44,7 @@ Getting Started
     * Configure the web.xml. Declare the filters created above and create filter mapping associating the filter with
     a URL.
 
-    See {{{./j2ee_servlet_caching.html}J2EE Servlet Caching}} for more information.
+    See {{{./j2ee_servlet_caching.html}JEE Servlet Caching}} for more information.
 
 
 * Spring, Cocoon, Acegi and other frameworks

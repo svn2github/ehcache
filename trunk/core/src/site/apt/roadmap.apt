@@ -7,44 +7,33 @@
 
 Development Roadmap
 
-Several features expected for 1.3 have actually been incorporated in the ehcache-1.2 series. See the {{{/changes-report.html}change log}}
-for more details.
+ Last Updated 27 may 2007. 
 
 
-* Expected New Features for 1.3
-
-** Implementation of JCACHE specification
-
- The maintainer of ehcache, Greg Luck, has been admitted to the JSR-107 (JCACHE) expert group.
-
- Ehcache-1.3 will be an implementation of JSR-107, while maintaining backward compatiblity with ehcache-1.2 and ehcache-1.1.
-
-
-** JMX Instrumentation
-
- Move to JMX to simplify and standardise efforts to monitor ehcache.
-
- MBeans for all monitorable objects (cache, thread pools etc).
-
-
-** DiskStore improvements
-    - Granular locks on DiskElements map
-    - Rehash DiskElements map after expiration thread runs. Allow for shrinking the map (copy to new) if a significant amount can be reclaimed. 50%?
-
-** Pluggable Disk Stores
-
-    - Pluggable diskstore + base framework where possible (need more flexible configuration for pluggable configurations i.e.
-      properties or something - thoughts?).
-    - First cut (POC) of BerkleyDB and/or Derby stores
-
-
-* After 1.3
+* Expected in 1.3.1
 
 ** JGroups based replication
 
- Work is near completion (by Surya) on a JGRoups replication implementation to complement the current RMI one.
- Use of JGroups for peer discovery and replication will be a configuration option.
- This should make it into the 1.2.1 maintenance release.
+ Work has been done on a JGRoups replication implementation to complement the current RMI one.
+ Use of JGroups rather than RMI will be available as a configuration option.
+
+
+** Cache Extension Framework
+
+ A generic CacheExtension mechanism will be made available in 1.3.1. Stay tuned for features.
+
+* Later
+
+** Pluggable Disk Stores
+
+ 1.3.0-beta contained a couple of tweaks to allow programmatic replacement of the DiskStore with a separate implementation.
+ Hopefully a code donation will provide a JDBCDiskStore implementation which will allow Derby and other databases to be plugged
+ in. This supplements the built-in DiskStore.
+
+** Pluggable Eviction Policies
+
+ Ehcache supports LRU, LFU and FIFO. There are plenty more eviction policies. An extension mechanism should be added to
+ support these.
 
 ** SoftReferenceMemoryStore
 
@@ -53,7 +42,8 @@ for more details.
 
 ** More distribution mechanisms
 
- A JMS-based replication mechanism would also be useful.
+ A JMS-based replication mechanism is the logical one after JGroups.
+
 
 * How to suggest features
 

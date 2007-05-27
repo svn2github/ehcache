@@ -60,5 +60,25 @@ Building from Source
     With all that, build the site as below:
 
 ---
-    mvn site:site
+    mvn compile site:site site:deploy
 ---
+
+*   Deploying a release
+
+**  Sourceforge Release
+
+---
+    ant dist-tgz
+---
+
+    then manually upload to SourceForge and complete the file release process
+
+**  Central Maven Repository
+
+---
+    mvn deploy
+---
+
+    This deploys to http://ehcache.sourceforge.net/repository/ which is synced with the Maven central repository.
+
+    

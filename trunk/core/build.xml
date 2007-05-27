@@ -370,42 +370,6 @@
         </tar>
     </target>
 
-    <!-- Builds a maven upload bundle -->
-    <target name="maven-bundle" depends="clean, dist-tgz">
-        <echo message="This maven command is currently corrupting the archives. Do not use"/>
-        <copy file="${dist.dir}/${name}-${version}-${javadoc.zip}"
-              tofile="${dist.dir}/${name}-${version}-javadoc.jar"/>
-        <copy file="${basedir}/pom.xml" tofile="${dist.dir}/${name}-${version}.pom"/>
-        <copy file="${basedir}/LICENSE.txt" tofile="${dist.dir}/${name}-${version}.license"/>
-        <jar destfile="${dist.dir}/${name}-${version}-bundle.jar">
-            <fileset dir="${dist.dir}/">
-                <include name="${name}-${version}.pom"/>
-                <include name="${name}-${version}.license"/>
-                <include name="${name}-${version}.jar"/>
-                <include name="${name}-${version}-javadoc.jar"/>
-                <include name="${name}-${version}-sources.jar"/>
-                <include name="${name}-${version}-remote-debugger.jar"/>
-            </fileset>
-        </jar>
-    </target>
-
-    <target name="upload-to-repository" depends="dist-tgz"
-            description="upload to maven repository">
-        <!--<artifact:install-provider artifactId="wagon-webdav" version="1.0-beta-1"/>-->
-        <artifact:install-provider artifactId="wagon-ssh" version="1.0-beta-1"/>
-        <!--install locally-->
-        <!--<artifact:install file="${dist.dir}/${name}-${version}.jar">-->
-        <!--<pom refid="maven.project"/>-->
-        <!--</artifact:install>-->
-        <!--upload to repository, either release or snapshot depdening on version numbering -->
-        <artifact:deploy file="${dist.dir}/${name}-${version}.jar">
-            <pom refid="maven.project"/>
-        </artifact:deploy>
-        <artifact:deploy file="${dist.dir}/${name}-${version}-sources.jar">
-            <pom refid="maven.project"/>
-        </artifact:deploy>
-    </target>
-
     <!-- Create zip file for javadocs -->
     <target name="dist-javadoc" depends="javadoc"
             description="Creates a zip file for javadocs">
@@ -424,8 +388,7 @@
     <property name="classpath" refid="project.class.path"/>
 
     <!-- Produce the javadocs. Note the maven version of javadoc includes yDoc. Too big to include in download though  -->
-    <target
-            name="javadoc"
+    <target name="javadoc"
             description="Creates the javadocs">
 
         <mkdir dir="${build.javadoc.dir}"/>

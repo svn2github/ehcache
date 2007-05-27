@@ -19,6 +19,8 @@ package net.sf.ehcache.store;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStoreTester;
 
+import java.util.Map;
+
 
 /**
  * Test cases for the LruMemoryStore.
@@ -48,6 +50,17 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
     protected void setUp() throws Exception {
         super.setUp();
         createMemoryStore(MemoryStoreEvictionPolicy.LRU);
+    }
+
+    /**
+     * The LRU map implementation can be overridden by setting the "net.sf.ehcache.useLRUMap" System property.
+     * Here we do not do that and it should be the java.util.LinkedHashMap.
+     */
+    public void testCorrectMapImplementation() throws Exception {
+        createMemoryStore(MemoryStoreEvictionPolicy.LRU, 5);
+
+        Map map = ((MemoryStore) store).getBackingMap();
+        assertTrue(map instanceof java.util.LinkedHashMap);
     }
 
 
@@ -112,8 +125,6 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
         //key1 should now be the least recently used.
         assertNull(store.get("key1"));
     }
-
-
 
 
     /**

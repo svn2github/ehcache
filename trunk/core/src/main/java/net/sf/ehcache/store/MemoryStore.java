@@ -388,4 +388,11 @@ public abstract class MemoryStore implements Store {
     public boolean backedUp() {
         return false;
     }
+
+    /**
+     * Package local access to the map for testing
+     */
+    Map getBackingMap() {
+        return map;
+    }
 }

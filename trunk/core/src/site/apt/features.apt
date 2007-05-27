@@ -79,13 +79,13 @@
 
    * {{{#Bootstrapping from Peers}Bootstrapping from Peers}}
 
- * J2EE and Applied Caching
+ * JEE and Applied Caching
 
   * {{{#Blocking Cache to avoid duplicate processing for concurrent operations}Blocking Cache to avoid duplicate processing for concurrent operations}}
 
   * {{{#SelfPopulating Cache for pull through caching of expensive operations}SelfPopulating Cache for pull through caching of expensive operations}}
 
-  * {{{#J2EE Gzipping Servlet Filter}J2EE Gzipping Servlet Filter}}
+  * {{{#JEE Gzipping Servlet Filter}JEE Gzipping Servlet Filter}}
 
   * {{{#Cacheable Commands}Cacheable Commands}}
 
@@ -362,7 +362,7 @@
      An abstract factory, BootstrapCacheLoaderFactory has been defined along with an interface BootstrapCacheLoader along
      with an RMI based default implementation.
 
-* {J2EE and Applied Caching}
+* {JEE and Applied Caching}
 
   High quality implementations for common caching scenarios and patterns.
 
@@ -374,13 +374,13 @@
 
     SelfPopulatingCache - a read-through cache. A cache that populates elements as they are requested without requiring the caller to know how the entries are populated. It also enables refreshes of cache entries without blocking reads on the same entries.
 
-** {J2EE Gzipping Servlet Filter}
+** {JEE Gzipping Servlet Filter}
 
     * CachingFilter - an abstract, extensible caching filter.
 
     * SimplePageCachingFilter
 
-     A high performance J2EE servlet filter that caches pages based on the request URI and Query String. It also gzips the pages
+     A high performance JEE servlet filter that caches pages based on the request URI and Query String. It also gzips the pages
      and delivers them to browsers either gzipped or ungzipped depending on the HTTP request headers. Use
      to cache entire Servlet pages, whether from JSP, velocity, or any other rendering technology.
 
@@ -388,7 +388,7 @@
 
     * SimplePageFragmentCachingFilter
 
-     A high performance J2EE filter that caches page fragments based on the request URI and Query String. Use
+     A high performance JEE filter that caches page fragments based on the request URI and Query String. Use
      with Servlet request dispatchers to cache parts of pages, whether from JSP, velocity, or any other rendering technology.
      Can be used from JSPs using jsp:include.
 

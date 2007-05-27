@@ -16,7 +16,7 @@ Preface
     Ehcache is about performance and load reduction of underlying resources. Another natural audience is performance specialists.
 
     It is also intended for application and enterprise architects. Some of the features of ehcache, such as
-    distributed caching and J2EE caching, are alternatives to be considered along with other ways of solving those problems.
+    distributed caching and JEE caching, are alternatives to be considered along with other ways of solving those problems.
     This book discusses the trade-offs in ehcache's approach to help make a decision about appropriateness of use.
 
 * Book Format

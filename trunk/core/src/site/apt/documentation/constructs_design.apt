@@ -14,7 +14,7 @@ The Design of the {ehcache constructs} package
     finding a solution to classes of them, so to constructs are general solutions to commond problems.
 
     The ehcache constructs package, literally the net.sf.ehcache.constructs package, provides ready to use, extensible implementations are offered to
-    solve common problems in J2EE and light-weight container applications.
+    solve common problems in JEE and light-weight container applications.
 
     Why not leave ehcache at the core and let everyone create their own applications? Well, everyone is doing that. But getting it right can be
     devilishly hard.

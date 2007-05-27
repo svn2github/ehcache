@@ -1,5 +1,37 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+
+ehcache-1.3-beta3
+=================
+
+<action dev="Greg Luck" type="add">
+    Add the ability to specify the property separator for the properties element in factory configurations.
+    This is a new attribute propertySeparator that can be used in ehcache.xml configuration files.
+</action>
+<action dev="Greg Luck" type="update">
+    Enable the DiskStore to be pluggable in the Store hierarchy. There is no factory configuration as yet for this.
+    Thanks to Matt Magoffin for the patch.
+</action>
+<action dev="Greg Luck" type="update" fix="1725911">
+    Applied minor patch to Element to allow it to be easily persisted using mechanisms other than Java Serialization.
+    Thanks to Matt Magoffin for the patch.
+</action>
+<action dev="Greg Luck" type="fix" issue="1715492">
+    Problems when peer lookup fails when receiving heartbeats because heartbeat receiving is single-threaded. This issue
+    affects dirty or misconfigured networks or clusters. It hardens ehcache so that valid peers can still form a cluster
+    in the presence of Naming.lookup() problems with one or more peers. Thanks to Daniel Weill and Fredrik Bertilson for
+    reporting this and Daniel for supplying a patch. The patch changes the heartbeat receiving implementation to be multi-threaded
+    so that one bad peer cannot bring the others down.
+</action>
+<action dev="Greg Luck" type="update" issue="1720152">
+    Ehcache does asynchronous puts to the DiskStore. In previous version the amount of memory that could be used for spool buffering was
+    unlimited. In very high load situations with limited memory this could cause OutOfMemory erros. This version introduces a diskSpoolBufferSizeMB
+    configured per cache with a default of 30MB. Set this value to control the maximum amount of memory each cache DiskStore spool can consume.
+    The default of 30MB should work well for backward compatibility. If you notice your DiskStore performance is affected negatively,
+    increase diskSpoolBufferSizeMB.
+</action>
+</release>
+
 ehcache-1.3-beta2
 =================
 
