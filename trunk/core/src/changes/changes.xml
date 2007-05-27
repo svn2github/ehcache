@@ -10,7 +10,12 @@
                 This is a new attribute propertySeparator that can be used in ehcache.xml configuration files. 
             </action>
             <action dev="Greg Luck" type="update">
-                Enable the DiskStore to be pluggable in the Store hierarchy. There is no factory configuration as yet for this. 
+                Enable the DiskStore to be pluggable in the Store hierarchy. There is no factory configuration as yet for this.
+                Thanks to Matt Magoffin for the patch.
+            </action>
+            <action dev="Greg Luck" type="update" fix="1725911">
+                Applied minor patch to Element to allow it to be easily persisted using mechanisms other than Java Serialization.
+                Thanks to Matt Magoffin for the patch.
             </action>
             <action dev="Greg Luck" type="fix" issue="1715492">
                 Problems when peer lookup fails when receiving heartbeats because heartbeat receiving is single-threaded. This issue

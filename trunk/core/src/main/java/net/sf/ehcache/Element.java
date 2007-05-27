@@ -42,7 +42,7 @@ import java.io.Serializable;
 public final class Element implements Serializable, Cloneable {
     /**
      * serial version
-     * Updated version 1.2 and again for 1.2.1
+     * Updated for version 1.2 and again for 1.2.1
      */
     private static final long serialVersionUID = 3343087714201120157L;
 
@@ -143,6 +143,25 @@ public final class Element implements Serializable, Cloneable {
         this.version = version;
         creationTime = System.currentTimeMillis();
         hitCount = 0;
+    }
+
+    /**
+     * A full constructor.
+     *
+     * @since 1.3
+     */
+    public Element(Object key, Object value, long version, 
+            long creationTime, long lastAccessTime, 
+            long nextToLastAccessTime, long lastUpdateTime, 
+            long hitCount) {
+        this.key = key;
+        this.value = value;
+        this.version = version;
+        this.creationTime = creationTime;
+        this.lastAccessTime = lastAccessTime;
+        this.nextToLastAccessTime = nextToLastAccessTime;
+        this.lastUpdateTime = lastUpdateTime;
+        this.hitCount = hitCount;
     }
 
     /**
@@ -312,12 +331,11 @@ public final class Element implements Serializable, Cloneable {
     }
 
     /**
-     * Gets the next to last access time. This is package protected as it should
-     * not be used outside internal Cache housekeeping.
+     * Gets the next to last access time.
      *
      * @see #getLastAccessTime()
      */
-    final long getNextToLastAccessTime() {
+    public final long getNextToLastAccessTime() {
         return nextToLastAccessTime;
     }
 

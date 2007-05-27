@@ -256,5 +256,22 @@ public class ElementTest extends AbstractCacheTest {
         assertFalse(element.equals(new Element("cat", "hat")));
     }
 
+    /**
+     * Tests that the full constructor sets everything right.
+     */
+    public void testFullConstructor() {
+
+        Element element = new Element("key", "value", 1L, 123L, 1234L, 12345L, 123456L, 1234567L);
+        assertEquals("key", element.getKey());
+        assertEquals("value", element.getValue());
+        assertEquals(1L, element.getVersion());
+        assertEquals(123L, element.getCreationTime());
+        assertEquals(1234L, element.getLastAccessTime());
+        assertEquals(12345L, element.getNextToLastAccessTime());
+        assertEquals(123456L, element.getLastUpdateTime());
+        assertEquals(1234567L, element.getHitCount());
+
+    }
+
 
 }
