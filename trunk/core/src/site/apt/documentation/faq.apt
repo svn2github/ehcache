@@ -282,7 +282,7 @@ class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
 
     * DiskStore spool thread - if DiskStore is used
 
-    * Replication thread - if asyncrhonous replication is configured.
+    * Replication thread - if asynchronous replication is configured.
 
     If you are not doing any of the above, no extra threads are created
 
@@ -290,7 +290,7 @@ class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
 * I am using Tomcat 5, 5.5 or 6 and I am having a problem. What can I do?
 
     Tomcat is such a common deployment option for applications using ehcache that there is a chapter on known
-    issues and recommended practices. See the Using Ehcache with Tomcat chapter.
+    issues and recommended practices. See the Using Ehcache with Tomcat chapter. ({{http://ehcache.sourceforge.net/documentation/tomcat.html}})
 
              
 

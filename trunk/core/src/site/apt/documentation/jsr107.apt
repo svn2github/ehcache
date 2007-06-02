@@ -2,7 +2,11 @@
 
 * {JSR107 Implementation}
 
-    Ehcache provides an implementation of JSR107 via the <<<net.sf.cache.jcache>>> package.
+    Ehcache provides a preview implementation of JSR107 via the <<<net.sf.cache.jcache>>> package.
+
+    WARNING: JSR107 is still being drafted with the ehcache maintainer as Co Spec Lead. This package will continue to
+    change until JSR107 is finalised. No attempt will be made to maintain backward compatiblity between versions
+    of the package. It is therefore recommended to use Ehcache's proprietary API directly.
 
 
 * {Using JCACHE}

@@ -2,15 +2,35 @@
 <document>
     <body>
 
+        <release version="1.3.0" date="2007-12-31" desc="1.3 release">
+
+            <action dev="Greg Luck" type="fix" issue="1728071">
+                Where the Hibernate EhCacheProvider or SingletonEhCacheProvider is being used with a configurationResourceName to
+                load an ehcache configuration other than default, when it is not found in the classpath, no warning or other failure
+                occurs. Ehcache will instead load itself from defaults.
+                Added a warning message to indicate that a configurationResourceName was specified but could not be found.
+                This should simplify debugging. Thanks to Robert Watkins for raising this issue.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="1728780">
+                RMIRegistry is now stopped if it was started by ehcache. This fixes a classloader memory leak on redeploy
+                and reload in app servers. Thanks to Stefan Fleiter for supplying a patch.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="1728950">
+                Tweak to bootstrap to check for expired elements. It will skip expired elements rather than failing the bootstrap.
+                Thanks to Stefan Fleiter for supplying a patch.
+            </action>
+
+        </release>
+
         <release version="1.3.0-beta3" date="2007-05-27" desc="Beta 3 for 1.3 release">
 
             <!-- Feature Changes  -->
             <action dev="Greg Luck" type="add">
                 Add the ability to specify the property separator for the properties element in factory configurations.
-                This is a new attribute propertySeparator that can be used in ehcache.xml configuration files. 
+                This is a new attribute propertySeparator that can be used in ehcache.xml configuration files.
             </action>
             <action dev="Greg Luck" type="update">
-                Enable the DiskStore to be pluggable in the Store hierarchy. There is no factory configuration as yet for this.
+                Enable the DiskStore to be programmtically pluggable in the Store hierarchy.
                 Thanks to Matt Magoffin for the patch.
             </action>
             <action dev="Greg Luck" type="update" fix="1725911">
@@ -46,14 +66,14 @@
                  DiskStore SpoolThread is too slow under Java 1.6. The Spooling Thread was set to 2, on a scale of 1 to 10
                 from lowest to highest priority. Under JDK 1.6, this setting did not allocate enough CPU to enable the
                 spool to be cleared in a given situation, whereas under JDK1.5 it did. This seems to be a bug in JDK6.
-                The priority is now set to Thread.NORMAL_PRIORITY, which is 5. 
+                The priority is now set to Thread.NORMAL_PRIORITY, which is 5.
             </action>
             <action dev="Greg Luck" type="update" issue="1684223">
                 Distributed cache - flushing replicationQueue on dispose. We should flush the replication queue rather than
                 clear it on dispose.
             </action>
             <action dev="Greg Luck" type="fix" issue="1704257">
-                Fix clone problem introduced in 1.3-beta. This affects caches created from the default cache. 
+                Fix clone problem introduced in 1.3-beta. This affects caches created from the default cache.
                 Thanks to Erik Voorbraak for reporting this.
             </action>
             <action dev="Greg Luck" type="fix" issue="1694609">
@@ -126,7 +146,7 @@
             </action>
             <action dev="Greg Luck" type="remove">
                 Removed the JNDI manual listener and peer provider. This was proving difficult to maintain. Custom
-                listeners and providers are pluggable and can be added as an extension to ehcache. 
+                listeners and providers are pluggable and can be added as an extension to ehcache.
             </action>
         </release>
 

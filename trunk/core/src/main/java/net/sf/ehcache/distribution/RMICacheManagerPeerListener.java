@@ -90,6 +90,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
     protected Integer port;
 
     private Registry registry;
+    private boolean registryCreated;
     private final String hostName;
 
     private CacheManager cacheManager;
@@ -296,8 +297,6 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      * <li>rmiregistry running
      * <li>-Djava.rmi.server.codebase="file:///Users/gluck/work/ehcache/build/classes/ file:///Users/gluck/work/ehcache/lib/commons-logging-1.0.4.jar"
      * </ol>
-     * There appears to be no way to stop an rmiregistry. We check to see if one if already "there"
-     * before we create a new one.
      *
      * @throws RemoteException
      */
@@ -309,9 +308,29 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             } catch (RemoteException e) {
                 //may not be created. Let's create it.
                 registry = LocateRegistry.createRegistry(port.intValue());
+                registryCreated = true;
             }
         } catch (ExportException exception) {
             LOG.fatal("Exception starting RMI registry. Error was " + exception.getMessage(), exception);
+        }
+    }
+
+    /**
+     * Stop the rmiregistry if it was started by this class.
+     *
+     * @throws RemoteException
+     */
+    protected void stopRegistry() throws RemoteException {
+        if (registryCreated) {
+            // the unexportObject call must be done on the Registry object returned
+            // by createRegistry not by getRegistry, a NoSuchObjectException is
+            // thrown otherwise
+            boolean success = UnicastRemoteObject.unexportObject(registry, true);
+            if (success) {
+                LOG.debug("rmiregistry unexported.");
+            } else {
+                LOG.warn("Could not unexport rmiregistry.");
+            }
         }
     }
 
@@ -331,6 +350,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
                     disposeRMICachePeer(rmiCachePeer);
                     counter++;
                 }
+                stopRegistry();
             }
             LOG.debug(counter + " RMICachePeers unbound from registry in RMI listener");
             status = Status.STATUS_SHUTDOWN;

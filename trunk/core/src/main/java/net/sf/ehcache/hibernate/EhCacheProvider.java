@@ -121,8 +121,7 @@ public final class EhCacheProvider implements CacheProvider {
         try {
             String configurationResourceName = null;
             if (properties != null) {
-                configurationResourceName = (String) properties.get(
-                        SingletonEhCacheProvider.NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME);
+                configurationResourceName = (String) properties.get(NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME);
             }
             if (configurationResourceName == null || configurationResourceName.length() == 0) {
                 manager = new CacheManager();
@@ -141,8 +140,8 @@ public final class EhCacheProvider implements CacheProvider {
             if (e.getMessage().startsWith("Cannot parseConfiguration CacheManager. Attempt to create a new instance of " +
                     "CacheManager using the diskStorePath")) {
                 throw new CacheException("Attempt to restart an already started EhCacheProvider. Use sessionFactory.close() " +
-                    " between repeated calls to buildSessionFactory. Consider using SingletonEhCacheProvider. Error from " +
-                    " ehcache was: " + e.getMessage());
+                        " between repeated calls to buildSessionFactory. Consider using SingletonEhCacheProvider. Error from " +
+                        " ehcache was: " + e.getMessage());
             } else {
                 throw e;
             }
@@ -162,6 +161,13 @@ public final class EhCacheProvider implements CacheProvider {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Creating EhCacheProvider from a specified resource: "
                     + configurationResourceName + " Resolved to URL: " + url);
+        }
+        if (url == null) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("A configurationResourceName was set to " + configurationResourceName +
+                        " but the resource could not be loaded from the classpath." +
+                        "Ehcache will configure itself using defaults.");
+            }
         }
         return url;
     }

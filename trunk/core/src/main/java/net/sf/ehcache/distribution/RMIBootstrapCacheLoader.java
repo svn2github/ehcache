@@ -105,7 +105,7 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
             try {
                 doLoad(cache);
             } catch (RemoteCacheException e) {
-                LOG.debug("Error asynchronously performing bootstrap. The cause was: " + e.getMessage());
+                LOG.warn("Error asynchronously performing bootstrap. The cause was: " + e.getMessage(), e);
             } finally {
                 cache = null;
             }
@@ -207,6 +207,9 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
                 LOG.debug("doLoad for " + cache.getName() + " interrupted.");
             }
         }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("cache peers: " + cachePeers);
+        }
         return cachePeers;
     }
 
@@ -222,7 +225,10 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
         List receivedChunk = cachePeer.getElements(requestChunk);
         for (int i = 0; i < receivedChunk.size(); i++) {
             Element element = (Element) receivedChunk.get(i);
-            cache.put(element, true);
+            // element could be expired at the peer
+            if (element != null) {
+                cache.put(element, true);
+            }
         }
     }
 

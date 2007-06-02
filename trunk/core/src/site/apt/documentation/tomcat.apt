@@ -1,4 +1,4 @@
-Using ehcache with Tomcat
+Tomcat Issues and Best Practices
 
     Ehcache is probably used most commonly with Tomcat. This chapter documents some known issues with Tomcat
     and recommended practices.
@@ -17,6 +17,10 @@ Using ehcache with Tomcat
     The Tomcat and RMI classloaders do not get along that well. Move ehcache.jar to $TOMCAT_HOME/common/lib. This fixes the problem. This issue happens
     with anything that uses RMI, not just ehcache.
 
+**  In development, there appear to be classloader memory leak as I continually redeploy my web application.
+
+    There are lots of causes of memory leaks on redeploy. Moving ehcache and backport-util-concurrent out of the WAR and into $TOMCAT/common/lib
+     fixes this leak.
 
 **   I get net.sf.ehcache.CacheException: Problem starting listener for RMICachePeer ... java.rmi.UnmarshalException: error unmarshalling
     arguments; nested exception is: java.net.MalformedURLException: no protocol: Files/Apache. What is going on?

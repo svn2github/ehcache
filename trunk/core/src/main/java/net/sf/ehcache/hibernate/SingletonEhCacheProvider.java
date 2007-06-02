@@ -136,7 +136,6 @@ public final class SingletonEhCacheProvider implements CacheProvider {
         }
     }
 
-
     private URL loadResource(String configurationResourceName) {
         ClassLoader standardClassloader = ClassLoaderUtil.getStandardClassLoader();
         URL url = null;
@@ -146,9 +145,16 @@ public final class SingletonEhCacheProvider implements CacheProvider {
         if (url == null) {
             url = this.getClass().getResource(configurationResourceName);
         }
-        if (SingletonEhCacheProvider.LOG.isDebugEnabled()) {
-            SingletonEhCacheProvider.LOG.debug("Creating EhCacheProvider from a specified resource: "
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Creating EhCacheProvider from a specified resource: "
                     + configurationResourceName + " Resolved to URL: " + url);
+        }
+        if (url == null) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("A configurationResourceName was set to " + configurationResourceName +
+                        " but the resource could not be loaded from the classpath." +
+                        "Ehcache will configure itself using defaults.");
+            }
         }
         return url;
     }
