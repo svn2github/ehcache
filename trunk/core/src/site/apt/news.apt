@@ -7,6 +7,39 @@
 
 News
 
+* 11 June 2007: ehcache-1.3 released
+
+    The next major version of ehcache has been released.
+
+    This version contains the following major new features over 1.2.4:
+
+    * A draft JCache API (JSR107) package.
+
+    * JMX instrumentation. Register a variety of MBeans from your  ehcache instance with your MBeanServer of choice.
+      Care has been taken to make this implementation friendly to a wide variety of JMX NMSs.
+
+    In terms of minor features:
+
+    * A new cache attribute, diskSpoolBufferSizeMB, can be set to control the amount of memory that can be used
+      for spooling to DiskStore
+
+    * The ehcache shutdown hook is now off by default. Ehcache is typically used in scenarios where someone else
+       has a shutdown hook. It can be re-enabled by setting <<<net.sf.ehcache.enableShutdownHook=true>>>
+
+    The distributed caching feature of ehcache is now in wide-spread use in wide ranging environments. All of this field
+    experience unearthed the need for further documentation, clarificationa and bug fixes, particularly for dirty
+     or mis-configured networks, which have been provided in 1.3. Excellent performance has been reported for clusters with
+     up to 20 nodes.
+
+      A new {{{http://ehcache.sourceforge.net/documentation/tomcat.html}Tomcat}} chapter in the documentation
+      provides specific information on configuring Tomcat with ehcache.
+
+    See the {{{http://ehcache.sourceforge.net/changes-report.html#1.3}changelog}} for complete details.
+
+    Work on new features will now start on a new 1.4 branch. See the {{{roadmap.html}Roadmap}} for details. 1.3 will be maintained as
+     the new stable branch.
+
+
 * 27 May 2007: ehcache-1.3 beta 3 released
 
     This release fixes two bugs and has some minor changes to support third parties who are making extensions to ehcache. See

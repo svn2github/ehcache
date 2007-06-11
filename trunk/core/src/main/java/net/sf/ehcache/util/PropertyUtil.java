@@ -93,7 +93,7 @@ public final class PropertyUtil {
         }
         Properties properties = new Properties();
         String propertyLines = propertiesString.trim();
-        propertyLines = propertyLines.replace(propertySeparatorLocal, "\n");
+        propertyLines = propertyLines.replaceAll(propertySeparatorLocal, "\n");
         try {
             properties.load(new ByteArrayInputStream(propertyLines.getBytes()));
         } catch (IOException e) {

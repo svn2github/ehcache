@@ -2,7 +2,7 @@
 <document>
     <body>
 
-        <release version="1.3.0" date="2007-12-31" desc="1.3 release">
+        <release version="1.3.0" date="2007-06-11" desc="1.3 release">
 
             <action dev="Greg Luck" type="fix" issue="1728071">
                 Where the Hibernate EhCacheProvider or SingletonEhCacheProvider is being used with a configurationResourceName to
@@ -18,6 +18,14 @@
             <action dev="Greg Luck" type="fix" issue="1728950">
                 Tweak to bootstrap to check for expired elements. It will skip expired elements rather than failing the bootstrap.
                 Thanks to Stefan Fleiter for supplying a patch.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="1732424">
+                PropertyUtil.parseProperties using a JDK 1.5+ only feature. This issue was introduced in 1.3.0-beta3.
+                Thanks to Ben Piper for pointing this out.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="1730999">
+                DiskStore trace message for put back ups should only log when the DiskStore is backed up.
+                Thanks to Stefan Fleiter for this one.
             </action>
 
         </release>

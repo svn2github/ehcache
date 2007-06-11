@@ -107,7 +107,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
         assertEquals(40, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
         manager.removeCache("sampleCache1");
         assertEquals(37, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
-        Thread.sleep(1000000);
+        //Thread.sleep(1000000);
     }
 
     /**

@@ -431,10 +431,11 @@ public class DiskStore implements Store {
      */
     public boolean backedUp() {
         long estimatedSpoolSize = spool.size() * lastElementSize;
-        if (LOG.isTraceEnabled()) {
+        boolean backedUp = estimatedSpoolSize > diskSpoolBufferSizeBytes;
+        if (backedUp && LOG.isTraceEnabled()) {
             LOG.trace("A back up on cache puts occurred. Consider increasing diskSpoolBufferSizeMB for cache " + name);
         }
-        return estimatedSpoolSize > diskSpoolBufferSizeBytes;
+        return backedUp;
 
     }
 
