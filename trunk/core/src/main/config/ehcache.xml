@@ -2,7 +2,6 @@
 
     <!--
 
-    todo add an optional propertySeparator
     DiskStore configuration
 
     Sets the path to the directory where cache files are created.

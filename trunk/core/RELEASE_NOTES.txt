@@ -1,8 +1,8 @@
 $Id: RELEASE_NOTES.txt,v 1.16 2006/03/01 01:52:03 gregluck Exp $
 
 
-Release Notes For ehcache version 1.3-beta3
-===========================================
+Release Notes For ehcache version 1.3
+=====================================
 
 Introduction
 ============
@@ -45,11 +45,11 @@ using the JDK5 version, which is faster, if they are running JDK5. See {{http://
 
 Installation
 ============
-Place the ehcache-1.2.4.jar into your classpath. Ensure the required dependencies are in the classpath.
+Place the ehcache.jar into your classpath. Ensure the required dependencies are in the classpath.
 
 Create an ehcache.xml configuration from the one supplied in the distribution and place it in your classpath.
 
-The ehcache-1.2.4-remote-debugger.jar is a tool to be used for distributed debugging. Do not install it in
+The ehcache-remote-debugger.jar is a tool to be used for distributed debugging. Do not install it in
 your project. See http://ehcache.sourceforge.net/documentation/logging.html for how to use it.
 
 
