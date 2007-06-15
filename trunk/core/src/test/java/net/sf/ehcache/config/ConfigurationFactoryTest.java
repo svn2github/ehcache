@@ -149,8 +149,27 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(true, persistentLongExpiryIntervalCache.isDiskPersistent());
         assertEquals(600, persistentLongExpiryIntervalCache.getDiskExpiryThreadIntervalSeconds());
 
+        /*
+           <!--
+            A cache which has a CacheExtension
+            -->
+            <cache name="testCacheExtensionCache"
+                   maxElementsInMemory="10"
+                   eternal="false"
+                   timeToIdleSeconds="100"
+                   timeToLiveSeconds="100"
+                   overflowToDisk="false">
+                <cacheExtensionFactory
+                        class="net.sf.ehcache.extension.TestCacheExtensionFactory"
+                        properties="propertyA=valueA"/>
+            </cache>CacheExtension cache
+        */
+        Ehcache testCacheExtensionCache = configurationHelper.createCacheFromName("testCacheExtensionCache");
+        assertEquals("testCacheExtensionCache", testCacheExtensionCache.getName());
 
-        //check the number of threads
+
+
+
     }
 
 
@@ -191,7 +210,6 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(true, defaultCache.isOverflowToDisk());
         assertEquals(10000, defaultCache.getMaxElementsInMemory());
         assertEquals(10000000, defaultCache.getMaxElementsOnDisk());
-
 
         //Check caches
         assertEquals(6, configurationHelper.createCaches().size());

@@ -14,26 +14,25 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.event;
+package net.sf.ehcache.extension;
+
+import net.sf.ehcache.Ehcache;
 
 import java.util.Properties;
 
 /**
- * An abstract factory for creating listeners. Implementers should provide their own
+ * An abstract factory for creating <code>CacheExtension</code>s. Implementers should provide their own
  * concrete factory extending this factory. It can then be configured in ehcache.xml.
  *
- * @author Greg Luck
+ * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
-public abstract class CacheEventListenerFactory {
+public abstract class CacheExtensionFactory {
 
     /**
-     * Create a <code>CacheEventListener</code>
-     *
-     * @param properties implementation specific properties. These are configured as comma
-     *                   separated name value pairs in ehcache.xml
-     * @return a constructed CacheEventListener
+     * @param cache the cache this extension should hold a reference to, and to whose lifecycle it should be bound.
+     * @param properties implementation specific properties configured as delimiter separated name value pairs in ehcache.xml
      */
-    public abstract CacheEventListener createCacheEventListener(Properties properties);
+    public abstract CacheExtension createCacheExtension(Ehcache cache, Properties properties); 
 
 }

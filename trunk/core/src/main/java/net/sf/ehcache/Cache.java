@@ -24,6 +24,7 @@ import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.extension.CacheExtension;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -32,12 +33,13 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.server.UID;
+import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
+import java.util.Iterator;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -151,6 +153,8 @@ public class Cache implements Ehcache {
 
     private RegisteredEventListeners registeredEventListeners;
 
+    private List registeredCacheExtensions;
+
     private String guid;
 
     private CacheManager cacheManager;
@@ -158,6 +162,7 @@ public class Cache implements Ehcache {
     private BootstrapCacheLoader bootstrapCacheLoader;
 
     private int statisticsAccuracy;
+
 
     /**
      * 1.0 Constructor.
@@ -456,6 +461,8 @@ public class Cache implements Ehcache {
             this.registeredEventListeners = registeredEventListeners;
         }
 
+        registeredCacheExtensions = createNewCacheExtensionsList();
+
         //Set this to a safe value.
         if (diskExpiryThreadIntervalSeconds == 0) {
             configuration.setDiskExpiryThreadIntervalSeconds(DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS);
@@ -504,6 +511,7 @@ public class Cache implements Ehcache {
 
             memoryStore = MemoryStore.create(this, diskStore);
             changeStatus(Status.STATUS_ALIVE);
+            initialiseRegisteredCacheExtensions();
         }
 
         if (LOG.isDebugEnabled()) {
@@ -1187,8 +1195,23 @@ public class Cache implements Ehcache {
         }
 
         registeredEventListeners.dispose();
+        disposeRegisteredCacheExtensions();
 
         changeStatus(Status.STATUS_SHUTDOWN);
+    }
+
+    private void initialiseRegisteredCacheExtensions() {
+        for (int i = 0; i < registeredCacheExtensions.size(); i++) {
+            CacheExtension cacheExtension = (CacheExtension) registeredCacheExtensions.get(i);
+            cacheExtension.init();
+        }
+    }
+
+    private void disposeRegisteredCacheExtensions() {
+        for (int i = 0; i < registeredCacheExtensions.size(); i++) {
+            CacheExtension cacheExtension = (CacheExtension) registeredCacheExtensions.get(i);
+            cacheExtension.dispose();
+        }
     }
 
     /**
@@ -1562,7 +1585,6 @@ public class Cache implements Ehcache {
      * <p/>
      * A new, empty, RegisteredEventListeners is created on clone.
      * <p/>
-     *
      * @return an object of type {@link Cache}
      * @throws CloneNotSupportedException
      */
@@ -1585,6 +1607,13 @@ public class Cache implements Ehcache {
                 CacheEventListener cacheEventListenerClone = (CacheEventListener) cacheEventListener.clone();
                 copy.registeredEventListeners.registerListener(cacheEventListenerClone);
             }
+        }
+
+
+        copy.registeredCacheExtensions = createNewCacheExtensionsList();
+        for (int i = 0; i < registeredCacheExtensions.size(); i++) {
+            CacheExtension cacheExtension = (CacheExtension) registeredCacheExtensions.get(i);
+            copy.registerCacheExtension(cacheExtension.clone(copy));
         }
 
         if (bootstrapCacheLoader != null) {
@@ -1928,5 +1957,25 @@ public class Cache implements Ehcache {
     private String createGuid() {
         return new StringBuffer().append(localhost).append("-").append(new UID()).toString();
     }
+
+    /**
+     * Register a {@link CacheExtension} with the cache. It will then be tied into the cache lifecycle.
+     */
+    public void registerCacheExtension(CacheExtension cacheExtension) {
+        registeredCacheExtensions.add(cacheExtension);
+    }
+
+    /**
+     * Unregister a {@link CacheExtension} with the cache. It will then be detached from the cache lifecycle.
+     */
+    public void unregisterCacheExtension(CacheExtension cacheExtension) {
+        registeredCacheExtensions.remove(cacheExtension);
+    }
+
+    private List createNewCacheExtensionsList() {
+        return Collections.synchronizedList(new ArrayList());
+    }
+
+
 
 }

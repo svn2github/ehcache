@@ -20,6 +20,8 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.extension.CacheExtension;
+import net.sf.ehcache.extension.CacheExtensionFactory;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
@@ -82,12 +84,27 @@ public final class ConfigurationHelper {
      */
     protected static void registerCacheListeners(CacheConfiguration cacheConfiguration,
                                                 RegisteredEventListeners registeredEventListeners) {
-        List cacheEventListenerConfigurations = cacheConfiguration.cacheEventListenerConfigurations;
+        List cacheEventListenerConfigurations = cacheConfiguration.getCacheEventListenerConfigurations();
         for (int i = 0; i < cacheEventListenerConfigurations.size(); i++) {
             CacheConfiguration.CacheEventListenerFactoryConfiguration factoryConfiguration =
                     (CacheConfiguration.CacheEventListenerFactoryConfiguration) cacheEventListenerConfigurations.get(i);
             CacheEventListener cacheEventListener = createCacheEventListener(factoryConfiguration);
             registeredEventListeners.registerListener(cacheEventListener);
+        }
+    }
+
+    /**
+     * A factory method to register cache extensions
+     */
+    protected static void registerCacheExtensions(CacheConfiguration cacheConfiguration, Ehcache cache) {
+
+        List cacheExtensionConfigurations = cacheConfiguration.getCacheExtensionConfigurations();
+
+        for (int i = 0; i < cacheExtensionConfigurations.size(); i++) {
+            CacheConfiguration.CacheExtensionFactoryConfiguration factoryConfiguration =
+                    (CacheConfiguration.CacheExtensionFactoryConfiguration) cacheExtensionConfigurations.get(i);
+            CacheExtension cacheExtension = createCacheExtension(factoryConfiguration, cache);
+            cache.registerCacheExtension(cacheExtension);
         }
     }
 
@@ -116,6 +133,31 @@ public final class ConfigurationHelper {
             cacheEventListener = factory.createCacheEventListener(properties);
         }
         return cacheEventListener;
+    }
+
+    /**
+     * Tries to load the class specified otherwise defaults to null
+     *
+     * @param factoryConfiguration
+     */
+    private static CacheExtension createCacheExtension(
+            CacheConfiguration.CacheExtensionFactoryConfiguration factoryConfiguration, Ehcache cache) {
+        String className = null;
+        CacheExtension cacheExtension = null;
+        try {
+            className = factoryConfiguration.getFullyQualifiedClassPath();
+        } catch (Throwable t) {
+            //
+        }
+        if (className == null) {
+            LOG.debug("CacheExtension factory not configured. Skipping...");
+        } else {
+            CacheExtensionFactory factory = (CacheExtensionFactory) ClassLoaderUtil.createNewInstance(className);
+            Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
+                    factoryConfiguration.getPropertySeparator());
+            cacheExtension = factory.createCacheExtension(cache, properties);
+        }
+        return cacheExtension;
     }
 
     /**
@@ -326,6 +368,7 @@ public final class ConfigurationHelper {
                 cacheConfiguration.diskSpoolBufferSizeMB);
         RegisteredEventListeners listeners = cache.getCacheEventNotificationService();
         registerCacheListeners(cacheConfiguration, listeners);
+        registerCacheExtensions(cacheConfiguration, cache);
         BootstrapCacheLoader bootstrapCacheLoader = createBootstrapCacheLoader(
                 cacheConfiguration.bootstrapCacheLoaderFactoryConfiguration);
         cache.setBootstrapCacheLoader(bootstrapCacheLoader);

@@ -121,6 +121,11 @@ public class CacheConfiguration implements Cloneable {
     protected final List cacheEventListenerConfigurations = new ArrayList();
 
     /**
+     * The cache extension factories added by BeanUtils.
+     */
+    protected final List cacheExtensionConfigurations = new ArrayList();
+
+    /**
      * The BootstrapCacheLoaderFactoryConfiguration.
      */
     protected BootstrapCacheLoaderFactoryConfiguration bootstrapCacheLoaderFactoryConfiguration;
@@ -254,6 +259,19 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Configuration for the CacheExtensionFactoryConfiguration.
+     */
+    public final class CacheExtensionFactoryConfiguration extends FactoryConfiguration {
+    }
+
+    /**
+     * Used by BeanUtils to add cacheExtensionFactory elements to the cache configuration.
+     */
+    public final void addCacheExtensionFactory(CacheExtensionFactoryConfiguration factory) {
+        cacheExtensionConfigurations.add(factory);
+    }
+
+    /**
      * Configuration for the BootstrapCacheLoaderFactoryConfiguration.
      */
     public final class BootstrapCacheLoaderFactoryConfiguration extends FactoryConfiguration {
@@ -343,6 +361,13 @@ public class CacheConfiguration implements Cloneable {
      */
     public List getCacheEventListenerConfigurations() {
         return cacheEventListenerConfigurations;
+    }
+
+    /**
+     * Accessor
+     */
+    public List getCacheExtensionConfigurations() {
+        return cacheExtensionConfigurations;
     }
 
     /**

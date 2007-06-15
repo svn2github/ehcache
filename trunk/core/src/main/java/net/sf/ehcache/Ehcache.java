@@ -20,6 +20,7 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.extension.CacheExtension;
 
 import java.io.Serializable;
 import java.util.List;
@@ -670,4 +671,15 @@ public interface Ehcache extends Cloneable {
      * Things like listeners that are added dynamically are excluded.
      */
     CacheConfiguration getCacheConfiguration();
+
+    /**
+     * Register a {@link net.sf.ehcache.extension.CacheExtension} with the cache. It will then be tied into the cache lifecycle.
+     */
+    public void registerCacheExtension(CacheExtension cacheExtension);
+
+    /**
+     * Unregister a {@link CacheExtension} with the cache. It will then be detached from the cache lifecycle.
+     */
+    public void unregisterCacheExtension(CacheExtension cacheExtension);
+
 }

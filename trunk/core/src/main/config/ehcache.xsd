@@ -45,6 +45,7 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheEventListenerFactory"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheExtensionFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
             </xs:sequence>
             <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
@@ -63,6 +64,7 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheEventListenerFactory"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheExtensionFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
             </xs:sequence>
             <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
@@ -86,6 +88,13 @@
         </xs:complexType>
     </xs:element>
     <xs:element name="bootstrapCacheLoaderFactory">
+        <xs:complexType>
+            <xs:attribute name="class" use="required"/>
+            <xs:attribute name="properties" use="optional"/>
+            <xs:attribute name="propertySeparator" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="cacheExtensionFactory">
         <xs:complexType>
             <xs:attribute name="class" use="required"/>
             <xs:attribute name="properties" use="optional"/>

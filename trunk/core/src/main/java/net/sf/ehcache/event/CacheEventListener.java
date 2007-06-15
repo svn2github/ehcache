@@ -154,7 +154,7 @@ public interface CacheEventListener extends Cloneable {
 
 
     /**
-     * Give the replicator a chance to cleanup and free resources when no longer needed
+     * Give the listener a chance to cleanup and free resources when no longer needed
      */
     void dispose();
 

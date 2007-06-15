@@ -163,7 +163,7 @@
     Sets whether elements can overflow to disk when the memory store
     has reached the maxInMemory limit.
 
-    The following attributes are optional.
+    The following attributes and elements are optional.
 
     timeToIdleSeconds:
     Sets the time to idle for an element before it expires.
@@ -208,6 +208,10 @@
 
     * bootstrapCacheLoaderFactory - Specifies a BootstrapCacheLoader, which is called by a
       cache on initialisation to prepopulate itself.
+
+    * cacheExtensionFactory - Specifies a CacheExtension, a generic mechansim to tie a class
+      which holds a reference to a cache to the cache lifecycle. 
+
 
     Each cache that will be distributed needs to set a cache event listener which replicates
     messages to the other CacheManager peers. For the built-in RMI implementation this is done
@@ -299,7 +303,7 @@
            maxElementsOnDisk="1000"
            eternal="false"
            overflowToDisk="true"
-           diskSpoolBufferSizeMB="20" 
+           diskSpoolBufferSizeMB="20"
            timeToIdleSeconds="300"
            timeToLiveSeconds="600"
            memoryStoreEvictionPolicy="LFU"
@@ -388,5 +392,8 @@
                 class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
                 properties="asynchronousReplicationIntervalMillis=200"/>
     </cache>
+
+    
+
 
 </ehcache>

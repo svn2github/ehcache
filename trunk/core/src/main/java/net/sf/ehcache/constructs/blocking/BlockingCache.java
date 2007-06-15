@@ -22,6 +22,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.constructs.concurrent.ConcurrencyUtil;
@@ -502,8 +503,9 @@ public class BlockingCache implements Ehcache {
      * <p/>
      * Note. If a LockTimeoutException is thrown while doing a {@link #get} it means the lock was never acquired,
      * therefore it is a threading error to call {@link #put}
+     *
      * @throws LockTimeoutException if timeout millis is non zero and this method has been unable to
-     * acquire a lock in that time
+     *                              acquire a lock in that time
      */
     public Element get(final Object key) throws LockTimeoutException {
         Mutex lock = getLockForKey(key);
@@ -537,6 +539,7 @@ public class BlockingCache implements Ehcache {
 
     /**
      * Gets the Mutex to use for a given key.
+     *
      * @param key the key
      * @return one of a limited number of Mutexes.
      */
@@ -947,6 +950,20 @@ public class BlockingCache implements Ehcache {
      */
     public int getTimeoutMillis() {
         return timeoutMillis;
+    }
+
+    /**
+     * Register a {@link net.sf.ehcache.extension.CacheExtension} with the cache. It will then be tied into the cache lifecycle.
+     */
+    public void registerCacheExtension(CacheExtension cacheExtension) {
+        cache.registerCacheExtension(cacheExtension);
+    }
+
+    /**
+     * Unregister a {@link net.sf.ehcache.extension.CacheExtension} with the cache. It will then be detached from the cache lifecycle.
+     */
+    public void unregisterCacheExtension(CacheExtension cacheExtension) {
+        cache.unregisterCacheExtension(cacheExtension);
     }
 
 
