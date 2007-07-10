@@ -1,0 +1,251 @@
+Storage Options
+
+ Ehcache has two stores:
+
+   * a MemoryStore and
+
+   * a DiskStore
+
+
+* {Memory Store}
+
+     The <<<MemoryStore>>> is always enabled. It is not directly manipulated, but is a component of every cache.
+
+ ** Suitable Element Types
+
+     All Elements are suitable for placement in the MemoryStore.
+
+     It has the following characteristics:
+
+     ** Safety
+
+     Thread safe for use by multiple concurrent threads.
+
+     Tested for memory leaks. See MemoryCacheTest#testMemoryLeak. This test
+     passes for ehcache but exploits a number of memory leaks in JCS. JCS
+     will give an OutOfMemory error with a default 64M in 10 seconds.
+
+     ** Backed By JDK
+
+     LinkedHashMap The <<<MemoryStore>>>
+     for JDK1.4 and JDK 5 it is backed by an extended {{{http://java.sun.com/j2se/1.4.2/docs/api/}LinkedHashMap}}.
+     This provides a combined linked list and a hash map, and is ideally
+     suited for caching. Using this standard Java class simplifies the
+     implementation of the memory cache. It directly supports
+     obtaining the least recently used element.
+
+     For JDK1.2 and JDK1.3, the LRUMap from Apache Commons is used. It
+     provides similar features to LinkedHashMap.
+
+     The implementation is determined dynamically at runtime. LinkedHashMap
+     is preferred if found in the classpath.
+
+     ** Fast
+
+     The memory store, being all in memory, is the fastest caching option.
+
+** Memory Use, {Spooling} and {Expiry Strategy}
+
+     All caches specify their maximum in-memory size, in terms of the number of elements, at configuration time.
+
+     When an element is added to a cache and it goes beyond its maximum
+     memory size, an existing element is either deleted, if overflowToDisk
+     is false, or evaluated for spooling to disk, if overflowToDisk is true.
+     In the latter case, a check for expiry is carried out. If it is expired
+     it is deleted; if not it is spooled. The eviction of an item from
+     the memory store is based on the MemoryStoreEvictionPolicy setting
+     specified in the configuration file.
+
+     memoryStoreEvictionPolicy is an optional attribute in ehcache.xml
+     introduced since 1.2. Legal values are LRU (default), LFU and FIFO.
+
+     LRU, LFU and FIFO eviction policies are supported. LRU is the default,
+     consistent with all earlier releases of ehcache.
+
+    * {Least Recently Used} ({LRU}) - Default
+
+     The eldest element, is the Least Recently Used (LRU). The last used
+     timestamp is updated when an element is put into the cache or an
+     element is retrieved from the cache with a get call.
+
+    * {Less Frequently Used} ({LFU})
+
+     For each get call on the element the number of hits is updated. When a
+     put call is made for a new element (and assuming that the max limit is
+     reached for the memory store) the element with least number of hits,
+     the Less Frequently Used element, is evicted.
+
+    * First In First Out (FIFO)
+
+     Elements are evicted in the same order as they come in. When a put call
+     is made for a new element (and assuming that the max limit is reached
+     for the memory store) the element that was placed first (First-In) in
+     the store is the candidate for eviction (First-Out).
+
+     For all the eviction policies there are also <<<putQuiet>>> and <<<getQuiet>>> methods which do not update the last used timestamp.
+
+     When there is a <<<get>>> or a <<<getQuiet>>> on an element, it is checked for expiry. If expired, it is removed and null is returned.
+
+     Note that at any point in time there will usually be some expired
+     elements in the
+     cache. Memory sizing of an application must always take into
+     account the maximum size of each cache. There is a convenience method
+     which can provide an estimate of the size in bytes of the <<<MemoryStore>>>.
+     See {{{http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/Cache.html#calculateInMemorySize%28%29}calculateInMemorySize()}}.
+     It returns the serialized size of the cache. Do not use this method in
+     production. It is very slow. It is only meant to provide a rough
+     estimate.
+
+     The alternative would have been to have an expiry thread. This is a
+     trade-off between lower memory use and short locking periods and cpu
+     utilisation. The design is in favour of the latter. For those concerned
+     with memory use, simply reduce the <<<maxElementsInMemory>>>.
+
+* {DiskStore}
+
+     The <<<DiskStore>>> provides a disk spooling facility.
+
+
+ ** Suitable Element Types
+
+     Only <<<Element>>>s which are <<<Serializable>>> can be placed in the DiskStore. Any non serializable
+     <<<Element>>>s which attempt to overflow to the <<<DiskStore>>> will be removed instead, and a WARNING level
+     log message emitted.
+
+     It has the following characteristics:
+
+ ** Storage Files
+
+     The disk store creates one file per cache called "cache name.data".
+
+     If the <<<DiskStore>>> is configured to be persistent, a "<<cache name>>.index" file is also created.
+
+     Files are created in the directory specified by the diskStore
+     configuration element. The default configuration is "java.io.tmpdir",
+     which causes files to be created in the system's temporary
+     directory.
+
+     Following is a list of Java system properties which are supported as values for diskStore:
+
+       * user.home - User's home directory
+
+       * user.dir - User's current working directory
+
+       * java.io.tmpdir - Default temp file path
+
+     Apart from these, any directory can be specified using syntax appropriate to the operating system. e.g. for
+     Unix "/home/application/cache".
+
+ ** Expiry Strategy
+
+     One thread per cache is used to remove expired elements. The optional attribute <<<diskExpiryThreadIntervalSeconds>>>
+     sets the interval between runs of the expiry thread. Warning: setting this to a low value
+     is not recommended. It can cause excessive <<<DiskStore>>> locking and high cpu utilisation. The default value is 120 seconds.
+
+ ** Eviction Strategy
+
+     If the <<<maxElementsOnDisk>>> attribute is set, elements will be evicted from the <<<DiskStore>>> when it exceeds that amount.
+     The LFU algorithm is used for these evictions. It is not configurable to use another algorithm.
+
+ ** Serializable Objects
+
+     Only Serializable objects can be stored in a <<<DiskStore>>>. A {{{http://java.sun.com/j2se/1.4.2/docs/api/java/io/NotSerializableException.html}NotSerializableException}}
+     will be thrown if the object is not serializable.
+
+ ** Safety
+
+     <<<DiskStore>>>s are thread safe.
+
+ ** {Persistence}
+
+     <<<DiskStore>>> persistence is controlled by the diskPersistent configuration element. If false or omitted, <<<DiskStore>>>s will not persist
+     between <<<CacheManager>>> restarts. The data file for each cache will be deleted, if it
+     exists, both on shutdown and startup. No data from a previous instance <<<CacheManager>>> is available.
+
+     If diskPersistent is true, the data file, and an index file, are saved. Cache Elements are
+     available to a new <<<CacheManager>>>. This <<<CacheManager>>> may be in the same VM instance, or a new one.
+
+     The data file is updated continuously during operation of the Disk
+     Store. New elements are spooled to disk, and deleted when expired. The
+     index file is only written when dispose is called on the <<<DiskStore>>>.
+     This happens when the CacheManager is shut down, a Cache is disposed,
+     or the VM is being shut down. It is recommended that the
+     CacheManager {{{http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/CacheManager.html#shutdown%28%29}shutdown()}}
+     method be used. See Virtual Machine Shutdown Considerations for guidance on how to safely shut the Virtual
+     Machine down.
+
+     When a <<<DiskStore>>> is persisted, the following steps take place:
+
+       * Any non-expired Elements of the <<<MemoryStore>>> are flushed to the DiskStore
+
+       * Elements awaiting spooling are spooled to the data file
+
+       * The free list and element list are serialized to the index file
+
+     On startup the following steps take place:
+
+       * An attempt is made to read the index file. If it does not exist
+     or cannot be read successfully, due to disk corruption, upgrade of
+     ehcache, change in JDK version etc, then the data file is deleted and
+     the <<<DiskStore>>> starts with no Elements in it.
+
+       * If the index file is read successfully, the free list and element
+     list are loaded into memory. Once this is done, the index file contents
+     are removed. This way, if there is a dirty shutdown, when restarted,
+     ehcache will delete the dirt index and data files.
+
+       * The <<<DiskStore>>> starts. All data is available.
+
+       * The expiry thread starts. It will delete Elements which have expired.
+
+     These actions favour safety over persistence. Ehcache is a cache, not a
+     database. If a file gets dirty, all data is deleted. Once started there
+     is further checking for corruption. When a get is done, if the Element
+     cannot be successfully derserialized, it is deleted, and null is
+     returned. These measures prevent corrupt and inconsistent data being
+     returned.
+
+    * Fragmentation
+
+     Expiring an element frees its space on the file. This space is available for reuse by new
+     elements. The element is also removed from the in-memory index of elements.
+
+    * Speed
+
+     Spool requests are placed in-memory and then asynchronously written to disk. There is one thread per cache. An
+     in-memory index of elements on disk is maintained to quickly resolve
+     whether a key exists on disk, and if so to seek it and read it.
+
+    * Serialization
+
+     Writes to and from the disk use {{{http://java.sun.com/j2se/1.4.2/docs/api/java/io/ObjectOutputStream.html}ObjectInputStream}}
+     and the Java serialization mechanism. This is not required for the
+     MemoryStore. As a result the DiskStore can never be as fast as the MemoryStore.
+
+     Serialization speed is affected by the size of the objects being
+     serialized and their type. It has been found in the ElementTest test
+     that:
+
+
+       * The serialization time for a Java object being a large Map of
+     String arrays was 126ms, where the a serialized size was 349,225 bytes.
+
+       * The serialization time for a byte[] was 7ms, where the serialized
+     size was 310,232 bytes
+
+     Byte arrays are 20 times faster to serialize. Make use of byte arrays
+     to increase DiskStore performance.
+
+
+    * RAMFS
+
+     One option to speed up disk stores is to use a RAM file system.
+     On some operating systems there are a plethora of file systems to
+     choose from. For example, the Disk Cache has been successfully used
+     with Linux' RAMFS file system. This file system simply consists of
+     memory. Linux presents it as a file system. The Disk Cache treats it
+     like a normal disk - it is just way faster. With this type of file
+     system, object serialization becomes the limiting factor to performance.
+
+
+

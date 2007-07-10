@@ -1,0 +1,30 @@
+<assembly>
+    
+    <id>bin</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+            <includes>
+                <include>RELEASE*</include>
+                <include>LICENSE*</include>
+                <include>CHANGELOG*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>target/dist</directory>
+            <outputDirectory/>
+            <!--<includes>-->
+                <!--<include name="**.license"/>-->
+                <!--<include name="**.jar"/>-->
+                <!--<include name="**-javadoc.jar"/>-->
+                <!--<include name="**-sources.jar"/>-->
+                <!--<include name="**-remote-debugger.jar"/>-->
+            <!--</includes>-->
+            <excludes>
+                <exclude>*.tgz</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+</assembly>
