@@ -46,6 +46,7 @@
     <suppress checks="ExecutableStatementCount" files="Cache.java"/>
     <suppress checks="ThrowsCountCheck" files="CachingFilter.java"/>
     <suppress checks="AnonInnerLengthCheck" files="MulticastKeepaliveHeartbeatReceiver.java"/>
+    <suppress checks="AnonInnerLengthCheck" files="JCache.java"/>
     <suppress checks="ClassFanOutComplexity" files="ConfigurationHelper.java"/>
 
 

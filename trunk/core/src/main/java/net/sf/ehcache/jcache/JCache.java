@@ -26,7 +26,6 @@ import net.sf.ehcache.Element;
 import net.sf.jsr107cache.CacheEntry;
 import net.sf.jsr107cache.CacheException;
 import net.sf.jsr107cache.CacheListener;
-import net.sf.jsr107cache.CacheLoader;
 import net.sf.jsr107cache.CacheStatistics;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -98,6 +97,30 @@ public class JCache implements net.sf.jsr107cache.Cache {
      *                    which is legal, loads do a noop
      * @since 1.3
      */
+    public JCache(Ehcache cache, net.sf.jsr107cache.CacheLoader cacheLoader) {
+        this.cache = cache;
+        executorService = new ThreadPoolExecutor(EXECUTOR_CORE_POOL_SIZE, EXECUTOR_MAXIMUM_POOL_SIZE,
+                EXECUTOR_KEEP_ALIVE_TIME, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
+        this.cacheLoader = (CacheLoader) cacheLoader;
+    }
+
+    /**
+     * A constructor for JCache.
+     * <p/>
+     * JCache is an adaptor for an Ehcache, and therefore requires an Ehcace in its constructor.
+     * <p/>
+     * The {@link net.sf.ehcache.config.ConfigurationFactory} and clients can create these.
+     * <p/>
+     * A client can specify their own settings here and pass the {@link Ehcache} object
+     * into {@link net.sf.ehcache.CacheManager#addCache} to specify parameters other than the defaults.
+     * <p/>
+     * Only the CacheManager can initialise them.
+     *
+     * @param cache       An ehcache
+     * @param cacheLoader used to load entries when they are not in the cache. If this is null,
+     *                    which is legal, loads do a noop
+     * @since 1.3
+     */
     public JCache(Ehcache cache, CacheLoader cacheLoader) {
         this.cache = cache;
         executorService = new ThreadPoolExecutor(EXECUTOR_CORE_POOL_SIZE, EXECUTOR_MAXIMUM_POOL_SIZE,
@@ -113,6 +136,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
     public void setCacheLoader(CacheLoader cacheLoader) {
         this.cacheLoader = cacheLoader;
     }
+
 
     /**
      * Add a listener to the list of cache listeners. The behaviour of JCACHE and Ehcache listeners is a little
@@ -158,6 +182,29 @@ public class JCache implements net.sf.jsr107cache.Cache {
      */
     public Map getAll(Collection keys) throws CacheException {
 
+        return getAll(keys, null);
+    }
+
+    /**
+     * The getAll method will return, from the cache, a Map of the objects associated with the Collection of keys in argument "keys".
+     * If the objects are not in the cache, the associated cache loader will be called. If no loader is associated with an object,
+     * a null is returned. If a problem is encountered during the retrieving or loading of the objects, an exception will be thrown.
+     * If the "arg" argument is set, the arg object will be passed to the CacheLoader.loadAll method. The cache will not dereference
+     * the object. If no "arg" value is provided a null will be passed to the loadAll method. The storing of null values in the cache
+     * is permitted, however, the get method will not distinguish returning a null stored in the cache and not finding the object in
+     * the cache. In both cases a null is returned.
+     * <p/>
+     * The Ehcache native API provides similar functionality to loaders using the
+     * decorator {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
+     * <p/>
+     * Note. If the getAll exceeds the maximum cache
+     * size, the returned map will necessarily be less than the number specified.
+     *
+     * @param keys
+     * @return a Map populated from the Cache. If there are no elements, an empty Map is returned.
+     */
+    public Map getAll(Collection keys, Object loaderArgument) throws CacheException {
+
         if (keys == null) {
             return new HashMap(0);
         }
@@ -174,7 +221,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
                     if (cache.isKeyInCache(key)) {
                         map.put(key, get(key));
                     } else {
-                        futures.add(new KeyedFuture(key, asynchronousLoad(key)));
+                        futures.add(new KeyedFuture(key, asynchronousLoad(key, null, loaderArgument)));
                     }
                 }
 
@@ -314,15 +361,17 @@ public class JCache implements net.sf.jsr107cache.Cache {
             return;
         }
 
-        asynchronousLoad(key);
+        asynchronousLoad(key, null, null);
     }
 
     /**
      * Does the asynchronous loading.
      *
+     * @param specificLoader a specific loader to use. If null the default loader is used.
+     *
      * @return a Future which can be used to monitor execution
      */
-    Future asynchronousLoad(final Object key) {
+    Future asynchronousLoad(final Object key, final CacheLoader specificLoader, final Object argument) {
         Future future = executorService.submit(new Runnable() {
 
             /**
@@ -333,8 +382,23 @@ public class JCache implements net.sf.jsr107cache.Cache {
                     //Test to see if it has turned up in the meantime
                     boolean existsOnRun = cache.isKeyInCache(key);
                     if (!existsOnRun) {
-
-                        Object value = cacheLoader.load(key);
+                        Object value;
+                        if (specificLoader == null) {
+                            if (cacheLoader == null) {
+                                return;
+                            }
+                            if (argument == null) {
+                                value = cacheLoader.load(key);
+                            } else {
+                                value = cacheLoader.load(key, argument);
+                            }
+                        } else {
+                            if (argument == null) {
+                                value = specificLoader.load(key);
+                            } else {
+                                value = specificLoader.load(key, argument);
+                            }
+                        }
                         put(key, value);
                     }
                 } catch (CacheException e) {
@@ -364,6 +428,28 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * decorator {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
      */
     public void loadAll(final Collection keys) throws CacheException {
+        loadAll(keys, null);
+    }
+
+    /**
+     * The loadAll method provides a means to "pre load" objects into the cache. This method will, asynchronously, load
+     * the specified objects into the cache using the associated cache loader. If the an object already exists in the
+     * cache, no action is taken. If no loader is associated with the object, no object will be loaded into the cache.
+     * If a problem is encountered during the retrieving or loading of the objects, an exception (to be defined)
+     * should be logged. The getAll method will return, from the cache, a Map of the objects associated with the
+     * Collection of keys in argument "keys". If the objects are not in the cache, the associated cache loader will be
+     * called. If no loader is associated with an object, a null is returned. If a problem is encountered during the
+     * retrieving or loading of the objects, an exception (to be defined) will be thrown. If the "arg" argument is set,
+     * the arg object will be passed to the CacheLoader.loadAll method. The cache will not dereference the object.
+     * If no "arg" value is provided a null will be passed to the loadAll method.
+     * <p/>
+     * keys - collection of the keys whose associated values to be loaded into this cache by using the associated
+     * cacheloader if this cache doesn't contain them.
+     * <p/>
+     * The Ehcache native API provides similar functionality to loaders using the
+     * decorator {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
+     */
+    public void loadAll(final Collection keys, final Object argument) throws CacheException {
 
         if (cacheLoader == null) {
             if (LOG.isDebugEnabled()) {
@@ -374,15 +460,16 @@ public class JCache implements net.sf.jsr107cache.Cache {
         if (keys == null) {
             return;
         }
-        asynchronousLoadAll(keys);
+        asynchronousLoadAll(keys, argument);
     }
+
 
     /**
      * Does the asynchronous loading.
      *
      * @return a Future which can be used to monitor execution
      */
-    Future asynchronousLoadAll(final Collection keys) {
+    Future asynchronousLoadAll(final Collection keys, final Object argument) {
         Future future = executorService.submit(new Runnable() {
             /**
              * Calls the CacheLoader and puts the result in the Cache
@@ -396,7 +483,12 @@ public class JCache implements net.sf.jsr107cache.Cache {
                             nonLoadedKeys.add(key);
                         }
                     }
-                    Map map = cacheLoader.loadAll(nonLoadedKeys);
+                    Map map;
+                    if (argument == null) {
+                        map = cacheLoader.loadAll(nonLoadedKeys);
+                    } else {
+                        map = cacheLoader.loadAll(nonLoadedKeys, argument);
+                    }
                     putAll(map);
                 } catch (CacheException e) {
                     LOG.debug("CacheException during load. Load will not be completed. Cause was " + e.getCause(), e);
@@ -528,9 +620,94 @@ public class JCache implements net.sf.jsr107cache.Cache {
      *                          spec does not allow it. Instead throw a RuntimeException if the underlying load method
      *                          throws a CacheException.
      * @see #containsKey(Object)
-     * todo consider removing async stuff
      */
     public Object get(Object key) throws RuntimeException {
+        return get(key, null);
+    }
+
+
+    /**
+     * Same as {@link #get(Object)} except a CacheLoader argument is provided.
+     * @param loaderArgument anything at all that a CacheLoader might find useful to load
+     * the entry. If the loaderArgument is null, this method is the same as {@link #get(Object)}
+     */
+    public Object get(Object key, Object loaderArgument) throws RuntimeException {
+
+        return get(key, null, loaderArgument);
+    }
+
+
+    /**
+     * The get method will return, from the cache, the object associated with
+     * the argument "key".
+     * <p/>
+     * If the object is not in the cache, the associated
+     * cache loader will be called. If no loader is associated with the object,
+     * a null is returned.
+     * <p/>
+     * If a problem is encountered during the retrieving
+     * or loading of the object, an exception (to be defined) will be thrown. (Until it is
+     * defined, the ehcache implementation throws a RuntimeException.)
+     * <p/>
+     * If the "argument" argument is set, the arg object will be passed to the
+     * CacheLoader.load method.  The cache will not dereference the object.
+     * If no "argument" value is provided a null will be passed to the load method.
+     * <p/>
+     * The storing of null values in the cache is permitted, however, the get
+     * method will not distinguish returning a null stored in the cache and
+     * not finding the object in the cache. In both cases a null is returned.
+     * <p/>
+     * Cache statistics are only updated for the initial attempt to get the cached entry.
+     *
+     * @param key key whose associated value is to be returned.
+     * @return the value to which this map maps the specified key, or
+     *         <tt>null</tt> if the map contains no mapping for this key after an attempt has been
+     *         made to load it.
+     * @throws RuntimeException JSR107 should really throw a CacheException here, but the
+     *                          spec does not allow it. Instead throw a RuntimeException if the underlying load method
+     *                          throws a CacheException.
+     * @see #containsKey(Object)
+     *      todo consider removing async stuff
+     */
+    public Object get(Object key, CacheLoader loader) throws RuntimeException {
+
+        return get(key, loader, null);
+    }
+
+
+    /**
+     * The get method will return, from the cache, the object associated with
+     * the argument "key".
+     * <p/>
+     * If the object is not in the cache, the associated
+     * cache loader will be called. If no loader is associated with the object,
+     * a null is returned.
+     * <p/>
+     * If a problem is encountered during the retrieving
+     * or loading of the object, an exception (to be defined) will be thrown. (Until it is
+     * defined, the ehcache implementation throws a RuntimeException.)
+     * <p/>
+     * If the "loaderArgument" argument is set, the arg object will be passed to the
+     * CacheLoader.load method.  The cache will not dereference the object.
+     * If no "loaderArgument" value is provided a null will be passed to the load method.
+     * <p/>
+     * The storing of null values in the cache is permitted, however, the get
+     * method will not distinguish returning a null stored in the cache and
+     * not finding the object in the cache. In both cases a null is returned.
+     * <p/>
+     * Cache statistics are only updated for the initial attempt to get the cached entry.
+     *
+     * @param key key whose associated value is to be returned.
+     * @return the value to which this map maps the specified key, or
+     *         <tt>null</tt> if the map contains no mapping for this key after an attempt has been
+     *         made to load it.
+     * @throws RuntimeException JSR107 should really throw a CacheException here, but the
+     *                          spec does not allow it. Instead throw a RuntimeException if the underlying load method
+     *                          throws a CacheException.
+     * @see #containsKey(Object)
+     *      todo consider removing async stuff
+     */
+    public Object get(Object key, CacheLoader loader, Object loaderArgument) throws RuntimeException {
 
         Element element = cache.get(key);
         if (element != null) {
@@ -544,7 +721,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
         try {
             //only allow one thread to load the missing key
             synchronized (key) {
-                Future future = asynchronousLoad(key);
+                Future future = asynchronousLoad(key, loader, loaderArgument);
                 //wait for result
                 future.get();
             }
@@ -576,12 +753,39 @@ public class JCache implements net.sf.jsr107cache.Cache {
      *         <tt>null</tt> values.
      */
     public Object put(Object key, Object value) {
+        return put(key, value, 0);
+    }
+
+
+    /**
+     * Associates the specified value with the specified key in this map
+     * (optional operation).  If the map previously contained a mapping for
+     * this key, the old value is replaced by the specified value.  (A map
+     * <tt>m</tt> is said to contain a mapping for a key <tt>k</tt> if and only
+     * if {@link #containsKey(Object) m.containsKey(k)} would return
+     * <tt>true</tt>.))
+     *
+     * @param key        key with which the specified value is to be associated.
+     * @param value      value to be associated with the specified key.
+     * @param timeToLive the time this entry will live, overriding the default. If timeToLive
+     *                   is set to 0, the default will be applied.
+     * @return previous value associated with specified key, or <tt>null</tt>
+     *         if there was no mapping for key.  A <tt>null</tt> return can
+     *         also indicate that the map previously associated <tt>null</tt>
+     *         with the specified key, if the implementation supports
+     *         <tt>null</tt> values.
+     */
+    public Object put(Object key, Object value, int timeToLive) {
         Element element = null;
         if (cache.isKeyInCache(key)) {
             element = cache.getQuiet(key);
         }
-
+        Element newElement = new Element(key, value);
+        if (timeToLive != 0) {
+            newElement.setTimeToLive(timeToLive);
+        }
         cache.put(new Element(key, value));
+
 
         if (element != null) {
             return element.getObjectValue();
@@ -752,5 +956,16 @@ public class JCache implements net.sf.jsr107cache.Cache {
      */
     ThreadPoolExecutor getExecutorService() {
         return executorService;
+    }
+
+    /**
+     * Return the name of the CacheLoader, or null if there is none.
+     */
+    String getCacheLoaderName() {
+        if (cacheLoader == null) {
+            return null;
+        } else {
+            return cacheLoader.getName();
+        }
     }
 }
