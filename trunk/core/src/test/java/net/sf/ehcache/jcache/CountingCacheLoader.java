@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.jcache;
 
-import net.sf.jsr107cache.CacheLoader;
 import net.sf.jsr107cache.CacheException;
 
 import java.util.Random;
@@ -101,5 +100,49 @@ class CountingCacheLoader implements CacheLoader {
      */
     public int getLoadAllCounter() {
         return loadAllCounter;
+    }
+
+    /**
+     * Load using both a key and an argument.
+     * <p/>
+     * JCache will use the load(key) method where the argument is null.
+     *
+     * @param key
+     * @param argument
+     * @return
+     * @throws net.sf.jsr107cache.CacheException
+     *
+     */
+    public Object load(Object key, Object argument) throws CacheException {
+        try {
+            Thread.sleep(random.nextInt(3) + 1);
+        } catch (InterruptedException e) {
+            LOG.error("Interrupted");
+        }
+        return argument;
+    }
+
+    /**
+     * Load using both a key and an argument.
+     * <p/>
+     * JCache will use the loadAll(key) method where the argument is null.
+     *
+     * @param keys
+     * @param argument
+     * @return
+     * @throws net.sf.jsr107cache.CacheException
+     *
+     */
+    public Map loadAll(Collection keys, Object argument) throws CacheException {
+        return loadAll(keys);
+    }
+
+    /**
+     * Gets the name of a CacheLoader
+     *
+     * @return
+     */
+    public String getName() {
+        return "CountingCacheLoader";
     }
 }

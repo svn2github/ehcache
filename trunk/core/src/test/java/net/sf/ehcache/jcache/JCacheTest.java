@@ -318,16 +318,23 @@ public class JCacheTest extends AbstractCacheTest {
         manager.addCache(ehcache);
         JCache jcache = new JCache(manager.getCache("sampleCache1"), null);
 
-        //existing entry with null value, no loader
-        jcache.put("key", null);
+        //existing entry with dog value, no loader
+        jcache.put("key", "dog");
         Object value = jcache.get("key");
-        assertNull(value);
+        assertEquals("dog", value);
 
-        //existing entry with null value, with loader
+        //existing entry with dog value, with loader
         CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
         jcache.setCacheLoader(countingCacheLoader);
         value = jcache.get("key");
-        assertNull(value);
+        assertEquals("dog", value);
+
+        //existing entry with dog value, with loader and loaderArgument
+        countingCacheLoader = new CountingCacheLoader();
+        jcache.setCacheLoader(countingCacheLoader);
+        value = jcache.get("key", "1");
+        assertEquals("dog", value);
+
 
         //no entry with matching key in cache, no loader
         jcache.remove("key");
@@ -336,11 +343,27 @@ public class JCacheTest extends AbstractCacheTest {
         value = jcache.get("key");
         assertNull(value);
 
+        //no entry with matching key in cache, no loader, and loaderArgument
+        jcache.remove("key");
+        jcache.setCacheLoader(null);
+        jcache.put("key", null);
+        value = jcache.get("key", "loaderArgument");
+        assertNull(value);
+
         //no entry with matching key in cache, with loader
         jcache.remove("key");
         jcache.setCacheLoader(countingCacheLoader);
         value = jcache.get("key");
         assertEquals(new Integer(0), value);
+
+
+        //no entry with matching key in cache, with loader and loaderArgument. Our loader just returns the loaderArgument
+        jcache.remove("key");
+        jcache.setCacheLoader(countingCacheLoader);
+        value = jcache.get("key", "argumentValue");
+        assertEquals("argumentValue" , value);
+
+
 
         //cache hit
         jcache.put("key2", "value");
@@ -348,6 +371,9 @@ public class JCacheTest extends AbstractCacheTest {
         assertEquals("value", value);
 
     }
+
+
+
 
 
     /**
@@ -1208,7 +1234,7 @@ public class JCacheTest extends AbstractCacheTest {
         ExecutorService executorService = jcache.getExecutorService();
 
 
-        Future future = jcache.asynchronousLoad("key1");
+        Future future = jcache.asynchronousLoad("key1", null, null);
         assertFalse(future.isDone());
 
         Object object = future.get();
@@ -1281,7 +1307,7 @@ public class JCacheTest extends AbstractCacheTest {
             keys.add(new Integer(i));
         }
 
-        Future future = jcache.asynchronousLoadAll(keys);
+        Future future = jcache.asynchronousLoadAll(keys, null);
         assertFalse(future.isDone());
 
         Object object = future.get();

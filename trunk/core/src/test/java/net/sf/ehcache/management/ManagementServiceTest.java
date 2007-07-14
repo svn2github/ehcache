@@ -55,6 +55,7 @@ import java.util.Set;
 public class ManagementServiceTest extends AbstractCacheTest {
 
     private static final Log LOG = LogFactory.getLog(ManagementServiceTest.class.getName());
+    private static final int OBJECTS_IN_TEST_EHCACHE = 40;
     private MBeanServer mBeanServer;
 
 
@@ -85,7 +86,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
      */
     public void testRegistrationServiceFourTrue() throws Exception {
         ManagementService.registerMBeans(manager, mBeanServer, true, true, true, true);
-        assertEquals(37, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+        assertEquals(OBJECTS_IN_TEST_EHCACHE, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
     }
 
     /**
@@ -94,7 +95,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
     public void testRegistrationServiceFourTrueUsing14MBeanServer() throws Exception {
         mBeanServer = create14MBeanServer();
         ManagementService.registerMBeans(manager, mBeanServer, true, true, true, true);
-        assertEquals(37, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+        assertEquals(OBJECTS_IN_TEST_EHCACHE, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
     }
 
     /**
@@ -102,11 +103,11 @@ public class ManagementServiceTest extends AbstractCacheTest {
      */
     public void testRegistrationServiceListensForCacheChanges() throws Exception {
         ManagementService.registerMBeans(manager, mBeanServer, true, true, true, true);
-        assertEquals(37, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+        assertEquals(OBJECTS_IN_TEST_EHCACHE, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
         manager.addCache("new cache");
-        assertEquals(40, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+        assertEquals(43, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
         manager.removeCache("sampleCache1");
-        assertEquals(37, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+        assertEquals(OBJECTS_IN_TEST_EHCACHE, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
         //Thread.sleep(1000000);
     }
 
@@ -115,14 +116,14 @@ public class ManagementServiceTest extends AbstractCacheTest {
      */
     public void testMultipleCacheManagers() throws Exception {
         ManagementService.registerMBeans(manager, mBeanServer, true, true, true, true);
-        assertEquals(37, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+        assertEquals(OBJECTS_IN_TEST_EHCACHE, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
         File file = new File(AbstractCacheTest.SRC_CONFIG_DIR + "ehcache.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         net.sf.ehcache.CacheManager secondCacheManager = new net.sf.ehcache.CacheManager(configuration);
         ManagementService.registerMBeans(secondCacheManager, mBeanServer, true, true, true, true);
-        assertEquals(56, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+        assertEquals(59, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
         secondCacheManager.shutdown();
-        assertEquals(37, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+        assertEquals(OBJECTS_IN_TEST_EHCACHE, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
 
     }
 
@@ -149,7 +150,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
      */
     public void testRegistrationServiceThreeTrue() throws Exception {
         ManagementService.registerMBeans(manager, mBeanServer, true, true, true, false);
-        assertEquals(25, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+        assertEquals(27, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
 
     }
 
@@ -158,7 +159,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
      */
     public void testRegistrationServiceTwoTrue() throws Exception {
         ManagementService.registerMBeans(manager, mBeanServer, true, true, false, false);
-        assertEquals(13, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+        assertEquals(14, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
 
     }
 
@@ -229,7 +230,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
         LOG.info(object);
 
         List caches = (List) mBeanServer.getAttribute(name, "Caches");
-        assertEquals(12, caches.size());
+        assertEquals(13, caches.size());
 
         for (int i = 0; i < caches.size(); i++) {
             Cache cache = (Cache) caches.get(i);
@@ -283,7 +284,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
         JMXConnector connector = cs.toJMXConnector(null);
         connector.connect(null);
         MBeanServerConnection connection = connector.getMBeanServerConnection();
-        assertEquals(37, connection.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+        assertEquals(OBJECTS_IN_TEST_EHCACHE, connection.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
 
 
         Ehcache ehcache = manager.getCache("sampleCache1");

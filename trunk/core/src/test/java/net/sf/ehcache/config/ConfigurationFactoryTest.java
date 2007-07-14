@@ -59,6 +59,7 @@ import java.util.jar.JarOutputStream;
  * @version $Id$
  */
 public class ConfigurationFactoryTest extends AbstractCacheTest {
+    private static final int CACHES_IN_TEST_EHCACHE = 13;
 
 
     /**
@@ -109,7 +110,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(true, defaultCache.isOverflowToDisk());
 
         //Check caches
-        assertEquals(12, configurationHelper.createCaches().size());
+        assertEquals(CACHES_IN_TEST_EHCACHE, configurationHelper.createCaches().size());
 
         /*
         <cache name="sampleCache1"
@@ -166,6 +167,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         */
         Ehcache testCacheExtensionCache = configurationHelper.createCacheFromName("testCacheExtensionCache");
         assertEquals("testCacheExtensionCache", testCacheExtensionCache.getName());
+        //todo something a little more thorough
 
 
 
@@ -673,7 +675,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(true, defaultCache.isOverflowToDisk());
 
         //Check caches
-        assertEquals(12, configurationHelper.createCaches().size());
+        assertEquals(CACHES_IN_TEST_EHCACHE, configurationHelper.createCaches().size());
 
         //  <cache name="sampleCache1"
         //  maxElementsInMemory="10000"
