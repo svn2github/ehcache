@@ -43,6 +43,7 @@ import java.util.Collection;
 
 /**
  * Tests for a Cache
+ *
  * @author Greg Luck
  * @version $Id:JCacheTest.java 318 2007-01-25 01:48:35Z gregluck $
  */
@@ -312,6 +313,7 @@ public class JCacheTest extends AbstractCacheTest {
 
     /**
      * Test the get method.
+     * todo specify loader override
      */
     public void testGet() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testGet", 10, true, true, 500, 200);
@@ -335,7 +337,6 @@ public class JCacheTest extends AbstractCacheTest {
         value = jcache.get("key", "1");
         assertEquals("dog", value);
 
-
         //no entry with matching key in cache, no loader
         jcache.remove("key");
         jcache.setCacheLoader(null);
@@ -356,14 +357,11 @@ public class JCacheTest extends AbstractCacheTest {
         value = jcache.get("key");
         assertEquals(new Integer(0), value);
 
-
         //no entry with matching key in cache, with loader and loaderArgument. Our loader just returns the loaderArgument
         jcache.remove("key");
         jcache.setCacheLoader(countingCacheLoader);
         value = jcache.get("key", "argumentValue");
-        assertEquals("argumentValue" , value);
-
-
+        assertEquals("argumentValue", value);
 
         //cache hit
         jcache.put("key2", "value");
@@ -372,8 +370,21 @@ public class JCacheTest extends AbstractCacheTest {
 
     }
 
+    /**
+     * Test the loader name method.
+     */
+    public void testLoaderName() throws Exception {
+        Ehcache ehcache = new net.sf.ehcache.Cache("testName", 10, true, true, 500, 200);
+        manager.addCache(ehcache);
+        JCache jcache = new JCache(manager.getCache("sampleCache1"), null);
 
+        //existing entry with dog value, with loader
+        CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
+        jcache.setCacheLoader(countingCacheLoader);
 
+        assertEquals("CountingCacheLoader", jcache.getCacheLoaderName());
+
+    }
 
 
     /**
@@ -382,12 +393,13 @@ public class JCacheTest extends AbstractCacheTest {
     public void testGetValues() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testGetValue", 2, true, true, 500, 200);
         manager.addCache(ehcache);
-                                                                                      
+
         CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
         JCache jcache = new JCache(manager.getCache("sampleCache1"), countingCacheLoader);
 
         /** A class which is not Serializable */
-        class NonSerializable { }
+        class NonSerializable {
+        }
 
         List keys = new ArrayList();
         for (int i = 0; i < 1000; i++) {
@@ -793,8 +805,9 @@ public class JCacheTest extends AbstractCacheTest {
         assertEquals(2, cache.getCacheStatistics().getObjectCount());
 
         /** A class which is not Serializable */
-        class NonSerializable { }
-        
+        class NonSerializable {
+        }
+
         cache.put("key1", new NonSerializable());
         cache.put("key1", "value1");
 
@@ -1349,7 +1362,7 @@ public class JCacheTest extends AbstractCacheTest {
 
         assertEquals(1000, jcache.size());
         assertEquals(999, countingCacheLoader.getLoadAllCounter());
-        
+
     }
 
 
