@@ -313,12 +313,13 @@ public class JCacheTest extends AbstractCacheTest {
 
     /**
      * Test the get method.
-     * todo specify loader override
      */
     public void testGet() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testGet", 10, true, true, 500, 200);
         manager.addCache(ehcache);
         JCache jcache = new JCache(manager.getCache("sampleCache1"), null);
+        CountingCacheLoader specificCacheLoader = new CountingCacheLoader();
+        specificCacheLoader.setName("SpecificCacheLoader");
 
         //existing entry with dog value, no loader
         jcache.put("key", "dog");
@@ -356,12 +357,37 @@ public class JCacheTest extends AbstractCacheTest {
         jcache.setCacheLoader(countingCacheLoader);
         value = jcache.get("key");
         assertEquals(new Integer(0), value);
+        jcache.remove("key");
+        value = jcache.get("key");
+        assertEquals(new Integer(1), value);
 
-        //no entry with matching key in cache, with loader and loaderArgument. Our loader just returns the loaderArgument
+        //As above with an overridden loader
+        jcache.remove("key");
+        jcache.setCacheLoader(countingCacheLoader);
+        value = jcache.get("key", new CountingCacheLoader());
+        //counter back to 0 because this we overrode with a new loader
+        assertEquals(new Integer(0), value);
+
+        //no entry with no matching key in cache, with loader and loaderArgument. Our loader just returns the
+        // loader name catendated with the loaderArgument
         jcache.remove("key");
         jcache.setCacheLoader(countingCacheLoader);
         value = jcache.get("key", "argumentValue");
-        assertEquals("argumentValue", value);
+        assertEquals("CountingCacheLoader:argumentValue", value);
+
+        //As above with an overridden loader
+        jcache.remove("key");
+        jcache.setCacheLoader(countingCacheLoader);
+        value = jcache.get("key", specificCacheLoader, "argumentValue");
+        assertEquals("SpecificCacheLoader:argumentValue", value);
+
+        //check original still works
+        jcache.remove("key");
+        jcache.setCacheLoader(countingCacheLoader);
+        value = jcache.get("key", "argumentValue");
+        assertEquals("CountingCacheLoader:argumentValue", value);
+
+
 
         //cache hit
         jcache.put("key2", "value");
@@ -595,6 +621,35 @@ public class JCacheTest extends AbstractCacheTest {
         Thread.sleep(1020);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
+    }
+
+     /**
+     * Test expiry based on time to live where the TTL is set in the put
+     */
+    public void testExpiryBasedOnTimeToLiveTTL() throws Exception {
+
+        //Set size so the second element overflows to disk.
+        Ehcache ehcache = new net.sf.ehcache.Cache("testExpiryBasedOnTimeToLiveTTL", 1, true, false, 3, 0);
+        manager.addCache(ehcache);
+        JCache cache = new JCache(ehcache, null);
+
+        cache.put("key1", "value1", 1);
+         //default
+        cache.put("key2", "value1", 0);
+
+        //Test time to live
+        assertNotNull(cache.get("key1"));
+        assertNotNull(cache.get("key2"));
+
+        Thread.sleep(1020);
+        //Test time to live
+        assertNull(cache.get("key1"));
+        assertNotNull(cache.get("key2"));
+
+        Thread.sleep(2000);
+        assertNull(cache.get("key1"));
+        assertNull(cache.get("key2"));
+
     }
 
 

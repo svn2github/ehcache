@@ -29,7 +29,9 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * A cache loader that counts the number of things it has loaded, useful for testing.
- * Each load has a random delay to introduce some nice threading entropy
+ *
+ *
+ * Each load has a random delay to introduce some nice threading entropy.
  *
  * @author Greg Luck
  * @version $Id$
@@ -41,6 +43,7 @@ class CountingCacheLoader implements CacheLoader {
     private int loadCounter;
     private int loadAllCounter;
     private Random random = new Random();
+    private String name = "CountingCacheLoader";
 
     /**
      * loads an object. Application writers should implement this
@@ -120,7 +123,7 @@ class CountingCacheLoader implements CacheLoader {
         } catch (InterruptedException e) {
             LOG.error("Interrupted");
         }
-        return argument;
+        return name + ":" + argument;
     }
 
     /**
@@ -144,6 +147,13 @@ class CountingCacheLoader implements CacheLoader {
      * @return
      */
     public String getName() {
-        return "CountingCacheLoader";
+        return name;
+    }
+
+    /**
+     * Sets the name
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 }

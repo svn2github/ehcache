@@ -767,7 +767,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
      *
      * @param key        key with which the specified value is to be associated.
      * @param value      value to be associated with the specified key.
-     * @param timeToLive the time this entry will live, overriding the default. If timeToLive
+     * @param timeToLiveSeconds the time this entry will live, overriding the default. If timeToLive
      *                   is set to 0, the default will be applied.
      * @return previous value associated with specified key, or <tt>null</tt>
      *         if there was no mapping for key.  A <tt>null</tt> return can
@@ -775,16 +775,16 @@ public class JCache implements net.sf.jsr107cache.Cache {
      *         with the specified key, if the implementation supports
      *         <tt>null</tt> values.
      */
-    public Object put(Object key, Object value, int timeToLive) {
+    public Object put(Object key, Object value, int timeToLiveSeconds) {
         Element element = null;
         if (cache.isKeyInCache(key)) {
             element = cache.getQuiet(key);
         }
         Element newElement = new Element(key, value);
-        if (timeToLive != 0) {
-            newElement.setTimeToLive(timeToLive);
+        if (timeToLiveSeconds != 0) {
+            newElement.setTimeToLive(timeToLiveSeconds);
         }
-        cache.put(new Element(key, value));
+        cache.put(newElement);
 
 
         if (element != null) {
