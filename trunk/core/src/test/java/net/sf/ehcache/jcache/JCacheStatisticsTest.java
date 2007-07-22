@@ -18,6 +18,8 @@ package net.sf.ehcache.jcache;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Statistics;
+import net.sf.ehcache.Element;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -174,6 +176,34 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
         statistics = cache.getCacheStatistics();
         assertEquals(0, statistics.getCacheHits());
         assertEquals(0, statistics.getCacheMisses());
+    }
+
+    /**
+     * Tests average get time
+     */
+    public void testAverageGetTime() {
+        //set to 0 to make it run slow
+        Ehcache ehcache = new net.sf.ehcache.Cache("test", 0, true, false, 5, 2);
+        manager.addCache(ehcache);
+        Statistics statistics = ehcache.getStatistics();
+        float averageGetTime = statistics.getAverageGetTime();
+        assertTrue(0 == statistics.getAverageGetTime());
+
+        for (int i = 0; i < 10000; i++) {
+            ehcache.put(new Element("" + i, "value1"));
+        }
+        ehcache.put(new Element("key1", "value1"));
+        ehcache.put(new Element("key2", "value1"));
+        for (int i = 0; i < 110000; i++) {
+            ehcache.get("" + i);
+        }
+
+        statistics = ehcache.getStatistics();
+        averageGetTime = statistics.getAverageGetTime();
+        assertTrue(averageGetTime >= .1);
+        statistics.clearStatistics();
+        statistics = ehcache.getStatistics();
+        assertTrue(0 == statistics.getAverageGetTime());
     }
 
 

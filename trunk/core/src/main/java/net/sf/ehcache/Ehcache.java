@@ -682,4 +682,9 @@ public interface Ehcache extends Cloneable {
      */
     public void unregisterCacheExtension(CacheExtension cacheExtension);
 
+    /**
+     * The average get time in ms.
+     */
+    public float getAverageGetTime();
+
 }

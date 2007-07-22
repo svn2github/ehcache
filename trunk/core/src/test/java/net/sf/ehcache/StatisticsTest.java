@@ -226,4 +226,31 @@ public class StatisticsTest extends AbstractCacheTest {
 
     }
 
+    /**
+     * Tests average get time
+     */
+    public void testAverageGetTime() {
+        Cache cache = new Cache("test", 0, true, false, 5, 2);
+        manager.addCache(cache);
+        Statistics statistics = cache.getStatistics();
+        float averageGetTime = statistics.getAverageGetTime();
+        assertTrue(0 == statistics.getAverageGetTime());
+
+        for (int i = 0; i < 10000; i++) {
+            cache.put(new Element("" + i, "value1"));
+        }
+        cache.put(new Element("key1", "value1"));
+        cache.put(new Element("key2", "value1"));
+        for (int i = 0; i < 110000; i++) {
+            cache.get("" + i);
+        }
+
+        statistics = cache.getStatistics();
+        averageGetTime = statistics.getAverageGetTime();
+        assertTrue(averageGetTime >= .1);
+        statistics.clearStatistics();
+        statistics = cache.getStatistics();
+        assertTrue(0 == statistics.getAverageGetTime());
+    }
+
 }

@@ -129,4 +129,11 @@ public class JCacheStatistics implements CacheStatistics, Serializable {
         return (int) statistics.getObjectCount();
     }
 
+    /**
+     * The average time for cache gets since either the cache was created or statistics were cleared
+     */
+    public float getAverageGetTime() {
+        return statistics.getAverageGetTime();
+    }
+
 }

@@ -966,6 +966,13 @@ public class BlockingCache implements Ehcache {
         cache.unregisterCacheExtension(cacheExtension);
     }
 
+    /**
+     * The average get time in ms.
+     */
+    public float getAverageGetTime() {
+        return cache.getAverageGetTime();
+    }
+
 
 }
 

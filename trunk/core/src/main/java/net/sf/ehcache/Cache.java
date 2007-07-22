@@ -163,6 +163,8 @@ public class Cache implements Ehcache {
 
     private int statisticsAccuracy;
 
+    private long totalGetTime;
+
 
     /**
      * 1.0 Constructor.
@@ -736,6 +738,7 @@ public class Cache implements Ehcache {
     public final Element get(Object key) throws IllegalStateException, CacheException {
         checkStatus();
         Element element;
+        long start = System.currentTimeMillis();
 
         synchronized (this) {
             element = searchInMemoryStore(key, true);
@@ -751,6 +754,8 @@ public class Cache implements Ehcache {
                 hitCount++;
             }
         }
+        long end = System.currentTimeMillis();
+        totalGetTime += (end - start);
         return element;
     }
 
@@ -1737,6 +1742,7 @@ public class Cache implements Ehcache {
         diskStoreHitCount = 0;
         missCountExpired = 0;
         missCountNotFound = 0;
+        totalGetTime = 0;
     }
 
     /**
@@ -1842,7 +1848,7 @@ public class Cache implements Ehcache {
             size = getKeysNoDuplicateCheck().size();
         }
         return new Statistics(this, statisticsAccuracy, hitCount, diskStoreHitCount, memoryStoreHitCount,
-                missCountExpired + missCountNotFound, size);
+                missCountExpired + missCountNotFound, size, getAverageGetTime());
     }
 
     /**
@@ -1976,6 +1982,17 @@ public class Cache implements Ehcache {
         return Collections.synchronizedList(new ArrayList());
     }
 
+
+    /**
+     * The average get time in ms.
+     */
+    public float getAverageGetTime() {
+        if (hitCount == 0) {
+            return 0;
+        } else {
+            return (float) totalGetTime / hitCount;
+        }
+    }
 
 
 }

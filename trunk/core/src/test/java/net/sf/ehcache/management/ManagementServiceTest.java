@@ -47,7 +47,7 @@ import java.util.Set;
  * To interactively examine behaviour, add a Thread.sleep(...) and add -Dcom.sun.management.jmxremote to the java
  * invocation.
  *
- * On Mac OS X, add -Dcom.sun.management.jmxremote to the java command line for JConsole to see the test
+ * On Mac OS X, add -Dcom.sun.management.jmxremote to the java command line for the test for JConsole to see the test
  *
  * @author Greg Luck
  * @version $Id$
@@ -108,7 +108,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
         assertEquals(43, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
         manager.removeCache("sampleCache1");
         assertEquals(OBJECTS_IN_TEST_EHCACHE, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
-        //Thread.sleep(1000000);
+        Thread.sleep(1000000);
     }
 
     /**

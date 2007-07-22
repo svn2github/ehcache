@@ -75,6 +75,8 @@ public class Statistics implements Serializable {
 
     private final long size;
 
+    private float averageGetTime;
+
 
     /**
      * Creates a new statistics object, associated with a Cache
@@ -88,7 +90,7 @@ public class Statistics implements Serializable {
      * @param size
      */
     public Statistics(Ehcache cache, int statisticsAccuracy, long cacheHits, long onDiskHits, long inMemoryHits,
-                      long misses, long size) {
+                      long misses, long size, float averageGetTime) {
         this.statisticsAccuracy = statisticsAccuracy;
         this.cacheHits = cacheHits;
         this.onDiskHits = onDiskHits;
@@ -96,6 +98,7 @@ public class Statistics implements Serializable {
         this.misses = misses;
         this.cache = cache;
         this.size = size;
+        this.averageGetTime = averageGetTime;
     }
 
     /**
@@ -249,6 +252,14 @@ public class Statistics implements Serializable {
                 .append(" ]");
 
         return dump.toString();
+    }
+
+    /**
+     * The average get time. Because ehcache support JDK1.4.2, each get time uses
+     * System.currentTimeMilis, rather than nanoseconds. The accuracy is thus limited.
+     */
+    public float getAverageGetTime() {
+        return averageGetTime;
     }
 
 }
