@@ -177,6 +177,8 @@
            overflowToDisk="true"
            memoryStoreEvictionPolicy="LRU">
         <cacheEventListenerFactory class="net.sf.ehcache.event.NullCacheEventListenerFactory"/>
+        <cacheExceptionHandlerFactory class="net.sf.ehcache.exception.LoggingExceptionStrategyFactory"
+                                      properties="logLevel=FINE"/>
     </cache>
 
 
