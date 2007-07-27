@@ -1743,6 +1743,7 @@ public class Cache implements Ehcache {
         missCountExpired = 0;
         missCountNotFound = 0;
         totalGetTime = 0;
+        registeredEventListeners.clearCounters();
     }
 
     /**
@@ -1848,7 +1849,8 @@ public class Cache implements Ehcache {
             size = getKeysNoDuplicateCheck().size();
         }
         return new Statistics(this, statisticsAccuracy, hitCount, diskStoreHitCount, memoryStoreHitCount,
-                missCountExpired + missCountNotFound, size, getAverageGetTime());
+                missCountExpired + missCountNotFound, size, getAverageGetTime(),
+                registeredEventListeners.getElementsEvictedCounter());
     }
 
     /**

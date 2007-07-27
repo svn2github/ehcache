@@ -230,7 +230,7 @@ public class StatisticsTest extends AbstractCacheTest {
      * Tests average get time
      */
     public void testAverageGetTime() {
-        Cache cache = new Cache("test", 0, true, false, 5, 2);
+        Ehcache cache = new Cache("test", 0, true, false, 5, 2);
         manager.addCache(cache);
         Statistics statistics = cache.getStatistics();
         float averageGetTime = statistics.getAverageGetTime();
@@ -251,6 +251,35 @@ public class StatisticsTest extends AbstractCacheTest {
         statistics.clearStatistics();
         statistics = cache.getStatistics();
         assertTrue(0 == statistics.getAverageGetTime());
+    }
+
+        /**
+     * Tests eviction statistics
+     */
+    public void testEvictionStatistics() throws InterruptedException {
+        //set to 0 to make it run slow
+        Ehcache ehcache = new net.sf.ehcache.Cache("test", 10, false, false, 2, 2);
+        manager.addCache(ehcache);
+        Statistics statistics = ehcache.getStatistics();
+        assertEquals(0, statistics.getEvictionCount());
+
+        for (int i = 0; i < 10000; i++) {
+            ehcache.put(new Element("" + i, "value1"));
+        }
+        statistics = ehcache.getStatistics();
+        assertEquals(9990, statistics.getEvictionCount());
+
+        Thread.sleep(2010);
+
+        //expiries do not count
+        statistics = ehcache.getStatistics();
+        assertEquals(9990, statistics.getEvictionCount());
+
+        statistics.clearStatistics();
+
+        statistics = ehcache.getStatistics();
+        assertEquals(0, statistics.getEvictionCount());
+
     }
 
 }

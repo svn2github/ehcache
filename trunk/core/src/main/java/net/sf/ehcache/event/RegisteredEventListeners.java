@@ -30,7 +30,9 @@ import java.util.Set;
 /**
  * Registered listeners for registering and unregistering CacheEventListeners and multicasting notifications to registrants.
  * <p/>
- * There is one of these per Cache
+ * There is one of these per Cache.
+ * <p/>
+ * This class also has counters to accumulate the numbers of each type of event for statistics purposes.
  *
  * @author Greg Luck
  * @version $Id$
@@ -45,6 +47,13 @@ public final class RegisteredEventListeners {
      */
     private final Set cacheEventListeners = new HashSet();
     private final Ehcache cache;
+
+    private long elementsRemovedCounter;
+    private long elementsPutCounter;
+    private long elementsUpdatedCounter;
+    private long elementsExpiredCounter;
+    private long elementsEvictedCounter;
+    private long elementsRemoveAllCounter;
 
     /**
      * Constructs a new notification service
@@ -64,6 +73,7 @@ public final class RegisteredEventListeners {
      * @see CacheEventListener#notifyElementRemoved
      */
     public final void notifyElementRemoved(Element element, boolean remoteEvent) throws CacheException {
+        elementsRemovedCounter++;
         if (hasCacheEventListeners()) {
             Iterator iterator = cacheEventListeners.iterator();
             while (iterator.hasNext()) {
@@ -83,6 +93,7 @@ public final class RegisteredEventListeners {
      * @see CacheEventListener#notifyElementPut(net.sf.ehcache.Ehcache,net.sf.ehcache.Element)
      */
     public final void notifyElementPut(Element element, boolean remoteEvent) throws CacheException {
+        elementsPutCounter++;
         if (hasCacheEventListeners()) {
             Iterator iterator = cacheEventListeners.iterator();
             while (iterator.hasNext()) {
@@ -102,6 +113,7 @@ public final class RegisteredEventListeners {
      * @see CacheEventListener#notifyElementPut(net.sf.ehcache.Ehcache,net.sf.ehcache.Element)
      */
     public final void notifyElementUpdated(Element element, boolean remoteEvent) {
+        elementsUpdatedCounter++;
         if (hasCacheEventListeners()) {
             Iterator iterator = cacheEventListeners.iterator();
             while (iterator.hasNext()) {
@@ -121,6 +133,7 @@ public final class RegisteredEventListeners {
      * @see CacheEventListener#notifyElementExpired
      */
     public final void notifyElementExpiry(Element element, boolean remoteEvent) {
+        elementsExpiredCounter++;
         if (hasCacheEventListeners()) {
             Iterator iterator = cacheEventListeners.iterator();
             while (iterator.hasNext()) {
@@ -150,6 +163,7 @@ public final class RegisteredEventListeners {
      * @see CacheEventListener#notifyElementEvicted
      */
     public void notifyElementEvicted(Element element, boolean remoteEvent) {
+        elementsEvictedCounter++;
         if (hasCacheEventListeners()) {
             Iterator iterator = cacheEventListeners.iterator();
             while (iterator.hasNext()) {
@@ -170,6 +184,7 @@ public final class RegisteredEventListeners {
      * @see CacheEventListener#notifyElementEvicted
      */
     public void notifyRemoveAll(boolean remoteEvent) {
+        elementsRemoveAllCounter++;
         if (hasCacheEventListeners()) {
 
             Iterator iterator = cacheEventListeners.iterator();
@@ -277,5 +292,63 @@ public final class RegisteredEventListeners {
         return stringBuffer.toString();
     }
 
+    /**
+     * Clears all event counters
+     */
+    public void clearCounters() {
+        elementsRemovedCounter = 0;
+        elementsPutCounter = 0;
+        elementsUpdatedCounter = 0;
+        elementsExpiredCounter = 0;
+        elementsEvictedCounter = 0;
+        elementsRemoveAllCounter = 0;
+    }
 
+    /**
+     * Gets the number of events, irrespective of whether there are any registered listeners.
+     * @return the number of events since cache creation or last clearing of counters
+     */
+    public long getElementsRemovedCounter() {
+        return elementsRemovedCounter;
+    }
+
+    /**
+     * Gets the number of events, irrespective of whether there are any registered listeners.
+     * @return the number of events since cache creation or last clearing of counters
+     */
+    public long getElementsPutCounter() {
+        return elementsPutCounter;
+    }
+
+    /**
+     * Gets the number of events, irrespective of whether there are any registered listeners.
+     * @return the number of events since cache creation or last clearing of counters
+     */
+    public long getElementsUpdatedCounter() {
+        return elementsUpdatedCounter;
+    }
+
+    /**
+     * Gets the number of events, irrespective of whether there are any registered listeners.
+     * @return the number of events since cache creation or last clearing of counters
+     */
+    public long getElementsExpiredCounter() {
+        return elementsExpiredCounter;
+    }
+
+    /**
+     * Gets the number of events, irrespective of whether there are any registered listeners.
+     * @return the number of events since cache creation or last clearing of counters
+     */
+    public long getElementsEvictedCounter() {
+        return elementsEvictedCounter;
+    }
+
+    /**
+     * Gets the number of events, irrespective of whether there are any registered listeners.
+     * @return the number of events since cache creation or last clearing of counters
+     */
+    public long getElementsRemoveAllCounter() {
+        return elementsRemoveAllCounter;
+    }
 }

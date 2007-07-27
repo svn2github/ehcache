@@ -18,13 +18,12 @@ package net.sf.ehcache.jcache;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Element;
+import net.sf.jsr107cache.Cache;
+import net.sf.jsr107cache.CacheStatistics;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import net.sf.jsr107cache.Cache;
-import net.sf.jsr107cache.CacheStatistics;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -185,7 +184,8 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
         //set to 0 to make it run slow
         Ehcache ehcache = new net.sf.ehcache.Cache("test", 0, true, false, 5, 2);
         manager.addCache(ehcache);
-        Statistics statistics = ehcache.getStatistics();
+        Cache cache = new JCache(ehcache, null);
+        JCacheStatistics statistics = (JCacheStatistics) cache.getCacheStatistics();
         float averageGetTime = statistics.getAverageGetTime();
         assertTrue(0 == statistics.getAverageGetTime());
 
@@ -198,12 +198,42 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
             ehcache.get("" + i);
         }
 
-        statistics = ehcache.getStatistics();
+        statistics = (JCacheStatistics) cache.getCacheStatistics();
         averageGetTime = statistics.getAverageGetTime();
         assertTrue(averageGetTime >= .1);
         statistics.clearStatistics();
-        statistics = ehcache.getStatistics();
+        statistics = (JCacheStatistics) cache.getCacheStatistics();
         assertTrue(0 == statistics.getAverageGetTime());
+    }
+
+    /**
+     * Tests eviction statistics
+     */
+    public void testEvictionStatistics() throws InterruptedException {
+        //set to 0 to make it run slow
+        Ehcache ehcache = new net.sf.ehcache.Cache("test", 10, false, false, 2, 2);
+        manager.addCache(ehcache);
+        Cache cache = new JCache(ehcache, null);
+        JCacheStatistics statistics = (JCacheStatistics) cache.getCacheStatistics();
+        assertEquals(0, statistics.getEvictionCount());
+
+        for (int i = 0; i < 10000; i++) {
+            ehcache.put(new Element("" + i, "value1"));
+        }
+        statistics = (JCacheStatistics) cache.getCacheStatistics();
+        assertEquals(9990, statistics.getEvictionCount());
+
+        Thread.sleep(2010);
+
+        //expiries do not count
+        statistics = (JCacheStatistics) cache.getCacheStatistics();
+        assertEquals(9990, statistics.getEvictionCount());
+
+        statistics.clearStatistics();
+
+        statistics = (JCacheStatistics) cache.getCacheStatistics();
+        assertEquals(0, statistics.getEvictionCount());
+
     }
 
 

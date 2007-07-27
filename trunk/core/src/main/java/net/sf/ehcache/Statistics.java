@@ -77,6 +77,8 @@ public class Statistics implements Serializable {
 
     private float averageGetTime;
 
+    private long evictionCount;
+
 
     /**
      * Creates a new statistics object, associated with a Cache
@@ -90,7 +92,7 @@ public class Statistics implements Serializable {
      * @param size
      */
     public Statistics(Ehcache cache, int statisticsAccuracy, long cacheHits, long onDiskHits, long inMemoryHits,
-                      long misses, long size, float averageGetTime) {
+                      long misses, long size, float averageGetTime, long evictionCount) {
         this.statisticsAccuracy = statisticsAccuracy;
         this.cacheHits = cacheHits;
         this.onDiskHits = onDiskHits;
@@ -99,6 +101,7 @@ public class Statistics implements Serializable {
         this.cache = cache;
         this.size = size;
         this.averageGetTime = averageGetTime;
+        this.evictionCount = evictionCount;
     }
 
     /**
@@ -249,6 +252,8 @@ public class Statistics implements Serializable {
                 .append(" inMemoryHits = ").append(inMemoryHits)
                 .append(" misses = ").append(misses)
                 .append(" size = ").append(size)
+                .append(" averageGetTime = ").append(averageGetTime)
+                .append(" evictionCount = ").append(evictionCount)
                 .append(" ]");
 
         return dump.toString();
@@ -260,6 +265,13 @@ public class Statistics implements Serializable {
      */
     public float getAverageGetTime() {
         return averageGetTime;
+    }
+
+    /**
+     * Gets the number of cache evictions, since the cache was created, or statistics were cleared.
+     */
+    public long getEvictionCount() {
+        return evictionCount;
     }
 
 }

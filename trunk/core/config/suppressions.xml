@@ -48,6 +48,8 @@
     <suppress checks="AnonInnerLengthCheck" files="MulticastKeepaliveHeartbeatReceiver.java"/>
     <suppress checks="AnonInnerLengthCheck" files="JCache.java"/>
     <suppress checks="ClassFanOutComplexity" files="ConfigurationHelper.java"/>
+    <suppress checks="ParameterNumber" files="Statistics.java"/>
+
 
 
     <!-- We need to return LinkedList -->

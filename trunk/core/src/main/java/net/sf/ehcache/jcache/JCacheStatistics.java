@@ -136,4 +136,11 @@ public class JCacheStatistics implements CacheStatistics, Serializable {
         return statistics.getAverageGetTime();
     }
 
+    /**
+     * Gets the number of cache evictions, since the cache was created, or statistics were cleared.
+     */
+    public long getEvictionCount() {
+        return statistics.getEvictionCount();
+    }
+
 }
