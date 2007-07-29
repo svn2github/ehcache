@@ -36,7 +36,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Greg Luck
  * @version $Id$
  */
-class CountingCacheLoader implements CacheLoader {
+public class CountingCacheLoader implements CacheLoader {
 
     private static final Log LOG = LogFactory.getLog(CountingCacheLoader.class.getName());
 

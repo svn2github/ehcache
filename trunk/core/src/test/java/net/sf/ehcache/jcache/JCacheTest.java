@@ -17,8 +17,6 @@
 package net.sf.ehcache.jcache;
 
 import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException;
-import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
-import edu.emory.mathcs.backport.java.util.concurrent.Future;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.StopWatch;
@@ -33,13 +31,13 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.Date;
-import java.util.Collection;
 
 /**
  * Tests for a Cache
@@ -412,7 +410,7 @@ public class JCacheTest extends AbstractCacheTest {
         CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
         jcache.setCacheLoader(countingCacheLoader);
 
-        assertEquals("CountingCacheLoader", jcache.getCacheLoaderName());
+        assertEquals("CountingCacheLoader", jcache.getCacheLoader().getName());
 
     }
 
@@ -1296,28 +1294,7 @@ public class JCacheTest extends AbstractCacheTest {
         LOG.info("Total time for the test: " + (end - start) + " ms");
     }
 
-    /**
-     * Tests the async load with a single item
-     */
-    public void testAsynchronousLoad() throws InterruptedException, ExecutionException {
 
-        CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
-        JCache jcache = new JCache(manager.getCache("sampleCache1"), countingCacheLoader);
-        ExecutorService executorService = jcache.getExecutorService();
-
-
-        Future future = jcache.asynchronousLoad("key1", null, null);
-        assertFalse(future.isDone());
-
-        Object object = future.get();
-        assertTrue(future.isDone());
-        assertNull(object);
-
-        assertFalse(executorService.isShutdown());
-
-        assertEquals(1, jcache.size());
-        assertEquals(1, countingCacheLoader.getLoadCounter());
-    }
 
 
     /**
@@ -1327,14 +1304,8 @@ public class JCacheTest extends AbstractCacheTest {
 
         CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
         JCache jcache = new JCache(manager.getCache("sampleCache1"), countingCacheLoader);
-        ExecutorService executorService = jcache.getExecutorService();
-
         jcache.load("key1");
-
         Thread.sleep(500);
-
-        assertFalse(executorService.isShutdown());
-
         assertEquals(1, jcache.size());
         assertEquals(1, countingCacheLoader.getLoadCounter());
     }
@@ -1357,39 +1328,8 @@ public class JCacheTest extends AbstractCacheTest {
         jcache.load("key1");
         Thread.sleep(500);
 
-        ExecutorService executorService = jcache.getExecutorService();
-        assertFalse(executorService.isShutdown());
-
         assertEquals(1, jcache.size());
         assertEquals(1, countingCacheLoader.getLoadCounter());
-    }
-
-
-    /**
-     * Tests the loadAll async method
-     */
-    public void testAsynchronousLoadAll() throws InterruptedException, ExecutionException {
-
-        CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
-        JCache jcache = new JCache(manager.getCache("sampleCache1"), countingCacheLoader);
-        ExecutorService executorService = jcache.getExecutorService();
-
-        List keys = new ArrayList();
-        for (int i = 0; i < 1000; i++) {
-            keys.add(new Integer(i));
-        }
-
-        Future future = jcache.asynchronousLoadAll(keys, null);
-        assertFalse(future.isDone());
-
-        Object object = future.get();
-        assertTrue(future.isDone());
-        assertNull(object);
-
-        assertFalse(executorService.isShutdown());
-
-        assertEquals(1000, jcache.size());
-        assertEquals(1000, countingCacheLoader.getLoadAllCounter());
     }
 
     /**
@@ -1399,7 +1339,6 @@ public class JCacheTest extends AbstractCacheTest {
 
         CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
         JCache jcache = new JCache(manager.getCache("sampleCache1"), countingCacheLoader);
-        ExecutorService executorService = jcache.getExecutorService();
 
         //check null works ok
         jcache.loadAll(null);
@@ -1416,8 +1355,6 @@ public class JCacheTest extends AbstractCacheTest {
 
         jcache.loadAll(keys);
         Thread.sleep((long) (3000 * StopWatch.getSpeedAdjustmentFactor()));
-
-        assertFalse(executorService.isShutdown());
 
         assertEquals(1000, jcache.size());
         assertEquals(999, countingCacheLoader.getLoadAllCounter());
@@ -1440,7 +1377,6 @@ public class JCacheTest extends AbstractCacheTest {
 
         CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
         jcache.setCacheLoader(countingCacheLoader);
-        ExecutorService executorService = jcache.getExecutorService();
 
         //check null
         map = jcache.getAll(null);
@@ -1457,8 +1393,6 @@ public class JCacheTest extends AbstractCacheTest {
         jcache.put(new Integer(1), "");
 
         jcache.getAll(keys);
-
-        assertFalse(executorService.isShutdown());
 
         assertEquals(1000, jcache.size());
         assertEquals(999, countingCacheLoader.getLoadCounter());

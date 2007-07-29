@@ -37,8 +37,9 @@
     <suppress checks="NPathComplexity" files="Cache.java"/>
     <suppress checks="NPathComplexity" files="CacheManager.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="DiskStore.java"/>
-    <suppress checks="ClassDataAbstractionCoupling" files="JCache.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="Cache.java"/>
     <suppress checks="ClassFanOutComplexity" files="DiskStore.java"/>
+    <suppress checks="ClassFanOutComplexity" files="Cache.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="ElementTest.java"/>
     <suppress checks="IllegalType" files="Cache.java"/>
     <suppress checks="ParameterNumber" files="Cache.java"/>
@@ -46,7 +47,7 @@
     <suppress checks="ExecutableStatementCount" files="Cache.java"/>
     <suppress checks="ThrowsCountCheck" files="CachingFilter.java"/>
     <suppress checks="AnonInnerLengthCheck" files="MulticastKeepaliveHeartbeatReceiver.java"/>
-    <suppress checks="AnonInnerLengthCheck" files="JCache.java"/>
+    <suppress checks="AnonInnerLengthCheck" files="Cache.java"/>
     <suppress checks="ClassFanOutComplexity" files="ConfigurationHelper.java"/>
     <suppress checks="ParameterNumber" files="Statistics.java"/>
 

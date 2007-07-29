@@ -22,6 +22,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.jcache.CacheLoader;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -35,6 +36,8 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
+import java.util.Collection;
 
 
 /**
@@ -988,7 +991,53 @@ public class BlockingCache implements Ehcache {
         return cache.getCacheExceptionHandler();
     }
 
+    /**
+     * This method is not appropriate to use with BlockingCache.
+     */
+    public void setCacheLoader(CacheLoader cacheLoader) {
+        throw new CacheException("This method is not appropriate for a Blocking Cache");
+    }
 
+    /**
+     * Gets the CacheLoader registered in this cache
+     *
+     * @return the loader, or null if there is none
+     */
+    public CacheLoader getCacheLoader() {
+        return cache.getCacheLoader();
+    }
+
+    /**
+     * This method is not appropriate to use with BlockingCache.
+     * @throws CacheException if this method is called
+     */
+    public Element getWithLoader(Object key, CacheLoader loader, Object loaderArgument) throws CacheException {
+        throw new CacheException("This method is not appropriate for a Blocking Cache");
+    }
+
+    /**
+     * This method is not appropriate to use with BlockingCache.
+     * @throws CacheException if this method is called
+     */
+    public Map getAllWithLoader(Collection keys, Object loaderArgument) throws CacheException {
+        throw new CacheException("This method is not appropriate for a Blocking Cache");
+    }
+
+    /**
+     * This method is not appropriate to use with BlockingCache.
+     * @throws CacheException if this method is called
+     */
+    public void load(Object key) throws CacheException {
+        throw new CacheException("This method is not appropriate for a Blocking Cache");
+    }
+
+    /**
+     * This method is not appropriate to use with BlockingCache.
+     * @throws CacheException if this method is called
+     */
+    public void loadAll(Collection keys, Object argument) throws CacheException {
+        throw new CacheException("This method is not appropriate for a Blocking Cache");
+    }
 }
 
 

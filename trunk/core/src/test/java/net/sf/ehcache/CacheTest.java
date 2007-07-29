@@ -16,6 +16,13 @@
 
 package net.sf.ehcache;
 
+import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException;
+import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
+import edu.emory.mathcs.backport.java.util.concurrent.Future;
+import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.event.RegisteredEventListeners;
+import net.sf.ehcache.jcache.CountingCacheLoader;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -26,10 +33,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
-
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
-import net.sf.ehcache.event.RegisteredEventListeners;
 
 
 /**
@@ -1724,6 +1727,58 @@ public class CacheTest extends AbstractCacheTest {
             LOG.info("finalize run from thread " + Thread.currentThread().getName());
             super.finalize();
         }
+    }
+
+    /**
+     * Tests the async load with a single item
+     */
+    public void testAsynchronousLoad() throws InterruptedException, ExecutionException {
+
+        CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
+        Cache cache = manager.getCache("sampleCache1");
+        cache.setCacheLoader(countingCacheLoader);
+        ExecutorService executorService = cache.getExecutorService();
+
+        Future future = cache.asynchronousLoad("key1", null, null);
+        assertFalse(future.isDone());
+
+        Object object = future.get();
+        assertTrue(future.isDone());
+        assertNull(object);
+
+        assertFalse(executorService.isShutdown());
+
+        assertEquals(1, cache.getSize());
+        assertEquals(1, countingCacheLoader.getLoadCounter());
+    }
+
+
+    /**
+     * Tests the loadAll async method
+     */
+    public void testAsynchronousLoadAll() throws InterruptedException, ExecutionException {
+
+        CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
+        Cache cache = manager.getCache("sampleCache1");
+        cache.setCacheLoader(countingCacheLoader);
+        ExecutorService executorService = cache.getExecutorService();
+
+        List keys = new ArrayList();
+        for (int i = 0; i < 1000; i++) {
+            keys.add(new Integer(i));
+        }
+
+        Future future = cache.asynchronousLoadAll(keys, null);
+        assertFalse(future.isDone());
+
+        Object object = future.get();
+        assertTrue(future.isDone());
+        assertNull(object);
+
+        assertFalse(executorService.isShutdown());
+
+        assertEquals(1000, cache.getSize());
+        assertEquals(1000, countingCacheLoader.getLoadAllCounter());
     }
 
 

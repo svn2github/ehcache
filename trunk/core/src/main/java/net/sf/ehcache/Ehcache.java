@@ -22,9 +22,12 @@ import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
+import net.sf.ehcache.jcache.CacheLoader;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
+import java.util.Collection;
 
 /**
  * An interface for Ehcache.
@@ -698,6 +701,101 @@ public interface Ehcache extends Cloneable {
      * Sets an ExceptionHandler on the Cache. If one is already set, it is overwritten.
      */
     public CacheExceptionHandler getCacheExceptionHandler();
+
+    /**
+     * Setter for the CacheLoader. Changing the CacheLoader takes immediate effect.
+     *
+     * @param cacheLoader the loader to dynamically load new cache entries
+     */
+    public void setCacheLoader(CacheLoader cacheLoader);
+
+    /**
+     * Gets the CacheLoader registered in this cache
+     *
+     * @return the loader, or null if there is none
+     */
+    public CacheLoader getCacheLoader();
+
+    /**
+     * This method will return, from the cache, the object associated with
+     * the argument "key".
+     * <p/>
+     * If the object is not in the cache, the associated
+     * cache loader will be called. That is either the CacheLoader passed in, or if null, the one associated with the cache.
+     * If both are null, no load is performed and null is returned.
+     * <p/>
+     * Because this method may take a long time to complete, it is not synchronized. The underlying cache operations
+     * are synchronized.
+     *
+     * @param key key whose associated value is to be returned.
+     * @return an element if it existed or could be loaded, otherwise null
+     * @throws CacheException
+     */
+    public Element getWithLoader(Object key, CacheLoader loader, Object loaderArgument) throws CacheException;
+
+    /**
+     * The getAll method will return, from the cache, a Map of the objects associated with the Collection of keys in argument "keys".
+     * If the objects are not in the cache, the associated cache loader will be called. If no loader is associated with an object,
+     * a null is returned. If a problem is encountered during the retrieving or loading of the objects, an exception will be thrown.
+     * If the "arg" argument is set, the arg object will be passed to the CacheLoader.loadAll method. The cache will not dereference
+     * the object. If no "arg" value is provided a null will be passed to the loadAll method. The storing of null values in the cache
+     * is permitted, however, the get method will not distinguish returning a null stored in the cache and not finding the object in
+     * the cache. In both cases a null is returned.
+     * <p/>
+     * <p/>
+     * Note. If the getAll exceeds the maximum cache size, the returned map will necessarily be less than the number specified.
+     * <p/>
+     * Because this method may take a long time to complete, it is not synchronized. The underlying cache operations
+     * are synchronized.
+     * <p/>
+     * The constructs package provides similar functionality using the
+     * decorator {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
+     * @param keys a collection of keys to be returned/loaded
+     * @param loaderArgument an argument to pass to the CacheLoader.
+     * @return a Map populated from the Cache. If there are no elements, an empty Map is returned.
+     * @throws CacheException
+     */
+    public Map getAllWithLoader(Collection keys, Object loaderArgument) throws CacheException;
+
+
+    /**
+     * The load method provides a means to "pre load" the cache. This method will, asynchronously, load the specified
+     * object into the cache using the associated cacheloader. If the object already exists in the cache, no action is
+     * taken. If no loader is associated with the object, no object will be loaded into the cache. If a problem is
+     * encountered during the retrieving or loading of the object, an exception should be logged. If the "arg" argument
+     * is set, the arg object will be passed to the CacheLoader.load method. The cache will not dereference the object.
+     * If no "arg" value is provided a null will be passed to the load method. The storing of null values in the cache
+     * is permitted, however, the get method will not distinguish returning a null stored in the cache and not finding
+     * the object in the cache. In both cases a null is returned.
+     * <p/>
+     * The Ehcache native API provides similar functionality to loaders using the
+     * decorator {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
+     *
+     * @param key key whose associated value to be loaded using the associated cacheloader if this cache doesn't contain it.
+     * @throws CacheException
+     */
+    public void load(final Object key) throws CacheException;
+
+
+    /**
+     * The loadAll method provides a means to "pre load" objects into the cache. This method will, asynchronously, load
+     * the specified objects into the cache using the associated cache loader. If the an object already exists in the
+     * cache, no action is taken. If no loader is associated with the object, no object will be loaded into the cache.
+     * If a problem is encountered during the retrieving or loading of the objects, an exception (to be defined)
+     * should be logged. The getAll method will return, from the cache, a Map of the objects associated with the
+     * Collection of keys in argument "keys". If the objects are not in the cache, the associated cache loader will be
+     * called. If no loader is associated with an object, a null is returned. If a problem is encountered during the
+     * retrieving or loading of the objects, an exception (to be defined) will be thrown. If the "arg" argument is set,
+     * the arg object will be passed to the CacheLoader.loadAll method. The cache will not dereference the object.
+     * If no "arg" value is provided a null will be passed to the loadAll method.
+     * <p/>
+     * keys - collection of the keys whose associated values to be loaded into this cache by using the associated
+     * cacheloader if this cache doesn't contain them.
+     * <p/>
+     * The Ehcache native API provides similar functionality to loaders using the
+     * decorator {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
+     */
+    public void loadAll(final Collection keys, final Object argument) throws CacheException;
 
 
 }

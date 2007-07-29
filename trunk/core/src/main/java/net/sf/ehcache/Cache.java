@@ -16,16 +16,22 @@
 
 package net.sf.ehcache;
 
+import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException;
+import edu.emory.mathcs.backport.java.util.concurrent.Future;
+import edu.emory.mathcs.backport.java.util.concurrent.LinkedBlockingQueue;
+import edu.emory.mathcs.backport.java.util.concurrent.ThreadPoolExecutor;
+import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
+import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
+import net.sf.ehcache.extension.CacheExtension;
+import net.sf.ehcache.jcache.CacheLoader;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.extension.CacheExtension;
-import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -34,13 +40,16 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.server.UID;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -107,6 +116,10 @@ public class Cache implements Ehcache {
      */
     private static final int BACK_OFF_TIME_MILLIS = 50;
 
+    private static final int EXECUTOR_KEEP_ALIVE_TIME = 60000;
+    private static final int EXECUTOR_MAXIMUM_POOL_SIZE = 10;
+    private static final int EXECUTOR_CORE_POOL_SIZE = 0;
+
     static {
         try {
             localhost = InetAddress.getLocalHost();
@@ -170,6 +183,23 @@ public class Cache implements Ehcache {
     private long totalGetTime;
 
     private CacheExceptionHandler cacheExceptionHandler;
+
+    private CacheLoader cacheLoader;
+
+    /**
+     * A ThreadPoolExecutor which uses a thread pool to schedule loads in the order in which they are requested.
+     * <p/>
+     * Each cache has its own one of these, if required. Because the Core Thread Pool is zero, no threads
+     * are used until actually needed. Threads are added to the pool up to a maximum of 10. The keep alive
+     * time is 60 seconds, after which, if they are not required they will be stopped and collected.
+     * <p/>
+     * The executorService is only used for cache loading, and is created lazily on demand to avoid unnecessary resource
+     * usage.
+     * <p/>
+     * Use {@link #getExecutorService()} to ensure that it is initialised.
+     * todo shutdown on shutdown
+     */
+    private ThreadPoolExecutor executorService;
 
 
     /**
@@ -763,6 +793,179 @@ public class Cache implements Ehcache {
         long end = System.currentTimeMillis();
         totalGetTime += (end - start);
         return element;
+    }
+
+    /**
+     * This method will return, from the cache, the object associated with
+     * the argument "key".
+     * <p/>
+     * If the object is not in the cache, the associated
+     * cache loader will be called. That is either the CacheLoader passed in, or if null, the one associated with the cache.
+     * If both are null, no load is performed and null is returned.
+     * <p/>
+     * Because this method may take a long time to complete, it is not synchronized. The underlying cache operations
+     * are synchronized.
+     *
+     * @param key key whose associated value is to be returned.
+     * @return an element if it existed or could be loaded, otherwise null
+     * @throws CacheException
+     */
+    public Element getWithLoader(Object key, CacheLoader loader, Object loaderArgument) throws CacheException {
+
+        Element element = get(key);
+        if (element != null) {
+            return element;
+        }
+
+        if (cacheLoader == null && loader == null) {
+            return null;
+        }
+
+        try {
+            //only allow one thread to load the missing key
+            synchronized (key) {
+                Future future = asynchronousLoad(key, loader, loaderArgument);
+                //wait for result
+                future.get();
+            }
+        } catch (Exception e) {
+            throw new CacheException("Exception on load", e);
+        }
+        return getQuiet(key);
+    }
+
+    /**
+     * The load method provides a means to "pre load" the cache. This method will, asynchronously, load the specified
+     * object into the cache using the associated cacheloader. If the object already exists in the cache, no action is
+     * taken. If no loader is associated with the object, no object will be loaded into the cache. If a problem is
+     * encountered during the retrieving or loading of the object, an exception should be logged. If the "arg" argument
+     * is set, the arg object will be passed to the CacheLoader.load method. The cache will not dereference the object.
+     * If no "arg" value is provided a null will be passed to the load method. The storing of null values in the cache
+     * is permitted, however, the get method will not distinguish returning a null stored in the cache and not finding
+     * the object in the cache. In both cases a null is returned.
+     * <p/>
+     * The Ehcache native API provides similar functionality to loaders using the
+     * decorator {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
+     *
+     * @param key key whose associated value to be loaded using the associated cacheloader if this cache doesn't contain it.
+     * @throws CacheException
+     */
+    public void load(final Object key) throws CacheException {
+        if (cacheLoader == null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("The CacheLoader is null. Returning.");
+            }
+            return;
+        }
+
+        boolean existsOnCall = isKeyInCache(key);
+        if (existsOnCall) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("The key " + key + " exists in the cache. Returning.");
+            }
+            return;
+        }
+
+        asynchronousLoad(key, null, null);
+    }
+
+    /**
+     * The getAll method will return, from the cache, a Map of the objects associated with the Collection of keys in argument "keys".
+     * If the objects are not in the cache, the associated cache loader will be called. If no loader is associated with an object,
+     * a null is returned. If a problem is encountered during the retrieving or loading of the objects, an exception will be thrown.
+     * If the "arg" argument is set, the arg object will be passed to the CacheLoader.loadAll method. The cache will not dereference
+     * the object. If no "arg" value is provided a null will be passed to the loadAll method. The storing of null values in the cache
+     * is permitted, however, the get method will not distinguish returning a null stored in the cache and not finding the object in
+     * the cache. In both cases a null is returned.
+     * <p/>
+     * <p/>
+     * Note. If the getAll exceeds the maximum cache size, the returned map will necessarily be less than the number specified.
+     * <p/>
+     * Because this method may take a long time to complete, it is not synchronized. The underlying cache operations
+     * are synchronized.
+     * <p/>
+     * The constructs package provides similar functionality using the
+     * decorator {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
+     *
+     * @param keys           a collection of keys to be returned/loaded
+     * @param loaderArgument an argument to pass to the CacheLoader.
+     * @return a Map populated from the Cache. If there are no elements, an empty Map is returned.
+     * @throws CacheException
+     */
+    public Map getAllWithLoader(Collection keys, Object loaderArgument) throws CacheException {
+        if (keys == null) {
+            return new HashMap(0);
+        }
+        Map map = new HashMap(keys.size());
+
+        if (cacheLoader != null) {
+            try {
+                map = new HashMap(keys.size());
+                List futures = new ArrayList(keys.size());
+
+                for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+                    Object key = iterator.next();
+
+                    if (isKeyInCache(key)) {
+                        map.put(key, get(key));
+                    } else {
+                        futures.add(new KeyedFuture(key, asynchronousLoad(key, null, loaderArgument)));
+                    }
+                }
+
+                //now wait for everything to load.
+                for (int i = 0; i < futures.size(); i++) {
+                    KeyedFuture keyedFuture = (KeyedFuture) futures.get(i);
+                    keyedFuture.future.get();
+                    Object key = keyedFuture.key;
+                    map.put(key, get(key));
+                }
+
+            } catch (ExecutionException e) {
+                throw new CacheException(e.getMessage(), e);
+            } catch (InterruptedException e) {
+                throw new CacheException(e.getMessage(), e);
+            }
+        } else {
+            for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+                Object key = iterator.next();
+                map.put(key, get(key));
+            }
+        }
+        return map;
+    }
+
+
+    /**
+     * The loadAll method provides a means to "pre load" objects into the cache. This method will, asynchronously, load
+     * the specified objects into the cache using the associated cache loader. If the an object already exists in the
+     * cache, no action is taken. If no loader is associated with the object, no object will be loaded into the cache.
+     * If a problem is encountered during the retrieving or loading of the objects, an exception (to be defined)
+     * should be logged. The getAll method will return, from the cache, a Map of the objects associated with the
+     * Collection of keys in argument "keys". If the objects are not in the cache, the associated cache loader will be
+     * called. If no loader is associated with an object, a null is returned. If a problem is encountered during the
+     * retrieving or loading of the objects, an exception (to be defined) will be thrown. If the "arg" argument is set,
+     * the arg object will be passed to the CacheLoader.loadAll method. The cache will not dereference the object.
+     * If no "arg" value is provided a null will be passed to the loadAll method.
+     * <p/>
+     * keys - collection of the keys whose associated values to be loaded into this cache by using the associated
+     * cacheloader if this cache doesn't contain them.
+     * <p/>
+     * The Ehcache native API provides similar functionality to loaders using the
+     * decorator {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
+     */
+    public void loadAll(final Collection keys, final Object argument) throws CacheException {
+
+        if (cacheLoader == null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("The CacheLoader is null. Returning.");
+            }
+            return;
+        }
+        if (keys == null) {
+            return;
+        }
+        asynchronousLoadAll(keys, argument);
     }
 
     /**
@@ -1596,6 +1799,7 @@ public class Cache implements Ehcache {
      * <p/>
      * A new, empty, RegisteredEventListeners is created on clone.
      * <p/>
+     *
      * @return an object of type {@link Cache}
      * @throws CloneNotSupportedException
      */
@@ -2007,6 +2211,7 @@ public class Cache implements Ehcache {
      * <p/>
      * The ExceptionHandler is only used if this Cache's methods are accessed using
      * {@link net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy}.
+     *
      * @see net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy
      */
     public void setCacheExceptionHandler(CacheExceptionHandler cacheExceptionHandler) {
@@ -2018,10 +2223,150 @@ public class Cache implements Ehcache {
      * <p/>
      * The ExceptionHandler is only used if this Cache's methods are accessed using
      * {@link net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy}.
+     *
      * @see net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy
      */
     public CacheExceptionHandler getCacheExceptionHandler() {
         return cacheExceptionHandler;
     }
 
+    /**
+     * Setter for the CacheLoader. Changing the CacheLoader takes immediate effect.
+     *
+     * @param cacheLoader the loader to dynamically load new cache entries
+     */
+    public void setCacheLoader(CacheLoader cacheLoader) {
+        this.cacheLoader = cacheLoader;
+    }
+
+    /**
+     * Gets the CacheLoader registered in this cache
+     *
+     * @return the loader, or null if there is none
+     * @proposed addition to jsr107
+     */
+    public CacheLoader getCacheLoader() {
+        return cacheLoader;
+    }
+
+    /**
+     * Used to store a future and the key it is in respect of
+     */
+    class KeyedFuture {
+
+        private Object key;
+        private Future future;
+
+        /**
+         * Full constructor
+         *
+         * @param key
+         * @param future
+         */
+        public KeyedFuture(Object key, Future future) {
+            this.key = key;
+            this.future = future;
+        }
+    }
+
+    /**
+     * Does the asynchronous loading.
+     *
+     * @param specificLoader a specific loader to use. If null the default loader is used.
+     * @return a Future which can be used to monitor execution
+     */
+    Future asynchronousLoad(final Object key, final CacheLoader specificLoader, final Object argument) {
+        Future future = getExecutorService().submit(new Runnable() {
+
+            /**
+             * Calls the CacheLoader and puts the result in the Cache
+             */
+            public void run() {
+                try {
+                    //Test to see if it has turned up in the meantime
+                    boolean existsOnRun = isKeyInCache(key);
+                    if (!existsOnRun) {
+                        Object value;
+                        if (specificLoader == null) {
+                            if (cacheLoader == null) {
+                                return;
+                            }
+                            if (argument == null) {
+                                value = cacheLoader.load(key);
+                            } else {
+                                value = cacheLoader.load(key, argument);
+                            }
+                        } else {
+                            if (argument == null) {
+                                value = specificLoader.load(key);
+                            } else {
+                                value = specificLoader.load(key, argument);
+                            }
+                        }
+                        put(new Element(key, value), false);
+                    }
+                } catch (Throwable e) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Problem during load. Load will not be completed. Cause was " + e.getCause(), e);
+                    }
+                }
+            }
+        });
+        return future;
+    }
+
+
+    /**
+     * Does the asynchronous loading.
+     *
+     * @param argument the loader argument
+     * @return a Future which can be used to monitor execution
+     */
+    Future asynchronousLoadAll(final Collection keys, final Object argument) {
+        Future future = getExecutorService().submit(new Runnable() {
+            /**
+             * Calls the CacheLoader and puts the result in the Cache
+             */
+            public void run() {
+                try {
+                    List nonLoadedKeys = new ArrayList(keys.size());
+                    for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+                        Object key = iterator.next();
+                        if (!isKeyInCache(key)) {
+                            nonLoadedKeys.add(key);
+                        }
+                    }
+                    Map map;
+                    if (argument == null) {
+                        map = cacheLoader.loadAll(nonLoadedKeys);
+                    } else {
+                        map = cacheLoader.loadAll(nonLoadedKeys, argument);
+                    }
+
+                    for (Iterator iterator = map.keySet().iterator(); iterator.hasNext();) {
+                        Object key = iterator.next();
+                        put(new Element(key, map.get(key)));
+                    }
+                } catch (Throwable e) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Problem during load. Load will not be completed. Cause was " + e.getCause(), e);
+                    }
+                }
+            }
+        });
+        return future;
+    }
+
+    /**
+     * @return Gets the executor service. This is not publically accessible.
+     */
+    ThreadPoolExecutor getExecutorService() {
+        if (executorService == null) {
+            synchronized (this) {
+                executorService = new ThreadPoolExecutor(EXECUTOR_CORE_POOL_SIZE, EXECUTOR_MAXIMUM_POOL_SIZE,
+                        EXECUTOR_KEEP_ALIVE_TIME, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
+            }
+        }
+        return executorService;
+    }
 }
