@@ -21,6 +21,7 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.extension.CacheExtension;
+import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 
 import java.io.Serializable;
 import java.util.List;
@@ -297,9 +298,9 @@ public interface Ehcache extends Cloneable {
 
     /**
      * Removes all cached items.
-     * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer,
-     * in which case this put should not initiate a further notification to doNotNotifyCacheReplicators cache peers
      *
+     * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer,
+     *                                    in which case this put should not initiate a further notification to doNotNotifyCacheReplicators cache peers
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
     void removeAll(boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException;
@@ -621,6 +622,7 @@ public interface Ehcache extends Cloneable {
 
     /**
      * Accessor for the BootstrapCacheLoader associated with this cache. For testing purposes.
+     *
      * @return the BootstrapCacheLoader to use
      */
     BootstrapCacheLoader getBootstrapCacheLoader();
@@ -686,5 +688,16 @@ public interface Ehcache extends Cloneable {
      * The average get time in ms.
      */
     public float getAverageGetTime();
+
+    /**
+     * Sets an ExceptionHandler on the Cache. If one is already set, it is overwritten.
+     */
+    public void setCacheExceptionHandler(CacheExceptionHandler cacheExceptionHandler);
+
+    /**
+     * Sets an ExceptionHandler on the Cache. If one is already set, it is overwritten.
+     */
+    public CacheExceptionHandler getCacheExceptionHandler();
+
 
 }

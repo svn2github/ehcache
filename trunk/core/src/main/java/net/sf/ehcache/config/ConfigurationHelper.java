@@ -20,6 +20,8 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
+import net.sf.ehcache.exceptionhandler.CacheExceptionHandlerFactory;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.extension.CacheExtensionFactory;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
@@ -184,6 +186,33 @@ public final class ConfigurationHelper {
             return factory.createBootstrapCacheLoader(properties);
         }
         return bootstrapCacheLoader;
+    }
+
+    /**
+     * Tries to create a CacheExceptionHandler from the configuration using the factory
+     * specified
+     *
+     * @return The CacheExceptionHandler, or null if it could not be found.
+     */
+    public final CacheExceptionHandler createCacheExceptionHandler(
+            CacheConfiguration.CacheExceptionHandlerFactoryConfiguration factoryConfiguration) throws CacheException {
+        String className = null;
+        CacheExceptionHandler cacheExceptionHandler = null;
+        try {
+            className = factoryConfiguration.fullyQualifiedClassPath;
+        } catch (Throwable t) {
+            //No class created because the config was missing
+        }
+        if (className == null || className.length() == 0) {
+            LOG.debug("No CacheExceptionHandlerFactory class specified. Skipping...");
+        } else {
+            CacheExceptionHandlerFactory factory = (CacheExceptionHandlerFactory)
+                    ClassLoaderUtil.createNewInstance(className);
+            Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
+                    factoryConfiguration.getPropertySeparator());
+            return factory.createExceptionHandler(properties);
+        }
+        return cacheExceptionHandler;
     }
 
 
@@ -372,6 +401,9 @@ public final class ConfigurationHelper {
         BootstrapCacheLoader bootstrapCacheLoader = createBootstrapCacheLoader(
                 cacheConfiguration.bootstrapCacheLoaderFactoryConfiguration);
         cache.setBootstrapCacheLoader(bootstrapCacheLoader);
+        CacheExceptionHandler cacheExceptionHandler =
+                createCacheExceptionHandler(cacheConfiguration.cacheExceptionHandlerFactoryConfiguration);
+        cache.setCacheExceptionHandler(cacheExceptionHandler);
         return cache;
     }
 

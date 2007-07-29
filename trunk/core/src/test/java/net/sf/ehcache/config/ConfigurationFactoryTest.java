@@ -22,6 +22,8 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
+import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
@@ -165,9 +167,11 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
                         properties="propertyA=valueA"/>
             </cache>CacheExtension cache
         */
-        Ehcache testCacheExtensionCache = configurationHelper.createCacheFromName("testCacheExtensionCache");
-        assertEquals("testCacheExtensionCache", testCacheExtensionCache.getName());
-        //todo something a little more thorough
+        Ehcache testExceptionHandlingCache = configurationHelper.createCacheFromName("testExceptionHandlingCache");
+        assertEquals("testExceptionHandlingCache", testExceptionHandlingCache.getName());
+        assertTrue(testExceptionHandlingCache.getCacheExceptionHandler() != null);
+        assertTrue(testExceptionHandlingCache.getCacheExceptionHandler() instanceof CountingExceptionHandler);
+        assertTrue(testExceptionHandlingCache.getCacheExceptionHandler() instanceof CacheExceptionHandler);
 
 
 

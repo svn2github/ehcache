@@ -167,8 +167,7 @@
                                                replicateRemovals=true "/>
     </cache>
 
-    <!-- Sample cache named sampleCache1 todo add an extension here-->
-    <cache name="testCacheExtensionCache"
+    <cache name="testExceptionHandlingCache"
            maxElementsInMemory="10000"
            maxElementsOnDisk="1000"
            eternal="false"
@@ -177,7 +176,7 @@
            overflowToDisk="true"
            memoryStoreEvictionPolicy="LRU">
         <cacheEventListenerFactory class="net.sf.ehcache.event.NullCacheEventListenerFactory"/>
-        <cacheExceptionHandlerFactory class="net.sf.ehcache.exception.LoggingExceptionStrategyFactory"
+        <cacheExceptionHandlerFactory class="net.sf.ehcache.exceptionhandler.CountingExceptionHandlerFactory"
                                       properties="logLevel=FINE"/>
     </cache>
 

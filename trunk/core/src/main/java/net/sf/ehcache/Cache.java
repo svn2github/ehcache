@@ -25,6 +25,7 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.extension.CacheExtension;
+import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -53,7 +54,10 @@ import java.util.Iterator;
  * <p/>
  * Cache is threadsafe.
  * <p/>
- * Statistics on cache usage are collected and made available through public methods.
+ * Statistics on cache usage are collected and made available through the {@link #getStatistics()} methods.
+ * <p/>
+ * Various decorators are available for Cache, such as BlockingCache, SelfPopulatingCache and the dynamic proxy
+ * ExceptionHandlingDynamicCacheProxy. See each class for details.
  *
  * @author Greg Luck
  * @version $Id$
@@ -164,6 +168,8 @@ public class Cache implements Ehcache {
     private int statisticsAccuracy;
 
     private long totalGetTime;
+
+    private CacheExceptionHandler cacheExceptionHandler;
 
 
     /**
@@ -1996,5 +2002,26 @@ public class Cache implements Ehcache {
         }
     }
 
+    /**
+     * Sets an ExceptionHandler on the Cache. If one is already set, it is overwritten.
+     * <p/>
+     * The ExceptionHandler is only used if this Cache's methods are accessed using
+     * {@link net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy}.
+     * @see net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy
+     */
+    public void setCacheExceptionHandler(CacheExceptionHandler cacheExceptionHandler) {
+        this.cacheExceptionHandler = cacheExceptionHandler;
+    }
+
+    /**
+     * Gets the ExceptionHandler on this Cache, or null if there isn't one.
+     * <p/>
+     * The ExceptionHandler is only used if this Cache's methods are accessed using
+     * {@link net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy}.
+     * @see net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy
+     */
+    public CacheExceptionHandler getCacheExceptionHandler() {
+        return cacheExceptionHandler;
+    }
 
 }

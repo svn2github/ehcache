@@ -23,6 +23,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.ThreadPoolExecutor;
 import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy;
 import net.sf.jsr107cache.CacheEntry;
 import net.sf.jsr107cache.CacheException;
 import net.sf.jsr107cache.CacheListener;
@@ -43,7 +44,7 @@ import java.util.Set;
  * A cache implementation that matches the JCACHE specification.
  * <p/>
  * It is not possible for one class to implement both JCACHE and Ehcache
- * in the same class due to conflicts with method signatures.
+ * in the same class due to conflicts with method signatures on get and remove.
  * <p/>
  * This implementation is a decorator for Ehcache, and should exhibit the same
  * underlying characteristics as Ehcache.
@@ -98,7 +99,8 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * @since 1.3
      */
     public JCache(Ehcache cache, net.sf.jsr107cache.CacheLoader cacheLoader) {
-        this.cache = cache;
+
+        this.cache = ExceptionHandlingDynamicCacheProxy.createProxy(cache);
         executorService = new ThreadPoolExecutor(EXECUTOR_CORE_POOL_SIZE, EXECUTOR_MAXIMUM_POOL_SIZE,
                 EXECUTOR_KEEP_ALIVE_TIME, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
         this.cacheLoader = (CacheLoader) cacheLoader;
@@ -122,7 +124,8 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * @since 1.3
      */
     public JCache(Ehcache cache, CacheLoader cacheLoader) {
-        this.cache = cache;
+        int i = 0;
+        this.cache = ExceptionHandlingDynamicCacheProxy.createProxy(cache);
         executorService = new ThreadPoolExecutor(EXECUTOR_CORE_POOL_SIZE, EXECUTOR_MAXIMUM_POOL_SIZE,
                 EXECUTOR_KEEP_ALIVE_TIME, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
         this.cacheLoader = cacheLoader;

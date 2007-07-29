@@ -69,7 +69,7 @@ public class JCacheTest extends AbstractCacheTest {
         getTest1Cache().clear();
         getTest2Cache().clear();
         getTest4Cache().clear();
-        manager.getCache("sampleCache1").removeAll();
+        manager.getEhcache("sampleCache1").removeAll();
     }
 
     /**
@@ -181,7 +181,11 @@ public class JCacheTest extends AbstractCacheTest {
      * />
      */
     public void testExpiryBasedOnTimeToLiveWhenNoIdle() throws Exception {
-        Cache cache = new JCache(manager.getCache("sampleCacheNoIdle"), null);
+        net.sf.ehcache.Cache ehcache = manager.getCache("sampleCacheNoIdle");
+        JCache jCache = new JCache(ehcache, null);
+        manager.replaceEhcacheWithJCache(ehcache, jCache);
+
+        Cache cache = manager.getJCache("sampleCacheNoIdle");
         cache.put("key1", "value1");
         cache.put("key2", "value1");
         assertNotNull(cache.get("key1"));

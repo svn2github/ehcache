@@ -22,7 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A class to represent Cache configuration.
+ * A value object to represent Cache configuration that can be set by the BeanHandler.
+ *
  * e.g.
  * <cache name="testCache1"
  * maxElementsInMemory="10000"
@@ -130,15 +131,21 @@ public class CacheConfiguration implements Cloneable {
      */
     protected BootstrapCacheLoaderFactoryConfiguration bootstrapCacheLoaderFactoryConfiguration;
 
+    /**
+     * The CacheExceptionHandlerFactoryConfiguration.
+     */
+    protected CacheExceptionHandlerFactoryConfiguration cacheExceptionHandlerFactoryConfiguration;
+
 
     /**
      * Clones this object, following the usual contract.
+     *
      * @return a copy, which independent other than configurations than cannot change.
      * @throws CloneNotSupportedException
      */
     public Object clone() throws CloneNotSupportedException {
         CacheConfiguration copy = (CacheConfiguration) super.clone();
-        return copy;        
+        return copy;
     }
 
     /**
@@ -163,6 +170,7 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Sets the eviction policy. An invalid argument will set it to null.
+     *
      * @param memoryStoreEvictionPolicy a String representation of the policy. One of "LRU", "LFU" or "FIFO".
      */
     public final void setMemoryStoreEvictionPolicy(String memoryStoreEvictionPolicy) {
@@ -171,7 +179,6 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Sets the eviction policy. This method has a strange name to workaround a problem with XML parsing.
-     *
      */
     public final void setMemoryStoreEvictionPolicyFromObject(MemoryStoreEvictionPolicy memoryStoreEvictionPolicy) {
         this.memoryStoreEvictionPolicy = memoryStoreEvictionPolicy;
@@ -221,6 +228,7 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Sets the disk spool size
+     *
      * @param diskSpoolBufferSizeMB a postive number
      */
     public void setDiskSpoolBufferSizeMB(int diskSpoolBufferSizeMB) {
@@ -284,6 +292,21 @@ public class CacheConfiguration implements Cloneable {
             bootstrapCacheLoaderFactoryConfiguration) {
         this.bootstrapCacheLoaderFactoryConfiguration = bootstrapCacheLoaderFactoryConfiguration;
 
+    }
+
+    /**
+     * Configuration for the BootstrapCacheLoaderFactoryConfiguration.
+     */
+    public final class CacheExceptionHandlerFactoryConfiguration extends FactoryConfiguration {
+    }
+
+
+    /**
+     * Allows {@link BeanHandler} to add the CacheExceptionHandlerFactory to the configuration.
+     */
+    public final void addCacheExceptionHandlerFactory(CacheExceptionHandlerFactoryConfiguration
+            cacheExceptionHandlerFactoryConfiguration) {
+        this.cacheExceptionHandlerFactoryConfiguration = cacheExceptionHandlerFactoryConfiguration;
     }
 
     /**
@@ -377,4 +400,10 @@ public class CacheConfiguration implements Cloneable {
         return bootstrapCacheLoaderFactoryConfiguration;
     }
 
+    /**
+     * Accessor
+     */
+    public CacheExceptionHandlerFactoryConfiguration getCacheExceptionHandlerFactoryConfiguration() {
+        return cacheExceptionHandlerFactoryConfiguration;
+    }
 }

@@ -22,6 +22,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
@@ -971,6 +972,20 @@ public class BlockingCache implements Ehcache {
      */
     public float getAverageGetTime() {
         return cache.getAverageGetTime();
+    }
+
+    /**
+     * Sets an ExceptionHandler on the Cache. If one is already set, it is overwritten.
+     */
+    public void setCacheExceptionHandler(CacheExceptionHandler cacheExceptionHandler) {
+        cache.setCacheExceptionHandler(cacheExceptionHandler);
+    }
+
+    /**
+     * Sets an ExceptionHandler on the Cache. If one is already set, it is overwritten.
+     */
+    public CacheExceptionHandler getCacheExceptionHandler() {
+        return cache.getCacheExceptionHandler();
     }
 
 
