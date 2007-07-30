@@ -351,7 +351,6 @@ public class CacheManager {
     private void addConfiguredCaches(ConfigurationHelper configurationHelper) {
         Set unitialisedCaches = configurationHelper.createCaches();
         for (Iterator iterator = unitialisedCaches.iterator(); iterator.hasNext();) {
-            //todo add cache type
             Ehcache unitialisedCache = (Ehcache) iterator.next();
             addCacheNoCheck(unitialisedCache);
         }
@@ -481,9 +480,10 @@ public class CacheManager {
     }
 
     /**
-     * Returns a concrete implementation of Cache.
+     * Returns a concrete implementation of Cache, it it is available in the CacheManager.
+     * Consider using getEhcache(String name) instead, which will return decorated caches that are registered.
      *
-     * @return an Ehcache, if an object of that type exists by that name, else null
+     * @return a Cache, if an object of that type exists by that name, else null
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @see #getEhcache(String)
      */
@@ -504,15 +504,21 @@ public class CacheManager {
     }
 
     /**
-     * todo test
      * Gets a draft JSR107 spec JCache.
      * <p/>
+     * If a JCache does not exist for the name, but an ehcache does, a new JCache will be created dynamically and added
+     * to the list of JCaches managed by this CacheManager.
      * Warning: JCache will change as the specification changes, so no guarantee of backward compatibility is made for this method.
      * @return a JSR 107 Cache, if an object of that type exists by that name, else null
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     public synchronized JCache getJCache(String name) throws IllegalStateException {
         checkStatus();
+        if (jCaches.get(name) != null) {
+            return (JCache) jCaches.get(name);
+        } else if (ehcaches.get(name) != null) {
+            jCaches.put(name, new JCache((Ehcache) ehcaches.get(name), null));
+        }
         return (JCache) jCaches.get(name);
     }
 

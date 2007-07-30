@@ -52,7 +52,7 @@ public class CacheExceptionHanderTest extends TestCase {
     protected void setUp() throws Exception {
         CountingCacheEventListener.resetCounters();
         manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
-        cache = manager.getCache(cacheName);
+        cache = manager.getEhcache(cacheName);
         cache.removeAll();
     }
 

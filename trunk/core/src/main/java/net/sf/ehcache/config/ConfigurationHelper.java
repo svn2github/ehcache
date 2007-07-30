@@ -360,10 +360,6 @@ public final class ConfigurationHelper {
             Map.Entry entry = (Map.Entry) iterator.next();
             CacheConfiguration cacheConfiguration = (CacheConfiguration) entry.getValue();
             Ehcache cache = createCache(cacheConfiguration);
-            //todo Add dynamic proxy for exception handling, if required
-//            if (cache.getCacheExceptionHandler() != null) {
-//                cache = ExceptionHandlingDynamicCacheProxy.createProxy(cache);
-//            }
             caches.add(cache);
         }
         return caches;
@@ -435,11 +431,20 @@ public final class ConfigurationHelper {
         BootstrapCacheLoader bootstrapCacheLoader = createBootstrapCacheLoader(
                 cacheConfiguration.getBootstrapCacheLoaderFactoryConfiguration());
         cache.setBootstrapCacheLoader(bootstrapCacheLoader);
+        CacheLoader cacheLoader = createCacheLoader(cacheConfiguration.getCacheLoaderFactoryConfiguration());
+        cache.setCacheLoader(cacheLoader);
+        cache = applyCacheExceptionHandler(cacheConfiguration, cache);
+        return cache;
+    }
+
+    private Ehcache applyCacheExceptionHandler(CacheConfiguration cacheConfiguration, Ehcache cache) {
         CacheExceptionHandler cacheExceptionHandler =
                 createCacheExceptionHandler(cacheConfiguration.getCacheExceptionHandlerFactoryConfiguration());
         cache.setCacheExceptionHandler(cacheExceptionHandler);
-        CacheLoader cacheLoader = createCacheLoader(cacheConfiguration.getCacheLoaderFactoryConfiguration());
-        cache.setCacheLoader(cacheLoader);
+
+        if (cache.getCacheExceptionHandler() != null) {
+            return ExceptionHandlingDynamicCacheProxy.createProxy(cache);
+        }
         return cache;
     }
 

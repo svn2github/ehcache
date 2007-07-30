@@ -295,6 +295,14 @@
       <cacheExceptionHandlerFactory class="net.sf.ehcache.exceptionhandler.CountingExceptionHandlerFactory"
                                       properties="logLevel=FINE"/>
 
+    Caches with ExceptionHandling configured are not of type Cache, but are of type Ehcache only, and are not available
+    using CacheManager.getCache(), but using CacheManager.getEhcache().                                  
+
+
+    CacheLoader
+
+    A CacheLoader may be configured against a cache.
+
         <cacheLoaderFactory class="net.sf.ehcache.loader.CountingCacheLoaderFactory"
                                       properties="type=int,startCounter=10"/>
 

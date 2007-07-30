@@ -19,7 +19,6 @@ package net.sf.ehcache.jcache;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.loader.CacheLoader;
-import net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy;
 import net.sf.jsr107cache.CacheEntry;
 import net.sf.jsr107cache.CacheException;
 import net.sf.jsr107cache.CacheListener;
@@ -71,13 +70,15 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * Only the CacheManager can initialise them.
      *
      * @param cache       An ehcache
-     * @param cacheLoader used to load entries when they are not in the cache. If this is null,
-     *                    which is legal, loads do a noop
+     * @param cacheLoader used to load entries when they are not in the cache. If this is null, it is
+     *                    set for the cache. If null, the JCache will inherit the CacheLoader set for the backing ehcache
      * @since 1.3
      */
     public JCache(Ehcache cache, net.sf.jsr107cache.CacheLoader cacheLoader) {
-        this.cache = ExceptionHandlingDynamicCacheProxy.createProxy(cache);
-        cache.setCacheLoader((CacheLoader) cacheLoader);
+        this.cache = cache;
+        if (cacheLoader != null) {
+            cache.setCacheLoader((CacheLoader) cacheLoader);
+        }
     }
 
     /**
@@ -93,13 +94,15 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * Only the CacheManager can initialise them.
      *
      * @param cache       An ehcache
-     * @param cacheLoader used to load entries when they are not in the cache. If this is null,
-     *                    which is legal, loads do a noop
+     * @param cacheLoader used to load entries when they are not in the cache. If this is null, it is
+     *                    set for the cache. If null, the JCache will inherit the CacheLoader set for the backing ehcache
      * @since 1.3
      */
     public JCache(Ehcache cache, CacheLoader cacheLoader) {
-        this.cache = ExceptionHandlingDynamicCacheProxy.createProxy(cache);
-        cache.setCacheLoader(cacheLoader);
+        this.cache = cache;
+        if (cacheLoader != null) {
+            cache.setCacheLoader(cacheLoader);
+        }
     }
 
     /**
@@ -189,7 +192,6 @@ public class JCache implements net.sf.jsr107cache.Cache {
     public CacheLoader getCacheLoader() {
         return cache.getCacheLoader();
     }
-
 
 
     /**
@@ -439,9 +441,10 @@ public class JCache implements net.sf.jsr107cache.Cache {
 
     /**
      * Same as {@link #get(Object)} except a CacheLoader argument is provided.
-     * @param key key whose associated value is to be returned.
+     *
+     * @param key            key whose associated value is to be returned.
      * @param loaderArgument anything at all that a CacheLoader might find useful to load
-     * the entry. If the loaderArgument is null, this method is the same as {@link #get(Object)}
+     *                       the entry. If the loaderArgument is null, this method is the same as {@link #get(Object)}
      * @return the value to which this map maps the specified key, or
      *         <tt>null</tt> if the map contains no mapping for this key after an attempt has been
      *         made to load it.
@@ -476,7 +479,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * <p/>
      * Cache statistics are only updated for the initial attempt to get the cached entry.
      *
-     * @param key key whose associated value is to be returned.
+     * @param key    key whose associated value is to be returned.
      * @param loader A specific CacheLoader to use in place of the default one.
      * @return the value to which this map maps the specified key, or
      *         <tt>null</tt> if the map contains no mapping for this key after an attempt has been
@@ -513,8 +516,8 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * <p/>
      * Cache statistics are only updated for the initial attempt to get the cached entry.
      *
-     * @param key key whose associated value is to be returned.
-     * @param loader A specific CacheLoader to use in place of the default one.
+     * @param key            key whose associated value is to be returned.
+     * @param loader         A specific CacheLoader to use in place of the default one.
      * @param loaderArgument an Object with acts as a loaderArgument. It can contain anything that makes sense to the loader.
      * @return the value to which this map maps the specified key, or
      *         <tt>null</tt> if the map contains no mapping for this key after an attempt has been
@@ -562,10 +565,10 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * if {@link #containsKey(Object) m.containsKey(k)} would return
      * <tt>true</tt>.))
      *
-     * @param key        key with which the specified value is to be associated.
-     * @param value      value to be associated with the specified key.
+     * @param key               key with which the specified value is to be associated.
+     * @param value             value to be associated with the specified key.
      * @param timeToLiveSeconds the time this entry will live, overriding the default. If timeToLive
-     *                   is set to 0, the default will be applied.
+     *                          is set to 0, the default will be applied.
      * @return previous value associated with specified key, or <tt>null</tt>
      *         if there was no mapping for key.  A <tt>null</tt> return can
      *         also indicate that the map previously associated <tt>null</tt>

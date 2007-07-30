@@ -93,7 +93,7 @@ public class CacheManager implements CacheManagerMBean {
      * Returns a JMX Cache bean
      */
     public Cache getCache(String name) {
-        return new Cache(cacheManager.getCache(name));
+        return new Cache(cacheManager.getEhcache(name));
     }
 
     /**
