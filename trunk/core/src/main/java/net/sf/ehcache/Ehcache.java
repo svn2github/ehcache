@@ -22,7 +22,7 @@ import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
-import net.sf.ehcache.jcache.CacheLoader;
+import net.sf.ehcache.loader.CacheLoader;
 
 import java.io.Serializable;
 import java.util.List;

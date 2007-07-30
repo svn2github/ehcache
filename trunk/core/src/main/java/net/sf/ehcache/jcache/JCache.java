@@ -18,6 +18,7 @@ package net.sf.ehcache.jcache;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy;
 import net.sf.jsr107cache.CacheEntry;
 import net.sf.jsr107cache.CacheException;

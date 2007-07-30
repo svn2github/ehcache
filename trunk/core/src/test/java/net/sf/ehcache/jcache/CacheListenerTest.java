@@ -80,7 +80,7 @@ public class CacheListenerTest extends AbstractCacheTest {
             env.put("timeToIdleSeconds", "1");
             env.put("diskPersistent", "false");
             env.put("diskExpiryThreadIntervalSeconds", "120");
-            env.put("cacheLoaderFactoryClassName", "net.sf.ehcache.jcache.CountingCacheLoaderFactory");
+            env.put("cacheLoaderFactoryClassName", "net.sf.ehcache.loader.CountingCacheLoaderFactory");
             cache = net.sf.jsr107cache.CacheManager.getInstance().getCacheFactory().createCache(env);
             net.sf.jsr107cache.CacheManager.getInstance().registerCache("listenerTest1", cache);
         }

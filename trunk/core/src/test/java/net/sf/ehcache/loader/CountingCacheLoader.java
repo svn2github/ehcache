@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.jcache;
+package net.sf.ehcache.loader;
 
 import net.sf.jsr107cache.CacheException;
 

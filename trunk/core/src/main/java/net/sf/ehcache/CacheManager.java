@@ -351,6 +351,7 @@ public class CacheManager {
     private void addConfiguredCaches(ConfigurationHelper configurationHelper) {
         Set unitialisedCaches = configurationHelper.createCaches();
         for (Iterator iterator = unitialisedCaches.iterator(); iterator.hasNext();) {
+            //todo add cache type
             Ehcache unitialisedCache = (Ehcache) iterator.next();
             addCacheNoCheck(unitialisedCache);
         }

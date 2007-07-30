@@ -14,11 +14,11 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.jcache;
+package net.sf.ehcache.loader;
 
-import net.sf.jsr107cache.CacheLoader;
 
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * A factory for creating counting cache loaders. This can be hooked up to the JCacheFactory by
@@ -30,13 +30,24 @@ public class CountingCacheLoaderFactory extends CacheLoaderFactory {
 
 
     /**
-     * Creates a CacheLoader. This method is called from {@link JCacheFactory}
+     * Creates a CacheLoader. This method is called from {@link net.sf.ehcache.jcache.JCacheFactory}
      *
-     * @param environment the same environment passed into {@link JCacheFactory}. This factory can
+     * @param environment the same environment passed into {@link net.sf.ehcache.jcache.JCacheFactory}. This factory can
      *                    extract any properties it needs from the environment.
      * @return a constructed CacheLoader
      */
-    public CacheLoader createCacheLoader(Map environment) {
+    public net.sf.jsr107cache.CacheLoader createCacheLoader(Map environment) {
+        return new CountingCacheLoader();
+    }
+
+    /**
+     * Creates a CacheLoader using the Ehcache configuration mechanism at the time the associated cache is created.
+     *
+     * @param properties implementation specific properties. These are configured as comma
+     *                   separated name value pairs in ehcache.xml
+     * @return a constructed CacheLoader
+     */
+    public CacheLoader createCacheLoader(Properties properties) {
         return new CountingCacheLoader();
     }
 }

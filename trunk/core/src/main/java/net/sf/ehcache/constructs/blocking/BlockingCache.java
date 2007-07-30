@@ -22,7 +22,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.jcache.CacheLoader;
+import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.config.CacheConfiguration;

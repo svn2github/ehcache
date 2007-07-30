@@ -149,7 +149,8 @@
 
     (Alternatives: Some form of annotation and injection scheme)
 
-    todo how to create caches from configuration?
+    Pending a final JSR107 implementation, the ehcache configuration mechanism is used to create JCaches from
+    ehcache.xml config.
 
 
 **  net.sf.jsr107cache.Cache

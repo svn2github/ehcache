@@ -20,8 +20,11 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.loader.CacheLoader;
+import net.sf.ehcache.loader.CacheLoaderFactory;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandlerFactory;
+import net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.extension.CacheExtensionFactory;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
@@ -112,7 +115,7 @@ public final class ConfigurationHelper {
 
 
     /**
-     * Tries to load the class specified otherwise defaults to null
+     * Tries to load the class specified otherwise defaults to null.
      *
      * @param factoryConfiguration
      */
@@ -138,7 +141,7 @@ public final class ConfigurationHelper {
     }
 
     /**
-     * Tries to load the class specified otherwise defaults to null
+     * Tries to load the class specified otherwise defaults to null.
      *
      * @param factoryConfiguration
      */
@@ -163,7 +166,7 @@ public final class ConfigurationHelper {
     }
 
     /**
-     * Tries to load the class specified.
+     * Tries to load a BootstrapCacheLoader from the class specified.
      *
      * @return If there is none returns null.
      */
@@ -189,8 +192,35 @@ public final class ConfigurationHelper {
     }
 
     /**
-     * Tries to create a CacheExceptionHandler from the configuration using the factory
-     * specified
+     * Tries to create a CacheLoader from the configuration using the factory
+     * specified.
+     *
+     * @return The CacheLoader, or null if it could not be found.
+     */
+    public final CacheLoader createCacheLoader(
+            CacheConfiguration.CacheLoaderFactoryConfiguration factoryConfiguration) throws CacheException {
+        String className = null;
+        CacheLoader cacheLoader = null;
+        try {
+            className = factoryConfiguration.fullyQualifiedClassPath;
+        } catch (Throwable t) {
+            //No class created because the config was missing
+        }
+        if (className == null || className.length() == 0) {
+            LOG.debug("No CacheLoaderFactory class specified. Skipping...");
+        } else {
+            CacheLoaderFactory factory = (CacheLoaderFactory)
+                    ClassLoaderUtil.createNewInstance(className);
+            Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
+                    factoryConfiguration.getPropertySeparator());
+            return factory.createCacheLoader(properties);
+        }
+        return cacheLoader;
+    }
+
+    /**
+     * Tries to create a CacheLoader from the configuration using the factory
+     * specified.
      *
      * @return The CacheExceptionHandler, or null if it could not be found.
      */
@@ -329,7 +359,11 @@ public final class ConfigurationHelper {
         for (Iterator iterator = cacheConfigurations.iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             CacheConfiguration cacheConfiguration = (CacheConfiguration) entry.getValue();
-            Cache cache = createCache(cacheConfiguration);
+            Ehcache cache = createCache(cacheConfiguration);
+            //todo Add dynamic proxy for exception handling, if required
+//            if (cache.getCacheExceptionHandler() != null) {
+//                cache = ExceptionHandlingDynamicCacheProxy.createProxy(cache);
+//            }
             caches.add(cache);
         }
         return caches;
@@ -380,8 +414,8 @@ public final class ConfigurationHelper {
      *
      * @param cacheConfiguration
      */
-    final Cache createCache(CacheConfiguration cacheConfiguration) {
-        Cache cache = new Cache(cacheConfiguration.name,
+    final Ehcache createCache(CacheConfiguration cacheConfiguration) {
+        Ehcache cache = new Cache(cacheConfiguration.name,
                 cacheConfiguration.maxElementsInMemory,
                 cacheConfiguration.memoryStoreEvictionPolicy,
                 cacheConfiguration.overflowToDisk,
@@ -399,11 +433,13 @@ public final class ConfigurationHelper {
         registerCacheListeners(cacheConfiguration, listeners);
         registerCacheExtensions(cacheConfiguration, cache);
         BootstrapCacheLoader bootstrapCacheLoader = createBootstrapCacheLoader(
-                cacheConfiguration.bootstrapCacheLoaderFactoryConfiguration);
+                cacheConfiguration.getBootstrapCacheLoaderFactoryConfiguration());
         cache.setBootstrapCacheLoader(bootstrapCacheLoader);
         CacheExceptionHandler cacheExceptionHandler =
-                createCacheExceptionHandler(cacheConfiguration.cacheExceptionHandlerFactoryConfiguration);
+                createCacheExceptionHandler(cacheConfiguration.getCacheExceptionHandlerFactoryConfiguration());
         cache.setCacheExceptionHandler(cacheExceptionHandler);
+        CacheLoader cacheLoader = createCacheLoader(cacheConfiguration.getCacheLoaderFactoryConfiguration());
+        cache.setCacheLoader(cacheLoader);
         return cache;
     }
 

@@ -17,6 +17,7 @@
 package net.sf.ehcache.jcache;
 
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.loader.CountingCacheLoader;
 import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheException;
 import net.sf.jsr107cache.CacheManager;
@@ -58,7 +59,7 @@ public class JCacheFactoryTest extends AbstractCacheTest {
         env.put("timeToIdleSeconds", "1000");
         env.put("diskPersistent", "false");
         env.put("diskExpiryThreadIntervalSeconds", "120");
-        env.put("cacheLoaderFactoryClassName", "net.sf.ehcache.jcache.CountingCacheLoaderFactory");
+        env.put("cacheLoaderFactoryClassName", "net.sf.ehcache.loader.CountingCacheLoaderFactory");
         Cache cache = CacheManager.getInstance().getCacheFactory().createCache(env);
         CacheManager.getInstance().registerCache("factoryTest1", cache);
         assertEquals(((JCache)cache).getCacheLoader().getClass(), CountingCacheLoader.class);

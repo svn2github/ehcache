@@ -136,6 +136,10 @@ public class CacheConfiguration implements Cloneable {
      */
     protected CacheExceptionHandlerFactoryConfiguration cacheExceptionHandlerFactoryConfiguration;
 
+    /**
+     * The CacheLoaderFactoryConfiguration.
+     */
+    protected CacheLoaderFactoryConfiguration cacheLoaderFactoryConfiguration;
 
     /**
      * Clones this object, following the usual contract.
@@ -310,6 +314,21 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Configuration for the CacheLoaderFactoryConfiguration.
+     */
+    public final class CacheLoaderFactoryConfiguration extends FactoryConfiguration {
+    }
+
+
+    /**
+     * Allows {@link BeanHandler} to add the CacheLoaderFactory to the configuration.
+     */
+    public final void addCacheLoaderFactory(CacheLoaderFactoryConfiguration
+            cacheLoaderFactoryConfiguration) {
+        this.cacheLoaderFactoryConfiguration = cacheLoaderFactoryConfiguration;
+    }
+
+    /**
      * Accessor
      */
     public String getName() {
@@ -405,5 +424,12 @@ public class CacheConfiguration implements Cloneable {
      */
     public CacheExceptionHandlerFactoryConfiguration getCacheExceptionHandlerFactoryConfiguration() {
         return cacheExceptionHandlerFactoryConfiguration;
+    }
+
+    /**
+     * Accessor
+     */
+    public CacheLoaderFactoryConfiguration getCacheLoaderFactoryConfiguration() {
+        return cacheLoaderFactoryConfiguration;
     }
 }

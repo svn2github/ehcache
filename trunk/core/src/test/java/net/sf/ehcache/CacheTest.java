@@ -21,7 +21,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
 import edu.emory.mathcs.backport.java.util.concurrent.Future;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.jcache.CountingCacheLoader;
+import net.sf.ehcache.loader.CountingCacheLoader;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

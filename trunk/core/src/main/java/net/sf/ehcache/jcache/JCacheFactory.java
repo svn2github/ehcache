@@ -16,6 +16,7 @@
 package net.sf.ehcache.jcache;
 
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.loader.CacheLoaderFactory;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.PropertyUtil;

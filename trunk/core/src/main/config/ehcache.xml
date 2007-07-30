@@ -1,8 +1,14 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ehcache.xsd">
 
     <!--
+    CacheManager Configuration
+    ==========================
+    An ehcache.xml corresponds to a single CacheManager.
+    
+    See instructions below or the ehcache schema (ehcache.xsd) on how to configure.
 
     DiskStore configuration
+    =======================
 
     Sets the path to the directory where cache files are created.
 
@@ -19,6 +25,8 @@
     <diskStore path="java.io.tmpdir"/>
 
     <!--
+    CacheManagerEventListener
+    =========================
     Specifies a CacheManagerEventListenerFactory, be used to create a CacheManagerPeerProvider,
     which is notified when Caches are added or removed from the CacheManager.
 
@@ -42,6 +50,8 @@
 
 
     <!--
+    CacheManagerPeerProvider
+    ========================
     (Enable for distributed operation)
 
     Specifies a CacheManagerPeerProviderFactory which will be used to create a
@@ -85,7 +95,8 @@
                           "net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
                           properties="peerDiscovery=manual,
                           rmiUrls=//server1:40000/sampleCache1|//server2:40000/sampleCache1
-                          | //server1:40000/sampleCache2|//server2:40000/sampleCache2"/>
+                          | //server1:40000/sampleCache2|//server2:40000/sampleCache2"
+                          propertySeparator="," />
 
     Valid properties are:
     * peerDiscovery (mandatory) - specify "manual"
@@ -106,6 +117,8 @@
 
 
     <!--
+    CacheManagerPeerListener
+    ========================
     (Enable for distributed operation)
 
     Specifies a CacheManagerPeerListenerFactory which will be used to create a
@@ -124,7 +137,8 @@
         class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
         properties="hostName=fully_qualified_hostname_or_ip,
                     port=40001,
-                    socketTimeoutMillis=120000"/>
+                    socketTimeoutMillis=120000"
+                    propertySeparator="," />
 
     All properties are optional. They are:
     * hostName - the hostName of the host the listener is running on. Specify
@@ -141,7 +155,9 @@
             class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
 
 
-    <!-- Cache configuration.
+    <!--
+    Cache configuration
+    ===================
 
     The following attributes are required.
 
@@ -212,6 +228,7 @@
     * cacheExtensionFactory - Specifies a CacheExtension, a generic mechansim to tie a class
       which holds a reference to a cache to the cache lifecycle. 
 
+    RMI Cache Replication
 
     Each cache that will be distributed needs to set a cache event listener which replicates
     messages to the other CacheManager peers. For the built-in RMI implementation this is done
@@ -224,7 +241,8 @@
          replicateUpdates=true,
          replicateUpdatesViaCopy=true,
          replicateRemovals=true
-         asynchronousReplicationIntervalMillis=<number of milliseconds> "/>
+         asynchronousReplicationIntervalMillis=<number of milliseconds"
+         propertySeparator="," />
 
     The RMICacheReplicatorFactory recognises the following properties:
 
@@ -246,12 +264,16 @@
       replicator runs at a set interval of milliseconds. The default is 1000. The minimum
       is 10. This property is only applicable if replicateAsynchronously=true
 
+
+    Cluster Bootstrapping
+
     The RMIBootstrapCacheLoader bootstraps caches in clusters where RMICacheReplicators are
     used. It is configured as per the following example:
 
     <bootstrapCacheLoaderFactory
         class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"
-        properties="bootstrapAsynchronously=true, maximumChunkSizeBytes=5000000"/>
+        properties="bootstrapAsynchronously=true, maximumChunkSizeBytes=5000000"
+        propertySeparator="," />
 
     The RMIBootstrapCacheLoaderFactory recognises the following optional properties:
 
@@ -262,6 +284,19 @@
     * maximumChunkSizeBytes=<integer> - Caches can potentially be very large, larger than the
       memory limits of the VM. This property allows the bootstraper to fetched elements in
       chunks. The default chunk size is 5000000 (5MB).
+
+
+    Cache Exception Handling
+
+    By default, most cache operations will propagate a runtime CacheException on failure. An interceptor,
+      using a dynamic proxy, may be configured so that a CacheExceptionHandler can be configured to
+      intercept Exceptions. Errors are not intercepted. It is configured as per the following example:
+
+      <cacheExceptionHandlerFactory class="net.sf.ehcache.exceptionhandler.CountingExceptionHandlerFactory"
+                                      properties="logLevel=FINE"/>
+
+        <cacheLoaderFactory class="net.sf.ehcache.loader.CountingCacheLoaderFactory"
+                                      properties="type=int,startCounter=10"/>
 
     -->
 

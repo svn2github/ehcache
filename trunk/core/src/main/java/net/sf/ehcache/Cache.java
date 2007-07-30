@@ -27,7 +27,7 @@ import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.extension.CacheExtension;
-import net.sf.ehcache.jcache.CacheLoader;
+import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
