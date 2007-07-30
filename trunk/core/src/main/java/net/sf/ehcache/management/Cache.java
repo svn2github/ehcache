@@ -27,7 +27,6 @@ import javax.management.MalformedObjectNameException;
  * @author Greg Luck
  * @version $Id$
  * @since 1.3
- * todo max possible bug
  */
 public class Cache implements CacheMBean {
 
