@@ -18,7 +18,11 @@
 package net.sf.ehcache;
 
 /**
- * A runtime Cache Exception
+ * A runtime Cache Exception.
+ * <p/>
+ * These exceptions may be handled by a <code>CacheExceptionHandler</code> registered with a Cache.
+ * The handler provides a key if it is available. A convention that should be followed in exception messages is
+ * to include in the message "key keyValue" e.g. "key 1234" so that keys can be parsed out of exception messages. 
  *
  * @author Greg Luck
  * @version $Id$

@@ -536,7 +536,7 @@ public class BlockingCache implements Ehcache {
                 return null;
             }
         } catch (InterruptedException e) {
-            throw new CacheException("Interrupted. Message was: " + e.getMessage());
+            throw new CacheException("Get interrupted for key " + key + ". Message was: " + e.getMessage());
         }
     }
 
@@ -660,7 +660,7 @@ public class BlockingCache implements Ehcache {
     /**
      * Returns the keys for this cache.
      *
-     * @return The keys of this cache.  This is not a live set, so it will not track changes to the key set.
+     * @return a list of {@link Object} keys for this cache.  This is not a live set, so it will not track changes to the key set.
      */
     public List getKeys() throws CacheException {
         return cache.getKeys();

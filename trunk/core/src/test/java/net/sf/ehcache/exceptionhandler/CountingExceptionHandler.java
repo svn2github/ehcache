@@ -48,6 +48,13 @@ public class CountingExceptionHandler implements CacheExceptionHandler {
     }
 
     /**
+     * Clear counter
+     */
+    public static void resetCounters() {
+        HANDLED_EXCEPTIONS.clear();
+    }
+
+    /**
      * A value object for each exception handled
      */
     public static class HandledException {
@@ -67,8 +74,20 @@ public class CountingExceptionHandler implements CacheExceptionHandler {
             this.exception = exception;
         }
 
+        /**
+         * @return
+         */
+        public Object getKey() {
+            return key;
+        }
 
-
+        /**
+         *
+         * @return underlying exception
+         */
+        public Exception getException() {
+            return exception;
+        }
     }
 
 

@@ -22,7 +22,6 @@ import net.sf.ehcache.Element;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -99,10 +98,10 @@ public class SelfPopulatingCache extends BlockingCache {
             put(new Element(key, null));
 
             try {
-                throw new CacheException("Could not fetch object for cache entry \"" + key + "\".", throwable);
+                throw new CacheException("Could not fetch object for cache entry with key \"" + key + "\".", throwable);
             } catch (NoSuchMethodError noSuchMethodError) {
                 //Running 1.3 or lower
-                throw new CacheException("Could not fetch object for cache entry \"" + key + "\".");
+                throw new CacheException("Could not fetch object for cache entry with key \"" + key + "\".");
             }
 
 
@@ -143,6 +142,7 @@ public class SelfPopulatingCache extends BlockingCache {
     public void refresh() throws CacheException {
         final String oldThreadName = Thread.currentThread().getName();
         Exception exception = null;
+        Object keyWithException = null;
 
         // Refetch the entries
         final Collection keys = getKeys();
@@ -153,7 +153,7 @@ public class SelfPopulatingCache extends BlockingCache {
 
         // perform the refresh
         for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-            final Serializable key = (Serializable) iterator.next();
+            final Object key = iterator.next();
 
             try {
                 Ehcache backingCache = getCache();
@@ -180,7 +180,7 @@ public class SelfPopulatingCache extends BlockingCache {
         }
 
         if (exception != null) {
-            throw new CacheException(exception.getMessage());
+            throw new CacheException(exception.getMessage() + " on refresh with key " + keyWithException);
         }
     }
 

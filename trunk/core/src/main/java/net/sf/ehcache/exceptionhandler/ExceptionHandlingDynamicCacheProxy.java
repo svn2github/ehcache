@@ -25,6 +25,9 @@ import java.lang.reflect.Proxy;
 /**
  * A dynamic proxy which provides CacheException handling.
  * <p/>
+ * The ehcache configuration will create and register in the <code>CacheManager</code> {@link Ehcache}s decorated
+ * with this dynamic proxy. See following for programmatic use.
+ * <p/>
  * The createProxy factory method may be used to simply create a proxy. Otherwise the calling client
  * will need code similar to:
  * <pre>
@@ -37,6 +40,7 @@ import java.lang.reflect.Proxy;
  * cacheManager.replaceCacheWithDecoratedCache(Ehcache cache, Ehcache decoratedCache);
  * </pre>
  * All clients accessing the cache through<code>cacheManager.getEhcache()</code> will then receive proxy references.
+ * <p/>
  *
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
@@ -113,6 +117,7 @@ public final class ExceptionHandlingDynamicCacheProxy implements InvocationHandl
      *                   exception that was thrown by this method will be thrown by the
      *                   method invocation on the proxy instance.
      * @see java.lang.reflect.UndeclaredThrowableException
+     *
      */
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object invocationResult = null;
@@ -121,12 +126,41 @@ public final class ExceptionHandlingDynamicCacheProxy implements InvocationHandl
         } catch (Exception e) {
             CacheExceptionHandler cacheExceptionHandler = ehcache.getCacheExceptionHandler();
             if (cacheExceptionHandler != null) {
-                cacheExceptionHandler.onException(ehcache, null, (Exception) e.getCause());
+                String keyAsString = extractKey(e.getMessage());
+                cacheExceptionHandler.onException(ehcache, keyAsString, (Exception) e.getCause());
             } else {
                 throw e.getCause();
             }
 
         }
         return invocationResult;
+    }
+
+    /**
+     * Extracts the key from the message, if any
+     */
+    static String extractKey(String message) {
+        if (message == null) {
+            return null;
+        }
+        int beginIndex = message.lastIndexOf("key ");
+        if (beginIndex < 0) {
+            return null;
+        }
+        beginIndex += "key ".length();
+        int endIndex = beginIndex;
+        for (int i = beginIndex; i < message.length(); i++) {
+            char character = message.charAt(i);
+            if (character == ' ') {
+                break;
+            }
+            endIndex = i;
+        }
+        endIndex++;
+        if (endIndex > message.length()) {
+            endIndex = message.length();
+        }
+        String key = message.substring(beginIndex, endIndex);
+        return key;
     }
 }

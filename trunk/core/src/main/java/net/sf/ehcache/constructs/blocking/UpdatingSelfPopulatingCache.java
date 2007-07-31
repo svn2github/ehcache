@@ -88,7 +88,7 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
             // Could not fetch - Ditch the entry from the cache and rethrow
             setThreadName("put", key);
             put(new Element(key, null));
-            throw new LockTimeoutException("Could not fetch object for cache entry \"" + key + "\".", throwable);
+            throw new LockTimeoutException("Could not fetch object for cache entry with key \"" + key + "\".", throwable);
         } finally {
             Thread.currentThread().setName(oldThreadName);
         }

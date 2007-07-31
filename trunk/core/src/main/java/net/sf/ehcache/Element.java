@@ -196,7 +196,7 @@ public final class Element implements Serializable, Cloneable {
         try {
             keyAsSerializable = (Serializable) key;
         } catch (Exception e) {
-            throw new CacheException("Key " + key + " is not Serializable. Consider using Element#getObjectKey()");
+            throw new CacheException("The key " + key + " is not Serializable. Consider using Element#getObjectKey()");
         }
         return keyAsSerializable;
     }
@@ -225,7 +225,8 @@ public final class Element implements Serializable, Cloneable {
         try {
             valueAsSerializable = (Serializable) value;
         } catch (Exception e) {
-            throw new CacheException("Value " + value + " is not Serializable. Consider using Element#getObjectKey()");
+            throw new CacheException("The value " + value + " for key " + key +
+                    " is not Serializable. Consider using Element#getObjectKey()");
         }
         return valueAsSerializable;
     }

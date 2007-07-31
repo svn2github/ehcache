@@ -463,7 +463,7 @@ public class DiskStore implements Store {
                 }
             }
         } catch (Exception exception) {
-            String message = name + "Cache: Could not remove disk store entry for " + key
+            String message = name + "Cache: Could not remove disk store entry for key " + key
                     + ". Error was " + exception.getMessage();
             LOG.error(message, exception);
             throw new CacheException(message);

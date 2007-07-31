@@ -824,12 +824,17 @@ public class Cache implements Ehcache {
         try {
             //only allow one thread to load the missing key
             synchronized (key) {
+                //check again in case the last thead loaded it
+                element = getQuiet(key);
+                if (element != null) {
+                    return element;
+                }
                 Future future = asynchronousLoad(key, loader, loaderArgument);
                 //wait for result
                 future.get();
             }
         } catch (Exception e) {
-            throw new CacheException("Exception on load", e);
+            throw new CacheException("Exception on load for key " + key, e);
         }
         return getQuiet(key);
     }
@@ -899,12 +904,13 @@ public class Cache implements Ehcache {
         Map map = new HashMap(keys.size());
 
         if (cacheLoader != null) {
+            Object key = null;
             try {
                 map = new HashMap(keys.size());
                 List futures = new ArrayList(keys.size());
 
                 for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-                    Object key = iterator.next();
+                    key = iterator.next();
 
                     if (isKeyInCache(key)) {
                         map.put(key, get(key));
@@ -917,14 +923,14 @@ public class Cache implements Ehcache {
                 for (int i = 0; i < futures.size(); i++) {
                     KeyedFuture keyedFuture = (KeyedFuture) futures.get(i);
                     keyedFuture.future.get();
-                    Object key = keyedFuture.key;
+                    key = keyedFuture.key;
                     map.put(key, get(key));
                 }
 
             } catch (ExecutionException e) {
-                throw new CacheException(e.getMessage(), e);
+                throw new CacheException(e.getMessage() + " for key " + key, e);
             } catch (InterruptedException e) {
-                throw new CacheException(e.getMessage(), e);
+                throw new CacheException(e.getMessage() + " for key " + key, e);
             }
         } else {
             for (Iterator iterator = keys.iterator(); iterator.hasNext();) {

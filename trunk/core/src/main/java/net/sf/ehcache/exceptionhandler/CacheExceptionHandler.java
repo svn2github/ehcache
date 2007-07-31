@@ -47,7 +47,7 @@ public interface CacheExceptionHandler {
      * if an <code>Error</code> occurs.
      *
      * @param ehcache   the cache in which the Exception occurred
-     * @param key       the key used in the operation, or null if the operation does not use a key
+     * @param key       the key used in the operation, or null if the operation does not use a key or the key was null
      * @param exception the exception caught
      */
     void onException(Ehcache ehcache, Object key, Exception exception);
