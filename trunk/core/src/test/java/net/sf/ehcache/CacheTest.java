@@ -22,6 +22,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.Future;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.loader.CountingCacheLoader;
+import net.sf.ehcache.loader.ExceptionThrowingLoader;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -1752,6 +1753,20 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(1, countingCacheLoader.getLoadCounter());
     }
 
+    /**
+     * Tests the async load with a single item
+     */
+    public void testGetWithLoaderException() {
+        Cache cache = manager.getCache("sampleCache1");
+        cache.setCacheLoader(new ExceptionThrowingLoader());
+        try {
+            cache.getWithLoader("key1", null, null);
+            fail();
+        } catch (CacheException e) {
+            //expected
+        }
+    }
+
 
     /**
      * Tests the loadAll async method
@@ -1779,6 +1794,28 @@ public class CacheTest extends AbstractCacheTest {
 
         assertEquals(1000, cache.getSize());
         assertEquals(1000, countingCacheLoader.getLoadAllCounter());
+    }
+
+    /**
+     * Tests the getAll where it throws an exception. Should be reported back
+     *
+     */
+    public void testGetAllWithLoaderException() {
+        Cache cache = manager.getCache("sampleCache1");
+        cache.setCacheLoader(new ExceptionThrowingLoader());
+
+        List keys = new ArrayList();
+        for (int i = 0; i < 1000; i++) {
+            keys.add(new Integer(i));
+        }
+
+        try {
+            cache.getAllWithLoader(keys, null);
+            fail();
+        } catch (CacheException e) {
+            e.getMessage();
+            //expected
+        }
     }
 
 

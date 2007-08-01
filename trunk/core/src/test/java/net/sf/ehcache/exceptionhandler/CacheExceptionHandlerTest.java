@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
 import net.sf.ehcache.event.CountingCacheEventListener;
 
@@ -84,16 +85,15 @@ public class CacheExceptionHandlerTest extends TestCase {
     /**
      * Test a cache which has been configured to have an ExceptionThrowingLoader screw up loading.
      * This one should have a key set.
-     * todo getWithLoader should throw an Exception if one occurs during load
      */
-    public void xTestKeyWithConfiguredCache() {
+    public void testKeyWithConfiguredCache() {
 
         cache.setCacheLoader(new ExceptionThrowingLoader());
         cache.getWithLoader("key1", null, null);
 
         assertEquals(1, CountingExceptionHandler.HANDLED_EXCEPTIONS.size());
         assertEquals("key1", ((CountingExceptionHandler.HandledException)CountingExceptionHandler.HANDLED_EXCEPTIONS.get(0)).getKey());
-        assertEquals(IllegalStateException.class, ((CountingExceptionHandler.HandledException)CountingExceptionHandler.HANDLED_EXCEPTIONS
+        assertEquals(CacheException.class, ((CountingExceptionHandler.HandledException)CountingExceptionHandler.HANDLED_EXCEPTIONS
                 .get(0)).getException().getClass());
     }
 

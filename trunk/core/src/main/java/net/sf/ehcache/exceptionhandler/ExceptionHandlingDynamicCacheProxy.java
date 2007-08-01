@@ -126,7 +126,10 @@ public final class ExceptionHandlingDynamicCacheProxy implements InvocationHandl
         } catch (Exception e) {
             CacheExceptionHandler cacheExceptionHandler = ehcache.getCacheExceptionHandler();
             if (cacheExceptionHandler != null) {
-                String keyAsString = extractKey(e.getMessage());
+                String keyAsString = null;
+                if (e.getCause() != null) {
+                    keyAsString = extractKey(e.getCause().getMessage());
+                }
                 cacheExceptionHandler.onException(ehcache, keyAsString, (Exception) e.getCause());
             } else {
                 throw e.getCause();

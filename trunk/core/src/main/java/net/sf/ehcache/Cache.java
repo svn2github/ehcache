@@ -2287,7 +2287,7 @@ public class Cache implements Ehcache {
             /**
              * Calls the CacheLoader and puts the result in the Cache
              */
-            public void run() {
+            public void run() throws CacheException {
                 try {
                     //Test to see if it has turned up in the meantime
                     boolean existsOnRun = isKeyInCache(key);
@@ -2315,6 +2315,7 @@ public class Cache implements Ehcache {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Problem during load. Load will not be completed. Cause was " + e.getCause(), e);
                     }
+                    throw new CacheException(e);
                 }
             }
         });
