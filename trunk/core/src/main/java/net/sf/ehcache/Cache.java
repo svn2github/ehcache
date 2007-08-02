@@ -197,7 +197,6 @@ public class Cache implements Ehcache {
      * usage.
      * <p/>
      * Use {@link #getExecutorService()} to ensure that it is initialised.
-     * todo shutdown on shutdown
      */
     private ThreadPoolExecutor executorService;
 
@@ -1399,24 +1398,33 @@ public class Cache implements Ehcache {
     }
 
     /**
-     * Flushes all cache items from memory to auxilliary caches and close the auxilliary caches.
-     * <p/>
-     * Should be invoked only by CacheManager.
+     * Starts an orderly shutdown of the Cache. Steps are:
+     * <ol>
+     * <li>Completes any outstanding CacheLoader loads.
+     * <li>Disposes any cache extensions.
+     * <li>Disposes any cache event listeners. The listeners normally complete, so for example distributed caching operations will complete.
+     * <li>Flushes all cache items from memory to the disk store, if any
+     * <li>changes status to shutdown, so that any cache operations after this point throw IllegalStateException
+     * </ol>
+     * This method should be invoked only by CacheManager, as a cache's lifecycle is bound into that of it's cache manager.
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     public synchronized void dispose() throws IllegalStateException {
         checkStatus();
+
+        if (executorService != null) {
+            executorService.shutdown();
+        }
+        disposeRegisteredCacheExtensions();
+        registeredEventListeners.dispose();
+
         memoryStore.dispose();
         memoryStore = null;
         if (configuration.isOverflowToDisk()) {
             diskStore.dispose();
             diskStore = null;
         }
-
-        registeredEventListeners.dispose();
-        disposeRegisteredCacheExtensions();
-
         changeStatus(Status.STATUS_SHUTDOWN);
     }
 
