@@ -931,7 +931,6 @@ public class CacheManager {
      * @throws CacheException if the two caches do not equal each other.
      */
     public synchronized void replaceCacheWithDecoratedCache(Ehcache ehcache, Ehcache decoratedCache) throws CacheException {
-        //todo? Why equals?
         if (!ehcache.equals(decoratedCache)) {
             throw new CacheException("Cannot replace " + decoratedCache.getName()
                     + " It does not equal the incumbent cache.");
@@ -948,7 +947,7 @@ public class CacheManager {
     }
 
     /**
-     * Replaces in the map of Caches managed by this CacheManager an Ehcache with a JCache decorated version of the same
+     * Replaces in the map of Caches managed by this CacheManager an Ehcache with a JCache decorated version of the <i>same</i> (see Ehcache equals method)
      * Ehcache, in a single synchronized method.
      * <p/>
      * Warning: JCache will change as the specification changes, so no guarantee of backward compatibility is made for this method.
@@ -960,8 +959,13 @@ public class CacheManager {
         if (!ehcache.getName().equals(jCache.getBackingCache().getName())) {
             throw new CacheException("Cannot replace ehcache with a JCache where the backing cache has a different name");
         }
-        //todo stronger test to make sure the backing cache is the same.
-        jCaches.put(ehcache.getName(), jCache);
+        Ehcache backingCache = jCache.getBackingCache();
+        if (!ehcache.equals(backingCache)) {
+            throw new CacheException("Cannot replace " + backingCache.getName()
+                    + " It does not equal the incumbent cache.");
+        } else {
+            jCaches.put(backingCache.getName(), jCache);
+        }
     }
 
     /**

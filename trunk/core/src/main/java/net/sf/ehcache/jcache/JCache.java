@@ -283,7 +283,6 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * <p/>
      * The Ehcache native API provides similar functionality to loaders using the
      * decorator {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
-     * todo wrap ehcache exception with JCache Exception
      */
     public void loadAll(final Collection keys) throws CacheException {
         loadAll(keys, null);

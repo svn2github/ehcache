@@ -2123,10 +2123,11 @@ public class Cache implements Ehcache {
 
     /**
      * An equals method which follows the contract of {@link Object#equals(Object)}
-     *
+     * <p/>
+     * An Cache is equal to another one if it implements Ehcache and has the same GUID.
      * @param object the reference object with which to compare.
      * @return <code>true</code> if this object is the same as the obj
-     *         argument; <code>false</code> otherwise. Same for a Cache means, the same GUID
+     *         argument; <code>false</code> otherwise.
      * @see #hashCode()
      * @see java.util.Hashtable
      */
