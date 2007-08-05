@@ -167,11 +167,11 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
                         properties="propertyA=valueA"/>
             </cache>CacheExtension cache
         */
-        Ehcache testExceptionHandlingCache = configurationHelper.createCacheFromName("testExceptionHandlingCache");
-        assertEquals("testExceptionHandlingCache", testExceptionHandlingCache.getName());
-        assertTrue(testExceptionHandlingCache.getCacheExceptionHandler() != null);
-        assertTrue(testExceptionHandlingCache.getCacheExceptionHandler() instanceof CountingExceptionHandler);
-        assertTrue(testExceptionHandlingCache.getCacheExceptionHandler() instanceof CacheExceptionHandler);
+        Ehcache exceptionHandlingCache = configurationHelper.createCacheFromName("exceptionHandlingCache");
+        assertEquals("exceptionHandlingCache", exceptionHandlingCache.getName());
+        assertTrue(exceptionHandlingCache.getCacheExceptionHandler() != null);
+        assertTrue(exceptionHandlingCache.getCacheExceptionHandler() instanceof CountingExceptionHandler);
+        assertTrue(exceptionHandlingCache.getCacheExceptionHandler() instanceof CacheExceptionHandler);
 
 
 

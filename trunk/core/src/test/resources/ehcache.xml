@@ -167,7 +167,7 @@
                                                replicateRemovals=true "/>
     </cache>
 
-    <cache name="testExceptionHandlingCache"
+    <cache name="exceptionHandlingCache"
            maxElementsInMemory="10000"
            maxElementsOnDisk="1000"
            eternal="false"

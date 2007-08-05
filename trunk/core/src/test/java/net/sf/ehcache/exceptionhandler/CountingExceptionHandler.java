@@ -31,7 +31,7 @@ public class CountingExceptionHandler implements CacheExceptionHandler {
     /**
      * the list of handled exceptions, static so you can get them without a reference
      */
-    static final List HANDLED_EXCEPTIONS = new ArrayList();
+    public static final List HANDLED_EXCEPTIONS = new ArrayList();
 
     /**
      * Called if an Exception occurs in a Cache method. This method is not called

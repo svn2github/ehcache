@@ -28,7 +28,6 @@ import net.sf.ehcache.event.CountingCacheEventListener;
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  * todo doco
- * todo JCacheTest
  */
 public class CacheExceptionHandlerTest extends TestCase {
 
@@ -39,7 +38,7 @@ public class CacheExceptionHandlerTest extends TestCase {
     /**
      * the cache name we wish to test
      */
-    protected String cacheName = "testExceptionHandlingCache";
+    protected String cacheName = "exceptionHandlingCache";
     /**
      * the cache we wish to test                                                                
      */
@@ -72,7 +71,7 @@ public class CacheExceptionHandlerTest extends TestCase {
      * Test a cache which has been configured to have a CountingExceptionHandler configured
      */
     public void testConfiguredCache() {
-        manager.removeCache("testExceptionHandlingCache");
+        manager.removeCache("exceptionHandlingCache");
         //Would normally throw an IllegalStateException
         cache.get("key1");
 

@@ -21,7 +21,9 @@ import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.StopWatch;
 import net.sf.ehcache.ThreadKiller;
+import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
 import net.sf.ehcache.loader.CountingCacheLoader;
+import net.sf.ehcache.loader.ExceptionThrowingLoader;
 import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheEntry;
 import net.sf.jsr107cache.CacheException;
@@ -390,8 +392,6 @@ public class JCacheTest extends AbstractCacheTest {
         value = jcache.get("key", "argumentValue");
         assertEquals("CountingCacheLoader:argumentValue", value);
 
-
-
         //cache hit
         jcache.put("key2", "value");
         value = jcache.get("key2");
@@ -626,7 +626,7 @@ public class JCacheTest extends AbstractCacheTest {
         assertNull(cache.get("key2"));
     }
 
-     /**
+    /**
      * Test expiry based on time to live where the TTL is set in the put
      */
     public void testExpiryBasedOnTimeToLiveTTL() throws Exception {
@@ -637,7 +637,7 @@ public class JCacheTest extends AbstractCacheTest {
         JCache cache = new JCache(ehcache, null);
 
         cache.put("key1", "value1", 1);
-         //default
+        //default
         cache.put("key2", "value1", 0);
 
         //Test time to live
@@ -1296,8 +1296,6 @@ public class JCacheTest extends AbstractCacheTest {
     }
 
 
-
-
     /**
      * Tests the public API load method with a single item
      */
@@ -1311,27 +1309,46 @@ public class JCacheTest extends AbstractCacheTest {
         assertEquals(1, countingCacheLoader.getLoadCounter());
     }
 
-
     /**
-     * Tests that the setLoader method allows the loader to be changed
-     * todo this test fails occasionally. 
+     * Tests that the setLoader method allows the loader to be changed. The load is async so timing is important.
      */
-    public void xTtestLoadWithDynamicLoaderInjection() throws InterruptedException, ExecutionException, CacheException {
+    public void testLoadWithDynamicLoaderInjection() throws InterruptedException, ExecutionException, CacheException {
 
         //null loader so no loading happens
-        JCache jcache = new JCache(manager.getCache("sampleCache1"), null);
-        jcache.load("key1");
-        assertEquals(0, jcache.size());
+        JCache jCache = new JCache(manager.getCache("sampleCache1"), null);
+        jCache.setCacheLoader(null);
+        assertEquals(0, jCache.size());
+        jCache.load("key1");
+        Thread.sleep(1000);
+        assertEquals(0, jCache.size());
 
 
         CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
-        jcache.setCacheLoader(countingCacheLoader);
+        jCache.setCacheLoader(countingCacheLoader);
 
-        jcache.load("key1");
+        jCache.load("key1");
         Thread.sleep(1000);
 
-        assertEquals(1, jcache.size());
+        assertEquals(1, jCache.size());
         assertEquals(1, countingCacheLoader.getLoadCounter());
+    }
+
+    /**
+     * Test exception handling from JCache
+     * todo document each interface subject to change with JSR107
+     */
+    public void testCacheExceptionHandler() {
+        JCache jcache = manager.getJCache("exceptionHandlingCache");
+
+        jcache.setCacheLoader(new ExceptionThrowingLoader());
+
+        //throws an exception
+        jcache.get("key");
+
+        assertEquals(1, CountingExceptionHandler.HANDLED_EXCEPTIONS.size());
+        assertEquals("key", ((CountingExceptionHandler.HandledException) CountingExceptionHandler.HANDLED_EXCEPTIONS.get(0)).getKey());
+        assertTrue((((CountingExceptionHandler.HandledException) CountingExceptionHandler.HANDLED_EXCEPTIONS
+                .get(0)).getException()) instanceof RuntimeException);
     }
 
     /**

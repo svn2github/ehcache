@@ -34,19 +34,29 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A cache implementation that matches the JCACHE specification.
+ * A cache implementation that matches the draft JCACHE specification.
+ * <p/>
+ * WARNING: The JCache specfication is in draft and this API will change up until the time that JCACHE is finalised.
  * <p/>
  * It is not possible for one class to implement both JCACHE and Ehcache
  * in the same class due to conflicts with method signatures on get and remove.
  * <p/>
- * This implementation is a decorator for Ehcache, and should exhibit the same
- * underlying characteristics as Ehcache.
+ * This implementation is an adaptor to Ehcache, and will exhibit the same underlying characteristics as Ehcache. Additiona features
+ * have been added to Ehcache to match the JCache features. All of these features can be configured in ehcache.xml.
  * <p/>
- * Note that JCACHE contains no lifecyle methods. JCaches cannot be stopped. Any resources, such
- * as loader threads cannot be released, although they will die off after 60 seconds.
- *
+ * The current JCache CacheManager class, available in the draft, is considered unworkable. Instead, use the Ehcache <code>cacheManager.getJCache(String name)</code>
+ * to get a JCache. The JCache CacheManager is unlikely to make it into the final spec.
+ * <p/>
+ * The recommended creational pattern for JCache is one of:
+ * <ol>
+ * <li>Add a cache to ehcache.xml and use <code>cacheManager.getJCache(String name)</code> to access it.
+ * <li>Create a JCache from an Ehcache, using one of the constructors in this class. Two types of CacheLoader can be specified, in which
+ * case the underlying Ehcache loader is replaced by the one specified.
+ * <li>Create an Ehcache from a Cache using its constructor, then a JCache, and then add it to the ehcache CacheManager using <code>cacheManager.addCache(JCache jCache)</code>
+ * </ol>
  * @author Greg Luck
  * @version $Id$
+ * @since 1.3
  */
 public class JCache implements net.sf.jsr107cache.Cache {
 
@@ -57,22 +67,31 @@ public class JCache implements net.sf.jsr107cache.Cache {
      */
     private Ehcache cache;
 
+
     /**
      * A constructor for JCache.
      * <p/>
-     * JCache is an adaptor for an Ehcache, and therefore requires an Ehcace in its constructor.
+     * JCache is an adaptor for an Ehcache, and therefore requires an Ehcache in its constructor.
      * <p/>
-     * The {@link net.sf.ehcache.config.ConfigurationFactory} and clients can create these.
+     * @param cache       An ehcache
+     * @since 1.4
+     * @see "class description for recommended usage"
+     */
+    public JCache(Ehcache cache) {
+        this.cache = cache;
+    }
+
+    /**
+     * A constructor for JCache.
      * <p/>
-     * A client can specify their own settings here and pass the {@link Ehcache} object
-     * into {@link net.sf.ehcache.CacheManager#addCache} to specify parameters other than the defaults.
+     * JCache is an adaptor for an Ehcache, and therefore requires an Ehcache in its constructor.
      * <p/>
-     * Only the CacheManager can initialise them.
-     *
      * @param cache       An ehcache
      * @param cacheLoader used to load entries when they are not in the cache. If this is null, it is
-     *                    set for the cache. If null, the JCache will inherit the CacheLoader set for the backing ehcache
+     *                    set for the cache. If null, the JCache will inherit the CacheLoader set for the backing ehcache.
+     *                    If specified, the underlying ehcache will have it's loader replaced.
      * @since 1.3
+     * @see "class description for recommended usage"
      */
     public JCache(Ehcache cache, net.sf.jsr107cache.CacheLoader cacheLoader) {
         this.cache = cache;
@@ -84,19 +103,14 @@ public class JCache implements net.sf.jsr107cache.Cache {
     /**
      * A constructor for JCache.
      * <p/>
-     * JCache is an adaptor for an Ehcache, and therefore requires an Ehcace in its constructor.
+     * JCache is an adaptor for an Ehcache, and therefore requires an Ehcache in its constructor.
      * <p/>
-     * The {@link net.sf.ehcache.config.ConfigurationFactory} and clients can create these.
-     * <p/>
-     * A client can specify their own settings here and pass the {@link Ehcache} object
-     * into {@link net.sf.ehcache.CacheManager#addCache} to specify parameters other than the defaults.
-     * <p/>
-     * Only the CacheManager can initialise them.
-     *
      * @param cache       An ehcache
      * @param cacheLoader used to load entries when they are not in the cache. If this is null, it is
-     *                    set for the cache. If null, the JCache will inherit the CacheLoader set for the backing ehcache
+     *                    set for the cache. If null, the JCache will inherit the CacheLoader set for the backing ehcache.
+     *                    If specified, the underlying ehcache will have it's loader replaced.
      * @since 1.3
+     * @see "class description for recommended usage"
      */
     public JCache(Ehcache cache, CacheLoader cacheLoader) {
         this.cache = cache;
@@ -108,7 +122,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
     /**
      * Setter for the CacheLoader. Changing the CacheLoader takes immediate effect.
      *
-     * @param cacheLoader the loader to dynamically load new cache entries
+     * @param cacheLoader the loader to dynamically load new cache entries. This replaces the CacheLoader in the underlying ehcache.
      */
     public void setCacheLoader(CacheLoader cacheLoader) {
         cache.setCacheLoader(cacheLoader);
