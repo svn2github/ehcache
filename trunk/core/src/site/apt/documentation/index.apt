@@ -39,6 +39,8 @@ ehcache 1.3.0 User Guide
 
     * {{{./cache_event_listeners.html}Cache Event Listeners}}
 
+    * {{{./cache_exception_handlers.html}Cache Exception Handlers}}
+
     * {{{./hibernate.html}Hibernate Caching}}
 
     * {{{./constructs_design.html}Constructs Design}}

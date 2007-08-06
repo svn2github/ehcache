@@ -27,7 +27,6 @@ import net.sf.ehcache.event.CountingCacheEventListener;
 /**
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
- * todo doco
  */
 public class CacheExceptionHandlerTest extends TestCase {
 

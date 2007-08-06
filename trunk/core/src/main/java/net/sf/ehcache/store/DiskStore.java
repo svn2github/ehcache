@@ -56,7 +56,6 @@ import java.util.Set;
  * store size is set. LFU uses statistics held at the Element level which survive moving between
  * maps in the MemoryStore and DiskStores.
  *
- * todo doco for buffer
  * @author Adam Murdoch
  * @author Greg Luck
  * @author patches contributed: Ben Houston

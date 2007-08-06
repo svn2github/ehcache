@@ -1335,7 +1335,6 @@ public class JCacheTest extends AbstractCacheTest {
 
     /**
      * Test exception handling from JCache
-     * todo document each interface subject to change with JSR107
      */
     public void testCacheExceptionHandler() {
         JCache jcache = manager.getJCache("exceptionHandlingCache");

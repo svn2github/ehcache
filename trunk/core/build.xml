@@ -626,7 +626,6 @@
                   executable="java">
                 <arg line="-jar bootstrap.jar"/>
             </exec>
-            <!--todo fix-->
             <exec dir="@{build.tomcat.dir}/bin" spawn="true" os="Windows XP, Windows 2000"
                   executable="cmd">
                 <arg value="/c"/>

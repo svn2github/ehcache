@@ -52,27 +52,35 @@
         <xs:complexType>
             <xs:attribute name="class" use="required"/>
             <xs:attribute name="properties" use="optional"/>
+            <xs:attribute name="propertySeparator" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cacheManagerPeerProviderFactory">
         <xs:complexType>
             <xs:attribute name="class" use="required"/>
             <xs:attribute name="properties" use="optional"/>
+            <xs:attribute name="propertySeparator" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cacheManagerPeerListenerFactory">
         <xs:complexType>
             <xs:attribute name="class" use="required"/>
             <xs:attribute name="properties" use="optional"/>
+            <xs:attribute name="propertySeparator" use="optional"/>
         </xs:complexType>
     </xs:element>
+    <!-- add clone support for addition of cacheExceptionHandler. Important! -->
     <xs:element name="defaultCache">
         <xs:complexType>
             <xs:sequence>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheEventListenerFactory"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheExtensionFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="cacheExceptionHandlerFactory"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="cacheLoaderFactory"/>
             </xs:sequence>
             <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
+            <xs:attribute name="diskSpoolBufferSizeMB" use="optional" type="xs:integer"/>
             <xs:attribute name="diskPersistent" use="optional" type="xs:boolean"/>
             <xs:attribute name="eternal" use="required" type="xs:boolean"/>
             <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
@@ -87,9 +95,13 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheEventListenerFactory"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheExtensionFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="cacheExceptionHandlerFactory"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="cacheLoaderFactory"/>
             </xs:sequence>
             <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
+            <xs:attribute name="diskSpoolBufferSizeMB" use="optional" type="xs:integer"/>
             <xs:attribute name="diskPersistent" use="optional" type="xs:boolean"/>
             <xs:attribute name="eternal" use="required" type="xs:boolean"/>
             <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
@@ -105,12 +117,35 @@
         <xs:complexType>
             <xs:attribute name="class" use="required"/>
             <xs:attribute name="properties" use="optional"/>
+            <xs:attribute name="propertySeparator" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="bootstrapCacheLoaderFactory">
         <xs:complexType>
             <xs:attribute name="class" use="required"/>
             <xs:attribute name="properties" use="optional"/>
+            <xs:attribute name="propertySeparator" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="cacheExtensionFactory">
+        <xs:complexType>
+            <xs:attribute name="class" use="required"/>
+            <xs:attribute name="properties" use="optional"/>
+            <xs:attribute name="propertySeparator" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="cacheExceptionHandlerFactory">
+        <xs:complexType>
+            <xs:attribute name="class" use="required"/>
+            <xs:attribute name="properties" use="optional"/>
+            <xs:attribute name="propertySeparator" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="cacheLoaderFactory">
+        <xs:complexType>
+            <xs:attribute name="class" use="required"/>
+            <xs:attribute name="properties" use="optional"/>
+            <xs:attribute name="propertySeparator" use="optional"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>
@@ -161,13 +196,20 @@
      user to configure a separate configuration for multiple CacheManagers with conflicting
      settings.
 
-   The sample ehcache.xml, which is included in the ehcache distribution is shown below:
+   The sample ehcache.xml, which is included in the ehcache distribution is reproduced below:
 
 ---------------------
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ehcache.xsd">
 
     <!--
+    CacheManager Configuration
+    ==========================
+    An ehcache.xml corresponds to a single CacheManager.
+
+    See instructions below or the ehcache schema (ehcache.xsd) on how to configure.
+
     DiskStore configuration
+    =======================
 
     Sets the path to the directory where cache files are created.
 
@@ -184,6 +226,8 @@
     <diskStore path="java.io.tmpdir"/>
 
     <!--
+    CacheManagerEventListener
+    =========================
     Specifies a CacheManagerEventListenerFactory, be used to create a CacheManagerPeerProvider,
     which is notified when Caches are added or removed from the CacheManager.
 
@@ -207,6 +251,8 @@
 
 
     <!--
+    CacheManagerPeerProvider
+    ========================
     (Enable for distributed operation)
 
     Specifies a CacheManagerPeerProviderFactory which will be used to create a
@@ -250,7 +296,8 @@
                           "net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
                           properties="peerDiscovery=manual,
                           rmiUrls=//server1:40000/sampleCache1|//server2:40000/sampleCache1
-                          | //server1:40000/sampleCache2|//server2:40000/sampleCache2"/>
+                          | //server1:40000/sampleCache2|//server2:40000/sampleCache2"
+                          propertySeparator="," />
 
     Valid properties are:
     * peerDiscovery (mandatory) - specify "manual"
@@ -265,10 +312,14 @@
             class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
             properties="peerDiscovery=automatic,
                         multicastGroupAddress=230.0.0.1,
-                        multicastGroupPort=4446, timeToLive=1"/>
+                        multicastGroupPort=4446, timeToLive=1"
+            propertySeparator=","
+            />
 
 
     <!--
+    CacheManagerPeerListener
+    ========================
     (Enable for distributed operation)
 
     Specifies a CacheManagerPeerListenerFactory which will be used to create a
@@ -287,7 +338,8 @@
         class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
         properties="hostName=fully_qualified_hostname_or_ip,
                     port=40001,
-                    socketTimeoutMillis=120000"/>
+                    socketTimeoutMillis=120000"
+                    propertySeparator="," />
 
     All properties are optional. They are:
     * hostName - the hostName of the host the listener is running on. Specify
@@ -304,7 +356,9 @@
             class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
 
 
-    <!-- Cache configuration.
+    <!--
+    Cache configuration
+    ===================
 
     The following attributes are required.
 
@@ -326,7 +380,7 @@
     Sets whether elements can overflow to disk when the memory store
     has reached the maxInMemory limit.
 
-    The following attributes are optional.
+    The following attributes and elements are optional.
 
     timeToIdleSeconds:
     Sets the time to idle for an element before it expires.
@@ -350,6 +404,13 @@
     The number of seconds between runs of the disk expiry thread. The default value
     is 120 seconds.
 
+    diskSpoolBufferSizeMB:
+    This is the size to allocate the DiskStore for a spool buffer. Writes are made
+    to this area and then asynchronously written to disk. The default size is 30MB.
+    Each spool buffer is used only by its cache. If you get OutOfMemory errors consider
+    lowering this value. To improve DiskStore performance consider increasing it. Trace level
+    logging in the DiskStore will show if put back ups are occurring.
+
     memoryStoreEvictionPolicy:
     Policy would be enforced upon reaching the maxElementsInMemory limit. Default
     policy is Least Recently Used (specified as LRU). Other policies available -
@@ -365,6 +426,11 @@
     * bootstrapCacheLoaderFactory - Specifies a BootstrapCacheLoader, which is called by a
       cache on initialisation to prepopulate itself.
 
+    * cacheExtensionFactory - Specifies a CacheExtension, a generic mechansim to tie a class
+      which holds a reference to a cache to the cache lifecycle.
+
+    RMI Cache Replication
+
     Each cache that will be distributed needs to set a cache event listener which replicates
     messages to the other CacheManager peers. For the built-in RMI implementation this is done
     by adding a cacheEventListenerFactory element of type RMICacheReplicatorFactory to each
@@ -375,7 +441,9 @@
          replicatePuts=true,
          replicateUpdates=true,
          replicateUpdatesViaCopy=true,
-         replicateRemovals=true "/>
+         replicateRemovals=true
+         asynchronousReplicationIntervalMillis=<number of milliseconds"
+         propertySeparator="," />
 
     The RMICacheReplicatorFactory recognises the following properties:
 
@@ -397,12 +465,16 @@
       replicator runs at a set interval of milliseconds. The default is 1000. The minimum
       is 10. This property is only applicable if replicateAsynchronously=true
 
+
+    Cluster Bootstrapping
+
     The RMIBootstrapCacheLoader bootstraps caches in clusters where RMICacheReplicators are
     used. It is configured as per the following example:
 
     <bootstrapCacheLoaderFactory
         class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"
-        properties="bootstrapAsynchronously=true, maximumChunkSizeBytes=5000000"/>
+        properties="bootstrapAsynchronously=true, maximumChunkSizeBytes=5000000"
+        propertySeparator="," />
 
     The RMIBootstrapCacheLoaderFactory recognises the following optional properties:
 
@@ -413,6 +485,27 @@
     * maximumChunkSizeBytes=<integer> - Caches can potentially be very large, larger than the
       memory limits of the VM. This property allows the bootstraper to fetched elements in
       chunks. The default chunk size is 5000000 (5MB).
+
+
+    Cache Exception Handling
+
+    By default, most cache operations will propagate a runtime CacheException on failure. An interceptor,
+      using a dynamic proxy, may be configured so that a CacheExceptionHandler can be configured to
+      intercept Exceptions. Errors are not intercepted. It is configured as per the following example:
+
+      <cacheExceptionHandlerFactory class="net.sf.ehcache.exceptionhandler.CountingExceptionHandlerFactory"
+                                      properties="logLevel=FINE"/>
+
+    Caches with ExceptionHandling configured are not of type Cache, but are of type Ehcache only, and are not available
+    using CacheManager.getCache(), but using CacheManager.getEhcache().
+
+
+    CacheLoader
+
+    A CacheLoader may be configured against a cache.
+
+        <cacheLoaderFactory class="net.sf.ehcache.loader.CountingCacheLoaderFactory"
+                                      properties="type=int,startCounter=10"/>
 
     -->
 
@@ -428,6 +521,7 @@
             timeToIdleSeconds="120"
             timeToLiveSeconds="120"
             overflowToDisk="true"
+            diskSpoolBufferSizeMB="30"
             maxElementsOnDisk="10000000"
             diskPersistent="false"
             diskExpiryThreadIntervalSeconds="120"
@@ -453,6 +547,7 @@
            maxElementsOnDisk="1000"
            eternal="false"
            overflowToDisk="true"
+           diskSpoolBufferSizeMB="20"
            timeToIdleSeconds="300"
            timeToLiveSeconds="600"
            memoryStoreEvictionPolicy="LFU"
@@ -541,6 +636,9 @@
                 class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
                 properties="asynchronousReplicationIntervalMillis=200"/>
     </cache>
+
+
+
 
 </ehcache>
 

@@ -34,6 +34,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Warning: This class is related to the JSR107 specification, which is in draft. It is subject to change without notice.
+ * <p/>
  * A cache implementation that matches the draft JCACHE specification.
  * <p/>
  * WARNING: The JCache specfication is in draft and this API will change up until the time that JCACHE is finalised.
