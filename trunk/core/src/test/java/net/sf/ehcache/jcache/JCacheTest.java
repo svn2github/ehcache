@@ -242,6 +242,35 @@ public class JCacheTest extends AbstractCacheTest {
         assertNotNull(cache.get("key2"));
     }
 
+
+    /**
+     * Create a JCache from an inactive Ehcache and try adding to CacheManager.
+     * <p/>
+     * Check that getting JCache, Ehcache and Cache all make sense.
+     */
+    public void testEhcacheConstructor() throws Exception {
+        Ehcache ehcache = new net.sf.ehcache.Cache("testJCacheCreation", 1, true, true, 500, 200);
+        JCache cache = new JCache(ehcache);
+        manager.addCache(cache);
+
+        JCache jCacheFromCacheManager = manager.getJCache("testJCacheCreation");
+        assertTrue(jCacheFromCacheManager.isEmpty());
+
+        Ehcache ehcacheFromCacheManager = manager.getEhcache("testJCacheCreation");
+        assertEquals(0, ehcacheFromCacheManager.getSize());
+
+        net.sf.ehcache.Cache cacheFromCacheManager = manager.getCache("testJCacheCreation");
+        assertEquals(0, cacheFromCacheManager.getSize());
+
+        assertEquals(jCacheFromCacheManager.getBackingCache(), ehcacheFromCacheManager);
+
+        assertEquals(jCacheFromCacheManager.getBackingCache(), cacheFromCacheManager);
+
+        assertEquals(ehcacheFromCacheManager, cacheFromCacheManager);        
+
+    }
+
+
     /**
      * Test isEmpty
      */

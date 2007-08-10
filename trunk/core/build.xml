@@ -768,6 +768,7 @@
                 <arg value="constructs_design.apt"/>
                 <arg value="cachemanager_event_listeners.apt"/>
                 <arg value="cache_event_listeners.apt"/>
+                <arg value="cache_exception_handlers.apt"/>
                 <arg value="jsr107.apt"/>
                 <arg value="tomcat.apt"/>
                 <arg value="building.apt"/>

@@ -1,9 +1,11 @@
+#Latex is very sensitive to whitespace in this file. If it stops working check against previous versions for whitespace differences.
+
 #v=1
 toc=1
 index=1
 lang=en
 paper=a4
-latex.documentclass=book  
+latex.documentclass=book
 html.css=/css/book.css
 html.paging=0
 .gif.eps=giftopnm %F | pnmtops --noturn -scale=0.45 -rle > %G
