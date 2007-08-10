@@ -34,7 +34,7 @@ import java.util.Set;
 
 /**
  * Ehcache CacheManagers and Caches have lifecycles. Often normal use of a CacheManager will be
- * to shut it down and create a new one from within a running JVM. For example, in JEE environments,
+ * to shut it down and create a new one from within a running JVM. For example, in Java EE environments,
  * applications are often undeployed and then redeployed. A servlet listener, {@link net.sf.ehcache.constructs.web.ShutdownListener}
  * enables this to be detected and the CacheManager shutdown.
  * <p/>

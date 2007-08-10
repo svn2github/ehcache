@@ -1,4 +1,4 @@
-JEE Servlet Caching
+Java EE Servlet Caching
 
     Some ehcache users may not have heard of this capability. It was previously included in the ehcache-constructs module, a separate
     download from ehcache.sf.net. It also had separate documentation. With ehcache-1.2.1, it is merged into the main module. This

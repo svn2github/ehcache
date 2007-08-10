@@ -243,7 +243,7 @@ News
       randomly chosen peer.
 
     Finally, the ehcache-constructs package has been merged into the ehcache module so that there is only one jar to
-    download and install to get all functionaliy. Ehcache-constructs contains JEE Caching filters and other useful
+    download and install to get all functionaliy. Ehcache-constructs contains Java EE Caching filters and other useful
     applied caching solutions.
 
     See the {{{/changes-report.html}change log}} for more details.

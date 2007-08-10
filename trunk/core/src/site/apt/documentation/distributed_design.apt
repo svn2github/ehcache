@@ -131,8 +131,8 @@ The Design of distributed ehcache
      JMS Topics are standard, well understood way to propagate messages to
      multiple subscribers. JMS is not used in the default ehcache
      implementation because many ehcache users are outside the scope of
-     JEE. However JMS based delivery, with its richer services, could be a
-     could choice for JEE bases systems.
+     Java EE. However JMS based delivery, with its richer services, could be a
+     could choice for Java EE bases systems.
 
 ** RMI
      RMI is the default RPC mechanism in Java.

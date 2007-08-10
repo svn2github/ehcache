@@ -21,7 +21,7 @@ ehcache 1.3.0 User Guide
 
     * {{{./cache_decorators.html}Cache Decorators}} 
 
-    * {{{./j2ee_servlet_caching.html}JEE Servlet Caching}} 
+    * {{{./j2ee_servlet_caching.html}Java EE Servlet Caching}} 
 
     * {{{./distributed_caching.html}Distributed Caching}}
 

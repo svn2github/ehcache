@@ -7,7 +7,7 @@
 
 Welcome to ehcache
 
- Ehcache is a widely used java distributed cache for general purpose caching, JEE and light-weight containers.
+ Ehcache is a widely used java distributed cache for general purpose caching, Java EE and light-weight containers.
 
  It features memory and disk stores, replicate by copy and invalidate, listeners, a gzip caching servlet filter and much {{{features.html}more}}...
 
