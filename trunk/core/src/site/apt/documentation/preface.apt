@@ -8,6 +8,11 @@ Preface
     application persistence and distributed caching. The biggest issue faced by Ehcache users at the time of writing is
     understanding when and how to use these features.
 
+* Version
+
+   This book is for Ehcache version 1.4.0.
+
+
 * Audience
 
     The intended audience for this book is developers who use ehcache. It should be able to be used to start from scratch,
@@ -19,11 +24,9 @@ Preface
     distributed caching and Java EE caching, are alternatives to be considered along with other ways of solving those problems.
     This book discusses the trade-offs in ehcache's approach to help make a decision about appropriateness of use.
 
-* Book Format
+* Printing
 
-    This is the first time that the ehcache documentation has been put in book form suitable for use as an online
-    PDF or printed. It is designed to be printed from PDF, so blank pages have been deliberately left to give a good
-    flow.
+    The PDF is designed to be printed, with blank pages deliberately left to maintiain book conventions.
 
 * Acknowledgements
 

@@ -33,9 +33,9 @@ public interface CacheLoader extends net.sf.jsr107cache.CacheLoader {
      * Load using both a key and an argument.
      *
      * JCache will call through to the load(key) method, rather than this method, where the argument is null.
-     * @param key
-     * @param argument
-     * @return
+     * @param key the key to load the object for
+     * @param argument can be anything that makes sense to the loader
+     * @return the Object loaded
      *
      *
      * @throws CacheException
@@ -46,16 +46,16 @@ public interface CacheLoader extends net.sf.jsr107cache.CacheLoader {
      * Load using both a key and an argument.
      *
      * JCache will use the loadAll(key) method where the argument is null.
-     * @param keys
-     * @param argument
-     * @return
+     * @param keys the keys to load objects for
+     * @param argument can be anything that makes sense to the loader
+     * @return a map of Objects keyed by the collection of keys passed in.
      * @throws CacheException
      */
     Map loadAll(Collection keys, Object argument) throws CacheException;
 
     /**
      * Gets the name of a CacheLoader
-     * @return
+     * @return the name of this CacheLoader
      */
     String getName();
 }

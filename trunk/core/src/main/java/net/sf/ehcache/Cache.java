@@ -2266,7 +2266,6 @@ public class Cache implements Ehcache {
      * Gets the CacheLoader registered in this cache
      *
      * @return the loader, or null if there is none
-     * @proposed addition to jsr107
      */
     public CacheLoader getCacheLoader() {
         return cacheLoader;
