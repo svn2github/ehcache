@@ -426,7 +426,7 @@ public class DiskStore implements Store {
      * <p/>
      * This is a very simple and quick test which estimates the spool size based on the last element's written size.
      *
-     * @return
+     * @return true if the spool is not being cleared fast enough
      */
     public boolean backedUp() {
         long estimatedSpoolSize = spool.size() * lastElementSize;
