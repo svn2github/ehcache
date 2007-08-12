@@ -482,6 +482,8 @@ public class CacheManager {
     /**
      * Returns a concrete implementation of Cache, it it is available in the CacheManager.
      * Consider using getEhcache(String name) instead, which will return decorated caches that are registered.
+     * <p/>
+     * If a decorated ehcache is registered in CacheManager, an undecorated Cache with the same name will also exist.
      *
      * @return a Cache, if an object of that type exists by that name, else null
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}

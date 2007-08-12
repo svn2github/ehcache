@@ -5,11 +5,12 @@
    using a dynamic proxy, may be configured so that a CacheExceptionHandler can be configured to
    intercept Exceptions. Errors are not intercepted.
 
-   Caches with ExceptionHandling configured are not of type Cache, but are of type Ehcache only, and are not available
-   using <<<CacheManager.getCache()>>>, but using <<<CacheManager.getEhcache()>>>.
+   Caches with ExceptionHandling configured are of type Ehcache. To get the exception handling behaviour they must
+   be referenced using <<<CacheManager.getEhcache()>>>, not <<<CacheManager.getCache()>>>, which returns the underlying undecorated cache. 
 
+   CacheExceptionHandlers may be set either declaratively in the ehcache.xml configuration file or programmatically.
 
-* Configuration
+*   Declarative Configuration
 
     Cache event listeners are configured per cache. Each cache can have
     at most one exception handler.
@@ -105,6 +106,21 @@ public interface CacheExceptionHandler {
 
     See the chapter on {{{./class_loading.html}Classloading}} for details on how classloading
     of these classes will be done.
+
+*   Programmatic Configuration
+
+    The following example shows how to add exception handling to a cache then adding the
+    cache back into cache manager so that all clients obtain the cache handling decoration.
+
+---
+    CacheManager cacheManager = ...
+    Ehcache cache = cacheManger.getCache("exampleCache");
+    ExceptionHandler handler = new ExampleExceptionHandler(...);
+    cache.setCacheLoader(handler);
+    Ehcache proxiedCache = ExceptionHandlingDynamicCacheProxy.createProxy(cache);
+    cacheManager.replaceCacheWithDecoratedCache(cache, proxiedCache);
+---
+
 
 
 

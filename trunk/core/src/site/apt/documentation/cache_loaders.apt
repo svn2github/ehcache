@@ -1,16 +1,34 @@
 {Cache Loaders}
 
-    todo complete
+   A <<<CacheLoader>>> is an interface which specifies <<<load>>> and <<<loadAll>>> methods with a variety of parameters.
 
-   By default, most cache operations will propagate a runtime CacheException on failure. An interceptor,
-   using a dynamic proxy, may be configured so that a CacheExceptionHandler can be configured to
-   intercept Exceptions. Errors are not intercepted.
+   CacheLoaders come from JCache, but are a frequently requested feature, so they have been incorporated into the core
+    Ehcache classes and can be configured in ehcache.xml.
 
-   Caches with ExceptionHandling configured are not of type Cache, but are of type Ehcache only, and are not available
-   using <<<CacheManager.getCache()>>>, but using <<<CacheManager.getEhcache()>>>.
+   CacheLoaders are invoked in the following Cache methods:
 
+     * getWithLoader (synchronous)
 
-* Configuration
+     * getAllWithLoader (synchronous)
+
+     * load (asynchronous)
+
+     * loadAll (asynchronous)
+
+   They are also invoked in similar (though slightly different named) JCache methods.
+
+   The methods will invoke a CacheLoader if there is no entry for the key or keys requested. By implementing CacheLoader,
+    an application form of loading can take place. The get... methods follow the pull-through cache pattern.
+    The load... methods are useful as cache warmers.
+
+   CacheLoaders are similar to the CacheEntryFactory used in SelfPopulatingCache. However SelfPopulatingCache is a decorator
+     to ehcache. The CacheLoader functionality is available right in a Cache, Ehcache or JCache and follows a more industry
+      standard convention.
+
+    CacheLoaders may be set either declaratively in the ehcache.xml configuration file or programmatically. This becomes the
+    default CacheLoader. Some of the methods invoking loaders enable an override CacheLoader to be passed in as a parameter. 
+
+*   Declarative Configuration
 
     Cache event listeners are configured per cache. Each cache can have
     at most one exception handler.
@@ -20,85 +38,100 @@
 ------------------------------------------
 
 <cache ...>
-      <cacheExceptionHandlerFactory class="net.sf.ehcache.exceptionhandler.CountingExceptionHandlerFactory"
-                                      properties="logLevel=FINE"/>
+      <cacheLoaderFactory class="com.example.ExampleCacheLoaderFactory"
+                                      properties="type=int,startCounter=10"/>
 </cache>
 
 ------------------------------------------
 
 
-* Implementing a {CacheExceptionHandlerFactory} and CacheExceptionHandler
+* Implementing a {CacheLoaderFactory} and CacheLoader
 
-    CacheExceptionHandlerFactory is an abstract factory for creating
-    cache exception handlers. Implementers should provide their own concrete
-    factory, extending this abstract factory. It can then be configured in
+    CacheLoaderFactory is an abstract factory for creating CacheLoaders. Implementers should
+     provide their own concrete factory, extending this abstract factory. It can then be configured in
     ehcache.xml
 
     The factory class needs to be a concrete subclass of the abstract
-    factory class CacheExceptionHandlerFactory, which is reproduced below:
+    factory class CacheLoaderFactory, which is reproduced below:
 
 ------------------------------------------
 /**
- * An abstract factory for creating <code>CacheExceptionHandler</code>s at configuration time, in ehcache.xml.
+ * An abstract factory for creating cache loaders. Implementers should provide their own
+ * concrete factory extending this factory.
  * <p/>
- * Extend to create a concrete factory
- *
- * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
+ * There is one factory method for JSR107 Cache Loaders and one for Ehcache ones. The Ehcache
+ * loader is a sub interface of the JSR107 Cache Loader.
+ * <p/>
+ * Note that both the JCache and Ehcache APIs also allow the CacheLoader to be set programmatically.
+ * @author Greg Luck
  * @version $Id$
  */
-public abstract class CacheExceptionHandlerFactory {
+public abstract class CacheLoaderFactory {
 
     /**
-     * Create an <code>CacheExceptionHandler</code>
+     * Creates a CacheLoader using the JSR107 creational mechanism.
+     * This method is called from {@link net.sf.ehcache.jcache.JCacheFactory}
+     *
+     * @param environment the same environment passed into {@link net.sf.ehcache.jcache.JCacheFactory}.
+     * This factory can extract any properties it needs from the environment.
+     * @return a constructed CacheLoader
+     */
+    public abstract net.sf.jsr107cache.CacheLoader createCacheLoader(Map environment);
+
+
+    /**
+     * Creates a CacheLoader using the Ehcache configuration mechanism at the time the associated cache
+     *  is created.
      *
      * @param properties implementation specific properties. These are configured as comma
      *                   separated name value pairs in ehcache.xml
-     * @return a constructed CacheExceptionHandler
+     * @return a constructed CacheLoader
      */
-    public abstract CacheExceptionHandler createExceptionHandler(Properties properties);
-
-
+    public abstract net.sf.ehcache.loader.CacheLoader createCacheLoader(Properties properties);
 }
-
 ------------------------------------------
 
-    The factory creates a concrete implementation of the CacheExceptionHandler
+    The factory creates a concrete implementation of the CacheLoader
     interface, which is reproduced below:
 
 ---
 /**
- * A handler which may be registered with an Ehcache, to handle exception on Cache operations.
- * <p/>
- * Handlers may be registered at configuration time in ehcache.xml, using a CacheExceptionHandlerFactory, or
- *  set at runtime (a strategy).
- * <p/>
- * If an exception handler is registered, the default behaviour of throwing the exception will not occur. The handler
- * method <code>onException</code> will be called. Of course, if the handler decides to throw the exception, it will
- * propagate up through the call stack. If the handler does not, it won't.
- * <p/>
- * Some common Exceptions thrown, and which therefore should be considered when implementing this class are listed below:
- * <ul>
- * <li>{@link IllegalStateException} if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
- * <li>{@link IllegalArgumentException} if an attempt is made to put a null element into a cache
- * <li>{@link net.sf.ehcache.distribution.RemoteCacheException} if an issue occurs in remote synchronous replication
- * <li>
- * <li>
- * </ul>
- *
- * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
+ * Extends JCache CacheLoader with load methods that take an argument in addition to a key
+ * @author Greg Luck
  * @version $Id$
  */
-public interface CacheExceptionHandler {
+public interface CacheLoader extends net.sf.jsr107cache.CacheLoader {
+
 
     /**
-     * Called if an Exception occurs in a Cache method. This method is not called
-     * if an <code>Error</code> occurs.
+     * Load using both a key and an argument.
      *
-     * @param ehcache   the cache in which the Exception occurred
-     * @param key       the key used in the operation, or null if the operation does not use a key or the key was null
-     * @param exception the exception caught
+     * JCache will call through to the load(key) method, rather than this method, where the argument is null.
+     * @param key the key to load the object for
+     * @param argument can be anything that makes sense to the loader
+     * @return the Object loaded
+     *
+     *
+     * @throws CacheException
      */
-    void onException(Ehcache ehcache, Object key, Exception exception);
+    Object load(Object key, Object argument) throws CacheException;
+
+    /**
+     * Load using both a key and an argument.
+     *
+     * JCache will use the loadAll(key) method where the argument is null.
+     * @param keys the keys to load objects for
+     * @param argument can be anything that makes sense to the loader
+     * @return a map of Objects keyed by the collection of keys passed in.
+     * @throws CacheException
+     */
+    Map loadAll(Collection keys, Object argument) throws CacheException;
+
+    /**
+     * Gets the name of a CacheLoader
+     * @return the name of this CacheLoader
+     */
+    String getName();
 }
 ------------------------------------------
 
@@ -108,5 +141,12 @@ public interface CacheExceptionHandler {
     of these classes will be done.
 
 
+*   Programmatic Configuration
+
+    A CacheLoader can be set on a Cache at any time using:
+
+---
+    cache.setCacheLoader(CacheLoader cacheLoader)
+---
 
 

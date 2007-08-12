@@ -33,24 +33,23 @@ import java.util.Properties;
 public abstract class CacheLoaderFactory {
 
     /**
-     * Creates a CacheLoader using the JSR107 creational mechanism. This method is called from {@link net.sf.ehcache.jcache.JCacheFactory}
+     * Creates a CacheLoader using the JSR107 creational mechanism.
+     * This method is called from {@link net.sf.ehcache.jcache.JCacheFactory}
      *
-     * @param environment the same environment passed into {@link net.sf.ehcache.jcache.JCacheFactory}. This factory can
-     * extract any properties it needs from the environment. 
+     * @param environment the same environment passed into {@link net.sf.ehcache.jcache.JCacheFactory}.
+     * This factory can extract any properties it needs from the environment.
      * @return a constructed CacheLoader
      */
     public abstract net.sf.jsr107cache.CacheLoader createCacheLoader(Map environment);
 
 
     /**
-     * Creates a CacheLoader using the Ehcache configuration mechanism at the time the associated cache is created.
+     * Creates a CacheLoader using the Ehcache configuration mechanism at the time the associated cache
+     *  is created.
      *
      * @param properties implementation specific properties. These are configured as comma
      *                   separated name value pairs in ehcache.xml
      * @return a constructed CacheLoader
      */
     public abstract net.sf.ehcache.loader.CacheLoader createCacheLoader(Properties properties);
-
-
-
 }

@@ -315,6 +315,10 @@
     <target name="dist-jar" depends="compile" description="Builds the application jar">
         <mkdir dir="${dist.dir}"/>
         <jar destfile="${dist.dir}/${name}-${version}.jar">
+            <manifest>
+                <attribute name="Built-By" value="${user.name}"/>
+                <attribute name="Version" value="${version}"/>
+            </manifest>
             <fileset dir="${build.classes.dir}"/>
             <fileset dir="${basedir}" includes="LICENSE.txt"/>
         </jar>
@@ -335,6 +339,10 @@
             <fileset refid="runtime-dependencies.fileset"/>
         </copy>
         <jar destfile="${dist.dir}/${name}-${version}-remote-debugger.jar">
+            <manifest>
+                <attribute name="Built-By" value="${user.name}"/>
+                <attribute name="Version" value="${version}"/>
+            </manifest>
             <fileset dir="${build.classes.dir}"/>
             <fileset dir="${debugger.classes.dir}">
                 <include name="**/RemoteDebugger.class"/>
@@ -785,7 +793,7 @@
                 <arg value="faq.apt"/>
                 <arg value="nameandlogo.apt"/>
             </exec>
-            
+
         </sequential>
     </macrodef>
 

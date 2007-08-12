@@ -2,6 +2,33 @@
 <document>
     <body>
 
+        <release version="1.4.0" date="2007-12-31" desc="1.4 release">
+
+            <!--Features-->
+            <action dev="Greg Luck" type="add">
+                Add CacheLoaders to ehcache configuration and core classes.
+            </action>
+            <action dev="Greg Luck" type="add">
+                Add CacheExceptionHandlers. The enable an exception handler to be registered with a cache so that it is called
+                on exception rather than the exception being thrown.
+            </action>
+            <action dev="Greg Luck" type="add">
+                Add CacheExtensions. This is a generic facility which holds a reference to a cache and is bound to the cache lifecycle,
+                making possible a wide variety of extensions to behaviour.
+            </action>
+            <action dev="Greg Luck" type="update" issue="1737269">
+                Add a version number to the ehcache jar manifest as is the Apache convention.
+            </action>
+            <action dev="Greg Luck" type="update" issue="1752251">
+                Include all required libraries in the Sourceforge tarball download.
+            </action>
+
+            <!--Bug Fixes-->
+            
+
+            
+        </release>
+
         <release version="1.3.0" date="2007-06-11" desc="1.3 release">
 
             <action dev="Greg Luck" type="fix" issue="1728071">
