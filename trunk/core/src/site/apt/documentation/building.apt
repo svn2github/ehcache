@@ -1,4 +1,4 @@
-Building from Source
+{Building from Source}
 
 *   Building Approach
 
@@ -10,7 +10,7 @@ Building from Source
     Because of the transition, the ant based ehcache build is in a sub-directory called core in the ehcache
     directory.
 
-*   Building an ehcache distribution from source
+*   {Building an ehcache distribution from source}
 
     To build Ehcache from source:
 
@@ -21,7 +21,7 @@ Building from Source
     [[1]] From within the ehcache/core directory, type <<<ant>>>
 
 
-*   Running Tests for Ehcache
+*   {Running Tests for Ehcache}
 
     To run the test suite for Ehcache:
 
@@ -33,17 +33,17 @@ Building from Source
 
     [[1]] From within the ehcache/core directory, type <<<ant test>>>
 
-    [[1]] If some performance tests fail, add a <<<-D net.sf.ehcache.speedAdjustmentFactor=x>>> System property to
+    [[1]] If some {performance tests fail}, add a <<<-D net.sf.ehcache.speedAdjustmentFactor=x>>> System property to
             your command line, where x is how many times your machine is slower than the reference machine. Try setting
             it to 5 for a start.
 
-*   Building the Site
+*   {Building the Site}
 
     (These instructions are for project maintainers)
 
     You need the following unix utilities installed:
 
-    * Maven 2.0.5
+    * {Maven} 2.0.5
 
     * latex or tetex
 
@@ -65,7 +65,7 @@ Building from Source
 
 *   Deploying a release
 
-**  Sourceforge Release
+**  {Sourceforge Release}
 
 ---
     ant dist-tgz
@@ -73,7 +73,7 @@ Building from Source
 
     then manually upload to SourceForge and complete the file release process
 
-**  Central Maven Repository
+**  {Central Maven Repository}
 
 ---
     mvn deploy

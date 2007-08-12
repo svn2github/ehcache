@@ -41,6 +41,10 @@ Ehcache 1.4.0 User Guide
 
     * {{{./cache_exception_handlers.html}Cache Exception Handlers}}
 
+    * {{{./cache_extensions.html}Cache Extensions}}
+
+    * {{{./cache_loaders.html}Cache Loaders}}
+
     * {{{./hibernate.html}Hibernate Caching}}
 
     * {{{./constructs_design.html}Constructs Design}}

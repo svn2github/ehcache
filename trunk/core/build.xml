@@ -761,6 +761,7 @@
                 <arg value="samples.apt"/>
                 <arg value="dependencies.apt"/>
                 <arg value="logging.apt"/>
+                <arg value="garbage_collection.apt"/>
                 <arg value="jmx.apt"/>
                 <arg value="class_loading.apt"/>
                 <arg value="performance_considerations.apt"/>
@@ -768,19 +769,23 @@
                 <arg value="configuration.apt"/>
                 <arg value="storage_options.apt"/>
                 <arg value="shutdown.apt"/>
-                <arg value="hibernate.apt"/>
+                <arg value="j2ee_servlet_caching.apt"/>
                 <arg value="distributed_design.apt"/>
                 <arg value="distributed_caching.apt"/>
                 <arg value="constructs_design.apt"/>
                 <arg value="cachemanager_event_listeners.apt"/>
+                <arg value="cache_loaders.apt"/>
                 <arg value="cache_event_listeners.apt"/>
                 <arg value="cache_exception_handlers.apt"/>
+                <arg value="cache_extensions.apt"/>
+                <arg value="hibernate.apt"/>
                 <arg value="jsr107.apt"/>
                 <arg value="tomcat.apt"/>
                 <arg value="building.apt"/>
                 <arg value="faq.apt"/>
                 <arg value="nameandlogo.apt"/>
             </exec>
+            
         </sequential>
     </macrodef>
 

@@ -678,7 +678,9 @@ public interface Ehcache extends Cloneable {
     CacheConfiguration getCacheConfiguration();
 
     /**
-     * Register a {@link net.sf.ehcache.extension.CacheExtension} with the cache. It will then be tied into the cache lifecycle.
+     * Register a {@link CacheExtension} with the cache. It will then be tied into the cache lifecycle.
+     * <p/>
+     * If the CacheExtension is not initialised, initialise it.
      */
     public void registerCacheExtension(CacheExtension cacheExtension);
 

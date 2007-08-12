@@ -82,9 +82,18 @@ public class TestCacheExtension implements CacheExtension {
      *
      * @return
      */
-    public static Status getStatus() {
+    public Status getStatus() {
         return status;
     }
+
+    /**
+     *
+     * @return
+     */
+    public static Status getStaticStatus() {
+        return status;
+    }
+
 
     /**
      *
@@ -116,6 +125,9 @@ public class TestCacheExtension implements CacheExtension {
         TestCacheExtension copy = new TestCacheExtension(newCache, propertyA);
         return copy;
     }
+
+
+
 
 
 

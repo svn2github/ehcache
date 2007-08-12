@@ -4,6 +4,8 @@
 
 * Key Ehcache Classes
 
+   todo review
+
 [javadoc/net/sf/ehcache/package] Top Level Package Diagram
 
     Ehcache consists of a <<<CacheManager>>>, which manages caches. Caches contain elements,

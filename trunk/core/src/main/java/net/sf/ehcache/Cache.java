@@ -2201,6 +2201,8 @@ public class Cache implements Ehcache {
 
     /**
      * Register a {@link CacheExtension} with the cache. It will then be tied into the cache lifecycle.
+     * <p/>
+     * If the CacheExtension is not initialised, initialise it.
      */
     public void registerCacheExtension(CacheExtension cacheExtension) {
         registeredCacheExtensions.add(cacheExtension);

@@ -82,18 +82,38 @@ public class CacheExtensionTest extends TestCase {
      */
     public void testExtensionFromConfiguration() {
 
-        assertEquals(Status.STATUS_ALIVE, TestCacheExtension.getStatus());
+        assertEquals(Status.STATUS_ALIVE, TestCacheExtension.getStaticStatus());
         assertEquals("valueA", TestCacheExtension.getPropertyA());
 
         Cache cache = manager.getCache("testCacheExtensionCache");
 
-        //Out cache extension should have populated the cache for this key
+        //Our cache extension should have populated the cache for this key
         assertNotNull(cache.get("key1"));
 
         manager.shutdown();
-        assertEquals(Status.STATUS_SHUTDOWN, TestCacheExtension.getStatus());
+        assertEquals(Status.STATUS_SHUTDOWN, TestCacheExtension.getStaticStatus());
 
     }
+
+    /**
+     * Tests the put listener.
+     */
+    public void testProgrammaticAdd() {
+
+        manager.addCache("test");
+        Cache cache = manager.getCache("test");
+        TestCacheExtension testCacheExtension = new TestCacheExtension(cache, "valueA");
+        assertEquals(Status.STATUS_UNINITIALISED, testCacheExtension.getStatus());
+        assertEquals("valueA", testCacheExtension.getPropertyA());
+
+        testCacheExtension.init();
+        assertEquals(Status.STATUS_ALIVE, testCacheExtension.getStatus());
+
+        cache.registerCacheExtension(testCacheExtension);
+        manager.shutdown();
+        assertEquals(Status.STATUS_SHUTDOWN, testCacheExtension.getStatus());
+    }
+
 
     /**
      * We need to make sure that cloning a default cache results in a new cache with its own

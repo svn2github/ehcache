@@ -1,4 +1,4 @@
-JMX Management and Monitoring
+{JMX Management and Monitoring}
 
 * {JMX} Overview
 
@@ -26,7 +26,7 @@ JMX Management and Monitoring
     <<<ManagementService>>>.
 
 
-*   MBeans
+*   {MBeans}
 
     Ehcache uses Standard MBeans. MBeans are available for the following:
 
@@ -43,9 +43,9 @@ JMX Management and Monitoring
      its CacheConfiguration MBean and its CacheStatistics MBean.
 
 
-*   Remoting
+*   {JMX Remoting}
 
-    The JMX Remote API allows connection from a remote JMX Agent to an MBeanServer via an <<<MBeanServerConnection>>>.
+    The JMX Remote API allows connection from a remote JMX Agent to an MBeanServer via an {<<<MBeanServerConnection>>>}.
 
     Only <<<Serializable>>> attributes are available remotely. The following Ehcache MBean attributes are available remotely:
 
@@ -68,7 +68,7 @@ JMX Management and Monitoring
      * CacheStatistics - "net.sf.ehcache:type=CacheStatistics,CacheManager=<cacheManagerName>,name=<cacheName>"
 
 
-*   The Management Service
+*   The {Management Service}
 
     The <<<ManagementService>>> class is the API entry point.
 
@@ -115,7 +115,7 @@ JMX Management and Monitoring
 ---
 
 
-*   JConsole Example
+*   {JConsole Example}
 
     This example shows how to register CacheStatistics in the JDK1.5 platform MBeanServer, which
     works with the JConsole management agent.
@@ -129,6 +129,14 @@ JMX Management and Monitoring
     CacheStatistics MBeans are then registered.
 
 [images/JConsoleExample.png] CacheStatistics MBeans in JConsole
+
+
+*   {JMX Tutorial}
+
+    See {{http://weblogs.java.net/blog/maxpoon/archive/2007/06/extending_the_n_2.html}} for
+    an online tutorial.
+
+
 
 
 

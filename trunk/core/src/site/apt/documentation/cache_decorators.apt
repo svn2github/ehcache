@@ -27,7 +27,7 @@ BlockingCache newBlockingCache = new BlockingCache(cache);
     A built-in way is to replace the Cache in CacheManager with the decorated one. This is achieved as in the following
     example:
 
-----------------------
+----------------
 cacheManager.replaceCacheWithDecoratedCache(cache, newBlockingCache);
 ----------------
 
@@ -114,4 +114,8 @@ Ehcache blockingCache = singletonManager.getEhcache("sampleCache1");
   This is very useful for engineering highly scalable systems.
 
 [javadoc/net/sf/ehcache/constructs/blocking/SelfPopulatingCache]  SelfPopulatingCache
+
+** Caches with Exception Handling
+
+   These are decorated. See {{{./cache_exception_handlers.html}Cache Exception Handlers}} for full details. 
 

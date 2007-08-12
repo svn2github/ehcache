@@ -1,6 +1,6 @@
 {Hibernate Caching}
 
-    Note these instructions are for Hibernate 3.1. Go to {{{http://ehcache.sf.net/documentation/documentation-1_1.html}Guide for Version 1.1}}
+    Note these instructions are for {Hibernate 3.1}. Go to {{{http://ehcache.sf.net/documentation/documentation-1_1.html}Guide for Version 1.1}}
     for older instructions on how to use Hibernate 2.1.
 
     Ehcache easily integrates with the {{{http://hibernate.org}Hibernate}}
@@ -8,7 +8,7 @@
     maintainer of Hibernate, is also a committer to the ehcache project.
     This ensures ehcache will remain a first class cache for Hibernate.
 
-    Since Hibernate 2.1, ehcache has been the default cache, for Hibernate.
+    Since {Hibernate 2.1}, ehcache has been the default cache, for Hibernate.
 
     The net.sf.ehcache.hibernate package provides classes integrating
     ehcache with Hibernate. {Hibernate} is an application of ehcache. Ehcache
