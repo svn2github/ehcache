@@ -328,4 +328,19 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
 
     }
 
+    /**
+     * Can we deal with NonSerializable objects?
+     */
+    public void testNonSerializable() {
+        /**
+         * Non-serializable test class
+         */
+        class NonSerializable {
+            //
+        }
+        NonSerializable key = new NonSerializable();
+        store.put(new Element(key, new NonSerializable()));
+        store.get(key);
+    }
+
 }

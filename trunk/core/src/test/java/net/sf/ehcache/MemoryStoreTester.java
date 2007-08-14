@@ -132,13 +132,27 @@ public class MemoryStoreTester extends AbstractCacheTest {
         assertEquals(2, store.getSize());
         assertEquals("value2", store.get("key2").getObjectValue());
 
-        for (int i = 0; i < 2000; i++) {
+        for (int i = 0; i < 1999; i++) {
             store.put(new Element("" + i, new Date()));
         }
+
+        /**
+         * Non serializable test class
+         */
+        class NonSerializable {
+            //
+        }
+
+        store.put(new Element(new NonSerializable(), new NonSerializable()));
 
         assertEquals(4, store.getSize());
         assertEquals(2002, cache.getSize());
         assertEquals(1998, cache.getDiskStoreSize());
+
+        //smoke test
+        for (int i = 0; i < 2000; i++) {
+            store.get("" + i);
+        }
     }
 
     /**

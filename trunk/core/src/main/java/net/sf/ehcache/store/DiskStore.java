@@ -1045,7 +1045,7 @@ public class DiskStore implements Store {
         /**
          * @return the key of this object
          */
-        public Object getKey() {
+        public Object getObjectKey() {
             return key;
         }
 

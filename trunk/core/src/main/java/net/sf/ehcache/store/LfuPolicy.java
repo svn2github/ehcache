@@ -101,7 +101,7 @@ public final class LfuPolicy {
         /**
          * @return the key of this object
          */
-        Object getKey();
+        Object getObjectKey();
 
         /**
          *

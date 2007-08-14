@@ -96,7 +96,7 @@ public class LfuMemoryStore extends MemoryStore {
     final Element findRelativelyUnused(Element elementJustAdded) {
         LfuPolicy.Metadata[] elements = sampleElements(map.size());
         LfuPolicy.Metadata metadata = LfuPolicy.leastHit(elements, new ElementMetadata(elementJustAdded));
-        return (Element) map.get(metadata.getKey());
+        return (Element) map.get(metadata.getObjectKey());
     }
 
     /**
@@ -133,8 +133,8 @@ public class LfuMemoryStore extends MemoryStore {
         /**
          * @return the key of this object
          */
-        public Object getKey() {
-            return element.getKey();
+        public Object getObjectKey() {
+            return element.getObjectKey();
         }
 
         /**
@@ -162,7 +162,7 @@ public class LfuMemoryStore extends MemoryStore {
         public boolean equals(Object object) {
             if (object != null && object instanceof LfuPolicy.Metadata) {
                 LfuPolicy.Metadata metadata = (LfuPolicy.Metadata) object;
-                return this.getKey().equals(metadata.getKey());
+                return this.getObjectKey().equals(metadata.getObjectKey());
             } else {
                 return false;
             }

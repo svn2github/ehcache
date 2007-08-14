@@ -24,6 +24,15 @@
             </action>
 
             <!--Bug Fixes-->
+            <action dev="Greg Luck" type="fix" issue="1744643">
+                LfuMemoryStore did not support Non-Serializable objects.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="1755263">
+                Excessive CPU and (debug) logging when multicast send fails. Added a sleep to reduce the log spam
+                when multicast is being blocked by a firewall. Continuous log messages obscure the network configuration
+                issue. Thanks to Ronald Tschal for the bug report and patch.
+            </action>
+
             
 
             

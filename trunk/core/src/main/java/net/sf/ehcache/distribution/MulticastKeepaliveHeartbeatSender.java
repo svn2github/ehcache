@@ -144,11 +144,18 @@ public final class MulticastKeepaliveHeartbeatSender {
                         }
                     }
                 } catch (IOException e) {
-                    LOG.debug(e);
+                    LOG.debug("Error on multicast socket", e);
                 } catch (Throwable e) {
                     LOG.info("Unexpected throwable in run thread. Continuing..." + e.getMessage(), e);
                 } finally {
                     closeSocket();
+                }
+                if (!stopped) {
+                    try {
+                        sleep(heartBeatInterval);
+                    } catch (InterruptedException e) {
+                        LOG.error("Sleep after error interrupted. Initial cause was " + e.getMessage(), e);
+                    }
                 }
             }
         }

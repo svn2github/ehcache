@@ -80,6 +80,23 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
         //FIFO
         assertEquals("value1", element.getObjectValue());
         assertEquals(2, store.getSize());
+
+
+    }
+
+    /**
+     * Can we deal with NonSerializable objects?
+     */
+    public void testNonSerializable() {
+        /**
+         * Non-serializable test class
+         */
+        class NonSerializable {
+            //
+        }
+        NonSerializable key = new NonSerializable();
+        store.put(new Element(key, new NonSerializable()));
+        store.get(key);
     }
 
     /**
