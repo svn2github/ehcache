@@ -17,7 +17,11 @@ Java Requirements, Dependencies and Maven POM snippet
 
 * Mandatory Dependencies
 
+** Commons Logging
+
     Ehcache requires {{{http://jakarta.apache.org/commons/logging/}commons-logging}} commons-logging is a very common dependency, and is therefore not included in the distribution.
+
+    It is included in the tarball and the maven dependencies.
 
 
 ** Backport Concurrent
@@ -25,6 +29,9 @@ Java Requirements, Dependencies and Maven POM snippet
     Backport Concurrent is a dependency for use of the JCache API. Rather than using the library which maven will pull down, users should consider
     using the JDK5 version, which is faster if they are running JDK5. See {{http://dcl.mathcs.emory.edu/util/backport-util-concurrent}}.
 
+    Note: The Java 5 version of backport-concurrent is not compatible with Java 6. Use the Java 4 version  
+
+    The Java 4 version, which is compatible with Java 4 - 6 is included in the tarball and the maven dependencies.
 
 * Optional Dependencies
 
@@ -46,13 +53,13 @@ Java Requirements, Dependencies and Maven POM snippet
 
      Ehcache releases are placed in the central Maven repository.
 
-     The Maven snippet for ehcache 1.2.4, for example, is:
+     The Maven snippet for ehcache 1.4.0, for example, is:
 
 --------
      <dependency>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache</artifactId>
-        <version>1.2.4</version>
+        <version>1.4.0</version>
      </dependency>
 --------
 

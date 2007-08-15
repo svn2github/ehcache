@@ -22,6 +22,10 @@
             <action dev="Greg Luck" type="update" issue="1752251">
                 Include all required libraries in the Sourceforge tarball download.
             </action>
+            <action dev="Greg Luck" type="update" issue="1756338">
+                Updated FAQ and Dependency chapters in the documentation and the Release Notes to point out that backport-concurrent
+                for Java 5 is not compatible with Java 6, but the Java 4 version is.
+            </action>
 
             <!--Bug Fixes-->
             <action dev="Greg Luck" type="fix" issue="1744643">
@@ -32,6 +36,7 @@
                 when multicast is being blocked by a firewall. Continuous log messages obscure the network configuration
                 issue. Thanks to Ronald Tschal for the bug report and patch.
             </action>
+
 
             
 

@@ -292,6 +292,11 @@ class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
     Tomcat is such a common deployment option for applications using ehcache that there is a chapter on known
     issues and recommended practices. See the Using Ehcache with Tomcat chapter. ({{http://ehcache.sourceforge.net/documentation/tomcat.html}})
 
-             
+* I am using Java 6 and getting a java.lang.VerifyError on edu.emory.mathcs.backport.java.util.concurrent classes. Why?
+
+    The backport-concurrent library is used in ehcache to provide java.util.concurrency facilities for Java 4 - Java 6.
+    The library is available in a Java 4 and Java 5 version. The Java 5 version is not compatible with Java 6 which causes the
+    error. Use the Java 4 version which is compatible.
+
 
 
