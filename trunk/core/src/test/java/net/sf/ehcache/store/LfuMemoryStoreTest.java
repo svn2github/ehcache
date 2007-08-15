@@ -20,10 +20,14 @@ import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStoreTester;
 import net.sf.ehcache.StopWatch;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Statistics;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,6 +37,7 @@ import java.util.Random;
 /**
  * Test class for LfuMemoryStore
  * <p/>
+ *
  * @author <a href="ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
  * @version $Id$
  */
@@ -147,7 +152,6 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         store.put(element);
         assertEquals(4, store.getSize());
         assertNull(store.get("key4"));
-
 
 
     }
@@ -274,10 +278,10 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      * <p/>
      * A 99.99% confidence interval can be achieved that the "lowest" element is actually in the bottom quarter of the
      * hit count distribution.
-     * @throws IOException
-     * Performance:
-     * With a sample size of 10: 523ms for 5000 runs = 104 ?s per run
-     * With a sample size of 30: 628ms for 5000 runs = 125 ?s per run
+     *
+     * @throws IOException Performance:
+     *                     With a sample size of 10: 523ms for 5000 runs = 104 ?s per run
+     *                     With a sample size of 30: 628ms for 5000 runs = 125 ?s per run
      */
     public void testLowest() throws IOException {
         createMemoryStore(MemoryStoreEvictionPolicy.LFU, 5000);
@@ -312,7 +316,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
 
             stopWatch.getElapsedTime();
             element = ((LfuMemoryStore) store).findRelativelyUnused(newElement);
-            findTime  += stopWatch.getElapsedTime();
+            findTime += stopWatch.getElapsedTime();
             long lowest = element.getHitCount();
             long bottomQuarter = (Math.round(maximumHitCount / 4.0) + 1);
             assertTrue(!element.equals(newElement));
@@ -343,4 +347,57 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         store.get(key);
     }
 
+
+    /**
+     * Test which reproduced an issue with flushing of an LFU store to disk on shutdown
+     */
+    public void testPersistLFUMemoryStore() {
+        manager.shutdown();
+        CacheManager cacheManager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-policy-test.xml");
+        Cache cache = cacheManager.getCache("test-cache");
+
+        getTestBean(cache, "test1");
+        getTestBean(cache, "test2");
+        getTestBean(cache, "test1");
+        getTestBean(cache, "test1");
+        getTestBean(cache, "test3");
+        getTestBean(cache, "test3");
+        getTestBean(cache, "test4");
+        getTestBean(cache, "test2");
+
+        Statistics stats = cache.getStatistics();
+        LOG.info(stats);
+
+        cacheManager.shutdown();
+    }
+
+    private TestBean getTestBean(Cache cache, String key) {
+        Element element = cache.get(key);
+        if (element == null) {
+            element = new Element(key, new TestBean(key + "_value"));
+            cache.put(element);
+        }
+        return (TestBean) element.getValue();
+    }
+
+
 }
+
+/**
+ * A simple persistent JavaBean
+ * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
+ * @version $Id$
+ */
+class TestBean implements Serializable {
+
+    private String string;
+
+    /**
+     * Constructor
+     * @param string
+     */
+    public TestBean(String string) {
+        this.string = string;
+    }
+}
+

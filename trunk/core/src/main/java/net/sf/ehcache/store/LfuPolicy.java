@@ -59,7 +59,7 @@ public final class LfuPolicy {
      */
     public static LfuPolicy.Metadata leastHit(LfuPolicy.Metadata[] sampledElements, LfuPolicy.Metadata justAdded) {
         //edge condition when Memory Store configured to size 0
-        if (sampledElements.length == 1) {
+        if (sampledElements.length == 1 && justAdded != null) {
             return justAdded;
         }
         LfuPolicy.Metadata lowestElement = null;

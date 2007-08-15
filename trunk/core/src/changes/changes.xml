@@ -36,6 +36,10 @@
                 when multicast is being blocked by a firewall. Continuous log messages obscure the network configuration
                 issue. Thanks to Ronald Tschal for the bug report and patch.
             </action>
+            <action dev="Greg Luck" type="fix" issue="1759740">
+                NPE during CacheManager shutdown with persistent disk cache only where the maxElementsOnDisk=1. 
+                Thanks to James Shaw for the bug report.
+            </action>
 
 
             
