@@ -60,6 +60,30 @@ public class PageFragmentCachingFilterTest extends AbstractWebTest {
     }
 
     /**
+     * Tests that a page which is in the cache fragment filter pattern is cached.
+     */
+    public void xTestCachedPageFragmentMultilingual() throws Exception {
+        WebResponse response = getResponseFromAcceptGzipRequest("/fragment/CachedFragment.jsp");
+        //Check that we are dealing with Cyrillic characters ok
+        assertTrue(response.getText().indexOf("&#8593;") != -1);
+        //Check non ascii symbol
+        assertTrue(response.getText().indexOf("&#1052;") != -1);
+
+        //? means an encoding failure
+        assertTrue(response.getText().indexOf('?') == -1);
+
+        //cache hit
+        response = getResponseFromAcceptGzipRequest("/fragment/CachedFragment.jsp");
+        //Check that we are dealing with Cyrillic characters ok
+        assertTrue(response.getText().indexOf("&#8593;") != -1);
+        //? means an encoding failure
+        assertTrue(response.getText().indexOf('?') == -1);
+        //Check non ascii symbol
+        assertTrue(response.getText().indexOf("&#1052;") != -1);
+
+    }
+
+    /**
      * Tests that a page which is not storeGzipped is not gzipped when the user agent accepts gzip encoding
      */
     public void testNotGzippedWhenAcceptEncodingPageFragment() throws Exception {

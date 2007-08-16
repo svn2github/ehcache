@@ -55,12 +55,12 @@ public abstract class PageFragmentCachingFilter extends CachingFilter {
     /**
      * {@inheritDoc}
      *
-     * @param request {@inheritDoc}
+     * @param request  {@inheritDoc}
      * @param response {@inheritDoc}
-     * @param chain {@inheritDoc}
+     * @param chain    {@inheritDoc}
      * @return {@inheritDoc}
      * @throws AlreadyGzippedException {@inheritDoc}
-     * @throws Exception {@inheritDoc}
+     * @throws Exception               {@inheritDoc}
      */
     protected PageInfo buildPage(final HttpServletRequest request, final HttpServletResponse response,
                                  final FilterChain chain) throws AlreadyGzippedException, Exception {
@@ -86,12 +86,14 @@ public abstract class PageFragmentCachingFilter extends CachingFilter {
     protected void writeResponse(final HttpServletResponse response, final PageInfo pageInfo) throws IOException {
         // Write the page
         final byte[] cachedPage = pageInfo.getUngzippedBody();
+        //needed to support multilingual
+        final String page = new String(cachedPage, response.getCharacterEncoding());
 
         String implementationVendor = response.getClass().getPackage().getImplementationVendor();
         if (implementationVendor != null && implementationVendor.equals("\"Evermind\"")) {
-        response.getOutputStream().write(cachedPage);
+            response.getOutputStream().write(page.getBytes());
         } else {
-            response.getWriter().write(new String(cachedPage));
+            response.getWriter().write(page);
+        }
     }
-}
 }

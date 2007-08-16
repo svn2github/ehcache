@@ -54,6 +54,25 @@ public class CachingFilterTest extends AbstractWebTest {
     }
 
     /**
+     * Check that cyrillic (unicode) characters are handled on the first hit and subsequent hits
+     */
+    public void testCachedPageMultilingual() throws Exception {
+        WebResponse response = getResponseFromAcceptGzipRequest(cachedPageUrl);
+        //Check that we are dealing with Cyrillic characters ok
+        assertTrue(response.getText().indexOf("&#8593;") != -1);
+        //Check non ascii symbol
+        assertTrue(response.getText().indexOf("&#1052;") != -1);
+
+        //cache hit
+        response = getResponseFromAcceptGzipRequest(cachedPageUrl);
+        //Check that we are dealing with Cyrillic characters ok
+        assertTrue(response.getText().indexOf("&#8593;") != -1);
+        //Check non ascii symbol
+        assertTrue(response.getText().indexOf("&#1052;") != -1);
+
+    }
+
+    /**
      * Tests whether the page is gzipped using the rawer HttpClient library.
      * Lets us check that the responseBody is really gzipped.
      */
