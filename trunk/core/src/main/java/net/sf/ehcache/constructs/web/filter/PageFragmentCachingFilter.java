@@ -89,9 +89,10 @@ public abstract class PageFragmentCachingFilter extends CachingFilter {
         //needed to support multilingual
         final String page = new String(cachedPage, response.getCharacterEncoding());
 
+
         String implementationVendor = response.getClass().getPackage().getImplementationVendor();
         if (implementationVendor != null && implementationVendor.equals("\"Evermind\"")) {
-            response.getOutputStream().write(page.getBytes());
+            response.getOutputStream().print(page);
         } else {
             response.getWriter().write(page);
         }

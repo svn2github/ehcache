@@ -6,13 +6,11 @@
 %>
 <!-- Generated at <%= date %> -->
 
-Unicode Text: <%="? ? ? ? ?" %>
-Here are some symbols: ? (&#8593;)
+Unicode Text: <%="М м Б Ц ц" %>
+Here are some symbols: ↑ (&#8593;)
 <p/>
-Here are some Cyrillic characters: ? ? ? ? ? (&#1052; &#1084; &#1041; &#1062; &#1094;)
+Here are some Cyrillic characters: М м Б Ц ц (&#1052; &#1084; &#1041; &#1062; &#1094;)
 <p/>
-Here are some Cyrillic characters: <%="? ? ? ? ?" %>
-<p/>
-Here is a chunk of randomly generated text which takes 5 seconds to produce:
-<p/>
+Here are some Cyrillic characters: <%="М м Б Ц ц" %>
+ 
 

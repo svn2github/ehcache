@@ -62,7 +62,7 @@ public class PageFragmentCachingFilterTest extends AbstractWebTest {
     /**
      * Tests that a page which is in the cache fragment filter pattern is cached.
      */
-    public void xTestCachedPageFragmentMultilingual() throws Exception {
+    public void testCachedPageFragmentMultilingual() throws Exception {
         WebResponse response = getResponseFromAcceptGzipRequest("/fragment/CachedFragment.jsp");
         //Check that we are dealing with Cyrillic characters ok
         assertTrue(response.getText().indexOf("&#8593;") != -1);

@@ -40,6 +40,9 @@
                 NPE during CacheManager shutdown with persistent disk cache only where the maxElementsOnDisk=1. 
                 Thanks to James Shaw for the bug report.
             </action>
+            <action dev="Greg Luck" type="fix" issue="1753349">
+                i18n issue in the PageFragmentCachingFilter. Thanks to David Sheldon for the bug report and fix.
+            </action>
 
 
             
