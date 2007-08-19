@@ -41,7 +41,7 @@ import java.lang.reflect.Proxy;
  * </pre>
  * All clients accessing the cache through<code>cacheManager.getEhcache()</code> will then receive proxy references.
  * <p/>
- * todo perf test
+ * See CacheTest for a perf test.
  *
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$

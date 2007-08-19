@@ -21,6 +21,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
 import edu.emory.mathcs.backport.java.util.concurrent.Future;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.event.RegisteredEventListeners;
+import net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy;
 import net.sf.ehcache.loader.CountingCacheLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
@@ -402,6 +403,8 @@ public class CacheTest extends AbstractCacheTest {
      * maximum memory size of less than 1 will issue a warning.
      * <p/>
      * Threading changes were made in v1.41 of DiskStore. The before and after numbers are shown.
+     * <p/>
+     * This test also has a cache with a CacheExceptionHandler registered. The performance effect is not detectable.
      */
     public void testProportionMemoryAndDiskPerformance() throws Exception {
         StopWatch stopWatch = new StopWatch();
@@ -419,6 +422,36 @@ public class CacheTest extends AbstractCacheTest {
         time = stopWatch.getElapsedTime();
         LOG.info("Time for MemoryStore: " + time);
         assertTrue("Time to put and get 5000 entries into MemoryStore", time < 300);
+
+        //Memory only Typical 192ms
+        for (int j = 0; j < 10; j++) {
+            time = stopWatch.getElapsedTime();
+            for (int i = 0; i < 5000; i++) {
+                Integer key = new Integer(i);
+                memoryOnlyCache.put(new Element(new Integer(i), "value"));
+                memoryOnlyCache.get(key);
+            }
+            time = stopWatch.getElapsedTime();
+            LOG.info("Time for MemoryStore: " + time);
+            assertTrue("Time to put and get 5000 entries into MemoryStore", time < 300);
+            Thread.sleep(500);
+        }
+
+        //Memory only with ExceptionHandlingTypical 192ms
+        manager.replaceCacheWithDecoratedCache(memoryOnlyCache, ExceptionHandlingDynamicCacheProxy.createProxy(memoryOnlyCache));
+        Ehcache exceptionHandlingMemoryOnlyCache = manager.getEhcache("testMemoryOnly");
+        for (int j = 0; j < 10; j++) {
+            time = stopWatch.getElapsedTime();
+            for (int i = 0; i < 5000; i++) {
+                Integer key = new Integer(i);
+                exceptionHandlingMemoryOnlyCache.put(new Element(new Integer(i), "value"));
+                exceptionHandlingMemoryOnlyCache.get(key);
+            }
+            time = stopWatch.getElapsedTime();
+            LOG.info("Time for exception handling MemoryStore: " + time);
+            assertTrue("Time to put and get 5000 entries into exception handling MemoryStore", time < 300);
+            Thread.sleep(500);
+        }
 
         //Set size so that all elements overflow to disk.
         // 1245 ms v1.38 DiskStore
