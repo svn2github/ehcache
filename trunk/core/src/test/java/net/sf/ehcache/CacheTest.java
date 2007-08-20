@@ -1573,8 +1573,8 @@ public class CacheTest extends AbstractCacheTest {
 
         final int size = 10000;
         final int maxTime = (int) (400 * StopWatch.getSpeedAdjustmentFactor());
-        final Cache cache = new Cache("test3cache", size, false, true, 30, 30);
-        manager.addCache(cache);
+        manager.addCache(new Cache("test3cache", size, false, true, 30, 30));
+        final Ehcache cache = manager.getEhcache("test3cache");
 
         long start = System.currentTimeMillis();
         final List executables = new ArrayList();
@@ -1584,7 +1584,7 @@ public class CacheTest extends AbstractCacheTest {
             cache.put(new Element("" + i, "value"));
         }
 
-        // 50% of the time get data
+        // 60% of the time get data
         for (int i = 0; i < 30; i++) {
             final Executable executable = new Executable() {
                 public void execute() throws Exception {
@@ -1599,7 +1599,7 @@ public class CacheTest extends AbstractCacheTest {
             executables.add(executable);
         }
 
-        //25% of the time add data
+        //20% of the time add data
         for (int i = 0; i < 10; i++) {
             final Executable executable = new Executable() {
                 public void execute() throws Exception {
@@ -1614,7 +1614,22 @@ public class CacheTest extends AbstractCacheTest {
             executables.add(executable);
         }
 
-        //25% of the time remove the data
+        //20% of the time remove the data
+        for (int i = 0; i < 10; i++) {
+            final Executable executable = new Executable() {
+                public void execute() throws Exception {
+                    final StopWatch stopWatch = new StopWatch();
+                    long start = stopWatch.getElapsedTime();
+                    cache.remove("key" + random.nextInt(size));
+                    long end = stopWatch.getElapsedTime();
+                    long elapsed = end - start;
+                    assertTrue("Remove time outside of allowed range: " + elapsed, elapsed < maxTime);
+                }
+            };
+            executables.add(executable);
+        }
+
+        //20% of the time remove the data
         for (int i = 0; i < 10; i++) {
             final Executable executable = new Executable() {
                 public void execute() throws Exception {
