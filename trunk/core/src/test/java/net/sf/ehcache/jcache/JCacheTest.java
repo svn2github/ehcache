@@ -86,7 +86,7 @@ public class JCacheTest extends AbstractCacheTest {
      * <cacheEventListenerFactory class="net.sf.ehcache.event.NullCacheEventListenerFactory"/>
      * </cache>
      */
-    protected Cache getTest1Cache() throws CacheException {
+    protected JCache getTest1Cache() throws CacheException {
         Cache cache = CacheManager.getInstance().getCache("test1");
         if (cache == null) {
             //sampleCache1
@@ -105,7 +105,7 @@ public class JCacheTest extends AbstractCacheTest {
             cache = CacheManager.getInstance().getCacheFactory().createCache(env);
             CacheManager.getInstance().registerCache("test1", cache);
         }
-        return CacheManager.getInstance().getCache("test1");
+        return (JCache) CacheManager.getInstance().getCache("test1");
     }
 
     private Cache getTest2Cache() throws CacheException {
@@ -266,7 +266,7 @@ public class JCacheTest extends AbstractCacheTest {
 
         assertEquals(jCacheFromCacheManager.getBackingCache(), cacheFromCacheManager);
 
-        assertEquals(ehcacheFromCacheManager, cacheFromCacheManager);        
+        assertEquals(ehcacheFromCacheManager, cacheFromCacheManager);
 
     }
 
@@ -1232,21 +1232,21 @@ public class JCacheTest extends AbstractCacheTest {
 
 
     /**
-     * Multi-thread read-write test with 20 threads
+     * Multi-thread read-write test with lots of threads
      * Just use MemoryStore to put max stress on cache
      * Values that work:
-     * <pre>
-     * size     threads     maxTime
-     * 10000    50          200
-     * 200000   50          500
-     * 200000   500         800
-     * </pre>
+     *
+     * The get here will often load data, so it does not give raw cache performance. See the similar test in CacheTest
+     * for that.
      */
     public void testReadWriteThreads() throws Exception {
 
-        final int size = 9000;
-        final int maxTime = (int) (410 * StopWatch.getSpeedAdjustmentFactor());
-        final Cache cache = getTest1Cache();
+        final int size = 10000;
+        final int maxTime = (int) (1000 * StopWatch.getSpeedAdjustmentFactor());
+        final JCache cache = getTest1Cache();
+
+        CountingCacheLoader countingCacheLoader = (CountingCacheLoader) cache.getCacheLoader();
+
 
         long start = System.currentTimeMillis();
         final List executables = new ArrayList();
@@ -1257,7 +1257,7 @@ public class JCacheTest extends AbstractCacheTest {
         }
 
         // 50% of the time get data
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 26; i++) {
             final Executable executable = new Executable() {
                 public void execute() throws Exception {
                     final StopWatch stopWatch = new StopWatch();
@@ -1319,9 +1319,38 @@ public class JCacheTest extends AbstractCacheTest {
             executables.add(executable);
         }
 
+        //some of the time exercise the loaders through their various methods. Loader methods themselves make no performance
+        //guarantees. They should only lock the cache when doing puts and gets, which the time limits on the other threads
+        //will check for.
+        for (int i = 0; i < 4; i++) {
+            final Executable executable = new Executable() {
+                public void execute() throws Exception {
+                    int randomInteger = random.nextInt(20);
+                    List keys = new ArrayList();
+                    for (int i = 0; i < 2; i++) {
+                        keys.add("key" + random.nextInt(size));
+                    }
+                    if (randomInteger == 1) {
+                        cache.load("key" + random.nextInt(size));
+                    }
+                    if (randomInteger == 2) {
+                        cache.loadAll(keys, null);
+                    }
+                    //JCache delegates to ehcache's getWithLoader so the get tests above do this already
+                    if (randomInteger == 4) {
+                        cache.getAll(keys, null);
+                    }
+                }
+            };
+            executables.add(executable);
+        }
+
+
         runThreads(executables);
         long end = System.currentTimeMillis();
         LOG.info("Total time for the test: " + (end - start) + " ms");
+        LOG.info("Total loads: " + countingCacheLoader.getLoadCounter());
+        LOG.info("Total loadAlls: " + countingCacheLoader.getLoadAllCounter());
     }
 
 

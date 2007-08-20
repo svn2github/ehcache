@@ -40,8 +40,8 @@ public class CountingCacheLoader implements CacheLoader {
 
     private static final Log LOG = LogFactory.getLog(CountingCacheLoader.class.getName());
 
-    private int loadCounter;
-    private int loadAllCounter;
+    private volatile int loadCounter;
+    private volatile int loadAllCounter;
     private Random random = new Random();
     private String name = "CountingCacheLoader";
 

@@ -808,6 +808,8 @@ public class Cache implements Ehcache {
      * are synchronized.
      *
      * @param key key whose associated value is to be returned.
+     * @param loader the override loader to use. If null, the cache's default loader will be used
+     * @param loaderArgument an argument to pass to the CacheLoader.
      * @return an element if it existed or could be loaded, otherwise null
      * @throws CacheException
      */

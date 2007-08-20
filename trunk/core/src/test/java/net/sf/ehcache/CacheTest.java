@@ -1572,9 +1572,13 @@ public class CacheTest extends AbstractCacheTest {
     public void testReadWriteThreads() throws Exception {
 
         final int size = 10000;
-        final int maxTime = (int) (400 * StopWatch.getSpeedAdjustmentFactor());
+        //set it higher for normal continuous integration so occasional higher numbes do not berak tests
+        final int maxTime = (int) (500 * StopWatch.getSpeedAdjustmentFactor());
         manager.addCache(new Cache("test3cache", size, false, true, 30, 30));
         final Ehcache cache = manager.getEhcache("test3cache");
+
+        CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
+        cache.setCacheLoader(countingCacheLoader);
 
         long start = System.currentTimeMillis();
         final List executables = new ArrayList();
@@ -1584,8 +1588,8 @@ public class CacheTest extends AbstractCacheTest {
             cache.put(new Element("" + i, "value"));
         }
 
-        // 60% of the time get data
-        for (int i = 0; i < 30; i++) {
+        //some of the time get data
+        for (int i = 0; i < 26; i++) {
             final Executable executable = new Executable() {
                 public void execute() throws Exception {
                     final StopWatch stopWatch = new StopWatch();
@@ -1599,7 +1603,7 @@ public class CacheTest extends AbstractCacheTest {
             executables.add(executable);
         }
 
-        //20% of the time add data
+        //some of the time add data
         for (int i = 0; i < 10; i++) {
             final Executable executable = new Executable() {
                 public void execute() throws Exception {
@@ -1614,7 +1618,7 @@ public class CacheTest extends AbstractCacheTest {
             executables.add(executable);
         }
 
-        //20% of the time remove the data
+        //some of the time remove the data
         for (int i = 0; i < 10; i++) {
             final Executable executable = new Executable() {
                 public void execute() throws Exception {
@@ -1629,7 +1633,7 @@ public class CacheTest extends AbstractCacheTest {
             executables.add(executable);
         }
 
-        //20% of the time remove the data
+        //some of the time remove the data
         for (int i = 0; i < 10; i++) {
             final Executable executable = new Executable() {
                 public void execute() throws Exception {
@@ -1663,9 +1667,36 @@ public class CacheTest extends AbstractCacheTest {
             executables.add(executable);
         }
 
+        //some of the time exercise the loaders through their various methods. Loader methods themselves make no performance
+        //guarantees. They should only lock the cache when doing puts and gets, which the time limits on the other threads
+        //will check for.
+        for (int i = 0; i < 4; i++) {
+            final Executable executable = new Executable() {
+                public void execute() throws Exception {
+                    int randomInteger = random.nextInt(20);
+                    List keys = new ArrayList();
+                    for (int i = 0; i < 2; i++) {
+                        keys.add("key" + random.nextInt(size));
+                    }
+                    if (randomInteger == 1) {
+                        cache.load("key" + random.nextInt(size));
+                    } else if (randomInteger == 2) {
+                        cache.loadAll(keys, null);
+                    } else if (randomInteger == 3) {
+                        cache.getWithLoader("key" + random.nextInt(size), null, null);
+                    } else if (randomInteger == 4) {
+                        cache.getAllWithLoader(keys, null);
+                    }
+                }
+            };
+            executables.add(executable);
+        }
+
         runThreads(executables);
         long end = System.currentTimeMillis();
         LOG.info("Total time for the test: " + (end - start) + " ms");
+        LOG.info("Total loads: " + countingCacheLoader.getLoadCounter());
+        LOG.info("Total loadAlls: " + countingCacheLoader.getLoadAllCounter());
     }
 
 
@@ -1846,7 +1877,6 @@ public class CacheTest extends AbstractCacheTest {
 
     /**
      * Tests the getAll where it throws an exception. Should be reported back
-     *
      */
     public void testGetAllWithLoaderException() {
         Cache cache = manager.getCache("sampleCache1");
