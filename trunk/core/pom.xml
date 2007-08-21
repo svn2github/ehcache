@@ -119,7 +119,7 @@
 
                     <execution>
                         <id>book</id>
-                        <phase>validate</phase>
+                        <phase>verify</phase>
                         <configuration>
                             <tasks>
                                 <ant antfile="${basedir}/build.xml" inheritRefs="true">
@@ -136,7 +136,7 @@
                     </execution>
                     <execution>
                         <id>singlepageguide</id>
-                        <phase>validate</phase>
+                        <phase>verify</phase>
                         <configuration>
                             <tasks>
                                 <ant antfile="${basedir}/build.xml" inheritRefs="true">
@@ -205,6 +205,20 @@
                                 <include>**/*WebTest.java</include>
                             </includes>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>package-source</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

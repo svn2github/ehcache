@@ -1,5 +1,52 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+ehcache-1.4
+===========
+
+<release version="1.4.0" date="2007-12-31" desc="1.4 release">
+    <!--Features-->
+    <action dev="Greg Luck" type="add">
+        Add CacheLoaders to ehcache configuration and core classes.
+    </action>
+    <action dev="Greg Luck" type="add">
+        Add CacheExceptionHandlers. The enable an exception handler to be registered with a cache so that it is called
+        on exception rather than the exception being thrown.
+    </action>
+    <action dev="Greg Luck" type="add">
+        Add CacheExtensions. This is a generic facility which holds a reference to a cache and is bound to the cache lifecycle,
+        making possible a wide variety of extensions to behaviour.
+    </action>
+    <action dev="Greg Luck" type="update" issue="1737269">
+        Add a version number to the ehcache jar manifest as is the Apache convention.
+    </action>
+    <action dev="Greg Luck" type="update" issue="1752251">
+        Include all required libraries in the Sourceforge tarball download.
+    </action>
+    <action dev="Greg Luck" type="update" issue="1756338">
+        Updated FAQ and Dependency chapters in the documentation and the Release Notes to point out that backport-concurrent
+        for Java 5 is not compatible with Java 6, but the Java 4 version is.
+    </action>
+
+    <!--Bug Fixes-->
+    <action dev="Greg Luck" type="fix" issue="1744643">
+        LfuMemoryStore did not support Non-Serializable objects.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1755263">
+        Excessive CPU and (debug) logging when multicast send fails. Added a sleep to reduce the log spam
+        when multicast is being blocked by a firewall. Continuous log messages obscure the network configuration
+        issue. Thanks to Ronald Tschal for the bug report and patch.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1759740">
+        NPE during CacheManager shutdown with persistent disk cache only where the maxElementsOnDisk=1.
+        Thanks to James Shaw for the bug report.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1753349">
+        i18n issue in the PageFragmentCachingFilter. Thanks to David Sheldon for the bug report and fix.
+    </action>
+</release>
+
+
+
 ehcache-1.3
 ===========
 

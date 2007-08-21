@@ -43,11 +43,6 @@
             <action dev="Greg Luck" type="fix" issue="1753349">
                 i18n issue in the PageFragmentCachingFilter. Thanks to David Sheldon for the bug report and fix.
             </action>
-
-
-            
-
-            
         </release>
 
         <release version="1.3.0" date="2007-06-11" desc="1.3 release">

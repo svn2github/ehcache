@@ -766,6 +766,9 @@
                 <arg value="getting_started.apt"/>
                 <arg value="features.apt"/>
                 <arg value="concepts.apt"/>
+                <arg value="configuration.apt"/>
+                <arg value="storage_options.apt"/>
+                <arg value="cache_eviction_algorithms.apt"/>
                 <arg value="samples.apt"/>
                 <arg value="dependencies.apt"/>
                 <arg value="logging.apt"/>
@@ -774,8 +777,6 @@
                 <arg value="class_loading.apt"/>
                 <arg value="performance_considerations.apt"/>
                 <arg value="cache_decorators.apt"/>
-                <arg value="configuration.apt"/>
-                <arg value="storage_options.apt"/>
                 <arg value="shutdown.apt"/>
                 <arg value="j2ee_servlet_caching.apt"/>
                 <arg value="distributed_design.apt"/>

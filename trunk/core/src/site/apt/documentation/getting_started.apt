@@ -46,6 +46,12 @@ Getting Started
 
     See {{{./j2ee_servlet_caching.html}Java EE Servlet Caching}} for more information.
 
+*  JCache style caching
+
+    Ehcache contains an early draft implementation of JCache contained in the net.sf.ehcache.jcache package.
+
+    See the {{{./jsr107.html}JSR107}} chapter for usage. 
+
 
 * Spring, Cocoon, Acegi and other frameworks
 

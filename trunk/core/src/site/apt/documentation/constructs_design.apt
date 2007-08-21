@@ -106,6 +106,9 @@ The Design of the {ehcache constructs} package
 
     SelfPopulatingCache uses a <<<CacheEntryFactory>>>, that given a key, knows how to populate the entry.
 
+    Note: JCache inspired getWithLoader and getAllWithLoader directly in <<<Ehcache>>> which work with a <<<CacheLoader>>> may be used as an alternative
+     to SelfPopulatingCache. 
+
 ** {CachingFilter}
 
     You want to use the BlockingCache with web pages, but the requirement to always release the lock creates gnarly code.

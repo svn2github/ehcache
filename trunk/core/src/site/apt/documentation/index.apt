@@ -11,7 +11,13 @@ Ehcache 1.4.0 User Guide
 
     * {{{./concepts.html}Cache Concepts}}
 
+    * {{{./configuration.html}Cache Configuration}}
+
     * {{{./storage_options.html}Storage Options}}
+
+    * {{{./cache_eviction_algorithms.html}Cache Eviction Algorithms}}
+
+    * {{{./samples.html}Code Samples}}
 
     * {{{./class_loading.html}Class loading and Class Loaders}}
 
@@ -32,8 +38,6 @@ Ehcache 1.4.0 User Guide
     * {{{./logging.html}Logging & Debugging}}
 
     * {{{./jmx.html}JMX Management & Monitoring}}
-
-    * {{{./configuration.html}Cache Configuration}}
 
     * {{{./cachemanager_event_listeners.html}CacheManager Event Listeners}}
 
