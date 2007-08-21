@@ -27,6 +27,11 @@
             <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
         </dependency>
@@ -118,13 +123,25 @@
                     </execution>
 
                     <execution>
-                        <id>book</id>
-                        <phase>verify</phase>
+                        <id>generate-checkstyle</id>
+                        <phase>validate</phase>
                         <configuration>
                             <tasks>
                                 <ant antfile="${basedir}/build.xml" inheritRefs="true">
                                     <target name="generate-checkstyle-config"/>
                                 </ant>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
+                        <id>book</id>
+                        <phase>verify</phase>
+                        <configuration>
+                            <tasks>
                                 <ant antfile="${basedir}/build.xml" inheritRefs="true">
                                     <target name="book"/>
                                 </ant>
@@ -139,9 +156,6 @@
                         <phase>verify</phase>
                         <configuration>
                             <tasks>
-                                <ant antfile="${basedir}/build.xml" inheritRefs="true">
-                                    <target name="generate-checkstyle-config"/>
-                                </ant>
                                 <ant antfile="${basedir}/build.xml" inheritRefs="true">
                                     <target name="singlepageguide"/>
                                 </ant>
@@ -223,6 +237,36 @@
                 </executions>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.2-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <id>check</id>
+                        <!-- 4.3 seems to have a bug and needs to run after compile -->
+                        <phase>test</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 
@@ -252,10 +296,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.2-SNAPSHOT</version>
                 <configuration>
-                    <configLocation>${basedir}/config/checkstyle.xml</configLocation>
-                    <propertiesLocation>${basedir}/config/checkstyle.properties</propertiesLocation>
+                    <configLocation>${project.build.directory}/log/checkstyle.xml</configLocation>
                     <enableRSS>false</enableRSS>
+                    <linkXRef>false</linkXRef>
+                    <enableRulesSummary>false</enableRulesSummary>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>false</failsOnError>
+                    <failsOnViolation>true</failsOnViolation>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
                 </configuration>
             </plugin>
 

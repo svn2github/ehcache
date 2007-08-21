@@ -38,10 +38,12 @@
 
     <target name="clean" description="Cleans the build directory">
         <delete dir="${build.dir}"/>
+        <!-- Stop the last installed version from coming into the ant classpath.  -->
+        <delete dir="${user.home}/.m2/repository/net/sf/ehcache/${name}/${version}"/>
     </target>
 
     <!-- Use this for doing releases -->
-    <target name="build" depends="clean, checkstyle, dist-tgz, buildnumber"
+    <target name="build" depends="clean, dist-tgz, buildnumber"
             description="Builds a clean distribution"/>
 
     <!-- This is primarily used to make it easy to keep a log of commits, as this file will change for each commit -->
@@ -51,14 +53,13 @@
 
     <!-- Generate Clover code coverage report -->
     <target name="clover"
-            depends="clean, with.clover, checkstyle, test, clover.html, clover-check-coverage"
+            depends="clean, with.clover, test, clover.html, clover-check-coverage"
             description="Runs tests and test coverage">
         <echo message="Use ant build to build a distribution"/>
     </target>
 
-    <target name="qa"
-            depends="clean, with.clover, checkstyle, compile, javadoc"
-            description="QA checks before check-in and full run on continous integration server">
+    <target name="qa">
+            <echo message="Moved to maven. Use mvn validate."/>
     </target>
 
     <!-- compiles -->
@@ -67,35 +68,13 @@
 
 
     <!-- Runs checkstyle over the java source -->
-    <target name="checkstyle-check">
-        <uptodate property="checkstyle.up-to-date" value="true"
-                  targetfile="${build.dir}/checkstyle">
-            <srcfiles dir="${src.java.dir}" includes="**/*.java"/>
-            <srcfiles dir="${test.java.dir}" includes="**/*.java"/>
-        </uptodate>
-    </target>
-
-    <!-- Runs checkstyle over the java source -->
-    <target name="checkstyle" depends="generate-checkstyle-config, checkstyle-check"
-            unless="checkstyle.up-to-date">
-        <taskdef name="checkstyle" classname="com.puppycrawl.tools.checkstyle.CheckStyleTask">
-            <classpath>
-                <path location="${test.classes.dir}"/>
-                <path location="${build.classes.dir}"/>
-                <path refid="project.class.path"/>
-            </classpath>
-        </taskdef>
-        <checkstyle config="${checkstyle.config}" failOnViolation="true">
-            <fileset dir="${src.java.dir}/" includes="**/*.java"/>
-            <fileset dir="${test.java.dir}" includes="**/*.java"/>
-            <formatter type="plain"/>
-            <formatter type="xml" tofile="${build.log.dir}/checkstyle-report.xml"/>
-        </checkstyle>
+    <target name="checkstyle">
+        <echo message="Moved to maven. Use mvn validate."/>
     </target>
 
     <target name="generate-checkstyle-config">
         <mkdir dir="${build.log.dir}"/>
-        <!-- Make hardcoded version available to IDE plugin -->
+        <!-- Make hardcoded version available to IDE plugin and maven -->
         <copy file="${checkstyle.config}" todir="${build.log.dir}">
             <filterchain>
                 <expandproperties/>
@@ -684,7 +663,7 @@
         <copy todir="${build.orion.dir}" file="${java.home}/../lib/tools.jar"/>
     </target>
 
-    <!-- Requres LaTeX and netpbm-->
+    <!-- Requres LaTeX and netpbm. Use this from maven because it needs javadoc generated-->
     <target name="book">
         <copy file="src/site/apt/.aptconvert" todir="${env.HOME}"/>
         <mkdir dir="${build.dir}/book"/>
@@ -806,27 +785,11 @@
     <!-- Produce the ydocs images for the book and singlepage guide.  -->
     <target name="ydoc" description="Creates the javadocs">
 
-        <javadoc
-                sourcepath="${src.java.dir}"
-                destdir="${build.dir}/book/javadoc"
-                packagenames="net.sf.*"
-                Package="true"
-                overview="${src.java.dir}/net/sf/ehcache/overview.html"
-                author="true"
-                version="true"
-                use="true"
-                windowtitle="${name}"
-                doclet="ydoc.doclets.YStandard"
-                docletpath="${ydoc.home}/lib/ydoc.jar:${ydoc.home}/lib/class2svg.jar:${ydoc.home}/resources:${build.classes.dir}:${ydoc.home}/licenses/ydoc.license"
-                additionalparam="-umlautogen">
-            <tag name="noinspection" description="IntelliJ Inspection Ignore tag"
-                 enabled="false"/>
-            <tag name="revised"
-                 description="Indicates the version a public APU method was revised"
-                 enabled="true"/>
-            <classpath refid="project.class.path"/>
-            <header><![CDATA[<a href="/" target="_top">${name}</a>]]></header>
-        </javadoc>
+        <copy todir="${build.dir}/book/javadoc">
+            <fileset dir="${build.dir}/site/javadoc"/>
+        </copy>
+        <!--Relies on ydoc being created from mvn-->
+
     </target>
 
 
