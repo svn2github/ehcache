@@ -18,6 +18,10 @@ package net.sf.ehcache.distribution;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.CacheException;
+
+import java.util.List;
 
 /**
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
@@ -46,9 +50,45 @@ public class ManualRMIPeerProviderTest extends MulticastRMIPeerProviderTest {
         peerProvider.registerPeer("//localhost:40002/sampleCache1");
 
         //Allow cluster setup
-        Thread.sleep(100);
+        Thread.sleep(2000);
     }
 
+
+    /**
+     * test remote cache peers
+     */
+    public void testProviderFromCacheManager() throws InterruptedException {
+
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
+        Ehcache m1sampleCache1 = manager1.getCache("sampleCache1");
+        Thread.sleep(2000);
+
+        List peerUrls = manager1.getCachePeerProvider().listRemoteCachePeers(m1sampleCache1);
+        assertEquals(expectedPeers(), peerUrls.size());
+
+        Ehcache m2sampleCache1 = manager2.getCache("sampleCache1");
+        assertFalse(m1sampleCache1.getGuid().equals(m2sampleCache1.getGuid()));
+
+        List peerUrls2 = manager2.getCachePeerProvider().listRemoteCachePeers(m2sampleCache1);
+        assertEquals(expectedPeers(), peerUrls2.size());
+
+        Ehcache m3sampleCache1 = manager3.getCache("sampleCache1");
+        assertFalse(m1sampleCache1.getGuid().equals(m3sampleCache1.getGuid()));
+
+        List peerUrls3 = manager3.getCachePeerProvider().listRemoteCachePeers(m3sampleCache1);
+        assertEquals(expectedPeers(), peerUrls3.size());
+
+        //Now remove a node, wait for the cluster to self-heal and then test
+        manager1.shutdown();
+        Thread.sleep(1000);
+        peerUrls3 = manager3.getCachePeerProvider().listRemoteCachePeers(m3sampleCache1);
+        //The manual provider removes the cache peer that was not reachable
+        assertEquals(1, peerUrls3.size());
+
+    }
 
 
 }

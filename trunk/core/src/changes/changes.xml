@@ -43,6 +43,11 @@
             <action dev="Greg Luck" type="fix" issue="1753349">
                 i18n issue in the PageFragmentCachingFilter. Thanks to David Sheldon for the bug report and fix.
             </action>
+            <action dev="Greg Luck" type="fix" issue="1739612">
+                ManualRMICacheManagerPeerProvider.listRemoteCachePeers lists no peers if one node is down. The manually configured
+                cluster should list those peers that are available so that the cluster can continue until the missing node is restored.
+            </action>
+
         </release>
 
         <release version="1.3.0" date="2007-06-11" desc="1.3 release">

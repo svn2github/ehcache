@@ -127,6 +127,13 @@ public class MulticastRMIPeerProviderTest extends TestCase {
 
         List peerUrls3 = manager3.getCachePeerProvider().listRemoteCachePeers(m3sampleCache1);
         assertEquals(expectedPeers(), peerUrls3.size());
+
+        //Now remove a node, wait for the cluster to self-heal and then test
+        manager1.shutdown();
+        Thread.sleep(5000);
+        peerUrls3 = manager3.getCachePeerProvider().listRemoteCachePeers(m3sampleCache1);
+        assertEquals(expectedPeers() - 1, peerUrls3.size());
+
     }
 
     /**

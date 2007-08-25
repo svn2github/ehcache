@@ -23,10 +23,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.net.MalformedURLException;
 
 /**
  * A provider of Peer RMI addresses based off manual configuration.
@@ -34,6 +36,7 @@ import java.util.List;
  * Because there is no monitoring of whether a peer is actually there, the list of peers is dynamically
  * looked up and verified each time a lookup request is made.
  * <p/>
+ *
  * @author Greg Luck
  * @version $Id$
  */
@@ -83,30 +86,30 @@ public final class ManualRMICacheManagerPeerProvider extends RMICacheManagerPeer
         for (Iterator iterator = peerUrls.keySet().iterator(); iterator.hasNext();) {
             String rmiUrl = (String) iterator.next();
             String rmiUrlCacheName = extractCacheName(rmiUrl);
-            try {
-                if (!rmiUrlCacheName.equals(cache.getName())) {
-                    continue;
-                }
-                Date date = (Date) peerUrls.get(rmiUrl);
-                if (!stale(date)) {
-                    CachePeer cachePeer = lookupRemoteCachePeer(rmiUrl);
-                    remoteCachePeers.add(cachePeer);
-                } else {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("rmiUrl " + rmiUrl + " is stale. Either the remote peer is shutdown or the " +
-                                "network connectivity has been interrupted. Will be removed from list of remote cache peers");
-                    }
-                    staleList.add(rmiUrl);
-                }
-            } catch (NotBoundException e) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("No cache peer bound to URL at " + rmiUrl
-                            + ". It must have disappeared since the last heartbeat");
-                }
-            } catch (Exception exception) {
-                LOG.error(exception.getMessage(), exception);
-                throw new CacheException("Unable to list remote cache peers. Error was " + exception.getMessage());
+
+            if (!rmiUrlCacheName.equals(cache.getName())) {
+                continue;
             }
+            Date date = (Date) peerUrls.get(rmiUrl);
+            if (!stale(date)) {
+                CachePeer cachePeer = null;
+                try {
+                    cachePeer = lookupRemoteCachePeer(rmiUrl);
+                    remoteCachePeers.add(cachePeer);
+                } catch (Exception e) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Looking up rmiUrl " + rmiUrl + " through exception " + e.getMessage()
+                                + ". This may be normal if a node has gone offline. Or it may indicate network connectivity"
+                                + " difficulties", e);
+                    }
+                }
+            } else {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("rmiUrl " + rmiUrl + " should never be stale for a manually configured cluster.");
+                }
+                staleList.add(rmiUrl);
+            }
+
         }
 
         //Remove any stale remote peers. Must be done here to avoid concurrent modification exception.
