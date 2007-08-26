@@ -7,6 +7,29 @@
 
 News
 
+* 26 August 2007: ehcache-1.4-beta released
+
+    The beta version of ehcache-1.4 is available on sourceforge and the Maven central repository.
+
+    This version significantly enrichens the ehcache API and enhances extension of ehcache. The new features are:
+
+    * You can now define CacheLoaders in the ehcache core API. They supplement the existing SelfPopulatingCache.
+      They can be configured in ehcache.xml or programmatically. They can be used for cache warming, and simple pull-through
+      caching. See the {{{/documentation/cache_loaders.html}Cache Loaders}} chapter in the documentation for more details.
+
+    * You can now define a CacheExceptionHandler and register it progammatically or in ehcache.xml.
+      The enable an exception handler to be registered with a cache so that it is called on exception rather than the exception being thrown.
+      See the {{{/documentation/cache_exception_handlers.html}Cache Exception Handler}} chapter in the documentation for more details.
+
+    * You can now define CacheExtensions and register them progammatically or in ehcache.xml. A CacheExtension is a generic facility which holds a reference
+      to a cache and is bound to the cache lifecycle, making possible a wide variety of extensions to behaviour. Usage examples are
+      a cache refresh timer or a file monitoring mechanism.
+      See the {{{/documentation/cache_extensions.html}Cache Extensions}} chapter in the documentation for more details.
+
+    There are 5 minor bug fixes in the release. At the time of release there are no open bugs in ehcache.
+
+    See the {{{http://ehcache.sourceforge.net/changes-report.html#1.4.0-beta}changelog}} for complete details.
+
 * 11 June 2007: ehcache-1.3 released
 
     The next major version of ehcache has been released.

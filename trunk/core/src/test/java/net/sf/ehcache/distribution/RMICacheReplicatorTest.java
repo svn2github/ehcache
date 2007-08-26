@@ -50,7 +50,6 @@ import java.util.Random;
  *
  * @author Greg Luck
  * @version $Id$
- * todo do one for Manual
  */
 public class RMICacheReplicatorTest extends AbstractCacheTest {
 

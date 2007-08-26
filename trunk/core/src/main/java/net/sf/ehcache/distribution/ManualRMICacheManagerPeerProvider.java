@@ -22,13 +22,10 @@ import net.sf.ehcache.Ehcache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.net.MalformedURLException;
 
 /**
  * A provider of Peer RMI addresses based off manual configuration.

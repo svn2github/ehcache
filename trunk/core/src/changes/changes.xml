@@ -2,7 +2,7 @@
 <document>
     <body>
 
-        <release version="1.4.0" date="2007-12-31" desc="1.4 release">
+        <release version="1.4.0-beta" date="2007-08-26" desc="1.4 beta release">
 
             <!--Features-->
             <action dev="Greg Luck" type="add">

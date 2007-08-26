@@ -1,9 +1,10 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
-ehcache-1.4
-===========
+ehcache-1.4-beta
+================
 
-<release version="1.4.0" date="2007-12-31" desc="1.4 release">
+<release version="1.4.0-beta" date="2007-08-26" desc="1.4 beta release">
+
     <!--Features-->
     <action dev="Greg Luck" type="add">
         Add CacheLoaders to ehcache configuration and core classes.
@@ -43,6 +44,11 @@ ehcache-1.4
     <action dev="Greg Luck" type="fix" issue="1753349">
         i18n issue in the PageFragmentCachingFilter. Thanks to David Sheldon for the bug report and fix.
     </action>
+    <action dev="Greg Luck" type="fix" issue="1739612">
+        ManualRMICacheManagerPeerProvider.listRemoteCachePeers lists no peers if one node is down. The manually configured
+        cluster should list those peers that are available so that the cluster can continue until the missing node is restored.
+    </action>
+
 </release>
 
 

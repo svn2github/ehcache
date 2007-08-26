@@ -19,7 +19,6 @@ package net.sf.ehcache.distribution;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.CacheException;
 
 import java.util.List;
 
