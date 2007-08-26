@@ -1,0 +1,70 @@
+ ------
+ Sponsors
+ ------
+ ------
+ Date
+ ------
+
+
+Sponsors
+
+ The ehcache project gratefully acknowledges the contribution of the following sponsors:
+
+
+* Code
+
+[images/wotif_small.gif]
+
+ {{{http://wotif.com}wotif.com}}, who granted a license to the authors to in respect of code developed at
+wotif.com for the purpose of making it available to the community under an Apache open source license.
+
+[images/novell.gif]
+
+ The ehcache project gratefully acknowledges the contribution of Novell, Inc, who granted a license to the authors of
+ the AsynchronousCommandExecutor and associated code for the purposes of making it available to the communtiy
+ under an Apache open source license.
+
+* Legal
+
+ {{{http://thoughtworks.com/}ThoughtWorks}} for free legal assistance in formalising the
+granting of code from wotif.com to the open source community. Copies
+of&nbsp; the executed deeds are available should anyone need to audit
+the grant.
+
+* Tools
+
+[images/cenqua_logo.gif] [images/clover_logo_small.gif] [images/fisheye_logo_small.gif]
+
+ {{{http://cenqua.com/}Cenqua}} for the free open
+source license of the test coverage tool {{{http://cenqua.com/clover/}Clover}}
+and the online ehcache rcs explorer {{{http://fisheye1.cenqua.com/viewrep/ehcache} fisheye}}.
+
+ {{{http://atlassian.com}Atlassian}} for the free
+open source licenses of {{{http://atlassian.com/software/jira/}JIRA}}, an issue tracking tool and
+{{{http://atlassian.com/software/confluence/}Confluence}}, a wiki.
+
+[images/intellij.gif]
+
+ {{{http://jetbrains.com}Jetbrains}} for a free open source license to use the Java IDE, IntelliJ IDEA.
+
+[images/yourkit.gif]
+
+ {{{http://yourkit.com}YourKit}} for a free open source license to use the profiler, YourKit.
+
+[images/orion.gif]
+
+ Ironflare for permission to embed the excellent Orion application server in the testing infrastructure for use as a Servlet 2.3 container.
+ Orion is not distributed in the binary. It is not a dependency for using ehcache. Commercial use of Orion requires a license.
+
+[images/yworks.gif]
+
+ {{{http://www.yworks.com/en/products_ydoc.htm}yWorks}}, for a free open source license to use yDoc, the UML extension to JavaDoc.
+
+
+
+* Continous Integration
+
+[images/viewtier_logo.gif]
+
+ 
+ {{{http://viewtier.com/}Viewtier Systems}} for providing a server running Parbuild for continous integration testing of ehcache. 
