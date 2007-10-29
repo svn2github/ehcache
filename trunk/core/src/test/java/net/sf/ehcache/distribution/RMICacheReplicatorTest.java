@@ -1315,7 +1315,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         final String keyBase = Long.toString(start);
         int count = 0;
 
-        while (true) {
+        for (int i = 0; i < 100000; i++) {
             final String key = keyBase + ':' + Integer.toString((int) (Math.random() * 1000.0));
             cache1.put(new Element(key, "My Test"));
             cache1.get(key);
@@ -1326,6 +1326,8 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
             if (end - start >= 1000) {
                 start = end;
                 LOG.info("Items written: " + count);
+                //make sure it does not choke
+                assertTrue(count > 1000);
                 count = 0;
             }
         }

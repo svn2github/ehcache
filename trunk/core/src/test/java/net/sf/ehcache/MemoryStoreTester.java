@@ -600,6 +600,9 @@ public class MemoryStoreTester extends AbstractCacheTest {
                 assertTrue(i > 50000);
             }
             LOG.info("Ran out of memory putting " + i + "th element");
+            System.gc();
+            Thread.sleep(2000);
+            System.gc();
         }
     }
 
