@@ -22,23 +22,25 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.StopWatch;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.loader.CountingCacheLoader;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Tests the cache listener functionality
+ *
  * @author Greg Luck
  * @version $Id$
  */
-public class CacheEventListenerTest extends TestCase {
+public class CacheEventListenerTest extends AbstractCacheTest {
 
-    /**
-     * manager
-     */
-    protected CacheManager manager;
     /**
      * the cache name we wish to test
      */
@@ -54,7 +56,9 @@ public class CacheEventListenerTest extends TestCase {
      * @throws Exception
      */
     protected void setUp() throws Exception {
+        super.setUp();
         CountingCacheEventListener.resetCounters();
+        manager.shutdown();
         manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-countinglisteners.xml");
         cache = manager.getCache(cacheName);
         cache.removeAll();
@@ -68,7 +72,7 @@ public class CacheEventListenerTest extends TestCase {
      */
     protected void tearDown() throws Exception {
         CountingCacheEventListener.resetCounters();
-        manager.shutdown();
+        super.tearDown();
     }
 
 
@@ -703,5 +707,50 @@ public class CacheEventListenerTest extends TestCase {
         List expiryNotifications = CountingCacheEventListener.getCacheElementsExpired(cache);
         assertEquals(10, expiryNotifications.size());
     }
+
+
+    /**
+     * Test adding and removing of listeners while events are being notified
+     */
+    public void testAddAndRemoveListenerConcurrency() throws Exception {
+
+        final List executables = new ArrayList();
+
+        for (int i = 0; i < 1; i++) {
+            final Executable executable = new Executable() {
+                public void execute() throws Exception {
+                    try {
+                        for (int i = 0; i < 2; i++) {
+                            Element element = new Element("" + i, new Date());
+                            cache.put(element);
+                        }
+                    } catch (Throwable t) {
+                        fail();
+                    }
+                }
+            };
+            executables.add(executable);
+        }
+
+
+        for (int i = 0; i < 1; i++) {
+            final Executable executable = new Executable() {
+                public void execute() throws Exception {
+                    try {
+                        CacheEventListener listener = new TestCacheEventListener();
+                        cache.getCacheEventNotificationService().registerListener(listener);
+                        cache.getCacheEventNotificationService().unregisterListener(listener);
+
+                    } catch (Throwable t) {
+                        fail();
+                    }
+                }
+            };
+            executables.add(executable);
+        }
+
+        runThreads(executables);
+    }
+
 
 }

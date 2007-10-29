@@ -13,6 +13,10 @@
                 RMIAsynchronousCacheReplicator flushReplicationQueue change to speed it up and remove pausing. Thanks to
                 Kyle Sampson for this one.
             </action>
+            <action dev="Greg Luck" type="fix" issue="1811875">
+                RegisteredEventListeners is not thread-safe where listeners are being added and removed during operation.
+                Fixed. Thanks to Geoffrey Arnold for pointing this out. Also removed final from class.
+            </action>
 
         </release>
 

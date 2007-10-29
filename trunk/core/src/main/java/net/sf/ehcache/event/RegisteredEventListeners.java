@@ -19,10 +19,10 @@ package net.sf.ehcache.event;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.jcache.JCacheListenerAdaptor;
 import net.sf.ehcache.distribution.CacheReplicator;
-
+import net.sf.ehcache.jcache.JCacheListenerAdaptor;
 import net.sf.jsr107cache.CacheListener;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -37,7 +37,7 @@ import java.util.Set;
  * @author Greg Luck
  * @version $Id$
  */
-public final class RegisteredEventListeners {
+public class RegisteredEventListeners {
 
     /**
      * A Set of CacheEventListeners keyed by listener instance.
@@ -75,7 +75,7 @@ public final class RegisteredEventListeners {
     public final void notifyElementRemoved(Element element, boolean remoteEvent) throws CacheException {
         elementsRemovedCounter++;
         if (hasCacheEventListeners()) {
-            Iterator iterator = cacheEventListeners.iterator();
+            Iterator iterator = createThreadSafeIterator();
             while (iterator.hasNext()) {
                 CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
                 if (!isCircularNotification(remoteEvent, cacheEventListener)) {
@@ -95,13 +95,14 @@ public final class RegisteredEventListeners {
     public final void notifyElementPut(Element element, boolean remoteEvent) throws CacheException {
         elementsPutCounter++;
         if (hasCacheEventListeners()) {
-            Iterator iterator = cacheEventListeners.iterator();
+            Iterator iterator = createThreadSafeIterator();
             while (iterator.hasNext()) {
                 CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
                 if (!isCircularNotification(remoteEvent, cacheEventListener)) {
                     cacheEventListener.notifyElementPut(cache, element);
                 }
             }
+
         }
     }
 
@@ -115,7 +116,8 @@ public final class RegisteredEventListeners {
     public final void notifyElementUpdated(Element element, boolean remoteEvent) {
         elementsUpdatedCounter++;
         if (hasCacheEventListeners()) {
-            Iterator iterator = cacheEventListeners.iterator();
+            Iterator iterator = createThreadSafeIterator();
+
             while (iterator.hasNext()) {
                 CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
                 if (!isCircularNotification(remoteEvent, cacheEventListener)) {
@@ -135,7 +137,7 @@ public final class RegisteredEventListeners {
     public final void notifyElementExpiry(Element element, boolean remoteEvent) {
         elementsExpiredCounter++;
         if (hasCacheEventListeners()) {
-            Iterator iterator = cacheEventListeners.iterator();
+            Iterator iterator = createThreadSafeIterator();
             while (iterator.hasNext()) {
                 CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
                 if (!isCircularNotification(remoteEvent, cacheEventListener)) {
@@ -165,7 +167,7 @@ public final class RegisteredEventListeners {
     public void notifyElementEvicted(Element element, boolean remoteEvent) {
         elementsEvictedCounter++;
         if (hasCacheEventListeners()) {
-            Iterator iterator = cacheEventListeners.iterator();
+            Iterator iterator = createThreadSafeIterator();
             while (iterator.hasNext()) {
                 CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
                 if (!isCircularNotification(remoteEvent, cacheEventListener)) {
@@ -186,8 +188,7 @@ public final class RegisteredEventListeners {
     public void notifyRemoveAll(boolean remoteEvent) {
         elementsRemoveAllCounter++;
         if (hasCacheEventListeners()) {
-
-            Iterator iterator = cacheEventListeners.iterator();
+            Iterator iterator = createThreadSafeIterator();
             while (iterator.hasNext()) {
                 CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
                 if (!isCircularNotification(remoteEvent, cacheEventListener)) {
@@ -197,6 +198,13 @@ public final class RegisteredEventListeners {
         }
     }
 
+    private Iterator createThreadSafeIterator() {
+        HashSet copy;
+        synchronized (cacheEventListeners) {
+            copy = new HashSet(cacheEventListeners);
+        }
+        return copy.iterator();
+    }
 
     /**
      * CacheReplicators should not be notified of events received remotely, as this would cause
@@ -222,7 +230,11 @@ public final class RegisteredEventListeners {
         if (cacheEventListener == null) {
             return false;
         }
-        return cacheEventListeners.add(cacheEventListener);
+        boolean added;
+        synchronized (cacheEventListeners) {
+            added = cacheEventListeners.add(cacheEventListener);
+        }
+        return added;
     }
 
     /**
@@ -233,18 +245,26 @@ public final class RegisteredEventListeners {
      */
     public final boolean unregisterListener(CacheEventListener cacheEventListener) {
         if (cacheEventListener instanceof JCacheListenerAdaptor) {
-            removeCacheListenerAdaptor(((JCacheListenerAdaptor)cacheEventListener).getCacheListener());
+            removeCacheListenerAdaptor(((JCacheListenerAdaptor) cacheEventListener).getCacheListener());
         }
-        return cacheEventListeners.remove(cacheEventListener);
+        boolean removed;
+        synchronized (cacheEventListeners) {
+            removed = cacheEventListeners.remove(cacheEventListener);
+        }
+        return removed;
     }
 
     private void removeCacheListenerAdaptor(CacheListener cacheListener) {
-        for (Iterator iterator = cacheEventListeners.iterator(); iterator.hasNext();) {
-            CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
-            if (cacheEventListener instanceof JCacheListenerAdaptor) {
-                if (((JCacheListenerAdaptor)cacheEventListener).getCacheListener() == cacheListener) {
-                    cacheEventListeners.remove(cacheEventListener);
-                    break;
+        synchronized (cacheEventListeners) {
+            for (Iterator iterator = createThreadSafeIterator(); iterator.hasNext();) {
+                CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
+                if (cacheEventListener instanceof JCacheListenerAdaptor) {
+                    if (((JCacheListenerAdaptor) cacheEventListener).getCacheListener() == cacheListener) {
+                        synchronized (cacheEventListeners) {
+                            cacheEventListeners.remove(cacheEventListener);
+                        }
+                        break;
+                    }
                 }
             }
         }
@@ -265,13 +285,15 @@ public final class RegisteredEventListeners {
      * synchronized.
      */
     public final void dispose() {
-        Iterator iterator = cacheEventListeners.iterator();
+        Iterator iterator = createThreadSafeIterator();
         while (iterator.hasNext()) {
             CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
             cacheEventListener.dispose();
         }
 
-        cacheEventListeners.clear();
+        synchronized (cacheEventListeners) {
+            cacheEventListeners.clear();
+        }
     }
 
     /**
@@ -285,10 +307,10 @@ public final class RegisteredEventListeners {
      */
     public final String toString() {
         StringBuffer stringBuffer = new StringBuffer(" cacheEventListeners: ");
-        for (Iterator iterator = cacheEventListeners.iterator(); iterator.hasNext();) {
-            CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
-            stringBuffer.append(cacheEventListener.getClass().getName()).append(" ");
-        }
+            for (Iterator iterator = createThreadSafeIterator(); iterator.hasNext();) {
+                CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
+                stringBuffer.append(cacheEventListener.getClass().getName()).append(" ");
+            }
         return stringBuffer.toString();
     }
 
@@ -306,6 +328,7 @@ public final class RegisteredEventListeners {
 
     /**
      * Gets the number of events, irrespective of whether there are any registered listeners.
+     *
      * @return the number of events since cache creation or last clearing of counters
      */
     public long getElementsRemovedCounter() {
@@ -314,6 +337,7 @@ public final class RegisteredEventListeners {
 
     /**
      * Gets the number of events, irrespective of whether there are any registered listeners.
+     *
      * @return the number of events since cache creation or last clearing of counters
      */
     public long getElementsPutCounter() {
@@ -322,6 +346,7 @@ public final class RegisteredEventListeners {
 
     /**
      * Gets the number of events, irrespective of whether there are any registered listeners.
+     *
      * @return the number of events since cache creation or last clearing of counters
      */
     public long getElementsUpdatedCounter() {
@@ -330,6 +355,7 @@ public final class RegisteredEventListeners {
 
     /**
      * Gets the number of events, irrespective of whether there are any registered listeners.
+     *
      * @return the number of events since cache creation or last clearing of counters
      */
     public long getElementsExpiredCounter() {
@@ -338,6 +364,7 @@ public final class RegisteredEventListeners {
 
     /**
      * Gets the number of events, irrespective of whether there are any registered listeners.
+     *
      * @return the number of events since cache creation or last clearing of counters
      */
     public long getElementsEvictedCounter() {
@@ -346,6 +373,7 @@ public final class RegisteredEventListeners {
 
     /**
      * Gets the number of events, irrespective of whether there are any registered listeners.
+     *
      * @return the number of events since cache creation or last clearing of counters
      */
     public long getElementsRemoveAllCounter() {

@@ -69,8 +69,13 @@ public class MemoryStoreTester extends AbstractCacheTest {
      * teardown
      */
     protected void tearDown() throws Exception {
-        if (manager != null) {
-            manager.shutdown();
+        try {
+            if (manager != null) {
+                manager.shutdown();
+            }
+        } catch (OutOfMemoryError e) {
+            //Happens at different places on Apache LRU for some reason
+            LOG.info(e);
         }
     }
 

@@ -155,6 +155,7 @@ public abstract class AbstractCacheTest extends TestCase {
                     } catch (Throwable t) {
                         // Hang on to any errors
                         errors[0] = t;
+                        LOG.info(t);
                     }
                 }
             };
