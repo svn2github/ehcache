@@ -298,5 +298,10 @@ class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
     The library is available in a Java 4 and Java 5 version. The Java 5 version is not compatible with Java 6 which causes the
     error. Use the Java 4 version which is compatible.
 
+* How do I get a memory only cache to persist to disk between VM restarts?
+
+    While disk persistence between restarts is a feature of the DiskStore only, you can get the same behaviour for a memory only cache
+    by setting up a cache with maxElementsInMemory set to Integer.MAX_VALUE, 2147483647, overflowToDisk set to true and diskPersistent set to true.
+
 
 

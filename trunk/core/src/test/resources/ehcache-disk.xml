@@ -50,6 +50,7 @@
 
     <cache name="persistentLongExpiryIntervalCache"
         maxElementsInMemory="500"
+        maxElementsOnDisk="1000"
         eternal="false"
         timeToIdleSeconds="300"
         timeToLiveSeconds="600"
