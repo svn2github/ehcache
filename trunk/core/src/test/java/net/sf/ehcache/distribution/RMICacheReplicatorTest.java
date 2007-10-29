@@ -468,7 +468,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         }
 
         //Give everything a chance to startup
-        Thread.sleep(10000);
+        //Thread.sleep(10000);
         StopWatch stopWatch = new StopWatch();
         Integer index = null;
         for (int i = 0; i < 2; i++) {
@@ -490,7 +490,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
 
         assertEquals(2000, cache1.getSize());
 
-        Thread.sleep(5000);
+        Thread.sleep(2000);
         assertEquals(2000, manager2.getCache("sampleCache1").getSize());
         assertEquals(2000, manager3.getCache("sampleCache1").getSize());
         assertEquals(2000, manager4.getCache("sampleCache1").getSize());
@@ -1239,6 +1239,96 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         Element element4 = cache2.get("3");
         assertEquals(element3, element4);
 
+    }
+
+
+    /**
+     * Shows result of perf problem and fix in flushReplicationQueue
+     * <p/>
+     * Behaviour before change:
+     * <p/>
+     * INFO: Items written: 10381
+     * Oct 29, 2007 11:40:04 AM net.sf.ehcache.distribution.RMICacheReplicatorTest testReplicatePerf
+     * INFO: Items written: 29712
+     * Oct 29, 2007 11:40:57 AM net.sf.ehcache.distribution.RMICacheReplicatorTest testReplicatePerf
+     * INFO: Items written: 1
+     * Oct 29, 2007 11:40:58 AM net.sf.ehcache.distribution.RMICacheReplicatorTest testReplicatePerf
+     * INFO: Items written: 32354
+     * Oct 29, 2007 11:42:34 AM net.sf.ehcache.distribution.RMICacheReplicatorTest testReplicatePerf
+     * INFO: Items written: 322
+     * Oct 29, 2007 11:42:35 AM net.sf.ehcache.distribution.RMICacheReplicatorTest testReplicatePerf
+     * INFO: Items written: 41909
+     * <p/>
+     * Behaviour after change:
+     * INFO: Items written: 26356
+     * Oct 29, 2007 11:44:39 AM net.sf.ehcache.distribution.RMICacheReplicatorTest testReplicatePerf
+     * INFO: Items written: 33656
+     * Oct 29, 2007 11:44:40 AM net.sf.ehcache.distribution.RMICacheReplicatorTest testReplicatePerf
+     * INFO: Items written: 32234
+     * Oct 29, 2007 11:44:42 AM net.sf.ehcache.distribution.RMICacheReplicatorTest testReplicatePerf
+     * INFO: Items written: 38677
+     * Oct 29, 2007 11:44:43 AM net.sf.ehcache.distribution.RMICacheReplicatorTest testReplicatePerf
+     * INFO: Items written: 43418
+     * Oct 29, 2007 11:44:44 AM net.sf.ehcache.distribution.RMICacheReplicatorTest testReplicatePerf
+     * INFO: Items written: 31277
+     * Oct 29, 2007 11:44:45 AM net.sf.ehcache.distribution.RMICacheReplicatorTest testReplicatePerf
+     * INFO: Items written: 27769
+     * Oct 29, 2007 11:44:46 AM net.sf.ehcache.distribution.RMICacheReplicatorTest testReplicatePerf
+     * INFO: Items written: 29596
+     * Oct 29, 2007 11:44:47 AM net.sf.ehcache.distribution.RMICacheReplicatorTest testReplicatePerf
+     * INFO: Items written: 17142
+     * Oct 29, 2007 11:44:48 AM net.sf.ehcache.distribution.RMICacheReplicatorTest testReplicatePerf
+     * INFO: Items written: 14775
+     * Oct 29, 2007 11:44:49 AM net.sf.ehcache.distribution.RMICacheReplicatorTest testReplicatePerf
+     * INFO: Items written: 4088
+     * Oct 29, 2007 11:44:51 AM net.sf.ehcache.distribution.RMICacheReplicatorTest testReplicatePerf
+     * INFO: Items written: 5492
+     * Oct 29, 2007 11:44:52 AM net.sf.ehcache.distribution.RMICacheReplicatorTest testReplicatePerf
+     * INFO: Items written: 10188
+     *
+     * Also no pauses noted.
+     */
+    public void testReplicatePerf() throws InterruptedException {
+
+        if (manager2 != null) {
+            manager2.shutdown();
+        }
+        if (manager3 != null) {
+            manager3.shutdown();
+        }
+        if (manager4 != null) {
+            manager4.shutdown();
+        }
+        if (manager5 != null) {
+            manager5.shutdown();
+        }
+        if (manager6 != null) {
+            manager6.shutdown();
+        }
+
+        //wait for cluster to drop back to just one: manager1
+        waitForProgagate();
+        waitForProgagate();
+
+
+        long start = System.currentTimeMillis();
+        final String keyBase = Long.toString(start);
+        int count = 0;
+
+        while (true) {
+            final String key = keyBase + ':' + Integer.toString((int) (Math.random() * 1000.0));
+            cache1.put(new Element(key, "My Test"));
+            cache1.get(key);
+            cache1.remove(key);
+            count++;
+
+            final long end = System.currentTimeMillis();
+            if (end - start >= 1000) {
+                start = end;
+                LOG.info("Items written: " + count);
+                count = 0;
+            }
+        }
     }
 
 

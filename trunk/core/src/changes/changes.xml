@@ -9,7 +9,10 @@
             <action dev="Greg Luck" type="fix" issue="1819841">
                 NPE in MulticastKeepaliveHeartbeatReceiver when accessing processingThreadPool during startup.
             </action>
-
+            <action dev="Greg Luck" type="fix" issue="1816084">
+                RMIAsynchronousCacheReplicator flushReplicationQueue change to speed it up and remove pausing. Thanks to
+                Kyle Sampson for this one.
+            </action>
 
         </release>
 
@@ -49,7 +52,7 @@
                 issue. Thanks to Ronald Tschal for the bug report and patch.
             </action>
             <action dev="Greg Luck" type="fix" issue="1759740">
-                NPE during CacheManager shutdown with persistent disk cache only where the maxElementsOnDisk=1. 
+                NPE during CacheManager shutdown with persistent disk cache only where the maxElementsOnDisk=1.
                 Thanks to James Shaw for the bug report.
             </action>
             <action dev="Greg Luck" type="fix" issue="1753349">
@@ -109,14 +112,19 @@
                 Problems when peer lookup fails when receiving heartbeats because heartbeat receiving is single-threaded. This issue
                 affects dirty or misconfigured networks or clusters. It hardens ehcache so that valid peers can still form a cluster
                 in the presence of Naming.lookup() problems with one or more peers. Thanks to Daniel Weill and Fredrik Bertilson for
-                reporting this and Daniel for supplying a patch. The patch changes the heartbeat receiving implementation to be multi-threaded
+                reporting this and Daniel for supplying a patch. The patch changes the heartbeat receiving implementation to be
+                multi-threaded
                 so that one bad peer cannot bring the others down.
             </action>
             <action dev="Greg Luck" type="update" issue="1720152">
-                Ehcache does asynchronous puts to the DiskStore. In previous version the amount of memory that could be used for spool buffering was
-                unlimited. In very high load situations with limited memory this could cause OutOfMemory erros. This version introduces a diskSpoolBufferSizeMB
-                configured per cache with a default of 30MB. Set this value to control the maximum amount of memory each cache DiskStore spool can consume.
-                The default of 30MB should work well for backward compatibility. If you notice your DiskStore performance is affected negatively,
+                Ehcache does asynchronous puts to the DiskStore. In previous version the amount of memory that could be used for spool
+                buffering was
+                unlimited. In very high load situations with limited memory this could cause OutOfMemory erros. This version introduces a
+                diskSpoolBufferSizeMB
+                configured per cache with a default of 30MB. Set this value to control the maximum amount of memory each cache DiskStore
+                spool can consume.
+                The default of 30MB should work well for backward compatibility. If you notice your DiskStore performance is affected
+                negatively,
                 increase diskSpoolBufferSizeMB.
             </action>
         </release>
@@ -124,14 +132,15 @@
         <release version="1.3.0-beta2" date="2007-5-1" desc="Beta 2 for 1.3 release">
 
             <action dev="Greg Luck" type="fix">
-                Fix issue reported by Fredrik Bertilsson regarding peers entering and leaving a cluster, where the reentered peer would never get
+                Fix issue reported by Fredrik Bertilsson regarding peers entering and leaving a cluster, where the reentered peer would
+                never get
                 updates.
             </action>
             <action dev="Greg Luck" type="fix" issue="1703340">
                 Fixed RMICachePeer.getElements so that it does not allow null elements.
             </action>
             <action dev="Greg Luck" type="fix" issue="1681308">
-                 DiskStore SpoolThread is too slow under Java 1.6. The Spooling Thread was set to 2, on a scale of 1 to 10
+                DiskStore SpoolThread is too slow under Java 1.6. The Spooling Thread was set to 2, on a scale of 1 to 10
                 from lowest to highest priority. Under JDK 1.6, this setting did not allocate enough CPU to enable the
                 spool to be cleared in a given situation, whereas under JDK1.5 it did. This seems to be a bug in JDK6.
                 The priority is now set to Thread.NORMAL_PRIORITY, which is 5.
@@ -205,7 +214,8 @@
                 will take place. Fixed. Thanks to Ben Piper for reporting this one and the fix.
             </action>
             <action dev="Greg Luck" type="fix">
-                Fix issue reported by Fredrik Bertilsson regarding peers entering and leaving a cluster, where the reentered peer would never get
+                Fix issue reported by Fredrik Bertilsson regarding peers entering and leaving a cluster, where the reentered peer would
+                never get
                 updates.
             </action>
             <action dev="Greg Luck" issue="1661328" type="fix">

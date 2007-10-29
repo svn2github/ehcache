@@ -292,11 +292,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
                 return;
             }
 
-            replicationQueueCopy = new ArrayList(replicationQueue.size());
-            for (int i = 0; i < replicationQueue.size(); i++) {
-                CacheEventMessage cacheEventMessage = (CacheEventMessage) replicationQueue.get(i);
-                replicationQueueCopy.add(cacheEventMessage);
-            }
+            replicationQueueCopy = new ArrayList(replicationQueue);
             replicationQueue.clear();
         }
 

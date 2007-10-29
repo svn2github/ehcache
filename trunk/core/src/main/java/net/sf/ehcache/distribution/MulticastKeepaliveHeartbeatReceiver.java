@@ -77,8 +77,8 @@ public final class MulticastKeepaliveHeartbeatReceiver {
         socket = new MulticastSocket(groupMulticastPort.intValue());
         socket.joinGroup(groupMulticastAddress);
         receiverThread = new MulticastReceiverThread();
-        processingThreadPool = Executors.newCachedThreadPool();
         receiverThread.start();
+        processingThreadPool = Executors.newCachedThreadPool();
     }
 
     /**
@@ -86,9 +86,9 @@ public final class MulticastKeepaliveHeartbeatReceiver {
      */
     public final void dispose() {
         LOG.debug("dispose called");
-        receiverThread.interrupt();
         processingThreadPool.shutdownNow();
         stopped = true;
+        receiverThread.interrupt();
     }
 
     /**
@@ -153,6 +153,10 @@ public final class MulticastKeepaliveHeartbeatReceiver {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("We are already processing these rmiUrls. Another heartbeat came before we finished: " + rmiUrls);
                 }
+                return;
+            }
+
+            if (processingThreadPool == null) {
                 return;
             }
 
