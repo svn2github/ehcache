@@ -17,7 +17,9 @@
                 RegisteredEventListeners is not thread-safe where listeners are being added and removed during operation.
                 Fixed. Thanks to Geoffrey Arnold for pointing this out. Also removed final from class.
             </action>
-
+            <action dev="Greg Luck" type="fix" issue="1828351">
+                CacheStatistics causes a NPE if used for fresh caches. Fixed.
+            </action>
         </release>
 
 

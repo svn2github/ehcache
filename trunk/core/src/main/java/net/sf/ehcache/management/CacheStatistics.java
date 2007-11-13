@@ -99,6 +99,7 @@ public class CacheStatistics implements CacheStatisticsMBean {
 
     /**
      * Accurately measuring statistics can be expensive. Returns the current accuracy setting.
+     *
      * @return a human readable description of the accuracy setting. One of "None", "Best Effort" or "Guaranteed".
      */
     public String getStatisticsAccuracyDescription() {
@@ -110,7 +111,11 @@ public class CacheStatistics implements CacheStatisticsMBean {
      * @return the name of the Ehcache, or null is there no associated cache
      */
     public String getAssociatedCacheName() {
-        return statistics.getAssociatedCacheName();
+        if (statistics == null) {
+            return null;
+        } else {
+            return statistics.getAssociatedCacheName();
+        }
     }
 
     /**
