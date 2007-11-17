@@ -807,8 +807,8 @@ public class Cache implements Ehcache {
      * Because this method may take a long time to complete, it is not synchronized. The underlying cache operations
      * are synchronized.
      *
-     * @param key key whose associated value is to be returned.
-     * @param loader the override loader to use. If null, the cache's default loader will be used
+     * @param key            key whose associated value is to be returned.
+     * @param loader         the override loader to use. If null, the cache's default loader will be used
      * @param loaderArgument an argument to pass to the CacheLoader.
      * @return an element if it existed or could be loaded, otherwise null
      * @throws CacheException
@@ -825,17 +825,14 @@ public class Cache implements Ehcache {
         }
 
         try {
-            //only allow one thread to load the missing key
-            synchronized (key) {
-                //check again in case the last thead loaded it
-                element = getQuiet(key);
-                if (element != null) {
-                    return element;
-                }
-                Future future = asynchronousLoad(key, loader, loaderArgument);
-                //wait for result
-                future.get();
+            //check again in case the last thread loaded it
+            element = getQuiet(key);
+            if (element != null) {
+                return element;
             }
+            Future future = asynchronousLoad(key, loader, loaderArgument);
+            //wait for result
+            future.get();
         } catch (Exception e) {
             throw new CacheException("Exception on load for key " + key, e);
         }
@@ -2135,6 +2132,7 @@ public class Cache implements Ehcache {
      * An equals method which follows the contract of {@link Object#equals(Object)}
      * <p/>
      * An Cache is equal to another one if it implements Ehcache and has the same GUID.
+     *
      * @param object the reference object with which to compare.
      * @return <code>true</code> if this object is the same as the obj
      *         argument; <code>false</code> otherwise.

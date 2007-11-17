@@ -16,22 +16,17 @@
 
 package net.sf.ehcache.event;
 
-import junit.framework.TestCase;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.StopWatch;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.loader.CountingCacheLoader;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * Tests the cache listener functionality
