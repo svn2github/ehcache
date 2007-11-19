@@ -29,7 +29,7 @@
            timeToIdleSeconds="300"
            timeToLiveSeconds="600"
            memoryStoreEvictionPolicy="LFU"
-           maxElementsOnDisk="1"
+           maxElementsOnDisk="10000"
            diskPersistent="true"
             />
 

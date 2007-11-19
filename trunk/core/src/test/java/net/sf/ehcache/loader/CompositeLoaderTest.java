@@ -31,14 +31,29 @@ public class CompositeLoaderTest extends TestCase {
     private static final Log LOG = LogFactory.getLog(CompositeLoaderTest.class);
 
     /**
+     * Sets up the fixture, for example, open a network connection.
+     * This method is called before a test is executed.
+     */
+    protected void setUp() throws Exception {
+        CacheHelper.init();
+    }
+
+    /**
+     * Tears down the fixture, for example, close a network connection.
+     * This method is called after a test is executed.
+     */
+    protected void tearDown() throws Exception {
+        CacheHelper.shutdown();
+    }
+
+    /**
      * This test reproduces a deadlock found in 1.4-beta1 around loading interactions and getWithLoader. Now fixed.
      */
     public void testCompositeLoad() {
-        LOG.info("Getting from cache");
+        LOG.info("Getting from cache"); 
         ComponentA compA = (ComponentA) CacheHelper.get("ehcache-loaderinteractions.xml", "ACache", "key1");
         LOG.info(compA);
 
-        CacheHelper.shutdown();
     }
 
 }

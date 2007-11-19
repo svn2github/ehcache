@@ -23,6 +23,7 @@ import java.util.Map;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.AbstractCacheTest;
 
 /**
  * Written for Dead-lock poc
@@ -42,6 +43,14 @@ public final class CacheHelper {
         //noop
     }
 
+
+    /**
+     * Initialises the CacheHelper
+     */
+    public static void init() {
+        managers = new HashMap();
+    }
+
     /**
      *
      * @param cacheManagerUrl
@@ -52,7 +61,9 @@ public final class CacheHelper {
         CacheManager mgr = (CacheManager) managers.get(cacheManagerUrl);
 
         if (mgr == null) {
-            mgr = new CacheManager(Thread.currentThread().getContextClassLoader().getResourceAsStream(cacheManagerUrl));
+            mgr = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + cacheManagerUrl);
+            //Requires the config file to be in the classpath, which is not how we test specific configs in these tests
+            //mgr = new CacheManager(Thread.currentThread().getContextClassLoader().getResourceAsStream(cacheManagerUrl));
             managers.put(cacheManagerUrl, mgr);
         }
 
