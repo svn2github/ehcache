@@ -62,9 +62,6 @@ public class SelfPopulatingCache extends BlockingCache {
      */
     public Element get(final Object key) throws LockTimeoutException {
 
-        String oldThreadName = Thread.currentThread().getName();
-        setThreadName("get", key);
-
         try {
             //if null will lock here
             Element element = super.get(key);
@@ -72,7 +69,6 @@ public class SelfPopulatingCache extends BlockingCache {
             if (element == null) {
                 // Value not cached - fetch it
                 Object value = factory.createEntry(key);
-                setThreadName("put", key);
                 element = new Element(key, value);
                 put(element);
             }
@@ -93,7 +89,6 @@ public class SelfPopulatingCache extends BlockingCache {
         } catch (final Throwable throwable) {
             // Could not fetch - Ditch the entry from the cache and rethrow
 
-            setThreadName("put", key);
             //release the lock you acquired
             put(new Element(key, null));
 
@@ -105,20 +100,7 @@ public class SelfPopulatingCache extends BlockingCache {
             }
 
 
-        } finally {
-            Thread.currentThread().setName(oldThreadName);
         }
-    }
-
-    /**
-     * Rename the thread for easier thread dump reading.
-     *
-     * @param method the method about to be called
-     * @param key    the key being operated on
-     */
-    protected void setThreadName(String method, final Object key) {
-        StringBuffer threadName = new StringBuffer(getName()).append(": ").append(method).append("(").append(key).append(")");
-        Thread.currentThread().setName(threadName.toString());
     }
 
     /**
@@ -130,9 +112,6 @@ public class SelfPopulatingCache extends BlockingCache {
      * <p/>
      * Quiet methods are used, so that statistics are not affected.
      * <p/>
-     * Threads entering this method are temporarily renamed, so that a Thread Dump will show
-     * meaningful information.
-     * <p/>
      * Configure ehcache.xml to stop elements from being refreshed forever:
      * <ul>
      * <li>use timeToIdle to discard elements unused for a period of time
@@ -140,7 +119,6 @@ public class SelfPopulatingCache extends BlockingCache {
      * </ul>
      */
     public void refresh() throws CacheException {
-        final String oldThreadName = Thread.currentThread().getName();
         Exception exception = null;
         Object keyWithException = null;
 
@@ -174,8 +152,6 @@ public class SelfPopulatingCache extends BlockingCache {
                 // If the refresh fails, keep the old element. It will simply become staler.
                 LOG.warn(getName() + "Could not refresh element " + key, e);
                 exception = e;
-            } finally {
-                Thread.currentThread().setName(oldThreadName);
             }
         }
 
@@ -196,7 +172,6 @@ public class SelfPopulatingCache extends BlockingCache {
         Object key = element.getObjectKey();
 
         if (LOG.isTraceEnabled()) {
-            setThreadName("refreshElement", key);
             LOG.trace(getName() + ": refreshing element with key " + key);
         }
 

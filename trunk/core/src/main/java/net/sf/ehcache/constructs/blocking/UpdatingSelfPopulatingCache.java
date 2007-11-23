@@ -65,7 +65,6 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
      */
     public Element get(final Object key) throws LockTimeoutException {
         String oldThreadName = Thread.currentThread().getName();
-        setThreadName("get", key);
 
         try {
 
@@ -86,7 +85,6 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
             return element;
         } catch (final Throwable throwable) {
             // Could not fetch - Ditch the entry from the cache and rethrow
-            setThreadName("put", key);
             put(new Element(key, null));
             throw new LockTimeoutException("Could not fetch object for cache entry with key \"" + key + "\".", throwable);
         } finally {

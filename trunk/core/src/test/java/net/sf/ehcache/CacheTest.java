@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 
@@ -1875,26 +1876,7 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(1000, countingCacheLoader.getLoadAllCounter());
     }
 
-    /**
-     * Tests the getAll where it throws an exception. Should be reported back
-     */
-    public void testGetAllWithLoaderException() {
-        Cache cache = manager.getCache("sampleCache1");
-        cache.setCacheLoader(new ExceptionThrowingLoader());
 
-        List keys = new ArrayList();
-        for (int i = 0; i < 1000; i++) {
-            keys.add(new Integer(i));
-        }
-
-        try {
-            cache.getAllWithLoader(keys, null);
-            fail();
-        } catch (CacheException e) {
-            e.getMessage();
-            //expected
-        }
-    }
 
 
 }

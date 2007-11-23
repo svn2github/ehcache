@@ -1471,7 +1471,7 @@ public class JCacheTest extends AbstractCacheTest {
         jcache.getAll(keys);
 
         assertEquals(1000, jcache.size());
-        assertEquals(999, countingCacheLoader.getLoadCounter());
+        assertEquals(999, countingCacheLoader.getLoadAllCounter());
     }
 
 

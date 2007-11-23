@@ -20,6 +20,13 @@
             <action dev="Greg Luck" type="fix" issue="1828351">
                 CacheStatistics causes a NPE if used for fresh caches. Fixed.
             </action>
+            <action dev="Greg Luck" type="fix" issue="1831446">
+                Dropped thread renaming in SelfPopulating cache. A debug feature that has probably outlived its usefulness.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="1831817">
+                cache.getAllWithLoader should use a loadAll method for any keys not present in the cache rather than loading
+                individually. This is a performance optimisation. Fixed.
+            </action>
         </release>
 
 

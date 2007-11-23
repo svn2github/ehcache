@@ -907,11 +907,12 @@ public class Cache implements Ehcache {
         }
         Map map = new HashMap(keys.size());
 
+        List missingKeys = new ArrayList(keys.size());
+
         if (cacheLoader != null) {
             Object key = null;
             try {
                 map = new HashMap(keys.size());
-                List futures = new ArrayList(keys.size());
 
                 for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
                     key = iterator.next();
@@ -919,15 +920,17 @@ public class Cache implements Ehcache {
                     if (isKeyInCache(key)) {
                         map.put(key, get(key));
                     } else {
-                        futures.add(new KeyedFuture(key, asynchronousLoad(key, null, loaderArgument)));
+                        missingKeys.add(key);
                     }
                 }
 
-                //now wait for everything to load.
-                for (int i = 0; i < futures.size(); i++) {
-                    KeyedFuture keyedFuture = (KeyedFuture) futures.get(i);
-                    keyedFuture.future.get();
-                    key = keyedFuture.key;
+                //now load everything that's missing.
+                Future future = asynchronousLoadAll(missingKeys, loaderArgument);
+                future.get();
+
+
+                for (int i = 0; i < missingKeys.size(); i++) {
+                    key = missingKeys.get(i);
                     map.put(key, get(key));
                 }
 
