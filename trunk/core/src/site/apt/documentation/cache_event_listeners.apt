@@ -57,7 +57,7 @@
     performance and thread safety issues depending on what their listener
     is doing.
 
-* {Implementing a CacheEventListenerFactory and CacheEventListener}
+* {Implementing a CacheEventListenerFactory} and CacheEventListener
 
     CacheEventListenerFactory is an abstract factory for creating
     cache event listeners. Implementers should provide their own concrete

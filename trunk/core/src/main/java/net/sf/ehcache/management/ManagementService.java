@@ -33,17 +33,20 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Ehcache CacheManagers and Caches have lifecycles. Often normal use of a CacheManager will be
- * to shut it down and create a new one from within a running JVM. For example, in Java EE environments,
- * applications are often undeployed and then redeployed. A servlet listener, {@link net.sf.ehcache.constructs.web.ShutdownListener}
- * enables this to be detected and the CacheManager shutdown.
+ * Ehcache CacheManagers and Caches have lifecycles. Often normal use of a CacheManager
+ * will be to shut it down and create a new one from within a running JVM. For example,
+ * in Java EE environments, applications are often undeployed and then redeployed. A
+ * servlet listener, {@link net.sf.ehcache.constructs.web.ShutdownListener} enables this
+ * to be detected and the CacheManager shutdown.
  * <p/>
- * When a CacheManager is shut down we need to ensure there is no memory, resource or thread leakage.
- * An MBeanServer, particularly a platform MBeanServer, can be expected to exist for the lifespan of the JVM.
- * Accordingly, we need to deregister them when needed without creating a leakage.
+ * When a CacheManager is shut down we need to ensure there is no memory, resource or
+ * thread leakage. An MBeanServer, particularly a platform MBeanServer, can be expected
+ * to exist for the lifespan of the JVM. Accordingly, we need to deregister them when
+ * needed without creating a leakage.
  * <p/>
- * The second purpose of this class (and this package) is to keep management concerns away from the core ehcache packages.
- * That way, JMX is not a required dependency, but rather an optional one.
+ * The second purpose of this class (and this package) is to keep management concerns away
+ * from the core ehcache packages. That way, JMX is not a required dependency, but rather
+ * an optional one.
  *
  * @author Greg Luck
  * @version $Id$
@@ -72,16 +75,17 @@ public final class ManagementService implements CacheManagerEventListener {
      * This method causes the selected monitoring options to be be registered
      * with the provided MBeanServer for caches in the given CacheManager.
      * <p/>
-     * While registering the CacheManager enables traversal to all of the other items,
+     * While registering the CacheManager enables traversal to all of the other
+     *  items,
      * this requires programmatic traversal. The other options allow entry points closer
      * to an item of interest and are more accessible from JMX management tools like JConsole.
-     * Moreover CacheManager and Cache are not serializable, so remote monitoring is not possible for CacheManager
-     * or Cache, while CacheStatistics and CacheConfiguration are. Finally CacheManager and Cache enable
-     * management operations to be performed.
+     * Moreover CacheManager and Cache are not serializable, so remote monitoring is not possible
+     * for CacheManager or Cache, while CacheStatistics and CacheConfiguration are. Finally
+     * CacheManager and Cache enable management operations to be performed.
      * <p/>
      * Once monitoring is enabled caches will automatically added and removed from the MBeanServer
-     * as they are added and disposed of from the CacheManager. When the CacheManager itself shutsdown
-     * all registered MBeans will be unregistered.
+     * as they are added and disposed of from the CacheManager. When the CacheManager itself
+     * shutsdown all registered MBeans will be unregistered.
      *
      * @param cacheManager the CacheManager to listen to
      * @param mBeanServer the MBeanServer to register MBeans to

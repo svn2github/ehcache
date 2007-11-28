@@ -40,8 +40,12 @@
 
 ** Using the ehcache provider from the ehcache project
 
-    To ensure ehcache is enabled, verify that the hibernate.cache.provider_class property is set to
-    net.sf.ehcache.hibernate.EhCacheProvider in the Hibernate configuration file;
+    To ensure ehcache is enabled, verify that the hibernate.cache.provider_class property
+    is set to:
+---
+     net.sf.ehcache.hibernate.EhCacheProvider
+---   
+    in the Hibernate configuration file;
     either hibernate.cfg.xml or hibernate.properties. The format given is for hibernate.cfg.xml.
 
     If you are using hibernate-3 or hibernate-3.1 you will need to use the ehcache provider to
@@ -65,7 +69,7 @@ net.sf.ehcache.configurationResourceName=/name_of_configuration_resource
     CacheManagers in the same VM. It tells Hibernate which configuration to use. An example
     might be "ehcache-2.xml".
 
-** {Using the ehcache provider from the Hibernate project}
+** {Using the Hibernate ehcache provider}
 
     To use the one from the Hibernate project:
 

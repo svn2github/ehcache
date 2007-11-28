@@ -29,7 +29,8 @@
     The Sun core garbage collection team has offered the following tuning suggestion for virtual machiens with large heaps using caching:
 
 ---
-java ... -XX:+DisableExplicitGC -XX:+UseConcMarkSweepGC -XX:NewSize=<1/4 of total heap size> -XX:SurvivorRatio=16
+java ... -XX:+DisableExplicitGC -XX:+UseConcMarkSweepGC
+    -XX:NewSize=<1/4 of total heap size> -XX:SurvivorRatio=16
 ---
 
     The reasoning for each setting is as follows:

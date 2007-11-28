@@ -26,130 +26,128 @@
    Ehcache configuration files must be comply with the ehcache XML schema, ehcache.xsd, reproduced below.
 
 --------------------------------------------
-<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
-    <xs:element name="ehcache" >
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element ref="diskStore"/>
-                <xs:element minOccurs="0" maxOccurs="1"
-                            ref="cacheManagerEventListenerFactory"/>
-                <xs:element minOccurs="0" maxOccurs="1"
-                            ref="cacheManagerPeerProviderFactory"/>
-                <xs:element minOccurs="0" maxOccurs="1"
-                            ref="cacheManagerPeerListenerFactory"/>
-                <xs:element ref="defaultCache"/>
-                <xs:element maxOccurs="unbounded" ref="cache"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="diskStore">
-        <xs:complexType>
-            <xs:attribute name="path" use="optional" />
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="cacheManagerEventListenerFactory">
-        <xs:complexType>
-            <xs:attribute name="class" use="required"/>
-            <xs:attribute name="properties" use="optional"/>
-            <xs:attribute name="propertySeparator" use="optional"/>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="cacheManagerPeerProviderFactory">
-        <xs:complexType>
-            <xs:attribute name="class" use="required"/>
-            <xs:attribute name="properties" use="optional"/>
-            <xs:attribute name="propertySeparator" use="optional"/>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="cacheManagerPeerListenerFactory">
-        <xs:complexType>
-            <xs:attribute name="class" use="required"/>
-            <xs:attribute name="properties" use="optional"/>
-            <xs:attribute name="propertySeparator" use="optional"/>
-        </xs:complexType>
-    </xs:element>
-    <!-- add clone support for addition of cacheExceptionHandler. Important! -->
-    <xs:element name="defaultCache">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheEventListenerFactory"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheExtensionFactory"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="cacheExceptionHandlerFactory"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="cacheLoaderFactory"/>
-            </xs:sequence>
-            <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
-            <xs:attribute name="diskSpoolBufferSizeMB" use="optional" type="xs:integer"/>
-            <xs:attribute name="diskPersistent" use="optional" type="xs:boolean"/>
-            <xs:attribute name="eternal" use="required" type="xs:boolean"/>
-            <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
-            <xs:attribute name="memoryStoreEvictionPolicy" use="optional" type="xs:string"/>
-            <xs:attribute name="overflowToDisk" use="required" type="xs:boolean"/>
-            <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
-            <xs:attribute name="timeToLiveSeconds" use="optional" type="xs:integer"/>
-            <xs:attribute name="maxElementsOnDisk" use="optional" type="xs:integer"/>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="cache">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheEventListenerFactory"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheExtensionFactory"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="cacheExceptionHandlerFactory"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="cacheLoaderFactory"/>
-            </xs:sequence>
-            <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
-            <xs:attribute name="diskSpoolBufferSizeMB" use="optional" type="xs:integer"/>
-            <xs:attribute name="diskPersistent" use="optional" type="xs:boolean"/>
-            <xs:attribute name="eternal" use="required" type="xs:boolean"/>
-            <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
-            <xs:attribute name="memoryStoreEvictionPolicy" use="optional" type="xs:string"/>
-            <xs:attribute name="name" use="required" type="xs:string"/>
-            <xs:attribute name="overflowToDisk" use="required" type="xs:boolean"/>
-            <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
-            <xs:attribute name="timeToLiveSeconds" use="optional" type="xs:integer"/>
-            <xs:attribute name="maxElementsOnDisk" use="optional" type="xs:integer"/>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="cacheEventListenerFactory">
-        <xs:complexType>
-            <xs:attribute name="class" use="required"/>
-            <xs:attribute name="properties" use="optional"/>
-            <xs:attribute name="propertySeparator" use="optional"/>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="bootstrapCacheLoaderFactory">
-        <xs:complexType>
-            <xs:attribute name="class" use="required"/>
-            <xs:attribute name="properties" use="optional"/>
-            <xs:attribute name="propertySeparator" use="optional"/>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="cacheExtensionFactory">
-        <xs:complexType>
-            <xs:attribute name="class" use="required"/>
-            <xs:attribute name="properties" use="optional"/>
-            <xs:attribute name="propertySeparator" use="optional"/>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="cacheExceptionHandlerFactory">
-        <xs:complexType>
-            <xs:attribute name="class" use="required"/>
-            <xs:attribute name="properties" use="optional"/>
-            <xs:attribute name="propertySeparator" use="optional"/>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="cacheLoaderFactory">
-        <xs:complexType>
-            <xs:attribute name="class" use="required"/>
-            <xs:attribute name="properties" use="optional"/>
-            <xs:attribute name="propertySeparator" use="optional"/>
-        </xs:complexType>
-    </xs:element>
+<xs:element name="ehcache" >
+    <xs:complexType>
+        <xs:sequence>
+            <xs:element ref="diskStore"/>
+            <xs:element minOccurs="0" maxOccurs="1"
+                        ref="cacheManagerEventListenerFactory"/>
+            <xs:element minOccurs="0" maxOccurs="1"
+                        ref="cacheManagerPeerProviderFactory"/>
+            <xs:element minOccurs="0" maxOccurs="1"
+                        ref="cacheManagerPeerListenerFactory"/>
+            <xs:element ref="defaultCache"/>
+            <xs:element maxOccurs="unbounded" ref="cache"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:element>
+<xs:element name="diskStore">
+    <xs:complexType>
+        <xs:attribute name="path" use="optional" />
+    </xs:complexType>
+</xs:element>
+<xs:element name="cacheManagerEventListenerFactory">
+    <xs:complexType>
+        <xs:attribute name="class" use="required"/>
+        <xs:attribute name="properties" use="optional"/>
+        <xs:attribute name="propertySeparator" use="optional"/>
+    </xs:complexType>
+</xs:element>
+<xs:element name="cacheManagerPeerProviderFactory">
+    <xs:complexType>
+        <xs:attribute name="class" use="required"/>
+        <xs:attribute name="properties" use="optional"/>
+        <xs:attribute name="propertySeparator" use="optional"/>
+    </xs:complexType>
+</xs:element>
+<xs:element name="cacheManagerPeerListenerFactory">
+    <xs:complexType>
+        <xs:attribute name="class" use="required"/>
+        <xs:attribute name="properties" use="optional"/>
+        <xs:attribute name="propertySeparator" use="optional"/>
+    </xs:complexType>
+</xs:element>
+<!-- add clone support for addition of cacheExceptionHandler. Important! -->
+<xs:element name="defaultCache">
+    <xs:complexType>
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheEventListenerFactory"/>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheExtensionFactory"/>
+            <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
+            <xs:element minOccurs="0" maxOccurs="1" ref="cacheExceptionHandlerFactory"/>
+            <xs:element minOccurs="0" maxOccurs="1" ref="cacheLoaderFactory"/>
+        </xs:sequence>
+        <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
+        <xs:attribute name="diskSpoolBufferSizeMB" use="optional" type="xs:integer"/>
+        <xs:attribute name="diskPersistent" use="optional" type="xs:boolean"/>
+        <xs:attribute name="eternal" use="required" type="xs:boolean"/>
+        <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
+        <xs:attribute name="memoryStoreEvictionPolicy" use="optional" type="xs:string"/>
+        <xs:attribute name="overflowToDisk" use="required" type="xs:boolean"/>
+        <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
+        <xs:attribute name="timeToLiveSeconds" use="optional" type="xs:integer"/>
+        <xs:attribute name="maxElementsOnDisk" use="optional" type="xs:integer"/>
+    </xs:complexType>
+</xs:element>
+<xs:element name="cache">
+    <xs:complexType>
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheEventListenerFactory"/>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheExtensionFactory"/>
+            <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
+            <xs:element minOccurs="0" maxOccurs="1" ref="cacheExceptionHandlerFactory"/>
+            <xs:element minOccurs="0" maxOccurs="1" ref="cacheLoaderFactory"/>
+        </xs:sequence>
+        <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
+        <xs:attribute name="diskSpoolBufferSizeMB" use="optional" type="xs:integer"/>
+        <xs:attribute name="diskPersistent" use="optional" type="xs:boolean"/>
+        <xs:attribute name="eternal" use="required" type="xs:boolean"/>
+        <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
+        <xs:attribute name="memoryStoreEvictionPolicy" use="optional" type="xs:string"/>
+        <xs:attribute name="name" use="required" type="xs:string"/>
+        <xs:attribute name="overflowToDisk" use="required" type="xs:boolean"/>
+        <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
+        <xs:attribute name="timeToLiveSeconds" use="optional" type="xs:integer"/>
+        <xs:attribute name="maxElementsOnDisk" use="optional" type="xs:integer"/>
+    </xs:complexType>
+</xs:element>
+<xs:element name="cacheEventListenerFactory">
+    <xs:complexType>
+        <xs:attribute name="class" use="required"/>
+        <xs:attribute name="properties" use="optional"/>
+        <xs:attribute name="propertySeparator" use="optional"/>
+    </xs:complexType>
+</xs:element>
+<xs:element name="bootstrapCacheLoaderFactory">
+    <xs:complexType>
+        <xs:attribute name="class" use="required"/>
+        <xs:attribute name="properties" use="optional"/>
+        <xs:attribute name="propertySeparator" use="optional"/>
+    </xs:complexType>
+</xs:element>
+<xs:element name="cacheExtensionFactory">
+    <xs:complexType>
+        <xs:attribute name="class" use="required"/>
+        <xs:attribute name="properties" use="optional"/>
+        <xs:attribute name="propertySeparator" use="optional"/>
+    </xs:complexType>
+</xs:element>
+<xs:element name="cacheExceptionHandlerFactory">
+    <xs:complexType>
+        <xs:attribute name="class" use="required"/>
+        <xs:attribute name="properties" use="optional"/>
+        <xs:attribute name="propertySeparator" use="optional"/>
+    </xs:complexType>
+</xs:element>
+<xs:element name="cacheLoaderFactory">
+    <xs:complexType>
+        <xs:attribute name="class" use="required"/>
+        <xs:attribute name="properties" use="optional"/>
+        <xs:attribute name="propertySeparator" use="optional"/>
+    </xs:complexType>
+</xs:element>
 </xs:schema>
-
 --------------------------------------------
 
 * ehcache-failsafe.xml
@@ -199,7 +197,8 @@
    The sample ehcache.xml, which is included in the ehcache distribution is reproduced below:
 
 ---------------------
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ehcache.xsd">
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+                            xsi:noNamespaceSchemaLocation="ehcache.xsd">
 
     <!--
     CacheManager Configuration
@@ -281,7 +280,9 @@
     * multicastGroupAddress (mandatory) - specify a valid multicast group address
     * multicastGroupPort (mandatory) - specify a dedicated port for the multicast heartbeat
       traffic
-    * timeToLive - specify a value between 0 and 255 which determines how far the packets will propagate.
+    * timeToLive - specify a value between 0 and 255 which determines how far the packets will
+      propagate.
+
       By convention, the restrictions are:
       0   - the same host
       1   - the same subnet
@@ -429,6 +430,12 @@
     * cacheExtensionFactory - Specifies a CacheExtension, a generic mechansim to tie a class
       which holds a reference to a cache to the cache lifecycle.
 
+    * cacheExceptionHandlerFactory - Specifies a CacheExceptionHandler, which is called when
+      cache exceptions occur.
+
+    * cacheLoaderFactory - Specifies a CacheLoader, which can be used both asynchronously and
+      synchronously to load objects into a cache.
+
     RMI Cache Replication
 
     Each cache that will be distributed needs to set a cache event listener which replicates
@@ -489,25 +496,48 @@
 
     Cache Exception Handling
 
-    By default, most cache operations will propagate a runtime CacheException on failure. An interceptor,
-      using a dynamic proxy, may be configured so that a CacheExceptionHandler can be configured to
-      intercept Exceptions. Errors are not intercepted. It is configured as per the following example:
+    By default, most cache operations will propagate a runtime CacheException on failure. An
+    interceptor, using a dynamic proxy, may be configured so that a CacheExceptionHandler can
+    be configured to intercept Exceptions. Errors are not intercepted.
 
-      <cacheExceptionHandlerFactory class="net.sf.ehcache.exceptionhandler.CountingExceptionHandlerFactory"
+    It is configured as per the following example:
+
+      <cacheExceptionHandlerFactory class="com.example.ExampleExceptionHandlerFactory"
                                       properties="logLevel=FINE"/>
 
-    Caches with ExceptionHandling configured are not of type Cache, but are of type Ehcache only, and are not available
-    using CacheManager.getCache(), but using CacheManager.getEhcache().
+    Caches with ExceptionHandling configured are not of type Cache, but are of type Ehcache only,
+    and are not available using CacheManager.getCache(), but using CacheManager.getEhcache().
 
 
-    CacheLoader
+    Cache Loader
 
-    A CacheLoader may be configured against a cache.
+    A default CacheLoader may be set which loads objects into the cache through asynchronous and
+    synchronous methods on Cache. This is different to the bootstrap cache loader, which is used
+    only in distributed caching.
 
-        <cacheLoaderFactory class="net.sf.ehcache.loader.CountingCacheLoaderFactory"
+    It is configured as per the following example:
+
+        <cacheLoaderFactory class="com.example.ExampleCacheLoaderFactory"
                                       properties="type=int,startCounter=10"/>
 
+    Cache Extension
+
+    CacheExtensions are a general purpose mechanism to allow generic extensions to a Cache.
+    CacheExtensions are tied into the Cache lifecycle.
+
+    CacheExtensions are created using the CacheExtensionFactory which has a
+    <code>createCacheCacheExtension()</code> method which takes as a parameter a
+    Cache and properties. It can thus call back into any public method on Cache, including, of
+    course, the load methods.
+
+    Extensions are added as per the following example:
+
+         <cacheExtensionFactory class="com.example.FileWatchingCacheRefresherExtensionFactory"
+                             properties="refreshIntervalMillis=18000, loaderTimeout=3000,
+                                         flushPeriod=whatever, someOtherProperty=someValue ..."/>
+
     -->
+
 
     <!--
     Mandatory Default Cache configuration. These settings will be applied to caches

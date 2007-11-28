@@ -689,17 +689,17 @@
         <property name="extension" value="pdf"/>
         <antcall target="create_book" inheritall="true"/>
 
-        <exec executable="pdftk" newenvironment="false" dir="${build.dir}/book" spawn="false">
-            <arg value="title_page.pdf"/>
-            <arg value="EhcacheUserGuide.pdf"/>
-            <arg value="cat"/>
-            <arg value="output"/>
-            <arg value="TempEhcacheUserGuide.pdf"/>
-        </exec>
-        <move file="${build.dir}/book/TempEhcacheUserGuide.pdf" tofile="${build.dir}/book/EhcacheUserGuide.pdf"/>
+        <!--<exec executable="pdftk" newenvironment="false" dir="${build.dir}/book" spawn="false">-->
+            <!--<arg value="title_page.pdf"/>-->
+            <!--<arg value="EhcacheUserGuide.pdf"/>-->
+            <!--<arg value="cat"/>-->
+            <!--<arg value="output"/>-->
+            <!--<arg value="TempEhcacheUserGuide.pdf"/>-->
+        <!--</exec>-->
+        <!--<move file="${build.dir}/book/TempEhcacheUserGuide.pdf" tofile="${build.dir}/book/EhcacheUserGuide.pdf"/>-->
 
         <mkdir dir="${build.dir}/site"/>
-        <copy file="${build.dir}/book/EhcacheUserGuide.pdf" todir="${build.dir}/site"/>
+        <!--<copy file="${build.dir}/book/EhcacheUserGuide.pdf" todir="${build.dir}/site"/>-->
     </target>
 
 

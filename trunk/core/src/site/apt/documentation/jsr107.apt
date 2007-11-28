@@ -103,8 +103,9 @@
 
 ---
         manager = CacheManager.getInstance();
-        Ehcache ehcache = new net.sf.ehcache.Cache("UseCache", 10, MemoryStoreEvictionPolicy.LFU,
-                false, null, false, 10, 10, false, 60, null);
+        Ehcache ehcache = new net.sf.ehcache.Cache("UseCache", 10,
+        MemoryStoreEvictionPolicy.LFU,
+         false, null, false, 10, 10, false, 60, null);
         manager.registerCache("test", new JCache(ehcache, null));
         Cache cache = manager.getCache("test");
 ---

@@ -46,7 +46,8 @@ cacheManager.replaceCacheWithDecoratedCache(cache, newBlockingCache);
 
 ---
     /**
-     * The cache holding the web pages. Ensure that all threads for a given cache name are using the same instance of this.
+     * The cache holding the web pages. Ensure that all threads for a given cache name
+     * are using the same instance of this.
      */
     private BlockingCache blockingCache;
 
@@ -54,7 +55,8 @@ cacheManager.replaceCacheWithDecoratedCache(cache, newBlockingCache);
      * Initialises blockingCache to use
      *
      * @throws CacheException The most likely cause is that a cache has not been
-     *                        configured in ehcache's configuration file ehcache.xml for the filter name
+     *                        configured in ehcache's configuration file ehcache.xml for the
+     *                        filter name
      */
     public void doInit() throws CacheException {
         synchronized (this.getClass()) {

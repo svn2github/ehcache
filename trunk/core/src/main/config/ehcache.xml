@@ -80,7 +80,9 @@
     * multicastGroupAddress (mandatory) - specify a valid multicast group address
     * multicastGroupPort (mandatory) - specify a dedicated port for the multicast heartbeat
       traffic
-    * timeToLive - specify a value between 0 and 255 which determines how far the packets will propagate.
+    * timeToLive - specify a value between 0 and 255 which determines how far the packets will
+      propagate.
+
       By convention, the restrictions are:
       0   - the same host
       1   - the same subnet
@@ -228,10 +230,11 @@
     * cacheExtensionFactory - Specifies a CacheExtension, a generic mechansim to tie a class
       which holds a reference to a cache to the cache lifecycle.
 
-    * cacheExceptionHandlerFactory - Specifies a CacheExceptionHandler, which is called when cache exceptions occur.
+    * cacheExceptionHandlerFactory - Specifies a CacheExceptionHandler, which is called when
+      cache exceptions occur.
 
-    * cacheLoaderFactory - Specifies a CacheLoader, which can be used both asynchronously and synchronously to load
-      objects into a cache.
+    * cacheLoaderFactory - Specifies a CacheLoader, which can be used both asynchronously and
+      synchronously to load objects into a cache.
 
     RMI Cache Replication
 
@@ -293,21 +296,25 @@
 
     Cache Exception Handling
 
-    By default, most cache operations will propagate a runtime CacheException on failure. An interceptor,
-      using a dynamic proxy, may be configured so that a CacheExceptionHandler can be configured to
-      intercept Exceptions. Errors are not intercepted. It is configured as per the following example:
+    By default, most cache operations will propagate a runtime CacheException on failure. An
+    interceptor, using a dynamic proxy, may be configured so that a CacheExceptionHandler can
+    be configured to intercept Exceptions. Errors are not intercepted.
+
+    It is configured as per the following example:
 
       <cacheExceptionHandlerFactory class="com.example.ExampleExceptionHandlerFactory"
                                       properties="logLevel=FINE"/>
 
-    Caches with ExceptionHandling configured are not of type Cache, but are of type Ehcache only, and are not available
-    using CacheManager.getCache(), but using CacheManager.getEhcache().                                  
+    Caches with ExceptionHandling configured are not of type Cache, but are of type Ehcache only,
+    and are not available using CacheManager.getCache(), but using CacheManager.getEhcache().
 
 
     Cache Loader
 
-    A default CacheLoader may be set which loads objects into the cache through asynchronous and synchronous methods on Cache.
-    This is different to the bootstrap cache loader, which is used only in distributed caching.
+    A default CacheLoader may be set which loads objects into the cache through asynchronous and
+    synchronous methods on Cache. This is different to the bootstrap cache loader, which is used
+    only in distributed caching.
+
     It is configured as per the following example:
 
         <cacheLoaderFactory class="com.example.ExampleCacheLoaderFactory"
@@ -318,15 +325,16 @@
     CacheExtensions are a general purpose mechanism to allow generic extensions to a Cache.
     CacheExtensions are tied into the Cache lifecycle.
 
-    CacheExtensions are created using the CacheExtensionFactory which has a <code>createCacheCacheExtension()</code> method which takes as a parameter a
+    CacheExtensions are created using the CacheExtensionFactory which has a
+    <code>createCacheCacheExtension()</code> method which takes as a parameter a
     Cache and properties. It can thus call back into any public method on Cache, including, of
     course, the load methods.
 
     Extensions are added as per the following example:
 
          <cacheExtensionFactory class="com.example.FileWatchingCacheRefresherExtensionFactory"
-                                     properties="refreshIntervalMillis=18000, loaderTimeout=3000,
-                                                 flushPeriod=whatever, someOtherProperty=someValue ..."/> 
+                             properties="refreshIntervalMillis=18000, loaderTimeout=3000,
+                                         flushPeriod=whatever, someOtherProperty=someValue ..."/>
 
     -->
 

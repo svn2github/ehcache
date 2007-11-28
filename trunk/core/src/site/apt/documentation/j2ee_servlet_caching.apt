@@ -29,8 +29,9 @@
 * {SimplePageCachingFilter}
 
     What if you just want to get started with the CachingFilter and don't want to think too hard? Just use SimplePageCachingFilter
-    which has a calculateKey method already implemented. It uses <<<httpRequest.getRequestURI()).append(httpRequest.getQueryString()>>>
-    for the key. This works most of the time. It tends to get less effective when referrals and affiliates are added to the query,
+    which has a calculateKey method already implemented.
+
+    It uses <<<httpRequest.getRequestURI()).append(httpRequest.getQueryString()>>> for the key. This works most of the time. It tends to get less effective when referrals and affiliates are added to the query,
     which is the case for a lot of e-commerce sites.
 
     SimplePageCachingFilter is 10 lines of code.

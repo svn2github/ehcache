@@ -205,8 +205,10 @@ socketTimeoutMillis=2000"/>
            timeToIdleSeconds="100"
            timeToLiveSeconds="100"
            overflowToDisk="false">
-        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
-                                   properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
     </cache>
 --------------------------------------------
 
@@ -232,13 +234,15 @@ socketTimeoutMillis=2000"/>
  the <<<RMICacheReplicatorFactory>>> properties as per the following example:
 
 --------------------------------------------
-    <!-- Sample cache named sampleCache4. All missing RMICacheReplicatorFactory properties default to true -->
+    <!-- Sample cache named sampleCache4. All missing RMICacheReplicatorFactory properties
+         default to true -->
     <cache name="sampleCache4"
            maxElementsInMemory="10"
            eternal="true"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LFU">
-        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>
     </cache>
 --------------------------------------------
 

@@ -269,10 +269,9 @@ in Hits   1 Server    2 Servers  3 Servers   4 Servers
        From the above we now have:
 
 
-
-
 --------
- 1 / ((1 - Proportion Sped Up * effective cache efficiency) + (Proportion Sped Up  * effective cache efficiency)/ Speed up)
+ 1 / ((1 - Proportion Sped Up * effective cache efficiency) +
+ (Proportion Sped Up  * effective cache efficiency)/ Speed up)
 --------
 
  effective cache efficiency = cache efficiency * cluster efficiency

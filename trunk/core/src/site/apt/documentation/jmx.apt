@@ -10,7 +10,8 @@
     into the core ehcache package.
 
     This implementation attempts to follow Sun's JMX best practices. See
-    http://java.sun.com/javase/technologies/core/mntr-mgmt/javamanagement/best-practices.jsp.
+    http://java.sun.com/javase/technologies/core/mntr-mgmt/
+    javamanagement/best-practices.jsp.
 
     Use <<<net.sf.ehcache.management.ManagementService.registerMBeans(...)>>> static method
     to register a selection of MBeans to the MBeanServer provided to the method.
@@ -87,16 +88,17 @@
      * This method causes the selected monitoring options to be be registered
      * with the provided MBeanServer for caches in the given CacheManager.
      * <p/>
-     * While registering the CacheManager enables traversal to all of the other items,
+     * While registering the CacheManager enables traversal to all of the other
+     *  items,
      * this requires programmatic traversal. The other options allow entry points closer
      * to an item of interest and are more accessible from JMX management tools like JConsole.
-     * Moreover CacheManager and Cache are not serializable, so remote monitoring is not possible for CacheManager
-     * or Cache, while CacheStatistics and CacheConfiguration are. Finally CacheManager and Cache enable
-     * management operations to be performed.
+     * Moreover CacheManager and Cache are not serializable, so remote monitoring is not
+     * possible * for CacheManager or Cache, while CacheStatistics and CacheConfiguration are.
+     * Finally * CacheManager and Cache enable management operations to be performed.
      * <p/>
-     * Once monitoring is enabled caches will automatically added and removed from the MBeanServer
-     * as they are added and disposed of from the CacheManager. When the CacheManager itself shutsdown
-     * all registered MBeans will be unregistered.
+     * Once monitoring is enabled caches will automatically added and removed from the
+     * MBeanServer * as they are added and disposed of from the CacheManager. When the
+     * CacheManager itself * shutsdown all registered MBeans will be unregistered.
      *
      * @param cacheManager the CacheManager to listen to
      * @param mBeanServer the MBeanServer to register MBeans to

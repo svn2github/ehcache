@@ -342,8 +342,9 @@
 
      * CacheStatistics
 
-    See the net.sf.ehcache.management package. See {{http://weblogs.java.net/blog/maxpoon/archive/2007/06/extending_the_n_2.html}} for
-    an online tutorial.
+    See the net.sf.ehcache.management package.
+
+    See {{http://weblogs.java.net/blog/maxpoon/archive/2007/06/extending_the_n_2.html}} for an online tutorial.
 
 * {Distributed Caching}
 
@@ -426,8 +427,9 @@
 ** {Works with Hibernate}
 
    Tested with Hibernate2.1.8 and  Hibernate3.1.3, which can utilise all of the new features except for Object API and
-   multiple session factories each using a different ehcache CacheManager. A new <<<net.sf.ehcache.hibernate.EhCacheProvider>>>
-   makes those additional features available to Hibernate-3.1.3. A version of the new provider should make it into
+   multiple session factories each using a different ehcache CacheManager.
+
+   A new <<<net.sf.ehcache.hibernate.EhCacheProvider>>> makes those additional features available to Hibernate-3.1.3. A version of the new provider should make it into
    the Hibernate3.2 release.
 
 * {High Quality}
@@ -439,7 +441,7 @@
  Ehcache has a relatively high 86% test coverage of source code. This has edged higher over time. Clover enforces the test coverage.
  Most of the missing 14% is logging and exception paths.
 
-** {Automated Load, Limit and Performance System Tests}
+** Automated {Load, Limit and Performance System Tests}
 
   The ehcache JUnit test suite contains some long-running system tests which place high load on different ehcache subsystems
     to the point of failure and then are back off to just below that point. The same is done with limits such as the amount
