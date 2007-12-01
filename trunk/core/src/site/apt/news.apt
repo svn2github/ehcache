@@ -7,6 +7,20 @@
 
 News
 
+* 30 November 2007: Ehcache book available
+
+[images/ehcache_guide.gif] Ehcache Guide & Reference
+
+ Ehcache Guide and Reference for the forthcoming 1.4.0 release is available as a book.
+ The price for the high quality bound edition is USD49.95 plus shipping. The price for the downloadable print-ready version
+ is USD37.50. The book has 154 pages.
+
+ Many people have asked for a format for the documentation where it can be printed out as a book and even where they can get it.
+ Of course, full documentation in html will always remain available online at http://ehcache.sf.net.
+
+ Buy it from the {{{http://stores.lulu.com/ehcache}Ehcache Storefront}} at Lulu Books.
+
+
 * 26 August 2007: ehcache-1.4-beta released
 
     The beta version of ehcache-1.4 is available on sourceforge and the Maven central repository.
