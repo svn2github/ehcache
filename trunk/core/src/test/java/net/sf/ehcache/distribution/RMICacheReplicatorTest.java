@@ -1180,7 +1180,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         //removeAll is distributed. Stop it colliding with the rest of the test
         waitForProgagate();
 
-        Serializable key = "1";
+        String key = "1";
         Serializable value = new Date();
         Element element1 = new Element(key, value);
 
@@ -1194,6 +1194,8 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
 
         //Update
         cache1.put(element1);
+        waitForProgagate();
+        waitForProgagate();
         waitForProgagate();
 
         //Should have been removed in cache2.

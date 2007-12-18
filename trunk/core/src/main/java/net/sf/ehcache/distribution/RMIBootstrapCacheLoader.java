@@ -146,12 +146,12 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
             for (int i = 0; i < keys.size(); i++) {
                 Serializable key = (Serializable) keys.get(i);
                 sampleElement = cachePeer.getQuiet(key);
-                if (sampleElement != null) {
+                if (sampleElement != null && sampleElement.getSerializedSize() != 0) {
                     break;
                 }
             }
             if (sampleElement == null) {
-                LOG.debug("All cache peer elements were null. Nothing to bootstrap from. Cache was "
+                LOG.debug("All cache peer elements were either null or empty. Nothing to bootstrap from. Cache was "
                         + cache.getName() + ". Cache peer was " + cachePeer);
                 return;
             }

@@ -27,6 +27,13 @@
                 cache.getAllWithLoader should use a loadAll method for any keys not present in the cache rather than loading
                 individually. This is a performance optimisation. Fixed.
             </action>
+            <action dev="Greg Luck" type="fix" issue="1846461">
+                Division by zero in RMIBootstrapCacheLoader.java where elements are non-null but empty, which causes
+                bootstrap to fail, although gracefully. Fixed.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="1831755">
+                Style issue. Abuse of Exceptions. Fixed.
+            </action>
         </release>
 
 

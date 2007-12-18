@@ -88,7 +88,7 @@ public final class ConfigurationHelper {
      * A factory method to create a RegisteredEventListeners
      */
     protected static void registerCacheListeners(CacheConfiguration cacheConfiguration,
-                                                RegisteredEventListeners registeredEventListeners) {
+                                                 RegisteredEventListeners registeredEventListeners) {
         List cacheEventListenerConfigurations = cacheConfiguration.getCacheEventListenerConfigurations();
         for (int i = 0; i < cacheEventListenerConfigurations.size(); i++) {
             CacheConfiguration.CacheEventListenerFactoryConfiguration factoryConfiguration =
@@ -123,19 +123,20 @@ public final class ConfigurationHelper {
             CacheConfiguration.CacheEventListenerFactoryConfiguration factoryConfiguration) {
         String className = null;
         CacheEventListener cacheEventListener = null;
-        try {
+        if (factoryConfiguration != null) {
             className = factoryConfiguration.getFullyQualifiedClassPath();
-        } catch (Throwable t) {
-            //
         }
         if (className == null) {
             LOG.debug("CacheEventListener factory not configured. Skipping...");
         } else {
             CacheEventListenerFactory factory = (CacheEventListenerFactory)
                     ClassLoaderUtil.createNewInstance(className);
-            Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
-                    factoryConfiguration.getPropertySeparator());
-            cacheEventListener = factory.createCacheEventListener(properties);
+            Properties properties =
+
+                    PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
+                            factoryConfiguration.getPropertySeparator());
+            cacheEventListener =
+                    factory.createCacheEventListener(properties);
         }
         return cacheEventListener;
     }
@@ -149,10 +150,8 @@ public final class ConfigurationHelper {
             CacheConfiguration.CacheExtensionFactoryConfiguration factoryConfiguration, Ehcache cache) {
         String className = null;
         CacheExtension cacheExtension = null;
-        try {
+        if (factoryConfiguration != null) {
             className = factoryConfiguration.getFullyQualifiedClassPath();
-        } catch (Throwable t) {
-            //
         }
         if (className == null) {
             LOG.debug("CacheExtension factory not configured. Skipping...");
@@ -174,10 +173,8 @@ public final class ConfigurationHelper {
             CacheConfiguration.BootstrapCacheLoaderFactoryConfiguration factoryConfiguration) throws CacheException {
         String className = null;
         BootstrapCacheLoader bootstrapCacheLoader = null;
-        try {
-            className = factoryConfiguration.fullyQualifiedClassPath;
-        } catch (Throwable t) {
-            //No class created because the config was missing
+        if (factoryConfiguration != null) {
+            className = factoryConfiguration.getFullyQualifiedClassPath();
         }
         if (className == null || className.length() == 0) {
             LOG.debug("No BootstrapCacheLoaderFactory class specified. Skipping...");
@@ -201,10 +198,8 @@ public final class ConfigurationHelper {
             CacheConfiguration.CacheLoaderFactoryConfiguration factoryConfiguration) throws CacheException {
         String className = null;
         CacheLoader cacheLoader = null;
-        try {
-            className = factoryConfiguration.fullyQualifiedClassPath;
-        } catch (Throwable t) {
-            //No class created because the config was missing
+        if (factoryConfiguration != null) {
+            className = factoryConfiguration.getFullyQualifiedClassPath();
         }
         if (className == null || className.length() == 0) {
             LOG.debug("No CacheLoaderFactory class specified. Skipping...");
@@ -228,10 +223,8 @@ public final class ConfigurationHelper {
             CacheConfiguration.CacheExceptionHandlerFactoryConfiguration factoryConfiguration) throws CacheException {
         String className = null;
         CacheExceptionHandler cacheExceptionHandler = null;
-        try {
-            className = factoryConfiguration.fullyQualifiedClassPath;
-        } catch (Throwable t) {
-            //No class created because the config was missing
+        if (factoryConfiguration != null) {
+            className = factoryConfiguration.getFullyQualifiedClassPath();
         }
         if (className == null || className.length() == 0) {
             LOG.debug("No CacheExceptionHandlerFactory class specified. Skipping...");
@@ -253,10 +246,8 @@ public final class ConfigurationHelper {
         String className = null;
         FactoryConfiguration cachePeerProviderFactoryConfiguration =
                 configuration.getCacheManagerPeerProviderFactoryConfiguration();
-        try {
-            className = cachePeerProviderFactoryConfiguration.fullyQualifiedClassPath;
-        } catch (Throwable t) {
-            //
+        if (cachePeerProviderFactoryConfiguration != null) {
+            className = cachePeerProviderFactoryConfiguration.getFullyQualifiedClassPath();
         }
         if (className == null) {
             LOG.debug("No CachePeerProviderFactoryConfiguration specified. Not configuring a CacheManagerPeerProvider.");
@@ -278,10 +269,8 @@ public final class ConfigurationHelper {
         String className = null;
         FactoryConfiguration cachePeerListenerFactoryConfiguration =
                 configuration.getCacheManagerPeerListenerFactoryConfiguration();
-        try {
-            className = cachePeerListenerFactoryConfiguration.fullyQualifiedClassPath;
-        } catch (Throwable t) {
-            //
+        if (cachePeerListenerFactoryConfiguration != null) {
+            className = cachePeerListenerFactoryConfiguration.getFullyQualifiedClassPath();
         }
         if (className == null) {
             LOG.debug("No CachePeerListenerFactoryConfiguration specified. Not configuring a CacheManagerPeerListener.");
@@ -304,10 +293,8 @@ public final class ConfigurationHelper {
         String className = null;
         FactoryConfiguration cacheManagerEventListenerFactoryConfiguration =
                 configuration.getCacheManagerEventListenerFactoryConfiguration();
-        try {
-            className = cacheManagerEventListenerFactoryConfiguration.fullyQualifiedClassPath;
-        } catch (Throwable t) {
-            //No class created because the config was missing
+        if (cacheManagerEventListenerFactoryConfiguration != null) {
+            className = cacheManagerEventListenerFactoryConfiguration.getFullyQualifiedClassPath();
         }
         if (className == null || className.length() == 0) {
             LOG.debug("No CacheManagerEventListenerFactory class specified. Skipping...");
