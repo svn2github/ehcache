@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+    <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
 
@@ -33,6 +33,9 @@
             </action>
             <action dev="Greg Luck" type="fix" issue="1831755">
                 Style issue. Abuse of Exceptions. Fixed.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="1831823">
+                JCache.getAll wraps values in Element. Fixed.
             </action>
         </release>
 

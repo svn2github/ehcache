@@ -17,10 +17,7 @@
 package net.sf.ehcache.jcache;
 
 import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException;
-import net.sf.ehcache.AbstractCacheTest;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.StopWatch;
-import net.sf.ehcache.ThreadKiller;
+import net.sf.ehcache.*;
 import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
 import net.sf.ehcache.loader.CountingCacheLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
@@ -1235,7 +1232,7 @@ public class JCacheTest extends AbstractCacheTest {
      * Multi-thread read-write test with lots of threads
      * Just use MemoryStore to put max stress on cache
      * Values that work:
-     *
+     * <p/>
      * The get here will often load data, so it does not give raw cache performance. See the similar test in CacheTest
      * for that.
      */
@@ -1468,10 +1465,13 @@ public class JCacheTest extends AbstractCacheTest {
         //pre populate only 1 element
         jcache.put(new Integer(1), "");
 
-        jcache.getAll(keys);
+        Map result = jcache.getAll(keys);
 
         assertEquals(1000, jcache.size());
         assertEquals(999, countingCacheLoader.getLoadAllCounter());
+
+        assertFalse(result.get(new Integer(1)) == null);
+        assertFalse(result.get(new Integer(1)) instanceof Element);
     }
 
 

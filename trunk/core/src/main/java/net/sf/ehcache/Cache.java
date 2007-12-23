@@ -918,7 +918,12 @@ public class Cache implements Ehcache {
                     key = iterator.next();
 
                     if (isKeyInCache(key)) {
-                        map.put(key, get(key));
+                        Element element = get(key);
+                        if (element != null) {
+                            map.put(key, element.getObjectValue());
+                        } else {
+                            map.put(key, null);
+                        }
                     } else {
                         missingKeys.add(key);
                     }
@@ -931,7 +936,12 @@ public class Cache implements Ehcache {
 
                 for (int i = 0; i < missingKeys.size(); i++) {
                     key = missingKeys.get(i);
-                    map.put(key, get(key));
+                    Element element = get(key);
+                    if (element != null) {
+                        map.put(key, element.getObjectValue());
+                    } else {
+                        map.put(key, null);
+                    }
                 }
 
             } catch (ExecutionException e) {

@@ -604,15 +604,21 @@ public class MemoryStoreTester extends AbstractCacheTest {
             }
             fail();
         } catch (OutOfMemoryError e) {
-            if (JVMUtil.isJDK15()) {
-                assertTrue(i > 90000);
-            } else {
-                assertTrue(i > 50000);
-            }
-            LOG.info("Ran out of memory putting " + i + "th element");
             System.gc();
             Thread.sleep(2000);
             System.gc();
+
+            try {
+                if (JVMUtil.isJDK15()) {
+                    assertTrue(i > 90000);
+                } else {
+                    assertTrue(i > 50000);
+                }
+                LOG.info("Ran out of memory putting " + i + "th element");
+            } catch (OutOfMemoryError e1) {
+                //sometimes if we are really out of memory we cannot do anything
+            }
+
         }
     }
 
