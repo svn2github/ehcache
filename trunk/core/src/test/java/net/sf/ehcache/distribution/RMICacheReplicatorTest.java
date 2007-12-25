@@ -181,7 +181,16 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         if (manager6 != null) {
             manager6.shutdown();
         }
-        Thread.sleep(50);
+        Thread.sleep(5000);
+
+        List threads = JVMUtil.enumerateThreads();
+        for (int i = 0; i < threads.size(); i++) {
+            Thread thread = (Thread) threads.get(i);
+            if (thread.getName().equals("Replication Thread")) {
+                fail("There should not be any replication threads running after shutdown");
+            }
+        }
+
     }
 
     /**

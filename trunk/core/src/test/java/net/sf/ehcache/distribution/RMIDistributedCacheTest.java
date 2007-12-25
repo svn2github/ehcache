@@ -92,6 +92,7 @@ public class RMIDistributedCacheTest extends TestCase {
 
         Thread.sleep(10);
         manager.shutdown();
+        int i = 0;
     }
 
 

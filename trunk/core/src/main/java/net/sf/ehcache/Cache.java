@@ -1428,10 +1428,10 @@ public class Cache implements Ehcache {
      * </ol>
      * This method should be invoked only by CacheManager, as a cache's lifecycle is bound into that of it's cache manager.
      *
-     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     * @throws IllegalStateException if the cache is already {@link Status#STATUS_SHUTDOWN}
      */
     public synchronized void dispose() throws IllegalStateException {
-        checkStatus();
+        checkStatusNotDisposed();
 
         if (executorService != null) {
             executorService.shutdown();
@@ -1439,9 +1439,11 @@ public class Cache implements Ehcache {
         disposeRegisteredCacheExtensions();
         registeredEventListeners.dispose();
 
-        memoryStore.dispose();
+        if (memoryStore != null) {
+            memoryStore.dispose();
+        }
         memoryStore = null;
-        if (configuration.isOverflowToDisk()) {
+        if (configuration.isOverflowToDisk() && diskStore != null) {
             diskStore.dispose();
             diskStore = null;
         }
@@ -1580,6 +1582,12 @@ public class Cache implements Ehcache {
     private void checkStatus() throws IllegalStateException {
         if (!status.equals(Status.STATUS_ALIVE)) {
             throw new IllegalStateException("The " + configuration.getName() + " Cache is not alive.");
+        }
+    }
+
+    private void checkStatusNotDisposed() throws IllegalStateException {
+        if (status.equals(Status.STATUS_SHUTDOWN)) {
+            throw new IllegalStateException("The " + configuration.getName() + " Cache is disposed.");
         }
     }
 

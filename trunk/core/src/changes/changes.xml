@@ -37,6 +37,9 @@
             <action dev="Greg Luck" type="fix" issue="1831823">
                 JCache.getAll wraps values in Element. Fixed.
             </action>
+            <action dev="Greg Luck" type="fix" issue="1802513">
+                Replication Thread of Default Cache not disposed. Fixed.
+            </action>
         </release>
 
 

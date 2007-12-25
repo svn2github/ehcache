@@ -24,6 +24,7 @@ import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.distribution.RMIBootstrapCacheLoader;
 import net.sf.ehcache.distribution.RMIAsynchronousCacheReplicator;
+import net.sf.ehcache.distribution.JVMUtil;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.DiskStore;
@@ -38,9 +39,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Date;
-import java.util.Set;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * Tests for CacheManager
@@ -596,56 +595,10 @@ public class CacheManagerTest extends TestCase {
     }
 
     private int countThreads() {
-
-        /**
-         * A class for visiting threads
-         */
-        class ThreadVisitor {
-
-            private int threadCount;
-
-
-            // This method recursively visits all thread groups under `group'.
-            private void visit(ThreadGroup group, int level) {
-                // Get threads in `group'
-                int numThreads = group.activeCount();
-                Thread[] threads = new Thread[numThreads * 2];
-                numThreads = group.enumerate(threads, false);
-
-                // Enumerate each thread in `group'
-                for (int i = 0; i < numThreads; i++) {
-                    // Get thread
-                    Thread thread = threads[i];
-                    threadCount++;
-                    LOG.debug(thread);
-                }
-
-                // Get thread subgroups of `group'
-                int numGroups = group.activeGroupCount();
-                ThreadGroup[] groups = new ThreadGroup[numGroups * 2];
-                numGroups = group.enumerate(groups, false);
-
-                // Recursively visit each subgroup
-                for (int i = 0; i < numGroups; i++) {
-                    visit(groups[i], level + 1);
-                }
-            }
-
-        }
-
-        // Find the root thread group
-        ThreadGroup root = Thread.currentThread().getThreadGroup().getParent();
-        while (root.getParent() != null) {
-            root = root.getParent();
-        }
-
-        // Visit each thread group
-        ThreadVisitor visitor = new ThreadVisitor();
-        visitor.visit(root, 0);
-        return visitor.threadCount;
-
-
+        return JVMUtil.enumerateThreads().size();
     }
+
+    
 
 
     /**

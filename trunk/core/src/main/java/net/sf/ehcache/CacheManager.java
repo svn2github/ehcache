@@ -787,6 +787,7 @@ public class CacheManager {
                         cache.dispose();
                     }
                 }
+                defaultCache.dispose();
                 status = Status.STATUS_SHUTDOWN;
 
                 //only delete singleton if the singleton is shutting down.
