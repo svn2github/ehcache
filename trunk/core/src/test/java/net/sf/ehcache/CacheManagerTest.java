@@ -39,7 +39,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.*;
+import java.util.Date;
+import java.util.Set;
+import java.util.Iterator;
 
 /**
  * Tests for CacheManager

@@ -17,10 +17,14 @@
 package net.sf.ehcache.jcache;
 
 import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException;
-import net.sf.ehcache.*;
 import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
 import net.sf.ehcache.loader.CountingCacheLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.StopWatch;
+import net.sf.ehcache.ThreadKiller;
+import net.sf.ehcache.Element;
 import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheEntry;
 import net.sf.jsr107cache.CacheException;

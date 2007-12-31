@@ -703,7 +703,7 @@
     </target>
 
 
-    <target name="singlepageguide">
+    <target name="singlepageguide" description="Target for the Single Page HTML User Guide">
         <mkdir dir="${build.dir}/book"/>
         <copy todir="${build.dir}/book/images">
             <fileset dir="src/site/resources/images"/>

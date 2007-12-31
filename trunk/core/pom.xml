@@ -137,34 +137,20 @@
                         </goals>
                     </execution>
 
-                    <execution>
-                        <id>book</id>
-                        <phase>verify</phase>
-                        <configuration>
-                            <tasks>
-                                <ant antfile="${basedir}/build.xml" inheritRefs="true">
-                                    <target name="book"/>
-                                </ant>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>singlepageguide</id>
-                        <phase>verify</phase>
-                        <configuration>
-                            <tasks>
-                                <ant antfile="${basedir}/build.xml" inheritRefs="true">
-                                    <target name="singlepageguide"/>
-                                </ant>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
+                    <!--<execution>-->
+                        <!--<id>singlepageguide</id>-->
+                        <!--<phase>verify</phase>-->
+                        <!--<configuration>-->
+                            <!--<tasks>-->
+                                <!--<ant antfile="${basedir}/build.xml" inheritRefs="true">-->
+                                    <!--<target name="singlepageguide"/>-->
+                                <!--</ant>-->
+                            <!--</tasks>-->
+                        <!--</configuration>-->
+                        <!--<goals>-->
+                            <!--<goal>run</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
 
 
                 </executions>
