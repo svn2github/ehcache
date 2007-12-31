@@ -3,7 +3,7 @@
     <body>
 
 
-        <release version="1.4.0-beta2" date="2007-12-31" desc="1.4 second beta release">
+        <release version="1.4.0-beta2" date="2007-12-31" desc="1.4.0 second beta release">
 
             <!--Bug Fixes-->
             <action dev="Greg Luck" type="fix" issue="1819841">
