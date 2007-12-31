@@ -1,5 +1,49 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+ehcache-1.4-beta2
+=================
+
+<release version="1.4.0-beta2" date="2008-1-1" desc="1.4.0 beta2 release">
+
+    <!--Bug Fixes-->
+    <action dev="Greg Luck" type="fix" issue="1819841">
+        NPE in MulticastKeepaliveHeartbeatReceiver when accessing processingThreadPool during startup.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1816084">
+        RMIAsynchronousCacheReplicator flushReplicationQueue change to speed it up and remove pausing. Thanks to
+        Kyle Sampson for this one.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1811875">
+        RegisteredEventListeners is not thread-safe where listeners are being added and removed during operation.
+        Fixed. Thanks to Geoffrey Arnold for pointing this out. Also removed final from class.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1828351">
+        CacheStatistics causes a NPE if used for fresh caches. Fixed.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1831446">
+        Dropped thread renaming in SelfPopulating cache. A debug feature that has probably outlived its usefulness.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1831817">
+        cache.getAllWithLoader should use a loadAll method for any keys not present in the cache rather than loading
+        individually. This is a performance optimisation. Fixed.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1846461">
+        Division by zero in RMIBootstrapCacheLoader.java where elements are non-null but empty, which causes
+        bootstrap to fail, although gracefully. Fixed.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1831755">
+        Style issue. Abuse of Exceptions. Fixed.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1831823">
+        JCache.getAll wraps values in Element. Fixed.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1802513">
+        Replication Thread of Default Cache not disposed. Fixed.
+    </action>
+</release>
+
+
+
 ehcache-1.4-beta
 ================
 
