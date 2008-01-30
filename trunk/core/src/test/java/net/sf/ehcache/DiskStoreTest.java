@@ -456,7 +456,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         }
 
         //allow to move through spool
-        Thread.sleep(210);
+        Thread.sleep(220);
         assertEquals(10, store.getSize());
 
 
@@ -467,14 +467,14 @@ public class DiskStoreTest extends AbstractCacheTest {
             cache.get("key" + i);
         }
         //allow to move through spool
-        Thread.sleep(210);
+        Thread.sleep(220);
         assertEquals(10, store.getSize());
 
         element = new Element("keyNew", "valueNew");
         store.put(element);
 
         //allow to get out of spool
-        Thread.sleep(210);
+        Thread.sleep(220);
         assertEquals(10, store.getSize());
         //check new element not evicted
         assertNotNull(store.get(element.getObjectKey()));

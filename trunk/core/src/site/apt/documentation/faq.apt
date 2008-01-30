@@ -300,8 +300,7 @@ class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
 * I am using Java 6 and getting a java.lang.VerifyError on the Backport Concurrent classes. Why?
 
     The backport-concurrent library is used in ehcache to provide java.util.concurrency facilities for Java 4 - Java 6.
-    The library is available in a Java 4 and Java 5 version. The Java 5 version is not compatible with Java 6 which causes the
-    error. Use the Java 4 version which is compatible.
+    Use either the Java 4 version which is compatible with Java 4-6 or use the version for your JDK.
 
 * How do I get a memory only cache to persist to disk between VM restarts?
 

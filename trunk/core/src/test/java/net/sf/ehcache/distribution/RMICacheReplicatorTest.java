@@ -225,7 +225,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         manager6 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed6.xml");
 
         //Allow detection to occur
-        Thread.sleep(10010);
+        Thread.sleep(10020);
 
         remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
         assertEquals(5, remotePeersOfCache1.size());
@@ -249,7 +249,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         manager5.shutdown();
 
         //Allow change detection to occur. Heartbeat 1 second and is not stale until 5000
-        Thread.sleep(11010);
+        Thread.sleep(11020);
         remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
 
 
@@ -359,10 +359,10 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
 
         manager3.shutdown();
 
-        Thread.sleep(11010);
+        Thread.sleep(11020);
 
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
-        Thread.sleep(11010);
+        Thread.sleep(11020);
 
         //Put
         String[] cacheNames = manager1.getCacheNames();

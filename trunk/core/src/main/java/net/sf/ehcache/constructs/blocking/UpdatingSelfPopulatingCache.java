@@ -64,7 +64,6 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
      * @throws net.sf.ehcache.CacheException
      */
     public Element get(final Object key) throws LockTimeoutException {
-        String oldThreadName = Thread.currentThread().getName();
 
         try {
 
@@ -87,8 +86,6 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
             // Could not fetch - Ditch the entry from the cache and rethrow
             put(new Element(key, null));
             throw new LockTimeoutException("Could not fetch object for cache entry with key \"" + key + "\".", throwable);
-        } finally {
-            Thread.currentThread().setName(oldThreadName);
         }
     }
 
