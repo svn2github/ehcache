@@ -5,7 +5,7 @@
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.4.0-beta2</version>
+    <version>1.4.0</version>
     <name>Ehcache Parent</name>
     <description><![CDATA[Ehcache is a widely used, pure Java, distributed in-process cache]]>
     </description>

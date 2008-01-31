@@ -5,7 +5,7 @@
     <parent>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-parent</artifactId>
-        <version>1.4.0-beta2</version>
+        <version>1.4.0</version>
     </parent>
     <artifactId>ehcache-distribution</artifactId>
     <packaging>pom</packaging>
