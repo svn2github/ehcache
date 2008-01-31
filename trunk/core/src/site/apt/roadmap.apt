@@ -7,15 +7,19 @@
 
 Development Roadmap
 
- Last Updated 20 August 2007.
+ Last Updated 31 January 2008.
 
 
 * Slated for 1.5
 
+** JMS distribution mechanisms
+
+ There is sponsorship for a JMS-based replication mechanism. This should be useful for many people.
+
 ** JGroups based replication
 
- Work has been done on a JGRoups replication implementation to complement the current RMI one.
- Use of JGroups rather than RMI will be available as a configuration option.
+ A patch is availabile for a JGRoups replication implementation. This patch has been in production for
+ almost a year and has been working well. This battle-tested patch will be included in 1.5.
 
 ** Derby DiskStore Implementation
 
@@ -49,11 +53,6 @@ Development Roadmap
 
  A MemoryStore built using SoftReferences. This would enable potentially much large MemoryStores with no risk of
  OutOfMemory errors. SoftReferences are already used in ehcache for the asynchronous replication spool.
-
-** More distribution mechanisms
-
- A JMS-based replication mechanism is the logical one after JGroups.
-
 
 * How to suggest features
 

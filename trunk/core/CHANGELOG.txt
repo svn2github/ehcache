@@ -1,5 +1,24 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+ehcache-1.4
+===========
+
+<release version="1.4.0" date="2008-11-31" desc="1.4 release">
+    <!--Bug Fixes-->
+    <action dev="Greg Luck" type="fix" issue="1819841">
+        Update backport-concurrent version to 3.1. This version is available for all versions of Java including 6.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1880042">
+        Tuned a few unit tests use of Thread.sleep due to the Windows timing service of inaccurate aperture.
+        Some tests that used an added 10ms to allow for Windows now allow for 20ms, based on research published
+        in this bug report.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1880042">
+        Removed one last thread renaming method. The others were removed in 1831446. Thanks to Diogo Quintela for
+        pointing this out.
+    </action>
+</release>
+
 ehcache-1.4-beta2
 =================
 

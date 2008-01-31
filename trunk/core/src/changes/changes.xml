@@ -19,8 +19,6 @@
         </release>
 
         <release version="1.4.0-beta2" date="2008-01-01" desc="1.4.0 beta2 release">
-
-
             <!--Bug Fixes-->
             <action dev="Greg Luck" type="fix" issue="1819841">
                 NPE in MulticastKeepaliveHeartbeatReceiver when accessing processingThreadPool during startup.
