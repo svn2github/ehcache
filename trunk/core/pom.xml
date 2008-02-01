@@ -13,6 +13,8 @@
 
     <dependencies>
         <!-- Only if you are using the draft JCache implementation -->
+        <!-- todo - weird packaging problem. ehcache-failsafe.xml missing if running maven from top level.-->
+        <!-- Work around is to run from core dir-->
         <dependency>
             <groupId>net.sf.jsr107cache</groupId>
             <artifactId>jsr107cache</artifactId>
