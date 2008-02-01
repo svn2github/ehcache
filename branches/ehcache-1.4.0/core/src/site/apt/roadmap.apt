@@ -1,0 +1,59 @@
+ ------
+ Development Roadmap
+ ------
+ ------
+ Date
+ ------
+
+Development Roadmap
+
+ Last Updated 31 January 2008.
+
+
+* Slated for 1.5
+
+** JMS distribution mechanisms
+
+ There is sponsorship for a JMS-based replication mechanism. This should be useful for many people.
+
+** JGroups based replication
+
+ A patch is availabile for a JGRoups replication implementation. This patch has been in production for
+ almost a year and has been working well. This battle-tested patch will be included in 1.5.
+
+** Derby DiskStore Implementation
+
+ Code has been donated for a Derby DiskStore implementation.
+
+
+* Later
+
+** Sundry Requests
+
+  * Switch off DiskStore for the CacheManager
+
+  * Throw exceptions for Hibernate plugin configuration location property rather than logging a warning
+
+** Updated JCache implementation
+
+  Work is progressing on JCache. The net.sf.ehcache.jcache will track the changes. 
+
+** Pluggable Disk Stores
+
+ 1.3.0-beta contained a couple of tweaks to allow programmatic replacement of the DiskStore with a separate implementation.
+ Hopefully a code donation will provide a JDBCDiskStore implementation which will allow Derby and other databases to be plugged
+ in. This supplements the built-in DiskStore.
+
+** Pluggable Eviction Policies
+
+ Ehcache supports LRU, LFU and FIFO. There are plenty more eviction policies. An extension mechanism should be added to
+ support these.
+
+** SoftReferenceMemoryStore
+
+ A MemoryStore built using SoftReferences. This would enable potentially much large MemoryStores with no risk of
+ OutOfMemory errors. SoftReferences are already used in ehcache for the asynchronous replication spool.
+
+* How to suggest features
+
+ Please add your feature suggestions to {{{http://sourceforge.net/tracker/?group_id=93232&atid=603562}Feature Requests}}.

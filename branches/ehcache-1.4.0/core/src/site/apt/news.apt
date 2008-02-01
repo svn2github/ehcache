@@ -1,0 +1,675 @@
+ ------
+ News
+ ------
+ ------
+ Date
+ ------
+
+News
+
+* 31 January 2008: ehcache-1.4.0 released
+
+    The final version of ehcache-1.4.0 is available on sourceforge and the Maven central repository.
+
+    This version significantly enrichens the ehcache API and enhances extension of ehcache. The new features are:
+
+    * You can now define CacheLoaders in the ehcache core API. They supplement the existing SelfPopulatingCache.
+      They can be configured in ehcache.xml or programmatically. They can be used for cache warming, and simple pull-through
+      caching. See the {{{/documentation/cache_loaders.html}Cache Loaders}} chapter in the documentation for more details.
+
+    * You can now define a CacheExceptionHandler and register it progammatically or in ehcache.xml.
+      The enable an exception handler to be registered with a cache so that it is called on exception rather than the exception being thrown.
+      See the {{{/documentation/cache_exception_handlers.html}Cache Exception Handler}} chapter in the documentation for more details.
+
+    * You can now define CacheExtensions and register them progammatically or in ehcache.xml. A CacheExtension is a generic facility which holds a reference
+      to a cache and is bound to the cache lifecycle, making possible a wide variety of extensions to behaviour. Usage examples are
+      a cache refresh timer or a file monitoring mechanism.
+      See the {{{/documentation/cache_extensions.html}Cache Extensions}} chapter in the documentation for more details.
+
+    This final release follows the second beta release by a month and fixes a few minor issues. See
+    {{{http://ehcache.sourceforge.net/changes-report.html#1.4.0}changelog}} for complete details.
+
+    A new {{{http://stores.lulu.com/ehcache}Book}} has been released to coincide with ehcache-1.4.0.    
+
+* 1 January 2008: ehcache-1.4-beta2 released
+
+   The beta 2 version of ehcache-1.4 is available on sourceforge and the Maven central repository.
+
+   The second beta release fixes 10 bugs, most of them in the new features being introduced in 1.4.0, reported
+   by beta testers. See the
+   {{{http://ehcache.sourceforge.net/changes-report.html#1.4.0-beta2}changelog}} for complete details.
+
+
+* 30 November 2007: Ehcache book available
+
+[images/ehcache_guide.gif] Ehcache Guide & Reference
+
+ Ehcache Guide and Reference for the forthcoming 1.4.0 release is available as a book.
+ The price for the high quality bound edition is USD49.95 plus shipping. The price for the downloadable print-ready version
+ is USD37.50. The book has 154 pages.
+
+ Many people have asked for a format for the documentation where it can be printed out as a book and even where they can get it.
+ Of course, full documentation in html will always remain available online at http://ehcache.sf.net.
+
+ Buy it from the {{{http://stores.lulu.com/ehcache}Ehcache Storefront}} at Lulu Books.
+
+
+* 26 August 2007: ehcache-1.4-beta released
+
+    The beta version of ehcache-1.4 is available on sourceforge and the Maven central repository.
+
+    This version significantly enrichens the ehcache API and enhances extension of ehcache. The new features are:
+
+    * You can now define CacheLoaders in the ehcache core API. They supplement the existing SelfPopulatingCache.
+      They can be configured in ehcache.xml or programmatically. They can be used for cache warming, and simple pull-through
+      caching. See the {{{/documentation/cache_loaders.html}Cache Loaders}} chapter in the documentation for more details.
+
+    * You can now define a CacheExceptionHandler and register it progammatically or in ehcache.xml.
+      The enable an exception handler to be registered with a cache so that it is called on exception rather than the exception being thrown.
+      See the {{{/documentation/cache_exception_handlers.html}Cache Exception Handler}} chapter in the documentation for more details.
+
+    * You can now define CacheExtensions and register them progammatically or in ehcache.xml. A CacheExtension is a generic facility which holds a reference
+      to a cache and is bound to the cache lifecycle, making possible a wide variety of extensions to behaviour. Usage examples are
+      a cache refresh timer or a file monitoring mechanism.
+      See the {{{/documentation/cache_extensions.html}Cache Extensions}} chapter in the documentation for more details.
+
+    There are 5 minor bug fixes in the release. At the time of release there are no open bugs in ehcache.
+
+    See the {{{http://ehcache.sourceforge.net/changes-report.html#1.4.0-beta}changelog}} for complete details.
+
+* 11 June 2007: ehcache-1.3 released
+
+    The next major version of ehcache has been released.
+
+    This version contains the following major new features over 1.2.4:
+
+    * A draft JCache API (JSR107) package.
+
+    * JMX instrumentation. Register a variety of MBeans from your  ehcache instance with your MBeanServer of choice.
+      Care has been taken to make this implementation friendly to a wide variety of JMX NMSs.
+
+    In terms of minor features:
+
+    * A new cache attribute, diskSpoolBufferSizeMB, can be set to control the amount of memory that can be used
+      for spooling to DiskStore
+
+    * The ehcache shutdown hook is now off by default. Ehcache is typically used in scenarios where someone else
+       has a shutdown hook. It can be re-enabled by setting <<<net.sf.ehcache.enableShutdownHook=true>>>
+
+    The distributed caching feature of ehcache is now in wide-spread use in wide ranging environments. All of this field
+    experience unearthed the need for further documentation, clarificationa and bug fixes, particularly for dirty
+     or mis-configured networks, which have been provided in 1.3. Excellent performance has been reported for clusters with
+     up to 20 nodes.
+
+      A new {{{http://ehcache.sourceforge.net/documentation/tomcat.html}Tomcat}} chapter in the documentation
+      provides specific information on configuring Tomcat with ehcache.
+
+    See the {{{http://ehcache.sourceforge.net/changes-report.html#1.3}changelog}} for complete details.
+
+    Work on new features will now start on a new 1.4 branch. See the {{{roadmap.html}Roadmap}} for details. 1.3 will be maintained as
+     the new stable branch.
+
+
+* 27 May 2007: ehcache-1.3 beta 3 released
+
+    This release fixes two bugs and has some minor changes to support third parties who are making extensions to ehcache. See
+    See the {{{http://ehcache.sourceforge.net/changes-report.html#1.3-beta3}changelog}} for details.
+    A final release should be out in the next few weeks.
+
+* 22 May 2007: Ehcache Maven repository
+
+    Ehcache has a Maven repository for releases at http://ehcache.sourceforge.net/repository. It is synchronized with the Maven central repository.
+    New releases will now appear in the Maven repository without delay.
+
+* 16 May 2007: JSR107 (JCACHE) News
+
+    At JavaOne, Greg Luck, the maintainer of ehcache, was appointed as co Spec Lead of JSR107, JCACHE.
+
+    The expert group has been reenergised and is making progress towards getting a spec done. Everyone is welcome to monitor technical discussion on
+    JCACHE at the new mailing list - jsr107 AT jsr107.dev.java.net.
+
+*  9 May 2007: JavaOne Talk
+
+    TS-6175 - Distributed Caching, Using the JCACHE API and ehcache, Including a Case Study was attended by around 1200 people. About 50 people had
+    question. There was so much interest that an impromptu Q&A session was held later that day. It appears that interest in caching and ehcache in
+    particular remain very strong in the Java community.
+
+* 4 May 2007: ehcache-1.3 beta 2 released
+
+    Ehcache-1.3-beta2 has 7 fixes over beta 1. See the {{{http://ehcache.sourceforge.net/changes-report.html#1.3-beta2}changelog}} for details.
+
+* 9 March 2007: ehcache-1.3 beta released
+
+    New features in 1.3 are:
+
+    * JCACHE implementation. This is a full implementation of JSR107.
+
+    * JMX instrumentation. Register a variety of MBeans from your  ehcache instance with your MBeanServer of choice.
+      Care has been taken to make this implementation friendly to a wide variety of JMX NMSs.
+
+    In adding these new packages care has been taken not to disturb the existing packages. Only bug fixes have
+    been applied to those. 8 bug fixes, representing all those reported since 1.2.4 have been fixed. Ehcache has no open bugs
+    or patches at the time of release. See the {{{http://ehcache.sourceforge.net/changes-report.html#1.2.4}changelog}} for details.
+
+* 22 February 2007: JavaOne Session.
+
+    For anyone attending JavaOne 2007 at the Moscone Centre in San Francisco, the maintainer of ehcache, Greg Luck,
+    will be presenting a session entitled "Distributed Caching, Using the JCACHE API and ehcache, Including a Case Study".
+    This will be a practical session covering much of the recent features added to ehcache.
+
+
+* 2 December 2006: ehcache-1.2.4 released
+
+    This is a candidate for a maintenance release.
+
+    It contains four feature and fifteen bug fixes received
+    in the two months since ehcache-1.2.3 was released. See the {{{http://ehcache.sourceforge.net/changes-report.html#1.2.4}changelog}}
+    for details.
+
+    Eight of the changes in this release are scalability improvements contributed by users running very large ehcache
+    deployments. The distributed caching changes stem from a user who is using ehcache in a multi-subnet cluster of 20 nodes.
+
+    The Caching and Gzip filters in the web package have been updated to work on Glassfish and Tomcat.
+
+    The distributed caching functionality in ehcache is now 6 months ago.
+
+    The maintainer has now been running ehcache distributed in production for four months without incident.
+
+    Ehcache has no open bugs or patches at the time of release.
+ 
+
+* 2 September 2006: ehcache-1.2.3 released
+
+    This is a maintenance release. It contains eight feature requests and 6 bug fixes received
+    in the two months since ehcache-1.2.2 was released. See the {{{http://ehcache.sourceforge.net/changes-report.html#1.2.3}changelog}}
+    for details.
+
+    All of the feature changes come from the suggestions of people with practical experience
+    using ehcache-1.2. The changes are all fine tuning of the distributed caching
+    functionality rather than large changes.
+
+    The distributed caching functionality was released four months ago. There are many production
+    sites running this now, including that of the maintainers.
+
+    One of the more difficult aspects of getting distributed caching going is getting past network
+    configurations that swallow multicast. A tool, ehcache-1.2.3-remote-debugger.jar is now included
+    in the distribution so that distributed traffic can be listened in on.
+
+    The number of lines of code in ehcache is now three times bigger than ehcache-1.0. They have increased
+    as the features of ehcache have increased. To complement this increase in complexity, commercial support
+    is now available for ehcache. Contact kluck@gregluck.com for details.
+
+** 1 September 2006: Ehcache three years old and going strong
+
+[images/downloads.gif]
+
+    Ehcache had more than 4000 downloads per month for the last three months in a row. This is up
+    from the 1500 downloads per month it was running at for the two years before then.
+
+    The result is there is now a much larger user community who use ehcache directly, rather than
+    through one of the popular frameworks. This places new demands on the project but also
+    means that most of the code paths and API are being utilised, leading to fewer undiscovered bugs
+    and a continuing evolution of features.
+
+* 17 July 2006: ehcache-1.2.2 released
+
+    This is a minor maintenance release to ehcache-1.2.1. It clears all bug reports and feature requests received
+    since ehcache-1.2.1 was released. It also includes the fix in ehcache-1.2.0_02 to reduce memory consumption.
+
+    See the {{{http://sourceforge.net/project/shownotes.php?release_id=432513&group_id=93232}release notes and changelog for details}}.
+
+* 16 July 2006: ehcache-1.2.0-02 released
+
+    Contains a fix to quickly hand back memory when spooling to disk. See {{http://gregluck.com/blog/archives/2006/07/tuning_memory_u.html}}
+    for details on the effect of this change.
+
+* 3 July 2006: ehcache-1.2.1 released
+
+    ehcache-1.2.1 is mostly a maintenance release of ehcache. It focuses on simplifying usage
+    of new features and easing the migration path between ehcache-1.1 and ehcache-1.2. While
+    ehcache-1.2 is backward compatible, some typical usage scenarios in Hibernate and Spring are
+    not.
+
+    See the separate news item on ehcache-1.2.1RC to get the full picture. Changes above ehcache-1.2.1RC are:
+
+** Improvements
+
+    * Change Blocking cache to use a lock striping technique for its Mutexes. This limits the number
+    of Mutexes to 2048, rather than a number equalling the number of keys, while preserving excellent
+    liveness and safety. Thanks to Olaf Krische for reporting this and Brian Goetz for assisting with
+    a solution.
+
+
+    * Change BlockingCache and SelfPopulatingCache to act as decorators for Ehcache. Remove now redundant
+    BlockingCacheManager and SelfPopulatingCacheManager. Change signatures of these caches from Serializable
+    to Object. This change is not backward compatible but no libraries use these, so developers can change
+    over on their own projects.
+
+** Bug fixes
+
+    * Bug 1190614. This was reported by Victor Volle and is a duplicate of 1492900. Fixed.
+    * Bug 1506399. Changing all classloading to the context classloader is sometimes inconvenient. Fallback to
+    * ClassLoaderUtil.class.getClassLoader() if Thread.currentThread().getContextClassLoader()
+    * fails. Thanks to Robert Watkins for reporting this one.
+    * Bug 1508623. Debug messages generate excess String objects. Added logging level guards around about 6 debug log statements.
+      Thanks to Derek Hulley for pointing this one out.
+    * Harden all ehcache threads so that RuntimeExceptions and Errors do not stop them. This change, on its own, has been
+      backported to a separate release, ehcache-1.2.0_01.
+
+* 3 July 2006: ehcache-1.2.0-01 released
+
+    Ehcache-1.2.0-01 is a backport of the thread hardening changes to the 1.2.0 branch. The 1.2.0 release will be
+    supported with backports of other important fixes.
+
+* 27 June 2006: ehcache maintainer added to JSR-107 expert group
+
+    Greg Luck, the maintainer of ehcache, has been added to the JSR-107 expert group. The plan is to add a JSR-107
+    compatibility API to ehcache. The benefit to users is that they can switch to and from ehcache with almost zero
+    code cost, when using the JSR-107 API.
+
+    Enabling changes to the ehcache codebase have been made in the ehcache-1.2.1 branch (released 3 July). Work on the
+    compatibility API will occur in the 1.3 branch.
+
+* 4 June 2006: ehcache-1.2.1RC {{{http://sourceforge.net/project/showfiles.php?group_id=93232}released}}.
+
+    This is a release candidate for ehcache-1.2.1. There are a few very minor bug fixes in this release.
+    The main focus is to resolve upgrade difficulties with client libraries which expect ehcache CacheManagers to be
+    singletons as they were in ehcache-1.1. In ehcache-1.2 any attempt to have two CacheManagers sharing the same
+    configuration resulted in a CacheException being thrown. The check was made on diskStorePath. In ehcache-1.2.1RC
+    multiple CacheManagers sharing the same ehcache.xml configuration is permitted.
+
+    To resolve conflicts with DiskStore paths, the second and subsequent CacheManagers create their data files in a
+    unique subdirectory under the first CacheManager's diskStore path.
+
+    The other potential conflict is in CacheManagerPeerListeners. In the default implementation the conflict is with RMI
+    listener ports. To resolve this conflict the second and subsequent CacheManagers use a free port to listen on.
+
+    For both, warning messages are logged encouraging clients to migrate over to their own ehcache.xml.
+
+    There are also a number of enhancements/new features as follows:
+
+    * New SingletonEhCacheProvider for use by Hibernate in situations where code has been written which relies on the
+      singleton behaviour of ehcache-1.1 and earlier. Most code bases using Hibernate should not require this.
+
+    * Allow cacheEventListenerFactory elements to be added to defaultCache in ehcache.xml. This allows caches created with
+      CacheManager.a ddCache(String cacheName) to receive events. This can be used for example to set default replication
+      settings in defaultCache.
+
+    * To complement full support foe default cache (above), added support for programmatic addition of caches which
+      include CacheReplicators. Also support for removal of these caches with CacheManager.remove(String cacheName).
+
+    * Andy McNutt's JNDI-based manual RMI replication added. See ehcache.xml example for how to use.
+
+    * Support tomcat 5.5 for the servlet filters. Tomcat integration testing, in addition to the Orion one,
+      is also added to the full JUnit test process. Tomcat relies on Servlet 2.4 dispatcher INCLUDE and FORWARD directives
+      for page fragment caching.
+
+    * Support runtime setting of individual Element time to lives (TTLs), time to idles(TTIs) and eternal overrides.
+      If an override is set, the Element expiry ignores the Cache default.
+
+    * Add a cache bootstrap mechanism. This is used to populate a cache when it is first initialized. An abstract factory,
+      BootstrapCacheLoaderFactory has been defined along with an interface BootstrapCacheLoader.
+      The initial concrete implementations are for RMI, so that a new cache entering a cluster gets bootstrapped from a
+      randomly chosen peer.
+
+    Finally, the ehcache-constructs package has been merged into the ehcache module so that there is only one jar to
+    download and install to get all functionaliy. Ehcache-constructs contains Java EE Caching filters and other useful
+    applied caching solutions.
+
+    See the {{{/changes-report.html}change log}} for more details.
+
+    The plan is to rapidly release ehcache-1.2.1 within a week or so. Please report any issues with ehcache-1.2.1RC promptly.
+    Documentation of the new features will be complete during this time.
+
+* 3 June 2006: Printable PDF User Guide for ehcache available
+
+  Some people have requested a printable manual for ehcache.
+   Please see{{{http://ehcache.sourceforge.net/EhcacheUserGuide.pdf}EhcacheUserGuide.pdf}}
+
+
+* 25 April 2006: {{{http://sourceforge.net/project/showfiles.php?group_id=93232}ehcache-1.2}} released.
+
+     After 10 months of development, ehcache-1.2 is released. Thanks to all the developers who contributed to
+      the release through feature requests, bug reports and patches during the beta program.
+
+     The 1.2 release of ehcache has many new features including:
+
+            * Flexible, extensible, high performance distributed caching. The default implementation supports cache
+              discovery via multicast or manual configuration. Updates are delivered either asynchronously or synchronously
+              via custom RMI connections. Additional discovery or delivery schemes can be plugged in by third parties.
+
+            * New FIFO and LFU caching policies in addition to the standard LRU.
+
+            * Introduced CacheManagerEventListener and CacheEventListener interfaces and default implementations.
+
+            * Multiple CacheManagers per virtual machine.
+
+            * Programmatic flushing of application state to persistent caches
+
+            * Significant (up to 7 fold) DiskStore performance increases.
+
+            * API for Objects in addition to Serializable. Non-serializable Objects can use all parts of ehcache
+              except for DiskStore and replication. Two new methods on Element: getObjectValue and getKeyValue
+              are the only API differences between the Serializable and Object APIs.
+
+            * Backward Compatibility with ehcache-1.1. All users of ehcache-1.1 should be able to upgrade to ehcache-1.2.
+
+            * Tested with Hibernate2.1.8 and  Hibernate3.1.3, which can utilise all of the new features except for Object API and
+              multiple session factories each using a different ehcache CacheManager. A new <<<net.sf.ehcache.hibernate.EhCacheProvider>>>
+              makes those additional features available to Hibernate-3.1.3. A version of the new provider should make it into
+              the Hibernate3.2 release.
+
+            * Tested with ehcache-constructs.
+
+            * Apache 2.0 license
+
+     At time of release, there are no open bugs against the ehcache-1.2. 21 bugs have been fixed in this release. Most
+     of those were raised against the 1.2 beta releases.
+
+     See the {{{/changes-report.html}changelog}} for more details on this release.
+
+* 20 April 2006: Development Roadmap Updated
+
+     The roadmap for new development has been updated {{{roadmap.html}here}}.
+
+* 17 April 2006: ehcache-1.2rc1 released
+
+     Released ehcache-1.2rc1 to give testers a chance to test recent fixes and fine tuning before a final release.
+
+     At this point all bugs, support requests and feature requests are closed. Final testing is focusing on the
+     distributed caching area.
+
+
+* 8 April 2006: Elements are no longer required to be Serializable
+
+     Following many requests, ehcache no longer requires that Elements contain Serializable keys and values. Ehcache
+     will gracefully degrade for those operations which require Serialization.
+
+     In particular the MemoryStore and event listeners can be used with Non Serializable elements.
+
+     WARNING error messages are logged when an operation cannot be completed because the key or value is not Serializable.
+
+
+* 28 March 2006: License changed from Apache 1.1 to Apache 2.0
+
+     The ehcache 1.2 series from beta5 is released under the Apache 2.0 license.
+
+* 26 March 2006: {{{http://sourceforge.net/project/showfiles.php?group_id=93232}1.2 beta 5 released}}.
+
+     This is a bug fix release which fixes all reported issues in the new 1.2 features. Developers should be
+     testing this version.
+
+* 25 March 2006: Subversion
+
+    Ehcache is now on Subversion. See the {{{/source-repository.html}source repository page}} for details.
+
+
+* 17 March 2006: New Site Redesign
+
+    Ehcache has outgrown its old web design. This new one is produced using {{{http://maven.apache.org}Maven 2}}.
+    Please send any feedback on the new site to the {{{team-list.html}team}}.
+
+
+* 14 March 2006: New Mailing List
+
+    A new mailing list, ehcache-list@lists.sourceforge.net, has been created for ehcache users and developers. Go {{{mail-list.html}here}}
+    to subscribe or to search the archive.
+
+
+* 7 February 2006: Whats New in 1.2
+
+     Ehcache-1.2, currently at beta 5, has many new features:
+
+       * Introduced new caching policies in addition to the standard LRU.
+     FIFO and LFU were added. LRU remains the default unless explicitly set
+     in each cache's configuration. Thanks to Surya Suravarapu for working
+     with me on these. The documentation has a new section on caching
+     policies and when to use what.
+
+       * Introduced CacheManagerEventListener and CacheEventListener
+     interfaces and default implementations. These can be configured in
+     ehcache.xml or set programmatically. Thanks to steve at jofti dot com
+     for help with the specification for these.
+
+       * After requests from Jo Walnes, Paul Hammant and others, I have
+     added normal instance constructers to CacheManager which do not act as
+     singletons. The factory singleton methods remain for backward
+     compatibility. CacheManager can now be constructed with a Configuration
+     object programmatically.
+
+       * Since version 1.1, ehcache has had a persistent diskStore, which
+     makes it suitable for storing application state. Added a flush method
+     so that, if the cache is diskPersistent, it can be programmatically
+     flushed, in addition to the automatic flush which happens at shutdown.
+
+       * Pluggable Distributed Caching. The default implementation
+     supports cache discovery via multicast or manual configuration. Updates
+     are delivered asynchronously or synchronously via custom RMI
+     connections. Additional discovery or delivery schemes can be plugged in
+     by third parties.
+
+       * Significant (up to 7 fold) DiskStore performance increases, after
+     introduction of finer grained threading. Thanks to Robert Watkins for
+     reporting on the performance limits.
+
+
+       * Backward Compatibility
+
+     Ehcache-1.2 is mostly backward compatible with ehcache-1.1. Ehcache-1.1 ehcache.xml configurations are compatible.
+     There have been a few small API changes to the ehcache-1.1 API.
+
+     See the {{{/changes-report.html}changelog}} for more details on the release.
+
+
+* 8 February 2006 Announcing {{{http://sourceforge.net/project/shownotes.php?release_id=392051&amp;group_id=93232}ehcache-1.2beta4}}.
+
+ This fixes most reported bugs and has fairly complete documentation.
+
+* 27 January 2006 Announcing {{{http://sourceforge.net/project/shownotes.php?release_id=388617&amp;group_id=93232}ehcache-1.2 beta 3}}.
+
+ New features over beta2 are:
+
+  * Pluggable Distributed Caching. The default implementation
+supports cache discovery via multicast or manual configuration. Updates
+are delivered asynchronously or synchronously via custom RMI
+connections. Additional discovery or delivery schemes can be plugged in
+by third parties.
+
+  * After requests from Jo Walnes, Paul Hammant and others, I have
+added normal instance constructers to CacheManager which do not act as
+singletons. The factory singleton methods remain for backward
+compatibility. CacheManager can now be constructed with a Configuration
+object programmatically.
+
+  * Significant (up to 7 fold) DiskStore performance increases, after
+introduction of finer grained threading. Thanks to Robert Watkins for
+reporting on the performance limits.
+
+ This release also contains 5 bug fixes and increased test coverage.
+This version has been comprehensively tested, but has limited
+production use.
+
+ This will be the last pre release of ehcache-1.2 which adds major features. The focus will now
+shift to addressing any bugs or issues raised by those using this
+version. Basic documentation of the new features has been completed.
+Work will also continue on providing&nbsp; configuration and coding
+examples to use&nbsp; em.&nbsp; Please promptly report any bugs found.
+
+* 16 October 2005 Announcing {{{http://sourceforge.net/project/shownotes.php?release_id=363732}ehcache-1.2 beta 2}}.
+
+ New features over beta1 are:
+
+  * Introduced CacheManagerEventListener and CacheEventListener
+interfaces and default implementations. These can be configured in
+ehcache.xml or set programmatically. Thanks to steve at jofti dot com
+for help with the specification for these.
+
+  * Added normal instance constructers to CacheManager
+which do not act as singletons. The factory singleton methods remain
+for backward compatibility. CacheManager can now be
+constructed with a Configuration object programmatically.
+
+  * ehcache has a persistent diskStore, which makes it suitable for storing application state.
+Added a flush method so that, if the cache is diskPersistent, it can be
+programmatically flushed, in addition to the automatic flush which happens at shutdown.
+
+ This release also contains 5 bug fixes and increased test coverage.
+
+ This version has been comprehensively tested, but has limited production use.
+It is recommended for development usage and testing.
+
+* 28 August 2005 Announcing ehcache-1.2 beta 1.
+
+ New in this version are two new cache eviction policies: Less
+Frequently Used (LFU) and First In First Out (FIFO). There are also a
+few minor bug fixes. Thanks to Surya Suravarapu for work on these new
+policies.
+
+ This version of ehcache should be backwardly compatible with
+ehcache 1.1 except for a dependency on commons-collections 3.1, up from
+version 2.1. This version has been comprehensively tested, but has
+limited production use. It is recommended for development usage only.
+
+* 15 August 2005 Announcing {{{/ehcache-constructs/index.html}ehcache-constructs-0.6}}.
+
+ A subproject of ehcache, ehcache-constructs builds on top of ehcache to create implementations for common caching patterns. All implementations use
+ehcache as the backing cache. They also share a common purpose - to create very high performance Java applications. New
+in this version is a fault-tolerant AsynchronousCommandExecutor, which
+will asynchronously execute arbitrary commands, optionally retrying on
+a defined array of Exception types a defined number of times at a
+defined interval.
+
+* 23 November 2004 {{{http://sourceforge.net/project/shownotes.php?release_id=271146} ehcache 1.1}} released.
+
+ This version splits out the constructs package into a separate sub-project. This simplifies ehcache
+for those using it in Hibernate or directly. It also moves the constructs to a
+separate jar and release cycle. There is only 1 minor bug fix but then
+there was only one bug reported.
+
+ See the release notes and full changelog {{{http://sourceforge.net/project/shownotes.php?release_id=284863}here}}.
+
+* 23 November 2004 Announcing {{{ehcache-constructs/index.html}ehcache-constructs-0.5}}
+
+ A subproject of ehcache, ehcache-constructs builds on top of ehcache to create implementations for common caching patterns.
+All implementations use ehcache as the backing cache. They also share a common purpose - to create very high performance Java applications.
+
+ At present ehcache-constructs contains:
+
+ * General Purpose Caching
+
+  * BlockingCache - a cache which blocks subsequent threads until the first read thread populates a cache entry
+  * SelfPopulatingCache - a read-through cache. A cache that populates elements as they are requested without requiring the caller
+to know how the entries are populated. It also enables refreshes of cache entries without blocking reads on the same entries.
+
+  * UpdatingSelfPopulatingCache - a read-through cache. A cache that
+populates elements as they are requested without requiring the caller
+to know how the entries are populated. The cache entry is automatically
+updated on subsequent reads.
+
+  * SelfPopulatingCollectionsCache - a SelfPopulatingCache that adds
+threading safety where it is known in advance that all entries will be
+collections.
+
+ * Web Caching
+
+   Servlet 2.3 caching filters that cache HTTP/S responses:
+
+  * CachingFilter - an abstract, extensible caching filter.
+
+  * SimplePageCachingFilter - a concrete implementation which caches
+pages based on the request URI and Query String.
+
+  * SimplePageFragmentCachingFilter - a concrete implementation which
+caches page fragments based on the request URI and Query String.
+
+ See the {{{ehcache-constructs/index.html}ehcache-constructs}} subsite for and overview, documentation, javadoc, clover test coverage and more.
+
+* 28 September 2004 {{{http://sourceforge.net/project/shownotes.php?release_id=271146} ehcache 1.0 released}}.
+
+ This is a major milestone for ehcache - the 1.0 release. It has several bug fixes and a few important new
+features. They are:
+
+  * Added SelfPopulatingCacheManager to the constructs package.
+
+  * Added a new diskExpiryThreadIntervalSeconds configuration option to ehcache.xml,
+to allow tuning of the expiry thread per cache.
+
+  * Added a new persistent option for the DiskStore. When enabled,
+diskPersistent makes Caches persistent between JVM restarts. It enables
+very long held caches to be configured, useful for very expensive
+and/or long lived cache entries.
+
+  * Improved code coverage. See clover coverage report.
+
+  * New checkstyle rules, using checkstyle 3.4. Many additional
+checks have been added and code cleanups done to make ehcache
+more standards compliant and understandable than ever.
+
+
+ See the release notes and full changelog {{{http://sourceforge.net/project/shownotes.php?release_id=271146}here}}.
+
+* 15 July 2004 {{{http://sourceforge.net/project/shownotes.php?release_id=250532}ehcache 0.9 released}}
+
+ This is a large release. It fixes several bugs and adds many new features including:
+
+  * ehcache.xml cache definitions can
+now omit timeToIdle and/or timeToLive, which have been made optional
+attributes.
+    This will make cache config easier to read for eternal caches. Either
+omitting the attributes or setting them to 0 causes them not to be
+considered when calculating expiry. Earlier versions of ehcache
+would
+have immediately expired all elements if either attribute was set to 0,
+so this change should not break any existing code.
+
+  * Added getQuiet and putQuiet methods
+to Cache. These methods are the same as get and put but do not affect
+statistics.
+
+  * Implemented an Element clone method.
+
+  * Added calculateInMemorySize() method to Cache to measure the approximate size of a cache's memory footprint.
+
+  * Added a new constructs package.
+
+ Blocking, self populating and self populating collections cache
+implementations are provided. They are useful where the cost of
+creating a cache entry is high, and you want to make request threads
+block until the first one creates the entry. While new to ehcache,
+the package is based on code that has been in production for almost a year,
+and is now ready for a wider audience.
+
+
+ See the release notes and full changelog {{{http://sourceforge.net/project/shownotes.php?release_id=250532}here}}.
+
+* 15 May 2004 {{{http://sourceforge.net/project/shownotes.php?release_id=238512}ehcache 0.8 released}}.
+
+ Changes include:
+
+  * Fix to a rare null pointer exception.
+
+  * Added {{{clover/index.html}Clover}}
+test coverage. Many thanks to cortex for the free license. Note that
+Clover is not included in the packaged binary code and no license is
+required to use EHCache.
+It is a development tool only.
+
+  * Modifed some errors in the Apache license to enable its inclusion in the Apache Cocoon project.
+
+
+* 2 Jan 2004 {{{http://sourceforge.net/project/shownotes.php?release_id=202390}ehcache 0.7 released}}.
+
+ Bug fixes.
+
+* 11 Dec 2003 EHCache is made the recommended process cache for {{{hibernate.org}Hibernate}} 2.1
+
+* 8 Dec 2003 {{{http://sourceforge.net/project/shownotes.php?release_id=202390}ehcache 0.6 released}}.
+
+ Bug fixes.
+
+* 18 Nov 2003 {{{http://sourceforge.net/forum/forum.php?forum_id=329583}ehcache 0.5 released}}
+
+ Now supports JDK1.2 and JDK1.3 as well as JKD1.4
+
+* 13 Nov 2003 {{{http://sourceforge.net/forum/forum.php?forum_id=328369}ehcache 0.4 released}}.
+

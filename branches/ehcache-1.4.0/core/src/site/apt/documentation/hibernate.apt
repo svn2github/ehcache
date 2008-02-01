@@ -1,0 +1,403 @@
+{Hibernate Caching}
+
+    Note these instructions are for {Hibernate 3.1}. Go to {{{http://ehcache.sf.net/documentation/documentation-1_1.html}Guide for Version 1.1}}
+    for older instructions on how to use Hibernate 2.1.
+
+    Ehcache easily integrates with the {{{http://hibernate.org}Hibernate}}
+    Object/Relational persistence and query service. Gavin King, the
+    maintainer of Hibernate, is also a committer to the ehcache project.
+    This ensures ehcache will remain a first class cache for Hibernate.
+
+    Since {Hibernate 2.1}, ehcache has been the default cache, for Hibernate.
+
+    The net.sf.ehcache.hibernate package provides classes integrating
+    ehcache with Hibernate. {Hibernate} is an application of ehcache. Ehcache
+    is also widely used a general-purpose Java cache.
+
+    To use ehcache with Hibernate do the following:
+
+      * Ensure ehcache is enabled in the Hibernate configuration.
+
+      * Add the cache element to the Hibernate mapping file, either manually, or via hibernatedoclet for each Domain
+        Object you wish to cache.
+
+      * Add the cache element to the Hibernate mapping file, either manually, or via hibernatedoclet for each
+        Domain Object collection you wish to cache.
+
+      * Add the cache element to the Hibernate mapping file, either manually, or via hibernatedoclet for each
+        Hibernate query you wish to cache.
+
+      * Create a cache element in ehcache.xml
+
+    Each of these steps is illustrated using a fictional Country Domain Object.
+
+    For more about cache configuration in Hibernate see the {{{http://www.hibernate.org/hib_docs/reference/en/html_single/}Hibernate}}
+    documentation. Parts of this chapter are drawn from Hibernate documentation and source code comments.
+
+    They are reproduced here for convenience in using ehcache.
+
+* {Setting ehcache as the cache provider}
+
+** Using the ehcache provider from the ehcache project
+
+    To ensure ehcache is enabled, verify that the hibernate.cache.provider_class property
+    is set to:
+---
+     net.sf.ehcache.hibernate.EhCacheProvider
+---   
+    in the Hibernate configuration file;
+    either hibernate.cfg.xml or hibernate.properties. The format given is for hibernate.cfg.xml.
+
+    If you are using hibernate-3 or hibernate-3.1 you will need to use the ehcache provider to
+    use multiple SessionFactories/CacheManagers in a single VM. That provider should be integrated into the
+    Hibernate-3.2 version.1
+
+--------------------------------------------
+
+hibernate.cache.provider_class=net.sf.ehcache.hibernate.EhCacheProvider
+net.sf.ehcache.configurationResourceName=/name_of_configuration_resource
+
+--------------------------------------------
+
+    The meaning of the properties is as follows:
+
+    hibernate.cache.provider_class - The fully qualified class name of the cache provider
+
+    net.sf.ehcache.configurationResourceName - The name of a configuration resource to use.
+
+    The resource is searched for in the root of the classpath. It is needed to support multiple
+    CacheManagers in the same VM. It tells Hibernate which configuration to use. An example
+    might be "ehcache-2.xml".
+
+** {Using the Hibernate ehcache provider}
+
+    To use the one from the Hibernate project:
+
+--------------------------------------------
+
+hibernate.cache.provider_class=org.hibernate.cache.EhCacheProvider
+hibernate.cache.provider_configuration_file_resource_path=/name_of_configuration_resource
+
+--------------------------------------------
+
+
+** {Programmatic setting of the Hibernate Cache Provider}
+
+
+    The provider can also be set programmatically in Hibernate using
+    Configuration.setProperty("hibernate.cache.provider_class",
+    "net.sf.ehcache.hibernate.EhCacheProvider").
+
+* {Hibernate Mapping Files}
+
+    In Hibernate, each domain object requires a mapping file.
+
+    For example to enable cache entries for
+    the domain object com.somecompany.someproject.domain.Country there
+    would be a mapping file something like the following:
+
+--------------------------------------------
+
+<hibernate-mapping>
+
+<class
+    name="com.somecompany.someproject.domain.Country"
+    table="ut_Countries"
+    dynamic-update="false"
+    dynamic-insert="false"
+>
+...
+</hibernate-mapping>
+
+--------------------------------------------
+
+    To enable
+    caching, add the following element.
+
+--------------------------------------------
+
+<cache usage="read-write|nonstrict-read-write|read-only" />
+
+--------------------------------------------
+
+    e.g.
+
+--------------------------------------------
+
+<cache usage="read-write" />
+
+--------------------------------------------
+
+** read-write
+
+    Caches data that is sometimes updated while maintaining the semantics
+    of "read committed" isolation level. If the database is set to
+    "repeatable read", this concurrency strategy almost maintains the
+    semantics. Repeatable read isolation is compromised in the case
+    of concurrent writes.
+
+    This is an "asynchronous" concurrency strategy.
+
+** nonstrict-read-write
+
+    Caches data that is sometimes updated without ever locking the
+    cache. If concurrent access to an item is possible, this
+    concurrency strategy makes no guarantee that the item returned
+    from the cache is the latest version available in the database.
+    Configure your cache timeout accordingly!
+    This is an "asynchronous" concurrency strategy.
+
+    This policy is the fastest. It does not use synchronized methods
+    whereas read-write and read-only both do.
+
+** read-only
+
+    Caches data that is never updated.
+
+* {Hibernate Doclet}
+
+    Hibernate Doclet, part of the {{{http://xdoclet.sourceforge.net}XDoclet}}
+    project, can be used to generate Hibernate mapping files from markup in
+    JavaDoc comments.
+
+    Following is an example of a Class level JavaDoc which configures a
+    read-write cache for the Country Domain Object:
+
+--------------------------------------------
+/**
+* A Country Domain Object
+*
+* @hibernate.class table="COUNTRY"
+* @hibernate.cache usage="read-write"
+*/
+public class Country implements Serializable
+{
+  ...
+}
+--------------------------------------------
+
+    The @hibernate.cache usage tag should be set to one of read-write, nonstrict-read-write and read-only.
+
+* Configuration with ehcache.xml
+
+    Because ehcache.xml has a defaultCache, caches will always be created
+    when required by Hibernate. However more control can be exerted by
+    specifying a configuration per cache, based on its name.
+
+    In particular, because Hibernate caches are populated from databases,
+    there is potential for them to get very large. This can be controlled
+    by capping their maxElementsInMemory and specifying whether to
+    overflowToDisk beyond that.
+
+    Hibernate uses a specific convention for the naming of caches of Domain
+    Objects, Collections, and Queries.
+
+** Domain Objects
+
+    Hibernate creates caches named after the fully qualified name of Domain
+    Objects.
+
+    So, for example to create a cache for com.somecompany.someproject.domain.Country create a cache configuration
+    entry similar to the following in ehcache.xml.
+
+--------------------------------------------
+<cache
+    name="com.somecompany.someproject.domain.Country"
+    maxElementsInMemory="10000"
+    eternal="false"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="600"
+    overflowToDisk="true"
+/>
+--------------------------------------------
+
+** Hibernate
+
+    CacheConcurrencyStrategy
+    read-write, nonstrict-read-write and read-only policies apply to Domain
+    Objects.
+
+** Collections
+
+    Hibernate creates collection caches named after the fully qualified
+    name of the Domain Object followed by "." followed by the collection
+    field name.
+
+    For example, a Country domain object has a set of
+    advancedSearchFacilities. The Hibernate doclet for the accessor
+    looks like:
+
+--------------------------------------------
+ /**
+  * Returns the advanced search facilities that should appear for this country.
+  * @hibernate.set cascade="all" inverse="true"
+  * @hibernate.collection-key column="COUNTRY_ID"
+  * @hibernate.collection-one-to-many class="com.wotif.jaguar.domain.AdvancedSearchFacility"
+  * @hibernate.cache usage="read-write"
+  */
+ public Set getAdvancedSearchFacilities() {
+    return advancedSearchFacilities;
+ }
+--------------------------------------------
+
+    You need an additional cache configured for the set. The ehcache.xml configuration looks like:
+
+--------------------------------------------
+<cache name="com.somecompany.someproject.domain.Country"
+     maxElementsInMemory="50"
+     eternal="false"
+     timeToLiveSeconds="600"
+     overflowToDisk="true"
+ />
+<cache
+     name="com.somecompany.someproject.Country.advancedSearchFacilities"
+     maxElementsInMemory="450"
+     eternal="false"
+     timeToLiveSeconds="600"
+     overflowToDisk="true"
+ />
+--------------------------------------------
+
+** Hibernate CacheConcurrencyStrategy
+
+    read-write, nonstrict-read-write and read-only policies apply to Domain
+    Object collections.
+
+** Queries
+
+    Hibernate allows the caching of query results using two caches.
+
+    "net.sf.hibernate.cache.StandardQueryCache" and "net.sf.hibernate.cache.UpdateTimestampsCache" in versions 2.1 to 3.1
+     and "org.hibernate.cache.StandardQueryCache" and "org.hibernate.cache.UpdateTimestampsCache" in version 3.2.
+    are always used.
+
+** StandardQueryCache
+
+    This cache is used if you use a query cache without setting a
+    name. A typical ehcache.xml configuration is:
+
+--------------------------------------------
+<cache
+    name="org.hibernate.cache.StandardQueryCache"
+    maxElementsInMemory="5"
+    eternal="false"
+    timeToLiveSeconds="120"
+    overflowToDisk="true"/>
+--------------------------------------------
+
+
+** UpdateTimestampsCache
+
+    Tracks the timestamps of the most recent updates to particular tables.
+    It is important that the cache timeout of the underlying cache
+    implementation be set to a higher value than the timeouts of any of the
+    query caches. In fact, it is recommend that the the underlying cache
+    not be configured for expiry at all.
+
+    A typical ehcache.xml configuration is:
+
+--------------------------------------------
+<cache
+    name="org.hibernate.cache.UpdateTimestampsCache"
+    maxElementsInMemory="5000"
+    eternal="true"
+    overflowToDisk="true"/>
+--------------------------------------------
+
+** Named Query Caches
+
+    In addition, a QueryCache can be given a specific name in Hibernate
+    using Query.setCacheRegion(String name). The name of the cache in
+    ehcache.xml is then the name given in that method. The name can be
+    whatever you want, but by convention you should use "query." followed
+    by a descriptive name.
+
+    E.g.
+
+--------------------------------------------
+<cache name="query.AdministrativeAreasPerCountry"
+    maxElementsInMemory="5"
+    eternal="false"
+    timeToLiveSeconds="86400"
+    overflowToDisk="true"/>
+--------------------------------------------
+
+
+** Using Query Caches
+
+    For example, let's say we have a common query running against the
+    Country Domain.
+
+    Code to use a query cache follows:
+
+--------------------------------------------
+
+public List getStreetTypes(final Country country) throws HibernateException {
+ final Session session = createSession();
+ try {
+        final Query query = session.createQuery(
+
+        "select st.id, st.name"
+        + " from StreetType st "
+        + " where st.country.id = :countryId "
+        + " order by st.sortOrder desc, st.name");
+        query.setLong("countryId", country.getId().longValue());
+        query.setCacheable(true);
+        query.setCacheRegion("query.StreetTypes");
+        return query.list();
+     } finally {
+        session.close();
+     }
+ }
+--------------------------------------------
+
+    The <<<query.setCacheable(true)>>> line caches the query.
+
+    The <<<query.setCacheRegion("query.StreetTypes")>>> line sets the name of the Query Cache.
+
+** Hibernate CacheConcurrencyStrategy
+
+    None of read-write, nonstrict-read-write and read-only policies apply
+    to Domain Objects. Cache policies are not configurable for query cache.
+    They act like a non-locking read only cache.
+
+* Hibernate Caching Performance Tips
+
+    To get the most out of ehcache with Hibernate, Hibernate's use of it's
+    in-process cache is important to understand.
+
+** In-Process Cache
+
+    From Hibernate's point of view, Ehcache is an in-process cache. Cached
+    objects are accessible across different sessions. They are common to
+    the Java process.
+
+** Object Id
+
+    Hibernate identifies cached objects via an object id. This is normally
+    the primary key of a database row.
+
+** Session.load
+
+    Session.load will always try to use the cache.
+
+** Session.find and Query.find
+
+    Session.find does not use the cache for the primary object. Hibernate
+    will try to use the cache for any associated objects. Session.find does
+    however cause the cache to be populated.
+
+    Query.find works in exactly the same way.
+
+    Use these where the chance of getting a cache hit is low.
+
+** Session.iterate and Query.iterate
+
+    Session.iterate always uses the cache for the primary object and any
+    associated objects.
+
+    Query.iterate works in exactly the same way.
+
+    Use these where the chance of getting a cache hit is high.
+
+

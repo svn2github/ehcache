@@ -1,0 +1,148 @@
+ ------
+ ehcache
+ ------
+ ------
+ Date
+ ------
+
+Welcome to ehcache
+
+ Ehcache is a widely used java distributed cache for general purpose caching, Java EE and light-weight containers.
+
+ It features memory and disk stores, replicate by copy and invalidate, listeners, cache loaders, cache extensions, cache exception handlers,
+ a gzip caching servlet filter and much {{{features.html}more}}...
+
+ Ehcache is available under an Apache open source {{{license.html}license}} and is actively developed, maintained and supported.
+
+* Latest News
+
+** 31 January 2008: ehcache-1.4 released
+
+    The final version of ehcache-1.4 is available on sourceforge and the Maven central repository.
+
+    This version significantly enrichens the ehcache API and enhances extension of ehcache. The new features are:
+
+    * You can now define CacheLoaders in the ehcache core API. They supplement the existing SelfPopulatingCache.
+      They can be configured in ehcache.xml or programmatically. They can be used for cache warming, and simple pull-through
+      caching. See the {{{/documentation/cache_loaders.html}Cache Loaders}} chapter in the documentation for more details.
+
+    * You can now define a CacheExceptionHandler and register it progammatically or in ehcache.xml.
+      The enable an exception handler to be registered with a cache so that it is called on exception rather than the exception being thrown.
+      See the {{{/documentation/cache_exception_handlers.html}Cache Exception Handler}} chapter in the documentation for more details.
+
+    * You can now define CacheExtensions and register them progammatically or in ehcache.xml. A CacheExtension is a generic facility which holds a reference
+      to a cache and is bound to the cache lifecycle, making possible a wide variety of extensions to behaviour. Usage examples are
+      a cache refresh timer or a file monitoring mechanism.
+      See the {{{/documentation/cache_extensions.html}Cache Extensions}} chapter in the documentation for more details.
+
+    This final release follows the second beta release by a month and fixes a few minor issues. See
+    {{{http://ehcache.sourceforge.net/changes-report.html#1.4.0}changelog}} for complete details.
+
+
+** 1 January 2008: ehcache-1.4-beta2 released
+
+    The beta 2 version of ehcache-1.4 is available on sourceforge and the Maven central repository.
+
+    The second beta release fixes 10 bugs, most of them in the new features being introduced in 1.4.0, reported
+    by beta testers. See the
+    {{{http://ehcache.sourceforge.net/changes-report.html#1.4.0-beta2}changelog}} for complete details.
+
+
+** 30 November 2007: Ehcache book available
+
+[images/ehcache_guide.gif] Ehcache Guide & Reference
+
+ Ehcache Guide and Reference for the forthcoming 1.4.0 release is available as a book.
+ The price for the high quality bound edition is USD49.95 plus shipping. The price for the downloadable print-ready version
+ is USD37.50. The book has 154 pages.
+
+ Many people have asked for a format for the documentation where it can be printed out as a book and even where they can get it.
+ Of course, full documentation in html will always remain available online at http://ehcache.sf.net.
+
+ Buy it from the {{{http://stores.lulu.com/ehcache}Ehcache Storefront}} at Lulu Books.
+
+** 26 August 2007: ehcache-1.4-beta released
+
+    The beta version of ehcache-1.4 is available on sourceforge and the Maven central repository.
+
+    This version significantly enrichens the ehcache API and enhances extension of ehcache. The new features are:
+
+    * You can now define CacheLoaders in the ehcache core API. They supplement the existing SelfPopulatingCache.
+      They can be configured in ehcache.xml or programmatically. They can be used for cache warming, and simple pull-through
+      caching. See the {{{/documentation/cache_loaders.html}Cache Loaders}} chapter in the documentation for more details.
+
+    * You can now define a CacheExceptionHandler and register it progammatically or in ehcache.xml.
+      The enable an exception handler to be registered with a cache so that it is called on exception rather than the exception being thrown.
+      See the {{{/documentation/cache_exception_handlers.html}Cache Exception Handler}} chapter in the documentation for more details.
+
+    * You can now define CacheExtensions and register them progammatically or in ehcache.xml. A CacheExtension is a generic facility which holds a reference
+      to a cache and is bound to the cache lifecycle, making possible a wide variety of extensions to behaviour. Usage examples are
+      a cache refresh timer or a file monitoring mechanism.
+      See the {{{/documentation/cache_extensions.html}Cache Extensions}} chapter in the documentation for more details.
+
+    There are 5 minor bug fixes in the release. At the time of release there are no open bugs in ehcache.
+
+    See the {{{http://ehcache.sourceforge.net/changes-report.html#1.4.0-beta}changelog}} for complete details.
+
+
+** 11 June 2007: ehcache-1.3 released
+
+    The next major version of ehcache has been released.
+
+    This version contains the following major new features over 1.2.4:
+
+    * A draft JCache API (JSR107) package.
+
+    * JMX instrumentation. Register a variety of MBeans from your  ehcache instance with your MBeanServer of choice.
+      Care has been taken to make this implementation friendly to a wide variety of JMX NMSs.
+
+    In terms of minor features:
+
+    * A new cache attribute, diskSpoolBufferSizeMB, can be set to control the amount of memory that can be used
+      for spooling to DiskStore
+
+    * The ehcache shutdown hook is now off by default. Ehcache is typically used in scenarios where someone else
+       has a shutdown hook. It can be re-enabled by setting <<<net.sf.ehcache.enableShutdownHook=true>>>
+
+    The distributed caching feature of ehcache is now in wide-spread use in wide ranging environments. All of this field
+    experience unearthed the need for further documentation, clarificationa and bug fixes, particularly for dirty
+     or mis-configured networks, which have been provided in 1.3. Excellent performance has been reported for clusters with
+     up to 20 nodes.
+
+      A new {{{http://ehcache.sourceforge.net/documentation/tomcat.html}Tomcat}} chapter in the documentation
+      provides specific information on configuring Tomcat with ehcache.
+
+    See the {{{http://ehcache.sourceforge.net/changes-report.html#1.3}changelog}} for complete details.
+
+    Work on new features will now start on a new 1.4 branch. See the {{{roadmap.html}Roadmap}} for details. 1.3 will be maintained as
+     the new stable branch.
+
+** 27 May 2007: ehcache-1.3 beta 3 released
+
+    This release fixes two bugs and has some minor changes to support third parties who are making extensions to ehcache. See
+    See the {{{http://ehcache.sourceforge.net/changes-report.html#1.3-beta3}changelog}} for details.
+    A final release should be out in the next few weeks.
+
+** 22 May 2007: Ehcache Maven repository
+
+    Ehcache has a Maven repository for releases at http://ehcache.sourceforge.net/repository. It is synchronized with the Maven central repository.
+    New releases will now appear in the Maven repository without delay.
+
+** 16 May 2007: JSR107 (JCACHE) News
+
+    At JavaOne, Greg Luck, the maintainer of ehcache, was appointed as co Spec Lead of JSR107, JCACHE.
+
+    The expert group has been reenergised and is making progress towards getting a spec done. Everyone is welcome to monitor technical discussion on
+    JCACHE at the new mailing list - jsr107 AT jsr107.dev.java.net.
+
+**  9 May 2007: JavaOne Talk
+
+    TS-6175 - Distributed Caching, Using the JCACHE API and ehcache, Including a Case Study was attended by around 1200 people. About 50 people had
+    question. There was so much interest that an impromptu Q&A session was held later that day. It appears that interest in caching and ehcache in
+    particular remain very strong in the Java community.
+
+ More {{{news.html}news}}...
+
+
+
+

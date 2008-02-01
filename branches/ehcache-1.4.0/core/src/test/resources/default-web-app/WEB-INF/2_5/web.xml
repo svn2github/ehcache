@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd "
+         version="2.5">
+
+    <filter>
+        <filter-name>GzipFilter</filter-name>
+        <filter-class>net.sf.ehcache.constructs.web.filter.GzipFilter</filter-class>
+        <init-param>
+            <param-name>exceptionsToLogDifferently</param-name>
+            <param-value>net.sf.ehcache.CacheException, java.lang.NullPointerException
+            </param-value>
+        </init-param>
+        <init-param>
+            <param-name>exceptionsToLogDifferentlyLevel</param-name>
+            <param-value>debug</param-value>
+        </init-param>
+        <init-param>
+            <param-name>suppressStackTraces</param-name>
+            <param-value>false</param-value>
+        </init-param>
+    </filter>
+    <filter>
+        <filter-name>SimplePageCachingFilter</filter-name>
+        <filter-class>net.sf.ehcache.constructs.web.filter.SimplePageCachingFilter
+        </filter-class>
+        <init-param>
+            <param-name>suppressStackTraces</param-name>
+            <param-value>false</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>SimplePageFragmentCachingFilter</filter-name>
+        <filter-class>net.sf.ehcache.constructs.web.filter.SimplePageFragmentCachingFilter
+        </filter-class>
+        <init-param>
+            <param-name>suppressStackTraces</param-name>
+            <param-value>false</param-value>
+        </init-param>
+    </filter>
+
+    <!-- Test only filter -->
+    <filter>
+        <filter-name>SimplePageCachingFilterWithBlankPageProblem</filter-name>
+        <filter-class>
+            net.sf.ehcache.constructs.web.filter.SimplePageCachingFilterWithBlankPageProblem
+        </filter-class>
+        <init-param>
+            <param-name>suppressStackTraces</param-name>
+            <param-value>false</param-value>
+        </init-param>
+    </filter>
+
+
+    <!-- This is a filter chain. They are executed in the order below. Do not change the order. -->
+    <filter-mapping>
+        <filter-name>SimplePageCachingFilter</filter-name>
+        <url-pattern>/CachedPage.jsp</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>SimplePageFragmentCachingFilter</filter-name>
+        <url-pattern>/include/Footer.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>SimplePageFragmentCachingFilter</filter-name>
+        <url-pattern>/fragment/CachedFragment.jsp</url-pattern>
+    </filter-mapping>
+
+
+    <!-- Test 404 and 302 -->
+    <filter-mapping>
+        <filter-name>SimplePageCachingFilter</filter-name>
+        <url-pattern>/non_ok/PageNotFound.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>SimplePageCachingFilter</filter-name>
+        <url-pattern>/non_ok/SendRedirect.jsp</url-pattern>
+    </filter-mapping>
+
+    <!-- Test 404 and 302 -->
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/non_ok/PageNotFoundGzip.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/non_ok/SendRedirectGzip.jsp</url-pattern>
+    </filter-mapping>
+
+    <!--Test forwards -->
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/non_ok/ForwardFromGzip.jsp</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+    </filter-mapping>
+
+
+    <!-- Demonstrates how to create a reentrant CachingFilter chain.
+         This should result in an FilterNonReentrantException been thrown. -->
+    <filter-mapping>
+        <filter-name>SimplePageCachingFilter</filter-name>
+        <url-pattern>/reentrant/MainPageAndIncludeBothGoThroughCachingFilter.jsp</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>SimplePageCachingFilter</filter-name>
+        <url-pattern>/reentrant/MainPageAndForwardBothGoThroughCachingFilter.jsp</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>SimplePageCachingFilter</filter-name>
+        <url-pattern>/reentrant/Footer.jsp</url-pattern>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+    </filter-mapping>
+
+
+    <!-- Demonstrates the blank page problem -->
+    <filter-mapping>
+        <filter-name>SimplePageCachingFilterWithBlankPageProblem</filter-name>
+        <url-pattern>/blankpageproblem/CachedPageWithCachedFragmentInclude.jsp</url-pattern>
+    </filter-mapping>
+
+    <!-- Gzip Filter. Keep this near the bottom of this file -->
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/GzipOnlyPage.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/errors/CacheException.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/errors/IllegalArgumentException.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/errors/IOException.jsp</url-pattern>
+    </filter-mapping>
+
+    <!-- Empty responses. -->
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/empty_gzip/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>SimplePageCachingFilter</filter-name>
+        <url-pattern>/empty_caching_filter/*</url-pattern>
+    </filter-mapping>
+
+    <!-- 304. Not Modified -->
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/index_gzip.html</url-pattern>
+    </filter-mapping>
+
+    <!--Redirects-->
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/RedirectJstl.jsp</url-pattern>
+    </filter-mapping>
+
+    <!-- ServletContextListeners -->
+    <listener>
+        <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
+    </listener>
+
+    <!-- Servlet Declarations -->
+    <servlet>
+        <servlet-name>IncludeCachedPageServlet</servlet-name>
+        <servlet-class>net.sf.ehcache.constructs.web.servlet.IncludeCachedPageServlet
+        </servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ForwardToCachedPageServlet</servlet-name>
+        <servlet-class>net.sf.ehcache.constructs.web.servlet.ForwardToCachedPageServlet
+        </servlet-class>
+    </servlet>
+
+    <!-- Servlet Mappings -->
+    <servlet-mapping>
+        <servlet-name>IncludeCachedPageServlet</servlet-name>
+        <url-pattern>/servletdispatchtocachedpage/IncludeCachedPageServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ForwardToCachedPageServlet</servlet-name>
+        <url-pattern>/servletdispatchtocachedpage/ForwardToCachedPageServlet</url-pattern>
+    </servlet-mapping>
+
+
+</web-app>

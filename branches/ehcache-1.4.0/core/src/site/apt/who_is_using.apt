@@ -1,0 +1,45 @@
+ ------
+ Who's Using ehcache?
+ ------
+ ------
+ Date
+ ------
+
+
+Who's Using ehcache?
+
+
+ Following is a non-exhaustive list of open source projects,
+distributions and products using ehcache. Send an email if you want to
+be included in the list.
+
+* Open Source
+
+ * {{{http://www.alfresco.org}Alfresco}} An Enterprise Content Management system
+
+ * {{{http://cocoon.apache.org/}Cocoon}}. A web development framework.
+
+ * {{{http://hibernate.org}Hibernate}}. An O/R mapping tool.
+
+ * {{{http://www.springframework.org}Spring}}. An IOC framework from Rod Johnson.
+
+ * {{{http://www.jpox.org}JPOX}}. A Java Persistent Objects frameworkd and JDO implementation.
+ 
+ * {{{http://jofti.com/}Jofti}}. A cached object indexing and searching system.
+
+ * {{{http://acegisecurity.org/index.html}Acegi}}. A security system for Spring.
+
+ * {{{http://labs.jboss.com/portal/kosmos}Kosmos}}. Kosmos stands for Komposite Open Source Monitoring Suite..
+
+ * {{{http://tudu.sourceforge.net}Tudu Lists}}. Online list management.
+
+ * {{{http://dev.lutece.paris.fr}Lutece}}. Lutece is an Open Source Java/ XML portal.
+
+* Distributions
+
+ * {{{http://jpackage.org/}JPackage}}. Java libraries packaged for Linux.
+
+ * {{{http://maven.apache.org/}Maven}}. A software project management and comprehension tool.
+
+
+ Contact Greg Luck if you want to be included on this list.
