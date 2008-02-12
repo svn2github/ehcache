@@ -198,8 +198,30 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.0</version>
-                    <!--<version>2.3-SNAPSHOT</version>-->
+                    <version>2.2</version>
+                    <executions>
+                        <execution>
+                          <id>attach-javadocs</id>
+                          <goals>
+                            <goal>jar</goal>
+                          </goals>
+                        </execution>
+                    </executions>                    
+                </plugin>
+                
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>2.0.3</version>
+                    <executions>
+                        <execution>
+                          <id>attach-sources</id>
+                          <phase>package</phase>
+                          <goals>
+                            <goal>jar</goal>
+                          </goals>
+                        </execution>
+                    </executions>                    
                 </plugin>
 
                 <plugin>
@@ -211,14 +233,24 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
+                    <version>2.0-beta-7</version>
                     <configuration>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                        <preparationGoals>clean install</preparationGoals>
                         <tagBase>https://ehcache.svn.sourceforge.net/svnroot/ehcache/tags</tagBase>
                     </configuration>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>2.1</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-idea-plugin</artifactId>
+                    <version>2.1</version>
                     <configuration>
                         <downloadSources>true</downloadSources>
                         <downloadJavadocs>false</downloadJavadocs>
@@ -228,10 +260,15 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>cobertura-maven-plugin</artifactId>
-                    <version>2.0</version>
-                    <!-- Do not upgrade until http://jira.codehaus.org/browse/MCOBERTURA-61 fixed -->
+                    <version>2.2</version>
+                    <executions>
+                        <execution>
+                          <goals>
+                            <goal>clean</goal>
+                          </goals>
+                        </execution>
+                    </executions>
                 </plugin>
-
                 <!-- Clover. This seems to quite broken
              <plugin>
              <groupId>org.apache.maven.plugins</groupId>
@@ -254,6 +291,17 @@
              </plugin>   -->
             </plugins>
         </pluginManagement>
+        
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+        </plugins>
     </build>
 
     <profiles>
@@ -417,8 +465,7 @@
             <url>http://ehcache.sourceforge.net/LICENSE.txt</url>
             <distribution>repo</distribution>
             <comments>The license is the standard wording from the Apache license, but with
-                Greg Luck as copyright
-                owner.
+                Greg Luck as copyright owner.
             </comments>
         </license>
     </licenses>
