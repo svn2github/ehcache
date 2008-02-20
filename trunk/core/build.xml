@@ -94,9 +94,9 @@
             <src location="${src.java.dir}"/>
             <classpath refid="project.class.path"/>
         </javac>
-        <copy file="${src.config.dir}/ehcache-failsafe.xml" todir="${build.classes.dir}"/>
+        <copy file="src/main/resources/ehcache-failsafe.xml" todir="${build.classes.dir}"/>
         <copy todir="${build.classes.dir}">
-            <fileset dir="${src.config.dir}/jcache"/>
+            <fileset dir="${src.resources.dir}/jcache"/>
         </copy>
     </target>
 

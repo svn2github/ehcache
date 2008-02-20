@@ -952,7 +952,12 @@ public class Cache implements Ehcache {
         } else {
             for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
                 Object key = iterator.next();
-                map.put(key, get(key));
+                Element element = get(key);
+                if (element != null) {
+                    map.put(key, element.getObjectValue());
+                } else {
+                    map.put(key, null);
+                }
             }
         }
         return map;
@@ -1193,8 +1198,7 @@ public class Cache implements Ehcache {
      * Removes an {@link Element} from the Cache. This also removes it from any
      * stores it may be in.
      * <p/>
-     * Also notifies the CacheEventListener after the element was removed, but only if an Element
-     * with the key actually existed.
+     * Also notifies the CacheEventListener after the element was removed.
      * <p/>
      * Synchronization is handled within the method.
      * <p/>

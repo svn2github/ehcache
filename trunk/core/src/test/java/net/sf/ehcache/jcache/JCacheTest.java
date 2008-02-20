@@ -1470,6 +1470,10 @@ public class JCacheTest extends AbstractCacheTest {
         jcache.put(new Integer(1), "");
 
         Map result = jcache.getAll(keys);
+        Object object = result.get(new Integer(1));
+        //make sure we are not wrapping with Element.
+        assertFalse(object instanceof Element);
+
 
         assertEquals(1000, jcache.size());
         assertEquals(999, countingCacheLoader.getLoadAllCounter());
