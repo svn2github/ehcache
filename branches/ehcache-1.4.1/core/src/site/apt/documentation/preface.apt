@@ -1,0 +1,58 @@
+Preface
+
+    This is a book about ehcache, a widely used open source Java cache. Ehcache has grown in size and scope since it
+    was introduced in October 2003. As people used it they often noticed it was missing a feature they wanted. Over time,
+    the features that were repeatedly asked for, and make sense for a Cache, have been added.
+
+    Ehcache is now used for Hibernate caching, data access object caching, security credential caching, web caching,
+    application persistence and distributed caching. The biggest issue faced by Ehcache users at the time of writing is
+    understanding when and how to use these features.
+
+* Version
+
+   This book is for Ehcache version 1.4.0.
+
+
+* Audience
+
+    The intended audience for this book is developers who use ehcache. It should be able to be used to start from scratch,
+     get up and running quickly, and also be useful for the more complex options.
+
+    Ehcache is about performance and load reduction of underlying resources. Another natural audience is performance specialists.
+
+    It is also intended for application and enterprise architects. Some of the features of ehcache, such as
+    distributed caching and Java EE caching, are alternatives to be considered along with other ways of solving those problems.
+    This book discusses the trade-offs in ehcache's approach to help make a decision about appropriateness of use.
+
+* Printing
+
+    The PDF is designed to be printed, with blank pages deliberately left to maintiain book conventions.
+
+* Acknowledgements
+
+    Ehcache has had many contributions in the form of forum discussions, feature requests, bug reports, patches and code commits.
+
+    Rather than try and list the many hundreds of people who have contributed to ehcache in some way it is better to link
+    to the web site where contributions are acknowledged in the following ways:
+
+    * Bug reports and features requests appear in the changes report here: {{{http://ehcache.sourceforge.net/changes-report.html}}}
+
+    * Patch contributors generally end up with an author tag in the source they contributed to
+
+    * Team members appear on the team list page here: {{{http://ehcache.sourceforge.net/team-list.html}}}
+
+    Thanks to Denis Orlov for suggesting the need for a book in the first place.
+
+
+* {About the ehcache name and logo}
+
+[images/ehcache_logo]
+
+    {Adam Murdoch} (an all round top Java coder) came up with the name in a moment of inspiration while we were stuck on the
+    SourceForge project create page. Ehcache is a palindrome. He thought the name was wicked cool and we agreed.
+
+     The logo is similarly symmetrical, and is evocative of the diagram symbol
+    for a doubly-linked list. That structure lies at the heart of ehcache.
+
+
+

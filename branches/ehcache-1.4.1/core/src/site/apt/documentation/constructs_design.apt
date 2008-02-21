@@ -1,0 +1,250 @@
+Design of the {ehcache constructs} package
+
+    This is a discussion and explanation of the reasons for and the design forces behind the constructs package in ehcache.
+
+* Acknowledgements
+
+    Much of the material here was drawn from {{{http://www.amazon.com/gp/reader/0201310090/ref=sib_dp_pt/104-1236350-6447122#reader-link}Concurrent Programming in Java}}
+    by Doug Lea. Thanks also to Doug for answering several questions along the way.
+
+* The purpose of the Constructs package
+
+    Doug Lea in his book Concurrent Programming in Java talks about concurrency support constructs. One meaning of a construct is "an abstract or
+    general idea inferred or derived from specific instances".  Just like patterns emerge from noting the similarities of problems and gradually
+    finding a solution to classes of them, so to constructs are general solutions to commond problems.
+
+    The ehcache constructs package, literally the net.sf.ehcache.constructs package, provides ready to use, extensible implementations are offered to
+    solve common problems in Java EE and light-weight container applications.
+
+    Why not leave ehcache at the core and let everyone create their own applications? Well, everyone is doing that. But getting it right can be
+    devilishly hard.
+
+
+* Caching meets Concurrent Programming
+
+    So, why not just use Doug's library or the one he contributed to in JDK1.5? The ehcache constructs are around the intersection of concurrency
+    programming and caching. It uses a number of Doug's classes copied verbatim into the net.sf.ehcache.concurrent package, as permiited under
+    the license.
+
+* What can possibly go wrong?
+
+    That is a favourite tongue in cheek saying of Adam Murdoch, an original contributor to the ehcache project. The answer in concurrent programming
+    is a lot.
+
+    (The following section is based heavily on Chapter 1.3 of Doug Lea's Concurrent Programming in Java).
+
+    There are two often conflicting design goals at play in concurrent programming. They are:
+
+    * liveness, where something eventually happens within an activity.
+
+    * safety, where nothing bad ever happens to an object.
+
+** {Safety Failures}
+
+    Failures of safety include:
+
+    * Read/Write Conflicts, where one thread is reading from a field and another is writing to it. The value read depends on who won the race.
+
+    * Write/Write Conflicts, where two threads write to the same field. The value on the next read is impossible to predict.
+
+    A cache is similar to a global variable. By its nature it is accessible to multiple threads.
+    Cache entries, and the locking around them, are often highly contended for.
+
+** {Liveness Failures}
+
+    Failures of liveness include:
+
+    * {Deadlock}. This is caused by a circular dependency among locks. The threads involved cannot make progress.
+
+    * {Missed Signals}. A thread entered the wait state after a notification to wake it up was produced.
+
+    * {Nested monitor lockouts}. A waiting thread holds a lock needed by a thread wishing to wake it up
+
+    * {Livelock}. A continously retried action continously fails.
+
+    * {Starvation}. Some threads never get allocated CPU time.
+
+    * {Resource Exhaustion}. All resourcesof some kind are in use by threads, none of which will give one up.
+
+    * {Distributed Failure}. A remote machine connected by socket becomes inaccessible.
+
+    * {Stampede}. With notifyAll(), all threads wake up and in a stampede, attempt to make progress.
+
+
+* The constructs
+
+** {Blocking Cache}
+
+    Imagine you have a very busy web site with thousands of concurrent users. Rather than being evenly distributed in
+    what they do, they tend to gravitate to popular pages. These pages are not static, they have dynamic data which
+    goes stale in a few minutes. Or imagine you have collections of data which go stale in a few minutes. In each
+    case the data is extremely expensive to calculate.
+
+    Let's say each request thread asks for the same thing. That is a lot of work. Now, add a cache. Get each thread
+    to check the cache; if the data is not there, go and get it and put it in the cache. Now, imagine that there are so
+    many users contending for the same data that in the time it takes the first user to request the data and put it in
+    the cache, 10 other users have done the same thing. The upstream system, whether a JSP or velocity page, or interactions
+    with a service layer or database are doing 10 times more work than they need to.
+
+    Enter the BlockingCache.
+
+[javadoc/net/sf/ehcache/constructs/blocking/BlockingCache] Blocking Cache
+
+    It is blocking because all threads requesting the same key wait for the first thread to complete. Once the first
+    thread has completed the other threads simply obtain the cache entry and return.
+
+    The BlockingCache can scale up to very busy systems.
+
+
+** {SelfPopulatingCache}
+
+    You want to use the BlockingCache, but the requirement to always release the lock creates gnarly code. You also
+    want to think about what you are doing without thinking about the caching.
+
+    Enter the SelfPopulatingCache. The name SelfPopulatingCache is synonymous with Pull-through cache, which is a
+    common caching term. SelfPopulatingCache though always is in addition to a BlockingCache.
+
+    SelfPopulatingCache uses a <<<CacheEntryFactory>>>, that given a key, knows how to populate the entry.
+
+    Note: JCache inspired getWithLoader and getAllWithLoader directly in <<<Ehcache>>> which work with a <<<CacheLoader>>> may be used as an alternative
+     to SelfPopulatingCache. 
+
+** {CachingFilter}
+
+    You want to use the BlockingCache with web pages, but the requirement to always release the lock creates gnarly code.
+    You also want to think about what you are doing without thinking about the caching.
+
+    Enter the CachingFilter, a Servlet 2.3 compliant filter. Why not just do a JSP tag library, like OSCache? The answer
+    is that you want the caching of your responses to be independent of the rendering technology. The filter chain is
+    reexcuted every time a RequestDispatcher is involved. This is on every jsp:include and every Servlet. And you can
+    programmatically add your own. If you have content generated by JSP, Velocity, XSLT, Servlet output or anything else,
+    it can all be cached by CachingFilter. A separation of concerns.
+
+    How do you determine what the key of a page is? The filter has an abstract calculateKey method, so it is up to you.
+
+    You notice a problem and an opportunity. The problem is that the web pages you are caching are huge. That chews up
+    either a lot of memory (MemoryStore) or a lot of disk space (DiskStore). Also you notive that these pages take their
+    time going over the Internet. The opportunity is that you notice that all modern browsers support gzip encoding. A survey
+    of logs reveals that 85% of the time the browser accepts gzipping. (The majority of the 15% that does not is IE
+    behind a proxy). Ok, so gzip the response before caching it. Ungzipping is fast - so just ungzip for the 15% of the
+    time the browser does not accept gzipping.
+
+
+** {SimplePageCachingFilter}
+
+    What if you just want to get started with the CachingFilter and don't want to think too hard? Just use SimplePageCachingFilter
+    which has a calculateKey method already implemented.
+
+    It uses <<<httpRequest.getRequestURI()).append(httpRequest.getQueryString()>>> for the key. This works most of the time. It tends to get less effective when referrals and affiliates are added to the query,
+    which is the case for a lot of e-commerce sites.
+
+    SimplePageCachingFilter is 10 lines of code.
+
+** {PageFragmentCachingFilter}
+
+    You notice that an entire page cannot be cached because the data on it vary in staleness. Say, an address which changes
+    very infrequently, and the price and availability of inventory, which changes quite a lot. Or you have a portal, with
+    lots of components and with different stalenesses. Or you use the replicated cache functionality in ehcache and you
+    only want to rebuild the part of the page that got invalidated.
+
+    Enter the PageFragmentCachingFilter. It does everyting that SimplePageCachingFilter does, except it never
+    gzips, so the fragments can be combined.
+
+
+** {SimplePageFragmentCachingFilter}
+
+    What if you just want to get started with the PageFragmentCachingFilter and don't want to think too hard? Just use SimplePageFragmentCachingFilter
+    which has a calculateKey method already implemented. It uses <<<httpRequest.getRequestURI()).append(httpRequest.getQueryString()>>>
+    for the key. This works most of the time. It tends to get less effective when referrals and affiliates are added to the query,
+    which is the case for a lot of e-commerce sites.
+
+    SimplePageFragmentCachingFilter is 10 lines of code.
+
+** {AsynchronousCommandExecutor}
+
+   What happens if your JMS server is down? The usual answer it to have two of them. Unfortunately, not all JMS servers
+   do a good job of clustering. Plus it takes twice the hardware.
+
+   Once a message makes it to a JMS server, they can usually be configured to store the message in a database. You are
+   pretty safe after that if there is a crash.
+
+   Enter AsynchronousCommandExecutor. It lets you create a command for future execution. The command is cached and is then
+    immediately executed in another thread. Thus the asynchronous bit. If it fails, it retries on a set interval up to a
+    set number of times. Thus it is fault-tolerant.
+
+   Use this where you really don't want to lose messages or commands that execute against another system.
+
+* Real-life problems in the constructs package and their solutions
+
+    At the time of revising this document, ehcache is almost three years old. That leaves plenty of time to observe
+    some concurrency failures. The problems that arose and how they were fixed are illustrative of the subtleties
+    of concurrent programming.
+
+** The Blocking Cache Stampede
+
+    The first BlockingCache implementation ran for almost a year on a very busy application before the first problems
+    came to light. It was using notifyAll() together with coarse grained synchronization on the BlockingCache instance.
+
+    Once the load on the cache got very high indeed, the thread with the lock would notifyAll. Then hundreds of threads
+    would "stampede" - they would each attempt to get the lock. Gradually more and more CPU time was spent resolving
+    contention for the object lock after each notifyAll. Eventually the server threads went to 1500 and server output
+    dropped to almost nothing.
+
+    The solution was to create a Mutex representing each key as it was requested and to lock on that rather than the
+    BlockingCache itself. That gave a 10 times improvement in scalability. See {{{file:///Users/gluck/work/ehcache/target/site/xref-test/net/sf/ehcache/constructs/blocking/BlockingCacheTest.html#196}Scalability Test}}
+    vs the {{{file:///Users/gluck/work/ehcache/target/site/xref-test/net/sf/ehcache/constructs/blocking/BlockingCacheTest.html#208}old ScalabilityTest}}.
+
+
+** The Blank Page problem
+
+   About a year into the use of the CachingFilter, the idea to gzip was born. Having implemented it, it worked fine.
+   A few weeks into production use strange reports came in that people were occasionally getting blank pages. Timing
+   suggested the gzip change, but how? A tester came across similar issues that had been reported with Apache mod_gzip.
+   It looked like there was a rare code path that was somehow screwing up.
+
+   In the end, that was how the filters made their way into the ehcache project. The level of testing required to
+   focus on the issue was way beyond what you would normally do in a business app. In the end I sat down with the
+   Servlet specification and looked at everything that could go wrong. I ended up creating FilterNonReentrantException,
+   AlreadyGzippedException and ResponseHeadersNotModifiableException. These conditions are detected and an exception
+   thrown rather than a blank page. Then the developer fixes the coding error that produced it.
+
+   The exception contain comments on how each issue happens, which are reproduced below:
+
+   FilterNonReentrantException - Thrown when it is detected that a caching filter's doFilter
+   method is reentered by the same thread. Reentrant calls will block indefinitely because the first request has not yet
+   unblocked the cache. Nasty.
+
+   AlreadyGzippedException - The web package performs gzipping operations. One cause of problems on web browsers
+   is getting content that is double or triple gzipped. They will either get gobblydeegook
+   or a blank page. This exception is thrown when a gzip is attempted on already gzipped content.
+
+   ResponseHeadersNotModifiableException - A gzip encoding header needs to be added for gzipped content. The HttpServletResponse#setHeader() method
+   is used for that purpose. If the header had already been set, the new value normally overwrites the previous one.
+   In some cases according to the servlet specification, setHeader silently fails. Two scenarios where this happens are:
+
+    * The response is committed.
+
+    * RequestDispatcher#include method caused the request.
+
+   This issue is extremely subtle and nasty.
+
+   There are tests that reproduce each of these issues. The CachingFilter and its subclasses have been in production
+   for nearly two years with no more reports of trouble.
+
+** Blocking Cascade
+
+   Let's say you do use the BlockingCache but something goes wrong upstream. Maybe it is something like a database backup
+   that slows the database down for 10 minutes. Or greedy SQL. With the BlockingCache the JDBC connection will eventually
+   timeout. The first thread fails. The next queued thread then attempts the same thing. It fails. And so on. While this
+   is going on, more and more threads queue up. The result is a Blocking cascade. Eventually, if the slow upstream server
+   or process does not pick up you exhaust the thread limit on your server and it goes down with an OutOfMemoryError.
+
+   Is this what you want? Or would you prefer to have the affected part of the system degrade with errors while the rest
+   of the system keeps ticking? That is a judgement call.
+
+   BlockingCache has a parameter in its constructor called timeoutMillis. If you set that then any queued thread will immediately
+   timeout when its turn comes in the above scenario. Some requests get exceptions, but you do not lose your VM.
+
+
+
+

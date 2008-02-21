@@ -1,0 +1,61 @@
+Logging And Debugging
+
+
+* {Commons Logging}
+
+    Ehcache uses the Apache Commons Logging library for logging.
+
+    It acts as a thin bridge between
+    logging statements in the code and logging infrastructure detected in
+    the classpath. It will use in order of preference:
+
+     * {log4j}
+
+     * {JDK1.4 logging}
+
+     * and then its own <<<{SimpleLog}>>>
+
+     This enables ehcache to use logging infrastructures compatible with Java versions
+    from JDK1.2 to JDK5. It does create a dependency on Apache Commons
+    Logging, however many projects, including Hibernate, share the same
+    dependency.
+
+    For normal production use, use the <<<WARN>>> level in log4J
+    and the <<<WARNING>>> level for JDK1.4 logging.
+
+* Logging Philosophy
+
+    Ehcache seeks to trade off informing production support developers or important messages
+    and cluttering the log.
+
+    {ERROR} (JDK logging SEVERE_ messages should not occur in normal production and indicate that action should be taken.
+
+    {WARNING} (JDK logging WARN) messages generally indicate a configuration change should be made or an unusual event
+    has occurred.
+
+    {DEBUG} (JDK logging FINE) messages are for development use. All DEBUG level statements are surrounded with a guard
+    so that they are not executed unless the level is DEBUG.
+
+    Setting the logging level to DEBUG (JDK level FINE) should provide more information on the source of any problems.
+    Many logging systems enable a logging level change to be made without restarting the application.
+
+
+* {Remote Network debugging and monitoring for Distributed Caches}
+
+    A simple new tool in ehcache-1.2, {ehcache-1.x-remote-debugger.jar} can be used to debug replicated cache operations.
+    It is included in the distribution tarball for ehcache-1.2.3 and higher.
+
+    It is invoked using:
+
+--------------------------------------------
+
+java -jar ehcache-1.x-remote-debugger.jar path_to_ehcache.xml cacheToMonitor
+
+--------------------------------------------
+
+    It will print a configuration of the cache, including replication settings and monitor the number of elements
+    in the cache. If you are not seeing replication in your application, run up this tool to see what is going on.
+
+    It is a command line application, so it can easily be run from a terminal session.
+
+    

@@ -1,0 +1,528 @@
+{Features}
+
+~~ Table of Contents
+
+ * Fast and Light Weight
+
+  * {{{#Fast}Fast}}
+
+  * {{{#Simple}Simple}}
+
+  * {{{#Small foot print}Small foot print}}
+
+  * {{{#Minimal dependencies}Minimal dependencies}}
+
+ * Scalable
+
+    * {{{#Provides Memory and Disk stores for scalabilty into gigabytes}Provides Memory and Disk stores for scalabilty into gigabytes}}
+
+    * {{{#Scalable to hundreds of caches}Scalable to hundreds of caches}}
+
+    * {{{#Tuned for high concurrent load on large multi-cpu servers}Tuned for high concurrent load on large multi-cpu servers}}
+
+    * {{{#Multiple CacheManagers per virtual machine}Multiple CacheManagers per virtual machine}}
+
+ * Complete
+
+    * {{{#Supports Object or Serializable caching}Supports Object or Serializable caching}}
+
+    * {{{#Support cache-wide or Element-based expiry policies}Support cache-wide or Element-based expiry policies}}
+
+    * {{{#Provides LRU, LFU and FIFO cache eviction policies}Provides LRU, LFU and FIFO cache eviction policies}}
+
+    * {{{#Provides Memory and Disk stores}Provides Memory and Disk stores}}
+
+    * {{{#Distributed}Distributed Caching}}
+
+    * {{{#Full implementation of JSR107 JCACHE API}Full implementation of JSR107 JCACHE API}}
+
+ * Standards Based
+
+    * {{{#Full implementation of JSR107 JCACHE API}Full implementation of JSR107 JCACHE API}}
+
+
+ * Extensible
+
+    * {{{#Listeners may be plugged in}Listeners may be plugged in}}
+
+    * {{{#Peer Discovery, Replicators and Listeners may be plugged in}Peer Discovery, Replicators and Listeners may be plugged in}}
+
+    * {{{#Cache Extensions may be plugged in}Cache Extensions may be plugged in}}
+
+    * {{{#Cache Loaders may be plugged in}Cache Loaders may be plugged in}}
+
+    * {{{#Cache Exception Handlers may be plugged in}Cache Exception Handlers may be plugged in}}
+
+
+ * Application Persistence
+
+    * {{{#Persistent disk store which stores data between VM restarts}Persistent disk store which stores data between VM restarts}}
+
+    * {{{#Flush to disk on demand}Flush to disk on demand}}
+
+
+ * Supports Listeners
+
+   * {{{#CacheManager listeners}CacheManager listeners}}
+
+   * {{{#Cache event listeners}Cache event listeners}}
+
+
+ * {{{#JMX Enabled}JMX Enabled}}
+
+
+ * Distributed
+
+   * {{{#Peer Discovery}Peer Discovery}}
+
+   * {{{#Reliable Delivery}Reliable Delivery}}
+
+   * {{{#Synchronous Or Asynchronous Replication}Synchronous Or Asynchronous Replication}}
+
+   * {{{#Copy Or Invalidate Replication}Copy Or Invalidate Replication}}
+
+   * {{{#Transparent Replication}Transparent Replication}}
+
+   * {{{#Extensible}Extensible}}
+
+   * {{{#Bootstrapping from Peers}Bootstrapping from Peers}}
+
+ * Java EE and Applied Caching
+
+  * {{{#Blocking Cache to avoid duplicate processing for concurrent operations}Blocking Cache to avoid duplicate processing for concurrent operations}}
+
+  * {{{#SelfPopulating Cache for pull through caching of expensive operations}SelfPopulating Cache for pull through caching of expensive operations}}
+
+  * {{{#Java EE Gzipping Servlet Filter}Java EE Gzipping Servlet Filter}}
+
+  * {{{#Cacheable Commands}Cacheable Commands}}
+
+  * {{{#Works with Hibernate}Works with Hibernate}}
+
+ * High Quality
+
+  * {{{#High Test Coverage}High Test Coverage}}
+
+  * {{{#Automated Load, Limit and Performance System Tests}Automated Load, Limit and Performance System Tests}}
+
+  * {{{#Production tested}Production tested}}
+
+  * {{{#Fully documented}Fully documented}}
+
+  * {{{#Trusted by Popular Frameworks}Trusted by Popular Frameworks}}
+
+  * {{{#Conservative Commit policy}Conservative Commit policy}}
+
+  * {{{#Full public information on the history of every bug}Full public information on the history of every bug}}
+
+  * {{{#Responsiveness to serious bugs}Responsiveness to serious bugs}}
+
+ * Open Source Licensing
+
+  * {{{#Apache 2.0 license}Apache 2.0 license}}
+
+
+~~ Contents
+
+* Fast and Light Weight
+
+** {Fast}
+
+  Over the years, various performance tests have shown ehcache to be one of the fastest Java caches. Ehcache's threading is designed
+  for large, high concurrency systems.
+
+  Extensive performance tests in the test suite keep ehcache's performance consistent between releases.
+
+  As an example, some guys have created a java cache test tool called cache4j_perfomance_tester.
+
+  The results for ehcache-1.1 and ehcache-1.2 follow.
+
+--------------------------------------------
+ 
+  ehcache-1.1
+
+  [java] ---------------------------------------------------------------
+  [java] java.version=1.4.2_09
+  [java] java.vm.name=Java HotSpot(TM) Client VM
+  [java] java.vm.version=1.4.2-54
+  [java] java.vm.info=mixed mode
+  [java] java.vm.vendor="Apple Computer, Inc."
+  [java] os.name=Mac OS X
+  [java] os.version=10.4.5
+  [java] os.arch=ppc
+  [java] ---------------------------------------------------------------
+  [java] This test can take about 5-10 minutes. Please wait ...
+  [java] ---------------------------------------------------------------
+  [java] |GetPutRemoveT |GetPutRemove |Get |
+  [java] ---------------------------------------------------------------
+  [java] cache4j 0.4 |9240 |9116 |5556 |
+  [java] oscache 2.2 |33577 |30803 |8350 |
+  [java] ehcache 1.1 |7697 |6145 |3395 |
+  [java] jcs 1.2.7.0 |8966 |9455 |4072 |
+  [java] ---------------------------------------------------------------
+
+  ehcache-1.2
+  [java] ---------------------------------------------------------------
+  [java] java.version=1.4.2_09
+  [java] java.vm.name=Java HotSpot(TM) Client VM
+  [java] java.vm.version=1.4.2-54
+  [java] java.vm.info=mixed mode
+  [java] java.vm.vendor="Apple Computer, Inc."
+  [java] os.name=Mac OS X
+  [java] os.version=10.4.5
+  [java] os.arch=ppc
+  [java] ---------------------------------------------------------------
+  [java] This test can take about 5-10 minutes. Please wait ...
+  [java] ---------------------------------------------------------------
+  [java] |GetPutRemoveT |GetPutRemove |Get |
+  [java] ---------------------------------------------------------------
+  [java] cache4j 0.4 |9410 |9053 |5865 |
+  [java] oscache 2.2 |28076 |30833 |8031 |
+  [java] ehcache 1.2 |8753 |7072 |3479 |
+  [java] jcs 1.2.7.0 |8806 |9522 |4097 |
+  [java] ---------------------------------------------------------------
+
+--------------------------------------------
+
+
+** {Simple}
+
+   Many users of ehcache hardly know they are using it. Sensible defaults require no initial configuration.
+
+   The API is very simple and easy to use, making it possible to get up and running in minutes. See the {{{samples.html}Code Samples}} for details.
+
+** {Small foot print}
+
+   Ehcache 1.2 is 110KB making it convenient to package.
+
+** {Minimal dependencies}
+
+   Commons logging and collections are the only dependencies for most JDKs.
+
+* Scalable
+
+** {Provides Memory and Disk stores for scalabilty into gigabytes}
+
+    The largest ehcache installations use memory and disk stores in the gigabyte range. Ehcache is tuned for these large sizes.
+
+** {Scalable to hundreds of caches}
+
+    The largest ehcache installations use hundreds of caches.
+
+** {Tuned for high concurrent load on large multi-cpu servers}
+
+    There is a tension between thread safety and performance. Ehcache's threading started off coarse-grained, but has
+     increasingly made use of ideas from Doug Lea to achieve greater performance. Over the years there have been a
+     number of scalability bottlenecks identified and fixed.
+
+** {Multiple CacheManagers per virtual machine}
+
+    Ehcache 1.2 introduced multiple CacheManagers per virtual machine. This enables completely difference ehcache.xml
+      configurations to be applied.
+
+* Complete
+
+** {Supports Object or Serializable caching}
+
+   As of ehcache-1.2 there is an API for Objects in addition to the one for Serializable. Non-serializable Objects can
+   use all parts of ehcache except for DiskStore and replication. If an attempt is made to persist or replicate them
+   they are discarded and a WARNING level log message emitted.
+
+   The APIs are identical except for the return methods from Element. Two new methods on
+   Element: getObjectValue and getKeyValue are the only API differences between the Serializable and Object APIs. This
+   makes it very easy to start with caching Objects and then change your Objects to Seralizable to participate in
+   the extra features when needed. Also a large number of Java classes are simply not Serializable.
+
+** {Support cache-wide or Element-based expiry policies}
+
+   Time to lives and time to idles are settable per cache. In addition, from ehcache-1.2.1, overrides to these can be
+   set per Element.
+
+** {Provides LRU, LFU and FIFO cache eviction policies}
+
+    Ehcache 1.2 introduced Less Frequently Used and First In First Out caching eviction policies. These round out the
+    eviction policies.
+
+** {Provides Memory and Disk stores}
+
+    Ehcache, like most of the cache solutions, provides high performance memory and disk stores.
+
+** {Distributed}
+
+    Flexible, extensible, high performance distributed caching. The default implementation supports cache
+    discovery via multicast or manual configuration. Updates are delivered either asynchronously or synchronously
+    via custom RMI connections. Additional discovery or delivery schemes can be plugged in by third parties.
+
+    See the {{{documentation/distributed_caching.html}Distributed Caching}} documentation for more feature details.
+
+
+* Standards Based
+
+** {Full implementation of JSR107 JCACHE API}
+
+    Ehcache offers the the most complete implementation of JSR107 JCACHE to date.
+
+    Because JCACHE has not yet been released the JCACHE API that Ehcache implements has been released as net.sf.jsr107cache.
+
+    Implementers can code to the JCACHE API which will create portability to other caching solutions in the future.
+
+    The maintainer of ehcache, Greg Luck, is on the expert committee for JSR107.  
+
+* Extensible
+
+** {Listeners may be plugged in}
+
+    Ehcache 1.2 provides <<<CacheManagerEventListener>>> and <<<CacheEventListener>>> interfaces. Implementations can be
+    plugged in and configured in ehcache.xml.
+
+** {Peer Discovery, Replicators and Listeners may be plugged in}
+
+    Distributed caching, introduced in ehcache 1.2 involves many choices and tradeoffs. The ehcache team believe that one size will not fit all.
+    Implementers can use built-in mechanisms or write their own. A plugin development guide is included for this purpose.
+
+** {Cache Extensions may be plugged in}
+
+    Create your own Cache Extensions, which hold a reference to a cache and are bound to its lifecycle.
+
+** {Cache Loaders may be plugged in}
+
+    Create your own Cache Loaders, which are general purpose asynchronous methods for loading data into caches, or use them in pull-through
+    configuration.
+
+** {Cache Exception Handlers may be plugged in}
+
+    Create an Exception Handler which is invoked if any Exception occurs on a cache operation. 
+
+* Application Persistence
+
+** {Persistent disk store which stores data between VM restarts}
+
+    With ehcache 1.1 in 2004, ehcache was the first open source Java cache to introduce persistent storage of cache data
+    on disk on shutdown. The cached data is then accessible the next time the application runs.
+
+** {Flush to disk on demand}
+
+    With ehcache 1.2, the flushing of entries to disk can be executed with a <<<cache.flush()>>> method whenever required,
+    making it easier to use ehcache
+
+* Listeners
+
+** {CacheManager listeners}
+
+    Register Cache Manager listeners through the <<<CacheManagerEventListener>>> interface with the following event methods:
+
+    * <<<notifyCacheAdded()>>>
+
+    * <<<notifyCacheRemoved()>>>
+
+
+** {Cache event listeners}
+
+    Register Cache Event Listeners through the <<<CacheEventListener>>> interfaces, which provides a lot of flexibility
+     for post-processing of cache events. The methods are:
+
+    * <<<notifyElementRemoved>>>
+
+    * <<<notifyElementPut>>>
+
+    * <<<notifyElementUpdated>>>
+
+    * <<<notifyElementExpired>>>
+
+
+* {JMX Enabled}
+
+    Ehcache is JMX enabled. You can monitor and manage the following MBeans:
+
+     * CacheManager
+
+     * Cache
+
+     * CacheConfiguration
+
+     * CacheStatistics
+
+    See the net.sf.ehcache.management package.
+
+    See {{http://weblogs.java.net/blog/maxpoon/archive/2007/06/extending_the_n_2.html}} for an online tutorial.
+
+* {Distributed Caching}
+
+    Ehcache 1.2 introduced a full-featured, fine-grained distributed caching mechanism for clusters.
+
+** {Peer Discovery}
+
+    Peer discovery may be either manually configured or automatic, using multicast. Multicast is simple, and
+    adds and removes peers automatically. Manual configuration gives fine control and is useful for situations
+     where multicast is blocked.
+
+** {Reliable Delivery}
+
+    The built-in delivery mechanism uses RMI with custom sockets over TCP, not UDP.
+
+** {Synchronous Or Asynchronous Replication}
+
+    Replication can be set to synchronous Or asynchronous, per cache.
+
+** {Copy Or Invalidate Replication}
+
+    Replication can be set to copy or invalidate, per cache, as is appropriate.
+
+** {Transparent Replication}
+
+    No programming changes are required to make use of replication. Only configuration in ehcache.xml.
+
+** {Extensible}
+
+    Distributed caching, introduced in ehcache 1.2 involves many choices and tradeoffs. The ehcache team believe that one size will not fit all.
+    Implementers can use built-in mechanisms or write their own. A plugin development guide is included for this purpose.
+
+** {Bootstrapping from Peers}
+
+    Distributed caches enter and leave the cluster at different times. Caches can be configured to bootstrap themselves
+    from the cluster when they are first initialized.
+
+     An abstract factory, BootstrapCacheLoaderFactory has been defined along with an interface BootstrapCacheLoader along
+     with an RMI based default implementation.
+
+* {Java EE and Applied Caching}
+
+  High quality implementations for common caching scenarios and patterns.
+
+** {Blocking Cache to avoid duplicate processing for concurrent operations}
+
+    A cache which blocks subsequent threads until the first read thread populates a cache entry.
+
+** {SelfPopulating Cache for pull through caching of expensive operations}
+
+    SelfPopulatingCache - a read-through cache. A cache that populates elements as they are requested without requiring the caller to know how the entries are populated. It also enables refreshes of cache entries without blocking reads on the same entries.
+
+** {Java EE Gzipping Servlet Filter}
+
+    * CachingFilter - an abstract, extensible caching filter.
+
+    * SimplePageCachingFilter
+
+     A high performance Java EE servlet filter that caches pages based on the request URI and Query String. It also gzips the pages
+     and delivers them to browsers either gzipped or ungzipped depending on the HTTP request headers. Use
+     to cache entire Servlet pages, whether from JSP, velocity, or any other rendering technology.
+
+     Tested with Orion and Tomcat.
+
+    * SimplePageFragmentCachingFilter
+
+     A high performance Java EE filter that caches page fragments based on the request URI and Query String. Use
+     with Servlet request dispatchers to cache parts of pages, whether from JSP, velocity, or any other rendering technology.
+     Can be used from JSPs using jsp:include.
+
+     Tested with Orion and Tomcat.
+
+    * Works with Servlet 2.3 and Servlet 2.4 specifications. 
+
+** {Cacheable Commands}
+
+    This is the trusty old command pattern with a twist: asynchronous behaviour, fault tolerance and caching. Creates a
+    command, caches it and then attempts to execute it.
+
+** {Works with Hibernate}
+
+   Tested with Hibernate2.1.8 and  Hibernate3.1.3, which can utilise all of the new features except for Object API and
+   multiple session factories each using a different ehcache CacheManager.
+
+   A new <<<net.sf.ehcache.hibernate.EhCacheProvider>>> makes those additional features available to Hibernate-3.1.3. A version of the new provider should make it into
+   the Hibernate3.2 release.
+
+* {High Quality}
+
+** {High Test Coverage}
+
+ The ehcache team believe that the first and most important quality measure is a well designed and comprehensive test suite.
+
+ Ehcache has a relatively high 86% test coverage of source code. This has edged higher over time. Clover enforces the test coverage.
+ Most of the missing 14% is logging and exception paths.
+
+** Automated {Load, Limit and Performance System Tests}
+
+  The ehcache JUnit test suite contains some long-running system tests which place high load on different ehcache subsystems
+    to the point of failure and then are back off to just below that point. The same is done with limits such as the amount
+      of Elements that can fit in a given heap size. The same is also done with performance testing of each subsystem and
+      the whole together. The same is also done with network tests for cache replication.
+
+  The tests serve a number of purposes:
+
+  * establishing well understood metrics and limits
+
+  * preventing regressions
+
+  * reproducing any reported issues in production
+
+  * Allowing the design principle of graceful degradation to be achieved. For example, the asynchronous cache replicator
+    uses SoftReferences for queued messages, so that the messages will be reclaimed before before an OutOfMemoryError occurs,
+    thus favouring stability over replication. 
+
+** {Specific Concurrency Testing}
+
+  Ehcache also has concurrency testing, which typically uses 50 concurrent threads hammering a piece of code. The test
+  suites are also run on multi-core or multi-cpu machines so that concurrency is real rather than simulated.
+  Additionally, every concurrency related issue that has ever been anticipated or resulted in a bug report has a unit
+  test which prevents the condition from recurring. There are no reported issues that have not been reproduced in a unit
+  test.
+
+  Concurrency unit tests are somewhat difficult to write, and are often overlooked. The team considers these tests a
+  major factor in ehcache's quality.
+
+
+** {Production tested}
+
+ Ehcache came about in the first place because of production issues with another open source cache.
+
+ Final release versions of ehcache have been production tested on a very busy e-commerce site, supporting thousands of concurrent
+ users, gigabyte size caches on large multi-cpu machines. It has been the experience of the team that most threading issues
+ do not surface until this type of load has been applied. Once an issue has been identified and investigated a concurrency unit test
+ can then be crafted.
+
+** {Fully documented}
+
+ A core belief held by the project team is that a project needs good documentation to be useful.
+
+ In ehcache, this is manifested by:
+
+     * comprehensive written {{{documentation/index.html}documentation}}
+
+     * Complete, meaningful JavaDoc for every package, class and public and protected method. Checkstyle rules enforce this level of documentation.
+
+     * an up-to-date {{{documentation/faq.html}FAQ}}
+
+** {Trusted by Popular Frameworks}
+
+ Ehcache is used extensively. See the {{{who_is_using.html} Who is Using?}} page, or browse Google.
+
+** {Conservative Commit policy}
+
+ Projects like Linux maintain their quality through a restricted change process, whereby changes are submitted as patches,
+ then reviewed by the maintainer and included, or modified. Ehcache follows the same process.
+
+** {Full public information on the history of every bug}
+
+ Through the {{{http://sourceforge.net/tracker/?group_id=93232&atid=603559}SourceForge project bug tracker}}, the full
+ history of all bugs are shown, including current status. We take this for granted in an open source project, as this
+ is typically a feature that all open source projects have, but this transparency makes it possible to gauge the
+ quality and riskiness of a library, something not usually possible in commercial products.
+
+** {Responsiveness to serious bugs}
+
+ The ehcache team is serious about quality. If one user is having a problem, it probably means others are too, or will
+ have. The ehcache team use ehcache themselves in production. Every effort will be made to provide fixes for serious
+ production problems as soon as possible. These will be committed to trunk. From there an affected user can apply
+ the fix to their own branch.
+
+* {Open Source Licensing}
+
+** {Apache 2.0 license}
+
+ Ehcache's original Apache1.1 copyright and licensing was reviewed and approved by the Apache Software Foundation,
+ making ehcache suitable for use in Apache projects. ehcache-1.2 is released under the updated Apache 2.0 license.
+
+ The Apache license is also friendly one, making it safe and easy to include ehcache in other open source projects or commercial products.
+
+
