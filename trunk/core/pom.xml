@@ -312,6 +312,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.3</version>
                 <configuration>
                     <doclet>ydoc.doclets.YStandard</doclet>
                     <docletPath>

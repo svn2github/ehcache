@@ -2,7 +2,7 @@
 <document>
     <body>
 
-        <release version="1.4.1" date="2008-11-31" desc="Maintenance release">
+        <release version="1.4.1" date="2008-02-21" desc="Maintenance release">
             <!--Bug Fixes-->
             <action dev="Greg Luck" type="fix" issue="1895147">
                 ehcache-failsafe.xml was not being included in the maven package. Moved it to resources so that now it is.
@@ -16,7 +16,7 @@
         </release>
 
 
-        <release version="1.4.0" date="2008-11-31" desc="1.4 release">
+        <release version="1.4.0" date="2008-1-31" desc="1.4 release">
             <!--Bug Fixes-->
             <action dev="Greg Luck" type="fix" issue="1819841">
                 Update backport-concurrent version to 3.1. This version is available for all versions of Java including 6.

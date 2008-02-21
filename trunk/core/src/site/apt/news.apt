@@ -7,6 +7,12 @@
 
 News
 
+* 21 February 2008: ehcache-1.4.1 maintenance release
+
+    The version of ehcache is a minor maintenance release. The main reason for the release was to include ehcache-failsafe.xml
+    which was omitted from the public maven repository version. See the {{{http://ehcache.sourceforge.net/changes-report.html#1.4.1}changelog}}
+    for complete details.
+
 * 31 January 2008: ehcache-1.4.0 released
 
     The final version of ehcache-1.4.0 is available on sourceforge and the Maven central repository.

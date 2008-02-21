@@ -1,5 +1,22 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+ehcache-1.4.1
+=============
+
+<release version="1.4.1" date="2008-02-21" desc="Minor maintenance release">
+    <!--Bug Fixes-->
+    <action dev="Greg Luck" type="fix" issue="1895147">
+        ehcache-failsafe.xml was not being included in the maven package. Moved it to resources so that now it is.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1831823">
+        JCache.getAll wraps values in Element. One place was missed in the fix for this in 1.4.0. Now all correct.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1887638">
+        Fixed error in Cache.remove/Ehcache.remove JavaDoc
+    </action>
+</release>
+
+
 ehcache-1.4
 ===========
 
