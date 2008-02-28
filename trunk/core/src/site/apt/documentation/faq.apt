@@ -308,4 +308,8 @@ class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
     by setting up a cache with maxElementsInMemory set to Integer.MAX_VALUE, 2147483647, overflowToDisk set to true and diskPersistent set to true.
 
 
+* I get a javax.servlet.ServletException: Could not initialise servlet filter when using SimplePageCachingFilter. Why?
 
+    If you use this default implementation, the cache name is called "SimplePageCachingFilter". You need to define a cache with that
+    name in ehcache.xml. If you override CachingFilter you are required to set your own cache name. See ({{http://ehcache.sourceforge.net/xref/net/sf/ehcache/constructs/web/filter/SimplePageCachingFilter.html#79} the JavaDoc}) for
+    <<<SimplePageCachingFilter>>>.

@@ -35,6 +35,10 @@
     which is the case for a lot of e-commerce sites.
 
     SimplePageCachingFilter is 10 lines of code.
+    
+    If you use this default implementation, the cache name is called "SimplePageCachingFilter". You need to define a cache with that
+     name in ehcache.xml.
+
 
 * {PageFragmentCachingFilter}
 
