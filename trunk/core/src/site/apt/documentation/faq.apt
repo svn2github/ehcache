@@ -311,5 +311,5 @@ class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
 * I get a javax.servlet.ServletException: Could not initialise servlet filter when using SimplePageCachingFilter. Why?
 
     If you use this default implementation, the cache name is called "SimplePageCachingFilter". You need to define a cache with that
-    name in ehcache.xml. If you override CachingFilter you are required to set your own cache name. See ({{http://ehcache.sourceforge.net/xref/net/sf/ehcache/constructs/web/filter/SimplePageCachingFilter.html#79} the JavaDoc}) for
+    name in ehcache.xml. If you override CachingFilter you are required to set your own cache name. See {{{http://ehcache.sourceforge.net/xref/net/sf/ehcache/constructs/web/filter/SimplePageCachingFilter.html#79} the JavaDoc}) for
     <<<SimplePageCachingFilter>>>.
