@@ -249,6 +249,7 @@
                 </executions>
             </plugin>
 
+            <!-- Use this to specify a different template. It also needs a local copy of maven-base.css -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
@@ -263,45 +264,45 @@
     </build>
 
     <!-- Reports -->
-    <!--<reporting>-->
-        <!--<plugins>-->
+    <reporting>
+        <plugins>
 
-            <!-- Reports -->
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-project-info-reports-plugin</artifactId>-->
-                <!--<reportSets>-->
-                    <!--<reportSet>-->
-                        <!--<reports>-->
-                            <!--<report>dependencies</report>-->
-                            <!--<report>project-team</report>-->
-                            <!--<report>mailing-list</report>-->
-                            <!--<report>issue-tracking</report>-->
-                            <!--<report>license</report>-->
-                            <!--<report>scm</report>-->
-                        <!--</reports>-->
-                    <!--</reportSet>-->
-                <!--</reportSets>-->
-            <!--</plugin>-->
+             <!--Reports -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>dependencies</report>
+                            <report>project-team</report>
+                            <report>mailing-list</report>
+                            <report>issue-tracking</report>
+                            <report>license</report>
+                            <report>scm</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
 
-            <!-- Checkstyle -->
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-checkstyle-plugin</artifactId>-->
-                <!--<configuration>-->
-                    <!--<configLocation>${project.build.directory}/log/checkstyle.xml</configLocation>-->
-                    <!--<enableRSS>false</enableRSS>-->
-                    <!--<linkXRef>false</linkXRef>-->
-                    <!--<enableRulesSummary>false</enableRulesSummary>-->
-                    <!--<consoleOutput>true</consoleOutput>-->
-                    <!--<failsOnError>false</failsOnError>-->
-                    <!--<failsOnViolation>true</failsOnViolation>-->
-                    <!--<includeTestSourceDirectory>true</includeTestSourceDirectory>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
+             <!--Checkstyle -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <configLocation>${project.build.directory}/log/checkstyle.xml</configLocation>
+                    <enableRSS>false</enableRSS>
+                    <linkXRef>false</linkXRef>
+                    <enableRulesSummary>false</enableRulesSummary>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>false</failsOnError>
+                    <failsOnViolation>true</failsOnViolation>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                </configuration>
+            </plugin>
 
-            <!-- Javadoc -->
-            <!-- Note: the yDoc doclet requires the following profiles configured in ~/.m2/settings.xml-->
+             <!--Javadoc -->
+             <!--Note: the yDoc doclet requires the following profiles configured in ~/.m2/settings.xml-->
                        <!--and the symlinks of ydoc.home and ydoc.license properly set for the local build system.-->
             <!--<profiles>-->
               <!--<profile>-->
@@ -318,92 +319,92 @@
             <!--<activeProfiles>-->
               <!--<activeProfile>default</activeProfile>-->
             <!--</activeProfiles>-->
-            <!---->-->
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-javadoc-plugin</artifactId>-->
-                <!--<version>2.3</version>-->
-                <!--<configuration>-->
-                    <!--<doclet>ydoc.doclets.YStandard</doclet>-->
-                    <!--<docletPath>-->
-                        <!--${ydoc.home}/lib/ydoc.jar${path.separator}${ydoc.home}/lib/class2svg.jar${path.separator}${ydoc.home}/resources-->
-                    <!--</docletPath>-->
-                    <!--<additionalparam>-license ${ydoc.license} -filter ydoc.filters.ExcludeFilter -filterpath-->
-                        <!--${ydoc.home}/lib/ydoc.jar -umlautogen-->
-                    <!--</additionalparam>-->
-                    <!--<author>true</author>-->
-                    <!--<bottom>true</bottom>-->
-                    <!--<destDir>${project.build.directory}/site/javadoc</destDir>-->
-                    <!--<header><![CDATA[<a href="/" target="_top">ehcache</a>]]></header>-->
-                    <!--<minmemory>128m</minmemory>-->
-                    <!--<maxmemory>512</maxmemory>-->
-                    <!--<overview>${basedir}/src/main/java/net/sf/ehcache/overview.html</overview>-->
-                    <!--<packagenames>net.sf.*</packagenames>-->
-                    <!--<use>true</use>-->
-                    <!--<version>true</version>-->
-                    <!--<windowtitle>${project.name} ${project.version} API</windowtitle>-->
-                    <!--<tag name="noinspection" description="IntelliJ Inspection Ignore tag"-->
-                         <!--enabled="false"/>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <doclet>ydoc.doclets.YStandard</doclet>
+                    <docletPath>
+                        ${ydoc.home}/lib/ydoc.jar${path.separator}${ydoc.home}/lib/class2svg.jar${path.separator}${ydoc.home}/resources
+                    </docletPath>
+                    <additionalparam>-license ${ydoc.license} -filter ydoc.filters.ExcludeFilter -filterpath
+                        ${ydoc.home}/lib/ydoc.jar -umlautogen
+                    </additionalparam>
+                    <author>true</author>
+                    <bottom>true</bottom>
+                    <destDir>${project.build.directory}/site/javadoc</destDir>
+                    <header><![CDATA[<a href="/" target="_top">ehcache</a>]]></header>
+                    <minmemory>128m</minmemory>
+                    <maxmemory>512</maxmemory>
+                    <overview>${basedir}/src/main/java/net/sf/ehcache/overview.html</overview>
+                    <packagenames>net.sf.*</packagenames>
+                    <use>true</use>
+                    <version>true</version>
+                    <windowtitle>${project.name} ${project.version} API</windowtitle>
+                    <tag name="noinspection" description="IntelliJ Inspection Ignore tag"
+                         enabled="false"/>
+                </configuration>
+            </plugin>
 
-            <!-- PMD and CPD -->
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-pmd-plugin</artifactId>-->
-                <!--<configuration>-->
-                    <!--<targetjdk>1.4</targetjdk>-->
-                    <!--<rulesets>-->
-                        <!--<ruleset>/rulesets/basic.xml</ruleset>-->
-                        <!--<ruleset>/rulesets/controversial.xml</ruleset>-->
-                    <!--</rulesets>-->
-                    <!--<format>xml</format>-->
-                    <!--<linkXref>true</linkXref>-->
-                    <!--<sourceEncoding>utf-8</sourceEncoding>-->
-                    <!--<minimumTokens>100</minimumTokens>-->
-                    <!--<outputDirectory>${project.reporting.outputDirectory}</outputDirectory>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
+             <!--PMD and CPD -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <configuration>
+                    <targetjdk>1.4</targetjdk>
+                    <rulesets>
+                        <ruleset>/rulesets/basic.xml</ruleset>
+                        <ruleset>/rulesets/controversial.xml</ruleset>
+                    </rulesets>
+                    <format>xml</format>
+                    <linkXref>true</linkXref>
+                    <sourceEncoding>utf-8</sourceEncoding>
+                    <minimumTokens>100</minimumTokens>
+                    <outputDirectory>${project.reporting.outputDirectory}</outputDirectory>
+                </configuration>
+            </plugin>
 
-            <!-- Manual Changelist -->
-            <!--<plugin>-->
-                <!--<groupId>org.codehaus.mojo</groupId>-->
-                <!--<artifactId>changes-maven-plugin</artifactId>-->
-                <!--<configuration>-->
-                    <!--<link_template>-->
-                        <!--%URL%/index.php?func=detail&amp;group_id=93232&amp;atid=603559&amp;aid=%ISSUE%-->
-                    <!--</link_template>-->
-                <!--</configuration>-->
-                <!--<reportSets>-->
-                    <!--<reportSet>-->
-                        <!--<reports>-->
-                            <!--<report>changes-report</report>-->
-                        <!--</reports>-->
-                    <!--</reportSet>-->
-                <!--</reportSets>-->
-            <!--</plugin>-->
+             <!--Manual Changelist -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>changes-maven-plugin</artifactId>
+                <configuration>
+                    <link_template>
+                        %URL%/index.php?func=detail&amp;group_id=93232&amp;atid=603559&amp;aid=%ISSUE%
+                    </link_template>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>changes-report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
 
-            <!-- ToDos -->
-            <!--<plugin>-->
-                <!--<groupId>org.codehaus.mojo</groupId>-->
-                <!--<artifactId>taglist-maven-plugin</artifactId>-->
-                <!--<version>2.0-beta-1</version>-->
-                <!--<configuration>-->
-                    <!--<tags>todo, TODO, @todo</tags>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
+             <!--ToDos -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>taglist-maven-plugin</artifactId>
+                <version>2.0-beta-1</version>
+                <configuration>
+                    <tags>todo, TODO, @todo</tags>
+                </configuration>
+            </plugin>
 
-            <!-- Java Cross Reference (JXR) -->
-            <!--<plugin>-->
-                <!--<groupId>org.codehaus.mojo</groupId>-->
-                <!--<artifactId>jxr-maven-plugin</artifactId>-->
-                <!--<configuration>-->
-                    <!--<outputDirectory>${project.build.directory}/site</outputDirectory>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
+             <!--Java Cross Reference (JXR) -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jxr-maven-plugin</artifactId>
+                <configuration>
+                    <outputDirectory>${project.build.directory}/site</outputDirectory>
+                    <name>ehcache</name>
+                </configuration>
+            </plugin>
 
-        <!--</plugins>-->
-    <!--</reporting>-->
+        </plugins>
+    </reporting>
 
     <!-- Note: site URL repeated here to ensure correct deployment path -->
     <distributionManagement>
