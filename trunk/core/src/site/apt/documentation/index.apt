@@ -31,6 +31,8 @@ Ehcache 1.4.0 User Guide
 
     * {{{./distributed_caching.html}Distributed Caching}}
 
+    * {{{./distributed_caching_with_jgroups.html}Distributed Caching With JGroups}}
+
     * {{{./distributed_design.html}Distributed Design}}
 
     * {{{./shutdown.html}Shutting Down Ehcache}}

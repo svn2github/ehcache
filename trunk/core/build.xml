@@ -760,6 +760,7 @@
                 <arg value="j2ee_servlet_caching.apt"/>
                 <arg value="distributed_design.apt"/>
                 <arg value="distributed_caching.apt"/>
+                <arg value="distributed_caching_with_jgroups.apt"/>
                 <arg value="constructs_design.apt"/>
                 <arg value="cachemanager_event_listeners.apt"/>
                 <arg value="cache_loaders.apt"/>

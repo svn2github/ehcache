@@ -1,6 +1,6 @@
 Distributed Caching using JGroups
 
-    As of version 1.X, JGroups can be used as the underlying mechanism for
+    As of version 1.5, JGroups can be used as the underlying mechanism for
     the distributed operations in JGroups. JGroups offers a very flexible
     protocol stack, reliable unicast and multicast message transmission.
     On the down side JGroups can be complex to configure and some protocol stacks
