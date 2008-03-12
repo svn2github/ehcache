@@ -73,6 +73,8 @@
 
  * Distributed
 
+   * {{{#Support for replication via RMI or JGroups}Support for replication via RMI or JGroups}}
+
    * {{{#Peer Discovery}Peer Discovery}}
 
    * {{{#Reliable Delivery}Reliable Delivery}}
@@ -348,7 +350,12 @@
 
 * {Distributed Caching}
 
-    Ehcache 1.2 introduced a full-featured, fine-grained distributed caching mechanism for clusters.
+    Ehcache 1.2 introduced a full-featured, fine-grained distributed caching mechanism for clusters, supporting multiple replication
+    mechanisms through plugins.
+
+** {Support for replication via RMI or JGroups}
+
+    From ehcache 1.5, there is support for JGroups based replication using the JGroups plugin which is shipped with the core distribution.
 
 ** {Peer Discovery}
 
