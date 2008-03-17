@@ -38,6 +38,11 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
+ * The main Jgroup class for replication via JGroup. Starts up the Jgroup
+ * communication bus and listen for message in the bus. Because of Ehcache
+ * design we have to register this as a CachePeer. In reality this class listen
+ * for change on the bus and tells the cachemanager to update.
+ * 
  * @author Pierre Monestie (pmonestie__REMOVE__THIS__@gmail.com)
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
@@ -46,14 +51,22 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
 
     private static String hostname = "localhost";
 
-    private static final Log log = LogFactory.getLog(JGroupManager.class);
+    private static final Log LOG = LogFactory.getLog(JGroupManager.class);
+
+    private static HashMap properties = new HashMap();
 
     private NotificationBus bus;
 
-    CacheManager cacheManager;
+    private CacheManager cacheManager;
 
-    static HashMap properties = new HashMap();
-
+    /**
+     * Construc a new JGroupManager with a specific Jgroups connection String
+     * 
+     * @param m
+     *            the cache manager
+     * @param connect
+     *            the connection String
+     */
     public JGroupManager(CacheManager m, String connect) {
 
         try {
@@ -64,18 +77,19 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
             // DEFAULT_CHANNEL_PROPERTIES_POST);
 
             this.bus.start();
-            this.bus.getChannel().setOpt(Channel.LOCAL, new Boolean(false));
+            this.bus.getChannel().setOpt(Channel.LOCAL, Boolean.FALSE);
             this.bus.setConsumer(this);
-            log.info("GMS started. address is " + this.bus.getLocalAddress());
+            LOG.info("GMS started. address is " + this.bus.getLocalAddress());
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Serializable getCache() {
-
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -84,14 +98,13 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
         Cache c = cacheManager.getCache(e.getCacheName());
         if (c != null) {
             if (e.getEvent() == e.REMOVE && c.getQuiet(e.getKey()) != null) {
-
                 c.remove(e.getKey(), true);
             } else if (e.getEvent() == e.PUT) {
 
                 c.put(new Element(e.getKey(), e.getValue()), true);
             } else if (e.getEvent() == e.REMOVE_ALL) {
                 // c.removeAll(true);
-                log.debug("remove all");
+                LOG.debug("remove all");
                 c.removeAll(true);
             }
         }
@@ -106,7 +119,6 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
 
         if (arg0 instanceof JGroupSerializable) {
 
-
             handleJGroupNotification((JGroupSerializable) arg0);
         } else if (arg0 instanceof List) {
 
@@ -114,72 +126,97 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
 
             for (int i = 0; i < l.size(); i++) {
                 Object obj = l.get(i);
-                if (obj instanceof JGroupSerializable)
+                if (obj instanceof JGroupSerializable) {
                     handleJGroupNotification((JGroupSerializable) obj);
+                }
             }
         }
 
-        // TODO Auto-generated method stub
-
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void memberJoined(Address arg0) {
-        log.trace("joined:" + arg0);
+        LOG.trace("joined:" + arg0);
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void memberLeft(Address arg0) {
-        log.trace("left:" + arg0);
+        LOG.trace("left:" + arg0);
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public List getElements(List keys) throws RemoteException {
-        // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getGuid() throws RemoteException {
-        // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public List getKeys() throws RemoteException {
-        // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getName() throws RemoteException {
-        // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element getQuiet(Serializable key) throws RemoteException {
-        // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getUrl() throws RemoteException {
-        // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getUrlBase() throws RemoteException {
-        // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void put(Element element) throws IllegalArgumentException, IllegalStateException, RemoteException {
-        // TODO Auto-generated method stub
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean remove(Serializable key) throws IllegalStateException, RemoteException {
-        // TODO Auto-generated method stub
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void removeAll() throws RemoteException, IllegalStateException {
-        // TODO Auto-generated method stub
 
     }
 
@@ -188,6 +225,9 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
         return new JGroupSerializable(msg.getEvent(), msg.getSerializableKey(), value, msg.getCacheName());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void send(List eventMessages) throws RemoteException {
         if (eventMessages.size() == 1) {
             bus.sendNotification(wrapMessage((JGroupEventMessage) eventMessages.get(0)));
@@ -209,49 +249,68 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Status getStatus() {
-        if (bus == null)
+        if (bus == null) {
             return Status.STATUS_UNINITIALISED;
-        if (bus.getChannel() == null)
+        }
+        if (bus.getChannel() == null) {
             return Status.STATUS_SHUTDOWN;
+        }
 
         return Status.STATUS_ALIVE;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void dispose() throws CacheException {
         if (bus != null) {
             try {
                 bus.stop();
-
             } catch (Exception e) {
+                LOG.error("Error occured while closing Manager:", e);
             }
         }
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getTimeForClusterToForm() {
-        // TODO Auto-generated method stub
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void init() {
-        // TODO Auto-generated method stub
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public List listRemoteCachePeers(Ehcache cache) throws CacheException {
         ArrayList a = new ArrayList();
         a.add(this);
         return a;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void registerPeer(String rmiUrl) {
-        // TODO Auto-generated method stub
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void unregisterPeer(String rmiUrl) {
-        // TODO Auto-generated method stub
 
     }
 

@@ -15,11 +15,6 @@
  */
 
 package net.sf.ehcache.distribution.jgroups;
-/**
- * @author Pierre Monestie (pmonestie__REMOVE__THIS__@gmail.com)
- * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
- * @version $Id$
- */
 
 import java.util.Properties;
 
@@ -31,24 +26,33 @@ import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.distribution.CacheManagerPeerProviderFactory;
 import net.sf.ehcache.util.PropertyUtil;
 
+/**
+ * @author Pierre Monestie (pmonestie__REMOVE__THIS__@gmail.com)
+ * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
+ * @version $Id$
+ */
+
 public class JGroupsCacheManagerPeerProviderFactory extends CacheManagerPeerProviderFactory {
     private static final Log LOG = LogFactory.getLog(JGroupsCacheManagerPeerProviderFactory.class);
+    private static final String CONNECT = "connect";
 
-    private static String CONNECT = "connect";
-
+    /**
+     * {@inheritDoc}
+     */
     public CacheManagerPeerProvider createCachePeerProvider(CacheManager cacheManager, Properties properties) {
-        // TODO Auto-generated method stub
         LOG.debug("CREATING JGOUPS PEER PROVIDER");
         String connect = PropertyUtil.extractAndLogProperty(CONNECT, properties);
-        if (connect == null) connect = "";
+        if (connect == null) {
+            connect = "";
+        }
 
         connect = connect.replaceAll(" ", "");
-        if (connect.trim() == "") connect = null;
+        if (connect.trim().equals("")) {
+            connect = null;
+        }
         LOG.debug("Connect is:" + connect);
         return new JGroupManager(cacheManager, connect);
 
-
     }
-
 
 }

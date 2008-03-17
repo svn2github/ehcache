@@ -33,7 +33,7 @@ import java.util.Properties;
 public class JGroupsCacheReplicatorFactory extends CacheEventListenerFactory {
     private static final String ASYNCHRONOUS_REPLICATION_INTERVAL_MILLIS = "asynchronousReplicationIntervalMillis";
 
-    private static final Log log = LogFactory.getLog(JGroupsCacheReplicatorFactory.class);
+    private static final Log LOG = LogFactory.getLog(JGroupsCacheReplicatorFactory.class);
 
     private static final String REPLICATE_PUTS = "replicatePuts";
 
@@ -45,28 +45,47 @@ public class JGroupsCacheReplicatorFactory extends CacheEventListenerFactory {
 
     private static final String REPLICATE_ASYNCHRONOUSLY = "replicateAsynchronously";
 
+    /**
+     * Empty arg constructor
+     */
     public JGroupsCacheReplicatorFactory() {
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public CacheEventListener createCacheEventListener(Properties properties) {
-        log.debug("making new cache rep");
+        LOG.debug("making new cache rep");
         boolean replicatePuts = extractBooleanProperty(properties, REPLICATE_PUTS, true);
         boolean replicateUpdates = extractBooleanProperty(properties, REPLICATE_UPDATES, true);
         boolean replicateUpdatesViaCopy = extractBooleanProperty(properties, REPLICATE_UPDATES_VIA_COPY, false);
         boolean replicateRemovals = extractBooleanProperty(properties, REPLICATE_REMOVALS, true);
         boolean replicateAsync = extractBooleanProperty(properties, REPLICATE_ASYNCHRONOUSLY, true);
-        long asyncTime = extractLongProperty(properties, ASYNCHRONOUS_REPLICATION_INTERVAL_MILLIS, (long) 1000);
-        JGroupsCacheReplicator r = new JGroupsCacheReplicator(replicatePuts, replicateUpdates, replicateUpdatesViaCopy, replicateRemovals, replicateAsync);
-        if (r.isReplicateAsync()) r.setAsynchronousReplicationInterval(asyncTime);
-
+        long asyncTime = extractLongProperty(properties, ASYNCHRONOUS_REPLICATION_INTERVAL_MILLIS,
+                JGroupsCacheReplicator.DEFAULT_ASYNC_INTERVAL);
+        JGroupsCacheReplicator r = new JGroupsCacheReplicator(replicatePuts, replicateUpdates, replicateUpdatesViaCopy,
+                replicateRemovals, replicateAsync);
+        if (r.isReplicateAsync()) {
+            r.setAsynchronousReplicationInterval(asyncTime);
+        }
         // if
         // (p.containsKey("replicatePuts")&&p.get("replicatePuts").toString().equals("true"))
         // r.setReplicatePut(true);
 
-
         return r;
     }
 
+    /**
+     * Extract a long out of a string.
+     * 
+     * @param properties
+     *            the property
+     * @param propertyName
+     *            the name of the property
+     * @param defaultValue
+     *            the default value if none is found
+     * @return the extracted value
+     */
     protected long extractLongProperty(Properties properties, String propertyName, long defaultValue) {
         boolean ret;
         String pString = PropertyUtil.extractAndLogProperty(propertyName, properties);
@@ -76,7 +95,6 @@ public class JGroupsCacheReplicatorFactory extends CacheEventListenerFactory {
                 Long l = new Long(pString);
                 return l.longValue();
             } catch (NumberFormatException e) {
-                // TODO Auto-generated catch block
 
             }
 
@@ -84,6 +102,17 @@ public class JGroupsCacheReplicatorFactory extends CacheEventListenerFactory {
         return defaultValue;
     }
 
+    /**
+     * Extract a Boolean out of a Property
+     * 
+     * @param properties
+     *            the properties
+     * @param propertyName
+     *            the name of the property
+     * @param defaultValue
+     *            the deulat value id none is found
+     * @return the extracted property
+     */
     protected boolean extractBooleanProperty(Properties properties, String propertyName, boolean defaultValue) {
         boolean ret;
         String pString = PropertyUtil.extractAndLogProperty(propertyName, properties);

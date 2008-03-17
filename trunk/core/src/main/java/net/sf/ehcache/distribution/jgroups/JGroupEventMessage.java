@@ -15,32 +15,38 @@
  */
 
 package net.sf.ehcache.distribution.jgroups;
-/**
- * @author Pierre Monestie (pmonestie[at]@gmail.com)
- * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
- * @version $Id$
- */
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.distribution.EventMessage;
-
 import java.io.Serializable;
 
-
+/**
+ * @author Pierre Monestie (pmonestie[at]@gmail.com)
+ * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
+ * @version $Id$
+ *          EventMessage class for the JGroupsCacheReplicator.
+ */
 public class JGroupEventMessage extends EventMessage {
     private transient Ehcache cache;
+
     private String cacheName;
 
     /**
-     * An event message for the JGroupsCacheReplicator. We keep as transient the origin cache and we serialize the cacheName.
-     * That way the JgroupManager will know from which cache the message came from
-     *
-     * @param event     (PUT,REMOVE,REMOVE_ALL)
-     * @param key       the serializable key of the cache element
-     * @param element   The element itself. In case of a put.
-     * @param cache     the Ehcache instance. This is a transient variable
-     * @param cacheName the name of the cache
+     * An event message for the JGroupsCacheReplicator. We keep as transient the
+     * origin cache and we serialize the cacheName. That way the JgroupManager
+     * will know from which cache the message came from
+     * 
+     * @param event
+     *            (PUT,REMOVE,REMOVE_ALL)
+     * @param key
+     *            the serializable key of the cache element
+     * @param element
+     *            The element itself. In case of a put.
+     * @param cache
+     *            the Ehcache instance. This is a transient variable
+     * @param cacheName
+     *            the name of the cache
      */
     public JGroupEventMessage(int event, Serializable key, Element element, Ehcache cache, String cacheName) {
         super(event, key, element);
@@ -49,21 +55,22 @@ public class JGroupEventMessage extends EventMessage {
 
     }
 
+    /**
+     * Return the cache from which this event originated
+     * 
+     * @return
+     */
     public Ehcache getCache() {
         return cache;
     }
 
-    public void setCache(Ehcache cache) {
-        this.cache = cache;
-    }
-
+    /**
+     * Returns the cache name
+     * 
+     * @return the cache name
+     */
     public String getCacheName() {
         return cacheName;
     }
-
-    public void setCacheName(String cacheName) {
-        this.cacheName = cacheName;
-    }
-
 
 }

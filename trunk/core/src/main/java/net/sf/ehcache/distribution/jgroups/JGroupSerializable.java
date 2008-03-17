@@ -21,17 +21,13 @@ import java.io.Serializable;
 import net.sf.ehcache.distribution.EventMessage;
 
 /**
+ * Serializable type used for Jgroups type replication
+ * 
  * @author Pierre Monestie (pmonestie__REMOVE__THIS__@gmail.com)
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
 public class JGroupSerializable implements Serializable {
-    int event;
-
-    Serializable key;
-
-    Object value;
-    String cacheName;
 
     /**
      * A put or update event.
@@ -48,9 +44,17 @@ public class JGroupSerializable implements Serializable {
      */
     public static final int REMOVE_ALL = EventMessage.REMOVE_ALL;
 
+    private int event;
+
+    private Serializable key;
+
+    private Object value;
+
+    private String cacheName;
+
     /**
      * @param event the type of replication event
-     * @param key   the key
+     * @param key the key
      * @param value can be null if REMOVE or REMOVE_ALL
      */
     public JGroupSerializable(int event, Serializable key, Object value, String cacheName) {
@@ -61,18 +65,38 @@ public class JGroupSerializable implements Serializable {
         this.cacheName = cacheName;
     }
 
+    /**
+     * Gets the event
+     * 
+     * @return the event
+     */
     public int getEvent() {
         return event;
     }
 
+    /**
+     * Get the Serializable key for the event
+     * 
+     * @return the key
+     */
     public Serializable getKey() {
         return key;
     }
 
+    /**
+     * Gets the value, null if REMOVE or REMOVE_ALL
+     * 
+     * @return the value
+     */
     public Object getValue() {
         return value;
     }
 
+    /**
+     * Gets the cache name
+     * 
+     * @return the cache name
+     */
     public String getCacheName() {
         return cacheName;
     }

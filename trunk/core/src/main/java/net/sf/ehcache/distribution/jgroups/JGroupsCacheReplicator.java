@@ -38,57 +38,58 @@ import net.sf.ehcache.distribution.CacheReplicator;
  * @author Pierre Monestie (pmonestie[at]@gmail.com)
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
- *          <p/>
- *          This implements CacheReplicator using JGroups as underlying replication mechanism
- *          The peer provider should be of type JGroupsCacheManagerPeerProvider
- *          It is assumed that the cachepeer is a JGroupManager
+ *          <p/> This implements CacheReplicator using JGroups as underlying
+ *          replication mechanism The peer provider should be of type
+ *          JGroupsCacheManagerPeerProvider It is assumed that the cachepeer is
+ *          a JGroupManager
  */
 public class JGroupsCacheReplicator implements CacheReplicator {
-    private static final Log log = LogFactory.getLog(JGroupsCacheReplicator.class);
+    /**
+     * Teh default interval for async cache replication
+     */
+    public static final long DEFAULT_ASYNC_INTERVAL = 1000;
+    
+    private static final Log LOG = LogFactory.getLog(JGroupsCacheReplicator.class);
 
-    private JGroupManager jmanager;
+    private long asynchronousReplicationInterval = DEFAULT_ASYNC_INTERVAL;
 
     /**
      * Whether or not to replicate puts
      */
-    boolean replicatePuts;
+    private boolean replicatePuts;
 
     /**
      * Whether or not to replicate updates
      */
-    boolean replicateUpdates;
+    private boolean replicateUpdates;
 
     /**
      * Replicate update via copying, if false via deleting
      */
-    boolean replicateUpdatesViaCopy;
+    private boolean replicateUpdatesViaCopy;
 
     /**
      * Whether or not to replicate remove events
      */
-    boolean replicateRemovals;
+    private boolean replicateRemovals;
 
     /**
-     * Weather or not to replicate asynchronously. If true a background thread is ran and fire update at a set intervale
+     * Weather or not to replicate asynchronously. If true a background thread
+     * is ran and fire update at a set intervale
      */
-    boolean replicateAsync;
+    private boolean replicateAsync;
 
-    /**
-     * Asynchronous replication interval
-     */
-    private long asynchronousReplicationInterval = 1000;
+    private ReplicationThread replicationThread;
 
-    protected final List replicationQueue = new LinkedList();
+    private List replicationQueue = new LinkedList();
 
-    protected Status status;
+    private Status status;
 
-
-    private ReplicationThread replicationThread = null;
-
+    
 
     /**
      * Constructor called by factory
-     *
+     * 
      * @param replicatePuts
      * @param replicateUpdates
      * @param replicateUpdatesViaCopy
@@ -96,7 +97,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
      * @param replicateAsync
      */
     public JGroupsCacheReplicator(boolean replicatePuts, boolean replicateUpdates, boolean replicateUpdatesViaCopy,
-                                  boolean replicateRemovals, boolean replicateAsync) {
+            boolean replicateRemovals, boolean replicateAsync) {
         super();
 
         this.replicatePuts = replicatePuts;
@@ -112,72 +113,77 @@ public class JGroupsCacheReplicator implements CacheReplicator {
         status = Status.STATUS_ALIVE;
     }
 
-    public JGroupManager getJmanager() {
-        return jmanager;
-    }
-
+    /**
+     * Weather or not the cache is replicated asynchronously. If true a
+     * background thread is ran and fire update at a set intervale
+     * 
+     * @return true if replicated asynchronously, false otherwise
+     */
     public boolean isReplicateAsync() {
         return replicateAsync;
     }
 
-    public void setReplicateAsync(boolean replicateAsync) {
-        this.replicateAsync = replicateAsync;
-    }
-
+    /**
+     * Wether or not puts are replicated
+     * 
+     * @return true if puts are replicated, false otherwise
+     */
     public boolean isReplicatePuts() {
         return replicatePuts;
     }
 
-    public void setReplicatePuts(boolean replicatePuts) {
-        this.replicatePuts = replicatePuts;
-    }
-
-    public boolean getReplicateRemovals() {
+    /**
+     * wether or not removals are replicated
+     * 
+     * @return true if removals are replicated, false otherwise
+     */
+    public boolean isReplicateRemovals() {
         return replicateRemovals;
     }
 
-    public void setReplicateRemovals(boolean replicateRemovals) {
-        this.replicateRemovals = replicateRemovals;
-    }
-
-    public boolean getReplicateUpdates() {
+    /**
+     * Wether or not updates are replicated
+     * 
+     * @return true if replicated, false otherwise
+     */
+    public boolean isReplicateUpdates() {
         return replicateUpdates;
     }
 
-    public void setReplicateUpdates(boolean replicateUpdates) {
-        this.replicateUpdates = replicateUpdates;
-    }
-
-    public void setReplicateUpdatesViaCopy(boolean replicateUpdatesViaCopy) {
-        this.replicateUpdatesViaCopy = replicateUpdatesViaCopy;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     public boolean alive() {
-        // TODO Auto-generated method stub
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isReplicateUpdatesViaCopy() {
-        // TODO Auto-generated method stub
         return replicateUpdatesViaCopy;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean notAlive() {
-        // TODO Auto-generated method stub
         return false;
     }
 
-    public void setJmanager(JGroupManager jmanager) {
-        this.jmanager = jmanager;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     public void dispose() {
         status = Status.STATUS_SHUTDOWN;
         flushReplicationQueue();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void notifyElementExpired(Ehcache cache, Element element) {
-        // TODO Auto-generated method stub
+
         // log.trace("Sending out exp el:"+element);
 
     }
@@ -185,9 +191,9 @@ public class JGroupsCacheReplicator implements CacheReplicator {
     /**
      * Used to send notification to the peer. If Async this method simply add
      * the element to the replication queue. If not async, searches for the
-     * cachePeer and send the Message. That way the class handles both async and sync replication
-     * Sending is delegated to the peer (of type JGroupManager)
-     *
+     * cachePeer and send the Message. That way the class handles both async and
+     * sync replication Sending is delegated to the peer (of type JGroupManager)
+     * 
      * @param cache
      * @param e
      */
@@ -203,13 +209,11 @@ public class JGroupsCacheReplicator implements CacheReplicator {
 
         a.add(e);
 
-
         for (int i = 0; i < l.size(); i++) {
             CachePeer peer = (CachePeer) l.get(i);
             try {
                 peer.send(a);
             } catch (RemoteException e1) {
-                // TODO Auto-generated catch block
                 // e1.printStackTrace();
             }
             // peer.
@@ -217,11 +221,15 @@ public class JGroupsCacheReplicator implements CacheReplicator {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
-        if (notAlive())
+        if (notAlive()) {
             return;
+        }
 
-        if (getReplicatePuts()) {
+        if (isReplicatePuts()) {
             // if (log.isTraceEnabled())
             // log.trace("Sending out add/upd el:" + element);
             replicatePutNotification(cache, element);
@@ -231,11 +239,11 @@ public class JGroupsCacheReplicator implements CacheReplicator {
 
     private void replicatePutNotification(Ehcache cache, Element element) {
         if (!element.isKeySerializable()) {
-            log.warn("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
+            LOG.warn("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
             return;
         }
         if (!element.isSerializable()) {
-            log.warn("Object with key " + element.getObjectKey() + " is not Serializable and cannot be updated via copy");
+            LOG.warn("Object with key " + element.getObjectKey() + " is not Serializable and cannot be updated via copy");
             return;
         }
         JGroupEventMessage e = new JGroupEventMessage(JGroupEventMessage.PUT, (Serializable) element.getObjectKey(), element,
@@ -246,7 +254,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
 
     private void replicateRemoveNotification(Ehcache cache, Element element) {
         if (!element.isKeySerializable()) {
-            log.warn("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
+            LOG.warn("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
             return;
         }
         JGroupEventMessage e = new JGroupEventMessage(JGroupEventMessage.REMOVE, (Serializable) element.getObjectKey(), null,
@@ -255,46 +263,52 @@ public class JGroupsCacheReplicator implements CacheReplicator {
         sendNotification(cache, e);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
-        if (notAlive())
+        if (notAlive()) {
             return;
-        if (getReplicateRemovals()) {
+        }
+        if (isReplicateRemovals()) {
             replicateRemoveNotification(cache, element);
 
         }
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
-        if (notAlive())
+        if (notAlive()) {
             return;
-        if (!replicateUpdates)
+        }
+        if (!replicateUpdates) {
             return;
+        }
 
-        if (isReplicateUpdatesViaCopy())
+        if (isReplicateUpdatesViaCopy()) {
             replicatePutNotification(cache, element);
-        else
+        } else {
             replicateRemoveNotification(cache, element);
+        }
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void notifyElementEvicted(Ehcache cache, Element element) {
 
-        // TODO Auto-generated method stub
-
     }
 
-    public boolean getReplicatePuts() {
-        return replicatePuts;
-    }
-
-    public void setReplicatePut(boolean replicatePut) {
-        this.replicatePuts = replicatePut;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     public void notifyRemoveAll(Ehcache cache) {
-        if (getReplicateRemovals()) {
-            log.trace("Remove all elements called");
+        if (isReplicateRemovals()) {
+            LOG.trace("Remove all elements called");
             JGroupEventMessage e = new JGroupEventMessage(JGroupEventMessage.REMOVE_ALL, null, null, cache, cache.getName());
             sendNotification(cache, e);
         }
@@ -303,7 +317,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
 
     /**
      * Package protected List of cache peers
-     *
+     * 
      * @param cache
      * @return a list of {@link CachePeer} peers for the given cache, excluding
      *         the local peer.
@@ -313,10 +327,19 @@ public class JGroupsCacheReplicator implements CacheReplicator {
         return provider.listRemoteCachePeers(cache);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
 
+    /**
+     * The replication thread
+     * 
+     * @author pierrem
+     * 
+     */
     private final class ReplicationThread extends Thread {
         public ReplicationThread() {
             super("Replication Thread");
@@ -340,7 +363,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
 
                     Thread.sleep(asynchronousReplicationInterval);
                 } catch (InterruptedException e) {
-                    log.debug("Spool Thread interrupted.");
+                    LOG.debug("Spool Thread interrupted.");
                     return;
                 }
             }
@@ -352,7 +375,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
                     flushReplicationQueue();
                 }
             } catch (Throwable e) {
-                log.warn("Exception on flushing of replication queue: " + e.getMessage() + ". Continuing...", e);
+                LOG.warn("Exception on flushing of replication queue: " + e.getMessage() + ". Continuing...", e);
             }
         }
     }
@@ -395,29 +418,17 @@ public class JGroupsCacheReplicator implements CacheReplicator {
             } catch (UnmarshalException e) {
                 String message = e.getMessage();
                 if (message.indexOf("Read time out") != 0) {
-                    log.warn("Unable to send message to remote peer due to socket read timeout. Consider increasing"
+                    LOG.warn("Unable to send message to remote peer due to socket read timeout. Consider increasing"
                             + " the socketTimeoutMillis setting in the cacheManagerPeerListenerFactory. " + "Message was: "
                             + e.getMessage());
                 } else {
-                    log.debug("Unable to send message to remote peer.  Message was: " + e.getMessage());
+                    LOG.debug("Unable to send message to remote peer.  Message was: " + e.getMessage());
                 }
             } catch (Throwable t) {
-                log.warn("Unable to send message to remote peer.  Message was: " + t.getMessage(), t);
+                LOG.warn("Unable to send message to remote peer.  Message was: " + t.getMessage(), t);
             }
         }
-        if (log.isWarnEnabled()) {
-            // int eventMessagesNotResolved = replicationQueueCopy.size() -
-            // resolvedEventMessages.size();
-            // if (eventMessagesNotResolved > 0) {
-            // log.warn(eventMessagesNotResolved + " messages were discarded on
-            // replicate due to reclamation of "
-            // + "SoftReferences by the VM. Consider increasing the maximum heap
-            // size
-            // and/or setting the "
-            // + "starting heap size to a higher value.");
-            // }
 
-        }
     }
 
     /**
@@ -425,7 +436,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
      * underlying EventMessage <p/> If an EventMessage has been invalidated due
      * to SoftReference collection of the Element, it is not propagated. This
      * only affects puts and updates via copy.
-     *
+     * 
      * @param replicationQueueCopy
      * @return a list of EventMessages which were able to be resolved
      */
@@ -436,16 +447,27 @@ public class JGroupsCacheReplicator implements CacheReplicator {
             if (eventMessage != null && eventMessage.isValid()) {
                 list.add(eventMessage);
             } else {
-                log.error("Collected soft ref");
+                LOG.error("Collected soft ref");
             }
         }
         return list;
     }
 
+    /**
+     * Get the time interval is ms between asynchronous replication
+     * 
+     * @return the interval
+     */
     public long getAsynchronousReplicationInterval() {
         return asynchronousReplicationInterval;
     }
 
+    /**
+     * Set the time inteval for asynchronous replication
+     * 
+     * @param asynchronousReplicationInterval
+     *            the interval between replication
+     */
     public void setAsynchronousReplicationInterval(long asynchronousReplicationInterval) {
         this.asynchronousReplicationInterval = asynchronousReplicationInterval;
     }
