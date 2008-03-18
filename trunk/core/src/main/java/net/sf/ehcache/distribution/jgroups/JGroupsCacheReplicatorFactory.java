@@ -61,16 +61,13 @@ public class JGroupsCacheReplicatorFactory extends CacheEventListenerFactory {
         boolean replicateUpdatesViaCopy = extractBooleanProperty(properties, REPLICATE_UPDATES_VIA_COPY, false);
         boolean replicateRemovals = extractBooleanProperty(properties, REPLICATE_REMOVALS, true);
         boolean replicateAsync = extractBooleanProperty(properties, REPLICATE_ASYNCHRONOUSLY, true);
-        long asyncTime = extractLongProperty(properties, ASYNCHRONOUS_REPLICATION_INTERVAL_MILLIS,
+        long asyncTime = extractAsynchronousReplicationIntervalMillis(properties, ASYNCHRONOUS_REPLICATION_INTERVAL_MILLIS,
                 JGroupsCacheReplicator.DEFAULT_ASYNC_INTERVAL);
         JGroupsCacheReplicator r = new JGroupsCacheReplicator(replicatePuts, replicateUpdates, replicateUpdatesViaCopy,
                 replicateRemovals, replicateAsync);
         if (r.isReplicateAsync()) {
             r.setAsynchronousReplicationInterval(asyncTime);
         }
-        // if
-        // (p.containsKey("replicatePuts")&&p.get("replicatePuts").toString().equals("true"))
-        // r.setReplicatePut(true);
 
         return r;
     }
@@ -78,24 +75,21 @@ public class JGroupsCacheReplicatorFactory extends CacheEventListenerFactory {
     /**
      * Extract a long out of a string.
      * 
-     * @param properties
-     *            the property
-     * @param propertyName
-     *            the name of the property
-     * @param defaultValue
-     *            the default value if none is found
+     * @param properties the property
+     * @param propertyName the name of the property
+     * @param defaultValue the default value if none is found
      * @return the extracted value
      */
-    protected long extractLongProperty(Properties properties, String propertyName, long defaultValue) {
-        boolean ret;
-        String pString = PropertyUtil.extractAndLogProperty(propertyName, properties);
-        if (pString != null) {
+    protected long extractAsynchronousReplicationIntervalMillis(Properties properties, String propertyName, long defaultValue) {
+        String parsedString = PropertyUtil.extractAndLogProperty(propertyName, properties);
+        if (parsedString != null) {
 
             try {
-                Long l = new Long(pString);
-                return l.longValue();
+                Long longValue = new Long(parsedString);
+                return longValue.longValue();
             } catch (NumberFormatException e) {
-
+               LOG.warn("Number format exception trying to set asynchronousReplicationIntervalMillis. " +
+                        "Using the default instead. String value was: '" + parsedString + "'");
             }
 
         }
@@ -105,12 +99,9 @@ public class JGroupsCacheReplicatorFactory extends CacheEventListenerFactory {
     /**
      * Extract a Boolean out of a Property
      * 
-     * @param properties
-     *            the properties
-     * @param propertyName
-     *            the name of the property
-     * @param defaultValue
-     *            the deulat value id none is found
+     * @param properties the properties
+     * @param propertyName the name of the property
+     * @param defaultValue the deulat value id none is found
      * @return the extracted property
      */
     protected boolean extractBooleanProperty(Properties properties, String propertyName, boolean defaultValue) {
