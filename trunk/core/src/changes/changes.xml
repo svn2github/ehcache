@@ -7,6 +7,7 @@
             <action dev="Greg Luck" type="add" issue="1730405">
                 Added JGroups Implementation. Thanks to Pierre Monestie for the patch(es) for this. Though new to the core distribution
                 JGroups replication has been in production use in a large cluster for the last 10 months.
+                Applied through patches 1730405 and 1912931.
             </action>
         </release>
 

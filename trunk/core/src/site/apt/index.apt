@@ -38,7 +38,7 @@ Welcome to ehcache
       caching. See the {{{/documentation/cache_loaders.html}Cache Loaders}} chapter in the documentation for more details.
 
     * You can now define a CacheExceptionHandler and register it progammatically or in ehcache.xml.
-      The enable an exception handler to be registered with a cache so that it is called on exception rather than the exception being thrown.
+      This enables an exception handler to be registered with a cache so that it is called on exception rather than the exception being thrown.
       See the {{{/documentation/cache_exception_handlers.html}Cache Exception Handler}} chapter in the documentation for more details.
 
     * You can now define CacheExtensions and register them progammatically or in ehcache.xml. A CacheExtension is a generic facility which holds a reference
