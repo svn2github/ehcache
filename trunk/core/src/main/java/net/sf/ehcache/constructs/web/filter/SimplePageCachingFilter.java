@@ -114,14 +114,17 @@ public class SimplePageCachingFilter extends CachingFilter {
      * parse the request parameters and override {@link #calculateKey(javax.servlet.http.HttpServletRequest)} with
      * an implementation that takes account of only the significant ones.
      * <p/>
-     * The key should be unique
+     * The key should be unique.
+     *
+     * Implementers should differentiate between GET and HEAD requests otherwise blank pages
+     * can result.
      *
      * @param httpRequest
      * @return the key, generally the URI plus request parameters
      */
     protected String calculateKey(HttpServletRequest httpRequest) {
         StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append(httpRequest.getRequestURI()).append(httpRequest.getQueryString());
+        stringBuffer.append(httpRequest.getMethod()).append(httpRequest.getRequestURI()).append(httpRequest.getQueryString());
         String key = stringBuffer.toString();
         return key;
     }

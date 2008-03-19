@@ -25,6 +25,7 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.HeadMethod;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -51,6 +52,29 @@ public class CachingFilterTest extends AbstractWebTest {
      */
     public void testCachedPageIsCached() throws Exception {
         assertResponseGoodAndCached(cachedPageUrl, true);
+    }
+
+    /**
+     * HEAD methods return an empty response body. If a HEAD request populates
+     * a cache and then a GET follorws, a blank page will result.
+     * This test ensures that the SimplePageCachingFilter implements calculateKey
+     * properly to avoid this problem.
+     */
+    public void testHeadThenGetOnCachedPage() throws Exception {
+        HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = new HeadMethod(buildUrl(cachedPageUrl));
+        int responseCode = httpClient.executeMethod(httpMethod);
+        //httpclient follows redirects, so gets the home page.
+        assertEquals(HttpURLConnection.HTTP_OK, responseCode);
+        String responseBody = httpMethod.getResponseBodyAsString();
+        assertNull(responseBody);
+        assertNull(httpMethod.getResponseHeader("Content-Encoding"));
+
+        httpMethod = new GetMethod(buildUrl(cachedPageUrl));
+        responseCode = httpClient.executeMethod(httpMethod);
+        responseBody = httpMethod.getResponseBodyAsString();
+        assertNotNull(responseBody);
+
     }
 
     /**
@@ -546,6 +570,7 @@ public class CachingFilterTest extends AbstractWebTest {
         assertNotNull(responseBody);
         assertNull(httpMethod.getResponseHeader("Content-Encoding"));
     }
+
 
 
 }

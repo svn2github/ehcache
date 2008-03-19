@@ -9,6 +9,10 @@
                 JGroups replication has been in production use in a large cluster for the last 10 months.
                 Applied through patches 1730405 and 1912931.
             </action>
+            <action dev="Greg Luck" type="add" issue="812270">
+                SimplePageCachingFilter returns same content for GET and HEAD. This one is an edge case that can happen.
+                Thanks to Vitaly Baranovsky for the patch.
+            </action>
         </release>
 
         <release version="1.4.1" date="2008-02-21" desc="Maintenance release">

@@ -324,6 +324,9 @@ public abstract class CachingFilter extends Filter {
      * <li>Additional parameters can be added to any page. The page will still work but will miss the
      * cache. Consider coding defensively around this issue.
      * </ul>
+     * <p/>
+     * Implementers should differentiate between GET and HEAD requests otherwise blank pages
+     * can result. See SimplePageCachingFilter for an example implementation.
      *
      * @param httpRequest
      * @return the key, generally the URL plus request parameters
