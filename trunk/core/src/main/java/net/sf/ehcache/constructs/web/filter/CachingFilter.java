@@ -36,8 +36,10 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.zip.DataFormatException;
@@ -55,6 +57,7 @@ import java.util.zip.DataFormatException;
  * The {@link CachingFilter} uses the {@link net.sf.ehcache.constructs.blocking.BlockingCache}. It blocks until the thread which
  * did a get which results in a null does a put. If reentry happens a second get happens before the first put. The second
  * get could wait indefinitely. This situation is monitored and if it happens, an IllegalStateException will be thrown.
+ *
  * @author @author Greg Luck
  * @version $Id$
  */
@@ -208,7 +211,6 @@ public abstract class CachingFilter extends Filter {
         chain.doFilter(request, wrapper);
         wrapper.flush();
 
-
         // Return the page info
         return new PageInfo(wrapper.getStatus(), wrapper.getContentType(), wrapper.getHeaders(), wrapper.getCookies(),
                 outstr.toByteArray(), true);
@@ -307,6 +309,7 @@ public abstract class CachingFilter extends Filter {
      * <p/>
      * This method was introduced in ehcache 1.2.1. Older versions used a singleton CacheManager instance created with
      * the default factory method.
+     *
      * @return the CacheManager to be used
      * @since 1.2.1
      */
@@ -365,7 +368,9 @@ public abstract class CachingFilter extends Filter {
         }
 
         response.setContentLength(body.length);
-        response.getOutputStream().write(body);
+        OutputStream out = new BufferedOutputStream(response.getOutputStream());
+        out.write(body);
+        out.flush();
     }
 
     /**
