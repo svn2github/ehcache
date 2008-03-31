@@ -10,16 +10,20 @@
                 Applied through patches 1730405 and 1912931.
             </action>
 
-            <!--Bug Fixes-->
-            <action dev="Greg Luck" type="fix" issue="1812267">
-                CachingFilter changed to use BufferedOutputStream rather than OutputStream. This is a performance improvement.
-                Thanks to Vitaly Baranovsk for the patch.
-            </action>
 
             <!-- Improvements -->
-            <action dev="Greg Luck" type="update" issue="812270">
-                An
+            <action dev="Greg Luck" type="update" issue="1812267">
+                CachingFilter changed to use BufferedOutputStream rather than OutputStream. This is a performance improvement.
                 Thanks to Vitaly Baranovsky for the patch.
+            </action>
+
+            <!--Bug Fixes-->
+            <action dev="Greg Luck" type="fix" issue="812270">
+                SimplePageCachingFilter returns same content for GET and HEAD. This one is an edge case that can happen.
+                Thanks to Vitaly Baranovsky for the patch.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="1890915">
+                Change CachingFilter to use setHeader rather than addHeader which was duplicating some headers.
             </action>
 
         </release>
