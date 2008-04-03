@@ -575,7 +575,7 @@
     </target>
 
 
-    <target name="deploy-default-web-app-glassfish">
+    <target name="deploy-default-web-app-glassfish" description="deploy default web app glassfish">
         <!--<untar dest="${build.dir}" src="${lib.compile.dir}/web/apache-tomcat-5.5.17.tgz" compression="gzip"/>-->
         <mkdir dir="${build.glassfish.dir}"/>
         <mkdir dir="${build.glassfish.webapp.dir}"/>

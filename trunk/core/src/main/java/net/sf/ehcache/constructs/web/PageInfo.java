@@ -51,6 +51,8 @@ public class PageInfo implements Serializable {
     private byte[] ungzippedBody;
     private int statusCode;
     private boolean storeGzipped;
+    private long creationDate;
+    private long timeToLiveSeconds;
 
     /**
      * Creates a PageInfo.
@@ -62,15 +64,17 @@ public class PageInfo implements Serializable {
      * @param cookies
      * @param body
      * @param storeGzipped set this to false for images and page fragments which should never
-     *                     be gzipped.
+     * @param timeToLiveSeconds
      */
     public PageInfo(final int statusCode, final String contentType, final Collection headers, final Collection cookies,
-                    final byte[] body, boolean storeGzipped) throws AlreadyGzippedException {
+                    final byte[] body, boolean storeGzipped, long timeToLiveSeconds) throws AlreadyGzippedException {
         this.headers.addAll(headers);
         this.headers.remove("Content-Encoding");
         this.contentType = contentType;
         this.storeGzipped = storeGzipped;
         this.statusCode = statusCode;
+        this.creationDate = System.currentTimeMillis();
+        this.timeToLiveSeconds = timeToLiveSeconds;
 
         extractCookies(cookies);
 
@@ -248,6 +252,21 @@ public class PageInfo implements Serializable {
      */
     public boolean isOk() {
         return (statusCode == HttpServletResponse.SC_OK);
+    }
+
+    /**
+     * todo make this configurable
+     * @return true if the page is more than 3/4 the away through its time to live
+     */
+    public boolean isGettingStale() {
+
+        long expiryTime = creationDate + timeToLiveSeconds * 1000;
+
+        if (System.currentTimeMillis() > (expiryTime - (timeToLiveSeconds / 4 * 1000))) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 
