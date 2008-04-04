@@ -25,9 +25,11 @@ Glassfish HowTo & Known Issues
     * <<<$GLASSFISH_HOME/bin>>> added to your <<<PATH>>>
 
 
+    Do the following:
+
 ------
     # To package and deploy to domain1
-    ant dist-jar deploy-default-web-app-glassfish
+    ant deploy-default-web-app-glassfish
 
     # To start domain1
     asadmin start-domain domain1
