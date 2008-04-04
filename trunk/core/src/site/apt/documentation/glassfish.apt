@@ -1,0 +1,60 @@
+Glassfish HowTo & Known Issues
+
+    The maintainer uses Ehcache in production with Glassfish. This chapter provides a Glassfish HOWTO.
+
+*   Versions
+
+    Ehcache is used in production with Glassfish V1 and V2.
+
+*   HowTo
+
+**  HowTo Get A Sample Application using Ehcache packaged and Deployed to Glassfish
+
+    Ehcache comes with a sample web application which is used to test the page caching. The page caching is the only area
+    that is sensitive to the Application Server. For Hibernate and general caching, it is only dependent on your Java version.
+
+    From a checkout of ehcache run the following from the <<<core>>> directory:
+
+
+    You need:
+
+    * a Glassfish installation.
+
+    * a <<<GLASSFISH_HOME>>> environment variable defined.
+
+    * <<<$GLASSFISH_HOME/bin>>> added to your <<<PATH>>>
+
+
+------
+    # To package and deploy to domain1
+    ant dist-jar deploy-default-web-app-glassfish
+
+    # To start domain1
+    asadmin start-domain domain1
+------
+
+    You can then run the web tests in the web package or point your browser at <<<http://localhost:9080>>>.
+
+    See {{{https://glassfish.dev.java.net/downloads/quickstart/index.html}}} for a quickstart to Glassfish.
+
+**  HowTo Enable Read Behind Page Caching in Glassfish
+
+    The read behind page caching feature requires that HTTP1.1 keepalives are turned off.
+
+    To do this in Glassfish:
+
+---
+     
+---
+
+
+*   Glassfish Known Issues
+
+**  Ehcache page caching versions below Ehcache 1.3 get an IllegalStateException in Glassfish.
+
+    This issue was fixed in Ehcache 1.3.
+
+
+
+    
+

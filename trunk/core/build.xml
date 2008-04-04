@@ -574,8 +574,10 @@
         <deploy-default-web-app-tomcat_macro port-prefix="90"/>
     </target>
 
-
-    <target name="deploy-default-web-app-glassfish" description="deploy default web app glassfish">
+    <!-- This target can be used to deploy to Glassfish to then manually run the web test suite.
+         You need to define a GLASSFISH_HOME environment variable for this.
+         See the Glassfish page in documentation for details. -->
+    <target name="deploy-default-web-app-glassfish" description="deploy default web app glassfish" depends="dist-jar">
         <!--<untar dest="${build.dir}" src="${lib.compile.dir}/web/apache-tomcat-5.5.17.tgz" compression="gzip"/>-->
         <mkdir dir="${build.glassfish.dir}"/>
         <mkdir dir="${build.glassfish.webapp.dir}"/>
@@ -591,7 +593,6 @@
         </copy>
         <copy file="${test.config.dir}/ehcache.xml"
               todir="${build.glassfish.webapp.dir}/WEb-INF/classes"/>
-        <copy file="logging.properties" todir="${build.orion.dir}"/>
         <jar destfile="${build.glassfish.webapp.dir}/WEB-INF/lib/${name}-tests-${version}.jar">
             <fileset dir="${test.classes.dir}"/>
         </jar>
@@ -606,7 +607,8 @@
         <jar destfile="${build.dir}/glassfish.war">
             <fileset dir="${build.glassfish.dir}"/>
         </jar>
-        <copy todir="${build.glassfish.webapp.deploy.dir}" file="${build.dir}/glassfish.war"/>
+        <copy todir="${env.GLASSFISH_HOME}/${build.glassfish.webapp.deploy.dir}" file="${build.dir}/glassfish.war"/>
+        <copy todir="${env.GLASSFISH_HOME}/domains/domain1" file="${test.config.dir}/default-web-app/WEB-INF/2_5/domain.xml"/>
     </target>
 
 
@@ -769,6 +771,7 @@
                 <arg value="cache_extensions.apt"/>
                 <arg value="hibernate.apt"/>
                 <arg value="jsr107.apt"/>
+                <arg value="glassfish.apt"/>
                 <arg value="tomcat.apt"/>
                 <arg value="building.apt"/>
                 <arg value="faq.apt"/>
