@@ -140,9 +140,9 @@ public abstract class CachingFilter extends Filter {
                     + "but before writing response from PageInfo.");
         }
         writeResponse(request, response, pageInfo);
-//        response.flushBuffer();
-//        Thread.sleep(20000);
-        //now rebuild the page if we need to
+
+//        todo make work or remove comment
+//        now rebuild the page if we need to
 //        if (pageInfo.isGettingStale()) {
 //            LOG.info("Rebuilding page");
 //            buildPageInfo(request, response, chain, true);

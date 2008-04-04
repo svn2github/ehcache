@@ -122,7 +122,7 @@
                 </virtual-server>
                 <request-processing header-buffer-length-in-bytes="8192" initial-thread-count="2" request-timeout-in-seconds="30"
                                     thread-count="5" thread-increment="1"/>
-                <keep-alive max-connections="250" thread-count="0" timeout-in-seconds="30"/>
+                <keep-alive max-connections="250" thread-count="1" timeout-in-seconds="0"/>
                 <connection-pool max-pending-count="4096" queue-size-in-bytes="4096" receive-buffer-size-in-bytes="4096"
                                  send-buffer-size-in-bytes="8192"/>
                 <http-protocol default-response-type="AttributeDeprecated" default-type="text/html; charset=iso-8859-1"

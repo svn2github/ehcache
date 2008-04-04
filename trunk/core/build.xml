@@ -59,7 +59,7 @@
     </target>
 
     <target name="qa">
-            <echo message="Moved to maven. Use mvn validate."/>
+        <echo message="Moved to maven. Use mvn validate."/>
     </target>
 
     <!-- compiles -->
@@ -164,7 +164,13 @@
 
     <target name="test-tomcat"
             depends="compile, prepare-web-tests, start-tomcat, run-web-tests-no-check-tomcat, stop-tomcat"
-            if="tests.failed" description="Runs Tests">
+            if="tests.failed" description="Runs web tests on tomcat">
+        <fail message="One or more tests failed. See the log file for details."/>
+    </target>
+
+    <target name="test-glassfish"
+            depends="compile, prepare-web-tests, start-glassfish, run-web-tests-no-check-glassfish, stop-glassfish"
+            if="tests.failed" description="Runs web tests on Glassfish">
         <fail message="One or more tests failed. See the log file for details."/>
     </target>
 
@@ -243,6 +249,42 @@
     </target>
 
     <target name="run-web-tests-no-check-tomcat">
+        <mkdir dir="${test.results.dir}"/>
+
+        <condition property="test.pattern" value="*">
+            <not>
+                <isset property="test.case"/>
+            </not>
+        </condition>
+        <condition property="test.pattern" value="${test.case}">
+            <isset property="test.case"/>
+        </condition>
+
+        <junit printSummary="withOutAndErr" failureproperty="tests.failed" fork="true"
+               forkmode="perTest" dir="${basedir}" showoutput="true">
+            <jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog"/>
+            <!--<jvmarg value="-Xmx256m"/>-->
+            <sysproperty key="java.io.tmpdir" value="${build.tmp.dir}"/>
+            <sysproperty key="net.sf.ehcache.speedAdjustmentFactor"
+                         value="${net.sf.ehcache.speedAdjustmentFactor}"/>
+            <classpath>
+                <path location="${test.classes.dir}"/>
+                <path location="${build.classes.dir}"/>
+                <path refid="project.class.path"/>
+            </classpath>
+            <formatter type="xml"/>
+            <formatter type="plain" usefile="false"/>
+            <batchtest todir="${test.results.dir}">
+                <fileset dir="${test.classes.dir}">
+                    <include
+                            name="**/${test.directory.pattern}/**/constructs/web/**/${test.pattern}Test.class"/>
+                    <exclude name="**/Abstract*"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="run-web-tests-no-check-glassfish">
         <mkdir dir="${test.results.dir}"/>
 
         <condition property="test.pattern" value="*">
@@ -480,7 +522,7 @@
 
 
     <target name="prepare-web-tests"
-            depends="compile, dist-jar, deploy-default-web-app-orion, deploy-default-web-app-tomcat"
+            depends="compile, dist-jar, deploy-default-web-app-orion, deploy-default-web-app-tomcat, deploy-default-web-app-glassfish"
             if="${run.web.tests}"
             description="Prepare to run  the web tests ">
     </target>
@@ -577,7 +619,16 @@
     <!-- This target can be used to deploy to Glassfish to then manually run the web test suite.
          You need to define a GLASSFISH_HOME environment variable for this.
          See the Glassfish page in documentation for details. -->
-    <target name="deploy-default-web-app-glassfish" description="deploy default web app glassfish" depends="dist-jar">
+    <target name="deploy-default-web-app-glassfish" description="deploy default web app glassfish">
+        <antcall target="stop-glassfish"/>
+        <antcall target="start-glassfish"/>
+        <antcall target="copy-default-web-app-glassfish"/>
+        <sleep seconds="20"/>
+        <antcall target="stop-glassfish"/>
+        <antcall target="copy-glassfish-configuration"/>
+    </target>
+
+    <target name="copy-default-web-app-glassfish" description="deploy default web app glassfish" depends="dist-jar">
         <!--<untar dest="${build.dir}" src="${lib.compile.dir}/web/apache-tomcat-5.5.17.tgz" compression="gzip"/>-->
         <mkdir dir="${build.glassfish.dir}"/>
         <mkdir dir="${build.glassfish.webapp.dir}"/>
@@ -608,7 +659,36 @@
             <fileset dir="${build.glassfish.dir}"/>
         </jar>
         <copy todir="${env.GLASSFISH_HOME}/${build.glassfish.webapp.deploy.dir}" file="${build.dir}/glassfish.war"/>
-        <copy todir="${env.GLASSFISH_HOME}/domains/domain1" file="${test.config.dir}/default-web-app/WEB-INF/2_5/domain.xml"/>
+    </target>
+
+    <target name="start-glassfish" description="start glassfish">
+        <echo message="Starting Glassfish on ${os.name} on port ${port-prefix}80"/>
+        <exec dir="${env.GLASSFISH_HOME}/bin" spawn="true" os="Mac OS X, Linux, AIX, Solaris"
+              executable="asadmin">
+            <arg line="start-domain domain1"/>
+        </exec>
+        <waitfor maxwait="10000" checkevery="1500">
+            <http url="http://localhost:@{port-prefix}80"/>
+        </waitfor>
+        <echo message="...Started"/>
+    </target>
+
+    <target name="stop-glassfish" description="start glassfish">
+        <exec dir="${env.GLASSFISH_HOME}/bin" spawn="true" os="Mac OS X, Linux, AIX, Solaris"
+              executable="asadmin">
+            <arg line="stop-domain domain1"/>
+        </exec>
+        <waitfor maxwait="10000" checkevery="1500">
+            <not>
+                <http url="http://localhost:@{port-prefix}80"/>
+            </not>
+        </waitfor>
+    </target>
+
+    <!-- Do this after the autodeploy. Shutdown Glassfish and restart afterwards. -->
+    <target name="copy-glassfish-configuration" description="configure glassfish domain.xml">
+        <copy overwrite="true" todir="${env.GLASSFISH_HOME}/domains/domain1/config"
+              file="${test.config.dir}/default-web-app/WEB-INF/2_5/domain.xml"/>
     </target>
 
 
@@ -649,16 +729,16 @@
 
     <!-- Start up the test instance of the Tomcat server -->
     <target name="start-tomcat" description="Starts the Orion server">
-        <start-tomcat-macro port-prefix="90"/>
+        <start-tomcat-macro port-prefix="${port-prefix}"/>
     </target>
 
 
     <target name="stop-tomcat" description="Stops tomcat">
-        <stop-web-container-macro port-prefix="90"/>
+        <stop-web-container-macro port-prefix="${port-prefix}"/>
     </target>
 
     <target name="stop-orion" description="Stops orion">
-        <stop-web-container-macro port-prefix="90"/>
+        <stop-web-container-macro port-prefix="${port-prefix}"/>
     </target>
 
     <target name="copy-tools-lib" if="not_mac">
