@@ -839,7 +839,7 @@
                 <arg value="performance_considerations.apt"/>
                 <arg value="cache_decorators.apt"/>
                 <arg value="shutdown.apt"/>
-                <arg value="j2ee_servlet_caching.apt"/>
+                <arg value="jee_servlet_caching.apt"/>
                 <arg value="distributed_design.apt"/>
                 <arg value="distributed_caching.apt"/>
                 <arg value="distributed_caching_with_jgroups.apt"/>

@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
@@ -45,6 +46,26 @@ public class GzipFilter extends Filter {
      * Performs initialisation.
      */
     protected void doInit() throws Exception {
+    }
+
+    /**
+     * Processes additional initialisation parameters. These are configured in web.xml in accordance with the
+     * Servlet specification using the following syntax:
+     * <pre>
+     * <filter>
+     *      ...
+     *      <init-param>
+     *          <param-name>readBehind</param-name>
+     *          <param-value>true</param-value>
+     *      </init-param>
+     *      ...
+     * </filter>
+     * </pre>
+     *
+     * @throws javax.servlet.ServletException
+     */
+    protected void doProcessInitParams(FilterConfig config) {
+        //none required
     }
 
     /**

@@ -80,6 +80,7 @@ public abstract class Filter implements javax.servlet.Filter {
      * {@link #doFilter(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse,javax.servlet.FilterChain) } which does the filtering.
      * This method takes care of error reporting and handling.
      * Errors are reported at {@link Log#warn(Object)} level because http tends to produce lots of errors.
+     *
      * @throws IOException if an IOException occurs during this method it will be rethrown and will not be wrapped
      */
     public final void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
@@ -200,7 +201,22 @@ public abstract class Filter implements javax.servlet.Filter {
         }
     }
 
-    private void processInitParams(final FilterConfig config) throws ServletException {
+    /**
+     * Processes initialisation parameters. These are configured in web.xml in accordance with the
+     * Servlet specification using the following syntax:
+     * <pre>
+     * <filter>
+     *      ...
+     *      <init-param>
+     *          <param-name>readBehind</param-name>
+     *          <param-value>true</param-value>
+     *      </init-param>
+     *      ...
+     * </filter>
+     * </pre>
+     * @throws ServletException
+     */
+    protected void processInitParams(final FilterConfig config) throws ServletException {
         String exceptions = config.getInitParameter("exceptionsToLogDifferently");
         String level = config.getInitParameter("exceptionsToLogDifferentlyLevel");
         String suppressStackTracesString = config.getInitParameter("suppressStackTraces");
@@ -218,7 +234,26 @@ public abstract class Filter implements javax.servlet.Filter {
                 LOG.debug("Different logging levels configured for " + this.getClass().getName());
             }
         }
+        doProcessInitParams(config);
     }
+
+
+    /**
+     * Processes additional initialisation parameters. These are configured in web.xml in accordance with the
+     * Servlet specification using the following syntax:
+     * <pre>
+     * <filter>
+     *      ...
+     *      <init-param>
+     *          <param-name>readBehind</param-name>
+     *          <param-value>true</param-value>
+     *      </init-param>
+     *      ...
+     * </filter>
+     * </pre>
+     * @throws ServletException
+     */
+    protected abstract void doProcessInitParams(FilterConfig config);
 
     private void validateMandatoryParameters(String exceptions, String level) throws ServletException {
         if ((exceptions != null && level == null) || (level != null && exceptions == null)) {

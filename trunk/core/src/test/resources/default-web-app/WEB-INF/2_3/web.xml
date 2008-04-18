@@ -35,6 +35,10 @@
             <param-value>false</param-value>
             <description>Whether to suppress stack traces in the filter</description>
         </init-param>
+        <init-param>
+            <param-name>readBehind</param-name>
+            <param-value>true</param-value>
+        </init-param>
     </filter>
 
     <filter>

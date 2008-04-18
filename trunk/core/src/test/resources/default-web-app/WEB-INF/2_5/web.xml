@@ -30,6 +30,10 @@
             <param-name>suppressStackTraces</param-name>
             <param-value>false</param-value>
         </init-param>
+        <init-param>
+            <param-name>readBehind</param-name>
+            <param-value>true</param-value>
+        </init-param>
     </filter>
 
     <filter>

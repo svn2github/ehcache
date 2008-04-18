@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -62,13 +63,23 @@ import java.util.zip.DataFormatException;
  * @version $Id$
  */
 public abstract class CachingFilter extends Filter {
-    private static final Log LOG = LogFactory.getLog(CachingFilter.class.getName());
 
+    private static final Log LOG = LogFactory.getLog(CachingFilter.class.getName());
 
     /**
      * The cache holding the web pages. Ensure that all threads for a given cache name are using the same instance of this.
      */
     protected BlockingCache blockingCache;
+
+
+    /**
+     * If set to true the doFilter method will cause a refresh of the
+     * page when it is gettting stale.
+     *
+     * @see ÊdoFilter
+     */
+    protected boolean readBehind;
+    private static final boolean FORCE_READBEHIND_UPDATE = true;
 
     /**
      * Initialises blockingCache to use. The BlockingCache created by this method does not have a lock timeout set.
@@ -96,6 +107,26 @@ public abstract class CachingFilter extends Filter {
 
 
     /**
+     * Processes additional initialisation parameters. These are configured in web.xml in accordance with the
+     * Servlet specification using the following syntax:
+     * <pre>
+     * <filter>
+     *      ...
+     *      <init-param>
+     *          <param-name>readBehind</param-name>
+     *          <param-value>true</param-value>
+     *      </init-param>
+     *      ...
+     * </filter>
+     * </pre>
+     *
+     * @throws javax.servlet.ServletException
+     */
+    protected void doProcessInitParams(FilterConfig config) {
+        readBehind = Boolean.parseBoolean(config.getInitParameter("readBehind"));
+    }
+
+    /**
      * Destroys the filter.
      */
     protected void doDestroy() {
@@ -103,7 +134,31 @@ public abstract class CachingFilter extends Filter {
     }
 
     /**
-     * Performs the filtering for a request.
+     * Performs the filtering for a request. This method caches
+     * based responses keyed by {@link #calculateKey(javax.servlet.http.HttpServletRequest)}
+     * <p/>
+     * By default this method will queue requests requesting the page response for a given key
+     * until the first thread in the queue has completed. The request which occurs when the page
+     * expires incurs the cost of waiting for the downstream processing to return the respone.
+     * <p/>
+     * The maximum time to wait can be configured by setting <code>setTimeoutMillis</code> on the
+     * underlying <code>BlockingCache</code>.
+     * <p/>
+     * This method may optiionally refresh the page cache without the caller incurring the downstream
+     * cost using read behind caching. To configure this in web.xml use:
+     * <pre>
+     * <filter>
+     *      ...
+     *      <init-param>
+     *          <param-name>readBehind</param-name>
+     *          <param-value>true</param-value>
+     *      </init-param>
+     *      ...
+     * </filter>
+     * </pre>
+     * In addition, readBehind will only work if HTTP 1.1 keepalives have been disabled on the server.
+     * Doing this is specific to the web container being used. See http://ehcache.sf.net/documentation/jee_servlet_caching.html
+     * for instructions on how to do this on commonly used application servers.
      *
      * @param request
      * @param response
@@ -141,12 +196,11 @@ public abstract class CachingFilter extends Filter {
         }
         writeResponse(request, response, pageInfo);
 
-//        todo make work or remove comment
-//        now rebuild the page if we need to
-//        if (pageInfo.isGettingStale()) {
-//            LOG.info("Rebuilding page");
-//            buildPageInfo(request, response, chain, true);
-//        }
+        //Now rebuild the page if we are configured to
+        if (readBehind && pageInfo.isGettingStale()) {
+            LOG.info("Rebuilding page read behind");
+            buildPageInfo(request, response, chain, FORCE_READBEHIND_UPDATE);
+        }
     }
 
 
@@ -165,7 +219,7 @@ public abstract class CachingFilter extends Filter {
         try {
             checkNoReentry(request);
             Element element = blockingCache.get(key);
-            if (element == null || element.getObjectValue() == null) {
+            if (element == null || element.getObjectValue() == null || forceRefresh) {
                 try {
                     // Page is not cached - build the response, cache it, and send to client
                     pageInfo = buildPage(request, response, chain, blockingCache.getTimeToLiveSeconds());

@@ -126,8 +126,8 @@
     <cache name="SimplePageFragmentCachingFilter"
            maxElementsInMemory="10"
            eternal="false"
-           timeToIdleSeconds="10000"
-           timeToLiveSeconds="10000"
+           timeToIdleSeconds="10"
+           timeToLiveSeconds="10"
            overflowToDisk="true">
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
                                    properties="replicateAsynchronously=true,

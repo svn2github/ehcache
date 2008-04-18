@@ -423,4 +423,22 @@ public class PageInfoTest extends AbstractWebTest {
         return gzip;
     }
 
+
+    /**
+     * Tests the getting stale algorithm as a unit test.
+     * Getting stale means the page is more than 3/4 through its TTL
+     */
+    public void testGettingStale() throws InterruptedException {
+
+        PageInfo pageInfo = new PageInfo(200, "Text/HTML", null, null, null, false, 4);
+        assertFalse(pageInfo.isGettingStale());
+
+        Thread.sleep(2900);
+        assertFalse(pageInfo.isGettingStale());
+
+        Thread.sleep(3001);
+
+        //It should be stale when it is 75% through its TTL
+        assertTrue(pageInfo.isGettingStale());
+    }
 }
