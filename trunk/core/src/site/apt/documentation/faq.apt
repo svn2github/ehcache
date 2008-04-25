@@ -79,7 +79,7 @@ maximum size, the LRU element gets pushed into the DiskStore.
 it is far more efficient to only check when we need to. The tradeoff is
 higher average memory use.
 
- The DiskStore's size is unbounded. The expiry thread keeps the disk
+TODO The DiskStore's size is unbounded. The expiry thread keeps the disk
 store clean. There is hopefully less contention for the DiskStore's
 locks because commonly used values are in the MemoryStore. We mount our
 DiskStore on Linux using RAMFS so it is using OS memory. While we have
@@ -313,3 +313,21 @@ class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
     If you use this default implementation, the cache name is called "SimplePageCachingFilter". You need to define a cache with that
     name in ehcache.xml. If you override CachingFilter you are required to set your own cache name.
     
+* I see, in my application's log:
+
+---
+WARN  CacheManager ...  Creating a new instance of CacheManager using the diskStorePath "C:\temp\tempcache"
+  which is already used by an existing CacheManager.
+---
+
+  This means, that for some reason, your application is trying to create a second or more instance of Ehcache's
+  CacheManager with the same configuration. Ehcache is automatically resolving the Disk path conflict,
+   which works fine.
+
+   To eliminate the warning:
+
+   * Use a separate configuration per instance
+
+   * If you only want one instance use the singleton creation methods i.e <<<CacheManager.getInstance()>>>.
+     In Hibernate there is a special provider
+     for this called <<<net.sf.ehcache.hibernate.SingletonEhCacheProvider>>>. See the Hibernate page for details.

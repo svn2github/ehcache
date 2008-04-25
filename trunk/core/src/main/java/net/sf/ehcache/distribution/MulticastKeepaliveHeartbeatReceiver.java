@@ -98,7 +98,7 @@ public final class MulticastKeepaliveHeartbeatReceiver {
 
         /**
          * Constructor
-         */
+         */         
         public MulticastReceiverThread() {
             super("Multicast Heartbeat Receiver Thread");
             setDaemon(true);

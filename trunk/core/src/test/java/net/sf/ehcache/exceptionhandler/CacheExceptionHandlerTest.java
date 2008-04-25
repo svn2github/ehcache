@@ -30,7 +30,7 @@ import net.sf.ehcache.event.CountingCacheEventListener;
  */
 public class CacheExceptionHandlerTest extends TestCase {
 
-     /**
+    /**
      * manager
      */
     protected CacheManager manager;
@@ -39,7 +39,7 @@ public class CacheExceptionHandlerTest extends TestCase {
      */
     protected String cacheName = "exceptionHandlingCache";
     /**
-     * the cache we wish to test                                                                
+     * the cache we wish to test
      */
     protected Ehcache cache;
 
@@ -75,8 +75,8 @@ public class CacheExceptionHandlerTest extends TestCase {
         cache.get("key1");
 
         assertEquals(1, CountingExceptionHandler.HANDLED_EXCEPTIONS.size());
-        assertEquals(null, ((CountingExceptionHandler.HandledException)CountingExceptionHandler.HANDLED_EXCEPTIONS.get(0)).getKey());
-        assertEquals(IllegalStateException.class, ((CountingExceptionHandler.HandledException)CountingExceptionHandler.HANDLED_EXCEPTIONS
+        assertEquals(null, ((CountingExceptionHandler.HandledException) CountingExceptionHandler.HANDLED_EXCEPTIONS.get(0)).getKey());
+        assertEquals(IllegalStateException.class, ((CountingExceptionHandler.HandledException) CountingExceptionHandler.HANDLED_EXCEPTIONS
                 .get(0)).getException().getClass());
     }
 
@@ -90,8 +90,8 @@ public class CacheExceptionHandlerTest extends TestCase {
         cache.getWithLoader("key1", null, null);
 
         assertEquals(1, CountingExceptionHandler.HANDLED_EXCEPTIONS.size());
-        assertEquals("key1", ((CountingExceptionHandler.HandledException)CountingExceptionHandler.HANDLED_EXCEPTIONS.get(0)).getKey());
-        assertEquals(CacheException.class, ((CountingExceptionHandler.HandledException)CountingExceptionHandler.HANDLED_EXCEPTIONS
+        assertEquals("key1", ((CountingExceptionHandler.HandledException) CountingExceptionHandler.HANDLED_EXCEPTIONS.get(0)).getKey());
+        assertEquals(CacheException.class, ((CountingExceptionHandler.HandledException) CountingExceptionHandler.HANDLED_EXCEPTIONS
                 .get(0)).getException().getClass());
     }
 
@@ -105,8 +105,8 @@ public class CacheExceptionHandlerTest extends TestCase {
         proxiedCache.put(null);
 
         assertEquals(1, CountingExceptionHandler.HANDLED_EXCEPTIONS.size());
-        assertEquals(null, ((CountingExceptionHandler.HandledException)CountingExceptionHandler.HANDLED_EXCEPTIONS.get(0)).getKey());
-        assertEquals(IllegalArgumentException.class, ((CountingExceptionHandler.HandledException)CountingExceptionHandler.HANDLED_EXCEPTIONS
+        assertEquals(null, ((CountingExceptionHandler.HandledException) CountingExceptionHandler.HANDLED_EXCEPTIONS.get(0)).getKey());
+        assertEquals(IllegalArgumentException.class, ((CountingExceptionHandler.HandledException) CountingExceptionHandler.HANDLED_EXCEPTIONS
                 .get(0)).getException().getClass());
     }
 
@@ -150,7 +150,41 @@ public class CacheExceptionHandlerTest extends TestCase {
 
     }
 
+    /**
+     * Tests that the exception thrown by a configured loader, is
+     * actually passed on to exception handler
+     */
+    public void testExceptionThrown() {
+        cache.setCacheLoader(new CustomExceptionThrowingLoader());
+
+        cache.getWithLoader("key1", null, null);
+
+        assertEquals(1, CountingExceptionHandler.HANDLED_EXCEPTIONS.size());
+        assertEquals("key1", ((CountingExceptionHandler.HandledException) CountingExceptionHandler.HANDLED_EXCEPTIONS.get(0)).getKey());
 
 
+        Class expectedExceptionClass = UnsupportedOperationException.class;
 
+        Exception e = ((CountingExceptionHandler.HandledException) CountingExceptionHandler.HANDLED_EXCEPTIONS
+                .get(0)).getException();
+
+        Throwable cause = e;
+        boolean foundExceptionInChain = false;
+
+
+        //Recurse through the chain
+        while ((cause = cause.getCause()) != null) {
+            
+            if (cause.getClass().equals(expectedExceptionClass)) {
+                foundExceptionInChain = true;
+                break;
+            }
+        }
+
+        if (foundExceptionInChain == false) {
+            fail();
+        }
+
+
+    }
 }

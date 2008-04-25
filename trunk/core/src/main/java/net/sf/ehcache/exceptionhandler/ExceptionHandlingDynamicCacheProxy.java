@@ -22,6 +22,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * A dynamic proxy which provides CacheException handling.
  * <p/>
@@ -47,6 +50,8 @@ import java.lang.reflect.Proxy;
  * @version $Id$
  */
 public final class ExceptionHandlingDynamicCacheProxy implements InvocationHandler {
+
+    private static final Log LOG = LogFactory.getLog(ExceptionHandlingDynamicCacheProxy.class.getName());
 
     private Ehcache ehcache;
 
@@ -128,10 +133,22 @@ public final class ExceptionHandlingDynamicCacheProxy implements InvocationHandl
             CacheExceptionHandler cacheExceptionHandler = ehcache.getCacheExceptionHandler();
             if (cacheExceptionHandler != null) {
                 String keyAsString = null;
-                if (e.getCause() != null) {
-                    keyAsString = extractKey(e.getCause().getMessage());
+                //should be a CacheException
+                Throwable cause = e.getCause();
+                if (cause != null) {
+                    keyAsString = extractKey(cause.getMessage());
                 }
-                cacheExceptionHandler.onException(ehcache, keyAsString, (Exception) e.getCause());
+                Exception causeAsException = null;
+                try {
+                    causeAsException = (Exception) cause;
+                } catch (ClassCastException cce) {
+                    //we only handle exceptions, not errors.
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Underlying cause was not an Exception: " + cce);
+                    }
+                }
+
+                cacheExceptionHandler.onException(ehcache, keyAsString, causeAsException);
             } else {
                 throw e.getCause();
             }

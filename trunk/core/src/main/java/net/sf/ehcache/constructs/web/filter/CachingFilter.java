@@ -71,16 +71,6 @@ public abstract class CachingFilter extends Filter {
      */
     protected BlockingCache blockingCache;
 
-
-    /**
-     * If set to true the doFilter method will cause a refresh of the
-     * page when it is gettting stale.
-     *
-     * @see ÊdoFilter
-     */
-    protected boolean readBehind;
-    private static final boolean FORCE_READBEHIND_UPDATE = true;
-
     /**
      * Initialises blockingCache to use. The BlockingCache created by this method does not have a lock timeout set.
      * <p/>
@@ -89,8 +79,9 @@ public abstract class CachingFilter extends Filter {
      *
      * @throws CacheException The most likely cause is that a cache has not been
      *                        configured in ehcache's configuration file ehcache.xml for the filter name
+     * @param filterConfig
      */
-    public void doInit() throws CacheException {
+    public void doInit(FilterConfig filterConfig) throws CacheException {
         synchronized (this.getClass()) {
             if (blockingCache == null) {
                 final String cacheName = getCacheName();
@@ -105,26 +96,6 @@ public abstract class CachingFilter extends Filter {
         }
     }
 
-
-    /**
-     * Processes additional initialisation parameters. These are configured in web.xml in accordance with the
-     * Servlet specification using the following syntax:
-     * <pre>
-     * <filter>
-     *      ...
-     *      <init-param>
-     *          <param-name>readBehind</param-name>
-     *          <param-value>true</param-value>
-     *      </init-param>
-     *      ...
-     * </filter>
-     * </pre>
-     *
-     * @throws javax.servlet.ServletException
-     */
-    protected void doProcessInitParams(FilterConfig config) {
-        readBehind = Boolean.parseBoolean(config.getInitParameter("readBehind"));
-    }
 
     /**
      * Destroys the filter.
@@ -143,22 +114,6 @@ public abstract class CachingFilter extends Filter {
      * <p/>
      * The maximum time to wait can be configured by setting <code>setTimeoutMillis</code> on the
      * underlying <code>BlockingCache</code>.
-     * <p/>
-     * This method may optiionally refresh the page cache without the caller incurring the downstream
-     * cost using read behind caching. To configure this in web.xml use:
-     * <pre>
-     * <filter>
-     *      ...
-     *      <init-param>
-     *          <param-name>readBehind</param-name>
-     *          <param-value>true</param-value>
-     *      </init-param>
-     *      ...
-     * </filter>
-     * </pre>
-     * In addition, readBehind will only work if HTTP 1.1 keepalives have been disabled on the server.
-     * Doing this is specific to the web container being used. See http://ehcache.sf.net/documentation/jee_servlet_caching.html
-     * for instructions on how to do this on commonly used application servers.
      *
      * @param request
      * @param response
@@ -195,12 +150,6 @@ public abstract class CachingFilter extends Filter {
                     + "but before writing response from PageInfo.");
         }
         writeResponse(request, response, pageInfo);
-
-        //Now rebuild the page if we are configured to
-        if (readBehind && pageInfo.isGettingStale()) {
-            LOG.info("Rebuilding page read behind");
-            buildPageInfo(request, response, chain, FORCE_READBEHIND_UPDATE);
-        }
     }
 
 
@@ -219,7 +168,7 @@ public abstract class CachingFilter extends Filter {
         try {
             checkNoReentry(request);
             Element element = blockingCache.get(key);
-            if (element == null || element.getObjectValue() == null || forceRefresh) {
+            if (element == null || element.getObjectValue() == null) {
                 try {
                     // Page is not cached - build the response, cache it, and send to client
                     pageInfo = buildPage(request, response, chain, blockingCache.getTimeToLiveSeconds());

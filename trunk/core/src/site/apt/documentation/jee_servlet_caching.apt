@@ -29,35 +29,8 @@
     The CachingFilter queues multiple requests for the same key, so that the downsteam infrastructure only has to
     do the work once.
 
-    By default the request which hits an empty cache element, or an expired one, has to wait while the downstream
-    processing occurs. Optionally the <<<readBehind>>> filter initalisation paramter can be configured to true
-    which will cause a refresh to occur when the cache is three quarters through it's time to live. This feature
-    is only available with HTTP 1.1 Keep Alives disabled. Turning it off is application server specific.
-    The mechanism for a few of the application servers is:
-
-** Disable Keep-Alives in Glassfish
-
-    In the domain.xml, set the <<<timeout-in-seconds>>> attribute in the <<<keep-alive element>>> to <<<0>>>.
-
----
-   <keep-alive max-connections="250" thread-count="1" timeout-in-seconds="0"/>
----
-
-** Disable Keep-Alives in Tomcat
-
----
-    <Connector port="9080" protocol="HTTP/1.1"
-               maxThreads="150" connectionTimeout="20000"
-               redirectPort="9082" maxKeepAliveRequests="1" />
----
-
-** Disable Keep-Alives in Orion
-
-   Change config/default-web-site.xml as follows:
-
----
-   <web-site host="[ALL]" port="9080" display-name="Jaguar WebSite" use-keep-alives="false">
----
+    The request which hits an empty cache element, or an expired one, has to wait while the downstream
+    processing occurs.
 
 
 * {SimplePageCachingFilter}

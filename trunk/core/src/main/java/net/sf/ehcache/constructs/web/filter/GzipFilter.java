@@ -44,29 +44,12 @@ public class GzipFilter extends Filter {
 
     /**
      * Performs initialisation.
+     * @param filterConfig
      */
-    protected void doInit() throws Exception {
+    protected void doInit(FilterConfig filterConfig) throws Exception {
+        //nothing required.
     }
 
-    /**
-     * Processes additional initialisation parameters. These are configured in web.xml in accordance with the
-     * Servlet specification using the following syntax:
-     * <pre>
-     * <filter>
-     *      ...
-     *      <init-param>
-     *          <param-name>readBehind</param-name>
-     *          <param-value>true</param-value>
-     *      </init-param>
-     *      ...
-     * </filter>
-     * </pre>
-     *
-     * @throws javax.servlet.ServletException
-     */
-    protected void doProcessInitParams(FilterConfig config) {
-        //none required
-    }
 
     /**
      * A template method that performs any Filter specific destruction tasks.

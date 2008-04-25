@@ -54,33 +54,6 @@ public class CachingFilterTest extends AbstractWebTest {
         assertResponseGoodAndCached(cachedPageUrl, true);
     }
 
-
-    /**
-     *
-     */
-    public void testReadBehindCache() throws Exception {
-        WebResponse firstResponse = getResponseFromAcceptGzipRequest(cachedPageUrl);
-        assertResponseGood(firstResponse, true);
-
-        //page should be fresh
-        Thread.sleep(4000);
-        WebResponse secondResponse = getResponseFromAcceptGzipRequest(cachedPageUrl);
-        assertResponseGood(secondResponse, true);
-
-        //page should now be getting stale, which should trigger a refresh
-        Thread.sleep(3501);
-        WebResponse thirdResponse = getResponseFromAcceptGzipRequest(cachedPageUrl);
-        checkTimeStamps(firstResponse, thirdResponse, true);
-
-
-        //page should have refreshed in the background
-        Thread.sleep(1200);
-        WebResponse fourthResponse = getResponseFromAcceptGzipRequest(cachedPageUrl);
-        checkTimeStamps(thirdResponse, fourthResponse, false);
-
-
-    }
-
     /**
      * HEAD methods return an empty response body. If a HEAD request populates
      * a cache and then a GET follorws, a blank page will result.

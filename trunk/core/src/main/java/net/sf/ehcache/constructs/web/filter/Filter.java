@@ -185,16 +185,18 @@ public abstract class Filter implements javax.servlet.Filter {
     }
 
     /**
-     * Initialises the filter.  Calls template method {@link #doInit()} to perform any filter specific initialisation.
+     * Initialises the filter.
+     * <p/>
+     * Calls template method {@link #doInit(javax.servlet.FilterConfig)} to perform any filter specific initialisation.
      */
-    public final void init(final FilterConfig config) throws ServletException {
+    public final void init(final FilterConfig filterConfig) throws ServletException {
         try {
 
-            this.filterConfig = config;
-            processInitParams(config);
+            this.filterConfig = filterConfig;
+            processInitParams(filterConfig);
 
             // Attempt to initialise this filter
-            doInit();
+            doInit(filterConfig);
         } catch (final Exception e) {
             LOG.fatal("Could not initialise servlet filter.", e);
             throw new ServletException("Could not initialise servlet filter.", e);
@@ -208,8 +210,8 @@ public abstract class Filter implements javax.servlet.Filter {
      * <filter>
      *      ...
      *      <init-param>
-     *          <param-name>readBehind</param-name>
-     *          <param-value>true</param-value>
+     *          <param-name>blah</param-name>
+     *          <param-value>blahvalue</param-value>
      *      </init-param>
      *      ...
      * </filter>
@@ -234,26 +236,7 @@ public abstract class Filter implements javax.servlet.Filter {
                 LOG.debug("Different logging levels configured for " + this.getClass().getName());
             }
         }
-        doProcessInitParams(config);
     }
-
-
-    /**
-     * Processes additional initialisation parameters. These are configured in web.xml in accordance with the
-     * Servlet specification using the following syntax:
-     * <pre>
-     * <filter>
-     *      ...
-     *      <init-param>
-     *          <param-name>readBehind</param-name>
-     *          <param-value>true</param-value>
-     *      </init-param>
-     *      ...
-     * </filter>
-     * </pre>
-     * @throws ServletException
-     */
-    protected abstract void doProcessInitParams(FilterConfig config);
 
     private void validateMandatoryParameters(String exceptions, String level) throws ServletException {
         if ((exceptions != null && level == null) || (level != null && exceptions == null)) {
@@ -348,8 +331,9 @@ public abstract class Filter implements javax.servlet.Filter {
     /**
      * A template method that performs any Filter specific initialisation tasks.
      * Called from {@link #init(FilterConfig)}.
+     * @param filterConfig
      */
-    protected abstract void doInit() throws Exception;
+    protected abstract void doInit(FilterConfig filterConfig) throws Exception;
 
     /**
      * Returns the filter config.

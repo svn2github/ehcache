@@ -19,7 +19,7 @@ package net.sf.ehcache.exceptionhandler;
 import net.sf.ehcache.Ehcache;
 
 /**
- * A handler which may be registered with an Ehcache, to handle exception on Cache operations.
+ * A handler which may be registered with an Ehcache, to handle exceptions on Cache operations.
  * <p/>
  * Handlers may be registered at configuration time in ehcache.xml, using a CacheExceptionHandlerFactory, or
  *  set at runtime (a strategy).
@@ -48,7 +48,7 @@ public interface CacheExceptionHandler {
      *
      * @param ehcache   the cache in which the Exception occurred
      * @param key       the key used in the operation, or null if the operation does not use a key or the key was null
-     * @param exception the exception caught
+     * @param exception the Exception caught. 
      */
     void onException(Ehcache ehcache, Object key, Exception exception);
 }

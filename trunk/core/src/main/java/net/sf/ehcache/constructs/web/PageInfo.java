@@ -51,7 +51,6 @@ public class PageInfo implements Serializable {
     private byte[] ungzippedBody;
     private int statusCode;
     private boolean storeGzipped;
-    private long staleTime;
 
     /**
      * Creates a PageInfo.
@@ -74,12 +73,6 @@ public class PageInfo implements Serializable {
         this.contentType = contentType;
         this.storeGzipped = storeGzipped;
         this.statusCode = statusCode;
-        long creationDate = System.currentTimeMillis();
-        long threeQuartersOfTTLMillis = (long) ((timeToLiveSeconds) * .75f * 1000);
-        //LOG.info(threeQuartersOfTTLMillis);
-        staleTime = creationDate + threeQuartersOfTTLMillis;
-        //LOG.info(staleTime);
-
         extractCookies(cookies);
 
         try {
@@ -259,13 +252,6 @@ public class PageInfo implements Serializable {
      */
     public boolean isOk() {
         return (statusCode == HttpServletResponse.SC_OK);
-    }
-
-    /**
-     * @return true if the page is more than 3/4 the away through its time to live
-     */
-    public boolean isGettingStale() {
-        return staleTime < System.currentTimeMillis();
     }
 }
 

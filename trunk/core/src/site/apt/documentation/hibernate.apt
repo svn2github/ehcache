@@ -38,24 +38,36 @@
 
 * {Setting ehcache as the cache provider}
 
-** Using the ehcache provider from the ehcache project
+** Using one of the two ehcache providers from the ehcache project
 
     To ensure ehcache is enabled, verify that the hibernate.cache.provider_class property
-    is set to:
+    is set to one of the following in the Hibernate configuration file, either hibernate.cfg.xml
+    or hibernate.properties. The format given is for hibernate.cfg.xml.
+
 ---
      net.sf.ehcache.hibernate.EhCacheProvider
----   
-    in the Hibernate configuration file;
-    either hibernate.cfg.xml or hibernate.properties. The format given is for hibernate.cfg.xml.
+---
 
-    If you are using hibernate-3 or hibernate-3.1 you will need to use the ehcache provider to
-    use multiple SessionFactories/CacheManagers in a single VM. That provider should be integrated into the
-    Hibernate-3.2 version.1
+for instance creation, or
+
+---
+     net.sf.ehcache.hibernate.SingletonEhCacheProvider
+---
+
+to force Hibernate to use a singleton of Ehcache CacheManager.
+
+
+** Using multiple Hibernate instances
+
+    Each instance of Hibernate will need it's own instance of ehcache's CacheManager.
+
+    To do this use the following configuration, which a unique <<<configurationResourceName>>>
+    per Hibernate instance.
 
 --------------------------------------------
 
 hibernate.cache.provider_class=net.sf.ehcache.hibernate.EhCacheProvider
-net.sf.ehcache.configurationResourceName=/name_of_configuration_resource
+net.sf.ehcache.configurationResourceName=/name_of_ehcache.xml
 
 --------------------------------------------
 

@@ -24,7 +24,7 @@
         <menu name="Code" href="maven-reports.html">
             <item name="Download" href="http://sourceforge.net/project/showfiles.php?group_id=93232"/>
             <item name="Change logs" href="/changes-report.html"/>
-            <item name="Code Samples" href="/samples.html"/>
+            <item name="Code Samples" href="documentation/samples.html"/>
             <item name="Source Repository" href="/source-repository.html"/>
             <item name="Browsable Source Code" href="/jxr.html"/>
         </menu>
