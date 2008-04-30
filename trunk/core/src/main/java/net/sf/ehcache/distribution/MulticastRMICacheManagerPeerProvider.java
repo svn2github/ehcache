@@ -57,7 +57,7 @@ import java.util.List;
 public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerPeerProvider implements CacheManagerPeerProvider {
 
     /**
-     * One second, in ms
+     * One tenth of a second, in ms
      */
     protected static final int SHORT_DELAY = 100;
 

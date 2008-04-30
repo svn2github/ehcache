@@ -17,6 +17,9 @@
 package net.sf.ehcache.spring;
 
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import net.sf.ehcache.CacheManager;
 
 /**
  * Integration tests to make sure we do not break Spring
@@ -50,7 +53,9 @@ public class SpringIntegrationTest extends AbstractDependencyInjectionSpringCont
     public void testCacheManager() {
 
         //Right now this loads the Spring context and creates a CacheManager
-
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("/spring/ehcache-beans.xml");
+        CacheManager manager = (CacheManager) applicationContext.getBean("cacheManager");
+        assertTrue(manager != null);
     }
 
 }

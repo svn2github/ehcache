@@ -15,13 +15,15 @@ be included in the list.
 
 * Open Source
 
- * {{{http://www.alfresco.org}Alfresco}} An Enterprise Content Management system
+ * {{{http://www.alfresco.org}Alfresco}} A leading Content Management system
+
+ * {{{http://www.alfresco.org}Magnolia}} A leading Content Management system
 
  * {{{http://cocoon.apache.org/}Cocoon}}. A web development framework.
 
  * {{{http://hibernate.org}Hibernate}}. An O/R mapping tool.
 
- * {{{http://www.springframework.org}Spring}}. An IOC framework from Rod Johnson.
+ * {{{http://www.springframework.org}Spring}}. An IOC framework from Rod Johnson. Method caching, and integration.
 
  * {{{http://www.jpox.org}JPOX}}. A Java Persistent Objects frameworkd and JDO implementation.
  
@@ -34,6 +36,8 @@ be included in the list.
  * {{{http://tudu.sourceforge.net}Tudu Lists}}. Online list management.
 
  * {{{http://dev.lutece.paris.fr}Lutece}}. Lutece is an Open Source Java/ XML portal.
+
+ * {{{http://buzillions.com}Buzillions.com}}. Buzillions.com A product reviews and recommendation website.
 
 * Distributions
 

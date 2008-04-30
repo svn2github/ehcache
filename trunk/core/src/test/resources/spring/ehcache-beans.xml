@@ -15,8 +15,7 @@
         <property name="cache">
             <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
                 <property name="cacheManager">
-                    <bean
-                            class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
+                    <bean  class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
                 </property>
                 <property name="cacheName" value="userCache"/>
             </bean>

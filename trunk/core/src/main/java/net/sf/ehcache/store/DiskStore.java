@@ -168,6 +168,9 @@ public class DiskStore implements Store {
 
     private void initialiseFiles() throws Exception {
         // Make sure the cache directory exists
+        if (diskPath == null) {
+            LOG.fatal("This cache " + name + " requires a DiskStore but there is no diskStore element configured.");
+        }
         final File diskDir = new File(diskPath);
         if (diskDir.exists() && !diskDir.isDirectory()) {
             throw new Exception("Store directory \"" + diskDir.getCanonicalPath() + "\" exists and is not a directory.");
