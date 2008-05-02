@@ -18,6 +18,14 @@
                 improvement.
                 Thanks to Vitaly Baranovsky for the patch.
             </action>
+            <action dev="Greg Luck" type="fix" issue="1748591">
+                Removed setThreadName usage to increase performance.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="1795131">
+                JCache interface improvement. if we want preload for this cache, and we probably don't know all
+                the keys at the system startup time. We may want to have new interface: loadAll()
+                This will not be added to ehcache until it gets added to the JCACHE spec.
+            </action>
 
             <!--Bug Fixes-->
             <action dev="Greg Luck" type="fix" issue="812270">
@@ -27,23 +35,8 @@
             <action dev="Greg Luck" type="fix" issue="1890915">
                 Change CachingFilter to use setHeader rather than addHeader which was duplicating some headers.
             </action>
-
-            <!-- In Progress -->
-            <action dev="Greg Luck" type="fix" issue="1901094">
-                Update tests to spring 2.5 and hibernate3-3.2.5.ga.jar cache destroy exception upon undeploying application
-                Maybe log a bug with Juergen Hoeller
-            </action>
-            <action dev="Greg Luck" type="fix" issue="1748591">
-                Remove setThreadName usage. (Just need to close this one)
-            </action>
-            <action dev="Greg Luck" type="fix" issue="1795131">
-                JCache interface improvement. if we want preload for this cache, and we probably don't know all
-                the keys at the system startup time. We may want to have new interface: loadAll()
-                (Change to will not fix but will suggest to expert group)
-            </action>
             <action dev="Greg Luck" type="fix" issue="1936731">
                 Fixed JavaDoc for constant SHORT_DELAY.
-                (Close)
             </action>
 
         </release>

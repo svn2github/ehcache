@@ -84,12 +84,6 @@
            timeToIdleSeconds="10000"
            timeToLiveSeconds="10000"
            overflowToDisk="true">
-        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
-                                   properties="replicateAsynchronously=true,
-                                               replicatePuts=true,
-                                               replicateUpdates=true,
-                                               replicateUpdatesViaCopy=true,
-                                               replicateRemovals=true "/>
     </cache>
 
 
@@ -99,12 +93,6 @@
            timeToIdleSeconds="10000"
            timeToLiveSeconds="10000"
            overflowToDisk="true">
-        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
-                                   properties="replicateAsynchronously=true,
-                                               replicatePuts=true,
-                                               replicateUpdates=true,
-                                               replicateUpdatesViaCopy=true,
-                                               replicateRemovals=true "/>
     </cache>
 
 
@@ -112,29 +100,17 @@
     <cache name="SimplePageCachingFilter"
            maxElementsInMemory="10"
            eternal="false"
-           timeToIdleSeconds="60"
-           timeToLiveSeconds="60"
+           timeToIdleSeconds="10000"
+           timeToLiveSeconds="10000"
            overflowToDisk="true">
-        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
-                                   properties="replicateAsynchronously=true,
-                                               replicatePuts=true,
-                                               replicateUpdates=true,
-                                               replicateUpdatesViaCopy=true,
-                                               replicateRemovals=true "/>
     </cache>
 
     <cache name="SimplePageFragmentCachingFilter"
            maxElementsInMemory="10"
            eternal="false"
-           timeToIdleSeconds="10"
-           timeToLiveSeconds="10"
+           timeToIdleSeconds="10000"
+           timeToLiveSeconds="10000"
            overflowToDisk="true">
-        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
-                                   properties="replicateAsynchronously=true,
-                                               replicatePuts=true,
-                                               replicateUpdates=true,
-                                               replicateUpdatesViaCopy=true,
-                                               replicateRemovals=true "/>
     </cache>
 
 
@@ -144,12 +120,6 @@
            timeToIdleSeconds="10000"
            timeToLiveSeconds="10000"
            overflowToDisk="true">
-        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
-                                   properties="replicateAsynchronously=true,
-                                               replicatePuts=true,
-                                               replicateUpdates=true,
-                                               replicateUpdatesViaCopy=true,
-                                               replicateRemovals=true "/>
     </cache>
 
     <!-- Asynchronous Caching tests -->

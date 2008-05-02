@@ -137,7 +137,7 @@ public abstract class CachingFilter extends Filter {
             throw new AlreadyCommittedException("Response already committed before doing buildPage.");
         }
         logRequestHeaders(request);
-        PageInfo pageInfo = buildPageInfo(request, response, chain, false);
+        PageInfo pageInfo = buildPageInfo(request, response, chain);
 
         //return on error or redirect code
         int statusCode = pageInfo.getStatusCode();
@@ -160,7 +160,7 @@ public abstract class CachingFilter extends Filter {
      * other pages which are not gzipped.
      */
     protected PageInfo buildPageInfo(final HttpServletRequest request, final HttpServletResponse response,
-                                     final FilterChain chain, boolean forceRefresh) throws Exception {
+                                     final FilterChain chain) throws Exception {
         // Look up the cached page
         final String key = calculateKey(request);
         PageInfo pageInfo = null;
@@ -171,7 +171,7 @@ public abstract class CachingFilter extends Filter {
             if (element == null || element.getObjectValue() == null) {
                 try {
                     // Page is not cached - build the response, cache it, and send to client
-                    pageInfo = buildPage(request, response, chain, blockingCache.getTimeToLiveSeconds());
+                    pageInfo = buildPage(request, response, chain);
                     if (pageInfo.isOk()) {
                         if (LOG.isTraceEnabled()) {
                             LOG.trace("PageInfo ok. Adding to cache " + blockingCache.getName() + " with key " + key);
@@ -208,13 +208,12 @@ public abstract class CachingFilter extends Filter {
      * @param request
      * @param response
      * @param chain
-     * @param timeToLiveSeconds
      * @return a Serializable value object for the page or page fragment
      * @throws AlreadyGzippedException if an attempt is made to double gzip the body
      * @throws Exception
      */
     protected PageInfo buildPage(final HttpServletRequest request, final HttpServletResponse response,
-                                 final FilterChain chain, long timeToLiveSeconds) throws AlreadyGzippedException, Exception {
+                                 final FilterChain chain) throws AlreadyGzippedException, Exception {
 
         // Invoke the next entity in the chain
         final ByteArrayOutputStream outstr = new ByteArrayOutputStream();
@@ -224,7 +223,7 @@ public abstract class CachingFilter extends Filter {
 
         // Return the page info
         return new PageInfo(wrapper.getStatus(), wrapper.getContentType(), wrapper.getHeaders(), wrapper.getCookies(),
-                outstr.toByteArray(), true, timeToLiveSeconds);
+                outstr.toByteArray(), true);
     }
 
     /**

@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
+import java.io.EOFException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -74,8 +75,11 @@ public class MemoryStoreTester extends AbstractCacheTest {
                 manager.shutdown();
             }
         } catch (OutOfMemoryError e) {
-            //Happens at different places on Apache LRU for some reason
+            //OutOfMemoryError Happens at different places on Apache LRU for some reason
             LOG.info(e);
+        } catch (Throwable t) {
+            //OutOfMemoryError Happens at different places on Apache LRU for some reason
+            LOG.info(t);
         }
     }
 
@@ -620,6 +624,9 @@ public class MemoryStoreTester extends AbstractCacheTest {
             }
 
         }
+        Thread.sleep(1000);
+        System.gc();
+        Thread.sleep(1000);
     }
 
 }

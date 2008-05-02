@@ -62,10 +62,10 @@ public class PageInfo implements Serializable {
      * @param cookies
      * @param body
      * @param storeGzipped      set this to false for images and page fragments which should never
-     * @param timeToLiveSeconds
+     *                     be gzipped.
      */
     public PageInfo(final int statusCode, final String contentType, final Collection headers, final Collection cookies,
-                    final byte[] body, boolean storeGzipped, long timeToLiveSeconds) throws AlreadyGzippedException {
+                    final byte[] body, boolean storeGzipped) throws AlreadyGzippedException {
         if (headers != null) {
             this.headers.addAll(headers);
         }

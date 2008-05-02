@@ -218,9 +218,9 @@ public abstract class MemoryStore implements Store {
                 LOG.debug(cache.getName() + " is persistent. Spooling " + map.size() + " elements to the disk store.");
             }
             spoolAllToDisk();
-            //should be empty in any case
-            clear();
         }
+        //should be empty in any case
+        clear();
     }
 
     /**

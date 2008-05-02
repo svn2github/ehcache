@@ -46,7 +46,7 @@ public abstract class PageFragmentCachingFilter extends CachingFilter {
     protected void doFilter(final HttpServletRequest request, final HttpServletResponse response,
                             final FilterChain chain) throws Exception {
 
-        PageInfo pageInfo = buildPageInfo(request, response, chain, false);
+        PageInfo pageInfo = buildPageInfo(request, response, chain);
 
         // Send the page to the client
         writeResponse(response, pageInfo);
@@ -58,13 +58,12 @@ public abstract class PageFragmentCachingFilter extends CachingFilter {
      * @param request  {@inheritDoc}
      * @param response {@inheritDoc}
      * @param chain    {@inheritDoc}
-     * @param timeToLiveSeconds
      * @return {@inheritDoc}
      * @throws AlreadyGzippedException {@inheritDoc}
      * @throws Exception               {@inheritDoc}
      */
     protected PageInfo buildPage(final HttpServletRequest request, final HttpServletResponse response,
-                                 final FilterChain chain, long timeToLiveSeconds) throws AlreadyGzippedException, Exception {
+                                 final FilterChain chain) throws AlreadyGzippedException, Exception {
 
         // Invoke the next entity in the chain
         final ByteArrayOutputStream outstr = new ByteArrayOutputStream();
@@ -74,7 +73,7 @@ public abstract class PageFragmentCachingFilter extends CachingFilter {
 
         // Return the page info
         return new PageInfo(wrapper.getStatus(), wrapper.getContentType(), wrapper.getHeaders(), wrapper.getCookies(),
-                outstr.toByteArray(), false, timeToLiveSeconds);
+                outstr.toByteArray(), false);
     }
 
 

@@ -50,7 +50,7 @@ public class SimplePageCachingFilterWithBlankPageProblem extends SimplePageCachi
      */
     protected void doFilter(final HttpServletRequest request, final HttpServletResponse response,
                             final FilterChain chain) throws Exception {
-        PageInfo pageInfo = buildPageInfo(request, response, chain, false);
+        PageInfo pageInfo = buildPageInfo(request, response, chain);
         if (response.isCommitted()) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Response cannot be written as it was already committed for "
