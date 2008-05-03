@@ -26,6 +26,11 @@
                 the keys at the system startup time. We may want to have new interface: loadAll()
                 This will not be added to ehcache until it gets added to the JCACHE spec.
             </action>
+            <action dev="Greg Luck" type="fix" issue="1795131">
+                Clarified JavaDoc and behaviour so that Cache.getQuiet does not update Element statistics but also
+                cache statistics.
+            </action>
+
 
             <!--Bug Fixes-->
             <action dev="Greg Luck" type="fix" issue="812270">
@@ -37,6 +42,10 @@
             </action>
             <action dev="Greg Luck" type="fix" issue="1936731">
                 Fixed JavaDoc for constant SHORT_DELAY.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="1938744">
+                Corrected ehcache.xsd so that minOccurs of cache can be 0. This makes ehcache-default.xml legal.
+                Thanks to Andreas Sahlbach for reporting this.
             </action>
 
         </release>
@@ -331,8 +340,7 @@
             </action>
             <action dev="Greg Luck" issue="1636876" type="fix">
                 GzipFilter corrupts UTF-8 encoded non-Latin characters. Fixed. Thanks to Matt Raible and Konstantin
-                Kolinko
-                for the bug report and Kolodin for the patch. This issue also affected the CachingFilter.
+                Kolinko for the bug report and Kolodin for the patch. This issue also affected the CachingFilter.
             </action>
             <action dev="Greg Luck" issue="1664030" type="fix">
                 Fix bug in RMIBootstrapCacheLoader.doLoad. If the first element in the remote cache is null, no

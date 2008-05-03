@@ -779,9 +779,11 @@ public class CacheTest extends AbstractCacheTest {
         long lastAccessedElement1 = element1.getLastAccessTime();
         long hitCountElement1 = element1.getHitCount();
         assertEquals("Should be two", 1, element1.getHitCount());
+        assertEquals(1L, cache.getStatistics().getCacheHits());
 
         element1 = cache.getQuiet("key1");
         element1 = cache.getQuiet("key1");
+        assertEquals(1L, cache.getStatistics().getCacheHits());
         Element clonedElement1 = (Element) element1.clone();
         cache.putQuiet(clonedElement1);
         element1 = cache.getQuiet("key1");

@@ -42,7 +42,7 @@ public interface Store {
     Element get(Object key);
 
     /**
-     * Gets an {@link Element} from the Disk Store, without updating statistics
+     * Gets an {@link Element} from the Store, without updating statistics
      *
      * @return The element
      */

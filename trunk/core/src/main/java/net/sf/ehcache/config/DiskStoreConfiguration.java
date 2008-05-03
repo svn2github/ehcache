@@ -62,7 +62,6 @@ public final class DiskStoreConfiguration {
         String translatedPath = replaceToken(Env.USER_HOME, System.getProperty(Env.USER_HOME), path);
         translatedPath = replaceToken(Env.USER_DIR, System.getProperty(Env.USER_DIR), translatedPath);
         translatedPath = replaceToken(Env.JAVA_IO_TMPDIR, System.getProperty(Env.JAVA_IO_TMPDIR), translatedPath);
-        String separator = File.separator;
         //Remove duplicate separators: Windows and Solaris
         translatedPath = replaceToken(File.separator + File.separator, File.separator, translatedPath);
 

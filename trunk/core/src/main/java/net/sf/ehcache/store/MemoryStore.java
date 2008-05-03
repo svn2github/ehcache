@@ -141,7 +141,7 @@ public abstract class MemoryStore implements Store {
     }
 
     /**
-     * Gets an item from the cache, without updating Element statistics.
+     * Gets an item from the cache, without updating statistics.
      *
      * @param key the cache key
      * @return the element, or null if there was no match for the key

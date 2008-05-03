@@ -11,7 +11,7 @@
                 <xs:element minOccurs="0" maxOccurs="1"
                             ref="cacheManagerPeerListenerFactory"/>
                 <xs:element ref="defaultCache"/>
-                <xs:element maxOccurs="unbounded" ref="cache"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="cache"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

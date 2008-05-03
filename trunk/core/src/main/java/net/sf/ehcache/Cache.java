@@ -1156,11 +1156,15 @@ public class Cache implements Ehcache {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(configuration.getName() + " Memory cache hit, but element expired");
                 }
-                missCountExpired++;
+                if (updateStatistics) {
+                    missCountExpired++;
+                }
                 remove(key, true, true, false);
                 element = null;
             } else {
-                memoryStoreHitCount++;
+                if (updateStatistics) {
+                    memoryStoreHitCount++;
+                }
             }
         }
         return element;
