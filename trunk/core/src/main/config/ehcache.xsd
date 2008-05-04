@@ -3,7 +3,7 @@
     <xs:element name="ehcache" >
         <xs:complexType>
             <xs:sequence>
-                <xs:element ref="diskStore"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="diskStore"/>
                 <xs:element minOccurs="0" maxOccurs="1"
                             ref="cacheManagerEventListenerFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1"

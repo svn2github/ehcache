@@ -279,11 +279,23 @@ public class CacheManager {
     private void configure(ConfigurationHelper configurationHelper) {
 
         diskStorePath = configurationHelper.getDiskStorePath();
+        int cachesRequiringDiskStores = configurationHelper.numberOfCachesThatOverflowToDisk().intValue()
+                + configurationHelper.numberOfCachesThatAreDiskPersistent().intValue();
+
+        if (diskStorePath == null && cachesRequiringDiskStores > 0) {
+            diskStorePath = "java.io.tmpdir";
+            LOG.warn("One or more caches require a DiskStore but there is no diskStore element configured." +
+                    " Attempting to use the default of java.io.tmpdir. Please explicitly configure the " +
+                    "diskStore element in ehcache.xml.");
+        }
+
         detectAndFixDiskStorePathConflict(configurationHelper);
+
         cacheManagerEventListenerRegistry.registerListener(configurationHelper.createCacheManagerEventListener());
 
         cacheManagerPeerListener = configurationHelper.createCachePeerListener();
         cacheManagerEventListenerRegistry.registerListener(cacheManagerPeerListener);
+
         detectAndFixCacheManagerPeerListenerConflict(configurationHelper);
 
         ALL_CACHE_MANAGERS.add(this);
@@ -497,6 +509,7 @@ public class CacheManager {
     /**
      * Gets an Ehcache
      * <p/>
+     *
      * @return a Cache, if an object of type Cache exists by that name, else null
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
@@ -511,6 +524,7 @@ public class CacheManager {
      * If a JCache does not exist for the name, but an ehcache does, a new JCache will be created dynamically and added
      * to the list of JCaches managed by this CacheManager.
      * Warning: JCache will change as the specification changes, so no guarantee of backward compatibility is made for this method.
+     *
      * @return a JSR 107 Cache, if an object of that type exists by that name, else null
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
@@ -559,7 +573,6 @@ public class CacheManager {
         }
     }
 
-
     /**
      * Remove the shutdown hook to prevent leaving orphaned CacheManagers around. This
      * is called by {@link #shutdown()}} AFTER the status has been set to shutdown.
@@ -600,7 +613,7 @@ public class CacheManager {
             ObjectExistsException, CacheException {
         checkStatus();
 
-        //NPE guard
+//NPE guard
         if (cacheName == null || cacheName.length() == 0) {
             return;
         }
@@ -740,7 +753,7 @@ public class CacheManager {
     public synchronized void removeCache(String cacheName) throws IllegalStateException {
         checkStatus();
 
-        //NPE guard
+//NPE guard
         if (cacheName == null || cacheName.length() == 0) {
             return;
         }
@@ -790,7 +803,7 @@ public class CacheManager {
                 defaultCache.dispose();
                 status = Status.STATUS_SHUTDOWN;
 
-                //only delete singleton if the singleton is shutting down.
+//only delete singleton if the singleton is shutting down.
                 if (this == singleton) {
                     singleton = null;
                 }
@@ -817,7 +830,6 @@ public class CacheManager {
             throw new IllegalStateException("The CacheManager is not alive.");
         }
     }
-
 
     /**
      * Gets the status attribute of the Ehcache
@@ -954,8 +966,9 @@ public class CacheManager {
      * Ehcache, in a single synchronized method.
      * <p/>
      * Warning: JCache will change as the specification changes, so no guarantee of backward compatibility is made for this method.
+     *
      * @param ehcache
-     * @param jCache A JCache that wraps the original cache.
+     * @param jCache  A JCache that wraps the original cache.
      * @throws CacheException
      */
     public synchronized void replaceEhcacheWithJCache(Ehcache ehcache, JCache jCache) throws CacheException {
@@ -994,7 +1007,6 @@ public class CacheManager {
     public void setName(String name) {
         this.name = name;
     }
-
 
     /**
      * @return either the name of this CacheManager, or if unset, Object.toString()

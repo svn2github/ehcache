@@ -43,7 +43,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
     private static final Log LOG = LogFactory.getLog(RMICachePeer.class.getName());
 
     private final String hostname;
-    private final Integer port;
+    private final Integer rmiRegistryPort;
     private final Ehcache cache;
 
     /**
@@ -51,17 +51,18 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      *
      * @param cache
      * @param hostName
-     * @param port
+     * @param rmiRegistryPort
      * @param socketTimeoutMillis
      * @throws RemoteException
+     * todo test effects of a non-zero value
      */
-    public RMICachePeer(Ehcache cache, String hostName, Integer port, Integer socketTimeoutMillis)
+    public RMICachePeer(Ehcache cache, String hostName, Integer rmiRegistryPort, Integer socketTimeoutMillis)
             throws RemoteException {
         super(0, new ConfigurableRMIClientSocketFactory(socketTimeoutMillis),
                 RMISocketFactory.getDefaultSocketFactory());
 
         this.hostname = hostName;
-        this.port = port;
+        this.rmiRegistryPort = rmiRegistryPort;
         this.cache = cache;
     }
 
@@ -77,7 +78,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
                 .append("//")
                 .append(hostname)
                 .append(":")
-                .append(port)
+                .append(rmiRegistryPort)
                 .append("/")
                 .append(cache.getName())
                 .toString();
@@ -95,7 +96,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
                 .append("//")
                 .append(hostname)
                 .append(":")
-                .append(port)
+                .append(rmiRegistryPort)
                 .toString();
     }
 

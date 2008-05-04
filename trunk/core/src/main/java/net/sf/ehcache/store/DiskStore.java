@@ -161,16 +161,14 @@ public class DiskStore implements Store {
         } catch (final Exception e) {
             // Cleanup on error
             dispose();
-            LOG.error(name + "Cache: Could not create disk store. Initial cause was " + e.getMessage(), e);
+            throw new CacheException(name + "Cache: Could not create disk store. " +
+                    "Initial cause was " + e.getMessage(), e);
         }
     }
 
 
     private void initialiseFiles() throws Exception {
         // Make sure the cache directory exists
-        if (diskPath == null) {
-            LOG.fatal("This cache " + name + " requires a DiskStore but there is no diskStore element configured.");
-        }
         final File diskDir = new File(diskPath);
         if (diskDir.exists() && !diskDir.isDirectory()) {
             throw new Exception("Store directory \"" + diskDir.getCanonicalPath() + "\" exists and is not a directory.");

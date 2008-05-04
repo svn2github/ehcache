@@ -1,8 +1,10 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../config/ehcache.xsd">
-    <!--
-    DiskStore configuration
 
-    Sets the path to the directory where cache files are created.
+    <!--
+    The diskStore element is optional. It must be configured if you have overflowToDisk or diskPersistent enabled
+    for any cache. If it is not configured, a warning will be issues and java.io.tmpdir will be used.
+
+    diskStore has only one attribute - "path". It is the path to the directory where .data and .index files will be created.
 
     If the path is a Java System Property it is replaced by its value in the
     running VM.
@@ -13,6 +15,7 @@
     * java.io.tmpdir - Default temp file path
 
     Subdirectories can be specified below the property e.g. java.io.tmpdir/one
+
     -->
     <diskStore path="java.io.tmpdir"/>
 

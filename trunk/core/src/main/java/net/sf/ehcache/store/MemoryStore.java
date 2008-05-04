@@ -210,16 +210,16 @@ public abstract class MemoryStore implements Store {
     }
 
     /**
-     * Flush to disk.
+     * Flush to disk only if the cache is diskPersistent.
      */
     public final synchronized void flush() {
-        if (cache.isOverflowToDisk()) {
+        if (cache.isDiskPersistent()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(cache.getName() + " is persistent. Spooling " + map.size() + " elements to the disk store.");
             }
             spoolAllToDisk();
         }
-        //should be empty in any case
+        //should be emptied in any case
         clear();
     }
 

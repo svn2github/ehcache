@@ -1094,10 +1094,12 @@ public class CacheTest extends AbstractCacheTest {
      * @throws Exception
      */
     public void testFlushWhenOverflowToDisk() throws Exception {
-        Cache cache = new Cache("testGetMemoryStoreSize", 50, true, false, 100, 200);
+        Cache cache = new Cache("testFlushWhenOverflowToDisk", 50, true, false, 100, 200, true, 120);
         manager.addCache(cache);
 
         assertEquals(0, cache.getMemoryStoreSize());
+        assertEquals(0, cache.getDiskStoreSize());
+
 
         for (int i = 0; i < 100; i++) {
             cache.put(new Element("" + i, new Date()));
@@ -1118,8 +1120,10 @@ public class CacheTest extends AbstractCacheTest {
 
         cache.flush();
         assertEquals(0, cache.getMemoryStoreSize());
-        //Non Serializable Elements gets discarded
+        //Non Serializable Elements get discarded
         assertEquals(100, cache.getDiskStoreSize());
+
+        cache.removeAll();
 
     }
 
@@ -1135,7 +1139,7 @@ public class CacheTest extends AbstractCacheTest {
      * @throws Exception
      */
     public void testMemoryEfficiencyOfFlushWhenOverflowToDisk() throws Exception {
-        Cache cache = new Cache("testGetMemoryStoreSize", 40000, true, false, 100, 200);
+        Cache cache = new Cache("testGetMemoryStoreSize", 40000, true, false, 100, 200, true, 120);
         manager.addCache(cache);
 
         assertEquals(0, cache.getMemoryStoreSize());

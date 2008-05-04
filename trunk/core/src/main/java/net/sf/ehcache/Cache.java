@@ -264,7 +264,7 @@ public class Cache implements Ehcache {
         this(name, maxElementsInMemory, DEFAULT_MEMORY_STORE_EVICTION_POLICY, overflowToDisk, null,
                 eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, null, null);
         LOG.warn("An API change between ehcache-1.1 and ehcache-1.2 results in the persistence path being set to java.io.tmpdir" +
-                " when the ehcache-1.1 constructor is used. Please change to the 1.2 constructor");
+                " when the ehcache-1.1 constructor is used. Please change to the 1.2 constructor.");
     }
 
 
@@ -564,10 +564,14 @@ public class Cache implements Ehcache {
     }
 
     /**
-     * Creates a disk store.
+     * Creates a disk store when either:
+     * <ol>
+     * <li>overflowToDisk is enabled
+     * <li>diskPersistent is enabled
+     * </ol>
      */
     protected Store createDiskStore() {
-        if (configuration.isOverflowToDisk()) {
+        if (configuration.isOverflowToDisk() || configuration.isDiskPersistent()) {
             return new DiskStore(this, diskStorePath);
         } else {
             return null;
@@ -777,7 +781,7 @@ public class Cache implements Ehcache {
 
         synchronized (this) {
             element = searchInMemoryStore(key, true);
-            if (element == null && configuration.isOverflowToDisk()) {
+            if (element == null && configuration.isOverflowToDisk() || configuration.isDiskPersistent()) {
                 element = searchInDiskStore(key, true);
             }
             if (element == null) {
@@ -1031,7 +1035,7 @@ public class Cache implements Ehcache {
 
         synchronized (this) {
             element = searchInMemoryStore(key, false);
-            if (element == null && configuration.isOverflowToDisk()) {
+            if (element == null && configuration.isOverflowToDisk() || configuration.isDiskPersistent()) {
                 element = searchInDiskStore(key, false);
             }
         }
@@ -1061,7 +1065,7 @@ public class Cache implements Ehcache {
         List allKeyList = new ArrayList();
         List keyList = Arrays.asList(memoryStore.getKeyArray());
         allKeyList.addAll(keyList);
-        if (configuration.isOverflowToDisk()) {
+        if (configuration.isOverflowToDisk() || configuration.isDiskPersistent()) {
             Set allKeys = new HashSet();
             //within the store keys will be unique
             allKeys.addAll(keyList);
@@ -1137,7 +1141,7 @@ public class Cache implements Ehcache {
         ArrayList allKeys = new ArrayList();
         List memoryKeySet = Arrays.asList(memoryStore.getKeyArray());
         allKeys.addAll(memoryKeySet);
-        if (configuration.isOverflowToDisk()) {
+        if (configuration.isOverflowToDisk() || configuration.isDiskPersistent()) {
             List diskKeySet = Arrays.asList(diskStore.getKeyArray());
             allKeys.addAll(diskKeySet);
         }
@@ -1350,7 +1354,7 @@ public class Cache implements Ehcache {
 
             //could have been removed from both places, if there are two copies in the cache
             elementFromDiskStore = null;
-            if (configuration.isOverflowToDisk()) {
+            if (configuration.isOverflowToDisk() || configuration.isDiskPersistent()) {
                 if ((key instanceof Serializable)) {
                     Serializable serializableKey = (Serializable) key;
                     elementFromDiskStore = diskStore.remove(serializableKey);
@@ -1418,7 +1422,7 @@ public class Cache implements Ehcache {
         checkStatus();
         synchronized (this) {
             memoryStore.removeAll();
-            if (configuration.isOverflowToDisk()) {
+            if (configuration.isOverflowToDisk() || configuration.isDiskPersistent()) {
                 diskStore.removeAll();
             }
         }
@@ -1451,7 +1455,7 @@ public class Cache implements Ehcache {
             memoryStore.dispose();
         }
         memoryStore = null;
-        if (configuration.isOverflowToDisk() && diskStore != null) {
+        if (diskStore != null) {
             diskStore.dispose();
             diskStore = null;
         }
@@ -1491,7 +1495,7 @@ public class Cache implements Ehcache {
         checkStatus();
         try {
             memoryStore.flush();
-            if (configuration.isOverflowToDisk()) {
+            if (configuration.isOverflowToDisk() || configuration.isDiskPersistent()) {
                 diskStore.flush();
             }
         } catch (IOException e) {
@@ -1570,7 +1574,7 @@ public class Cache implements Ehcache {
      */
     public final int getDiskStoreSize() throws IllegalStateException {
         checkStatus();
-        if (configuration.isOverflowToDisk()) {
+        if (configuration.isOverflowToDisk() || configuration.isDiskPersistent()) {
             return diskStore.getSize();
         } else {
             return 0;
@@ -1961,10 +1965,10 @@ public class Cache implements Ehcache {
             return false;
         }
         Serializable serializableKey = (Serializable) key;
-        if (!configuration.isOverflowToDisk()) {
-            return false;
-        } else {
+        if (configuration.isOverflowToDisk() || configuration.isDiskPersistent()) {
             return diskStore != null && diskStore.containsKey(serializableKey);
+        } else {
+            return false;
         }
     }
 
@@ -2036,7 +2040,7 @@ public class Cache implements Ehcache {
             }
         }
         //This is called regularly by the expiry thread, but call it here synchronously
-        if (configuration.isOverflowToDisk()) {
+        if (configuration.isOverflowToDisk() || configuration.isDiskPersistent()) {
             diskStore.expireElements();
         }
     }

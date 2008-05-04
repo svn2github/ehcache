@@ -116,14 +116,22 @@ Storage Options
 
  ** Storage Files
 
-     The disk store creates one file per cache called "cache name.data".
+     The disk store creates one file per cache called "<cache_name>.data".
 
      If the <<<DiskStore>>> is configured to be persistent, a "<<cache name>>.index" file is also created.
 
      Files are created in the directory specified by the diskStore
-     configuration element. The default configuration is "java.io.tmpdir",
-     which causes files to be created in the system's temporary
+     configuration element. The diskStore configuration for the ehcache-failsafe.xml and bundled sample
+     configuration file ehcache.xml is "java.io.tmpdir", which causes files to be created in the system's temporary
      directory.
+
+     The diskStore element in ehcache.xml is now optional (as of 1.5). If all caches use only MemoryStores, then
+     there is no need to worry about configuring diskStore. This will simplify configurations particularly
+     where multiple CacheManagers are being used.
+
+     If one or more caches requires a DiskStore, and none is configured, java.io.tmpdir will be used and
+     a warning message will be logged to encourage explicity configuration of the diskStore path.
+
 
      Following is a list of Java system properties which are supported as values for diskStore:
 
@@ -165,9 +173,10 @@ Storage Options
      If diskPersistent is true, the data file, and an index file, are saved. Cache Elements are
      available to a new <<<CacheManager>>>. This <<<CacheManager>>> may be in the same VM instance, or a new one.
 
-     The data file is updated continuously during operation of the Disk
-     Store. New elements are spooled to disk, and deleted when expired. The
-     index file is only written when dispose is called on the <<<DiskStore>>>.
+     The data file is updated continuously during operation of the Disk Store if <<<overflowToDisk>>> is true.
+     Otherwise it is not updated until either <<<cache.flush()>>> is called or the cache is disposed.
+
+     In all cases the index file is only written when dispose is called on the <<<DiskStore>>>.
      This happens when the CacheManager is shut down, a Cache is disposed,
      or the VM is being shut down. It is recommended that the
      CacheManager {{{http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/CacheManager.html#shutdown%28%29}shutdown()}}
@@ -248,4 +257,18 @@ Storage Options
      system, object serialization becomes the limiting factor to performance.
 
 
+     * Operation of a Cache where {overflowToDisk is false and diskPersistent} is true
+
+     In this configuration case, the disk will be written on <<<flush>>> or <<<shutdown>>>.
+
+     The next time the cache is started, the disk store will initialise but will not permit
+     overflow from the MemoryStore. In all other respects it acts like a normal disk store.
+
+     In practice this means that persistent in-memory cache will start up with all of its elements
+     on disk. As gets cause cache hits, they will be loaded up into the <<<MemoryStore>>>. The oher
+     thing that may happen is that the elements will expire, in which case the <<<DiskStore>>> expiry
+     thread will reap them, (or they will get removed on a get if they are expired).
+
+     So, the ehcache design does not load them all into memory on start up, but lazily loads them as
+     required.
 

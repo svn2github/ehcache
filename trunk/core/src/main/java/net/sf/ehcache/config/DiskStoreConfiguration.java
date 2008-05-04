@@ -24,13 +24,29 @@ import java.io.File;
 /**
  * A class to represent DiskStore configuration
  * e.g. <diskStore path="java.io.tmpdir" />
+ *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
 public final class DiskStoreConfiguration {
     private static final Log LOG = LogFactory.getLog(DiskStoreConfiguration.class.getName());
 
+
+    /**
+     * The path to the directory where .data and .index files will be created. 
+     */
     private String path;
+
+
+    /**
+     * A constants class for environment variables used in disk store paths
+     */
+    private static final class Env {
+
+        static final String USER_HOME = "user.home";
+        static final String USER_DIR = "user.dir";
+        static final String JAVA_IO_TMPDIR = "java.io.tmpdir";
+    }
 
     /**
      * The diskStore path
@@ -52,12 +68,6 @@ public final class DiskStoreConfiguration {
      *             e.g. <code>java.io/tmpdir/caches</code> might become <code>/tmp/caches</code>
      */
     public final void setPath(final String path) {
-        /** A constants class with method scope */
-        final class Env {
-            static final String USER_HOME = "user.home";
-            static final String USER_DIR = "user.dir";
-            static final String JAVA_IO_TMPDIR = "java.io.tmpdir";
-        }
 
         String translatedPath = replaceToken(Env.USER_HOME, System.getProperty(Env.USER_HOME), path);
         translatedPath = replaceToken(Env.USER_DIR, System.getProperty(Env.USER_DIR), translatedPath);
@@ -74,6 +84,7 @@ public final class DiskStoreConfiguration {
 
     /**
      * Replaces a token with replacement text.
+     *
      * @param token
      * @param replacement
      * @param source

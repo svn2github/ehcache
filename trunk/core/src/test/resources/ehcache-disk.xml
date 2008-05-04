@@ -59,4 +59,17 @@
         diskExpiryThreadIntervalSeconds="0"
         />
 
+    <cache name="persistentLongExpiryIntervalNonOverflowCache"
+        maxElementsInMemory="500"
+        maxElementsOnDisk="1000"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        overflowToDisk="false"
+        diskPersistent="true"
+        diskExpiryThreadIntervalSeconds="0"
+        />
+
+
+
 </ehcache>

@@ -177,6 +177,50 @@ public class DiskStoreTest extends AbstractCacheTest {
         cache = manager.getCache("persistentLongExpiryIntervalCache");
         assertEquals(100, cache.getSize());
 
+        manager.shutdown();
+
+    }
+
+    /**
+     * An integration test, at the CacheManager level, to make sure persistence works
+     * This test checks the config where a cache is not configured overflow to disk, but is disk persistent.
+     * It should work by putting elements in the DiskStore initially and then loading them into memory as they
+     * are called.
+     */
+    public void testPersistentNonOverflowToDiskStoreFromCacheManager() throws IOException, InterruptedException, CacheException {
+        //initialise with an instance CacheManager so that the following line actually does something
+        CacheManager manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-disk.xml");
+        Ehcache cache = manager.getCache("persistentLongExpiryIntervalNonOverflowCache");
+
+        for (int i = 0; i < 100; i++) {
+            byte[] data = new byte[1024];
+            cache.put(new Element("key" + (i + 100), data));
+        }
+        assertEquals(100, cache.getSize());
+
+        manager.shutdown();
+
+        manager =  new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-disk.xml");
+        cache = manager.getCache("persistentLongExpiryIntervalNonOverflowCache");
+
+        //Now check that the DiskStore is involved in Cache methods it needs to be involved in.
+        assertEquals(100, cache.getSize());
+        assertEquals(100, cache.getDiskStoreSize());
+        assertEquals(100, cache.getKeysNoDuplicateCheck().size());
+        assertEquals(100, cache.getKeys().size());
+        assertEquals(100, cache.getKeysWithExpiryCheck().size());
+
+        //now check some of the Cache methods work
+        assertNotNull(cache.get("key100"));
+        assertNotNull(cache.getQuiet("key100"));
+        cache.remove("key100");
+        assertNull(cache.get("key100"));
+        assertNull(cache.getQuiet("key100"));
+        cache.removeAll();
+        assertEquals(0, cache.getSize());
+        assertEquals(0, cache.getDiskStoreSize());
+
+        manager.shutdown();
     }
 
     /**

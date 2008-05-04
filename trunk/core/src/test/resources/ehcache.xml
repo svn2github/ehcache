@@ -1,7 +1,8 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd">
 
-    <diskStore path="java.io.tmpdir"/>
+    <!-- Disable for test ehcache.xml. Should go to the same place. -->
+    <!--<diskStore path="java.io.tmpdir"/>-->
 
     <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
                                      properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446"/>
@@ -32,11 +33,12 @@
         <cacheEventListenerFactory class="net.sf.ehcache.event.NullCacheEventListenerFactory"/>
     </cache>
 
-    <!-- Sample cache named sampleCache2. Is eternal -->
+    <!-- Sample cache named sampleCache2. Is eternal. Is diskPersistent but does not overflow to disk -->
     <cache name="sampleCache2"
            maxElementsInMemory="1000"
            eternal="true"
            overflowToDisk="false"
+           diskPersistent="true"
             />
 
     <!-- Sample cache named sampleCacheNoIdle, which does not specify the optional idle time -->
@@ -149,11 +151,8 @@
         <cacheExceptionHandlerFactory class="net.sf.ehcache.exceptionhandler.CountingExceptionHandlerFactory"
                                       properties="logLevel=FINE"/>
         <cacheLoaderFactory class="net.sf.ehcache.loader.CountingCacheLoaderFactory"
-                                      properties="type=int,startCounter=10"/>
+                            properties="type=int,startCounter=10"/>
     </cache>
-
-
-
 
 
 </ehcache>

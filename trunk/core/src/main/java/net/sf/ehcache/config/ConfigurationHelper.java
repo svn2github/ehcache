@@ -369,6 +369,23 @@ public final class ConfigurationHelper {
         return new Integer(count);
     }
 
+
+    /**
+     * Calculates the number of caches in the configuration that are diskPersistent
+     */
+    public final Integer numberOfCachesThatAreDiskPersistent() {
+        int count = 0;
+        Set cacheConfigurations = configuration.getCacheConfigurations().entrySet();
+        for (Iterator iterator = cacheConfigurations.iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            CacheConfiguration cacheConfiguration = (CacheConfiguration) entry.getValue();
+            if (cacheConfiguration.isDiskPersistent()) {
+                count++;
+            }
+        }
+        return new Integer(count);
+    }
+
     /**
      * Creates a cache from configuration where the configuration cache name matches the given name
      *

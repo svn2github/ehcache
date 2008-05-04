@@ -91,6 +91,7 @@
             <groupId>org.acegisecurity</groupId>
             <artifactId>acegi-security</artifactId>
         </dependency>
+        <!-- todo why does this need to be duplicated here. Maven bug? -->
         <dependency>
             <groupId>jgroups</groupId>
             <artifactId>jgroups-all</artifactId>
@@ -105,7 +106,6 @@
                     <artifactId>log4j</artifactId>
                 </exclusion>
             </exclusions>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

@@ -90,8 +90,8 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Configuration configuration = ConfigurationFactory.parseConfiguration();
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
-        //Check disk store  <diskStore path="java.io.tmpdir"/>
-        assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
+        //Check disk store we have it missing in the test ehcache.xml />
+        assertEquals(null, configurationHelper.getDiskStorePath());
 
         //Check CacheManagerPeerProvider
         CacheManagerPeerProvider peerProvider = configurationHelper.createCachePeerProvider();
@@ -667,8 +667,8 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Configuration configuration = ConfigurationFactory.parseConfiguration(url);
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
-        //Check disk path  <diskStore path="/tmp"/>
-        assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
+        //Check disk path missing in test ehcache.xml"/>
+        assertEquals(null, configurationHelper.getDiskStorePath());
 
         //Check default cache
         Ehcache defaultCache = configurationHelper.createDefaultCache();
