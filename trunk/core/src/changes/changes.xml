@@ -34,8 +34,6 @@
                 Change behaviour of diskPersistent so that it will work for MemoryStore only caches. On shutdown
                 the memory store will be written to disk and on startup loaded up into memory. But DiskStore itself
                 will not be used during cache operation.
-
-                (agree to this change request)
             </action>
             <action dev="Greg Luck" type="update" issue="1728061">
                 The diskStore element in ehcache.xml is now optional. If all caches use only MemoryStores, then
@@ -46,8 +44,6 @@
                 a warning message will be logged to encourage explicity configuration of the diskStore path.
 
                 Thanks to Robert Watkins for suggesting this one.
-
-                (Update sf.net to close this one)
             </action>
 
 
@@ -60,11 +56,10 @@
                 Change CachingFilter to use setHeader rather than addHeader which was duplicating some headers.
             </action>
             <action dev="Greg Luck" type="fix" issue="1936731">
-                Fixed JavaDoc for constant SHORT_DELAY.
+                Updated the JavaDoc to clarify the meaning of the constant SHORT_DELAY.
             </action>
             <action dev="Greg Luck" type="fix" issue="1888993">
                 Fixed inefficient shutdown of cache when the cache is not diskPersistent.
-                (reopen and fix)
             </action>
             <action dev="Greg Luck" type="fix" issue="1938744">
                 Corrected ehcache.xsd so that minOccurs of cache can be 0. This makes ehcache-default.xml legal.
@@ -74,24 +69,7 @@
             <!-- In Progress-->
             <action dev="Greg Luck" type="fix" issue="1955199">
                 Adding a replication listener to an existing cache does not work
-
-                reported wants to register a new replicator listener and have it work. But the peer listener
-                is connected to the cache manager and gets updated when a cache is added. It isn't that the listener
-                doesn't work, it is that the other plumbing has to get called.
-
-                Why do they want to do this. Adding to one cache in a cluster and not others will not have any
-                useful consequences. If they all have to be done why not do it in configuration?
-
-                (Ask question)
-
-            </action>
-            <action dev="Greg Luck" type="update" issue="1883929">
-                 Allow diskstore to take custom serializer
-
-                But what about replicators. We have RMI and JGroups which all require Serializable.
-
-                (Ask question)
-
+                (Awaiting response from report to question)
             </action>
             <action dev="Greg Luck" type="update" issue="1887683">
                 Can't configure rmi peer-listener port. By default RMI will assign a random listener port

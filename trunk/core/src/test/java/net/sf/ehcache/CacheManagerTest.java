@@ -50,9 +50,9 @@ import java.util.Iterator;
  * @version $Id$
  */
 public class CacheManagerTest extends TestCase {
+
     private static final Log LOG = LogFactory.getLog(CacheManagerTest.class.getName());
 
-    
 
     /**
      * the CacheManager Singleton instance
@@ -84,9 +84,6 @@ public class CacheManagerTest extends TestCase {
             assertFalse(CacheManager.ALL_CACHE_MANAGERS.contains(instanceManager));
         }
     }
-
-
-
 
     /**
      * Tests that the CacheManager was successfully created
@@ -696,4 +693,13 @@ public class CacheManagerTest extends TestCase {
         assertEquals(tmp, System.getProperty("java.io.tmpdir"));
 
     }
+
+    /**
+     * Ehcache 1.5 allows the diskStore element to be optional. Check that is is null
+     */
+    public void testCacheManagerWithNoDiskCachesFromConfiguration() throws CacheException, InterruptedException {
+        singletonManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-nodisk.xml");
+        assertEquals(null, singletonManager.getDiskStorePath());
+    }
+
 }

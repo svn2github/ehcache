@@ -20,6 +20,7 @@ package net.sf.ehcache;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.ConfigurationHelper;
+import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.event.CacheManagerEventListener;
@@ -283,10 +284,10 @@ public class CacheManager {
                 + configurationHelper.numberOfCachesThatAreDiskPersistent().intValue();
 
         if (diskStorePath == null && cachesRequiringDiskStores > 0) {
-            diskStorePath = "java.io.tmpdir";
+            diskStorePath = DiskStoreConfiguration.getDefaultPath();
             LOG.warn("One or more caches require a DiskStore but there is no diskStore element configured." +
-                    " Attempting to use the default of java.io.tmpdir. Please explicitly configure the " +
-                    "diskStore element in ehcache.xml.");
+                    " Using the default disk store path of " + DiskStoreConfiguration.getDefaultPath() +
+                    ". Please explicitly configure the diskStore element in ehcache.xml.");
         }
 
         detectAndFixDiskStorePathConflict(configurationHelper);
@@ -1013,6 +1014,16 @@ public class CacheManager {
      */
     public String toString() {
         return getName();
+    }
+
+    /**
+     * Returns the disk store path. This may be null if no caches need a DiskStore and none was configured.
+     * The path cannot be changed after creation of the CacheManager. All caches take the disk store path
+     * from this value.
+     * @return the disk store path.
+     */
+    public String getDiskStorePath() {
+        return diskStorePath;
     }
 }
 

@@ -56,6 +56,14 @@ public final class DiskStoreConfiguration {
     }
 
     /**
+     * The diskStore default path, which is the system environment variable
+     * availablen on all Java virtual machines <code>java.io.tmpdir</code>
+     */
+    public static String getDefaultPath() {
+        return translatePath(Env.JAVA_IO_TMPDIR);
+    }
+
+    /**
      * Translates and sets the path.
      *
      * @param path If the path contains a Java System Property it is replaced by
@@ -68,7 +76,11 @@ public final class DiskStoreConfiguration {
      *             e.g. <code>java.io/tmpdir/caches</code> might become <code>/tmp/caches</code>
      */
     public final void setPath(final String path) {
+        String translatedPath = translatePath(path);
+        this.path = translatedPath;
+    }
 
+    private static String translatePath(String path) {
         String translatedPath = replaceToken(Env.USER_HOME, System.getProperty(Env.USER_HOME), path);
         translatedPath = replaceToken(Env.USER_DIR, System.getProperty(Env.USER_DIR), translatedPath);
         translatedPath = replaceToken(Env.JAVA_IO_TMPDIR, System.getProperty(Env.JAVA_IO_TMPDIR), translatedPath);
@@ -79,7 +91,7 @@ public final class DiskStoreConfiguration {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Disk Store Path: " + translatedPath);
         }
-        this.path = translatedPath;
+        return translatedPath;
     }
 
     /**

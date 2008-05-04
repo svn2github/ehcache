@@ -105,66 +105,98 @@ Storage Options
 
      The <<<DiskStore>>> provides a disk spooling facility.
 
+** <<<DiskStore>>>s are Optional
 
- ** Suitable Element Types
+     The diskStore element in ehcache.xml is now optional (as of 1.5). If all caches use only <<<MemoryStore>>>s,
+     then there is no need to configure a diskStore. This simplifies configuration, and uses less threads.
+     It is also good where where multiple CacheManagers are being used, and multiple disk store paths
+     would need to be configured.
+
+     If one or more caches requires a DiskStore, and none is configured, java.io.tmpdir will be used and
+     a warning message will be logged to encourage explicity configuration of the diskStore path.
+
+*** Turning off disk stores
+
+    To turn off disk store path creation, comment out the diskStore element in ehcache.xml.
+
+    The <<<ehcache-failsafe.xml>>> configuration uses a disk store. This will remain the case so as to not affect
+    existing ehcache deployments. So, if you do not wish to use a disk store make
+    sure you specify your own ehcache.xml and comment out the diskStore element.
+
+** Suitable Element Types
 
      Only <<<Element>>>s which are <<<Serializable>>> can be placed in the DiskStore. Any non serializable
      <<<Element>>>s which attempt to overflow to the <<<DiskStore>>> will be removed instead, and a WARNING level
      log message emitted.
 
-     It has the following characteristics:
 
- ** Storage Files
+** Storage
 
-     The disk store creates one file per cache called "<cache_name>.data".
+*** Files
 
-     If the <<<DiskStore>>> is configured to be persistent, a "<<cache name>>.index" file is also created.
+     The disk store creates a data file for each cache on startup called "<cache_name>.data", and, if the
+      <<<DiskStore>>> is configured to be persistent, an index file called "<<cache name>>.index" on flushing
+      of the <<<DiskStore>>> either explicitly using <<<Cache.flush>>> or on <<<CacheManager>>> shutdown.
+
+*** Storage Location
 
      Files are created in the directory specified by the diskStore
      configuration element. The diskStore configuration for the ehcache-failsafe.xml and bundled sample
      configuration file ehcache.xml is "java.io.tmpdir", which causes files to be created in the system's temporary
      directory.
 
-     The diskStore element in ehcache.xml is now optional (as of 1.5). If all caches use only MemoryStores, then
-     there is no need to worry about configuring diskStore. This will simplify configurations particularly
-     where multiple CacheManagers are being used.
+*** <diskStore Element>
 
-     If one or more caches requires a DiskStore, and none is configured, java.io.tmpdir will be used and
-     a warning message will be logged to encourage explicity configuration of the diskStore path.
+    The <<<diskStore>>> element is has one attribute called <<<path>>>.
+---
+    <diskStore path="java.io.tmpdir"/>
+---
+    Legal values for the path attibute are legal file system paths.  e.g.for Unix
+
+---
+    /home/application/cache
+---
+
+    The following system properties are also legal, in which case they are translated:
+
+    * user.home - User's home directory
+
+    * user.dir - User's current working directory
+
+    * java.io.tmpdir - Default temp file path
+
+    Subdirectories can be specified below the system property e.g.
+
+---
+    java.io.tmpdir/one
+
+    becomes, on a Unix system,
+
+    /tmp/one
+---
 
 
-     Following is a list of Java system properties which are supported as values for diskStore:
-
-       * user.home - User's home directory
-
-       * user.dir - User's current working directory
-
-       * java.io.tmpdir - Default temp file path
-
-     Apart from these, any directory can be specified using syntax appropriate to the operating system. e.g. for
-     Unix "/home/application/cache".
-
- ** Expiry Strategy
+** Expiry
 
      One thread per cache is used to remove expired elements. The optional attribute <<<diskExpiryThreadIntervalSeconds>>>
      sets the interval between runs of the expiry thread. Warning: setting this to a low value
      is not recommended. It can cause excessive <<<DiskStore>>> locking and high cpu utilisation. The default value is 120 seconds.
 
- ** Eviction Strategy
+** Eviction
 
      If the <<<maxElementsOnDisk>>> attribute is set, elements will be evicted from the <<<DiskStore>>> when it exceeds that amount.
      The LFU algorithm is used for these evictions. It is not configurable to use another algorithm.
 
- ** Serializable Objects
+** Serializable Objects
 
      Only Serializable objects can be stored in a <<<DiskStore>>>. A {{{http://java.sun.com/j2se/1.4.2/docs/api/java/io/NotSerializableException.html}NotSerializableException}}
      will be thrown if the object is not serializable.
 
- ** Safety
+** Safety
 
      <<<DiskStore>>>s are thread safe.
 
- ** {Persistence}
+** {Persistence}
 
      <<<DiskStore>>> persistence is controlled by the diskPersistent configuration element. If false or omitted, <<<DiskStore>>>s will not persist
      between <<<CacheManager>>> restarts. The data file for each cache will be deleted, if it

@@ -11,9 +11,13 @@
     DiskStore configuration
     =======================
 
-    The diskStore element is optional. It must be configured if you have overflowToDisk
-    or diskPersistent enabled for any cache. If it is not configured, a warning will be
-    issues and java.io.tmpdir will be used.
+    The diskStore element is optional. To turn off disk store path creation, comment out the diskStore
+    element below.
+
+    Configure it if you have overflowToDisk or diskPersistent enabled for any cache.
+
+    If it is not configured, and a cache is created which requires a disk store, a warning will be
+     issued and java.io.tmpdir will automatically be used.
 
     diskStore has only one attribute - "path". It is the path to the directory where
     .data and .index files will be created.
