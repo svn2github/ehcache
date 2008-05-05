@@ -1881,7 +1881,28 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(1000, countingCacheLoader.getLoadAllCounter());
     }
 
+    /**
+     * Tests programmatically disabling and enabling a cache
+     */
+    public void testEnableAndDisable() throws Exception {
+        Ehcache cache = manager.getCache("sampleCacheNoIdle");
+        cache.put(new Element("key1put", "value1"));
+        cache.put(new Element("key1putQuiet", "value1"));
+        assertFalse(cache.isDisabled());
+        assertNotNull(cache.get("key1put"));
+        assertNotNull(cache.get("key1putQuiet"));
 
+        //now disable
+        cache.setDisabled(true);
 
+        assertTrue(cache.isDisabled());
+        assertNotNull(cache.get("key1put"));
+        assertNotNull(cache.get("key1putQuiet"));
+
+        cache.put(new Element("key2put", "value1"));
+        cache.put(new Element("key2putQuiet", "value1"));
+        assertNull(cache.get("key2put"));
+        assertNull(cache.get("key2putQuiet"));
+    }
 
 }

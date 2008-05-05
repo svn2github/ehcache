@@ -2436,4 +2436,36 @@ public class Cache implements Ehcache {
         }
         return executorService;
     }
+
+
+    /**
+     * Whether this cache is disabled. "Disabled" means:
+     * <ol>
+     * <li>bootstrap is disabled
+     * <li>puts are discarded
+     * <li>putQuites are discarded
+     * </ol>
+     * In all other respects the cache continues as it is.
+     * <p/>
+     * You can disable and enable a cache programmatically through the {@link #setDisabled(boolean)} method.
+     * <p/>
+     * By default caches are enabled on creation, unless the <code>net.sf.ehcache.disabled</code> system
+     * property is set.
+     * @return true if the cache is disabled.
+     * @see #NET_SF_EHCACHE_DISABLED ?
+     */
+    public boolean isDisabled() {
+        return disabled;
+    }
+
+    /**
+     * Disables or enables this cache. This call overrides the previous value of disabled, even if the
+     * <code>net.sf.ehcache.disabled</code> system property is set
+     * <p/>
+     * @param disabled true if you wish to disable, false to enable
+     * @see #isDisabled()
+     */
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
+    }
 }

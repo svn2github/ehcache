@@ -728,7 +728,7 @@ public class DiskStore implements Store {
      * This class is designed to minimse the number of System.arraycopy(); methods
      * required to complete.
      */
-    class MemoryEfficientByteArrayOutputStream extends ByteArrayOutputStream {
+    static final class MemoryEfficientByteArrayOutputStream extends ByteArrayOutputStream {
 
 
         /**
