@@ -175,7 +175,9 @@
       where the host is multihomed and you want to control the interface over which cluster
       messages are received. Defaults to the host name of the default interface if not
       specified.
-    * port - the port the listener listens on. This defaults to a free port if not specified.
+    * port - the port the RMI Registry listener listens on. This defaults to a free port if not specified.
+    * remoteObjectPort - the port number on which the remote objects bound in the registry receive calls.
+                         This defaults to a free port if not specified.
     * socketTimeoutMillis - the number of ms client sockets will stay open when sending
       messages to the listener. This should be long enough for the slowest message.
       If not specified it defaults 120000ms.

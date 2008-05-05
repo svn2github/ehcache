@@ -95,6 +95,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
 
     private CacheManager cacheManager;
     private Integer socketTimeoutMillis;
+    private Integer remoteObjectPort;
 
     /**
      * Constructor with full arguments.
@@ -102,10 +103,12 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      * @param hostName            may be null, in which case the hostName will be looked up. Machines with multiple
      *                            interfaces should specify this if they do not want it to be the default NIC.
      * @param port                a port in the range 1025 - 65536
+     * @param remoteObjectPort    the port number on which the remote objects bound in the registry receive calls.
+                                  This defaults to a free port if not specified.
      * @param cacheManager        the CacheManager this listener belongs to
      * @param socketTimeoutMillis TCP/IP Socket timeout when waiting on response
      */
-    public RMICacheManagerPeerListener(String hostName, Integer port, CacheManager cacheManager,
+    public RMICacheManagerPeerListener(String hostName, Integer port, Integer remoteObjectPort, CacheManager cacheManager,
                                        Integer socketTimeoutMillis) throws UnknownHostException {
 
         status = Status.STATUS_UNINITIALISED;
@@ -124,6 +127,10 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
         } else {
             this.port = port;
         }
+
+        //by default is 0, which is ok.
+        this.remoteObjectPort = remoteObjectPort;
+
         this.cacheManager = cacheManager;
         if (socketTimeoutMillis == null || socketTimeoutMillis.intValue() < MINIMUM_SENSIBLE_TIMEOUT) {
             throw new IllegalArgumentException("socketTimoutMillis must be a reasonable value greater than 200ms");
@@ -263,7 +270,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             synchronized (cachePeers) {
                 if (cachePeers.get(name) == null) {
                     if (isDistributed(cache)) {
-                        RMICachePeer peer = new RMICachePeer(cache, hostName, port, socketTimeoutMillis);
+                        RMICachePeer peer = new RMICachePeer(cache, hostName, port, remoteObjectPort, socketTimeoutMillis);
                         cachePeers.put(name, peer);
                     }
                 }
@@ -499,7 +506,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             RMICachePeer rmiCachePeer = null;
             String url = null;
             try {
-                rmiCachePeer = new RMICachePeer(cache, hostName, port, socketTimeoutMillis);
+                rmiCachePeer = new RMICachePeer(cache, hostName, port, remoteObjectPort, socketTimeoutMillis);
                 url = rmiCachePeer.getUrl();
                 bind(url, rmiCachePeer);
             } catch (Exception e) {

@@ -44,23 +44,29 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
 
     private final String hostname;
     private final Integer rmiRegistryPort;
+    private Integer remoteObjectPort;
     private final Ehcache cache;
 
     /**
      * Construct a new remote peer.
      *
-     * @param cache
-     * @param hostName
-     * @param rmiRegistryPort
+     * @param cache               The cache attached to the peer
+     * @param hostName            The host name the peer is running on.
+     * @param rmiRegistryPort     The port number on which the RMI Registry listens. Should be an unused port in
+     *                            the range 1025 - 65536
+     * @param remoteObjectPort    the port number on which the remote objects bound in the registry receive calls.
+     *                            This defaults to a free port if not specified.
+     *                            Should be an unused port in the range 1025 - 65536
      * @param socketTimeoutMillis
      * @throws RemoteException
-     * todo test effects of a non-zero value
      */
-    public RMICachePeer(Ehcache cache, String hostName, Integer rmiRegistryPort, Integer socketTimeoutMillis)
+    public RMICachePeer(Ehcache cache, String hostName, Integer rmiRegistryPort, Integer remoteObjectPort,
+                        Integer socketTimeoutMillis)
             throws RemoteException {
-        super(0, new ConfigurableRMIClientSocketFactory(socketTimeoutMillis),
+        super(remoteObjectPort.intValue(), new ConfigurableRMIClientSocketFactory(socketTimeoutMillis),
                 RMISocketFactory.getDefaultSocketFactory());
 
+        this.remoteObjectPort = remoteObjectPort;
         this.hostname = hostName;
         this.rmiRegistryPort = rmiRegistryPort;
         this.cache = cache;
@@ -245,7 +251,11 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      * Returns a String that represents the value of this object.
      */
     public String toString() {
-        return getUrl();
+        StringBuffer buffer = new StringBuffer("URL: ");
+        buffer.append(getUrl());
+        buffer.append(" Remote Object Port: ");
+        buffer.append(remoteObjectPort);
+        return buffer.toString();
     }
 
 }
