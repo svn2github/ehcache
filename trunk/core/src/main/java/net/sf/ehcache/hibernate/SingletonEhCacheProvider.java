@@ -165,7 +165,8 @@ public final class SingletonEhCacheProvider implements CacheProvider {
      */
     public void stop() {
         if (manager != null) {
-            if (--referenceCount == 0) {
+            referenceCount--;
+            if (referenceCount == 0) {
                 manager.shutdown();
             }
             manager = null;

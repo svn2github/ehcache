@@ -754,7 +754,7 @@ public class CacheManager {
     public synchronized void removeCache(String cacheName) throws IllegalStateException {
         checkStatus();
 
-//NPE guard
+        //NPE guard
         if (cacheName == null || cacheName.length() == 0) {
             return;
         }

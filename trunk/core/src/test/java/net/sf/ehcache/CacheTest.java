@@ -73,6 +73,8 @@ public class CacheTest extends AbstractCacheTest {
         return cache;
     }
 
+
+
     /**
      * Checks we cannot use a cache after shutdown
      */

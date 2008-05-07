@@ -169,6 +169,7 @@ public final class EhCache implements Cache {
 
     /**
      * Remove the cache and make it unuseable.
+     * <p/>
      *
      * @throws CacheException
      */
@@ -176,7 +177,11 @@ public final class EhCache implements Cache {
         try {
             cache.getCacheManager().removeCache(cache.getName());
         } catch (IllegalStateException e) {
-            throw new CacheException(e);
+            //When Spring and Hibernate are both involved this will happen in normal shutdown operation.
+            //Do not throw an exception, simply log this one.
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("This can happen if multiple frameworks both try to shutdown ehcache", e);
+            }
         } catch (net.sf.ehcache.CacheException e) {
             throw new CacheException(e);
         }

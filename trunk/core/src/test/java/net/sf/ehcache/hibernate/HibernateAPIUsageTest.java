@@ -591,6 +591,9 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         }
 
         cache2.destroy();
+        //second destroy ok
+        cache2.destroy();
+
         try {
             cache2.get(key);
             fail();
@@ -598,6 +601,13 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
             //expected
         }
 
+
         ((net.sf.ehcache.hibernate.EhCache) cache).getBackingCache().getCacheManager().shutdown();
+        ((net.sf.ehcache.hibernate.EhCache) cache).getBackingCache().getCacheManager().shutdown();
+        ((net.sf.ehcache.hibernate.EhCache) cache2).getBackingCache().getCacheManager().shutdown();
+
+        //Spring and Hibernate together can call destroy after the CacheManager has been shutdown
+        //See bug 1901094. We need to deal with this as "normal".
+        cache2.destroy();
     }
 }

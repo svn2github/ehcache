@@ -45,6 +45,11 @@
 
                 Thanks to Robert Watkins for suggesting this one.
             </action>
+            <action dev="Greg Luck" type="update" issue="1887683">
+                By default RMI will assign a random listener port to a new Remote object which prevents its operation
+                through firewalls. Added a new property remoteListenerPort to RMICacheManagerPeerListenerFactory
+                to enable it to be specified.
+            </action>
 
 
             <!--Bug Fixes-->
@@ -65,22 +70,16 @@
                 Corrected ehcache.xsd so that minOccurs of cache can be 0. This makes ehcache-default.xml legal.
                 Thanks to Andreas Sahlbach for reporting this.
             </action>
+            <action dev="Greg Luck" type="fix" issue="1901094">
+                Fixed Cache destroy exception where Hibernate and Spring are both shutting down during
+                undeploying application.
+            </action>
+
 
             <!-- In Progress-->
             <action dev="Greg Luck" type="fix" issue="1955199">
                 Adding a replication listener to an existing cache does not work
                 (Awaiting response from report to question)
-            </action>
-            <action dev="Greg Luck" type="update" issue="1887683">
-                Can't configure rmi peer-listener port. By default RMI will assign a random listener port
-                to a new Remote object.
-
-                The request wants to be able to control it so that RMI can go through firewalls.
-
-                Question to test: Can each object listen to the same port?
-
-                (Ask question)
-
             </action>
 
         </release>
