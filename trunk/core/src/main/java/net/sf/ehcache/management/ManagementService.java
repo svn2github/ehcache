@@ -47,12 +47,14 @@ import java.util.Set;
  * The second purpose of this class (and this package) is to keep management concerns away
  * from the core ehcache packages. That way, JMX is not a required dependency, but rather
  * an optional one.
+ * <p/>
+ * This class is constructable as of 1.5 to support injection via IoC containers.
  *
  * @author Greg Luck
  * @version $Id$
  * @since 1.3
  */
-public final class ManagementService implements CacheManagerEventListener {
+public class ManagementService implements CacheManagerEventListener {
 
     private static final Log LOG = LogFactory.getLog(ManagementService.class.getName());
 
@@ -64,19 +66,16 @@ public final class ManagementService implements CacheManagerEventListener {
     private boolean registerCacheStatistics;
     private Status status;
 
-    /**
-     * Require use of the factory method
-     */
-    private ManagementService() {
-
-    }
 
     /**
-     * This method causes the selected monitoring options to be be registered
+     * A constructor for a management service for a range of possible MBeans.
+     * <p/>
+     * The {@link #init()} method needs to be called after construction which causes
+     *  the selected monitoring options to be be registered
      * with the provided MBeanServer for caches in the given CacheManager.
      * <p/>
      * While registering the CacheManager enables traversal to all of the other
-     *  items,
+     * items,
      * this requires programmatic traversal. The other options allow entry points closer
      * to an item of interest and are more accessible from JMX management tools like JConsole.
      * Moreover CacheManager and Cache are not serializable, so remote monitoring is not possible
@@ -87,12 +86,43 @@ public final class ManagementService implements CacheManagerEventListener {
      * as they are added and disposed of from the CacheManager. When the CacheManager itself
      * shutsdown all registered MBeans will be unregistered.
      *
-     * @param cacheManager the CacheManager to listen to
-     * @param mBeanServer the MBeanServer to register MBeans to
-     * @param registerCacheManager Whether to register the CacheManager MBean
-     * @param registerCaches Whether to register the Cache MBeans
+     * @param cacheManager                the CacheManager to listen to
+     * @param mBeanServer                 the MBeanServer to register MBeans to
+     * @param registerCacheManager        Whether to register the CacheManager MBean
+     * @param registerCaches              Whether to register the Cache MBeans
      * @param registerCacheConfigurations Whether to register the CacheConfiguration MBeans
-     * @param registerCacheStatistics Whether to register the CacheStatistics MBeans
+     * @param registerCacheStatistics     Whether to register the CacheStatistics MBeans
+     * @throws net.sf.ehcache.CacheException if something goes wrong with init()
+     * @see static version of this same method
+     */
+    public ManagementService(net.sf.ehcache.CacheManager cacheManager,
+                             MBeanServer mBeanServer,
+                             boolean registerCacheManager,
+                             boolean registerCaches,
+                             boolean registerCacheConfigurations,
+                             boolean registerCacheStatistics) throws CacheException {
+
+        status = Status.STATUS_UNINITIALISED;
+        backingCacheManager = cacheManager;
+        this.mBeanServer = mBeanServer;
+        this.registerCacheManager = registerCacheManager;
+        this.registerCaches = registerCaches;
+        this.registerCacheConfigurations = registerCacheConfigurations;
+        this.registerCacheStatistics = registerCacheStatistics;
+    }
+
+
+    /**
+     * A convenience static method which creates a ManagementService and initialises it with the
+     * supplied parameters.
+     *
+     * @param cacheManager                the CacheManager to listen to
+     * @param mBeanServer                 the MBeanServer to register MBeans to
+     * @param registerCacheManager        Whether to register the CacheManager MBean
+     * @param registerCaches              Whether to register the Cache MBeans
+     * @param registerCacheConfigurations Whether to register the CacheConfiguration MBeans
+     * @param registerCacheStatistics     Whether to register the CacheStatistics MBeans
+     * @see ManagementService#ManagementService(net.sf.ehcache.CacheManager, javax.management.MBeanServer, boolean, boolean, boolean, boolean)
      */
     public static void registerMBeans(
             net.sf.ehcache.CacheManager cacheManager,
@@ -102,21 +132,19 @@ public final class ManagementService implements CacheManagerEventListener {
             boolean registerCacheConfigurations,
             boolean registerCacheStatistics) throws CacheException {
 
-        ManagementService registry = new ManagementService();
-        registry.status = Status.STATUS_UNINITIALISED;
-        registry.backingCacheManager = cacheManager;
-        registry.mBeanServer = mBeanServer;
-        registry.registerCacheManager = registerCacheManager;
-        registry.registerCaches = registerCaches;
-        registry.registerCacheConfigurations = registerCacheConfigurations;
-        registry.registerCacheStatistics = registerCacheStatistics;
+        ManagementService registry = new ManagementService(cacheManager,
+                mBeanServer,
+                registerCacheManager,
+                registerCaches,
+                registerCacheConfigurations,
+                registerCacheStatistics);
 
         registry.init();
     }
 
 
     /**
-     * Call to start the listeners and do any other required initialisation.
+     * Call to register the mbeans in the mbean server and start the event listeners and do any other required initialisation.
      * Once intialised, it registers itself as a CacheManageEvenListener with the backing CacheManager, so
      * that it can participate in lifecycle and other events.
      *

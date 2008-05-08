@@ -98,6 +98,18 @@ public class ManagementServiceTest extends AbstractCacheTest {
         assertEquals(OBJECTS_IN_TEST_EHCACHE, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
     }
 
+
+    /**
+     * Integration test for the registration service using a contructed ManagementService as would be done
+     * by an IoC container.
+     */
+    public void testRegistrationServiceFourTrueUsing14MBeanServerWithConstructorInjection() throws Exception {
+        mBeanServer = create14MBeanServer();
+        ManagementService managementService = new ManagementService(manager, mBeanServer, true, true, true, true);
+        managementService.init();
+        assertEquals(OBJECTS_IN_TEST_EHCACHE, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+    }
+
     /**
      * Integration test for the registration service
      */

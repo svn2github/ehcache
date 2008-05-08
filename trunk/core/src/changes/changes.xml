@@ -50,6 +50,9 @@
                 through firewalls. Added a new property remoteListenerPort to RMICacheManagerPeerListenerFactory
                 to enable it to be specified.
             </action>
+            <action dev="Greg Luck" type="update" issue="1958670">
+                Made ManagementService accessible from IoC containers by providing a constructor.
+            </action>
 
 
             <!--Bug Fixes-->
@@ -74,7 +77,10 @@
                 Fixed Cache destroy exception where Hibernate and Spring are both shutting down during
                 undeploying application.
             </action>
-
+            <action dev="Greg Luck" type="fix" issue="1901094">
+                Fixed Cache destroy exception where Hibernate and Spring are both shutting down during
+                undeploying application.
+            </action>
 
             <!-- In Progress-->
             <action dev="Greg Luck" type="fix" issue="1955199">

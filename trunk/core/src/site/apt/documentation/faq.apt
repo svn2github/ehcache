@@ -331,3 +331,15 @@ WARN  CacheManager ...  Creating a new instance of CacheManager using the diskSt
    * If you only want one instance use the singleton creation methods i.e <<<CacheManager.getInstance()>>>.
      In Hibernate there is a special provider
      for this called <<<net.sf.ehcache.hibernate.SingletonEhCacheProvider>>>. See the Hibernate page for details.
+
+
+* How do I add a CacheReplicator to a cache that already exists? The cache event listening works but it does not
+  get plumbed into the peering mechanism.
+
+    The current API does not have a CacheManager event for cache configuration change. You can however make it work
+    by calling the notifyCacheAdded event.
+
+---     
+    getCache().getCacheManager().getCacheManagerEventListenerRegistry().notifyC
+    acheAdded("cacheName");
+---
