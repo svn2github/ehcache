@@ -81,12 +81,17 @@ public class ConfigurationHelperTest extends AbstractCacheTest {
         specificPathTest(diskStore, "user.home/cacheManager1/", "user.home");
         specificPathTest(diskStore, "user.home/cacheManager1/dir1", "user.home");
 
+        //todo
+        System.setProperty("ehcache.disk.store.dir", "/tmp");
+        specificPathTest(diskStore, "ehcache.disk.store.dir/cacheManager1/dir1", "user.home");
+
+
 
     }
 
-    private void specificPathTest(DiskStoreConfiguration diskStore, String specifiedPath, String systemProperty) {
-        diskStore.setPath(specifiedPath);
-        String expandedPath = diskStore.getPath();
+    private void specificPathTest(DiskStoreConfiguration diskStoreConfiguration, String specifiedPath, String systemProperty) {
+        diskStoreConfiguration.setPath(specifiedPath);
+        String expandedPath = diskStoreConfiguration.getPath();
         assertTrue(expandedPath.indexOf(systemProperty) == -1);
 
         File diskDir = null;

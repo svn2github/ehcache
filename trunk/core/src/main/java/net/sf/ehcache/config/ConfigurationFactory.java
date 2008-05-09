@@ -28,7 +28,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.io.ByteArrayInputStream;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.StringTokenizer;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  * A utility class which configures beans from XML, using reflection.
@@ -138,15 +148,70 @@ public final class ConfigurationFactory {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Configuring ehcache from InputStream");
         }
+
         Configuration configuration = new Configuration();
         try {
+            InputStream translatedInputStream = translateSystemProperties(inputStream);
             final SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             final BeanHandler handler = new BeanHandler(configuration);
-            parser.parse(inputStream, handler);
+            parser.parse(translatedInputStream, handler);
         } catch (Exception e) {
             throw new CacheException("Error configuring from input stream. Initial cause was " + e.getMessage(), e);
         }
         return configuration;
     }
+
+    /**
+     * Translates system properties which can be added as tokens to the config file using ${token} syntax.
+     * <p/>
+     * So, if the config file contains a character sequence "multicastGroupAddress=${multicastAddress}", and there is a system property
+     * multicastAddress=230.0.0.12 then the translated sequence becomes "multicastGroupAddress=230.0.0.12"
+     *
+     * @param inputStream
+     * @return a translated stream
+     */
+    private static InputStream translateSystemProperties(InputStream inputStream) throws IOException {
+
+        StringBuffer stringBuffer = new StringBuffer();
+        int c;
+        while ((c = inputStream.read()) != -1) stringBuffer.append((char) c);
+        String configuration = stringBuffer.toString();
+
+        Set tokens = extractPropertyTokens(configuration);
+        Iterator tokenIterator = tokens.iterator();
+        while (tokenIterator.hasNext()) {
+            String token = (String) tokenIterator.next();
+            String leftTrimmed = token.replaceAll("\\$\\{", "");
+            String trimmedToken = leftTrimmed.replaceAll("\\}", "");
+
+            String property = System.getProperty(trimmedToken);
+            if (property == null) {
+                if(LOG.isDebugEnabled()) {
+                    LOG.debug("Did not find a system property for the " + token +
+                            " token specified in the configuration.Replacing with \"\"");
+                }
+            } else {
+                configuration = configuration.replaceAll(trimmedToken, property);
+                if(LOG.isDebugEnabled()) {
+                    LOG.debug("Found system property value of " + property + " for the " + token +
+                            " token specified in the configuration.");
+                }
+            }
+        }
+        return new ByteArrayInputStream(configuration.getBytes());
+    }
+
+    static Set extractPropertyTokens(String string) {
+        Set propertyTokens = new HashSet();
+        String regex = "";
+        Pattern pattern = Pattern.compile("\\$\\{.+?\\}");
+        Matcher matcher = pattern.matcher(string);
+        while (matcher.find()) {
+            String token = matcher.group();
+            propertyTokens.add(token);
+        }
+        return propertyTokens;
+    }
+
 
 }

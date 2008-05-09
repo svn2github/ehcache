@@ -3,16 +3,13 @@
     <body>
 
         <release version="1.5.0" date="2008-12-31" desc="Maintenance release">
-            <!-- Features -->
+            <!-- Features and Enhancements -->
             <action dev="Greg Luck" type="add" issue="1730405">
                 Added JGroups Implementation. Thanks to Pierre Monestie for the patch(es) for this. Though new to the
                 core distribution
                 JGroups replication has been in production use in a large cluster for the last 10 months.
                 Applied through patches 1730405 and 1912931.
             </action>
-
-
-            <!-- Improvements -->
             <action dev="Greg Luck" type="update" issue="1812267">
                 CachingFilter changed to use BufferedOutputStream rather than OutputStream. This is a performance
                 improvement.
@@ -21,7 +18,7 @@
             <action dev="Greg Luck" type="update" issue="1748591">
                 Removed setThreadName usage to increase performance.
             </action>
-            <action dev="Greg Luck" type="update" issue="1795131">
+            <action dev="Greg Luck" type="add" issue="1795131">
                 JCache interface improvement. if we want preload for this cache, and we probably don't know all
                 the keys at the system startup time. We may want to have new interface: loadAll()
                 This will not be added to ehcache until it gets added to the JCACHE spec.
@@ -31,7 +28,7 @@
                 cache statistics.
             </action>
             <action dev="Greg Luck" type="update" issue="1909427">
-                Change behaviour of diskPersistent so that it will work for MemoryStore only caches. On shutdown
+                Enhanced behaviour of diskPersistent so that it will work for MemoryStore only caches. On shutdown
                 the memory store will be written to disk and on startup loaded up into memory. But DiskStore itself
                 will not be used during cache operation.
             </action>
@@ -45,13 +42,26 @@
 
                 Thanks to Robert Watkins for suggesting this one.
             </action>
-            <action dev="Greg Luck" type="update" issue="1887683">
+            <action dev="Greg Luck" type="add" issue="1887683">
                 By default RMI will assign a random listener port to a new Remote object which prevents its operation
                 through firewalls. Added a new property remoteListenerPort to RMICacheManagerPeerListenerFactory
                 to enable it to be specified.
             </action>
-            <action dev="Greg Luck" type="update" issue="1958670">
+            <action dev="Greg Luck" type="add" issue="1958670">
                 Made ManagementService accessible from IoC containers by providing a constructor.
+            </action>
+            <action dev="Greg Luck" type="add" issue="1898239">
+                Added a new system property expansion token "ehcache.disk.store.dir" to DiskStore configuration which
+                can be
+                used to specify the DiskStore directory on the command line or in an environment variable.
+
+                e.g. java -Dehcache.disk.store.dir=/u01/myapp/diskdir ...
+
+                Thanks to Brian Chan and others for suggesting this one.
+            </action>
+            <action dev="Greg Luck" type="add" issue="1743082">
+                Add the ability to specify system property tokens using ${tokenname} in ehcache.xml which are then replaced when the
+                configuration is loaded. 
             </action>
 
 

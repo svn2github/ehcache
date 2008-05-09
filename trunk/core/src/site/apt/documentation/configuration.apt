@@ -204,19 +204,16 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 todo update                            xsi:noNamespaceSchemaLocation="ehcache.xsd">
 
-    <!--
     CacheManager Configuration
     ==========================
     An ehcache.xml corresponds to a single CacheManager.
 
     See instructions below or the ehcache schema (ehcache.xsd) on how to configure.
 
-<!--
-    CacheManager Configuration
-    ==========================
-    An ehcache.xml corresponds to a single CacheManager.
-
-    See instructions below or the ehcache schema (ehcache.xsd) on how to configure.
+    System property tokens can be specified in this file which are replaced when the configuration is loaded.
+    For example multicastGroupPort=${multicastGroupPort} can be replaced with the System property either
+    from an environment variable or a system property specified with a command line switch such as
+     -DmulticastGroupPort=4446.
 
     DiskStore configuration
     =======================
@@ -235,6 +232,14 @@ todo update                            xsi:noNamespaceSchemaLocation="ehcache.xs
     * user.home - User's home directory
     * user.dir - User's current working directory
     * java.io.tmpdir - Default temp file path
+
+        The following properties are translated:
+        * user.home - User's home directory
+        * user.dir - User's current working directory
+        * java.io.tmpdir - Default temp file path
+        * ehcache.disk.store.di?r - A system property you would normally specify on the command line
+          e.g. java -Dehcache.disk.store.dir=/u01/myapp/diskdir ...
+
 
     Subdirectories can be specified below the property e.g. java.io.tmpdir/one
     -->

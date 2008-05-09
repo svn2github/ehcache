@@ -174,8 +174,6 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertTrue(exceptionHandlingCache.getCacheExceptionHandler() instanceof CacheExceptionHandler);
 
 
-
-
     }
 
 
@@ -865,4 +863,78 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         }
 
     }
+
+
+    /**
+     * Tests replacement in the config file.
+     */
+    public void testLoadConfigurationWithReplacement() throws Exception {
+        System.setProperty("multicastGroupPort", "4446");
+        File file = new File(TEST_CONFIG_DIR + "ehcache-replacement.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+
+
+        //Check disk path  <diskStore path="/tmp"/>
+        assertNotSame(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
+        assertTrue(configuration.getCacheManagerPeerProviderFactoryConfiguration().getProperties().indexOf("4446") != -1);
+
+
+    }
+
+
+    /**
+     * Tests the property token extraction logic
+     */
+    public void testMatchPropertyTokensProperlyFormed() {
+        String example = "<cacheManagerPeerProviderFactory class=\"net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory\"" +
+                "properties=\"peerDiscovery=automatic, " +
+                "multicastGroupAddress=${multicastAddress}, " +
+                "multicastGroupPort=4446, timeToLive=1\"/>";
+        Set propertyTokens = ConfigurationFactory.extractPropertyTokens(example);
+        assertEquals(1, propertyTokens.size());
+        String firstPropertyToken = (String) (propertyTokens.toArray())[0];
+        assertEquals("${multicastAddress}", firstPropertyToken);
+    }
+
+    /**
+     * Tests the property token extraction logic
+     */
+    public void testMatchPropertyTokensProperlyFormedTwo() {
+        String example = "<cacheManagerPeerProviderFactory class=\"net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory\"" +
+                "properties=\"peerDiscovery=automatic, " +
+                "multicastGroupAddress=${multicastAddress}\n, " +
+                "multicastGroupPort=4446, timeToLive=${multicastAddress}\"/>";
+        Set propertyTokens = ConfigurationFactory.extractPropertyTokens(example);
+        assertEquals(1, propertyTokens.size());
+        String firstPropertyToken = (String) (propertyTokens.toArray())[0];
+        assertEquals("${multicastAddress}", firstPropertyToken);
+    }
+
+
+    /**
+     * Tests the property token extraction logic
+     */
+    public void testMatchPropertyTokensProperlyFormedTwoUnique() {
+        String example = "<cacheManagerPeerProviderFactory class=\"net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory\"" +
+                "properties=\"peerDiscovery=automatic, " +
+                "multicastGroupAddress=${multicastAddress}\n, " +
+                "multicastGroupPort=4446, timeToLive=${multicastAddress1}\"/>";
+        Set propertyTokens = ConfigurationFactory.extractPropertyTokens(example);
+        assertEquals(2, propertyTokens.size());
+    }
+
+    /**
+     * If you leave off the } then no match.
+     */
+    public void testMatchPropertyTokensNotClosed() {
+        String example = "<cacheManagerPeerProviderFactory class=\"net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory\"" +
+                "properties=\"peerDiscovery=automatic, " +
+                "multicastGroupAddress=${multicastAddress\n, " +
+                "multicastGroupPort=4446, timeToLive=${multicastAddress\"/>";
+        Set propertyTokens = ConfigurationFactory.extractPropertyTokens(example);
+        assertEquals(0, propertyTokens.size());
+    }
+
+
 }

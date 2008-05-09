@@ -8,6 +8,11 @@
     
     See instructions below or the ehcache schema (ehcache.xsd) on how to configure.
 
+    System property tokens can be specified in this file which are replaced when the configuration is loaded.
+    For example multicastGroupPort=${multicastGroupPort} can be replaced with the System property either
+    from an environment variable or a system property specified with a command line switch such as
+     -DmulticastGroupPort=4446.
+
     DiskStore configuration
     =======================
 
@@ -22,13 +27,16 @@
     diskStore has only one attribute - "path". It is the path to the directory where
     .data and .index files will be created.
 
-    If the path is a Java System Property it is replaced by its value in the
-    running VM.
+    If the path is one of the following Java System Property it is replaced by its value in the
+    running VM. For backward compatibility these are not specified without being enclosed in the ${token}
+    replacement syntax.
 
     The following properties are translated:
     * user.home - User's home directory
     * user.dir - User's current working directory
     * java.io.tmpdir - Default temp file path
+    * ehcache.disk.store.dir - A system property you would normally specify on the command line
+      e.g. java -Dehcache.disk.store.dir=/u01/myapp/diskdir ...
 
     Subdirectories can be specified below the property e.g. java.io.tmpdir/one
     -->

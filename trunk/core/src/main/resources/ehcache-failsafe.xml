@@ -1,6 +1,8 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../config/ehcache.xsd">
 
     <!--
+    The ehcache-failsafe.xml is a default configuration for ehcache, if an ehcache.xml is not configured.
+
     The diskStore element is optional. It must be configured if you have overflowToDisk or diskPersistent enabled
     for any cache. If it is not configured, a warning will be issues and java.io.tmpdir will be used.
 
@@ -13,6 +15,8 @@
     * user.home - User's home directory
     * user.dir - User's current working directory
     * java.io.tmpdir - Default temp file path
+    * ehcache.disk.store.dir - A system property you would normally specify on the command line
+          e.g. java -Dehcache.disk.store.dir=/u01/myapp/diskdir ...
 
     Subdirectories can be specified below the property e.g. java.io.tmpdir/one
 

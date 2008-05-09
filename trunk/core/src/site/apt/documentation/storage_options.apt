@@ -165,6 +165,9 @@ Storage Options
 
     * java.io.tmpdir - Default temp file path
 
+    * ehcache.disk.store.di?r - A system property you would normally specify on the command line
+          e.g. java -Dehcache.disk.store.dir=/u01/myapp/diskdir ...
+
     Subdirectories can be specified below the system property e.g.
 
 ---

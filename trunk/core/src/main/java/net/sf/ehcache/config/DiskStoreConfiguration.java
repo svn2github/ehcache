@@ -46,6 +46,7 @@ public final class DiskStoreConfiguration {
         static final String USER_HOME = "user.home";
         static final String USER_DIR = "user.dir";
         static final String JAVA_IO_TMPDIR = "java.io.tmpdir";
+        static final String EHCACHE_DISK_STORE_DIR = "ehcache.disk.store.dir";
     }
 
     /**
@@ -66,13 +67,17 @@ public final class DiskStoreConfiguration {
     /**
      * Translates and sets the path.
      *
-     * @param path If the path contains a Java System Property it is replaced by
-     *             its value in the running VM. Subdirectories can be specified below the property e.g. java.io.tmpdir/one The following properties are translated:
+     * @param path If the path contains a Java System Property token it is replaced by
+     *             its value in the running VM. Subdirectories can be specified below the property e.g. java.io.tmpdir/one.
+     *  The following properties are translated:
      *             <ul>
      *             <li><code>user.home</code> - User's home directory
      *             <li><code>user.dir</code> - User's current working directory
      *             <li><code>java.io.tmpdir</code> - Default temp file path
+     *             <li><code>ehcache.disk.store.di?r</code> - A system property you would normally specify on the command linecan specify with -DDefault temp file path
+     *              e.g. <code>java -Dehcache.disk.store.dir=/u01/myapp/diskdir ...</code>
      *             </ul>
+     * Additional strings can be placed before and after tokens?
      *             e.g. <code>java.io/tmpdir/caches</code> might become <code>/tmp/caches</code>
      */
     public final void setPath(final String path) {
@@ -84,6 +89,7 @@ public final class DiskStoreConfiguration {
         String translatedPath = replaceToken(Env.USER_HOME, System.getProperty(Env.USER_HOME), path);
         translatedPath = replaceToken(Env.USER_DIR, System.getProperty(Env.USER_DIR), translatedPath);
         translatedPath = replaceToken(Env.JAVA_IO_TMPDIR, System.getProperty(Env.JAVA_IO_TMPDIR), translatedPath);
+        translatedPath = replaceToken(Env.EHCACHE_DISK_STORE_DIR, System.getProperty(Env.EHCACHE_DISK_STORE_DIR), translatedPath);
         //Remove duplicate separators: Windows and Solaris
         translatedPath = replaceToken(File.separator + File.separator, File.separator, translatedPath);
 

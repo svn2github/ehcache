@@ -42,6 +42,7 @@ import java.net.URL;
 import java.util.Date;
 import java.util.Set;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Tests for CacheManager
@@ -702,4 +703,21 @@ public class CacheManagerTest extends TestCase {
         assertEquals(null, singletonManager.getDiskStorePath());
     }
 
+
+    /**
+     * I have suggested that people can rely on the thread names to change priorities etc.
+     * The names should stay fixed.
+     */
+    public void testThreadNamingAndManipulation() {
+
+        singletonManager = CacheManager.create();
+        
+        List threads = JVMUtil.enumerateThreads();
+
+        for (int i = 0; i < threads.size(); i++) {
+            Thread thread = (Thread) threads.get(i);
+            String name = thread.getName();
+            LOG.info(name);
+        }
+    }
 }
