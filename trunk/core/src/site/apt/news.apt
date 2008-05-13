@@ -7,6 +7,65 @@
 
 News
 
+
+* 13 May 2008: ehcache-1.5.0-beta1 release
+
+   Ehcache 1.5.0-beta1 provides a host of new features and a few bug fixes:
+
+** New Features
+
+
+    * Added JGroups Implementation. Thanks to Pierre Monestie for the patch(es) for this. Though new to the
+      core distribution JGroups replication has been in production use in a large cluster for the last year.
+      This does not create a dependency on JGroups unless you want to use this replicator. That will be made
+      clearer when it is moved to a separate module before final release.
+
+
+    * CachingFilter performance improvements,
+
+    * Constructs performance improvements
+
+    * added loadAll() to the loader implementation to enable preload without specifying keys.
+
+    * diskPersistent now can be used with caches that use only MemoryStore in normal use but want to persist to disk
+
+    * DiskStores are now optional. The element is now non-mandatory. This will simplify configurations particularly
+                where multiple CacheManagers are being used.
+              If one or more caches requires a DiskStore, and none is configured, java.io.tmpdir will be used and
+                a warning message will be logged to encourage explicity configuration of the diskStore path.
+
+    * The default RMI based cache replication can now configure a RemoteObject port so that it can be easily configured
+      to work through firewalls. This is done by adding a new property remoteListenerPort to RMICacheManagerPeerListenerFactory
+                to enable it to be specified.
+
+    * Added a new system property expansion token "ehcache.disk.store.dir" to DiskStore configuration which
+      can be used to specify the DiskStore directory on the command line or in an environment variable.
+
+---
+    e.g. java -Dehcache.disk.store.dir=/u01/myapp/diskdir ...
+---
+
+    * Added the ability to specify system property tokens using ${tokenname} in ehcache.xml which are then
+                replaced when the configuration is loaded.
+
+    * Updated the remote debugger with enhanced reporting and better documentation (See Logging page in
+      the documentation).
+
+      The new version prints a list of caches with replication configured, prints notifications as they
+      happen, and periodically prints the cache name, size and total events received.
+
+
+**   Summary of Bug Fixes
+
+    * CachingFilter bug fixes for various rare edge conditions
+
+    * Major speed up to shutdown process when diskPersistent is not being used
+
+    * Fixed various shutdown exception when both Hibernate and Spring both try to destroy caches
+
+
+    See the {{{http://ehcache.sourceforge.net/changes-report.html#1.5.0-beta1}changelog}} for complete details.
+
 * 1 March 2008: ehcache is SourceForge project of the month
 
    Ehcache has been honoured as the February 2008 SourceForge project of the month. See {{http://sourceforge.net/community/index.php/potm-200802/}}.

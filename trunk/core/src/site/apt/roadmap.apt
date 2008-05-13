@@ -7,7 +7,7 @@
 
 Development Roadmap
 
- Last Updated 31 January 2008.
+ Last Updated 13 May 2008.
 
 
 * Slated for 1.5
@@ -16,27 +16,20 @@ Development Roadmap
 
  There is sponsorship for a JMS-based replication mechanism. This should be useful for many people.
 
-** JGroups based replication
+** Cache Server
 
- A patch is availabile for a JGRoups replication implementation. This patch has been in production for
- almost a year and has been working well. This battle-tested patch will be included in 1.5.
-
-** Derby DiskStore Implementation
-
- Code has been donated for a Derby DiskStore implementation.
-
+ This will be a cache server with both REST and W3C Web Services APIs. The server will work standalone
+ with Unix service control and also be deployable as a WAR. The idea is to make ehcache available to the
+ C, C++ and dynamic language communities as an out-of-process cache.
 
 * Later
 
-** Sundry Requests
-
-  * Switch off DiskStore for the CacheManager
-
-  * Throw exceptions for Hibernate plugin configuration location property rather than logging a warning
-
 ** Updated JCache implementation
 
-  Work is progressing on JCache. The net.sf.ehcache.jcache will track the changes. 
+  Now looking to finalise JCache with ehcache as the RI. This will probably be maintained in a branch until the JSR process
+   is concluded. The net.sf.jsr107cache will be updated in the meantime.
+
+* Maybe depending on interest
 
 ** Pluggable Disk Stores
 
@@ -54,6 +47,13 @@ Development Roadmap
  A MemoryStore built using SoftReferences. This would enable potentially much large MemoryStores with no risk of
  OutOfMemory errors. SoftReferences are already used in ehcache for the asynchronous replication spool.
 
+
+** Derby DiskStore Implementation
+
+ Code has been donated for a Derby DiskStore implementation.
+
+
 * How to suggest features
 
  Please add your feature suggestions to {{{http://sourceforge.net/tracker/?group_id=93232&atid=603562}Feature Requests}}.
+

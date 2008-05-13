@@ -5,17 +5,18 @@
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.5.0</version>
+    <version>1.5.0-beta1</version>
     <name>Ehcache Parent</name>
     <description><![CDATA[Ehcache is a widely used, pure Java, distributed in-process cache]]>
     </description>
     <url>http://ehcache.sf.net</url>
     <inceptionYear>2003</inceptionYear>
 
-    <modules>
-        <module>core</module>
-        <module>debugger</module>
-    </modules>
+    <!--Not using aggregate building -->
+    <!--<modules>-->
+        <!--<module>core</module>-->
+        <!--<module>debugger</module>-->
+    <!--</modules>-->
 
     <dependencyManagement>
         <dependencies>

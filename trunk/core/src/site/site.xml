@@ -35,6 +35,7 @@
             <item name="HTML Single Page User Guide" href="EhcacheUserGuide.html" />
             <item name="HTML Multi Page User Guide" href="documentation/index.html"/>
             <item name="Older User Guides" href="documentation/older_guides.html" collapse="true">
+                <item name="ehcache 1.4" href="http://www.lulu.com/content/1538666"/>
                 <item name="ehcache 1.3.0" href="documentation/EhcacheUserGuide-1.3.0.pdf"/>
                 <item name="ehcache 1.2.3" href="documentation/EhcacheUserGuide-1.2.3.pdf"/>
                 <item name="ehcache 1.1" href="documentation/documentation-1_1.html"/>

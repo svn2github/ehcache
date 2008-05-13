@@ -1,5 +1,106 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+ehcache-1.5.0-beta1
+===================
+
+<release version="1.5.0" date="2008-12-31" desc="Maintenance release">
+    <!-- Features and Enhancements -->
+    <action dev="Greg Luck" type="add" issue="1730405">
+        Added JGroups Implementation. Thanks to Pierre Monestie for the patch(es) for this. Though new to the
+        core distribution
+        JGroups replication has been in production use in a large cluster for the last 10 months.
+        Applied through patches 1730405 and 1912931.
+    </action>
+    <action dev="Greg Luck" type="update" issue="1812267">
+        CachingFilter changed to use BufferedOutputStream rather than OutputStream. This is a performance
+        improvement.
+        Thanks to Vitaly Baranovsky for the patch.
+    </action>
+    <action dev="Greg Luck" type="update" issue="1748591">
+        Removed setThreadName usage to increase performance.
+    </action>
+    <action dev="Greg Luck" type="add" issue="1795131">
+        JCache interface improvement. if we want preload for this cache, and we probably don't know all
+        the keys at the system startup time. We may want to have new interface: loadAll()
+        This will not be added to ehcache until it gets added to the JCACHE spec.
+    </action>
+    <action dev="Greg Luck" type="update" issue="1795131">
+        Clarified JavaDoc and behaviour so that Cache.getQuiet does not update Element statistics but also
+        cache statistics.
+    </action>
+    <action dev="Greg Luck" type="update" issue="1909427">
+        Enhanced behaviour of diskPersistent so that it will work for MemoryStore only caches. On shutdown
+        the memory store will be written to disk and on startup loaded up into memory. But DiskStore itself
+        will not be used during cache operation.
+    </action>
+    <action dev="Greg Luck" type="update" issue="1728061">
+        The diskStore element in ehcache.xml is now optional. If all caches use only MemoryStores, then
+        there is no need to worry about configuring diskStore. This will simplify configurations particularly
+        where multiple CacheManagers are being used.
+
+        If one or more caches requires a DiskStore, and none is configured, java.io.tmpdir will be used and
+        a warning message will be logged to encourage explicity configuration of the diskStore path.
+
+        Thanks to Robert Watkins for suggesting this one.
+    </action>
+    <action dev="Greg Luck" type="add" issue="1887683">
+        By default RMI will assign a random listener port to a new Remote object which prevents its operation
+        through firewalls. Added a new property remoteListenerPort to RMICacheManagerPeerListenerFactory
+        to enable it to be specified.
+    </action>
+    <action dev="Greg Luck" type="add" issue="1958670">
+        Made ManagementService accessible from IoC containers by providing a constructor.
+    </action>
+    <action dev="Greg Luck" type="add" issue="1898239">
+        Added a new system property expansion token "ehcache.disk.store.dir" to DiskStore configuration which
+        can be
+        used to specify the DiskStore directory on the command line or in an environment variable.
+
+        e.g. java -Dehcache.disk.store.dir=/u01/myapp/diskdir ...
+
+        Thanks to Brian Chan and others for suggesting this one.
+    </action>
+    <action dev="Greg Luck" type="add" issue="1743082">
+        Add the ability to specify system property tokens using ${tokenname} in ehcache.xml which are then
+        replaced when the
+        configuration is loaded.
+    </action>
+    <action dev="Greg Luck" type="update" issue="1912953">
+        Updated the remote debugger with enhanced reporting and better documentation (See Logging page in
+        the documentation).
+
+        The new version prints a list of caches with replication configured, prints notifications as they
+        happen, and periodically prints the cache name, size and total events received.
+    </action>
+
+
+    <!--Bug Fixes-->
+    <action dev="Greg Luck" type="fix" issue="812270">
+        SimplePageCachingFilter returns same content for GET and HEAD. This one is an edge case that can happen.
+        Thanks to Vitaly Baranovsky for the patch.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1890915">
+        Change CachingFilter to use setHeader rather than addHeader which was duplicating some headers.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1936731">
+        Updated the JavaDoc to clarify the meaning of the constant SHORT_DELAY.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1888993">
+        Fixed inefficient shutdown of cache when the cache is not diskPersistent.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1938744">
+        Corrected ehcache.xsd so that minOccurs of cache can be 0. This makes ehcache-default.xml legal.
+        Thanks to Andreas Sahlbach for reporting this.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1901094">
+        Fixed Cache destroy exception where Hibernate and Spring are both shutting down during
+        undeploying application.
+    </action>
+
+</release>
+
+
+
 ehcache-1.4.1
 =============
 
