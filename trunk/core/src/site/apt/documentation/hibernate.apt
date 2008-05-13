@@ -48,13 +48,13 @@
      net.sf.ehcache.hibernate.EhCacheProvider
 ---
 
-for instance creation, or
+    for instance creation, or
 
 ---
      net.sf.ehcache.hibernate.SingletonEhCacheProvider
 ---
 
-to force Hibernate to use a singleton of Ehcache CacheManager.
+    to force Hibernate to use a singleton of Ehcache CacheManager.
 
 
 ** Using multiple Hibernate instances
