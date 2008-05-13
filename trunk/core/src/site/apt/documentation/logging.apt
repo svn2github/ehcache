@@ -88,10 +88,10 @@ Logging And Debugging
 
 * {Remote Network debugging and monitoring for Distributed Caches}
 
-    A simple new tool in ehcache-1.2, {ehcache-1.x-remote-debugger.jar} can be used to debug replicated cache operations.
-    It is included in the distribution tarball for ehcache-1.2.3 and higher.
+    ehcache-1.x-remote-debugger.jar} can be used to debug replicated cache operations.
+    It is included in the distribution tarball for ehcache-1.2.3 and higher and also as the ehcache maven ehcache-debugger.
 
-    It is invoked using:
+    It is invoked as follows:
 
 --------------------------------------------
 
@@ -99,9 +99,62 @@ java -jar ehcache-1.x-remote-debugger.jar path_to_ehcache.xml cacheToMonitor
 
 --------------------------------------------
 
-    It will print a configuration of the cache, including replication settings and monitor the number of elements
-    in the cache. If you are not seeing replication in your application, run up this tool to see what is going on.
+   It can be incoked with one or two arguments:
 
-    It is a command line application, so it can easily be run from a terminal session.
+   * the first argument, which is mandatory, is the ehcache configuration file e.g. app/config/ehcache.xml. This file should be configured to allow
+   ehcache to joing the cluster. Using one of the existing ehcache.xml files from the other nodes normally is
+   sufficient.
 
-    
+   * the second argument, which is optional, is the name of the cache e.g. distributedCache1
+
+   If only the first argument is passed, it will print our a list of caches with replication configured
+   from the configuration file, which are then available for monitoring.
+
+   If the second argument is also provided, the debugger will monitor cache operations received for the given cache.
+
+   This is done by registering a CacheEventListener which prints out each operation.
+
+
+** Output
+
+   When monitoring a cache it prints a list of caches with replication configured, prints notifications as they
+   happen, and periodically prints the cache name, size and total events received. See sample output below which
+   is produced when the RemoteDebuggerTest is run.
+
+---
+   Caches with replication configured which are available for monitoring are:
+   sampleCache19 sampleCache20 sampleCache26 sampleCache42 sampleCache33
+   sampleCache51 sampleCache40 sampleCache32 sampleCache18 sampleCache25
+   sampleCache9 sampleCache15 sampleCache56 sampleCache31 sampleCache7
+   sampleCache12 sampleCache17 sampleCache45 sampleCache41 sampleCache30
+   sampleCache13 sampleCache46 sampleCache4 sampleCache36 sampleCache29
+   sampleCache50 sampleCache37 sampleCache49 sampleCache48 sampleCache38
+   sampleCache6 sampleCache2 sampleCache55 sampleCache16 sampleCache27
+   sampleCache11 sampleCache3 sampleCache54 sampleCache28 sampleCache10
+   sampleCache8 sampleCache47 sampleCache5 sampleCache53 sampleCache39
+   sampleCache23 sampleCache34 sampleCache22 sampleCache44 sampleCache52
+   sampleCache24 sampleCache35 sampleCache21 sampleCache43 sampleCache1
+   Monitoring cache: sampleCache1
+   Cache: sampleCache1 Notifications received: 0 Elements in cache: 0
+   Received put notification for element [ key = this is an id, value=this is
+   a value, version=1, hitCount=0, CreationTime = 1210656023456,
+   LastAccessTime = 0 ]
+   Received update notification for element [ key = this is an id, value=this
+   is a value, version=1210656025351, hitCount=0, CreationTime =
+   1210656024458, LastAccessTime = 0 ]
+   Cache: sampleCache1 Notifications received: 2 Elements in cache: 1
+   Received remove notification for element this is an id
+   Received removeAll notification.
+
+---
+
+
+** Debugging the debugger
+
+   If you see nothing happening, but cache operations should be going through, enable trace (LOG4J) or finest (JDK) level
+   logging on <code>net.sf.ehcache.distribution</code> in the logging configuration being used by the debugger.
+   A large volume of log messages will appear. The normal problem is that the CacheManager has not joined the cluster.
+   Look for the list of cache peers.
+
+
+

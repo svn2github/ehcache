@@ -265,7 +265,8 @@ public class Cache implements Ehcache {
         this(name, maxElementsInMemory, DEFAULT_MEMORY_STORE_EVICTION_POLICY, overflowToDisk, null,
                 eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, null, null);
         LOG.warn("An API change between ehcache-1.1 and ehcache-1.2 results in the persistence path being set to " +
-                DiskStoreConfiguration.getDefaultPath() + " when the ehcache-1.1 constructor is used. Please change to the 1.2 constructor.");
+                DiskStoreConfiguration.getDefaultPath() + " when the ehcache-1.1 constructor is used. " +
+                "Please change to the 1.2 constructor.");
     }
 
 

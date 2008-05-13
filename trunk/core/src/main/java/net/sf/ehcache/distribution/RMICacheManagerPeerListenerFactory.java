@@ -32,6 +32,7 @@ import java.util.Properties;
  * &lt;cachePeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
  * properties="hostName=localhost, port=5000" /&gt;
  * </code>
+ *
  * @author Greg Luck
  * @version $Id$
  */
@@ -85,13 +86,17 @@ public class RMICacheManagerPeerListenerFactory extends CacheManagerPeerListener
 
     /**
      * A template method to actually create the factory
+     *
      * @param hostName
      * @param port
      * @param remoteObjectPort
-     *@param cacheManager
+     * @param cacheManager
      * @param socketTimeoutMillis @return a crate CacheManagerPeerListener
      */
-    protected CacheManagerPeerListener doCreateCachePeerListener(String hostName, Integer port, Integer remoteObjectPort, CacheManager cacheManager,
+    protected CacheManagerPeerListener doCreateCachePeerListener(String hostName,
+                                                                 Integer port,
+                                                                 Integer remoteObjectPort,
+                                                                 CacheManager cacheManager,
                                                                  Integer socketTimeoutMillis) {
         try {
             return new RMICacheManagerPeerListener(hostName, port, remoteObjectPort, cacheManager, socketTimeoutMillis);

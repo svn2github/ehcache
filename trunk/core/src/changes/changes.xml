@@ -60,8 +60,16 @@
                 Thanks to Brian Chan and others for suggesting this one.
             </action>
             <action dev="Greg Luck" type="add" issue="1743082">
-                Add the ability to specify system property tokens using ${tokenname} in ehcache.xml which are then replaced when the
-                configuration is loaded. 
+                Add the ability to specify system property tokens using ${tokenname} in ehcache.xml which are then
+                replaced when the
+                configuration is loaded.
+            </action>
+            <action dev="Greg Luck" type="update" issue="1912953">
+                Updated the remote debugger with enhanced reporting and better documentation (See Logging page in
+                the documentation).
+
+                The new version prints a list of caches with replication configured, prints notifications as they
+                happen, and periodically prints the cache name, size and total events received.
             </action>
 
 

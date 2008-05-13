@@ -24,21 +24,17 @@ import org.apache.commons.logging.LogFactory;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.io.ByteArrayInputStream;
 import java.net.URL;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.StringTokenizer;
-import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A utility class which configures beans from XML, using reflection.
@@ -174,7 +170,9 @@ public final class ConfigurationFactory {
 
         StringBuffer stringBuffer = new StringBuffer();
         int c;
-        while ((c = inputStream.read()) != -1) stringBuffer.append((char) c);
+        while ((c = inputStream.read()) != -1) {
+            stringBuffer.append((char) c);
+        }
         String configuration = stringBuffer.toString();
 
         Set tokens = extractPropertyTokens(configuration);
@@ -186,13 +184,13 @@ public final class ConfigurationFactory {
 
             String property = System.getProperty(trimmedToken);
             if (property == null) {
-                if(LOG.isDebugEnabled()) {
+                if (LOG.isDebugEnabled()) {
                     LOG.debug("Did not find a system property for the " + token +
                             " token specified in the configuration.Replacing with \"\"");
                 }
             } else {
                 configuration = configuration.replaceAll(trimmedToken, property);
-                if(LOG.isDebugEnabled()) {
+                if (LOG.isDebugEnabled()) {
                     LOG.debug("Found system property value of " + property + " for the " + token +
                             " token specified in the configuration.");
                 }
@@ -201,11 +199,15 @@ public final class ConfigurationFactory {
         return new ByteArrayInputStream(configuration.getBytes());
     }
 
-    static Set extractPropertyTokens(String string) {
+    /**
+     * Extracts properties of the form ${...}
+     * @param sourceDocument the source document
+     * @return a Set of properties. So, duplicates are only counted once.
+     */
+    static Set extractPropertyTokens(String sourceDocument) {
         Set propertyTokens = new HashSet();
-        String regex = "";
         Pattern pattern = Pattern.compile("\\$\\{.+?\\}");
-        Matcher matcher = pattern.matcher(string);
+        Matcher matcher = pattern.matcher(sourceDocument);
         while (matcher.find()) {
             String token = matcher.group();
             propertyTokens.add(token);

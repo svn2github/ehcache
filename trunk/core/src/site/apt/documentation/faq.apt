@@ -343,3 +343,13 @@ WARN  CacheManager ...  Creating a new instance of CacheManager using the diskSt
     getCache().getCacheManager().getCacheManagerEventListenerRegistry().notifyC
     acheAdded("cacheName");
 ---
+
+* I am using the RemoteDebugger to monitor cluster messages but all I see is "Cache size: 0"
+
+   If you see nothing happening, but cache operations should be going through, enable trace (LOG4J) or finest (JDK) level
+   logging on <code>net.sf.ehcache.distribution</code> in the logging configuration being used by the debugger.
+   A large volume of log messages will appear. The normal problem is that the CacheManager has not joined the cluster.
+   Look for the list of cache peers.
+
+   Finally, the debugger in ehcache-1.5 has been improved to provide far more information on the caches that are
+   replicated and events which are occurring.
