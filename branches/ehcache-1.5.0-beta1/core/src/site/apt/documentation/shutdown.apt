@@ -1,0 +1,73 @@
+{Shutting Down Ehcache}
+
+*   The shutdown hook
+
+    Ehcache CacheManager can optionally register a shutdown hook.
+
+    To do so, set the system property <<<net.sf.ehcache.enableShutdownHook=true>>>.
+
+    This will shutdown the CacheManager when it detects the Virtual Machine shutting down and
+    it is not already shut down.
+
+
+*   When to use the shutdown hook
+
+    Use the shutdown hook where:
+
+    *   you need guaranteed orderly shutdown, when for example using persistent disk stores,
+        or distributed caching.
+
+    *   CacheManager is not already being shutdown by a framework you are using or by your application.
+
+
+*   What the shutdown hook does
+
+    The shutdown hook is on CacheManager. It simply calls the shutdown method.
+
+    The sequence of events is:
+
+    *   call dispose for each registered CacheManager event listener
+
+    *   call dispose for each Cache.
+
+        Each Cache will:
+
+        *   shutdown the MemoryStore. The MemoryStore will flush to the DiskStore
+
+        *   shutdown the DiskStore. If the DiskStore is persistent, it will write the entries and index to disk.
+
+        *   shutdown each registered CacheEventListener
+
+        *   set the Cache status to shutdown, preventing any further operations on it.
+
+    *   set the CacheManager status to shutdown, preventing any further operations on it
+
+
+
+*   When a shutdown hook will run, and when it will not
+
+    The shutdown hook runs when:
+
+      * a program exists normally. e.g. System.exit() is called, or the last non-daemon thread exits
+
+      * the Virtual Machine is terminated. e.g. CTRL-C. This corresponds to <<<kill -SIGTERM pid>>> or <<<kill -15 pid>>> on Unix systems.
+
+
+    The shutdown hook will not run when:
+
+      * the Virtual Machine aborts
+
+      * A SIGKILL signal is sent to the Virtual Machine process on Unix
+    systems. e.g. <<<kill -SIGKILL pid>>> or <<<kill -9 pid>>>
+
+      * A <<<TerminateProcess>>> call is sent to the process on Windows systems.
+
+
+*   If ehcache is shutdown dirty
+
+    If ehcache is shutdown dirty, either because no application shuts down ehcache and there is not shutdown hook,
+    or there is a shutdown hook but the JVM terminated in such a way that the shutdown hooks were not run then any
+    persistent disk stores will be corrupted. They will be deleted, with a log message, on the next startup.
+
+    
+

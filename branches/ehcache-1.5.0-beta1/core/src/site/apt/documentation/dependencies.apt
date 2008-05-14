@@ -1,0 +1,65 @@
+
+Java Requirements, Dependencies and Maven POM snippet
+
+* {Java Requirements}
+
+    Ehcache supports 1.4, 1.5 and 1.6 at runtime. Ehcache final releases are compiled with -target 1.4.
+    This produces Java class data, version 48.0.
+
+    Because of an {{{http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4267864}RMI bug}}, in JDKs before JDK1.5
+    ehcache is limited to one CacheManager operating in distributed mode per virtual machine.
+    (The bug limits the number of RMI registries to one per virtual machine). Because this is the expected deployment
+    configuration, however, ther should be no practical effect.
+
+    On JDK1.5 and higher it is possible to have multiple CacheManagers per VM each participating in the same or different clusters.
+    Indeed the replication tests do this with 5 CacheManagers on the same VM all run from JUnit.
+
+
+* Mandatory Dependencies
+
+** Commons Logging
+
+    Ehcache requires {{{http://jakarta.apache.org/commons/logging/}commons-logging}} commons-logging is a very common dependency, and is therefore not included in the distribution.
+
+    It is included in the tarball and the maven dependencies.
+
+
+** Backport Concurrent
+
+    Backport Concurrent is a dependency for use of the JCache API. Rather than using the library which maven will pull down, users should consider
+    using the version for their specific version of Java. This is not something that Maven can handle automatically. A JDK specific version should
+    be faster than the generic one. See {{http://dcl.mathcs.emory.edu/util/backport-util-concurrent}}.
+    
+* Optional Dependencies
+
+** JMX
+
+    The management package of ehcache requires JMX. Version 1.3 or higher will work. This is optional and only required if you are using the
+    <<<ManagementService>>>.
+
+    Of course JDK1.5 has it built in.
+
+** Commons collections
+
+    This is optional. Use it if you are using ehcache with Terracotta. They have a limitation which prevents them from using
+    the build in JDK one.
+
+    It can be turned on using by setting the system property <<<net.sf.ehcache.useLRUMap>>> to true.
+
+* Maven pom.xml snippet
+
+     Ehcache releases are placed in the central Maven repository.
+
+     The Maven snippet for ehcache 1.4.0, for example, is:
+
+--------
+     <dependency>
+        <groupId>net.sf.ehcache</groupId>
+        <artifactId>ehcache</artifactId>
+        <version>1.4.0</version>
+     </dependency>
+--------
+
+
+
+    

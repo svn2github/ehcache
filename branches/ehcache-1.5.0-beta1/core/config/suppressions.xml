@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+    "-//Puppy Crawl//DTD Suppressions 1.1//EN"
+    "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
+
+<suppressions>
+    <!-- Turn off some checks for tests -->
+    <suppress checks="usage.OneMethodPrivateField" files="Test.java"/>
+    <suppress checks="usage.UnusedParameter" files="Test.java"/>
+    <suppress checks="usage.UnusedPrivateMethod" files="Test.java"/>
+    <suppress checks="StrictDuplicateCode" files="Test.java"/>
+    <suppress checks="MagicNumberCheck" files="test[/\\]"/>
+    <suppress checks="CyclomaticComplexity" files="Test.java"/>
+    <suppress checks="NPathComplexity" files="Test.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="Test.java"/>
+    <suppress checks="ClassFanOutComplexity" files="Test.java"/>
+    <suppress checks="FileLengthCheck" files="Test.java"/>    
+    <suppress checks="PackageHtml" files="test[/\\]"/>
+    <suppress checks="" files="Primitive.java"/>
+    <suppress checks="IllegalTypeCheck" files="test[/\\]"/>
+
+
+    <!-- Suppress duplicate checking of copyright notice -->
+    <suppress checks="StrictDuplicateCode" files=".java" lines="1-53"/>
+
+    <!-- super.clone won't work here -->
+    <suppress checks="SuperClone" files="Element.java"/>
+
+
+    <!-- Candidates for refactoring. Cyclomatic complexity is blown out mostly
+     because of the LOG guards (if (LOG.isDebugEnabled) { ...) which are there for
+     runtime performance.-->
+    <suppress checks="CyclomaticComplexity" files="Cache.java"/>
+    <suppress checks="CyclomaticComplexity" files="CacheManager.java" lines="147"/>
+    <suppress checks="CyclomaticComplexity" files="DiskStore.java" lines="583"/>
+    <suppress checks="CyclomaticComplexity" files="RMIBootstrapCacheLoader.java"/>
+    <suppress checks="NPathComplexity" files="RMIBootstrapCacheLoader.java"/>
+    <suppress checks="NPathComplexity" files="Cache.java"/>
+    <suppress checks="NPathComplexity" files="CacheManager.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="DiskStore.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="Cache.java"/>
+    <suppress checks="ClassFanOutComplexity" files="DiskStore.java"/>
+    <suppress checks="ClassFanOutComplexity" files="Cache.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="ElementTest.java"/>
+    <suppress checks="IllegalType" files="Cache.java"/>
+    <suppress checks="ParameterNumber" files="Cache.java"/>
+    <suppress checks="FileLengthCheck" files="Cache.java"/>
+    <suppress checks="ExecutableStatementCount" files="Cache.java"/>
+    <suppress checks="ThrowsCountCheck" files="CachingFilter.java"/>
+    <suppress checks="AnonInnerLengthCheck" files="MulticastKeepaliveHeartbeatReceiver.java"/>
+    <suppress checks="AnonInnerLengthCheck" files="Cache.java"/>
+    <suppress checks="ClassFanOutComplexity" files="ConfigurationHelper.java"/>
+    <suppress checks="ParameterNumber" files="Statistics.java"/>
+
+
+
+    <!-- We need to return LinkedList -->
+    <suppress checks="IllegalType" files="AsynchronousCommandExecutor.java"/>
+
+    <!-- Candidates for refactoring -->
+    <suppress checks="CyclomaticComplexity" files="AsynchronousCommandExecutor.java"/>
+    <suppress checks="NPathComplexity" files="AsynchronousCommandExecutor.java"/>
+
+    <!-- Doug Lea's contributed code -->
+    <suppress checks="CyclomaticComplexity" files="Mutex.java"/>
+
+    <!-- Contains a thread therefore cannot.  -->
+    <suppress checks="SuperClone" files="RMIBootstrapCacheLoader.java"/>
+
+</suppressions>

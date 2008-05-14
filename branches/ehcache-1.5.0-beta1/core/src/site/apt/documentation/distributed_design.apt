@@ -1,0 +1,262 @@
+The Design of distributed ehcache
+
+     This is a discussion and explanation of the distributed design choices
+     made in ehcache. One or more default implementations are provided
+     in each area. A plug in mechanism has been provided which will allow
+     interested parties to implement alternative approaches discussed here
+     and hopefully contribute them back to ehcache.
+
+* Acknowledgements
+
+  Much of the material here was drawn from {{{http://www.amazon.com/gp/product/0131401572/qid=1142476841/sr=2-1/ref=pd_bbs_b_2_1/002-4071893-2221668?s=books&v=glance&n=283155}Data Access Patterns}},
+  by Clifton Nock.
+
+  Thanks to Will Pugh and ehcache contributor Surya Suravarapu for suggesting we take ehcache distributed.
+
+  Finally, thanks to James Strachan for making helpful suggestions.
+
+* Problems with Instance Caches in a Clustered Environment
+
+     Many production applications are deployed in clusters. If each
+     application maintains its own cache, then updates made to one cache
+     will not appear in the others. A workaround for web based applications
+     is to use sticky sessions, so that a user, having established a session
+     on one server, stays on that server for the rest of the session. A
+     workaround for transaction processing systems using Hibernate is to do
+     a session.refresh on each persistent object as part of the save.
+     session.refresh explicitly reloads the object from the database,
+     ignoring any cache values.
+
+* Replicated Cache
+
+     Another solution is to replicate data between the caches to keep them
+     consistent. This is sometimes called cache coherency. Applicable
+     operations include:
+
+       * put
+
+       * update (put which overwrites an existing entry)
+
+       * remove
+
+* Distributed Cache Terms
+
+     Distributed Cache - a cache instance that notifies others when its contents change
+
+     Notification - a mechanism to replicate changes
+
+     Topology - a layout for how replicated caches connect with and notify each other
+
+* Notification Strategies
+
+     The best way of notifying of put and update depends on the nature of
+     the cache.
+
+     If the Element is not available anywhere else then the Element
+     itself should form the payload of the notification. An example is a
+     cached web page. This notification strategy is called copy.
+      Where the cached data is available in a database, there are two
+     choices. Copy as before, or invalidate the data. By invalidating the
+     data, the application tied to the other cache instance will be forced
+     to refresh its cache from the database, preserving cache coherency.
+     Only the Element key needs to be passed over the network.
+
+      Ehcache supports notification through copy and invalidate,
+     selectable per cache.
+
+* Topology Choices
+
+** Peer Cache Replicator
+
+     Each replicated cache instance notifies every other cache instance when
+     its contents change. This requires n-1 notifications per change, where
+     n is the number of cache instances in the cluster. If multicast is
+     used, these notifications can be emitted as one notification from the
+     originating cache.
+
+** Centralised Cache Replicator
+
+     Each replicated cache instance notifies a master cache instance when
+     its contents change. The master cache then notifies the other
+     instances. This requires one notification from the originating
+     cache and n-2 notifications from the master cache to other slaves.
+
+     Ehcache uses a peer topology. The main advantages are simplicity and
+     greater redundancy as there is no single point of failure.
+
+* Discovery Choices
+
+     In a peer based system, there needs to be a way for peers to discover
+     each other so as to perform delivery of changes.
+
+** Multicast Discovery
+
+     In multicast discovery, peers join a multicast group on a specific IP
+     address in the multicast range of 224.0.0.1 to 239.255.255.255
+     (specified in RFC1112) and a specific port. Each peer notifies
+     the other group members of its membership.
+
+     The configurable multicast time to live can be used to restrict discovery
+     to the host, subnet, site or larger scope.
+
+     This approach is simple and allows for dynamic entry and exit
+     from the cluster.
+
+** Static List
+
+     Here a list of listeners in the cluster is configured. There is no
+     dynamic entry or exit. Peer listener addresses must be known in
+     advance.
+
+     Ehcache provides both techniques.
+
+* Delivery Mechanism Choices
+
+** Custom Socket Protocol
+
+     This approach uses a protocol built directly on TCP or UDP. Its primary
+     advantage is high performance.
+
+** Multicast Delivery
+
+     The advantage with multicast is that the sender only transmits once. It
+     is however based on UDP datagrams and is nonreliable. Practical
+     experience on modern networks, network cards and operating systems has
+     shown this approach to be quite lossy. Whether it would be for a
+     specific combination is hard to predict. This approach is thought
+     unlikely to produce sufficient reliability.
+
+** JMS Topics
+
+     JMS Topics are standard, well understood way to propagate messages to
+     multiple subscribers. JMS is not used in the default ehcache
+     implementation because many ehcache users are outside the scope of
+     Java EE. However JMS based delivery, with its richer services, could be a
+     could choice for Java EE bases systems.
+
+** RMI
+     RMI is the default RPC mechanism in Java.
+
+** JXTA
+
+
+    JXTA is a peer to peer technology that provides discovery and
+    delivery, together with much else.
+
+** JGroups
+
+     JGroups provides many of the desired features for a peer to peer
+     distributed system. The default mode for JGroups on a LAN is UDP, which
+     is not desired. However JGroups does provide reliably transmission
+     using TCP, similar to the approach taken in ehcache.
+
+** The Default Implementation
+
+     Ehcache uses RMI, based on custom socket options for delivery in its
+     default implementation.
+
+     Ehcache does not use JXTA or JGroups for the following reasons:
+
+       * enables fine control over distribution behaviour
+
+       * allows tuning specific to a distributed cache, rather than distribution generally
+
+       * reduces the number of dependent libraries to run ehcache
+
+
+     RMI is used by default because:
+
+       * it itself is the default remoting mechanism in Java
+
+       * it is mature
+
+       * it allows tuning of TCP socket options
+
+       * Element keys and values for disk storage must already be Serializable, therefore directly transmittable over RMI
+         without the need for conversion to a third format such as XML.
+
+       * it can be configured to pass through firewalls
+
+       * RMI had improvements added to it with each release of Java, which can then be taken advantage of.
+
+
+
+     However the pluggable nature of ehcache's distribution mechanism allows
+     for both of these approaches to be plugged in. These approaches may
+     become a standard part of ehcache in a future release.
+
+     A JGroups implementation is planned for ehcache-1.2.1.
+
+* Replication Drawbacks and Solutions in ehcache's implementation
+
+     Some potentially significant obstacles have to be overcome if
+     replication is to provide a net benefit.
+
+** Chatty Protocol
+
+     n-1 notifications need to happen each time a a cache instance change
+     occurs. A very large amount of network traffic can be generated. This
+     issue affect the synchronous replication mode of ehcache.
+
+     Ehcache provides an asynchronous replication mode which mitigates this effect.
+     All changes are buffered for delivery. The queue is then checked each second and all
+     messages delivered in one RMI call, as a list of messages, to each peer.
+
+     The characteristics of each RMI call will be those of RMI. Ehcache does however
+     use a custom socket factory so that socked read timeout can be set.
+
+** Redundant Notifications
+
+     The cache instance that initiated the change should not receive its own
+     notifications. To do so would add additional overhead. Also,
+     notifications should not endlessly go back and forth as each cache
+     listener gets changes caused by a remote replication.
+
+     Ehcache's CachePeerProvider indentifies the local cache instance and
+     excludes it from the notification list. Each Cache has a GUID. That
+     GUID can be compared with list of cache peers and the local peer
+     excluded.
+
+     Infinite notifications are prevented by passing a flag when the cache operation
+     occurs. Events with that flag are ignored by instanced of CacheReplicator.
+
+
+** Potential for Inconsisent Data
+
+     Timing scenarios, race conditions, delivery, reliability
+     constraints and concurrent updates to the same cached data can cause
+     inconsistency (and thus a lack of coherency) across the cache
+     instances.
+
+     This potential exists within the ehcache implementation.
+     These issues are the same as what is seen when two completely
+     separate systems are sharing a database; a common scenario.
+
+     Whether data inconsistency is a problem depends on the data and how it
+     is used. For those times when it is important, ehcache provides for
+     synchronous delivery of updates via invalidation. These are discussed below:
+
+** Synchronous Delivery
+
+     Delivery can be specified to be synchronous or asynchronous.
+     Asynchronous delivery gives faster returns to operations on the local
+     cache and is usually preferred. Synchronous delivery adds time to the
+     local operation, however requires successful delivery of an update to
+     all peers in the cluster before the cache operation returns.
+
+
+** Update via Invalidation
+
+     The default is to update other caches by copying the new value to
+     them. If the replicateUpdatesViaCopy property is set to false in the
+     replication configuration, updates are made by removing the element in
+     any other cache peers. This forces the applications using the cache
+     peers to return to a canonical source for the data.
+
+     A similar effect can be obtained by setting the element TTL to a low value such
+     as a second.
+
+     Note that these features impact cache performance and should
+     not be used where the main purpose of a cache is performance boosting over
+     coherency.
+

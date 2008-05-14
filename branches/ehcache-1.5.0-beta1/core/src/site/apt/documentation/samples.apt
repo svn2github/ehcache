@@ -1,0 +1,362 @@
+{Code Samples}
+
+    This page shows some of the more common code samples to get you started. Code samples for each feature are in the
+     relevant chapters. 
+
+ * {{{#Using the CacheManager}Using the CacheManager}}
+
+    * {{{#Singleton versus Instance}Singleton versus Instance}}
+
+    * {{{#Ways of loading Cache Configuration}Ways of loading Cache Configuration}}
+
+    * {{{#Adding and Removing Caches Programmatically}Adding and Removing Caches Programmatically}}
+
+    * {{{#Shutdown the CacheManager}Shutdown the CacheManager}}
+
+ * {{{#Using Caches}Using Caches}}
+
+     * {{{#Obtaining a reference to a Cache}Obtaining a reference to a Cache}}
+
+     * {{{#CRUD operations}CRUD operations}}
+
+     * {{{#Disk Persistence on demand}Disk Persistence on demand}}
+
+     * {{{#Cache Sizes}Cache Sizes}}
+
+     * {{{#Statistics of Cache Hits and Misses}Statistics of Cache Hits and Misses}}
+
+ * {{{#Programmatically Creating Caches}Programmatically Creating Caches}}
+
+     * {{{#Creating a new cache from defaults}Creating a new cache from defaults}}
+
+     * {{{#Creating a new cache with custom parameters}Creating a new cache with custom parameters}}
+
+ *  {{{#Registering CacheStatistics in an MBeanServer}Registering CacheStatistics in an MBeanServer}}
+
+ * {{{#Browse the JUnit Tests}Browse the JUnit Tests}}
+
+
+
+* {Using the CacheManager}
+
+ All usages of ehcache start with the creation of a CacheManager.
+
+** {Singleton versus Instance}
+
+ As of ehcache-1.2, ehcache CacheManagers can be created as either singletons (use the create factory method) or instances (use new).
+
+ Create a singleton CacheManager using defaults, then list caches.
+
+---------------------------------
+CacheManager.create();
+String[] cacheNames = CacheManager.getInstance().getCacheNames();
+---------------------------------
+
+ Create a CacheManager instance using defaults, then list caches.
+
+---------------------------------
+ CacheManager manager = new CacheManager();
+ String[] cacheNames = manager.getCacheNames();
+---------------------------------
+
+ Create two CacheManagers, each with a different configuration, and list the caches in each.
+
+---------------------------------
+ CacheManager manager1 = new CacheManager("src/config/ehcache1.xml");
+ CacheManager manager2 = new CacheManager("src/config/ehcache2.xml");
+ String[] cacheNamesForManager1 = manager1.getCacheNames();
+ String[] cacheNamesForManager2 = manager2.getCacheNames();
+---------------------------------
+
+** {Ways of loading Cache Configuration}
+
+ When the CacheManager is created it creates caches found in the configuration.
+
+ Create a CacheManager using defaults. Ehcache will look for ehcache.xml in the classpath.
+
+---------------------------------
+ CacheManager manager = new CacheManager();
+---------------------------------
+
+  Create a CacheManager specifying the path of a configuration file.
+
+---------------------------------
+CacheManager manager = new CacheManager("src/config/ehcache.xml");
+---------------------------------
+
+ Create a CacheManager from a configuration resource in the classpath.
+
+---------------------------------
+URL url = getClass().getResource("/anotherconfigurationname.xml");
+CacheManager manager = new CacheManager(url);
+---------------------------------
+
+ Create a CacheManager from a configuration in an InputStream.
+
+---------------------------------
+InputStream fis = new FileInputStream(new File("src/config/ehcache.xml").getAbsolutePath());
+try {
+    CacheManager manager = new CacheManager(fis);
+} finally {
+    fis.close();
+}
+---------------------------------
+
+** {Adding and Removing Caches Programmatically}
+
+ You are not just stuck with the caches that were placed in the configuration. You can create and remove them
+ programmatically.
+
+ Add a cache using defaults, then use it. The following example creates a cache called <testCache>, which will be configured
+ using defaultCache from the configuration.
+
+---------------------------------
+CacheManager singletonManager = CacheManager.create();
+singletonManager.addCache("testCache");
+Cache test = singletonManager.getCache("testCache");
+---------------------------------
+
+ Create a Cache and add it to the CacheManager, then use it.
+ Note that Caches are not usable until they have been added to a CacheManager.
+
+---------------------------------
+CacheManager singletonManager = CacheManager.create();
+Cache memoryOnlyCache = new Cache("testCache", 5000, false, false, 5, 2);
+manager.addCache(memoryOnlyCache);
+Cache test = singletonManager.getCache("testCache");
+---------------------------------
+
+ See {{{xref/net/sf/ehcache/Cache.html#262}Cache#Cache(...)}} for the full parameters  for a new Cache:
+
+
+ Remove cache called sampleCache1
+
+---------------------------------
+CacheManager singletonManager = CacheManager.create();
+singletonManager.removeCache("sampleCache1");
+---------------------------------
+
+
+
+** {Shutdown the CacheManager}
+
+ Ehcache should be shutdown after use. It does have a shutdown hook, but it is best practice to shut it down
+ in your code.
+
+ Shutdown the singleton CacheManager
+
+---------------------------------
+CacheManager.getInstance().shutdown();
+---------------------------------
+
+ Shutdown a CacheManager instance, assuming you have a reference to the CacheManager called <manager>
+
+---------------------------------
+manager.shutdown();
+---------------------------------
+
+ See the {{{xref-test/net/sf/ehcache/CacheManagerTest.html}CacheManagerTest}} for more examples.
+
+* {Using Caches}
+
+  All of these examples refer to <manager>, which is a reference to a CacheManager, which has a cache in it
+  called <sampleCache1>.
+
+** {Obtaining a reference to a Cache}
+
+ Obtain a Cache called "sampleCache1", which has been preconfigured in the configuration file
+
+---------------------------------
+Cache cache = manager.getCache("sampleCache1");
+---------------------------------
+
+** {Performing CRUD operations}
+
+
+ Put an element into a cache
+
+---------------------------------
+Cache cache = manager.getCache("sampleCache1");
+Element element = new Element("key1", "value1");
+cache.put(element);
+---------------------------------
+
+
+ Update an element in a cache. Even though <<<cache.put()>>> is used, ehcache knows there is an existing element, and considers
+ the put an update for the purpose of notifying cache listeners.
+
+---------------------------------
+Cache cache = manager.getCache("sampleCache1");
+cache.put(new Element("key1", "value1");
+//This updates the entry for "key1"
+cache.put(new Element("key1", "value2");
+---------------------------------
+
+
+ Get a Serializable value from an element in a cache with a key of "key1".
+
+---------------------------------
+Cache cache = manager.getCache("sampleCache1");
+Element element = cache.get("key1");
+Serializable value = element.getValue();
+---------------------------------
+
+ Get a NonSerializable value from an element in a cache with a key of "key1".
+
+---------------------------------
+Cache cache = manager.getCache("sampleCache1");
+Element element = cache.get("key1");
+Object value = element.getObjectValue();
+---------------------------------
+
+ Remove an element from a cache with a key of "key1".
+
+---------------------------------
+Cache cache = manager.getCache("sampleCache1");
+Element element = new Element("key1", "value1"
+cache.remove("key1");
+---------------------------------
+
+
+** {Disk Persistence on demand}
+
+ <sampleCache1> has a persistent diskStore. We wish to ensure that the data and index are written immediately.
+
+---------------------------------
+Cache cache = manager.getCache("sampleCache1");
+cache.flush();
+---------------------------------
+
+
+** {Obtaining Cache Sizes}
+
+ Get the number of elements currently in the <<<Cache>>>.
+
+---------------------------------
+Cache cache = manager.getCache("sampleCache1");
+int elementsInMemory = cache.getSize();
+---------------------------------
+
+ Get the number of elements currently in the <<<MemoryStore>>>.
+
+---------------------------------
+Cache cache = manager.getCache("sampleCache1");
+long elementsInMemory = cache.getMemoryStoreSize();
+---------------------------------
+
+ Get the number of elements currently in the <<<DiskStore>>>.
+
+---------------------------------
+Cache cache = manager.getCache("sampleCache1");
+long elementsInMemory = cache.getDiskStoreSize();
+---------------------------------
+
+** {Obtaining Statistics of Cache Hits and Misses}
+
+ These methods are useful for tuning cache configurations.
+
+ Get the number of times requested items were found in the cache. i.e. cache hits
+
+---------------------------------
+Cache cache = manager.getCache("sampleCache1");
+int hits = cache.getHitCount();
+---------------------------------
+
+  Get the number of times requested items were found in the <<<MemoryStore>>> of the cache.
+
+---------------------------------
+Cache cache = manager.getCache("sampleCache1");
+int hits = cache.getMemoryStoreHitCount();
+---------------------------------
+
+  Get the number of times requested items were found in the <<<DiskStore>>> of the cache.
+
+---------------------------------
+Cache cache = manager.getCache("sampleCache1");
+int hits = cache.getDiskStoreCount();
+---------------------------------
+
+ Get the number of times requested items were not found in the cache. i.e. cache misses.
+
+---------------------------------
+Cache cache = manager.getCache("sampleCache1");
+int hits = cache.getMissCountNotFound();
+---------------------------------
+
+ Get the number of times requested items were not found in the cache due to expiry of the elements.
+
+---------------------------------
+Cache cache = manager.getCache("sampleCache1");
+int hits = cache.getMissCountExpired();
+---------------------------------
+
+ These are just the most commonly used methods. See {{{xref-test/net/sf/ehcache/CacheTest.html}CacheTest}} for more examples.
+ See {{{xref/net/sf/ehcache/Cache.html}Cache}} for the full API.
+
+
+* {Creating a new cache from defaults}
+
+    A new cache with a given name can be created from defaults very simply:
+
+---
+manager.addCache("cache name");
+---
+
+* {Creating a new cache with custom parameters}
+
+   The configuration for a Cache can be specified programmatically in the Cache constructor:
+
+--------------------------------------------
+public Cache(
+    String name,
+    int maxElementsInMemory,
+    MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
+    boolean overflowToDisk,
+    boolean eternal,
+    long timeToLiveSeconds,
+    long timeToIdleSeconds,
+    boolean diskPersistent,
+    long diskExpiryThreadIntervalSeconds) {
+    ...
+   }
+--------------------------------------------
+
+   Here is an example which creates a cache called test.
+
+--------------------------------------------
+   //Create a CacheManager using defaults
+   CacheManager manager = CacheManager.create();
+
+   //Create a Cache specifying its configuration.
+
+   Cache testCache = new Cache("test", maxElements,
+   MemoryStoreEvictionPolicy.LFU, true, false, 60, 30, false, 0);
+   manager.addCache(cache);
+--------------------------------------------
+
+   Once the cache is created, add it to the list of caches managed by the CacheManager:
+
+--------------------------------------------
+     manager.addCache(testCache);
+--------------------------------------------
+
+   The cache is not usable until it has been added.
+
+
+*   {Registering CacheStatistics in an MBeanServer}
+
+    This example shows how to register CacheStatistics in the JDK1.5 platform MBeanServer, which
+    works with the JConsole management agent.
+
+---
+    CacheManager manager = new CacheManager();
+    MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+    ManagementService.registerMBeans(manager, mBeanServer, false, false, false, true);
+---
+
+* {Browse the JUnit Tests}
+
+ Ehcache comes with a comprehensive JUnit test suite, which not only tests the code, but shows you how to use ehcache.
+
+ A link to {{{xref-test/index.html}browsable unit test source code}} for the major ehcache classes is given per section. The unit tests are also
+   in the src.zip in the ehcache tarball.
