@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module relativePaths="true" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/debugger/target/classes" />
+    <exclude-output />
+    <output-test url="file://$MODULE_DIR$/debugger/target/test-classes" />
+    <content url="file://$MODULE_DIR$/debugger">
+      <sourceFolder url="file://$MODULE_DIR$/debugger/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/debugger/src/main/resources" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/debugger/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/debugger/src/test/resources" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/debugger/target/classes" />
+      <excludeFolder url="file://$MODULE_DIR$/debugger/target/test-classes" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="ehcache" exported="" />
+    <orderEntry type="module-library" exported="">
+      <library name="commons-logging:commons-logging:1.0.4">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../.m2/repository/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar!/" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://$MODULE_DIR$/../../.m2/repository/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4-javadoc.jar!/" />
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/../../.m2/repository/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="junit:junit:3.8.1">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../.m2/repository/junit/junit/3.8.1/junit-3.8.1.jar!/" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://$MODULE_DIR$/../../.m2/repository/junit/junit/3.8.1/junit-3.8.1-javadoc.jar!/" />
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/../../.m2/repository/junit/junit/3.8.1/junit-3.8.1-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntryProperties />
+  </component>
+</module>
+
