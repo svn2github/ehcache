@@ -12,11 +12,6 @@
     <packaging>jar</packaging>
 
     <dependencies>
-        <!-- Only if you are using the draft JCache implementation -->
-        <dependency>
-            <groupId>net.sf.jsr107cache</groupId>
-            <artifactId>jsr107cache</artifactId>
-        </dependency>
         <!-- Provided scope -->
         <dependency>
             <groupId>backport-util-concurrent</groupId>
@@ -29,6 +24,10 @@
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.jsr107cache</groupId>
+            <artifactId>jsr107cache</artifactId>
         </dependency>
         <dependency>
             <groupId>dom4j</groupId>

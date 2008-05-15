@@ -24,7 +24,9 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy;
 import net.sf.ehcache.loader.CountingCacheLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
+import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.jsr107cache.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -35,6 +37,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.Collection;
+import java.util.Map;
 
 
 /**
@@ -1815,6 +1819,62 @@ public class CacheTest extends AbstractCacheTest {
             LOG.info("finalize run from thread " + Thread.currentThread().getName());
             super.finalize();
         }
+    }
+
+
+
+    public void testGetWithLoader() {
+
+
+        Cache cache = manager.getCache("sampleCache1");
+        cache.setCacheLoader(new CacheLoader() {
+            public Object load(Object key, Object argument) throws CacheException {
+                System.out.println("load1 " + key);
+                return key;
+            }
+
+            /**
+             * Load using both a key and an argument.
+             * <p/>
+             * JCache will use the loadAll(key) method where the argument is null.
+             *
+             * @param keys     the keys to load objects for
+             * @param argument can be anything that makes sense to the loader
+             * @return a map of Objects keyed by the collection of keys passed in.
+             * @throws net.sf.jsr107cache.CacheException
+             *
+             */
+            public Map loadAll(Collection keys, Object argument) throws net.sf.jsr107cache.CacheException {
+                return null;
+            }
+
+
+            public String getName() {
+                return null;
+            }
+
+            public Object load(Object o) throws CacheException {
+                System.out.println("load2 " + o + " " + o.getClass());
+                if(o.equals("c")){
+                    return null;
+                }
+                return o;
+            }
+
+            public Map loadAll(Collection collection) throws CacheException {
+                return null;
+            }
+        });
+
+
+        Element element = cache.get("a");
+        assertNull(element);
+
+        element = cache.getWithLoader("b", null, null);
+        assertNotNull(element);
+
+        element = cache.getWithLoader("c", null, null);
+        assertNotNull(element);
     }
 
     /**

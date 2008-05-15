@@ -296,7 +296,9 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ehcache.iml" filepath="$PROJECT_DIR$/ehcache.iml" />
       <module fileurl="file://$PROJECT_DIR$/ehcache-debugger.iml" filepath="$PROJECT_DIR$/ehcache-debugger.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ehcache-jcache.iml" filepath="$PROJECT_DIR$/ehcache-jcache.iml" />
       <module fileurl="file://$PROJECT_DIR$/ehcache-parent.iml" filepath="$PROJECT_DIR$/ehcache-parent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ehcache-server.iml" filepath="$PROJECT_DIR$/ehcache-server.iml" />
     </modules>
   </component>
   <component name="ProjectRootConfigurable.UI">

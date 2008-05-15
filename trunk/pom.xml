@@ -13,10 +13,12 @@
     <inceptionYear>2003</inceptionYear>
 
     <!--Not using aggregate building -->
-    <!--<modules>-->
-        <!--<module>core</module>-->
-        <!--<module>debugger</module>-->
-    <!--</modules>-->
+    <modules>
+        <module>core</module>
+        <module>debugger</module>
+        <module>jcache</module>
+        <module>server</module>
+    </modules>
 
     <dependencyManagement>
         <dependencies>

@@ -102,33 +102,13 @@
       <sourceFolder url="file://$MODULE_DIR$/core/src/main/resources" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/core/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/core/src/test/resources" isTestSource="true" />
-      <excludeFolder url="file://$MODULE_DIR$/core/target/META-INF" />
       <excludeFolder url="file://$MODULE_DIR$/core/target/classes" />
-      <excludeFolder url="file://$MODULE_DIR$/core/target/debugger-classes" />
-      <excludeFolder url="file://$MODULE_DIR$/core/target/dist" />
-      <excludeFolder url="file://$MODULE_DIR$/core/target/glassfish" />
       <excludeFolder url="file://$MODULE_DIR$/core/target/log" />
-      <excludeFolder url="file://$MODULE_DIR$/core/target/orion" />
       <excludeFolder url="file://$MODULE_DIR$/core/target/site" />
       <excludeFolder url="file://$MODULE_DIR$/core/target/test-classes" />
-      <excludeFolder url="file://$MODULE_DIR$/core/target/tmp" />
-      <excludeFolder url="file://$MODULE_DIR$/core/target/tomcat90" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library" exported="">
-      <library name="net.sf.jsr107cache:jsr107cache:1.0">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../.m2/repository/net/sf/jsr107cache/jsr107cache/1.0/jsr107cache-1.0.jar!/" />
-        </CLASSES>
-        <JAVADOC>
-          <root url="jar://$MODULE_DIR$/../../.m2/repository/net/sf/jsr107cache/jsr107cache/1.0/jsr107cache-1.0-javadoc.jar!/" />
-        </JAVADOC>
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/../../.m2/repository/net/sf/jsr107cache/jsr107cache/1.0/jsr107cache-1.0-sources.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
     <orderEntry type="module-library" exported="">
       <library name="backport-util-concurrent:backport-util-concurrent:3.1">
         <CLASSES>
@@ -165,6 +145,19 @@
         </JAVADOC>
         <SOURCES>
           <root url="jar://$MODULE_DIR$/../../.m2/repository/commons-collections/commons-collections/3.2/commons-collections-3.2-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="net.sf.jsr107cache:jsr107cache:1.0">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../.m2/repository/net/sf/jsr107cache/jsr107cache/1.0/jsr107cache-1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://$MODULE_DIR$/../../.m2/repository/net/sf/jsr107cache/jsr107cache/1.0/jsr107cache-1.0-javadoc.jar!/" />
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/../../.m2/repository/net/sf/jsr107cache/jsr107cache/1.0/jsr107cache-1.0-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
