@@ -811,12 +811,12 @@ public class Cache implements Ehcache {
     /**
      * Warning: This method is related to the JSR107 specification, which is in draft. It is subject to change without notice.
      * <p/>
-     * This method will return, from the cache, the object associated with
-     * the argument "key".
+     * This method will return, from the cache, the Element associated with the argument "key".
      * <p/>
-     * If the object is not in the cache, the associated
-     * cache loader will be called. That is either the CacheLoader passed in, or if null, the one associated with the cache.
-     * If both are null, no load is performed and null is returned.
+     * If the Element is not in the cache, the associated cache loader will be called. That is either the CacheLoader passed in, or if null,
+     * the one associated with the cache. If both are null, no load is performed and null is returned.
+     * <p/>
+     * If the loader decides to assign a null value to the Element, an Element with a null value is created and stored in the cache.
      * <p/>
      * Because this method may take a long time to complete, it is not synchronized. The underlying cache operations
      * are synchronized.
