@@ -24,18 +24,34 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <version>4.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>javax.xml.ws</groupId>
             <artifactId>jaxws-api</artifactId>
             <version>2.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>jaxws-tools</artifactId>
+            <version>2.1.4</version>
         </dependency>
         <dependency>
             <groupId>jersey</groupId>
             <artifactId>jersey</artifactId>
             <version>0.7-ea</version>
             <scope>compile</scope>
+        </dependency>
+        <!--This is the http.jar from Java 6 which must be manually installed for testing for now -->
+        <!-- See http://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html -->
+        <!-- mvn install:install-file -Dfile=http.jar -DgroupId=sun.net  -DartifactId=httpserver -Dversion=1.6 -Dpackaging=jar -->
+        <dependency>
+            <groupId>sun.net</groupId>
+            <artifactId>httpserver</artifactId>
+            <version>1.6</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.glassfish.embedded</groupId>
@@ -46,13 +62,14 @@
             <groupId>org.glassfish.distributions</groupId>
             <artifactId>web-all</artifactId>
             <version>10.0-build-20080430</version>
+            <scope>compile</scope>
             <!-- TODO: need to make this overridable -->
         </dependency>
-        <dependency>
-            <groupId>org.glassfish.embedded</groupId>
-            <artifactId>embedded</artifactId>
-            <version>2</version>
-        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>org.glassfish.embedded</groupId>-->
+        <!--<artifactId>embedded</artifactId>-->
+        <!--<version>2</version>-->
+        <!--</dependency>-->
     </dependencies>
     <build>
         <plugins>
