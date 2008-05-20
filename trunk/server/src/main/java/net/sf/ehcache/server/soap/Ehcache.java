@@ -5,14 +5,13 @@
  * Time: 9:23:55 AM
  * To change this template use File | Settings | File Templates.
  */
-package net.sf.ehcache.server;
+package net.sf.ehcache.server.soap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
-import javax.xml.ws.Endpoint;
 
 /**
  * The Ehcache WebService

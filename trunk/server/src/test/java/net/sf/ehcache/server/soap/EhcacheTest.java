@@ -1,19 +1,18 @@
-package net.sf.ehcache.server;
+package net.sf.ehcache.server.soap;
 
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 import javax.xml.ws.Endpoint;
 
-import junit.framework.TestCase;
+import net.sf.ehcache.server.soap.Ehcache;
+
 
 /**
- * Created by IntelliJ IDEA.
- * User: gluck
- * Date: May 20, 2008
- * Time: 9:50:20 AM
- * To change this template use File | Settings | File Templates.
+ * @author Greg Luck
+ * @version $Id$
  */
-public class EhcacheTest extends TestCase {
+public class EhcacheTest {
     private Object implementor;
     private String address;
 
