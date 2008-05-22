@@ -11,6 +11,9 @@
     <packaging>jar</packaging>
     <description>The ehcache W3C and RESTful web services server.</description>
     <dependencies>
+        <!-- IntelliJ Issue. Hibernate has a transitive dep on asm, but a later
+        version is required for javax.ws.rs. The only thing that
+         seem to work is to move asm-3.1 up the classpath. -->
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>ehcache</artifactId>
@@ -33,15 +36,46 @@
             <version>2.1</version>
             <scope>compile</scope>
         </dependency>
+        <!-- Manual install -->
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>jsr311-api</artifactId>
+            <version>0.8</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>jsr250-api</artifactId>
+            <version>1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>javax.persistence</groupId>-->
+        <!--<artifactId>persistence-api</artifactId>-->
+        <!--<version>1.0.2</version>-->
+        <!--<scope>provided</scope>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm-all</artifactId>
+            <version>3.1</version>
+        </dependency>
+
         <dependency>
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>jaxws-tools</artifactId>
             <version>2.1.4</version>
         </dependency>
+        <!-- Installed manually to local repo -->
         <dependency>
             <groupId>jersey</groupId>
             <artifactId>jersey</artifactId>
-            <version>0.7-ea</version>
+            <version>0.8-ea</version>
             <scope>compile</scope>
         </dependency>
         <!--This is the http.jar from Java 6 which must be manually installed for testing for now -->
@@ -78,6 +112,15 @@
                 <configuration>
                     <source>1.5</source>
                     <target>1.5</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <additionalClasspathElements>
+                        <additionalClasspathElement>target/classes</additionalClasspathElement>
+                    </additionalClasspathElements>
                 </configuration>
             </plugin>
             <plugin>

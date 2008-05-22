@@ -4,7 +4,10 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import com.sun.net.httpserver.HttpServer;
-import com.sun.ws.rest.api.container.httpserver.HttpServerFactory;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.jersey.api.container.httpserver.HttpServerFactory;
+import com.sun.jersey.api.container.ContainerFactory;
+import com.sun.jersey.api.core.PackagesResourceConfig;
 
 
 /**
@@ -52,7 +55,11 @@ public class EhcacheResourceTest {
         public void run() {
             try {
 
-                HttpServer server = HttpServerFactory.create("http://localhost:9998/");
+                PackagesResourceConfig prc = new PackagesResourceConfig(new String[] {"net.sf.ehcache.server.resources"});
+                HttpHandler h = ContainerFactory.createContainer(HttpHandler.class, prc);
+                HttpServer server = HttpServerFactory.create("http://localhost:9998/ehcache", h);
+
+//                HttpServer server = HttpServerFactory.create("http://localhost:9998/");
                 server.start();
 
                 System.out.println("Server running");

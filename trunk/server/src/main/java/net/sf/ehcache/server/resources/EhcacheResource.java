@@ -18,7 +18,7 @@ public class EhcacheResource {
     /**
      * Creates a new instance of HelloWorldResource
      */
-    public EhcacheResource() {
+    public EhcacheResource(String greg) {
     }
 
     /**
