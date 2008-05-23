@@ -869,6 +869,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * Tests replacement in the config file.
      */
     public void testLoadConfigurationWithReplacement() throws Exception {
+        //todo more tests and merge with branch.
         System.setProperty("multicastGroupPort", "4446");
         File file = new File(TEST_CONFIG_DIR + "ehcache-replacement.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
@@ -877,7 +878,8 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
         //Check disk path  <diskStore path="/tmp"/>
         assertNotSame(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
-        assertTrue(configuration.getCacheManagerPeerProviderFactoryConfiguration().getProperties().indexOf("4446") != -1);
+        assertTrue(configuration.getCacheManagerPeerProviderFactoryConfiguration()
+                .getProperties().indexOf("multicastGroupPort=4446") != -1);
 
 
     }

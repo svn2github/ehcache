@@ -189,7 +189,7 @@ public final class ConfigurationFactory {
                             " token specified in the configuration.Replacing with \"\"");
                 }
             } else {
-                configuration = configuration.replaceAll(trimmedToken, property);
+                configuration = configuration.replaceAll("\\$\\{" + trimmedToken + "\\}", property);
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Found system property value of " + property + " for the " + token +
                             " token specified in the configuration.");
