@@ -3,8 +3,8 @@ Java Requirements, Dependencies and Maven POM snippet
 
 * {Java Requirements}
 
-    Ehcache supports 1.4, 1.5 and 1.6 at runtime. Ehcache final releases are compiled with -target 1.4.
-    This produces Java class data, version 48.0.
+    Ehcache core and debugger supports 1.4, 1.5 and 1.6 at runtime. Ehcache final releases are compiled with -target 1.4.
+    This produces Java class data, version 48.0. Ehcache server requires Java 1.5 or higher.
 
     Because of an {{{http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4267864}RMI bug}}, in JDKs before JDK1.5
     ehcache is limited to one CacheManager operating in distributed mode per virtual machine.
@@ -19,14 +19,14 @@ Java Requirements, Dependencies and Maven POM snippet
 
 ** Commons Logging
 
-    Ehcache requires {{{http://jakarta.apache.org/commons/logging/}commons-logging}} commons-logging is a very common dependency, and is therefore not included in the distribution.
+    Ehcache core and debugger requires {{{http://jakarta.apache.org/commons/logging/}commons-logging}} commons-logging is a very common dependency, and is therefore not included in the distribution.
 
     It is included in the tarball and the maven dependencies.
 
 
 ** Backport Concurrent
 
-    Backport Concurrent is a dependency for use of the JCache API. Rather than using the library which maven will pull down, users should consider
+    Ehcache core and debugger require Backport Concurrent. Rather than using the library which maven will pull down, users should consider
     using the version for their specific version of Java. This is not something that Maven can handle automatically. A JDK specific version should
     be faster than the generic one. See {{http://dcl.mathcs.emory.edu/util/backport-util-concurrent}}.
     
@@ -34,7 +34,7 @@ Java Requirements, Dependencies and Maven POM snippet
 
 ** JMX
 
-    The management package of ehcache requires JMX. Version 1.3 or higher will work. This is optional and only required if you are using the
+    The management package of ehcache core requires JMX. Version 1.3 or higher will work. This is optional and only required if you are using the
     <<<ManagementService>>>.
 
     Of course JDK1.5 has it built in.

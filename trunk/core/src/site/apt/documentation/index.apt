@@ -51,6 +51,8 @@ Ehcache 1.5.0 User Guide
 
     * {{{./cache_loaders.html}Cache Loaders}}
 
+    * {{{./cache_server.html}Cache Server with {SOAP} and {RESTful} Web Services}}
+
     * {{{./hibernate.html}Hibernate Caching}}
 
     * {{{./constructs_design.html}Constructs Design}}

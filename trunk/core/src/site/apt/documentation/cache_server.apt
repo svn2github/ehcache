@@ -1,0 +1,120 @@
+{Cache Server}
+
+    Introduced in ehcache-1.6, ehcache comes with a Cache Server. The server CacheExtensions are a general purpose mechanism to allow {generic extensions to a Cache}.
+
+
+
+*   Architecture
+
+    Ehcache server uses JAX-WS for SOAP and Jersey for RESTful Web Services. Ehcache supports both to give users the
+    maximum of choice. The beauty of both is that no Ehcache client is required. A client can be created trivially in
+    whatever programming language. With support for REST, that even extends to languages that do not hava SOAP implementations.
+
+    By default, Glassfish V3 Core embedded is used as the HTTP server on which to run these. Glassfish uses NIO
+    for high performance. However Ehcache Server is also downloadable as a WAR which can be embedded in any
+    Servlet 2.5 Web Container, such as Weblogic, Websphere, Tomcat or Jetty. 
+
+    Ehcache Server requires Java 5 or higher.
+
+*   A Note on Terminology
+
+    Leonard Richardson and Sam Ruby have done a great job of clarifying the different Web Services architectures and
+    distinguishing them from each other. See {http://www.oreilly.com/catalog/9780596529260/}.
+
+    Their taxonomy is used in the following discussion.
+
+
+
+** W3C Web Services
+
+    The W3C ({http://www.w3.org/} is a standards body that defines Web Services as
+
+---
+    The World Wide Web is more and more used for application to application communication.
+    The programmatic interfaces made available are referred to as Web services.
+---
+
+    They provide a set of recommendations for achieving this. See {http://www.w3.org/2002/ws/}.
+
+    An interoperability organisation, WS-I {http://www.ws-i.org/}, seeks to achieve interoperabilty between
+    W3C Web Services. The W3C specifications for SOAP and WSDL are required to meet the WS-I definition.
+
+    Ehcache is using Glassfish's libraries to provide it's W3C web services. The project known as Metro
+    follows the WS-I definition.
+
+    Finally, OASIS ({http://oasis-open.org}), defines a Web Services Security specification for SOAP: WS-Security.
+    The current version is 1.1. It provides three main security mechanisms: ability to send security tokens as part of a 
+    message, message integrity, and message confidentiality.
+
+    Ehcache's W3C Web Services support the stricter WS-I definition and use the SOAP and WSDL specfications.
+
+    Specifically:
+
+    * The method of operation is in the entity-body of the SOAP envelope and a HTTP header. POST is always
+      used as the HTTP method.
+
+    * The scoping information, used to identify the resource to perform the method on, is contained in the
+      SOAP entity-body. The URI path is always the same for a given Web Service - it is the service "endpoint".
+
+    * The Web Service is described by and exposes a {WSDL} (Web Services Description Language) file. It contains the methods, their arguments and what data
+      types are used.
+
+    * The {WS-Security} SOAP extensions are supported
+
+
+
+** RESTful Web Services
+
+    Roy Fielding created the term REST, denoting Representational State Transfer, in his
+    {{{http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm}}PhD thesis}.
+
+    The ehcache implementation strictly follows the RESTful resource-oriented architecture style.
+
+    Specifically:
+
+    * The HTTP methods GET, HEAD, PUT/POST and DELETE are used to specify the method of the operation. The
+      URI does not contain method information.
+
+    * The scoping information, used to identify the resource to perform the method on, is contained in the
+      URI path.
+
+    * The RESTful Web Service is described by and exposes a {WADL} (Web Application Description Language) file.
+      It contains the URIs you can call, and what data to pass and get back.
+
+
+* RESTFul Web Services API
+
+    The Ehcache RESTFul Web Services API exposes the singleton CacheManager, which typically has been configured
+    in ehcache.xml or an IoC container. Multiple CacheManagers are not supported.
+
+    The resources are encoded as /{cache}/{element}
+
+** CacheManager Operations
+
+
+*** {GET} /
+
+    Lists the Caches in the CacheManager.
+
+*** {PUT} /\{cache\}
+
+    Creates a Cache using the defaultCache configuration.
+
+*** {DELETE} / \{cache\}
+
+    Deletes the Cache.
+
+** Cache Operations
+
+
+*** GET /\{cache\}
+
+    Lists the elements in the cache.
+
+***
+
+
+
+
+
+

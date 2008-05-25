@@ -849,6 +849,7 @@
                 <arg value="cache_event_listeners.apt"/>
                 <arg value="cache_exception_handlers.apt"/>
                 <arg value="cache_extensions.apt"/>
+                <arg value="cache_server.apt"/>
                 <arg value="hibernate.apt"/>
                 <arg value="jsr107.apt"/>
                 <arg value="glassfish.apt"/>
