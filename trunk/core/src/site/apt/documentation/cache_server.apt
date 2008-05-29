@@ -89,12 +89,27 @@
 
     The resources are encoded as /{cache}/{element}
 
-** CacheManager Operations
+** CacheManager Resource Operations
+
+*** OPTIONS /
+
+    Lists the methods supported by the CacheManager resource
 
 
 *** {GET} /
 
     Lists the Caches in the CacheManager.
+
+** Cache Resource Operations
+
+*** OPTIONS /\{cache\}/
+
+    Lists the methods supported by the Cache resource
+
+
+*** GET /\{cache\}
+
+    Lists the elements in the cache.
 
 *** {PUT} /\{cache\}
 
@@ -104,14 +119,68 @@
 
     Deletes the Cache.
 
-** Cache Operations
+** WADL
+
+   The WADL is automatically generated and is accessible at /ehcache/application.wadl
+
+** Element Resource Operations
+
+*** OPTIONS /\{cache\}/\{element\}
+
+    Lists the methods supported by the Element resource
+
+*** HEAD /\{cache\}/\{element\}
+
+    Retrieves the same metadata a GET would receive returned as HTTP headers. There is no body returned.
+
+*** GET /\{cache\}/\{element\}
+
+    Gets the element.
+
+*** HEAD /\{cache}/{element\}
+
+    Gets the element's metadata.
+
+*** {PUT} /\{cache\}/\{element\}
+
+    Puts and element into the Cache.
+
+*** {DELETE} / \{cache\}/\{{element\}
+
+    Deletes the element from the cache.
+
+**  Resource Representations
+
+    We deal with resource representations rather than resources themselves.
 
 
-*** GET /\{cache\}
+*** Element Resource Representations
 
-    Lists the elements in the cache.
+    When Elements are PUT into the cache, a MIME Type should be set in the request header.
+    The MIME Type is preserved and put into the response header when a GET is done.
 
-***
+    Some common MIME Types which are expected to be used by clients are:
+
+*-----*------*
+ text/plain | Plain text
+*-----*------*
+ text/xml | Extensible Markup Language. Defined in RFC 3023
+*-----*------*
+ application/json | JavaScript Object Notation JSON. Defined in RFC 4627
+*-----*------*
+ application/x-java-serialized-object | A serialized Java object
+*-----*------*
+
+    Because ehcache is a distributed Java cache, in some configurations the Cache server may contain Java objects
+    that arrived at the Cache server via distributed replication. In this case no MIME Type will not be set.
+    In this case the Element will be examined to determine its MIME Type. todo details and default
+
+    Because anything that can be PUT into the cache server must be Serializable, it can also be distributed
+    in a cache cluster i.e. it will be Serializable.
+
+
+
+
 
 
 
