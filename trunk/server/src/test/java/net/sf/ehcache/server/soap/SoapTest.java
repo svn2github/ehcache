@@ -1,18 +1,18 @@
 package net.sf.ehcache.server.soap;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import javax.xml.ws.Endpoint;
 
-import net.sf.ehcache.server.soap.Ehcache;
-
 
 /**
+ * Tests the Soap server
  * @author Greg Luck
  * @version $Id$
  */
-public class EhcacheTest {
+public class SoapTest {
     private Object implementor;
     private String address;
 

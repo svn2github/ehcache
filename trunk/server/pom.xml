@@ -11,6 +11,11 @@
     <packaging>jar</packaging>
     <description>The ehcache W3C and RESTful web services server.</description>
     <dependencies>
+        <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>3.1</version>
+        </dependency>
         <!-- IntelliJ Issue. Hibernate has a transitive dep on asm, but a later
         version is required for javax.ws.rs. The only thing that
          seem to work is to move asm-3.1 up the classpath. -->
@@ -61,12 +66,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm-all</artifactId>
-            <version>3.1</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>jaxws-tools</artifactId>
             <version>2.1.4</version>
@@ -85,20 +84,20 @@
             <groupId>sun.net</groupId>
             <artifactId>httpserver</artifactId>
             <version>1.6</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.embedded</groupId>
-            <artifactId>gf-embedded-api</artifactId>
-            <version>1.0-alpha-4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.distributions</groupId>
-            <artifactId>web-all</artifactId>
-            <version>10.0-build-20080430</version>
             <scope>compile</scope>
-            <!-- TODO: need to make this overridable -->
         </dependency>
+        <!--<dependency>-->
+        <!--<groupId>org.glassfish.embedded</groupId>-->
+        <!--<artifactId>gf-embedded-api</artifactId>-->
+        <!--<version>1.0-alpha-4</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.glassfish.distributions</groupId>-->
+        <!--<artifactId>web-all</artifactId>-->
+        <!--<version>10.0-build-20080430</version>-->
+        <!--<scope>compile</scope>-->
+        <!-- TODO: need to make this overridable -->
+        <!--</dependency>-->
         <!--<dependency>-->
         <!--<groupId>org.glassfish.embedded</groupId>-->
         <!--<artifactId>embedded</artifactId>-->
@@ -114,6 +113,30 @@
                     <target>1.5</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals><goal>checkstyle</goal></goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>
+                    <suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>
+                    <headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>
+                    <enableRSS>false</enableRSS>
+                    <linkXRef>true</linkXRef>
+                    <enableRulesSummary>false</enableRulesSummary>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <failsOnViolation>true</failsOnViolation>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                </configuration>
+            </plugin>
+
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

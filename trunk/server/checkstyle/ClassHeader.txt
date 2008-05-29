@@ -13,34 +13,3 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-package net.sf.ehcache.server.soap;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import javax.jws.WebMethod;
-import javax.jws.WebService;
-
-/**
- * The Ehcache WebService
- * @author Greg Luck
- * @version $Id$
- */
-@WebService()
-public class Ehcache {
-
-    private static final Log LOG = LogFactory.getLog(Ehcache.class.getName());
-
-    /**
-     * Test method
-     * @param from
-     * @return
-     */
-    @WebMethod
-    public String sayHelloWorldFrom(String from) {
-        String result = "Hello, world, from " + from;
-        LOG.info(result);
-        return result;
-    }
-}

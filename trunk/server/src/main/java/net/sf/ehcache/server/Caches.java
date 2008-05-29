@@ -14,33 +14,48 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.server.soap;
+package net.sf.ehcache.server;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import javax.jws.WebMethod;
-import javax.jws.WebService;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 /**
- * The Ehcache WebService
  * @author Greg Luck
  * @version $Id$
  */
-@WebService()
-public class Ehcache {
+@XmlRootElement
+public class Caches {
 
-    private static final Log LOG = LogFactory.getLog(Ehcache.class.getName());
+    private List<Cache> cache;
 
     /**
-     * Test method
-     * @param from
-     * @return
+     * Empty Constructor
      */
-    @WebMethod
-    public String sayHelloWorldFrom(String from) {
-        String result = "Hello, world, from " + from;
-        LOG.info(result);
-        return result;
+    public Caches() {
     }
+
+    /**
+     * Constructor using a list of caches
+     * @param caches a list of caches that belong in this CacheManager
+     */
+    public Caches(List<Cache> caches) {
+        setCache(caches);
+    }
+
+    /**
+     * Gets the list of caches
+     */
+    public List<Cache> getCache() {
+        return cache;
+    }
+
+    /**
+     * Sets the list of caches
+     * @param cache
+     */
+    public void setCache(List<Cache> cache) {
+        this.cache = cache;
+    }
+
+
 }
