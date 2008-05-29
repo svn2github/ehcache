@@ -57,13 +57,6 @@ public class CachesResourceTest {
     }
 
 
-    @Test
-    public void testPutCache() throws IOException, ParserConfigurationException, SAXException {
-        HttpUtil.put("http://localhost:9998/ehcache/testCache");
-        Object result = HttpUtil.get("http://localhost:9998/ehcache");
-        LOG.info("Result of Get: " + result);
-    }
-
 
     /**
      * Stick in some text with MIME Type plain/text and make sure it comes back.

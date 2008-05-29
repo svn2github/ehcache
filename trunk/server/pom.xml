@@ -133,6 +133,7 @@
                     <failsOnError>true</failsOnError>
                     <failsOnViolation>true</failsOnViolation>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <enableRulesSummary>true</enableRulesSummary>
                 </configuration>
             </plugin>
 

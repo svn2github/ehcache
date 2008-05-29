@@ -28,18 +28,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.util.logging.Logger;
 
 /**
- * Created by IntelliJ IDEA.
- * User: gluck
- * Date: May 26, 2008
- * Time: 6:15:13 PM
- * To change this template use File | Settings | File Templates.
+ * Utilities used by tests
+ * @author Greg Luck
+ * @version $Id$
  */
 public class HttpUtil {
 
-    public static final Logger LOG = Logger.getLogger(HttpUtil.class.getName());
+    private static final Logger LOG = Logger.getLogger(HttpUtil.class.getName());
 
     private HttpUtil() {
         //utility class
@@ -121,6 +121,19 @@ public class HttpUtil {
             byteArrayOutputStream.write(buffer, 0, r);
         }
         return byteArrayOutputStream.toByteArray();
+    }
+
+
+    public static HttpURLConnection head(String uri) throws IOException, ProtocolException {
+        URL u = new URL(uri);
+        HttpURLConnection httpURLConnection = (HttpURLConnection) u.openConnection();
+        httpURLConnection.setRequestMethod("HEAD");
+
+        int status = httpURLConnection.getResponseCode();
+        LOG.info("Status " + status);
+        String mediaType = httpURLConnection.getContentType();
+        LOG.info("Content Type: " + mediaType);
+        return httpURLConnection;
     }
 
 
