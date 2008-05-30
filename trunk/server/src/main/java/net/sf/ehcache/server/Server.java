@@ -17,14 +17,12 @@
 package net.sf.ehcache.server;
 
 
-import com.sun.jersey.api.container.ContainerFactory;
-import com.sun.jersey.api.container.httpserver.HttpServerFactory;
-import com.sun.jersey.api.core.PackagesResourceConfig;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.management.ManagementService;
+import org.glassfish.embed.GFApplication;
+import org.glassfish.embed.GlassFish;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.logging.Logger;
@@ -44,12 +42,37 @@ public class Server {
 
 
     /**
+     * Default port: 8080
+     */
+    public static final Integer DEFAULT_PORT = 8080;
+
+    /**
      * The singleton CacheManager instance exposed by this server.
      */
     private static CacheManager cacheManager = CacheManager.getInstance();
 
     private static final Logger LOG = Logger.getLogger(Server.class.getName());
+
+    private static Integer listeningPort = DEFAULT_PORT;
+    
     private ServerThread serverThread;
+
+
+    /**
+     * Empty constructor
+     * This will create a server listening on port 8080
+     */
+    public Server() {
+
+    }
+
+    /**
+     * Constructs a server on a given port
+     * @param listeningPort the port to listen on.
+     */
+    public Server(Integer listeningPort) {
+        this.listeningPort = listeningPort;
+    }
 
     /**
      * Starts the server and registers ehcache with the JMX Platform MBeanServer
@@ -79,17 +102,6 @@ public class Server {
 
     }
 
-//        GlassFish glassfish = new GlassFish();
-//// create smallest possible HTTP set up listening on port 8080
-//glassfish.minimallyConfigure(8080);
-//
-//GFApplication app = glassfish.deploy(new File("path/to/simple.war"));
-//
-//             System.in.read();
-//             app.undeploy();
-//             glassfish.stop();
-
-
     /**
      * Forks the Server into its own thread.
      */
@@ -112,14 +124,28 @@ public class Server {
         public void run() {
             try {
 
-                PackagesResourceConfig prc = new PackagesResourceConfig(new String[]{"net.sf.ehcache.server.resources"});
-                HttpHandler h = ContainerFactory.createContainer(HttpHandler.class, prc);
-                HttpServer server = HttpServerFactory.create("http://localhost:9998/ehcache", h);
-                server.start();
+//                PackagesResourceConfig prc = new PackagesResourceConfig(new String[]{"net.sf.ehcache.server.resources"});
+//                HttpHandler h = ContainerFactory.createContainer(HttpHandler.class, prc);
+//                HttpServer server = HttpServerFactory.create("http://localhost:9998/ehcache", h);
+//                server.start();
+
+                GlassFish glassfish = new GlassFish(listeningPort);
+
+//                GFApplication app = glassfish.deploy(
+// new File("/Users/gluck/work/jersey-0.8-ea/examples/HelloWorldWebApp/dist/SimpleServlet.war"));
+                GFApplication app = glassfish.deploy(
+                        new File("/Users/gluck/work/ehcache/server/target/ehcache-server-1.5.0-beta1.war"));
+//                        new File("/Users/gluck/work/jersey-0.8-ea/examples/HelloWorldWebApp/build/web"));
+//
+//                System.in.read();
+////                app.undeploy();
+//                glassfish.stop();
+
+
 
                 LOG.info("Server running");
                 LOG.info("Visit: http://localhost:9998/ehcache");
-                LOG.info("Hit return to stop...");
+                LOG.info("+Hit return to stop...");
 //                System.in.read();
 //                LOG.info("Stopping server");
 //                server.stop(0);

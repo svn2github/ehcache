@@ -110,9 +110,9 @@ public class CachesResourceTest {
     @BeforeClass
     public static void setupBeforeAll() throws InterruptedException {
         LOG.info("Starting Server");
-        server = new Server();
+        server = new Server(9998);
         server.init();
-        Thread.sleep(2000);
+        Thread.sleep(3000);
     }
 
     @AfterClass

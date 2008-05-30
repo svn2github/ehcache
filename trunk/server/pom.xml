@@ -1,6 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <!-- Note to IntelliJ users. Run mvn compile before interactively running tests. -->
     <parent>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-parent</artifactId>
@@ -11,14 +12,14 @@
     <packaging>jar</packaging>
     <description>The ehcache W3C and RESTful web services server.</description>
     <dependencies>
+        <!-- IntelliJ Issue. Hibernate has a transitive dep on asm, but a later
+        version is required for javax.ws.rs. The only thing that
+         seem to work is to move asm-3.1 up the classpath. -->
         <dependency>
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>
             <version>3.1</version>
         </dependency>
-        <!-- IntelliJ Issue. Hibernate has a transitive dep on asm, but a later
-        version is required for javax.ws.rs. The only thing that
-         seem to work is to move asm-3.1 up the classpath. -->
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>ehcache</artifactId>
@@ -77,6 +78,11 @@
             <version>0.8-ea</version>
             <scope>compile</scope>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.codehaus.jettison</groupId>-->
+            <!--<artifactId>jettison</artifactId>-->
+            <!--<version>1.0</version>-->
+        <!--</dependency>-->
         <!--This is the http.jar from Java 6 which must be manually installed for testing for now -->
         <!-- See http://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html -->
         <!-- mvn install:install-file -Dfile=http.jar -DgroupId=sun.net  -DartifactId=httpserver -Dversion=1.6 -Dpackaging=jar -->
@@ -86,23 +92,17 @@
             <version>1.6</version>
             <scope>compile</scope>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.glassfish.embedded</groupId>-->
-        <!--<artifactId>gf-embedded-api</artifactId>-->
-        <!--<version>1.0-alpha-4</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>org.glassfish.distributions</groupId>-->
-        <!--<artifactId>web-all</artifactId>-->
-        <!--<version>10.0-build-20080430</version>-->
-        <!--<scope>compile</scope>-->
-        <!-- TODO: need to make this overridable -->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>org.glassfish.embedded</groupId>-->
-        <!--<artifactId>embedded</artifactId>-->
-        <!--<version>2</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <artifactId>gf-embedded-api</artifactId>
+            <version>1.0-alpha-5-SNAPSHOT</version>
+            <groupId>org.glassfish.embedded</groupId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.distributions</groupId>
+            <artifactId>web-all</artifactId>
+            <version>10.0-build-20080430</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -114,12 +114,25 @@
                 </configuration>
             </plugin>
             <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>war</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <executions>
                     <execution>
                         <phase>validate</phase>
-                        <goals><goal>checkstyle</goal></goals>
+                        <goals>
+                            <goal>checkstyle</goal>
+                        </goals>
                     </execution>
                 </executions>
                 <configuration>
