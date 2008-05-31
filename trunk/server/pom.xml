@@ -42,7 +42,8 @@
             <version>2.1</version>
             <scope>compile</scope>
         </dependency>
-        <!-- Manual install -->
+        <!-- Manual install until they release this to maven which has been requested. -->
+        <!--mvn install:install-file -Dfile=jsr311-api.jar -DgroupId=javax.ws.rs  -DartifactId=jsr311-api -Dversion=0.8 -Dpackaging=jar-->
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>jsr311-api</artifactId>
@@ -54,12 +55,6 @@
             <version>1.0</version>
             <scope>provided</scope>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>javax.persistence</groupId>-->
-        <!--<artifactId>persistence-api</artifactId>-->
-        <!--<version>1.0.2</version>-->
-        <!--<scope>provided</scope>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
@@ -71,13 +66,15 @@
             <artifactId>jaxws-tools</artifactId>
             <version>2.1.4</version>
         </dependency>
-        <!-- Installed manually to local repo -->
+        <!-- Installed manually to local repo until they add it which has been request. -->
+        <!--mvn install:install-file -Dfile=jersey.jar -DgroupId=jersey  -DartifactId=jersey -Dversion=0.8-ea -Dpackaging=jar-->
         <dependency>
             <groupId>jersey</groupId>
             <artifactId>jersey</artifactId>
             <version>0.8-ea</version>
             <scope>compile</scope>
         </dependency>
+        <!--JSON JAXB support. Not used right now. -->
         <!--<dependency>-->
             <!--<groupId>org.codehaus.jettison</groupId>-->
             <!--<artifactId>jettison</artifactId>-->
