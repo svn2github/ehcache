@@ -18,6 +18,7 @@
     <!--<suppress checks="FileLengthCheck" files="Test.java"/>    -->
     <!--<suppress checks="PackageHtml" files="test[/\\]"/>-->
     <!--<suppress checks="IllegalTypeCheck" files="test[/\\]"/>-->
+    <suppress checks="GenericIllegalRegexpCheck" files="Server.java"/>
 
 
     <!-- Suppress duplicate checking of copyright notice -->

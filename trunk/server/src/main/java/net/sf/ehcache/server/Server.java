@@ -17,6 +17,11 @@
 package net.sf.ehcache.server;
 
 
+import com.sun.jersey.api.container.ContainerFactory;
+import com.sun.jersey.api.container.httpserver.HttpServerFactory;
+import com.sun.jersey.api.core.PackagesResourceConfig;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.management.ManagementService;
 import org.glassfish.embed.GFApplication;
@@ -32,8 +37,7 @@ import java.util.logging.Logger;
  * <p/>
  * This version uses the Java 6 built-in lightweight HTTP server, which is not suitable for production,
  * according to the research I have done.
- * todo replace with GFV3 or something hardcore
- *
+ * todo replace with GFV3 or something hardcore. Trying...hard...
  *
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
@@ -44,7 +48,7 @@ public class Server {
     /**
      * Default port: 8080
      */
-    public static final Integer DEFAULT_PORT = 8080;
+    public static final Integer DEFAULT_PORT = 9998;
 
     /**
      * The singleton CacheManager instance exposed by this server.
@@ -53,14 +57,18 @@ public class Server {
 
     private static final Logger LOG = Logger.getLogger(Server.class.getName());
 
-    private static Integer listeningPort = DEFAULT_PORT;
-    
+    private Integer listeningPort = DEFAULT_PORT;
+
+    private File ehcacheServerWar;
+
     private ServerThread serverThread;
 
 
     /**
-     * Empty constructor
-     * This will create a server listening on port 8080
+     * Empty constructor.
+     * This will create a server listening on the default port of 9998 and using the LightWeight HTTP Server
+     *
+     * @see #Server(Integer, java.io.File)
      */
     public Server() {
 
@@ -68,10 +76,12 @@ public class Server {
 
     /**
      * Constructs a server on a given port
+     *
      * @param listeningPort the port to listen on.
      */
-    public Server(Integer listeningPort) {
+    public Server(Integer listeningPort, File ehcacheServerWar) {
         this.listeningPort = listeningPort;
+        this.ehcacheServerWar = ehcacheServerWar;
     }
 
     /**
@@ -89,70 +99,61 @@ public class Server {
      *
      */
     public void destroy() {
-        serverThread.interrupt();        
+        serverThread.interrupt();
     }
 
     /**
-     * Use for manual testing
      * todo make this the real one using Glassfish V3 Embedded
+     * Usage: java -classpath ... net.sf.ehcache.server.Server {path to ehcache-server.war}
      */
     public static void main(String[] args) throws IOException {
-        Server server = new Server();
+        Server server = null;
+        if (args.length == 1 && args[0].matches("--help")) {
+            System.out.println("java -classpath ... net.sf.ehcache.server.Server {path to ehcache-server.war} {http port}");
+            System.exit(0);
+        }
+        if (args.length == 2) {
+            Integer port = Integer.parseInt(args[0]);
+            File war = new File(args[1]);
+            server = new Server(port, war);
+        }
         server.init();
-
     }
 
     /**
      * Forks the Server into its own thread.
      */
-    static class ServerThread extends Thread {
+    class ServerThread extends Thread {
 
         /**
-         * If this thread was constructed using a separate
-         * <code>Runnable</code> run object, then that
-         * <code>Runnable</code> object's <code>run</code> method is called;
-         * otherwise, this method does nothing and returns.
+         * Creates a server in a separate thread.
          * <p/>
-         * Subclasses of <code>Thread</code> should override this method.
-         *
-         * @see Thread#start()
-         * @see Thread#stop()
-         * @see Thread#Thread(ThreadGroup,
-         *      Runnable, String)
-         * @see Runnable#run()
+         * This permits the calling thread to immediately return
          */
         public void run() {
             try {
-
-//                PackagesResourceConfig prc = new PackagesResourceConfig(new String[]{"net.sf.ehcache.server.resources"});
-//                HttpHandler h = ContainerFactory.createContainer(HttpHandler.class, prc);
-//                HttpServer server = HttpServerFactory.create("http://localhost:9998/ehcache", h);
-//                server.start();
-
-                GlassFish glassfish = new GlassFish(listeningPort);
-
-//                GFApplication app = glassfish.deploy(
-// new File("/Users/gluck/work/jersey-0.8-ea/examples/HelloWorldWebApp/dist/SimpleServlet.war"));
-                GFApplication app = glassfish.deploy(
-                        new File("/Users/gluck/work/ehcache/server/target/ehcache-server-1.5.0-beta1.war"));
-//                        new File("/Users/gluck/work/jersey-0.8-ea/examples/HelloWorldWebApp/build/web"));
-//
-//                System.in.read();
-////                app.undeploy();
-//                glassfish.stop();
-
-
-
-                LOG.info("Server running");
-                LOG.info("Visit: http://localhost:9998/ehcache");
-                LOG.info("+Hit return to stop...");
-//                System.in.read();
-//                LOG.info("Stopping server");
-//                server.stop(0);
-//                LOG.info("Server stopped");
+                if (ehcacheServerWar == null) {
+                    startWithLightWeightHttpServer();
+                } else {
+                    startWithGlassfish();
+                }
             } catch (Throwable t) {
                 t.printStackTrace();
             }
+        }
+
+        private void startWithLightWeightHttpServer() throws IOException {
+            PackagesResourceConfig prc = new PackagesResourceConfig(new String[]{"net.sf.ehcache.server.resources"});
+            HttpHandler h = ContainerFactory.createContainer(HttpHandler.class, prc);
+            HttpServer server = HttpServerFactory.create("http://localhost:" + listeningPort + "/ehcache", h);
+            server.start();
+            LOG.info("Lightweight HTTP Server running on port " + listeningPort);
+        }
+
+        private void startWithGlassfish() throws IOException {
+            GlassFish glassfish = new GlassFish(listeningPort);
+            GFApplication application = glassfish.deploy(ehcacheServerWar);
+            LOG.info("Glassfish server running on port " + listeningPort + " with WAR " + ehcacheServerWar);
         }
 
     }

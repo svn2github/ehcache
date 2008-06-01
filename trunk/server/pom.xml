@@ -184,6 +184,8 @@
             </plugin>
         </plugins>
     </build>
+    <properties>
+    </properties>
     <repositories>
         <repository>
             <id>java.net</id>

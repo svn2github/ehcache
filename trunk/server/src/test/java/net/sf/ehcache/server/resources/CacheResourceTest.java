@@ -36,6 +36,7 @@ import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.File;
 import java.util.logging.Logger;
 import java.util.Map;
 import java.net.HttpURLConnection;
@@ -44,6 +45,7 @@ import java.net.HttpURLConnection;
 /**
  * Tests the REST web resource using the lightweight http container
  * <p/>
+ *
  * @author Greg Luck
  * @version $Id$
  */
@@ -79,11 +81,11 @@ public class CacheResourceTest {
     }
 
 
-
     @BeforeClass
     public static void setupBeforeAll() throws InterruptedException {
         LOG.info("Starting Server");
-        server = new Server(9998);
+        File war = new File("/Users/gluck/work/ehcache/server/target/ehcache-server-1.5.0-beta1.war");
+        server = new Server(9998, war);
         server.init();
         Thread.sleep(3000);
     }

@@ -36,6 +36,7 @@ import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.File;
 import java.util.logging.Logger;
 
 
@@ -49,6 +50,16 @@ public class CachesResourceTest {
 
     public static final Logger LOG = Logger.getLogger(CachesResourceTest.class.getName());
     private static Server server;
+
+
+    /**
+     * Use for manual testing
+     */
+    @Test
+    public void manualTest() throws IOException {
+        Server.main(new String[] {"9998", "/Users/gluck/work/ehcache/server/target/ehcache-server-1.5.0-beta1.war"});
+        System.in.read();
+    }
 
     @Test
     public void testGetCaches() throws IOException, ParserConfigurationException, SAXException {
@@ -110,7 +121,8 @@ public class CachesResourceTest {
     @BeforeClass
     public static void setupBeforeAll() throws InterruptedException {
         LOG.info("Starting Server");
-        server = new Server(9998);
+        File war = new File("/Users/gluck/work/ehcache/server/target/ehcache-server-1.5.0-beta1.war");
+        server = new Server(9998, war);
         server.init();
         Thread.sleep(3000);
     }
