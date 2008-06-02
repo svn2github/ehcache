@@ -21,6 +21,12 @@
             <version>3.1</version>
         </dependency>
         <dependency>
+            <groupId>org.glassfish.distributions</groupId>
+            <artifactId>web-all</artifactId>
+            <version>10.0-build-20080430</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>ehcache</artifactId>
             <version>${pom.version}</version>
@@ -28,7 +34,6 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -82,7 +87,7 @@
         <!--</dependency>-->
         <!--This is the http.jar from Java 6 which must be manually installed for testing for now -->
         <!-- See http://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html -->
-        <!-- mvn install:install-file -Dfile=http.jar -DgroupId=sun.net  -DartifactId=httpserver -Dversion=1.6 -Dpackaging=jar -->
+        <!-- mvn install:install-f                               ile -Dfile=http.jar -DgroupId=sun.net  -DartifactId=httpserver -Dversion=1.6 -Dpackaging=jar -->
         <dependency>
             <groupId>sun.net</groupId>
             <artifactId>httpserver</artifactId>
@@ -94,12 +99,7 @@
             <version>1.0-alpha-5-SNAPSHOT</version>
             <groupId>org.glassfish.embedded</groupId>
         </dependency>
-        <dependency>
-            <groupId>org.glassfish.distributions</groupId>
-            <artifactId>web-all</artifactId>
-            <version>10.0-build-20080430</version>
-            <scope>compile</scope>
-        </dependency>
+
     </dependencies>
     <build>
         <plugins>

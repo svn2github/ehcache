@@ -52,14 +52,7 @@ public class CachesResourceTest {
     private static Server server;
 
 
-    /**
-     * Use for manual testing
-     */
-    @Test
-    public void manualTest() throws IOException {
-        Server.main(new String[] {"9998", "/Users/gluck/work/ehcache/server/target/ehcache-server-1.5.0-beta1.war"});
-        System.in.read();
-    }
+
 
     @Test
     public void testGetCaches() throws IOException, ParserConfigurationException, SAXException {
