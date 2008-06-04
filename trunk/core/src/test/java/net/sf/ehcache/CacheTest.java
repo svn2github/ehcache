@@ -257,6 +257,27 @@ public class CacheTest extends AbstractCacheTest {
 
 
     /**
+     * When to search the disk store
+     * todo move to 1.5
+     * />
+     */
+    public void testOverflowToDiskAndDiskPersistent() throws Exception {
+        Ehcache cache = manager.getCache("sampleIdlingExpiringCache");
+
+        for (int i = 0; i < 1001; i++) {
+            cache.put(new Element("key" + i, "value1"));
+        }
+
+        assertNotNull(cache.get("key0"));
+        
+        for (int i = 0; i < 1001; i++) {
+            cache.put(new Element("key" + i, "value1"));
+            assertNotNull(cache.get("key" + i));
+        }
+    }
+
+
+    /**
      * Test expiry based on time to live for a cache with config
      * <cache name="sampleCacheNoIdle"
      * maxElementsInMemory="1000"

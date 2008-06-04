@@ -783,6 +783,7 @@ public class Cache implements Ehcache {
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @see #isExpired
      * @since 1.2
+     * todo apply to 1.5
      */
     public final Element get(Object key) throws IllegalStateException, CacheException {
         checkStatus();
@@ -791,7 +792,7 @@ public class Cache implements Ehcache {
 
         synchronized (this) {
             element = searchInMemoryStore(key, true);
-            if (element == null && configuration.isOverflowToDisk() || configuration.isDiskPersistent()) {
+            if (element == null && (configuration.isOverflowToDisk() || configuration.isDiskPersistent())) {
                 element = searchInDiskStore(key, true);
             }
             if (element == null) {

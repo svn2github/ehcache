@@ -63,6 +63,7 @@
            timeToIdleSeconds="2"
            timeToLiveSeconds="5"
            overflowToDisk="true"
+           diskPersistent="true"
             />
 
     <!-- A cache which overflows to disk. The disk store is persistent
