@@ -136,7 +136,7 @@ public class ElementResource {
 
         Response response;
 
-        if (ehcache != null) {
+        if (cache != null) {
             response = Response.created(uri).build();
         } else {
             response = Response.noContent().build();

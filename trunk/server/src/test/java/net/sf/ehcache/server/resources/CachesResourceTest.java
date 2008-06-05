@@ -70,8 +70,8 @@ public class CachesResourceTest {
         String originalString = "The rain in Spain falls mainly on the plain";
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(originalString.getBytes());
 
-        HttpUtil.put("http://localhost:9998/ehcache/testCache/1", "text/plain", byteArrayInputStream);
-        InputStream responseBody = HttpUtil.get("http://localhost:9998/ehcache/testCache/1").getInputStream();
+        HttpUtil.put("http://localhost:9998/ehcache/sampleCache2/1", "text/plain", byteArrayInputStream);
+        InputStream responseBody = HttpUtil.get("http://localhost:9998/ehcache/sampleCache2/1").getInputStream();
         byte[] bytes = HttpUtil.inputStreamToBytes(responseBody);
         String plainText = new String(bytes);
         assertEquals(originalString, plainText);
@@ -95,7 +95,7 @@ public class CachesResourceTest {
 //        URL url = ClassLoaderUtil.getStandardClassLoader().getResource("/ehcache.xml");
 //        InputStream inputStream = url.openStream();
 
-        HttpUtil.put("http://localhost:9998/ehcache/testCache/2", "text/xml", byteArrayInputStream);
+        HttpUtil.put("http://localhost:9998/ehcache/sampleCache2/2", "text/xml", byteArrayInputStream);
 
         InputStream responseBody = HttpUtil.get("http://localhost:9998/ehcache/testCache/2").getInputStream();
 
@@ -115,7 +115,9 @@ public class CachesResourceTest {
     public static void setupBeforeAll() throws InterruptedException {
         LOG.info("Starting Server");
         File war = new File("/Users/gluck/work/ehcache/server/target/ehcache-server-1.5.0-beta1.war");
-        server = new Server(9998, war);
+//        server = new Server(9998, war);
+        //Use LightWeight HTTP Server
+        server = new Server(9998, null);
         server.init();
         Thread.sleep(3000);
     }
