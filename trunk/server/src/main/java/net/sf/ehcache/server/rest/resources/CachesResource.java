@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.server.resources;
+package net.sf.ehcache.server.rest.resources;
 
 import net.sf.ehcache.server.rest.Cache;
 import net.sf.ehcache.server.rest.Caches;

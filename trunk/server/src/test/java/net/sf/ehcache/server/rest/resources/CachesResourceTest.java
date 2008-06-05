@@ -78,7 +78,7 @@ public class CachesResourceTest {
     }
 
     @Test
-    public void testPutElementXML() throws IOException, ParserConfigurationException, SAXException, XPathExpressionException {
+    public void testPutElementXML() throws IOException, ParserConfigurationException, SAXException, XPathExpressionException, InterruptedException {
         //Use ehcache.xml as an example xml document.
 
         String xmlDocument = "<?xml version=\"1.0\"?>\n" +
@@ -96,8 +96,10 @@ public class CachesResourceTest {
 //        InputStream inputStream = url.openStream();
 
         HttpUtil.put("http://localhost:9998/ehcache/sampleCache2/2", "text/xml", byteArrayInputStream);
+        Thread.sleep(1000);
+        LOG.info("About to do get");
 
-        InputStream responseBody = HttpUtil.get("http://localhost:9998/ehcache/testCache/2").getInputStream();
+        InputStream responseBody = HttpUtil.get("http://localhost:9998/ehcache/sampleCache2/2").getInputStream();
 
         DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document document = documentBuilder.parse(responseBody);

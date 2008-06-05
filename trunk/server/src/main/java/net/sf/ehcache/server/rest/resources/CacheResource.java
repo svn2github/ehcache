@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.server.resources;
+package net.sf.ehcache.server.rest.resources;
 
 import com.sun.jersey.api.NotFoundException;
 import net.sf.ehcache.server.rest.Cache;
@@ -122,7 +122,9 @@ public class CacheResource {
         if (ehcache == null) {
             Server.getCacheManager().addCache(cache);
             response = Response.created(uri).build();
+            LOG.info("Created Cache " + cache);
         } else {
+            LOG.info("Cache already exists" + cache);
             response = Response.noContent().build();
         }
         return response;
