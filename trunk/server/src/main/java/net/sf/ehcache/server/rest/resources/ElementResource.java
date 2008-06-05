@@ -17,7 +17,7 @@
 package net.sf.ehcache.server.resources;
 
 import com.sun.jersey.api.NotFoundException;
-import net.sf.ehcache.server.Element;
+import net.sf.ehcache.server.rest.Element;
 import net.sf.ehcache.server.Server;
 
 import javax.ws.rs.DELETE;

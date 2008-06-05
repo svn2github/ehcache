@@ -16,8 +16,8 @@
 
 package net.sf.ehcache.server.resources;
 
-import net.sf.ehcache.server.Cache;
-import net.sf.ehcache.server.Caches;
+import net.sf.ehcache.server.rest.Cache;
+import net.sf.ehcache.server.rest.Caches;
 import net.sf.ehcache.server.Server;
 
 import javax.ws.rs.GET;

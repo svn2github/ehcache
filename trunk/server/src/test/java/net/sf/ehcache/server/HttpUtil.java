@@ -64,6 +64,7 @@ public class HttpUtil {
 
         int status = uc.getResponseCode();
         LOG.info("Status: " + status);
+        uc.disconnect();
     }
 
     public static void put(String uri, String mediaType, InputStream in) throws IOException {

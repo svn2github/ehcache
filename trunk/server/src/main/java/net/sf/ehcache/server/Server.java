@@ -24,15 +24,14 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.management.ManagementService;
-import org.glassfish.embed.GFApplication;
-import org.glassfish.embed.GlassFish;
 import org.glassfish.embed.GFException;
+import org.glassfish.embed.GlassFish;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The ehcache server.
@@ -117,7 +116,7 @@ public class Server {
     }
 
     /**
-     * Usage: java -classpath ... net.sf.ehcache.server.Server <port> path to ehcache-server.war
+     * Usage: java -classpath ... net.sf.ehcache.server.Server &lt;port&gt; path to ehcache-server.war
      * <p/>
      * The port is optional. It should be <= 65536
      * <p/>
@@ -203,7 +202,7 @@ public class Server {
      */
     class HttpServerThread extends ServerThread {
 
-        HttpServer server;
+        private HttpServer server;
 
         /**
          * Starts the server in a separate thread.
