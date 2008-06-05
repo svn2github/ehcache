@@ -212,7 +212,7 @@ public class Server {
         }
 
         private void startWithLightWeightHttpServer() {
-            PackagesResourceConfig prc = new PackagesResourceConfig(new String[]{"net.sf.ehcache.server.resources"});
+            PackagesResourceConfig prc = new PackagesResourceConfig(new String[]{"net.sf.ehcache.server.rest.resources"});
             HttpHandler h = ContainerFactory.createContainer(HttpHandler.class, prc);
             try {
                 server = HttpServerFactory.create("http://localhost:" + listeningPort + "/ehcache", h);

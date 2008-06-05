@@ -64,6 +64,9 @@ public class CachesResourceTest {
 
     /**
      * Stick in some text with MIME Type plain/text and make sure it comes back.
+     * @throws java.io.IOException 
+     * @throws javax.xml.parsers.ParserConfigurationException
+     * @throws org.xml.sax.SAXException
      */
     @Test
     public void testPutElementPlain() throws IOException, ParserConfigurationException, SAXException {
