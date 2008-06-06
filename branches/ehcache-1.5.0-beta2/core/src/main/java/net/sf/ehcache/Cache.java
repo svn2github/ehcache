@@ -791,7 +791,7 @@ public class Cache implements Ehcache {
 
         synchronized (this) {
             element = searchInMemoryStore(key, true);
-            if (element == null && (configuration.isOverflowToDisk() || configuration.isDiskPersistent())) {
+            if (element == null && isDiskStore()) {
                 element = searchInDiskStore(key, true);
             }
             if (element == null) {
@@ -1045,7 +1045,7 @@ public class Cache implements Ehcache {
 
         synchronized (this) {
             element = searchInMemoryStore(key, false);
-            if (element == null && configuration.isOverflowToDisk() || configuration.isDiskPersistent()) {
+            if (element == null && isDiskStore()) {
                 element = searchInDiskStore(key, false);
             }
         }

@@ -22,23 +22,22 @@ import edu.emory.mathcs.backport.java.util.concurrent.Future;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy;
+import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.loader.CountingCacheLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
-import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.jsr107cache.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
-import java.util.Collection;
 import java.util.Map;
+import java.util.Random;
 
 
 /**
@@ -1849,7 +1848,7 @@ public class CacheTest extends AbstractCacheTest {
         Cache cache = manager.getCache("sampleCache1");
         cache.setCacheLoader(new CacheLoader() {
             public Object load(Object key, Object argument) throws CacheException {
-                System.out.println("load1 " + key);
+                LOG.info("load1 " + key);
                 return key;
             }
 
@@ -1874,7 +1873,7 @@ public class CacheTest extends AbstractCacheTest {
             }
 
             public Object load(Object o) throws CacheException {
-                System.out.println("load2 " + o + " " + o.getClass());
+                LOG.info("load2 " + o + " " + o.getClass());
                 if(o.equals("c")){
                     return null;
                 }
