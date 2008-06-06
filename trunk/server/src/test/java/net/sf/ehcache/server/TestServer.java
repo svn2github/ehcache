@@ -38,12 +38,11 @@ import java.util.logging.Logger;
  * <p/>
  * This version uses the Java 6 built-in lightweight HTTP server, which is not suitable for production,
  * according to the research I have done.
- * todo replace with GFV3 or something hardcore. Trying...hard...
  *
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
-public class Server {
+public class TestServer {
 
 
     /**
@@ -56,7 +55,7 @@ public class Server {
      */
     private static CacheManager cacheManager = CacheManager.getInstance();
 
-    private static final Logger LOG = Logger.getLogger(Server.class.getName());
+    private static final Logger LOG = Logger.getLogger(TestServer.class.getName());
 
     private Integer listeningPort = DEFAULT_PORT;
 
@@ -69,9 +68,9 @@ public class Server {
      * Empty constructor.
      * This will create a server listening on the default port of 9998 and using the LightWeight HTTP Server
      *
-     * @see #Server(Integer, java.io.File)
+     * @see #TestServer(Integer, java.io.File)
      */
-    public Server() {
+    public TestServer() {
         //
     }
 
@@ -80,7 +79,7 @@ public class Server {
      *
      * @param listeningPort the port to listen on.
      */
-    public Server(Integer listeningPort, File ehcacheServerWar) {
+    public TestServer(Integer listeningPort, File ehcacheServerWar) {
         this.listeningPort = listeningPort;
         this.ehcacheServerWar = ehcacheServerWar;
     }
@@ -104,7 +103,7 @@ public class Server {
         }
         serverThread.start();
 
-        ManagementService.registerMBeans(Server.getCacheManager(), ManagementFactory.getPlatformMBeanServer(),
+        ManagementService.registerMBeans(TestServer.getCacheManager(), ManagementFactory.getPlatformMBeanServer(),
                 true, true, true, true);
     }
 
@@ -125,20 +124,20 @@ public class Server {
      * @param args The first argument is the server port. The second is optional and is the path to the ehcache-server.war.
      */
     public static void main(String[] args) throws IOException {
-        Server server = null;
+        TestServer server = null;
         if (args.length == 1 && args[0].matches("--help")) {
             System.out.println("java -classpath ... net.sf.ehcache.server.Server <http port> <ehcache-server.war>} ");
             System.exit(0);
         }
         if (args.length == 1) {
             Integer port = Integer.parseInt(args[0]);
-            server = new Server(port, null);
+            server = new TestServer(port, null);
             server.init();
         }
         if (args.length == 2) {
             Integer port = Integer.parseInt(args[0]);
             File war = new File(args[1]);
-            server = new Server(port, war);
+            server = new TestServer(port, war);
             server.init();
         }
     }

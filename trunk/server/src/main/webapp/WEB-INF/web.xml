@@ -6,12 +6,24 @@
          version="2.5">
 
     <servlet>
-        <servlet-name>Jersey Web Application</servlet-name>
+        <servlet-name>Ehcache RESTful Web Service</servlet-name>
         <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+        <init-param>
+            <param-name>com.sun.jersey.config.property.resourceConfigClass</param-name>
+            <param-value>com.sun.jersey.api.core.PackagesResourceConfig</param-value>
+        </init-param>
+        <init-param>
+            <param-name>com.sun.jersey.config.property.packages</param-name>
+            <param-value>net.sf.ehcache.server.rest.resources</param-value>
+        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
-        <servlet-name>Jersey Web Application</servlet-name>
+        <servlet-name>Ehcache RESTful Web Service</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
+    <listener>
+        <listener-class>net.sf.ehcache.server.ServerContext</listener-class>
+    </listener>
+
 </web-app>

@@ -9,22 +9,23 @@
     </parent>
     <name>Ehcache Server</name>
     <artifactId>ehcache-server</artifactId>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
     <description>The ehcache W3C and RESTful web services server.</description>
     <dependencies>
         <!-- IntelliJ Issue. Hibernate has a transitive dep on asm, but a later
         version is required for javax.ws.rs. The only thing that
          seem to work is to move asm-3.1 up the classpath. -->
         <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
-            <version>3.1</version>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey</artifactId>
+            <version>0.8-ea-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>org.glassfish.web</groupId>-->
-            <!--<artifactId>webtier</artifactId>-->
-            <!--<version>10.0-SNAPSHOT</version>-->
-            <!--<scope>provided</scope>-->
+        <!--<groupId>org.glassfish.web</groupId>-->
+        <!--<artifactId>webtier</artifactId>-->
+        <!--<version>10.0-SNAPSHOT</version>-->
+        <!--<scope>provided</scope>-->
         <!--</dependency>-->
         <dependency>
             <groupId>${pom.groupId}</groupId>
@@ -32,33 +33,10 @@
             <version>${pom.version}</version>
         </dependency>
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>javax.xml.ws</groupId>
             <artifactId>jaxws-api</artifactId>
             <version>2.1</version>
             <scope>compile</scope>
-        </dependency>
-        <!-- Manual install until they release this to maven which has been requested. -->
-        <!--mvn install:install-file -Dfile=jsr311-api.jar -DgroupId=javax.ws.rs  -DartifactId=jsr311-api -Dversion=0.8 -Dpackaging=jar-->
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>jsr311-api</artifactId>
-            <version>0.8</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>jsr250-api</artifactId>
-            <version>1.0</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -71,19 +49,13 @@
             <artifactId>jaxws-tools</artifactId>
             <version>2.1.4</version>
         </dependency>
-        <!-- Installed manually to local repo until they add it which has been request. -->
-        <!--mvn install:install-file -Dfile=jersey.jar -DgroupId=jersey  -DartifactId=jersey -Dversion=0.8-ea -Dpackaging=jar-->
-        <dependency>
-            <groupId>jersey</groupId>
-            <artifactId>jersey</artifactId>
-            <version>0.8-ea</version>
-            <scope>compile</scope>
-        </dependency>
+
+
         <!--JSON JAXB support. Not used right now. -->
         <!--<dependency>-->
-            <!--<groupId>org.codehaus.jettison</groupId>-->
-            <!--<artifactId>jettison</artifactId>-->
-            <!--<version>1.0</version>-->
+        <!--<groupId>org.codehaus.jettison</groupId>-->
+        <!--<artifactId>jettison</artifactId>-->
+        <!--<version>1.0</version>-->
         <!--</dependency>-->
         <!--This is the http.jar from Java 6 which must be manually installed for testing for now -->
         <!-- See http://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html -->
@@ -92,14 +64,20 @@
             <groupId>sun.net</groupId>
             <artifactId>httpserver</artifactId>
             <version>1.6</version>
-            <scope>compile</scope>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <artifactId>gf-embedded-api</artifactId>
             <version>1.0-alpha-5-SNAPSHOT</version>
             <groupId>org.glassfish.embedded</groupId>
+            <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -114,7 +92,7 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>compile</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>war</goal>
                         </goals>
@@ -158,29 +136,83 @@
                     </additionalClasspathElements>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.glassfish</groupId>
+                <artifactId>maven-glassfish-plugin</artifactId>
+                <version>1.0-alpha-4</version>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.codehaus.cargo</groupId>
+                <artifactId>cargo-maven2-plugin</artifactId>
+                <version>0.3.1</version>
+                <configuration>
+                    <container>
+                        <containerId>jetty6x</containerId>
+                        <type>embedded</type>
+                    </container>
+                </configuration>
+            </plugin>
+
+            <!--<executions>-->
+
+            <!--<execution>-->
+
+            <!--<phase>pre-integration-test</phase>-->
+            <!--<goals>-->
+            <!--<goal>run</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
+
+            <plugin>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>maven-jetty-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/*UnitTest.java</include>
+                    </includes>
+                    <excludes>
+                        <exclude>**/*$*</exclude>
+                        <exclude>**/Abstract*Test.java</exclude>
+                    </excludes>
+                    <enableAssertions>false</enableAssertions>
+                    <additionalClasspathElements>
+                        <additionalClasspathElement>target/classes</additionalClasspathElement>
+                    </additionalClasspathElements>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-tests</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${test.int.skip}</skip>
+                            <includes>
+                                <include>**/*IntegrationTest.java</include>
+                                <include>**/*WebTest.java</include>
+                            </includes>
+                            <enableAssertions>false</enableAssertions>
+                            <additionalClasspathElements>
+                                <additionalClasspathElement>target/classes</additionalClasspathElement>
+                            </additionalClasspathElements>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-plugin-plugin</artifactId>
                 <configuration>
                     <goalPrefix>glassfish</goalPrefix>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>shade-maven-plugin</artifactId>
-                <version>1.0-alpha-5</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <shadedArtifactAttached>true</shadedArtifactAttached>
-                            <shadedClassifierName>remote</shadedClassifierName>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
@@ -203,5 +235,11 @@
             <url>http://download.java.net/maven/2</url>
         </repository>
     </repositories>
-
-</project>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven2.java.net</id>
+            <name>Java.net Repository for Maven 2</name>
+            <url>http://download.java.net/maven/2</url>
+        </pluginRepository>
+    </pluginRepositories>
+</project>                  

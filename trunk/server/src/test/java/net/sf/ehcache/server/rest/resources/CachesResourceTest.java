@@ -17,7 +17,7 @@
 package net.sf.ehcache.server.rest.resources;
 
 import net.sf.ehcache.server.HttpUtil;
-import net.sf.ehcache.server.Server;
+import net.sf.ehcache.server.TestServer;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.BeforeClass;
@@ -49,7 +49,7 @@ import java.util.logging.Logger;
 public class CachesResourceTest {
 
     public static final Logger LOG = Logger.getLogger(CachesResourceTest.class.getName());
-    private static Server server;
+    private static TestServer server;
 
 
 
@@ -122,7 +122,7 @@ public class CachesResourceTest {
         File war = new File("/Users/gluck/work/ehcache/server/target/ehcache-server-1.5.0-beta1.war");
 //        server = new Server(9998, war);
         //Use LightWeight HTTP Server
-        server = new Server(9998, null);
+        server = new TestServer(9998, null);
         server.init();
         Thread.sleep(3000);
     }

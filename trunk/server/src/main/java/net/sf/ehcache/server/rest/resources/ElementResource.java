@@ -18,7 +18,7 @@ package net.sf.ehcache.server.rest.resources;
 
 import com.sun.jersey.api.NotFoundException;
 import net.sf.ehcache.server.rest.Element;
-import net.sf.ehcache.server.Server;
+import net.sf.ehcache.server.ServerContext;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -84,7 +84,7 @@ public class ElementResource {
     @GET
     public Response getElement() {
         LOG.info("GET Cache " + cache + " " + this.element);
-        net.sf.ehcache.Cache ehcache = Server.getCacheManager().getCache(cache);
+        net.sf.ehcache.Cache ehcache = ServerContext.getCacheManager().getCache(cache);
         net.sf.ehcache.Element ehcacheElement = ehcache.get(this.element);
         if (ehcacheElement == null) {
             throw new NotFoundException("Element not found: " + this.element);
@@ -124,7 +124,7 @@ public class ElementResource {
     @PUT
     public Response putElement(@Context HttpHeaders headers, byte[] data) {
         LOG.info("PUT element " + cache + " " + this.element);
-        net.sf.ehcache.Cache ehcache = Server.getCacheManager().getCache(cache);
+        net.sf.ehcache.Cache ehcache = ServerContext.getCacheManager().getCache(cache);
         if (element == null) {
             throw new NotFoundException("Cache " + cache + " does not exist.");
         }
@@ -157,7 +157,7 @@ public class ElementResource {
     public void deleteElement() {
         LOG.info("DELETE element " + cache + " " + element);
 
-        net.sf.ehcache.Cache ehcache = Server.getCacheManager().getCache(cache);
+        net.sf.ehcache.Cache ehcache = ServerContext.getCacheManager().getCache(cache);
         boolean removed = ehcache.remove(element);
         if (!removed) {
             throw new NotFoundException("Element not found");

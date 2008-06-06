@@ -17,25 +17,15 @@
 package net.sf.ehcache.server.rest.resources;
 
 import net.sf.ehcache.server.HttpUtil;
-import net.sf.ehcache.server.Server;
+import net.sf.ehcache.server.TestServer;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.File;
 import java.util.logging.Logger;
 import java.util.Map;
@@ -52,7 +42,7 @@ import java.net.HttpURLConnection;
 public class CacheResourceTest {
 
     public static final Logger LOG = Logger.getLogger(CachesResourceTest.class.getName());
-    private static Server server;
+    private static TestServer server;
 
     @Test
     public void testGet() throws IOException, ParserConfigurationException, SAXException {
@@ -85,7 +75,7 @@ public class CacheResourceTest {
     public static void setupBeforeAll() throws InterruptedException {
         LOG.info("Starting Server");
         File war = new File("/Users/gluck/work/ehcache/server/target/ehcache-server-1.5.0-beta1.war");
-        server = new Server(9998, null);
+        server = new TestServer(9998, null);
         server.init();
         Thread.sleep(3000);
     }

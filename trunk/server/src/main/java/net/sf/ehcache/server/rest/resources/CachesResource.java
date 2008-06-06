@@ -18,7 +18,7 @@ package net.sf.ehcache.server.rest.resources;
 
 import net.sf.ehcache.server.rest.Cache;
 import net.sf.ehcache.server.rest.Caches;
-import net.sf.ehcache.server.Server;
+import net.sf.ehcache.server.ServerContext;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -40,11 +40,13 @@ import java.util.logging.Logger;
  * <p/>
  * Lists the Caches in the CacheManager.
  * </code>
+ * <p/>
+ * e.g. <code>http://localhost:9998/ehcache/</code>
  *
  * @author Greg Luck
  * @version $Id$
  */
-//http://localhost:9998/ehcache/caches
+//
 @Path("/")
 @ProduceMime("application/xml")
 public class CachesResource {
@@ -84,7 +86,7 @@ public class CachesResource {
     public Caches getCaches() {
         LOG.info("GET Caches");
 
-        String[] cacheNames = Server.getCacheManager().getCacheNames();
+        String[] cacheNames = ServerContext.getCacheManager().getCacheNames();
 
         List<Cache> cacheList = new ArrayList<Cache>();
 
