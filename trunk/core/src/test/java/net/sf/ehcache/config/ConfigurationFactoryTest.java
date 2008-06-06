@@ -869,7 +869,6 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * Tests replacement in the config file.
      */
     public void testLoadConfigurationWithReplacement() throws Exception {
-        //todo more tests and merge with branch.
         System.setProperty("multicastGroupPort", "4446");
         File file = new File(TEST_CONFIG_DIR + "ehcache-replacement.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);

@@ -39,7 +39,6 @@
                 <artifactId>commons-collections</artifactId>
                 <version>3.2</version>
                 <scope>compile</scope>
-                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>backport-util-concurrent</groupId>

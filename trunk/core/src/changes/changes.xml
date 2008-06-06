@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
-
+        <release version="1.5.0-beta2" date="2008-06-7" desc="Second beta of 1.5.0 Maintenance release">
+            <!--Bug Fixes-->
+            <action dev="Greg Luck" type="fix">
+                Fixes to changes made in 1.5.0-beta1: token replacement in ehcache.xml parsing and Cache.get() not searching
+                the DiskStore.
+            </action>
+        </release>
         <release version="1.5.0-beta1" date="2008-05-13" desc="Maintenance release">
             <!-- Features and Enhancements -->
             <action dev="Greg Luck" type="add" issue="1730405">

@@ -258,8 +258,6 @@ public class CacheTest extends AbstractCacheTest {
 
     /**
      * When to search the disk store
-     * todo move to 1.5
-     * />
      */
     public void testOverflowToDiskAndDiskPersistent() throws Exception {
         Ehcache cache = manager.getCache("sampleIdlingExpiringCache");
@@ -1850,7 +1848,7 @@ public class CacheTest extends AbstractCacheTest {
         Cache cache = manager.getCache("sampleCache1");
         cache.setCacheLoader(new CacheLoader() {
             public Object load(Object key, Object argument) throws CacheException {
-                System.out.println("load1 " + key);
+                LOG.info("load1 " + key);
                 return key;
             }
 
@@ -1875,7 +1873,7 @@ public class CacheTest extends AbstractCacheTest {
             }
 
             public Object load(Object o) throws CacheException {
-                System.out.println("load2 " + o + " " + o.getClass());
+                LOG.info("load2 " + o + " " + o.getClass());
                 if(o.equals("c")){
                     return null;
                 }
