@@ -1,0 +1,77 @@
+{Cache Eviction Algorithms}
+
+* {Eviction}
+
+    A cache eviction algorithm is a way of deciding which <<<Element>>> to evict when the cache is full.
+
+    In ehcache the <<<MemoryStore>>> has a fixed limited size set by {<<<maxElementsInMemory>>>}.
+    When the store gets full, <<<elements>>> are evicted. The eviction algorithms in ehcache
+    determines which elements is evicted. The default is LRU.
+
+    What happens on eviction depends on the cache configuration. If a <<<DiskStore>>> is configured,
+    the evicted element will overflow to disk, otherwise it will be removed.
+
+    The <<<DiskStore>>> size by default is unbounded. But a maximum size can be set using the
+    {<<<maxElementsOnDisk>>>} cache attribute. If the <<<DiskStore>>> is full, then adding an element
+     will cause one to be evicted. The <<<DiskStore>>> eviction algorithm is not configurable. It uses
+     LFU.
+
+
+** {Supported <<<MemoryStore>>> Eviction Algorithms}
+
+    The idea here is, given a limit on the number of items to cache, how to choose the thing to evict that
+    gives the <best> result.
+
+    In 1966 Laszlo Belady showed that the most efficient caching algorithm would be to always discard the
+    information that will not be needed for the longest time in the future. This it a theoretical result
+    that is unimplementable without domain knowledge. The Least Recently Used ("LRU") algorithm is often used as
+    a proxy. It works pretty well because of the locality of reference phenonemon. As a result, LRU is the default
+    eviction algorithm in ehcache, as it is in most caches.
+
+    Ehcache users may sometimes have a good domain knowledge. Accordingly, ehcache provides three eviction
+    algorithms to choose from for the <<<MemoryStore>>>.
+
+    
+
+** {<<<MemoryStore>>> Eviction Algorithms}
+
+    The <<<MemoryStore>>> supports three eviction algorithms: LRU, LFU and FIFO.
+
+    The default is LRU.
+
+
+*** {Least Recently Used} ({LRU})
+
+     The eldest element, is the Least Recently Used (LRU). The last used
+     timestamp is updated when an element is put into the cache or an
+     element is retrieved from the cache with a get call.
+
+*** {Less Frequently Used} ({LFU})
+
+     For each get call on the element the number of hits is updated. When a
+     put call is made for a new element (and assuming that the max limit is
+     reached) the element with least number of hits,
+     the Less Frequently Used element, is evicted.
+
+     If cache element use follows a pareto distribution, this algorithm may give better
+     results than LRU.
+
+     LFU is an algorithm unique to ehcache. It takes a random sample of the Elements and
+     evicts the smallest. Using the sample size of 30 elements, empirical testing shows
+     that an Element in the lowest quartile of use is evicted 99.99% of the time.
+
+*** {First In First Out} ({FIFO})
+
+     Elements are evicted in the same order as they come in. When a put call
+     is made for a new element (and assuming that the max limit is reached
+     for the memory store) the element that was placed first (First-In) in
+     the store is the candidate for eviction (First-Out).
+
+     This algorithm is used if the use of an element makes it less likely to be used
+     in the future. An example here would be an authentication cache.
+
+** {<<<DiskStore>>> Eviction Algorithms}
+
+   The <<<DiskStore>>> uses the Less Frequently Used algorithm to evict an element when it is full.
+
+

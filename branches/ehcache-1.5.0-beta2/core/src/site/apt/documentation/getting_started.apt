@@ -1,0 +1,65 @@
+
+Getting Started
+
+    Ehcache can be used directly. It can also be used with the popular Hibernate Object/Relational tool. Finally, it
+    can be used for Java EE Servlet Caching.
+
+    This quick guide gets you started on each of these. The rest of the documentation can be explored for a deeper
+     understanding.
+
+
+* {General Purpose Caching}
+
+      * Make sure you are using a supported {{{./dependencies.html#java}Java}} version.
+
+      * Place the ehcache jar into your classpath.
+
+      * Ensure that any libraries required to satisfy {{{./dependencies.html}dependencies}} are also in the classpath.
+
+      * Configure ehcache.xml and place it in your classpath.
+
+      * Optionally, configure an appropriate {{{./logging.html}logging}} level.
+
+      See {{{../samples.html}Code Samples}} for more information on direct interaction with ehcache.
+
+* Hibernate
+
+    * Perform the same steps as {{{#General Purpose Caching}General Purpose Caching}}.
+
+    * Create caches in ehcache.xml.
+
+    See {{{./hibernate.html}Hibernate Caching}} for more information.
+
+* Java EE Servlet Caching
+
+    * Perform the same steps as {{{General Purpose Caching}General Purpose Caching}}.
+
+    * Configure a cache for your web page in ehcache.xml.
+
+    * To cache an entire web page, either use SimplePageCachingFilter or create your own subclass of CachingFilter
+
+    * To cache a jsp:Include or anything callable from a RequestDispatcher, either use SimplePageFragmentCachingFilter
+    or create a subclass of PageFragmentCachingFilter.
+
+    * Configure the web.xml. Declare the filters created above and create filter mapping associating the filter with
+    a URL.
+
+    See {{{./j2ee_servlet_caching.html}Java EE Servlet Caching}} for more information.
+
+*  JCache style caching
+
+    Ehcache contains an early draft implementation of JCache contained in the net.sf.ehcache.jcache package.
+
+    See the {{{./jsr107.html}JSR107}} chapter for usage. 
+
+
+* Spring, Cocoon, Acegi and other frameworks
+
+   Usually, with these, you are using ehcache without even realising it. The first steps in getting more control
+   over what is happening are:
+
+   * discover the cache names used by the framework
+
+   * create your own ehcache.xml with settings for the caches and place it in the application classpath.
+
+   

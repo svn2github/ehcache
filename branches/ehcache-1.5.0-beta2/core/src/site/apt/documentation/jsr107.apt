@@ -1,0 +1,403 @@
+{JSR107 (JCACHE) Support}
+
+* {JSR107 Implementation}
+
+    Ehcache provides a preview implementation of JSR107 via the <<<net.sf.cache.jcache>>> package.
+
+    WARNING: JSR107 is still being drafted with the ehcache maintainer as Co Spec Lead. This package will continue to
+    change until JSR107 is finalised. No attempt will be made to maintain backward compatiblity between versions
+    of the package. It is therefore recommended to use Ehcache's proprietary API directly.
+
+
+* {Using JCACHE}
+
+
+** Creating JCaches
+
+    JCaches can be created in two ways:
+
+     * as an ehcache decorator
+
+     * from JCache's CacheManager
+
+
+*** Creating a JCache using an ehcache decorator
+
+
+   <<<manager>>> in the following sample is an net.sf.ehcache.CacheManager
+
+---
+       net.sf.jsr107cache.Cache cache = new JCache(manager.getCache("sampleCacheNoIdle"), null);
+---
+
+
+*** Creating a JCache from an existing Cache in Ehcache's CacheManager
+
+    This is the recommended way of using JCache. Caches can be configured in ehcache.xml and wrapped
+    as JCaches with the getJCache method of CacheManager.
+
+
+   <<<manager>>> in the following sample is an net.sf.ehcache.CacheManager
+
+---
+       net.sf.jsr107cache.Cache cache = manager.getJCache("sampleCacheNoIdle");
+---
+
+*** Adding a JCache to Ehcache's CacheManager
+
+   <<<manager>>> in the following sample is an net.sf.ehcache.CacheManager
+
+---
+       Ehcache ehcache = new net.sf.ehcache.Cache(...);
+       net.sf.jsr107cache.Cache cache = new JCache(ehcache);
+       manager.addJCache(cache);
+---
+
+
+
+*** Creating a JCache using the JCache CacheManager
+
+    Warning: The JCache CacheManager is unworkable and will very likely be dropped in the final JCache as a Class. It will likely
+    be replaced with a CacheManager interface.
+
+    The JCache CacheManager only works as a singleton. You obtain it with <<<getInstance>>>
+
+    The CacheManager uses a CacheFactory to create Caches. The CacheFactory is specified
+    using the {{{http://java.sun.com/j2se/1.3/docs/guide/jar/jar.html#Service%20Provider}Service Provider Interface}}
+    mechanism introduced in JDK1.3.
+
+    The factory is specified in the <<<META-INF/services/net.sf.jsr107cache.CacheFactory>>> resource file. This would normally
+    be packaged in a jar. The default value for the ehcache implementation is <<<net.sf.ehcache.jcache.JCacheFactory>>>
+
+    The configuration for a cache is assembled as a map of properties. Valid properties can be found in the JavaDoc
+      for the {{{http://ehcache.sourceforge.net/xref/net/sf/ehcache/jcache/JCacheFactory.html#74}JCacheFactory.createCache()}} method.
+
+    See the following full example.
+
+---
+        CacheManager singletonManager = CacheManager.getInstance();
+        CacheFactory cacheFactory = singletonManager.getCacheFactory();
+        assertNotNull(cacheFactory);
+
+        Map config = new HashMap();
+        config.put("name", "test");
+        config.put("maxElementsInMemory", "10");
+        config.put("memoryStoreEvictionPolicy", "LFU");
+        config.put("overflowToDisk", "true");
+        config.put("eternal", "false");
+        config.put("timeToLiveSeconds", "5");
+        config.put("timeToIdleSeconds", "5");
+        config.put("diskPersistent", "false");
+        config.put("diskExpiryThreadIntervalSeconds", "120");
+
+        Cache cache = cacheFactory.createCache(config);
+        singletonManager.registerCache("test", cache);
+---
+
+**  Getting a JCache
+
+
+    Once a cache is registered in CacheManager, you get it from there.
+
+    The following example shows how to get a Cache.
+
+---
+        manager = CacheManager.getInstance();
+        Ehcache ehcache = new net.sf.ehcache.Cache("UseCache", 10,
+        MemoryStoreEvictionPolicy.LFU,
+         false, null, false, 10, 10, false, 60, null);
+        manager.registerCache("test", new JCache(ehcache, null));
+        Cache cache = manager.getCache("test");
+---
+
+
+**  Using a JCache
+
+    The {{{http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/jcache/JCache.html}JavaDoc}} is the best place to learn how to use a JCache.
+
+    The main point to remember is that JCache implements Map and that is the best way to think about it.
+
+     JCache also has some interesting asynchronous methods such as <<<load>>> and <<<loadAll>>> which can be used to preload the JCache.
+
+
+
+* Problems and Limitations in the early draft of JSR107
+
+    If you are used to the richer API that ehcache provides, you need to be aware of some problems
+    and limitations in the draft specification.
+
+    You can generally work around these by getting the <<<Ehcache>>> backing cache. You can then
+    access the extra features available in ehcache.
+
+    Of course the biggest limitation is that JSR107 (as of Augut 2007) is a long way from final.
+
+
+---
+    /**
+     * Gets the backing Ehcache
+     */
+    public Ehcache getBackingCache() {
+        return cache;
+    }
+---
+
+
+    The following is both a critique of JCache and notes on the Ehcache implementation. As a member
+    of the JSR107 Expert Group these notes are also intended to be used to improve the specification.
+    
+
+** net.sf.jsr107cache.CacheManager
+
+    CacheManager does not have the following features:
+
+    *   shutdown the CacheManager - there is no way to free resources or persist. Implementations
+        may utilise a shutdown hook, but that does not work for application server redeployments,
+        where a shutdown listener must be used.
+
+    *   List caches in the CacheManager. There is no way to iterate over, or get a list of caches.
+
+    *   remove caches from the CacheManager - once its there it is there until JVM shutdown. This does
+        not work well for dynamic creation, destruction and recreation of caches.
+
+    *   CacheManager does not provide a standard way to configure caches. A Map can be populated with properties
+        and passed to the factory, but there is no way a configuration file can be configured. This should
+        be standardised so that declarative cache configuration, rather than programmatic, can be achieved.
+
+
+
+** net.sf.jsr107cache.CacheFactory
+
+    A property is specified in the resource services/net.sf.jsr107cache.CacheFactory for a CacheFactory.
+
+    The factory then resolves the CacheManager which must be a singleton.
+
+    A singleton CacheManager works in simple scenarios. But there are many where you want multiple
+    CacheManagers in an application. Ehcache supports both singleton creation semantics and
+    instances and defines the way both can coexist.
+
+    The singleton CacheManager is a limitation of the specification.
+
+    (Alternatives: Some form of annotation and injection scheme)
+
+    Pending a final JSR107 implementation, the ehcache configuration mechanism is used to create JCaches from
+    ehcache.xml config.
+
+
+**  net.sf.jsr107cache.Cache
+
+    *   The spec is silent on whether a Cache can be used in the absence of a CacheManager. Requiring
+        a CacheManager makes a central place where concerns affecting all caches can be managed, not
+        just a way of looking them up. For example, configuration for persistence and distribution.
+
+    *   Cache does not have a lifecycle. There is no startup and no shutdown. There is no way, other than
+        a shutdown hook, to free resources or perform persistence operations. Once again this will not
+        work for redeployment of applications in an app server.
+
+    *   There is no mechanism for creating a new cache from a default configuration such as
+        a <<<public void registerCache(String cacheName)>>> on CacheManager. This feature is considered
+        indispensable by frameworks such as Hibernate.
+
+    *   Cache does not have a <<<getName()>>> method. A cache has a name; that is how it is retrieved
+        from the CacheManager. But it does not know its own name. This forces API users to keep track
+        of the name themselves for reporting exceptions and log messages.
+
+    *   Cache does not support setting a TTL override on a put. e.g. <<<put(Object key, Object value, long timeToLive)>>>.
+        This is a useful feature.
+
+    *   The spec is silent on whether the cache accepts null keys and elements. Ehcache allows all implementations. i.e.
+
+------
+        cache.put(null, null);
+        assertNull(cache.get(null));
+        cache.put(null, "value");
+        assertEquals("value", cache.get(null));
+        cache.put("key", null);
+        assertEquals(null, cache.get("key"));
+------
+
+        <<<null>>> is effectively a valid key. However because <<<null>>> id not an instance of <<<Serializable>>> null-keyed
+        entries will be limited to in-process memory.
+
+
+    *   The <<<load(Object key)>>>, <<<loadAll(Collection keys)>>> and <<<getAll(Collection collection)>>> methods
+        specify in the javadoc that they should be asynchronous. Now, most load methods work off a database or some other
+        relatively slow resource (otherwise there would be no need to have a cache in the first place).
+
+        To avoid running out of threads, these load requests need to be queued and use a finite number of threads. The
+        ehcache implementation does that. However, due to the lack of lifecycle management, there is no immediate way to free
+        resources such as thread pools.
+
+    *   The <<<load>>> method ignores a request if the element is already loaded in for that key.
+
+    *   <<<get>>> and <<<getAll>>> are inconsistent. <<<getAll>>> throws CacheException, but <<<get>>> does not. They both should.
+
+
+
+----
+    /**
+     * Returns a collection view of the values contained in this map.  The
+     * collection is backed by the map, so changes to the map are reflected in
+     * the collection, and vice-versa.  If the map is modified while an
+     * iteration over the collection is in progress (except through the
+     * iterator's own <tt>remove</tt> operation), the results of the
+     * iteration are undefined.  The collection supports element removal,
+     * which removes the corresponding mapping from the map, via the
+     * <tt>Iterator.remove</tt>, <tt>Collection.remove</tt>,
+     * <tt>removeAll</tt>, <tt>retainAll</tt> and <tt>clear</tt> operations.
+     * It does not support the add or <tt>addAll</tt> operations.
+     * <p/>
+     *
+     * @return a collection view of the values contained in this map.
+     */
+    public Collection values() {
+----
+
+        It is not practical or desirable to support this contract. Ehcache has multiple maps for storage
+        of elements so there is no single backing map. Allowing changes to propagate from a change in the collection
+        maps would break the public interface of the cache and introduce subtle threading issues.
+
+        The ehcache implementation returns a new collection which is not connected to internal structures in ehcache.
+
+
+
+**  net.sf.jsr107cache.CacheEntry
+
+    *   getHits() returns int. It should return long because production cache systems have entries hit more
+        than Integer.MAX_VALUE times.
+
+        Once you get to Integer.MAX_VALUE the counter rolls over. See the following test:
+
+
+-----
+    public void testIntOverflow() {
+        long value = Integer.MAX_VALUE;
+        value += Integer.MAX_VALUE;
+        value += 5;
+        LOG.info("" + value);
+        int valueAsInt = (int) value;
+        LOG.info("" + valueAsInt);
+        assertEquals(3, valueAsInt);
+    }
+-----
+
+
+    *   <<<getCost()>>> requirs the CacheEntry to know where it is. If it is in a DiskStore then its cost
+        of retrieval could be higher than if it is in heap memory. Ehcache elements do not have this concept,
+        and it is not implemented. i.e. getCost always returns 0. Also, if it is in the DiskStore, when you
+        retrieve it is in then in the MemoryStore and its retrieval cost is a lot lower. I do not see the point
+        of this method.
+
+    *   <<<getLastUpdateTime()>>> is the time the last "update was made". JCACHE does not support updates, only puts    
+
+
+** net.sf.jsr107cache.CacheStatistics
+
+    *   getObjectCount() is a strange name. How about getSize()? If a cache entry is an object graph
+        each entry will have more than one "object" in it. But the cache size is what is really meant,
+        so why not call it that?
+
+
+    *   Once again <<<getCacheHits>>> and <<<getCacheMisses>>> should be longs.
+
+
+---------
+
+
+public interface CacheStatistics {
+
+    public static final int STATISTICS_ACCURACY_NONE = 0;
+    public static final int STATISTICS_ACCURACY_BEST_EFFORT = 1;
+    public static final int STATISTICS_ACCURACY_GUARANTEED = 2;
+
+    public int getStatisticsAccuracy();
+
+    public int getObjectCount();
+
+    public int getCacheHits();
+
+    public int getCacheMisses();
+
+    public void clearStatistics();
+
+---------
+
+
+    *   There is a <<<getStatisticsAccuracy()>>> method but not a corresponding setStatisticsAccuracy
+        method on Cache, so that you can alter the accuracy of the Statistics returned.
+
+        Ehcache supports this behaviour.
+
+    *   There is no method to estimate memory use of a cache. Ehcache serializes each Element to a
+        byte[] one at a time and adds the serialized sizes up. Not perfect but better than nothing
+        and works on older JDKs.
+
+    *   CacheStatistics is obtained using <<<cache.getCacheStatistics()>>> It then has getters for values.
+        In this way it feels like a value object. The ehcache implementation is Serializable so that
+        it can act as a DTO. However it also has a clearStatistics() method. This method clear counters
+        on the Cache. Clearly CacheStatistics must hold a reference to Cache to enable this to happen.
+
+        But what if you are really using it as a value object and have serialized it? The ehcache implementation marks the Cache
+        reference as <<<transient>>>. If clearStatistics() is called when the cache reference is no longer
+        there, an IllegalStateException is thrown.
+
+        A much better solution would be to move clearStatistics() to Cache.
+
+** net.sf.jsr107cache.CacheListener
+
+-----
+
+    /**
+     *  Interface describing various events that can happen as elements are added to
+     *  or removed from a cache
+     */
+    public interface CacheListener {
+        /** Triggered when a cache mapping is created due to the cache loader being consulted */
+        public void onLoad(Object key);
+
+        /** Triggered when a cache mapping is created due to calling Cache.put() */
+        public void onPut(Object key);
+
+        /** Triggered when a cache mapping is removed due to eviction */
+        public void onEvict(Object key);
+
+        /** Triggered when a cache mapping is removed due to calling Cache.remove() */
+        public void onRemove(Object key);
+
+        public void onClear();
+    }
+
+-----
+
+    *   Listeners often need not just the key, but the cache Entry itself. This listener interface
+        is extremely limiting.
+
+    *   There is no onUpdate notification method. These are mapped to JCACHE's onPut notification.
+
+    *   There is no onExpired notification method. These are mapped to JCACHE's onEvict notification.
+
+
+** net.sf.jsr107cache.CacheLoader
+
+    *   JCache can store null values against a key. In this case, on JCache#<<<get>>> or <<<getAll>>>
+        should an implementation attempt to load these values again? They might have been null in the
+        system the CacheLoader loads from, but now aren't. The ehcache implementation will still return nulls,
+        which is probably the correct behaviour. This point should be clarified.
+
+
+
+
+*   Other Areas
+
+**  JMX
+
+     JSR107 is silent on JMX which has been included in the JDK since 1.5.
+
+
+
+
+
+
+    
+    
+
+
