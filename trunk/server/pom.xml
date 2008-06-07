@@ -5,7 +5,7 @@
     <parent>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-parent</artifactId>
-        <version>1.5.0-beta1</version>
+        <version>1.6.0-beta1</version>
     </parent>
     <name>Ehcache Server</name>
     <artifactId>ehcache-server</artifactId>
@@ -102,14 +102,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>checkstyle</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <!-- Doesn't work when not internet connected -->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<phase>validate</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>checkstyle</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
                 <configuration>
                     <configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>
                     <suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>
@@ -154,6 +155,22 @@
                         <type>embedded</type>
                     </container>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>start-server</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>stop-server</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <!--<executions>-->
@@ -195,11 +212,14 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skip>${test.int.skip}</skip>
                             <includes>
-                                <include>**/*IntegrationTest.java</include>
+                                <include>**/*ResourceTest.java</include>
                                 <include>**/*WebTest.java</include>
                             </includes>
+                            <excludes>
+                                <exclude>**/*$*</exclude>
+                                <exclude>**/Abstract*Test.java</exclude>
+                            </excludes>
                             <enableAssertions>false</enableAssertions>
                             <additionalClasspathElements>
                                 <additionalClasspathElement>target/classes</additionalClasspathElement>

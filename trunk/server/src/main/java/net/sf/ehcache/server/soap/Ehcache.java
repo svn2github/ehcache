@@ -21,16 +21,22 @@ import org.apache.commons.logging.LogFactory;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
+import javax.annotation.Resource;
+import javax.xml.ws.WebServiceContext;
+import java.security.Principal;
 
 /**
  * The Ehcache WebService
  * @author Greg Luck
  * @version $Id$
  */
-@WebService()
+@WebService(name="EhcachePortType", targetNamespace = "http://soap.server.ehcache.sf.net")
 public class Ehcache {
 
     private static final Log LOG = LogFactory.getLog(Ehcache.class.getName());
+
+    @Resource
+    private WebServiceContext context;
 
     /**
      * Test method
@@ -39,8 +45,18 @@ public class Ehcache {
      */
     @WebMethod
     public String sayHelloWorldFrom(String from) {
-        String result = "Hello, world, from " + from;
+
+        String result = "Hello, world, from " + from + " principal: " + getUserPrincipal();
         LOG.info(result);
         return result;
+    }
+
+
+    /**
+     * Gets the user Principal
+     * @return
+     */
+    public Principal getUserPrincipal() {
+        return context.getUserPrincipal();
     }
 }

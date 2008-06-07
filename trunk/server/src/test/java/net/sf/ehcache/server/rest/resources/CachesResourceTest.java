@@ -116,7 +116,7 @@ public class CachesResourceTest {
 
     }
 
-    @BeforeClass
+    //BeforeClass
     public static void setupBeforeAll() throws InterruptedException {
         LOG.info("Starting Server");
         File war = new File("/Users/gluck/work/ehcache/server/target/ehcache-server-1.5.0-beta1.war");
@@ -127,7 +127,7 @@ public class CachesResourceTest {
         Thread.sleep(3000);
     }
 
-    @AfterClass
+    //AfterClass
     public static void teardownAfterAll() {
         LOG.info("Stopping Server");
         server.destroy();

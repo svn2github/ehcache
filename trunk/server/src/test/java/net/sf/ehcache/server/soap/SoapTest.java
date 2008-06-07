@@ -3,6 +3,8 @@ package net.sf.ehcache.server.soap;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Test;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
 
 import javax.xml.ws.Endpoint;
 
@@ -15,18 +17,30 @@ import javax.xml.ws.Endpoint;
 public class SoapTest {
     private Object implementor;
     private String address;
+    private WebServiceThread webServiceThread;
 
 
     @Test
-    public void testEhcache() throws InterruptedException {
+    public void testEhcache() {
+
+
+    }
+
+
+    @BeforeClass
+    public void startService() {
         implementor = new Ehcache();
         address = "http://localhost:9000/temp";
 
-        WebServiceThread webServiceThread = new WebServiceThread();
+        webServiceThread = new WebServiceThread();
         webServiceThread.start();
         assertTrue(webServiceThread.isAlive());
 
-        Thread.sleep(2000);
+
+    }
+
+    @AfterClass
+    public void stopService() {
         webServiceThread.interrupt();
     }
 
