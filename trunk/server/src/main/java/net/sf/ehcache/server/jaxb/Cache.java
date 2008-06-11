@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.server.rest;
+package net.sf.ehcache.server.jaxb;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -22,78 +22,66 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Greg Luck
  * @version $Id$
  */
-
 @XmlRootElement
-public class Element {
-    private byte[] data;
+public class Cache {
+    private String name;
 
     private String uri;
-
-    private String mimeType;
 
     /**
      * Empty Constructor
      */
-    public Element() {
+    public Cache() {
     }
 
     /**
-     * Full constructor
-     * @param data
-     * @param uri
-     * @param mimeType
+     * Full Constructor
      */
-    public Element(byte[] data, String uri, String mimeType) {
-        setData(data);
+    public Cache(String name, String uri) {
+        setName(name);
         setUri(uri);
-        setMimeType(mimeType);
     }
 
     /**
-     * Sets the payload
-     * @param data
+     * @return The cache name
      */
-    private void setData(byte[] data) {
-        this.data = data;
+    public String getName() {
+        return name;
     }
 
     /**
-     * Gets the payload
-     * @return
+     *
+     * @param name the cache name
      */
-    public byte[] getData() {
-        return data;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
-     * Gets the URI for this resource
-     * @return
+     *
+     * @return The full URI of the resource
      */
     public String getUri() {
         return uri;
     }
 
     /**
-     * Sets the URI for this resource
-     * @param uri
+     *
+     * @param uri the full URI of the resource
      */
     public void setUri(String uri) {
         this.uri = uri;
     }
 
-    /**
-     * Gets the MIME Type.
-     * @return
-     */
-    public String getMimeType() {
-        return mimeType;
-    }
 
     /**
-     * Sets the MIME Type
-     * @param mimeType
+     * Clones the resource using a deep copy.
      */
-    public void setMimeType(String mimeType) {
-        this.mimeType = mimeType;
+    public Cache clone() throws CloneNotSupportedException {
+        Cache cache = (Cache) super.clone();
+        cache.setName(name);
+        cache.setUri(uri);
+        return cache;
     }
+
 }

@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.server.rest;
+package net.sf.ehcache.server.jaxb;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;

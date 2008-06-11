@@ -108,13 +108,15 @@ public final class Element implements Serializable, Cloneable {
      */
     private boolean eternal;
 
-
     /**
      * Whether any combination of eternal, TTL or TTI has been set.
      */
     private boolean lifespanSet;
 
-
+    /**
+     * The MIME Type of the Element.
+     */
+    private String mimeType;
 
     /**
      * A full constructor.
@@ -146,7 +148,7 @@ public final class Element implements Serializable, Cloneable {
     }
 
     /**
-     * A full constructor.
+     * Constructor.
      *
      * @since 1.3
      */
@@ -162,6 +164,27 @@ public final class Element implements Serializable, Cloneable {
         this.nextToLastAccessTime = nextToLastAccessTime;
         this.lastUpdateTime = lastUpdateTime;
         this.hitCount = hitCount;
+    }
+
+    /**
+     * A full constructor.
+     *
+     * @param mimeType the RFC2045 MIME type
+     * @since 1.6
+     */
+    public Element(Object key, Object value, long version,
+            long creationTime, long lastAccessTime,
+            long nextToLastAccessTime, long lastUpdateTime,
+            long hitCount, String mimeType) {
+        this.key = key;
+        this.value = value;
+        this.version = version;
+        this.creationTime = creationTime;
+        this.lastAccessTime = lastAccessTime;
+        this.nextToLastAccessTime = nextToLastAccessTime;
+        this.lastUpdateTime = lastUpdateTime;
+        this.hitCount = hitCount;
+        this.mimeType = mimeType;
     }
 
     /**

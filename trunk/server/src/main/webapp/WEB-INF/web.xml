@@ -5,6 +5,7 @@
 		  http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          version="2.5">
 
+    <!--REST Servlet-->
     <servlet>
         <servlet-name>Ehcache RESTful Web Service</servlet-name>
         <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
@@ -20,10 +21,29 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>Ehcache RESTful Web Service</servlet-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>/rest/*</url-pattern>
     </servlet-mapping>
+
+    <!--SOAP Servlet-->
+    <servlet>
+        <servlet-name>EhcacheWebServiceEndpoint</servlet-name>
+        <servlet-class>com.sun.xml.ws.transport.http.servlet.WSServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>EhcacheWebServiceEndpoint</servlet-name>
+        <url-pattern>/soap/EhcacheWebServiceEndpoint</url-pattern>
+    </servlet-mapping>
+    <session-config>
+        <session-timeout>60</session-timeout>
+    </session-config>
+    <listener>
+        <listener-class>com.sun.xml.ws.transport.http.servlet.WSServletContextListener</listener-class>
+    </listener>
+
     <listener>
         <listener-class>net.sf.ehcache.server.ServerContext</listener-class>
     </listener>
+
 
 </web-app>

@@ -21,12 +21,12 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -689,9 +689,9 @@ public class DiskStore implements Store {
             int bufferLength;
             long expirationTime = element.getExpirationTime();
 
-            MemoryEfficientByteArrayOutputStream buffer = null;
             try {
-                buffer = serializeEntry(element);
+                MemoryEfficientByteArrayOutputStream buffer =
+                        MemoryEfficientByteArrayOutputStream.serialize(element, estimatedPayloadSize());
 
                 bufferLength = buffer.size();
                 DiskElement diskElement = checkForFreeBlock(bufferLength);
@@ -723,42 +723,6 @@ public class DiskStore implements Store {
         }
 
     }
-
-    /**
-     * This class is designed to minimse the number of System.arraycopy(); methods
-     * required to complete.
-     */
-    static final class MemoryEfficientByteArrayOutputStream extends ByteArrayOutputStream {
-
-
-        /**
-         * Creates a new byte array output stream, with a buffer capacity of
-         * the specified size, in bytes.
-         *
-         * @param size the initial size.
-         */
-        public MemoryEfficientByteArrayOutputStream(int size) {
-            super(size);
-        }
-
-        /**
-         * Gets the bytes. Not all may be valid. Use only up to getSize()
-         *
-         * @return the underlying byte[]
-         */
-        public synchronized byte getBytes()[] {
-            return buf;
-        }
-    }
-
-    private MemoryEfficientByteArrayOutputStream serializeEntry(Element element) throws IOException {
-        MemoryEfficientByteArrayOutputStream outstr = new MemoryEfficientByteArrayOutputStream(estimatedPayloadSize());
-        ObjectOutputStream objstr = new ObjectOutputStream(outstr);
-        objstr.writeObject(element);
-        objstr.close();
-        return outstr;
-    }
-
 
     private int estimatedPayloadSize() {
         int size = 0;

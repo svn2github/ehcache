@@ -17,7 +17,7 @@
 package net.sf.ehcache.server.rest.resources;
 
 import com.sun.jersey.api.NotFoundException;
-import net.sf.ehcache.server.rest.Element;
+import net.sf.ehcache.server.jaxb.Element;
 import net.sf.ehcache.server.ServerContext;
 
 import javax.ws.rs.DELETE;
@@ -112,7 +112,7 @@ public class ElementResource {
             return responseBuilder.build();
         }
 
-        return Response.ok(localElement.getData(), localElement.getMimeType()).lastModified(lastModified).tag(entityTag).build();
+        return Response.ok(localElement.getValue(), localElement.getMimeType()).lastModified(lastModified).tag(entityTag).build();
     }
 
     /**

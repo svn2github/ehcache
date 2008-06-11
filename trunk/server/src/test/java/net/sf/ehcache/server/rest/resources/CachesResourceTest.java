@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.File;
 import java.util.logging.Logger;
+import java.net.HttpURLConnection;
 
 
 /**
@@ -56,7 +57,7 @@ public class CachesResourceTest {
 
     @Test
     public void testGetCaches() throws IOException, ParserConfigurationException, SAXException {
-        Object result = HttpUtil.get("http://localhost:9998/ehcache");
+        HttpURLConnection result = HttpUtil.get("http://localhost:9998/ehcache");
         LOG.info("Result of Get: " + result);
     }
 

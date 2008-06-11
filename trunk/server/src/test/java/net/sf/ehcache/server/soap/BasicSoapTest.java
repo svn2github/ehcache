@@ -3,10 +3,17 @@ package net.sf.ehcache.server.soap;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Test;
+import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
+import org.xml.sax.SAXException;
 
 import javax.xml.ws.Endpoint;
+import javax.xml.parsers.ParserConfigurationException;
+import java.net.HttpURLConnection;
+import java.io.IOException;
+
+import net.sf.ehcache.server.HttpUtil;
 
 
 /**
@@ -14,22 +21,15 @@ import javax.xml.ws.Endpoint;
  * @author Greg Luck
  * @version $Id$
  */
-public class SoapTest {
-    private Object implementor;
-    private String address;
-    private WebServiceThread webServiceThread;
-
-
-    @Test
-    public void testEhcache() {
-
-
-    }
+public class BasicSoapTest {
+    private static Object implementor;
+    private static String address;
+    private static WebServiceThread webServiceThread;
 
 
     @BeforeClass
-    public void startService() {
-        implementor = new Ehcache();
+    public static void startService() {
+        implementor = new EhcacheWebServiceEndpoint();
         address = "http://localhost:9000/temp";
 
         webServiceThread = new WebServiceThread();
@@ -40,7 +40,7 @@ public class SoapTest {
     }
 
     @AfterClass
-    public void stopService() {
+    public static void stopService() {
         webServiceThread.interrupt();
     }
 
@@ -48,7 +48,7 @@ public class SoapTest {
     /**
      * Used to initialise the debugger and run its monitoring in another thread so we can keep doing stuff
      */
-    class WebServiceThread extends Thread {
+    static class WebServiceThread extends Thread {
 
         /**
          * If this thread was constructed using a separate

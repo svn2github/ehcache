@@ -115,6 +115,9 @@ public class HttpUtil {
         LOG.info("Status: " + status);
     }
 
+    /**
+     * Converts a response in an InputStream to a byte[] for easy manipulation
+     */
     public static byte[] inputStreamToBytes(InputStream inputStream) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byte[] buffer = new byte[10000];
@@ -123,6 +126,14 @@ public class HttpUtil {
             byteArrayOutputStream.write(buffer, 0, r);
         }
         return byteArrayOutputStream.toByteArray();
+    }
+
+    /**
+     * Converts a response in an InputStream to a String for easy comparisons
+     */
+    public static String inputStreamToText(InputStream inputStream) throws IOException {
+        byte[] bytes = inputStreamToBytes(inputStream);
+        return new String(bytes);
     }
 
 

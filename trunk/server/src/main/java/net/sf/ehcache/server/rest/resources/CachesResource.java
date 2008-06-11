@@ -16,8 +16,8 @@
 
 package net.sf.ehcache.server.rest.resources;
 
-import net.sf.ehcache.server.rest.Cache;
-import net.sf.ehcache.server.rest.Caches;
+import net.sf.ehcache.server.jaxb.Cache;
+import net.sf.ehcache.server.jaxb.Caches;
 import net.sf.ehcache.server.ServerContext;
 
 import javax.ws.rs.GET;
@@ -47,7 +47,7 @@ import java.util.logging.Logger;
  * @version $Id$
  */
 //
-@Path("/")
+@Path("/rest/")
 @ProduceMime("application/xml")
 public class CachesResource {
 
