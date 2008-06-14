@@ -57,8 +57,8 @@ public class CachesResourceTest {
 
     @Test
     public void testGetCaches() throws IOException, ParserConfigurationException, SAXException {
-        HttpURLConnection result = HttpUtil.get("http://localhost:9998/ehcache");
-        LOG.info("Result of Get: " + result);
+        HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache");
+        assertEquals(200, result.getResponseCode());
     }
 
 
@@ -74,8 +74,8 @@ public class CachesResourceTest {
         String originalString = "The rain in Spain falls mainly on the plain";
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(originalString.getBytes());
 
-        HttpUtil.put("http://localhost:9998/ehcache/sampleCache2/1", "text/plain", byteArrayInputStream);
-        InputStream responseBody = HttpUtil.get("http://localhost:9998/ehcache/sampleCache2/1").getInputStream();
+        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream);
+        InputStream responseBody = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1").getInputStream();
         byte[] bytes = HttpUtil.inputStreamToBytes(responseBody);
         String plainText = new String(bytes);
         assertEquals(originalString, plainText);
@@ -99,11 +99,11 @@ public class CachesResourceTest {
 //        URL url = ClassLoaderUtil.getStandardClassLoader().getResource("/ehcache.xml");
 //        InputStream inputStream = url.openStream();
 
-        HttpUtil.put("http://localhost:9998/ehcache/sampleCache2/2", "text/xml", byteArrayInputStream);
+        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/2", "text/xml", byteArrayInputStream);
         Thread.sleep(1000);
         LOG.info("About to do get");
 
-        InputStream responseBody = HttpUtil.get("http://localhost:9998/ehcache/sampleCache2/2").getInputStream();
+        InputStream responseBody = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/2").getInputStream();
 
         DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document document = documentBuilder.parse(responseBody);
@@ -117,22 +117,22 @@ public class CachesResourceTest {
 
     }
 
-    //BeforeClass
-    public static void setupBeforeAll() throws InterruptedException {
-        LOG.info("Starting Server");
-        File war = new File("/Users/gluck/work/ehcache/server/target/ehcache-server-1.5.0-beta1.war");
-//        server = new Server(9998, war);
-        //Use LightWeight HTTP Server
-        server = new TestServer(9998, null);
-        server.init();
-        Thread.sleep(3000);
-    }
-
-    //AfterClass
-    public static void teardownAfterAll() {
-        LOG.info("Stopping Server");
-        server.destroy();
-    }
+//    //BeforeClass
+//    public static void setupBeforeAll() throws InterruptedException {
+//        LOG.info("Starting Server");
+//        File war = new File("/Users/gluck/work/ehcache/server/target/ehcache-server-1.5.0-beta1.war");
+////        server = new Server(8080, war);
+//        //Use LightWeight HTTP Server
+//        server = new TestServer(8080, null);
+//        server.init();
+//        Thread.sleep(3000);
+//    }
+//
+//    //AfterClass
+//    public static void teardownAfterAll() {
+//        LOG.info("Stopping Server");
+//        server.destroy();
+//    }
 
 
 }

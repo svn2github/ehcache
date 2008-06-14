@@ -46,23 +46,23 @@ public class CacheResourceTest {
 
     @Test
     public void testGet() throws IOException, ParserConfigurationException, SAXException {
-        Object result = HttpUtil.get("http://localhost:9998/ehcache");
-        LOG.info("Result of Get: " + result);
+        HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache/rest/");
+        assertEquals(200, result.getResponseCode());
     }
 
 
     @Test
     public void testPut() throws IOException, ParserConfigurationException, SAXException {
-        HttpUtil.put("http://localhost:9998/ehcache/testCache");
-        Object result = HttpUtil.get("http://localhost:9998/ehcache");
-        LOG.info("Result of Get: " + result);
+        HttpUtil.put("http://localhost:8080/ehcache/rest/testCache");
+        HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache/rest/testCache");
+        assertEquals(200, result.getResponseCode());
     }
 
 
     @Test
     public void testHead() throws IOException, ParserConfigurationException, SAXException {
-        HttpUtil.put("http://localhost:9998/ehcache/testCache");
-        HttpURLConnection result = HttpUtil.head("http://localhost:9998/ehcache/testCache");
+        HttpUtil.put("http://localhost:8080/ehcache/rest/testCache");
+        HttpURLConnection result = HttpUtil.head("http://localhost:8080/ehcache/rest/testCache");
         LOG.info("Result of HEAD: " + result);
         byte[] bytes = HttpUtil.inputStreamToBytes(result.getInputStream());
         assertEquals(0, bytes.length);
@@ -70,21 +70,21 @@ public class CacheResourceTest {
         assertNotNull(headers);
     }
 
-
-    //BeforeClass
-    public static void setupBeforeAll() throws InterruptedException {
-        LOG.info("Starting Server");
-        File war = new File("/Users/gluck/work/ehcache/server/target/ehcache-server-1.5.0-beta1.war");
-        server = new TestServer(9998, null);
-        server.init();
-        Thread.sleep(3000);
-    }
-
-    //AfterClass
-    public static void teardownAfterAll() {
-        LOG.info("Stopping Server");
-        server.destroy();
-    }
+//
+//    //BeforeClass
+//    public static void setupBeforeAll() throws InterruptedException {
+//        LOG.info("Starting Server");
+//        File war = new File("/Users/gluck/work/ehcache/server/target/ehcache-server-1.5.0-beta1.war");
+//        server = new TestServer(8080, null);
+//        server.init();
+//        Thread.sleep(3000);
+//    }
+//
+//    //AfterClass
+//    public static void teardownAfterAll() {
+//        LOG.info("Stopping Server");
+//        server.destroy();
+//    }
 
 
 }

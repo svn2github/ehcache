@@ -26,6 +26,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.management.ManagementService;
 import org.glassfish.embed.GFException;
 import org.glassfish.embed.GlassFish;
+import org.glassfish.embed.GFApplication;
 
 import java.io.File;
 import java.io.IOException;
@@ -181,7 +182,7 @@ public class TestServer {
             try {
                 glassfish = new GlassFish(listeningPort);
                 //broken in latest snapshot
-                //GFApplication application = glassfish.deploy(ehcacheServerWar);
+//                GFApplication application = glassfish.deploy(ehcacheServerWar);
                 LOG.info("Glassfish server running on port " + listeningPort + " with WAR " + ehcacheServerWar);
             } catch (GFException e) {
                 LOG.log(Level.SEVERE, "Cannot start server. ", e);

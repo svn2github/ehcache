@@ -103,14 +103,14 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <!-- Doesn't work when not internet connected -->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>validate</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>checkstyle</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>checkstyle</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
                     <configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>
                     <suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>
@@ -142,8 +142,16 @@
                     <container>
                         <containerId>jetty6x</containerId>
                         <type>embedded</type>
+                        <systemProperties>
+                            <com.sun.management.jmxremote>true</com.sun.management.jmxremote>
+                        </systemProperties>
                     </container>
+                    <properties>
+                        <!--Not working as usual for a maven plugin-->
+                        <cargo.jvmargs>com.sun.management.jmxremote</cargo.jvmargs>
+                    </properties>
                 </configuration>
+                
                 <executions>
                     <execution>
                         <id>start-server</id>
@@ -152,26 +160,16 @@
                             <goal>start</goal>
                         </goals>
                     </execution>
-                    <!--<execution>-->
-                        <!--<id>stop-server</id>-->
-                        <!--<phase>post-integration-test</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>stop</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
+                    <execution>
+                        <id>stop-server</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
 
-            <!--<executions>-->
-
-            <!--<execution>-->
-
-            <!--<phase>pre-integration-test</phase>-->
-            <!--<goals>-->
-            <!--<goal>run</goal>-->
-            <!--</goals>-->
-            <!--</execution>-->
-            <!--</executions>-->
 
             <plugin>
                 <groupId>org.mortbay.jetty</groupId>
@@ -206,12 +204,12 @@
                         <configuration>
                             <skip>false</skip>
                             <includes>
-                                <include>**/*ResourceTest.java</include>
-                                <include>**/*WebTest.java</include>
+                                <include>**/*Test.java</include>
                             </includes>
                             <excludes>
                                 <exclude>**/*$*</exclude>
                                 <exclude>**/Abstract*Test.java</exclude>
+                                <exclude>**/*UnitTest.java</exclude>
                             </excludes>
                             <enableAssertions>false</enableAssertions>
                             <additionalClasspathElements>

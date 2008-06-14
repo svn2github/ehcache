@@ -34,7 +34,6 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.rmi.RemoteException;
 
 /**
  * The Ehcache WebService provides selected CacheManager and Cache methods
@@ -100,10 +99,10 @@ public class EhcacheWebServiceEndpoint {
      *
      * @param cacheName the name of the cache to perform this operation on.
      * @return a representation of a Cache, if an object of type Cache exists by that name, else null
-     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws net.sf.ehcache.CacheException
      */
     @WebMethod
-    public Cache getCache(String cacheName) throws IllegalStateException {
+    public Cache getCache(String cacheName) throws NoSuchCacheException, CacheException {
 
         Ehcache ehcache = manager.getCache(cacheName);
         if (ehcache != null) {
@@ -188,13 +187,11 @@ public class EhcacheWebServiceEndpoint {
      *
      * @param cacheName the name of the cache to perform this operation on.
      * @param element   An object.
-     * @throws IllegalStateException         if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
-     * @throws IllegalArgumentException      if the element is null
      * @throws net.sf.ehcache.CacheException if a general cache exception occurs
      * @throws NoSuchCacheException          if a cache named cacheName does not exist.
      */
     @WebMethod
-    public void put(String cacheName, Element element) throws IllegalArgumentException, IllegalStateException, NoSuchCacheException {
+    public void put(String cacheName, Element element) throws NoSuchCacheException, CacheException {
         net.sf.ehcache.Cache cache = lookupCache(cacheName);
         cache.put(element.getEhcacheElement());
     }
@@ -230,12 +227,11 @@ public class EhcacheWebServiceEndpoint {
      *
      * @param cacheName the name of the cache to perform this operation on.
      * @return a list of {@link Object} keys
-     * @throws IllegalStateException         if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
-     * @throws net.sf.ehcache.CacheException
+     * @throws net.sf.ehcache.CacheException if an Ehcache core exception occurs
      */
     @WebMethod
     public List getKeys(String cacheName) throws IllegalStateException, CacheException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     /**
@@ -247,7 +243,7 @@ public class EhcacheWebServiceEndpoint {
      * @param cacheName the name of the cache to perform this operation on.
      * @param key
      * @return true if the element was removed, false if it was not found in the cache
-     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws net.sf.ehcache.CacheException if an Ehcache core exception occurs
      */
     @WebMethod
     public boolean remove(String cacheName, String key) throws CacheException {
@@ -304,7 +300,7 @@ public class EhcacheWebServiceEndpoint {
      */
     @WebMethod
     public List getKeysNoDuplicateCheck(String cacheName) throws IllegalStateException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     /**
@@ -336,7 +332,7 @@ public class EhcacheWebServiceEndpoint {
      * @throws net.sf.ehcache.CacheException if something goes wrong
      */
     public void putQuiet(String cacheName, Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 
     /**
@@ -351,7 +347,7 @@ public class EhcacheWebServiceEndpoint {
      */
     @WebMethod
     public boolean removeQuiet(String cacheName, String key) throws IllegalStateException {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     /**
@@ -363,7 +359,7 @@ public class EhcacheWebServiceEndpoint {
      */
     @WebMethod
     public void removeAll(String cacheName) throws IllegalStateException, CacheException {
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 
     /**
@@ -395,7 +391,7 @@ public class EhcacheWebServiceEndpoint {
      */
     @WebMethod
     public int getSize(String cacheName) throws IllegalStateException, CacheException {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+        return 0;
     }
 
     /**
@@ -434,7 +430,7 @@ public class EhcacheWebServiceEndpoint {
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
     public Statistics getStatistics() throws IllegalStateException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     /**
@@ -536,8 +532,8 @@ public class EhcacheWebServiceEndpoint {
      *
      * @param cacheName the name of the cache to perform this operation on.
      * @param keys      a collection of keys to be returned/loaded
-     * @return a Map populated from the Cache. If there are no elements, an empty Map is returned.
-     * @throws net.sf.ehcache.CacheException
+     * @return a HashMap populated from the Cache. If there are no elements, an empty Map is returned.
+     * @throws net.sf.ehcache.CacheException if an Ehcache core exception occurs
      */
     @WebMethod
     public HashMap getAllWithLoader(String cacheName, Collection keys) throws CacheException {
@@ -560,14 +556,16 @@ public class EhcacheWebServiceEndpoint {
      * @param cacheName the name of the cache to perform this operation on.
      * @param key       key whose associated value is to be returned.
      * @return an element if it existed or could be loaded, otherwise null
-     * @throws net.sf.ehcache.server.soap.NoSuchCacheException if the cacheName is not found
+     * @throws NoSuchCacheException if the cacheName is not found
      */
     @WebMethod
-    public Element getWithLoader(String cacheName, String key) {
-        return null;
+    public Element getWithLoader(String cacheName, String key) throws NoSuchCacheException {
+        net.sf.ehcache.Cache cache = lookupCache(cacheName);
+        net.sf.ehcache.Element element = cache.getWithLoader(key, null, null);
+        return new Element(element);
     }
 
-    private net.sf.ehcache.Cache lookupCache(String cacheName) {
+    private net.sf.ehcache.Cache lookupCache(String cacheName) throws NoSuchCacheException {
         net.sf.ehcache.Cache cache = manager.getCache(cacheName);
         if (cache == null) {
             throw new NoSuchCacheException(MessageFormat.format("The cache named {0} does not exist.", cacheName));

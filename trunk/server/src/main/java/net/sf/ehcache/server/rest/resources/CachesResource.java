@@ -41,13 +41,12 @@ import java.util.logging.Logger;
  * Lists the Caches in the CacheManager.
  * </code>
  * <p/>
- * e.g. <code>http://localhost:9998/ehcache/</code>
+ * e.g. <code>http://localhost:8080/ehcache/rest/</code>
  *
  * @author Greg Luck
  * @version $Id$
  */
-//
-@Path("/rest/")
+@Path("/")
 @ProduceMime("application/xml")
 public class CachesResource {
 
@@ -56,7 +55,7 @@ public class CachesResource {
     /**
      * The full URI for the resource.
      * <p/>
-     * e.g. <code>//http://localhost:9998/ehcache/testCache</code>
+     * e.g. <code>//http://localhost:8080/ehcache/rest/testCache</code>
      */
     @Context
     private UriInfo uriInfo;
@@ -69,7 +68,7 @@ public class CachesResource {
 
 
     /**
-     * Routes the request to a {@link CacheResource} if the path is <code>/ehcache/{cache}</code>
+     * Routes the request to a {@link CacheResource} if the path is <code>/ehcache/rest/{cache}</code>
      * @param cache
      * @return
      */

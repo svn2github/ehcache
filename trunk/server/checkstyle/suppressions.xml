@@ -18,7 +18,11 @@
     <!--<suppress checks="FileLengthCheck" files="Test.java"/>    -->
     <!--<suppress checks="PackageHtml" files="test[/\\]"/>-->
     <!--<suppress checks="IllegalTypeCheck" files="test[/\\]"/>-->
+
     <suppress checks="GenericIllegalRegexpCheck" files="Server.java"/>
+    <!--Required by JAXB-->
+    <suppress checks="IllegalTypeCheck" files="EhcacheWebServiceEndpoint"/>
+
 
 
     <!-- Suppress duplicate checking of copyright notice -->

@@ -16,21 +16,31 @@
 
 package net.sf.ehcache.server.soap;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.EnumSet;
-
 /**
  * A Status enum which is ordered the same as the core Ehcache
  * typesafe enum which is pre jdk 5.
+ *
+ * @author Greg Luck
+ * @version $Id$
  */
 public enum Status {
 
+    /**
+     * The cache has not yet been initialised
+     */
     STATUS_UNINITIALISED(),
+
+    /**
+     * The cache is alive
+     */
     STATUS_ALIVE(),
+
+    /**
+     * The cache has been shutdown
+     */
     STATUS_SHUTDOWN();
 
-    private static final Status[] enumArray = {STATUS_UNINITIALISED, STATUS_ALIVE, STATUS_SHUTDOWN};
+    private static final Status[] ENUM_ARRAY = {STATUS_UNINITIALISED, STATUS_ALIVE, STATUS_SHUTDOWN};
 
     /**
      * The code enum matching an int code
@@ -38,6 +48,6 @@ public enum Status {
      * @return the enum matching
      */
     public static Status fromCode(int code) {
-        return enumArray[code];
+        return ENUM_ARRAY[code];
     }
 }

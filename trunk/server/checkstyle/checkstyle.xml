@@ -236,12 +236,6 @@
                  escape it and use \. to match dots. -->
             <property name="format" value="System\.out\.println"/>
         </module>
-        <!-- Make sure JDK1.4 logging is not used directly -->
-        <module name="GenericIllegalRegexp">
-            <!-- . matches any character, so we need to
-                 escape it and use \. to match dots. -->
-            <property name="format" value="import java\.util\.logging\.Level;"/>
-        </module>
         <!-- Make sure we are using safe element.get methods everywhere -->
         <module name="GenericIllegalRegexp">
             <!-- . matches any character, so we need to

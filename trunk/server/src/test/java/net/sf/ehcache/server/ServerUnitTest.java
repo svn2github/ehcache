@@ -17,7 +17,7 @@ public class ServerUnitTest {
      */
     @Test
     public void manualTest() throws IOException {
-//        Server.main(new String[]{"9998", "/Users/gluck/work/ehcache/server/target/ehcache-server-1.5.0-beta1.war"});
+//        TestServer.main(new String[]{"9998", "/Users/gluck/work/ehcache/server/target/ehcache-server-1.5.0-beta1.war"});
 //        System.in.read();
     }
 

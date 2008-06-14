@@ -26,15 +26,25 @@ public class BasicSoapTest {
     private static String address;
     private static WebServiceThread webServiceThread;
 
+    @Test
+    public void testEhcacheWebServiceEndPointExists() throws IOException, ParserConfigurationException, SAXException {
+
+        HttpURLConnection response = HttpUtil.get("http://localhost:9000/temp/EhcacheWebServiceEndpoint");
+        assertEquals(200, response.getResponseCode());
+        String responseBody = HttpUtil.inputStreamToText(response.getInputStream());
+        assertTrue(responseBody.indexOf("Implementation class:") != 0);
+    }
 
     @BeforeClass
-    public static void startService() {
+    public static void startService() throws InterruptedException {
         implementor = new EhcacheWebServiceEndpoint();
         address = "http://localhost:9000/temp";
 
         webServiceThread = new WebServiceThread();
         webServiceThread.start();
         assertTrue(webServiceThread.isAlive());
+        //Wait to start up
+        Thread.sleep(5000);
 
 
     }
