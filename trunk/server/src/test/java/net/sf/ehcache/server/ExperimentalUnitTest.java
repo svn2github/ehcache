@@ -9,7 +9,7 @@ import org.junit.Test;
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
-public class ExperimentalTest {
+public class ExperimentalUnitTest {
 
     /**
      * Tests a manual cluster partitioning technique based on key hashing

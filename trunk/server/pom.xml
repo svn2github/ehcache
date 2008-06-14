@@ -126,18 +126,6 @@
                 </configuration>
             </plugin>
 
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <enableAssertions>false</enableAssertions>
-                    <additionalClasspathElements>
-                        <additionalClasspathElement>target/classes</additionalClasspathElement>
-                    </additionalClasspathElements>
-                </configuration>
-            </plugin>
-
             <plugin>
                 <groupId>org.glassfish</groupId>
                 <artifactId>maven-glassfish-plugin</artifactId>
@@ -150,6 +138,7 @@
                 <artifactId>cargo-maven2-plugin</artifactId>
                 <version>0.3.1</version>
                 <configuration>
+                    <wait>false</wait>
                     <container>
                         <containerId>jetty6x</containerId>
                         <type>embedded</type>
@@ -163,13 +152,13 @@
                             <goal>start</goal>
                         </goals>
                     </execution>
-                    <execution>
-                        <id>stop-server</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                    </execution>
+                    <!--<execution>-->
+                        <!--<id>stop-server</id>-->
+                        <!--<phase>post-integration-test</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>stop</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
                 </executions>
             </plugin>
 
@@ -195,12 +184,12 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <skip>false</skip>
                     <includes>
                         <include>**/*UnitTest.java</include>
                     </includes>
                     <excludes>
                         <exclude>**/*$*</exclude>
-                        <exclude>**/Abstract*Test.java</exclude>
                     </excludes>
                     <enableAssertions>false</enableAssertions>
                     <additionalClasspathElements>
@@ -215,6 +204,7 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
+                            <skip>false</skip>
                             <includes>
                                 <include>**/*ResourceTest.java</include>
                                 <include>**/*WebTest.java</include>

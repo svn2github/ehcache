@@ -20,10 +20,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.ObjectExistsException;
-import net.sf.ehcache.Status;
 import net.sf.ehcache.Statistics;
-import net.sf.ehcache.loader.CacheLoader;
-import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.server.ServerContext;
 import net.sf.ehcache.server.jaxb.Cache;
 import net.sf.ehcache.server.jaxb.Element;
@@ -33,13 +30,11 @@ import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.xml.ws.WebServiceContext;
 import java.security.Principal;
-import java.io.Serializable;
-import java.io.IOException;
-import java.util.List;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.logging.Logger;
-import java.text.MessageFormat;
+import java.util.List;
+import java.rmi.RemoteException;
 
 /**
  * The Ehcache WebService provides selected CacheManager and Cache methods
@@ -58,13 +53,12 @@ import java.text.MessageFormat;
  * <p/>
  * Keys must be of type String. Values are always byte arrays. The type of the byte[] is provided by the
  * MIME type. See {@link net.sf.ehcache.server.jaxb.Element#getMimeType}
+ *
  * @author Greg Luck
  * @version $Id$
  */
 @WebService()
 public class EhcacheWebServiceEndpoint {
-
-    private static final Logger LOG = Logger.getLogger(EhcacheWebServiceEndpoint.class.getName());
 
     private CacheManager manager = ServerContext.getCacheManager();
 
@@ -84,6 +78,8 @@ public class EhcacheWebServiceEndpoint {
 
     /**
      * Convenience Method to obtain the CacheManager
+     *
+     * @return the singleton CacheManager used by this service
      */
     private CacheManager getCacheManager() {
         return ServerContext.getCacheManager();
@@ -91,6 +87,8 @@ public class EhcacheWebServiceEndpoint {
 
     /**
      * Gets the user Principal
+     *
+     * @return the user principal
      */
     private Principal getUserPrincipal() {
         return context.getUserPrincipal();
@@ -99,16 +97,17 @@ public class EhcacheWebServiceEndpoint {
     /**
      * Gets a Cache representation
      * <p/>
-     * @param name
+     *
+     * @param cacheName the name of the cache to perform this operation on.
      * @return a representation of a Cache, if an object of type Cache exists by that name, else null
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
     @WebMethod
-    public Cache getCache(String name) throws IllegalStateException {
+    public Cache getCache(String cacheName) throws IllegalStateException {
 
-        Ehcache ehcache = manager.getCache(name);
+        Ehcache ehcache = manager.getCache(cacheName);
         if (ehcache != null) {
-            return new Cache(name, null);
+            return new Cache(cacheName, null);
         } else {
             return null;
         }
@@ -125,11 +124,11 @@ public class EhcacheWebServiceEndpoint {
      * <p/>
      * It will be created with the defaultCache attributes specified in ehcache.xml
      *
-     * @param cacheName the name for the cache
+     * @param cacheName the name of the cache to perform this operation on. the name for the cache
      * @throws net.sf.ehcache.ObjectExistsException
      *                                       if the cache already exists
      * @throws net.sf.ehcache.CacheException if there was an error creating the cache.
-     * @throws IllegalStateException
+     * @throws IllegalStateException         if the CacheManager is not alive
      */
     @WebMethod
     public void addCache(String cacheName) throws IllegalStateException, ObjectExistsException, CacheException {
@@ -140,7 +139,7 @@ public class EhcacheWebServiceEndpoint {
     /**
      * Remove a cache from the CacheManager. The cache is disposed of.
      *
-     * @param cacheName the cache name
+     * @param cacheName the name of the cache to perform this operation on. the cache name
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
     @WebMethod
@@ -164,11 +163,13 @@ public class EhcacheWebServiceEndpoint {
     /**
      * Gets the status attribute of the Ehcache
      *
+     * @param cacheName
      * @return The status value from the Status enum class
      */
     @WebMethod
-    public Status getStatus() {
-        return getCacheManager().getStatus();
+    public net.sf.ehcache.server.soap.Status getStatus(String cacheName) {
+        net.sf.ehcache.Cache cache = lookupCache(cacheName);
+        return Status.fromCode(cache.getStatus().intValue());
     }
 
 
@@ -186,11 +187,11 @@ public class EhcacheWebServiceEndpoint {
      * </ul>
      *
      * @param cacheName the name of the cache to perform this operation on.
-     * @param element An object. 
+     * @param element   An object.
      * @throws IllegalStateException         if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      * @throws IllegalArgumentException      if the element is null
      * @throws net.sf.ehcache.CacheException if a general cache exception occurs
-     * @throws NoSuchCacheException if a cache named cacheName does not exist.
+     * @throws NoSuchCacheException          if a cache named cacheName does not exist.
      */
     @WebMethod
     public void put(String cacheName, Element element) throws IllegalArgumentException, IllegalStateException, NoSuchCacheException {
@@ -205,14 +206,13 @@ public class EhcacheWebServiceEndpoint {
      * Use {@link #getQuiet(String, Object)} to peak into the Element to see its last access time with get
      *
      * @param cacheName the name of the cache to perform this operation on.
-     * @param key a String representation of a key
+     * @param key       a String representation of a key
      * @return the element, or null, if it does not exist.
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
-     * @throws NoSuchCacheException if a cache named cacheName does not exist.
-     * @throws java.io.IOException
+     * @throws NoSuchCacheException  if a cache named cacheName does not exist.
      */
     @WebMethod
-    public Element get(String cacheName, String key) throws IllegalStateException, NoSuchCacheException, IOException {
+    public Element get(String cacheName, String key) throws IllegalStateException, NoSuchCacheException {
         net.sf.ehcache.Cache cache = lookupCache(cacheName);
         net.sf.ehcache.Element element = cache.get(key);
         return new Element(element);
@@ -230,7 +230,8 @@ public class EhcacheWebServiceEndpoint {
      *
      * @param cacheName the name of the cache to perform this operation on.
      * @return a list of {@link Object} keys
-     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws IllegalStateException         if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws net.sf.ehcache.CacheException
      */
     @WebMethod
     public List getKeys(String cacheName) throws IllegalStateException, CacheException {
@@ -244,6 +245,7 @@ public class EhcacheWebServiceEndpoint {
      * Also notifies the CacheEventListener after the element was removed.
      *
      * @param cacheName the name of the cache to perform this operation on.
+     * @param key
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
@@ -271,14 +273,14 @@ public class EhcacheWebServiceEndpoint {
      * this method takes so long, depending on cache settings, the list could be
      * quite out of date by the time you get it.
      *
+     * @param cacheName the name of the cache to perform this operation on.
      * @return a list of {@link Object} keys
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
-     *
      */
     @WebMethod
-    public List<Serializable> getKeysWithExpiryCheck(String cacheName) throws IllegalStateException, CacheException {
+    public List getKeysWithExpiryCheck(String cacheName) throws IllegalStateException, CacheException {
         net.sf.ehcache.Cache cache = lookupCache(cacheName);
-        List<Serializable> keys = cache.getKeysWithExpiryCheck();
+        List keys = cache.getKeysWithExpiryCheck();
         return keys;
     }
 
@@ -296,9 +298,11 @@ public class EhcacheWebServiceEndpoint {
      * <p/>
      * This is the fastest getKeys method
      *
+     * @param cacheName the name of the cache to perform this operation on.
      * @return a list of {@link Object} keys
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
+    @WebMethod
     public List getKeysNoDuplicateCheck(String cacheName) throws IllegalStateException {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
@@ -308,9 +312,11 @@ public class EhcacheWebServiceEndpoint {
      * still updated.
      * <p/>
      *
-     * @param key a serializable value
+     * @param cacheName the name of the cache to perform this operation on.
+     * @param key       a serializable value
      * @return the element, or null, if it does not exist.
-     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws IllegalStateException         if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws net.sf.ehcache.CacheException
      */
     public Element getQuiet(String cacheName, Object key) throws IllegalStateException, CacheException {
         net.sf.ehcache.Cache cache = lookupCache(cacheName);
@@ -322,9 +328,12 @@ public class EhcacheWebServiceEndpoint {
      * Put an element in the cache, without updating statistics, or updating listeners. This is meant to be used
      * in conjunction with {@link #getQuiet}
      *
-     * @param element An object. If Serializable it can fully participate in replication and the DiskStore.
-     * @throws IllegalStateException    if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
-     * @throws IllegalArgumentException if the element is null
+     * @param cacheName the name of the cache to perform this operation on.
+     * @param element   An object. Any element that can be passed in must be <code>Serializable</code> and can therefore fully participate
+     *                  in distributed caching replication and the DiskStore.
+     * @throws IllegalStateException         if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws IllegalArgumentException      if the element is null
+     * @throws net.sf.ehcache.CacheException if something goes wrong
      */
     public void putQuiet(String cacheName, Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         //To change body of implemented methods use File | Settings | File Templates.
@@ -335,20 +344,25 @@ public class EhcacheWebServiceEndpoint {
      * stores it may be in.
      * <p/>
      *
+     * @param cacheName the name of the cache to perform this operation on.
      * @param key
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
-    public boolean removeQuiet(String key) throws IllegalStateException {
+    @WebMethod
+    public boolean removeQuiet(String cacheName, String key) throws IllegalStateException {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     /**
      * Removes all cached items.
      *
-     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @param cacheName the name of the cache to perform this operation on.
+     * @throws IllegalStateException         if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws net.sf.ehcache.CacheException
      */
-    public void removeAll() throws IllegalStateException, CacheException {
+    @WebMethod
+    public void removeAll(String cacheName) throws IllegalStateException, CacheException {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -374,18 +388,14 @@ public class EhcacheWebServiceEndpoint {
      * To get a very fast result, use {@link #getKeysNoDuplicateCheck(String)}. If the disk store
      * is being used, there will be some duplicates.
      *
+     * @param cacheName the name of the cache to perform this operation on.
      * @return The size value
-     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws IllegalStateException         if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws net.sf.ehcache.CacheException
      */
-    public int getSize() throws IllegalStateException, CacheException {
+    @WebMethod
+    public int getSize(String cacheName) throws IllegalStateException, CacheException {
         return 0;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    /**
-     * Gets the cache name.
-     */
-    public String getName() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     /**
@@ -430,7 +440,7 @@ public class EhcacheWebServiceEndpoint {
     /**
      * Accurately measuring statistics can be expensive. Returns the current accuracy setting.
      *
-     * @param cacheName the name of the cache to perform this operation on.
+     * @param cacheName the name of the cache to perform this operation on. the name of the cache to perform this operation on.
      * @return one of {@link net.sf.ehcache.Statistics#STATISTICS_ACCURACY_BEST_EFFORT}, {@link net.sf.ehcache.Statistics#STATISTICS_ACCURACY_GUARANTEED}, {@link net.sf.ehcache.Statistics#STATISTICS_ACCURACY_NONE}
      */
     @WebMethod
@@ -441,6 +451,7 @@ public class EhcacheWebServiceEndpoint {
 
     /**
      * Resets statistics counters back to 0.
+     *
      * @param cacheName the name of the cache to perform this operation on.
      */
     @WebMethod
@@ -465,7 +476,7 @@ public class EhcacheWebServiceEndpoint {
      * decorator {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
      *
      * @param cacheName the name of the cache to perform this operation on.
-     * @param key key whose associated value to be loaded using the associated cacheloader if this cache doesn't contain it.
+     * @param key       key whose associated value to be loaded using the associated cacheloader if this cache doesn't contain it.
      * @throws net.sf.ehcache.CacheException
      */
     public void load(String cacheName, String key) throws CacheException {
@@ -492,6 +503,7 @@ public class EhcacheWebServiceEndpoint {
      * <p/>
      * The Ehcache native API provides similar functionality to loaders using the
      * decorator {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
+     *
      * @param cacheName the name of the cache to perform this operation on.
      * @param keys
      * @throws net.sf.ehcache.CacheException
@@ -522,7 +534,8 @@ public class EhcacheWebServiceEndpoint {
      * The constructs package provides similar functionality using the
      * decorator {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
      *
-     * @param keys           a collection of keys to be returned/loaded
+     * @param cacheName the name of the cache to perform this operation on.
+     * @param keys      a collection of keys to be returned/loaded
      * @return a Map populated from the Cache. If there are no elements, an empty Map is returned.
      * @throws net.sf.ehcache.CacheException
      */
@@ -544,12 +557,13 @@ public class EhcacheWebServiceEndpoint {
      * Because this method may take a long time to complete, it is not synchronized. The underlying cache operations
      * are synchronized.
      *
-     * @param key            key whose associated value is to be returned.
+     * @param cacheName the name of the cache to perform this operation on.
+     * @param key       key whose associated value is to be returned.
      * @return an element if it existed or could be loaded, otherwise null
-     * @throws net.sf.ehcache.CacheException
+     * @throws net.sf.ehcache.server.soap.NoSuchCacheException if the cacheName is not found
      */
     @WebMethod
-    public Element getWithLoader(String cacheName, String key) throws CacheException {
+    public Element getWithLoader(String cacheName, String key) {
         return null;
     }
 

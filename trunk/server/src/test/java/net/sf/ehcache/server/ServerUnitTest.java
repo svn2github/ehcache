@@ -9,7 +9,7 @@ import java.io.IOException;
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
-public class ServerTest {
+public class ServerUnitTest {
 
     /**
      * Use for manual testing
