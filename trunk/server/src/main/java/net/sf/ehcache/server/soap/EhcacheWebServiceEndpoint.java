@@ -154,7 +154,7 @@ public class EhcacheWebServiceEndpoint {
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
     @WebMethod
-    public String[] getCacheNames() throws IllegalStateException {
+    public String[] cacheNames() throws IllegalStateException {
         return manager.getCacheNames();
     }
 
