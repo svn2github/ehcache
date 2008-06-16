@@ -105,7 +105,7 @@
                 <!-- Doesn't work when not internet connected -->
                 <executions>
                     <execution>
-                        <phase>validate</phase>
+                        <phase>verify</phase>
                         <goals>
                             <goal>checkstyle</goal>
                         </goals>

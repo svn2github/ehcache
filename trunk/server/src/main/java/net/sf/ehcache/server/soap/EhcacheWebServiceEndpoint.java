@@ -94,19 +94,19 @@ public class EhcacheWebServiceEndpoint {
     }
 
     /**
-     * Gets a Cache representation
+     * Gets a Cache representation. This call does not throw an exception if the cache is not found.
+     * Most other methods in this endpoint do.
      * <p/>
-     *
      * @param cacheName the name of the cache to perform this operation on.
      * @return a representation of a Cache, if an object of type Cache exists by that name, else null
-     * @throws net.sf.ehcache.CacheException
+     * @throws net.sf.ehcache.CacheException if something goes wrong in the Ehcache core infrastructure
      */
     @WebMethod
-    public Cache getCache(String cacheName) throws NoSuchCacheException, CacheException {
+    public Cache getCache(String cacheName) throws CacheException {
 
         Ehcache ehcache = manager.getCache(cacheName);
         if (ehcache != null) {
-            return new Cache(cacheName, null);
+            return new Cache(ehcache);
         } else {
             return null;
         }

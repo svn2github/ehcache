@@ -19,9 +19,6 @@
 <message name="getCacheResponse">
 <part name="parameters" element="tns:getCacheResponse"></part>
 </message>
-<message name="NoSuchCacheException">
-<part name="fault" element="tns:NoSuchCacheException"></part>
-</message>
 <message name="addCache">
 <part name="parameters" element="tns:addCache"></part>
 </message>
@@ -81,6 +78,9 @@
 </message>
 <message name="getWithLoaderResponse">
 <part name="parameters" element="tns:getWithLoaderResponse"></part>
+</message>
+<message name="NoSuchCacheException">
+<part name="fault" element="tns:NoSuchCacheException"></part>
 </message>
 <message name="getAllWithLoader">
 <part name="parameters" element="tns:getAllWithLoader"></part>
@@ -145,7 +145,6 @@
 <operation name="getCache">
 <input message="tns:getCache"></input>
 <output message="tns:getCacheResponse"></output>
-<fault message="tns:NoSuchCacheException" name="NoSuchCacheException"></fault>
 <fault message="tns:CacheException" name="CacheException"></fault>
 </operation>
 <operation name="addCache">
@@ -265,9 +264,6 @@
 <output>
 <soap:body use="literal"></soap:body>
 </output>
-<fault name="NoSuchCacheException">
-<soap:fault name="NoSuchCacheException" use="literal"></soap:fault>
-</fault>
 <fault name="CacheException">
 <soap:fault name="CacheException" use="literal"></soap:fault>
 </fault>

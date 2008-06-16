@@ -46,7 +46,6 @@ public interface EhcacheWebServiceEndpoint {
      * @param arg0
      * @return
      *     returns net.sf.ehcache.server.soap.jaxws.Cache
-     * @throws NoSuchCacheException_Exception
      * @throws CacheException_Exception
      */
     @WebMethod
@@ -56,15 +55,15 @@ public interface EhcacheWebServiceEndpoint {
     public Cache getCache(
         @WebParam(name = "arg0", targetNamespace = "")
         String arg0)
-        throws CacheException_Exception, NoSuchCacheException_Exception
+        throws CacheException_Exception
     ;
 
     /**
      * 
      * @param arg0
-     * @throws ObjectExistsException_Exception
      * @throws CacheException_Exception
      * @throws IllegalStateException_Exception
+     * @throws ObjectExistsException_Exception
      */
     @WebMethod
     @RequestWrapper(localName = "addCache", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.AddCache")
@@ -108,8 +107,8 @@ public interface EhcacheWebServiceEndpoint {
      * @param arg0
      * @return
      *     returns java.util.List<java.lang.Object>
-     * @throws CacheException_Exception
      * @throws IllegalStateException_Exception
+     * @throws CacheException_Exception
      */
     @WebMethod
     @WebResult(targetNamespace = "")
@@ -259,8 +258,8 @@ public interface EhcacheWebServiceEndpoint {
      * 
      * @param arg1
      * @param arg0
-     * @throws NoSuchCacheException_Exception
      * @throws CacheException_Exception
+     * @throws NoSuchCacheException_Exception
      */
     @WebMethod
     @RequestWrapper(localName = "put", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.Put")
@@ -298,8 +297,8 @@ public interface EhcacheWebServiceEndpoint {
      * @param arg0
      * @return
      *     returns int
-     * @throws CacheException_Exception
      * @throws IllegalStateException_Exception
+     * @throws CacheException_Exception
      */
     @WebMethod
     @WebResult(targetNamespace = "")

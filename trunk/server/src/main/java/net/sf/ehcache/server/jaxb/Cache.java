@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.server.jaxb;
 
+import net.sf.ehcache.Ehcache;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -28,10 +30,23 @@ public class Cache {
 
     private String uri;
 
+    private String description;
+
     /**
      * Empty Constructor
      */
     public Cache() {
+    }
+
+    /**
+     * Constructs a Cache Representation from a core Ehcache
+     * @param ehcache
+     */
+    public Cache(Ehcache ehcache) {
+        this.name = ehcache.getName();
+        this.uri = "rest/" + name;
+        this.description = ehcache.toString();
+
     }
 
     /**
@@ -73,6 +88,21 @@ public class Cache {
         this.uri = uri;
     }
 
+    /**
+     * Gets the description of the cache.
+     * @return the description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Sets the description of the cache.
+     * @param description the description
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     /**
      * Clones the resource using a deep copy.

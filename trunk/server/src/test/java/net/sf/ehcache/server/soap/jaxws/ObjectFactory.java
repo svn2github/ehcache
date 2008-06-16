@@ -79,6 +79,70 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link GetAllWithLoader }
+     * 
+     */
+    public GetAllWithLoader createGetAllWithLoader() {
+        return new GetAllWithLoader();
+    }
+
+    /**
+     * Create an instance of {@link GetStatusResponse }
+     * 
+     */
+    public GetStatusResponse createGetStatusResponse() {
+        return new GetStatusResponse();
+    }
+
+    /**
+     * Create an instance of {@link RemoveResponse }
+     * 
+     */
+    public RemoveResponse createRemoveResponse() {
+        return new RemoveResponse();
+    }
+
+    /**
+     * Create an instance of {@link RemoveCacheResponse }
+     * 
+     */
+    public RemoveCacheResponse createRemoveCacheResponse() {
+        return new RemoveCacheResponse();
+    }
+
+    /**
+     * Create an instance of {@link GetAllWithLoaderResponse }
+     * 
+     */
+    public GetAllWithLoaderResponse createGetAllWithLoaderResponse() {
+        return new GetAllWithLoaderResponse();
+    }
+
+    /**
+     * Create an instance of {@link CacheException }
+     * 
+     */
+    public CacheException createCacheException() {
+        return new CacheException();
+    }
+
+    /**
+     * Create an instance of {@link RemoveCache }
+     * 
+     */
+    public RemoveCache createRemoveCache() {
+        return new RemoveCache();
+    }
+
+    /**
+     * Create an instance of {@link ObjectExistsException }
+     * 
+     */
+    public ObjectExistsException createObjectExistsException() {
+        return new ObjectExistsException();
+    }
+
+    /**
      * Create an instance of {@link PutResponse }
      * 
      */
@@ -95,19 +159,67 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetStatisticsAccuracyResponse }
+     * Create an instance of {@link NoSuchCacheException }
      * 
      */
-    public GetStatisticsAccuracyResponse createGetStatisticsAccuracyResponse() {
-        return new GetStatisticsAccuracyResponse();
+    public NoSuchCacheException createNoSuchCacheException() {
+        return new NoSuchCacheException();
     }
 
     /**
-     * Create an instance of {@link RemoveCache }
+     * Create an instance of {@link Put }
      * 
      */
-    public RemoveCache createRemoveCache() {
-        return new RemoveCache();
+    public Put createPut() {
+        return new Put();
+    }
+
+    /**
+     * Create an instance of {@link GetSize }
+     * 
+     */
+    public GetSize createGetSize() {
+        return new GetSize();
+    }
+
+    /**
+     * Create an instance of {@link Element }
+     * 
+     */
+    public Element createElement() {
+        return new Element();
+    }
+
+    /**
+     * Create an instance of {@link CacheNames }
+     * 
+     */
+    public CacheNames createCacheNames() {
+        return new CacheNames();
+    }
+
+    /**
+     * Create an instance of {@link GetKeysWithExpiryCheck }
+     * 
+     */
+    public GetKeysWithExpiryCheck createGetKeysWithExpiryCheck() {
+        return new GetKeysWithExpiryCheck();
+    }
+
+    /**
+     * Create an instance of {@link AddCache }
+     * 
+     */
+    public AddCache createAddCache() {
+        return new AddCache();
+    }
+
+    /**
+     * Create an instance of {@link AddCacheResponse }
+     * 
+     */
+    public AddCacheResponse createAddCacheResponse() {
+        return new AddCacheResponse();
     }
 
     /**
@@ -119,6 +231,110 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link PingResponse }
+     * 
+     */
+    public PingResponse createPingResponse() {
+        return new PingResponse();
+    }
+
+    /**
+     * Create an instance of {@link GetCache }
+     * 
+     */
+    public GetCache createGetCache() {
+        return new GetCache();
+    }
+
+    /**
+     * Create an instance of {@link GetKeysWithExpiryCheckResponse }
+     * 
+     */
+    public GetKeysWithExpiryCheckResponse createGetKeysWithExpiryCheckResponse() {
+        return new GetKeysWithExpiryCheckResponse();
+    }
+
+    /**
+     * Create an instance of {@link GetKeysResponse }
+     * 
+     */
+    public GetKeysResponse createGetKeysResponse() {
+        return new GetKeysResponse();
+    }
+
+    /**
+     * Create an instance of {@link GetStatisticsAccuracy }
+     * 
+     */
+    public GetStatisticsAccuracy createGetStatisticsAccuracy() {
+        return new GetStatisticsAccuracy();
+    }
+
+    /**
+     * Create an instance of {@link GetStatus }
+     * 
+     */
+    public GetStatus createGetStatus() {
+        return new GetStatus();
+    }
+
+    /**
+     * Create an instance of {@link Remove }
+     * 
+     */
+    public Remove createRemove() {
+        return new Remove();
+    }
+
+    /**
+     * Create an instance of {@link Cache }
+     * 
+     */
+    public Cache createCache() {
+        return new Cache();
+    }
+
+    /**
+     * Create an instance of {@link GetWithLoaderResponse }
+     * 
+     */
+    public GetWithLoaderResponse createGetWithLoaderResponse() {
+        return new GetWithLoaderResponse();
+    }
+
+    /**
+     * Create an instance of {@link GetCacheResponse }
+     * 
+     */
+    public GetCacheResponse createGetCacheResponse() {
+        return new GetCacheResponse();
+    }
+
+    /**
+     * Create an instance of {@link RemoveAll }
+     * 
+     */
+    public RemoveAll createRemoveAll() {
+        return new RemoveAll();
+    }
+
+    /**
+     * Create an instance of {@link IllegalStateException }
+     * 
+     */
+    public IllegalStateException createIllegalStateException() {
+        return new IllegalStateException();
+    }
+
+    /**
+     * Create an instance of {@link GetKeysNoDuplicateCheck }
+     * 
+     */
+    public GetKeysNoDuplicateCheck createGetKeysNoDuplicateCheck() {
+        return new GetKeysNoDuplicateCheck();
+    }
+
+    /**
      * Create an instance of {@link GetSizeResponse }
      * 
      */
@@ -127,27 +343,35 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetAllWithLoader }
+     * Create an instance of {@link LoadAll }
      * 
      */
-    public GetAllWithLoader createGetAllWithLoader() {
-        return new GetAllWithLoader();
+    public LoadAll createLoadAll() {
+        return new LoadAll();
     }
 
     /**
-     * Create an instance of {@link NoSuchCacheException }
+     * Create an instance of {@link GetKeys }
      * 
      */
-    public NoSuchCacheException createNoSuchCacheException() {
-        return new NoSuchCacheException();
+    public GetKeys createGetKeys() {
+        return new GetKeys();
     }
 
     /**
-     * Create an instance of {@link CacheNames }
+     * Create an instance of {@link GetWithLoader }
      * 
      */
-    public CacheNames createCacheNames() {
-        return new CacheNames();
+    public GetWithLoader createGetWithLoader() {
+        return new GetWithLoader();
+    }
+
+    /**
+     * Create an instance of {@link RemoveAllResponse }
+     * 
+     */
+    public RemoveAllResponse createRemoveAllResponse() {
+        return new RemoveAllResponse();
     }
 
     /**
@@ -167,155 +391,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetSize }
+     * Create an instance of {@link RemoveQuiet }
      * 
      */
-    public GetSize createGetSize() {
-        return new GetSize();
-    }
-
-    /**
-     * Create an instance of {@link Get }
-     * 
-     */
-    public Get createGet() {
-        return new Get();
-    }
-
-    /**
-     * Create an instance of {@link Put }
-     * 
-     */
-    public Put createPut() {
-        return new Put();
-    }
-
-    /**
-     * Create an instance of {@link IllegalStateException }
-     * 
-     */
-    public IllegalStateException createIllegalStateException() {
-        return new IllegalStateException();
-    }
-
-    /**
-     * Create an instance of {@link GetKeysWithExpiryCheckResponse }
-     * 
-     */
-    public GetKeysWithExpiryCheckResponse createGetKeysWithExpiryCheckResponse() {
-        return new GetKeysWithExpiryCheckResponse();
-    }
-
-    /**
-     * Create an instance of {@link Ping }
-     * 
-     */
-    public Ping createPing() {
-        return new Ping();
-    }
-
-    /**
-     * Create an instance of {@link GetKeysNoDuplicateCheck }
-     * 
-     */
-    public GetKeysNoDuplicateCheck createGetKeysNoDuplicateCheck() {
-        return new GetKeysNoDuplicateCheck();
-    }
-
-    /**
-     * Create an instance of {@link ClearStatistics }
-     * 
-     */
-    public ClearStatistics createClearStatistics() {
-        return new ClearStatistics();
-    }
-
-    /**
-     * Create an instance of {@link RemoveResponse }
-     * 
-     */
-    public RemoveResponse createRemoveResponse() {
-        return new RemoveResponse();
-    }
-
-    /**
-     * Create an instance of {@link RemoveAll }
-     * 
-     */
-    public RemoveAll createRemoveAll() {
-        return new RemoveAll();
-    }
-
-    /**
-     * Create an instance of {@link GetResponse }
-     * 
-     */
-    public GetResponse createGetResponse() {
-        return new GetResponse();
-    }
-
-    /**
-     * Create an instance of {@link GetWithLoaderResponse }
-     * 
-     */
-    public GetWithLoaderResponse createGetWithLoaderResponse() {
-        return new GetWithLoaderResponse();
-    }
-
-    /**
-     * Create an instance of {@link GetKeysWithExpiryCheck }
-     * 
-     */
-    public GetKeysWithExpiryCheck createGetKeysWithExpiryCheck() {
-        return new GetKeysWithExpiryCheck();
-    }
-
-    /**
-     * Create an instance of {@link CacheException }
-     * 
-     */
-    public CacheException createCacheException() {
-        return new CacheException();
-    }
-
-    /**
-     * Create an instance of {@link AddCache }
-     * 
-     */
-    public AddCache createAddCache() {
-        return new AddCache();
-    }
-
-    /**
-     * Create an instance of {@link GetCacheResponse }
-     * 
-     */
-    public GetCacheResponse createGetCacheResponse() {
-        return new GetCacheResponse();
-    }
-
-    /**
-     * Create an instance of {@link ObjectExistsException }
-     * 
-     */
-    public ObjectExistsException createObjectExistsException() {
-        return new ObjectExistsException();
-    }
-
-    /**
-     * Create an instance of {@link GetStatus }
-     * 
-     */
-    public GetStatus createGetStatus() {
-        return new GetStatus();
-    }
-
-    /**
-     * Create an instance of {@link GetKeysResponse }
-     * 
-     */
-    public GetKeysResponse createGetKeysResponse() {
-        return new GetKeysResponse();
+    public RemoveQuiet createRemoveQuiet() {
+        return new RemoveQuiet();
     }
 
     /**
@@ -327,27 +407,27 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetKeys }
+     * Create an instance of {@link ClearStatistics }
      * 
      */
-    public GetKeys createGetKeys() {
-        return new GetKeys();
+    public ClearStatistics createClearStatistics() {
+        return new ClearStatistics();
     }
 
     /**
-     * Create an instance of {@link GetCache }
+     * Create an instance of {@link GetResponse }
      * 
      */
-    public GetCache createGetCache() {
-        return new GetCache();
+    public GetResponse createGetResponse() {
+        return new GetResponse();
     }
 
     /**
-     * Create an instance of {@link PingResponse }
+     * Create an instance of {@link Get }
      * 
      */
-    public PingResponse createPingResponse() {
-        return new PingResponse();
+    public Get createGet() {
+        return new Get();
     }
 
     /**
@@ -359,99 +439,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetAllWithLoaderResponse }
+     * Create an instance of {@link Ping }
      * 
      */
-    public GetAllWithLoaderResponse createGetAllWithLoaderResponse() {
-        return new GetAllWithLoaderResponse();
+    public Ping createPing() {
+        return new Ping();
     }
 
     /**
-     * Create an instance of {@link AddCacheResponse }
+     * Create an instance of {@link GetStatisticsAccuracyResponse }
      * 
      */
-    public AddCacheResponse createAddCacheResponse() {
-        return new AddCacheResponse();
-    }
-
-    /**
-     * Create an instance of {@link GetStatusResponse }
-     * 
-     */
-    public GetStatusResponse createGetStatusResponse() {
-        return new GetStatusResponse();
-    }
-
-    /**
-     * Create an instance of {@link Element }
-     * 
-     */
-    public Element createElement() {
-        return new Element();
-    }
-
-    /**
-     * Create an instance of {@link GetWithLoader }
-     * 
-     */
-    public GetWithLoader createGetWithLoader() {
-        return new GetWithLoader();
-    }
-
-    /**
-     * Create an instance of {@link RemoveCacheResponse }
-     * 
-     */
-    public RemoveCacheResponse createRemoveCacheResponse() {
-        return new RemoveCacheResponse();
-    }
-
-    /**
-     * Create an instance of {@link LoadAll }
-     * 
-     */
-    public LoadAll createLoadAll() {
-        return new LoadAll();
-    }
-
-    /**
-     * Create an instance of {@link Remove }
-     * 
-     */
-    public Remove createRemove() {
-        return new Remove();
-    }
-
-    /**
-     * Create an instance of {@link RemoveAllResponse }
-     * 
-     */
-    public RemoveAllResponse createRemoveAllResponse() {
-        return new RemoveAllResponse();
-    }
-
-    /**
-     * Create an instance of {@link GetStatisticsAccuracy }
-     * 
-     */
-    public GetStatisticsAccuracy createGetStatisticsAccuracy() {
-        return new GetStatisticsAccuracy();
-    }
-
-    /**
-     * Create an instance of {@link Cache }
-     * 
-     */
-    public Cache createCache() {
-        return new Cache();
-    }
-
-    /**
-     * Create an instance of {@link RemoveQuiet }
-     * 
-     */
-    public RemoveQuiet createRemoveQuiet() {
-        return new RemoveQuiet();
+    public GetStatisticsAccuracyResponse createGetStatisticsAccuracyResponse() {
+        return new GetStatisticsAccuracyResponse();
     }
 
     /**
