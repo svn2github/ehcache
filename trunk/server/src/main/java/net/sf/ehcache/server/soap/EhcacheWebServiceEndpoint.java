@@ -76,15 +76,6 @@ public class EhcacheWebServiceEndpoint {
     }
 
     /**
-     * Convenience Method to obtain the CacheManager
-     *
-     * @return the singleton CacheManager used by this service
-     */
-    private CacheManager getCacheManager() {
-        return ServerContext.getCacheManager();
-    }
-
-    /**
      * Gets the user Principal
      *
      * @return the user principal
@@ -137,7 +128,8 @@ public class EhcacheWebServiceEndpoint {
 
     /**
      * Remove a cache from the CacheManager. The cache is disposed of.
-     *
+     * <p/>
+     * This method can be called multiple times. If the cache does not exist no exception is thrown.
      * @param cacheName the name of the cache to perform this operation on. the cache name
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
@@ -162,7 +154,7 @@ public class EhcacheWebServiceEndpoint {
     /**
      * Gets the status attribute of the Ehcache
      *
-     * @param cacheName
+     * @param cacheName the name of the cache to perform this operation on.
      * @return The status value from the Status enum class
      */
     @WebMethod

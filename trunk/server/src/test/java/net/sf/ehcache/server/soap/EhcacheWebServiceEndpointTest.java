@@ -7,59 +7,94 @@ package net.sf.ehcache.server.soap;
 
 import net.sf.ehcache.server.soap.jaxws.*;
 import net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpoint;
+import net.sf.ehcache.server.soap.jaxws.Status;
 import org.junit.Test;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import static org.junit.Assert.*;
 
+import javax.xml.ws.soap.SOAPFaultException;
 import java.util.List;
 
 public class EhcacheWebServiceEndpointTest {
-    private static EhcacheWebServiceEndpoint endpoint;
+    private static EhcacheWebServiceEndpoint serviceEndpoint;
 
     @BeforeClass
     public static void setup() {
-        endpoint = new EhcacheWebServiceEndpointService().getEhcacheWebServiceEndpointPort();
+        serviceEndpoint = new EhcacheWebServiceEndpointService().getEhcacheWebServiceEndpointPort();
     }
 
     @Test
     public void testPing() {
         //invoke business method
-        String result = endpoint.ping();
+        String result = serviceEndpoint.ping();
         assertEquals("pong", result);
+    }
+
+    @Test
+    public void testGetCache() throws CacheException_Exception, NoSuchCacheException_Exception {
+        Cache cache = serviceEndpoint.getCache("doesnotexist");
+        assertNull(cache);
+
+        cache = serviceEndpoint.getCache("sampleCache1");
+        assertEquals("sampleCache1", cache.getName());
+        assertEquals("rest/sampleCache1", cache.getUri());
+        assertTrue(cache.getDescription().indexOf("sampleCache1") != -1);
+    }
+
+    @Test
+    public void testAddCache() throws CacheException_Exception, NoSuchCacheException_Exception, IllegalStateException_Exception, ObjectExistsException_Exception {
+
+        serviceEndpoint.addCache("newcache1");
+        Cache cache = serviceEndpoint.getCache("newcache1");
+        assertNotNull(cache);
+
+        try {
+            serviceEndpoint.addCache("newcache1");
+        } catch (SOAPFaultException e) {
+            //expected
+            assertTrue(e.getCause().getMessage().indexOf("Cache newcache1 already exists") != -1);
+        }
+    }
+
+    @Test
+    public void testRemoveCache() throws CacheException_Exception, NoSuchCacheException_Exception, IllegalStateException_Exception, ObjectExistsException_Exception {
+
+        serviceEndpoint.addCache("newcache2");
+        Cache cache = serviceEndpoint.getCache("newcache2");
+        assertNotNull(cache);
+
+        serviceEndpoint.removeCache("newcache2");
+        cache = serviceEndpoint.getCache("newcache2");
+        assertNull(cache);
+
+        //should not throw an exception
+        serviceEndpoint.removeCache("newcache2");
+        cache = serviceEndpoint.getCache("newcache2");
+        assertNull(cache);
     }
 
     /**
      * Gets the cache names
-     * @throws IllegalStateException_Exception
      */
     @Test
     public void testCacheNames() throws IllegalStateException_Exception {
-        //invoke business method
-        List cacheNames = endpoint.cacheNames();
+        List cacheNames = serviceEndpoint.cacheNames();
         //Other tests add caches to the CacheManager
         assertTrue(cacheNames.size() >= 6);
     }
 
-    /**
-     * This will throw an exception
-     *
-     * @throws IllegalStateException_Exception
-     *
-     */
     @Test
-    public void testCacheDoesNotExist() throws CacheException_Exception, NoSuchCacheException_Exception {
-        //invoke business method
-        Cache cache = endpoint.getCache("doesnotexist");
-        assertNull(cache);
+    public void testCacheStatus() throws CacheException_Exception, NoSuchCacheException_Exception {
+        Status status = serviceEndpoint.getStatus("sampleCache1");
+        assertTrue(status == Status.STATUS_ALIVE);
+    }
 
-        cache = endpoint.getCache("sampleCache1");
-        assertEquals("sampleCache1", cache.getName());
-        //todo what should this be
-        assertEquals("rest/sampleCache1", cache.getUri());
-        assertTrue(cache.getDescription().indexOf("sampleCache1") != -1);
+    @Test
+    public void testCachePut() throws CacheException_Exception, NoSuchCacheException_Exception {
 
-
+        Element element = new Element();
+        element.setKey("1");
+        serviceEndpoint.put("sampleCache1", element);
     }
 
 

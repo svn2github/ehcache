@@ -47,9 +47,11 @@ public class Element {
      */
     private String mimeType;
 
-    private String key;
+    private Object key;
 
     private int timeToIdleSeconds;
+    private long creationTime;
+    private long version;
     private long lastUpdateTime;
     private long expirationTime;
     private boolean eternal;
@@ -64,7 +66,6 @@ public class Element {
 
     /**
      * Full constructor
-     *
      * @param value
      * @param resourceUri
      * @param mimeType
@@ -77,12 +78,11 @@ public class Element {
 
     /**
      * Constructor which takes an Ehcache core Element.
-     *
      * @param element the core Element
      * @throws CacheException if an IOException occurs serializing the value to a byte[].q
      */
     public Element(net.sf.ehcache.Element element) throws CacheException {
-        key = element.getKey().toString();
+        key = element.getKey();
         MemoryEfficientByteArrayOutputStream stream = null;
         try {
             stream = MemoryEfficientByteArrayOutputStream.serialize(element.getValue());
@@ -93,50 +93,40 @@ public class Element {
     }
 
     /**
-     * Ehcache core can use <code>Object</code> or <code>Serializable</code> for keys.
-     * This class uses <code>String</code>s for keys. <code>toString()</code> is used
-     * to convert Ehcache core keys to these keys.
      *
-     * @return the key as a String
+     * @return
      */
-    public String getKey() {
+    public Object getKey() {
         return key;
     }
 
     /**
-     * Set the key
      *
-     * @param key a non-null String
+     * @param key
      */
-    public void setKey(String key) {
+    public void setKey(Object key) {
         this.key = key;
     }
 
     /**
      * Sets the payload
-     *
-     * @param value can be anything in the byte array. Set {@link #setMimeType(String)} to indicate
-     *              the type.
+     * @param value
      */
-    private void setValue(byte[] value) {
+    public void setValue(byte[] value) {
         this.value = value;
     }
 
     /**
-     * Gets the value of the element as a byte[]. An types can be supported, including serialized
-     * Java classes and XML.
-     *
-     * @return the value as a byte[]. Use {@link #getMimeType()} to discover the type.
+     * Gets the payload
+     * @return
      */
     public byte[] getValue() {
         return value;
     }
 
     /**
-     * Gets the RESTful URI for this resource. Resources can be accessed by REST regardless of whether
-     * they were created that way.
-     *
-     * @return the RESTful resource for this Element.
+     * Gets the URI for this resource
+     * @return
      */
     public String getResourceUri() {
         return resourceUri;
@@ -144,8 +134,7 @@ public class Element {
 
     /**
      * Sets the URI for this resource
-     *
-     * @param resourceUri the URI for the resource
+     * @param resourceUri
      */
     public void setResourceUri(String resourceUri) {
         this.resourceUri = resourceUri;
@@ -153,25 +142,15 @@ public class Element {
 
     /**
      * Gets the MIME Type.
-     * <p/>
-     * Some examples which may be relevant are:
-     * <ul>
-     * <li><code>text/plain</code> which indicates plain text.
-     * <li><code>text/xml</code> which indicates Extensible Markup Language. Defined in RFC 3023
-     * <li><code>application/json</code> which indicates JavaScript Object Notation JSON. Defined in RFC 4627
-     * <li><code>application/x-java-serialized-object</code> which indicates serialized Java objects.
-     * </ul>
-     * @return the MIME Type of the byte[] value
+     * @return 
      */
     public String getMimeType() {
         return mimeType;
     }
 
     /**
-     * Sets the MIME Type.
-     *
-     * @param mimeType the MIME type of the byte[] value
-     * @see #setMimeType(String)
+     * Sets the MIME Type
+     * @param mimeType
      */
     public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
@@ -183,11 +162,12 @@ public class Element {
      * @param timeToLiveSeconds the number of seconds to live
      */
     public void setTimeToLive(int timeToLiveSeconds) {
-        this.timeToLive = timeToLiveSeconds;
+
+
     }
 
     /**
-     * Sets time to idle, which is the amount of time an element will live if it has not been accessed
+     * Sets time to idle
      *
      * @param timeToIdleSeconds the number of seconds to idle
      */
@@ -205,6 +185,17 @@ public class Element {
     public long getLastUpdateTime() {
         return lastUpdateTime;
     }
+
+    /**
+     * An element is expired if the expiration time as given by {@link #getExpirationTime()} is in the past.
+     *
+     * @return true if the Element is expired, otherwise false. If no lifespan has been set for the Element it is
+     *         considered not able to expire.
+     * @see #getExpirationTime()
+     */
+//    public boolean isExpired() {
+//        return super.isExpired();    //To change body of overridden methods use File | Settings | File Templates.
+//    }
 
     /**
      * Returns the expiration time based on time to live. If this element also has a time to idle setting, the expiry
@@ -226,11 +217,20 @@ public class Element {
     /**
      * Sets whether the element is eternal.
      *
-     * @param eternal true for eternal
+     * @param eternal
      */
     public void setEternal(boolean eternal) {
         this.eternal = eternal;
     }
+
+    /**
+     * Whether any combination of eternal, TTL or TTI has been set.
+     *
+     * @return true if set.
+     */
+//    public boolean isLifespanSet() {
+//        return super.isLifespanSet();
+//    }
 
     /**
      * @return the time to live, in seconds
@@ -246,13 +246,43 @@ public class Element {
         return timeToIdle;
     }
 
-
     /**
-     * todo implement
      *
      * @return
      */
+    public long getVersion() {
+        return version;
+    }
+
+    /**
+     *
+     * @param version
+     */
+    public void setVersion(long version) {
+        this.version = version;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public long getCreationTime() {
+        return creationTime;
+    }
+
+    /**
+     *
+     * @param creationTime
+     */
+    public void setCreationTime(long creationTime) {
+        this.creationTime = creationTime;
+    }
+
+    /**
+     * @return
+     */
     public net.sf.ehcache.Element getEhcacheElement() {
-        return null;
+        //todo extra properties.
+        return new net.sf.ehcache.Element(key, value);
     }
 }
