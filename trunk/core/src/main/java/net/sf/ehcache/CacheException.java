@@ -23,9 +23,13 @@ package net.sf.ehcache;
  * These exceptions may be handled by a <code>CacheExceptionHandler</code> registered with a Cache.
  * The handler provides a key if it is available. A convention that should be followed in exception messages is
  * to include in the message "key keyValue" e.g. "key 1234" so that keys can be parsed out of exception messages. 
+ * <p/>
+ * Updated in version 1.6 to remove <code>getInitialCause</code> which was a left over from the pre-JDK1.4
+ * days. It breaks JAXB.
  *
  * @author Greg Luck
  * @version $Id$
+ *
  */
 public class CacheException extends RuntimeException {
 
@@ -80,20 +84,5 @@ public class CacheException extends RuntimeException {
     public CacheException(Throwable cause) {
         super(cause);
     }
-
-
-    /**
-     * The initial cause of this Exception.
-     * This method is kept for backward compatibility with earlier versions of ehcache which
-     * had its own chained exceptions mechanism, in case any clients out there are using it.
-     * @return the cause or null if this exception has no deeper cause.
-     * @deprecated use getCause instead
-     */
-    public final Throwable getInitialCause() {
-        return super.getCause();
-    }
-
-
-
 
 }
