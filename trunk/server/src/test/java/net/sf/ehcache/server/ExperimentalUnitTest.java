@@ -1,7 +1,15 @@
 package net.sf.ehcache.server;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import org.junit.Test;
+import sun.security.provider.MD5;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
+import java.util.Arrays;
 
 /**
  * This is a parking space to try out ideas that _may_ go somewhere
@@ -31,4 +39,29 @@ public class ExperimentalUnitTest {
 
         assertEquals("cluster4.company.com", clusterToUseForKey);
     }
+
+
+    @Test
+    public void testByteArrayEquality() throws NoSuchAlgorithmException {
+
+        byte[] bytes1 = new byte[]{1,2,3};
+        byte[] bytes2 = new byte[]{1,2,3};
+        byte[] bytes3 = bytes1;
+        
+        //cannot compare using equals. It uses ==
+        assertFalse(bytes1 == bytes2);
+        assertTrue(bytes1 == bytes3);
+
+
+        assertTrue(bytes1.length == bytes2.length);
+
+        boolean equals = Arrays.equals(bytes1, bytes2);
+        assertTrue(equals);
+
+
+    }
 }
+
+
+
+

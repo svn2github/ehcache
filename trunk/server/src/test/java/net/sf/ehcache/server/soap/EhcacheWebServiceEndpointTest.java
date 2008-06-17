@@ -14,6 +14,11 @@ import static org.junit.Assert.*;
 
 import javax.xml.ws.soap.SOAPFaultException;
 import java.util.List;
+import java.util.Arrays;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
+import sun.misc.BASE64Decoder;
 
 public class EhcacheWebServiceEndpointTest {
     private static EhcacheWebServiceEndpoint serviceEndpoint;
@@ -89,13 +94,35 @@ public class EhcacheWebServiceEndpointTest {
         assertTrue(status == Status.STATUS_ALIVE);
     }
 
+
     @Test
-    public void testCachePut() throws CacheException_Exception, NoSuchCacheException_Exception {
+    public void testCachePutNull() throws CacheException_Exception, NoSuchCacheException_Exception, IllegalStateException_Exception {
 
         Element element = new Element();
         element.setKey("1");
         serviceEndpoint.put("sampleCache1", element);
+
+        element = serviceEndpoint.get("sampleCache1", "1");
+        boolean equals = Arrays.equals(null, element.getValue());
+        assertTrue(equals);
     }
+
+
+    @Test
+    public void testCachePut() throws CacheException_Exception, NoSuchCacheException_Exception, IllegalStateException_Exception, IOException {
+
+        Element element = new Element();
+        element.setKey("2");
+        byte[] bytes1 = new byte[]{1,2,3,4,5,6};
+        element.setValue(bytes1);
+        serviceEndpoint.put("sampleCache1", element);
+
+        element = serviceEndpoint.get("sampleCache1", "2");
+        byte[] bytes2 = element.getValue();
+        assertTrue(Arrays.equals(bytes1, bytes2));
+    }
+
+
 
 
 }

@@ -43,12 +43,20 @@ public class Element {
     private String resourceUri;
 
     /**
-     *
+     * When Elements are PUT into the cache, a MIME Type should be set in the request header.
+     * The MIME Type is preserved and put into the response header when a GET is done.
+     * <p/>
+     * Some common MIME Types which are expected to be used by clients are:
+     * <p/>
+     * <ul>
+     * <li><code>text/plain</code> Plain text
+     * <li><code>text/xml</code> Extensible Markup Language. Defined in RFC 3023
+     * <li><code>application/json</code> JavaScript Object Notation JSON. Defined in RFC 4627
+     * <li><code>application/x-java-serialized-object</code> A serialized Java object
+     * </ul>
      */
     private String mimeType;
-
     private Object key;
-
     private int timeToIdleSeconds;
     private long creationTime;
     private long version;
@@ -66,6 +74,7 @@ public class Element {
 
     /**
      * Full constructor
+     *
      * @param value
      * @param resourceUri
      * @param mimeType
@@ -78,22 +87,36 @@ public class Element {
 
     /**
      * Constructor which takes an Ehcache core Element.
+     *
      * @param element the core Element
      * @throws CacheException if an IOException occurs serializing the value to a byte[].q
      */
     public Element(net.sf.ehcache.Element element) throws CacheException {
         key = element.getKey();
-        MemoryEfficientByteArrayOutputStream stream = null;
-        try {
-            stream = MemoryEfficientByteArrayOutputStream.serialize(element.getValue());
-        } catch (IOException e) {
-            throw new CacheException(e);
+
+        Object object = element.getObjectValue();
+
+        if (object == null) {
+            value = null;
+        } else if (object instanceof byte[]) {
+            //already a byte[]
+            value = (byte[]) object;
+        } else if (object instanceof String) {
+            //a String such as XML
+            value = ((String) object).getBytes();
+        } else {
+            //A type we do not handle therefore serialize using Java Serialization
+            MemoryEfficientByteArrayOutputStream stream = null;
+            try {
+                stream = MemoryEfficientByteArrayOutputStream.serialize(element.getValue());
+            } catch (IOException e) {
+                throw new CacheException(e);
+            }
+            value = stream.getBytes();
         }
-        value = stream.getBytes();
     }
 
     /**
-     *
      * @return
      */
     public Object getKey() {
@@ -101,7 +124,6 @@ public class Element {
     }
 
     /**
-     *
      * @param key
      */
     public void setKey(Object key) {
@@ -110,6 +132,7 @@ public class Element {
 
     /**
      * Sets the payload
+     *
      * @param value
      */
     public void setValue(byte[] value) {
@@ -118,6 +141,7 @@ public class Element {
 
     /**
      * Gets the payload
+     *
      * @return
      */
     public byte[] getValue() {
@@ -126,6 +150,7 @@ public class Element {
 
     /**
      * Gets the URI for this resource
+     *
      * @return
      */
     public String getResourceUri() {
@@ -134,6 +159,7 @@ public class Element {
 
     /**
      * Sets the URI for this resource
+     *
      * @param resourceUri
      */
     public void setResourceUri(String resourceUri) {
@@ -142,7 +168,8 @@ public class Element {
 
     /**
      * Gets the MIME Type.
-     * @return 
+     *
+     * @return
      */
     public String getMimeType() {
         return mimeType;
@@ -150,6 +177,7 @@ public class Element {
 
     /**
      * Sets the MIME Type
+     *
      * @param mimeType
      */
     public void setMimeType(String mimeType) {
@@ -247,7 +275,6 @@ public class Element {
     }
 
     /**
-     *
      * @return
      */
     public long getVersion() {
@@ -255,7 +282,6 @@ public class Element {
     }
 
     /**
-     *
      * @param version
      */
     public void setVersion(long version) {
@@ -263,7 +289,6 @@ public class Element {
     }
 
     /**
-     *
      * @return
      */
     public long getCreationTime() {
@@ -271,7 +296,6 @@ public class Element {
     }
 
     /**
-     *
      * @param creationTime
      */
     public void setCreationTime(long creationTime) {

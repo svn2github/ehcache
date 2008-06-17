@@ -16,12 +16,15 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
+ *         &lt;element name="creationTime" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *         &lt;element name="eternal" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
- *         &lt;element name="key" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="key" type="{http://www.w3.org/2001/XMLSchema}anyType" minOccurs="0"/>
  *         &lt;element name="mimeType" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="resourceUri" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="timeToIdle" type="{http://www.w3.org/2001/XMLSchema}int"/>
  *         &lt;element name="timeToLive" type="{http://www.w3.org/2001/XMLSchema}int"/>
+ *         &lt;element name="value" type="{http://www.w3.org/2001/XMLSchema}base64Binary" minOccurs="0"/>
+ *         &lt;element name="version" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -32,21 +35,43 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "element", propOrder = {
+    "creationTime",
     "eternal",
     "key",
     "mimeType",
     "resourceUri",
     "timeToIdle",
-    "timeToLive"
+    "timeToLive",
+    "value",
+    "version"
 })
 public class Element {
 
+    protected long creationTime;
     protected boolean eternal;
-    protected String key;
+    protected Object key;
     protected String mimeType;
     protected String resourceUri;
     protected int timeToIdle;
     protected int timeToLive;
+    protected byte[] value;
+    protected long version;
+
+    /**
+     * Gets the value of the creationTime property.
+     * 
+     */
+    public long getCreationTime() {
+        return creationTime;
+    }
+
+    /**
+     * Sets the value of the creationTime property.
+     * 
+     */
+    public void setCreationTime(long value) {
+        this.creationTime = value;
+    }
 
     /**
      * Gets the value of the eternal property.
@@ -69,10 +94,10 @@ public class Element {
      * 
      * @return
      *     possible object is
-     *     {@link String }
+     *     {@link Object }
      *     
      */
-    public String getKey() {
+    public Object getKey() {
         return key;
     }
 
@@ -81,10 +106,10 @@ public class Element {
      * 
      * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link Object }
      *     
      */
-    public void setKey(String value) {
+    public void setKey(Object value) {
         this.key = value;
     }
 
@@ -166,6 +191,44 @@ public class Element {
      */
     public void setTimeToLive(int value) {
         this.timeToLive = value;
+    }
+
+    /**
+     * Gets the value of the value property.
+     * 
+     * @return
+     *     possible object is
+     *     byte[]
+     */
+    public byte[] getValue() {
+        return value;
+    }
+
+    /**
+     * Sets the value of the value property.
+     * 
+     * @param value
+     *     allowed object is
+     *     byte[]
+     */
+    public void setValue(byte[] value) {
+        this.value = ((byte[]) value);
+    }
+
+    /**
+     * Gets the value of the version property.
+     * 
+     */
+    public long getVersion() {
+        return version;
+    }
+
+    /**
+     * Sets the value of the version property.
+     * 
+     */
+    public void setVersion(long value) {
+        this.version = value;
     }
 
 }
