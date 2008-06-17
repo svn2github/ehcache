@@ -204,7 +204,11 @@ public class EhcacheWebServiceEndpoint {
     public Element get(String cacheName, String key) throws IllegalStateException, NoSuchCacheException {
         net.sf.ehcache.Cache cache = lookupCache(cacheName);
         net.sf.ehcache.Element element = cache.get(key);
-        return new Element(element);
+        if (element != null) {
+            return new Element(element);
+        } else {
+            return null;
+        }
     }
 
     /**

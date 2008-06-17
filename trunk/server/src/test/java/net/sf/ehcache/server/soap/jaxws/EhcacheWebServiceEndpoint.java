@@ -28,6 +28,130 @@ public interface EhcacheWebServiceEndpoint {
      * 
      * @param arg1
      * @param arg0
+     * @return
+     *     returns net.sf.ehcache.server.soap.jaxws.Element
+     * @throws NoSuchCacheException_Exception
+     * @throws IllegalStateException_Exception
+     */
+    @WebMethod
+    @WebResult(targetNamespace = "")
+    @RequestWrapper(localName = "get", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.Get")
+    @ResponseWrapper(localName = "getResponse", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.GetResponse")
+    public Element get(
+        @WebParam(name = "arg0", targetNamespace = "")
+        String arg0,
+        @WebParam(name = "arg1", targetNamespace = "")
+        String arg1)
+        throws IllegalStateException_Exception, NoSuchCacheException_Exception
+    ;
+
+    /**
+     * 
+     * @param arg1
+     * @param arg0
+     * @throws NoSuchCacheException_Exception
+     * @throws CacheException_Exception
+     */
+    @WebMethod
+    @RequestWrapper(localName = "put", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.Put")
+    @ResponseWrapper(localName = "putResponse", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.PutResponse")
+    public void put(
+        @WebParam(name = "arg0", targetNamespace = "")
+        String arg0,
+        @WebParam(name = "arg1", targetNamespace = "")
+        Element arg1)
+        throws CacheException_Exception, NoSuchCacheException_Exception
+    ;
+
+    /**
+     * 
+     * @param arg1
+     * @param arg0
+     * @return
+     *     returns boolean
+     * @throws CacheException_Exception
+     */
+    @WebMethod
+    @WebResult(targetNamespace = "")
+    @RequestWrapper(localName = "remove", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.Remove")
+    @ResponseWrapper(localName = "removeResponse", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.RemoveResponse")
+    public boolean remove(
+        @WebParam(name = "arg0", targetNamespace = "")
+        String arg0,
+        @WebParam(name = "arg1", targetNamespace = "")
+        String arg1)
+        throws CacheException_Exception
+    ;
+
+    /**
+     * 
+     * @param arg0
+     * @return
+     *     returns int
+     * @throws CacheException_Exception
+     * @throws IllegalStateException_Exception
+     */
+    @WebMethod
+    @WebResult(targetNamespace = "")
+    @RequestWrapper(localName = "getSize", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.GetSize")
+    @ResponseWrapper(localName = "getSizeResponse", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.GetSizeResponse")
+    public int getSize(
+        @WebParam(name = "arg0", targetNamespace = "")
+        String arg0)
+        throws CacheException_Exception, IllegalStateException_Exception
+    ;
+
+    /**
+     * 
+     * @param arg0
+     * @throws CacheException_Exception
+     * @throws IllegalStateException_Exception
+     */
+    @WebMethod
+    @RequestWrapper(localName = "removeAll", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.RemoveAll")
+    @ResponseWrapper(localName = "removeAllResponse", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.RemoveAllResponse")
+    public void removeAll(
+        @WebParam(name = "arg0", targetNamespace = "")
+        String arg0)
+        throws CacheException_Exception, IllegalStateException_Exception
+    ;
+
+    /**
+     * 
+     * @param arg0
+     * @return
+     *     returns java.util.List<java.lang.Object>
+     * @throws CacheException_Exception
+     * @throws IllegalStateException_Exception
+     */
+    @WebMethod
+    @WebResult(targetNamespace = "")
+    @RequestWrapper(localName = "getKeys", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.GetKeys")
+    @ResponseWrapper(localName = "getKeysResponse", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.GetKeysResponse")
+    public List<Object> getKeys(
+        @WebParam(name = "arg0", targetNamespace = "")
+        String arg0)
+        throws CacheException_Exception, IllegalStateException_Exception
+    ;
+
+    /**
+     * 
+     * @param arg0
+     * @return
+     *     returns net.sf.ehcache.server.soap.jaxws.Status
+     */
+    @WebMethod
+    @WebResult(targetNamespace = "")
+    @RequestWrapper(localName = "getStatus", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.GetStatus")
+    @ResponseWrapper(localName = "getStatusResponse", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.GetStatusResponse")
+    public Status getStatus(
+        @WebParam(name = "arg0", targetNamespace = "")
+        String arg0);
+
+    /**
+     * 
+     * @param arg1
+     * @param arg0
      * @throws CacheException_Exception
      */
     @WebMethod
@@ -61,8 +185,8 @@ public interface EhcacheWebServiceEndpoint {
     /**
      * 
      * @param arg0
-     * @throws ObjectExistsException_Exception
      * @throws CacheException_Exception
+     * @throws ObjectExistsException_Exception
      * @throws IllegalStateException_Exception
      */
     @WebMethod
@@ -232,129 +356,5 @@ public interface EhcacheWebServiceEndpoint {
     @RequestWrapper(localName = "ping", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.Ping")
     @ResponseWrapper(localName = "pingResponse", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.PingResponse")
     public String ping();
-
-    /**
-     * 
-     * @param arg1
-     * @param arg0
-     * @return
-     *     returns net.sf.ehcache.server.soap.jaxws.Element
-     * @throws NoSuchCacheException_Exception
-     * @throws IllegalStateException_Exception
-     */
-    @WebMethod
-    @WebResult(targetNamespace = "")
-    @RequestWrapper(localName = "get", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.Get")
-    @ResponseWrapper(localName = "getResponse", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.GetResponse")
-    public Element get(
-        @WebParam(name = "arg0", targetNamespace = "")
-        String arg0,
-        @WebParam(name = "arg1", targetNamespace = "")
-        String arg1)
-        throws IllegalStateException_Exception, NoSuchCacheException_Exception
-    ;
-
-    /**
-     * 
-     * @param arg1
-     * @param arg0
-     * @throws NoSuchCacheException_Exception
-     * @throws CacheException_Exception
-     */
-    @WebMethod
-    @RequestWrapper(localName = "put", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.Put")
-    @ResponseWrapper(localName = "putResponse", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.PutResponse")
-    public void put(
-        @WebParam(name = "arg0", targetNamespace = "")
-        String arg0,
-        @WebParam(name = "arg1", targetNamespace = "")
-        Element arg1)
-        throws CacheException_Exception, NoSuchCacheException_Exception
-    ;
-
-    /**
-     * 
-     * @param arg1
-     * @param arg0
-     * @return
-     *     returns boolean
-     * @throws CacheException_Exception
-     */
-    @WebMethod
-    @WebResult(targetNamespace = "")
-    @RequestWrapper(localName = "remove", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.Remove")
-    @ResponseWrapper(localName = "removeResponse", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.RemoveResponse")
-    public boolean remove(
-        @WebParam(name = "arg0", targetNamespace = "")
-        String arg0,
-        @WebParam(name = "arg1", targetNamespace = "")
-        String arg1)
-        throws CacheException_Exception
-    ;
-
-    /**
-     * 
-     * @param arg0
-     * @return
-     *     returns int
-     * @throws CacheException_Exception
-     * @throws IllegalStateException_Exception
-     */
-    @WebMethod
-    @WebResult(targetNamespace = "")
-    @RequestWrapper(localName = "getSize", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.GetSize")
-    @ResponseWrapper(localName = "getSizeResponse", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.GetSizeResponse")
-    public int getSize(
-        @WebParam(name = "arg0", targetNamespace = "")
-        String arg0)
-        throws CacheException_Exception, IllegalStateException_Exception
-    ;
-
-    /**
-     * 
-     * @param arg0
-     * @throws CacheException_Exception
-     * @throws IllegalStateException_Exception
-     */
-    @WebMethod
-    @RequestWrapper(localName = "removeAll", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.RemoveAll")
-    @ResponseWrapper(localName = "removeAllResponse", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.RemoveAllResponse")
-    public void removeAll(
-        @WebParam(name = "arg0", targetNamespace = "")
-        String arg0)
-        throws CacheException_Exception, IllegalStateException_Exception
-    ;
-
-    /**
-     * 
-     * @param arg0
-     * @return
-     *     returns java.util.List<java.lang.Object>
-     * @throws CacheException_Exception
-     * @throws IllegalStateException_Exception
-     */
-    @WebMethod
-    @WebResult(targetNamespace = "")
-    @RequestWrapper(localName = "getKeys", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.GetKeys")
-    @ResponseWrapper(localName = "getKeysResponse", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.GetKeysResponse")
-    public List<Object> getKeys(
-        @WebParam(name = "arg0", targetNamespace = "")
-        String arg0)
-        throws CacheException_Exception, IllegalStateException_Exception
-    ;
-
-    /**
-     * 
-     * @param arg0
-     * @return
-     *     returns net.sf.ehcache.server.soap.jaxws.Status
-     */
-    @WebMethod
-    @WebResult(targetNamespace = "")
-    @RequestWrapper(localName = "getStatus", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.GetStatus")
-    @ResponseWrapper(localName = "getStatusResponse", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.GetStatusResponse")
-    public Status getStatus(
-        @WebParam(name = "arg0", targetNamespace = "")
-        String arg0);
 
 }

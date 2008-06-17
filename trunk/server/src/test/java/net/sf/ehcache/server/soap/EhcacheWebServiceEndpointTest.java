@@ -122,6 +122,9 @@ public class EhcacheWebServiceEndpointTest {
         assertTrue(Arrays.equals(bytes1, bytes2));
     }
 
+    //todo expired element
+    //todo setting various eternal, ttl, tti
+
 
 
 

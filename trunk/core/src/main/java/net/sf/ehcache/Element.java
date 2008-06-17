@@ -114,11 +114,6 @@ public final class Element implements Serializable, Cloneable {
     private boolean lifespanSet;
 
     /**
-     * The MIME Type of the Element.
-     */
-    private String mimeType;
-
-    /**
      * A full constructor.
      * <p/>
      * Creation time is set to the current time. Last Access Time and Previous To Last Access Time
@@ -166,25 +161,23 @@ public final class Element implements Serializable, Cloneable {
         this.hitCount = hitCount;
     }
 
+
     /**
-     * A full constructor.
-     *
-     * @param mimeType the RFC2045 MIME type
-     * @since 1.6
+     * Web Services constructor
+     * @param key
+     * @param value
+     * @param eternal
+     * @param timeToIdleSeconds
+     * @param timeToLiveSeconds
      */
-    public Element(Object key, Object value, long version,
-            long creationTime, long lastAccessTime,
-            long nextToLastAccessTime, long lastUpdateTime,
-            long hitCount, String mimeType) {
+    public Element(Object key, Object value,
+                   boolean eternal, int timeToIdleSeconds, int timeToLiveSeconds) {
         this.key = key;
         this.value = value;
-        this.version = version;
-        this.creationTime = creationTime;
-        this.lastAccessTime = lastAccessTime;
-        this.nextToLastAccessTime = nextToLastAccessTime;
-        this.lastUpdateTime = lastUpdateTime;
-        this.hitCount = hitCount;
-        this.mimeType = mimeType;
+        this.eternal = eternal;
+        this.timeToIdle = timeToIdleSeconds;
+        this.timeToLive = timeToLiveSeconds;
+        creationTime = System.currentTimeMillis();
     }
 
     /**
@@ -207,6 +200,7 @@ public final class Element implements Serializable, Cloneable {
     public Element(Object key, Object value) {
         this(key, value, 1L);
     }
+
 
     /**
      * Gets the key attribute of the Element object.
@@ -305,7 +299,7 @@ public final class Element implements Serializable, Cloneable {
     }
 
     /**
-     * Gets the hascode, based on the key.
+     * Gets the hashcode, based on the key.
      */
     public final int hashCode() {
         return key.hashCode();

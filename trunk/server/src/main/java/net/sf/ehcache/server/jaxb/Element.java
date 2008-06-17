@@ -18,11 +18,17 @@ package net.sf.ehcache.server.jaxb;
 
 import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.MimeTypeByteArray;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 
 /**
+ * A representation of a core Ehcache Element.
+ * <p/>
+ * Caches have default settings for timeToLive, timeToIdle and eternal. If any of those is set
+ * then defaults are not applied.
+ *
  * @author Greg Luck
  * @version $Id$
  */
@@ -61,10 +67,8 @@ public class Element {
     private long creationTime;
     private long version;
     private long lastUpdateTime;
-    private long expirationTime;
     private boolean eternal;
-    private int timeToLive;
-    private int timeToIdle;
+    private int timeToLiveSeconds;
 
     /**
      * Empty Constructor
@@ -87,23 +91,41 @@ public class Element {
 
     /**
      * Constructor which takes an Ehcache core Element.
-     *
-     * @param element the core Element
-     * @throws CacheException if an IOException occurs serializing the value to a byte[].q
+     * <p/>
+     * The {@link #mimeType} and {@link #value} are stored in
+     * the core Ehcache <code>value</code> field using {@link net.sf.ehcache.MimeTypeByteArray}
+     * <p/>
+     * If the MIME Type is not set, an attempt is made to set a sensible value. The rules for setting the Mime Type are:
+     * <ol>
+     * <li>If the value in element is null, the <code>mimeType</code> is set to null.
+     * <li>If we stored the mimeType in ehcache, then <code>mimeType</code> is set with it.
+     * <li>If no mimeType was set and the value is a <code>byte[]</code> the <code>mimeType</code> is set to "application/octet-stream".
+     * <li>If no mimeType was set and the value is a <code>String</code> the <code>mimeType</code> is set to "text/plain".
+     * </ol>
+     * @param element the ehcache core Element
+     * @throws CacheException if an Exception occurred in the underlying cache.
      */
     public Element(net.sf.ehcache.Element element) throws CacheException {
+        
         key = element.getKey();
 
-        Object object = element.getObjectValue();
+        Object ehcacheValue = element.getObjectValue();
 
-        if (object == null) {
-            value = null;
-        } else if (object instanceof byte[]) {
+        if (ehcacheValue == null) {
+            this.value = null;
+            this.mimeType = null;
+        } if (ehcacheValue instanceof MimeTypeByteArray) {
+            //we have Mime Type data to extract
+            mimeType = ((MimeTypeByteArray) ehcacheValue).getMimeType();
+            this.value = ((MimeTypeByteArray) ehcacheValue).getValue();
+        } else if (ehcacheValue instanceof byte[]) {
             //already a byte[]
-            value = (byte[]) object;
-        } else if (object instanceof String) {
+            this.value = (byte[]) ehcacheValue;
+            mimeType = "application/octet-stream";
+        } else if (ehcacheValue instanceof String) {
             //a String such as XML
-            value = ((String) object).getBytes();
+            this.value = ((String) ehcacheValue).getBytes();
+            this.mimeType = "text/plain";
         } else {
             //A type we do not handle therefore serialize using Java Serialization
             MemoryEfficientByteArrayOutputStream stream = null;
@@ -112,7 +134,8 @@ public class Element {
             } catch (IOException e) {
                 throw new CacheException(e);
             }
-            value = stream.getBytes();
+            this.value = stream.getBytes();
+            this.mimeType = "application/x-java-serialized-object";
         }
     }
 
@@ -167,8 +190,24 @@ public class Element {
     }
 
     /**
+     * From ehcache-1.6, ehcache supports non-Java clients. The Web Services serialize the element
+     * value as a byte[]. That byte array could be of any type. To give clients assistance in determining
+     * the type, a MIME Type has been added.
+     * <p/>
      * Gets the MIME Type.
-     *
+     * <p/>
+     * When Elements are put into the cache, a MIME Type should be set.
+     * <p/>
+     * The MIME Type is preserved and put into the response header when a GET is done.
+     * <p/>
+     * Some common MIME Types which are expected to be used by clients are:
+     * <ul>
+     * <li><code>text/plain</code> Plain text
+     * <li><code>text/xml</code>Extensible Markup Language. Defined in RFC 3023
+     * <li><code>application/json</code>JavaScript Object Notation JSON. Defined in RFC 4627
+     * <li><code>application/x-java-serialized-object</code>A serialized Java object
+     * </ul>
+     * A Mime Type of null indicates the value is a Java Object.
      * @return
      */
     public String getMimeType() {
@@ -189,7 +228,8 @@ public class Element {
      *
      * @param timeToLiveSeconds the number of seconds to live
      */
-    public void setTimeToLive(int timeToLiveSeconds) {
+    public void setTimeToLiveSeconds(int timeToLiveSeconds) {
+        this.timeToLiveSeconds = timeToLiveSeconds;
 
 
     }
@@ -214,26 +254,6 @@ public class Element {
         return lastUpdateTime;
     }
 
-    /**
-     * An element is expired if the expiration time as given by {@link #getExpirationTime()} is in the past.
-     *
-     * @return true if the Element is expired, otherwise false. If no lifespan has been set for the Element it is
-     *         considered not able to expire.
-     * @see #getExpirationTime()
-     */
-//    public boolean isExpired() {
-//        return super.isExpired();    //To change body of overridden methods use File | Settings | File Templates.
-//    }
-
-    /**
-     * Returns the expiration time based on time to live. If this element also has a time to idle setting, the expiry
-     * time will vary depending on whether the element is accessed.
-     *
-     * @return the time to expiration
-     */
-    public long getExpirationTime() {
-        return expirationTime;
-    }
 
     /**
      * @return true if the element is eternal
@@ -252,26 +272,17 @@ public class Element {
     }
 
     /**
-     * Whether any combination of eternal, TTL or TTI has been set.
-     *
-     * @return true if set.
-     */
-//    public boolean isLifespanSet() {
-//        return super.isLifespanSet();
-//    }
-
-    /**
      * @return the time to live, in seconds
      */
-    public int getTimeToLive() {
-        return timeToLive;
+    public int getTimeToLiveSeconds() {
+        return timeToLiveSeconds;
     }
 
     /**
      * @return the time to idle, in seconds
      */
-    public int getTimeToIdle() {
-        return timeToIdle;
+    public int getTimeToIdleSeconds() {
+        return timeToIdleSeconds;
     }
 
     /**
@@ -282,31 +293,20 @@ public class Element {
     }
 
     /**
-     * @param version
-     */
-    public void setVersion(long version) {
-        this.version = version;
-    }
-
-    /**
      * @return
      */
     public long getCreationTime() {
         return creationTime;
     }
 
-    /**
-     * @param creationTime
-     */
-    public void setCreationTime(long creationTime) {
-        this.creationTime = creationTime;
-    }
 
     /**
-     * @return
+     * Gets the core Ehcache element.
+     * @return the core Ehcache element. The {@link #mimeType} and {@link #value} are stored in
+     * the core Ehcache <code>value</code> field using {@link net.sf.ehcache.MimeTypeByteArray}
      */
     public net.sf.ehcache.Element getEhcacheElement() {
-        //todo extra properties.
-        return new net.sf.ehcache.Element(key, value);
+        MimeTypeByteArray mimeTypeByteArray = new MimeTypeByteArray(mimeType, value);
+        return new net.sf.ehcache.Element(key, mimeTypeByteArray, eternal, timeToIdleSeconds, timeToLiveSeconds);
     }
 }
