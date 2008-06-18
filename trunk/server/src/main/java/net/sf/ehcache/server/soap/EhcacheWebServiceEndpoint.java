@@ -224,10 +224,12 @@ public class EhcacheWebServiceEndpoint {
      * @param cacheName the name of the cache to perform this operation on.
      * @return a list of {@link Object} keys
      * @throws net.sf.ehcache.CacheException if an Ehcache core exception occurs
+     * @throws IllegalStateException if the cache is not alive
      */
     @WebMethod
     public List getKeys(String cacheName) throws IllegalStateException, CacheException {
-        return null;
+        net.sf.ehcache.Cache cache = lookupCache(cacheName);
+        return cache.getKeys();
     }
 
     /**
@@ -351,10 +353,12 @@ public class EhcacheWebServiceEndpoint {
      *
      * @param cacheName the name of the cache to perform this operation on.
      * @throws IllegalStateException         if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
-     * @throws net.sf.ehcache.CacheException
+     * @throws net.sf.ehcache.CacheException if an exception happens in Ehcache core.
      */
     @WebMethod
     public void removeAll(String cacheName) throws IllegalStateException, CacheException {
+        net.sf.ehcache.Cache cache = lookupCache(cacheName);
+        cache.removeAll();
 
     }
 
