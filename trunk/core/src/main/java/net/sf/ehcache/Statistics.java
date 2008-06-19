@@ -57,8 +57,6 @@ public class Statistics implements Serializable {
      */
     public static final int STATISTICS_ACCURACY_GUARANTEED = 2;
 
-    private static final Log LOG = LogFactory.getLog(Statistics.class.getName());
-
     private static final long serialVersionUID = 3606940454221918725L;
 
     private transient Ehcache cache;
@@ -111,13 +109,7 @@ public class Statistics implements Serializable {
         if (cache == null) {
             throw new IllegalStateException("This statistics object no longer references a Cache.");
         }
-        try {
-            cache.clearStatistics();
-        } catch (IllegalStateException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.info("Ignoring call because " + e.getMessage());
-            }
-        }
+        cache.clearStatistics();
     }
 
     /**
@@ -126,7 +118,7 @@ public class Statistics implements Serializable {
      * @return the number of times a requested item was found in the cache
      */
     public long getCacheHits() {
-            return cacheHits;
+        return cacheHits;
     }
 
     /**
@@ -203,6 +195,7 @@ public class Statistics implements Serializable {
 
     /**
      * Accurately measuring statistics can be expensive. Returns the current accuracy setting.
+     *
      * @return a human readable description of the accuracy setting. One of "None", "Best Effort" or "Guaranteed".
      */
     public String getStatisticsAccuracyDescription() {
@@ -217,7 +210,7 @@ public class Statistics implements Serializable {
 
     /**
      * @return the name of the Ehcache, or null if a reference is no longer held to the cache,
-     * as, it would be after deserialization.
+     *         as, it would be after deserialization.
      */
     public String getAssociatedCacheName() {
         if (cache != null) {
@@ -229,7 +222,7 @@ public class Statistics implements Serializable {
 
     /**
      * @return the name of the Ehcache, or null if a reference is no longer held to the cache,
-     * as, it would be after deserialization.
+     *         as, it would be after deserialization.
      */
     public Ehcache getAssociatedCache() {
         if (cache != null) {

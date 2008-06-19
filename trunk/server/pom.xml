@@ -22,10 +22,10 @@
             <scope>compile</scope>
         </dependency>
         <!--<dependency>-->
-        <!--<groupId>org.glassfish.web</groupId>-->
-        <!--<artifactId>webtier</artifactId>-->
-        <!--<version>10.0-SNAPSHOT</version>-->
-        <!--<scope>provided</scope>-->
+            <!--<groupId>org.glassfish.web</groupId>-->
+            <!--<artifactId>webtier</artifactId>-->
+            <!--<version>10.0-SNAPSHOT</version>-->
+            <!--<scope>provided</scope>-->
         <!--</dependency>-->
         <dependency>
             <groupId>${pom.groupId}</groupId>
@@ -151,7 +151,7 @@
                         <cargo.jvmargs>com.sun.management.jmxremote</cargo.jvmargs>
                     </properties>
                 </configuration>
-                
+
                 <executions>
                     <execution>
                         <id>start-server</id>
