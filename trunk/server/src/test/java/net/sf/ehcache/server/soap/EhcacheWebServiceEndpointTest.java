@@ -17,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.util.List;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.io.IOException;
 
 public class EhcacheWebServiceEndpointTest {
@@ -197,12 +198,11 @@ public class EhcacheWebServiceEndpointTest {
     }
 
 
-
     /**
      * todo get complete coverage here
      */
     @Test
-    public void testGetStatistics() throws NoSuchCacheException_Exception, 
+    public void testGetStatistics() throws NoSuchCacheException_Exception,
             CacheException_Exception, IllegalStateException_Exception {
         cacheService.clearStatistics("sampleCache1");
 
@@ -217,14 +217,14 @@ public class EhcacheWebServiceEndpointTest {
     }
 
     @Test
-    public void testGetStatisticsAccuracy() throws NoSuchCacheException_Exception, 
+    public void testGetStatisticsAccuracy() throws NoSuchCacheException_Exception,
             CacheException_Exception, IllegalStateException_Exception {
         assertEquals(StatisticsAccuracy.STATISTICS_ACCURACY_BEST_EFFORT,
                 cacheService.getStatisticsAccuracy("sampleCache1"));
     }
 
     @Test
-    public void testClearStatistics() throws NoSuchCacheException_Exception, 
+    public void testClearStatistics() throws NoSuchCacheException_Exception,
             CacheException_Exception, IllegalStateException_Exception {
         putElementIntoCache();
         getElementFromCache();
@@ -233,7 +233,51 @@ public class EhcacheWebServiceEndpointTest {
         Statistics statistics = cacheService.getStatistics("sampleCache1");
         assertEquals(0L, statistics.getCacheHits());
     }
-    
 
+
+    /**
+     * todo no loader configured. smoke test only
+     */
+    @Test
+    public void testLoad() throws NoSuchCacheException_Exception,
+            CacheException_Exception, IllegalStateException_Exception {
+        cacheService.load("sampleCache1", "2");
+    }
+
+    /**
+     * todo no loader configured. smoke test only
+     */
+    @Test
+    public void testLoadAll() throws NoSuchCacheException_Exception,
+            CacheException_Exception, IllegalStateException_Exception {
+        List keys = new ArrayList();
+        for (int i = 0; i < 5; i++) {
+            keys.add("" + i);
+        }
+        cacheService.loadAll("sampleCache1", keys);
+    }
+
+
+    /**
+     * todo no loader configured. smoke test only
+     */
+    @Test
+    public void testGetWithLoad() throws NoSuchCacheException_Exception,
+            CacheException_Exception, IllegalStateException_Exception {
+        cacheService.getWithLoader("sampleCache1", "2");
+    }
+
+    /**
+     * todo no loader configured. smoke test only
+     */
+    @Test
+    public void testGetAllWithLoader() throws NoSuchCacheException_Exception,
+            CacheException_Exception, IllegalStateException_Exception {
+        List keys = new ArrayList();
+        for (int i = 0; i < 5; i++) {
+            keys.add("" + i);
+        }
+        cacheService.getAllWithLoader("sampleCache1", keys);
+    }
 
 }

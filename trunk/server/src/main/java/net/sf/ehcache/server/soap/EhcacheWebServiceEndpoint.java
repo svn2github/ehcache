@@ -329,7 +329,11 @@ public class EhcacheWebServiceEndpoint {
     public Element getQuiet(String cacheName, Object key) throws IllegalStateException, CacheException {
         net.sf.ehcache.Cache cache = lookupCache(cacheName);
         net.sf.ehcache.Element element = cache.getQuiet(key);
-        return new Element(element);
+        if (element != null) {
+            return new Element(element);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -478,8 +482,6 @@ public class EhcacheWebServiceEndpoint {
     }
 
     /**
-     * Warning: This method is related to the JSR107 specification, which is in draft. It is subject to change without notice.
-     * <p/>
      * The load method provides a means to "pre load" the cache. This method will, asynchronously, load the specified
      * object into the cache using the associated cacheloader. If the object already exists in the cache, no action is
      * taken. If no loader is associated with the object, no object will be loaded into the cache. If a problem is
@@ -503,8 +505,6 @@ public class EhcacheWebServiceEndpoint {
     }
 
     /**
-     * Warning: This method is related to the JSR107 specification, which is in draft. It is subject to change without notice.
-     * <p/>
      * The loadAll method provides a means to "pre load" objects into the cache. This method will, asynchronously, load
      * the specified objects into the cache using the default cache loader. If the an object already exists in the
      * cache, no action is taken. If no loader is associated with the object, no object will be loaded into the cache.
@@ -533,8 +533,6 @@ public class EhcacheWebServiceEndpoint {
     }
 
     /**
-     * Warning: This method is related to the JSR107 specification, which is in draft. It is subject to change without notice.
-     * <p/>
      * The getAll method will return, from the cache, a Map of the objects associated with the Collection of keys in argument "keys".
      * If the objects are not in the cache, the default cache loader will be called. If no loader is associated with an object,
      * a null is returned. If a problem is encountered during the retrieving or loading of the objects, an exception will be thrown.
@@ -565,8 +563,6 @@ public class EhcacheWebServiceEndpoint {
     }
 
     /**
-     * Warning: This method is related to the JSR107 specification, which is in draft. It is subject to change without notice.
-     * <p/>
      * This method will return, from the cache, the object associated with
      * the argument "key".
      * <p/>
@@ -586,7 +582,11 @@ public class EhcacheWebServiceEndpoint {
     public Element getWithLoader(String cacheName, String key) throws NoSuchCacheException {
         net.sf.ehcache.Cache cache = lookupCache(cacheName);
         net.sf.ehcache.Element element = cache.getWithLoader(key, null, null);
-        return new Element(element);
+        if (element != null) {
+            return new Element(element);
+        } else {
+            return null;
+        }
     }
 
     private net.sf.ehcache.Cache lookupCache(String cacheName) throws NoSuchCacheException {

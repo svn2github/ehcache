@@ -17,7 +17,7 @@ import java.util.Arrays;
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
-public class ExperimentalUnitTest {
+public class MiscellaneousUnitTest {
 
     /**
      * Tests a manual cluster partitioning technique based on key hashing
