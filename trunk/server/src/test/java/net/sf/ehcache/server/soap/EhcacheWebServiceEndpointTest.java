@@ -10,6 +10,7 @@ import net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpoint;
 import net.sf.ehcache.server.soap.jaxws.Status;
 import org.junit.Test;
 import org.junit.BeforeClass;
+import org.junit.Before;
 import static org.junit.Assert.*;
 
 import javax.xml.ws.soap.SOAPFaultException;
@@ -19,10 +20,16 @@ import java.io.IOException;
 
 public class EhcacheWebServiceEndpointTest {
     private static EhcacheWebServiceEndpoint cacheService;
+    private String cacheName = "sampleCache1";
 
     @BeforeClass
     public static void setup() {
         cacheService = new EhcacheWebServiceEndpointService().getEhcacheWebServiceEndpointPort();
+    }
+
+    @Before
+    public void zeroOutCache() throws CacheException_Exception, IllegalStateException_Exception {
+        cacheService.removeAll(cacheName);
     }
 
     @Test
@@ -104,28 +111,44 @@ public class EhcacheWebServiceEndpointTest {
         assertTrue(equals);
     }
 
-
+    /**
+     * Tests get, getQuiet and put, putQuiet
+     */
     @Test
-    public void testCachePut() throws CacheException_Exception, NoSuchCacheException_Exception, IllegalStateException_Exception, IOException {
+    public void testCacheGetPut() throws CacheException_Exception, NoSuchCacheException_Exception, IllegalStateException_Exception, IOException, IllegalArgumentException_Exception {
 
         Element element = new Element();
         element.setKey("2");
-        byte[] bytes1 = new byte[]{1,2,3,4,5,6};
+        byte[] bytes1 = new byte[]{1, 2, 3, 4, 5, 6};
         element.setValue(bytes1);
-        cacheService.put("sampleCache1", element);
 
+        cacheService.put("sampleCache1", element);
         element = cacheService.get("sampleCache1", "2");
         byte[] bytes2 = element.getValue();
         assertTrue(Arrays.equals(bytes1, bytes2));
+        cacheService.remove("sampleCache1", "2");
+
+        cacheService.putQuiet("sampleCache1", element);
+        element = cacheService.get("sampleCache1", "2");
+        bytes2 = element.getValue();
+        assertTrue(Arrays.equals(bytes1, bytes2));
+        cacheService.remove("sampleCache1", "2");
+
+        cacheService.put("sampleCache1", element);
+        element = cacheService.getQuiet("sampleCache1", "2");
+        bytes2 = element.getValue();
+        assertTrue(Arrays.equals(bytes1, bytes2));
+        cacheService.remove("sampleCache1", "2");
     }
 
     //todo expired element
     //todo setting various eternal, ttl, tti
 
+    /**
+     * Test getKeys() and its veriants
+     */
     @Test
     public void testGetKeys() throws NoSuchCacheException_Exception, CacheException_Exception, IllegalStateException_Exception {
-
-        cacheService.removeAll("sampleCache1");
 
         for (int i = 0; i < 1000; i++) {
             Element element = new Element();
@@ -138,8 +161,25 @@ public class EhcacheWebServiceEndpointTest {
         List keys = cacheService.getKeys("sampleCache1");
         assertEquals(1000, keys.size());
 
+        keys = cacheService.getKeysWithExpiryCheck("sampleCache1");
+        assertEquals(1000, keys.size());
+
+        keys = cacheService.getKeysNoDuplicateCheck("sampleCache1");
+        assertEquals(1000, keys.size());
+
     }
 
+
+    @Test
+    public void testRemove() throws NoSuchCacheException_Exception, CacheException_Exception, IllegalStateException_Exception {
+
+        Element element = new Element();
+        element.setKey("1");
+        element.setValue(("value1").getBytes());
+        cacheService.put("sampleCache1", element);
+
+        assertEquals(1, cacheService.getSize("sampleCache1"));
+    }
 
 
 }
