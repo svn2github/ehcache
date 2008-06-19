@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.server.soap;
+package net.sf.ehcache.server.jaxb;
 
 /**
  * A Status enum which is ordered the same as the core Ehcache

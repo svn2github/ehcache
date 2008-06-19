@@ -8,16 +8,16 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for getStatisticsAccuracyResponse complex type.
+ * <p>Java class for getQuietResponse complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="getStatisticsAccuracyResponse">
+ * &lt;complexType name="getQuietResponse">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="return" type="{http://soap.server.ehcache.sf.net/}statisticsAccuracy" minOccurs="0"/>
+ *         &lt;element name="return" type="{http://soap.server.ehcache.sf.net/}element" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -27,23 +27,23 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "getStatisticsAccuracyResponse", propOrder = {
+@XmlType(name = "getQuietResponse", propOrder = {
     "_return"
 })
-public class GetStatisticsAccuracyResponse {
+public class GetQuietResponse {
 
     @XmlElement(name = "return")
-    protected StatisticsAccuracy _return;
+    protected Element _return;
 
     /**
      * Gets the value of the return property.
      * 
      * @return
      *     possible object is
-     *     {@link StatisticsAccuracy }
+     *     {@link Element }
      *     
      */
-    public StatisticsAccuracy getReturn() {
+    public Element getReturn() {
         return _return;
     }
 
@@ -52,10 +52,10 @@ public class GetStatisticsAccuracyResponse {
      * 
      * @param value
      *     allowed object is
-     *     {@link StatisticsAccuracy }
+     *     {@link Element }
      *     
      */
-    public void setReturn(StatisticsAccuracy value) {
+    public void setReturn(Element value) {
         this._return = value;
     }
 

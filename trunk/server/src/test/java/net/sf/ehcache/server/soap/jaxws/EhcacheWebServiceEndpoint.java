@@ -44,8 +44,8 @@ public interface EhcacheWebServiceEndpoint {
     /**
      * 
      * @param arg0
-     * @throws IllegalStateException_Exception
      * @throws ObjectExistsException_Exception
+     * @throws IllegalStateException_Exception
      * @throws CacheException_Exception
      */
     @WebMethod
@@ -168,6 +168,7 @@ public interface EhcacheWebServiceEndpoint {
      * @return
      *     returns boolean
      * @throws IllegalStateException_Exception
+     * @throws CacheException_Exception
      */
     @WebMethod
     @WebResult(targetNamespace = "")
@@ -178,7 +179,7 @@ public interface EhcacheWebServiceEndpoint {
         String arg0,
         @WebParam(name = "arg1", targetNamespace = "")
         String arg1)
-        throws IllegalStateException_Exception
+        throws CacheException_Exception, IllegalStateException_Exception
     ;
 
     /**
@@ -196,15 +197,32 @@ public interface EhcacheWebServiceEndpoint {
      * 
      * @param arg0
      * @return
-     *     returns int
+     *     returns net.sf.ehcache.server.soap.jaxws.StatisticsAccuracy
      */
     @WebMethod
     @WebResult(targetNamespace = "")
     @RequestWrapper(localName = "getStatisticsAccuracy", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.GetStatisticsAccuracy")
     @ResponseWrapper(localName = "getStatisticsAccuracyResponse", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.GetStatisticsAccuracyResponse")
-    public int getStatisticsAccuracy(
+    public StatisticsAccuracy getStatisticsAccuracy(
         @WebParam(name = "arg0", targetNamespace = "")
         String arg0);
+
+    /**
+     * 
+     * @param arg0
+     * @return
+     *     returns net.sf.ehcache.server.soap.jaxws.Statistics
+     * @throws IllegalStateException_Exception
+     */
+    @WebMethod
+    @WebResult(targetNamespace = "")
+    @RequestWrapper(localName = "getStatistics", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.GetStatistics")
+    @ResponseWrapper(localName = "getStatisticsResponse", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.GetStatisticsResponse")
+    public Statistics getStatistics(
+        @WebParam(name = "arg0", targetNamespace = "")
+        String arg0)
+        throws IllegalStateException_Exception
+    ;
 
     /**
      * 
@@ -282,6 +300,7 @@ public interface EhcacheWebServiceEndpoint {
      *     returns net.sf.ehcache.server.soap.jaxws.Element
      * @throws IllegalStateException_Exception
      * @throws NoSuchCacheException_Exception
+     * @throws CacheException_Exception
      */
     @WebMethod
     @WebResult(targetNamespace = "")
@@ -292,7 +311,7 @@ public interface EhcacheWebServiceEndpoint {
         String arg0,
         @WebParam(name = "arg1", targetNamespace = "")
         String arg1)
-        throws IllegalStateException_Exception, NoSuchCacheException_Exception
+        throws CacheException_Exception, IllegalStateException_Exception, NoSuchCacheException_Exception
     ;
 
     /**

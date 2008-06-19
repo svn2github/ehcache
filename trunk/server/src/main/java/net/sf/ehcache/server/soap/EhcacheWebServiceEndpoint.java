@@ -23,6 +23,9 @@ import net.sf.ehcache.ObjectExistsException;
 import net.sf.ehcache.server.ServerContext;
 import net.sf.ehcache.server.jaxb.Cache;
 import net.sf.ehcache.server.jaxb.Element;
+import net.sf.ehcache.server.jaxb.Status;
+import net.sf.ehcache.server.jaxb.Statistics;
+import net.sf.ehcache.server.jaxb.StatisticsAccuracy;
 
 import javax.annotation.Resource;
 import javax.jws.WebMethod;
@@ -165,7 +168,7 @@ public class EhcacheWebServiceEndpoint {
      * @return The status value from the Status enum class
      */
     @WebMethod
-    public net.sf.ehcache.server.soap.Status getStatus(String cacheName) {
+    public Status getStatus(String cacheName) {
         net.sf.ehcache.Cache cache = lookupCache(cacheName);
         return Status.fromCode(cache.getStatus().intValue());
     }
@@ -445,11 +448,11 @@ public class EhcacheWebServiceEndpoint {
      * @return the number of elements in the ehcache, with a varying degree of accuracy, depending on accuracy setting.
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
-//    @WebMethod
-//    public Statistics getStatistics(String cacheName) throws IllegalStateException {
-//        net.sf.ehcache.Cache cache = lookupCache(cacheName);
-//        return cache.getStatistics();
-//    }
+    @WebMethod
+    public Statistics getStatistics(String cacheName) throws IllegalStateException {
+        net.sf.ehcache.Cache cache = lookupCache(cacheName);
+        return new Statistics(cache.getStatistics());
+    }
 
     /**
      * Accurately measuring statistics can be expensive. Returns the current accuracy setting.
@@ -458,9 +461,9 @@ public class EhcacheWebServiceEndpoint {
      * @return one of {@link net.sf.ehcache.Statistics#STATISTICS_ACCURACY_BEST_EFFORT}, {@link net.sf.ehcache.Statistics#STATISTICS_ACCURACY_GUARANTEED}, {@link net.sf.ehcache.Statistics#STATISTICS_ACCURACY_NONE}
      */
     @WebMethod
-    public int getStatisticsAccuracy(String cacheName) {
+    public StatisticsAccuracy getStatisticsAccuracy(String cacheName) {
         net.sf.ehcache.Cache cache = lookupCache(cacheName);
-        return cache.getStatisticsAccuracy();
+        return StatisticsAccuracy.fromCode(cache.getStatisticsAccuracy());
     }
 
     /**

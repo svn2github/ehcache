@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.BeforeClass;
 import org.junit.Before;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import javax.xml.ws.soap.SOAPFaultException;
 import java.util.List;
@@ -100,22 +101,30 @@ public class EhcacheWebServiceEndpointTest {
 
 
     @Test
-    public void testCachePutNull() throws CacheException_Exception, NoSuchCacheException_Exception, IllegalStateException_Exception {
+    public void testCachePutNull() throws CacheException_Exception,
+            NoSuchCacheException_Exception, IllegalStateException_Exception {
 
         Element element = new Element();
         element.setKey("1");
         cacheService.put("sampleCache1", element);
 
-        element = cacheService.get("sampleCache1", "1");
+        element = getElementFromCache();
         boolean equals = Arrays.equals(null, element.getValue());
         assertTrue(equals);
+    }
+
+    private Element getElementFromCache() throws CacheException_Exception, IllegalStateException_Exception, NoSuchCacheException_Exception {
+        Element element;
+        element = cacheService.get("sampleCache1", "1");
+        return element;
     }
 
     /**
      * Tests get, getQuiet and put, putQuiet
      */
     @Test
-    public void testCacheGetPut() throws CacheException_Exception, NoSuchCacheException_Exception, IllegalStateException_Exception, IOException, IllegalArgumentException_Exception {
+    public void testCacheGetPut() throws CacheException_Exception,
+            NoSuchCacheException_Exception, IllegalStateException_Exception, IOException, IllegalArgumentException_Exception {
 
         Element element = new Element();
         element.setKey("2");
@@ -148,7 +157,8 @@ public class EhcacheWebServiceEndpointTest {
      * Test getKeys() and its veriants
      */
     @Test
-    public void testGetKeys() throws NoSuchCacheException_Exception, CacheException_Exception, IllegalStateException_Exception {
+    public void testGetKeys() throws NoSuchCacheException_Exception,
+            CacheException_Exception, IllegalStateException_Exception {
 
         for (int i = 0; i < 1000; i++) {
             Element element = new Element();
@@ -171,15 +181,59 @@ public class EhcacheWebServiceEndpointTest {
 
 
     @Test
-    public void testRemove() throws NoSuchCacheException_Exception, CacheException_Exception, IllegalStateException_Exception {
+    public void testRemove() throws NoSuchCacheException_Exception,
+            CacheException_Exception, IllegalStateException_Exception {
 
+        putElementIntoCache();
+
+        assertEquals(1, cacheService.getSize("sampleCache1"));
+    }
+
+    private void putElementIntoCache() throws CacheException_Exception, NoSuchCacheException_Exception {
         Element element = new Element();
         element.setKey("1");
         element.setValue(("value1").getBytes());
         cacheService.put("sampleCache1", element);
-
-        assertEquals(1, cacheService.getSize("sampleCache1"));
     }
+
+
+
+    /**
+     * todo get complete coverage here
+     */
+    @Test
+    public void testGetStatistics() throws NoSuchCacheException_Exception, 
+            CacheException_Exception, IllegalStateException_Exception {
+        cacheService.clearStatistics("sampleCache1");
+
+        Statistics statistics = cacheService.getStatistics("sampleCache1");
+        assertEquals(0L, statistics.getCacheHits());
+
+        putElementIntoCache();
+        getElementFromCache();
+
+        statistics = cacheService.getStatistics("sampleCache1");
+        assertEquals(1L, statistics.getCacheHits());
+    }
+
+    @Test
+    public void testGetStatisticsAccuracy() throws NoSuchCacheException_Exception, 
+            CacheException_Exception, IllegalStateException_Exception {
+        assertEquals(StatisticsAccuracy.STATISTICS_ACCURACY_BEST_EFFORT,
+                cacheService.getStatisticsAccuracy("sampleCache1"));
+    }
+
+    @Test
+    public void testClearStatistics() throws NoSuchCacheException_Exception, 
+            CacheException_Exception, IllegalStateException_Exception {
+        putElementIntoCache();
+        getElementFromCache();
+
+        cacheService.clearStatistics("sampleCache1");
+        Statistics statistics = cacheService.getStatistics("sampleCache1");
+        assertEquals(0L, statistics.getCacheHits());
+    }
+    
 
 
 }

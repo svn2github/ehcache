@@ -28,8 +28,8 @@ public class ObjectFactory {
     private final static QName _GetResponse_QNAME = new QName("http://soap.server.ehcache.sf.net/", "getResponse");
     private final static QName _CacheException_QNAME = new QName("http://soap.server.ehcache.sf.net/", "CacheException");
     private final static QName _CacheNamesResponse_QNAME = new QName("http://soap.server.ehcache.sf.net/", "cacheNamesResponse");
-    private final static QName _IllegalStateException_QNAME = new QName("http://soap.server.ehcache.sf.net/", "IllegalStateException");
     private final static QName _GetKeysNoDuplicateCheck_QNAME = new QName("http://soap.server.ehcache.sf.net/", "getKeysNoDuplicateCheck");
+    private final static QName _IllegalStateException_QNAME = new QName("http://soap.server.ehcache.sf.net/", "IllegalStateException");
     private final static QName _NoSuchCacheException_QNAME = new QName("http://soap.server.ehcache.sf.net/", "NoSuchCacheException");
     private final static QName _GetQuietResponse_QNAME = new QName("http://soap.server.ehcache.sf.net/", "getQuietResponse");
     private final static QName _RemoveResponse_QNAME = new QName("http://soap.server.ehcache.sf.net/", "removeResponse");
@@ -38,6 +38,8 @@ public class ObjectFactory {
     private final static QName _CacheNames_QNAME = new QName("http://soap.server.ehcache.sf.net/", "cacheNames");
     private final static QName _GetStatisticsAccuracyResponse_QNAME = new QName("http://soap.server.ehcache.sf.net/", "getStatisticsAccuracyResponse");
     private final static QName _PutQuietResponse_QNAME = new QName("http://soap.server.ehcache.sf.net/", "putQuietResponse");
+    private final static QName _GetStatisticsResponse_QNAME = new QName("http://soap.server.ehcache.sf.net/", "getStatisticsResponse");
+    private final static QName _GetStatistics_QNAME = new QName("http://soap.server.ehcache.sf.net/", "getStatistics");
     private final static QName _GetKeysWithExpiryCheckResponse_QNAME = new QName("http://soap.server.ehcache.sf.net/", "getKeysWithExpiryCheckResponse");
     private final static QName _PingResponse_QNAME = new QName("http://soap.server.ehcache.sf.net/", "pingResponse");
     private final static QName _Load_QNAME = new QName("http://soap.server.ehcache.sf.net/", "load");
@@ -86,179 +88,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link ClearStatisticsResponse }
+     * Create an instance of {@link HashMap }
      * 
      */
-    public ClearStatisticsResponse createClearStatisticsResponse() {
-        return new ClearStatisticsResponse();
-    }
-
-    /**
-     * Create an instance of {@link GetSizeResponse }
-     * 
-     */
-    public GetSizeResponse createGetSizeResponse() {
-        return new GetSizeResponse();
-    }
-
-    /**
-     * Create an instance of {@link GetCache }
-     * 
-     */
-    public GetCache createGetCache() {
-        return new GetCache();
-    }
-
-    /**
-     * Create an instance of {@link PutQuiet }
-     * 
-     */
-    public PutQuiet createPutQuiet() {
-        return new PutQuiet();
-    }
-
-    /**
-     * Create an instance of {@link GetKeysResponse }
-     * 
-     */
-    public GetKeysResponse createGetKeysResponse() {
-        return new GetKeysResponse();
-    }
-
-    /**
-     * Create an instance of {@link RemoveCache }
-     * 
-     */
-    public RemoveCache createRemoveCache() {
-        return new RemoveCache();
-    }
-
-    /**
-     * Create an instance of {@link Load }
-     * 
-     */
-    public Load createLoad() {
-        return new Load();
-    }
-
-    /**
-     * Create an instance of {@link GetKeys }
-     * 
-     */
-    public GetKeys createGetKeys() {
-        return new GetKeys();
-    }
-
-    /**
-     * Create an instance of {@link GetStatisticsAccuracyResponse }
-     * 
-     */
-    public GetStatisticsAccuracyResponse createGetStatisticsAccuracyResponse() {
-        return new GetStatisticsAccuracyResponse();
-    }
-
-    /**
-     * Create an instance of {@link GetStatus }
-     * 
-     */
-    public GetStatus createGetStatus() {
-        return new GetStatus();
-    }
-
-    /**
-     * Create an instance of {@link GetQuiet }
-     * 
-     */
-    public GetQuiet createGetQuiet() {
-        return new GetQuiet();
-    }
-
-    /**
-     * Create an instance of {@link GetAllWithLoader }
-     * 
-     */
-    public GetAllWithLoader createGetAllWithLoader() {
-        return new GetAllWithLoader();
-    }
-
-    /**
-     * Create an instance of {@link Remove }
-     * 
-     */
-    public Remove createRemove() {
-        return new Remove();
-    }
-
-    /**
-     * Create an instance of {@link ObjectExistsException }
-     * 
-     */
-    public ObjectExistsException createObjectExistsException() {
-        return new ObjectExistsException();
-    }
-
-    /**
-     * Create an instance of {@link GetCacheResponse }
-     * 
-     */
-    public GetCacheResponse createGetCacheResponse() {
-        return new GetCacheResponse();
-    }
-
-    /**
-     * Create an instance of {@link GetKeysNoDuplicateCheck }
-     * 
-     */
-    public GetKeysNoDuplicateCheck createGetKeysNoDuplicateCheck() {
-        return new GetKeysNoDuplicateCheck();
-    }
-
-    /**
-     * Create an instance of {@link RemoveResponse }
-     * 
-     */
-    public RemoveResponse createRemoveResponse() {
-        return new RemoveResponse();
-    }
-
-    /**
-     * Create an instance of {@link GetWithLoader }
-     * 
-     */
-    public GetWithLoader createGetWithLoader() {
-        return new GetWithLoader();
-    }
-
-    /**
-     * Create an instance of {@link RemoveAll }
-     * 
-     */
-    public RemoveAll createRemoveAll() {
-        return new RemoveAll();
-    }
-
-    /**
-     * Create an instance of {@link CacheException }
-     * 
-     */
-    public CacheException createCacheException() {
-        return new CacheException();
-    }
-
-    /**
-     * Create an instance of {@link GetStatusResponse }
-     * 
-     */
-    public GetStatusResponse createGetStatusResponse() {
-        return new GetStatusResponse();
-    }
-
-    /**
-     * Create an instance of {@link GetKeysWithExpiryCheck }
-     * 
-     */
-    public GetKeysWithExpiryCheck createGetKeysWithExpiryCheck() {
-        return new GetKeysWithExpiryCheck();
+    public HashMap createHashMap() {
+        return new HashMap();
     }
 
     /**
@@ -270,35 +104,35 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Ping }
+     * Create an instance of {@link AddCacheResponse }
      * 
      */
-    public Ping createPing() {
-        return new Ping();
+    public AddCacheResponse createAddCacheResponse() {
+        return new AddCacheResponse();
     }
 
     /**
-     * Create an instance of {@link AddCache }
+     * Create an instance of {@link GetCache }
      * 
      */
-    public AddCache createAddCache() {
-        return new AddCache();
+    public GetCache createGetCache() {
+        return new GetCache();
     }
 
     /**
-     * Create an instance of {@link RemoveQuiet }
+     * Create an instance of {@link RemoveCache }
      * 
      */
-    public RemoveQuiet createRemoveQuiet() {
-        return new RemoveQuiet();
+    public RemoveCache createRemoveCache() {
+        return new RemoveCache();
     }
 
     /**
-     * Create an instance of {@link Get }
+     * Create an instance of {@link GetAllWithLoader }
      * 
      */
-    public Get createGet() {
-        return new Get();
+    public GetAllWithLoader createGetAllWithLoader() {
+        return new GetAllWithLoader();
     }
 
     /**
@@ -310,91 +144,43 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetStatisticsAccuracy }
+     * Create an instance of {@link GetKeys }
      * 
      */
-    public GetStatisticsAccuracy createGetStatisticsAccuracy() {
-        return new GetStatisticsAccuracy();
+    public GetKeys createGetKeys() {
+        return new GetKeys();
     }
 
     /**
-     * Create an instance of {@link CacheNames }
+     * Create an instance of {@link AddCache }
      * 
      */
-    public CacheNames createCacheNames() {
-        return new CacheNames();
+    public AddCache createAddCache() {
+        return new AddCache();
     }
 
     /**
-     * Create an instance of {@link PingResponse }
+     * Create an instance of {@link GetQuietResponse }
      * 
      */
-    public PingResponse createPingResponse() {
-        return new PingResponse();
+    public GetQuietResponse createGetQuietResponse() {
+        return new GetQuietResponse();
     }
 
     /**
-     * Create an instance of {@link RemoveQuietResponse }
+     * Create an instance of {@link Statistics }
      * 
      */
-    public RemoveQuietResponse createRemoveQuietResponse() {
-        return new RemoveQuietResponse();
+    public Statistics createStatistics() {
+        return new Statistics();
     }
 
     /**
-     * Create an instance of {@link Element }
+     * Create an instance of {@link PutQuietResponse }
      * 
      */
-    public Element createElement() {
-        return new Element();
-    }
-
-    /**
-     * Create an instance of {@link RemoveCacheResponse }
-     * 
-     */
-    public RemoveCacheResponse createRemoveCacheResponse() {
-        return new RemoveCacheResponse();
-    }
-
-    /**
-     * Create an instance of {@link ClearStatistics }
-     * 
-     */
-    public ClearStatistics createClearStatistics() {
-        return new ClearStatistics();
-    }
-
-    /**
-     * Create an instance of {@link LoadAllResponse }
-     * 
-     */
-    public LoadAllResponse createLoadAllResponse() {
-        return new LoadAllResponse();
-    }
-
-    /**
-     * Create an instance of {@link PutResponse }
-     * 
-     */
-    public PutResponse createPutResponse() {
-        return new PutResponse();
-    }
-
-    /**
-     * Create an instance of {@link IllegalArgumentException }
-     * 
-     */
-    public IllegalArgumentException createIllegalArgumentException() {
-        return new IllegalArgumentException();
-    }
-
-    /**
-     * Create an instance of {@link AddCacheResponse }
-     * 
-     */
-    public AddCacheResponse createAddCacheResponse() {
-        return new AddCacheResponse();
+    public PutQuietResponse createPutQuietResponse() {
+        return new PutQuietResponse();
     }
 
     /**
@@ -414,11 +200,83 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link LoadAll }
+     * Create an instance of {@link Ping }
      * 
      */
-    public LoadAll createLoadAll() {
-        return new LoadAll();
+    public Ping createPing() {
+        return new Ping();
+    }
+
+    /**
+     * Create an instance of {@link GetQuiet }
+     * 
+     */
+    public GetQuiet createGetQuiet() {
+        return new GetQuiet();
+    }
+
+    /**
+     * Create an instance of {@link IllegalArgumentException }
+     * 
+     */
+    public IllegalArgumentException createIllegalArgumentException() {
+        return new IllegalArgumentException();
+    }
+
+    /**
+     * Create an instance of {@link Get }
+     * 
+     */
+    public Get createGet() {
+        return new Get();
+    }
+
+    /**
+     * Create an instance of {@link GetStatisticsResponse }
+     * 
+     */
+    public GetStatisticsResponse createGetStatisticsResponse() {
+        return new GetStatisticsResponse();
+    }
+
+    /**
+     * Create an instance of {@link PingResponse }
+     * 
+     */
+    public PingResponse createPingResponse() {
+        return new PingResponse();
+    }
+
+    /**
+     * Create an instance of {@link Element }
+     * 
+     */
+    public Element createElement() {
+        return new Element();
+    }
+
+    /**
+     * Create an instance of {@link GetStatusResponse }
+     * 
+     */
+    public GetStatusResponse createGetStatusResponse() {
+        return new GetStatusResponse();
+    }
+
+    /**
+     * Create an instance of {@link GetStatistics }
+     * 
+     */
+    public GetStatistics createGetStatistics() {
+        return new GetStatistics();
+    }
+
+    /**
+     * Create an instance of {@link PutQuiet }
+     * 
+     */
+    public PutQuiet createPutQuiet() {
+        return new PutQuiet();
     }
 
     /**
@@ -430,59 +288,43 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetAllWithLoaderResponse }
+     * Create an instance of {@link Remove }
      * 
      */
-    public GetAllWithLoaderResponse createGetAllWithLoaderResponse() {
-        return new GetAllWithLoaderResponse();
+    public Remove createRemove() {
+        return new Remove();
     }
 
     /**
-     * Create an instance of {@link GetSize }
+     * Create an instance of {@link ClearStatisticsResponse }
      * 
      */
-    public GetSize createGetSize() {
-        return new GetSize();
+    public ClearStatisticsResponse createClearStatisticsResponse() {
+        return new ClearStatisticsResponse();
     }
 
     /**
-     * Create an instance of {@link PutQuietResponse }
+     * Create an instance of {@link GetSizeResponse }
      * 
      */
-    public PutQuietResponse createPutQuietResponse() {
-        return new PutQuietResponse();
+    public GetSizeResponse createGetSizeResponse() {
+        return new GetSizeResponse();
     }
 
     /**
-     * Create an instance of {@link Cache }
+     * Create an instance of {@link ObjectExistsException }
      * 
      */
-    public Cache createCache() {
-        return new Cache();
+    public ObjectExistsException createObjectExistsException() {
+        return new ObjectExistsException();
     }
 
     /**
-     * Create an instance of {@link GetQuietResponse }
+     * Create an instance of {@link RemoveCacheResponse }
      * 
      */
-    public GetQuietResponse createGetQuietResponse() {
-        return new GetQuietResponse();
-    }
-
-    /**
-     * Create an instance of {@link GetWithLoaderResponse }
-     * 
-     */
-    public GetWithLoaderResponse createGetWithLoaderResponse() {
-        return new GetWithLoaderResponse();
-    }
-
-    /**
-     * Create an instance of {@link CacheNamesResponse }
-     * 
-     */
-    public CacheNamesResponse createCacheNamesResponse() {
-        return new CacheNamesResponse();
+    public RemoveCacheResponse createRemoveCacheResponse() {
+        return new RemoveCacheResponse();
     }
 
     /**
@@ -494,6 +336,38 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link CacheNames }
+     * 
+     */
+    public CacheNames createCacheNames() {
+        return new CacheNames();
+    }
+
+    /**
+     * Create an instance of {@link GetKeysWithExpiryCheck }
+     * 
+     */
+    public GetKeysWithExpiryCheck createGetKeysWithExpiryCheck() {
+        return new GetKeysWithExpiryCheck();
+    }
+
+    /**
+     * Create an instance of {@link GetWithLoaderResponse }
+     * 
+     */
+    public GetWithLoaderResponse createGetWithLoaderResponse() {
+        return new GetWithLoaderResponse();
+    }
+
+    /**
+     * Create an instance of {@link GetKeysResponse }
+     * 
+     */
+    public GetKeysResponse createGetKeysResponse() {
+        return new GetKeysResponse();
+    }
+
+    /**
      * Create an instance of {@link GetKeysWithExpiryCheckResponse }
      * 
      */
@@ -502,11 +376,83 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link HashMap }
+     * Create an instance of {@link GetAllWithLoaderResponse }
      * 
      */
-    public HashMap createHashMap() {
-        return new HashMap();
+    public GetAllWithLoaderResponse createGetAllWithLoaderResponse() {
+        return new GetAllWithLoaderResponse();
+    }
+
+    /**
+     * Create an instance of {@link RemoveQuietResponse }
+     * 
+     */
+    public RemoveQuietResponse createRemoveQuietResponse() {
+        return new RemoveQuietResponse();
+    }
+
+    /**
+     * Create an instance of {@link LoadAll }
+     * 
+     */
+    public LoadAll createLoadAll() {
+        return new LoadAll();
+    }
+
+    /**
+     * Create an instance of {@link PutResponse }
+     * 
+     */
+    public PutResponse createPutResponse() {
+        return new PutResponse();
+    }
+
+    /**
+     * Create an instance of {@link ClearStatistics }
+     * 
+     */
+    public ClearStatistics createClearStatistics() {
+        return new ClearStatistics();
+    }
+
+    /**
+     * Create an instance of {@link GetWithLoader }
+     * 
+     */
+    public GetWithLoader createGetWithLoader() {
+        return new GetWithLoader();
+    }
+
+    /**
+     * Create an instance of {@link RemoveAll }
+     * 
+     */
+    public RemoveAll createRemoveAll() {
+        return new RemoveAll();
+    }
+
+    /**
+     * Create an instance of {@link GetStatisticsAccuracy }
+     * 
+     */
+    public GetStatisticsAccuracy createGetStatisticsAccuracy() {
+        return new GetStatisticsAccuracy();
+    }
+
+    /**
+     * Create an instance of {@link LoadAllResponse }
+     * 
+     */
+    public LoadAllResponse createLoadAllResponse() {
+        return new LoadAllResponse();
+    }
+
+    /**
+     * Create an instance of {@link GetStatus }
+     * 
+     */
+    public GetStatus createGetStatus() {
+        return new GetStatus();
     }
 
     /**
@@ -515,6 +461,86 @@ public class ObjectFactory {
      */
     public NoSuchCacheException createNoSuchCacheException() {
         return new NoSuchCacheException();
+    }
+
+    /**
+     * Create an instance of {@link GetStatisticsAccuracyResponse }
+     * 
+     */
+    public GetStatisticsAccuracyResponse createGetStatisticsAccuracyResponse() {
+        return new GetStatisticsAccuracyResponse();
+    }
+
+    /**
+     * Create an instance of {@link GetKeysNoDuplicateCheck }
+     * 
+     */
+    public GetKeysNoDuplicateCheck createGetKeysNoDuplicateCheck() {
+        return new GetKeysNoDuplicateCheck();
+    }
+
+    /**
+     * Create an instance of {@link RemoveQuiet }
+     * 
+     */
+    public RemoveQuiet createRemoveQuiet() {
+        return new RemoveQuiet();
+    }
+
+    /**
+     * Create an instance of {@link GetSize }
+     * 
+     */
+    public GetSize createGetSize() {
+        return new GetSize();
+    }
+
+    /**
+     * Create an instance of {@link CacheException }
+     * 
+     */
+    public CacheException createCacheException() {
+        return new CacheException();
+    }
+
+    /**
+     * Create an instance of {@link CacheNamesResponse }
+     * 
+     */
+    public CacheNamesResponse createCacheNamesResponse() {
+        return new CacheNamesResponse();
+    }
+
+    /**
+     * Create an instance of {@link Load }
+     * 
+     */
+    public Load createLoad() {
+        return new Load();
+    }
+
+    /**
+     * Create an instance of {@link GetCacheResponse }
+     * 
+     */
+    public GetCacheResponse createGetCacheResponse() {
+        return new GetCacheResponse();
+    }
+
+    /**
+     * Create an instance of {@link RemoveResponse }
+     * 
+     */
+    public RemoveResponse createRemoveResponse() {
+        return new RemoveResponse();
+    }
+
+    /**
+     * Create an instance of {@link Cache }
+     * 
+     */
+    public Cache createCache() {
+        return new Cache();
     }
 
     /**
@@ -554,21 +580,21 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link IllegalStateException }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "IllegalStateException")
-    public JAXBElement<IllegalStateException> createIllegalStateException(IllegalStateException value) {
-        return new JAXBElement<IllegalStateException>(_IllegalStateException_QNAME, IllegalStateException.class, null, value);
-    }
-
-    /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetKeysNoDuplicateCheck }{@code >}}
      * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getKeysNoDuplicateCheck")
     public JAXBElement<GetKeysNoDuplicateCheck> createGetKeysNoDuplicateCheck(GetKeysNoDuplicateCheck value) {
         return new JAXBElement<GetKeysNoDuplicateCheck>(_GetKeysNoDuplicateCheck_QNAME, GetKeysNoDuplicateCheck.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link IllegalStateException }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "IllegalStateException")
+    public JAXBElement<IllegalStateException> createIllegalStateException(IllegalStateException value) {
+        return new JAXBElement<IllegalStateException>(_IllegalStateException_QNAME, IllegalStateException.class, null, value);
     }
 
     /**
@@ -641,6 +667,24 @@ public class ObjectFactory {
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "putQuietResponse")
     public JAXBElement<PutQuietResponse> createPutQuietResponse(PutQuietResponse value) {
         return new JAXBElement<PutQuietResponse>(_PutQuietResponse_QNAME, PutQuietResponse.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link GetStatisticsResponse }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getStatisticsResponse")
+    public JAXBElement<GetStatisticsResponse> createGetStatisticsResponse(GetStatisticsResponse value) {
+        return new JAXBElement<GetStatisticsResponse>(_GetStatisticsResponse_QNAME, GetStatisticsResponse.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link GetStatistics }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getStatistics")
+    public JAXBElement<GetStatistics> createGetStatistics(GetStatistics value) {
+        return new JAXBElement<GetStatistics>(_GetStatistics_QNAME, GetStatistics.class, null, value);
     }
 
     /**

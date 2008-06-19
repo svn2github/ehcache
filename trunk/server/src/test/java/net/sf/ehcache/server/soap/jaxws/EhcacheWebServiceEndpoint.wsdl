@@ -82,6 +82,12 @@
 <message name="getStatisticsAccuracyResponse">
 <part name="parameters" element="tns:getStatisticsAccuracyResponse"></part>
 </message>
+<message name="getStatistics">
+<part name="parameters" element="tns:getStatistics"></part>
+</message>
+<message name="getStatisticsResponse">
+<part name="parameters" element="tns:getStatisticsResponse"></part>
+</message>
 <message name="getWithLoader">
 <part name="parameters" element="tns:getWithLoader"></part>
 </message>
@@ -209,6 +215,7 @@
 <input message="tns:removeQuiet"></input>
 <output message="tns:removeQuietResponse"></output>
 <fault message="tns:IllegalStateException" name="IllegalStateException"></fault>
+<fault message="tns:CacheException" name="CacheException"></fault>
 </operation>
 <operation name="clearStatistics">
 <input message="tns:clearStatistics"></input>
@@ -217,6 +224,11 @@
 <operation name="getStatisticsAccuracy">
 <input message="tns:getStatisticsAccuracy"></input>
 <output message="tns:getStatisticsAccuracyResponse"></output>
+</operation>
+<operation name="getStatistics">
+<input message="tns:getStatistics"></input>
+<output message="tns:getStatisticsResponse"></output>
+<fault message="tns:IllegalStateException" name="IllegalStateException"></fault>
 </operation>
 <operation name="getWithLoader">
 <input message="tns:getWithLoader"></input>
@@ -242,6 +254,7 @@
 <output message="tns:getResponse"></output>
 <fault message="tns:IllegalStateException" name="IllegalStateException"></fault>
 <fault message="tns:NoSuchCacheException" name="NoSuchCacheException"></fault>
+<fault message="tns:CacheException" name="CacheException"></fault>
 </operation>
 <operation name="put">
 <input message="tns:put"></input>
@@ -412,6 +425,9 @@
 <fault name="IllegalStateException">
 <soap:fault name="IllegalStateException" use="literal"></soap:fault>
 </fault>
+<fault name="CacheException">
+<soap:fault name="CacheException" use="literal"></soap:fault>
+</fault>
 </operation>
 <operation name="clearStatistics">
 <soap:operation soapAction=""></soap:operation>
@@ -430,6 +446,18 @@
 <output>
 <soap:body use="literal"></soap:body>
 </output>
+</operation>
+<operation name="getStatistics">
+<soap:operation soapAction=""></soap:operation>
+<input>
+<soap:body use="literal"></soap:body>
+</input>
+<output>
+<soap:body use="literal"></soap:body>
+</output>
+<fault name="IllegalStateException">
+<soap:fault name="IllegalStateException" use="literal"></soap:fault>
+</fault>
 </operation>
 <operation name="getWithLoader">
 <soap:operation soapAction=""></soap:operation>
@@ -489,6 +517,9 @@
 </fault>
 <fault name="NoSuchCacheException">
 <soap:fault name="NoSuchCacheException" use="literal"></soap:fault>
+</fault>
+<fault name="CacheException">
+<soap:fault name="CacheException" use="literal"></soap:fault>
 </fault>
 </operation>
 <operation name="put">
