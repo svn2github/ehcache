@@ -1,4 +1,4 @@
-package net.sf.ehcache.server;
+package net.sf.ehcache.server.standalone;
 
 import org.junit.Test;
 
@@ -9,7 +9,7 @@ import java.io.IOException;
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
-public class ServerUnitTest {
+public class ServerTest {
 
     /**
      * Use for manual testing
@@ -17,8 +17,8 @@ public class ServerUnitTest {
      */
     @Test
     public void manualTest() throws IOException {
-//        TestServer.main(new String[]{"9998", "/Users/gluck/work/ehcache/server/target/ehcache-server-1.5.0-beta1.war"});
-//        System.in.read();
+        Server.main(new String[]{"8080", "/Users/gluck/work/ehcache/server/target/ehcache-server-1.6.0-beta1.war"});
+        System.in.read();
     }
 
 }

@@ -17,8 +17,8 @@
 package net.sf.ehcache.server.rest.resources;
 
 import com.sun.jersey.api.NotFoundException;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.server.jaxb.Cache;
-import net.sf.ehcache.server.ServerContext;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -99,7 +99,7 @@ public class CacheResource {
     public Cache getCache() {
         LOG.info("GET Cache " + this.cache);
 
-        net.sf.ehcache.Cache ehcache = ServerContext.getCacheManager().getCache(this.cache);
+        net.sf.ehcache.Cache ehcache = CacheManager.getInstance().getCache(this.cache);
         if (ehcache == null) {
             throw new NotFoundException("Cache not found");
         }
@@ -118,9 +118,9 @@ public class CacheResource {
 
         Response response;
 
-        net.sf.ehcache.Cache ehcache = ServerContext.getCacheManager().getCache(cache);
+        net.sf.ehcache.Cache ehcache = CacheManager.getInstance().getCache(cache);
         if (ehcache == null) {
-            ServerContext.getCacheManager().addCache(cache);
+            CacheManager.getInstance().addCache(cache);
             response = Response.created(uri).build();
             LOG.info("Created Cache " + cache);
         } else {
@@ -136,11 +136,11 @@ public class CacheResource {
     @DELETE
     public void deleteCache() {
         LOG.info("DELETE Cache " + cache);
-        net.sf.ehcache.Cache ehcache = ServerContext.getCacheManager().getCache(cache);
+        net.sf.ehcache.Cache ehcache = CacheManager.getInstance().getCache(cache);
         if (ehcache == null) {
             throw new NotFoundException("Cache not found");
         } else {
-            ServerContext.getCacheManager().removeCache(cache);
+            CacheManager.getInstance().removeCache(cache);
         }
     }
 

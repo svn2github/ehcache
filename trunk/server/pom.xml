@@ -21,12 +21,6 @@
             <version>0.8-ea-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.glassfish.web</groupId>-->
-            <!--<artifactId>webtier</artifactId>-->
-            <!--<version>10.0-SNAPSHOT</version>-->
-            <!--<scope>provided</scope>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>ehcache</artifactId>
@@ -42,34 +36,18 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>2.5</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>jaxws-tools</artifactId>
             <version>2.1.4</version>
+            <scope>compile</scope>
         </dependency>
-
-
-        <!--JSON JAXB support. Not used right now. -->
-        <!--<dependency>-->
-        <!--<groupId>org.codehaus.jettison</groupId>-->
-        <!--<artifactId>jettison</artifactId>-->
-        <!--<version>1.0</version>-->
-        <!--</dependency>-->
-        <!--This is the http.jar from Java 6 which must be manually installed for testing for now -->
-        <!-- See http://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html -->
-        <!-- mvn install:install-f                               ile -Dfile=http.jar -DgroupId=sun.net  -DartifactId=httpserver -Dversion=1.6 -Dpackaging=jar -->
         <dependency>
             <groupId>sun.net</groupId>
             <artifactId>httpserver</artifactId>
             <version>1.6</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <artifactId>gf-embedded-api</artifactId>
-            <version>1.0-alpha-5-SNAPSHOT</version>
-            <groupId>org.glassfish.embedded</groupId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -225,6 +203,21 @@
                     <goalPrefix>glassfish</goalPrefix>
                 </configuration>
             </plugin>
+            <plugin>
+               <artifactId>maven-jar-plugin</artifactId>
+               <executions>
+                   <execution>
+                       <id>classes-jar</id>
+                       <phase>verify</phase>
+                       <goals>
+                           <goal>jar</goal>
+                       </goals>
+                       <configuration>
+                           <classifier>classes</classifier>
+                       </configuration>
+                   </execution>
+               </executions>
+           </plugin>
         </plugins>
     </build>
     <properties>

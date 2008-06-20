@@ -17,15 +17,8 @@
 package net.sf.ehcache.server;
 
 
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.management.ManagementService;
-
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.lang.management.ManagementFactory;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
 /**
  * The ehcache server.
@@ -35,30 +28,30 @@ import java.util.logging.Level;
  */
 public class ServerContext implements ServletContextListener {
 
-
-    private static final Logger LOG = Logger.getLogger(ServerContext.class.getName());
-
-    /**
-     * Provide a reference to CacheManager.
-     * This one avoids synchronized, using the synchronized singleton from {@link CacheManager#getInstance()}
-     */
-    private static CacheManager manager;
-
-    static {
-        try {
-            manager = CacheManager.getInstance();
-        } catch (CacheException e) {
-            LOG.log(Level.SEVERE, "Cannot obtain CacheManager instance", e);
-        }
-    }
-
-
-    /**
-     * The CacheManager singleton used by this server
-     */
-    public static CacheManager getCacheManager() {
-        return manager;
-    }
+//
+//    private static final Logger LOG = Logger.getLogger(ServerContext.class.getName());
+//
+//    /**
+//     * Provide a reference to CacheManager.
+//     * This one avoids synchronized, using the synchronized singleton from {@link CacheManager#getInstance()}
+//     */
+//    private static CacheManager manager;
+//
+//    static {
+//        try {
+//            manager = CacheManager.getInstance();
+//        } catch (CacheException e) {
+//            LOG.log(Level.SEVERE, "Cannot obtain CacheManager instance", e);
+//        }
+//    }
+//
+//
+//    /**
+//     * The CacheManager singleton used by this server
+//     */
+//    public static CacheManager getCacheManager() {
+//        return manager;
+//    }
 
 
     /**
@@ -66,8 +59,8 @@ public class ServerContext implements ServletContextListener {
      * are notified of context initialization before any filter or servlet in the web application is initialized.
      */
     public void contextInitialized(ServletContextEvent sce) {
-        ManagementService.registerMBeans(getCacheManager(), ManagementFactory.getPlatformMBeanServer(),
-                true, true, true, true);
+//        ManagementService.registerMBeans(getCacheManager(), ManagementFactory.getPlatformMBeanServer(),
+//                true, true, true, true);
     }
 
     /**
@@ -75,6 +68,6 @@ public class ServerContext implements ServletContextListener {
      * destroy()ed before any ServletContextListeners are notified of context destruction.
      */
     public void contextDestroyed(ServletContextEvent sce) {
-        manager.shutdown();
+//        manager.shutdown();
     }
 }

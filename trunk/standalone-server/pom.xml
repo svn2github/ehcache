@@ -23,29 +23,14 @@
             <classifier>classes</classifier>
         </dependency>
         <dependency>
-            <groupId>org.glassfish.api</groupId>
-            <artifactId>dtds</artifactId>
-            <version>9.0.2</version>
-            <classifier>resources</classifier>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.api</groupId>
-            <artifactId>schemas</artifactId>
-            <version>9.0.2</version>
-            <classifier>resources</classifier>
-            <type>jar</type>
+            <groupId>org.glassfish.embedded</groupId>
+            <artifactId>gf-embedded-api</artifactId>
+            <version>1.0-alpha-4</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.distributions</groupId>
             <artifactId>web-all</artifactId>
             <version>10.0-build-20080430</version>
-        </dependency>
-        <dependency>
-            <artifactId>gf-embedded-api</artifactId>
-            <version>1.0-alpha-5-SNAPSHOT</version>
-            <groupId>org.glassfish.embedded</groupId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>sun.net</groupId>

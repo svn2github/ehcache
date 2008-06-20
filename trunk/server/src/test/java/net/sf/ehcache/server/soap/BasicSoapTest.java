@@ -17,7 +17,7 @@ import net.sf.ehcache.server.HttpUtil;
 
 
 /**
- * Tests the Soap server
+ * Tests the Soap server. This relies on the lightweight http server.
  * @author Greg Luck
  * @version $Id$
  */
@@ -44,7 +44,7 @@ public class BasicSoapTest {
         webServiceThread.start();
         assertTrue(webServiceThread.isAlive());
         //Wait to start up
-        Thread.sleep(5000);
+        Thread.sleep(8000);
 
 
     }

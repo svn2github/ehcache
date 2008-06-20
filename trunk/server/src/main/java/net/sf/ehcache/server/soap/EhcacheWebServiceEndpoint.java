@@ -20,12 +20,11 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.ObjectExistsException;
-import net.sf.ehcache.server.ServerContext;
 import net.sf.ehcache.server.jaxb.Cache;
 import net.sf.ehcache.server.jaxb.Element;
-import net.sf.ehcache.server.jaxb.Status;
 import net.sf.ehcache.server.jaxb.Statistics;
 import net.sf.ehcache.server.jaxb.StatisticsAccuracy;
+import net.sf.ehcache.server.jaxb.Status;
 
 import javax.annotation.Resource;
 import javax.jws.WebMethod;
@@ -69,7 +68,7 @@ import java.util.List;
 @WebService()
 public class EhcacheWebServiceEndpoint {
 
-    private CacheManager manager = ServerContext.getCacheManager();
+    private CacheManager manager = CacheManager.getInstance();
 
     @Resource
     private WebServiceContext context;

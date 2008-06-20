@@ -16,9 +16,9 @@
 
 package net.sf.ehcache.server.rest.resources;
 
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.server.jaxb.Cache;
 import net.sf.ehcache.server.jaxb.Caches;
-import net.sf.ehcache.server.ServerContext;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -85,7 +85,7 @@ public class CachesResource {
     public Caches getCaches() {
         LOG.info("GET Caches");
 
-        String[] cacheNames = ServerContext.getCacheManager().getCacheNames();
+        String[] cacheNames = CacheManager.getInstance().getCacheNames();
 
         List<Cache> cacheList = new ArrayList<Cache>();
 

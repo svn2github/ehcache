@@ -17,16 +17,12 @@
 package net.sf.ehcache.server.rest.resources;
 
 import net.sf.ehcache.server.HttpUtil;
-import net.sf.ehcache.server.TestServer;
 import static org.junit.Assert.*;
 import org.junit.Test;
-import org.junit.BeforeClass;
-import org.junit.AfterClass;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.io.File;
 import java.util.logging.Logger;
 import java.util.Map;
 import java.net.HttpURLConnection;
@@ -42,7 +38,6 @@ import java.net.HttpURLConnection;
 public class CacheResourceTest {
 
     public static final Logger LOG = Logger.getLogger(CachesResourceTest.class.getName());
-    private static TestServer server;
 
     @Test
     public void testGet() throws IOException, ParserConfigurationException, SAXException {
@@ -70,21 +65,6 @@ public class CacheResourceTest {
         assertNotNull(headers);
     }
 
-//
-//    //BeforeClass
-//    public static void setupBeforeAll() throws InterruptedException {
-//        LOG.info("Starting Server");
-//        File war = new File("/Users/gluck/work/ehcache/server/target/ehcache-server-1.5.0-beta1.war");
-//        server = new TestServer(8080, null);
-//        server.init();
-//        Thread.sleep(3000);
-//    }
-//
-//    //AfterClass
-//    public static void teardownAfterAll() {
-//        LOG.info("Stopping Server");
-//        server.destroy();
-//    }
 
 
 }

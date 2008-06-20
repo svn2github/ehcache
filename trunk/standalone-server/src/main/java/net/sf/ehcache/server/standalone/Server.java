@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.server;
+package net.sf.ehcache.server.standalone;
 
 
 import com.sun.jersey.api.container.ContainerFactory;
@@ -43,7 +43,7 @@ import java.util.logging.Logger;
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
-public class TestServer {
+public class Server {
 
 
     /**
@@ -54,9 +54,9 @@ public class TestServer {
     /**
      * The singleton CacheManager instance exposed by this server.
      */
-    private static CacheManager cacheManager = CacheManager.getInstance();
+//    private static CacheManager cacheManager = CacheManager.getInstance();
 
-    private static final Logger LOG = Logger.getLogger(TestServer.class.getName());
+    private static final Logger LOG = Logger.getLogger(Server.class.getName());
 
     private Integer listeningPort = DEFAULT_PORT;
 
@@ -69,9 +69,9 @@ public class TestServer {
      * Empty constructor.
      * This will create a server listening on the default port of 9998 and using the LightWeight HTTP Server
      *
-     * @see #TestServer(Integer, java.io.File)
+     * @see #Server(Integer, java.io.File)
      */
-    public TestServer() {
+    public Server() {
         //
     }
 
@@ -80,18 +80,12 @@ public class TestServer {
      *
      * @param listeningPort the port to listen on.
      */
-    public TestServer(Integer listeningPort, File ehcacheServerWar) {
+    public Server(Integer listeningPort, File ehcacheServerWar) {
         this.listeningPort = listeningPort;
         this.ehcacheServerWar = ehcacheServerWar;
     }
 
 
-    /**
-     * The CacheManager singleton used by this server
-     */
-    public static CacheManager getCacheManager() {
-        return cacheManager;
-    }
 
     /**
      * Starts the server and registers ehcache with the JMX Platform MBeanServer
@@ -104,8 +98,8 @@ public class TestServer {
         }
         serverThread.start();
 
-        ManagementService.registerMBeans(TestServer.getCacheManager(), ManagementFactory.getPlatformMBeanServer(),
-                true, true, true, true);
+//        ManagementService.registerMBeans(Server.getCacheManager(), ManagementFactory.getPlatformMBeanServer(),
+//                true, true, true, true);
     }
 
     /**
@@ -125,20 +119,20 @@ public class TestServer {
      * @param args The first argument is the server port. The second is optional and is the path to the ehcache-server.war.
      */
     public static void main(String[] args) throws IOException {
-        TestServer server = null;
+        Server server = null;
         if (args.length == 1 && args[0].matches("--help")) {
             System.out.println("java -classpath ... net.sf.ehcache.server.Server <http port> <ehcache-server.war>} ");
             System.exit(0);
         }
         if (args.length == 1) {
             Integer port = Integer.parseInt(args[0]);
-            server = new TestServer(port, null);
+            server = new Server(port, null);
             server.init();
         }
         if (args.length == 2) {
             Integer port = Integer.parseInt(args[0]);
             File war = new File(args[1]);
-            server = new TestServer(port, war);
+            server = new Server(port, war);
             server.init();
         }
     }
@@ -181,10 +175,12 @@ public class TestServer {
 
             try {
                 glassfish = new GlassFish(listeningPort);
-                //broken in latest snapshot
-//                GFApplication application = glassfish.deploy(ehcacheServerWar);
+
+                GFApplication application = glassfish.deploy(ehcacheServerWar);
                 LOG.info("Glassfish server running on port " + listeningPort + " with WAR " + ehcacheServerWar);
             } catch (GFException e) {
+                LOG.log(Level.SEVERE, "Cannot start server. ", e);
+            } catch (IOException e) {
                 LOG.log(Level.SEVERE, "Cannot start server. ", e);
             }
         }

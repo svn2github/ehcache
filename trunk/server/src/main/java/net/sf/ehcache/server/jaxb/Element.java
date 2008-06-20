@@ -16,9 +16,9 @@
 
 package net.sf.ehcache.server.jaxb;
 
-import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.MimeTypeByteArray;
+import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
