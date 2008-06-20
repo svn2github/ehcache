@@ -9,19 +9,11 @@
     </parent>
     <name>Ehcache Standalone Server</name>
     <artifactId>ehcache-standalone-server</artifactId>
-    <packaging>jar</packaging>
-    <description>The ehcache W3C and RESTful web services server.</description>
+    <packaging>pom</packaging>
+    <description>The ehcache W3C and RESTful web services standalone server.
+    This is packaged as a distribution complete with all required dependencies.
+    </description>
     <dependencies>
-        <!-- IntelliJ Issue. Hibernate has a transitive dep on asm, but a later
-        version is required for javax.ws.rs. The only thing that
-         seem to work is to move asm-3.1 up the classpath. -->
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-server</artifactId>
-            <version>1.6.0-beta1</version>
-            <scope>compile</scope>
-            <classifier>classes</classifier>
-        </dependency>
         <dependency>
             <groupId>org.glassfish.embedded</groupId>
             <artifactId>gf-embedded-api</artifactId>
@@ -31,12 +23,6 @@
             <groupId>org.glassfish.distributions</groupId>
             <artifactId>web-all</artifactId>
             <version>10.0-build-20080430</version>
-        </dependency>
-        <dependency>
-            <groupId>sun.net</groupId>
-            <artifactId>httpserver</artifactId>
-            <version>1.6</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -54,17 +40,6 @@
                     <target>1.5</target>
                 </configuration>
             </plugin>
-            <!--<plugin>-->
-            <!--<artifactId>maven-war-plugin</artifactId>-->
-            <!--<executions>-->
-            <!--<execution>-->
-            <!--<phase>package</phase>-->
-            <!--<goals>-->
-            <!--<goal>war</goal>-->
-            <!--</goals>-->
-            <!--</execution>-->
-            <!--</executions>-->
-            <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
@@ -92,50 +67,6 @@
                 </configuration>
             </plugin>
 
-            <!--<plugin>-->
-            <!--<groupId>org.glassfish</groupId>-->
-            <!--<artifactId>maven-glassfish-plugin</artifactId>-->
-            <!--<version>1.0-alpha-4</version>-->
-            <!--</plugin>-->
-
-
-            <!--<plugin>-->
-            <!--<groupId>org.codehaus.cargo</groupId>-->
-            <!--<artifactId>cargo-maven2-plugin</artifactId>-->
-            <!--<version>0.3.1</version>-->
-            <!--<configuration>-->
-            <!--<wait>false</wait>-->
-            <!--<container>-->
-            <!--<containerId>jetty6x</containerId>-->
-            <!--<type>embedded</type>-->
-            <!--<systemProperties>-->
-            <!--<com.sun.management.jmxremote>true</com.sun.management.jmxremote>-->
-            <!--</systemProperties>-->
-            <!--</container>-->
-            <!--<properties>-->
-            <!--Not working as usual for a maven plugin-->
-            <!--<cargo.jvmargs>com.sun.management.jmxremote</cargo.jvmargs>-->
-            <!--</properties>-->
-            <!--</configuration>-->
-
-            <!--<executions>-->
-            <!--<execution>-->
-            <!--<id>start-server</id>-->
-            <!--<phase>pre-integration-test</phase>-->
-            <!--<goals>-->
-            <!--<goal>start</goal>-->
-            <!--</goals>-->
-            <!--</execution>-->
-            <!--<execution>-->
-            <!--<id>stop-server</id>-->
-            <!--<phase>post-integration-test</phase>-->
-            <!--<goals>-->
-            <!--<goal>stop</goal>-->
-            <!--</goals>-->
-            <!--</execution>-->
-            <!--</executions>-->
-            <!--</plugin>-->
-
 
             <plugin>
                 <groupId>org.mortbay.jetty</groupId>
@@ -161,12 +92,6 @@
                     </additionalClasspathElements>
                 </configuration>
             </plugin>
-            <!--<plugin>-->
-            <!--<artifactId>maven-plugin-plugin</artifactId>-->
-            <!--<configuration>-->
-            <!--<goalPrefix>glassfish</goalPrefix>-->
-            <!--</configuration>-->
-            <!--</plugin>-->
         </plugins>
     </build>
     <properties>
