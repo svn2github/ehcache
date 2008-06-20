@@ -11,7 +11,7 @@
     <artifactId>ehcache-standalone-server</artifactId>
     <packaging>pom</packaging>
     <description>The ehcache W3C and RESTful web services standalone server.
-    This is packaged as a distribution complete with all required dependencies.
+        This is packaged as a distribution complete with all required dependencies.
     </description>
     <dependencies>
         <dependency>
@@ -66,22 +66,12 @@
                     <enableRulesSummary>true</enableRulesSummary>
                 </configuration>
             </plugin>
-
-
-            <plugin>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>maven-jetty-plugin</artifactId>
-                <configuration>
-                    <integration>true</integration>
-                </configuration>
-            </plugin>
-
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <skip>false</skip>
                     <includes>
-                        <include>**/*Test.java</include>
+                        <include>**/ServerTest.java</include>
                     </includes>
                     <excludes>
                         <exclude>**/*$*</exclude>
@@ -91,6 +81,30 @@
                         <additionalClasspathElement>target/classes</additionalClasspathElement>
                     </additionalClasspathElements>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-tests</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <includes>
+                                <include>**/*Test.java</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/*$*</exclude>
+                                <exclude>**/Abstract*Test.java</exclude>
+                                <exclude>**/*UnitTest.java</exclude>
+                            </excludes>
+                            <enableAssertions>false</enableAssertions>
+                            <additionalClasspathElements>
+                                <additionalClasspathElement>target/classes</additionalClasspathElement>
+                            </additionalClasspathElements>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
