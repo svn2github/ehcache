@@ -41,12 +41,7 @@ public class Server {
     /**
      * Default port: 8080
      */
-    public static final Integer DEFAULT_PORT = 9998;
-
-    /**
-     * The singleton CacheManager instance exposed by this server.
-     */
-//    private static CacheManager cacheManager = CacheManager.getInstance();
+    public static final Integer DEFAULT_PORT = 8080;
 
     private static final Logger LOG = Logger.getLogger(Server.class.getName());
 
@@ -78,16 +73,11 @@ public class Server {
     }
 
 
-
     /**
      * Starts the server and registers ehcache with the JMX Platform MBeanServer
      */
     public void init() {
-//        if (ehcacheServerWar == null) {
-//            serverThread = new HttpServerThread();
-//        } else {
-            serverThread = new GlassfishServerThread();
-//        }
+        serverThread = new GlassfishServerThread();
         serverThread.start();
 
 //        ManagementService.registerMBeans(Server.getCacheManager(), ManagementFactory.getPlatformMBeanServer(),
@@ -95,7 +85,7 @@ public class Server {
     }
 
     /**
-     * Shutsdown the HTTP server.
+     * Shuts down the HTTP server.
      */
     public void destroy() {
         serverThread.stopServer();
@@ -159,8 +149,6 @@ public class Server {
 
 
         /**
-         * Glassfish embedding API is currently broken
-         *
          * @throws IOException
          */
         private void startWithGlassfish() {
@@ -184,39 +172,6 @@ public class Server {
             glassfish.stop();
         }
     }
-//
-//    /**
-//     * A server thread for the Lightweight HttpServer built into Java 6.
-//     */
-//    class HttpServerThread extends ServerThread {
-//
-//        private HttpServer server;
-//
-//        /**
-//         * Starts the server in a separate thread.
-//         */
-//        public synchronized void start() {
-//            startWithLightWeightHttpServer();
-//        }
-//
-//        private void startWithLightWeightHttpServer() {
-//            PackagesResourceConfig prc = new PackagesResourceConfig(new String[]{"net.sf.ehcache.server.rest.resources"});
-//            HttpHandler h = ContainerFactory.createContainer(HttpHandler.class, prc);
-//            try {
-//                server = HttpServerFactory.create("http://localhost:" + listeningPort + "/ehcache", h);
-//                server.start();
-//                LOG.info("Lightweight HTTP Server running on port " + listeningPort);
-//            } catch (IOException e) {
-//                LOG.log(Level.SEVERE, "Cannot start server. ", e);
-//            }
-//        }
-//
-//        /**
-//         * Stops the server.
-//         */
-//        public void stopServer() {
-//            server.stop(0);
-//        }
-//    }
+
 
 }
