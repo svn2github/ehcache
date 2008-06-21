@@ -9,6 +9,7 @@
     </parent>
     <name>Ehcache Server</name>
     <artifactId>ehcache-server</artifactId>
+    <version>0.1</version>
     <packaging>war</packaging>
     <description>The ehcache W3C and RESTful web services server.</description>
     <dependencies>
@@ -24,7 +25,7 @@
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>ehcache</artifactId>
-            <version>${pom.version}</version>
+            <version>1.6.0-beta1</version>
         </dependency>
         <dependency>
             <groupId>javax.xml.ws</groupId>
@@ -204,20 +205,64 @@
                 </configuration>
             </plugin>
             <plugin>
-               <artifactId>maven-jar-plugin</artifactId>
-               <executions>
-                   <execution>
-                       <id>classes-jar</id>
-                       <phase>verify</phase>
-                       <goals>
-                           <goal>jar</goal>
-                       </goals>
-                       <configuration>
-                           <classifier>classes</classifier>
-                       </configuration>
-                   </execution>
-               </executions>
-           </plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>classes-jar</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>classes</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxws-maven-plugin</artifactId>
+                <configuration>
+                    <sei>net.sf.ehcache.server.soap.EhcacheWebServiceEndpoint</sei>
+                    <genWsdl>true</genWsdl>
+                    <keep>true</keep>
+                    <verbose>true</verbose>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>wsgen</goal>
+                        </goals>
+                        <configuration>
+                            <sei>net.sf.ehcache.server.soap.EhcacheWebServiceEndpoint</sei>
+                            <genWsdl>true</genWsdl>
+                            <keep>true</keep>
+                            <verbose>true</verbose>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <filters>
+                        <filter>src/assemble/filter.properties</filter>
+                    </filters>
+                    <descriptors>
+                        <descriptor>src/assemble/distribution.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <!--<executions>-->
+                <!--<execution>-->
+                <!--<id>assemble</id>-->
+                <!--<phase>process-classes</phase>-->
+                <!--<goals>-->
+                <!--<goal>assembly</goal>-->
+                <!--</goals>-->
+                <!--</execution>-->
+                <!--</executions>-->
+            </plugin>
+
         </plugins>
     </build>
     <properties>
