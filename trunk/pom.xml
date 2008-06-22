@@ -11,6 +11,10 @@
     </description>
     <url>http://ehcache.sf.net</url>
     <inceptionYear>2003</inceptionYear>
+    <organization>
+        <name>Luck Consulting Pty Ltd</name>
+        <url>http://gregluck.com</url>
+    </organization>
 
     <!--Not using aggregate building -->
     <modules>
@@ -245,7 +249,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-		    <version>2.4.3</version>
+                    <version>2.3</version>
                 </plugin>
 
                 <plugin>

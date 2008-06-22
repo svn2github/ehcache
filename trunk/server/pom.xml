@@ -225,11 +225,13 @@
                 <configuration>
                     <sei>net.sf.ehcache.server.soap.EhcacheWebServiceEndpoint</sei>
                     <genWsdl>true</genWsdl>
+                    <destDir></destDir>
                     <keep>true</keep>
                     <verbose>true</verbose>
                 </configuration>
                 <executions>
                     <execution>
+                        <phase>verify</phase>
                         <goals>
                             <goal>wsgen</goal>
                         </goals>

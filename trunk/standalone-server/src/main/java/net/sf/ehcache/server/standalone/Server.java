@@ -92,7 +92,7 @@ public class Server {
     }
 
     /**
-     * Usage: java -classpath ... net.sf.ehcache.server.Server &lt;port&gt; path to ehcache-server.war
+     * Usage: java -jar ...  [http port] warfile | wardir
      * <p/>
      * The port is optional. It should be <= 65536
      * <p/>
@@ -102,18 +102,24 @@ public class Server {
      */
     public static void main(String[] args) throws IOException {
         Server server = null;
-        if (args.length == 1 && args[0].matches("--help")) {
-            System.out.println("java -classpath ... net.sf.ehcache.server.Server <http port> <ehcache-server.war>} ");
+        if (args.length < 1 || args.length > 2 || (args.length == 1 && args[0].matches("--help"))) {
+            System.out.println("Usage: java -jar ...  [http port] warfile | wardir ");
             System.exit(0);
         }
         if (args.length == 1) {
-            Integer port = Integer.parseInt(args[0]);
-            server = new Server(port, null);
+            File war = new File(args[1]);
+            System.out.println("Starting standalone ehcache server on port " + DEFAULT_PORT + " with warfile " + war);
+            server = new Server(null, war);
             server.init();
         }
         if (args.length == 2) {
             Integer port = Integer.parseInt(args[0]);
             File war = new File(args[1]);
+            if (!war.exists()) {
+                System.err.println("Error: War file " + war + " does not exist.");
+                System.exit(1);
+            }
+            System.out.println("Starting standalone ehcache server on port " + port + " with warfile " + war);
             server = new Server(port, war);
             server.init();
         }
