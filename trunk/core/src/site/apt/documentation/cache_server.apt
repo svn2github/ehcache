@@ -23,7 +23,7 @@
 
     Their taxonomy is used in the following discussion.
 
-
+*   Web Service Types Supported
 
 ** W3C Web Services
 
@@ -61,6 +61,16 @@
 
     * The {WS-Security} SOAP extensions are supported
 
+** W3C Web Services API
+
+    The Ehcache RESTFul Web Services API exposes the singleton CacheManager, which typically has been configured
+    in ehcache.xml or an IoC container. Multiple CacheManagers are not supported.
+
+    The API definition is as follows:
+
+    * WSDL - {{{http://ehcache.sf.net/wsdl/EhcacheWebServiceEndpointService.wsdl}}EhcacheWebServiceEndpointService.wsdl}
+
+    * Types - {{{http://ehcache.sf.net/wsdl/EhcacheWebServiceEndpointService_schema1.xsd}}EhcacheWebServiceEndpointService_schema1.xsd}
 
 
 ** RESTful Web Services
@@ -82,7 +92,7 @@
       It contains the URIs you can call, and what data to pass and get back.
 
 
-* RESTFul Web Services API
+** RESTFul Web Services API
 
     The Ehcache RESTFul Web Services API exposes the singleton CacheManager, which typically has been configured
     in ehcache.xml or an IoC container. Multiple CacheManagers are not supported.
@@ -178,6 +188,62 @@
     Because anything that can be PUT into the cache server must be Serializable, it can also be distributed
     in a cache cluster i.e. it will be Serializable.
 
+*   Installation
+
+    The ehcache server comes as either a WAR file, or as a standalone server.
+
+**  Installing the WAR
+
+    Use your Web Container's instructions to install the WAR.
+
+    Web Container specific configuration is provided in the WAR as follows:
+
+    * sun-web.xml - Glassfish V2/V3 configuration
+
+    * jetty-web.xml - Jetty V5/V6 configuration
+
+    Tomcat V6 passes all integration tests. It does not require a specific configuration.
+
+*   Configuring the Web Application
+
+    Expand the WAR.
+
+    Edit the web.xml.
+
+**  Disabling the RESTful Web Service
+
+    Comment out the RESTful web service section.
+
+**  Disabling the SOAP Web Service
+
+    Comment out the RESTful web service section.
+
+**  Configuring Caches
+
+    The ehcache.xml configuration file is located in WEB-INF/classes/ehcache.xml.
+
+    Follow the instructions in this config file, or the core ehcache instructions to configure.
+
+**  SOAP Web Service Security
+
+    Todo
+
+*   Standalone Server
+
+    The WAR also comes packaged with a standalone server, based on Glassfish V3 Embedded.
+
+    See the INSTALL.txt that comes with the tarball for detailed instructions.
+
+
+**  Configuration
+
+    Configuration is by editing the war/web.xml file as per the instructions for the WAR packaging.
+
+**  Starting and Stopping
+
+
+
+   
 
 
 

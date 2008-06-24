@@ -49,7 +49,7 @@ public class CachesResourceTest {
 
     @Test
     public void testGetCaches() throws IOException, ParserConfigurationException, SAXException {
-        HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache");
+        HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache/rest/");
         assertEquals(200, result.getResponseCode());
     }
 

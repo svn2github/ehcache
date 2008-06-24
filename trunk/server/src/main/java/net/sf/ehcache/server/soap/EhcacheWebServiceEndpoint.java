@@ -55,7 +55,7 @@ import java.util.List;
  * use any Java Object as a key. The consequences are that only keys which are Strings are accessible
  * from this API.
  * <p/>
- * Element Representations are put into and returned from the cache. An Element Representation contains
+ * Element Representations are put into and returned from the ca2che. An Element Representation contains
  * the key, value, which must be a byte[], the value's MIME Type and metadata about the underlying Element.
  * See {@link Element} for details.
  * <p/>

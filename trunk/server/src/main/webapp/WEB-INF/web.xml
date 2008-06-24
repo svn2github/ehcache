@@ -6,6 +6,7 @@
          version="2.5">
 
     <!--REST Servlet-->
+    <!-- Comment out to disable RESTful web services-->
     <servlet>
         <servlet-name>Ehcache RESTful Web Service</servlet-name>
         <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
@@ -24,7 +25,11 @@
         <url-pattern>/rest/*</url-pattern>
     </servlet-mapping>
 
-    <!--SOAP Servlet-->
+    <!--
+    SOAP Servlet
+    Comment out to disable SOAP Web Services
+    -->
+    
     <servlet>
         <servlet-name>EhcacheWebServiceEndpoint</servlet-name>
         <servlet-class>com.sun.xml.ws.transport.http.servlet.WSServlet</servlet-class>
