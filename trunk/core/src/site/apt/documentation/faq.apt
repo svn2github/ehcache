@@ -353,3 +353,27 @@ WARN  CacheManager ...  Creating a new instance of CacheManager using the diskSt
 
    Finally, the debugger in ehcache-1.5 has been improved to provide far more information on the caches that are
    replicated and events which are occurring.
+
+
+* With distributed replication on Ubuntu or Debian, I see the following warning,
+
+---
+WARN [Replication Thread] RMIAsynchronousCacheReplicator.flushReplicationQueue(324) | Unable to send message to remote peer.  Message was: Connection refused to host: 127.0.0.1; nested exception is:
+
+        java.net.ConnectException: Connection refused
+
+java.rmi.ConnectException: Connection refused to host: 127.0.0.1; nested exception is:
+
+        java.net.ConnectException: Connection refused
+---
+
+    This is caused by a 2008 change to the Ubuntu/Debian linux default network configuration.
+
+    Essentially, this java call: <<<InetAddress.getLocalHost();>>> always returns the loopback address, which
+    is 127.0.0.1. Why? Because in these recent distros, a system call of $ hostname always returns an address
+    mapped onto the loopback device. Which causes ehcache's RMI Peer creation logic to always assign the loopback address, which causes the error you are seeing.
+
+    All you need to do is crack open the network config and make sure that the hostname of the machine returns a valid network address accessible by other peers on the network.
+
+
+   

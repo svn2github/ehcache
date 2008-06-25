@@ -221,6 +221,35 @@
                 </executions>
             </plugin>
 
+            <!--todo  add to ehcache 1.5.0 final-->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>
+                            ${pom.artifactId}
+                        </Bundle-SymbolicName>
+                        <Export-Package>
+                            *;version=${pom.version}
+                        </Export-Package>
+                        <Import-Package>
+                            net.sf.hibernate.cache;resolution:=optional,*;-split-package:=merge-first
+                        </Import-Package>
+                    </instructions>
+                    <classifier>osgi</classifier>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>bundle</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>bundle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <!--<plugin>-->
             <!--<groupId>org.apache.maven.plugins</groupId>-->
             <!--<artifactId>maven-source-plugin</artifactId>-->
@@ -250,18 +279,18 @@
             <!--</plugin>-->
 
             <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-checkstyle-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>check</id>-->
-                        <!-- 4.3 seems to have a bug and needs to run after compile -->
-                        <!--<phase>test</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>check</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-checkstyle-plugin</artifactId>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<id>check</id>-->
+            <!-- 4.3 seems to have a bug and needs to run after compile -->
+            <!--<phase>test</phase>-->
+            <!--<goals>-->
+            <!--<goal>check</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
             <!--</plugin>-->
 
             <!-- Use this to specify a different template. It also needs a local copy of maven-base.css -->
