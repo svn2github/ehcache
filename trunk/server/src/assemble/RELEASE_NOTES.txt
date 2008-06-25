@@ -89,25 +89,6 @@ your project. See http://ehcache.sourceforge.net/documentation/logging.html for 
 
 Documentation
 =============
-See http://ehcache.sourceforge.net/documentation for full documentation.
+See http://ehcache.sourceforge.net/documentation/cache_server.html for full documentation.
 
 The JavaDoc is in the distribution and also online at http://ehcache.sourceforge.net/javadoc.
-
-Compatibility With Ehcache 1.1
-==============================
-1. Due to an internal reorganisation in the code base the DiskStore path will default to java.io.tmp when the ehcache-1.1
-constructor is used.
-
-2. APIs are the same. CacheException is now a runtime exception. Additionally, IOException is no longer thrown.
-This does not cause a runtime error but will cause a compile time error if clients are recompiled against ehcache. In
-this case change the code to not catch an IOException. Catching CacheException is optional.
-
-Known Issues
-============
-
-1. Due to a limitation in RMI, JDK1.5 or higher is required to run multiple distributed CacheManagers on the same machine.
-   Normally distributed caching is used between machines, so this should be a very rare issue.
-
-2. There are a number of known issues and workarounds for Tomcat. See the Using Ehcache with Tomcat chapter in the online documentation.
-
-3. See the FAQ online for more.

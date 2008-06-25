@@ -29,7 +29,6 @@
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-server</artifactId>
             <version>0.1</version>
-            <!--<classifier>war</classifier>-->
             <type>war</type>
         </dependency>
         <dependency>

@@ -68,15 +68,15 @@
 
     The API definition is as follows:
 
-    * WSDL - {{{http://ehcache.sf.net/wsdl/EhcacheWebServiceEndpointService.wsdl}}EhcacheWebServiceEndpointService.wsdl}
+    * WSDL - {{{http://ehcache.sf.net/wsdl/EhcacheWebServiceEndpointService.wsdl}EhcacheWebServiceEndpointService.wsdl}}
 
-    * Types - {{{http://ehcache.sf.net/wsdl/EhcacheWebServiceEndpointService_schema1.xsd}}EhcacheWebServiceEndpointService_schema1.xsd}
+    * Types - {{{http://ehcache.sf.net/wsdl/EhcacheWebServiceEndpointService_schema1.xsd}EhcacheWebServiceEndpointService_schema1.xsd}}
 
 
 ** RESTful Web Services
 
     Roy Fielding created the term REST, denoting Representational State Transfer, in his
-    {{{http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm}}PhD thesis}.
+    {{{http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm}PhD thesis}}.
 
     The ehcache implementation strictly follows the RESTful resource-oriented architecture style.
 
@@ -147,7 +147,7 @@
 
     Gets the element.
 
-*** HEAD /\{cache}/{element\}
+*** HEAD /\{cache\}/\{element\}
 
     Gets the element's metadata.
 
@@ -155,7 +155,7 @@
 
     Puts and element into the Cache.
 
-*** {DELETE} / \{cache\}/\{{element\}
+*** {DELETE} / \{cache\}/\{element\}
 
     Deletes the element from the cache.
 
@@ -188,9 +188,61 @@
     Because anything that can be PUT into the cache server must be Serializable, it can also be distributed
     in a cache cluster i.e. it will be Serializable.
 
+*   Requirements
+
+**  Java
+
+    Java 5 or 6
+
+**  Web Container (WAR packaged version only)
+
+    The standalone server comes with its own embedded Glassfish web container.
+
+    The web container must support the Servlet 2.5 specification.
+
+    The following web container configuration have been tested:
+
+    * Glassfish V2/V3
+
+    * Tomcat 6
+
+    * Jetty 6
+
+*   Downloading
+
+    The server is available as follows:
+
+**  Sourceforge
+
+    Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}.
+
+    There are two tarball archives in tar.gz format:
+
+    * ehcache-server - this contains the WAR file which must be deployed in your own web container.
+
+    * ehcache-standalone-server - this contains a complete standalone directory structure with an embedded Glassfish V3 web container
+      together with shell scripts for starting and stopping.
+
+**  Maven
+
+    The Ehcache Server is in the central Maven repository packaged as type <jar>. Use the following Maven pom snippet:
+
+---
+   <dependency>
+        <groupId>net.sf.ehcache</groupId>
+        <artifactId>ehcache-server</artifactId>
+        <version>0.1</version>
+        <type>war</type>
+   </dependency>
+---
+
+    The standalone Ehcache Server is in the central repository packaged as type <jar>. It contains
+
+
 *   Installation
 
     The ehcache server comes as either a WAR file, or as a standalone server.
+
 
 **  Installing the WAR
 
