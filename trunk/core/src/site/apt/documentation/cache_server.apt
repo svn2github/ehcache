@@ -236,17 +236,12 @@
    </dependency>
 ---
 
-    The standalone Ehcache Server is in the central repository packaged as type <jar>. It contains
-
-
 *   Installation
-
-    The ehcache server comes as either a WAR file, or as a standalone server.
-
 
 **  Installing the WAR
 
-    Use your Web Container's instructions to install the WAR.
+    Use your Web Container's instructions to install the WAR or include the WAR in your project with
+    Maven's war plugin.
 
     Web Container specific configuration is provided in the WAR as follows:
 
@@ -256,42 +251,55 @@
 
     Tomcat V6 passes all integration tests. It does not require a specific configuration.
 
-*   Configuring the Web Application
+**   Configuring the Web Application
 
     Expand the WAR.
 
     Edit the web.xml.
 
-**  Disabling the RESTful Web Service
+***  Disabling the RESTful Web Service
 
     Comment out the RESTful web service section.
 
-**  Disabling the SOAP Web Service
+***  Disabling the SOAP Web Service
 
     Comment out the RESTful web service section.
 
-**  Configuring Caches
+***  Configuring Caches
 
     The ehcache.xml configuration file is located in WEB-INF/classes/ehcache.xml.
 
     Follow the instructions in this config file, or the core ehcache instructions to configure.
 
-**  SOAP Web Service Security
+***  SOAP Web Service Security
 
     Todo
 
-*   Standalone Server
+*   Installing the Standalone Server
 
     The WAR also comes packaged with a standalone server, based on Glassfish V3 Embedded.
 
+    The quick start is:
+
+    * Untar the download
+
+    * bin/start.sh to start. By default it will listen on port 8080, will have both RESTful and SOAP
+      web services enabled, and will use a sample Ehcache configuration from the WAR module.
+
+    * bin/stop.sh to stop
+
     See the INSTALL.txt that comes with the tarball for detailed instructions.
 
-
-**  Configuration
+**  Configuring the Standalone Server
 
     Configuration is by editing the war/web.xml file as per the instructions for the WAR packaging.
 
 **  Starting and Stopping
+
+    * bin/start.sh to start. By default it will listen on port 8080, will have both RESTful and SOAP
+      web services enabled, and will use a sample Ehcache configuration from the WAR module.
+
+    * bin/stop.sh to stop 
 
 
 
