@@ -20,6 +20,9 @@ package net.sf.ehcache.server.standalone;
 import org.glassfish.embed.GFApplication;
 import org.glassfish.embed.GFException;
 import org.glassfish.embed.GlassFish;
+import org.apache.commons.daemon.Daemon;
+import org.apache.commons.daemon.DaemonContext;
+import org.apache.commons.daemon.DaemonController;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +38,7 @@ import java.util.logging.Logger;
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
-public class Server {
+public class Server implements Daemon {
 
 
     /**
@@ -47,9 +50,10 @@ public class Server {
 
     private Integer listeningPort = DEFAULT_PORT;
 
-    private File ehcacheServerWar;
-
     private ServerThread serverThread;
+    private DaemonController controller;
+    private File war;
+    private Integer port = DEFAULT_PORT;
 
 
     /**
@@ -69,14 +73,52 @@ public class Server {
      */
     public Server(Integer listeningPort, File ehcacheServerWar) {
         this.listeningPort = listeningPort;
-        this.ehcacheServerWar = ehcacheServerWar;
+        this.war = ehcacheServerWar;
     }
 
 
     /**
-     * Starts the server and registers ehcache with the JMX Platform MBeanServer
+     * Invoked by Jsvc with a context which includes the arguments passed to Jsvc. The main() method
+     * also calls through here so that the server can be started using either Jsvc or java -jar...
+     * @param daemonContext
+     * @throws Exception
      */
-    public void init() {
+    public void init(DaemonContext daemonContext) throws Exception {
+        String[] args = daemonContext.getArguments();
+        if (args.length < 1 || args.length > 2 || (args.length == 1 && args[0].matches("--help"))) {
+            System.out.println("Usage: java -jar ...  [http port] warfile | wardir ");
+            System.exit(0);
+        }
+        if (args.length == 1) {
+            war = new File(args[1]);
+            if (!war.exists()) {
+                System.err.println("Error: War file " + war + " does not exist.");
+                System.exit(1);
+            }
+        }
+        if (args.length == 2) {
+            port = Integer.parseInt(args[0]);
+            war = new File(args[1]);
+            if (!war.exists()) {
+                System.err.println("Error: War file " + war + " does not exist.");
+                System.exit(1);
+            }
+        }
+
+        /* Dump a message */
+        System.err.println("Ehcache standalone server starting...");
+
+        /* Set up this simple daemon */
+        this.controller = daemonContext.getController();
+    }
+
+    /**
+     * Starts the server. This method is called by Jsvc. The main() method
+     * also calls through here so that the server can be started using either Jsvc or java -jar...
+     * @throws Exception
+     */
+    public void start() throws Exception {
+        System.out.println("Starting standalone ehcache server on port " + port + " with WAR file or directory " + war);
         serverThread = new GlassfishServerThread();
         serverThread.start();
 
@@ -85,13 +127,54 @@ public class Server {
     }
 
     /**
-     * Shuts down the HTTP server.
+     * Shuts down the HTTP server in an orderly way.
      */
-    public void destroy() {
+    public void stop() throws InterruptedException {
         serverThread.stopServer();
+        //wait indefinitely until it shuts down
+        serverThread.join();
     }
 
     /**
+     * Interrupts the server thread.
+     */
+    public void destroy() {
+        serverThread.interrupt();
+    }
+
+
+    /**
+     * A mock DaemonContext which allows the main() method to call <code>init</code>.
+     */
+    static class MockDaemonContext implements DaemonContext {
+        private String[] args;
+
+        /**
+         * Constructor.
+         * @param args the <code>main()</code> method arguments.
+         */
+        public MockDaemonContext(String[] args) {
+            this.args = args;
+        }
+
+        /**
+         * @return null as it is not a real Daemon
+         */
+        public DaemonController getController() {
+            return null;
+        }
+
+        /**
+         * @return the arguments <code>main()</code> was invoked with.
+         */
+        public String[] getArguments() {
+            return args;
+        }
+    }
+
+    /**
+     * Wires in main() to use the Jsvc invocation path.
+     * <p/>
      * Usage: java -jar ...  [http port] warfile | wardir
      * <p/>
      * The port is optional. It should be <= 65536
@@ -99,30 +182,12 @@ public class Server {
      * If no war is specified, the LightWeight Http server is used. Otherwise Glassfish is used.
      *
      * @param args The first argument is the server port. The second is optional and is the path to the ehcache-server.war.
+     * @throws Exception
      */
-    public static void main(String[] args) throws IOException {
-        Server server = null;
-        if (args.length < 1 || args.length > 2 || (args.length == 1 && args[0].matches("--help"))) {
-            System.out.println("Usage: java -jar ...  [http port] warfile | wardir ");
-            System.exit(0);
-        }
-        if (args.length == 1) {
-            File war = new File(args[1]);
-            System.out.println("Starting standalone ehcache server on port " + DEFAULT_PORT + " with warfile " + war);
-            server = new Server(null, war);
-            server.init();
-        }
-        if (args.length == 2) {
-            Integer port = Integer.parseInt(args[0]);
-            File war = new File(args[1]);
-            if (!war.exists()) {
-                System.err.println("Error: War file " + war + " does not exist.");
-                System.exit(1);
-            }
-            System.out.println("Starting standalone ehcache server on port " + port + " with warfile " + war);
-            server = new Server(port, war);
-            server.init();
-        }
+    public static void main(String[] args) throws Exception {
+        Server server = new Server();
+        server.init(new MockDaemonContext(args));
+        server.start();
     }
 
     /**
@@ -162,8 +227,8 @@ public class Server {
             try {
                 glassfish = new GlassFish(listeningPort);
 
-                GFApplication application = glassfish.deploy(ehcacheServerWar);
-                LOG.info("Glassfish server running on port " + listeningPort + " with WAR " + ehcacheServerWar);
+                GFApplication application = glassfish.deploy(war);
+                LOG.info("Glassfish server running on port " + listeningPort + " with WAR " + war);
             } catch (GFException e) {
                 LOG.log(Level.SEVERE, "Cannot start server. ", e);
             } catch (IOException e) {
@@ -175,6 +240,7 @@ public class Server {
          * Stops the server
          */
         public void stopServer() {
+            //will cause the startsWithGlassfish method to return, and thus run() thus ending the thread.
             glassfish.stop();
         }
     }

@@ -36,6 +36,13 @@
             <outputDirectory>/</outputDirectory>
         </fileSet>
         <fileSet>
+            <directory>${basedir}/src/assemble</directory>
+            <includes>
+                <include>*.log</include>
+            </includes>
+            <outputDirectory>log</outputDirectory>
+        </fileSet>
+        <fileSet>
             <directory>target</directory>
             <includes>
                 <include>${artifact.artifactId}-${artifact.version}.jar</include>

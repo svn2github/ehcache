@@ -32,6 +32,11 @@
             <type>war</type>
         </dependency>
         <dependency>
+            <groupId>commons-daemon</groupId>
+            <artifactId>commons-daemon</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.1</version>
@@ -153,15 +158,15 @@
                     </descriptors>
                     <tarLongFileMode>gnu</tarLongFileMode>
                 </configuration>
-                <!--<executions>-->
-                <!--<execution>-->
-                <!--<id>assemble</id>-->
-                <!--<phase>process-classes</phase>-->
-                <!--<goals>-->
-                <!--<goal>assembly</goal>-->
-                <!--</goals>-->
-                <!--</execution>-->
-                <!--</executions>-->
+                <executions>
+                    <execution>
+                        <id>assemble</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>assembly</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
         </plugins>

@@ -27,9 +27,9 @@ public class ServerIntegrationTest {
 
 
     @BeforeClass
-    public static void startup() throws IOException, InterruptedException {
+    public static void startup() throws Exception, InterruptedException {
         Server.main(new String[]{"8080", "target/war/work/net.sf.ehcache/ehcache-server/"});
-        Thread.sleep(20000);
+        Thread.sleep(30000);
     }
 
     /**
