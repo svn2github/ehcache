@@ -17,12 +17,12 @@
 package net.sf.ehcache.server.standalone;
 
 
-import org.glassfish.embed.GFApplication;
-import org.glassfish.embed.GFException;
-import org.glassfish.embed.GlassFish;
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 import org.apache.commons.daemon.DaemonController;
+import org.glassfish.embed.GFApplication;
+import org.glassfish.embed.GFException;
+import org.glassfish.embed.GlassFish;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,13 +48,14 @@ public class Server implements Daemon {
 
     private static final Logger LOG = Logger.getLogger(Server.class.getName());
 
-    private Integer listeningPort = DEFAULT_PORT;
+    private static ServerThread serverThread;
 
-    private ServerThread serverThread;
+    private Integer listeningPort = DEFAULT_PORT;
     private DaemonController controller;
     private File war;
     private Integer port = DEFAULT_PORT;
 
+    private boolean deployed;
 
     /**
      * Empty constructor.
@@ -90,9 +91,9 @@ public class Server implements Daemon {
             System.exit(0);
         }
         if (args.length == 1) {
-            war = new File(args[1]);
+            war = new File(args[0]);
             if (!war.exists()) {
-                System.err.println("Error: War file " + war + " does not exist.");
+                System.err.println("Error: War file or exploded directory " + war + " does not exist.");
                 System.exit(1);
             }
         }
@@ -100,13 +101,13 @@ public class Server implements Daemon {
             port = Integer.parseInt(args[0]);
             war = new File(args[1]);
             if (!war.exists()) {
-                System.err.println("Error: War file " + war + " does not exist.");
+                System.err.println("Error: War file or exploded directory " + war + " does not exist.");
                 System.exit(1);
             }
         }
 
         /* Dump a message */
-        System.err.println("Ehcache standalone server starting...");
+        System.err.println("\nEhcache standalone server initializing...");
 
         /* Set up this simple daemon */
         this.controller = daemonContext.getController();
@@ -118,7 +119,7 @@ public class Server implements Daemon {
      * @throws Exception
      */
     public void start() throws Exception {
-        System.out.println("Starting standalone ehcache server on port " + port + " with WAR file or directory " + war);
+        System.out.println("\nStarting standalone ehcache server on port " + port + " with WAR file or directory " + war);
         serverThread = new GlassfishServerThread();
         serverThread.start();
 
@@ -127,18 +128,31 @@ public class Server implements Daemon {
     }
 
     /**
-     * Shuts down the HTTP server in an orderly way.
+     * A test method for stopping a server
+     * @throws InterruptedException if the server is interrupted while stopping
      */
-    public void stop() throws InterruptedException {
+    static void stopStatic() throws InterruptedException {
         serverThread.stopServer();
         //wait indefinitely until it shuts down
         serverThread.join();
+
+
+    }
+
+    /**
+     * Shuts down the HTTP server in an orderly way.
+     */
+    public void stop() throws InterruptedException {
+        System.out.println("\nEhcache standalone server stopping...");
+        stopStatic();
+        System.out.println("\nEhcache standalone server stopped.");
     }
 
     /**
      * Interrupts the server thread.
      */
     public void destroy() {
+        System.out.println("\nEhcache standalone server destroyed.");
         serverThread.interrupt();
     }
 
@@ -228,6 +242,7 @@ public class Server implements Daemon {
                 glassfish = new GlassFish(listeningPort);
 
                 GFApplication application = glassfish.deploy(war);
+                deployed = true;
                 LOG.info("Glassfish server running on port " + listeningPort + " with WAR " + war);
             } catch (GFException e) {
                 LOG.log(Level.SEVERE, "Cannot start server. ", e);

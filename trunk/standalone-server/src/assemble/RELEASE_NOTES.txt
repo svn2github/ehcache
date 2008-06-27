@@ -8,8 +8,6 @@ Documentation
 =============
 See http://ehcache.sourceforge.net/documentation for full documentation including installation and configuration.
 
-The JavaDoc is in the distribution and also online at http://ehcache.sourceforge.net/javadoc.
-
 Known Issues
 ============
 

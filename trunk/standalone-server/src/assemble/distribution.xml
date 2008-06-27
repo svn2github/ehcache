@@ -38,9 +38,25 @@
         <fileSet>
             <directory>${basedir}/src/assemble</directory>
             <includes>
-                <include>*.log</include>
+                <include></include>
             </includes>
-            <outputDirectory>log</outputDirectory>
+            <outputDirectory>logs</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/assemble</directory>
+            <includes>
+                <include></include>
+            </includes>
+            <outputDirectory>pid</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/assemble</directory>
+            <includes>
+                <include>*.sh</include>
+                <include>*.gz</include>
+            </includes>
+            <fileMode>0755</fileMode>
+            <outputDirectory>bin</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>target</directory>
@@ -50,19 +66,14 @@
             <outputDirectory>lib</outputDirectory>
         </fileSet>
     </fileSets>
-        <dependencySets>
-            <dependencySet>
-                <outputDirectory>lib</outputDirectory>
-                <unpack>false</unpack>
-                <scope>runtime</scope>
-            </dependencySet>
-        </dependencySets>
-
-    <!--<files>-->
-    <!--<file>-->
-    <!--<source>${basedir}/src/assembly/README.txt</source>-->
-    <!--<outputDirectory>/</outputDirectory>-->
-    <!--<filtered>true</filtered>-->
-    <!--</file>-->
-    <!--</files>-->
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <unpack>false</unpack>
+            <scope>runtime</scope>
+            <excludes>
+                <exclude>net.sf.ehcache:ehcache-server</exclude>
+            </excludes>
+        </dependencySet>
+    </dependencySets>
 </assembly>

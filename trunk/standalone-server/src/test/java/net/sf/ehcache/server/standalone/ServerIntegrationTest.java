@@ -1,16 +1,16 @@
 package net.sf.ehcache.server.standalone;
 
-import org.junit.Test;
-import org.junit.BeforeClass;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ByteArrayOutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -34,9 +34,6 @@ public class ServerIntegrationTest {
 
     /**
      * Checks that the SOAP Web Service is actually running
-     * @throws IOException
-     * @throws ParserConfigurationException
-     * @throws SAXException
      */
     @Test
     public void testEhcacheWebServiceEndPointExists() throws IOException, ParserConfigurationException, SAXException {
@@ -53,9 +50,6 @@ public class ServerIntegrationTest {
 
     /**
      * Checks that the RESTful WebService is actually running
-     * @throws IOException
-     * @throws ParserConfigurationException
-     * @throws SAXException
      */
     @Test
     public void testGetRESTfulCache() throws IOException, ParserConfigurationException, SAXException {
