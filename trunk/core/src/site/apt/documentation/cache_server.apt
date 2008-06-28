@@ -23,9 +23,8 @@
 
     Their taxonomy is used in the following discussion.
 
-*   Web Service Types Supported
 
-** W3C Web Services
+*   W3C Web Services
 
     The W3C ({http://www.w3.org/} is a standards body that defines Web Services as
 
@@ -61,6 +60,7 @@
 
     * The {WS-Security} SOAP extensions are supported
 
+
 ** W3C Web Services API
 
     The Ehcache RESTFul Web Services API exposes the singleton CacheManager, which typically has been configured
@@ -73,7 +73,18 @@
     * Types - {{{http://ehcache.sf.net/wsdl/EhcacheWebServiceEndpointService_schema1.xsd}EhcacheWebServiceEndpointService_schema1.xsd}}
 
 
-** RESTful Web Services
+**  Security
+
+    By default no security is configured. Because it is simply a Servlet 2.5 web application, it can be secured in all the
+    usual ways by configuration in the web.xml.
+
+    XWSS 3.0 is used to secure the Web Service. See {{https://xwss.dev.java.net/}}.
+
+    
+
+
+
+*   RESTful Web Services
 
     Roy Fielding created the term REST, denoting Representational State Transfer, in his
     {{{http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm}PhD thesis}}.
@@ -182,11 +193,16 @@
 *-----*------*
 
     Because ehcache is a distributed Java cache, in some configurations the Cache server may contain Java objects
-    that arrived at the Cache server via distributed replication. In this case no MIME Type will not be set.
-    In this case the Element will be examined to determine its MIME Type. todo details and default
+    that arrived at the Cache server via distributed replication. In this case no MIME Type will be set
+    and the Element will be examined to determine its MIME Type.
 
     Because anything that can be PUT into the cache server must be Serializable, it can also be distributed
     in a cache cluster i.e. it will be Serializable.
+
+**  Security
+
+    By default no security is configured. Because it is simply a Servlet 2.5 web application, it can be secured in all the
+    usual ways by configuration in the web.xml.
 
 *   Requirements
 

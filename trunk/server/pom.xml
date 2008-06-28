@@ -33,6 +33,19 @@
             <version>2.1</version>
             <scope>compile</scope>
         </dependency>
+        <!-- NoteL xmldsig is missing from any maven repo. Download from http://www.java2s.com/Code/Jar/wsit/Downloadxmldsigjar.htm
+        and install manually. Logged as issue https://xwss.dev.java.net/issues/show_bug.cgi?id=31-->
+        <dependency>
+            <groupId>com.sun.xml.wss</groupId>
+            <artifactId>xws-security</artifactId>
+            <version>3.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.xml</groupId>
+                    <artifactId>xmldsig</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
