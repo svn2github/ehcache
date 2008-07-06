@@ -289,8 +289,6 @@
 
 ***  SOAP Web Service Security
 
-    Todo
-
 *   Installing the Standalone Server
 
     The WAR also comes packaged with a standalone server, based on Glassfish V3 Embedded.
@@ -315,7 +313,54 @@
     * bin/start.sh to start. By default it will listen on port 8080, will have both RESTful and SOAP
       web services enabled, and will use a sample Ehcache configuration from the WAR module.
 
-    * bin/stop.sh to stop 
+    * bin/stop.sh to stop
+
+**  Running the Standalone Server as a Unix Service
+
+    The standalone server can be run as a daemon using the jsvc tool from the Apache commons-daemon project.
+    Source tarballs for jsvc are included in the jscv directory of the tarball.
+
+    See {{http://commons.apache.org/daemon/jsvc.html}} for full details.
+
+    with the Apache binaries, and need to be compiled.
+
+    Building jsvc requires a C ANSI compiler (such as GCC), GNU Autoconf, and a JDK.
+
+Before running the script, the JAVA_HOME environment variable should be set to the base path of the JDK. Alternately, when calling the ./configure script, the path of the JDK may be specified using the --with-java parameter, such as ./configure --with-java=/usr/java.
+
+Using the following commands should result in a compiled jsvc binary, located in the $CATALINA_HOME/bin folder. This assumes that GNU TAR is used, and that CATALINA_HOME is an environment variable pointing to the base path of the Tomcat installation.
+
+Please note that you should use the GNU make (gmake) instead of the native BSD make on FreeBSD systems.
+
+Download a commons-daemon binary from the Jakarta Commons download page, and place jsvc.tar.gz and commons-daemon.jar in the $CATALINA_HOME/bin folder.
+
+
+
+    cd $CATALINA_HOME/bin
+    tar xvfz jsvc.tar.gz
+    cd jsvc-src
+    autoconf
+    ./configure
+    make
+    cp jsvc ..
+    cd ..
+
+
+Tomcat can then be run as a daemon using the following commands.
+
+
+
+    cd $CATALINA_HOME
+    ./bin/jsvc -cp ./bin/bootstrap.jar \
+        -outfile ./logs/catalina.out -errfile ./logs/catalina.err \
+        org.apache.catalina.startup.Bootstrap
+
+
+jsvc has other useful parameters, such as -user which causes it to switch to another user after the daemon initialization is complete. This allows, for example, running Tomcat as a non privileged user while still being able to use privileged ports. jsvc --help will return the full jsvc usage information. In particular, the -debug option is useful to debug issues running jsvc.
+
+The file $CATALINA_HOME/bin/jsvc/native/tomcat.sh can be used as a template for starting Tomcat automatically at boot time from /etc/init.d. The file is currently setup for running Tomcat 4.1.x, so it is necessary to edit it and change the classname from BootstrapService to Bootstrap.
+
+Note that the Commons-Daemon JAR file must be on your runtime classpath to run Tomcat in this manner. The Commons-Daemon JAR file is in the Class-Path entry of the bootstrap.jar manifest, but if you get a ClassNotFoundException or a NoClassDefFoundError for a Commons-Daemon class, add the Commons-Daemon JAR to the -cp argument when launching jsvc.
 
 
 
