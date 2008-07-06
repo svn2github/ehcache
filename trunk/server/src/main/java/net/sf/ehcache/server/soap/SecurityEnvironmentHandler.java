@@ -23,6 +23,7 @@ import com.sun.xml.wss.impl.callback.UsernameCallback;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.xml.ws.BindingProvider;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -34,18 +35,24 @@ import java.io.InputStreamReader;
  */
 public class SecurityEnvironmentHandler implements CallbackHandler {
 
+    private static final UnsupportedCallbackException UNSUPPORTED =
+            new UnsupportedCallbackException(null, "Unsupported Callback Type Encountered");
+
+
     /**
      * Creates a new instance of SecurityEnvironmentHandler
      */
-    public SecurityEnvironmentHandler(String arg) {
+    public SecurityEnvironmentHandler() {
     }
 
     private String readLine() throws IOException {
         return new BufferedReader(new InputStreamReader(System.in)).readLine();
     }
 
+
     /**
-     * Handle callbacks. This one asks for a username and password. todo this is just a sample
+     * Handle a security callback
+     *
      * @param callbacks
      * @throws IOException
      * @throws UnsupportedCallbackException
@@ -53,54 +60,60 @@ public class SecurityEnvironmentHandler implements CallbackHandler {
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
         for (int i = 0; i < callbacks.length; i++) {
             if (callbacks[i] instanceof PasswordValidationCallback) {
-                PasswordValidationCallback callback = (PasswordValidationCallback) callbacks[i];
-                if (callback.getRequest() instanceof PasswordValidationCallback.PlainTextPasswordRequest) {
-                    callback.setValidator(new PlainTextPasswordValidator());
+                PasswordValidationCallback cb = (PasswordValidationCallback) callbacks[i];
+                if (cb.getRequest() instanceof PasswordValidationCallback.PlainTextPasswordRequest) {
+                    cb.setValidator(new PlainTextPasswordValidator());
 
-                } else if (callback.getRequest() instanceof PasswordValidationCallback.DigestPasswordRequest) {
+                } else if (cb.getRequest() instanceof PasswordValidationCallback.DigestPasswordRequest) {
                     PasswordValidationCallback.DigestPasswordRequest request =
-                            (PasswordValidationCallback.DigestPasswordRequest) callback.getRequest();
+                            (PasswordValidationCallback.DigestPasswordRequest) cb.getRequest();
                     String username = request.getUsername();
-                    if ("Greg".equals(username)) {
-                        request.setPassword("Luck");
-                        callback.setValidator(new PasswordValidationCallback.DigestPasswordValidator());
+                    if ("Ron".equals(username)) {
+                        request.setPassword("noR");
+                        cb.setValidator(new PasswordValidationCallback.DigestPasswordValidator());
                     }
                 }
             } else if (callbacks[i] instanceof UsernameCallback) {
                 UsernameCallback cb = (UsernameCallback) callbacks[i];
-                System.out.println("Username: ");
-                String username = readLine();
-                if (username != null) {
-                    cb.setUsername(username);
-                }
+                String username = (String) cb.getRuntimeProperties().get(BindingProvider.USERNAME_PROPERTY);
+                System.out.println("Got Username......... : " + username);
+                cb.setUsername(username);
 
             } else if (callbacks[i] instanceof PasswordCallback) {
                 PasswordCallback cb = (PasswordCallback) callbacks[i];
-                System.out.println("Password: ");
-                String password = readLine();
-                if (password != null) {
-                    cb.setPassword(password);
-                }
+                String password = (String) cb.getRuntimeProperties().get(BindingProvider.PASSWORD_PROPERTY);
+                System.out.println("Got Password......... : " + password);
+                cb.setPassword(password);
+
             } else {
-                throw new UnsupportedCallbackException(null, "Valid callbacks are username and password");
+                throw UNSUPPORTED;
             }
         }
     }
 
     /**
-     * Hardcoded sample validattor todo fix
+     * Plain text validator
      */
     private class PlainTextPasswordValidator implements PasswordValidationCallback.PasswordValidator {
+
+        /**
+         * Validate password
+         * @param request
+         * @return
+         * @throws PasswordValidationCallback.PasswordValidationException
+         */
         public boolean validate(PasswordValidationCallback.Request request)
                 throws PasswordValidationCallback.PasswordValidationException {
 
             PasswordValidationCallback.PlainTextPasswordRequest plainTextRequest =
                     (PasswordValidationCallback.PlainTextPasswordRequest) request;
-            if ("Greg".equals(plainTextRequest.getUsername()) &&
-                    "Luck".equals(plainTextRequest.getPassword())) {
+            if ("Ron".equals(plainTextRequest.getUsername()) &&
+                    "noR".equals(plainTextRequest.getPassword())) {
                 return true;
             }
             return false;
         }
     }
+
+
 }

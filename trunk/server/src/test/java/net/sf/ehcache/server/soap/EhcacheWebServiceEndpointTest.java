@@ -15,6 +15,7 @@ import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
 import javax.xml.ws.soap.SOAPFaultException;
+import javax.xml.ws.BindingProvider;
 import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -27,12 +28,17 @@ public class EhcacheWebServiceEndpointTest {
     @BeforeClass
     public static void setup() {
         cacheService = new EhcacheWebServiceEndpointService().getEhcacheWebServiceEndpointPort();
+        //add security credentials
+        ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "Ron");
+        ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "noR");
+
     }
 
     @Before
     public void zeroOutCache() throws CacheException_Exception, IllegalStateException_Exception {
         cacheService.removeAll(cacheName);
     }
+
 
     @Test
     public void testPing() {

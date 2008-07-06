@@ -23,28 +23,30 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>ehcache</artifactId>
             <version>1.6.0-beta1</version>
         </dependency>
+        <!--Cannot find these complete anywhere. Bug logged against WSIT project. prefix with metro to stop
+         a broken one coming down.-->
         <dependency>
-            <groupId>javax.xml.ws</groupId>
-            <artifactId>jaxws-api</artifactId>
-            <version>2.1</version>
-            <scope>compile</scope>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>metro-webservices-rt</artifactId>
+            <version>1.2</version>
         </dependency>
-        <!-- NoteL xmldsig is missing from any maven repo. Download from http://www.java2s.com/Code/Jar/wsit/Downloadxmldsigjar.htm
-        and install manually. Logged as issue https://xwss.dev.java.net/issues/show_bug.cgi?id=31-->
         <dependency>
-            <groupId>com.sun.xml.wss</groupId>
-            <artifactId>xws-security</artifactId>
-            <version>3.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.xml</groupId>
-                    <artifactId>xmldsig</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>metro-webservices-api</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>metro-webservices-tools</artifactId>
+            <version>1.2</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -70,6 +72,7 @@
             <version>4.1</version>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
     <build>
         <plugins>

@@ -11,6 +11,7 @@ import org.xml.sax.SAXException;
 
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Binding;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.Handler;
 import javax.xml.parsers.ParserConfigurationException;
 import java.net.HttpURLConnection;
@@ -30,7 +31,7 @@ import net.sf.ehcache.server.soap.jaxws.IllegalStateException_Exception;
  * @author Greg Luck
  * @version $Id$
  */
-public class BasicSoapTest {
+public class BasicSoapUnitTest {
     private static Object implementor;
     private static String address;
     private static WebServiceThread webServiceThread;
@@ -40,31 +41,35 @@ public class BasicSoapTest {
     @Test
     public void testEhcacheWebServiceEndPointExists() throws IOException, ParserConfigurationException, SAXException, InterruptedException {
 
-        HttpURLConnection response = HttpUtil.get("http://localhost:9080/ehcache/soap/EhcacheWebServiceEndpoint?wsdl");
+        HttpURLConnection response = HttpUtil.get("http://localhost:8080/ehcache/soap/EhcacheWebServiceEndpoint?wsdl");
         assertEquals(200, response.getResponseCode());
         String responseBody = HttpUtil.inputStreamToText(response.getInputStream());
         assertTrue(responseBody.indexOf("Implementation class:") != 0);
     }
 
-     /**
+    /**
      * Security should be enabled using XWSS.
      */
-//    Test
-//    public void testEhcacheWebServiceEndPointSecurity() throws IOException, ParserConfigurationException, SAXException {
-//
-//        net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpoint cacheService =
-//                new EhcacheWebServiceEndpointService().getEhcacheWebServiceEndpointPort();
-//
-//        //invoke business method
-//        String result = cacheService.ping();
-//        assertEquals("pong", result);
-//    }
+    @Test
+    public void testEhcacheWebServiceEndPointSecurity() throws IOException, ParserConfigurationException, SAXException {
+
+        net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpoint cacheService =
+                new EhcacheWebServiceEndpointService().getEhcacheWebServiceEndpointPort();
+
+         ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "Ron");
+         ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "noR");
+
+
+        //invoke business method
+        String result = cacheService.ping();
+        assertEquals("pong", result);
+    }
 
 
     @BeforeClass
     public static void startService() throws InterruptedException {
         implementor = new EhcacheWebServiceEndpoint();
-        address = "http://localhost:9080/ehcache/soap/";
+        address = "http://localhost:8080/ehcache/soap/";
 
         webServiceThread = new WebServiceThread();
         webServiceThread.start();
@@ -75,11 +80,9 @@ public class BasicSoapTest {
 
     }
 
-    //AfterClass
+    @AfterClass
     public static void stopService() throws InterruptedException {
         endpoint.stop();
-          Thread.sleep(5000);
-//        webServiceThread.interrupt();
     }
 
 
@@ -105,11 +108,6 @@ public class BasicSoapTest {
         public void run() {
             try {
                 endpoint = Endpoint.publish(address, implementor);
-                Binding binding = endpoint.getBinding();
-                //Add a SecurityHandler as the first handler on the server side
-                List<Handler> handlerChain = new LinkedList<Handler>();
-                handlerChain.add(new SecurityHandler("server"));
-                binding.setHandlerChain(handlerChain);
                 System.out.println("Web Service listening at URI " + address);
             } catch (Throwable e) {
                 fail(e.getMessage());
