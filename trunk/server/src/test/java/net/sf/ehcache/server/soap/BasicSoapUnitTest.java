@@ -56,6 +56,8 @@ public class BasicSoapUnitTest {
         net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpoint cacheService =
                 new EhcacheWebServiceEndpointService().getEhcacheWebServiceEndpointPort();
 
+        System.setProperty("Ron", "noR");
+
          ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "Ron");
          ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "noR");
 
@@ -75,6 +77,7 @@ public class BasicSoapUnitTest {
         webServiceThread.start();
         assertTrue(webServiceThread.isAlive());
         //Wait to start up
+
         Thread.sleep(10000);
 
 

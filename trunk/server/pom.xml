@@ -139,6 +139,7 @@
                         <type>embedded</type>
                         <systemProperties>
                             <com.sun.management.jmxremote>true</com.sun.management.jmxremote>
+                            <Ron>noR</Ron>
                         </systemProperties>
                     </container>
                     <properties>

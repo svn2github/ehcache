@@ -5,21 +5,32 @@
  */
 package net.sf.ehcache.server.soap;
 
-import net.sf.ehcache.server.soap.jaxws.*;
+import net.sf.ehcache.server.soap.jaxws.Cache;
+import net.sf.ehcache.server.soap.jaxws.CacheException_Exception;
 import net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpoint;
+import net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpointService;
+import net.sf.ehcache.server.soap.jaxws.Element;
+import net.sf.ehcache.server.soap.jaxws.IllegalArgumentException_Exception;
+import net.sf.ehcache.server.soap.jaxws.IllegalStateException_Exception;
+import net.sf.ehcache.server.soap.jaxws.NoSuchCacheException_Exception;
+import net.sf.ehcache.server.soap.jaxws.ObjectExistsException_Exception;
+import net.sf.ehcache.server.soap.jaxws.Statistics;
+import net.sf.ehcache.server.soap.jaxws.StatisticsAccuracy;
 import net.sf.ehcache.server.soap.jaxws.Status;
-import org.junit.Test;
-import org.junit.BeforeClass;
-import org.junit.Before;
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import javax.xml.ws.soap.SOAPFaultException;
 import javax.xml.ws.BindingProvider;
-import java.util.List;
-import java.util.Arrays;
-import java.util.ArrayList;
+import javax.xml.ws.soap.SOAPFaultException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class EhcacheWebServiceEndpointTest {
     private static EhcacheWebServiceEndpoint cacheService;

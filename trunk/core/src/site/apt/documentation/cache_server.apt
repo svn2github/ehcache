@@ -78,9 +78,36 @@
     By default no security is configured. Because it is simply a Servlet 2.5 web application, it can be secured in all the
     usual ways by configuration in the web.xml.
 
-    XWSS 3.0 is used to secure the Web Service. See {{https://xwss.dev.java.net/}}.
+    In addition the cache server supports the use of XWSS 3.0 to secure the Web Service. See {{https://xwss.dev.java.net/}}. All required libraries
+    are packaged in the war for XWSS 3.0.
 
-    
+    A sample, commented out server_security_config.xml is provided in the WEB-INF directory. XWSS automatically
+    looks for this configuration file.
+
+    A simple example, based on an XWSS example, <<<net.sf.ehcache.server.soap.SecurityEnvironmentHandler>>>, which looks for a
+    password in a System property for a given username is included. This is not recommended for production use
+    but is handy when you are getting started with XWSS.
+
+    To use XWSS:
+
+    Add configuration in accordance with XWSS to the server_security_config.xml file. Create a
+    class which implements the <<<CallbackHandler>>> interface and provide its fully qualified path
+    in the <<<SecurityEnvironmentHandler>>> element.
+
+    The integration test <<<EhcacheWebServiceEndpoint>>> test shows how to use the XWSS client side.
+    On the client side, configuration must be provided in a file called <<<client_security_config.xml>>>
+    must be in the root of the classpath.
+
+    To add client credentials into the SOAP request do:
+---
+
+    cacheService = new EhcacheWebServiceEndpointService().getEhcacheWebServiceEndpointPort();
+    //add security credentials
+    ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "Ron");
+    ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "noR");
+    String result = cacheService.ping();
+
+---
 
 
 

@@ -45,10 +45,6 @@ public class SecurityEnvironmentHandler implements CallbackHandler {
     public SecurityEnvironmentHandler() {
     }
 
-    private String readLine() throws IOException {
-        return new BufferedReader(new InputStreamReader(System.in)).readLine();
-    }
-
 
     /**
      * Handle a security callback
@@ -58,9 +54,9 @@ public class SecurityEnvironmentHandler implements CallbackHandler {
      * @throws UnsupportedCallbackException
      */
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-        for (int i = 0; i < callbacks.length; i++) {
-            if (callbacks[i] instanceof PasswordValidationCallback) {
-                PasswordValidationCallback cb = (PasswordValidationCallback) callbacks[i];
+        for (Callback callback : callbacks) {
+            if (callback instanceof PasswordValidationCallback) {
+                PasswordValidationCallback cb = (PasswordValidationCallback) callback;
                 if (cb.getRequest() instanceof PasswordValidationCallback.PlainTextPasswordRequest) {
                     cb.setValidator(new PlainTextPasswordValidator());
 
@@ -73,14 +69,14 @@ public class SecurityEnvironmentHandler implements CallbackHandler {
                         cb.setValidator(new PasswordValidationCallback.DigestPasswordValidator());
                     }
                 }
-            } else if (callbacks[i] instanceof UsernameCallback) {
-                UsernameCallback cb = (UsernameCallback) callbacks[i];
+            } else if (callback instanceof UsernameCallback) {
+                UsernameCallback cb = (UsernameCallback) callback;
                 String username = (String) cb.getRuntimeProperties().get(BindingProvider.USERNAME_PROPERTY);
                 System.out.println("Got Username......... : " + username);
                 cb.setUsername(username);
 
-            } else if (callbacks[i] instanceof PasswordCallback) {
-                PasswordCallback cb = (PasswordCallback) callbacks[i];
+            } else if (callback instanceof PasswordCallback) {
+                PasswordCallback cb = (PasswordCallback) callback;
                 String password = (String) cb.getRuntimeProperties().get(BindingProvider.PASSWORD_PROPERTY);
                 System.out.println("Got Password......... : " + password);
                 cb.setPassword(password);
@@ -107,11 +103,9 @@ public class SecurityEnvironmentHandler implements CallbackHandler {
 
             PasswordValidationCallback.PlainTextPasswordRequest plainTextRequest =
                     (PasswordValidationCallback.PlainTextPasswordRequest) request;
-            if ("Ron".equals(plainTextRequest.getUsername()) &&
-                    "noR".equals(plainTextRequest.getPassword())) {
-                return true;
-            }
-            return false;
+
+            String password = System.getProperty(plainTextRequest.getUsername());
+            return plainTextRequest.getPassword().equals(password);
         }
     }
 
