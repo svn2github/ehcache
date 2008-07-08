@@ -163,7 +163,7 @@ public final class Element implements Serializable, Cloneable {
 
 
     /**
-     * Web Services constructor
+     * Web Services specific constructor
      * @param key
      * @param value
      * @param eternal

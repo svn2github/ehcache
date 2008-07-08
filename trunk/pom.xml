@@ -5,7 +5,7 @@
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.6.0-beta1</version>
+    <version>1.5.0</version>
     <name>Ehcache Parent</name>
     <description><![CDATA[Ehcache is a widely used, pure Java, distributed in-process cache]]>
     </description>
@@ -19,10 +19,11 @@
     <!--Not using aggregate building -->
     <modules>
         <module>core</module>
+<!--
         <module>debugger</module>
         <module>jcache</module>
         <module>server</module>
-        <module>standalone-server</module>
+        <module>standalone-server</module>-->
     </modules>
 
     <dependencyManagement>

@@ -5,7 +5,7 @@
     <parent>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-parent</artifactId>
-        <version>1.6.0-beta1</version>
+        <version>1.5.0</version>
     </parent>
     <name>Ehcache Core</name>
     <artifactId>ehcache</artifactId>
@@ -221,7 +221,6 @@
                 </executions>
             </plugin>
 
-            <!--todo  add to ehcache 1.5.0 final-->
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>

@@ -370,7 +370,6 @@
             </fileset>
             <fileset dir="${basedir}" includes="LICENSE.txt"/>
             <zipfileset src="${dist.dir}/remotedeps/commons-logging-1.0.4.jar"/>
-            <!--todo for 1.5 final-->
             <zipfileset src="${dist.dir}/remotedeps/backport-util-concurrent-3.0.jar"/>
             <manifest>
                 <attribute name="Main-Class"

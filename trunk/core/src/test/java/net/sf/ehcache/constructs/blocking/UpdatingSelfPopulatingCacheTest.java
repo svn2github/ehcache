@@ -195,4 +195,19 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
     }
 
 
+    /**
+     * When flushing large MemoryStores, OutOfMemory issues can happen if we are
+     * not careful to move each to Element to the DiskStore, rather than copy them all
+     * and then delete them from the MemoryStore.
+     * <p/>
+     * This test manipulates a MemoryStore right on the edge of what can fit into the 64MB standard VM size.
+     * An inefficient spool will cause an OutOfMemoryException.
+     *
+     * @throws Exception
+     */
+    public void testMemoryEfficiencyOfFlushWhenOverflowToDisk() throws Exception {
+        super.testMemoryEfficiencyOfFlushWhenOverflowToDisk();
+    }
+
+
 }

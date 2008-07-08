@@ -24,7 +24,7 @@ package net.sf.ehcache;
  * The handler provides a key if it is available. A convention that should be followed in exception messages is
  * to include in the message "key keyValue" e.g. "key 1234" so that keys can be parsed out of exception messages. 
  * <p/>
- * Updated in version 1.6 to remove <code>getInitialCause</code> which was a left over from the pre-JDK1.4
+ * Updated in version 1.5 to remove <code>getInitialCause</code> which was a left over from the pre-JDK1.4
  * days. It breaks JAXB.
  *
  * @author Greg Luck
