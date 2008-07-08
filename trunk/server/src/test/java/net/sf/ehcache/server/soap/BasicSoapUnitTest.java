@@ -58,8 +58,9 @@ public class BasicSoapUnitTest {
 
         System.setProperty("Ron", "noR");
 
-         ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "Ron");
-         ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "noR");
+        //uncomment to run tests with security on. Must also rename XWSS config files to activate.
+//         ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "Ron");
+//         ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "noR");
 
 
         //invoke business method

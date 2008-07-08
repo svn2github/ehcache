@@ -7,14 +7,19 @@ This needs to be in WEB-INF not META-INF to work
 
 -->
 
+<!--
+
+ Rename this file to server_security_config.xml_rename_to_activate to activate.
+
+ The net.sf.ehcache.server.soap.SecurityEnvironmentHandler is an example. You should implement
+ your own.
+ 
+ See http://ehcache.sf.net/documentation/cache_server.html for full details on how to configure this.
+ -->
 <xwss:JAXRPCSecurity xmlns:xwss="http://java.sun.com/xml/ns/xwss/config">
 
     <xwss:Service>
-        <xwss:SecurityConfiguration dumpMessages="true">
-            <!--
-              Default: nonce and created values are expected and password
-              should be in digest form.
-            -->
+        <xwss:SecurityConfiguration dumpMessages="false">
             <xwss:RequireUsernameToken passwordDigestRequired="false"/>
         </xwss:SecurityConfiguration>
     </xwss:Service>

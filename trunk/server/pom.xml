@@ -19,12 +19,8 @@
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey</artifactId>
-            <version>0.8-ea-SNAPSHOT</version>
+            <version>0.8-ea</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
@@ -32,7 +28,7 @@
             <version>1.6.0-beta1</version>
         </dependency>
         <!--Cannot find these complete anywhere. Bug logged against WSIT project. prefix with metro to stop
-         a broken one coming down.-->
+         a broken one coming down. Must be installed locally. -->
         <dependency>
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>metro-webservices-rt</artifactId>

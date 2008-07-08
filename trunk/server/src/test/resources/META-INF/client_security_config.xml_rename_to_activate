@@ -8,7 +8,7 @@ SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
 <xwss:JAXRPCSecurity xmlns:xwss="http://java.sun.com/xml/ns/xwss/config">
 
     <xwss:Service>
-        <xwss:SecurityConfiguration dumpMessages="true">
+        <xwss:SecurityConfiguration dumpMessages="false">
             <!--
               Default: Digested password will be sent.
             -->
