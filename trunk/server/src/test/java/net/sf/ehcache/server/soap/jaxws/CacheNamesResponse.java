@@ -34,7 +34,7 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class CacheNamesResponse {
 
-    @XmlElement(name = "return")
+    @XmlElement(name = "return", nillable = true)
     protected List<String> _return;
 
     /**

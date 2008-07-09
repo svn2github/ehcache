@@ -16,12 +16,16 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
+ *         &lt;element name="creationTime" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *         &lt;element name="eternal" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="key" type="{http://www.w3.org/2001/XMLSchema}anyType" minOccurs="0"/>
+ *         &lt;element name="lastUpdateTime" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *         &lt;element name="mimeType" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="resourceUri" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="timeToIdleSeconds" type="{http://www.w3.org/2001/XMLSchema}int"/>
  *         &lt;element name="timeToLiveSeconds" type="{http://www.w3.org/2001/XMLSchema}int"/>
  *         &lt;element name="value" type="{http://www.w3.org/2001/XMLSchema}base64Binary" minOccurs="0"/>
+ *         &lt;element name="version" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -32,21 +36,45 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "element", propOrder = {
+    "creationTime",
     "eternal",
     "key",
+    "lastUpdateTime",
     "mimeType",
     "resourceUri",
+    "timeToIdleSeconds",
     "timeToLiveSeconds",
-    "value"
+    "value",
+    "version"
 })
 public class Element {
 
+    protected long creationTime;
     protected boolean eternal;
     protected Object key;
+    protected long lastUpdateTime;
     protected String mimeType;
     protected String resourceUri;
+    protected int timeToIdleSeconds;
     protected int timeToLiveSeconds;
     protected byte[] value;
+    protected long version;
+
+    /**
+     * Gets the value of the creationTime property.
+     * 
+     */
+    public long getCreationTime() {
+        return creationTime;
+    }
+
+    /**
+     * Sets the value of the creationTime property.
+     * 
+     */
+    public void setCreationTime(long value) {
+        this.creationTime = value;
+    }
 
     /**
      * Gets the value of the eternal property.
@@ -86,6 +114,22 @@ public class Element {
      */
     public void setKey(Object value) {
         this.key = value;
+    }
+
+    /**
+     * Gets the value of the lastUpdateTime property.
+     * 
+     */
+    public long getLastUpdateTime() {
+        return lastUpdateTime;
+    }
+
+    /**
+     * Sets the value of the lastUpdateTime property.
+     * 
+     */
+    public void setLastUpdateTime(long value) {
+        this.lastUpdateTime = value;
     }
 
     /**
@@ -137,6 +181,22 @@ public class Element {
     }
 
     /**
+     * Gets the value of the timeToIdleSeconds property.
+     * 
+     */
+    public int getTimeToIdleSeconds() {
+        return timeToIdleSeconds;
+    }
+
+    /**
+     * Sets the value of the timeToIdleSeconds property.
+     * 
+     */
+    public void setTimeToIdleSeconds(int value) {
+        this.timeToIdleSeconds = value;
+    }
+
+    /**
      * Gets the value of the timeToLiveSeconds property.
      * 
      */
@@ -172,6 +232,22 @@ public class Element {
      */
     public void setValue(byte[] value) {
         this.value = ((byte[]) value);
+    }
+
+    /**
+     * Gets the value of the version property.
+     * 
+     */
+    public long getVersion() {
+        return version;
+    }
+
+    /**
+     * Sets the value of the version property.
+     * 
+     */
+    public void setVersion(long value) {
+        this.version = value;
     }
 
 }

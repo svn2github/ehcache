@@ -299,6 +299,37 @@ public class Element {
         return creationTime;
     }
 
+    /**
+     * 
+     * @param timeToIdleSeconds
+     */
+    public void setTimeToIdleSeconds(int timeToIdleSeconds) {
+        this.timeToIdleSeconds = timeToIdleSeconds;
+    }
+
+    /**
+     * Throws a <code>UnsupportedOperationException</code> if called. This is immutatble but
+     * a setter must be provided to support the JavaBeans convention.
+     */
+    public void setCreationTime(long creationTime) {
+        //throw new UnsupportedOperationException("Creation time is immutable.");
+    }
+
+    /**
+     * Throws a <code>UnsupportedOperationException</code> if called. This is immutatble but
+     * a setter must be provided to support the JavaBeans convention.
+     */
+    public void setVersion(long version) {
+        //throw new UnsupportedOperationException("Version is immutable.");
+    }
+
+    /**
+     * Throws a <code>UnsupportedOperationException</code> if called. This is immutatble but
+     * a setter must be provided to support the JavaBeans convention.
+     */
+    public void setLastUpdateTime(long lastUpdateTime) {
+        //throw new UnsupportedOperationException("Last Update Time is immutable.");
+    }
 
     /**
      * Gets the core Ehcache element.
