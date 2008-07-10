@@ -195,9 +195,32 @@ public class EhcacheWebServiceEndpointTest {
 
     }
 
+    @Test
+    public void testOverrideEternal() throws NoSuchCacheException_Exception, CacheException_Exception, IllegalStateException_Exception, InterruptedException {
+        Element element = new Element();
+        element.setKey("2");
+        element.setValue(new byte[]{1, 2, 3, 4, 5, 6});
+        element.setEternal(true);
+        cacheService.put("sampleCache3", element);
+        assertNotNull(cacheService.get("sampleCache3", "2"));
+        Thread.sleep(1010);
+        //should not expire
+        assertNotNull(cacheService.get("sampleCache3", "2"));
+    }
 
 
-    //todo setting various eternal, tti
+    @Test
+    public void testOverrideTTI() throws NoSuchCacheException_Exception, CacheException_Exception, IllegalStateException_Exception, InterruptedException {
+        Element element = new Element();
+        element.setKey("2");
+        element.setValue(new byte[]{1, 2, 3, 4, 5, 6});
+        element.setTimeToIdleSeconds(1);
+        cacheService.put("sampleCache3", element);
+        assertNotNull(cacheService.get("sampleCache3", "2"));
+        Thread.sleep(1010);
+        //should expire
+        assertNull(cacheService.get("sampleCache3", "2"));
+    }
 
     /**
      * Test getKeys() and its veriants
@@ -243,9 +266,6 @@ public class EhcacheWebServiceEndpointTest {
     }
 
 
-    /**
-     * todo get complete coverage here
-     */
     @Test
     public void testGetStatistics() throws NoSuchCacheException_Exception,
             CacheException_Exception, IllegalStateException_Exception {
@@ -259,6 +279,11 @@ public class EhcacheWebServiceEndpointTest {
 
         statistics = cacheService.getStatistics("sampleCache1");
         assertEquals(1L, statistics.getCacheHits());
+        assertTrue(statistics.getAverageGetTime() >= 0);
+        assertEquals(0L, statistics.getEvictionCount());
+        assertEquals(1L, statistics.getInMemoryHits());
+        assertEquals(0L, statistics.getOnDiskHits());
+        assertEquals(StatisticsAccuracy.STATISTICS_ACCURACY_BEST_EFFORT, statistics.getStatisticsAccuracy());
     }
 
     @Test
@@ -281,7 +306,7 @@ public class EhcacheWebServiceEndpointTest {
 
 
     /**
-     * todo no loader configured. smoke test only
+     * No loader configured. smoke test only
      */
     @Test
     public void testLoad() throws NoSuchCacheException_Exception,
@@ -290,7 +315,7 @@ public class EhcacheWebServiceEndpointTest {
     }
 
     /**
-     * todo no loader configured. smoke test only
+     * No loader configured. smoke test only
      */
     @Test
     public void testLoadAll() throws NoSuchCacheException_Exception,
@@ -304,7 +329,7 @@ public class EhcacheWebServiceEndpointTest {
 
 
     /**
-     * todo no loader configured. smoke test only
+     * No loader configured. smoke test only
      */
     @Test
     public void testGetWithLoad() throws NoSuchCacheException_Exception,
@@ -313,7 +338,7 @@ public class EhcacheWebServiceEndpointTest {
     }
 
     /**
-     * todo no loader configured. smoke test only
+     * No loader configured. smoke test only
      */
     @Test
     public void testGetAllWithLoader() throws NoSuchCacheException_Exception,
