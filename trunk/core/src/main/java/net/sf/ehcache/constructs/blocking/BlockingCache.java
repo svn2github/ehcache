@@ -503,13 +503,19 @@ public class BlockingCache implements Ehcache {
      * Looks up an entry.  Blocks if the entry is null until a call to {@link #put} is done
      * to put an Element in.
      * <p/>
-     * If a put is not done, the lock is never released
+     * If a put is not done, the lock is never released.
      * <p/>
+     * If this method throws an exception, it is the responsibility of the caller to catch that exception and call
+     * <code>put(new Element(key, null));</code> to release the lock acquired. See {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
+     * for an example.
+     *
      * Note. If a LockTimeoutException is thrown while doing a {@link #get} it means the lock was never acquired,
      * therefore it is a threading error to call {@link #put}
      *
      * @throws LockTimeoutException if timeout millis is non zero and this method has been unable to
      *                              acquire a lock in that time
+     * @throws RuntimeException if thrown the lock will not released. Catch and call<code>put(new Element(key, null));</code>
+     * to release the lock acquired.
      */
     public Element get(final Object key) throws LockTimeoutException {
         Mutex lock = getLockForKey(key);

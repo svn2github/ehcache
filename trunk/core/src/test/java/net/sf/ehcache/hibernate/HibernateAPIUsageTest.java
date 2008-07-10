@@ -268,7 +268,12 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         manager.shutdown();
 
         net.sf.ehcache.hibernate.EhCacheProvider provider = new net.sf.ehcache.hibernate.EhCacheProvider();
-        provider.start(null);
+
+        //Fire up a second provider, CacheManager and cache concurrently
+        Properties properties = new Properties();
+
+        properties.setProperty("net.sf.ehcache.configurationResourceName", "ehcache-2.xml");
+        provider.start(properties);
         org.hibernate.cache.Cache cache = provider.buildCache("sampleCache1", null);
 
         //Check created and name

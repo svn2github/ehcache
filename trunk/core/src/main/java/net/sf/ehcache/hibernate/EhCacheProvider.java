@@ -126,13 +126,6 @@ public final class EhCacheProvider implements CacheProvider {
             if (configurationResourceName == null || configurationResourceName.length() == 0) {
                 manager = new CacheManager();
             } else {
-                if (!configurationResourceName.startsWith("/")) {
-                    configurationResourceName = "/" + configurationResourceName;
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("prepending / to " + configurationResourceName + ". It should be placed in the root"
-                                + "of the classpath rather than in a package.");
-                    }
-                }
                 URL url = loadResource(configurationResourceName);
                 manager = new CacheManager(url);
             }
