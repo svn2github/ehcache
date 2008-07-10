@@ -72,9 +72,9 @@ public interface EhcacheWebServiceEndpoint {
     /**
      * 
      * @param arg0
-     * @throws CacheException_Exception
      * @throws ObjectExistsException_Exception
      * @throws IllegalStateException_Exception
+     * @throws CacheException_Exception
      */
     @WebMethod
     @RequestWrapper(localName = "addCache", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.AddCache")
@@ -118,8 +118,8 @@ public interface EhcacheWebServiceEndpoint {
      * @param arg0
      * @return
      *     returns java.util.List<java.lang.Object>
-     * @throws CacheException_Exception
      * @throws IllegalStateException_Exception
+     * @throws CacheException_Exception
      */
     @WebMethod
     @WebResult(targetNamespace = "")
@@ -136,8 +136,8 @@ public interface EhcacheWebServiceEndpoint {
      * @param arg0
      * @return
      *     returns java.util.List<java.lang.Object>
-     * @throws CacheException_Exception
      * @throws IllegalStateException_Exception
+     * @throws CacheException_Exception
      */
     @WebMethod
     @WebResult(targetNamespace = "")
@@ -155,8 +155,8 @@ public interface EhcacheWebServiceEndpoint {
      * @param arg0
      * @return
      *     returns net.sf.ehcache.server.soap.jaxws.Element
-     * @throws CacheException_Exception
      * @throws IllegalStateException_Exception
+     * @throws CacheException_Exception
      */
     @WebMethod
     @WebResult(targetNamespace = "")
@@ -175,8 +175,8 @@ public interface EhcacheWebServiceEndpoint {
      * @param arg1
      * @param arg0
      * @throws IllegalArgumentException_Exception
-     * @throws CacheException_Exception
      * @throws IllegalStateException_Exception
+     * @throws CacheException_Exception
      */
     @WebMethod
     @RequestWrapper(localName = "putQuiet", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.PutQuiet")
@@ -195,8 +195,8 @@ public interface EhcacheWebServiceEndpoint {
      * @param arg0
      * @return
      *     returns boolean
-     * @throws CacheException_Exception
      * @throws IllegalStateException_Exception
+     * @throws CacheException_Exception
      */
     @WebMethod
     @WebResult(targetNamespace = "")
@@ -298,9 +298,9 @@ public interface EhcacheWebServiceEndpoint {
      * @param arg0
      * @return
      *     returns net.sf.ehcache.server.soap.jaxws.Element
-     * @throws CacheException_Exception
      * @throws NoSuchCacheException_Exception
      * @throws IllegalStateException_Exception
+     * @throws CacheException_Exception
      */
     @WebMethod
     @WebResult(targetNamespace = "")
@@ -318,8 +318,8 @@ public interface EhcacheWebServiceEndpoint {
      * 
      * @param arg1
      * @param arg0
-     * @throws CacheException_Exception
      * @throws NoSuchCacheException_Exception
+     * @throws CacheException_Exception
      */
     @WebMethod
     @RequestWrapper(localName = "put", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.Put")
@@ -374,8 +374,8 @@ public interface EhcacheWebServiceEndpoint {
      * @param arg0
      * @return
      *     returns int
-     * @throws CacheException_Exception
      * @throws IllegalStateException_Exception
+     * @throws CacheException_Exception
      */
     @WebMethod
     @WebResult(targetNamespace = "")
@@ -390,8 +390,8 @@ public interface EhcacheWebServiceEndpoint {
     /**
      * 
      * @param arg0
-     * @throws CacheException_Exception
      * @throws IllegalStateException_Exception
+     * @throws CacheException_Exception
      */
     @WebMethod
     @RequestWrapper(localName = "removeAll", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.RemoveAll")
@@ -407,8 +407,8 @@ public interface EhcacheWebServiceEndpoint {
      * @param arg0
      * @return
      *     returns java.util.List<java.lang.Object>
-     * @throws CacheException_Exception
      * @throws IllegalStateException_Exception
+     * @throws CacheException_Exception
      */
     @WebMethod
     @WebResult(targetNamespace = "")

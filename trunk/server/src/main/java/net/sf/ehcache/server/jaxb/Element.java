@@ -63,12 +63,12 @@ public class Element {
      */
     private String mimeType;
     private Object key;
-    private int timeToIdleSeconds;
-    private long creationTime;
-    private long version;
-    private long lastUpdateTime;
-    private boolean eternal;
-    private int timeToLiveSeconds;
+    private Integer timeToIdleSeconds;
+    private Long creationTime;
+    private Long version;
+    private Long lastUpdateTime;
+    private Boolean eternal;
+    private Integer timeToLiveSeconds;
 
     /**
      * Empty Constructor
@@ -228,7 +228,7 @@ public class Element {
      *
      * @param timeToLiveSeconds the number of seconds to live
      */
-    public void setTimeToLiveSeconds(int timeToLiveSeconds) {
+    public void setTimeToLiveSeconds(Integer timeToLiveSeconds) {
         this.timeToLiveSeconds = timeToLiveSeconds;
 
 
@@ -239,7 +239,7 @@ public class Element {
      *
      * @param timeToIdleSeconds the number of seconds to idle
      */
-    public void setTimeToIdle(int timeToIdleSeconds) {
+    public void setTimeToIdle(Integer timeToIdleSeconds) {
         this.timeToIdleSeconds = timeToIdleSeconds;
     }
 
@@ -258,7 +258,7 @@ public class Element {
     /**
      * @return true if the element is eternal
      */
-    public boolean isEternal() {
+    public Boolean isEternal() {
         return eternal;
     }
 
@@ -267,21 +267,21 @@ public class Element {
      *
      * @param eternal
      */
-    public void setEternal(boolean eternal) {
+    public void setEternal(Boolean eternal) {
         this.eternal = eternal;
     }
 
     /**
      * @return the time to live, in seconds
      */
-    public int getTimeToLiveSeconds() {
+    public Integer getTimeToLiveSeconds() {
         return timeToLiveSeconds;
     }
 
     /**
      * @return the time to idle, in seconds
      */
-    public int getTimeToIdleSeconds() {
+    public Integer getTimeToIdleSeconds() {
         return timeToIdleSeconds;
     }
 
@@ -303,7 +303,7 @@ public class Element {
      * 
      * @param timeToIdleSeconds
      */
-    public void setTimeToIdleSeconds(int timeToIdleSeconds) {
+    public void setTimeToIdleSeconds(Integer timeToIdleSeconds) {
         this.timeToIdleSeconds = timeToIdleSeconds;
     }
 
@@ -311,7 +311,7 @@ public class Element {
      * Throws a <code>UnsupportedOperationException</code> if called. This is immutatble but
      * a setter must be provided to support the JavaBeans convention.
      */
-    public void setCreationTime(long creationTime) {
+    public void setCreationTime(Long creationTime) {
         //throw new UnsupportedOperationException("Creation time is immutable.");
     }
 
@@ -319,7 +319,7 @@ public class Element {
      * Throws a <code>UnsupportedOperationException</code> if called. This is immutatble but
      * a setter must be provided to support the JavaBeans convention.
      */
-    public void setVersion(long version) {
+    public void setVersion(Long version) {
         //throw new UnsupportedOperationException("Version is immutable.");
     }
 
@@ -327,7 +327,7 @@ public class Element {
      * Throws a <code>UnsupportedOperationException</code> if called. This is immutatble but
      * a setter must be provided to support the JavaBeans convention.
      */
-    public void setLastUpdateTime(long lastUpdateTime) {
+    public void setLastUpdateTime(Long lastUpdateTime) {
         //throw new UnsupportedOperationException("Last Update Time is immutable.");
     }
 

@@ -50,6 +50,7 @@ public class EhcacheWebServiceEndpointTest {
     @Before
     public void zeroOutCache() throws CacheException_Exception, IllegalStateException_Exception {
         cacheService.removeAll(cacheName);
+        cacheService.removeAll("sampleCache3");
     }
 
 
@@ -169,6 +170,7 @@ public class EhcacheWebServiceEndpointTest {
         assertTrue(Arrays.equals(bytes1, bytes2));
         cacheService.remove("sampleCache1", "2");
 
+        //ttl override
         Element expiryOverrideElement = new Element();
         expiryOverrideElement.setKey("abc");
         expiryOverrideElement.setValue("value".getBytes());
@@ -181,10 +183,21 @@ public class EhcacheWebServiceEndpointTest {
 
     }
 
+    @Test
+    public void testDefaultExpiry() throws NoSuchCacheException_Exception, CacheException_Exception, IllegalStateException_Exception, InterruptedException {
+        Element element2 = new Element();
+        element2.setKey("2");
+        element2.setValue(new byte[]{1, 2, 3, 4, 5, 6});
+        cacheService.put("sampleCache3", element2);
+        assertNotNull(cacheService.get("sampleCache3", "2"));
+        Thread.sleep(1010);
+        assertEquals(null, cacheService.get("sampleCache3", "2"));
+
+    }
 
 
-    //todo expired element
-    //todo setting various eternal, ttl, tti
+
+    //todo setting various eternal, tti
 
     /**
      * Test getKeys() and its veriants

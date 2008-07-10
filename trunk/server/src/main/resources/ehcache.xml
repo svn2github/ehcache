@@ -391,12 +391,12 @@
     The defaultCache has an implicit name "default" which is a reserved cache name.
     -->
     <defaultCache
-            maxElementsInMemory="10000"
+            maxElementsInMemory="20000"
             eternal="false"
-            timeToIdleSeconds="120"
-            timeToLiveSeconds="120"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="300"
             overflowToDisk="true"
-            diskSpoolBufferSizeMB="30"
+            diskSpoolBufferSizeMB="50"
             maxElementsOnDisk="10000000"
             diskPersistent="false"
             diskExpiryThreadIntervalSeconds="120"
@@ -452,8 +452,7 @@
            maxElementsInMemory="500"
            eternal="false"
            overflowToDisk="true"
-           timeToIdleSeconds="300"
-           timeToLiveSeconds="600"
+           timeToLiveSeconds="1"
            diskPersistent="true"
            diskExpiryThreadIntervalSeconds="1"
            memoryStoreEvictionPolicy="LFU"
