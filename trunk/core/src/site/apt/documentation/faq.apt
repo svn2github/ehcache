@@ -375,5 +375,21 @@ java.rmi.ConnectException: Connection refused to host: 127.0.0.1; nested excepti
 
     All you need to do is crack open the network config and make sure that the hostname of the machine returns a valid network address accessible by other peers on the network.
 
+*   I see log messages about SoftReferences. What are these about and how do I stop getting the messages?
 
+    Ehcache uses SoftReferences with asynchronous RMI based replication, so that replicating caches do not run out of memory if the network
+    is interrupted. Elements scheduled for replication will be collected instead. If this is happening, you will see warning messages from the
+    replicator. It is also possible that a SoftReference can be reclaimed during the sending in which case you will see a debug level
+    message in the receiving CachePeer.
+
+
+    Some things you can do to fix them:
+
+    * Set -Xms equal to -Xms. SoftReferences are also reclaimed in preference to increasing the heap size, which is a problem when an application
+      is warming up.
+
+    * Set the -Xmx to a high enough value so that SoftReferences do not get reclaimed.
+
+    Having done the above, SoftReferences will then only be reclaimed if there is some interruption to replication and the message queue
+      gets dangerously high.
    

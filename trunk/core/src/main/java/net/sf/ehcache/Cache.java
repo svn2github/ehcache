@@ -667,9 +667,10 @@ public class Cache implements Ehcache {
 
         if (element == null) {
             if (doNotNotifyCacheReplicators == true) {
-                //this can happen because of soft references
-                LOG.warn("Element from replicated put is null. This happens because the element is a SoftReference and it has been collected." +
+                if (LOG.isDebugEnabled()) {
+                LOG.debug("Element from replicated put is null. This happens because the element is a SoftReference and it has been collected." +
                         "Increase heap memory on the JVM or set -Xms to be the same as -Xmx to avoid this problem.");
+                }
             } else {
                 throw new IllegalArgumentException("Element cannot be null");
             }

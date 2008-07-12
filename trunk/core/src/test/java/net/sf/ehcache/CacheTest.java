@@ -77,8 +77,6 @@ public class CacheTest extends AbstractCacheTest {
         return cache;
     }
 
-
-
     /**
      * Checks we cannot use a cache after shutdown
      */
@@ -267,7 +265,7 @@ public class CacheTest extends AbstractCacheTest {
         }
 
         assertNotNull(cache.get("key0"));
-        
+
         for (int i = 0; i < 1001; i++) {
             cache.put(new Element("key" + i, "value1"));
             assertNotNull(cache.get("key" + i));
@@ -524,6 +522,7 @@ public class CacheTest extends AbstractCacheTest {
         assertTrue("Time to put and get 5000 entries into m500d500Cache", time < 2000);
 
     }
+
 
     /**
      * Test Caches with persistent stores dispose properly. Tests:
@@ -1846,7 +1845,6 @@ public class CacheTest extends AbstractCacheTest {
     }
 
 
-
     public void testGetWithLoader() {
 
 
@@ -1879,7 +1877,7 @@ public class CacheTest extends AbstractCacheTest {
 
             public Object load(Object o) throws CacheException {
                 LOG.info("load2 " + o + " " + o.getClass());
-                if(o.equals("c")){
+                if (o.equals("c")) {
                     return null;
                 }
                 return o;
