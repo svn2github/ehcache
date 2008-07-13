@@ -88,6 +88,7 @@ public final class RemoteDebugger {
         if (cacheNameToMonitor == null) {
             System.out.println("No cache name specified for monitoring. Choose one and add it to the command line as " +
                     "the second argument.");
+            return;
         } else {
             monitorCacheMessages(cacheNameToMonitor);
         }

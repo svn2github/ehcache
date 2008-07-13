@@ -47,7 +47,7 @@ public final class Configuration {
 
 
     /**
-     * Allows {@link BeanHandler} to add disk store location to the configuration.
+     * Allows BeanHandler to add disk store location to the configuration.
      */
     public final void addDiskStore(DiskStoreConfiguration diskStoreConfigurationParameter) throws ObjectExistsException {
         if (diskStoreConfiguration != null) {
@@ -59,7 +59,7 @@ public final class Configuration {
     
 
     /**
-     * Allows {@link BeanHandler} to add the CacheManagerEventListener to the configuration.
+     * Allows BeanHandler to add the CacheManagerEventListener to the configuration.
      */
     public final void addCacheManagerEventListenerFactory(FactoryConfiguration
             cacheManagerEventListenerFactoryConfiguration) throws ObjectExistsException {
@@ -92,7 +92,7 @@ public final class Configuration {
 
 
     /**
-     * Allows {@link BeanHandler} to add a default configuration to the configuration.
+     * Allows BeanHandler to add a default configuration to the configuration.
      */
     public final void addDefaultCache(CacheConfiguration defaultCacheConfiguration) throws ObjectExistsException {
         if (this.defaultCacheConfiguration != null) {
@@ -102,7 +102,7 @@ public final class Configuration {
     }
 
     /**
-     * Allows {@link BeanHandler} to add Cache Configurations to the configuration.
+     * Allows BeanHandler to add Cache Configurations to the configuration.
      */
     public final void addCache(CacheConfiguration cacheConfiguration) throws ObjectExistsException {
         if (cacheConfigurations.get(cacheConfiguration.name) != null) {

@@ -345,7 +345,6 @@ public class DiskStore implements Store {
      * Gets an Array of the keys for all elements in the disk store.
      *
      * @return An Object[] of {@link Serializable} keys
-     * @noinspection SynchronizeOnNonFinalField
      */
     public final synchronized Object[] getKeyArray() {
         Set elementKeySet;
@@ -365,7 +364,6 @@ public class DiskStore implements Store {
     /**
      * Returns the current store size.
      *
-     * @noinspection SynchronizeOnNonFinalField
      */
     public final synchronized int getSize() {
         try {
@@ -442,7 +440,6 @@ public class DiskStore implements Store {
     /**
      * Removes an item from the disk store.
      *
-     * @noinspection SynchronizeOnNonFinalField
      */
     public final synchronized Element remove(final Object key) {
         Element element;
@@ -640,7 +637,6 @@ public class DiskStore implements Store {
      * Flushes all spooled elements to disk.
      * Note that the cache is locked for the entire time that the spool is being flushed.
      *
-     * @noinspection SynchronizeOnNonFinalField
      */
     private synchronized void flushSpool() throws IOException {
         if (spool.size() == 0) {
@@ -861,7 +857,6 @@ public class DiskStore implements Store {
      * Note that the DiskStore cannot efficiently expire based on TTI. It does it on TTL. However any gets out
      * of the DiskStore are check for both before return.
      *
-     * @noinspection SynchronizeOnNonFinalField
      */
     public void expireElements() {
         final long now = System.currentTimeMillis();
@@ -968,7 +963,6 @@ public class DiskStore implements Store {
      * Copies of expiryTime and hitcount are held here as a performance optimisation, so
      * that we do not need to load the data from Disk to get this often used information.
      *
-     * @noinspection SerializableHasSerializationMethods
      */
     private static final class DiskElement implements Serializable, LfuPolicy.Metadata {
 

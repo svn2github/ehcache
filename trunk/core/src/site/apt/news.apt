@@ -5,26 +5,22 @@
  Date
  ------
 
+
+
 News
 
-* 7 June 2008: ehcache-1.5.0-beta2 release
+* 12 July 2008: ehcache-1.5.0 released
 
-   Ehcache 1.5.0-beta2 provides a couple of fixes to changes made in beta1. If you are testing 1.5 please use this version.
-
-* 13 May 2008: ehcache-1.5.0-beta1 release
-
-   Ehcache 1.5.0-beta1 provides a host of new features and a few bug fixes:
+   Ehcache 1.5.0 provides a couple of fixes to changes made in beta1. If you are testing 1.5 please use this version.
 
 ** New Features
 
-
     * Added JGroups Implementation. Thanks to Pierre Monestie for the patch(es) for this. Though new to the
       core distribution JGroups replication has been in production use in a large cluster for the last year.
-      This does not create a dependency on JGroups unless you want to use this replicator. That will be made
-      clearer when it is moved to a separate module before final release.
+      JGroups has a "provided" scope. So, anyone wishing to use this form of replication will need to add
+      it to their dependencies.
 
-
-    * CachingFilter performance improvements,
+    * CachingFilter performance improvements
 
     * Constructs performance improvements
 
@@ -67,7 +63,17 @@ News
     * Fixed various shutdown exception when both Hibernate and Spring both try to destroy caches
 
 
-    See the {{{http://ehcache.sourceforge.net/changes-report.html#1.5.0-beta1}changelog}} for complete details.
+    See the {{{http://ehcache.sourceforge.net/changes-report.html#1.5.0}changelog}} for complete details.
+
+* 7 June 2008: ehcache-1.5.0-beta2 release
+
+   Ehcache 1.5.0-beta2 provides a couple of fixes to changes made in beta1. If you are testing 1.5 please use this version.
+
+* 13 May 2008: ehcache-1.5.0-beta1 release
+
+   Ehcache 1.5.0-beta1 provides a host of new features and a few bug fixes. (See the ehcache-1.5.0 final release news item).
+
+
 
 * 1 March 2008: ehcache is SourceForge project of the month
 

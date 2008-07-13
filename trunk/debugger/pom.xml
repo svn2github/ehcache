@@ -9,13 +9,13 @@
     <name>Ehcache Debugger</name>
     <artifactId>ehcache-debugger</artifactId>
     <packaging>jar</packaging>
+    <version>1.5.0</version>
     <description>Ehcache bundled with RemoteDebugger</description>
     <dependencies>
-        <!--todo check debugger. This is commented out because it keeps pulling down old versions of ehcache-->
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
-            <version>${pom.version}</version>
+            <version>1.5.0</version>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
@@ -31,9 +31,23 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>shade-maven-plugin</artifactId>
-                <version>1.0-alpha-5</version>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>net.sf.ehcache.distribution.RemoteDebugger</mainClass>
+
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>1.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -41,13 +55,33 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <shadedArtifactAttached>true</shadedArtifactAttached>
-                            <shadedClassifierName>remote</shadedClassifierName>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
                         </configuration>
                     </execution>
-
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <filters>
+                        <filter>src/assemble/filter.properties</filter>
+                    </filters>
+                    <descriptors>
+                        <descriptor>src/assemble/distribution.xml</descriptor>
+                    </descriptors>
+                    <tarLongFileMode>gnu</tarLongFileMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>assemble</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>assembly</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
+
 </project>

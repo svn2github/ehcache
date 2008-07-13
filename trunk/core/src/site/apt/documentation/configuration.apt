@@ -202,7 +202,6 @@
 
 ---------------------
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-todo update                            xsi:noNamespaceSchemaLocation="ehcache.xsd">
 
     CacheManager Configuration
     ==========================

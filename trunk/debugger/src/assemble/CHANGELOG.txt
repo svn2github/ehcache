@@ -1,0 +1,10 @@
+$Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
+
+
+ehcache-1.5.0-beta
+==================
+
+1. Initial standalone version
+2. All known bugs fixed
+3. More user friendly and more meaningful error messages
+4. All dependencies in a single jar for each of use

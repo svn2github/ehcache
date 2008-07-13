@@ -22,12 +22,14 @@ import net.sf.ehcache.distribution.EventMessage;
 import java.io.Serializable;
 
 /**
+ * An EventMessage used for JGroups
  * @author Pierre Monestie (pmonestie[at]@gmail.com)
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  *          EventMessage class for the JGroupsCacheReplicator.
  */
 public class JGroupEventMessage extends EventMessage {
+
     private transient Ehcache cache;
 
     private String cacheName;
@@ -56,9 +58,7 @@ public class JGroupEventMessage extends EventMessage {
     }
 
     /**
-     * Return the cache from which this event originated
-     * 
-     * @return
+     * @return the cache from which this event originated
      */
     public Ehcache getCache() {
         return cache;

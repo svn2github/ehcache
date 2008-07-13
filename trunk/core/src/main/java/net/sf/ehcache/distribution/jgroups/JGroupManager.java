@@ -250,7 +250,7 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
     }
 
     /**
-     * {@inheritDoc}
+     * @return the {@link Status} of the manager
      */
     public Status getStatus() {
         if (bus == null) {

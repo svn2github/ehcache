@@ -1,0 +1,23 @@
+<assembly>
+    <id>distribution</id>
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+            <directory>target</directory>
+            <includes>
+                <include>*-sources.jar</include>
+                <include>*-javadoc.jar</include>
+                <include>${artifact.artifactId}-${artifact.version}.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/assemble</directory>
+            <includes>
+                <include>*.txt</include>
+            </includes>
+            <outputDirectory>/</outputDirectory>
+        </fileSet>
+    </fileSets>
+</assembly>

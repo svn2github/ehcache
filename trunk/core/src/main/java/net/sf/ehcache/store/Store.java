@@ -52,7 +52,6 @@ public interface Store {
      * Gets an Array of the keys for all elements in the disk store.
      *
      * @return An Object[] of {@link java.io.Serializable} keys
-     * @noinspection SynchronizeOnNonFinalField
      */
     public Object[] getKeyArray();
 

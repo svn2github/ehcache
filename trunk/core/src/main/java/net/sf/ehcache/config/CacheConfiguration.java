@@ -290,7 +290,7 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Allows {@link BeanHandler} to add the CacheManagerEventListener to the configuration.
+     * Allows BeanHandler to add the CacheManagerEventListener to the configuration.
      */
     public final void addBootstrapCacheLoaderFactory(BootstrapCacheLoaderFactoryConfiguration
             bootstrapCacheLoaderFactoryConfiguration) {
@@ -306,7 +306,7 @@ public class CacheConfiguration implements Cloneable {
 
 
     /**
-     * Allows {@link BeanHandler} to add the CacheExceptionHandlerFactory to the configuration.
+     * Allows BeanHandler to add the CacheExceptionHandlerFactory to the configuration.
      */
     public final void addCacheExceptionHandlerFactory(CacheExceptionHandlerFactoryConfiguration
             cacheExceptionHandlerFactoryConfiguration) {
@@ -321,7 +321,7 @@ public class CacheConfiguration implements Cloneable {
 
 
     /**
-     * Allows {@link BeanHandler} to add the CacheLoaderFactory to the configuration.
+     * Allows BeanHandler to add the CacheLoaderFactory to the configuration.
      */
     public final void addCacheLoaderFactory(CacheLoaderFactoryConfiguration
             cacheLoaderFactoryConfiguration) {

@@ -12,7 +12,7 @@
     <packaging>jar</packaging>
 
     <dependencies>
-        <!-- Provided scope -->
+
         <dependency>
             <groupId>backport-util-concurrent</groupId>
             <artifactId>backport-util-concurrent</artifactId>
@@ -29,6 +29,7 @@
             <groupId>net.sf.jsr107cache</groupId>
             <artifactId>jsr107cache</artifactId>
         </dependency>
+        <!-- Provided scope -->
         <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
@@ -90,7 +91,6 @@
             <groupId>org.acegisecurity</groupId>
             <artifactId>acegi-security</artifactId>
         </dependency>
-        <!-- todo why does this need to be duplicated here. Maven bug? -->
         <dependency>
             <groupId>jgroups</groupId>
             <artifactId>jgroups-all</artifactId>

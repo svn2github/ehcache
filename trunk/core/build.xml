@@ -63,7 +63,7 @@
     </target>
 
     <!-- compiles -->
-    <target name="compile" depends="compile-src, compile-debugger, rmic, compile-tests"
+    <target name="compile" depends="compile-src, rmic, compile-tests"
             description="Performs a compile"/>
 
 
@@ -99,23 +99,6 @@
             <fileset dir="${src.resources.dir}/jcache"/>
         </copy>
     </target>
-
-    <!-- Compiles the debugger classes -->
-    <target name="compile-debugger" description="compile debugger files">
-        <mkdir dir="${debugger.classes.dir}"/>
-        <javac destdir="${debugger.classes.dir}"
-               target="1.4"
-               debug="${compiler.debug}"
-               deprecation="${compiler.deprecation}"
-               source="1.4">
-            <src location="${debugger.java.dir}"/>
-            <classpath>
-                <path path="${build.classes.dir}"/>
-                <path refid="project.class.path"/>
-            </classpath>
-        </javac>
-    </target>
-
 
     <target name="rmic">
         <rmic base="${build.classes.dir}" includes="**/RMICachePeer.class"
@@ -351,37 +334,9 @@
         <dependency groupId="net.sf.jsr107cache" artifactId="jsr107cache" version="1.0"/>
     </artifact:dependencies>
 
-    <!-- Builds a remote debugger jar  -->
-    <target name="remote-debugger-jar" depends="compile"
-            description="Builds the application jar">
-        <mkdir dir="${dist.dir}/"/>
-        <mkdir dir="${dist.dir}/remotedeps"/>
-        <copy todir="${dist.dir}/remotedeps" flatten="true">
-            <fileset refid="runtime-dependencies.fileset"/>
-        </copy>
-        <jar destfile="${dist.dir}/${name}-${version}-remote-debugger.jar">
-            <manifest>
-                <attribute name="Built-By" value="${user.name}"/>
-                <attribute name="Version" value="${version}"/>
-            </manifest>
-            <fileset dir="${build.classes.dir}"/>
-            <fileset dir="${debugger.classes.dir}">
-                <include name="**/RemoteDebugger.class"/>
-            </fileset>
-            <fileset dir="${basedir}" includes="LICENSE.txt"/>
-            <zipfileset src="${dist.dir}/remotedeps/commons-logging-1.0.4.jar"/>
-            <zipfileset src="${dist.dir}/remotedeps/backport-util-concurrent-3.0.jar"/>
-            <manifest>
-                <attribute name="Main-Class"
-                           value="net.sf.ehcache.distribution.RemoteDebugger"/>
-            </manifest>
-        </jar>
-        <delete dir="${dist.dir}/remotedeps"/>
-    </target>
-
     <!-- Builds a release tar-ball -->
     <target name="dist-tgz"
-            depends="dist-jar, dist-javadoc, dist-sources, remote-debugger-jar">
+            depends="dist-jar, dist-javadoc, dist-sources">
 
         <mkdir dir="${dist.dir}/lib"/>
         <copy todir="${dist.dir}/lib" flatten="true">
@@ -395,7 +350,6 @@
                 <include name="${name}-${version}-${javadoc.zip}"/>
                 <include name="${name}-${version}-sources.jar"/>
                 <include name="lib/*.jar"/>
-                <include name="${name}-${version}-remote-debugger.jar"/>
             </tarfileset>
             <tarfileset dir="${basedir}" prefix="${name}-${version}">
                 <include name="RELEASE_NOTES.txt"/>
@@ -834,6 +788,7 @@
                 <arg value="samples.apt"/>
                 <arg value="dependencies.apt"/>
                 <arg value="logging.apt"/>
+                <arg value="remotedebugger.apt"/>
                 <arg value="garbage_collection.apt"/>
                 <arg value="jmx.apt"/>
                 <arg value="class_loading.apt"/>

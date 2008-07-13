@@ -48,13 +48,11 @@ public class RMIDistributedCacheTest extends TestCase {
      * the cache we wish to test
      */
     private Ehcache sampleCache1;
-    private Ehcache sampleCache2;
 
 
     private String hostName = "localhost";
 
     private Integer port = new Integer(40000);
-    //todo test others
     private Integer remoteObjectPort = new Integer(0);
     private Element element;
     private CachePeer cache1Peer;
@@ -73,7 +71,6 @@ public class RMIDistributedCacheTest extends TestCase {
         manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
         MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
         sampleCache1 = manager.getCache(cacheName1);
-        sampleCache2 = manager.getCache(cacheName2);
         sampleCache1.removeAll();
         element = new Element("key", new Date());
         sampleCache1.put(element);

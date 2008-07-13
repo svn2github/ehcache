@@ -32,7 +32,6 @@ import java.lang.ref.SoftReference;
  *
  * @author Greg Luck
  * @version $Id$
- * @noinspection SerializableHasSerializationMethods
  */
 public class EventMessage implements Serializable {
 

@@ -1,5 +1,31 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+ehcache-1.5.0
+=============
+
+<release version="1.5.0" date="2008-07-12" desc="1.5.0 Maintenance release">
+    <!--Bug Fixes-->
+    <action dev="Greg Luck" type="fix" issue="1977481">
+        Fix loading of net.sf.ehcache.hibernate.EhCacheProvider from multiple class loaders. The insistence
+        that a leading slash be at the front of the "net.sf.ehcache.configurationResourceName" property has been removed.
+        If this fix causes anyone an issue, add the "/" to the front of your path.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="1990091">
+        Updated the BlockingCache.get() JavaDoc to clarify the contract when a RuntimeException is thrown.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="2002319">
+        Added a more meaningful LOG message when a null element is encountered from a replication. The only reason
+        that an element can be null is because a SoftRefernence has been reclaimed by the JVM. The log message
+        recommends either increasing heap or setting -Xms to be the same as -Xmx as the Sun JDK will reclaim SoftReferences
+        in preference to increasing heap.
+    </action>
+    <!--Changes-->
+     <action dev="Greg Luck" type="update">
+        The remote debugger has had many improvements. It is now packaged in its own tarball available from the downloads
+         page, and also continues to be published as a maven module. It is not in the core tarball so that more focus
+         can be given to it.
+    </action>
+</release>
 
 ehcache-1.5.0-beta2
 ===================

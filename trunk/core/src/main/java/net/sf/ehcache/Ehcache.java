@@ -249,7 +249,6 @@ public interface Ehcache extends Cloneable {
      *                                    further notification to doNotNotifyCacheReplicators cache peers
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
-     * @noinspection SameParameterValue
      */
     boolean remove(Serializable key, boolean doNotNotifyCacheReplicators) throws IllegalStateException;
 

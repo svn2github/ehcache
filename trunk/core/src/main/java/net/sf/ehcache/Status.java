@@ -27,7 +27,6 @@ import java.io.Serializable;
  * @author Greg Luck
  * @version $Id$
  * @since 1.2
- * @noinspection SerializableHasSerializationMethods
  */
 public final class Status implements Serializable {
     /**

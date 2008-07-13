@@ -59,7 +59,6 @@ public interface CachePeer extends Remote {
      * @param key
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
-     * @noinspection UnneededThrows,UnusedReturnValue
      */
     boolean remove(Serializable key) throws IllegalStateException, RemoteException;
 
@@ -81,7 +80,6 @@ public interface CachePeer extends Remote {
 
     /**
      * Gets the cache name.
-     * @noinspection UnneededThrows
      */
     String getName() throws RemoteException;
 
@@ -89,7 +87,6 @@ public interface CachePeer extends Remote {
      * Gets the globally unique id for the underlying <code>Cache</code> instance.
      * @return a String representation of the GUID
      * @throws RemoteException
-     * @noinspection UnneededThrows
      */
     String getGuid() throws RemoteException;
 
@@ -100,7 +97,6 @@ public interface CachePeer extends Remote {
      * This method is not meant to be used remotely. The replicator already needs to know this. It has
      * to throw RemoteException to comply with RMI requirements
      * @return the URL as a string
-     * @noinspection UnneededThrows
      */
     String getUrl() throws RemoteException;
 
@@ -108,7 +104,6 @@ public interface CachePeer extends Remote {
     /**
      * The URL base for the remote replicator to connect. The value will have meaning
      * only to a specific implementation of replicator and remote peer.
-     * @noinspection UnneededThrows
      */
      String getUrlBase() throws RemoteException;
 

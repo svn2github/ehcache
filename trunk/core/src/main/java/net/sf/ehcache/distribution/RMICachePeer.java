@@ -36,7 +36,6 @@ import java.util.ArrayList;
  *
  * @author Greg Luck
  * @version $Id$
- * @noinspection FieldCanBeLocal
  */
 public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remote {
 

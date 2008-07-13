@@ -29,6 +29,9 @@ Java Requirements, Dependencies and Maven POM snippet
     Ehcache core and debugger require Backport Concurrent. Rather than using the library which maven will pull down, users should consider
     using the version for their specific version of Java. This is not something that Maven can handle automatically. A JDK specific version should
     be faster than the generic one. See {{http://dcl.mathcs.emory.edu/util/backport-util-concurrent}}.
+
+    This dependency will be removed in favour of the built-in <<<java.util.concurrent>>> for new versions of ehcache when the minimum
+    Java version for ehcache is JDK1.5, which is dependent on Java usage. 2009 is the likely time. 
     
 * Optional Dependencies
 
@@ -41,10 +44,16 @@ Java Requirements, Dependencies and Maven POM snippet
 
 ** Commons collections
 
-    This is optional. Use it if you are using ehcache with Terracotta. They have a limitation which prevents them from using
-    the build in JDK one.
+    This is optional. Use it only if you are using ehcache with Terracotta. They have a limitation which prevents them from using
+    the built in JDK one.
 
     It can be turned on using by setting the system property <<<net.sf.ehcache.useLRUMap>>> to true.
+
+** JGroups
+
+    JGroups has a "provided" scope in Maven and is not included in the tar ball.
+    
+    If you wish to use the JGroups replication, add it manually.
 
 * Maven pom.xml snippet
 
@@ -56,7 +65,7 @@ Java Requirements, Dependencies and Maven POM snippet
      <dependency>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache</artifactId>
-        <version>1.4.0</version>
+        <version>1.5.0</version>
      </dependency>
 --------
 

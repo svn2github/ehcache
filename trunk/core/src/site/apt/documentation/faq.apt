@@ -79,8 +79,8 @@ maximum size, the LRU element gets pushed into the DiskStore.
 it is far more efficient to only check when we need to. The tradeoff is
 higher average memory use.
 
-TODO The DiskStore's size is unbounded. The expiry thread keeps the disk
-store clean. There is hopefully less contention for the DiskStore's
+The expiry thread keeps the disk store clean. There is hopefully less
+ contention for the DiskStore's
 locks because commonly used values are in the MemoryStore. We mount our
 DiskStore on Linux using RAMFS so it is using OS memory. While we have
 more of this than the 2GB 32 bit process size limit it is still an

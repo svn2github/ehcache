@@ -93,7 +93,6 @@ public class ManagementService implements CacheManagerEventListener {
      * @param registerCacheConfigurations Whether to register the CacheConfiguration MBeans
      * @param registerCacheStatistics     Whether to register the CacheStatistics MBeans
      * @throws net.sf.ehcache.CacheException if something goes wrong with init()
-     * @see static version of this same method
      */
     public ManagementService(net.sf.ehcache.CacheManager cacheManager,
                              MBeanServer mBeanServer,

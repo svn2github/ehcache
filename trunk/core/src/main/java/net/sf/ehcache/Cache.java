@@ -666,10 +666,11 @@ public class Cache implements Ehcache {
         }
 
         if (element == null) {
-            if (doNotNotifyCacheReplicators == true) {
+            if (doNotNotifyCacheReplicators) {
                 if (LOG.isDebugEnabled()) {
-                LOG.debug("Element from replicated put is null. This happens because the element is a SoftReference and it has been collected." +
-                        "Increase heap memory on the JVM or set -Xms to be the same as -Xmx to avoid this problem.");
+                LOG.debug("Element from replicated put is null. This happens because the element is a SoftReference" +
+                        " and it has been collected.Increase heap memory on the JVM or set -Xms to be the same as " +
+                        "-Xmx to avoid this problem.");
                 }
             } else {
                 throw new IllegalArgumentException("Element cannot be null");
@@ -1278,7 +1279,6 @@ public class Cache implements Ehcache {
      *                                    further notification to doNotNotifyCacheReplicators cache peers
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
-     * @noinspection SameParameterValue
      */
     public final boolean remove(Serializable key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         return remove((Object) key, doNotNotifyCacheReplicators);

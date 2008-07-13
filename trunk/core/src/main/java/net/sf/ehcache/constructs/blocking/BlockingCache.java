@@ -517,7 +517,7 @@ public class BlockingCache implements Ehcache {
      * @throws RuntimeException if thrown the lock will not released. Catch and call<code>put(new Element(key, null));</code>
      * to release the lock acquired.
      */
-    public Element get(final Object key) throws LockTimeoutException {
+    public Element get(final Object key) throws RuntimeException, LockTimeoutException {
         Mutex lock = getLockForKey(key);
         try {
             if (timeoutMillis == 0) {
@@ -761,7 +761,6 @@ public class BlockingCache implements Ehcache {
      *                                    further notification to doNotNotifyCacheReplicators cache peers
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
-     * @noinspection SameParameterValue
      */
     public boolean remove(Serializable key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         return cache.remove(key, doNotNotifyCacheReplicators);
