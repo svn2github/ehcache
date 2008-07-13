@@ -1,0 +1,411 @@
+{Cache Server}
+
+*   Introduction
+
+    Ehcache now comes with a Cache Server, available as a WAR for most
+    web containers, or as a standalone server.
+
+    Each is available as a tarball from sourceforge or from maven repos.
+
+
+    The server CacheExtensions are a general purpose mechanism to allow {generic extensions to a Cache}.
+
+
+
+*   Architecture
+
+    Ehcache server uses JAX-WS for SOAP and Jersey for RESTful Web Services. Ehcache supports both to give users the
+    maximum of choice. The beauty of both is that no Ehcache client is required. A client can be created trivially in
+    whatever programming language. With support for REST, that even extends to languages that do not hava SOAP implementations.
+
+    By default, Glassfish V3 Core embedded is used as the HTTP server on which to run these. Glassfish uses NIO
+    for high performance. However Ehcache Server is also downloadable as a WAR which can be embedded in any
+    Servlet 2.5 Web Container, such as Weblogic, Websphere, Tomcat or Jetty. 
+
+    Ehcache Server requires Java 5 or higher.
+
+*   A Note on Terminology
+
+    Leonard Richardson and Sam Ruby have done a great job of clarifying the different Web Services architectures and
+    distinguishing them from each other. See {http://www.oreilly.com/catalog/9780596529260/}.
+
+    Their taxonomy is used in the following discussion.
+
+
+*   W3C Web Services
+
+    The W3C ({http://www.w3.org/} is a standards body that defines Web Services as
+
+---
+    The World Wide Web is more and more used for application to application communication.
+    The programmatic interfaces made available are referred to as Web services.
+---
+
+    They provide a set of recommendations for achieving this. See {http://www.w3.org/2002/ws/}.
+
+    An interoperability organisation, WS-I {http://www.ws-i.org/}, seeks to achieve interoperabilty between
+    W3C Web Services. The W3C specifications for SOAP and WSDL are required to meet the WS-I definition.
+
+    Ehcache is using Glassfish's libraries to provide it's W3C web services. The project known as Metro
+    follows the WS-I definition.
+
+    Finally, OASIS ({http://oasis-open.org}), defines a Web Services Security specification for SOAP: WS-Security.
+    The current version is 1.1. It provides three main security mechanisms: ability to send security tokens as part of a 
+    message, message integrity, and message confidentiality.
+
+    Ehcache's W3C Web Services support the stricter WS-I definition and use the SOAP and WSDL specfications.
+
+    Specifically:
+
+    * The method of operation is in the entity-body of the SOAP envelope and a HTTP header. POST is always
+      used as the HTTP method.
+
+    * The scoping information, used to identify the resource to perform the method on, is contained in the
+      SOAP entity-body. The URI path is always the same for a given Web Service - it is the service "endpoint".
+
+    * The Web Service is described by and exposes a {WSDL} (Web Services Description Language) file. It contains the methods, their arguments and what data
+      types are used.
+
+    * The {WS-Security} SOAP extensions are supported
+
+
+** W3C Web Services API
+
+    The Ehcache RESTFul Web Services API exposes the singleton CacheManager, which typically has been configured
+    in ehcache.xml or an IoC container. Multiple CacheManagers are not supported.
+
+    The API definition is as follows:
+
+    * WSDL - {{{http://ehcache.sf.net/wsdl/EhcacheWebServiceEndpointService.wsdl}EhcacheWebServiceEndpointService.wsdl}}
+
+    * Types - {{{http://ehcache.sf.net/wsdl/EhcacheWebServiceEndpointService_schema1.xsd}EhcacheWebServiceEndpointService_schema1.xsd}}
+
+
+**  Security
+
+    By default no security is configured. Because it is simply a Servlet 2.5 web application, it can be secured in all the
+    usual ways by configuration in the web.xml.
+
+    In addition the cache server supports the use of XWSS 3.0 to secure the Web Service. See {{https://xwss.dev.java.net/}}. All required libraries
+    are packaged in the war for XWSS 3.0.
+
+    A sample, commented out server_security_config.xml is provided in the WEB-INF directory. XWSS automatically
+    looks for this configuration file.
+
+    A simple example, based on an XWSS example, <<<net.sf.ehcache.server.soap.SecurityEnvironmentHandler>>>, which looks for a
+    password in a System property for a given username is included. This is not recommended for production use
+    but is handy when you are getting started with XWSS.
+
+    To use XWSS:
+
+    Add configuration in accordance with XWSS to the server_security_config.xml file. Create a
+    class which implements the <<<CallbackHandler>>> interface and provide its fully qualified path
+    in the <<<SecurityEnvironmentHandler>>> element.
+
+    The integration test <<<EhcacheWebServiceEndpoint>>> test shows how to use the XWSS client side.
+    On the client side, configuration must be provided in a file called <<<client_security_config.xml>>>
+    must be in the root of the classpath.
+
+    To add client credentials into the SOAP request do:
+---
+
+    cacheService = new EhcacheWebServiceEndpointService().getEhcacheWebServiceEndpointPort();
+    //add security credentials
+    ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "Ron");
+    ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "noR");
+    String result = cacheService.ping();
+
+---
+
+
+
+*   RESTful Web Services
+
+    Roy Fielding created the term REST, denoting Representational State Transfer, in his
+    {{{http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm}PhD thesis}}.
+
+    The ehcache implementation strictly follows the RESTful resource-oriented architecture style.
+
+    Specifically:
+
+    * The HTTP methods GET, HEAD, PUT/POST and DELETE are used to specify the method of the operation. The
+      URI does not contain method information.
+
+    * The scoping information, used to identify the resource to perform the method on, is contained in the
+      URI path.
+
+    * The RESTful Web Service is described by and exposes a {WADL} (Web Application Description Language) file.
+      It contains the URIs you can call, and what data to pass and get back.
+
+
+** RESTFul Web Services API
+
+    The Ehcache RESTFul Web Services API exposes the singleton CacheManager, which typically has been configured
+    in ehcache.xml or an IoC container. Multiple CacheManagers are not supported.
+
+    The resources are encoded as /{cache}/{element}
+
+** CacheManager Resource Operations
+
+*** OPTIONS /
+
+    Lists the methods supported by the CacheManager resource
+
+
+*** {GET} /
+
+    Lists the Caches in the CacheManager.
+
+** Cache Resource Operations
+
+*** OPTIONS /\{cache\}/
+
+    Lists the methods supported by the Cache resource
+
+
+*** GET /\{cache\}
+
+    Lists the elements in the cache.
+
+*** {PUT} /\{cache\}
+
+    Creates a Cache using the defaultCache configuration.
+
+*** {DELETE} / \{cache\}
+
+    Deletes the Cache.
+
+** WADL
+
+   The WADL is automatically generated and is accessible at /ehcache/application.wadl
+
+** Element Resource Operations
+
+*** OPTIONS /\{cache\}/\{element\}
+
+    Lists the methods supported by the Element resource
+
+*** HEAD /\{cache\}/\{element\}
+
+    Retrieves the same metadata a GET would receive returned as HTTP headers. There is no body returned.
+
+*** GET /\{cache\}/\{element\}
+
+    Gets the element.
+
+*** HEAD /\{cache\}/\{element\}
+
+    Gets the element's metadata.
+
+*** {PUT} /\{cache\}/\{element\}
+
+    Puts and element into the Cache.
+
+*** {DELETE} / \{cache\}/\{element\}
+
+    Deletes the element from the cache.
+
+**  Resource Representations
+
+    We deal with resource representations rather than resources themselves.
+
+
+*** Element Resource Representations
+
+    When Elements are PUT into the cache, a MIME Type should be set in the request header.
+    The MIME Type is preserved and put into the response header when a GET is done.
+
+    Some common MIME Types which are expected to be used by clients are:
+
+*-----*------*
+ text/plain | Plain text
+*-----*------*
+ text/xml | Extensible Markup Language. Defined in RFC 3023
+*-----*------*
+ application/json | JavaScript Object Notation JSON. Defined in RFC 4627
+*-----*------*
+ application/x-java-serialized-object | A serialized Java object
+*-----*------*
+
+    Because ehcache is a distributed Java cache, in some configurations the Cache server may contain Java objects
+    that arrived at the Cache server via distributed replication. In this case no MIME Type will be set
+    and the Element will be examined to determine its MIME Type.
+
+    Because anything that can be PUT into the cache server must be Serializable, it can also be distributed
+    in a cache cluster i.e. it will be Serializable.
+
+**  Security
+
+    By default no security is configured. Because it is simply a Servlet 2.5 web application, it can be secured in all the
+    usual ways by configuration in the web.xml.
+
+*   Requirements
+
+**  Java
+
+    Java 5 or 6
+
+**  Web Container (WAR packaged version only)
+
+    The standalone server comes with its own embedded Glassfish web container.
+
+    The web container must support the Servlet 2.5 specification.
+
+    The following web container configuration have been tested:
+
+    * Glassfish V2/V3
+
+    * Tomcat 6
+
+    * Jetty 6
+
+*   Downloading
+
+    The server is available as follows:
+
+**  Sourceforge
+
+    Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}.
+
+    There are two tarball archives in tar.gz format:
+
+    * ehcache-server - this contains the WAR file which must be deployed in your own web container.
+
+    * ehcache-standalone-server - this contains a complete standalone directory structure with an embedded Glassfish V3 web container
+      together with shell scripts for starting and stopping.
+
+**  Maven
+
+    The Ehcache Server is in the central Maven repository packaged as type <jar>. Use the following Maven pom snippet:
+
+---
+   <dependency>
+        <groupId>net.sf.ehcache</groupId>
+        <artifactId>ehcache-server</artifactId>
+        <version>0.1</version>
+        <type>war</type>
+   </dependency>
+---
+
+*   Installation
+
+**  Installing the WAR
+
+    Use your Web Container's instructions to install the WAR or include the WAR in your project with
+    Maven's war plugin.
+
+    Web Container specific configuration is provided in the WAR as follows:
+
+    * sun-web.xml - Glassfish V2/V3 configuration
+
+    * jetty-web.xml - Jetty V5/V6 configuration
+
+    Tomcat V6 passes all integration tests. It does not require a specific configuration.
+
+**   Configuring the Web Application
+
+    Expand the WAR.
+
+    Edit the web.xml.
+
+***  Disabling the RESTful Web Service
+
+    Comment out the RESTful web service section.
+
+***  Disabling the SOAP Web Service
+
+    Comment out the RESTful web service section.
+
+***  Configuring Caches
+
+    The ehcache.xml configuration file is located in WEB-INF/classes/ehcache.xml.
+
+    Follow the instructions in this config file, or the core ehcache instructions to configure.
+
+***  SOAP Web Service Security
+
+*   Installing the Standalone Server
+
+    The WAR also comes packaged with a standalone server, based on Glassfish V3 Embedded.
+
+    The quick start is:
+
+    * Untar the download
+
+    * bin/start.sh to start. By default it will listen on port 8080, will have both RESTful and SOAP
+      web services enabled, and will use a sample Ehcache configuration from the WAR module.
+
+    * bin/stop.sh to stop
+
+    See the INSTALL.txt that comes with the tarball for detailed instructions.
+
+**  Configuring the Standalone Server
+
+    Configuration is by editing the war/web.xml file as per the instructions for the WAR packaging.
+
+**  Starting and Stopping
+
+    * bin/start.sh to start. By default it will listen on port 8080, will have both RESTful and SOAP
+      web services enabled, and will use a sample Ehcache configuration from the WAR module.
+
+    * bin/stop.sh to stop
+
+**  Running the Standalone Server as a Unix Service
+
+    The standalone server can be run as a daemon using the jsvc tool from the Apache commons-daemon project.
+    Source tarballs for jsvc are included in the jscv directory of the tarball.
+
+    See {{http://commons.apache.org/daemon/jsvc.html}} for full details.
+
+    with the Apache binaries, and need to be compiled.
+
+    Building jsvc requires a C ANSI compiler (such as GCC), GNU Autoconf, and a JDK.
+
+Before running the script, the JAVA_HOME environment variable should be set to the base path of the JDK. Alternately, when calling the ./configure script, the path of the JDK may be specified using the --with-java parameter, such as ./configure --with-java=/usr/java.
+
+Using the following commands should result in a compiled jsvc binary, located in the $CATALINA_HOME/bin folder. This assumes that GNU TAR is used, and that CATALINA_HOME is an environment variable pointing to the base path of the Tomcat installation.
+
+Please note that you should use the GNU make (gmake) instead of the native BSD make on FreeBSD systems.
+
+Download a commons-daemon binary from the Jakarta Commons download page, and place jsvc.tar.gz and commons-daemon.jar in the $CATALINA_HOME/bin folder.
+
+
+
+    cd $CATALINA_HOME/bin
+    tar xvfz jsvc.tar.gz
+    cd jsvc-src
+    autoconf
+    ./configure
+    make
+    cp jsvc ..
+    cd ..
+
+
+Tomcat can then be run as a daemon using the following commands.
+
+
+
+    cd $CATALINA_HOME
+    ./bin/jsvc -cp ./bin/bootstrap.jar \
+        -outfile ./logs/catalina.out -errfile ./logs/catalina.err \
+        org.apache.catalina.startup.Bootstrap
+
+
+jsvc has other useful parameters, such as -user which causes it to switch to another user after the daemon initialization is complete. This allows, for example, running Tomcat as a non privileged user while still being able to use privileged ports. jsvc --help will return the full jsvc usage information. In particular, the -debug option is useful to debug issues running jsvc.
+
+The file $CATALINA_HOME/bin/jsvc/native/tomcat.sh can be used as a template for starting Tomcat automatically at boot time from /etc/init.d. The file is currently setup for running Tomcat 4.1.x, so it is necessary to edit it and change the classname from BootstrapService to Bootstrap.
+
+Note that the Commons-Daemon JAR file must be on your runtime classpath to run Tomcat in this manner. The Commons-Daemon JAR file is in the Class-Path entry of the bootstrap.jar manifest, but if you get a ClassNotFoundException or a NoClassDefFoundError for a Commons-Daemon class, add the Commons-Daemon JAR to the -cp argument when launching jsvc.
+
+
+
+   
+
+
+
+
+
+
+
+
+

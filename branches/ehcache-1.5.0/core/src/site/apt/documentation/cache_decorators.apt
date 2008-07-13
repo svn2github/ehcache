@@ -1,0 +1,123 @@
+{Cache Decorators}
+
+    Ehcache 1.2 introduced the Ehcache interface, of which Cache is an implementation. It is possible and encouraged
+    to create Ehcache decorators that are backed by a Cache instance, implement Ehcache and provide extra functionality.
+
+    The Decorator pattern is one of the the well known Gang of Four patterns.
+
+
+* Creating a Decorator
+
+    Cache decorators are created as follows:
+
+----------------
+BlockingCache newBlockingCache = new BlockingCache(cache);
+----------------
+
+    The class must implement Ehcache.
+
+
+* Accessing the decorated cache
+
+    Having created a decorator it is generally useful to put it in a place where multiple threads may access it. This
+    can be achieved in multiple ways.
+
+** Using CacheManager to access decorated caches
+
+    A built-in way is to replace the Cache in CacheManager with the decorated one. This is achieved as in the following
+    example:
+
+----------------
+cacheManager.replaceCacheWithDecoratedCache(cache, newBlockingCache);
+----------------
+
+    The <<<CacheManager>>> <<<{replaceCacheWithDecoratedCache}>>> method requires that the decorated cache be built from
+      the underlying cache from the same name.
+
+      Note that any overwritten Ehcache methods will take on new behaviours without casting, as per the normal rules
+      of Java. Casting is only required for new methods that the decorator introduces.
+
+    Any calls to get the cache out of the CacheManager now return the decorated one.
+
+
+    A word of caution. This method should be called in an appropriately synchronized init style method before multiple threads
+    attempt to use it. All threads must be referencing the same decorated cache. An example of a suitable init method is
+    found in <<<CachingFilter>>>:
+
+---
+    /**
+     * The cache holding the web pages. Ensure that all threads for a given cache name
+     * are using the same instance of this.
+     */
+    private BlockingCache blockingCache;
+
+    /**
+     * Initialises blockingCache to use
+     *
+     * @throws CacheException The most likely cause is that a cache has not been
+     *                        configured in ehcache's configuration file ehcache.xml for the
+     *                        filter name
+     */
+    public void doInit() throws CacheException {
+        synchronized (this.getClass()) {
+            if (blockingCache == null) {
+                final String cacheName = getCacheName();
+                Ehcache cache = getCacheManager().getEhcache(cacheName);
+                if (!(cache instanceof BlockingCache)) {
+                    //decorate and substitute
+                    BlockingCache newBlockingCache = new BlockingCache(cache);
+                    getCacheManager().replaceCacheWithDecoratedCache(cache, newBlockingCache);
+                }
+                blockingCache = (BlockingCache) getCacheManager().getEhcache(getCacheName());
+            }
+        }
+    }
+---
+
+
+-----
+Ehcache blockingCache = singletonManager.getEhcache("sampleCache1");
+-----
+
+    The returned cache will exhibit the decorations.
+
+
+* Built-in Decorators
+
+
+** {BlockingCache}
+
+  A blocking decorator for an Ehcache, backed by a {@link Ehcache}.
+
+  It allows concurrent read access to elements already in the cache. If the element is null, other
+  reads will block until an element with the same key is put into the cache.
+
+  This is useful for constructing read-through or self-populating caches.
+
+  BlockingCache is used by <<<CachingFilter>>>.
+
+[javadoc/net/sf/ehcache/constructs/blocking/BlockingCache]   BlockingCache
+
+
+
+** {SelfPopulatingCache}
+
+   A selfpopulating decorator for {@link Ehcache} that creates entries on demand.
+
+  Clients of the cache simply call it without needing knowledge of whether
+  the entry exists in the cache. If null the entry is created.
+
+  The cache is designed to be refreshed. Refreshes operate on the backing cache, and do not
+  degrade performance of get calls.
+
+  SelfPopulatingCache extends BlockingCache. Multiple threads attempting to access a null element will block
+  until the first thread completes. If refresh is being called the threads do not block - they return the stale data.
+
+  This is very useful for engineering highly scalable systems.
+
+[javadoc/net/sf/ehcache/constructs/blocking/SelfPopulatingCache]  SelfPopulatingCache
+
+** Caches with Exception Handling
+
+   These are decorated. See {{{./cache_exception_handlers.html}Cache Exception Handlers}} for full details. 
+

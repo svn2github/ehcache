@@ -1,0 +1,15 @@
+$Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
+
+
+ehcache-server-0.1
+==================
+
+<release version="0.1" date="2008-12-31" desc="Initial release of ehcache server">
+
+    <!-- Features and Enhancements -->
+    <action dev="Greg Luck" type="add">
+        Initial release. Provides RESTful and SOAP Web Services via a web container deployable WAR.
+    </action>
+
+</release>
+
