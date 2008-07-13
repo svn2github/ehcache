@@ -39,6 +39,8 @@ Ehcache 1.5.0 User Guide
 
     * {{{./logging.html}Logging & Debugging}}
 
+    * {{{./remotedebugger.html}Remote Network debugging and monitoring for Distributed Caches}}
+
     * {{{./jmx.html}JMX Management & Monitoring}}
 
     * {{{./cachemanager_event_listeners.html}CacheManager Event Listeners}}
@@ -51,7 +53,7 @@ Ehcache 1.5.0 User Guide
 
     * {{{./cache_loaders.html}Cache Loaders}}
 
-    * {{{./cache_server.html}Cache Server with {SOAP} and {RESTful} Web Services}}
+    * {{{./cache_server.html}Cache Server with SOAP and RESTful Web Services}}
 
     * {{{./hibernate.html}Hibernate Caching}}
 

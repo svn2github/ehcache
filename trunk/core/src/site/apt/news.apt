@@ -9,7 +9,16 @@
 
 News
 
-* 12 July 2008: ehcache-1.5.0 released
+** 12 July 2009: ehcache-server-0.1 released
+
+   This is the first version of an ehcache W3C Web Services server, packaged as a WAR. This version is made available for testing.
+   See the {{{http://ehcache.sourceforge.net/documentation/cache_server.html}documentation}}. A standalone version is also coming.
+
+** 12 July 2009: ehcache-debugger-1.5.0 released
+
+   This is a standalone ehcache debugger used to monitor RMI cache clusters. It is available from Maven central or the downloads page.
+
+** 12 July 2008: ehcache-1.5.0 released
 
    Ehcache 1.5.0 provides a couple of fixes to changes made in beta1. If you are testing 1.5 please use this version.
 
@@ -52,6 +61,9 @@ News
 
       The new version prints a list of caches with replication configured, prints notifications as they
       happen, and periodically prints the cache name, size and total events received.
+
+      Note that the debugger is gaining more attention and is now distributed in its own tar ball. It has also moved to its own
+      pure maven build and has additional testing.
 
 
 **   Summary of Bug Fixes

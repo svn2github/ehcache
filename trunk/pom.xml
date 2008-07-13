@@ -18,8 +18,8 @@
 
     <!--Not using aggregate building -->
     <modules>
-        <module>core</module>
 <!--
+        <module>core</module>
         <module>debugger</module>
         <module>jcache</module>
         <module>server</module>

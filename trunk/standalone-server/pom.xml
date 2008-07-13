@@ -15,6 +15,13 @@
         This is packaged as a distribution complete with all required dependencies.
     </description>
     <dependencies>
+        <!--Cannot find these complete anywhere. Bug logged against WSIT project. prefix with metro to stop
+         a broken one coming down. Must be installed locally. -->
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>metro-glassfishv3-webservices-rt</artifactId>
+            <version>1.2</version>
+        </dependency>
         <dependency>
             <groupId>org.glassfish.embedded</groupId>
             <artifactId>gf-embedded-api</artifactId>

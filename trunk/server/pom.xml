@@ -34,6 +34,11 @@
             <artifactId>metro-webservices-rt</artifactId>
             <version>1.2</version>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.sun.xml.ws</groupId>-->
+            <!--<artifactId>metro-glassfishv3-webservices-rt</artifactId>-->
+            <!--<version>1.2</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>metro-webservices-api</artifactId>
@@ -216,21 +221,6 @@
                 <configuration>
                     <goalPrefix>glassfish</goalPrefix>
                 </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>classes-jar</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <configuration>
-                            <classifier>classes</classifier>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

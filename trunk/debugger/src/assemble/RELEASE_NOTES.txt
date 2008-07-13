@@ -8,6 +8,7 @@ See http://ehcache.sourceforge.net/documentation/remotedebugger.html for full do
 
 For the impatient:
 
-java -jar ehcache-1.5-remote-debugger.jar path_to_ehcache.xml cacheToMonitor
+java -classpath backport-util-concurrent-3.1.jar:commons-logging-1.0.4.jar:commons-collections-3.2.jar:jsr107cache-1.0.jar 
+-jar ehcache-debugger-1.5.0.jar ehcache.xml sampleCache1
 
 

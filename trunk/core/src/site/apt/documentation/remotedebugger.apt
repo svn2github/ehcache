@@ -10,7 +10,7 @@
 
     From version 1.5 it is packaged in its own distribution tarball along with a maven module.
 
-    It is provided as an executable jar with all dependencies included.
+    It is provided as an executable jar.
 
 *   Limitations
 
@@ -22,9 +22,13 @@
 
 --------------------------------------------
 
-java -jar ehcache-1.5-remote-debugger.jar path_to_ehcache.xml [cacheToMonitor]
+java -classpath backport-util-concurrent-3.1.jar:commons-logging-1.0.4.jar:commons-collections-3.2.jar:jsr107cache-1.0.jar
+     -jar ehcache-debugger-1.5.0.jar ehcache.xml sampleCache1 path_to_ehcache.xml [cacheToMonitor]
 
 --------------------------------------------
+
+   Note: Add to the classpath any libraries your project uses in addition to these above, otherwise RMI will attempt to load them
+   remotely which requires specific security policy settings that surprise most people.
 
    It takes one or two arguments:
 

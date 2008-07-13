@@ -12,7 +12,7 @@ Development Roadmap
 
 * Cache Server
 
-(This one coming July 08)
+ (This one coming July 08)
 
  This will be a cache server with both REST and W3C Web Services APIs. The server will work standalone
  with Unix service control and also be deployable as a WAR. The idea is to make ehcache available to the
@@ -24,6 +24,8 @@ Development Roadmap
  There is sponsorship for a JMS-based replication mechanism. This should be useful for many people.
 
 * Group based invalidation
+
+  This has become a common feature request. Multiple elements may be associated as a group, and then invalidated together.
 
 * Distributed Transactions with RMI Replication
 
