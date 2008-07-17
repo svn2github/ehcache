@@ -162,20 +162,26 @@ public final class Element implements Serializable, Cloneable {
 
 
     /**
-     * Web Services specific constructor
-     * @param key
-     * @param value
-     * @param eternal
-     * @param timeToIdleSeconds
-     * @param timeToLiveSeconds
+     * Constructor used by ehcache-server
+     * @param key any non null value
+     * @param value any value, including nulls
+     * @param eternal specify as non-null to override cache configuration
+     * @param timeToIdleSeconds specify as non-null to override cache configuration
+     * @param timeToLiveSeconds specify as non-null to override cache configuration
      */
     public Element(Object key, Object value,
-                   boolean eternal, int timeToIdleSeconds, int timeToLiveSeconds) {
+                   Boolean eternal, Integer timeToIdleSeconds, Integer timeToLiveSeconds) {
         this.key = key;
         this.value = value;
-        this.eternal = eternal;
-        this.timeToIdle = timeToIdleSeconds;
-        this.timeToLive = timeToLiveSeconds;
+        if (eternal != null) {
+            setEternal(eternal.booleanValue());
+        }
+        if (timeToIdleSeconds != null) {
+            setTimeToIdle(timeToIdleSeconds.intValue());
+        }
+        if (timeToLiveSeconds != null) {
+            setTimeToLive(timeToLiveSeconds.intValue());
+        }
         creationTime = System.currentTimeMillis();
     }
 

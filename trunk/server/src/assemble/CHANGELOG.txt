@@ -1,10 +1,17 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
 
-ehcache-server-0.1
-==================
+<release version="0.2" date="2008-7-17" desc="Initial release of ehcache server">
 
-<release version="0.1" date="2008-12-31" desc="Initial release of ehcache server">
+    <!-- Features and Enhancements -->
+    <action dev="Greg Luck" type="add">
+        Added wsdl files which for some reason are required by Glassfish V3 embedded but not Glassfish V3.
+    </action>
+
+</release>
+
+
+<release version="0.1" date="2008-7-12" desc="Initial release of ehcache server">
 
     <!-- Features and Enhancements -->
     <action dev="Greg Luck" type="add">

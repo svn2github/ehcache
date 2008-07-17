@@ -18,12 +18,14 @@
 
     <!--Not using aggregate building -->
     <modules>
-<!--
         <module>core</module>
         <module>debugger</module>
         <module>jcache</module>
         <module>server</module>
-        <module>standalone-server</module>-->
+        <module>standalone-server</module>
+
+<!--
+-->
     </modules>
 
     <dependencyManagement>

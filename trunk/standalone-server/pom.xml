@@ -15,13 +15,6 @@
         This is packaged as a distribution complete with all required dependencies.
     </description>
     <dependencies>
-        <!--Cannot find these complete anywhere. Bug logged against WSIT project. prefix with metro to stop
-         a broken one coming down. Must be installed locally. -->
-        <dependency>
-            <groupId>com.sun.xml.ws</groupId>
-            <artifactId>metro-glassfishv3-webservices-rt</artifactId>
-            <version>1.2</version>
-        </dependency>
         <dependency>
             <groupId>org.glassfish.embedded</groupId>
             <artifactId>gf-embedded-api</artifactId>
@@ -35,7 +28,7 @@
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-server</artifactId>
-            <version>0.1</version>
+            <version>0.2</version>
             <type>war</type>
         </dependency>
         <dependency>
@@ -128,32 +121,33 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <!-- Doesn't work when not internet connected -->
-                <executions>
-                    <execution>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>checkstyle</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>
-                    <suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>
-                    <headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>
-                    <enableRSS>false</enableRSS>
-                    <linkXRef>true</linkXRef>
-                    <enableRulesSummary>false</enableRulesSummary>
-                    <consoleOutput>true</consoleOutput>
-                    <failsOnError>true</failsOnError>
-                    <failsOnViolation>true</failsOnViolation>
-                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                    <enableRulesSummary>true</enableRulesSummary>
-                </configuration>
-            </plugin>
+            <!--todo only works when internet connected-->
+            <!--<plugin>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-checkstyle-plugin</artifactId>-->
+            <!-- Doesn't work when not internet connected -->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<phase>verify</phase>-->
+            <!--<goals>-->
+            <!--<goal>checkstyle</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--<configuration>-->
+            <!--<configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>-->
+            <!--<suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>-->
+            <!--<headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>-->
+            <!--<enableRSS>false</enableRSS>-->
+            <!--<linkXRef>true</linkXRef>-->
+            <!--<enableRulesSummary>false</enableRulesSummary>-->
+            <!--<consoleOutput>true</consoleOutput>-->
+            <!--<failsOnError>true</failsOnError>-->
+            <!--<failsOnViolation>true</failsOnViolation>-->
+            <!--<includeTestSourceDirectory>true</includeTestSourceDirectory>-->
+            <!--<enableRulesSummary>true</enableRulesSummary>-->
+            <!--</configuration>-->
+            <!--</plugin>-->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
