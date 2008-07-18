@@ -107,14 +107,13 @@
     must be in the root of the classpath.
 
     To add client credentials into the SOAP request do:
----
 
+---
     cacheService = new EhcacheWebServiceEndpointService().getEhcacheWebServiceEndpointPort();
     //add security credentials
     ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "Ron");
     ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "noR");
     String result = cacheService.ping();
-
 ---
 
 
@@ -343,69 +342,55 @@
 
     Configuration is by editing the war/web.xml file as per the instructions for the WAR packaging.
 
-**  Starting and Stopping
-
-    * bin/start.sh to start. By default it will listen on port 8080, will have both RESTful and SOAP
-      web services enabled, and will use a sample Ehcache configuration from the WAR module.
-
-    * bin/stop.sh to stop
-
-**  Running the Standalone Server as a Unix Service
-
-    The standalone server can be run as a daemon using the jsvc tool from the Apache commons-daemon project.
-    Source tarballs for jsvc are included in the jscv directory of the tarball.
-
-    See {{http://commons.apache.org/daemon/jsvc.html}} for full details.
-
-    with the Apache binaries, and need to be compiled.
-
-    Building jsvc requires a C ANSI compiler (such as GCC), GNU Autoconf, and a JDK.
-
-Before running the script, the JAVA_HOME environment variable should be set to the base path of the JDK. Alternately, when calling the ./configure script, the path of the JDK may be specified using the --with-java parameter, such as ./configure --with-java=/usr/java.
-
-Using the following commands should result in a compiled jsvc binary, located in the $CATALINA_HOME/bin folder. This assumes that GNU TAR is used, and that CATALINA_HOME is an environment variable pointing to the base path of the Tomcat installation.
-
-Please note that you should use the GNU make (gmake) instead of the native BSD make on FreeBSD systems.
-
-Download a commons-daemon binary from the Jakarta Commons download page, and place jsvc.tar.gz and commons-daemon.jar in the $CATALINA_HOME/bin folder.
+**  Starting and Stopping the Standalone Server
 
 
+*** Using Commons Daemon jsvc
 
-    cd $CATALINA_HOME/bin
-    tar xvfz jsvc.tar.gz
-    cd jsvc-src
-    autoconf
-    ./configure
-    make
-    cp jsvc ..
-    cd ..
+    jsvc creates a daemon which returns once the service is started. jsvc works on all common Unix-based operating systems
+    including Linux, Solaris and Mac OS X.
 
+    It creates a pid file in the pid directory.
 
-Tomcat can then be run as a daemon using the following commands.
+    This is a Unix shell script that starts the server as a daemon.
 
+    To use jsvc you must install the native binary jsvc from the Apache Commons Daemon project.
+    The source for this is distributed in the bin directory as jsvc.tar.gz.
+    Untar it and follow the instructions for building it or download a binary from the Commons Daemon project.
 
+    Convenience shell scripts are provided as follows:
 
-    cd $CATALINA_HOME
-    ./bin/jsvc -cp ./bin/bootstrap.jar \
-        -outfile ./logs/catalina.out -errfile ./logs/catalina.err \
-        org.apache.catalina.startup.Bootstrap
+    start - <<<daemon_start.sh>>>
 
+    stop  - <<<daemon_stop.sh>>>
 
-jsvc has other useful parameters, such as -user which causes it to switch to another user after the daemon initialization is complete. This allows, for example, running Tomcat as a non privileged user while still being able to use privileged ports. jsvc --help will return the full jsvc usage information. In particular, the -debug option is useful to debug issues running jsvc.
+    jsvc is designed to integrate with Unix System 5 initialization scripts. (/etc/rc.d)
 
-The file $CATALINA_HOME/bin/jsvc/native/tomcat.sh can be used as a template for starting Tomcat automatically at boot time from /etc/init.d. The file is currently setup for running Tomcat 4.1.x, so it is necessary to edit it and change the classname from BootstrapService to Bootstrap.
+    You can also send Unix signals to it. Meaningful ones for the Ehcache Standalone Server are:
 
-Note that the Commons-Daemon JAR file must be on your runtime classpath to run Tomcat in this manner. The Commons-Daemon JAR file is in the Class-Path entry of the bootstrap.jar manifest, but if you get a ClassNotFoundException or a NoClassDefFoundError for a Commons-Daemon class, add the Commons-Daemon JAR to the -cp argument when launching jsvc.
+*-----*------*
+    No   |   Meaning |  Ehcache Standalone Server Effect
+*-----*------*
+    1    |   HUP     |   Restarts the server.
+*-----*------*
+    2    |   INT     |    Interrupts the server.
+*-----*------*
+    9    |   KILL    |    The process is killed. The server is not given a chance to shutdown.
+*-----*------*
+    15   |   TERM    |    Stops the server, giving it a chance to shutdown in an orderly way.
+*-----*------*
 
+*** Executable jar
 
+    The server is also packaged as an executable jar for developer convenience which will work on all operating systems.
 
-   
+    A convenience shell script is provided as follows:
 
+    start - startup.sh
 
+    From the bin directory you can also invoke the following command directly:
 
-
-
-
-
-
-
+---
+    unix    - java -jar ../lib/ehcache-standalone-server-0.1.jar 8080 ../war
+    windows - java -jar ..\lib\ehcache-standalone-server-0.1.jar 8080 ..\war
+---

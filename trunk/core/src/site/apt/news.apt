@@ -9,14 +9,22 @@
 
 News
 
-** 12 July 2009: ehcache-server-0.1 released
+
+** 17 July 2008: ehcache-standalone-server 0.1 released
+
+   The standalone server provides a ready to go cache server out of the box, using the WAR from the ehcache-server module. Unix-based
+    and Windows servers are supported.
+
+   Start it with <<<java -jar ../lib/ehcache-standalone-server-0.1.jar 8080 ../war>>>
+   or the jsvc wrapper with <<<daemon.sh start>>>.
+
+** 12 July 2008: ehcache-server-0.1 released
 
    This is the first version of an ehcache W3C Web Services server, packaged as a WAR. This version is made available for testing.
-   See the {{{http://ehcache.sourceforge.net/documentation/cache_server.html}documentation}}. A standalone version is also coming.
+   See the {{{http://ehcache.sourceforge.net/documentation/cache_server.html} documentation}}.
 
-** 12 July 2009: ehcache-debugger-1.5.0 released
-
-   This is a standalone ehcache debugger used to monitor RMI cache clusters. It is available from Maven central or the downloads page.
+   Two APIs are supported: A soap API specified in {{{http://ehcache.sf.net/wsdl/EhcacheWebServiceEndpointService.wsdl}EhcacheWebServiceEndpointService.wsdl}}
+   and a RESTful, resource oriented API. This release provides a feature-complete soap API. The RESTful API is not yet feature complete.
 
 ** 12 July 2008: ehcache-1.5.0 released
 
