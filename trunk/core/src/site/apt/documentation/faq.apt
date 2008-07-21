@@ -393,3 +393,6 @@ java.rmi.ConnectException: Connection refused to host: 127.0.0.1; nested excepti
     Having done the above, SoftReferences will then only be reclaimed if there is some interruption to replication and the message queue
       gets dangerously high.
    
+*   My Query caches entries are not replicating.
+
+    This is a Hibernate 3 bug. See http://opensource.atlassian.com/projects/hibernate/browse/HHH-3392 for tracking.
