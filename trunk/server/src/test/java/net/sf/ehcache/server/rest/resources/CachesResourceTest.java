@@ -75,12 +75,6 @@ public class CachesResourceTest {
     @BeforeClass
     public static void setup() {
         cacheService = new EhcacheWebServiceEndpointService().getEhcacheWebServiceEndpointPort();
-
-        //add security credentials
-        // Uncomment and Enable XWSS config files to run tests with security
-//        ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "Ron");
-//        ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "noR");
-
     }
 
     @Before
@@ -133,16 +127,24 @@ public class CachesResourceTest {
 //        cache = cacheService.getCache("newcache2");
 //        assertNull(cache);
 //    }
-//
-//    /**
-//     * Gets the cache names
-//     */
-//    @Test
-//    public void testCacheNames() throws IllegalStateException_Exception {
-//        List cacheNames = cacheService.cacheNames();
-//        //Other tests add caches to the CacheManager
-//        assertTrue(cacheNames.size() >= 6);
-//    }
+
+    /**
+     * Gets the cache names
+     */
+    @Test
+    public void testCacheNames() throws Exception, IOException, ParserConfigurationException, SAXException {
+
+        HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache/rest/");
+        assertEquals(200, result.getResponseCode());
+        JAXBContext jaxbContext = new JAXBContextResolver().getContext(Caches.class);
+        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+        Caches caches = (Caches) unmarshaller.unmarshal(result.getInputStream());
+        List<net.sf.ehcache.server.jaxb.Cache> cacheList = caches.getCaches();
+        for (net.sf.ehcache.server.jaxb.Cache cache : cacheList) {
+            assertNotNull(cache.getName());
+        }
+
+    }
 
 
 
@@ -161,7 +163,7 @@ public class CachesResourceTest {
     }
 
     @Test
-    public void testGetCachesJaxb() throws Exception, ParserConfigurationException, SAXException, XPathExpressionException, JAXBException {
+    public void testGetCachesJaxb() throws Exception, SAXException, XPathExpressionException, JAXBException {
         HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache/rest/");
         assertEquals(200, result.getResponseCode());
         JAXBContext jaxbContext = new JAXBContextResolver().getContext(Caches.class);
