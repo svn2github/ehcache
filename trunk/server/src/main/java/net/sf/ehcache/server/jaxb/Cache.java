@@ -52,9 +52,10 @@ public class Cache {
     /**
      * Full Constructor
      */
-    public Cache(String name, String uri) {
+    public Cache(String name, String uri, String description) {
         setName(name);
         setUri(uri);
+        setDescription(description);
     }
 
     /**

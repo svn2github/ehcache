@@ -62,6 +62,13 @@ public class CacheResource {
 
     private static final Logger LOG = Logger.getLogger(CacheResource.class.getName());
 
+    private static final CacheManager MANAGER;
+
+    static {
+        MANAGER = CacheManager.getInstance();
+    }
+
+
     /**
      * The full URI of the resource
      */
@@ -81,6 +88,7 @@ public class CacheResource {
 
     /**
      * Full constructor
+     *
      * @param uriInfo
      * @param request
      * @param cache
@@ -103,7 +111,7 @@ public class CacheResource {
         if (ehcache == null) {
             throw new NotFoundException("Cache not found");
         }
-        return new Cache(ehcache.getName(), uriInfo.getAbsolutePath().toString());
+        return new Cache(ehcache.getName(), uriInfo.getAbsolutePath().toString(), ehcache.toString());
     }
 
     /**
@@ -114,7 +122,7 @@ public class CacheResource {
         LOG.info("PUT Cache " + cache);
 
         URI uri = uriInfo.getAbsolutePath();
-        Cache c = new Cache(cache, uri.toString());
+        Cache c = new Cache(cache, uri.toString(), null);
 
         Response response;
 
@@ -146,7 +154,8 @@ public class CacheResource {
 
 
     /**
-     * Routes the reqeust to an {@link ElementResource}
+     * Routes the request to an {@link ElementResource}
+     *
      * @param element
      * @return
      */

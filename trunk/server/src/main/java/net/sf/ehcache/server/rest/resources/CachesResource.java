@@ -52,6 +52,13 @@ public class CachesResource {
 
     private static final Logger LOG = Logger.getLogger(CachesResource.class.getName());
 
+    private static final CacheManager MANAGER;
+
+    static {
+        MANAGER = CacheManager.getInstance();
+    }
+
+
     /**
      * The full URI for the resource.
      * <p/>
@@ -85,13 +92,13 @@ public class CachesResource {
     public Caches getCaches() {
         LOG.info("GET Caches");
 
-        String[] cacheNames = CacheManager.getInstance().getCacheNames();
+        String[] cacheNames = MANAGER.getCacheNames();
 
         List<Cache> cacheList = new ArrayList<Cache>();
 
         for (String cacheName : cacheNames) {
             URI cacheUri = uriInfo.getAbsolutePathBuilder().path(cacheName).build().normalize();
-            Cache cache = new Cache(cacheName, cacheUri.toString());
+            Cache cache = new Cache(cacheName, cacheUri.toString(), MANAGER.getCache(cacheName).toString());
             cacheList.add(cache);
         }
 

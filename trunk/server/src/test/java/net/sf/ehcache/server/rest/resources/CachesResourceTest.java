@@ -85,48 +85,6 @@ public class CachesResourceTest {
 
 
 
-// @Test
-//    public void testGetCache() throws CacheException_Exception, NoSuchCacheException_Exception {
-//        Cache cache = cacheService.getCache("doesnotexist");
-//        assertNull(cache);
-//
-//        cache = cacheService.getCache("sampleCache1");
-//        assertEquals("sampleCache1", cache.getName());
-//        assertEquals("rest/sampleCache1", cache.getUri());
-//        assertTrue(cache.getDescription().indexOf("sampleCache1") != -1);
-//    }
-//
-//    @Test
-//    public void testAddCache() throws CacheException_Exception, NoSuchCacheException_Exception, IllegalStateException_Exception, ObjectExistsException_Exception {
-//
-//        cacheService.addCache("newcache1");
-//        Cache cache = cacheService.getCache("newcache1");
-//        assertNotNull(cache);
-//
-//        try {
-//            cacheService.addCache("newcache1");
-//        } catch (SOAPFaultException e) {
-//            //expected
-//            assertTrue(e.getCause().getMessage().indexOf("Cache newcache1 already exists") != -1);
-//        }
-//    }
-//
-//    @Test
-//    public void testRemoveCache() throws CacheException_Exception, NoSuchCacheException_Exception, IllegalStateException_Exception, ObjectExistsException_Exception {
-//
-//        cacheService.addCache("newcache2");
-//        Cache cache = cacheService.getCache("newcache2");
-//        assertNotNull(cache);
-//
-//        cacheService.removeCache("newcache2");
-//        cache = cacheService.getCache("newcache2");
-//        assertNull(cache);
-//
-//        //should not throw an exception
-//        cacheService.removeCache("newcache2");
-//        cache = cacheService.getCache("newcache2");
-//        assertNull(cache);
-//    }
 
     /**
      * Gets the cache names
