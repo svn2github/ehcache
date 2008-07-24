@@ -85,6 +85,27 @@ public class CachesResourceTest {
 
 
 
+    /**
+     * Returns the WADL for the CacheManager operations. Should just list GET
+     * @throws Exception
+     */
+    @Test
+    public void testOptions() throws Exception {
+
+        HttpURLConnection result = HttpUtil.options("http://localhost:8080/ehcache/rest/");
+        assertEquals(200, result.getResponseCode());
+        assertEquals("application/vnd.sun.wadl+xml", result.getContentType());
+
+        String responseBody;
+        try {
+            responseBody = HttpUtil.inputStreamToText(result.getInputStream());
+            assertNotNull(responseBody);
+            assertTrue(responseBody.indexOf("GET") != 0);
+        } catch (IOException e) {
+            //expected
+        }
+    }
+
 
     /**
      * Gets the cache names

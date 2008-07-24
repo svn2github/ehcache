@@ -100,6 +100,27 @@ public class CacheResourceTest {
         }
     }
 
+    /**
+     * Returns the WADL for the cache operations, which should list put, get, delete, post
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testOptions() throws Exception {
+
+        HttpURLConnection result = HttpUtil.options("http://localhost:8080/ehcache/rest/doesnotexist");
+        assertEquals(200, result.getResponseCode());
+        assertEquals("application/vnd.sun.wadl+xml", result.getContentType());
+
+        String responseBody = HttpUtil.inputStreamToText(result.getInputStream());
+        assertNotNull(responseBody);
+        assertTrue(responseBody.indexOf("GET") != 0);
+        assertTrue(responseBody.indexOf("PUT") != 0);
+        assertTrue(responseBody.indexOf("POST") != 0);
+        assertTrue(responseBody.indexOf("DELETE") != 0);
+        assertTrue(responseBody.indexOf("HEAD") != 0);
+    }
+
 
     @Test
     public void testGetCache() throws Exception {

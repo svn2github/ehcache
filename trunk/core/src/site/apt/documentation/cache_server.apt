@@ -134,7 +134,8 @@
       URI path.
 
     * The RESTful Web Service is described by and exposes a {WADL} (Web Application Description Language) file.
-      It contains the URIs you can call, and what data to pass and get back.
+      It contains the URIs you can call, and what data to pass and get back. Use the OPTIONS method to
+      return the WADL.
 
 
 ** RESTFul Web Services API
@@ -146,25 +147,30 @@
 
 ** CacheManager Resource Operations
 
-*** OPTIONS /
+*** OPTIONS /\{cache\}}
 
-    Lists the methods supported by the CacheManager resource
-
+    Retrieves the WADL for describing the available CacheManager operations.
 
 *** {GET} /
 
     Lists the Caches in the CacheManager.
 
+
 ** Cache Resource Operations
 
-*** OPTIONS /\{cache\}/
+*** OPTIONS /\{cache\}}
 
-    Lists the methods supported by the Cache resource
+    Retrieves the WADL describing the available Cache operations.
 
+*** HEAD /\{cache\}}
+
+    Retrieves the same metadata a GET would receive returned as HTTP headers. There is no body returned.
+
+    A 200 response code means the cache exists. A 404 means it does not.
 
 *** GET /\{cache\}
 
-    Lists the elements in the cache.
+    Gets a cache. Returns the 404 response code if the cache is not found.
 
 *** {PUT} /\{cache\}
 
@@ -174,15 +180,11 @@
 
     Deletes the Cache.
 
-** WADL
-
-   The WADL is automatically generated and is accessible at /ehcache/application.wadl
-
 ** Element Resource Operations
 
-*** OPTIONS /\{cache\}/\{element\}
+*** OPTIONS /\{cache\}}
 
-    Lists the methods supported by the Element resource
+    Retrieves the WADL describing the available Element operations.
 
 *** HEAD /\{cache\}/\{element\}
 

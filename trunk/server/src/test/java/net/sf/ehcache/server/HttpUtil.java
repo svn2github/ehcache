@@ -150,4 +150,17 @@ public class HttpUtil {
     }
 
 
+    public static HttpURLConnection options(String uri) throws IOException, ProtocolException {
+        URL u = new URL(uri);
+        HttpURLConnection httpURLConnection = (HttpURLConnection) u.openConnection();
+        httpURLConnection.setRequestMethod("OPTIONS");
+
+        int status = httpURLConnection.getResponseCode();
+        LOG.info("Status " + status);
+        String mediaType = httpURLConnection.getContentType();
+        LOG.info("Content Type: " + mediaType);
+        return httpURLConnection;
+    }
+
+
 }
