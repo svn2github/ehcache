@@ -88,6 +88,20 @@ public class CacheResourceTest {
 
 
     @Test
+    public void testHeadCacheDoesNotExist() throws Exception {
+
+        HttpURLConnection result = HttpUtil.head("http://localhost:8080/ehcache/rest/doesnotexist");
+        assertEquals(404, result.getResponseCode());
+
+        try {
+            HttpUtil.inputStreamToText(result.getInputStream());
+        } catch (IOException e) {
+            //expected
+        }
+    }
+
+
+    @Test
     public void testGetCache() throws Exception {
 
         HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache1");

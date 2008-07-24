@@ -26,6 +26,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.ProduceMime;
+import javax.ws.rs.HEAD;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
@@ -99,6 +100,20 @@ public class CacheResource {
         this.cache = cache;
     }
 
+
+    /**
+     * HEAD method implementation
+     */
+    @HEAD
+    public Cache getCacheHeader() {
+        LOG.info("HEAD Cache " + this.cache);
+
+        net.sf.ehcache.Cache ehcache = CacheManager.getInstance().getCache(this.cache);
+        if (ehcache == null) {
+            throw new NotFoundException("Cache not found");
+        }
+        return null;
+    }
 
     /**
      * GET method implementation
