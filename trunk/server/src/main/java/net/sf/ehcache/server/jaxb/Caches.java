@@ -20,13 +20,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 /**
+ * A collection of Cache representations available from a CacheManager
  * @author Greg Luck
  * @version $Id$
  */
 @XmlRootElement
 public class Caches {
 
-    private List<Cache> cache;
+    private List<Cache> caches;
 
     /**
      * Empty Constructor
@@ -35,26 +36,27 @@ public class Caches {
     }
 
     /**
-     * Constructor using a list of caches
+     * Constructor using a list of cache representations
      * @param caches a list of caches that belong in this CacheManager
      */
     public Caches(List<Cache> caches) {
-        setCache(caches);
+        setCaches(caches);
     }
 
     /**
      * Gets the list of caches
+     * @return a list of Cache representations
      */
-    public List<Cache> getCache() {
-        return cache;
+    public List<Cache> getCaches() {
+        return caches;
     }
 
     /**
      * Sets the list of caches
-     * @param cache
+     * @param caches a list of cache representations
      */
-    public void setCache(List<Cache> cache) {
-        this.cache = cache;
+    public void setCaches(List<Cache> caches) {
+        this.caches = caches;
     }
 
 

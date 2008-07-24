@@ -17,6 +17,8 @@
 package net.sf.ehcache.server.rest.resources;
 
 import net.sf.ehcache.server.HttpUtil;
+import net.sf.ehcache.server.jaxb.JAXBContextResolver;
+import net.sf.ehcache.server.jaxb.Caches;
 import net.sf.ehcache.server.soap.jaxws.CacheException_Exception;
 import net.sf.ehcache.server.soap.jaxws.NoSuchCacheException_Exception;
 import net.sf.ehcache.server.soap.jaxws.Cache;
@@ -43,12 +45,18 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import javax.xml.ws.soap.SOAPFaultException;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.FileInputStream;
 import java.util.logging.Logger;
 import java.util.List;
 import java.net.HttpURLConnection;
+
+import com.sun.xml.ws.util.Pool;
 
 
 /**
@@ -147,9 +155,19 @@ public class CachesResourceTest {
         Document document = documentBuilder.parse(result.getInputStream());
 
         XPath xpath = XPathFactory.newInstance().newXPath();
-        String cacheCount = xpath.evaluate("count(//cache)", document);
+        String cacheCount = xpath.evaluate("count(//caches)", document);
         //some other tests create more
         assertTrue(Integer.parseInt(cacheCount) >= 6);
+    }
+
+    @Test
+    public void testGetCachesJaxb() throws Exception, ParserConfigurationException, SAXException, XPathExpressionException, JAXBException {
+        HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache/rest/");
+        assertEquals(200, result.getResponseCode());
+        JAXBContext jaxbContext = new JAXBContextResolver().getContext(Caches.class);
+        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+        Caches caches = (Caches) unmarshaller.unmarshal(result.getInputStream());
+        assertTrue(caches.getCaches().size() >= 6);
     }
 
 

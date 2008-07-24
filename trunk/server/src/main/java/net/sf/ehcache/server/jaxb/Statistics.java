@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.server.jaxb;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * An immutable Cache statistics implementation.
  * <p/>
@@ -33,6 +35,7 @@ package net.sf.ehcache.server.jaxb;
  * @author Greg Luck
  * @version $Id$
  */
+@XmlRootElement
 public class Statistics {
 
 

@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.server.jaxb;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * A StatisticsAccuracy Enum which is ordered the same as the core Ehcache
  * typesafe enum which is pre jdk 5.
@@ -23,6 +25,7 @@ package net.sf.ehcache.server.jaxb;
  * @author Greg Luck
  * @version $Id: Status.java 658 2008-06-14 08:11:41Z gregluck $
  */
+@XmlRootElement
 public enum StatisticsAccuracy {
 
     /**

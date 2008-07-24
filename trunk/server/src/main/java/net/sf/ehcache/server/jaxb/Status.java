@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.server.jaxb;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * A Status enum which is ordered the same as the core Ehcache
  * typesafe enum which is pre jdk 5.
@@ -23,6 +25,7 @@ package net.sf.ehcache.server.jaxb;
  * @author Greg Luck
  * @version $Id$
  */
+@XmlRootElement
 public enum Status {
 
     /**
