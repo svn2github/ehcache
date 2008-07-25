@@ -17,6 +17,7 @@
 package net.sf.ehcache.server.rest.resources;
 
 import com.sun.jersey.api.NotFoundException;
+import com.sun.jersey.api.ConflictException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.server.jaxb.Cache;
 
@@ -33,6 +34,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * A resource for a Cache.
@@ -103,26 +105,28 @@ public class CacheResource {
 
     /**
      * HEAD method implementation
+     * @return
      */
     @HEAD
-    public Cache getCacheHeader() {
-        LOG.info("HEAD Cache " + this.cache);
+    public Response getCacheHeader() {
+        LOG.log(Level.FINE, "HEAD Cache {}" + cache);
 
         net.sf.ehcache.Cache ehcache = CacheManager.getInstance().getCache(this.cache);
         if (ehcache == null) {
             throw new NotFoundException("Cache not found");
         }
-        return null;
+        return Response.ok().build();
     }
 
     /**
      * GET method implementation
+     * @return
      */
     @GET
     public Cache getCache() {
-        LOG.info("GET Cache " + this.cache);
+        LOG.log(Level.FINE, "GET Cache {}" + cache);
 
-        net.sf.ehcache.Cache ehcache = CacheManager.getInstance().getCache(this.cache);
+        net.sf.ehcache.Cache ehcache = MANAGER.getCache(this.cache);
         if (ehcache == null) {
             throw new NotFoundException("Cache not found");
         }
@@ -131,40 +135,42 @@ public class CacheResource {
 
     /**
      * PUT method implementation
+     * @return
      */
     @PUT
     public Response putCache() {
-        LOG.info("PUT Cache " + cache);
-
-        URI uri = uriInfo.getAbsolutePath();
-        Cache c = new Cache(cache, uri.toString(), null);
+        LOG.log(Level.FINE, "PUT Cache {}" + cache);
 
         Response response;
 
-        net.sf.ehcache.Cache ehcache = CacheManager.getInstance().getCache(cache);
+        net.sf.ehcache.Cache ehcache = MANAGER.getCache(cache);
         if (ehcache == null) {
             CacheManager.getInstance().addCache(cache);
+            URI uri = uriInfo.getAbsolutePath();
             response = Response.created(uri).build();
-            LOG.info("Created Cache " + cache);
+            LOG.log(Level.FINE, "Created Cache {}" + cache);
         } else {
-            LOG.info("Cache already exists" + cache);
-            response = Response.noContent().build();
+            throw new ConflictException("Cache already exists " + cache);
         }
         return response;
     }
 
     /**
      * DELETE method implementation
+     * @return
      */
     @DELETE
-    public void deleteCache() {
-        LOG.info("DELETE Cache " + cache);
-        net.sf.ehcache.Cache ehcache = CacheManager.getInstance().getCache(cache);
+    public Response deleteCache() {
+        LOG.log(Level.FINE, "DELETE Cache {}" + cache);
+        net.sf.ehcache.Cache ehcache = MANAGER.getCache(cache);
+        Response response;
         if (ehcache == null) {
-            throw new NotFoundException("Cache not found");
+            throw new NotFoundException("Cache not found " + cache);
         } else {
             CacheManager.getInstance().removeCache(cache);
+            response = Response.ok().build();
         }
+        return response;
     }
 
 

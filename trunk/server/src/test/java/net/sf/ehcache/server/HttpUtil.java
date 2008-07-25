@@ -57,14 +57,15 @@ public class HttpUtil {
         return httpURLConnection;
     }
 
-    public static void put(String uri) throws IOException {
+    public static HttpURLConnection put(String uri) throws IOException {
         URL u = new URL(uri);
-        HttpURLConnection uc = (HttpURLConnection) u.openConnection();
-        uc.setRequestMethod("PUT");
+        HttpURLConnection urlConnection = (HttpURLConnection) u.openConnection();
+        urlConnection.setRequestMethod("PUT");
 
-        int status = uc.getResponseCode();
+        int status = urlConnection.getResponseCode();
         LOG.info("Status: " + status);
-        uc.disconnect();
+        urlConnection.disconnect();
+        return urlConnection;
     }
 
     public static void put(String uri, String mediaType, InputStream in) throws IOException {
@@ -84,7 +85,7 @@ public class HttpUtil {
 
         int status = uc.getResponseCode();
         LOG.info("Status: " + status);
-        uc.disconnect();
+//        uc.disconnect();
     }
 
     public static void post(String uri, String mediaType, InputStream in) throws IOException {
@@ -106,13 +107,14 @@ public class HttpUtil {
         LOG.info("Status: " + status);
     }
 
-    public static void delete(String uri) throws IOException {
+    public static HttpURLConnection delete(String uri) throws IOException {
         URL u = new URL(uri);
-        HttpURLConnection uc = (HttpURLConnection) u.openConnection();
-        uc.setRequestMethod("DELETE");
+        HttpURLConnection urlConnection = (HttpURLConnection) u.openConnection();
+        urlConnection.setRequestMethod("DELETE");
 
-        int status = uc.getResponseCode();
+        int status = urlConnection.getResponseCode();
         LOG.info("Status: " + status);
+        return urlConnection;
     }
 
     /**
