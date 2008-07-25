@@ -17,32 +17,29 @@
 package net.sf.ehcache.server.rest.resources;
 
 import net.sf.ehcache.server.HttpUtil;
-import net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpoint;
-import net.sf.ehcache.server.soap.jaxws.CacheException_Exception;
-import net.sf.ehcache.server.soap.jaxws.IllegalStateException_Exception;
-import net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpointService;
-import net.sf.ehcache.server.jaxb.JAXBContextResolver;
-import net.sf.ehcache.server.jaxb.Caches;
 import net.sf.ehcache.server.jaxb.Cache;
-import static org.junit.Assert.*;
+import net.sf.ehcache.server.jaxb.Caches;
+import net.sf.ehcache.server.jaxb.JAXBContextResolver;
+import net.sf.ehcache.server.soap.jaxws.CacheException_Exception;
+import net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpoint;
+import net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpointService;
+import net.sf.ehcache.server.soap.jaxws.IllegalStateException_Exception;
 import static org.junit.Assert.assertEquals;
-import org.junit.Test;
-import org.junit.BeforeClass;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.ws.soap.SOAPFaultException;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileNotFoundException;
-import java.util.logging.Logger;
-import java.util.Map;
+import java.io.IOException;
 import java.net.HttpURLConnection;
-
-import com.sun.jersey.api.NotFoundException;
+import java.util.Map;
+import java.util.logging.Logger;
 
 
 /**
@@ -120,11 +117,11 @@ public class CacheResourceTest {
 
         String responseBody = HttpUtil.inputStreamToText(result.getInputStream());
         assertNotNull(responseBody);
-        assertTrue(responseBody.indexOf("GET") != 0);
-        assertTrue(responseBody.indexOf("PUT") != 0);
-        assertTrue(responseBody.indexOf("POST") != 0);
-        assertTrue(responseBody.indexOf("DELETE") != 0);
-        assertTrue(responseBody.indexOf("HEAD") != 0);
+
+        assertTrue(responseBody.matches("(.*)GET(.*)"));
+        assertTrue(responseBody.matches("(.*)PUT(.*)"));
+        assertTrue(responseBody.matches("(.*)DELETE(.*)"));
+        assertTrue(responseBody.matches("(.*)HEAD(.*)"));
     }
 
 
@@ -227,6 +224,84 @@ public class CacheResourceTest {
 
     }
 
+    @Test
+    public void testCacheStatus() throws Exception {
+
+        HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache1");
+        assertEquals(200, result.getResponseCode());
+        assertEquals("application/xml", result.getContentType());
+
+        JAXBContext jaxbContext = new JAXBContextResolver().getContext(Caches.class);
+        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+        Cache cache = (Cache) unmarshaller.unmarshal(result.getInputStream());
+
+        assertEquals("sampleCache1", cache.getName());
+        assertEquals("http://localhost:8080/ehcache/rest/sampleCache1", cache.getUri());
+        assertNotNull("http://localhost:8080/ehcache/rest/sampleCache1", cache.getDescription());
+
+
+//        Status status = cacheService.getStatus("sampleCache1");
+//        assertTrue(status == Status.STATUS_ALIVE);
+    }
+
+
+//    @Test
+//    public void testGetStatistics() throws NoSuchCacheException_Exception,
+//            CacheException_Exception, IllegalStateException_Exception {
+//        cacheService.clearStatistics("sampleCache1");
+//
+//        Statistics statistics = cacheService.getStatistics("sampleCache1");
+//        assertEquals(0L, statistics.getCacheHits());
+//
+//        putElementIntoCache();
+//        getElementFromCache();
+//
+//        statistics = cacheService.getStatistics("sampleCache1");
+//        assertEquals(1L, statistics.getCacheHits());
+//        assertTrue(statistics.getAverageGetTime() >= 0);
+//        assertEquals(0L, statistics.getEvictionCount());
+//        assertEquals(1L, statistics.getInMemoryHits());
+//        assertEquals(0L, statistics.getOnDiskHits());
+//        assertEquals(StatisticsAccuracy.STATISTICS_ACCURACY_BEST_EFFORT, statistics.getStatisticsAccuracy());
+//    }
+//
+//    @Test
+//    public void testGetStatisticsAccuracy() throws NoSuchCacheException_Exception,
+//            CacheException_Exception, IllegalStateException_Exception {
+//        assertEquals(StatisticsAccuracy.STATISTICS_ACCURACY_BEST_EFFORT,
+//                cacheService.getStatisticsAccuracy("sampleCache1"));
+//    }
+//
+//    @Test
+//    public void testClearStatistics() throws NoSuchCacheException_Exception,
+//            CacheException_Exception, IllegalStateException_Exception {
+//        putElementIntoCache();
+//        getElementFromCache();
+//
+//        cacheService.clearStatistics("sampleCache1");
+//        Statistics statistics = cacheService.getStatistics("sampleCache1");
+//        assertEquals(0L, statistics.getCacheHits());
+//    }
+//
+//    @Test
+//    public void testCacheStatus() throws Exception {
+//
+//        HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache1");
+//        assertEquals(200, result.getResponseCode());
+//        assertEquals("application/xml", result.getContentType());
+//
+//        JAXBContext jaxbContext = new JAXBContextResolver().getContext(Caches.class);
+//        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+//        Cache cache = (Cache) unmarshaller.unmarshal(result.getInputStream());
+//
+//        assertEquals("sampleCache1", cache.getName());
+//        assertEquals("http://localhost:8080/ehcache/rest/sampleCache1", cache.getUri());
+//        assertNotNull("http://localhost:8080/ehcache/rest/sampleCache1", cache.getDescription());
+//
+//
+////        Status status = cacheService.getStatus("sampleCache1");
+////        assertTrue(status == Status.STATUS_ALIVE);
+//    }
 
 
 

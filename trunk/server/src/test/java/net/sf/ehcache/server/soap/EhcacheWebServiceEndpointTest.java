@@ -114,6 +114,7 @@ public class EhcacheWebServiceEndpointTest {
         assertTrue(cacheNames.size() >= 6);
     }
 
+
     @Test
     public void testCacheStatus() throws CacheException_Exception, NoSuchCacheException_Exception {
         Status status = cacheService.getStatus("sampleCache1");

@@ -23,6 +23,7 @@ import net.sf.ehcache.server.jaxb.Element;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
+import javax.ws.rs.HEAD;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
@@ -33,6 +34,7 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Date;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * @author Greg Luck
@@ -41,6 +43,12 @@ import java.util.logging.Logger;
 public class ElementResource {
 
     private static final Logger LOG = Logger.getLogger(ElementResource.class.getName());
+
+    private static final CacheManager MANAGER;
+
+    static {
+        MANAGER = CacheManager.getInstance();
+    }
 
     /**
      * The full URI for the resource
@@ -77,20 +85,42 @@ public class ElementResource {
         this.element = element;
     }
 
+
+    /**
+     * HEAD method implementation
+     * @return
+     * todo consider getting the Element and setting last modified
+     */
+    @HEAD
+    public Response getElementHeader() {
+        LOG.log(Level.FINE, "HEAD element {}" + element);
+
+        net.sf.ehcache.Cache ehcache = MANAGER.getCache(this.cache);
+        if (ehcache == null) {
+            throw new NotFoundException("Cache not found: " + cache);
+        }
+        boolean exists = ehcache.isKeyInCache(element);
+        if (!exists) {
+            throw new NotFoundException("Element not found: " + element);
+        }
+        return Response.ok().build();
+    }
+
     /**
      * Implements the GET method.
      * @return
+     * @see <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.11">HTTP/1.1 section 3.11</a>
      */
     @GET
     public Response getElement() {
-        LOG.info("GET Cache " + cache + " " + this.element);
-        net.sf.ehcache.Cache ehcache = CacheManager.getInstance().getCache(cache);
-        net.sf.ehcache.Element ehcacheElement = ehcache.get(this.element);
+        LOG.log(Level.FINE, "GET element {}" + element);
+        net.sf.ehcache.Cache ehcache = MANAGER.getCache(cache);
+        net.sf.ehcache.Element ehcacheElement = ehcache.get(element);
         if (ehcacheElement == null) {
-            throw new NotFoundException("Element not found: " + this.element);
+            throw new NotFoundException("Element not found: " + element);
         }
 
-        //what about if the value is not put in via the RESTful web service.
+        //what about if the value is not put in via this RESTful web service?
         //todo check element value
         //todo preserve mimetype rather than hardcoding to application/xml
         Element localElement;
@@ -103,16 +133,22 @@ public class ElementResource {
         }
 
 
-        Date lastModified = new Date(ehcacheElement.getLastUpdateTime());
-        //HTTP/1.1 ETag
-        EntityTag entityTag = new EntityTag(new StringBuilder().append(ehcacheElement.getVersion()).toString());
+        long lastModified = ehcacheElement.getLastUpdateTime();
+        if (lastModified == 0) {
+            //created but not "updated"
+            lastModified = ehcacheElement.getCreationTime();
+        }
+        Date lastModifiedDate = new Date(lastModified);
 
-        Response.ResponseBuilder responseBuilder = request.evaluatePreconditions(lastModified, entityTag);
+        //HTTP/1.1 ETag - we just use
+        EntityTag entityTag = new EntityTag(new StringBuffer().append(ehcacheElement.getVersion()).toString());
+
+        Response.ResponseBuilder responseBuilder = request.evaluatePreconditions(lastModifiedDate, entityTag);
         if (responseBuilder != null) {
             return responseBuilder.build();
         }
 
-        return Response.ok(localElement.getValue(), localElement.getMimeType()).lastModified(lastModified).tag(entityTag).build();
+        return Response.ok(localElement.getValue(), localElement.getMimeType()).lastModified(lastModifiedDate).tag(entityTag).build();
     }
 
     /**

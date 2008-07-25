@@ -111,7 +111,7 @@ public class CacheResource {
     public Response getCacheHeader() {
         LOG.log(Level.FINE, "HEAD Cache {}" + cache);
 
-        net.sf.ehcache.Cache ehcache = CacheManager.getInstance().getCache(this.cache);
+        net.sf.ehcache.Cache ehcache = MANAGER.getCache(this.cache);
         if (ehcache == null) {
             throw new NotFoundException("Cache not found");
         }
@@ -176,6 +176,9 @@ public class CacheResource {
 
     /**
      * Routes the request to an {@link ElementResource}
+     *
+     * Any extra / are still treated as an element key i.e. limited = false as their is nothing
+     * else after element in the URI template.
      *
      * @param element
      * @return

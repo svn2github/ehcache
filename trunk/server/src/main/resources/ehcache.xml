@@ -389,6 +389,9 @@
     created programmtically using CacheManager.add(String cacheName).
 
     The defaultCache has an implicit name "default" which is a reserved cache name.
+
+    This one is a little different to the ehcache core default one. It aims to be closer to what
+    might be required for server use, with larger memory consumption.
     -->
     <defaultCache
             maxElementsInMemory="20000"

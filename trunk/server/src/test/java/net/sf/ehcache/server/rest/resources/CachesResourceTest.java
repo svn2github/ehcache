@@ -100,7 +100,7 @@ public class CachesResourceTest {
         try {
             responseBody = HttpUtil.inputStreamToText(result.getInputStream());
             assertNotNull(responseBody);
-            assertTrue(responseBody.indexOf("GET") != 0);
+            assertTrue(responseBody.matches("(.*)GET(.*)"));
         } catch (IOException e) {
             //expected
         }
@@ -153,56 +153,5 @@ public class CachesResourceTest {
 
 
 
-    /**
-     * Stick in some text with MIME Type plain/text and make sure it comes back.
-     * @throws java.io.IOException 
-     * @throws javax.xml.parsers.ParserConfigurationException
-     * @throws org.xml.sax.SAXException
-     */
-    @Test
-    public void testPutElementPlain() throws IOException, ParserConfigurationException, SAXException {
-        String originalString = "The rain in Spain falls mainly on the plain";
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(originalString.getBytes());
-
-        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream);
-        InputStream responseBody = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1").getInputStream();
-        byte[] bytes = HttpUtil.inputStreamToBytes(responseBody);
-        String plainText = new String(bytes);
-        assertEquals(originalString, plainText);
-    }
-
-    @Test
-    public void testPutElementXML() throws IOException, ParserConfigurationException, SAXException, XPathExpressionException, InterruptedException {
-        //Use ehcache.xml as an example xml document.
-
-        String xmlDocument = "<?xml version=\"1.0\"?>\n" +
-                "<oldjoke>\n" +
-                "<burns>Say <quote>goodnight</quote>,\n" +
-                "Gracie.</burns>\n" +
-                "<allen><quote>Goodnight, \n" +
-                "Gracie.</quote></allen>\n" +
-                "<applause/>\n" +
-                "</oldjoke>";
-
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(xmlDocument.getBytes());
-
-
-        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/2", "text/xml", byteArrayInputStream);
-        Thread.sleep(1000);
-        LOG.info("About to do get");
-
-        InputStream responseBody = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/2").getInputStream();
-
-        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Document document = documentBuilder.parse(responseBody);
-
-        XPath xpath = XPathFactory.newInstance().newXPath();
-        String expression = "/oldjoke/burns";
-        Node node = (Node) xpath.evaluate(expression, document, XPathConstants.NODE);
-
-        assertEquals("burns", node.getNodeName());
-
-
-    }
 
 }
