@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -177,6 +178,9 @@ public class ElementResourceTest {
         assertEquals("\"1\"", urlConnection.getHeaderField("ETag"));
     }
 
+    /**
+     * Note: The server does not return Elements. It returns values, with meta data in the headers.
+     */
     @Test
     public void testPutGetElementXMLXPath() throws Exception {
 
@@ -192,50 +196,59 @@ public class ElementResourceTest {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(xmlDocument.getBytes());
 
 
-        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/2", "text/xml", byteArrayInputStream);
-
-        InputStream responseBody = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/2").getInputStream();
+        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/2", "application/xml", byteArrayInputStream);
+        Thread.sleep(100);
+        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/2");
+        assertEquals(200, urlConnection.getResponseCode());
+        assertTrue(urlConnection.getContentType().matches("application/xml"));
 
         DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Document document = documentBuilder.parse(responseBody);
+        Document document = documentBuilder.parse(urlConnection.getInputStream());
 
         XPath xpath = XPathFactory.newInstance().newXPath();
         String expression = "/oldjoke/burns";
         Node node = (Node) xpath.evaluate(expression, document, XPathConstants.NODE);
 
         assertEquals("burns", node.getNodeName());
-    }
-
-    @Test
-    public void testPutGetElementXMLXJaxb() throws Exception {
-
-        String xmlDocument = "<?xml version=\"1.0\"?>\n" +
-                "<oldjoke>\n" +
-                "<burns>Say <quote>goodnight</quote>,\n" +
-                "Gracie.</burns>\n" +
-                "<allen><quote>Goodnight, \n" +
-                "Gracie.</quote></allen>\n" +
-                "<applause/>\n" +
-                "</oldjoke>";
-
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(xmlDocument.getBytes());
 
 
-        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/2", "text/xml", byteArrayInputStream);
-        Thread.sleep(1000);
+        String eTag = urlConnection.getHeaderField("Etag");
+        LOG.info("eTag: " + eTag);
+        String lastModified = urlConnection.getHeaderField("Last-Modified");
+        LOG.info("lastModified: " + lastModified);
 
-        //todo make work
-        InputStream responseBodyInputStream = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/2").getInputStream();
-//
-//        JAXBContext jaxbContext = new JAXBContextResolver().getContext(Caches.class);
-//        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-//        Element element = (Element) unmarshaller.unmarshal(responseBodyInputStream);
-//
-//
-//        String expression = "/oldjoke/burns";
-//        Node node = (Node) xpath.evaluate(expression, document, XPathConstants.NODE);
-//
-//        assertEquals("burns", node.getNodeName());
+        //Check ETag and Last-Modified are the same
+        URL u = new URL("http://localhost:8080/ehcache/rest/sampleCache2/2");
+        urlConnection = (HttpURLConnection) u.openConnection();
+        urlConnection.setRequestMethod("GET");
+        assertEquals(200, urlConnection.getResponseCode());
+        assertTrue(urlConnection.getContentType().matches("application/xml"));
+        assertEquals(eTag, urlConnection.getHeaderField("Etag"));
+        assertEquals(lastModified, urlConnection.getHeaderField("Last-Modified"));
+
+        //Check ETag and Last-Modified are different after the element was updated.
+        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/2", "application/xml", byteArrayInputStream);
+        Thread.sleep(100);
+        u = new URL("http://localhost:8080/ehcache/rest/sampleCache2/2");
+        urlConnection = (HttpURLConnection) u.openConnection();
+        urlConnection.setRequestMethod("GET");
+        assertEquals(200, urlConnection.getResponseCode());
+        assertTrue(urlConnection.getContentType().matches("application/xml"));
+        assertTrue(!eTag.equals(urlConnection.getHeaderField("Etag")));
+        LOG.info("eTag: " + urlConnection.getHeaderField("Etag"));
+        LOG.info("lastModified: " + urlConnection.getHeaderField("Last-Modified"));
+        assertTrue(!lastModified.equals(urlConnection.getHeaderField("Last-Modified")));
+
+        //Check Caching Behaviour
+        u = new URL("http://localhost:8080/ehcache/rest/sampleCache2/2");
+        urlConnection = (HttpURLConnection) u.openConnection();
+        urlConnection.setRequestMethod("GET");
+//        urlConnection.setRequestProperty("");
+        assertEquals(200, urlConnection.getResponseCode());
+        assertTrue(urlConnection.getContentType().matches("application/xml"));
+        assertTrue(!eTag.equals(urlConnection.getHeaderField("Etag")));
+        assertTrue(!lastModified.equals(urlConnection.getHeaderField("Last-Modified")));
+
     }
 
 

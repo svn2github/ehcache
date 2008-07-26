@@ -139,15 +139,19 @@ public class ElementResource {
             lastModified = ehcacheElement.getCreationTime();
         }
         Date lastModifiedDate = new Date(lastModified);
+        //This will be unique across JVM restarts, or deleting an element and putting one back in.
+        long eTagNumber = lastModified + ehcacheElement.getVersion();
 
         //HTTP/1.1 ETag - we just use
-        EntityTag entityTag = new EntityTag(new StringBuffer().append(ehcacheElement.getVersion()).toString());
+        EntityTag entityTag = new EntityTag(new StringBuffer().append(eTagNumber).toString());
 
         Response.ResponseBuilder responseBuilder = request.evaluatePreconditions(lastModifiedDate, entityTag);
+        //return 304?
         if (responseBuilder != null) {
             return responseBuilder.build();
         }
 
+        //return the data?
         return Response.ok(localElement.getValue(), localElement.getMimeType()).lastModified(lastModifiedDate).tag(entityTag).build();
     }
 

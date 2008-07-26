@@ -56,7 +56,7 @@ public class Element {
      * <p/>
      * <ul>
      * <li><code>text/plain</code> Plain text
-     * <li><code>text/xml</code> Extensible Markup Language. Defined in RFC 3023
+     * <li><code>application/xml</code> Extensible Markup Language. Defined in RFC 3023
      * <li><code>application/json</code> JavaScript Object Notation JSON. Defined in RFC 4627
      * <li><code>application/x-java-serialized-object</code> A serialized Java object
      * </ul>
@@ -203,7 +203,7 @@ public class Element {
      * Some common MIME Types which are expected to be used by clients are:
      * <ul>
      * <li><code>text/plain</code> Plain text
-     * <li><code>text/xml</code>Extensible Markup Language. Defined in RFC 3023
+     * <li><code>application/xml</code>Extensible Markup Language. Defined in RFC 3023
      * <li><code>application/json</code>JavaScript Object Notation JSON. Defined in RFC 4627
      * <li><code>application/x-java-serialized-object</code>A serialized Java object
      * </ul>
