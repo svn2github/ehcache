@@ -47,14 +47,15 @@ public class HttpUtil {
 
     public static HttpURLConnection get(String uri) throws IOException, ParserConfigurationException, SAXException {
         URL u = new URL(uri);
-        HttpURLConnection httpURLConnection = (HttpURLConnection) u.openConnection();
-        httpURLConnection.setRequestMethod("GET");
+        HttpURLConnection urlConnection = (HttpURLConnection) u.openConnection();
+        urlConnection.setUseCaches(false);
+        urlConnection.setRequestMethod("GET");
 
-        int status = httpURLConnection.getResponseCode();
+        int status = urlConnection.getResponseCode();
         LOG.info("Status " + status);
-        String mediaType = httpURLConnection.getContentType();
+        String mediaType = urlConnection.getContentType();
         LOG.info("Content Type: " + mediaType);
-        return httpURLConnection;
+        return urlConnection;
     }
 
     public static HttpURLConnection put(String uri) throws IOException {
@@ -85,7 +86,7 @@ public class HttpUtil {
 
         int status = uc.getResponseCode();
         LOG.info("Status: " + status);
-//        uc.disconnect();
+        uc.disconnect();
     }
 
     public static void post(String uri, String mediaType, InputStream in) throws IOException {

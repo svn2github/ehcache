@@ -157,25 +157,29 @@ public class ElementResourceTest {
     @Test
     public void testPutGetElementPlainText() throws Exception {
         long beforeCreated = System.currentTimeMillis();
+        Thread.sleep(10);
         String originalString = "The rain in Spain falls mainly on the plain";
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(originalString.getBytes());
 
+        assertEquals(404, HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1").getResponseCode());
         HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream);
         HttpURLConnection urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
         assertEquals(200, urlConnection.getResponseCode());
         assertTrue(urlConnection.getContentType().matches("text/plain"));
         byte[] bytes = HttpUtil.inputStreamToBytes(urlConnection.getInputStream());
+        urlConnection.disconnect();        
         String plainText = new String(bytes);
         assertEquals(originalString, plainText);
-        LOG.info("" + beforeCreated);
-        LOG.info("" + urlConnection.getLastModified());
-        LOG.info("" + System.currentTimeMillis());
-        //todo last modified is before put time! Why?
+        LOG.info("beforeCreated: " + beforeCreated);
+        LOG.info("lastModified: " + urlConnection.getLastModified());
+        LOG.info("now: " + System.currentTimeMillis());
+        //The HTTP protocol Last-Modified only goes down to seconds, therefore we need to take a second off to make sure the time is grated than a ms
+        //accurate beforeCreated time. This was little messy to find out.
         assertTrue(
-                urlConnection.getLastModified() > 0 &&
-                        urlConnection.getLastModified() < System.currentTimeMillis());
-        //We just use the Element version
-        assertEquals("\"1\"", urlConnection.getHeaderField("ETag"));
+                urlConnection.getLastModified() > (beforeCreated - 1000) &&
+                urlConnection.getLastModified() < System.currentTimeMillis());
+        //We use the Element version + Last-Modified
+        assertNotNull(urlConnection.getHeaderField("ETag"));
     }
 
     /**

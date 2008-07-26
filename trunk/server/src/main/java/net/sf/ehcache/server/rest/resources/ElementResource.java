@@ -133,11 +133,10 @@ public class ElementResource {
         }
 
 
-        long lastModified = ehcacheElement.getLastUpdateTime();
-        if (lastModified == 0) {
-            //created but not "updated"
-            lastModified = ehcacheElement.getCreationTime();
-        }
+        //Each time an element is put into ehcache the creation time is set even if it is an update.
+        long lastModified = ehcacheElement.getCreationTime();
+        LOG.info("lastModified: " + lastModified);
+        LOG.info("lastModified as Date: " + new Date(lastModified));
         Date lastModifiedDate = new Date(lastModified);
         //This will be unique across JVM restarts, or deleting an element and putting one back in.
         long eTagNumber = lastModified + ehcacheElement.getVersion();

@@ -254,6 +254,44 @@ public class CacheTest extends AbstractCacheTest {
     }
 
 
+
+    /**
+     * Tests that the version and lastUpdate get upped for each put.
+     * <cache name="sampleCacheNoIdle"
+     * maxElementsInMemory="1000"
+     * eternal="false"
+     * timeToLiveSeconds="5"
+     * overflowToDisk="false"
+     * />
+     */
+    public void testLastUpdate() throws Exception {
+        //Set size so the second element overflows to disk.
+        Ehcache cache = manager.getCache("sampleCache1");
+        long beforeElementCreation = System.currentTimeMillis();
+        //put in delay because time resolution is not exact on Windows
+        Thread.sleep(10);        
+        cache.put(new Element("key1", "value1"));
+        Element element = cache.get("key1");
+        assertTrue(element.getCreationTime() >= beforeElementCreation);
+        LOG.info("version: " + element.getVersion());
+        LOG.info("creationTime: " + element.getCreationTime());
+        LOG.info("lastUpdateTime: " + element.getLastUpdateTime());
+        assertEquals(0, element.getLastUpdateTime());
+
+        cache.put(new Element("key1", "value1"));
+        element = cache.get("key1");
+        LOG.info("version: " + element.getVersion());
+        LOG.info("creationTime: " + element.getCreationTime());
+        LOG.info("lastUpdateTime: " + element.getLastUpdateTime());
+
+        cache.put(new Element("key1", "value1"));
+        element = cache.get("key1");
+        LOG.info("version: " + element.getVersion());
+        LOG.info("creationTime: " + element.getCreationTime());
+        LOG.info("lastUpdateTime: " + element.getLastUpdateTime());
+    }
+
+
     /**
      * When to search the disk store
      */
