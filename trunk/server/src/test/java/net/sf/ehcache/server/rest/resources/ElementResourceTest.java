@@ -186,7 +186,7 @@ public class ElementResourceTest {
      * Note: The server does not return Elements. It returns values, with meta data in the headers.
      */
     @Test
-    public void testPutGetElementXMLXPath() throws Exception {
+    public void testPutGetElementXML() throws Exception {
 
         String xmlDocument = "<?xml version=\"1.0\"?>\n" +
                 "<oldjoke>\n" +
@@ -197,10 +197,8 @@ public class ElementResourceTest {
                 "<applause/>\n" +
                 "</oldjoke>";
 
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(xmlDocument.getBytes());
-
-
-        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/2", "application/xml", byteArrayInputStream);
+        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/2", "application/xml",
+                new ByteArrayInputStream(xmlDocument.getBytes()));
         Thread.sleep(100);
         HttpURLConnection urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/2");
         assertEquals(200, urlConnection.getResponseCode());
@@ -231,7 +229,8 @@ public class ElementResourceTest {
         assertEquals(lastModified, urlConnection.getHeaderField("Last-Modified"));
 
         //Check ETag and Last-Modified are different after the element was updated.
-        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/2", "application/xml", byteArrayInputStream);
+        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/2", "application/xml",
+                new ByteArrayInputStream(xmlDocument.getBytes()));
         Thread.sleep(100);
         u = new URL("http://localhost:8080/ehcache/rest/sampleCache2/2");
         urlConnection = (HttpURLConnection) u.openConnection();
@@ -254,6 +253,69 @@ public class ElementResourceTest {
         assertTrue(!lastModified.equals(urlConnection.getHeaderField("Last-Modified")));
 
     }
+
+
+// todo Change stored type to MimeTypeByteArray Get following test working.   
+
+//    /**
+//     * Note: The server does not return Elements. It returns values, with meta data in the headers.
+//     */
+//    @Test
+//    public void testPutGetPutNullElementXML() throws Exception {
+//
+//        String xmlDocument = "<?xml version=\"1.0\"?>\n" +
+//                "<oldjoke>\n" +
+//                "<burns>Say <quote>goodnight</quote>,\n" +
+//                "Gracie.</burns>\n" +
+//                "<allen><quote>Goodnight, \n" +
+//                "Gracie.</quote></allen>\n" +
+//                "<applause/>\n" +
+//                "</oldjoke>";
+//
+//        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/2", "application/xml",
+//                new ByteArrayInputStream(xmlDocument.getBytes()));
+//        Thread.sleep(100);
+//        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/2");
+//        assertEquals(200, urlConnection.getResponseCode());
+//        assertTrue(urlConnection.getContentType().matches("application/xml"));
+//
+//        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+//        Document document = documentBuilder.parse(urlConnection.getInputStream());
+//
+//        XPath xpath = XPathFactory.newInstance().newXPath();
+//        String expression = "/oldjoke/burns";
+//        Node node = (Node) xpath.evaluate(expression, document, XPathConstants.NODE);
+//
+//        assertEquals("burns", node.getNodeName());
+//
+//
+//        String eTag = urlConnection.getHeaderField("Etag");
+//        LOG.info("eTag: " + eTag);
+//        String lastModified = urlConnection.getHeaderField("Last-Modified");
+//        LOG.info("lastModified: " + lastModified);
+//
+//        //Check ETag and Last-Modified are the same
+//        URL u = new URL("http://localhost:8080/ehcache/rest/sampleCache2/2");
+//        urlConnection = (HttpURLConnection) u.openConnection();
+//        urlConnection.setRequestMethod("GET");
+//        assertEquals(200, urlConnection.getResponseCode());
+//        assertTrue(urlConnection.getContentType().matches("application/xml"));
+//        assertEquals(eTag, urlConnection.getHeaderField("Etag"));
+//        assertEquals(lastModified, urlConnection.getHeaderField("Last-Modified"));
+//
+//        //Check ETag and Last-Modified are different after the element was updated.
+//        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/2", "application/xml", new ByteArrayInputStream(new byte[]{}));
+//        Thread.sleep(100);
+//        u = new URL("http://localhost:8080/ehcache/rest/sampleCache2/2");
+//        urlConnection = (HttpURLConnection) u.openConnection();
+//        urlConnection.setRequestMethod("GET");
+//        assertEquals(200, urlConnection.getResponseCode());
+//        assertTrue(urlConnection.getContentType().matches("application/xml"));
+//        assertTrue(!eTag.equals(urlConnection.getHeaderField("Etag")));
+//        LOG.info("eTag: " + urlConnection.getHeaderField("Etag"));
+//        LOG.info("lastModified: " + urlConnection.getHeaderField("Last-Modified"));
+//        assertTrue(!lastModified.equals(urlConnection.getHeaderField("Last-Modified")));
+//    }
 
 
     @Test
