@@ -18,6 +18,7 @@ package net.sf.ehcache.server.rest.resources;
 
 import com.sun.jersey.api.NotFoundException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.MimeTypeByteArray;
 import net.sf.ehcache.server.jaxb.Element;
 
 import javax.ws.rs.DELETE;
@@ -72,6 +73,7 @@ public class ElementResource {
 
     /**
      * Full constructor
+     *
      * @param uriInfo
      * @param request
      * @param cache
@@ -87,62 +89,64 @@ public class ElementResource {
 
 
     /**
-     * HEAD method implementation
-     * @return
-     * todo consider getting the Element and setting last modified
+     * HEAD HTTP method implementation
+     * @return a response which sets the headers only with no body
+     * @throws com.sun.jersey.api.NotFoundException
+     *          if either the cache or the element is not found. Jersey will send a 404 response with the message.
      */
     @HEAD
-    public Response getElementHeader() {
-        LOG.log(Level.FINE, "HEAD element {}" + element);
+    public Response getElementHeader() throws NotFoundException {
+        LOG.log(Level.FINE, "HEAD element {}", element);
 
-        net.sf.ehcache.Cache ehcache = MANAGER.getCache(this.cache);
-        if (ehcache == null) {
-            throw new NotFoundException("Cache not found: " + cache);
+        net.sf.ehcache.Cache ehcache = lookupCache();
+        net.sf.ehcache.Element ehcacheElement = lookupElement(ehcache);
+        Date lastModified = createLastModified(ehcacheElement);
+        EntityTag eTag = createETag(ehcacheElement);
+
+
+        Element localElement;
+        Object value = ehcacheElement.getObjectValue();
+        if (value instanceof MimeTypeByteArray) {
+            MimeTypeByteArray mimeTypeByteArray = (MimeTypeByteArray) value;
+            //MIME Type was stored
+            localElement = new Element(mimeTypeByteArray.getValue(), uriInfo.getAbsolutePath().toString(), mimeTypeByteArray.getMimeType());
+        } else {
+            //todo handle Java Objects
+            localElement = new Element((byte[]) ehcacheElement.getObjectValue(), uriInfo.getAbsolutePath().toString(), "application/xml");
         }
-        boolean exists = ehcache.isKeyInCache(element);
-        if (!exists) {
-            throw new NotFoundException("Element not found: " + element);
-        }
-        return Response.ok().build();
+
+        //HEAD needs the content-length set. This is not being done by Jersey. TODO report bug.
+        String contentLength = "" + localElement.getValue().length;
+
+        return Response.ok().lastModified(lastModified).tag(eTag).header("Content-Length", contentLength).build();
     }
 
     /**
      * Implements the GET method.
+     *
      * @return
-     * @see <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.11">HTTP/1.1 section 3.11</a>
+     * @throws com.sun.jersey.api.NotFoundException
+     *          if either the cache or the element is not found. Jersey will send a 404 response with the message.
      */
     @GET
-    public Response getElement() {
-        LOG.log(Level.FINE, "GET element {}" + element);
-        net.sf.ehcache.Cache ehcache = MANAGER.getCache(cache);
-        net.sf.ehcache.Element ehcacheElement = ehcache.get(element);
-        if (ehcacheElement == null) {
-            throw new NotFoundException("Element not found: " + element);
-        }
+    public Response getElement() throws NotFoundException {
+        LOG.log(Level.FINE, "GET element {}", element);
+        net.sf.ehcache.Cache ehcache = lookupCache();
+        net.sf.ehcache.Element ehcacheElement = lookupElement(ehcache);
 
-        //what about if the value is not put in via this RESTful web service?
-        //todo check element value
-        //todo preserve mimetype rather than hardcoding to application/xml
         Element localElement;
         Object value = ehcacheElement.getObjectValue();
-        if (value instanceof Element) {
-            localElement = (Element) value;
+        if (value instanceof MimeTypeByteArray) {
+            MimeTypeByteArray mimeTypeByteArray = (MimeTypeByteArray) value;
+            //MIME Type was stored
+            localElement = new Element(mimeTypeByteArray.getValue(), uriInfo.getAbsolutePath().toString(), mimeTypeByteArray.getMimeType());
         } else {
+            //todo handle Java Objects
             localElement = new Element((byte[]) ehcacheElement.getObjectValue(), uriInfo.getAbsolutePath().toString(), "application/xml");
-            localElement.setMimeType("application/xml");
         }
+        Date lastModifiedDate = createLastModified(ehcacheElement);
+        EntityTag entityTag = createETag(ehcacheElement);
 
-
-        //Each time an element is put into ehcache the creation time is set even if it is an update.
-        long lastModified = ehcacheElement.getCreationTime();
-        LOG.info("lastModified: " + lastModified);
-        LOG.info("lastModified as Date: " + new Date(lastModified));
-        Date lastModifiedDate = new Date(lastModified);
-        //This will be unique across JVM restarts, or deleting an element and putting one back in.
-        long eTagNumber = lastModified + ehcacheElement.getVersion();
-
-        //HTTP/1.1 ETag - we just use
-        EntityTag entityTag = new EntityTag(new StringBuffer().append(eTagNumber).toString());
 
         Response.ResponseBuilder responseBuilder = request.evaluatePreconditions(lastModifiedDate, entityTag);
         //return 304?
@@ -154,20 +158,23 @@ public class ElementResource {
         return Response.ok(localElement.getValue(), localElement.getMimeType()).lastModified(lastModifiedDate).tag(entityTag).build();
     }
 
+
+
+
     /**
      * Implements the PUT method
+     *
      * @param headers
      * @param data
      * @return
+     * @throws com.sun.jersey.api.NotFoundException
+     *          if the cache is not found. Jersey will send a 404 response with the message.
      */
     @PUT
-    public Response putElement(@Context HttpHeaders headers, byte[] data) {
-        LOG.info("PUT element " + cache + " " + this.element);
-        net.sf.ehcache.Cache ehcache = CacheManager.getInstance().getCache(cache);
-        if (element == null) {
-            throw new NotFoundException("Cache " + cache + " does not exist.");
-        }
+    public Response putElement(@Context HttpHeaders headers, byte[] data) throws NotFoundException {
+        LOG.log(Level.FINE, "PUT element {}" + element);
 
+        net.sf.ehcache.Cache ehcache = lookupCache();
 
         URI uri = uriInfo.getAbsolutePath();
         MediaType mimeType = headers.getMediaType();
@@ -181,25 +188,93 @@ public class ElementResource {
             response = Response.noContent().build();
         }
 
-        //todo how to cater for this element metadata
-        ehcache.put(new net.sf.ehcache.Element(this.element, localElement));
+        MimeTypeByteArray mimeTypeByteArray = new MimeTypeByteArray(localElement.getMimeType(), data);
 
-            // Create the cache if one has not been created
+        ehcache.put(new net.sf.ehcache.Element(this.element, mimeTypeByteArray));
+
+        // Create the cache if one has not been created
 //            URI cacheUri = uriInfo.getAbsolutePathBuilder().path("..").build().normalize();
         return response;
     }
 
     /**
-     * Implements the DELETE method
+     * Implements the DELETE RESTful operation
+     *
+     * @throws com.sun.jersey.api.NotFoundException
+     *          if either the cache or the element did not exist
      */
     @DELETE
-    public void deleteElement() {
-        LOG.info("DELETE element " + cache + " " + element);
+    public void deleteElement() throws NotFoundException {
+        LOG.log(Level.FINE, "DELETE element {0}", element);
+        net.sf.ehcache.Cache ehcache = lookupCache();
 
-        net.sf.ehcache.Cache ehcache = CacheManager.getInstance().getCache(cache);
         boolean removed = ehcache.remove(element);
         if (!removed) {
-            throw new NotFoundException("Element not found");
+            throw new NotFoundException("Element " + element + " not found");
         }
     }
+
+    /**
+     * Each time an element is put into ehcache the creation time is set even if it is an update.
+     * So, "creation time" means Last-Modified.
+     *
+     * @param ehcacheElement the underlying Ehcache element
+     * @return the last modified date. If this is the first version of the element, the last-modified means the name things as created.
+     * This date is accurate to ms, however the HTTP protocol is not - it only goes down to seconds. Jersey removes the ms.
+     */
+    private Date createLastModified(net.sf.ehcache.Element ehcacheElement) {
+        long lastModified = ehcacheElement.getCreationTime();
+        Date lastModifiedDate = new Date(lastModified);
+        LOG.log(Level.FINE, "lastModified as long: {}", lastModified);
+        LOG.log(Level.FINE, "lastModified as Date without ms: {}", lastModifiedDate);
+        return lastModifiedDate;
+    }
+
+    /**
+     * A very performant ETag implementation.
+     * This will be unique across JVM restarts, or deleting an element and putting one back in.
+     * @param ehcacheElement A backing ehcache element
+     * @return the ETag for this entry
+     * @see <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.11">HTTP/1.1 section 3.11</a>
+     */
+    private EntityTag createETag(net.sf.ehcache.Element ehcacheElement) {
+
+        //For a given key and server this is unique, unless two updates for that key happened in the same millisecond.
+        long eTagNumber = ehcacheElement.getCreationTime();
+
+        return new EntityTag(new StringBuffer().append(eTagNumber).toString());
+    }
+
+    /**
+     * Looks up the element
+     *
+     * @param ehcache A cache to be checked for the key
+     * @return An ehcache element. This method will not return null.
+     * @throws com.sun.jersey.api.NotFoundException
+     *          if the element is not found. Jersey will send a 404 response with the message.
+     */
+    private net.sf.ehcache.Element lookupElement(net.sf.ehcache.Cache ehcache) throws NotFoundException {
+        net.sf.ehcache.Element ehcacheElement = ehcache.get(element);
+        if (ehcacheElement == null) {
+            throw new NotFoundException("Element not found: " + element);
+        }
+        return ehcacheElement;
+    }
+
+    /**
+     * Looks up the cache in the instance field <code>cache</code>
+     *
+     * @return An ehcache element. This method will not return null.
+     * @throws com.sun.jersey.api.NotFoundException
+     *          if the cache is not found. Jersey will send a 404 response with the message.
+     */
+    private net.sf.ehcache.Cache lookupCache() throws NotFoundException {
+        net.sf.ehcache.Cache ehcache = MANAGER.getCache(cache);
+        if (ehcache == null) {
+            throw new NotFoundException("Cache not found: " + cache);
+        }
+        return ehcache;
+    }
+
+
 }
