@@ -117,8 +117,14 @@ public class ElementResource {
 
         //HEAD needs the content-length set. This is not being done by Jersey. TODO report bug.
         String contentLength = "" + localElement.getValue().length;
+        long expirationDate = localElement.getEhcacheElement().getExpirationTime();
 
-        return Response.ok().lastModified(lastModified).tag(eTag).header("Content-Length", contentLength).build();
+        return Response.ok()
+                .lastModified(lastModified)
+                .tag(eTag)
+                .header("Content-Length", contentLength)
+                .header("Expires", (new Date(expirationDate)).toString())
+                .build();
     }
 
     /**
@@ -146,6 +152,7 @@ public class ElementResource {
         }
         Date lastModifiedDate = createLastModified(ehcacheElement);
         EntityTag entityTag = createETag(ehcacheElement);
+        long expirationDate = localElement.getEhcacheElement().getExpirationTime();
 
 
         Response.ResponseBuilder responseBuilder = request.evaluatePreconditions(lastModifiedDate, entityTag);
@@ -155,7 +162,11 @@ public class ElementResource {
         }
 
         //return the data?
-        return Response.ok(localElement.getValue(), localElement.getMimeType()).lastModified(lastModifiedDate).tag(entityTag).build();
+        return Response.ok(localElement.getValue(), localElement.getMimeType())
+                .lastModified(lastModifiedDate)
+                .tag(entityTag)
+                .header("Expires", (new Date(expirationDate)).toString())
+                .build();
     }
 
 

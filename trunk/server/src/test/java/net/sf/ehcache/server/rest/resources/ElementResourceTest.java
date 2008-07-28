@@ -249,9 +249,12 @@ public class ElementResourceTest {
         u = new URL("http://localhost:8080/ehcache/rest/sampleCache2/2");
         urlConnection = (HttpURLConnection) u.openConnection();
         urlConnection.setRequestMethod("GET");
+        urlConnection.setIfModifiedSince(System.currentTimeMillis());
+        urlConnection.setUseCaches(true);
 //        urlConnection.setRequestProperty("");
-        assertEquals(200, urlConnection.getResponseCode());
-        assertTrue(urlConnection.getContentType().matches("application/xml"));
+        assertEquals(304, urlConnection.getResponseCode());
+        int i = 0;
+//        assertTrue(urlConnection.getContentType().matches("application/xml"));
         //assertTrue(!eTag.equals(urlConnection.getHeaderField("Etag")));
         //assertTrue(!lastModified.equals(urlConnection.getHeaderField("Last-Modified")));
 

@@ -277,16 +277,40 @@
             <id>java.net</id>
             <url>http://download.java.net/maven/1</url>
             <layout>legacy</layout>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
         </repository>
         <repository>
             <id>glassfish-repository</id>
             <name>Java.net Repository for Glassfish</name>
             <url>http://download.java.net/maven/glassfish</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
         </repository>
         <repository>
             <id>java.net2</id>
             <name>Java.net Maven2 Repository</name>
             <url>http://download.java.net/maven/2</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
         </repository>
     </repositories>
     <pluginRepositories>
@@ -294,6 +318,14 @@
             <id>maven2.java.net</id>
             <name>Java.net Repository for Maven 2</name>
             <url>http://download.java.net/maven/2</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
         </pluginRepository>
     </pluginRepositories>
 </project>                  
