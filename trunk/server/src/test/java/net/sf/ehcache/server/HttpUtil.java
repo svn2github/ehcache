@@ -69,7 +69,7 @@ public class HttpUtil {
         return urlConnection;
     }
 
-    public static void put(String uri, String mediaType, InputStream in) throws IOException {
+    public static int put(String uri, String mediaType, InputStream in) throws IOException {
         URL u = new URL(uri);
         HttpURLConnection uc = (HttpURLConnection) u.openConnection();
         uc.setRequestMethod("PUT");
@@ -87,9 +87,10 @@ public class HttpUtil {
         int status = uc.getResponseCode();
         LOG.info("Status: " + status);
         uc.disconnect();
+        return status;
     }
 
-    public static void post(String uri, String mediaType, InputStream in) throws IOException {
+    public static int post(String uri, String mediaType, InputStream in) throws IOException {
         URL u = new URL(uri);
         HttpURLConnection uc = (HttpURLConnection) u.openConnection();
         uc.setRequestMethod("POST");
@@ -106,6 +107,7 @@ public class HttpUtil {
 
         int status = uc.getResponseCode();
         LOG.info("Status: " + status);
+        return status;
     }
 
     public static HttpURLConnection delete(String uri) throws IOException {

@@ -59,6 +59,7 @@ public class Element {
      * <li><code>application/xml</code> Extensible Markup Language. Defined in RFC 3023
      * <li><code>application/json</code> JavaScript Object Notation JSON. Defined in RFC 4627
      * <li><code>application/x-java-serialized-object</code> A serialized Java object
+     * <li><code>application/octet-stream</code> Used for unrecgonized binary types. See RFC2046
      * </ul>
      */
     private String mimeType;
@@ -146,7 +147,12 @@ public class Element {
         } if (ehcacheValue instanceof MimeTypeByteArray) {
             //we have Mime Type data to extract
             mimeType = ((MimeTypeByteArray) ehcacheValue).getMimeType();
+            if (mimeType == null) {
+                //Jersey is returning */* for these which I think is wrong. Reported to Paul Sandoz.
+                mimeType = "application/octet-stream";
+            }
             this.value = ((MimeTypeByteArray) ehcacheValue).getValue();
+
         } else if (ehcacheValue instanceof byte[]) {
             //already a byte[]
             this.value = (byte[]) ehcacheValue;

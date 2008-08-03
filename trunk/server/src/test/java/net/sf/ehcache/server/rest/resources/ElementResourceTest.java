@@ -25,6 +25,9 @@ import net.sf.ehcache.server.soap.jaxws.CacheException_Exception;
 import net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpoint;
 import net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpointService;
 import net.sf.ehcache.server.soap.jaxws.IllegalStateException_Exception;
+import net.sf.ehcache.Status;
+import net.sf.ehcache.MimeTypeByteArray;
+import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -48,6 +51,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
@@ -86,7 +90,8 @@ public class ElementResourceTest {
 
         String originalString = "Some string";
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(originalString.getBytes());
-        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache1/1", "text/plain", byteArrayInputStream);
+        int status = HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache1/1", "text/plain", byteArrayInputStream);
+        assertEquals(201, status);
 
         HttpURLConnection urlConnection = HttpUtil.head("http://localhost:8080/ehcache/rest/sampleCache1/1");
         assertEquals(200, urlConnection.getResponseCode());
@@ -163,7 +168,9 @@ public class ElementResourceTest {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(originalString.getBytes());
 
         assertEquals(404, HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1").getResponseCode());
-        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream);
+        int status = HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream);
+        assertEquals(201, status);
+
         HttpURLConnection urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
         assertEquals(200, urlConnection.getResponseCode());
         assertTrue(urlConnection.getContentType().matches("text/plain"));
@@ -181,6 +188,89 @@ public class ElementResourceTest {
                         urlConnection.getLastModified() < System.currentTimeMillis());
         //We use the Element version + Last-Modified
         assertNotNull(urlConnection.getHeaderField("ETag"));
+    }
+
+    /**
+     * Stick in a java object with mime type of application/x-java-serialized-object and make sure it comes back.
+     */
+    @Test
+    public void testPutGetElementJava() throws Exception {
+
+        Status somethingThatIsSerializable = Status.STATUS_ALIVE;
+        byte[] serializedForm = MemoryEfficientByteArrayOutputStream.serialize(somethingThatIsSerializable).getBytes();
+
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(serializedForm);
+
+        assertEquals(404, HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1").getResponseCode());
+        int status = HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", "application/x-java-serialized-object", byteArrayInputStream);
+        assertEquals(201, status);
+
+        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
+        assertEquals(200, urlConnection.getResponseCode());
+        assertTrue(urlConnection.getContentType().matches("application/x-java-serialized-object"));
+        byte[] bytes = HttpUtil.inputStreamToBytes(urlConnection.getInputStream());
+        urlConnection.disconnect();
+
+        final ByteArrayInputStream instr = new ByteArrayInputStream(bytes);
+        final ObjectInputStream objectInputStream = new ObjectInputStream(instr);
+        Status somethingThatIsSerializable2 = (Status) objectInputStream.readObject();
+
+        assertEquals(somethingThatIsSerializable, somethingThatIsSerializable2);
+    }
+
+    /**
+     * Get a java object which was put in some way other than the RESTful API.
+     */
+    @Test
+    public void testGetElementJava() throws Exception {
+
+        Status somethingThatIsSerializable = Status.STATUS_ALIVE;
+        byte[] serializedForm = MemoryEfficientByteArrayOutputStream.serialize(somethingThatIsSerializable).getBytes();
+
+        assertEquals(404, HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1").getResponseCode());
+
+        net.sf.ehcache.server.soap.jaxws.Element element = new net.sf.ehcache.server.soap.jaxws.Element();
+        element.setKey("1");
+        element.setValue(serializedForm);
+        cacheService.put("sampleCache2", element);
+
+
+        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
+        assertEquals(200, urlConnection.getResponseCode());
+
+        //MimeTYpe not set, so the server sets application/octet-stream
+        assertTrue(urlConnection.getContentType().matches("application/octet-stream"));
+        byte[] bytes = HttpUtil.inputStreamToBytes(urlConnection.getInputStream());
+        urlConnection.disconnect();
+
+        //We should still be able to deserialize because we know it a java object
+        final ByteArrayInputStream instr = new ByteArrayInputStream(bytes);
+        final ObjectInputStream objectInputStream = new ObjectInputStream(instr);
+        Status somethingThatIsSerializable2 = (Status) objectInputStream.readObject();
+
+        assertEquals(somethingThatIsSerializable, somethingThatIsSerializable2);
+    }
+
+
+
+    /**
+     * Stick in a java object without mime type of application/x-java-serialized-object.
+     * Server does not accept the content and responds with a 400
+     */
+    @Test
+    public void testPutEmptyMimeType() throws Exception {
+
+        Status somethingThatIsSerializable = Status.STATUS_ALIVE;
+        byte[] serializedForm = MemoryEfficientByteArrayOutputStream.serialize(somethingThatIsSerializable).getBytes();
+
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(serializedForm);
+
+        assertEquals(404, HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1").getResponseCode());
+        int status = HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", null, byteArrayInputStream);
+        //GF does 400 which is better
+        //Jetty does 500
+        assertTrue(status == 400 || status == 500);
+
     }
 
     /**
@@ -262,67 +352,7 @@ public class ElementResourceTest {
 
 
 
-// todo Change stored type to MimeTypeByteArray Get following test working.   
 
-//    /**
-//     * Note: The server does not return Elements. It returns values, with meta data in the headers.
-//     */
-//    @Test
-//    public void testPutGetPutNullElementXML() throws Exception {
-//
-//        String xmlDocument = "<?xml version=\"1.0\"?>\n" +
-//                "<oldjoke>\n" +
-//                "<burns>Say <quote>goodnight</quote>,\n" +
-//                "Gracie.</burns>\n" +
-//                "<allen><quote>Goodnight, \n" +
-//                "Gracie.</quote></allen>\n" +
-//                "<applause/>\n" +
-//                "</oldjoke>";
-//
-//        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/2", "application/xml",
-//                new ByteArrayInputStream(xmlDocument.getBytes()));
-//        Thread.sleep(100);
-//        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/2");
-//        assertEquals(200, urlConnection.getResponseCode());
-//        assertTrue(urlConnection.getContentType().matches("application/xml"));
-//
-//        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-//        Document document = documentBuilder.parse(urlConnection.getInputStream());
-//
-//        XPath xpath = XPathFactory.newInstance().newXPath();
-//        String expression = "/oldjoke/burns";
-//        Node node = (Node) xpath.evaluate(expression, document, XPathConstants.NODE);
-//
-//        assertEquals("burns", node.getNodeName());
-//
-//
-//        String eTag = urlConnection.getHeaderField("Etag");
-//        LOG.info("eTag: " + eTag);
-//        String lastModified = urlConnection.getHeaderField("Last-Modified");
-//        LOG.info("lastModified: " + lastModified);
-//
-//        //Check ETag and Last-Modified are the same
-//        URL u = new URL("http://localhost:8080/ehcache/rest/sampleCache2/2");
-//        urlConnection = (HttpURLConnection) u.openConnection();
-//        urlConnection.setRequestMethod("GET");
-//        assertEquals(200, urlConnection.getResponseCode());
-//        assertTrue(urlConnection.getContentType().matches("application/xml"));
-//        assertEquals(eTag, urlConnection.getHeaderField("Etag"));
-//        assertEquals(lastModified, urlConnection.getHeaderField("Last-Modified"));
-//
-//        //Check ETag and Last-Modified are different after the element was updated.
-//        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/2", "application/xml", new ByteArrayInputStream(new byte[]{}));
-//        Thread.sleep(100);
-//        u = new URL("http://localhost:8080/ehcache/rest/sampleCache2/2");
-//        urlConnection = (HttpURLConnection) u.openConnection();
-//        urlConnection.setRequestMethod("GET");
-//        assertEquals(200, urlConnection.getResponseCode());
-//        assertTrue(urlConnection.getContentType().matches("application/xml"));
-//        assertTrue(!eTag.equals(urlConnection.getHeaderField("Etag")));
-//        LOG.info("eTag: " + urlConnection.getHeaderField("Etag"));
-//        LOG.info("lastModified: " + urlConnection.getHeaderField("Last-Modified"));
-//        assertTrue(!lastModified.equals(urlConnection.getHeaderField("Last-Modified")));
-//    }
 
 
     @Test
