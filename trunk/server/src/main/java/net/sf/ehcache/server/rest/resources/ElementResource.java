@@ -90,6 +90,7 @@ public class ElementResource {
 
     /**
      * HEAD HTTP method implementation
+     *
      * @return a response which sets the headers only with no body
      * @throws com.sun.jersey.api.NotFoundException
      *          if either the cache or the element is not found. Jersey will send a 404 response with the message.
@@ -103,27 +104,17 @@ public class ElementResource {
         Date lastModified = createLastModified(ehcacheElement);
         EntityTag eTag = createETag(ehcacheElement);
 
+        Element localElement = new Element(ehcacheElement, uriInfo.getAbsolutePath().toString());
 
-        Element localElement;
-        Object value = ehcacheElement.getObjectValue();
-        if (value instanceof MimeTypeByteArray) {
-            MimeTypeByteArray mimeTypeByteArray = (MimeTypeByteArray) value;
-            //MIME Type was stored
-            localElement = new Element(mimeTypeByteArray.getValue(), uriInfo.getAbsolutePath().toString(), mimeTypeByteArray.getMimeType());
-        } else {
-            //todo handle Java Objects
-            localElement = new Element((byte[]) ehcacheElement.getObjectValue(), uriInfo.getAbsolutePath().toString(), "application/xml");
-        }
-
-        //HEAD needs the content-length set. This is not being done by Jersey. TODO report bug.
+        //HEAD needs the content-length set. This is not being done by Jersey. See bug https://jersey.dev.java.net/issues/show_bug.cgi?id=91
+        //So are are doing it ourselves
         String contentLength = "" + localElement.getValue().length;
-        long expirationDate = localElement.getEhcacheElement().getExpirationTime();
 
         return Response.ok()
                 .lastModified(lastModified)
                 .tag(eTag)
                 .header("Content-Length", contentLength)
-                .header("Expires", (new Date(expirationDate)).toString())
+                .header("Expires", (new Date(localElement.getExpirationDate())).toString())
                 .build();
     }
 
@@ -140,36 +131,25 @@ public class ElementResource {
         net.sf.ehcache.Cache ehcache = lookupCache();
         net.sf.ehcache.Element ehcacheElement = lookupElement(ehcache);
 
-        Element localElement;
-        Object value = ehcacheElement.getObjectValue();
-        if (value instanceof MimeTypeByteArray) {
-            MimeTypeByteArray mimeTypeByteArray = (MimeTypeByteArray) value;
-            //MIME Type was stored
-            localElement = new Element(mimeTypeByteArray.getValue(), uriInfo.getAbsolutePath().toString(), mimeTypeByteArray.getMimeType());
-        } else {
-            //todo handle Java Objects
-            localElement = new Element((byte[]) ehcacheElement.getObjectValue(), uriInfo.getAbsolutePath().toString(), "application/xml");
-        }
+        Element localElement = new Element(ehcacheElement, uriInfo.getAbsolutePath().toString());
+
         Date lastModifiedDate = createLastModified(ehcacheElement);
         EntityTag entityTag = createETag(ehcacheElement);
-        long expirationDate = localElement.getEhcacheElement().getExpirationTime();
 
 
         Response.ResponseBuilder responseBuilder = request.evaluatePreconditions(lastModifiedDate, entityTag);
-        //return 304?
+        //returns 304 if preconditions are met
         if (responseBuilder != null) {
             return responseBuilder.build();
+        } else {
+            //return the data?
+            return Response.ok(localElement.getValue(), localElement.getMimeType())
+                    .lastModified(lastModifiedDate)
+                    .tag(entityTag)
+                    .header("Expires", (new Date(localElement.getExpirationDate())).toString())
+                    .build();
         }
-
-        //return the data?
-        return Response.ok(localElement.getValue(), localElement.getMimeType())
-                .lastModified(lastModifiedDate)
-                .tag(entityTag)
-                .header("Expires", (new Date(expirationDate)).toString())
-                .build();
     }
-
-
 
 
     /**
@@ -231,7 +211,7 @@ public class ElementResource {
      *
      * @param ehcacheElement the underlying Ehcache element
      * @return the last modified date. If this is the first version of the element, the last-modified means the name things as created.
-     * This date is accurate to ms, however the HTTP protocol is not - it only goes down to seconds. Jersey removes the ms.
+     *         This date is accurate to ms, however the HTTP protocol is not - it only goes down to seconds. Jersey removes the ms.
      */
     private Date createLastModified(net.sf.ehcache.Element ehcacheElement) {
         long lastModified = ehcacheElement.getCreationTime();
@@ -244,6 +224,7 @@ public class ElementResource {
     /**
      * A very performant ETag implementation.
      * This will be unique across JVM restarts, or deleting an element and putting one back in.
+     *
      * @param ehcacheElement A backing ehcache element
      * @return the ETag for this entry
      * @see <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.11">HTTP/1.1 section 3.11</a>

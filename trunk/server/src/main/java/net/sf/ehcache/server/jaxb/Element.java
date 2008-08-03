@@ -62,13 +62,20 @@ public class Element {
      * </ul>
      */
     private String mimeType;
+
+
     private Object key;
-    private Integer timeToIdleSeconds;
-    private Long creationTime;
+
     private Long version;
+
+    private Long creationTime;
     private Long lastUpdateTime;
+    private Long expirationDate;
+
     private Boolean eternal;
+    private Integer timeToIdleSeconds;
     private Integer timeToLiveSeconds;
+
 
     /**
      * Empty Constructor
@@ -105,9 +112,31 @@ public class Element {
      * @param element the ehcache core Element
      * @throws CacheException if an Exception occurred in the underlying cache.
      */
+    public Element(net.sf.ehcache.Element element, String resourceUri) throws CacheException {
+        this(element);
+        this.resourceUri = resourceUri;
+    }
+
+    /**
+     * Constructor which takes an Ehcache core Element.
+     * <p/>
+     * The {@link #mimeType} and {@link #value} are stored in
+     * the core Ehcache <code>value</code> field using {@link net.sf.ehcache.MimeTypeByteArray}
+     * <p/>
+     * If the MIME Type is not set, an attempt is made to set a sensible value. The rules for setting the Mime Type are:
+     * <ol>
+     * <li>If the value in element is null, the <code>mimeType</code> is set to null.
+     * <li>If we stored the mimeType in ehcache, then <code>mimeType</code> is set with it.
+     * <li>If no mimeType was set and the value is a <code>byte[]</code> the <code>mimeType</code> is set to "application/octet-stream".
+     * <li>If no mimeType was set and the value is a <code>String</code> the <code>mimeType</code> is set to "text/plain".
+     * </ol>
+     * @param element the ehcache core Element
+     * @throws CacheException if an Exception occurred in the underlying cache.
+     */
     public Element(net.sf.ehcache.Element element) throws CacheException {
-        
+
         key = element.getKey();
+        expirationDate = element.getExpirationTime();
 
         Object ehcacheValue = element.getObjectValue();
 
@@ -137,17 +166,20 @@ public class Element {
             this.value = stream.getBytes();
             this.mimeType = "application/x-java-serialized-object";
         }
+
     }
 
     /**
-     * @return
+     * The key for this element. It needs to be Serializable. To work with the RESTful API it needs to be a String.
+     * @return the value of the key
      */
     public Object getKey() {
         return key;
     }
 
     /**
-     * @param key
+     * The key for this element. It needs to be Serializable. To work with the RESTful API it needs to be a String. 
+     * @param key the value of the key
      */
     public void setKey(Object key) {
         this.key = key;
@@ -155,17 +187,19 @@ public class Element {
 
     /**
      * Sets the payload
+     * Should be set in conjunction with the MIME type
      *
-     * @param value
+     * @param value the value as bytes
      */
     public void setValue(byte[] value) {
         this.value = value;
     }
 
     /**
-     * Gets the payload
+     * Gets the payload.
+     * Use the MIME type to work out how to decode this
      *
-     * @return
+     * @return the value as bytes
      */
     public byte[] getValue() {
         return value;
@@ -174,7 +208,7 @@ public class Element {
     /**
      * Gets the URI for this resource
      *
-     * @return
+     * @return a string being a fully qualified URI e.g. http://localhost:8080/ehcache/rest/sampleCache1/34
      */
     public String getResourceUri() {
         return resourceUri;
@@ -183,7 +217,7 @@ public class Element {
     /**
      * Sets the URI for this resource
      *
-     * @param resourceUri
+     * @param resourceUri a string being a fully qualified URI e.g. http://localhost:8080/ehcache/rest/sampleCache1/34
      */
     public void setResourceUri(String resourceUri) {
         this.resourceUri = resourceUri;
@@ -265,7 +299,7 @@ public class Element {
     /**
      * Sets whether the element is eternal.
      *
-     * @param eternal
+     * @param eternal true if it lives forever
      */
     public void setEternal(Boolean eternal) {
         this.eternal = eternal;
@@ -286,14 +320,14 @@ public class Element {
     }
 
     /**
-     * @return
+     * @return the version of this element
      */
     public long getVersion() {
         return version;
     }
 
     /**
-     * @return
+     * @return the time this element was created in the cache
      */
     public long getCreationTime() {
         return creationTime;
@@ -301,7 +335,7 @@ public class Element {
 
     /**
      * 
-     * @param timeToIdleSeconds
+     * @param timeToIdleSeconds the time an element may be unused before it becomes stale
      */
     public void setTimeToIdleSeconds(Integer timeToIdleSeconds) {
         this.timeToIdleSeconds = timeToIdleSeconds;
@@ -310,25 +344,28 @@ public class Element {
     /**
      * Throws a <code>UnsupportedOperationException</code> if called. This is immutatble but
      * a setter must be provided to support the JavaBeans convention.
+     * @throws UnsupportedOperationException do not call this method. This is immutable
      */
-    public void setCreationTime(Long creationTime) {
-        //throw new UnsupportedOperationException("Creation time is immutable.");
+    public void setCreationTime(Long creationTime) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Creation time is immutable.");
     }
 
     /**
      * Throws a <code>UnsupportedOperationException</code> if called. This is immutatble but
      * a setter must be provided to support the JavaBeans convention.
+     * @throws UnsupportedOperationException do not call this method. This is immutable
      */
-    public void setVersion(Long version) {
-        //throw new UnsupportedOperationException("Version is immutable.");
+    public void setVersion(Long version) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Version is immutable.");
     }
 
     /**
      * Throws a <code>UnsupportedOperationException</code> if called. This is immutatble but
      * a setter must be provided to support the JavaBeans convention.
+     * @throws UnsupportedOperationException do not call this method. This is immutable
      */
-    public void setLastUpdateTime(Long lastUpdateTime) {
-        //throw new UnsupportedOperationException("Last Update Time is immutable.");
+    public void setLastUpdateTime(Long lastUpdateTime) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Last Update Time is immutable.");
     }
 
     /**
@@ -339,5 +376,23 @@ public class Element {
     public net.sf.ehcache.Element getEhcacheElement() {
         MimeTypeByteArray mimeTypeByteArray = new MimeTypeByteArray(mimeType, value);
         return new net.sf.ehcache.Element(key, mimeTypeByteArray, eternal, timeToIdleSeconds, timeToLiveSeconds);
+    }
+
+    /**
+     * Returns the expiration time of the element
+     * @return the best estimate of the expiration date of this element from the cache. If the element is eternal
+     *  {@link Long#MAX_VALUE} is returned.
+     * @see net.sf.ehcache.Element#getExpirationTime()
+     */
+    public Long getExpirationDate() {
+        return expirationDate;
+    }
+
+    /**
+     * Do not call. This is immutable from the point of view of a client.
+     * @throws UnsupportedOperationException do not call this method. This is immutable.
+     */
+    public void setExpirationDate(Long expirationDate) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Last Update Time is immutable.");
     }
 }
