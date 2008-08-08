@@ -21,7 +21,7 @@ News
 ** 12 July 2008: ehcache-server-0.1 released
 
    This is the first version of an ehcache W3C Web Services server, packaged as a WAR. This version is made available for testing.
-   See the {{{http://ehcache.sourceforge.net/documentation/cache_server.html} documentation}}.
+   See the {{{http://ehcache.sourceforge.net/documentation/cache_server.html}documentation}}.
 
    Two APIs are supported: A soap API specified in {{{http://ehcache.sf.net/wsdl/EhcacheWebServiceEndpointService.wsdl}EhcacheWebServiceEndpointService.wsdl}}
    and a RESTful, resource oriented API. This release provides a feature-complete soap API. The RESTful API is not yet feature complete.

@@ -2,34 +2,12 @@
 
 *   Introduction
 
-    Ehcache now comes with a Cache Server, available as a WAR for most
-    web containers, or as a standalone server.
+    Ehcache now comes with a Cache Server, available as a WAR for most web containers, or as a standalone server.
+    The Cache Server has two apis: RESTful resource oriented, and SOAP. Both support clients in any programming
+    language.
 
-    Each is available as a tarball from sourceforge or from maven repos.
-
-
-    The server CacheExtensions are a general purpose mechanism to allow {generic extensions to a Cache}.
-
-
-
-*   Architecture
-
-    Ehcache server uses JAX-WS for SOAP and Jersey for RESTful Web Services. Ehcache supports both to give users the
-    maximum of choice. The beauty of both is that no Ehcache client is required. A client can be created trivially in
-    whatever programming language. With support for REST, that even extends to languages that do not hava SOAP implementations.
-
-    By default, Glassfish V3 Core embedded is used as the HTTP server on which to run these. Glassfish uses NIO
-    for high performance. However Ehcache Server is also downloadable as a WAR which can be embedded in any
-    Servlet 2.5 Web Container, such as Weblogic, Websphere, Tomcat or Jetty. 
-
-    Ehcache Server requires Java 5 or higher.
-
-*   A Note on Terminology
-
-    Leonard Richardson and Sam Ruby have done a great job of clarifying the different Web Services architectures and
-    distinguishing them from each other. See {http://www.oreilly.com/catalog/9780596529260/}.
-
-    Their taxonomy is used in the following discussion.
+    A Note on terminology: Leonard Richardson and Sam Ruby have done a great job of clarifying the different Web Services architectures and
+    distinguishing them from each other. We use their taxonomy in describing web services. See {http://www.oreilly.com/catalog/9780596529260/}.
 
 
 *   W3C Web Services
@@ -120,7 +98,7 @@
 
 *   RESTful Web Services
 
-    Roy Fielding created the term REST, denoting Representational State Transfer, in his
+    Roy Fielding coined the acronym REST, denoting Representational State Transfer, in his
     {{{http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm}PhD thesis}}.
 
     The ehcache implementation strictly follows the RESTful resource-oriented architecture style.
@@ -138,12 +116,15 @@
       return the WADL.
 
 
+    Roy is on the JSR311 expert group. JSR311 and Jersey, the reference implementation, are used to deliver
+    RESTful web services in ehcache server.
+
 ** RESTFul Web Services API
 
     The Ehcache RESTFul Web Services API exposes the singleton CacheManager, which typically has been configured
     in ehcache.xml or an IoC container. Multiple CacheManagers are not supported.
 
-    The resources are encoded as /{cache}/{element}
+
 
 ** CacheManager Resource Operations
 
@@ -214,7 +195,10 @@
 *** Element Resource Representations
 
     When Elements are PUT into the cache, a MIME Type should be set in the request header.
-    The MIME Type is preserved and put into the response header when a GET is done.
+    The MIME Type is preserved for later use.
+
+    The new <<<MimeTypeByteArray>>> is used to store the <<<byte[]>>> and the <<<MimeType>>>
+    in the value field of <<<Element>>>.
 
     Some common MIME Types which are expected to be used by clients are:
 
@@ -235,10 +219,134 @@
     Because anything that can be PUT into the cache server must be Serializable, it can also be distributed
     in a cache cluster i.e. it will be Serializable.
 
-**  Security
 
-    By default no security is configured. Because it is simply a Servlet 2.5 web application, it can be secured in all the
-    usual ways by configuration in the web.xml.
+**  RESTful Code Samples
+
+    These are RESTful code samples in multiple languages.
+
+*** Curl Code Samples
+
+    These samples use the populare curl command line utility.
+
+**** OPTIONS
+
+    This example shows how calling OPTIONS causes ehcache server to respond with the WADL for that resource
+
+    code:
+---
+curl --request OPTIONS http://localhost:8080/ehcache/rest/sampleCache2/2
+---
+    response:
+---
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<application xmlns="http://research.sun.com/wadl/2006/10">
+<resources base="http://localhost:8080/ehcache/rest/">
+<resource path="sampleCache2/2">
+<method name="HEAD"><response><representation mediaType="
+    ...
+</resource>
+</resources>
+</application>
+---
+
+**** HEAD
+
+    This example shows how to call HEAD
+
+---
+curl --head  http://localhost:8080/ehcache/rest/sampleCache2/2
+---
+
+    response:
+
+---
+HTTP/1.1 200 OK
+X-Powered-By: Servlet/2.5
+Server: GlassFish/v3
+Last-Modified: Sun, 27 Jul 2008 08:08:49 GMT
+ETag: "1217146129490"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Length: 157
+Date: Sun, 27 Jul 2008 08:17:09 GMT
+---
+
+**** GET
+
+    Shows to how get an element using curl
+
+---
+curl http://localhost:8080/ehcache/rest/sampleCache2/2
+---
+
+    response
+
+---
+<?xml version="1.0"?>
+<oldjoke>
+<burns>Say <quote>goodnight</quote>,
+Gracie.</burns>
+<allen><quote>Goodnight,
+Gracie.</quote></allen>
+<applause/>
+---    
+
+
+*** Ruby Code Samples
+
+****   Getting an XML Element resource
+
+---
+require 'rubygems'
+require 'open-uri'
+require 'rexml/document'
+
+
+response = open('http://localhost:8080/ehcache/rest/sampleCache2/2')
+xml = response.read
+puts xml
+---
+
+    outputs
+
+---
+<?xml version="1.0"?>
+<oldjoke>
+<burns>Say <quote>goodnight</quote>,
+Gracie.</burns>
+<allen><quote>Goodnight,
+Gracie.</quote></allen>
+<applause/>
+</oldjoke>
+---
+
+    This is the end of ruby code samples
+
+
+*** Python Code Samples
+
+****   Getting an XML Element resource
+
+---
+import urllib2
+
+f = urllib2.urlopen('http://localhost:8080/ehcache/rest/sampleCache2/2')
+print f.read()
+---
+
+    outputs
+
+---
+<?xml version="1.0"?>
+<oldjoke>
+<burns>Say <quote>goodnight</quote>,
+Gracie.</burns>
+<allen><quote>Goodnight,
+Gracie.</quote></allen>
+<applause/>
+</oldjoke>
+---
+
+
 
 *   Requirements
 
@@ -396,3 +504,5 @@
     unix    - java -jar ../lib/ehcache-standalone-server-0.1.jar 8080 ../war
     windows - java -jar ..\lib\ehcache-standalone-server-0.1.jar 8080 ..\war
 ---
+
+
