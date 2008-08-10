@@ -1,10 +1,5 @@
 {CacheManager Event Listeners}
 
-      * {{{#Configuration}Configuration}}
-
-      * {{{Implementing a CacheManagerEventListenerFactory and CacheManagerEventListener}Implementing a CacheManagerEventListenerFactory and CacheManagerEventListener}}
-
-
     CacheManager event listeners allow implementers to register callback
     methods that will be executed when a <<<CacheManager>>> event occurs. Cache listeners
     implement the CacheManagerEventListener interface.

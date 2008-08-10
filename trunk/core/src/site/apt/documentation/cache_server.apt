@@ -3,98 +3,11 @@
 *   Introduction
 
     Ehcache now comes with a Cache Server, available as a WAR for most web containers, or as a standalone server.
-    The Cache Server has two apis: RESTful resource oriented, and SOAP. Both support clients in any programming
+    The Cache Server has two APIs: RESTful resource oriented, and SOAP. Both support clients in any programming
     language.
 
     A Note on terminology: Leonard Richardson and Sam Ruby have done a great job of clarifying the different Web Services architectures and
     distinguishing them from each other. We use their taxonomy in describing web services. See {http://www.oreilly.com/catalog/9780596529260/}.
-
-
-*   W3C Web Services
-
-    The W3C ({http://www.w3.org/} is a standards body that defines Web Services as
-
----
-    The World Wide Web is more and more used for application to application communication.
-    The programmatic interfaces made available are referred to as Web services.
----
-
-    They provide a set of recommendations for achieving this. See {http://www.w3.org/2002/ws/}.
-
-    An interoperability organisation, WS-I {http://www.ws-i.org/}, seeks to achieve interoperabilty between
-    W3C Web Services. The W3C specifications for SOAP and WSDL are required to meet the WS-I definition.
-
-    Ehcache is using Glassfish's libraries to provide it's W3C web services. The project known as Metro
-    follows the WS-I definition.
-
-    Finally, OASIS ({http://oasis-open.org}), defines a Web Services Security specification for SOAP: WS-Security.
-    The current version is 1.1. It provides three main security mechanisms: ability to send security tokens as part of a 
-    message, message integrity, and message confidentiality.
-
-    Ehcache's W3C Web Services support the stricter WS-I definition and use the SOAP and WSDL specfications.
-
-    Specifically:
-
-    * The method of operation is in the entity-body of the SOAP envelope and a HTTP header. POST is always
-      used as the HTTP method.
-
-    * The scoping information, used to identify the resource to perform the method on, is contained in the
-      SOAP entity-body. The URI path is always the same for a given Web Service - it is the service "endpoint".
-
-    * The Web Service is described by and exposes a {WSDL} (Web Services Description Language) file. It contains the methods, their arguments and what data
-      types are used.
-
-    * The {WS-Security} SOAP extensions are supported
-
-
-** W3C Web Services API
-
-    The Ehcache RESTFul Web Services API exposes the singleton CacheManager, which typically has been configured
-    in ehcache.xml or an IoC container. Multiple CacheManagers are not supported.
-
-    The API definition is as follows:
-
-    * WSDL - {{{http://ehcache.sf.net/wsdl/EhcacheWebServiceEndpointService.wsdl}EhcacheWebServiceEndpointService.wsdl}}
-
-    * Types - {{{http://ehcache.sf.net/wsdl/EhcacheWebServiceEndpointService_schema1.xsd}EhcacheWebServiceEndpointService_schema1.xsd}}
-
-
-**  Security
-
-    By default no security is configured. Because it is simply a Servlet 2.5 web application, it can be secured in all the
-    usual ways by configuration in the web.xml.
-
-    In addition the cache server supports the use of XWSS 3.0 to secure the Web Service. See {{https://xwss.dev.java.net/}}. All required libraries
-    are packaged in the war for XWSS 3.0.
-
-    A sample, commented out server_security_config.xml is provided in the WEB-INF directory. XWSS automatically
-    looks for this configuration file.
-
-    A simple example, based on an XWSS example, <<<net.sf.ehcache.server.soap.SecurityEnvironmentHandler>>>, which looks for a
-    password in a System property for a given username is included. This is not recommended for production use
-    but is handy when you are getting started with XWSS.
-
-    To use XWSS:
-
-    Add configuration in accordance with XWSS to the server_security_config.xml file. Create a
-    class which implements the <<<CallbackHandler>>> interface and provide its fully qualified path
-    in the <<<SecurityEnvironmentHandler>>> element.
-
-    The integration test <<<EhcacheWebServiceEndpoint>>> test shows how to use the XWSS client side.
-    On the client side, configuration must be provided in a file called <<<client_security_config.xml>>>
-    must be in the root of the classpath.
-
-    To add client credentials into the SOAP request do:
-
----
-    cacheService = new EhcacheWebServiceEndpointService().getEhcacheWebServiceEndpointPort();
-    //add security credentials
-    ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "Ron");
-    ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "noR");
-    String result = cacheService.ping();
----
-
-
 
 *   RESTful Web Services
 
@@ -124,7 +37,8 @@
     The Ehcache RESTFul Web Services API exposes the singleton CacheManager, which typically has been configured
     in ehcache.xml or an IoC container. Multiple CacheManagers are not supported.
 
-
+    Resources are identified using a URI template. The value in parentheses should be substituted with a literal
+    to specify a resource.
 
 ** CacheManager Resource Operations
 
@@ -151,7 +65,9 @@
 
 *** GET /\{cache\}
 
-    Gets a cache. Returns the 404 response code if the cache is not found.
+    Gets a cache.
+
+    A 200 response code means the cache exists. A 404 means it does not.
 
 *** {PUT} /\{cache\}
 
@@ -173,7 +89,7 @@
 
 *** GET /\{cache\}/\{element\}
 
-    Gets the element.
+    Gets the element value.
 
 *** HEAD /\{cache\}/\{element\}
 
@@ -181,7 +97,7 @@
 
 *** {PUT} /\{cache\}/\{element\}
 
-    Puts and element into the Cache.
+    Puts an element into the Cache.
 
 *** {DELETE} / \{cache\}/\{element\}
 
@@ -202,7 +118,7 @@
 
     Some common MIME Types which are expected to be used by clients are:
 
-*-----*------*
+*-----+------+
  text/plain | Plain text
 *-----*------*
  text/xml | Extensible Markup Language. Defined in RFC 3023
@@ -232,11 +148,11 @@
 
     This example shows how calling OPTIONS causes ehcache server to respond with the WADL for that resource
 
-    code:
 ---
 curl --request OPTIONS http://localhost:8080/ehcache/rest/sampleCache2/2
 ---
-    response:
+    The server responds with:
+    
 ---
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <application xmlns="http://research.sun.com/wadl/2006/10">
@@ -251,13 +167,11 @@ curl --request OPTIONS http://localhost:8080/ehcache/rest/sampleCache2/2
 
 **** HEAD
 
-    This example shows how to call HEAD
-
 ---
 curl --head  http://localhost:8080/ehcache/rest/sampleCache2/2
 ---
 
-    response:
+  The server responds with:
 
 ---
 HTTP/1.1 200 OK
@@ -272,13 +186,11 @@ Date: Sun, 27 Jul 2008 08:17:09 GMT
 
 **** GET
 
-    Shows to how get an element using curl
-
 ---
 curl http://localhost:8080/ehcache/rest/sampleCache2/2
 ---
 
-    response
+   The server responds with:
 
 ---
 <?xml version="1.0"?>
@@ -344,6 +256,90 @@ Gracie.</burns>
 Gracie.</quote></allen>
 <applause/>
 </oldjoke>
+---
+
+*   W3C (SOAP) Web Services
+
+    The W3C ({http://www.w3.org/} is a standards body that defines Web Services as
+
+---
+The World Wide Web is more and more used for application to application communication.
+The programmatic interfaces made available are referred to as Web services.
+---
+
+    They provide a set of recommendations for achieving this. See {http://www.w3.org/2002/ws/}.
+
+    An interoperability organisation, WS-I {http://www.ws-i.org/}, seeks to achieve interoperabilty between
+    W3C Web Services. The W3C specifications for SOAP and WSDL are required to meet the WS-I definition.
+
+    Ehcache is using Glassfish's libraries to provide it's W3C web services. The project known as Metro
+    follows the WS-I definition.
+
+    Finally, OASIS ({http://oasis-open.org}), defines a Web Services Security specification for SOAP: WS-Security.
+    The current version is 1.1. It provides three main security mechanisms: ability to send security tokens as part of a
+    message, message integrity, and message confidentiality.
+
+    Ehcache's W3C Web Services support the stricter WS-I definition and use the SOAP and WSDL specfications.
+
+    Specifically:
+
+    * The method of operation is in the entity-body of the SOAP envelope and a HTTP header. POST is always
+      used as the HTTP method.
+
+    * The scoping information, used to identify the resource to perform the method on, is contained in the
+      SOAP entity-body. The URI path is always the same for a given Web Service - it is the service "endpoint".
+
+    * The Web Service is described by and exposes a {WSDL} (Web Services Description Language) file. It contains the methods, their arguments and what data
+      types are used.
+
+    * The {WS-Security} SOAP extensions are supported
+
+
+** W3C Web Services API
+
+    The Ehcache RESTFul Web Services API exposes the singleton CacheManager, which typically has been configured
+    in ehcache.xml or an IoC container. Multiple CacheManagers are not supported.
+
+    The API definition is as follows:
+
+    * WSDL - {{{http://ehcache.sf.net/wsdl/EhcacheWebServiceEndpointService.wsdl}EhcacheWebServiceEndpointService.wsdl}}
+
+    * Types - {{{http://ehcache.sf.net/wsdl/EhcacheWebServiceEndpointService_schema1.xsd}EhcacheWebServiceEndpointService_schema1.xsd}}
+
+
+**  Security
+
+    By default no security is configured. Because it is simply a Servlet 2.5 web application, it can be secured in all the
+    usual ways by configuration in the web.xml.
+
+    In addition the cache server supports the use of XWSS 3.0 to secure the Web Service. See {{https://xwss.dev.java.net/}}. All required libraries
+    are packaged in the war for XWSS 3.0.
+
+    A sample, commented out server_security_config.xml is provided in the WEB-INF directory. XWSS automatically
+    looks for this configuration file.
+
+    A simple example, based on an XWSS example, <<<net.sf.ehcache.server.soap.SecurityEnvironmentHandler>>>, which looks for a
+    password in a System property for a given username is included. This is not recommended for production use
+    but is handy when you are getting started with XWSS.
+
+    To use XWSS:
+
+    Add configuration in accordance with XWSS to the server_security_config.xml file. Create a
+    class which implements the <<<CallbackHandler>>> interface and provide its fully qualified path
+    in the <<<SecurityEnvironmentHandler>>> element.
+
+    The integration test <<<EhcacheWebServiceEndpoint>>> test shows how to use the XWSS client side.
+    On the client side, configuration must be provided in a file called <<<client_security_config.xml>>>
+    must be in the root of the classpath.
+
+    To add client credentials into the SOAP request do:
+
+---
+    cacheService = new EhcacheWebServiceEndpointService().getEhcacheWebServiceEndpointPort();
+    //add security credentials
+    ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "Ron");
+    ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "noR");
+    String result = cacheService.ping();
 ---
 
 

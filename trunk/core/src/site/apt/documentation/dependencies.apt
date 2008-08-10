@@ -23,6 +23,8 @@ Java Requirements, Dependencies and Maven POM snippet
 
     It is included in the tarball and the maven dependencies.
 
+    This dependency will be removed in favour of the built-in <<<java.util.logging>>> for new versions of ehcache when the minimum
+    Java version for ehcache is JDK1.5, which is expected for Ehcache 1.6.
 
 ** Backport Concurrent
 
@@ -31,7 +33,7 @@ Java Requirements, Dependencies and Maven POM snippet
     be faster than the generic one. See {{http://dcl.mathcs.emory.edu/util/backport-util-concurrent}}.
 
     This dependency will be removed in favour of the built-in <<<java.util.concurrent>>> for new versions of ehcache when the minimum
-    Java version for ehcache is JDK1.5, which is dependent on Java usage. 2009 is the likely time. 
+    Java version for ehcache is JDK1.5, which is expected for Ehcache 1.6.
     
 * Optional Dependencies
 
@@ -59,7 +61,7 @@ Java Requirements, Dependencies and Maven POM snippet
 
      Ehcache releases are placed in the central Maven repository.
 
-     The Maven snippet for ehcache 1.4.0, for example, is:
+     The Maven snippet for ehcache 1.5.0, for example, is:
 
 --------
      <dependency>

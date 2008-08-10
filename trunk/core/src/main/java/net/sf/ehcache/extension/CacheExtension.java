@@ -23,20 +23,22 @@ import net.sf.ehcache.Status;
 /**
  * This is a general purpose mechanism to allow generic extensions to a Cache.
  * <p/>
- * CacheExtensions are tied into the Cache lifecycle. For that reason this interface has the lifecycle
- * methods.
+ * CacheExtensions are tied into the Cache lifecycle. For that reason this interface has the
+ *  lifecycle methods.
  * <p/>
- * CacheExtensions are created using the CacheExtensionFactory which has a <code>createCacheCacheExtension()</code>
- * method which takes as a parameter a Cache and properties. It can thus call back into any public method on Cache,
- * including, of course, the load methods.
+ * CacheExtensions are created using the CacheExtensionFactory which has a
+ * <code>createCacheCacheExtension()</code> method which takes as a parameter a Cache and
+ * properties. It can thus call back into any public method on Cache, including, of course,
+ *  the load methods.
  * <p/>
- * CacheExtensions are suitable for timing services, where you want to create a timer to perform
- * cache operations. The other way of adding Cache behaviour is to decorate a cache. See
- * {@link net.sf.ehcache.constructs.blocking.BlockingCache} for an example of how to do this.
+ * CacheExtensions are suitable for timing services, where you want to create a timer to
+ * perform cache operations. The other way of adding Cache behaviour is to decorate a cache.
+ * See {@link net.sf.ehcache.constructs.blocking.BlockingCache} for an example of how to do
+ * this.
  * <p/>
- * Because a CacheExtension holds a reference to a Cache, the CacheExtension can do things such as registering a
- * CacheEventListener or even a CacheManagerEventListener, all from within a CacheExtension, creating more 
- * opportunities for customisation.
+ * Because a CacheExtension holds a reference to a Cache, the CacheExtension can do things
+ * such as registering a CacheEventListener or even a CacheManagerEventListener, all from
+ * within a CacheExtension, creating more opportunities for customisation.
  *
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
@@ -46,8 +48,8 @@ public interface CacheExtension {
     /**
      * Notifies providers to initialise themselves.
      * <p/>
-     * This method is called during the Cache's initialise method after it has changed it's status to alive.
-     * Cache operations are legal in this method.
+     * This method is called during the Cache's initialise method after it has changed it's
+     * status to alive. Cache operations are legal in this method.
      *
      * @throws CacheException
      */
@@ -57,8 +59,8 @@ public interface CacheExtension {
      * Providers may be doing all sorts of exotic things and need to be able to clean up on
      * dispose.
      * <p/>
-     * Cache operations are illegal when this method is called. The cache itself is partly disposed when this method
-     * is called.
+     * Cache operations are illegal when this method is called. The cache itself is partly
+     * disposed when this method is called.
      *
      * @throws CacheException
      */
@@ -68,8 +70,8 @@ public interface CacheExtension {
      * Creates a clone of this extension. This method will only be called by ehcache before a
      * cache is initialized.
      * <p/>
-     * Implementations should throw CloneNotSupportedException if they do not support clone but that
-     * will stop them from being used with defaultCache.
+     * Implementations should throw CloneNotSupportedException if they do not support clone
+     * but that will stop them from being used with defaultCache.
      *
      * @return a clone
      * @throws CloneNotSupportedException if the extension could not be cloned.

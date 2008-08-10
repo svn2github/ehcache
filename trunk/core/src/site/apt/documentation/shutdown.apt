@@ -1,6 +1,35 @@
 {Shutting Down Ehcache}
 
-*   The shutdown hook
+    If you are using persistent disk stores, or distributed caching, care should be taken to shutdown ehcache.
+
+    Note that Hibernate automatically shuts down its ehcache <<<CacheManager>>>.
+
+    The recommended way to shutdown the Ehcache is:
+
+    * to call <<<CacheManager.shutdown()>>>
+
+    * in a web app, register the Ehcache <<<ShutdownListener>>>
+
+    Though not recommended, ehcache also lets you register a JVM shutdown hook.
+
+
+*   ServletContextListener
+
+    Ehcache proivdes a ServletContextListener that shutsdown CacheManager. Use this when you want to shutdown
+    ehcache automatically when the web application is shutdown.
+
+    To receive notification events, this class must be configured in the deployment
+    descriptor for the web application.
+
+    To do so, add the following to web.xml in your web application:
+
+---
+     <listener>
+          <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
+     </listener>
+---
+
+*   The Shutdown Hook
 
     Ehcache CacheManager can optionally register a shutdown hook.
 
@@ -10,7 +39,7 @@
     it is not already shut down.
 
 
-*   When to use the shutdown hook
+**   When to use the shutdown hook
 
     Use the shutdown hook where:
 
@@ -19,8 +48,12 @@
 
     *   CacheManager is not already being shutdown by a framework you are using or by your application.
 
+    Having said that, shutdown hooks are inherently dangerous. The JVM is shutting down, so sometimes
+     things that can never be null are. Ehcache guards against as many of these as it can, but the shutdown
+     hook should be the last option to use.
 
-*   What the shutdown hook does
+
+**   What the shutdown hook does
 
     The shutdown hook is on CacheManager. It simply calls the shutdown method.
 
@@ -44,7 +77,7 @@
 
 
 
-*   When a shutdown hook will run, and when it will not
+**   When a shutdown hook will run, and when it will not
 
     The shutdown hook runs when:
 
@@ -63,11 +96,14 @@
       * A <<<TerminateProcess>>> call is sent to the process on Windows systems.
 
 
-*   If ehcache is shutdown dirty
+*   Dirty Shutdown
 
-    If ehcache is shutdown dirty, either because no application shuts down ehcache and there is not shutdown hook,
-    or there is a shutdown hook but the JVM terminated in such a way that the shutdown hooks were not run then any
-    persistent disk stores will be corrupted. They will be deleted, with a log message, on the next startup.
+    If ehcache is shutdown dirty then any persistent disk stores will be corrupted. They will be deleted, with a log message, on the next startup.
+
+    Replications waiting to happen to other nodes in a distributed cache will also not get written.
+
+
+
 
     
 

@@ -1,4 +1,4 @@
-Logging And Debugging
+{Logging And Debugging}
 
 
 * {Commons Logging}
@@ -69,10 +69,9 @@ Logging And Debugging
 ---
 
 
-* Logging Philosophy
+* Recommended Logging Levels
 
-    Ehcache seeks to trade off informing production support developers or important messages
-    and cluttering the log.
+    Ehcache seeks to trade off informing production support developers or important messages and cluttering the log.
 
     {ERROR} (JDK logging SEVERE_ messages should not occur in normal production and indicate that action should be taken.
 
@@ -84,3 +83,4 @@ Logging And Debugging
 
     Setting the logging level to DEBUG (JDK level FINE) should provide more information on the source of any problems.
     Many logging systems enable a logging level change to be made without restarting the application.
+

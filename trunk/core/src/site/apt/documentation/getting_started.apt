@@ -20,7 +20,7 @@ Getting Started
 
       * Optionally, configure an appropriate {{{./logging.html}logging}} level.
 
-      See {{{../samples.html}Code Samples}} for more information on direct interaction with ehcache.
+      See the {{{../samples.html}Code Samples}} chapter for more information on direct interaction with ehcache.
 
 * Hibernate
 
@@ -28,7 +28,7 @@ Getting Started
 
     * Create caches in ehcache.xml.
 
-    See {{{./hibernate.html}Hibernate Caching}} for more information.
+    See the {{{./hibernate.html}Hibernate Caching}} chapter for more information.
 
 * Java EE Servlet Caching
 
@@ -44,7 +44,24 @@ Getting Started
     * Configure the web.xml. Declare the filters created above and create filter mapping associating the filter with
     a URL.
 
-    See {{{./j2ee_servlet_caching.html}Java EE Servlet Caching}} for more information.
+    See the {{{./j2ee_servlet_caching.html}Java EE Servlet Caching}} chapter for more information.
+
+* RESTful and SOAP Caching with the Cache Server
+
+    * Download the standalone cache server from {http://sourceforge.net/project/showfiles.php?group_id=93232}}
+
+    * cd to the bin directory
+
+    * Type <<<startup.sh>>> to start the server with the log in the foreground.
+
+      By default it will listen on port 8080,
+      will have both RESTful and SOAP web services enabled, and will use a sample Ehcache configuration from the WAR module.
+
+    * See the code samples in the {{{./cache_server.html}Cache Server}} chapter. You can use Java or any other programming language
+      to the use the Cache Server.
+
+    See the {{{./cache_server.html}Cache Server}} chapter for more information.
+
 
 *  JCache style caching
 

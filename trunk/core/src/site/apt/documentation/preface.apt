@@ -5,12 +5,11 @@ Preface
     the features that were repeatedly asked for, and make sense for a Cache, have been added.
 
     Ehcache is now used for Hibernate caching, data access object caching, security credential caching, web caching,
-    application persistence and distributed caching. The biggest issue faced by Ehcache users at the time of writing is
-    understanding when and how to use these features.
+    SOAP and RESTful server caching, application persistence and distributed caching. 
 
 * Version
 
-   This book is for Ehcache version 1.5.0.
+   This book is for Ehcache version 1.5.
 
 
 * Audience
@@ -24,9 +23,6 @@ Preface
     distributed caching and Java EE caching, are alternatives to be considered along with other ways of solving those problems.
     This book discusses the trade-offs in ehcache's approach to help make a decision about appropriateness of use.
 
-* Printing
-
-    The PDF is designed to be printed, with blank pages deliberately left to maintiain book conventions.
 
 * Acknowledgements
 

@@ -27,13 +27,15 @@ Ehcache 1.5.0 User Guide
 
     * {{{./cache_decorators.html}Cache Decorators}} 
 
-    * {{{./j2ee_servlet_caching.html}Java EE Servlet Caching}} 
+    * {{{./jee_servlet_caching.html}Java EE Servlet Caching}} 
 
     * {{{./distributed_caching.html}Distributed Caching}}
 
+    * {{{./distributed_caching_with_rmi.html}Distributed Caching}}
+
     * {{{./distributed_caching_with_jgroups.html}Distributed Caching With JGroups}}
 
-    * {{{./distributed_design.html}Distributed Design}}
+    * {{{./distributed_caching_with_terracotta.html}Distributed Caching With Terracotta}}
 
     * {{{./shutdown.html}Shutting Down Ehcache}}
 
@@ -57,7 +59,7 @@ Ehcache 1.5.0 User Guide
 
     * {{{./hibernate.html}Hibernate Caching}}
 
-    * {{{./constructs_design.html}Constructs Design}}
+    * {{{./constructs.html}Constructs Package}}
 
     * {{{./hibernate.html}Using ehcache with Hibernate}}
 

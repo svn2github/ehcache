@@ -84,9 +84,10 @@ public abstract class CacheExceptionHandlerFactory {
  * <ul>
  * <li>{@link IllegalStateException} if the cache is not
  * {@link net.sf.ehcache.Status#STATUS_ALIVE}
- * <li>{@link IllegalArgumentException} if an attempt is made to put a null element into a cache
- * <li>{@link net.sf.ehcache.distribution.RemoteCacheException} if an issue occurs in remote
- * synchronous replication
+ * <li>{@link IllegalArgumentException} if an attempt is made to put a null
+ * element into a cache
+ * <li>{@link net.sf.ehcache.distribution.RemoteCacheException} if an issue occurs
+ *  in remote synchronous replication
  * <li>
  * <li>
  * </ul>

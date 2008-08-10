@@ -735,8 +735,6 @@
         </exec>
         <move file="${build.dir}/book/TempEhcacheUserGuide.pdf" tofile="${build.dir}/book/EhcacheUserGuide.pdf"/>
 
-        <mkdir dir="${build.dir}/site"/>
-        <!--<copy file="${build.dir}/book/EhcacheUserGuide.pdf" todir="${build.dir}/site"/>-->
     </target>
 
 
@@ -796,10 +794,11 @@
                 <arg value="cache_decorators.apt"/>
                 <arg value="shutdown.apt"/>
                 <arg value="jee_servlet_caching.apt"/>
-                <arg value="distributed_design.apt"/>
                 <arg value="distributed_caching.apt"/>
+                <arg value="distributed_caching_with_rmi.apt"/>
                 <arg value="distributed_caching_with_jgroups.apt"/>
-                <arg value="constructs_design.apt"/>
+                <arg value="distributed_caching_with_terracotta.apt"/>
+                <arg value="constructs.apt"/>
                 <arg value="cachemanager_event_listeners.apt"/>
                 <arg value="cache_loaders.apt"/>
                 <arg value="cache_event_listeners.apt"/>

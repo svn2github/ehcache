@@ -8,10 +8,10 @@
     
     See instructions below or the ehcache schema (ehcache.xsd) on how to configure.
 
-    System property tokens can be specified in this file which are replaced when the configuration is loaded.
-    For example multicastGroupPort=${multicastGroupPort} can be replaced with the System property either
-    from an environment variable or a system property specified with a command line switch such as
-     -DmulticastGroupPort=4446.
+    System property tokens can be specified in this file which are replaced when the configuration
+    is loaded. For example multicastGroupPort=${multicastGroupPort} can be replaced with the
+    System property either from an environment variable or a system property specified with a
+    command line switch such as -DmulticastGroupPort=4446.
 
     DiskStore configuration
     =======================

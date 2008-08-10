@@ -33,6 +33,10 @@
 
  *  {{{#Registering CacheStatistics in an MBeanServer}Registering CacheStatistics in an MBeanServer}}
 
+ *  {{JCache Examples}}
+
+ *  {{Cache Server Examples}}
+
  * {{{#Browse the JUnit Tests}Browse the JUnit Tests}}
 
 
@@ -360,3 +364,12 @@ public Cache(
 
  A link to {{{xref-test/index.html}browsable unit test source code}} for the major ehcache classes is given per section. The unit tests are also
    in the src.zip in the ehcache tarball.
+
+
+ *  {{JCache Examples}}
+
+    See the JSR107 Chapter.
+
+ *  {{Cache Server Examples}}
+
+    See the Cache Server Chapter.

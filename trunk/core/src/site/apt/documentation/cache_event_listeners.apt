@@ -183,13 +183,13 @@ public interface CacheEventListener extends Cloneable {
      *
      * @param cache   the cache emitting the notification
      * @param element the element that has just expired
-     *                <p/>
-     *                Deadlock Warning: expiry will often come from the <code>DiskStore</code>
-     *                expiry thread. It holds a lock to the DiskStorea the time the
-     *                notification is sent. If the implementation of this method calls into a
-     *                synchronized <code>Cache</code> method and that subsequently calls into
-     *                DiskStore a deadlock will result. Accordingly implementers of this method
-     *                should not call back into Cache.
+     *    <p/>
+     *    Deadlock Warning: expiry will often come from the <code>DiskStore</code>
+     *    expiry thread. It holds a lock to the DiskStorea the time the
+     *    notification is sent. If the implementation of this method calls into a
+     *    synchronized <code>Cache</code> method and that subsequently calls into
+     *    DiskStore a deadlock will result. Accordingly implementers of this method
+     *    should not call back into Cache.
      */
     void notifyElementExpired(final Ehcache cache, final Element element);
 
