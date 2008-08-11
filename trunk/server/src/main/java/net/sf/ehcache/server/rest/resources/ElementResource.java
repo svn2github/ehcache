@@ -169,7 +169,13 @@ public class ElementResource {
 
         URI uri = uriInfo.getAbsolutePath();
         MediaType mimeType = headers.getMediaType();
-        Element localElement = new Element(data, uri.toString(), mimeType.toString());
+        String mimeTypeString = null;
+        if (mimeType == null) {
+            mimeTypeString = "application/octet-stream";
+        } else {
+            mimeTypeString = mimeType.toString();
+        }
+        Element localElement = new Element(data, uri.toString(), mimeTypeString);
 
         Response response;
 

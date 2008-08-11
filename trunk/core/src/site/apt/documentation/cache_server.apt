@@ -7,7 +7,7 @@
     language.
 
     A Note on terminology: Leonard Richardson and Sam Ruby have done a great job of clarifying the different Web Services architectures and
-    distinguishing them from each other. We use their taxonomy in describing web services. See {http://www.oreilly.com/catalog/9780596529260/}.
+    distinguishing them from each other. We use their taxonomy in describing web services. See {{http://www.oreilly.com/catalog/9780596529260/}}.
 
 *   RESTful Web Services
 
@@ -40,6 +40,8 @@
     Resources are identified using a URI template. The value in parentheses should be substituted with a literal
     to specify a resource.
 
+    Response codes and response headers strictly follow HTTP conventions.
+
 ** CacheManager Resource Operations
 
 *** OPTIONS /\{cache\}}
@@ -49,7 +51,6 @@
 *** {GET} /
 
     Lists the Caches in the CacheManager.
-
 
 ** Cache Resource Operations
 
@@ -61,13 +62,9 @@
 
     Retrieves the same metadata a GET would receive returned as HTTP headers. There is no body returned.
 
-    A 200 response code means the cache exists. A 404 means it does not.
-
 *** GET /\{cache\}
 
     Gets a cache.
-
-    A 200 response code means the cache exists. A 404 means it does not.
 
 *** {PUT} /\{cache\}
 
@@ -142,7 +139,7 @@
 
 *** Curl Code Samples
 
-    These samples use the populare curl command line utility.
+    These samples use the popular curl command line utility.
 
 **** OPTIONS
 
@@ -184,6 +181,14 @@ Content-Length: 157
 Date: Sun, 27 Jul 2008 08:17:09 GMT
 ---
 
+**** PUT
+
+---
+echo "Hello World" |  curl -S -T -  http://localhost:8080/ehcache/rest/sampleCache2/3
+---
+
+    The server will put <<<Hello World>>> into <<<sampleCache2>>> using key <<<3>>>.
+
 **** GET
 
 ---
@@ -205,7 +210,7 @@ Gracie.</quote></allen>
 
 *** Ruby Code Samples
 
-****   Getting an XML Element resource
+**** GET
 
 ---
 require 'rubygems'
@@ -218,7 +223,7 @@ xml = response.read
 puts xml
 ---
 
-    outputs
+    The server responds with:
 
 ---
 <?xml version="1.0"?>
@@ -231,12 +236,10 @@ Gracie.</quote></allen>
 </oldjoke>
 ---
 
-    This is the end of ruby code samples
-
 
 *** Python Code Samples
 
-****   Getting an XML Element resource
+**** GET
 
 ---
 import urllib2
@@ -245,7 +248,7 @@ f = urllib2.urlopen('http://localhost:8080/ehcache/rest/sampleCache2/2')
 print f.read()
 ---
 
-    outputs
+    The server responds with:
 
 ---
 <?xml version="1.0"?>
