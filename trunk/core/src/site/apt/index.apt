@@ -16,6 +16,14 @@ Welcome to ehcache
 
 * Latest News
 
+** 11 August 2008: Ehcache 1.5 Book released on Lulu.com
+
+   The new edition of the {{{http://www.lulu.com/content/3553390}Ehcache Book}},  has been released on Lulu.com. In particular
+   the book covers the new RESTful and SOAP Cache Server.
+
+   It is available in downloadable PDF or print versions.
+
+
 ** 17 July 2008: ehcache-standalone-server 0.1 released
 
    The standalone server provides a ready to go cache server out of the box, using the WAR from the ehcache-server module. Unix-based

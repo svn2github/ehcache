@@ -5,12 +5,16 @@
  Date
  ------
 
-
-
 News
 
+* 11 August 2008: Ehcache 1.5 Book released on Lulu.com
 
-** 17 July 2008: ehcache-standalone-server 0.1 released
+   The new edition of the {{{http://www.lulu.com/content/3553390}Ehcache Book}},  has been released on Lulu.com. In particular
+   the book covers the new RESTful and SOAP Cache Server.
+
+   It is available in downloadable PDF or print versions.
+
+* 17 July 2008: ehcache-standalone-server 0.1 released
 
    The standalone server provides a ready to go cache server out of the box, using the WAR from the ehcache-server module. Unix-based
     and Windows servers are supported.
@@ -18,7 +22,7 @@ News
    Start it with <<<java -jar ../lib/ehcache-standalone-server-0.1.jar 8080 ../war>>>
    or the jsvc wrapper with <<<daemon.sh start>>>.
 
-** 12 July 2008: ehcache-server-0.1 released
+* 12 July 2008: ehcache-server-0.1 released
 
    This is the first version of an ehcache W3C Web Services server, packaged as a WAR. This version is made available for testing.
    See the {{{http://ehcache.sourceforge.net/documentation/cache_server.html}documentation}}.
@@ -26,7 +30,7 @@ News
    Two APIs are supported: A soap API specified in {{{http://ehcache.sf.net/wsdl/EhcacheWebServiceEndpointService.wsdl}EhcacheWebServiceEndpointService.wsdl}}
    and a RESTful, resource oriented API. This release provides a feature-complete soap API. The RESTful API is not yet feature complete.
 
-** 12 July 2008: ehcache-1.5.0 released
+* 12 July 2008: ehcache-1.5.0 released
 
    Ehcache 1.5.0 provides a couple of fixes to changes made in beta1. If you are testing 1.5 please use this version.
 
