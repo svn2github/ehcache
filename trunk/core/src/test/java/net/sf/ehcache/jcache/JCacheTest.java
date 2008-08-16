@@ -16,7 +16,7 @@
 
 package net.sf.ehcache.jcache;
 
-import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutionException;
 import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
 import net.sf.ehcache.loader.CountingCacheLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;

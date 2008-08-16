@@ -16,11 +16,6 @@
 
 package net.sf.ehcache;
 
-import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException;
-import edu.emory.mathcs.backport.java.util.concurrent.Future;
-import edu.emory.mathcs.backport.java.util.concurrent.LinkedBlockingQueue;
-import edu.emory.mathcs.backport.java.util.concurrent.ThreadPoolExecutor;
-import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
@@ -51,6 +46,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Future;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -119,7 +119,7 @@ public class Cache implements Ehcache {
 
     private static final int EXECUTOR_KEEP_ALIVE_TIME = 60000;
     private static final int EXECUTOR_MAXIMUM_POOL_SIZE = 10;
-    private static final int EXECUTOR_CORE_POOL_SIZE = 0;
+    private static final int EXECUTOR_CORE_POOL_SIZE = 1;
 
     static {
         try {
@@ -966,9 +966,9 @@ public class Cache implements Ehcache {
                     }
                 }
 
-            } catch (ExecutionException e) {
-                throw new CacheException(e.getMessage() + " for key " + key, e);
             } catch (InterruptedException e) {
+                throw new CacheException(e.getMessage() + " for key " + key, e);
+            } catch (ExecutionException e) {
                 throw new CacheException(e.getMessage() + " for key " + key, e);
             }
         } else {
@@ -2398,7 +2398,7 @@ public class Cache implements Ehcache {
      * @return a Future which can be used to monitor execution
      */
     Future asynchronousLoadAll(final Collection keys, final Object argument) {
-        Future future = getExecutorService().submit(new Runnable() {
+        java.util.concurrent.Future future = getExecutorService().submit(new Runnable() {
             /**
              * Calls the CacheLoader and puts the result in the Cache
              */
@@ -2438,6 +2438,7 @@ public class Cache implements Ehcache {
     ThreadPoolExecutor getExecutorService() {
         if (executorService == null) {
             synchronized (this) {
+                //0, 10, 60000, ?, Integer.MAXVALUE
                 executorService = new ThreadPoolExecutor(EXECUTOR_CORE_POOL_SIZE, EXECUTOR_MAXIMUM_POOL_SIZE,
                         EXECUTOR_KEEP_ALIVE_TIME, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
             }

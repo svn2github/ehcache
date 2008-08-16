@@ -16,9 +16,9 @@
 
 package net.sf.ehcache;
 
-import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException;
-import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
-import edu.emory.mathcs.backport.java.util.concurrent.Future;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy;
@@ -26,7 +26,6 @@ import net.sf.ehcache.loader.CountingCacheLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.jsr107cache.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -1158,6 +1157,7 @@ public class CacheTest extends AbstractCacheTest {
     public void testFlushWhenOverflowToDisk() throws Exception {
         Cache cache = new Cache("testFlushWhenOverflowToDisk", 50, true, false, 100, 200, true, 120);
         manager.addCache(cache);
+//        cache.removeAll();
 
         assertEquals(0, cache.getMemoryStoreSize());
         assertEquals(0, cache.getDiskStoreSize());
