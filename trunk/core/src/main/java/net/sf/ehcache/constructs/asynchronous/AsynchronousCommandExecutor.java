@@ -28,8 +28,8 @@ import java.rmi.dgc.VMID;
 import java.util.Date;
 import java.util.Stack;
 
-import edu.emory.mathcs.backport.java.util.Queue;
-import edu.emory.mathcs.backport.java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Handles the asynchronous execution of commands. This class contains subtle threading interactions and should
