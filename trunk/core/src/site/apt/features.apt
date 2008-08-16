@@ -206,7 +206,7 @@
 
 ** {Minimal dependencies}
 
-   Commons logging and collections are the only dependencies for most JDKs.
+   The only dependency for core use is the JCACHE API.
 
 * Scalable
 

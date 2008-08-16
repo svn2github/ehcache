@@ -247,7 +247,7 @@ public class StatisticsTest extends AbstractCacheTest {
 
         statistics = cache.getStatistics();
         averageGetTime = statistics.getAverageGetTime();
-        assertTrue(averageGetTime >= .01);
+        assertTrue(averageGetTime >= .000001);
         statistics.clearStatistics();
         statistics = cache.getStatistics();
         assertTrue(0 == statistics.getAverageGetTime());

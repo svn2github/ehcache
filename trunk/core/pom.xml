@@ -10,6 +10,7 @@
     <name>Ehcache Core</name>
     <artifactId>ehcache</artifactId>
     <packaging>jar</packaging>
+    <version>1.6.0-alpha1-SNAPSHOT</version>
 
     <dependencies>
 
@@ -20,10 +21,6 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
         </dependency>
         <dependency>
             <groupId>net.sf.jsr107cache</groupId>
@@ -337,8 +334,8 @@
                     <linkXRef>false</linkXRef>
                     <enableRulesSummary>false</enableRulesSummary>
                     <consoleOutput>true</consoleOutput>
-                    <failsOnError>false</failsOnError>
                     <failsOnViolation>true</failsOnViolation>
+                    <failsOnError>false</failsOnError>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                 </configuration>
             </plugin>

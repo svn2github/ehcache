@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
+        <release version="1.6.0-snapshot" date="2008-12-31" desc="1.6.0 Alpha">
+
+            <!-- Feature Changes  -->
+            <action dev="Greg Luck" type="remove">
+                Removed commons-collections. The LRUHashMap was only being used by early versions of Terracotta integration
+                and is not longer required to support Terracotta.
+            </action>
+
+        </release>
+
+
         <release version="1.5.0" date="2008-07-12" desc="1.5.0 Maintenance release">
             <!--Bug Fixes-->
             <action dev="Greg Luck" type="fix" issue="1977481">

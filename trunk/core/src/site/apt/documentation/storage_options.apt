@@ -34,12 +34,6 @@ Storage Options
      implementation of the memory cache. It directly supports
      obtaining the least recently used element.
 
-     For JDK1.2 and JDK1.3, the LRUMap from Apache Commons is used. It
-     provides similar features to LinkedHashMap.
-
-     The implementation is determined dynamically at runtime. LinkedHashMap
-     is preferred if found in the classpath.
-
      ** Fast
 
      The memory store, being all in memory, is the fastest caching option.

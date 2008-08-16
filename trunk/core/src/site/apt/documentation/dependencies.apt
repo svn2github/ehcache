@@ -44,13 +44,6 @@ Java Requirements, Dependencies and Maven POM snippet
 
     Of course JDK1.5 has it built in.
 
-** Commons collections
-
-    This is optional. Use it only if you are using ehcache with Terracotta. They have a limitation which prevents them from using
-    the built in JDK one.
-
-    It can be turned on using by setting the system property <<<net.sf.ehcache.useLRUMap>>> to true.
-
 ** JGroups
 
     JGroups has a "provided" scope in Maven and is not included in the tar ball.

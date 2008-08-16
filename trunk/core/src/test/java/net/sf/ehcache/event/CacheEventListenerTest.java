@@ -28,6 +28,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Tests the cache listener functionality
  *
@@ -35,6 +38,9 @@ import java.util.List;
  * @version $Id$
  */
 public class CacheEventListenerTest extends AbstractCacheTest {
+
+    protected static final Log LOG = LogFactory.getLog(CacheEventListenerTest.class.getName());
+
 
     /**
      * the cache name we wish to test
@@ -715,27 +721,9 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             final Executable executable = new Executable() {
                 public void execute() throws Exception {
                     try {
-                        for (int i = 0; i < 2; i++) {
-                            Element element = new Element("" + i, new Date());
-                            cache.put(element);
-                        }
-                    } catch (Throwable t) {
-                        LOG.error(t);
-                        fail();
-                    }
-                }
-            };
-            executables.add(executable);
-        }
-
-
-        for (int i = 0; i < 1; i++) {
-            final Executable executable = new Executable() {
-                public void execute() throws Exception {
-                    try {
                         CacheEventListener listener = new TestCacheEventListener();
                         cache.getCacheEventNotificationService().registerListener(listener);
-                        cache.getCacheEventNotificationService().unregisterListener(listener);
+                        assertTrue(cache.getCacheEventNotificationService().unregisterListener(listener));
 
                     } catch (Throwable t) {
                         LOG.error(t);
