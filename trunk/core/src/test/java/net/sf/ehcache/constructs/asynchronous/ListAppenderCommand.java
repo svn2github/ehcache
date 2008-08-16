@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,13 +16,14 @@
 
 package net.sf.ehcache.constructs.asynchronous;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.logging.Logger;
 
 
 /**
@@ -32,7 +33,7 @@ import java.io.Serializable;
  */
 class ListAppenderCommand implements Command {
 
-    private static final Log LOG = LogFactory.getLog(ListAppenderCommand.class.getName());
+    private static final Logger LOG = Logger.getLogger(ListAppenderCommand.class.getName());
 
     private static final int NUMBER_OF_ATTEMPTS = 3;
     private static final int DELAY_IN_SECONDS = 1200;
@@ -58,7 +59,7 @@ class ListAppenderCommand implements Command {
      * @see #getThrowablesToRetryOn() to set {@link Throwable}s that should are expected
      */
     public void execute() throws Throwable {
-        LOG.debug("About to attempt execution");
+        LOG.fine("About to attempt execution");
         checkSerializability(payload);
         Thread.sleep(timeToCompleteInMs);
         if (exceptionOnExecute != null) {

@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,10 +23,12 @@ import javax.management.MBeanServerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.lang.reflect.Method;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 /**
  * Common fields and methods required by most test cases
@@ -51,7 +53,7 @@ public abstract class AbstractCacheTest extends TestCase {
     public static final String TEST_CLASSES_DIR = "target/test-classes/";
 
 
-    protected static final Log LOG = LogFactory.getLog(AbstractCacheTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(AbstractCacheTest.class.getName());
 
     /**
      * name for sample cache 1
@@ -154,7 +156,7 @@ public abstract class AbstractCacheTest extends TestCase {
                     } catch (Throwable t) {
                         // Hang on to any errors
                         errors[0] = t;
-                        LOG.info(t);
+                        LOG.info(t.getMessage());
                     }
                 }
             };
@@ -182,7 +184,7 @@ public abstract class AbstractCacheTest extends TestCase {
             Method method = managementFactoryClass.getMethod("getPlatformMBeanServer", null);
             return (MBeanServer) method.invoke(null, null);
         } catch (Exception e) {
-            LOG.info("JDK1.5 ManagementFactory not found. Falling back to JMX1.2.1", e);
+            LOG.log(Level.INFO, "JDK1.5 ManagementFactory not found. Falling back to JMX1.2.1", e);
             return MBeanServerFactory.createMBeanServer("SimpleAgent");
         }
     }

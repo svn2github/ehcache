@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,9 +22,9 @@ import java.rmi.UnmarshalException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
@@ -49,7 +49,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
      */
     public static final long DEFAULT_ASYNC_INTERVAL = 1000;
     
-    private static final Log LOG = LogFactory.getLog(JGroupsCacheReplicator.class);
+    private static final Logger LOG = Logger.getLogger(JGroupsCacheReplicator.class.getName());
 
     private long asynchronousReplicationInterval = DEFAULT_ASYNC_INTERVAL;
 
@@ -184,7 +184,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
      */
     public void notifyElementExpired(Ehcache cache, Element element) {
 
-        // log.trace("Sending out exp el:"+element);
+        // LOG.finest("Sending out exp el:"+element);
 
     }
 
@@ -231,7 +231,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
 
         if (isReplicatePuts()) {
             // if (log.isTraceEnabled())
-            // log.trace("Sending out add/upd el:" + element);
+            // LOG.finest("Sending out add/upd el:" + element);
             replicatePutNotification(cache, element);
         }
 
@@ -239,11 +239,11 @@ public class JGroupsCacheReplicator implements CacheReplicator {
 
     private void replicatePutNotification(Ehcache cache, Element element) {
         if (!element.isKeySerializable()) {
-            LOG.warn("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
+            LOG.warning("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
             return;
         }
         if (!element.isSerializable()) {
-            LOG.warn("Object with key " + element.getObjectKey() + " is not Serializable and cannot be updated via copy");
+            LOG.warning("Object with key " + element.getObjectKey() + " is not Serializable and cannot be updated via copy");
             return;
         }
         JGroupEventMessage e = new JGroupEventMessage(JGroupEventMessage.PUT, (Serializable) element.getObjectKey(), element,
@@ -254,7 +254,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
 
     private void replicateRemoveNotification(Ehcache cache, Element element) {
         if (!element.isKeySerializable()) {
-            LOG.warn("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
+            LOG.warning("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
             return;
         }
         JGroupEventMessage e = new JGroupEventMessage(JGroupEventMessage.REMOVE, (Serializable) element.getObjectKey(), null,
@@ -308,7 +308,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
      */
     public void notifyRemoveAll(Ehcache cache) {
         if (isReplicateRemovals()) {
-            LOG.trace("Remove all elements called");
+            LOG.finest("Remove all elements called");
             JGroupEventMessage e = new JGroupEventMessage(JGroupEventMessage.REMOVE_ALL, null, null, cache, cache.getName());
             sendNotification(cache, e);
         }
@@ -363,7 +363,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
 
                     Thread.sleep(asynchronousReplicationInterval);
                 } catch (InterruptedException e) {
-                    LOG.debug("Spool Thread interrupted.");
+                    LOG.fine("Spool Thread interrupted.");
                     return;
                 }
             }
@@ -375,7 +375,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
                     flushReplicationQueue();
                 }
             } catch (Throwable e) {
-                LOG.warn("Exception on flushing of replication queue: " + e.getMessage() + ". Continuing...", e);
+                LOG.log(Level.WARNING, "Exception on flushing of replication queue: " + e.getMessage() + ". Continuing...", e);
             }
         }
     }
@@ -418,14 +418,14 @@ public class JGroupsCacheReplicator implements CacheReplicator {
             } catch (UnmarshalException e) {
                 String message = e.getMessage();
                 if (message.indexOf("Read time out") != 0) {
-                    LOG.warn("Unable to send message to remote peer due to socket read timeout. Consider increasing"
+                    LOG.warning("Unable to send message to remote peer due to socket read timeout. Consider increasing"
                             + " the socketTimeoutMillis setting in the cacheManagerPeerListenerFactory. " + "Message was: "
                             + e.getMessage());
                 } else {
-                    LOG.debug("Unable to send message to remote peer.  Message was: " + e.getMessage());
+                    LOG.fine("Unable to send message to remote peer.  Message was: " + e.getMessage());
                 }
             } catch (Throwable t) {
-                LOG.warn("Unable to send message to remote peer.  Message was: " + t.getMessage(), t);
+                LOG.log(Level.WARNING, "Unable to send message to remote peer.  Message was: " + t.getMessage(), t);
             }
         }
 
@@ -447,7 +447,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
             if (eventMessage != null && eventMessage.isValid()) {
                 list.add(eventMessage);
             } else {
-                LOG.error("Collected soft ref");
+                LOG.severe("Collected soft ref");
             }
         }
         return list;

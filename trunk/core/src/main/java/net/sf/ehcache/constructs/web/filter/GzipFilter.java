@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package net.sf.ehcache.constructs.web.filter;
 
 import net.sf.ehcache.constructs.web.GenericResponseWrapper;
 import net.sf.ehcache.constructs.web.ResponseUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -27,6 +27,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.util.zip.GZIPOutputStream;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Provides GZIP compression of responses.
@@ -40,7 +42,7 @@ import java.util.zip.GZIPOutputStream;
  */
 public class GzipFilter extends Filter {
 
-    private static final Log LOG = LogFactory.getLog(GzipFilter.class.getName());
+    private static final Logger LOG = Logger.getLogger(GzipFilter.class.getName());
 
     /**
      * Performs initialisation.
@@ -66,8 +68,8 @@ public class GzipFilter extends Filter {
                             final FilterChain chain) throws Exception {
         if (!isIncluded(request) && acceptsEncoding(request, "gzip")) {
             // Client accepts zipped content
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(request.getRequestURL() + ". Writing with gzip compression");
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine(request.getRequestURL() + ". Writing with gzip compression");
             }
 
             // Create a gzip stream
@@ -103,8 +105,8 @@ public class GzipFilter extends Filter {
             response.getOutputStream().write(compressedBytes);
         } else {
             // Client does not accept zipped content - don't bother zipping
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(request.getRequestURL()
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine(request.getRequestURL()
                         + ". Writing without gzip compression because the request does not accept gzip.");
             }
             chain.doFilter(request, response);
@@ -120,8 +122,8 @@ public class GzipFilter extends Filter {
         final String uri = (String) request.getAttribute("javax.servlet.include.request_uri");
         final boolean includeRequest = !(uri == null);
 
-        if (includeRequest && LOG.isDebugEnabled()) {
-            LOG.debug(request.getRequestURL() + " resulted in an include request. This is unusable, because" +
+        if (includeRequest && LOG.isLoggable(Level.FINE)) {
+            LOG.fine(request.getRequestURL() + " resulted in an include request. This is unusable, because" +
                     "the response will be assembled into the overrall response. Not gzipping.");
         }
         return includeRequest;

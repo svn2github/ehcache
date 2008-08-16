@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,8 +18,7 @@ package net.sf.ehcache.loader;
 
 import net.sf.jsr107cache.CacheException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.logging.Logger;
 
 
 /**
@@ -28,7 +27,8 @@ import org.apache.commons.logging.LogFactory;
  * @version $Id$
  */
 public class ComponentBLoader extends BaseComponentLoader {
-    private static final Log LOG = LogFactory.getLog(ComponentBLoader.class);
+
+    private static final Logger LOG = Logger.getLogger(ComponentBLoader.class.getName());
 
     /**
      *

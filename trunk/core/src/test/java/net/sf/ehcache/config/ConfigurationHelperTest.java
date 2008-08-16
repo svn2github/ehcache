@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,11 +18,13 @@ package net.sf.ehcache.config;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Tests programmatically constructed Configuration instances
@@ -32,7 +34,7 @@ import java.io.IOException;
  */
 public class ConfigurationHelperTest extends AbstractCacheTest {
 
-    private static final Log LOG = LogFactory.getLog(ConfigurationHelperTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(ConfigurationHelperTest.class.getName());
 
 
     /**
@@ -57,7 +59,7 @@ public class ConfigurationHelperTest extends AbstractCacheTest {
             fail();
         } catch (Exception e) {
             //expected
-            LOG.debug("Expected exception " + e.getMessage() + ". Initial cause was " + e.getMessage(), e);
+            LOG.log(Level.FINE, "Expected exception " + e.getMessage() + ". Initial cause was " + e.getMessage(), e);
         }
     }
 

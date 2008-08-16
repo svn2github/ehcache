@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,10 +19,12 @@ package net.sf.ehcache.store;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.util.Map;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 /**
@@ -35,7 +37,8 @@ import java.util.Map;
  * @version $Id$
  */
 public class LruMemoryStore extends MemoryStore {
-    private static final Log LOG = LogFactory.getLog(LruMemoryStore.class.getName());
+
+    private static final Logger LOG = Logger.getLogger(LruMemoryStore.class.getName());
 
     /**
      * Constructor for the LruMemoryStore object
@@ -47,7 +50,7 @@ public class LruMemoryStore extends MemoryStore {
         try {
             map = new SpoolingLinkedHashMap();
         } catch (CacheException e) {
-            LOG.error(cache.getName() + "Cache: Cannot start LruMemoryStore. Initial cause was " + e.getMessage(), e);
+            LOG.log(Level.SEVERE, cache.getName() + "Cache: Cannot start LruMemoryStore. Initial cause was " + e.getMessage(), e);
         }
     }
 

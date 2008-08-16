@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,8 +19,10 @@ package net.sf.ehcache.event;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
 
 /**
  * A Null Object Pattern implementation of CacheEventListener. It simply logs the calls made.
@@ -30,15 +32,15 @@ import org.apache.commons.logging.LogFactory;
  */
 public class NullCacheEventListener implements CacheEventListener {
 
-    private static final Log LOG = LogFactory.getLog(NullCacheEventListener.class.getName());
+    private static final Logger LOG = Logger.getLogger(NullCacheEventListener.class.getName());
 
 
     /**
      * {@inheritDoc}
      */
     public void notifyElementRemoved(final Ehcache cache, final Element element) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("notifyElementRemoved called for cache " + cache + " for element with key " + element.getObjectKey());
+        if (LOG.isLoggable(Level.FINEST)) {
+            LOG.finest("notifyElementRemoved called for cache " + cache + " for element with key " + element.getObjectKey());
         }
     }
 
@@ -46,12 +48,12 @@ public class NullCacheEventListener implements CacheEventListener {
      * {@inheritDoc}
      */
     public void notifyElementPut(final Ehcache cache, final Element element) {
-        if (LOG.isTraceEnabled()) {
+        if (LOG.isLoggable(Level.FINEST)) {
             Object key = null;
             if (element != null) {
                 key = element.getObjectKey();
             }
-            LOG.trace("notifyElementPut called for cache " + cache + " for element with key " + key);
+            LOG.finest("notifyElementPut called for cache " + cache + " for element with key " + key);
         }
     }
 
@@ -69,12 +71,12 @@ public class NullCacheEventListener implements CacheEventListener {
      * @param element the element which was just put into the cache.
      */
     public void notifyElementUpdated(final Ehcache cache, final Element element) throws CacheException {
-         if (LOG.isTraceEnabled()) {
+         if (LOG.isLoggable(Level.FINEST)) {
             Object key = null;
             if (element != null) {
                 key = element.getObjectKey();
             }
-            LOG.trace("notifyElementUpdated called for cache " + cache + " for element with key " + key);
+            LOG.finest("notifyElementUpdated called for cache " + cache + " for element with key " + key);
         }
     }
 
@@ -82,8 +84,8 @@ public class NullCacheEventListener implements CacheEventListener {
      * {@inheritDoc}
      */
     public void notifyElementExpired(final Ehcache cache, final Element element) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("notifyElementExpired called for cache " + cache + " for element with key " + element.getObjectKey());
+        if (LOG.isLoggable(Level.FINEST)) {
+            LOG.finest("notifyElementExpired called for cache " + cache + " for element with key " + element.getObjectKey());
         }
     }
 

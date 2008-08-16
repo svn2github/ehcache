@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import junit.framework.TestCase;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 import org.dom4j.Document;
 import org.dom4j.io.DOMReader;
 import org.xml.sax.SAXException;
@@ -34,6 +34,8 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * A convenient base class for ehcache filter tests
@@ -73,7 +75,7 @@ public abstract class AbstractWebTest extends TestCase {
      */
     public static final String KEEP_ALIVE = "KEEP-ALIVE";
 
-    private static final Log LOG = LogFactory.getLog(AbstractWebTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(AbstractWebTest.class.getName());
 
     /**
      * Run web tests in a caching cluster. They use a singleton, so create a second
@@ -229,11 +231,11 @@ public abstract class AbstractWebTest extends TestCase {
      */
     protected void checkTimeStamps(WebResponse webResponse1, WebResponse webResponse2,
                                    boolean shouldTimestampsBeEqual) throws Exception {
-        LOG.debug("Should timestamps be equal: " + shouldTimestampsBeEqual);
+        LOG.fine("Should timestamps be equal: " + shouldTimestampsBeEqual);
         String firstGeneratedTimestamp = getTimestamp(webResponse1);
-        LOG.debug("First time stamp: " + firstGeneratedTimestamp);
+        LOG.fine("First time stamp: " + firstGeneratedTimestamp);
         String secondGeneratedTimestamp = getTimestamp(webResponse2);
-        LOG.debug("Second time stamp: " + secondGeneratedTimestamp);
+        LOG.fine("Second time stamp: " + secondGeneratedTimestamp);
 
 
         // Use assert equals because it provides more information if the assertion fails
@@ -329,7 +331,7 @@ public abstract class AbstractWebTest extends TestCase {
 
             threads[i].start();
         }
-        LOG.debug("Started " + threads.length + " threads");
+        LOG.fine("Started " + threads.length + " threads");
 
         // Wait for the threads to finish
         for (int i = 0; i < threads.length; i++) {
@@ -369,7 +371,7 @@ public abstract class AbstractWebTest extends TestCase {
         try {
             body = response.getText();
         } catch (IOException e) {
-            LOG.fatal(e, e);
+            LOG.log(Level.SEVERE, "", e);
             fail();
         }
         assertNotNull(body);
@@ -392,7 +394,7 @@ public abstract class AbstractWebTest extends TestCase {
         try {
             text = response.getText();
         } catch (IOException e) {
-            LOG.fatal(e.getMessage(), e);
+            LOG.log(Level.SEVERE, e.getMessage(), e);
             fail();
         }
         assertTrue(text.indexOf("<html>") != -1);

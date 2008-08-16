@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,9 +21,8 @@ import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.util.PropertyUtil;
 
 import java.util.Properties;
+import java.util.logging.Logger;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * A factory to create a configured RMIBootstrapCacheLoader
@@ -58,7 +57,7 @@ public class RMIBootstrapCacheLoaderFactory extends BootstrapCacheLoaderFactory 
      */
     protected static final int FIVE_KB = 5000;
 
-    private static final Log LOG = LogFactory.getLog(RMIBootstrapCacheLoaderFactory.class.getName());
+    private static final Logger LOG = Logger.getLogger(RMIBootstrapCacheLoaderFactory.class.getName());
 
 
     /**
@@ -85,13 +84,13 @@ public class RMIBootstrapCacheLoaderFactory extends BootstrapCacheLoaderFactory 
             try {
                 int maximumChunkSizeBytesCandidate = Integer.parseInt(maximumChunkSizeBytesString);
                 if ((maximumChunkSizeBytesCandidate < FIVE_KB) || (maximumChunkSizeBytesCandidate > ONE_HUNDRED_MB)) {
-                    LOG.warn("Trying to set the chunk size to an unreasonable number. Using the default instead.");
+                    LOG.warning("Trying to set the chunk size to an unreasonable number. Using the default instead.");
                     maximumChunkSizeBytes = DEFAULT_MAXIMUM_CHUNK_SIZE_BYTES;
                 } else {
                     maximumChunkSizeBytes = maximumChunkSizeBytesCandidate;
                 }
             } catch (NumberFormatException e) {
-                LOG.warn("Number format exception trying to set chunk size. Using the default instead.");
+                LOG.warning("Number format exception trying to set chunk size. Using the default instead.");
                 maximumChunkSizeBytes = DEFAULT_MAXIMUM_CHUNK_SIZE_BYTES;
             }
 

@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,11 +20,13 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Listens to {@link net.sf.ehcache.CacheManager} and {@link net.sf.ehcache.Cache} events and propagates those to
@@ -35,7 +37,7 @@ import java.util.List;
  */
 public class RMISynchronousCacheReplicator implements CacheReplicator {
 
-    private static final Log LOG = LogFactory.getLog(RMISynchronousCacheReplicator.class.getName());
+    private static final Logger LOG = Logger.getLogger(RMISynchronousCacheReplicator.class.getName());
 
 
     /**
@@ -109,8 +111,8 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
         }
 
         if (!element.isSerializable()) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Object with key " + element.getObjectKey() + " is not Serializable and cannot be replicated");
+            if (LOG.isLoggable(Level.WARNING)) {
+                LOG.warning("Object with key " + element.getObjectKey() + " is not Serializable and cannot be replicated");
             }
             return;
         }
@@ -162,8 +164,8 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
 
         if (replicateUpdatesViaCopy) {
             if (!element.isSerializable()) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Object with key " + element.getObjectKey() + " is not Serializable and cannot be updated via copy");
+                if (LOG.isLoggable(Level.WARNING)) {
+                    LOG.warning("Object with key " + element.getObjectKey() + " is not Serializable and cannot be updated via copy");
                 }
                 return;
             }
@@ -171,8 +173,8 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
             replicatePutNotification(cache, element);
         } else {
             if (!element.isKeySerializable()) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
+                if (LOG.isLoggable(Level.WARNING)) {
+                    LOG.warning("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
                 }
                 return;
             }
@@ -204,8 +206,8 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
         }
 
         if (!element.isKeySerializable()) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
+            if (LOG.isLoggable(Level.WARNING)) {
+                LOG.warning("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
             }
             return;
         }

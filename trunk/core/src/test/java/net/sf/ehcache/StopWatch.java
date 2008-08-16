@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,9 +16,11 @@
 
 package net.sf.ehcache;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 import net.sf.ehcache.util.PropertyUtil;
+
+import java.util.logging.Logger;
 
 /**
  * A timer service used to check performance of tests.
@@ -42,7 +44,7 @@ import net.sf.ehcache.util.PropertyUtil;
  */
 public class StopWatch {
 
-    private static final Log LOG = LogFactory.getLog(StopWatch.class.getName());
+    private static final Logger LOG = Logger.getLogger(StopWatch.class.getName());
 
 
     private static final String SUFFIX = "ms";
@@ -77,15 +79,15 @@ public class StopWatch {
             try {
                 speedAdjustmentFactor = Float.parseFloat(speedAdjustmentFactorString);
             } catch (NumberFormatException e) {
-                LOG.debug("Consider setting system property 'net.sf.ehcache.speedAdjustmentFactor=n' " +
+                LOG.fine("Consider setting system property 'net.sf.ehcache.speedAdjustmentFactor=n' " +
                     "where n is the number of times your machine is slower than the reference machine, " +
                     "which is currently a dual G5 PowerMac. e.g. 1.2, which then enables elasped time " +
                     "measurement to be adjusted accordingly.");
             }
-            LOG.debug("Using speedAjustmentFactor of " + speedAdjustmentFactor);
+            LOG.fine("Using speedAjustmentFactor of " + speedAdjustmentFactor);
 
         } else {
-            LOG.debug("Consider setting system property 'net.sf.ehcache.speedAdjustmentFactor=n' " +
+            LOG.fine("Consider setting system property 'net.sf.ehcache.speedAdjustmentFactor=n' " +
                     "where n is the number of times your machine is slower than the reference machine, " +
                     "which is currently a dual G5 PowerMac. e.g. 1.2, which then enables elasped time " +
                     "measurement to be adjusted accordingly.");
@@ -97,7 +99,7 @@ public class StopWatch {
         } catch (InterruptedException e) {
             //
         }
-        LOG.debug("100 measures as " + stopWatch.getElapsedTime());
+        LOG.fine("100 measures as " + stopWatch.getElapsedTime());
 
 
     }
@@ -130,12 +132,12 @@ public class StopWatch {
 //        }
 //        long elapsedTime = System.currentTimeMillis() - start;
 //
-//        LOG.error("It took this machine: " + elapsedTime + " to perform a time trial compared with the reference time of "
+//        LOG.severe("It took this machine: " + elapsedTime + " to perform a time trial compared with the reference time of "
 //                + referenceTime + "ms");
 //
 //        speedAdjustmentFactor = elapsedTime / referenceTime;
 //
-//        LOG.error("Elapsed stopwatch times will be adjusted divided by " + speedAdjustmentFactor);
+//        LOG.severe("Elapsed stopwatch times will be adjusted divided by " + speedAdjustmentFactor);
 //    }
 
 

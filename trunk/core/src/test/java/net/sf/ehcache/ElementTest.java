@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package net.sf.ehcache;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,6 +26,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 /**
  * Test cases for the Element.
@@ -34,7 +35,8 @@ import java.util.HashMap;
  * @version $Id$
  */
 public class ElementTest extends AbstractCacheTest {
-    private static final Log LOG = LogFactory.getLog(ElementTest.class.getName());
+
+    private static final Logger LOG = Logger.getLogger(ElementTest.class.getName());
 
 
     /**
@@ -53,7 +55,7 @@ public class ElementTest extends AbstractCacheTest {
             try {
                 bout.write("abcdefghijklmnopqrstv1234567890".getBytes());
             } catch (IOException e) {
-                LOG.error("This should not happen");
+                LOG.severe("This should not happen");
             }
         }
         byte[] value = bout.toByteArray();
@@ -147,7 +149,7 @@ public class ElementTest extends AbstractCacheTest {
             try {
                 bout.write("abcdefghijklmnopqrstv1234567890".getBytes());
             } catch (IOException e) {
-                LOG.error("This should not happen");
+                LOG.severe("This should not happen");
             }
         }
         return bout.toByteArray();

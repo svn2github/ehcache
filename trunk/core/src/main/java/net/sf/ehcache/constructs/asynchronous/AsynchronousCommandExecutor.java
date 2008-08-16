@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.Serializable;
 import java.rmi.dgc.VMID;
@@ -29,6 +29,8 @@ import java.util.Date;
 import java.util.Stack;
 
 import java.util.Queue;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -78,7 +80,8 @@ public final class AsynchronousCommandExecutor {
 
     private static final long WAIT_FOR_THREAD_INITIALIZATION = 5;    
 
-    private static final Log LOG = LogFactory.getLog(AsynchronousCommandExecutor.class.getName());
+    private static final Logger LOG = Logger.getLogger(AsynchronousCommandExecutor.class.getName());
+
     private static final int MS_PER_SECOND = 1000;
     private static AsynchronousCommandExecutor singleton;
     private static CacheManager cacheManager;
@@ -103,7 +106,7 @@ public final class AsynchronousCommandExecutor {
         try {
             Thread.sleep(WAIT_FOR_THREAD_INITIALIZATION);
         } catch (InterruptedException e) {
-            LOG.warn("Interrupted while initiliazing", e);
+            LOG.log(Level.WARNING, "Interrupted while initiliazing", e);
         }
 
     }
@@ -242,13 +245,13 @@ public final class AsynchronousCommandExecutor {
         while (true) {
             try {
                 //wait for new messages or retry interval.
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("dispatcherThreadIntervalSeconds: " + dispatcherThreadIntervalSeconds);
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("dispatcherThreadIntervalSeconds: " + dispatcherThreadIntervalSeconds);
                 }
                 wait(dispatcherThreadIntervalSeconds * MS_PER_SECOND);
             } catch (InterruptedException e) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("messageCache: Dispatcher thread interrupted on Disk Store.");
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("messageCache: Dispatcher thread interrupted on Disk Store.");
                 }
                 //Should only happen on dispose.
                 return;
@@ -274,15 +277,15 @@ public final class AsynchronousCommandExecutor {
      * This method is synchronized so that it will always complete before a dispose occurs.
      */
     private synchronized void executeCommands() {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("executeCommands invoked. " + countCachedPublishCommands() + " messages to be sent.");
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("executeCommands invoked. " + countCachedPublishCommands() + " messages to be sent.");
         }
         Queue queue = null;
         InstrumentedCommand instrumentedCommand = null;
         try {
             queue = getQueue();
         } catch (AsynchronousCommandException e) {
-            LOG.fatal("Unable to access the cache to retrieve commands. ", e);
+            LOG.log(Level.SEVERE, "Unable to access the cache to retrieve commands. ", e);
         }
         Object object = null;
         while (true) {
@@ -297,8 +300,8 @@ public final class AsynchronousCommandExecutor {
                     instrumentedCommand.attemptExecution();
                     remove(queue, uid, SUCCESSFUL_EXECUTION);
                 } catch (RetryAttemptTooSoonException e) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(e.getMessage(), e);
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.log(Level.FINE, e.getMessage(), e);
                     }
                     break;
                 } catch (TooManyRetriesException e) {
@@ -312,8 +315,8 @@ public final class AsynchronousCommandExecutor {
                     remove(queue, uid, throwable.getMessage());
                 } else {
                     //retry
-                    if (LOG.isInfoEnabled()) {
-                     LOG.info("Publishing attempt number " + instrumentedCommand.getExecuteAttempts()
+                    if (LOG.isLoggable(Level.INFO)) {
+                     LOG.log(Level.INFO, "Publishing attempt number " + instrumentedCommand.getExecuteAttempts()
                                 + " failed. " + throwable.getMessage(), throwable);
                     }
                     break;
@@ -346,15 +349,15 @@ public final class AsynchronousCommandExecutor {
         try {
             cache = getMessageCache();
         } catch (AsynchronousCommandException e) {
-            LOG.fatal("Unable to get cache + " + e.getMessage(), e);
+            LOG.log(Level.SEVERE, "Unable to get cache + " + e.getMessage(), e);
         }
         cache.remove(uid);
         if (reason.equals(SUCCESSFUL_EXECUTION)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Deleting command with uid " + uid + ". " + reason);
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Deleting command with uid " + uid + ". " + reason);
             }
         } else {
-            LOG.error("Deleting command with uid " + uid + ".  " + reason);
+            LOG.severe("Deleting command with uid " + uid + ".  " + reason);
         }
     }
 
@@ -404,7 +407,7 @@ public final class AsynchronousCommandExecutor {
             Ehcache cache = getMessageCache();
             messageCount = cache.getSize();
         } catch (Exception e) {
-            LOG.info("Unable to determine the number"
+            LOG.log(Level.SEVERE, "Unable to determine the number"
                     + " of messages in the messageCache.", e);
         }
         if (messageCount != 0) {
@@ -437,7 +440,7 @@ public final class AsynchronousCommandExecutor {
             }
 
         } catch (Exception e) {
-            LOG.error("Could not shut down MessageDispatcher", e);
+            LOG.log(Level.SEVERE, "Could not shut down MessageDispatcher", e);
         } finally {
             active = false;
             notifyAll();

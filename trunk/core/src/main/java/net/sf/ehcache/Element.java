@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 
 package net.sf.ehcache;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.logging.Logger;
 
 /**
  * A Cache Element, consisting of a key, value and attributes.
@@ -45,7 +46,7 @@ public final class Element implements Serializable, Cloneable {
      */
     private static final long serialVersionUID = 3343087714201120157L;
 
-    private static final Log LOG = LogFactory.getLog(Element.class.getName());
+    private static final Logger LOG = Logger.getLogger(Element.class.getName());
 
     private static final long ONE_SECOND = 1000L;
 
@@ -449,10 +450,10 @@ public final class Element implements Serializable, Cloneable {
             ois = new ObjectInputStream(bin);
             newValue = (Serializable) ois.readObject();
         } catch (IOException e) {
-            LOG.error("Error cloning Element with key " + key
+            LOG.severe("Error cloning Element with key " + key
                     + " during serialization and deserialization of value");
         } catch (ClassNotFoundException e) {
-            LOG.error("Error cloning Element with key " + key
+            LOG.severe("Error cloning Element with key " + key
                     + " during serialization and deserialization of value");
         } finally {
             try {
@@ -463,7 +464,7 @@ public final class Element implements Serializable, Cloneable {
                     ois.close();
                 }
             } catch (Exception e) {
-                LOG.error("Error closing Stream");
+                LOG.severe("Error closing Stream");
             }
         }
         return newValue;
@@ -493,14 +494,14 @@ public final class Element implements Serializable, Cloneable {
             size = bout.size();
             return size;
         } catch (IOException e) {
-            LOG.debug("Error measuring element size for element with key " + key + ". Cause was: " + e.getMessage());
+            LOG.fine("Error measuring element size for element with key " + key + ". Cause was: " + e.getMessage());
         } finally {
             try {
                 if (oos != null) {
                     oos.close();
                 }
             } catch (Exception e) {
-                LOG.error("Error closing ObjectOutputStream");
+                LOG.severe("Error closing ObjectOutputStream");
             }
         }
 

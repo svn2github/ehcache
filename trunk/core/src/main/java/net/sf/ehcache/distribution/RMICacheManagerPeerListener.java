@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CacheEventListener;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -42,6 +42,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * A cache server which exposes available cache operations remotely through RMI.
@@ -69,7 +71,7 @@ import java.util.Set;
  */
 public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
 
-    private static final Log LOG = LogFactory.getLog(RMICacheManagerPeerListener.class.getName());
+    private static final Logger LOG = Logger.getLogger(RMICacheManagerPeerListener.class.getName());
     private static final int MINIMUM_SENSIBLE_TIMEOUT = 200;
     private static final int NAMING_UNBIND_RETRY_INTERVAL = 400;
     private static final int NAMING_UNBIND_MAX_RETRIES = 10;
@@ -116,7 +118,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
         if (hostName != null && hostName.length() != 0) {
             this.hostName = hostName;
             if (hostName.equals("localhost")) {
-                LOG.warn("Explicitly setting the listener hostname to 'localhost' is not recommended. "
+                LOG.warning("Explicitly setting the listener hostname to 'localhost' is not recommended. "
                         + "It will only work if all CacheManager peers are on the same machine.");
             }
         } else {
@@ -150,9 +152,9 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
         }
         this.port = new Integer(this.getFreePort());
         if (forced) {
-            LOG.warn("Resolving RMI port conflict by automatically using a free TCP/IP port to listen on: " + this.port);
+            LOG.warning("Resolving RMI port conflict by automatically using a free TCP/IP port to listen on: " + this.port);
         } else {
-            LOG.debug("Automatically finding a free TCP/IP port to listen on: " + this.port);
+            LOG.fine("Automatically finding a free TCP/IP port to listen on: " + this.port);
         }
     }
 
@@ -185,7 +187,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
                 try {
                     serverSocket.close();
                 } catch (Exception e) {
-                    LOG.debug("Error closing ServerSocket: " + e.getMessage());
+                    LOG.fine("Error closing ServerSocket: " + e.getMessage());
                 }
             }
         }
@@ -208,7 +210,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
                     counter++;
                 }
             }
-            LOG.debug(counter + " RMICachePeers bound in registry for RMI listener");
+            LOG.fine(counter + " RMICachePeers bound in registry for RMI listener");
             status = Status.STATUS_ALIVE;
         } catch (Exception e) {
             String url = null;
@@ -318,7 +320,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
                 registryCreated = true;
             }
         } catch (ExportException exception) {
-            LOG.fatal("Exception starting RMI registry. Error was " + exception.getMessage(), exception);
+            LOG.log(Level.SEVERE, "Exception starting RMI registry. Error was " + exception.getMessage(), exception);
         }
     }
 
@@ -334,9 +336,9 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             // thrown otherwise
             boolean success = UnicastRemoteObject.unexportObject(registry, true);
             if (success) {
-                LOG.debug("rmiregistry unexported.");
+                LOG.fine("rmiregistry unexported.");
             } else {
-                LOG.warn("Could not unexport rmiregistry.");
+                LOG.warning("Could not unexport rmiregistry.");
             }
         }
     }
@@ -359,7 +361,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
                 }
                 stopRegistry();
             }
-            LOG.debug(counter + " RMICachePeers unbound from registry in RMI listener");
+            LOG.fine(counter + " RMICachePeers unbound from registry in RMI listener");
             status = Status.STATUS_SHUTDOWN;
         } catch (Exception e) {
             throw new CacheException("Problem unbinding remote cache peers. Initial cause was " + e.getMessage(), e);
@@ -399,7 +401,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
         try {
             Naming.unbind(url);
         } catch (NotBoundException e) {
-            LOG.warn(url + " not bound therefore not unbinding.");
+            LOG.warning(url + " not bound therefore not unbinding.");
         }
         // Try to gracefully unexport before forcing it.
         boolean unexported = UnicastRemoteObject.unexportObject(rmiCachePeer, false);
@@ -417,7 +419,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
         // as a last resort.
         if (!unexported) {
             if (!UnicastRemoteObject.unexportObject(rmiCachePeer, true)) {
-                LOG.warn("Unable to unexport rmiCachePeer: " + rmiCachePeer.getUrl() + ".  Skipping.");
+                LOG.warning("Unable to unexport rmiCachePeer: " + rmiCachePeer.getUrl() + ".  Skipping.");
             }
         }
     }
@@ -490,8 +492,8 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      */
     public void notifyCacheAdded(String cacheName) throws CacheException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Adding " + cacheName + " to RMI listener");
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Adding " + cacheName + " to RMI listener");
         }
 
         //Don't add if exists.
@@ -519,8 +521,8 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             }
 
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(cachePeers.size() + " RMICachePeers bound in registry for RMI listener");
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine(cachePeers.size() + " RMICachePeers bound in registry for RMI listener");
         }
     }
 
@@ -538,8 +540,8 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      */
     public void notifyCacheRemoved(String cacheName) {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Removing " + cacheName + " from RMI listener");
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Removing " + cacheName + " from RMI listener");
         }
 
         //don't remove if already removed.
@@ -561,8 +563,8 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
                     + url + " from listener. Message was: " + e.getMessage(), e);
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(cachePeers.size() + " RMICachePeers bound in registry for RMI listener");
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine(cachePeers.size() + " RMICachePeers bound in registry for RMI listener");
         }
     }
 

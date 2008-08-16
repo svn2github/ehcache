@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,10 +21,12 @@ import net.sf.ehcache.CacheManager;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * A ServletContextListener that shutsdown CacheManager. Use this when you want to shutdown
@@ -47,7 +49,7 @@ import java.util.List;
  */
 public class ShutdownListener implements ServletContextListener {
 
-    private static final Log LOG = LogFactory.getLog(ShutdownListener.class.getName());
+    private static final Logger LOG = Logger.getLogger(ShutdownListener.class.getName());
 
     /**
      * Notification that the web application is ready to process requests.
@@ -67,8 +69,8 @@ public class ShutdownListener implements ServletContextListener {
      */
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
         List knownCacheManagers = CacheManager.ALL_CACHE_MANAGERS;
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Shutting down " + knownCacheManagers.size() + " CacheManagers.");
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Shutting down " + knownCacheManagers.size() + " CacheManagers.");
         }
         while (!knownCacheManagers.isEmpty()) {
             ((CacheManager) CacheManager.ALL_CACHE_MANAGERS.get(0)).shutdown();

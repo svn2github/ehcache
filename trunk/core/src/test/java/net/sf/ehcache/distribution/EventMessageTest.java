@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.logging.Logger;
 import java.lang.ref.SoftReference;
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
@@ -27,8 +28,8 @@ import java.io.ObjectOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 import net.sf.ehcache.Element;
 import net.sf.ehcache.AbstractCacheTest;
 
@@ -40,7 +41,7 @@ import net.sf.ehcache.AbstractCacheTest;
  */
 public class EventMessageTest extends TestCase {
 
-    private static final Log LOG = LogFactory.getLog(EventMessageTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(EventMessageTest.class.getName());
 
 
     /**

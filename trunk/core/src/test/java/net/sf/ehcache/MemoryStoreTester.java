@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import net.sf.ehcache.distribution.JVMUtil;
 import net.sf.ehcache.store.LruMemoryStoreTest;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Store;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.IOException;
 import java.io.EOFException;
@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 
 /**
  * Other than policy differences, the Store implementations should work identically
@@ -38,7 +39,7 @@ import java.util.Random;
  */
 public class MemoryStoreTester extends AbstractCacheTest {
 
-    private static final Log LOG = LogFactory.getLog(MemoryStoreTester.class.getName());
+    private static final Logger LOG = Logger.getLogger(MemoryStoreTester.class.getName());
 
     /**
      * The memory store that tests will be performed on
@@ -76,10 +77,10 @@ public class MemoryStoreTester extends AbstractCacheTest {
             }
         } catch (OutOfMemoryError e) {
             //OutOfMemoryError Happens at different places on Apache LRU for some reason
-            LOG.info(e);
+            LOG.info(e.getMessage());
         } catch (Throwable t) {
             //OutOfMemoryError Happens at different places on Apache LRU for some reason
-            LOG.info(t);
+            LOG.info(t.getMessage());
         }
     }
 

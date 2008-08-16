@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,13 +19,15 @@ package net.sf.ehcache.distribution;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * A provider of Peer RMI addresses based off manual configuration.
@@ -39,7 +41,7 @@ import java.util.List;
  */
 public final class ManualRMICacheManagerPeerProvider extends RMICacheManagerPeerProvider {
 
-    private static final Log LOG = LogFactory.getLog(ManualRMICacheManagerPeerProvider.class.getName());
+    private static final Logger LOG = Logger.getLogger(ManualRMICacheManagerPeerProvider.class.getName());
 
     /**
      * Empty constructor.
@@ -94,15 +96,15 @@ public final class ManualRMICacheManagerPeerProvider extends RMICacheManagerPeer
                     cachePeer = lookupRemoteCachePeer(rmiUrl);
                     remoteCachePeers.add(cachePeer);
                 } catch (Exception e) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Looking up rmiUrl " + rmiUrl + " through exception " + e.getMessage()
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.log(Level.FINE, "Looking up rmiUrl " + rmiUrl + " through exception " + e.getMessage()
                                 + ". This may be normal if a node has gone offline. Or it may indicate network connectivity"
                                 + " difficulties", e);
                     }
                 }
             } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("rmiUrl " + rmiUrl + " should never be stale for a manually configured cluster.");
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("rmiUrl " + rmiUrl + " should never be stale for a manually configured cluster.");
                 }
                 staleList.add(rmiUrl);
             }

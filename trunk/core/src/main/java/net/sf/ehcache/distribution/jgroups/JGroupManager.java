@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.distribution.CachePeer;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 import org.jgroups.Address;
 import org.jgroups.Channel;
 import org.jgroups.blocks.NotificationBus;
@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * The main Jgroup class for replication via JGroup. Starts up the Jgroup
@@ -51,7 +53,7 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
 
     private static String hostname = "localhost";
 
-    private static final Log LOG = LogFactory.getLog(JGroupManager.class);
+    private static final Logger LOG = Logger.getLogger(JGroupManager.class.getName());
 
     private static HashMap properties = new HashMap();
 
@@ -81,7 +83,7 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
             this.bus.setConsumer(this);
             LOG.info("GMS started. address is " + this.bus.getLocalAddress());
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            LOG.log(Level.SEVERE, e.getMessage(), e);
         }
 
     }
@@ -94,7 +96,7 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
     }
 
     private void handleJGroupNotification(JGroupSerializable e) {
-        // log.debug("got notified:"+e.getSerializableKey());
+        // LOG.fine("got notified:"+e.getSerializableKey());
         Cache c = cacheManager.getCache(e.getCacheName());
         if (c != null) {
             if (e.getEvent() == e.REMOVE && c.getQuiet(e.getKey()) != null) {
@@ -104,7 +106,7 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
                 c.put(new Element(e.getKey(), e.getValue()), true);
             } else if (e.getEvent() == e.REMOVE_ALL) {
                 // c.removeAll(true);
-                LOG.debug("remove all");
+                LOG.fine("remove all");
                 c.removeAll(true);
             }
         }
@@ -138,7 +140,7 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
      * {@inheritDoc}
      */
     public void memberJoined(Address arg0) {
-        LOG.trace("joined:" + arg0);
+        LOG.finest("joined:" + arg0);
 
     }
 
@@ -146,7 +148,7 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
      * {@inheritDoc}
      */
     public void memberLeft(Address arg0) {
-        LOG.trace("left:" + arg0);
+        LOG.finest("left:" + arg0);
 
     }
 
@@ -271,7 +273,7 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
             try {
                 bus.stop();
             } catch (Exception e) {
-                LOG.error("Error occured while closing Manager:", e);
+                LOG.log(Level.SEVERE, "Error occured while closing Manager:", e);
             }
         }
 

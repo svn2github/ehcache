@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package net.sf.ehcache.jcache;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import net.sf.jsr107cache.CacheManager;
 import net.sf.jsr107cache.Cache;
@@ -30,6 +30,7 @@ import net.sf.ehcache.Element;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * Tests for CacheEntry
@@ -38,7 +39,8 @@ import java.util.Set;
  * @version $Id:JCacheEntryTest.java 318 2007-01-25 01:48:35Z gregluck $
  */
 public class JCacheEntryTest extends AbstractCacheTest {
-    private static final Log LOG = LogFactory.getLog(JCacheTest.class.getName());
+
+    private static final Logger LOG = Logger.getLogger(JCacheTest.class.getName());
 
 
     /**

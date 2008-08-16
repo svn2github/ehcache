@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package net.sf.ehcache.constructs.web;
 
 import net.sf.ehcache.constructs.web.filter.FilterServletOutputStream;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
@@ -32,6 +32,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Provides a wrapper for {@link javax.servlet.http.HttpServletResponseWrapper}.
@@ -48,7 +49,7 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
 
     private static final long serialVersionUID = -5976708169031065498L;
 
-    private static final Log LOG = LogFactory.getLog(GenericResponseWrapper.class);
+    private static final Logger LOG = Logger.getLogger(GenericResponseWrapper.class.getName());
     private int statusCode = SC_OK;
     private int contentLength;
     private String contentType;
@@ -122,7 +123,7 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
      */
     public void setStatus(final int code, final String msg) {
         statusCode = code;
-        LOG.warn("Discarding message because this method is deprecated.");
+        LOG.warning("Discarding message because this method is deprecated.");
         super.setStatus(code);
     }
 

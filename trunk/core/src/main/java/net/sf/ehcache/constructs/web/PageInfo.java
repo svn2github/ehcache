@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package net.sf.ehcache.constructs.web;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -40,7 +42,7 @@ import java.util.zip.GZIPOutputStream;
  * @version $Id$
  */
 public class PageInfo implements Serializable {
-    private static final Log LOG = LogFactory.getLog(PageInfo.class.getName());
+    private static final Logger LOG = Logger.getLogger(PageInfo.class.getName());
     private static final int FOUR_KB = 4196;
     private static final int GZIP_MAGIC_NUMBER_BYTE_1 = 31;
     private static final int GZIP_MAGIC_NUMBER_BYTE_2 = -117;
@@ -92,7 +94,7 @@ public class PageInfo implements Serializable {
                 }
             }
         } catch (IOException e) {
-            LOG.error("Error ungzipping gzipped body", e);
+            LOG.log(Level.SEVERE, "Error ungzipping gzipped body", e);
         }
 
 

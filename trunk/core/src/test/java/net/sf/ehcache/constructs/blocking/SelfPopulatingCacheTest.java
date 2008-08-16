@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,8 +21,9 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.CacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import java.util.logging.Logger;
+
 
 /**
  * Test cases for the {@link SelfPopulatingCache}.
@@ -32,7 +33,8 @@ import org.apache.commons.logging.LogFactory;
  * @version $Id$
  */
 public class SelfPopulatingCacheTest extends CacheTest {
-    private static final Log LOG = LogFactory.getLog(SelfPopulatingCache.class.getName());
+
+    private static final Logger LOG = Logger.getLogger(SelfPopulatingCache.class.getName());
 
     /**
      * Shared with subclass

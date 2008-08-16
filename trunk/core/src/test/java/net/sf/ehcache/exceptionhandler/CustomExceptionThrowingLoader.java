@@ -1,7 +1,7 @@
 package net.sf.ehcache.exceptionhandler;
 
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,12 +19,13 @@ package net.sf.ehcache.exceptionhandler;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
+import java.util.logging.Logger;
 
 import net.sf.jsr107cache.CacheException;
 import net.sf.ehcache.loader.CacheLoader;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 /**
  * A cache loader that throws a custom exception on load
@@ -37,7 +38,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class CustomExceptionThrowingLoader implements CacheLoader {
 
-    private static final Log LOG = LogFactory.getLog(CustomExceptionThrowingLoader.class.getName());
+    private static final Logger LOG = Logger.getLogger(CustomExceptionThrowingLoader.class.getName());
 
     private Random random = new Random();
     private String name = "CustomExceptionThrowingLoader";
@@ -57,7 +58,7 @@ public class CustomExceptionThrowingLoader implements CacheLoader {
         try {
             Thread.sleep(random.nextInt(3) + 1);
         } catch (InterruptedException e) {
-            LOG.error("Interrupted");
+            LOG.severe("Interrupted");
         }
         throw new UnsupportedOperationException("load not supported by CustomExceptionThrowingLoader");
     }
@@ -79,7 +80,7 @@ public class CustomExceptionThrowingLoader implements CacheLoader {
       try {
         Thread.sleep(random.nextInt(4));
       } catch (InterruptedException e) {
-        LOG.error("Interrupted");
+        LOG.severe("Interrupted");
       }
       throw new UnsupportedOperationException("loadAll not supported by CustomExceptionThrowingLoader");
 
@@ -101,7 +102,7 @@ public class CustomExceptionThrowingLoader implements CacheLoader {
         try {
             Thread.sleep(random.nextInt(3) + 1);
         } catch (InterruptedException e) {
-            LOG.error("Interrupted");
+            LOG.severe("Interrupted");
         }
         throw new UnsupportedOperationException("2-arg load not supported by CustomExceptionThrowingLoader");
     }
@@ -121,7 +122,7 @@ public class CustomExceptionThrowingLoader implements CacheLoader {
       try {
         Thread.sleep(random.nextInt(3) + 1);
       } catch (InterruptedException e) {
-        LOG.error("Interrupted");
+        LOG.severe("Interrupted");
       }
       throw new UnsupportedOperationException("2-arg loadAll not supported by CustomExceptionThrowingLoader");
     }

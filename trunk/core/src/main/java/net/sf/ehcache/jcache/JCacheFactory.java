@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,10 +24,11 @@ import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheException;
 import net.sf.jsr107cache.CacheFactory;
 import net.sf.jsr107cache.CacheLoader;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * A CacheFactory implementation for JCache.
@@ -40,7 +41,7 @@ import java.util.Map;
 public class JCacheFactory implements CacheFactory {
 
 
-    private static final Log LOG = LogFactory.getLog(JCacheFactory.class.getName());
+    private static final Logger LOG = Logger.getLogger(JCacheFactory.class.getName());
 
     /**
      * Creates a new implementation specific Cache object using the environment parameters.
@@ -123,7 +124,7 @@ public class JCacheFactory implements CacheFactory {
             String cacheLoaderFactoryClassName =
                             PropertyUtil.extractAndLogProperty("cacheLoaderFactoryClassName", environment);
             if (cacheLoaderFactoryClassName == null) {
-                LOG.debug("cacheLoaderFactoryClassName not configured. Skipping...");
+                LOG.fine("cacheLoaderFactoryClassName not configured. Skipping...");
             } else {
                 CacheLoaderFactory factory = (CacheLoaderFactory)
                         ClassLoaderUtil.createNewInstance(cacheLoaderFactoryClassName);

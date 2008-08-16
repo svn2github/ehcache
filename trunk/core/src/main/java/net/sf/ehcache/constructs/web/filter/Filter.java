@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package net.sf.ehcache.constructs.web.filter;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+
+
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -32,6 +32,8 @@ import java.lang.reflect.Method;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * A generic {@link javax.servlet.Filter} with most of what we need done.
@@ -46,7 +48,7 @@ public abstract class Filter implements javax.servlet.Filter {
      * If a request attribute NO_FILTER is set, then filtering will be skipped
      */
     public static final String NO_FILTER = "NO_FILTER";
-    private static final Log LOG = LogFactory.getLog(Filter.class.getName());
+    private static final Logger LOG = Logger.getLogger(Filter.class.getName());
 
     /**
      * The filter configuration.
@@ -60,7 +62,9 @@ public abstract class Filter implements javax.servlet.Filter {
 
 
     /**
-     * A the level of the exceptions which will be logged differently
+     * A the level of the exceptions which will be logged differently.
+     * <p/>
+     * This should match the logging method name in Java logging e.g. fine
      */
     protected String exceptionsToLogDifferentlyLevel;
 
@@ -79,7 +83,7 @@ public abstract class Filter implements javax.servlet.Filter {
      * Performs the filtering.  This method calls template method
      * {@link #doFilter(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse,javax.servlet.FilterChain) } which does the filtering.
      * This method takes care of error reporting and handling.
-     * Errors are reported at {@link Log#warn(Object)} level because http tends to produce lots of errors.
+     * Errors are reported at warn level because http tends to produce lots of errors.
      *
      * @throws IOException if an IOException occurs during this method it will be rethrown and will not be wrapped
      */
@@ -124,15 +128,15 @@ public abstract class Filter implements javax.servlet.Filter {
         if (matchFound) {
             try {
                 if (suppressStackTraces) {
-                    Method method = Log.class.getMethod(exceptionsToLogDifferentlyLevel, new Class[]{Object.class});
+                    Method method = Logger.class.getMethod(exceptionsToLogDifferentlyLevel, new Class[]{String.class});
                     method.invoke(LOG, new Object[]{throwable.getMessage()});
                 } else {
-                    Method method = Log.class.getMethod(exceptionsToLogDifferentlyLevel,
+                    Method method = Logger.class.getMethod(exceptionsToLogDifferentlyLevel,
                             new Class[]{Object.class, Throwable.class});
                     method.invoke(LOG, new Object[]{throwable.getMessage(), throwable});
                 }
             } catch (Exception e) {
-                LOG.fatal("Could not invoke Log method for " + exceptionsToLogDifferentlyLevel, e);
+                LOG.log(Level.SEVERE, "Could not invoke Log method for " + exceptionsToLogDifferentlyLevel, e);
             }
             if (throwable instanceof IOException) {
                 throw (IOException) throwable;
@@ -142,10 +146,10 @@ public abstract class Filter implements javax.servlet.Filter {
         } else {
 
             if (suppressStackTraces) {
-                LOG.warn(messageBuffer.append(throwable.getMessage()).append("\nTop StackTraceElement: ")
-                        .append(throwable.getStackTrace()[0].toString()));
+                LOG.log(Level.WARNING, messageBuffer.append(throwable.getMessage()).append("\nTop StackTraceElement: ")
+                        .append(throwable.getStackTrace()[0].toString()).toString());
             } else {
-                LOG.warn(messageBuffer.append(throwable.getMessage()), throwable);
+                LOG.log(Level.WARNING, messageBuffer.append(throwable.getMessage()).toString(), throwable);
             }
             if (throwable instanceof IOException) {
                 throw (IOException) throwable;
@@ -198,7 +202,7 @@ public abstract class Filter implements javax.servlet.Filter {
             // Attempt to initialise this filter
             doInit(filterConfig);
         } catch (final Exception e) {
-            LOG.fatal("Could not initialise servlet filter.", e);
+            LOG.log(Level.SEVERE, "Could not initialise servlet filter.", e);
             throw new ServletException("Could not initialise servlet filter.", e);
         }
     }
@@ -223,8 +227,8 @@ public abstract class Filter implements javax.servlet.Filter {
         String level = config.getInitParameter("exceptionsToLogDifferentlyLevel");
         String suppressStackTracesString = config.getInitParameter("suppressStackTraces");
         suppressStackTraces = Boolean.valueOf(suppressStackTracesString).booleanValue();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Suppression of stack traces enabled for " + this.getClass().getName());
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Suppression of stack traces enabled for " + this.getClass().getName());
         }
 
         if (exceptions != null) {
@@ -232,8 +236,8 @@ public abstract class Filter implements javax.servlet.Filter {
             validateLevel(level);
             exceptionsToLogDifferentlyLevel = level;
             exceptionsToLogDifferently = exceptions;
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Different logging levels configured for " + this.getClass().getName());
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Different logging levels configured for " + this.getClass().getName());
             }
         }
     }
@@ -246,9 +250,10 @@ public abstract class Filter implements javax.servlet.Filter {
         }
     }
 
+    //todo change this to set a new Level.?
     private void validateLevel(String level) throws ServletException {
         //Check correct level set
-        if (!(level.equals("debug")
+        if ((level.equals("finest")
                 || level.equals("info")
                 || level.equals("warn")
                 || level.equals("error")
@@ -298,7 +303,7 @@ public abstract class Filter implements javax.servlet.Filter {
      * @param request
      */
     protected void logRequestHeaders(final HttpServletRequest request) {
-        if (LOG.isDebugEnabled()) {
+        if (LOG.isLoggable(Level.FINE)) {
             Map headers = new HashMap();
             Enumeration enumeration = request.getHeaderNames();
             StringBuffer logLine = new StringBuffer();
@@ -309,7 +314,7 @@ public abstract class Filter implements javax.servlet.Filter {
                 headers.put(name, headerValue);
                 logLine.append(": ").append(name).append(" -> ").append(headerValue);
             }
-            LOG.debug(logLine);
+            LOG.fine(logLine.toString());
         }
     }
 

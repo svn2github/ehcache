@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,14 +22,15 @@ import net.sf.ehcache.StopWatch;
 import net.sf.ehcache.CacheTest;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.Cache;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Test cases for the {@link BlockingCache}.
@@ -39,7 +40,8 @@ import java.util.Map;
  * @version $Id$
  */
 public class BlockingCacheTest extends CacheTest {
-    private static final Log LOG = LogFactory.getLog(BlockingCacheTest.class.getName());
+
+    private static final Logger LOG = Logger.getLogger(BlockingCacheTest.class.getName());
     private BlockingCache blockingCache;
 
     /**
@@ -210,7 +212,7 @@ public class BlockingCacheTest extends CacheTest {
         Ehcache cache = manager.getCache("sampleCache1");
         blockingCache = new BlockingCache(cache);
         long duration = thrashCache(blockingCache, 50, 500L, 1000L);
-        LOG.debug("Thrash Duration:" + duration);
+        LOG.fine("Thrash Duration:" + duration);
     }
 
     /**
@@ -229,7 +231,7 @@ public class BlockingCacheTest extends CacheTest {
         } catch (Exception e) {
             assertEquals(LockTimeoutException.class, e.getCause().getClass());
         }
-        LOG.debug("Thrash Duration:" + duration);
+        LOG.fine("Thrash Duration:" + duration);
     }
 
     /**
@@ -241,7 +243,7 @@ public class BlockingCacheTest extends CacheTest {
         blockingCache = new BlockingCache(cache);
         blockingCache.setTimeoutMillis((int) (400 * StopWatch.getSpeedAdjustmentFactor()));
         long duration = thrashCache(blockingCache, 50, 400L, (long) (1000L * StopWatch.getSpeedAdjustmentFactor()));
-        LOG.debug("Thrash Duration:" + duration);
+        LOG.fine("Thrash Duration:" + duration);
     }
 
         /**

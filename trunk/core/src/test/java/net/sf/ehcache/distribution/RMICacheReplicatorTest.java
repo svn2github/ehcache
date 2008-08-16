@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ import net.sf.ehcache.StopWatch;
 import net.sf.ehcache.ThreadKiller;
 import net.sf.ehcache.management.ManagementService;
 import net.sf.ehcache.event.CountingCacheEventListener;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -38,6 +38,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Tests replication of Cache events
@@ -64,7 +66,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     protected static final boolean SYNCHRONOUS = false;
 
-    private static final Log LOG = LogFactory.getLog(RMICacheReplicatorTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(RMICacheReplicatorTest.class.getName());
 
 
     /**
@@ -1460,13 +1462,13 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
                 Cache cache = manager.getCache(cacheName);
                 if (operationSelector == 100) {
                     cache.get(key);
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(cache.getGuid() + ": get " + key);
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.fine(cache.getGuid() + ": get " + key);
                     }
                 } else if (operationSelector == 100) {
                     cache.remove(key);
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(cache.getGuid() + ": remove " + key);
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.fine(cache.getGuid() + ": remove " + key);
                     }
                 } else if (operationSelector == 2) {
                     cache.put(new Element(key,
@@ -1475,13 +1477,13 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
                                     + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                     + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                     + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(cache.getGuid() + ": put " + key);
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.fine(cache.getGuid() + ": put " + key);
                     }
                 } else {
                     //every twelfth time 1/4 * 1/3 = 1/12
                     if (random.nextInt(3) == 1) {
-                        LOG.debug("cache.removeAll()");
+                        LOG.fine("cache.removeAll()");
                         cache.removeAll();
                     }
                 }

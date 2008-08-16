@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package net.sf.ehcache.distribution;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.Serializable;
 import java.rmi.Remote;
@@ -28,6 +28,8 @@ import java.rmi.server.RMISocketFactory;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * An RMI based implementation of <code>CachePeer</code>.
@@ -39,7 +41,7 @@ import java.util.ArrayList;
  */
 public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remote {
 
-    private static final Log LOG = LogFactory.getLog(RMICachePeer.class.getName());
+    private static final Logger LOG = Logger.getLogger(RMICachePeer.class.getName());
 
     private final String hostname;
     private final Integer rmiRegistryPort;
@@ -171,8 +173,8 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      */
     public void put(Element element) throws RemoteException, IllegalArgumentException, IllegalStateException {
         cache.put(element, true);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Remote put received. Element is: " + element);
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Remote put received. Element is: " + element);
         }
     }
 
@@ -186,8 +188,8 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      * @throws IllegalStateException
      */
     public final boolean remove(Serializable key) throws RemoteException, IllegalStateException {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Remote remove received for key: " + key);
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Remote remove received for key: " + key);
         }
         return cache.remove(key, true);
     }
@@ -198,8 +200,8 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
     public final void removeAll() throws RemoteException, IllegalStateException {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Remote removeAll received");
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Remote removeAll received");
         }
         cache.removeAll(true);
     }
@@ -219,7 +221,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
             } else if (eventMessage.getEvent() == EventMessage.REMOVE_ALL) {
                 removeAll();
             } else {
-                LOG.error("Unknown event: " + eventMessage);
+                LOG.severe("Unknown event: " + eventMessage);
             }
         }
     }

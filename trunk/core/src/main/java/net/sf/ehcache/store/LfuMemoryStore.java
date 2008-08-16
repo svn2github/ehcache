@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,11 +18,13 @@ package net.sf.ehcache.store;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Less Frequently Used (LFU) implementation of the memory store. Actually keeping track of the least used, then the
@@ -50,7 +52,7 @@ import java.util.Iterator;
  */
 public class LfuMemoryStore extends MemoryStore {
 
-    private static final Log LOG = LogFactory.getLog(LfuMemoryStore.class.getName());
+    private static final Logger LOG = Logger.getLogger(LfuMemoryStore.class.getName());
 
     /**
      * Constructor for the LfuMemoryStore object.
@@ -72,8 +74,8 @@ public class LfuMemoryStore extends MemoryStore {
 
     private void removeLfuElement(Element elementJustAdded) {
 
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Cache is full. Removing LFU element ...");
+        if (LOG.isLoggable(Level.FINEST)) {
+            LOG.finest("Cache is full. Removing LFU element ...");
         }
 
         // First element of the sorted list is the candidate for the removal

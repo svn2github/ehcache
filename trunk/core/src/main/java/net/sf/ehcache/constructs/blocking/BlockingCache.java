@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,13 +31,14 @@ import net.sf.ehcache.constructs.concurrent.ConcurrencyUtil;
 import net.sf.ehcache.constructs.concurrent.Mutex;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Collection;
+import java.util.logging.Logger;
 
 
 /**
@@ -100,7 +101,7 @@ public class BlockingCache implements Ehcache {
      */
     public static final int LOCK_NUMBER = 2048;
 
-    private static final Log LOG = LogFactory.getLog(BlockingCache.class.getName());
+    private static final Logger LOG = Logger.getLogger(BlockingCache.class.getName());
 
     /**
      * Based on the lock striping concept from Brian Goetz. See Java Concurrency in Practice 11.4.3

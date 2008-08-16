@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ package net.sf.ehcache.hibernate;
 
 
 import net.sf.ehcache.Element;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.Timestamper;
@@ -26,6 +26,8 @@ import org.hibernate.cache.Timestamper;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * EHCache plugin for Hibernate.
@@ -44,7 +46,7 @@ import java.util.Map;
  */
 public final class EhCache implements Cache {
 
-    private static final Log LOG = LogFactory.getLog(EhCache.class);
+    private static final Logger LOG = Logger.getLogger(EhCache.class.getName());
 
     private static final int SIXTY_THOUSAND_MS = 60000;
 
@@ -73,16 +75,16 @@ public final class EhCache implements Cache {
      */
     public final Object get(Object key) throws CacheException {
         try {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("key: " + key);
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("key: " + key);
             }
             if (key == null) {
                 return null;
             } else {
                 Element element = cache.get(key);
                 if (element == null) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Element for " + key + " is null");
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("Element for " + key + " is null");
                     }
                     return null;
                 } else {
@@ -179,8 +181,8 @@ public final class EhCache implements Cache {
         } catch (IllegalStateException e) {
             //When Spring and Hibernate are both involved this will happen in normal shutdown operation.
             //Do not throw an exception, simply log this one.
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("This can happen if multiple frameworks both try to shutdown ehcache", e);
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "This can happen if multiple frameworks both try to shutdown ehcache", e);
             }
         } catch (net.sf.ehcache.CacheException e) {
             throw new CacheException(e);

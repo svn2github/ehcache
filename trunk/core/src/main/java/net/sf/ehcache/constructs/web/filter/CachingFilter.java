@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,8 +29,8 @@ import net.sf.ehcache.constructs.web.PageInfo;
 import net.sf.ehcache.constructs.web.ResponseHeadersNotModifiableException;
 import net.sf.ehcache.constructs.web.ResponseUtil;
 import net.sf.ehcache.constructs.web.SerializableCookie;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -43,6 +43,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.util.zip.DataFormatException;
 
 /**
@@ -64,7 +66,7 @@ import java.util.zip.DataFormatException;
  */
 public abstract class CachingFilter extends Filter {
 
-    private static final Log LOG = LogFactory.getLog(CachingFilter.class.getName());
+    private static final Logger LOG = Logger.getLogger(CachingFilter.class.getName());
 
     /**
      * The cache holding the web pages. Ensure that all threads for a given cache name are using the same instance of this.
@@ -173,13 +175,13 @@ public abstract class CachingFilter extends Filter {
                     // Page is not cached - build the response, cache it, and send to client
                     pageInfo = buildPage(request, response, chain);
                     if (pageInfo.isOk()) {
-                        if (LOG.isTraceEnabled()) {
-                            LOG.trace("PageInfo ok. Adding to cache " + blockingCache.getName() + " with key " + key);
+                        if (LOG.isLoggable(Level.FINEST)) {
+                            LOG.finest("PageInfo ok. Adding to cache " + blockingCache.getName() + " with key " + key);
                         }
                         blockingCache.put(new Element(key, pageInfo));
                     } else {
-                        if (LOG.isWarnEnabled()) {
-                            LOG.warn("PageInfo was not ok(200). Putting null into cache " + blockingCache.getName()
+                        if (LOG.isLoggable(Level.WARNING)) {
+                            LOG.warning("PageInfo was not ok(200). Putting null into cache " + blockingCache.getName()
                                     + " with key " + key);
                         }
                         blockingCache.put(new Element(key, null));
@@ -408,8 +410,8 @@ public abstract class CachingFilter extends Filter {
         //Instrument thread name
         thread.setName(thread.getName() + " been through " + filterName);
         String newThreadName = thread.getName();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Thread name changed from " + threadName
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Thread name changed from " + threadName
                     + " to " + newThreadName);
         }
     }

@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,12 +19,13 @@ package net.sf.ehcache.constructs.blocking;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.StopWatch;
 import net.sf.ehcache.Element;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 
 /**
@@ -34,7 +35,8 @@ import java.util.List;
  * @version $Id$
  */
 public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
-    private static final Log LOG = LogFactory.getLog(UpdatingSelfPopulatingCacheTest.class.getName());
+
+    private static final Logger LOG = Logger.getLogger(UpdatingSelfPopulatingCacheTest.class.getName());
 
     /**
      * Tests fetching an entry, and then an update.
@@ -124,7 +126,7 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
         final CountingCacheEntryFactory factory = new CountingCacheEntryFactory(value);
         selfPopulatingCache = new UpdatingSelfPopulatingCache(cache, factory);
         long duration = thrashCache((UpdatingSelfPopulatingCache) selfPopulatingCache, 300L, 1500L);
-        LOG.debug("Thrash Duration:" + duration);
+        LOG.fine("Thrash Duration:" + duration);
     }
 
     /**

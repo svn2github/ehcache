@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,11 +20,13 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * An abstract class for the Memory Stores. All Memory store implementations for different
@@ -35,7 +37,7 @@ import java.util.Map;
  */
 public abstract class MemoryStore implements Store {
 
-    private static final Log LOG = LogFactory.getLog(MemoryStore.class.getName());
+    private static final Logger LOG = Logger.getLogger(MemoryStore.class.getName());
 
     /**
      * The cache this store is associated with.
@@ -69,8 +71,8 @@ public abstract class MemoryStore implements Store {
         this.diskStore = diskStore;
         status = Status.STATUS_ALIVE;
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Initialized " + this.getClass().getName() + " for " + cache.getName());
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Initialized " + this.getClass().getName() + " for " + cache.getName());
         }
     }
 
@@ -131,11 +133,11 @@ public abstract class MemoryStore implements Store {
 
         if (element != null) {
             element.updateAccessStatistics();
-            if (LOG.isTraceEnabled()) {
-                LOG.trace(cache.getName() + "Cache: " + cache.getName() + "MemoryStore hit for " + key);
+            if (LOG.isLoggable(Level.FINEST)) {
+                LOG.finest(cache.getName() + "Cache: " + cache.getName() + "MemoryStore hit for " + key);
             }
-        } else if (LOG.isTraceEnabled()) {
-            LOG.trace(cache.getName() + "Cache: " + cache.getName() + "MemoryStore miss for " + key);
+        } else if (LOG.isLoggable(Level.FINEST)) {
+            LOG.finest(cache.getName() + "Cache: " + cache.getName() + "MemoryStore miss for " + key);
         }
         return element;
     }
@@ -151,11 +153,11 @@ public abstract class MemoryStore implements Store {
 
         if (cacheElement != null) {
             //cacheElement.updateAccessStatistics(); Don't update statistics
-            if (LOG.isTraceEnabled()) {
-                LOG.trace(cache.getName() + "Cache: " + cache.getName() + "MemoryStore hit for " + key);
+            if (LOG.isLoggable(Level.FINEST)) {
+                LOG.finest(cache.getName() + "Cache: " + cache.getName() + "MemoryStore hit for " + key);
             }
-        } else if (LOG.isTraceEnabled()) {
-            LOG.trace(cache.getName() + "Cache: " + cache.getName() + "MemoryStore miss for " + key);
+        } else if (LOG.isLoggable(Level.FINEST)) {
+            LOG.finest(cache.getName() + "Cache: " + cache.getName() + "MemoryStore miss for " + key);
         }
         return cacheElement;
     }
@@ -174,8 +176,8 @@ public abstract class MemoryStore implements Store {
         if (element != null) {
             return element;
         } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(cache.getName() + "Cache: Cannot remove entry as key " + key + " was not found");
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine(cache.getName() + "Cache: Cannot remove entry as key " + key + " was not found");
             }
             return null;
         }
@@ -214,8 +216,8 @@ public abstract class MemoryStore implements Store {
      */
     public final synchronized void flush() {
         if (cache.isDiskPersistent()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(cache.getName() + " is persistent. Spooling " + map.size() + " elements to the disk store.");
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine(cache.getName() + " is persistent. Spooling " + map.size() + " elements to the disk store.");
             }
             spoolAllToDisk();
         }
@@ -236,8 +238,8 @@ public abstract class MemoryStore implements Store {
             Element element = (Element) map.get(keys[i]);
             if (element != null) {
                 if (!element.isSerializable()) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Object with key " + element.getObjectKey()
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("Object with key " + element.getObjectKey()
                                 + " is not Serializable and is not being overflowed to disk.");
                     }
                 } else {
@@ -259,8 +261,8 @@ public abstract class MemoryStore implements Store {
      */
     protected void spoolToDisk(Element element) {
         diskStore.put(element);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(cache.getName() + "Cache: spool to disk done for: " + element.getObjectKey());
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine(cache.getName() + "Cache: spool to disk done for: " + element.getObjectKey());
         }
     }
 
@@ -341,9 +343,9 @@ public abstract class MemoryStore implements Store {
         boolean spooled = false;
         if (cache.isOverflowToDisk()) {
             if (!element.isSerializable()) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(new StringBuffer("Object with key ").append(element.getObjectKey())
-                            .append(" is not Serializable and cannot be overflowed to disk"));
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.log(Level.FINE, new StringBuffer("Object with key ").append(element.getObjectKey())
+                            .append(" is not Serializable and cannot be overflowed to disk").toString());
                 }
             } else {
                 spoolToDisk(element);

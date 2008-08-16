@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,13 +19,15 @@ package net.sf.ehcache.distribution;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.util.PropertyUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Builds a factory based on RMI
@@ -35,7 +37,7 @@ import java.util.StringTokenizer;
  */
 public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProviderFactory {
 
-    private static final Log LOG = LogFactory.getLog(RMICacheManagerPeerProviderFactory.class.getName());
+    private static final Logger LOG = Logger.getLogger(RMICacheManagerPeerProviderFactory.class.getName());
 
     private static final String PEER_DISCOVERY = "peerDiscovery";
     private static final String AUTOMATIC_PEER_DISCOVERY = "automatic";
@@ -84,8 +86,8 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
             String rmiUrl = stringTokenizer.nextToken();
             rmiUrl = rmiUrl.trim();
             rmiPeerProvider.registerPeer(rmiUrl);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Registering peer " + rmiUrl);
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Registering peer " + rmiUrl);
             }
         }
         return rmiPeerProvider;
@@ -104,7 +106,7 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
         Integer timeToLive;
         if (packetTimeToLiveString == null) {
             timeToLive = new Integer(1);
-            LOG.debug("No TTL set. Setting it to the default of 1, which means packets are limited to the same subnet.");
+            LOG.fine("No TTL set. Setting it to the default of 1, which means packets are limited to the same subnet.");
         } else {
             timeToLive = new Integer(packetTimeToLiveString);
             if (timeToLive.intValue() < 0 || timeToLive.intValue() > MAXIMUM_TTL) {

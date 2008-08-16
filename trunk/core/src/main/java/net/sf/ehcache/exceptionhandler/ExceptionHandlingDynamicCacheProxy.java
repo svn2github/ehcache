@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ import net.sf.ehcache.Ehcache;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * A dynamic proxy which provides CacheException handling.
@@ -51,7 +51,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public final class ExceptionHandlingDynamicCacheProxy implements InvocationHandler {
 
-    private static final Log LOG = LogFactory.getLog(ExceptionHandlingDynamicCacheProxy.class.getName());
+    private static final Logger LOG = Logger.getLogger(ExceptionHandlingDynamicCacheProxy.class.getName());
 
     private Ehcache ehcache;
 
@@ -143,8 +143,8 @@ public final class ExceptionHandlingDynamicCacheProxy implements InvocationHandl
                     causeAsException = (Exception) cause;
                 } catch (ClassCastException cce) {
                     //we only handle exceptions, not errors.
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Underlying cause was not an Exception: " + cce);
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("Underlying cause was not an Exception: " + cce);
                     }
                 }
 

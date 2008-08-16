@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ import net.sf.jsr107cache.CacheEntry;
 import net.sf.jsr107cache.CacheException;
 import net.sf.jsr107cache.CacheManager;
 import net.sf.jsr107cache.CacheStatistics;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * Tests for a Cache
@@ -50,7 +51,8 @@ import java.util.Set;
  * @version $Id:JCacheTest.java 318 2007-01-25 01:48:35Z gregluck $
  */
 public class JCacheTest extends AbstractCacheTest {
-    private static final Log LOG = LogFactory.getLog(JCacheTest.class.getName());
+
+    private static final Logger LOG = Logger.getLogger(JCacheTest.class.getName());
 
     /**
      * setup test
@@ -1171,7 +1173,7 @@ public class JCacheTest extends AbstractCacheTest {
     public void testToString() throws CacheException {
         Cache cache = getTest2Cache();
         cache.clear();
-        LOG.info(cache);
+        LOG.info(cache.toString());
         assertTrue(cache.toString().indexOf("test2") > -1);
         assertTrue(380 < cache.toString().length());
     }

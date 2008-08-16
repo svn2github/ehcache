@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import javax.management.JMException;
 import javax.management.MBeanAttributeInfo;
@@ -41,6 +41,7 @@ import java.rmi.registry.LocateRegistry;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * These tests use the JDK1.5 platform mbean server
@@ -54,7 +55,7 @@ import java.util.Set;
  */
 public class ManagementServiceTest extends AbstractCacheTest {
 
-    private static final Log LOG = LogFactory.getLog(ManagementServiceTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(ManagementServiceTest.class.getName());
     private static final int OBJECTS_IN_TEST_EHCACHE = 40;
     private MBeanServer mBeanServer;
 
@@ -239,7 +240,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
         ObjectName name = CacheManager.createObjectName(manager);
 
         Object object = mBeanServer.getAttribute(name, "Status");
-        LOG.info(object);
+        LOG.info(object.toString());
 
         List caches = (List) mBeanServer.getAttribute(name, "Caches");
         assertEquals(13, caches.size());

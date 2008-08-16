@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@ import net.sf.ehcache.loader.CountingCacheLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Collection;
 import java.util.Map;
+import java.util.logging.Logger;
 
 
 /**
@@ -47,7 +48,8 @@ import java.util.Map;
  * @version $Id$
  */
 public class CacheTest extends AbstractCacheTest {
-    private static final Log LOG = LogFactory.getLog(CacheTest.class.getName());
+
+    private static final Logger LOG = Logger.getLogger(CacheTest.class.getName());
 
 
     /**
@@ -637,7 +639,7 @@ public class CacheTest extends AbstractCacheTest {
         CacheManager manager = CacheManager.getInstance();
         cache = manager.getCache(name);
         if (cache == null) {
-            LOG.warn("Could not find configuration for " + name
+            LOG.warning("Could not find configuration for " + name
                     + ". Configuring using the defaultCache settings.");
             manager.addCache(name);
             cache = manager.getCache(name);

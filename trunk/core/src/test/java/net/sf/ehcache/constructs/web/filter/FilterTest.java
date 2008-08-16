@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@ import com.meterware.httpunit.HttpInternalErrorException;
 import net.sf.ehcache.constructs.web.AbstractWebTest;
 
 import java.io.IOException;
+import java.util.logging.Logger;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 
 import org.xml.sax.SAXException;
 
@@ -34,6 +37,16 @@ import org.xml.sax.SAXException;
  * @version $Id$
  */
 public class FilterTest extends AbstractWebTest {
+
+    private static final Logger LOG = Logger.getLogger(FilterTest.class.getName());
+
+    public void testHandlingOfDynamicLogInvocation() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+
+        Method method = Logger.class.getMethod("fine", new Class[]{String.class});
+        method.invoke(LOG, new Object[]{"hello logging world"});
+
+    }
+
 
     /**
      * The GzipFilter filter definition is set up to do special logging for NullPointerException

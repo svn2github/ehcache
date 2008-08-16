@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import net.sf.ehcache.StopWatch;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Statistics;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
+import java.util.logging.Logger;
 
 /**
  * Test class for LfuMemoryStore
@@ -43,7 +44,7 @@ import java.util.Random;
  */
 public class LfuMemoryStoreTest extends MemoryStoreTester {
 
-    private static final Log LOG = LogFactory.getLog(LfuMemoryStoreTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(LfuMemoryStoreTest.class.getName());
 
     /**
      * setup test
@@ -367,7 +368,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         getTestBean(cache, "test2");
 
         Statistics stats = cache.getStatistics();
-        LOG.info(stats);
+        LOG.info(stats.toString());
 
         cacheManager.shutdown();
     }

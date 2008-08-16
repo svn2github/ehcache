@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,11 +20,12 @@ import junit.framework.TestCase;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.StopWatch;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Tests of the package.
@@ -34,7 +35,7 @@ import java.util.List;
  */
 public class AsynchronousCommandExecutorTest extends TestCase {
 
-    private static final Log LOG = LogFactory.getLog(AsynchronousCommandExecutorTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(AsynchronousCommandExecutorTest.class.getName());
 
     private static List messages = new ArrayList();
 
@@ -298,7 +299,7 @@ public class AsynchronousCommandExecutorTest extends TestCase {
         for (int i = 0; i < threads.length; i++) {
             threads[i].join(maximumWait);
             if (System.currentTimeMillis() >= time + maximumWait) {
-                LOG.error("Killed Threads after timeout");
+                LOG.severe("Killed Threads after timeout");
             }
         }
 

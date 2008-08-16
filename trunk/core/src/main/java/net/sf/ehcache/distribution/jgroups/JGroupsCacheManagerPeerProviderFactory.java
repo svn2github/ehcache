@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,9 +17,8 @@
 package net.sf.ehcache.distribution.jgroups;
 
 import java.util.Properties;
+import java.util.logging.Logger;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
@@ -33,14 +32,15 @@ import net.sf.ehcache.util.PropertyUtil;
  */
 
 public class JGroupsCacheManagerPeerProviderFactory extends CacheManagerPeerProviderFactory {
-    private static final Log LOG = LogFactory.getLog(JGroupsCacheManagerPeerProviderFactory.class);
+    
+    private static final Logger LOG = Logger.getLogger(JGroupsCacheManagerPeerProviderFactory.class.getName());
     private static final String CONNECT = "connect";
 
     /**
      * {@inheritDoc}
      */
     public CacheManagerPeerProvider createCachePeerProvider(CacheManager cacheManager, Properties properties) {
-        LOG.debug("CREATING JGOUPS PEER PROVIDER");
+        LOG.fine("CREATING JGOUPS PEER PROVIDER");
         String connect = PropertyUtil.extractAndLogProperty(CONNECT, properties);
         if (connect == null) {
             connect = "";
@@ -50,7 +50,7 @@ public class JGroupsCacheManagerPeerProviderFactory extends CacheManagerPeerProv
         if (connect.trim().equals("")) {
             connect = null;
         }
-        LOG.debug("Connect is:" + connect);
+        LOG.fine("Connect is:" + connect);
         return new JGroupManager(cacheManager, connect);
 
     }

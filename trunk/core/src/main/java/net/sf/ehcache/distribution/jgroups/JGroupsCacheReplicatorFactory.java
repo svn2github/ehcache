@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,10 +19,11 @@ package net.sf.ehcache.distribution.jgroups;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheEventListenerFactory;
 import net.sf.ehcache.util.PropertyUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * @author Pierre Monestie (pmonestie__REMOVE__THIS__@gmail.com)
@@ -33,7 +34,7 @@ import java.util.Properties;
 public class JGroupsCacheReplicatorFactory extends CacheEventListenerFactory {
     private static final String ASYNCHRONOUS_REPLICATION_INTERVAL_MILLIS = "asynchronousReplicationIntervalMillis";
 
-    private static final Log LOG = LogFactory.getLog(JGroupsCacheReplicatorFactory.class);
+    private static final Logger LOG = Logger.getLogger(JGroupsCacheReplicatorFactory.class.getName());
 
     private static final String REPLICATE_PUTS = "replicatePuts";
 
@@ -55,7 +56,7 @@ public class JGroupsCacheReplicatorFactory extends CacheEventListenerFactory {
      * {@inheritDoc}
      */
     public CacheEventListener createCacheEventListener(Properties properties) {
-        LOG.debug("making new cache rep");
+        LOG.fine("making new cache rep");
         boolean replicatePuts = extractBooleanProperty(properties, REPLICATE_PUTS, true);
         boolean replicateUpdates = extractBooleanProperty(properties, REPLICATE_UPDATES, true);
         boolean replicateUpdatesViaCopy = extractBooleanProperty(properties, REPLICATE_UPDATES_VIA_COPY, false);
@@ -88,7 +89,7 @@ public class JGroupsCacheReplicatorFactory extends CacheEventListenerFactory {
                 Long longValue = new Long(parsedString);
                 return longValue.longValue();
             } catch (NumberFormatException e) {
-               LOG.warn("Number format exception trying to set asynchronousReplicationIntervalMillis. " +
+               LOG.warning("Number format exception trying to set asynchronousReplicationIntervalMillis. " +
                         "Using the default instead. String value was: '" + parsedString + "'");
             }
 

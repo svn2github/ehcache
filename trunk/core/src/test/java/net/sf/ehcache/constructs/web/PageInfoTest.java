@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package net.sf.ehcache.constructs.web;
 
 import net.sf.ehcache.StopWatch;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -28,6 +28,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -38,7 +39,7 @@ import java.util.zip.GZIPOutputStream;
  * @version $Id$
  */
 public class PageInfoTest extends AbstractWebTest {
-    private static final Log LOG = LogFactory.getLog(PageInfoTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(PageInfoTest.class.getName());
 
     private File testFile;
 

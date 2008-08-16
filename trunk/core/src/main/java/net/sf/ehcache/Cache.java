@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -28,8 +28,6 @@ import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Store;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -46,6 +44,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.util.concurrent.Future;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -106,7 +106,7 @@ public class Cache implements Ehcache {
      */
     private static final int DEFAULT_SPOOL_BUFFER_SIZE = 30;
 
-    private static final Log LOG = LogFactory.getLog(Cache.class.getName());
+    private static final Logger LOG = Logger.getLogger(Cache.class.getName());
 
     private static final MemoryStoreEvictionPolicy DEFAULT_MEMORY_STORE_EVICTION_POLICY = MemoryStoreEvictionPolicy.LRU;
 
@@ -125,7 +125,7 @@ public class Cache implements Ehcache {
         try {
             localhost = InetAddress.getLocalHost();
         } catch (UnknownHostException e) {
-            LOG.error("Unable to set localhost. This prevents creation of a GUID. Cause was: " + e.getMessage(), e);
+            LOG.log(Level.SEVERE, "Unable to set localhost. This prevents creation of a GUID. Cause was: " + e.getMessage(), e);
         }
     }
 
@@ -264,7 +264,7 @@ public class Cache implements Ehcache {
                  long diskExpiryThreadIntervalSeconds) {
         this(name, maxElementsInMemory, DEFAULT_MEMORY_STORE_EVICTION_POLICY, overflowToDisk, null,
                 eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, null, null);
-        LOG.warn("An API change between ehcache-1.1 and ehcache-1.2 results in the persistence path being set to " +
+        LOG.warning("An API change between ehcache-1.1 and ehcache-1.2 results in the persistence path being set to " +
                 DiskStoreConfiguration.getDefaultPath() + " when the ehcache-1.1 constructor is used. " +
                 "Please change to the 1.2 constructor.");
     }
@@ -539,8 +539,8 @@ public class Cache implements Ehcache {
             }
 
             if (configuration.getMaxElementsInMemory() == 0) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Cache: " + configuration.getName()
+                if (LOG.isLoggable(Level.WARNING)) {
+                    LOG.warning("Cache: " + configuration.getName()
                             + " has a maxElementsInMemory of 0. It is strongly recommended to " +
                             "have a maximumSize of at least 1. Performance is halved by not using a MemoryStore.");
                 }
@@ -553,13 +553,13 @@ public class Cache implements Ehcache {
             initialiseRegisteredCacheExtensions();
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Initialised cache: " + configuration.getName());
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Initialised cache: " + configuration.getName());
         }
 
         if (disabled) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Cache: " + configuration.getName() + " is disabled because the " + NET_SF_EHCACHE_DISABLED
+            if (LOG.isLoggable(Level.WARNING)) {
+                LOG.warning("Cache: " + configuration.getName() + " is disabled because the " + NET_SF_EHCACHE_DISABLED
                         + " property was set to true. No elements will be added to the cache.");
             }
         }
@@ -667,8 +667,8 @@ public class Cache implements Ehcache {
 
         if (element == null) {
             if (doNotNotifyCacheReplicators) {
-                if (LOG.isDebugEnabled()) {
-                LOG.debug("Element from replicated put is null. This happens because the element is a SoftReference" +
+                if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Element from replicated put is null. This happens because the element is a SoftReference" +
                         " and it has been collected.Increase heap memory on the JVM or set -Xms to be the same as " +
                         "-Xmx to avoid this problem.");
                 }
@@ -804,8 +804,8 @@ public class Cache implements Ehcache {
             }
             if (element == null) {
                 missCountNotFound++;
-                if (LOG.isTraceEnabled()) {
-                    LOG.trace(configuration.getName() + " cache - Miss");
+                if (LOG.isLoggable(Level.FINEST)) {
+                    LOG.finest(configuration.getName() + " cache - Miss");
                 }
             } else {
                 hitCount++;
@@ -881,16 +881,16 @@ public class Cache implements Ehcache {
      */
     public void load(final Object key) throws CacheException {
         if (cacheLoader == null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("The CacheLoader is null. Returning.");
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("The CacheLoader is null. Returning.");
             }
             return;
         }
 
         boolean existsOnCall = isKeyInCache(key);
         if (existsOnCall) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("The key " + key + " exists in the cache. Returning.");
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("The key " + key + " exists in the cache. Returning.");
             }
             return;
         }
@@ -1009,8 +1009,8 @@ public class Cache implements Ehcache {
     public void loadAll(final Collection keys, final Object argument) throws CacheException {
 
         if (cacheLoader == null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("The CacheLoader is null. Returning.");
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("The CacheLoader is null. Returning.");
             }
             return;
         }
@@ -1175,8 +1175,8 @@ public class Cache implements Ehcache {
         }
         if (element != null) {
             if (isExpired(element)) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(configuration.getName() + " Memory cache hit, but element expired");
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine(configuration.getName() + " Memory cache hit, but element expired");
                 }
                 if (updateStatistics) {
                     missCountExpired++;
@@ -1205,8 +1205,8 @@ public class Cache implements Ehcache {
         }
         if (element != null) {
             if (isExpired(element)) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(configuration.getName() + " cache - Disk Store hit, but element expired");
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine(configuration.getName() + " cache - Disk Store hit, but element expired");
                 }
                 missCountExpired++;
                 remove(key, true, true, false);
@@ -2380,8 +2380,8 @@ public class Cache implements Ehcache {
                         put(new Element(key, value), false);
                     }
                 } catch (Throwable e) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Problem during load. Load will not be completed. Cause was " + e.getCause(), e);
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.log(Level.FINE, "Problem during load. Load will not be completed. Cause was " + e.getCause(), e);
                     }
                     throw new CacheException(e);
                 }
@@ -2423,8 +2423,8 @@ public class Cache implements Ehcache {
                         put(new Element(key, map.get(key)));
                     }
                 } catch (Throwable e) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Problem during load. Load will not be completed. Cause was " + e.getCause(), e);
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.log(Level.FINE, "Problem during load. Load will not be completed. Cause was " + e.getCause(), e);
                     }
                 }
             }

@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,9 +23,8 @@ import java.util.Map;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * A cache loader that throws exceptions when used
@@ -37,7 +36,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ExceptionThrowingLoader extends CountingCacheLoader {
 
-    private static final Log LOG = LogFactory.getLog(CountingCacheLoader.class.getName());
+    private static final Logger LOG = Logger.getLogger(CountingCacheLoader.class.getName());
 
     private int loadCounter;
     private int loadAllCounter;
@@ -59,7 +58,7 @@ public class ExceptionThrowingLoader extends CountingCacheLoader {
         try {
             Thread.sleep(random.nextInt(3) + 1);
         } catch (InterruptedException e) {
-            LOG.error("Interrupted");
+            LOG.severe("Interrupted");
         }
         throw new CacheException("Some exception with key " + key);
     }
@@ -83,7 +82,7 @@ public class ExceptionThrowingLoader extends CountingCacheLoader {
             try {
                 Thread.sleep(random.nextInt(4));
             } catch (InterruptedException e) {
-                LOG.error("Interrupted");
+                LOG.severe("Interrupted");
             }
             map.put(key, new Integer(loadAllCounter++));
             throw new CacheException("Some exception with key " + key);
@@ -109,7 +108,7 @@ public class ExceptionThrowingLoader extends CountingCacheLoader {
         try {
             Thread.sleep(random.nextInt(3) + 1);
         } catch (InterruptedException e) {
-            LOG.error("Interrupted");
+            LOG.severe("Interrupted");
         }
         throw new CacheException("Some exception with key " + key);
     }

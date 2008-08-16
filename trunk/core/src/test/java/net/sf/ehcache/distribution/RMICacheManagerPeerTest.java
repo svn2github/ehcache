@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.net.SocketTimeoutException;
 import java.rmi.RemoteException;
@@ -31,6 +31,8 @@ import java.rmi.UnmarshalException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Unit tests for RMICachePeer
@@ -42,7 +44,7 @@ import java.util.List;
  */
 public class RMICacheManagerPeerTest extends TestCase {
 
-    private static final Log LOG = LogFactory.getLog(RMICacheManagerPeerTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(RMICacheManagerPeerTest.class.getName());
 
 
     /**
@@ -195,7 +197,7 @@ public class RMICacheManagerPeerTest extends TestCase {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException exception) {
-                LOG.debug(exception.getMessage(), exception);
+                LOG.log(Level.SEVERE, exception.getMessage(), exception);
             }
         }
     }

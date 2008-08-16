@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package net.sf.ehcache.distribution;
 
 import net.sf.ehcache.CacheManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -27,6 +27,8 @@ import java.net.MulticastSocket;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Sends heartbeats to a multicast group containing a compressed list of URLs.
@@ -50,7 +52,7 @@ import java.util.Iterator;
 public final class MulticastKeepaliveHeartbeatSender {
 
 
-    private static final Log LOG = LogFactory.getLog(MulticastKeepaliveHeartbeatSender.class.getName());
+    private static final Logger LOG = Logger.getLogger(MulticastKeepaliveHeartbeatSender.class.getName());
 
     private static final int DEFAULT_HEARTBEAT_INTERVAL = 5000;
     private static final int MINIMUM_HEARTBEAT_INTERVAL = 1000;
@@ -139,14 +141,14 @@ public final class MulticastKeepaliveHeartbeatSender {
                             }
                         } catch (InterruptedException e) {
                             if (!stopped) {
-                                LOG.error("Error receiving heartbeat. Initial cause was " + e.getMessage(), e);
+                                LOG.log(Level.SEVERE, "Error receiving heartbeat. Initial cause was " + e.getMessage(), e);
                             }
                         }
                     }
                 } catch (IOException e) {
-                    LOG.debug("Error on multicast socket", e);
+                    LOG.log(Level.FINE, "Error on multicast socket", e);
                 } catch (Throwable e) {
-                    LOG.info("Unexpected throwable in run thread. Continuing..." + e.getMessage(), e);
+                    LOG.log(Level.INFO, "Unexpected throwable in run thread. Continuing..." + e.getMessage(), e);
                 } finally {
                     closeSocket();
                 }
@@ -154,7 +156,7 @@ public final class MulticastKeepaliveHeartbeatSender {
                     try {
                         sleep(heartBeatInterval);
                     } catch (InterruptedException e) {
-                        LOG.error("Sleep after error interrupted. Initial cause was " + e.getMessage(), e);
+                        LOG.log(Level.SEVERE, "Sleep after error interrupted. Initial cause was " + e.getMessage(), e);
                     }
                 }
             }
@@ -183,7 +185,7 @@ public final class MulticastKeepaliveHeartbeatSender {
                     byte[] uncompressedUrlList = PayloadUtil.assembleUrlList(localCachePeersSubList);
                     byte[] compressedUrlList = PayloadUtil.gzip(uncompressedUrlList);
                     if (compressedUrlList.length > PayloadUtil.MTU) {
-                        LOG.fatal("Heartbeat is not working. Configure fewer caches for replication. " +
+                        LOG.log(Level.SEVERE, "Heartbeat is not working. Configure fewer caches for replication. " +
                                 "Size is " + compressedUrlList.length + " but should be no greater than" +
                                 PayloadUtil.MTU);
                     }
@@ -238,16 +240,16 @@ public final class MulticastKeepaliveHeartbeatSender {
                     try {
                         socket.leaveGroup(groupMulticastAddress);
                     } catch (IOException e) {
-                        LOG.error("Error leaving multicast group. Message was " + e.getMessage());
+                        LOG.severe("Error leaving multicast group. Message was " + e.getMessage());
                     }
                     socket.close();
                 }
             } catch (NoSuchMethodError e) {
-                LOG.debug("socket.isClosed is not supported by JDK1.3");
+                LOG.fine("socket.isClosed is not supported by JDK1.3");
                 try {
                     socket.leaveGroup(groupMulticastAddress);
                 } catch (IOException ex) {
-                    LOG.error("Error leaving multicast group. Message was " + ex.getMessage());
+                    LOG.severe("Error leaving multicast group. Message was " + ex.getMessage());
                 }
                 socket.close();
             }
@@ -264,7 +266,7 @@ public final class MulticastKeepaliveHeartbeatSender {
      */
     public static void setHeartBeatInterval(long heartBeatInterval) {
         if (heartBeatInterval < MINIMUM_HEARTBEAT_INTERVAL) {
-            LOG.warn("Trying to set heartbeat interval too low. Using MINIMUM_HEARTBEAT_INTERVAL instead.");
+            LOG.warning("Trying to set heartbeat interval too low. Using MINIMUM_HEARTBEAT_INTERVAL instead.");
             MulticastKeepaliveHeartbeatSender.heartBeatInterval = MINIMUM_HEARTBEAT_INTERVAL;
         } else {
             MulticastKeepaliveHeartbeatSender.heartBeatInterval = heartBeatInterval;

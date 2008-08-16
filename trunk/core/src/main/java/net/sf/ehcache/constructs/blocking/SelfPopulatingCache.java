@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,11 +19,13 @@ package net.sf.ehcache.constructs.blocking;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 /**
@@ -42,7 +44,8 @@ import java.util.Iterator;
  * @version $Id$
  */
 public class SelfPopulatingCache extends BlockingCache {
-    private static final Log LOG = LogFactory.getLog(SelfPopulatingCache.class.getName());
+
+    private static final Logger LOG = Logger.getLogger(SelfPopulatingCache.class.getName());
 
     /**
      * A factory for creating entries, given a key
@@ -125,8 +128,8 @@ public class SelfPopulatingCache extends BlockingCache {
         // Refetch the entries
         final Collection keys = getKeys();
 
-        if (LOG.isTraceEnabled()) {
-            LOG.trace(getName() + ": found " + keys.size() + " keys to refresh");
+        if (LOG.isLoggable(Level.FINEST)) {
+            LOG.finest(getName() + ": found " + keys.size() + " keys to refresh");
         }
 
         // perform the refresh
@@ -138,8 +141,8 @@ public class SelfPopulatingCache extends BlockingCache {
                 final Element element = backingCache.getQuiet(key);
 
                 if (element == null) {
-                    if (LOG.isTraceEnabled()) {
-                        LOG.trace(getName() + ": entry with key " + key + " has been removed - skipping it");
+                    if (LOG.isLoggable(Level.FINEST)) {
+                        LOG.finest(getName() + ": entry with key " + key + " has been removed - skipping it");
                     }
 
                     continue;
@@ -150,7 +153,7 @@ public class SelfPopulatingCache extends BlockingCache {
                 // Collect the exception and keep going.
                 // Throw the exception once all the entries have been refreshed
                 // If the refresh fails, keep the old element. It will simply become staler.
-                LOG.warn(getName() + "Could not refresh element " + key, e);
+                LOG.log(Level.WARNING, getName() + "Could not refresh element " + key, e);
                 exception = e;
             }
         }
@@ -171,8 +174,8 @@ public class SelfPopulatingCache extends BlockingCache {
             throws Exception {
         Object key = element.getObjectKey();
 
-        if (LOG.isTraceEnabled()) {
-            LOG.trace(getName() + ": refreshing element with key " + key);
+        if (LOG.isLoggable(Level.FINEST)) {
+            LOG.finest(getName() + ": refreshing element with key " + key);
         }
 
         final Element replacementElement;

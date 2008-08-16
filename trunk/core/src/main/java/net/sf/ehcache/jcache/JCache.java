@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import net.sf.jsr107cache.CacheEntry;
 import net.sf.jsr107cache.CacheException;
 import net.sf.jsr107cache.CacheListener;
 import net.sf.jsr107cache.CacheStatistics;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -32,6 +32,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Warning: This class is related to the JSR107 specification, which is in draft. It is subject to change without notice.
@@ -62,7 +64,7 @@ import java.util.Set;
  */
 public class JCache implements net.sf.jsr107cache.Cache {
 
-    private static final Log LOG = LogFactory.getLog(JCache.class.getName());
+    private static final Logger LOG = Logger.getLogger(JCache.class.getName());
 
     /**
      * An Ehcache backing instance
@@ -410,8 +412,8 @@ public class JCache implements net.sf.jsr107cache.Cache {
         boolean inCache = cache.isValueInCache(value);
         long end = System.currentTimeMillis();
 
-        if (LOG.isWarnEnabled()) {
-            LOG.warn("Performance Warning: containsValue is not recommended. This call took "
+        if (LOG.isLoggable(Level.WARNING)) {
+            LOG.warning("Performance Warning: containsValue is not recommended. This call took "
                     + (end - start) + " ms");
         }
         return inCache;

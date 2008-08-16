@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,10 +23,11 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CountingCacheEventListener;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.util.Date;
+import java.util.logging.Logger;
 
 /**
  * @author Greg Luck
@@ -45,7 +46,7 @@ public class RMIBootstrapCacheLoaderTest extends TestCase {
      */
     protected static final boolean SYNCHRONOUS = false;
 
-    private static final Log LOG = LogFactory.getLog(RMICacheReplicatorTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(RMICacheReplicatorTest.class.getName());
 
     /**
      * CacheManager 1 in the cluster

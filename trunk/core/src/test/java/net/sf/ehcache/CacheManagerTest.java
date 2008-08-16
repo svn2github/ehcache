@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ import net.sf.ehcache.store.Store;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
 import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 import net.sf.ehcache.constructs.blocking.CountingCacheEntryFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,6 +43,7 @@ import java.util.Date;
 import java.util.Set;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Tests for CacheManager
@@ -52,7 +53,7 @@ import java.util.List;
  */
 public class CacheManagerTest extends TestCase {
 
-    private static final Log LOG = LogFactory.getLog(CacheManagerTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(CacheManagerTest.class.getName());
 
 
     /**

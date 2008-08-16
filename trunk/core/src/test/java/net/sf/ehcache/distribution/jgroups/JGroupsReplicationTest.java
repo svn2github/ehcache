@@ -25,11 +25,12 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.logging.Logger;
 
 public class JGroupsReplicationTest extends TestCase {
 
@@ -41,7 +42,7 @@ public class JGroupsReplicationTest extends TestCase {
     private static final String SAMPLE_CACHE2 = "sampleCacheSync";
     String cacheName;
 
-    private static final Log LOG = LogFactory.getLog(JGroupsReplicationTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(JGroupsReplicationTest.class.getName());
 
     protected CacheManager manager1, manager2, manager3, manager4, manager5;
 
@@ -55,13 +56,13 @@ public class JGroupsReplicationTest extends TestCase {
     }
 
     public void tearDown() throws Exception {
-        LOG.debug("Tearing down cm1");
+        LOG.fine("Tearing down cm1");
         manager1.shutdown();
-        LOG.debug("Tearing down cm2");
+        LOG.fine("Tearing down cm2");
         manager2.shutdown();
-        LOG.debug("Tearing down cm3");
+        LOG.fine("Tearing down cm3");
         manager3.shutdown();
-        LOG.debug("Tearing down cm4");
+        LOG.fine("Tearing down cm4");
         manager4.shutdown();
     }
 
@@ -74,7 +75,7 @@ public class JGroupsReplicationTest extends TestCase {
         }
         Thread.currentThread().sleep(3000);
 
-        LOG.debug(manager1.getEhcache(cacheName).getKeys().size() + "  " + manager2.getEhcache(cacheName).getKeys().size() + " " + manager3.getEhcache(cacheName).getKeys().size());
+        LOG.fine(manager1.getEhcache(cacheName).getKeys().size() + "  " + manager2.getEhcache(cacheName).getKeys().size() + " " + manager3.getEhcache(cacheName).getKeys().size());
         assertTrue(manager1.getEhcache(cacheName).getKeys().size() == manager2.getEhcache(cacheName).getKeys().size() &&
                 manager1.getEhcache(cacheName).getKeys().size() == manager3.getEhcache(cacheName).getKeys().size() &&
                 manager1.getEhcache(cacheName).getKeys().size() == manager4.getEhcache(cacheName).getKeys().size() &&

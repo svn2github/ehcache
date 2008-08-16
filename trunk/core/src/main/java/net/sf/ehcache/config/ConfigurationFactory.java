@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package net.sf.ehcache.config;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.util.ClassLoaderUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -33,6 +33,8 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,7 +45,8 @@ import java.util.regex.Pattern;
  * @version $Id$
  */
 public final class ConfigurationFactory {
-    private static final Log LOG = LogFactory.getLog(ConfigurationFactory.class.getName());
+
+    private static final Logger LOG = Logger.getLogger(ConfigurationFactory.class.getName());
 
     private static final String DEFAULT_CLASSPATH_CONFIGURATION_FILE = "/ehcache.xml";
     private static final String FAILSAFE_CLASSPATH_CONFIGURATION_FILE = "/ehcache-failsafe.xml";
@@ -63,8 +66,8 @@ public final class ConfigurationFactory {
             throw new CacheException("Attempt to configure ehcache from null file.");
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Configuring ehcache from file: " + file.toString());
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Configuring ehcache from file: " + file.toString());
         }
         Configuration configuration = null;
         InputStream input = null;
@@ -79,7 +82,7 @@ public final class ConfigurationFactory {
                     input.close();
                 }
             } catch (IOException e) {
-                LOG.error("IOException while closing configuration input stream. Error was " + e.getMessage());
+                LOG.severe("IOException while closing configuration input stream. Error was " + e.getMessage());
             }
         }
         return configuration;
@@ -89,8 +92,8 @@ public final class ConfigurationFactory {
      * Configures a bean from an XML file available as an URL.
      */
     public static Configuration parseConfiguration(final URL url) throws CacheException {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Configuring ehcache from URL: " + url);
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Configuring ehcache from URL: " + url);
         }
         Configuration configuration;
         InputStream input = null;
@@ -105,7 +108,7 @@ public final class ConfigurationFactory {
                     input.close();
                 }
             } catch (IOException e) {
-                LOG.error("IOException while closing configuration input stream. Error was " + e.getMessage());
+                LOG.severe("IOException while closing configuration input stream. Error was " + e.getMessage());
             }
         }
         return configuration;
@@ -124,13 +127,13 @@ public final class ConfigurationFactory {
             url = ConfigurationFactory.class.getResource(DEFAULT_CLASSPATH_CONFIGURATION_FILE);
         }
         if (url != null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Configuring ehcache from ehcache.xml found in the classpath: " + url);
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Configuring ehcache from ehcache.xml found in the classpath: " + url);
             }
         } else {
             url = ConfigurationFactory.class.getResource(FAILSAFE_CLASSPATH_CONFIGURATION_FILE);
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("No configuration found. Configuring ehcache from ehcache-failsafe.xml "
+            if (LOG.isLoggable(Level.WARNING)) {
+                LOG.warning("No configuration found. Configuring ehcache from ehcache-failsafe.xml "
                         + " found in the classpath: " + url);
             }
         }
@@ -141,8 +144,8 @@ public final class ConfigurationFactory {
      * Configures a bean from an XML input stream.
      */
     public static Configuration parseConfiguration(final InputStream inputStream) throws CacheException {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Configuring ehcache from InputStream");
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Configuring ehcache from InputStream");
         }
 
         Configuration configuration = new Configuration();
@@ -184,14 +187,14 @@ public final class ConfigurationFactory {
 
             String property = System.getProperty(trimmedToken);
             if (property == null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Did not find a system property for the " + token +
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Did not find a system property for the " + token +
                             " token specified in the configuration.Replacing with \"\"");
                 }
             } else {
                 configuration = configuration.replaceAll("\\$\\{" + trimmedToken + "\\}", property);
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Found system property value of " + property + " for the " + token +
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Found system property value of " + property + " for the " + token +
                             " token specified in the configuration.");
                 }
             }

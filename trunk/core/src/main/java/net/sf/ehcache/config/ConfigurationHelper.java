@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -40,8 +40,8 @@ import net.sf.ehcache.event.CacheManagerEventListenerFactory;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.PropertyUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * The configuration for ehcache.
@@ -64,7 +65,7 @@ import java.util.Set;
  */
 public final class ConfigurationHelper {
 
-    private static final Log LOG = LogFactory.getLog(ConfigurationHelper.class.getName());
+    private static final Logger LOG = Logger.getLogger(ConfigurationHelper.class.getName());
 
     private Configuration configuration;
     private CacheManager cacheManager;
@@ -127,7 +128,7 @@ public final class ConfigurationHelper {
             className = factoryConfiguration.getFullyQualifiedClassPath();
         }
         if (className == null) {
-            LOG.debug("CacheEventListener factory not configured. Skipping...");
+            LOG.fine("CacheEventListener factory not configured. Skipping...");
         } else {
             CacheEventListenerFactory factory = (CacheEventListenerFactory)
                     ClassLoaderUtil.createNewInstance(className);
@@ -154,7 +155,7 @@ public final class ConfigurationHelper {
             className = factoryConfiguration.getFullyQualifiedClassPath();
         }
         if (className == null) {
-            LOG.debug("CacheExtension factory not configured. Skipping...");
+            LOG.fine("CacheExtension factory not configured. Skipping...");
         } else {
             CacheExtensionFactory factory = (CacheExtensionFactory) ClassLoaderUtil.createNewInstance(className);
             Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
@@ -177,7 +178,7 @@ public final class ConfigurationHelper {
             className = factoryConfiguration.getFullyQualifiedClassPath();
         }
         if (className == null || className.length() == 0) {
-            LOG.debug("No BootstrapCacheLoaderFactory class specified. Skipping...");
+            LOG.fine("No BootstrapCacheLoaderFactory class specified. Skipping...");
         } else {
             BootstrapCacheLoaderFactory factory = (BootstrapCacheLoaderFactory)
                     ClassLoaderUtil.createNewInstance(className);
@@ -202,7 +203,7 @@ public final class ConfigurationHelper {
             className = factoryConfiguration.getFullyQualifiedClassPath();
         }
         if (className == null || className.length() == 0) {
-            LOG.debug("No CacheLoaderFactory class specified. Skipping...");
+            LOG.fine("No CacheLoaderFactory class specified. Skipping...");
         } else {
             CacheLoaderFactory factory = (CacheLoaderFactory)
                     ClassLoaderUtil.createNewInstance(className);
@@ -227,7 +228,7 @@ public final class ConfigurationHelper {
             className = factoryConfiguration.getFullyQualifiedClassPath();
         }
         if (className == null || className.length() == 0) {
-            LOG.debug("No CacheExceptionHandlerFactory class specified. Skipping...");
+            LOG.fine("No CacheExceptionHandlerFactory class specified. Skipping...");
         } else {
             CacheExceptionHandlerFactory factory = (CacheExceptionHandlerFactory)
                     ClassLoaderUtil.createNewInstance(className);
@@ -250,7 +251,7 @@ public final class ConfigurationHelper {
             className = cachePeerProviderFactoryConfiguration.getFullyQualifiedClassPath();
         }
         if (className == null) {
-            LOG.debug("No CachePeerProviderFactoryConfiguration specified. Not configuring a CacheManagerPeerProvider.");
+            LOG.fine("No CachePeerProviderFactoryConfiguration specified. Not configuring a CacheManagerPeerProvider.");
             return null;
         } else {
             CacheManagerPeerProviderFactory cacheManagerPeerProviderFactory =
@@ -273,7 +274,7 @@ public final class ConfigurationHelper {
             className = cachePeerListenerFactoryConfiguration.getFullyQualifiedClassPath();
         }
         if (className == null) {
-            LOG.debug("No CachePeerListenerFactoryConfiguration specified. Not configuring a CacheManagerPeerListener.");
+            LOG.fine("No CachePeerListenerFactoryConfiguration specified. Not configuring a CacheManagerPeerListener.");
             return null;
         } else {
             CacheManagerPeerListenerFactory cacheManagerPeerListenerFactory = (CacheManagerPeerListenerFactory)
@@ -297,7 +298,7 @@ public final class ConfigurationHelper {
             className = cacheManagerEventListenerFactoryConfiguration.getFullyQualifiedClassPath();
         }
         if (className == null || className.length() == 0) {
-            LOG.debug("No CacheManagerEventListenerFactory class specified. Skipping...");
+            LOG.fine("No CacheManagerEventListenerFactory class specified. Skipping...");
             return null;
         } else {
             CacheManagerEventListenerFactory factory = (CacheManagerEventListenerFactory)

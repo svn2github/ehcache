@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,11 +16,13 @@
 
 package net.sf.ehcache.constructs.web;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * A collection of response processing utilities, which are shared between 2 or more filters
@@ -31,7 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 public final class ResponseUtil {
 
 
-    private static final Log LOG = LogFactory.getLog(ResponseUtil.class.getName());
+    private static final Logger LOG = Logger.getLogger(ResponseUtil.class.getName());
 
 
     /**
@@ -65,8 +67,8 @@ public final class ResponseUtil {
 
         //Check for 0 length body
         if (compressedBytes.length == EMPTY_GZIPPED_CONTENT_SIZE) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(request.getRequestURL() + " resulted in an empty response.");
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine(request.getRequestURL() + " resulted in an empty response.");
             }
             return true;
         } else {
@@ -92,8 +94,8 @@ public final class ResponseUtil {
 
         //Check for NO_CONTENT
         if (responseStatus == HttpServletResponse.SC_NO_CONTENT) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(request.getRequestURL() + " resulted in a " + HttpServletResponse.SC_NO_CONTENT
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine(request.getRequestURL() + " resulted in a " + HttpServletResponse.SC_NO_CONTENT
                         + " response. Removing message body in accordance with RFC2616.");
             }
             return true;
@@ -101,8 +103,8 @@ public final class ResponseUtil {
 
         //Check for NOT_MODIFIED
         if (responseStatus == HttpServletResponse.SC_NOT_MODIFIED) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(request.getRequestURL() + " resulted in a " + HttpServletResponse.SC_NOT_MODIFIED
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine(request.getRequestURL() + " resulted in a " + HttpServletResponse.SC_NOT_MODIFIED
                         + " response. Removing message body in accordance with RFC2616.");
             }
             return true;

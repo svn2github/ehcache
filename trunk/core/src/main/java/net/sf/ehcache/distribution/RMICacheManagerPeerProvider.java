@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package net.sf.ehcache.distribution;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * A provider of Peer RMI addresses.
@@ -40,7 +41,7 @@ import java.util.Map;
  */
 public abstract class RMICacheManagerPeerProvider implements CacheManagerPeerProvider {
 
-    private static final Log LOG = LogFactory.getLog(RMICacheManagerPeerProvider.class.getName());
+    private static final Logger LOG = Logger.getLogger(RMICacheManagerPeerProvider.class.getName());
 
     /**
      * Contains a RMI URLs of the form: "//" + hostName + ":" + port + "/" + cacheName;

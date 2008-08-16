@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,13 +16,15 @@
 
 package net.sf.ehcache.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Map;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Property utilities.
@@ -31,7 +33,8 @@ import java.util.Map;
  */
 public final class PropertyUtil {
 
-    private static final Log LOG = LogFactory.getLog(PropertyUtil.class.getName());
+    private static final Logger LOG = Logger.getLogger(PropertyUtil.class.getName());
+
     private static final String DEFAULT_PROPERTY_SEPARATOR = ",";
 
     /**
@@ -52,8 +55,8 @@ public final class PropertyUtil {
         if (foundValue != null) {
             foundValue = foundValue.trim();
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(new StringBuffer().append("Value found for ").append(name).append(": ")
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine(new StringBuffer().append("Value found for ").append(name).append(": ")
                     .append(foundValue).toString());
         }
         return foundValue;
@@ -70,8 +73,8 @@ public final class PropertyUtil {
         if (foundValue != null) {
             foundValue = foundValue.trim();
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(new StringBuffer().append("Value found for ").append(name).append(": ")
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine(new StringBuffer().append("Value found for ").append(name).append(": ")
                     .append(foundValue).toString());
         }
         return foundValue;
@@ -85,7 +88,7 @@ public final class PropertyUtil {
     public static Properties parseProperties(String propertiesString, String propertySeparator) {
         String propertySeparatorLocal = propertySeparator;
         if (propertiesString == null) {
-            LOG.debug("propertiesString is null.");
+            LOG.fine("propertiesString is null.");
             return null;
         }
         if (propertySeparator == null) {
@@ -97,7 +100,7 @@ public final class PropertyUtil {
         try {
             properties.load(new ByteArrayInputStream(propertyLines.getBytes()));
         } catch (IOException e) {
-            LOG.error("Cannot load properties from " + propertiesString);
+            LOG.severe("Cannot load properties from " + propertiesString);
         }
         return properties;
     }

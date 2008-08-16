@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,13 +19,14 @@ package net.sf.ehcache.store;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * First-In-First-Out (FIFO) implementation of MemoryStore.
@@ -34,7 +35,8 @@ import java.util.Set;
  * @version $Id$
  */
 public class FifoMemoryStore extends MemoryStore {
-    private static final Log LOG = LogFactory.getLog(FifoMemoryStore.class.getName());
+
+    private static final Logger LOG = Logger.getLogger(FifoMemoryStore.class.getName());
 
     /**
      * Constructor for the FifoMemoryStore object.

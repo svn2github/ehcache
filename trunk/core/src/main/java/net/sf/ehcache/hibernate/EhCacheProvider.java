@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ package net.sf.ehcache.hibernate;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.util.ClassLoaderUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.CacheProvider;
@@ -26,6 +26,8 @@ import org.hibernate.cache.Timestamper;
 
 import java.net.URL;
 import java.util.Properties;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Cache Provider plugin for Hibernate 3.2 and ehcache-1.2. New in this provider are ehcache support for multiple
@@ -63,7 +65,7 @@ public final class EhCacheProvider implements CacheProvider {
      */
     public static final String NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME = "net.sf.ehcache.configurationResourceName";
 
-    private static final Log LOG = LogFactory.getLog(EhCacheProvider.class);
+    private static final Logger LOG = Logger.getLogger(EhCacheProvider.class.getName());
 
     private CacheManager manager;
 
@@ -86,10 +88,10 @@ public final class EhCacheProvider implements CacheProvider {
         try {
             net.sf.ehcache.Ehcache cache = manager.getEhcache(name);
             if (cache == null) {
-                LOG.warn("Could not find a specific ehcache configuration for cache named [" + name + "]; using defaults.");
+                LOG.warning("Could not find a specific ehcache configuration for cache named [" + name + "]; using defaults.");
                 manager.addCache(name);
                 cache = manager.getEhcache(name);
-                EhCacheProvider.LOG.debug("started EHCache region: " + name);
+                EhCacheProvider.LOG.fine("started EHCache region: " + name);
             }
             return new net.sf.ehcache.hibernate.EhCache(cache);
         } catch (net.sf.ehcache.CacheException e) {
@@ -113,7 +115,7 @@ public final class EhCacheProvider implements CacheProvider {
      */
     public final void start(Properties properties) throws CacheException {
         if (manager != null) {
-            LOG.warn("Attempt to restart an already started EhCacheProvider. Use sessionFactory.close() " +
+            LOG.warning("Attempt to restart an already started EhCacheProvider. Use sessionFactory.close() " +
                     " between repeated calls to buildSessionFactory. Using previously created EhCacheProvider." +
                     " If this behaviour is required, consider using SingletonEhCacheProvider.");
             return;
@@ -151,13 +153,13 @@ public final class EhCacheProvider implements CacheProvider {
         if (url == null) {
             url = this.getClass().getResource(configurationResourceName);
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Creating EhCacheProvider from a specified resource: "
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Creating EhCacheProvider from a specified resource: "
                     + configurationResourceName + " Resolved to URL: " + url);
         }
         if (url == null) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("A configurationResourceName was set to " + configurationResourceName +
+            if (LOG.isLoggable(Level.WARNING)) {
+                LOG.warning("A configurationResourceName was set to " + configurationResourceName +
                         " but the resource could not be loaded from the classpath." +
                         "Ehcache will configure itself using defaults.");
             }

@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
 
 package net.sf.ehcache.store;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.Serializable;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * A typesafe enumeration of eviction policies.
@@ -54,7 +56,7 @@ public final class MemoryStoreEvictionPolicy implements Serializable {
      */
     public static final MemoryStoreEvictionPolicy FIFO = new MemoryStoreEvictionPolicy("FIFO");
 
-    private static final Log LOG = LogFactory.getLog(MemoryStoreEvictionPolicy.class.getName());
+    private static final Logger LOG = Logger.getLogger(MemoryStoreEvictionPolicy.class.getName());
 
     private final String myName;
 
@@ -90,8 +92,8 @@ public final class MemoryStoreEvictionPolicy implements Serializable {
             }
         }
 
-        if (LOG.isWarnEnabled()) {
-            LOG.warn("The memoryStoreEvictionPolicy of " + policy + " cannot be resolved. The policy will be" +
+        if (LOG.isLoggable(Level.WARNING)) {
+            LOG.warning("The memoryStoreEvictionPolicy of " + policy + " cannot be resolved. The policy will be" +
                     " set to LRU");
         }
         return LRU;

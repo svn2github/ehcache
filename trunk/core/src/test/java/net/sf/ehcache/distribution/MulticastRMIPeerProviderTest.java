@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,14 +22,15 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.StopWatch;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.rmi.RemoteException;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Multicast tests. These require special machine configuration.
@@ -46,7 +47,7 @@ import java.util.List;
  */
 public class MulticastRMIPeerProviderTest extends TestCase {
 
-    private static final Log LOG = LogFactory.getLog(MulticastRMIPeerProviderTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(MulticastRMIPeerProviderTest.class.getName());
 
     /**
      * Cache Manager 1

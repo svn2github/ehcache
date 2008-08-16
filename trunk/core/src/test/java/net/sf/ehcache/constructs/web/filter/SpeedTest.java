@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,17 +23,19 @@ import net.sf.ehcache.constructs.web.AbstractWebTest;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * @author Greg Luck
  * @version $Id$
  */
 public class SpeedTest extends AbstractWebTest {
-    private static final Log LOG = LogFactory.getLog(SpeedTest.class.getName());
+
+    private static final Logger LOG = Logger.getLogger(SpeedTest.class.getName());
 
     /**
      * Time to get 200 Cached Pages

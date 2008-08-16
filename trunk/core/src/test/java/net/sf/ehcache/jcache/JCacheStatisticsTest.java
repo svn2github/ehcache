@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,14 +21,15 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheStatistics;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.logging.Logger;
 
 /**
  * Tests for the statistics class
@@ -39,7 +40,7 @@ import java.io.ObjectOutputStream;
 public class JCacheStatisticsTest extends AbstractCacheTest {
 
 
-    private static final Log LOG = LogFactory.getLog(JCacheStatisticsTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(JCacheStatisticsTest.class.getName());
 
     /**
      * Test statistics directly from Statistics Object

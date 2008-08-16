@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Primitive;
 import net.sf.ehcache.config.DiskStoreConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 
 import java.io.IOException;
 import java.io.File;
@@ -34,6 +34,7 @@ import java.util.Random;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.logging.Logger;
 
 /**
  * Test cases for the DiskStore.
@@ -46,7 +47,8 @@ import java.util.Date;
  *          total time 133, 131, 130 nio
  */
 public class DiskStoreTest extends AbstractCacheTest {
-    private static final Log LOG = LogFactory.getLog(DiskStoreTest.class.getName());
+
+    private static final Logger LOG = Logger.getLogger(DiskStoreTest.class.getName());
     private static final int ELEMENT_ON_DISK_SIZE = 1340;
     private CacheManager manager2;
 

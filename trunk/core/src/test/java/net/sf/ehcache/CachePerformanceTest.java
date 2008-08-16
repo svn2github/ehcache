@@ -1,9 +1,11 @@
 package net.sf.ehcache;
 
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+
 import net.sf.ehcache.store.DiskStore;
+
+import java.util.logging.Logger;
 
 /**
  * Isolated performance test which only runs one cache at a time.
@@ -12,7 +14,7 @@ import net.sf.ehcache.store.DiskStore;
  */
 public class CachePerformanceTest extends TestCase {
 
-    private static final Log LOG = LogFactory.getLog(CacheTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(CacheTest.class.getName());
 
 
 

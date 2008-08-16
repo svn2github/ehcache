@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,8 +17,9 @@
 package net.sf.ehcache.loader;
 
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import java.util.logging.Logger;
+
 
 /**
  * ComponentA is composed of ComponentB and some other fields. Tests the interactions between two loaders, where the first component's
@@ -28,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class CompositeLoaderTest extends TestCase {
 
-    private static final Log LOG = LogFactory.getLog(CompositeLoaderTest.class);
+    private static final Logger LOG = Logger.getLogger(CompositeLoaderTest.class.getName());
 
     /**
      * Sets up the fixture, for example, open a network connection.
@@ -52,7 +53,7 @@ public class CompositeLoaderTest extends TestCase {
     public void testCompositeLoad() {
         LOG.info("Getting from cache"); 
         ComponentA compA = (ComponentA) CacheHelper.get("ehcache-loaderinteractions.xml", "ACache", "key1");
-        LOG.info(compA);
+        LOG.info(compA.toString());
 
     }
 

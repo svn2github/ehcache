@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,9 +27,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Tests the cache listener functionality
@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class CacheEventListenerTest extends AbstractCacheTest {
 
-    protected static final Log LOG = LogFactory.getLog(CacheEventListenerTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(CacheEventListenerTest.class.getName());
 
 
     /**
@@ -726,7 +726,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
                         assertTrue(cache.getCacheEventNotificationService().unregisterListener(listener));
 
                     } catch (Throwable t) {
-                        LOG.error(t);
+                        LOG.log(Level.SEVERE, "", t);
                         fail();
                     }
                 }

@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,8 +17,9 @@
 package net.sf.ehcache;
 
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import java.util.logging.Logger;
+
 
 /**
  * Test cases for status.
@@ -27,7 +28,8 @@ import org.apache.commons.logging.LogFactory;
  * @version $Id$
  */
 public class StatusTest extends TestCase {
-    private static final Log LOG = LogFactory.getLog(StatusTest.class.getName());
+
+    private static final Logger LOG = Logger.getLogger(StatusTest.class.getName());
 
     private static int int1 = 1;
     private int int2 = 2;
