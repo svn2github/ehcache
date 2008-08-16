@@ -720,6 +720,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
                             cache.put(element);
                         }
                     } catch (Throwable t) {
+                        LOG.error(t);
                         fail();
                     }
                 }
@@ -737,6 +738,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
                         cache.getCacheEventNotificationService().unregisterListener(listener);
 
                     } catch (Throwable t) {
+                        LOG.error(t);
                         fail();
                     }
                 }

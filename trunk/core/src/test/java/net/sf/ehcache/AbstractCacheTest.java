@@ -51,7 +51,7 @@ public abstract class AbstractCacheTest extends TestCase {
     public static final String TEST_CLASSES_DIR = "target/test-classes/";
 
 
-    private static final Log LOG = LogFactory.getLog(AbstractCacheTest.class.getName());
+    protected static final Log LOG = LogFactory.getLog(AbstractCacheTest.class.getName());
 
     /**
      * name for sample cache 1
