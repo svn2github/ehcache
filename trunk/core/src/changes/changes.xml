@@ -8,6 +8,14 @@
                 Removed commons-collections. The LRUHashMap was only being used by early versions of Terracotta integration
                 and is not longer required to support Terracotta.
             </action>
+            <action dev="Greg Luck" type="remove" issue="1987750">
+                Removed dependency on backport concurrent. java.util.concurrency is now used.
+            </action>
+            <action dev="Greg Luck" type="update">
+                Java 1.5 is now the minimum version for ehcache 1.6. Java 1.4 will continue to be supported on the ehcache
+                1.5 branch.
+            </action>
+
 
         </release>
 
