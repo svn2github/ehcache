@@ -15,7 +15,7 @@
         </init-param>
         <init-param>
             <param-name>exceptionsToLogDifferentlyLevel</param-name>
-            <param-value>debug</param-value>
+            <param-value>fine</param-value>
         </init-param>
         <init-param>
             <param-name>suppressStackTraces</param-name>

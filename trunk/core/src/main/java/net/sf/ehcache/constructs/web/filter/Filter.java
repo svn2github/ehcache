@@ -66,7 +66,7 @@ public abstract class Filter implements javax.servlet.Filter {
      * <p/>
      * This should match the logging method name in Java logging e.g. fine
      */
-    protected String exceptionsToLogDifferentlyLevel;
+    protected Level exceptionsToLogDifferentlyLevel;
 
 
     /**
@@ -128,12 +128,9 @@ public abstract class Filter implements javax.servlet.Filter {
         if (matchFound) {
             try {
                 if (suppressStackTraces) {
-                    Method method = Logger.class.getMethod(exceptionsToLogDifferentlyLevel, new Class[]{String.class});
-                    method.invoke(LOG, new Object[]{throwable.getMessage()});
+                    LOG.log(exceptionsToLogDifferentlyLevel, throwable.getMessage());
                 } else {
-                    Method method = Logger.class.getMethod(exceptionsToLogDifferentlyLevel,
-                            new Class[]{Object.class, Throwable.class});
-                    method.invoke(LOG, new Object[]{throwable.getMessage(), throwable});
+                    LOG.log(exceptionsToLogDifferentlyLevel, throwable.getMessage(), throwable);
                 }
             } catch (Exception e) {
                 LOG.log(Level.SEVERE, "Could not invoke Log method for " + exceptionsToLogDifferentlyLevel, e);
@@ -233,8 +230,7 @@ public abstract class Filter implements javax.servlet.Filter {
 
         if (exceptions != null) {
             validateMandatoryParameters(exceptions, level);
-            validateLevel(level);
-            exceptionsToLogDifferentlyLevel = level;
+            setLevel(level);
             exceptionsToLogDifferently = exceptions;
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Different logging levels configured for " + this.getClass().getName());
@@ -250,16 +246,21 @@ public abstract class Filter implements javax.servlet.Filter {
         }
     }
 
-    //todo change this to set a new Level.?
-    private void validateLevel(String level) throws ServletException {
+    private void setLevel(String level) throws ServletException {
         //Check correct level set
-        if ((level.equals("finest")
-                || level.equals("info")
-                || level.equals("warn")
-                || level.equals("error")
-                || level.equals("fatal"))) {
+        if (level.equals("finest")) {
+            exceptionsToLogDifferentlyLevel = Level.FINEST;
+        } else if (level.equals("fine")) {
+            exceptionsToLogDifferentlyLevel = Level.FINE;
+        } else if (level.equals("info")) {
+            exceptionsToLogDifferentlyLevel = Level.INFO;
+        } else if (level.equals("warning")) {
+            exceptionsToLogDifferentlyLevel = Level.WARNING;
+        } else if (level.equals("severe")) {
+            exceptionsToLogDifferentlyLevel = Level.SEVERE;
+        } else {
             throw new ServletException("Invalid init-params value for \"exceptionsToLogDifferentlyLevel\"."
-                    + "Must be one of debug, info, warn, error or fatal.");
+                    + "Must be one of finest, fine, info, warning or severe.");
         }
     }
 

@@ -16,7 +16,7 @@
         </init-param>
         <init-param>
             <param-name>exceptionsToLogDifferentlyLevel</param-name>
-            <param-value>debug</param-value>
+            <param-value>fine</param-value>
             <description>The log level. One of debug, info, warn, error and fatal</description>
         </init-param>
         <init-param>
