@@ -16,6 +16,31 @@ Welcome to ehcache
 
 * Latest News
 
+** 18 August 2008: Ehcache 1.6 development underway
+
+   Ehcache-1.6 development is underway.
+
+   1.6 Goals:
+
+   * Minimum Java version 1.5
+
+   * minimise dependencies for core users: drop commons logging, commons collections and backport concurrent (already done in trunk and snapshot)
+
+   * add a JMS distributed cache replicator
+
+   * add RESTful ehcache server as secondary store, leveraging the new ehcache-server, and using partitioning (memcached feature)
+
+   * introduce new performance strategies and secondary store categories to allow greater optimisation. The goal
+   is to make ehcache faster than java.util.concurrent for in-process caching and as scalable as memcached for out-of-process
+   caching.
+
+   * group invalidation (OSCACHE feature)
+
+   * add other oustanding feature requests
+
+   Check trunk regularly for updates. For maven users (of which ehcache is one) a SNAPSOT repository has been added. See
+    {{http://ehcache.sf.net/snapshotrepository}}
+
 ** 11 August 2008: Ehcache 1.5 Book released on Lulu.com
 
    The new edition of the {{{http://www.lulu.com/content/3553390}Ehcache Book}},  has been released on Lulu.com. In particular
@@ -102,56 +127,6 @@ Welcome to ehcache
 
 
     See the {{{http://ehcache.sourceforge.net/changes-report.html#1.5.0}changelog}} for complete details.
-
-** 7 June 2008: ehcache-1.5.0-beta2 release
-
-   Ehcache 1.5.0-beta2 provides a couple of fixes to changes made in beta1. If you are testing 1.5 please use this version.
-
-** 13 May 2008: ehcache-1.5.0-beta1 release
-
-   Ehcache 1.5.0-beta1 provides a host of new features and a few bug fixes. (See the ehcache-1.5.0 final release news item).
-
-** 1 March 2008: ehcache is SourceForge project of the month
-
-   Ehcache has been honoured as the February 2008 SourceForge project of the month. See {{http://sourceforge.net/community/index.php/potm-200802/}}.
-
-
-** 21 February 2008: ehcache-1.4.1 maintenance release
-
-    The version of ehcache is a minor maintenance release. The main reason for the release was to include ehcache-failsafe.xml
-    which was omitted from the public maven repository version. See the {{{http://ehcache.sourceforge.net/changes-report.html#1.4.1}changelog}}
-    for complete details.
-
-** 31 January 2008: ehcache-1.4 released
-
-    The final version of ehcache-1.4 is available on sourceforge and the Maven central repository.
-
-    This version significantly enrichens the ehcache API and enhances extension of ehcache. The new features are:
-
-    * You can now define CacheLoaders in the ehcache core API. They supplement the existing SelfPopulatingCache.
-      They can be configured in ehcache.xml or programmatically. They can be used for cache warming, and simple pull-through
-      caching. See the {{{/documentation/cache_loaders.html}Cache Loaders}} chapter in the documentation for more details.
-
-    * You can now define a CacheExceptionHandler and register it progammatically or in ehcache.xml.
-      This enables an exception handler to be registered with a cache so that it is called on exception rather than the exception being thrown.
-      See the {{{/documentation/cache_exception_handlers.html}Cache Exception Handler}} chapter in the documentation for more details.
-
-    * You can now define CacheExtensions and register them progammatically or in ehcache.xml. A CacheExtension is a generic facility which holds a reference
-      to a cache and is bound to the cache lifecycle, making possible a wide variety of extensions to behaviour. Usage examples are
-      a cache refresh timer or a file monitoring mechanism.
-      See the {{{/documentation/cache_extensions.html}Cache Extensions}} chapter in the documentation for more details.
-
-    This final release follows the second beta release by a month and fixes a few minor issues. See
-    {{{http://ehcache.sourceforge.net/changes-report.html#1.4.0}changelog}} for complete details.
-
-
-** 1 January 2008: ehcache-1.4-beta2 released
-
-    The beta 2 version of ehcache-1.4 is available on sourceforge and the Maven central repository.
-
-    The second beta release fixes 10 bugs, most of them in the new features being introduced in 1.4.0, reported
-    by beta testers. See the
-    {{{http://ehcache.sourceforge.net/changes-report.html#1.4.0-beta2}changelog}} for complete details.
 
 
  More {{{news.html}news}}...

@@ -5,7 +5,7 @@
     <parent>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-parent</artifactId>
-        <version>1.6.0</version>
+        <version>1.5.0</version>
     </parent>
     <name>Ehcache Core</name>
     <artifactId>ehcache</artifactId>
@@ -441,13 +441,19 @@
 
     <!-- Note: site URL repeated here to ensure correct deployment path -->
     <distributionManagement>
-        <!--  
+        <!--
           The server id here defined must also appear in ~/.m2/settings.xml with username
         -->
+        <snapshotRepository>
+            <id>sourceforge.net</id>
+            <name>SF EHCache Snapshot Repository</name>
+            <url>scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs/snapshotrepository</url>
+
+        </snapshotRepository>
         <site>
             <id>sourceforge.net</id>
             <name>SF EHCache Site</name>
-            <url>scp://shell.sf.net:/home/groups/e/eh/ehcache/htdocs</url>
+            <url>scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs</url>
         </site>
     </distributionManagement>
 

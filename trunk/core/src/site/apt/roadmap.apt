@@ -9,23 +9,28 @@ Development Roadmap
 
  Last Updated 12 July 2008.
 
+* 18 August 2008: Ehcache 1.6 development underway
 
-* Cache Server
+   1.6 Goals:
 
- (This one coming July 08)
+   * Minimum Java version 1.5
 
- This will be a cache server with both REST and W3C Web Services APIs. The server will work standalone
- with Unix service control and also be deployable as a WAR. The idea is to make ehcache available to the
- C, C++ and dynamic language communities as an out-of-process cache which can be scaled by adding
- instances behind a load balancer.
+   * minimise dependencies for core users: drop commons logging, commons collections and backport concurrent (already done in trunk and snapshot)
 
-* JMS distribution mechanisms
+   * add a JMS distributed cache replicator
 
- There is sponsorship for a JMS-based replication mechanism. This should be useful for many people.
+   * add RESTful ehcache server as secondary store, leveraging the new ehcache-server, and using partitioning (memcached feature)
 
-* Group based invalidation
+   * introduce new performance strategies and secondary store categories to allow greater optimisation. The goal
+   is to make ehcache faster than java.util.concurrent for in-process caching and as scalable as memcached for out-of-process
+   caching.
 
-  This has become a common feature request. Multiple elements may be associated as a group, and then invalidated together.
+   * group invalidation (OSCACHE feature)
+
+   * add other oustanding feature requests
+
+   Check trunk regularly for updates. For maven users (of which ehcache is one) a SNAPSOT repository has been added. See
+    {{http://ehcache.sf.net/snapshotrepository}}
 
 * Distributed Transactions with RMI Replication
 

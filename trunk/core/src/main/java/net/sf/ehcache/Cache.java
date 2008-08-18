@@ -2434,6 +2434,7 @@ public class Cache implements Ehcache {
 
     /**
      * @return Gets the executor service. This is not publically accessible.
+     * todo sort this out. Oustanding from lib change.
      */
     ThreadPoolExecutor getExecutorService() {
         if (executorService == null) {

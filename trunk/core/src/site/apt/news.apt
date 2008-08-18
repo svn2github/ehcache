@@ -7,6 +7,32 @@
 
 News
 
+* 18 August 2008: Ehcache 1.6 development underway
+
+   Ehcache-1.6 development is underway.
+
+   1.6 Goals:
+
+   * Minimum Java version 1.5
+
+   * minimise dependencies for core users: drop commons logging, commons collections and backport concurrent (already done in trunk and snapshot)
+
+   * add a JMS distributed cache replicator
+
+   * add RESTful ehcache server as secondary store, leveraging the new ehcache-server, and using partitioning (memcached feature)
+
+   * introduce new performance strategies and secondary store categories to allow greater optimisation. The goal
+   is to make ehcache faster than java.util.concurrent for in-process caching and as scalable as memcached for out-of-process
+   caching.
+
+   * group invalidation (OSCACHE feature)
+
+   * add other oustanding feature requests
+
+   Check trunk regularly for updates. For maven users (of which ehcache is one) a SNAPSOT repository has been added. See
+    {{http://ehcache.sf.net/snapshotrepository}}
+
+
 * 11 August 2008: Ehcache 1.5 Book released on Lulu.com
 
    The new edition of the {{{http://www.lulu.com/content/3553390}Ehcache Book}},  has been released on Lulu.com. In particular

@@ -361,7 +361,8 @@
     <div id="rightColumn">
       <div id="navcolumn">
       <a href="http://www.lulu.com/content/3553390"><img src="images/ehcache_guide.jpg" border="0" width="160" alt="Ehcache Guide &amp; Reference"/></a>
-      <p>Ehcache Guide and Reference is available as a book. The price for the high quality bound edition is USD49.95 plus shipping. The price for the downloadable print-ready version is USD37.50. The book has 154 pages.</p><p>Many people have asked for a format for the documentation where it can be printed out as a book and even where they can get it. Of course, full documentation in the HTML single page and multi-page versions will always remain available on the site.</p><p>Buy it online from <a href="http://www.lulu.com/content/3553390">Lulu Books</a>.</p></div>
+      <p>Ehcache Guide and Reference is available as a book. The price for the high quality bound edition is USD49.98 plus shipping. The price for the downloadable print-ready version is USD37.50. The book has 180 pages.
+      This edition includes new a new chapter on Ehcache Server - the RESTful and SOAP based server.</p>As usual the cuurrent ehcache version full documentation is available on the site.</p><p>Buy the book online from <a href="http://www.lulu.com/content/3553390">Lulu Books</a>.</p></div>
       </div>
     </div>
     <div id="bodyColumn">
