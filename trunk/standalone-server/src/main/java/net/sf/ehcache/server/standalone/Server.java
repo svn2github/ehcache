@@ -50,7 +50,6 @@ public class Server implements Daemon {
 
     private static ServerThread serverThread;
 
-    private Integer listeningPort = DEFAULT_PORT;
     private DaemonController controller;
     private File war;
     private Integer port = DEFAULT_PORT;
@@ -70,10 +69,10 @@ public class Server implements Daemon {
     /**
      * Constructs a server on a given port
      *
-     * @param listeningPort the port to listen on.
+     * @param port the port to listen on.
      */
-    public Server(Integer listeningPort, File ehcacheServerWar) {
-        this.listeningPort = listeningPort;
+    public Server(Integer port, File ehcacheServerWar) {
+        this.port = port;
         this.war = ehcacheServerWar;
     }
 
@@ -239,11 +238,11 @@ public class Server implements Daemon {
         private void startWithGlassfish() {
 
             try {
-                glassfish = new GlassFish(listeningPort);
+                glassfish = new GlassFish(port);
 
                 GFApplication application = glassfish.deploy(war);
                 deployed = true;
-                LOG.info("Glassfish server running on port " + listeningPort + " with WAR " + war);
+                LOG.info("Glassfish server running on port " + port + " with WAR " + war);
             } catch (GFException e) {
                 LOG.log(Level.SEVERE, "Cannot start server. ", e);
             } catch (IOException e) {
