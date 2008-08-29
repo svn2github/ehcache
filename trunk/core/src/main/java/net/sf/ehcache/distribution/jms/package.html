@@ -1,0 +1,29 @@
+<html>
+<body>
+<pre>
+The JMS package works as follows:
+
+  A JMSCacheManagerPeerListener subscribes to topic names on a given JMS connection for each cache
+    listed in the factory cacheNames property. Topics should be set up on the messageQueue exactly matching
+    the cacheNames.
+
+  A JMSSynchronousCacheReplicator sends an XML form of EventMessage to the topic on the given JMS Connection.
+
+  todo should Asynchronous also be supported?
+
+
+
+  Due to the variety of ways a ready to go JMS ConnectionFactory can be created, according to JMS vendor. This leaves
+    it completely flexible how the ConnectionFactory is created.
+
+  todo should JMS be in a separate maven module?
+  todo should some factoryfactories be created, such as for JBoss, Open MQ and Active MQ?
+
+
+
+
+
+
+</pre>
+</body>
+</html>
