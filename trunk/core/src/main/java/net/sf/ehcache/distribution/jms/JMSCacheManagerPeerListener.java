@@ -1,22 +1,36 @@
+/**
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package net.sf.ehcache.distribution.jms;
 
-import net.sf.ehcache.distribution.RMICacheManagerPeerListener;
-import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Status;
 import net.sf.ehcache.CacheManager;
 
-import java.util.List;
-
-import com.sun.messaging.ConnectionFactory;
+import net.sf.ehcache.Status;
+import net.sf.ehcache.distribution.CacheManagerPeerListener;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Session;
+import javax.jms.ConnectionFactory;
+import java.util.List;
 
 /**
+ * todo finish or remove
  * @author Greg Luck
- * @version $Id$
  */
 public class JMSCacheManagerPeerListener implements CacheManagerPeerListener {
 
@@ -24,18 +38,24 @@ public class JMSCacheManagerPeerListener implements CacheManagerPeerListener {
     private ConnectionFactory connectionFactory;
     private Connection connection;
 
+    /**
+     * 
+     * @param cacheManager
+     * @param connectionFactory
+     */
     public JMSCacheManagerPeerListener(CacheManager cacheManager, ConnectionFactory connectionFactory) {
         this.cacheManager = cacheManager;
         this.connectionFactory = connectionFactory;
     }
 
     /**
+     * todo
      * All of the caches which are listening for remote changes.
      *
      * @return a list of <code>CachePeer</code> objects
      */
     public List getBoundCachePeers() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     /**
@@ -46,7 +66,7 @@ public class JMSCacheManagerPeerListener implements CacheManagerPeerListener {
      * @return a String identifier for the resource
      */
     public String getUniqueResourceIdentifier() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     /**
@@ -56,7 +76,7 @@ public class JMSCacheManagerPeerListener implements CacheManagerPeerListener {
      * @throws IllegalStateException if the statis of the listener is not {@link net.sf.ehcache.Status#STATUS_UNINITIALISED}
      */
     public void attemptResolutionOfUniqueResourceConflict() throws IllegalStateException, CacheException {
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 
     /**
@@ -81,7 +101,7 @@ public class JMSCacheManagerPeerListener implements CacheManagerPeerListener {
      * @return the status at the point in time the method is called
      */
     public Status getStatus() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     /**
@@ -90,7 +110,7 @@ public class JMSCacheManagerPeerListener implements CacheManagerPeerListener {
      * @throws net.sf.ehcache.CacheException - all exceptions are wrapped in CacheException
      */
     public void dispose() throws CacheException {
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 
     /**
@@ -116,7 +136,7 @@ public class JMSCacheManagerPeerListener implements CacheManagerPeerListener {
      * @see net.sf.ehcache.event.CacheEventListener
      */
     public void notifyCacheAdded(String cacheName) {
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 
     /**
@@ -132,6 +152,6 @@ public class JMSCacheManagerPeerListener implements CacheManagerPeerListener {
      * @param cacheName the name of the <code>Cache</code> the operation relates to
      */
     public void notifyCacheRemoved(String cacheName) {
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 }

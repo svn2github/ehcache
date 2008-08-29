@@ -45,8 +45,8 @@
     <!--
     CacheManagerEventListener
     =========================
-    Specifies a CacheManagerEventListenerFactory, be used to create a CacheManagerPeerProvider,
-    which is notified when Caches are added or removed from the CacheManager.
+    Specifies a CacheManagerEventListenerFactory which is notified when Caches are added
+    or removed from the CacheManager.
 
     The attributes of CacheManagerEventListenerFactory are:
     * class - a fully qualified factory class name

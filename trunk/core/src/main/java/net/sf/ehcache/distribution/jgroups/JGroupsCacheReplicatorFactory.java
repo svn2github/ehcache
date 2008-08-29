@@ -66,7 +66,7 @@ public class JGroupsCacheReplicatorFactory extends CacheEventListenerFactory {
                 JGroupsCacheReplicator.DEFAULT_ASYNC_INTERVAL);
         JGroupsCacheReplicator r = new JGroupsCacheReplicator(replicatePuts, replicateUpdates, replicateUpdatesViaCopy,
                 replicateRemovals, replicateAsync);
-        if (r.isReplicateAsync()) {
+        if (replicateAsync) {
             r.setAsynchronousReplicationInterval(asyncTime);
         }
 

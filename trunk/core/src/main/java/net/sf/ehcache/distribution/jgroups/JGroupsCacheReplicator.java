@@ -75,7 +75,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
 
     /**
      * Weather or not to replicate asynchronously. If true a background thread
-     * is ran and fire update at a set intervale
+     * is run and updates are fired at a set interval
      */
     private boolean replicateAsync;
 
@@ -113,42 +113,6 @@ public class JGroupsCacheReplicator implements CacheReplicator {
         status = Status.STATUS_ALIVE;
     }
 
-    /**
-     * Weather or not the cache is replicated asynchronously. If true a
-     * background thread is ran and fire update at a set intervale
-     * 
-     * @return true if replicated asynchronously, false otherwise
-     */
-    public boolean isReplicateAsync() {
-        return replicateAsync;
-    }
-
-    /**
-     * Wether or not puts are replicated
-     * 
-     * @return true if puts are replicated, false otherwise
-     */
-    public boolean isReplicatePuts() {
-        return replicatePuts;
-    }
-
-    /**
-     * wether or not removals are replicated
-     * 
-     * @return true if removals are replicated, false otherwise
-     */
-    public boolean isReplicateRemovals() {
-        return replicateRemovals;
-    }
-
-    /**
-     * Wether or not updates are replicated
-     * 
-     * @return true if replicated, false otherwise
-     */
-    public boolean isReplicateUpdates() {
-        return replicateUpdates;
-    }
 
     /**
      * {@inheritDoc}
@@ -229,7 +193,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
             return;
         }
 
-        if (isReplicatePuts()) {
+        if (replicatePuts) {
             // if (log.isTraceEnabled())
             // LOG.finest("Sending out add/upd el:" + element);
             replicatePutNotification(cache, element);
@@ -270,7 +234,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
         if (notAlive()) {
             return;
         }
-        if (isReplicateRemovals()) {
+        if (replicateRemovals) {
             replicateRemoveNotification(cache, element);
 
         }
@@ -300,14 +264,14 @@ public class JGroupsCacheReplicator implements CacheReplicator {
      * {@inheritDoc}
      */
     public void notifyElementEvicted(Ehcache cache, Element element) {
-
+        //nothing to do
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyRemoveAll(Ehcache cache) {
-        if (isReplicateRemovals()) {
+        if (replicateRemovals) {
             LOG.finest("Remove all elements called");
             JGroupEventMessage e = new JGroupEventMessage(JGroupEventMessage.REMOVE_ALL, null, null, cache, cache.getName());
             sendNotification(cache, e);

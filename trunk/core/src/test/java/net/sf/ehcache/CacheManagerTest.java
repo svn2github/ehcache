@@ -34,7 +34,6 @@ import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 import net.sf.ehcache.constructs.blocking.CountingCacheEntryFactory;
 
 
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -254,18 +253,17 @@ public class CacheManagerTest extends TestCase {
 
     /**
      * The expiry threads and spool threads share are now combined. This should save some.
-     *
+     * <p/>
      * ehcache-big.xml has 70 caches that overflow to disk. Check that the DiskStore is not using
      * more than 1 thread per DiskStore.
-     *
+     * <p/>
      * ehcache-1.2.3 had 126 threads for this test.
      * ehcache-1.2.4 has 71. 70 for the DiskStore thread and one shutdown hook
-     *                     
      */
     public void testCacheManagerThreads() throws CacheException, InterruptedException {
         singletonManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-big.xml");
         int threads = countThreads();
-        assertTrue("More than 75 threads: " + threads , countThreads() <= 75);
+        assertTrue("More than 75 threads: " + threads, countThreads() <= 75);
     }
 
     /**
@@ -599,8 +597,6 @@ public class CacheManagerTest extends TestCase {
         return JVMUtil.enumerateThreads().size();
     }
 
-    
-
 
     /**
      * Shows that a decorated cache can be substituted
@@ -685,7 +681,6 @@ public class CacheManagerTest extends TestCase {
     /**
      * Make sure we can manipulate tmpdir. This is so continous integration builds can get
      * the disk path zapped each run.
-     * 
      */
     public void testTmpDir() {
         String tmp = System.getProperty("java.io.tmpdir");
@@ -712,7 +707,7 @@ public class CacheManagerTest extends TestCase {
     public void testThreadNamingAndManipulation() {
 
         singletonManager = CacheManager.create();
-        
+
         List threads = JVMUtil.enumerateThreads();
 
         for (int i = 0; i < threads.size(); i++) {
@@ -721,4 +716,11 @@ public class CacheManagerTest extends TestCase {
             LOG.info(name);
         }
     }
+
+    public void testTest() {
+
+        System.out.println("" + new Date());
+
+    }
+
 }
