@@ -126,11 +126,16 @@ public class CacheResource {
     public Cache getCache() {
         LOG.log(Level.FINE, "GET Cache {}" + cache);
 
-        net.sf.ehcache.Cache ehcache = MANAGER.getCache(this.cache);
+        net.sf.ehcache.Cache ehcache = MANAGER.getCache(cache);
         if (ehcache == null) {
             throw new NotFoundException("Cache not found");
         }
-        return new Cache(ehcache.getName(), uriInfo.getAbsolutePath().toString(), ehcache.toString());
+
+        //The REST API has extra information encoded in the String representation.
+        String cacheAsString = ehcache.toString();
+        cacheAsString = cacheAsString.substring(0, cacheAsString.length() - 1);
+        cacheAsString = cacheAsString + " size = " + ehcache.getSize();
+        return new Cache(ehcache.getName(), uriInfo.getAbsolutePath().toString(), cacheAsString);
     }
 
     /**

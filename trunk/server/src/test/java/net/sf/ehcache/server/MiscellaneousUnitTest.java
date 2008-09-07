@@ -24,17 +24,17 @@ public class MiscellaneousUnitTest {
     @Test
     public void testHashing() {
 
-        String[] clusters = new String[]{"cluster0.company.com", "cluster1.company.com", "cluster2.company.com", "cluster3.company.com",
-                "cluster4.company.com", "cluster5.company.com"};
+        String[] cacheservers = new String[]{"cacheserver0.company.com", "cacheserver1.company.com", "cacheserver2.company.com", "cacheserver3.company.com",
+                "cacheserver4.company.com", "cacheserver5.company.com"};
 
         net.sf.ehcache.Element element = new net.sf.ehcache.Element("dfadfasdfadsfa", "some value");
         Object key = element.getKey();
         int hash = Math.abs(key.hashCode());
-        int clusterIndex = hash % clusters.length;
+        int cacheserverIndex = hash % cacheservers.length;
 
-        String clusterToUseForKey = clusters[clusterIndex];
+        String cacheserverToUseForKey = cacheservers[cacheserverIndex];
 
-        assertEquals("cluster4.company.com", clusterToUseForKey);
+        assertEquals("cacheserver4.company.com", cacheserverToUseForKey);
     }
 
 
