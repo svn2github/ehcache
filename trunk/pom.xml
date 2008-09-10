@@ -1,6 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-parent</artifactId>
@@ -26,7 +25,9 @@
 
 <!--
 -->
-    </modules>
+    <module>jmsreplication</module>
+    <module>jgroupsreplication</module>
+  </modules>
 
     <dependencyManagement>
         <dependencies>
@@ -367,7 +368,7 @@
             <id>ssuravarapu</id>
             <name>Surya Suravarapu</name>
             <email>ssuravarapu at users.sourceforge.net</email>
-            <url></url>
+            <url/>
             <roles>
                 <role>Developer</role>
             </roles>

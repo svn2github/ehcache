@@ -87,10 +87,10 @@
     <target name="compile-src" description="compile src files">
         <mkdir dir="${build.classes.dir}"/>
         <javac destdir="${build.classes.dir}"
-               target="1.4"
+               target="1.5"
                debug="${compiler.debug}"
                deprecation="${compiler.deprecation}"
-               source="1.4">
+               source="1.5">
             <src location="${src.java.dir}"/>
             <classpath refid="project.class.path"/>
         </javac>
@@ -109,10 +109,10 @@
         <mkdir dir="${test.classes.dir}"/>
         <mkdir dir="${build.tmp.dir}"/>
         <javac destdir="${test.classes.dir}"
-               target="1.3"
+               target="1.5"
                debug="${compiler.debug}"
                deprecation="${compiler.deprecation}"
-               source="1.3">
+               source="1.5">
             <src location="${test.java.dir}"/>
             <classpath>
                 <path path="${build.classes.dir}"/>
@@ -702,12 +702,12 @@
 
     <!-- Requres LaTeX and netpbm. Use this from maven because it needs javadoc generated-->
     <target name="book">
-        <copy file="src/site/apt/.aptconvert" todir="${env.HOME}"/>
+        <copy file="src/site/apt/.aptconvert" todir="${env.HOME}" overwrite="true"/>
         <mkdir dir="${build.dir}/book"/>
-        <copy todir="${build.dir}/book/images">
+        <copy todir="${build.dir}/book/images" overwrite="true">
             <fileset dir="src/site/resources/images"/>
         </copy>
-        <copy todir="${build.dir}/book">
+        <copy todir="${build.dir}/book" overwrite="true">
             <fileset dir="src/site/apt/documentation">
                 <include name="*.apt"/>
             </fileset>
@@ -740,13 +740,13 @@
 
     <target name="singlepageguide" description="Target for the Single Page HTML User Guide">
         <mkdir dir="${build.dir}/book"/>
-        <copy todir="${build.dir}/book/images">
+        <copy todir="${build.dir}/book/images" overwrite="true">
             <fileset dir="src/site/resources/images"/>
         </copy>
-        <copy todir="${build.dir}/book">
+        <copy todir="${build.dir}/book" overwrite="true">
             <fileset dir="src/site/resources/css"/>
         </copy>
-        <copy todir="${build.dir}/book">
+        <copy todir="${build.dir}/book" overwrite="true">
             <fileset dir="src/site/apt/documentation">
                 <include name="*.apt"/>
             </fileset>

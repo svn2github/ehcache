@@ -97,7 +97,7 @@ Distributed Caching with ehcache
      is used. For those times when it is important, ehcache provides for
      synchronous delivery of updates via invalidation. These are discussed below:
 
-** Synchronous Delivery
+*** Synchronous Delivery
 
      Delivery can be specified to be synchronous or asynchronous.
      Asynchronous delivery gives faster returns to operations on the local
@@ -106,7 +106,7 @@ Distributed Caching with ehcache
      all peers in the cluster before the cache operation returns.
 
 
-** Update via Invalidation
+*** Update via Invalidation
 
      The default is to update other caches by copying the new value to
      them. If the replicateUpdatesViaCopy property is set to false in the
@@ -120,5 +120,16 @@ Distributed Caching with ehcache
      Note that these features impact cache performance and should
      not be used where the main purpose of a cache is performance boosting over
      coherency.
+
+
+**  Use of Time To Idle
+
+     Time To Idle is isconsistent with distributed caching. Time-to-idle makes some entries live longer on some
+     nodes than in others because of cache usage patterns. However, the cache entry "last touched" timestamp
+     is not replicated across the distributed cache.
+
+     Do not use Time To Idle with distributed caching, unless you do not care about inconsistent data across nodes. 
+
+
 
      

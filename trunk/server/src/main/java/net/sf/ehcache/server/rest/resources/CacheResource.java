@@ -134,7 +134,7 @@ public class CacheResource {
         //The REST API has extra information encoded in the String representation.
         String cacheAsString = ehcache.toString();
         cacheAsString = cacheAsString.substring(0, cacheAsString.length() - 1);
-        cacheAsString = cacheAsString + " size = " + ehcache.getSize();
+        cacheAsString = cacheAsString + "size = " + ehcache.getSize() + " ]";
         return new Cache(ehcache.getName(), uriInfo.getAbsolutePath().toString(), cacheAsString);
     }
 
