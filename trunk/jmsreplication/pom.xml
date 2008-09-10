@@ -55,6 +55,57 @@
                     <target>1.5</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <includes>
+                        <include>**/*UnitTest.java</include>
+                    </includes>
+                    <excludes>
+                        <exclude>**/*$*</exclude>
+                        <exclude>**/Abstract*Test.java</exclude>
+                        <exclude>**/Test*.java</exclude>
+                        <exclude>**/constructs/web/**</exclude>
+                    </excludes>
+                    <forkMode>pertest</forkMode>
+                    <childDelegation>false</childDelegation>
+                    <printSummary>true</printSummary>
+                    <redirectOutputToFile>true</redirectOutputToFile>
+                    <systemProperties>
+                        <property>
+                            <name>java.awt.headless</name>
+                            <value>true</value>
+                        </property>
+                        <property>
+                            <name>
+                                net.sf.ehcache.speedAdjustmentFactor
+                            </name>
+                            <value>
+                                ${net.sf.ehcache.speedAdjustmentFactor}
+                            </value>
+                        </property>
+                    </systemProperties>
+                </configuration>
+                <executions>
+                    <!--You need open mq running to run these-->
+                    <execution>
+                        <id>integration-tests</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>**/*IntegrationTest.java</include>
+                                <include>**/*WebTest.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 </project>
