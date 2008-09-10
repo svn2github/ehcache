@@ -19,7 +19,6 @@
 package net.sf.ehcache.distribution.jgroups;
 
 import junit.framework.TestCase;
-import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
