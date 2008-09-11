@@ -16,7 +16,7 @@
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>ehcache</artifactId>
-            <version>1.6.0-alpha1-SNAPSHOT</version>
+            <version>1.6.0-beta1</version>
         </dependency>
         <dependency>
             <groupId>jgroups</groupId>

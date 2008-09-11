@@ -18,7 +18,13 @@
 
 package net.sf.ehcache.distribution.jgroups;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.Before;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -31,7 +37,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.logging.Logger;
 
-public class JGroupsReplicationTest extends TestCase {
+public class JGroupsReplicationTest {
 
     private static final String SAMPLE_CACHE_NOREP = "sampleCacheNorep";
 
@@ -45,7 +51,8 @@ public class JGroupsReplicationTest extends TestCase {
 
     protected CacheManager manager1, manager2, manager3, manager4, manager5;
 
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jgroups/ehcache-distributed-jgroups.xml");
         manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jgroups/ehcache-distributed-jgroups.xml");
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jgroups/ehcache-distributed-jgroups.xml");
@@ -54,6 +61,7 @@ public class JGroupsReplicationTest extends TestCase {
         Thread.currentThread().sleep(4000);
     }
 
+    @After
     public void tearDown() throws Exception {
         LOG.fine("Tearing down cm1");
         manager1.shutdown();
@@ -65,6 +73,7 @@ public class JGroupsReplicationTest extends TestCase {
         manager4.shutdown();
     }
 
+    @Test
     public void testBasicReplication() throws Exception {
 
 
@@ -89,11 +98,13 @@ public class JGroupsReplicationTest extends TestCase {
 
     }
 
+    @Test
     public void testBasicReplicationSynchroneous() throws Exception {
         cacheName = SAMPLE_CACHE2;
         testBasicReplication();
     }
 
+    @Test
     public void testShutdownManager() throws Exception {
         cacheName = SAMPLE_CACHE1;
         manager1.getEhcache(cacheName).removeAll();
@@ -116,6 +127,7 @@ public class JGroupsReplicationTest extends TestCase {
 
     }
 
+    @Test
     public void testAddManager() throws Exception {
         cacheName = SAMPLE_CACHE1;
         if (manager1.getStatus() != Status.STATUS_SHUTDOWN)
@@ -141,6 +153,7 @@ public class JGroupsReplicationTest extends TestCase {
     }
 
 
+    @Test
     public void testConfig() throws InterruptedException {
         cacheName = SAMPLE_CACHE_NOREP;
         Ehcache cache1 = manager1.getEhcache(cacheName);
@@ -155,6 +168,7 @@ public class JGroupsReplicationTest extends TestCase {
     /**
      * What happens when two cache instances replicate to each other and a change is initiated
      */
+    @Test
     public void testVariousPuts() throws InterruptedException {
         cacheName = SAMPLE_CACHE1;
         Ehcache cache1 = manager1.getEhcache(cacheName);
@@ -193,6 +207,7 @@ public class JGroupsReplicationTest extends TestCase {
 
     }
 
+    @Test
     public void testSimultaneousPutRemove() throws InterruptedException {
         cacheName = SAMPLE_CACHE2; //Synced one
         Ehcache cache1 = manager1.getEhcache(cacheName);
