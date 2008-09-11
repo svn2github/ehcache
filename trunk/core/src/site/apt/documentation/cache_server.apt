@@ -261,6 +261,197 @@ Gracie.</quote></allen>
 </oldjoke>
 ---
 
+*** Java Code Samples
+
+**** Create and Get a Cache and Entry
+
+---
+package samples;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+/**
+ * A simple example Java client which uses the built-in java.net.URLConnection.
+ *
+ * @author BryantR
+ * @author Greg Luck
+ */
+public class ExampleJavaClient {
+
+    private static String TABLE_COLUMN_BASE =
+            "http://localhost:8080/ehcache/rest/tableColumn";
+    private static String TABLE_COLUMN_ELEMENT =
+            "http://localhost:8080/ehcache/rest/tableColumn/1";
+
+    /**
+     * Creates a new instance of EHCacheREST
+     */
+    public ExampleJavaClient() {
+    }
+
+    public static void main(String[] args) {
+        URL url;
+        HttpURLConnection connection = null;
+        InputStream is = null;
+        OutputStream os = null;
+        int result = 0;
+        try {
+            //create cache
+            URL u = new URL(TABLE_COLUMN_BASE);
+            HttpURLConnection urlConnection = (HttpURLConnection) u.openConnection();
+            urlConnection.setRequestMethod("PUT");
+
+            int status = urlConnection.getResponseCode();
+            System.out.println("Status: " + status);
+            urlConnection.disconnect();
+
+            //get cache
+            url = new URL(TABLE_COLUMN_BASE);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.connect();
+            is = connection.getInputStream();
+            byte[] response1 = new byte[4096];
+            result = is.read(response1);
+            while (result != -1) {
+                System.out.write(response1, 0, result);
+                result = is.read(response1);
+            }
+            if (is != null) try {
+                is.close();
+            } catch (Exception ignore) {
+            }
+            System.out.println("reading cache: " + connection.getResponseCode()
+                    + " " + connection.getResponseMessage());
+            if (connection != null) connection.disconnect();
+
+            //create entry
+            url = new URL(TABLE_COLUMN_ELEMENT);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("Content-Type", "text/plain");
+            connection.setDoOutput(true);
+            connection.setRequestMethod("PUT");
+            connection.connect();
+            String sampleData = "ehcache is way cool!!!";
+            byte[] sampleBytes = sampleData.getBytes();
+            os = connection.getOutputStream();
+            os.write(sampleBytes, 0, sampleBytes.length);
+            os.flush();
+            System.out.println("result=" + result);
+            System.out.println("creating entry: " + connection.getResponseCode()
+                    + " " + connection.getResponseMessage());
+            if (connection != null) connection.disconnect();
+
+            //get entry
+            url = new URL(TABLE_COLUMN_ELEMENT);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.connect();
+            is = connection.getInputStream();
+            byte[] response2 = new byte[4096];
+            result = is.read(response2);
+            while (result != -1) {
+                System.out.write(response2, 0, result);
+                result = is.read(response2);
+            }
+            if (is != null) try {
+                is.close();
+            } catch (Exception ignore) {
+            }
+            System.out.println("reading entry: " + connection.getResponseCode()
+                    + " " + connection.getResponseMessage());
+            if (connection != null) connection.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (os != null) try {
+                os.close();
+            } catch (Exception ignore) {
+            }
+            if (is != null) try {
+                is.close();
+            } catch (Exception ignore) {
+            }
+            if (connection != null) connection.disconnect();
+        }
+    }
+}
+---
+
+*   Creating Massive Caches with Load Balancers and Partioning
+
+    The RESTful Ehcache Server is designed to achieve massive scaling using data partitioning - all from a RESTful interface.
+    The largest ehcache single instances run at around 20GB in memory. The largest disk stores run at 100Gb each.
+    Add nodes together, with cache data partitioned across them, to get larger sizes. 50 nodes at 20GB gets you to 1 Terabyte.
+
+    Two deployment choices need to be made:
+
+      * where is partitoning performed, and
+      
+      * is redundancy required?
+
+    These choices can be mixed and matched with a number of different deployment topologies.
+
+**  Non-redundant, Scalable with client hash-based routing
+
+[images/loadbalancer_client_hashing_nonredundant.png]
+
+    This topology is the simplest. It does not use a load balancer. Each node is accessed directly by the cache client using REST.
+    No redundancy is provided.
+
+    The client can be implemented in any language because it is simply a HTTP client.
+
+    It must work out a partitioning scheme. Simple key hashing, as used by memcached, is sufficient.
+
+    Here is a Java code sample:
+
+---
+String[] cacheservers = new String[]{"cacheserver0.company.com", "cacheserver1.company.com",
+    "cacheserver2.company.com", "cacheserver3.company.com", "cacheserver4.company.com",
+    "cacheserver5.company.com"};
+Object key = "123231";
+int hash = Math.abs(key.hashCode());
+int cacheserverIndex = hash % cacheservers.length;
+String cacheserver = cacheservers[cacheserverIndex];
+---
+
+**  Redundant, Scalable with client hash-based routing
+
+[images/loadbalancer_client_hashing.png]
+
+    Redundancy is added as shown in the above diagram by:
+    Replacing each node with a cluster of two nodes. One of the existing distributed caching options in ehcache is used to form the cluster.
+    Options in ehcache 1.5 are RMI and JGroups-based clusters. Ehcache-1.6 will add JMS as a further option.
+    Put each ehcache cluster behind VIPs on a load balancer.
+
+**  Redundant, Scalable with load balancer hash-based routing
+
+[images/loadbalancer_hashing.png]
+
+   Many content-switching load balancers support URI routing using some form of regular expressions.
+
+   So, you could optionally skip the client-side hashing to achieve partitioning in the load balancer itself.
+
+   For example:
+
+---
+ /ehcache/rest/sampleCache1/[a-h]* => cluster1
+ /ehcache/rest/sampleCache1/[i-z]* => cluster2
+---
+
+   Things get much more sophisticated with F5 load balancers, which let you create iRules in the TCL language.
+   So rather than regular expression URI routing, you could implement key hashing-based URI routing.
+   Remember in Ehcache's RESTful server, the key forms the last part of the URI.
+   e.g. In the URI http://cacheserver.company.com/ehcache/rest/sampleCache1/3432 , 3432 is the key.
+
+   You hash using the last part of the URI.
+
+   See http://devcentral.f5.com/Default.aspx?tabid=63&PageID=153&ArticleID=135&articleType=ArticleView for
+   how to implment a URI hashing iRule on F5 load balancers.
+
 *   W3C (SOAP) Web Services
 
     The W3C ({http://www.w3.org/} is a standards body that defines Web Services as

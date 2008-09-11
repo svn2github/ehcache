@@ -172,7 +172,7 @@
 
         <echo message="net.sf.ehcache.speedAdjustmentFactor ${net.sf.ehcache.speedAdjustmentFactor}"/>
         <junit printSummary="withOutAndErr" failureproperty="tests.failed" fork="true"
-               forkmode="perTest" dir="${basedir}" showoutput="true" newenvironment="false">
+               forkmode="perTest" dir="${basedir}" showoutput="false" newenvironment="false">
             <jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog"/>
             <sysproperty key="java.io.tmpdir" value="${build.tmp.dir}"/>
             <sysproperty key="net.sf.ehcache.speedAdjustmentFactor"
@@ -207,7 +207,7 @@
         </condition>
 
         <junit printSummary="withOutAndErr" failureproperty="tests.failed" fork="true"
-               forkmode="perTest" dir="${basedir}" showoutput="true">
+               forkmode="perTest" dir="${basedir}" showoutput="false">
             <jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog"/>
             <!--<jvmarg value="-Xmx256m"/>-->
             <sysproperty key="java.io.tmpdir" value="${build.tmp.dir}"/>
@@ -244,7 +244,7 @@
         </condition>
 
         <junit printSummary="withOutAndErr" failureproperty="tests.failed" fork="true"
-               forkmode="perTest" dir="${basedir}" showoutput="true">
+               forkmode="perTest" dir="${basedir}" showoutput="false">
             <jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog"/>
             <!--<jvmarg value="-Xmx256m"/>-->
             <sysproperty key="java.io.tmpdir" value="${build.tmp.dir}"/>
@@ -280,7 +280,7 @@
         </condition>
 
         <junit printSummary="withOutAndErr" failureproperty="tests.failed" fork="true"
-               forkmode="perTest" dir="${basedir}" showoutput="true">
+               forkmode="perTest" dir="${basedir}" showoutput="false">
             <jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog"/>
             <!--<jvmarg value="-Xmx256m"/>-->
             <sysproperty key="java.io.tmpdir" value="${build.tmp.dir}"/>
@@ -707,6 +707,9 @@
         <copy todir="${build.dir}/book/images" overwrite="true">
             <fileset dir="src/site/resources/images"/>
         </copy>
+        <copy todir="${build.dir}/book/images" overwrite="true">
+            <fileset dir="src/site/resources/documentation/images"/>
+        </copy>
         <copy todir="${build.dir}/book" overwrite="true">
             <fileset dir="src/site/apt/documentation">
                 <include name="*.apt"/>
@@ -742,6 +745,9 @@
         <mkdir dir="${build.dir}/book"/>
         <copy todir="${build.dir}/book/images" overwrite="true">
             <fileset dir="src/site/resources/images"/>
+        </copy>
+        <copy todir="${build.dir}/book/images" overwrite="true">
+            <fileset dir="src/site/resources/documentation/images"/>
         </copy>
         <copy todir="${build.dir}/book" overwrite="true">
             <fileset dir="src/site/resources/css"/>

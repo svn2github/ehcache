@@ -1,5 +1,7 @@
 {RMI Distributed Caching}
 
+[images/rmi_replication.png]]
+
     Since version 1.2, Ehcache has provided distributed caching using RMI.
 
     An RMI implementation is desirable because:
