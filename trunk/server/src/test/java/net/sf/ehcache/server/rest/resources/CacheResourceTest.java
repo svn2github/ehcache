@@ -41,6 +41,8 @@ import java.net.HttpURLConnection;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import samples.ExampleJavaClient;
+
 
 /**
  * Tests the REST web resource using the lightweight http container
@@ -242,6 +244,11 @@ public class CacheResourceTest {
 
 //        Status status = cacheService.getStatus("sampleCache1");
 //        assertTrue(status == Status.STATUS_ALIVE);
+    }
+
+    @Test
+    public void testExampleJavaClient() {
+        ExampleJavaClient.main(null);
     }
 
 
