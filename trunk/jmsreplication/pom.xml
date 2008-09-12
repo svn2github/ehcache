@@ -14,9 +14,9 @@
     <description>This module provides replication via JMS 1.1</description>
     <dependencies>
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
-            <version>1.6.0-alpha1-SNAPSHOT</version>
+            <version>1.6.0-beta1</version>
         </dependency>
         <dependency>
             <groupId>javax.jms</groupId>
@@ -46,6 +46,10 @@
         </dependency>
     </dependencies>
 
+    <properties>
+        <activemq.bin.dir>/Users/gluck/work/apache-activemq-5.1.0/bin</activemq.bin.dir>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -55,6 +59,32 @@
                     <target>1.5</target>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>start-message-queues</id>
+                        <phase>pre-integration-test</phase>
+
+                        <configuration>
+                            <tasks>
+                                <echo>Starting Active MQ on ${os.name}</echo>
+                                <exec dir="${activemq.bin.dir}" spawn="true" os="Mac OS X, Linux, AIX, Solaris"
+                                      executable="sh">
+                                    <arg line="activemq"/>
+                                </exec>
+                                <sleep seconds="5"/>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -102,6 +132,30 @@
                                 <include>**/*WebTest.java</include>
                             </includes>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>stop-message-queues</id>
+                        <phase>post-integration-test</phase>
+
+                        <configuration>
+                            <tasks>
+                                <echo>Stopping Active MQ on ${os.name}</echo>
+                                <exec dir="${activemq.bin.dir}" spawn="true" os="Mac OS X, Linux, AIX, Solaris"
+                                      executable="sh">
+                                    <arg line="ps | grep 'activemq' | awk '{print $1}' | xargs kill -9"/>
+                                </exec>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

@@ -17,6 +17,7 @@
 package net.sf.ehcache.distribution.jms;
 
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.distribution.CacheManagerPeerProviderFactory;
 import net.sf.ehcache.util.PropertyUtil;
@@ -147,8 +148,7 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
             topicConnection.start();
 
         } catch (JMSException e) {
-            LOG.log(Level.SEVERE, "Exception while creating JMS stuff", e);
-            return null;
+            throw new CacheException("Exception while creating JMS stuff", e);
         }
 
         try {
