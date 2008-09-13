@@ -27,7 +27,7 @@
             timeToLiveSeconds="120"
             overflowToDisk="false"
             memoryStoreEvictionPolicy="FIFO">
-           <cacheEventListenerFactory class="net.sf.ehcache.distribution.jms.JMSCacheEventListenerFactory"
+           <cacheEventListenerFactory class="net.sf.ehcache.distribution.jms.JMSCacheReplicatorFactory"
              properties="replicateAsynchronously=false,
                  replicatePuts=false,
                  replicateUpdates=true,
@@ -43,7 +43,7 @@
             timeToLiveSeconds="120"
             overflowToDisk="false"
             memoryStoreEvictionPolicy="FIFO">
-           <cacheEventListenerFactory class="net.sf.ehcache.distribution.jms.JMSCacheEventListenerFactory"
+           <cacheEventListenerFactory class="net.sf.ehcache.distribution.jms.JMSCacheReplicatorFactory"
              properties="replicateAsynchronously=true,
              	 asynchronousReplicationIntervalMillis=10000,
                  replicatePuts=true,

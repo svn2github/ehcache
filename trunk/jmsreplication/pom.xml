@@ -48,6 +48,7 @@
 
     <properties>
         <activemq.bin.dir>/Users/gluck/work/apache-activemq-5.1.0/bin</activemq.bin.dir>
+        <openmq.bin.dir>/Users/gluck/work/mq/bin</openmq.bin.dir>
     </properties>
 
     <build>
@@ -65,15 +66,20 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
+                        <!--We test using two popular message -->
                         <id>start-message-queues</id>
                         <phase>pre-integration-test</phase>
-
                         <configuration>
                             <tasks>
-                                <echo>Starting Active MQ on ${os.name}</echo>
+                                <echo>Starting Active MQ from ${activemq.bin.dir} on ${os.name}</echo>
                                 <exec dir="${activemq.bin.dir}" spawn="true" os="Mac OS X, Linux, AIX, Solaris"
                                       executable="sh">
                                     <arg line="activemq"/>
+                                </exec>
+                                <echo>Starting Open MQ from ${openmq.bin.dir} on ${os.name}</echo>
+                                <exec dir="${openmq.bin.dir}" spawn="true" os="Mac OS X, Linux, AIX, Solaris"
+                                      executable="sh">
+                                    <arg line="imqbrokerd"/>
                                 </exec>
                                 <sleep seconds="5"/>
                             </tasks>
@@ -143,13 +149,17 @@
                     <execution>
                         <id>stop-message-queues</id>
                         <phase>post-integration-test</phase>
-
                         <configuration>
                             <tasks>
-                                <echo>Stopping Active MQ on ${os.name}</echo>
+                                <echo>Stopping Active MQ from ${activemq.bin.dir} on ${os.name}</echo>
                                 <exec dir="${activemq.bin.dir}" spawn="true" os="Mac OS X, Linux, AIX, Solaris"
                                       executable="sh">
                                     <arg line="ps | grep 'activemq' | awk '{print $1}' | xargs kill -9"/>
+                                </exec>
+                                <echo>Stopping Open MQ from ${openmq.bin.dir} on ${os.name}</echo>
+                                <exec dir="${openmq.bin.dir}" spawn="true" os="Mac OS X, Linux, AIX, Solaris"
+                                      executable="sh">
+                                    <arg line="ps | grep 'imqbroker' | awk '{print $1}' | xargs kill -9"/>
                                 </exec>
                             </tasks>
                         </configuration>

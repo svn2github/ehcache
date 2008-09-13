@@ -405,8 +405,7 @@ public class JMSCacheReplicator implements CacheReplicator {
      * @return
      */
     protected static List<CachePeer> listRemoteCachePeers(Ehcache cache) {
-        CacheManagerPeerProvider provider = cache.getCacheManager()
-                .getCachePeerProvider();
+        CacheManagerPeerProvider provider = cache.getCacheManager().getCachePeerProvider();
         return provider.listRemoteCachePeers(cache);
     }
 

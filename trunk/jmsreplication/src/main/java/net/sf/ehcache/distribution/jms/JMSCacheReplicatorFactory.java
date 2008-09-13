@@ -28,9 +28,9 @@ import java.util.logging.Logger;
  * @author benoit.perroud@elca.ch
  * @author Greg Luck
  */
-public class JMSCacheEventListenerFactory extends CacheEventListenerFactory {
+public class JMSCacheReplicatorFactory extends CacheEventListenerFactory {
 
-    private static final Logger LOG = Logger.getLogger(JMSCacheEventListenerFactory.class.getName());
+    private static final Logger LOG = Logger.getLogger(JMSCacheReplicatorFactory.class.getName());
 
     private static final String REPLICATE_PUTS = "replicatePuts";
 
@@ -78,11 +78,8 @@ public class JMSCacheEventListenerFactory extends CacheEventListenerFactory {
     }
 
     /**
-     *
-     * @param properties
-     * @param propertyName
-     * @param defaultValue
-     * @return
+     * Extracts the AsynchronousReplicationIntervalMillis
+     * @return the AsynchronousReplicationIntervalMillis
      */
     protected long extractAsynchronousReplicationIntervalMillis(
             Properties properties, String propertyName, long defaultValue) {
@@ -104,14 +101,10 @@ public class JMSCacheEventListenerFactory extends CacheEventListenerFactory {
     }
 
     /**
-     *
-     * @param properties
-     * @param propertyName
-     * @param defaultValue
-     * @return
+     * Extract the given property, setting the default if it does not parse
+     * @return  the boolean value
      */
-    protected boolean extractBooleanProperty(Properties properties,
-                                             String propertyName, boolean defaultValue) {
+    protected boolean extractBooleanProperty(Properties properties, String propertyName, boolean defaultValue) {
         boolean ret;
         String pString = PropertyUtil.extractAndLogProperty(propertyName,
                 properties);

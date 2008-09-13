@@ -16,14 +16,11 @@
 
 package net.sf.ehcache.distribution.jms;
 
-import net.sf.ehcache.distribution.CacheManagerPeerProviderFactory;
-import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.distribution.CacheManagerPeerListenerFactory;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.CacheException;
 
-import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import java.util.Properties;
 

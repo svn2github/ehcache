@@ -3,6 +3,11 @@
 <pre>
 The JMS package works as follows:
 
+    
+
+
+    A CacheManagerPeerProviderFactory
+
   A JMSCacheManagerPeerListener subscribes to topic names on a given JMS connection for each cache
     listed in the factory cacheNames property. Topics should be set up on the messageQueue exactly matching
     the cacheNames.
@@ -19,6 +24,9 @@ The JMS package works as follows:
   todo should JMS be in a separate maven module?
   todo should some factoryfactories be created, such as for JBoss, Open MQ and Active MQ?
 
+
+    A CacheManagerPeerListener is not used with JMS. Because a message queue is a fixed piece of infrastructure
+    with a known location, there is no need for discovery.
 
 
 
