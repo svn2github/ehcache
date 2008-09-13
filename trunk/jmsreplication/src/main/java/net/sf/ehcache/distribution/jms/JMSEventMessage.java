@@ -31,7 +31,7 @@ public class JMSEventMessage extends EventMessage {
     private static final long serialVersionUID = 927345728947584L;
 
     private String cacheName;
-    private String nodeName;
+    private String originatingCacheGUID;
 
     /**
      *
@@ -39,10 +39,12 @@ public class JMSEventMessage extends EventMessage {
      * @param key
      * @param element
      * @param cacheName
+     * @param sendingCacheGUID
      */
-    public JMSEventMessage(int event, Serializable key, Element element, String cacheName) {
+    public JMSEventMessage(int event, Serializable key, Element element, String cacheName, String sendingCacheGUID) {
         super(event, key, element);
         setCacheName(cacheName);
+        this.originatingCacheGUID = sendingCacheGUID;
     }
 
     /**
@@ -65,16 +67,16 @@ public class JMSEventMessage extends EventMessage {
      *
      * @return
      */
-    public String getNodeName() {
-        return nodeName;
+    public String getOriginatingCacheGUID() {
+        return originatingCacheGUID;
     }
 
     /**
      *
-     * @param nodeName
+     * @param originatingCacheGUID
      */
-    public void setNodeName(String nodeName) {
-        this.nodeName = nodeName;
+    public void setOriginatingCacheGUID(String originatingCacheGUID) {
+        this.originatingCacheGUID = originatingCacheGUID;
     }
 
     /**
@@ -84,7 +86,7 @@ public class JMSEventMessage extends EventMessage {
     @Override
     public String toString() {
         return "JMSEventMessage ( event = " + getEvent() + ", element = " + getElement() + ", cacheName = "
-                + cacheName + ", nodeName = " + nodeName;
+                + cacheName + ", originatingCacheGUID = " + originatingCacheGUID;
     }
 
 }

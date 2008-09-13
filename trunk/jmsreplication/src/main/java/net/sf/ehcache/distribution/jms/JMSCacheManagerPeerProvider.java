@@ -46,7 +46,6 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
     private MessageProducer messageProducer;
     private Session producerSession;
 
-    private String nodeName;
 
     /**
      *
@@ -54,25 +53,21 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
      * @param messageConsumer
      * @param messageProducer
      * @param producerSession
-     * @param nodeName
      */
     public JMSCacheManagerPeerProvider(CacheManager cacheManager, MessageConsumer messageConsumer,
-                                       MessageProducer messageProducer, Session producerSession, String nodeName) {
+                                       MessageProducer messageProducer, Session producerSession) {
 
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("JMSCacheManagerPeerProvider constructor ( cacheManager = "
                     + cacheManager + ", messageConsumer = " + messageConsumer
-                    + ", messageProducer = " + messageProducer + ", producerSession = " + producerSession + ", " +
-                    "nodeName = " + nodeName + " ) called");
+                    + ", messageProducer = " + messageProducer + ", producerSession = " + producerSession
+                    + " ) called");
         }
 
         this.cacheManager = cacheManager;
         this.messageConsumer = messageConsumer;
         this.messageProducer = messageProducer;
         this.producerSession = producerSession;
-
-        this.nodeName = nodeName;
-
     }
 
     /**
@@ -108,7 +103,7 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
 
         LOG.fine("init ( ) called ");
 
-        JMSCachePeer peer = new JMSCachePeer(cacheManager, messageProducer, producerSession, nodeName);
+        JMSCachePeer peer = new JMSCachePeer(cacheManager, messageProducer, producerSession);
         remoteCachePeers.add(peer);
         try {
             messageConsumer.setMessageListener(peer);

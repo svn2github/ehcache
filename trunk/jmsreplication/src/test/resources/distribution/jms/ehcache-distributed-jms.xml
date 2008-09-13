@@ -6,8 +6,7 @@
             properties="initialContextFactoryName=net.sf.ehcache.distribution.jms.TestActiveMQInitialContextFactory,
                 providerURL=tcp://locahost:61616,
                 topicConnectionFactoryBindingName=topicConnectionFactory,
-                topicBindingName=ehcache,
-                nodeName=node2"
+                topicBindingName=ehcache"
             propertySeparator=","
             />
 

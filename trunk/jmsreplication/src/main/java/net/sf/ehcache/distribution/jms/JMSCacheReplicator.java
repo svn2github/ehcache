@@ -372,14 +372,21 @@ public class JMSCacheReplicator implements CacheReplicator {
         return super.clone();
     }
 
-    private void sendNotification(int event, Ehcache cache, Element element) {
+    /**
+     * Sends the message
+     * @param event
+     * @param cache
+     * @param element
+     */
+    protected void sendNotification(int event, Ehcache cache, Element element) {
 
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("sendNotification ( event " + event + ", cache = " + cache + ", element = " + element + " ) called ");
         }
-
+        //uniquely identifies the originator to ensure that a message does not update the originator
+        String originatingCacheGUID = cache.getGuid();
         JMSEventMessage message = new JMSEventMessage(event,
-                (element == null) ? null : element.getKey(), element, cache.getName());
+                (element == null) ? null : element.getKey(), element, cache.getName(), originatingCacheGUID);
 
         if (replicateAsync) {
             addMessageToQueue(cache, message);

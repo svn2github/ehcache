@@ -18,20 +18,14 @@
 
 package net.sf.ehcache.distribution.jms;
 
-import org.junit.Test;
-import org.junit.Before;
-import org.junit.After;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.distribution.CacheManagerPeerProvider;
-import net.sf.ehcache.distribution.jms.AbstractCacheTest;
-
+import org.junit.After;
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -58,7 +52,7 @@ public class JMSReplicationTest {
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jms/ehcache-distributed-jms.xml");
         manager4 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jms/ehcache-distributed-jms.xml");
         cacheName = SAMPLE_CACHE1;
-        Thread.currentThread().sleep(4000);
+        Thread.sleep(4000);
     }
 
     @After
@@ -84,10 +78,10 @@ public class JMSReplicationTest {
 
 
         for (int i = 0; i < NBR_ELEMENTS; i++) {
-            manager1.getEhcache(cacheName).put(new Element(new Integer(i), "testdat"));
+            manager1.getEhcache(cacheName).put(new Element(i, "testdat"));
             //Thread.currentThread().sleep(2);
         }
-        Thread.currentThread().sleep(3000);
+        Thread.sleep(3000);
 
         LOG.fine(manager1.getEhcache(cacheName).getKeys().size() + "  " + manager2.getEhcache(cacheName).getKeys().size() + " " + manager3.getEhcache(cacheName).getKeys().size());
         assertTrue(manager1.getEhcache(cacheName).getKeys().size() == manager2.getEhcache(cacheName).getKeys().size() &&
@@ -96,7 +90,7 @@ public class JMSReplicationTest {
                 manager1.getEhcache(cacheName).getKeys().size() == NBR_ELEMENTS);
 
         manager1.getEhcache(cacheName).removeAll();
-        Thread.currentThread().sleep(1000);
+        Thread.sleep(1000);
         assertTrue(manager1.getEhcache(cacheName).getKeys().size() == manager2.getEhcache(cacheName).getKeys().size() &&
                 manager1.getEhcache(cacheName).getKeys().size() == manager3.getEhcache(cacheName).getKeys().size() &&
                 manager1.getEhcache(cacheName).getKeys().size() == manager4.getEhcache(cacheName).getKeys().size() &&
@@ -140,16 +134,16 @@ public class JMSReplicationTest {
             manager1.shutdown();
 
 
-        Thread.currentThread().sleep(1000);
+        Thread.sleep(1000);
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jms/ehcache-distributed-jms.xml");
-        Thread.currentThread().sleep(3000);
+        Thread.sleep(3000);
         manager2.clearAll();
 
-        Thread.currentThread().sleep(1000);
+        Thread.sleep(1000);
 
-        manager2.getEhcache(cacheName).put(new Element(new Integer(2), new Date()));
-        manager1.getEhcache(cacheName).put(new Element(new Integer(3), new Date()));
-        Thread.currentThread().sleep(2000);
+        manager2.getEhcache(cacheName).put(new Element(2, new Date()));
+        manager1.getEhcache(cacheName).put(new Element(3, new Date()));
+        Thread.sleep(2000);
 
         assertTrue(manager1.getEhcache(cacheName).getKeys().size() == manager2.getEhcache(cacheName).getKeys().size() &&
                 manager1.getEhcache(cacheName).getKeys().size() == manager3.getEhcache(cacheName).getKeys().size() &&
@@ -164,15 +158,16 @@ public class JMSReplicationTest {
         cacheName = SAMPLE_CACHE_NOREP;
         Ehcache cache1 = manager1.getEhcache(cacheName);
         Ehcache cache2 = manager2.getEhcache(cacheName);
-        Element element = new Element(new Integer(1), new Date());
+        Element element = new Element(1, new Date());
         cache2.put(element);
-        Thread.currentThread().sleep(1000);
+        Thread.sleep(1000);
         assertTrue(cache1.getKeys().size() == 0 && cache2.getKeys().size() == 1);
 
     }
 
     /**
      * What happens when two cache instances replicate to each other and a change is initiated
+     * @throws InterruptedException -
      */
     @Test
     public void testVariousPuts() throws InterruptedException {
@@ -186,7 +181,7 @@ public class JMSReplicationTest {
 
         //Put
         cache1.put(element);
-        Thread.currentThread().sleep(1000);
+        Thread.sleep(1000);
 
         //Should have been replicated to cache2.
         Element element2 = cache2.get(key);
@@ -197,19 +192,19 @@ public class JMSReplicationTest {
         assertNull(cache1.get(key));
 
         //Should have been replicated to cache2.
-        Thread.currentThread().sleep(1000);
+        Thread.sleep(1000);
         element2 = cache2.get(key);
         assertNull(element2);
 
         //Put into 2
         Element element3 = new Element("3", "ddsfds");
         cache2.put(element3);
-        Thread.currentThread().sleep(1000);
+        Thread.sleep(1000);
         Element element4 = cache2.get("3");
         assertEquals(element3, element4);
 
         manager1.clearAll();
-        Thread.currentThread().sleep(1000);
+        Thread.sleep(1000);
 
     }
 
@@ -226,24 +221,24 @@ public class JMSReplicationTest {
 
         //Put
         cache1.put(element);
-        Thread.currentThread().sleep(1000);
+        Thread.sleep(1000);
         cache2.remove(element.getKey());
-        Thread.currentThread().sleep(1000);
+        Thread.sleep(1000);
 
 
         assertNull(cache1.get(element.getKey()));
         manager1.clearAll();
-        Thread.currentThread().sleep(1000);
+        Thread.sleep(1000);
 
         cache2.put(element);
         cache2.remove(element.getKey());
-        Thread.currentThread().sleep(1000);
+        Thread.sleep(1000);
         cache1.put(element);
-        Thread.currentThread().sleep(1000);
+        Thread.sleep(1000);
         assertNotNull(cache2.get(element.getKey()));
 
         manager1.clearAll();
-        Thread.currentThread().sleep(1000);
+        Thread.sleep(1000);
 
     }
 

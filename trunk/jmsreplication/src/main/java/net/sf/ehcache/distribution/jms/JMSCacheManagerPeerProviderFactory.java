@@ -67,7 +67,6 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
 
     private static final Logger LOG = Logger.getLogger(JMSCacheManagerPeerProviderFactory.class.getName());
 
-    private static final String NODENAME = "nodeName";
     private static final String SECURITYPINCIPALNAME = "securityPrincipalName";
     private static final String SECURITYCREDENTIALS = "securityCredentials";
     private static final String INITIALCONTEXTFACTORYNAME = "initialContextFactoryName";
@@ -90,7 +89,6 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
                     + ", properties = " + properties + " ) called ");
         }
 
-        String nodeName = PropertyUtil.extractAndLogProperty(NODENAME, properties);
 
         String securityPrincipalName = PropertyUtil.extractAndLogProperty(SECURITYPINCIPALNAME, properties);
         String securityCredentials = PropertyUtil.extractAndLogProperty(SECURITYCREDENTIALS, properties);
@@ -159,7 +157,7 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
             LOG.log(Level.SEVERE, "Exception while creating JMS stuff", e);
             return null;
         }
-        return new JMSCacheManagerPeerProvider(cacheManager, topicSubscriber, topicPublisher, topicPublisherSession, nodeName);
+        return new JMSCacheManagerPeerProvider(cacheManager, topicSubscriber, topicPublisher, topicPublisherSession);
     }
 
     private TopicConnection createTopicConnection(String userName, String password,

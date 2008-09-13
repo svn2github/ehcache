@@ -19,6 +19,7 @@ package net.sf.ehcache.distribution.jms;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.distribution.CachePeer;
 
 import javax.jms.JMSException;
@@ -29,12 +30,14 @@ import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import java.io.Serializable;
 import java.rmi.RemoteException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
 /**
+ * todo separate sending and receiving into separate classes
+ * todo classes are doing the wrong things!
+ * A JMS Cache Peer subscribes to JMS messages
  * @author benoit.perroud@elca.ch
  * @author Greg Luck
  */
@@ -45,28 +48,27 @@ public class JMSCachePeer implements CachePeer, MessageListener {
     private Session producerSession;
     private CacheManager cacheManager;
     private MessageProducer messageProducer;
-    private final String nodeName;
 
     /**
      * 
      * @param cacheManager
      * @param messageProducer
      * @param producerSession
-     * @param nodeName
      */
-    public JMSCachePeer(CacheManager cacheManager, MessageProducer messageProducer, Session producerSession,
-                        String nodeName) {
+    public JMSCachePeer(CacheManager cacheManager, MessageProducer messageProducer, Session producerSession) {
+
+
+
 
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("JMSCachePeer constructor ( cacheManager = "
                     + cacheManager
-                    + ", messageProducer = " + messageProducer + ", nodeName = " + nodeName + " ) called");
+                    + ", messageProducer = " + messageProducer + " ) called");
         }
 
         this.cacheManager = cacheManager;
         this.messageProducer = messageProducer;
         this.producerSession = producerSession;
-        this.nodeName = nodeName;
 
     }
 
@@ -284,6 +286,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
     }
 
     /**
+     * todo async mode should catch exception and keep going
      * Send the cache peer with an ordered list of {@link net.sf.ehcache.distribution.EventMessage}s.
      * <p/>
      * This enables multiple messages to be delivered in one network invocation.
@@ -295,28 +298,14 @@ public class JMSCachePeer implements CachePeer, MessageListener {
             LOG.finest("send ( eventMessages = " + eventMessages + " ) called ");
         }
 
-        for (Iterator iter = eventMessages.iterator(); iter.hasNext();) {
+        for (Object eventMessage : eventMessages) {
             try {
-                ObjectMessage message = createMessage((JMSEventMessage) iter.next(), nodeName);
+                ObjectMessage message = producerSession.createObjectMessage((JMSEventMessage) eventMessage);
                 messageProducer.send(message);
             } catch (JMSException e) {
                 throw new RemoteException(e.getMessage());
             }
         }
-    }
-
-    /**
-     * 
-     * @param object
-     * @param nodeName
-     * @return
-     * @throws JMSException
-     */
-    protected ObjectMessage createMessage(JMSEventMessage object, String nodeName) throws JMSException {
-        object.setNodeName(nodeName);
-        ObjectMessage message = producerSession.createObjectMessage();
-        message.setObject(object);
-        return message;
     }
 
     /**
@@ -332,28 +321,30 @@ public class JMSCachePeer implements CachePeer, MessageListener {
         try {
 
             if (!(message instanceof ObjectMessage)) {
-                LOG.severe("Cannot handle message of type (class="
-                        + message.getClass().getName()
+                LOG.severe("Cannot handle message of type (class=" + message.getClass().getName()
                         + "). Notification ignored.");
                 return;
             }
 
             ObjectMessage objectMessage = (ObjectMessage) message;
 
-            Object o = objectMessage.getObject();
+            Object object = objectMessage.getObject();
 
-            if (!(o instanceof JMSEventMessage)) {
+            if (!(object instanceof JMSEventMessage)) {
                 LOG.severe("Cannot handle message of type (class="
-                        + o.getClass().getName() + "). Notification ignored.");
+                        + object.getClass().getName() + "). Notification ignored.");
                 return;
             }
 
-            JMSEventMessage m = (JMSEventMessage) o;
-            if (!nodeName.equals(m.getNodeName())) {
-                handleNotification(m);
+            JMSEventMessage jmsEventMessage = (JMSEventMessage) object;
+            Ehcache cache = cacheManager.getEhcache(jmsEventMessage.getCacheName());
+            //todo would a selector be more performant?
+            String targetCacheGUID = cache.getGuid();
+            if (!targetCacheGUID.equals(jmsEventMessage.getOriginatingCacheGUID())) {
+                handleNotification(jmsEventMessage);
             } else {
                 if (LOG.isLoggable(Level.FINEST)) {
-                    LOG.finest("Same nodeName, not handling this message.");
+                    LOG.finest("Same guid, not handling this message.");
                 }
             }
 
