@@ -1,39 +1,77 @@
-Distributed Caching using {JGroups}
+Distributed Caching using {JMS}
 
-    As of version 1.5, JGroups can be used as the underlying mechanism for
-    the distributed operations in ehcache. JGroups offers a very flexible
-    protocol stack, reliable unicast and multicast message transmission.
-    On the down side JGroups can be complex to configure and some protocol stacks
-    have dependencies on others.
+    As of version 1.6, JMS can be used as the underlying mechanism for
+    the distributed operations in ehcache.
 
-    To set up distributed caching using JGroups you need to configure a PeerProviderFactory
-    of type JGroupsCacheManagerPeerProviderFactory which is done globally for a CacheManager
+    JMS, Java Message Service is an industry standard mechanism for interacting with message queues.
+    Message queues are very mature infrastructure pieces used in many enterprise software contexts.
+
+    JMS distribution lets organisations with a message queue investment leverage it for caching.
+
+    To set up distributed caching using JMS you need to configure a PeerProviderFactory
+    of type JMSCacheManagerPeerProviderFactory which is done globally for a CacheManager
     For each cache that will operate distributed, you then need to add
     a cacheEventListenerFactory of type JGroupsCacheReplicatorFactory to propagate messages.
 
-* Suitable Element Types
+*   How it Works
 
-    Only Serializable Elements are suitable for replication.
+[images/rmi_replication.png]
 
-    Some operations, such as remove,  work off Element keys rather than the full Element itself. In this case
-    the operation will be replicated provided the key is Serializable, even if the Element is not.
+    Each cache node subscribes to a predefined topic, configured as the <topicBindingName> in ehcache.xml.
+    Each replicated cache publishes cache <<<Element>>>s to that topic. Replication is configured per cache.
+    Non cache publishers are also supported.
 
-* {Peer Discovery}
+*   Non Cache Publishers
 
-    If you use the UDP multicast stack there is no additional configuration. If you use a TCP stack
-    you will need to specify the initial hosts in the cluster.
+    Publishers that are not even Java based are also supported. Any non cache publisher may publish using
+    any payload type. These publishers need to set two properties on the message: mimeType and cacheName
 
-* Configuration
+**  Setting the <<<mimeType>>> property
+
+    The property <<<mimeType>>> should be set to indicate what the type is.
+
+    If the <<<mimeType>>> is not set ehcache will assign the <<<mimeType>>> <<<text/plain>>> for text messages
+     and <<<application/octet-stream>>> for byte messages. Use <<<application/xml>>> when sending XML in
+     a test message. Ehcache will create an Element with value <<<MimeTypeByteArray>>> which encodes the
+     arbitrary payload as a byte[] and a MIME Type indicator. The Ehcache Server uses the same conventions.
+     If the type is an <<<ObjectMessage>>>, which requires the publisher to be Java based, then ehcache will
+     deserialize the object and store it in the Element's value as an <<<Object>>>.
+
+**  Setting the <<<cacheName>>> property
+
+    The entire CacheManager uses a single topic. The target cache needs to be provided so that the CacheManager
+       can work out where to put the published message. Set the <<<cacheName>>> property on the message to
+       address it. It should match the name of the cache you want the message to end up in.
+
+    If no cacheName is set the message will be <ignored>. A fine log message will indicate that the message
+       has been ignored.
+
+
+*   Supported Message Queues
+
+    Any message queue that has a JMS1.1 driver is supported.
+
+    Integration Testing is done with two leading open source message queues: Active MQ 5 and Open Message Queue 4.
+
+
+*   Message Queue Configuration
+
+    Each cluster needs to decide what the topic name will be.
+
+
+*   Ehcache Configuration
+
+    Configuration is done in the ehcache.xml.
 
     There are two things to configure:
 
-    * The JGroupsCacheManagerPeerProviderFactory which is done once per CacheManager and therefore once per ehcache.xml file.
+    * The JMSCacheManagerPeerProviderFactory which is done once per CacheManager and therefore once per ehcache.xml file.
 
-    * The JGroupsCacheReplicatorFactory which is added to each cache's configuration.
+    * The JMSCacheReplicatorFactory which is added to each cache's configuration if you want that cache replicated.
 
-	The main configuration happens in the JGroupsCacheManagerPeerProviderFactory connect sub-property.
-	A connect property is passed directly to the JGroups channel and therefore all the protocol
-	stacks and options available in JGroups can be set. 
+    The main configuration happens in the JGroupsCacheManagerPeerProviderFactory connect sub-property.
+    A connect property is passed directly to the JGroups channel and therefore all the protocol
+    stacks and options available in JGroups can be set.
 
 * Example configuration using {UDP Multicast}
 
@@ -73,12 +111,12 @@ Distributed Caching using {JGroups}
 
 * Protocol considerations.
 
-	You should read the JGroups documentation to configure the protocols correctly.
-	
-	See {{http://www.jgroups.org/javagroupsnew/docs/manual/html_single/index.html}}.
-	
-	If using UDP you should at least configure PING, FD_SOCK (Failure detection), VERIFY_SUSPECT, pbcast.NAKACK (Message reliability),
-	pbcast.STABLE (message garbage collection).
+    You should read the JGroups documentation to configure the protocols correctly.
+
+    See {{http://www.jgroups.org/javagroupsnew/docs/manual/html_single/index.html}}.
+
+    If using UDP you should at least configure PING, FD_SOCK (Failure detection), VERIFY_SUSPECT, pbcast.NAKACK (Message reliability),
+    pbcast.STABLE (message garbage collection).
 
 * Configuring CacheReplicators
 
@@ -123,14 +161,14 @@ Distributed Caching using {JGroups}
 
     * replicateUpdatesViaCopy=true | false - whether the new elements are
       copied to other caches (true), or whether a remove message is sent. Defaults to true.
-      
-    * asynchronousReplicationIntervalMillis default 1000ms Time between updates when replication is asynchroneous  
+
+    * asynchronousReplicationIntervalMillis default 1000ms Time between updates when replication is asynchroneous
 
 
 * Complete Sample configuration
 
     A typical complete configuration for one replicated cache configured for UDP will look like:
-	 
+
 ---
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:noNamespaceSchemaLocation="../../../main/config/ehcache.xsd">
@@ -173,8 +211,8 @@ replicateRemovals=true" />
 
 * Common Problems
 
-	If replication using JGroups doesnt't work the way you have it configured try this configuration which
-	has been extensively tested:
+    If replication using JGroups doesnt't work the way you have it configured try this configuration which
+    has been extensively tested:
 
 ---
 <cacheManagerPeerProviderFactory
@@ -193,7 +231,7 @@ replicateRemovals=true" />
     replicateRemovals=true" />
 </cache>
 ---
-   
+
    If this fails to replicate, try to get the example programs from JGroups to run:
 
    http://www.jgroups.org/javagroupsnew/docs/manual/html/ch02.html#d0e451
@@ -201,11 +239,11 @@ replicateRemovals=true" />
    and
 
    http://www.jgroups.org/javagroupsnew/docs/manual/html/ch02.html#ItDoesntWork
-   
+
    Once you have figured out the connection string that works in your network for JGroups, you can directly paste it in the connect property of
    <<<JGroupsCacheManagerPeerProviderFactory>>>.
-   
-   
-   
-   
+
+
+
+
 

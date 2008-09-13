@@ -13,11 +13,11 @@ Distributed Caching with ehcache
 
     * JGroups
 
+    * JMS
+
     * Terracotta
 
     * Cache Server
-
-   JMS replication will be supported in ehcache 1.6.
 
    Each of the is covered in its own chapter.
 
