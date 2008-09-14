@@ -23,6 +23,8 @@ import java.io.Serializable;
 
 
 /**
+ * A subclass of EventMessage which describes all of the ehcache distributed message types in a way
+ * that works for JMS.
  * @author benoit.perroud@elca.ch
  * @author Greg Luck
  */
@@ -35,11 +37,12 @@ public class JMSEventMessage extends EventMessage {
 
     /**
      *
-     * @param event
-     * @param key
-     * @param element
-     * @param cacheName
-     * @param sendingCacheGUID
+     * @param event one of the types from EventMessage
+     * @param key the key of the Element. May be null for the removeAll message type
+     * @param element may be null for removal and invalidation message types
+     * @param cacheName the name of the cache in the CacheManager.
+     * @param sendingCacheGUID a GUID which uniquely identifies the originator to ensure that a message does
+     * not update the originator
      */
     public JMSEventMessage(int event, Serializable key, Element element, String cacheName, String sendingCacheGUID) {
         super(event, key, element);
@@ -48,40 +51,40 @@ public class JMSEventMessage extends EventMessage {
     }
 
     /**
-     *
-     * @return
+     * Returns the cache name
+     * @return the cache name in the CacheManager.
      */
     public String getCacheName() {
         return cacheName;
     }
 
     /**
-     *
-     * @param cacheName
+     * Sets the cache name.
+     * @param cacheName the name of the cache in the CacheManager
      */
     public void setCacheName(String cacheName) {
         this.cacheName = cacheName;
     }
 
     /**
-     *
-     * @return
+     * Returns the originating cache GUID.
+     * @return a GUID which uniquely identifies the originator to ensure that a message does not update the originator
      */
     public String getOriginatingCacheGUID() {
         return originatingCacheGUID;
     }
 
     /**
-     *
-     * @param originatingCacheGUID
+     * Sets a GUID which uniquely identifies the originator to ensure that a message does not update the originator
+     * @param originatingCacheGUID the GUID from Cache
      */
     public void setOriginatingCacheGUID(String originatingCacheGUID) {
         this.originatingCacheGUID = originatingCacheGUID;
     }
 
     /**
-     *
-     * @return
+     * Returns the message as a String
+     * @return a String represenation of the message
      */
     @Override
     public String toString() {

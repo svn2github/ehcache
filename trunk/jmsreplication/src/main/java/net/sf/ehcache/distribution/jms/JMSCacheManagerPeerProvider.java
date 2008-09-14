@@ -116,8 +116,7 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
     /**
      * @return a list of {@link CachePeer} peers for the given cache, excluding the local peer.
      */
-    public List<CachePeer> listRemoteCachePeers(Ehcache cache)
-            throws CacheException {
+    public List<CachePeer> listRemoteCachePeers(Ehcache cache) throws CacheException {
 
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("listRemoteCachePeers ( cache = " + cache + " ) called ");

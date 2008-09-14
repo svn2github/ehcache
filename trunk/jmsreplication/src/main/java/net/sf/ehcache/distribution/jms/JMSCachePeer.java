@@ -37,6 +37,7 @@ import java.util.logging.Level;
 /**
  * todo separate sending and receiving into separate classes
  * todo classes are doing the wrong things!
+ * todo should not be a CachePeer because it does not properly implement any of its methods
  * A JMS Cache Peer subscribes to JMS messages
  * @author benoit.perroud@elca.ch
  * @author Greg Luck
@@ -72,29 +73,25 @@ public class JMSCachePeer implements CachePeer, MessageListener {
 
     }
 
-    private synchronized void handleNotification(JMSEventMessage message) {
+    /**
+     * Unwraps the JMSEventMessage and performs the cache action
+     * @param message
+     * @param cache
+     */
+    private void handleNotification(JMSEventMessage message, Ehcache cache) {
 
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("handleNotification ( message = " + message + " ) called ");
         }
 
         int event = message.getEvent();
-        Cache cache;
-        String name = message.getCacheName();
-        try {
-            cache = cacheManager.getCache(name);
-        } catch (Exception e) {
-            LOG.log(Level.SEVERE, "Cache {0} not found.", name);
-            return;
-        }
-        Element element = message.getElement();
 
         switch (event) {
             case JMSEventMessage.PUT:
-                put(cache, element);
+                put(cache, message.getElement());
                 break;
             case JMSEventMessage.REMOVE:
-                remove(cache, element);
+                remove(cache, message.getSerializableKey());
                 break;
             case JMSEventMessage.REMOVE_ALL:
                 removeAll(cache);
@@ -106,21 +103,21 @@ public class JMSCachePeer implements CachePeer, MessageListener {
         }
     }
 
-    private void removeAll(Cache cache) {
+    private void removeAll(Ehcache cache) {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("removeAll ");
         }
         cache.removeAll(true);
     }
 
-    private void remove(Cache cache, Element element) {
+    private void remove(Ehcache cache, Serializable key) {
         if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("remove ( element = " + element + " ) ");
+            LOG.finest("remove ( key = " + key + " ) ");
         }
-        cache.remove(element, true);
+        cache.remove(key, true);
     }
 
-    private void put(Cache cache, Element element) {
+    private void put(Ehcache cache, Element element) {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("put ( element = " + element + " ) ");
         }
@@ -128,165 +125,6 @@ public class JMSCachePeer implements CachePeer, MessageListener {
     }
 
     /**
-     * Gets a list of elements from the cache, for a list of keys, without updating Element statistics. Time to
-     * idle lifetimes are therefore not affected.
-     * <p/>
-     * Cache statistics are still updated.
-     * @param keys a list of serializable values which represent keys
-     * @return a list of Elements. If an element was not found or null, it will not be in the list.
-     */
-    public List getElements(List keys) throws RemoteException {
-
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("getElements ( keys = " + keys + " ) called ");
-        }
-
-        return null;
-    }
-
-    /**
-     * Gets the globally unique id for the underlying <code>Cache</code> instance.
-     * @return a String representation of the GUID
-     * @throws RemoteException
-     */
-    public String getGuid() throws RemoteException {
-
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("getGuid ( ) called ");
-        }
-        return null;
-    }
-
-    /**
-     * Returns a list of all elements in the cache, whether or not they are expired.
-     * <p/>
-     * The returned keys are unique and can be considered a set.
-     * <p/>
-     * The List returned is not live. It is a copy.
-     * <p/>
-     * The time taken is O(n). On a single cpu 1.8Ghz P4, approximately 8ms is required
-     * for each 1000 entries.
-     *
-     * @return a list of {@link Object} keys
-     */
-    public List getKeys() throws RemoteException {
-
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("getKeys ( ) called ");
-        }
-
-        return null;
-    }
-
-    /**
-     * Gets the cache name.
-     */
-    public String getName() throws RemoteException {
-
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("getName ( ) called ");
-        }
-
-        return null;
-    }
-
-    /**
-     * Gets an element from the cache, without updating Element statistics. Cache statistics are
-     * still updated.
-     * @param key a serializable value
-     * @return the element, or null, if it does not exist.
-     */
-    public Element getQuiet(Serializable key) throws RemoteException {
-
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("getQuiet ( key = " + key + " ) called ");
-        }
-
-        return null;
-    }
-
-    /**
-     * The URL for the remote replicator to connect. The value will only have meaning
-     * for a specific implementation of replicator and remote peer.
-     * <p/>
-     * This method is not meant to be used remotely. The replicator already needs to know this. It has
-     * to throw RemoteException to comply with RMI requirements
-     * @return the URL as a string
-     */
-    public String getUrl() throws RemoteException {
-
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("getUrl ( ) called ");
-        }
-        return null;
-    }
-
-    /**
-     * The URL base for the remote replicator to connect. The value will have meaning
-     * only to a specific implementation of replicator and remote peer.
-     */
-    public String getUrlBase() throws RemoteException {
-
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("getUrlBase ( ) called ");
-        }
-
-        return null;
-    }
-
-    /**
-     * todo
-     * Put an element in the cache.
-     * <p/>
-     * Resets the access statistics on the element, which would be the case if it has previously been
-     * gotten from a cache, and is now being put back.
-     *
-     * @param element
-     * @throws IllegalStateException    if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
-     * @throws IllegalArgumentException if the element is null
-     */
-    public void put(Element element) throws IllegalArgumentException,
-            IllegalStateException, RemoteException {
-
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("put ( element = " + element + " ) called ");
-        }
-
-    }
-
-    /**
-     * Removes an {@link net.sf.ehcache.Element} from the Cache. This also removes it from any
-     * stores it may be in.
-     *
-     * @param key
-     * @return true if the element was removed, false if it was not found in the cache
-     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
-     */
-    public boolean remove(Serializable key) throws IllegalStateException,
-            RemoteException {
-
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("remove ( key = " + key + " ) called ");
-        }
-
-        return false;
-    }
-
-    /**
-     * Removes all cached items.
-     *
-     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
-     */
-    public void removeAll() throws RemoteException, IllegalStateException {
-
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("removeAll ( ) called ");
-        }
-
-    }
-
-    /**
-     * todo async mode should catch exception and keep going
      * Send the cache peer with an ordered list of {@link net.sf.ehcache.distribution.EventMessage}s.
      * <p/>
      * This enables multiple messages to be delivered in one network invocation.
@@ -309,7 +147,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
     }
 
     /**
-     * 
+     * todo acknowledgements
      * @param message
      */
     public void onMessage(Message message) {
@@ -319,7 +157,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
         }
 
         try {
-
+            //todo cater for other message types from non-cache senders
             if (!(message instanceof ObjectMessage)) {
                 LOG.severe("Cannot handle message of type (class=" + message.getClass().getName()
                         + "). Notification ignored.");
@@ -327,7 +165,6 @@ public class JMSCachePeer implements CachePeer, MessageListener {
             }
 
             ObjectMessage objectMessage = (ObjectMessage) message;
-
             Object object = objectMessage.getObject();
 
             if (!(object instanceof JMSEventMessage)) {
@@ -335,13 +172,23 @@ public class JMSCachePeer implements CachePeer, MessageListener {
                         + object.getClass().getName() + "). Notification ignored.");
                 return;
             }
-
             JMSEventMessage jmsEventMessage = (JMSEventMessage) object;
-            Ehcache cache = cacheManager.getEhcache(jmsEventMessage.getCacheName());
+
+            Ehcache cache;
+            String cacheName = null;
+            try {
+                cacheName = jmsEventMessage.getCacheName();
+                cache = cacheManager.getEhcache(cacheName);
+            } catch (Exception e) {
+                LOG.log(Level.SEVERE, "Cache {0} not found.", cacheName);
+                return;
+            }
+
+
             //todo would a selector be more performant?
             String targetCacheGUID = cache.getGuid();
             if (!targetCacheGUID.equals(jmsEventMessage.getOriginatingCacheGUID())) {
-                handleNotification(jmsEventMessage);
+                handleNotification(jmsEventMessage, cache);
             } else {
                 if (LOG.isLoggable(Level.FINEST)) {
                     LOG.finest("Same guid, not handling this message.");
@@ -349,7 +196,96 @@ public class JMSCachePeer implements CachePeer, MessageListener {
             }
 
         } catch (JMSException e) {
-            LOG.log(Level.SEVERE, "Cannot handle cluster Notification", e);
+            LOG.log(Level.SEVERE, "Exception handling JMS Notification", e);
         }
     }
+
+    /**
+     * Not implemented for JMS
+     * @param keys a list of serializable values which represent keys
+     * @return a list of Elements. If an element was not found or null, it will not be in the list.
+     */
+    public List getElements(List keys) throws RemoteException {
+        throw new RemoteException("Not implemented for JMS");
+    }
+
+    /**
+     * Not implemented for JMS
+     * @return a String representation of the GUID
+     * @throws RemoteException
+     */
+    public String getGuid() throws RemoteException {
+        throw new RemoteException("Not implemented for JMS");
+    }
+
+    /**
+     * Not implemented for JMS
+     *
+     * @return a list of {@link Object} keys
+     */
+    public List getKeys() throws RemoteException {
+        throw new RemoteException("Not implemented for JMS");
+    }
+
+    /**
+     * Not implemented for JMS
+     */
+    public String getName() throws RemoteException {
+        throw new RemoteException("Not implemented for JMS");
+    }
+
+    /**
+     * Not implemented for JMS
+     * @param key a serializable value
+     * @return the element, or null, if it does not exist.
+     */
+    public Element getQuiet(Serializable key) throws RemoteException {
+        throw new RemoteException("Not implemented for JMS");
+    }
+
+    /**
+     * Not implemented for JMS
+     * @return the URL as a string
+     */
+    public String getUrl() throws RemoteException {
+        throw new RemoteException("Not implemented for JMS");
+    }
+
+    /**
+     * The URL base for the remote replicator to connect. The value will have meaning
+     * only to a specific implementation of replicator and remote peer.
+     */
+    public String getUrlBase() throws RemoteException {
+        throw new RemoteException("Not implemented for JMS");
+    }
+
+    /**
+     * Not implemented for JMS
+     * @param element the element to put
+     * @throws IllegalStateException    if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws IllegalArgumentException if the element is null
+     */
+    public void put(Element element) throws IllegalArgumentException, IllegalStateException, RemoteException {
+        throw new RemoteException("Not implemented for JMS");
+    }
+
+    /**
+     * Not implemented for JMS
+     * @param key the element key
+     * @return true if the element was removed, false if it was not found in the cache
+     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     */
+    public boolean remove(Serializable key) throws IllegalStateException, RemoteException {
+        throw new RemoteException("Not implemented for JMS");
+    }
+
+    /**
+     * Not implemented for JMS
+     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     */
+    public void removeAll() throws RemoteException, IllegalStateException {
+        throw new RemoteException("Not implemented for JMS");
+    }
+
+
 }
