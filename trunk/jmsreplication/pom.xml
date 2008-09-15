@@ -33,11 +33,12 @@
         <!--  Test scope -->
         <!--Manual install: mvn install:install-file -DgroupId=com.sun.messaging -DartifactId=imq -Dversion=4.2 -Dpackaging=jar -Dfile=/path/to/file -->
         <dependency>
-            <groupId>com.sun.messaging</groupId>
+            <groupId>com.sun.messaging.mq</groupId>
             <artifactId>imq</artifactId>
             <version>4.2</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-core</artifactId>
@@ -50,6 +51,22 @@
         <activemq.bin.dir>/Users/gluck/work/apache-activemq-5.1.0/bin</activemq.bin.dir>
         <openmq.bin.dir>/Users/gluck/work/mq/bin</openmq.bin.dir>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>java.net2</id>
+            <name>Java.net Maven2 Repository</name>
+            <url>http://download.java.net/maven/2</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>
