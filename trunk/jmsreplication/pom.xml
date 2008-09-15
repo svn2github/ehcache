@@ -135,7 +135,7 @@
                         <configuration>
                             <includes>
                                 <include>**/*IntegrationTest.java</include>
-                                <!--<include>**/JMSReplicationTest.java</include>-->
+                                <include>**/*JMSReplicationTest.java</include>
                                 <include>**/*WebTest.java</include>
                             </includes>
                         </configuration>
@@ -152,15 +152,10 @@
                         <phase>post-integration-test</phase>
                         <configuration>
                             <tasks>
-                                <echo>Stopping Active MQ from ${activemq.bin.dir} on ${os.name}</echo>
-                                <exec dir="${activemq.bin.dir}" spawn="true" os="Mac OS X, Linux, AIX, Solaris"
+                                <echo>Stopping Message Queues on ${os.name}</echo>
+                                <exec dir="src/test/scripts" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
                                       executable="sh">
-                                    <arg line="ps ax | grep \'apache-activemq\' | head -1 | awk \'{print $1}\' | xargs kill"/>
-                                </exec>
-                                <echo>Stopping Open MQ from ${openmq.bin.dir} on ${os.name}</echo>
-                                <exec dir="${openmq.bin.dir}" spawn="true" os="Mac OS X, Linux, AIX, Solaris"
-                                      executable="sh">
-                                    <arg line="ps ax | grep 'imqbroker.jar' | head -1 | awk '{print $1}' | xargs kill"/>
+                                    <arg line="stop_message_queues"/>
                                 </exec>
                             </tasks>
                         </configuration>

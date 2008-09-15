@@ -174,13 +174,14 @@ public class JMSCachePeer implements CachePeer, MessageListener {
             }
             JMSEventMessage jmsEventMessage = (JMSEventMessage) object;
 
-            Ehcache cache;
+            Cache cache;
             String cacheName = null;
             try {
                 cacheName = jmsEventMessage.getCacheName();
-                cache = cacheManager.getEhcache(cacheName);
+                cache = cacheManager.getCache(cacheName);
             } catch (Exception e) {
-                LOG.log(Level.SEVERE, "Cache {0} not found.", cacheName);
+//                LOG.log(Level.SEVERE, "Cache {0} not found. Skipping", cacheName);
+                LOG.log(Level.SEVERE, e.getMessage(), e);
                 return;
             }
 

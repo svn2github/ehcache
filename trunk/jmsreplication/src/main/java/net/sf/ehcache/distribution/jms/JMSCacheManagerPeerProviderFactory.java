@@ -45,23 +45,27 @@ import java.util.logging.Level;
 public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProviderFactory {
 
     /**
-     *
+     * Configuration string
      */
     protected static final String PROVIDERURL = "providerURL";
+
     /**
-     *
+     * Configuration string
      */
     protected static final String TOPICBINDINGNAME = "topicBindingName";
+
     /**
-     *
+     * Configuration string
      */
     protected static final String TOPICCONNECTIONFACTORYBINDINGNAME = "topicConnectionFactoryBindingName";
+
     /**
-     *
+     * Configuration string
      */
     protected static final String USERNAME = "userName";
+
     /**
-     * 
+     * Configuration string
      */
     protected static final String PASSWORD = "password";
 
@@ -78,7 +82,7 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
      * @param cacheManager the CacheManager instance connected to this peer provider
      * @param properties implementation specific properties. These are configured as comma
      * separated name value pairs in ehcache.xml
-     * @return
+     * @return a provider, already connected to the message queue
      */
     @Override
     public CacheManagerPeerProvider createCachePeerProvider(
@@ -121,9 +125,7 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
 
         } catch (NamingException ne) {
 
-            LOG.log(Level.WARNING, "NamingException " + topicConnectionFactoryBindingName, ne);
-
-            return null;
+            throw new CacheException("NamingException " + topicConnectionFactoryBindingName, ne);
         }
 
         TopicSession topicPublisherSession;
@@ -146,7 +148,7 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
             topicConnection.start();
 
         } catch (JMSException e) {
-            throw new CacheException("Exception while creating JMS stuff", e);
+            throw new CacheException("Exception while creating JMS connections: " + e.getMessage(), e);
         }
 
         try {
@@ -154,8 +156,7 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
                 context.close();
             }
         } catch (NamingException e) {
-            LOG.log(Level.SEVERE, "Exception while creating JMS stuff", e);
-            return null;
+            throw new CacheException("Exception while closing context", e);
         }
         return new JMSCacheManagerPeerProvider(cacheManager, topicSubscriber, topicPublisher, topicPublisherSession);
     }
@@ -212,14 +213,15 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
     }
 
     /**
-     *
-     * @param ctx
-     * @param name
-     * @return
-     * @throws NamingException
+     * Looks up an object in a JNDI Context
+     * @param ctx the context to check
+     * @param name the object name
+     * @return the object or null if not found
+     * @throws NamingException if an exception happens on lookup
      */
     protected Object lookup(Context ctx, String name) throws NamingException {
         try {
+            LOG.fine("Looking up " + name);
             return ctx.lookup(name);
         } catch (NameNotFoundException e) {
             LOG.log(Level.SEVERE, "Could not find name [" + name + "].");

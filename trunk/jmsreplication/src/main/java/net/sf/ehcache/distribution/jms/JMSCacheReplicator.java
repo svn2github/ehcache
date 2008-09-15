@@ -58,12 +58,13 @@ public class JMSCacheReplicator implements CacheReplicator {
     private Status status;
 
     /**
-     * @param replicatePuts
-     * @param replicateUpdates
-     * @param replicateUpdatesViaCopy
-     * @param replicateRemovals
-     * @param replicateAsync
-     * @param asynchronousReplicationInterval
+     * Constructs a replicator
+     * @param replicatePuts whether to replicate puts
+     * @param replicateUpdates whether to replicate puts
+     * @param replicateUpdatesViaCopy whether to replicate updates via copy or by invalidation
+     * @param replicateRemovals whether to replicate removals
+     * @param replicateAsync whether to replicate asynchronously
+     * @param asynchronousReplicationInterval interval for asynchronous(batch) replicates. The default is 1000ms.
      *
      */
     public JMSCacheReplicator(boolean replicatePuts, boolean replicateUpdates,
@@ -136,7 +137,7 @@ public class JMSCacheReplicator implements CacheReplicator {
     }
 
     /**
-     * @return
+     * @return The asynchronous replication interval, in ms
      */
     public long getAsynchronousReplicationInterval() {
         return asynchronousReplicationInterval;
@@ -478,8 +479,8 @@ public class JMSCacheReplicator implements CacheReplicator {
         private JMSEventMessage message;
 
         /**
-         * @param cache
-         * @param message
+         * @param cache -
+         * @param message - 
          */
         public AsyncJMSEventMessage(Ehcache cache, JMSEventMessage message) {
             this.cache = cache;
@@ -487,14 +488,14 @@ public class JMSCacheReplicator implements CacheReplicator {
         }
 
         /**
-         * @return
+         * @return the cache this replicator is replicating for.
          */
         public Ehcache getCache() {
             return cache;
         }
 
         /**
-         * @return
+         * @return the message
          */
         public JMSEventMessage getMessage() {
             return message;

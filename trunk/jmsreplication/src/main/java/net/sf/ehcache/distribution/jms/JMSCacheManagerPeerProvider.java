@@ -76,6 +76,14 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
      */
     public void dispose() throws CacheException {
 
+        try {
+            messageConsumer.close();
+            producerSession.close();
+            messageProducer.close();
+        } catch (JMSException e) {
+            throw new CacheException(e.getMessage(), e);
+        }
+
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("dispose ( ) called ");
         }

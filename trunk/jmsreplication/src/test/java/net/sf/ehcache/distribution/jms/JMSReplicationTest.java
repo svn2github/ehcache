@@ -45,12 +45,17 @@ public class JMSReplicationTest {
 
     protected CacheManager manager1, manager2, manager3, manager4, manager5;
 
+    protected String getConfigurationFile() {
+        return "distribution/jms/ehcache-distributed-jms-activemq.xml";    
+    }
+
     @Before
     public void setUp() throws Exception {
-        manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jms/ehcache-distributed-jms.xml");
-        manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jms/ehcache-distributed-jms.xml");
-        manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jms/ehcache-distributed-jms.xml");
-        manager4 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jms/ehcache-distributed-jms.xml");
+
+        manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + getConfigurationFile());
+        manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + getConfigurationFile());
+        manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + getConfigurationFile());
+        manager4 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + getConfigurationFile());
         cacheName = SAMPLE_CACHE_ASYNC;
         Thread.sleep(200);
     }
@@ -68,10 +73,7 @@ public class JMSReplicationTest {
     }
 
 
-    @Test
-    public void testStartupAndShutdown() {
-        //noop
-    }
+
 
     @Test
     public void testBasicReplicationAsynchronous() throws Exception {
@@ -85,65 +87,70 @@ public class JMSReplicationTest {
         basicReplicationTest();
     }
 
+    @Test
+    public void testStartupAndShutdown() {
+        //noop
+    }
+
 
     public void basicReplicationTest() throws Exception {
 
         //put
         for (int i = 0; i < NBR_ELEMENTS; i++) {
-            manager1.getEhcache(cacheName).put(new Element(i, "testdat"));
+            manager1.getCache(cacheName).put(new Element(i, "testdat"));
         }
         Thread.sleep(3000);
 
-        LOG.info(manager1.getEhcache(cacheName).getKeys().size() + "  " + manager2.getEhcache(cacheName).getKeys().size()
-                + " " + manager3.getEhcache(cacheName).getKeys().size()
-                + " " + manager4.getEhcache(cacheName).getKeys().size());
+        LOG.info(manager1.getCache(cacheName).getKeys().size() + "  " + manager2.getCache(cacheName).getKeys().size()
+                + " " + manager3.getCache(cacheName).getKeys().size()
+                + " " + manager4.getCache(cacheName).getKeys().size());
 
-        assertTrue(manager1.getEhcache(cacheName).getKeys().size() == manager2.getEhcache(cacheName).getKeys().size() &&
-                manager1.getEhcache(cacheName).getKeys().size() == manager3.getEhcache(cacheName).getKeys().size() &&
-                manager1.getEhcache(cacheName).getKeys().size() == manager4.getEhcache(cacheName).getKeys().size() &&
-                manager1.getEhcache(cacheName).getKeys().size() == NBR_ELEMENTS);
+        assertTrue(manager1.getCache(cacheName).getKeys().size() == manager2.getCache(cacheName).getKeys().size() &&
+                manager1.getCache(cacheName).getKeys().size() == manager3.getCache(cacheName).getKeys().size() &&
+                manager1.getCache(cacheName).getKeys().size() == manager4.getCache(cacheName).getKeys().size() &&
+                manager1.getCache(cacheName).getKeys().size() == NBR_ELEMENTS);
 
         //update via copy
         for (int i = 0; i < NBR_ELEMENTS; i++) {
-            manager1.getEhcache(cacheName).put(new Element(i, "testdat"));
+            manager1.getCache(cacheName).put(new Element(i, "testdat"));
         }
         Thread.sleep(3000);
 
-        LOG.info(manager1.getEhcache(cacheName).getKeys().size() + "  " + manager2.getEhcache(cacheName).getKeys().size()
-                + " " + manager3.getEhcache(cacheName).getKeys().size()
-                + " " + manager4.getEhcache(cacheName).getKeys().size());
+        LOG.info(manager1.getCache(cacheName).getKeys().size() + "  " + manager2.getCache(cacheName).getKeys().size()
+                + " " + manager3.getCache(cacheName).getKeys().size()
+                + " " + manager4.getCache(cacheName).getKeys().size());
 
-        assertTrue(manager1.getEhcache(cacheName).getKeys().size() == manager2.getEhcache(cacheName).getKeys().size() &&
-                manager1.getEhcache(cacheName).getKeys().size() == manager3.getEhcache(cacheName).getKeys().size() &&
-                manager1.getEhcache(cacheName).getKeys().size() == manager4.getEhcache(cacheName).getKeys().size() &&
-                manager1.getEhcache(cacheName).getKeys().size() == NBR_ELEMENTS);
+        assertTrue(manager1.getCache(cacheName).getKeys().size() == manager2.getCache(cacheName).getKeys().size() &&
+                manager1.getCache(cacheName).getKeys().size() == manager3.getCache(cacheName).getKeys().size() &&
+                manager1.getCache(cacheName).getKeys().size() == manager4.getCache(cacheName).getKeys().size() &&
+                manager1.getCache(cacheName).getKeys().size() == NBR_ELEMENTS);
 
 
         //remove
-        manager1.getEhcache(cacheName).remove(0);
+        manager1.getCache(cacheName).remove(0);
         Thread.sleep(1010);
 
-        LOG.info(manager1.getEhcache(cacheName).getKeys().size() + "  " + manager2.getEhcache(cacheName).getKeys().size()
-                + " " + manager3.getEhcache(cacheName).getKeys().size()
-                + " " + manager4.getEhcache(cacheName).getKeys().size());
+        LOG.info(manager1.getCache(cacheName).getKeys().size() + "  " + manager2.getCache(cacheName).getKeys().size()
+                + " " + manager3.getCache(cacheName).getKeys().size()
+                + " " + manager4.getCache(cacheName).getKeys().size());
 
-        assertTrue(manager1.getEhcache(cacheName).getKeys().size() == manager2.getEhcache(cacheName).getKeys().size() &&
-                manager1.getEhcache(cacheName).getKeys().size() == manager3.getEhcache(cacheName).getKeys().size() &&
-                manager1.getEhcache(cacheName).getKeys().size() == manager4.getEhcache(cacheName).getKeys().size() &&
-                manager1.getEhcache(cacheName).getKeys().size() == NBR_ELEMENTS - 1);
+        assertTrue(manager1.getCache(cacheName).getKeys().size() == manager2.getCache(cacheName).getKeys().size() &&
+                manager1.getCache(cacheName).getKeys().size() == manager3.getCache(cacheName).getKeys().size() &&
+                manager1.getCache(cacheName).getKeys().size() == manager4.getCache(cacheName).getKeys().size() &&
+                manager1.getCache(cacheName).getKeys().size() == NBR_ELEMENTS - 1);
 
         //removeall
-        manager1.getEhcache(cacheName).removeAll();
+        manager1.getCache(cacheName).removeAll();
         Thread.sleep(1010);
 
-        LOG.info(manager1.getEhcache(cacheName).getKeys().size() + "  " + manager2.getEhcache(cacheName).getKeys().size()
-                + " " + manager3.getEhcache(cacheName).getKeys().size()
-                + " " + manager4.getEhcache(cacheName).getKeys().size());
+        LOG.info(manager1.getCache(cacheName).getKeys().size() + "  " + manager2.getCache(cacheName).getKeys().size()
+                + " " + manager3.getCache(cacheName).getKeys().size()
+                + " " + manager4.getCache(cacheName).getKeys().size());
 
-        assertTrue(manager1.getEhcache(cacheName).getKeys().size() == manager2.getEhcache(cacheName).getKeys().size() &&
-                manager1.getEhcache(cacheName).getKeys().size() == manager3.getEhcache(cacheName).getKeys().size() &&
-                manager1.getEhcache(cacheName).getKeys().size() == manager4.getEhcache(cacheName).getKeys().size() &&
-                manager1.getEhcache(cacheName).getKeys().size() == 0);
+        assertTrue(manager1.getCache(cacheName).getKeys().size() == manager2.getCache(cacheName).getKeys().size() &&
+                manager1.getCache(cacheName).getKeys().size() == manager3.getCache(cacheName).getKeys().size() &&
+                manager1.getCache(cacheName).getKeys().size() == manager4.getCache(cacheName).getKeys().size() &&
+                manager1.getCache(cacheName).getKeys().size() == 0);
 
     }
 
@@ -152,7 +159,7 @@ public class JMSReplicationTest {
 //    @Test
 //    public void testShutdownManager() throws Exception {
 //        cacheName = SAMPLE_CACHE_ASYNC;
-//        manager1.getEhcache(cacheName).removeAll();
+//        manager1.getCache(cacheName).removeAll();
 //        Thread.currentThread().sleep(1000);
 //
 //        CacheManagerPeerProvider provider = manager1.getCachePeerProvider();
@@ -161,13 +168,13 @@ public class JMSReplicationTest {
 //        manager1.shutdown();
 //        assertEquals(Status.STATUS_SHUTDOWN, jg.getStatus());
 //        //Lets see if the other still replicate
-//        manager2.getEhcache(cacheName).put(new Element(new Integer(1), new Date()));
+//        manager2.getCache(cacheName).put(new Element(new Integer(1), new Date()));
 //        Thread.currentThread().sleep(2000);
 //
 //
-//        assertTrue(manager2.getEhcache(cacheName).getKeys().size() == manager3.getEhcache(cacheName).getKeys().size() &&
-//                manager2.getEhcache(cacheName).getKeys().size() == manager4.getEhcache(cacheName).getKeys().size() &&
-//                manager2.getEhcache(cacheName).getKeys().size() == 1);
+//        assertTrue(manager2.getCache(cacheName).getKeys().size() == manager3.getCache(cacheName).getKeys().size() &&
+//                manager2.getCache(cacheName).getKeys().size() == manager4.getCache(cacheName).getKeys().size() &&
+//                manager2.getCache(cacheName).getKeys().size() == 1);
 //
 //
 //    }
@@ -180,20 +187,20 @@ public class JMSReplicationTest {
 
 
         Thread.sleep(1000);
-        manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jms/ehcache-distributed-jms.xml");
+        manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + getConfigurationFile());
         Thread.sleep(3000);
         manager2.clearAll();
 
         Thread.sleep(1000);
 
-        manager2.getEhcache(cacheName).put(new Element(2, new Date()));
-        manager1.getEhcache(cacheName).put(new Element(3, new Date()));
+        manager2.getCache(cacheName).put(new Element(2, new Date()));
+        manager1.getCache(cacheName).put(new Element(3, new Date()));
         Thread.sleep(2000);
 
-        assertTrue(manager1.getEhcache(cacheName).getKeys().size() == manager2.getEhcache(cacheName).getKeys().size() &&
-                manager1.getEhcache(cacheName).getKeys().size() == manager3.getEhcache(cacheName).getKeys().size() &&
-                manager1.getEhcache(cacheName).getKeys().size() == manager4.getEhcache(cacheName).getKeys().size() &&
-                manager1.getEhcache(cacheName).getKeys().size() == 2);
+        assertTrue(manager1.getCache(cacheName).getKeys().size() == manager2.getCache(cacheName).getKeys().size() &&
+                manager1.getCache(cacheName).getKeys().size() == manager3.getCache(cacheName).getKeys().size() &&
+                manager1.getCache(cacheName).getKeys().size() == manager4.getCache(cacheName).getKeys().size() &&
+                manager1.getCache(cacheName).getKeys().size() == 2);
 
     }
 
@@ -201,8 +208,8 @@ public class JMSReplicationTest {
     @Test
     public void testNoreplication() throws InterruptedException {
         cacheName = SAMPLE_CACHE_NOREP;
-        Ehcache cache1 = manager1.getEhcache(cacheName);
-        Ehcache cache2 = manager2.getEhcache(cacheName);
+        Ehcache cache1 = manager1.getCache(cacheName);
+        Ehcache cache2 = manager2.getCache(cacheName);
         Element element = new Element(1, new Date());
 
         //put
@@ -235,8 +242,8 @@ public class JMSReplicationTest {
     @Test
     public void testVariousPuts() throws InterruptedException {
         cacheName = SAMPLE_CACHE_ASYNC;
-        Ehcache cache1 = manager1.getEhcache(cacheName);
-        Ehcache cache2 = manager2.getEhcache(cacheName);
+        Ehcache cache1 = manager1.getCache(cacheName);
+        Ehcache cache2 = manager2.getCache(cacheName);
 
         Serializable key = "1";
         Serializable value = new Date();
@@ -282,8 +289,8 @@ public class JMSReplicationTest {
     @Test
     public void testPutAndRemove() throws InterruptedException {
         cacheName = SAMPLE_CACHE_SYNC;
-        Ehcache cache1 = manager1.getEhcache(cacheName);
-        Ehcache cache2 = manager2.getEhcache(cacheName);
+        Ehcache cache1 = manager1.getCache(cacheName);
+        Ehcache cache2 = manager2.getCache(cacheName);
 
         Serializable key = "1";
         Serializable value = new Date();
@@ -312,8 +319,8 @@ public class JMSReplicationTest {
     @Test
     public void testSimultaneousPutRemove() throws InterruptedException {
         cacheName = SAMPLE_CACHE_SYNC; //Synced one
-        Ehcache cache1 = manager1.getEhcache(cacheName);
-        Ehcache cache2 = manager2.getEhcache(cacheName);
+        Ehcache cache1 = manager1.getCache(cacheName);
+        Ehcache cache2 = manager2.getCache(cacheName);
 
 
         Serializable key = "1";
