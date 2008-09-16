@@ -50,13 +50,13 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
     public enum AcknowledgeMode {
 
         AUTO_ACKNOWLEDGE(Session.AUTO_ACKNOWLEDGE),
-        CLIENT_ACKNOWLEDGE(Session.CLIENT_ACKNOWLEDGE),
+        //CLIENT_ACKNOWLEDGE(Session.CLIENT_ACKNOWLEDGE), not supported
         DUPS_OK_ACKNOWLEDGE(Session.DUPS_OK_ACKNOWLEDGE),
         SESSION_TRANSACTED(Session.SESSION_TRANSACTED);
 
         private int mode;
 
-        public AcknowledgeMode forString(String value) {
+        public static AcknowledgeMode forString(String value) {
             for (AcknowledgeMode mode : values()) {
                 if (mode.name().equals(value)) {
                     return mode;
@@ -105,6 +105,7 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
     private static final String SECURITYCREDENTIALS = "securityCredentials";
     private static final String INITIALCONTEXTFACTORYNAME = "initialContextFactoryName";
     private static final String URLPKGPREFIXES = "urlPkgPrefixes";
+    private static final String ACKNOWLEDGEMENT_MODE = "acknowledgementMode";
 
 
     /**
@@ -132,6 +133,9 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
         String topicConnectionFactoryBindingName = PropertyUtil.extractAndLogProperty(TOPICCONNECTIONFACTORYBINDINGNAME, properties);
         String userName = PropertyUtil.extractAndLogProperty(USERNAME, properties);
         String password = PropertyUtil.extractAndLogProperty(PASSWORD, properties);
+        String acknowledgementMode = PropertyUtil.extractAndLogProperty(ACKNOWLEDGEMENT_MODE, properties);
+
+
 
 
         Context context = null;
@@ -161,10 +165,12 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
         TopicSubscriber topicSubscriber;
         try {
             TopicConnection topicConnection = createTopicConnection(userName, password, topicConnectionFactory);
+                               svn com
+            AcknowledgeMode effectiveAcknowledgementMode = AcknowledgeMode.forString(acknowledgementMode);
 
-            LOG.fine("Creating TopicSessions, non-transactional, in AUTO_ACKNOWLEDGE mode.");
-            topicPublisherSession = topicConnection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-            TopicSession topicSubscriberSession = topicConnection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+            LOG.fine("Creating TopicSessions in " + effectiveAcknowledgementMode.name() + " mode.");
+            topicPublisherSession = topicConnection.createTopicSession(false, effectiveAcknowledgementMode.toInt());
+            TopicSession topicSubscriberSession = topicConnection.createTopicSession(false, effectiveAcknowledgementMode.toInt());
 
             LOG.fine("Creating TopicPublisher.");
             topicPublisher = topicPublisherSession.createPublisher(topic);
