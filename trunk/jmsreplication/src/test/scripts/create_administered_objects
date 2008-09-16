@@ -1,0 +1,15 @@
+# todo integrate with mvn
+imqobjmgr add \
+       -t cf	\
+       -l "MyConnectionFactory" \
+       -j java.naming.provider.url=file:///tmp \
+       -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory \
+       -f
+
+imqobjmgr add \
+       -t t \
+       -l "ehcache" \
+       -o "imqDestinationName=EhcacheTopicDest" \
+       -j java.naming.provider.url=file:///tmp \
+       -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory \
+       -f \

@@ -31,7 +31,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.logging.Logger;
 
-public class JMSReplicationTest {
+public abstract class AbstractJMSReplicationTest {
 
     private static final int NBR_ELEMENTS = 100;
 
@@ -41,13 +41,11 @@ public class JMSReplicationTest {
 
     String cacheName;
 
-    private static final Logger LOG = Logger.getLogger(JMSReplicationTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(AbstractJMSReplicationTest.class.getName());
 
     protected CacheManager manager1, manager2, manager3, manager4, manager5;
 
-    protected String getConfigurationFile() {
-        return "distribution/jms/ehcache-distributed-jms-activemq.xml";    
-    }
+    protected abstract String getConfigurationFile();
 
     @Before
     public void setUp() throws Exception {

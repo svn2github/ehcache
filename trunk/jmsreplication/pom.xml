@@ -40,6 +40,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.sun.jndi</groupId>
+            <artifactId>fscontext</artifactId>
+            <version>1.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-core</artifactId>
             <version>5.1.0</version>
@@ -48,6 +54,7 @@
     </dependencies>
 
     <properties>
+        <!--Install each message queue and specify these properties-->
         <activemq.bin.dir>/Users/gluck/work/apache-activemq-5.1.0/bin</activemq.bin.dir>
         <openmq.bin.dir>/Users/gluck/work/mq/bin</openmq.bin.dir>
     </properties>
@@ -97,6 +104,17 @@
                                 <exec dir="${openmq.bin.dir}" spawn="true" os="Mac OS X, Linux, AIX, Solaris"
                                       executable="sh">
                                     <arg line="imqbrokerd"/>
+                                </exec>
+                                <echo>Creating Open MQ administered objects in object store at /tmp from
+                                    ${openmq.bin.dir} on ${os.name}
+                                </echo>
+                                <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
+                                      executable="sh">
+                                    <arg line="imqobjmgr add -t tf -l 'MyConnectionFactory' -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
+                                </exec>
+                                <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
+                                      executable="sh">
+                                    <arg line="imqobjmgr add -t t -l 'ehcache' -o 'imqDestinationName=EhcacheTopicDest' -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
                                 </exec>
                                 <sleep seconds="5"/>
                             </tasks>
@@ -155,6 +173,9 @@
                                 <include>**/*JMSReplicationTest.java</include>
                                 <include>**/*WebTest.java</include>
                             </includes>
+                            <excludes>
+                                <exclude>**/Abstract*Test.java</exclude>
+                            </excludes>
                         </configuration>
                     </execution>
                 </executions>

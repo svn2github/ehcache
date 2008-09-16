@@ -3,18 +3,9 @@
 
     <cacheManagerPeerProviderFactory
             class="net.sf.ehcache.distribution.jms.JMSCacheManagerPeerProviderFactory"
-            properties="initialContextFactoryName=net.sf.ehcache.distribution.jms.TestActiveMQInitialContextFactory,
-                providerURL=tcp://localhost:61616,
-                topicConnectionFactoryBindingName=topicConnectionFactory,
-                topicBindingName=ehcache"
-            propertySeparator=","
-            />
-
-    <cacheManagerPeerProviderFactory
-            class="net.sf.ehcache.distribution.JMS.JMSCacheManagerPeerProviderFactory"
             properties="initialContextFactoryName=com.sun.jndi.fscontext.RefFSContextFactory,
                 providerURL=file:///tmp,
-                topicConnectionFactoryBindingName=topicConnectionFactory,
+                topicConnectionFactoryBindingName=MyConnectionFactory,
                 topicBindingName=ehcache"
             propertySeparator=","
             />
