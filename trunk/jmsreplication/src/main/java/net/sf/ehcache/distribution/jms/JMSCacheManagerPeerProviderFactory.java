@@ -45,6 +45,36 @@ import java.util.logging.Level;
 public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProviderFactory {
 
     /**
+     * Enables acknowledgement mode to be specifiec
+     */
+    public enum AcknowledgeMode {
+
+        AUTO_ACKNOWLEDGE(Session.AUTO_ACKNOWLEDGE),
+        CLIENT_ACKNOWLEDGE(Session.CLIENT_ACKNOWLEDGE),
+        DUPS_OK_ACKNOWLEDGE(Session.DUPS_OK_ACKNOWLEDGE),
+        SESSION_TRANSACTED(Session.SESSION_TRANSACTED);
+
+        private int mode;
+
+        public AcknowledgeMode forString(String value) {
+            for (AcknowledgeMode mode : values()) {
+                if (mode.name().equals(value)) {
+                    return mode;
+                }
+            }
+            return DUPS_OK_ACKNOWLEDGE;
+        }
+
+        private AcknowledgeMode(int mode) {
+            this.mode = mode;
+        }
+
+        public int toInt() {
+            return mode;
+        }
+    }
+
+    /**
      * Configuration string
      */
     protected static final String PROVIDERURL = "providerURL";
@@ -78,10 +108,9 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
 
 
     /**
-     *
      * @param cacheManager the CacheManager instance connected to this peer provider
-     * @param properties implementation specific properties. These are configured as comma
-     * separated name value pairs in ehcache.xml
+     * @param properties   implementation specific properties. These are configured as comma
+     *                     separated name value pairs in ehcache.xml
      * @return a provider, already connected to the message queue
      */
     @Override
@@ -113,7 +142,6 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
 
             context = createInitialContext(securityPrincipalName, securityCredentials, initialContextFactoryName,
                     urlPkgPrefixes, providerURL, topicBindingName, topicConnectionFactoryBindingName);
-
 
 
             LOG.fine("Looking up [" + topicConnectionFactoryBindingName + "]");
@@ -162,7 +190,7 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
     }
 
     private TopicConnection createTopicConnection(String userName, String password,
-              TopicConnectionFactory topicConnectionFactory) throws JMSException {
+                                                  TopicConnectionFactory topicConnectionFactory) throws JMSException {
 
         LOG.fine("About to create TopicConnection.");
         TopicConnection topicConnection;
@@ -214,7 +242,8 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
 
     /**
      * Looks up an object in a JNDI Context
-     * @param ctx the context to check
+     *
+     * @param ctx  the context to check
      * @param name the object name
      * @return the object or null if not found
      * @throws NamingException if an exception happens on lookup
