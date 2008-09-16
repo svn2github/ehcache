@@ -31,7 +31,6 @@
             <scope>test</scope>
         </dependency>
         <!--  Test scope -->
-        <!--Manual install: mvn install:install-file -DgroupId=com.sun.messaging -DartifactId=imq -Dversion=4.2 -Dpackaging=jar -Dfile=/path/to/file -->
         <dependency>
             <groupId>com.sun.messaging.mq</groupId>
             <artifactId>imq</artifactId>
@@ -39,6 +38,7 @@
             <scope>test</scope>
         </dependency>
 
+        <!--you need to install this one. -->
         <dependency>
             <groupId>com.sun.jndi</groupId>
             <artifactId>fscontext</artifactId>
