@@ -37,12 +37,10 @@
             <version>4.2</version>
             <scope>test</scope>
         </dependency>
-
-        <!--you need to install this one. -->
         <dependency>
-            <groupId>com.sun.jndi</groupId>
+            <groupId>com.sun.messaging.mq</groupId>
             <artifactId>fscontext</artifactId>
-            <version>1.0</version>
+            <version>4.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>

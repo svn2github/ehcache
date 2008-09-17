@@ -165,7 +165,6 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
         TopicSubscriber topicSubscriber;
         try {
             TopicConnection topicConnection = createTopicConnection(userName, password, topicConnectionFactory);
-                               svn com
             AcknowledgeMode effectiveAcknowledgementMode = AcknowledgeMode.forString(acknowledgementMode);
 
             LOG.fine("Creating TopicSessions in " + effectiveAcknowledgementMode.name() + " mode.");
