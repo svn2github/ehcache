@@ -147,7 +147,6 @@ public class JMSCachePeer implements CachePeer, MessageListener {
     }
 
     /**
-     * todo acknowledgements
      * @param message
      */
     public void onMessage(Message message) {

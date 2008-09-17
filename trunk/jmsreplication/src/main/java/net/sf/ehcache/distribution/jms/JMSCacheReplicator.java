@@ -394,7 +394,6 @@ public class JMSCacheReplicator implements CacheReplicator {
     }
 
     /**
-     * todo do I need this?
      * Creates a clone of this listener. This method will only be called by ehcache before a
      * cache is initialized.
      * <p/>
@@ -405,8 +404,8 @@ public class JMSCacheReplicator implements CacheReplicator {
      * @throws CloneNotSupportedException if the listener could not be cloned.
      */
     public Object clone() throws CloneNotSupportedException {
-
-        throw new CloneNotSupportedException("Cannot clone a JMS cache replicator");
+        return new JMSCacheReplicator(replicatePuts, replicateUpdates,
+                replicateUpdatesViaCopy, replicateRemovals, replicateAsync, asynchronousReplicationInterval);
     }
 
     /**

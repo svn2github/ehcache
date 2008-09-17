@@ -26,12 +26,17 @@ import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import javax.jms.TopicSubscriber;
+import javax.jms.TopicPublisher;
+import javax.jms.TopicSession;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Creates a single instance of JMSCachePeer which does not publishing and subscribing to a single topic
+ * for the CacheManager
  * @author benoit.perroud@elca.ch
  * @author Greg Luck
  */
@@ -42,32 +47,32 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
     private CacheManager cacheManager;
     private List<CachePeer> remoteCachePeers = new ArrayList<CachePeer>();
 
-    private MessageConsumer messageConsumer;
-    private MessageProducer messageProducer;
-    private Session producerSession;
+    private TopicSubscriber topicSubscriber;
+    private TopicPublisher topicPublisher;
+    private TopicSession topicSession;
 
 
     /**
      *
      * @param cacheManager
-     * @param messageConsumer
-     * @param messageProducer
-     * @param producerSession
+     * @param topicSubscriber
+     * @param topicPublisher
+     * @param topicSession
      */
-    public JMSCacheManagerPeerProvider(CacheManager cacheManager, MessageConsumer messageConsumer,
-                                       MessageProducer messageProducer, Session producerSession) {
+    public JMSCacheManagerPeerProvider(CacheManager cacheManager, TopicSubscriber topicSubscriber,
+                                       TopicPublisher topicPublisher, TopicSession topicSession) {
 
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("JMSCacheManagerPeerProvider constructor ( cacheManager = "
-                    + cacheManager + ", messageConsumer = " + messageConsumer
-                    + ", messageProducer = " + messageProducer + ", producerSession = " + producerSession
+                    + cacheManager + ", topicSubscriber = " + topicSubscriber
+                    + ", topicPublisher = " + topicPublisher + ", topicSession = " + topicSession
                     + " ) called");
         }
 
         this.cacheManager = cacheManager;
-        this.messageConsumer = messageConsumer;
-        this.messageProducer = messageProducer;
-        this.producerSession = producerSession;
+        this.topicSubscriber = topicSubscriber;
+        this.topicPublisher = topicPublisher;
+        this.topicSession = topicSession;
     }
 
     /**
@@ -77,9 +82,9 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
     public void dispose() throws CacheException {
 
         try {
-            messageConsumer.close();
-            producerSession.close();
-            messageProducer.close();
+            topicSubscriber.close();
+            topicSession.close();
+            topicPublisher.close();
         } catch (JMSException e) {
             throw new CacheException(e.getMessage(), e);
         }
@@ -111,10 +116,10 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
 
         LOG.fine("init ( ) called ");
 
-        JMSCachePeer peer = new JMSCachePeer(cacheManager, messageProducer, producerSession);
+        JMSCachePeer peer = new JMSCachePeer(cacheManager, topicPublisher, topicSession);
         remoteCachePeers.add(peer);
         try {
-            messageConsumer.setMessageListener(peer);
+            topicSubscriber.setMessageListener(peer);
         } catch (JMSException e) {
             LOG.log(Level.SEVERE, "Cannot register " + peer + " as messageListener", e);
         }
