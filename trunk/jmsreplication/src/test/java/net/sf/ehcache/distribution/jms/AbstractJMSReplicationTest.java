@@ -296,7 +296,10 @@ public abstract class AbstractJMSReplicationTest {
 
         //Put
         cache1.put(element);
+        long version = element.getVersion();
         Thread.sleep(1050);
+        //make sure we are not getting our own circular update back
+        assertEquals(version, cache1.get(key).getVersion());
 
         //Should have been replicated to cache2.
         Element element2 = cache2.get(key);

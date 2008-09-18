@@ -36,9 +36,8 @@ import java.util.logging.Level;
 
 /**
  * todo separate sending and receiving into separate classes
- * todo classes are doing the wrong things!
- * todo should not be a CachePeer because it does not properly implement any of its methods
  * A JMS Cache Peer subscribes to JMS messages
+ *
  * @author benoit.perroud@elca.ch
  * @author Greg Luck
  */
@@ -51,14 +50,11 @@ public class JMSCachePeer implements CachePeer, MessageListener {
     private MessageProducer messageProducer;
 
     /**
-     * 
      * @param cacheManager
      * @param messageProducer
      * @param producerSession
      */
     public JMSCachePeer(CacheManager cacheManager, MessageProducer messageProducer, Session producerSession) {
-
-
 
 
         if (LOG.isLoggable(Level.FINEST)) {
@@ -75,6 +71,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
 
     /**
      * Unwraps the JMSEventMessage and performs the cache action
+     *
      * @param message
      * @param cache
      */
@@ -128,6 +125,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
      * Send the cache peer with an ordered list of {@link net.sf.ehcache.distribution.EventMessage}s.
      * <p/>
      * This enables multiple messages to be delivered in one network invocation.
+     *
      * @param eventMessages a list of type {@link net.sf.ehcache.distribution.EventMessage}
      */
     public void send(List eventMessages) throws RemoteException {
@@ -179,21 +177,10 @@ public class JMSCachePeer implements CachePeer, MessageListener {
                 cacheName = jmsEventMessage.getCacheName();
                 cache = cacheManager.getCache(cacheName);
             } catch (Exception e) {
-//                LOG.log(Level.SEVERE, "Cache {0} not found. Skipping", cacheName);
                 LOG.log(Level.SEVERE, e.getMessage(), e);
                 return;
             }
-
-
-            //todo would a selector be more performant?
-            String targetCacheGUID = cache.getGuid();
-            if (!targetCacheGUID.equals(jmsEventMessage.getOriginatingCacheGUID())) {
-                handleNotification(jmsEventMessage, cache);
-            } else {
-                if (LOG.isLoggable(Level.FINEST)) {
-                    LOG.finest("Same guid, not handling this message.");
-                }
-            }
+            handleNotification(jmsEventMessage, cache);
 
         } catch (JMSException e) {
             LOG.log(Level.SEVERE, "Exception handling JMS Notification", e);
@@ -202,6 +189,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
 
     /**
      * Not implemented for JMS
+     *
      * @param keys a list of serializable values which represent keys
      * @return a list of Elements. If an element was not found or null, it will not be in the list.
      */
@@ -211,6 +199,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
 
     /**
      * Not implemented for JMS
+     *
      * @return a String representation of the GUID
      * @throws RemoteException
      */
@@ -236,6 +225,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
 
     /**
      * Not implemented for JMS
+     *
      * @param key a serializable value
      * @return the element, or null, if it does not exist.
      */
@@ -245,6 +235,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
 
     /**
      * Not implemented for JMS
+     *
      * @return the URL as a string
      */
     public String getUrl() throws RemoteException {
@@ -261,6 +252,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
 
     /**
      * Not implemented for JMS
+     *
      * @param element the element to put
      * @throws IllegalStateException    if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      * @throws IllegalArgumentException if the element is null
@@ -271,6 +263,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
 
     /**
      * Not implemented for JMS
+     *
      * @param key the element key
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
@@ -281,6 +274,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
 
     /**
      * Not implemented for JMS
+     *
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
     public void removeAll() throws RemoteException, IllegalStateException {

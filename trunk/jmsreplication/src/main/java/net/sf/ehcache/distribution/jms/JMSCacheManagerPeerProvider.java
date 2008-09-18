@@ -130,11 +130,6 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
      * @return a list of {@link CachePeer} peers for the given cache, excluding the local peer.
      */
     public List<CachePeer> listRemoteCachePeers(Ehcache cache) throws CacheException {
-
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("listRemoteCachePeers ( cache = " + cache + " ) called ");
-        }
-
         return remoteCachePeers;
     }
 
@@ -143,11 +138,7 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
      * @param rmiUrl
      */
     public void registerPeer(String rmiUrl) {
-
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("registerPeer ( rmiUrl = " + rmiUrl + ") called ");
-        }
-
+        throw new CacheException("Not implemented for JMS");
     }
 
     /**
@@ -156,10 +147,6 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
      * @param rmiUrl
      */
     public void unregisterPeer(String rmiUrl) {
-
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("unregisterPeer ( rmiUrl = " + rmiUrl + " ) called ");
-        }
-
+        throw new CacheException("Not implemented for JMS");
     }
 }

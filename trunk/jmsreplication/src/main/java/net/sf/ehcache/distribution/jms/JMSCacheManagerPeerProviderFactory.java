@@ -175,8 +175,9 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
             topicPublisher = topicPublisherSession.createPublisher(topic);
 
             LOG.fine("Creating TopicSubscriber.");
-            //todo ignore messages we have sent
-            topicSubscriber = topicSubscriberSession.createSubscriber(topic);
+            //ignore messages we have sent. The third parameter is noLocal, which means do not deliver back to the sender
+            //on the same connection
+            topicSubscriber = topicSubscriberSession.createSubscriber(topic, null, true);
 
             LOG.fine("Starting TopicConnection.");
             topicConnection.start();
