@@ -21,6 +21,7 @@ import net.sf.ehcache.Ehcache;
 
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
+import java.io.Serializable;
 
 /**
  * A JMX MBean implementation for Cache
@@ -28,12 +29,15 @@ import javax.management.MalformedObjectNameException;
  * @version $Id$
  * @since 1.3
  */
-public class Cache implements CacheMBean {
+public class Cache implements CacheMBean, Serializable {
+
+    private static final long serialVersionUID = 3477287016924524437L;
+    
 
     /**
      * An Ehcache backing instance
      */
-    private Ehcache cache;
+    private transient Ehcache cache;
     private ObjectName objectName;
 
 

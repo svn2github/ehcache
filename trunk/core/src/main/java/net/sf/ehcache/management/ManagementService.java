@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.rmi.RMISecurityManager;
 
 /**
  * Ehcache CacheManagers and Caches have lifecycles. Often normal use of a CacheManager

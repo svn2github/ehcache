@@ -22,6 +22,7 @@ import net.sf.ehcache.Statistics;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import java.io.Serializable;
 
 
 /**
@@ -43,11 +44,11 @@ import javax.management.ObjectName;
  * @version $Id$
  * @since 1.3
  */
-public class CacheStatistics implements CacheStatisticsMBean {
+public class CacheStatistics implements CacheStatisticsMBean, Serializable {
 
     private static final long serialVersionUID = 8085302752781762030L;
 
-    private Ehcache ehcache;
+    private transient Ehcache ehcache;
     private Statistics statistics;
 
     private ObjectName objectName;

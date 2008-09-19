@@ -21,11 +21,6 @@
 
 [images/uml/management_package.png] The Management Package
 
-*   Dependencies
-
-    The management package of ehcache requires JMX. Version 1.3 or higher will work. This is optional and only required if you are using the
-    <<<ManagementService>>>.
-
 
 *   {MBeans}
 
@@ -57,6 +52,10 @@
     * all CacheConfiguration attributes
 
     * all CacheStatistics attributes
+
+    Most attributes use built-in types. To access all attributes, you need to add ehcache.jar to the remote JMX client's
+    classpath e.g. <<<jconsole -J-Djava.class.path=ehcache.jar>>>.
+
 
 *   <<<ObjectName>>> naming scheme
 

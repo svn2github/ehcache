@@ -47,8 +47,10 @@ import java.util.logging.Logger;
  * These tests use the JDK1.5 platform mbean server
  * To interactively examine behaviour, add a Thread.sleep(...) and add -Dcom.sun.management.jmxremote to the java
  * invocation.
- *
- * On Mac OS X, add -Dcom.sun.management.jmxremote to the java command line for the test for JConsole to see the test
+ * <p/>
+ * To see ehcache specific types in the JMX client add the ehcache.jar to the classpath.
+ * e.g. to avoid the "Unavailable" message in jconsole caused by ClassNotFound add:
+ * jconsole -J-Djava.class.path=core/target/classes
  *
  * @author Greg Luck
  * @version $Id$
@@ -137,6 +139,8 @@ public class ManagementServiceTest extends AbstractCacheTest {
         assertEquals(59, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
         secondCacheManager.shutdown();
         assertEquals(OBJECTS_IN_TEST_EHCACHE, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+
+        Thread.sleep(1000000);
 
     }
 

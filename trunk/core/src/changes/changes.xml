@@ -19,6 +19,11 @@
                 1.5 branch. Ehcache can reduce its dependency list for the core and therefore occupy a smaller footprint
                 in new applications.
             </action>
+            <action dev="Greg Luck" type="update">
+                Add the ability for the MBean classes to be used in remote JMX clients, in addition to the current
+                mechanism which uses standard JDK types. The ehcache classpath
+                should be added to the client for this to work. e.g. jconsole -J-Djava.class.path=ehcache.jar
+            </action>
         </release>
 
 

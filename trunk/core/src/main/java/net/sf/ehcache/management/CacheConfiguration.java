@@ -34,7 +34,7 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
 
     private static final long serialVersionUID = -8944774509593267228L;
 
-    private net.sf.ehcache.config.CacheConfiguration cacheConfiguration;
+    private transient net.sf.ehcache.config.CacheConfiguration cacheConfiguration;
 
     private ObjectName objectName;
 
