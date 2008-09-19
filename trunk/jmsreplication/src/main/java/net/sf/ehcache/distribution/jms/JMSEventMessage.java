@@ -33,7 +33,6 @@ public class JMSEventMessage extends EventMessage {
     private static final long serialVersionUID = 927345728947584L;
 
     private String cacheName;
-    private String originatingCacheGUID;
 
     /**
      *
@@ -41,13 +40,10 @@ public class JMSEventMessage extends EventMessage {
      * @param key the key of the Element. May be null for the removeAll message type
      * @param element may be null for removal and invalidation message types
      * @param cacheName the name of the cache in the CacheManager.
-     * @param sendingCacheGUID a GUID which uniquely identifies the originator to ensure that a message does
-     * not update the originator
      */
-    public JMSEventMessage(int event, Serializable key, Element element, String cacheName, String sendingCacheGUID) {
+    public JMSEventMessage(int event, Serializable key, Element element, String cacheName) {
         super(event, key, element);
         setCacheName(cacheName);
-        this.originatingCacheGUID = sendingCacheGUID;
     }
 
     /**
@@ -66,21 +62,6 @@ public class JMSEventMessage extends EventMessage {
         this.cacheName = cacheName;
     }
 
-    /**
-     * Returns the originating cache GUID.
-     * @return a GUID which uniquely identifies the originator to ensure that a message does not update the originator
-     */
-    public String getOriginatingCacheGUID() {
-        return originatingCacheGUID;
-    }
-
-    /**
-     * Sets a GUID which uniquely identifies the originator to ensure that a message does not update the originator
-     * @param originatingCacheGUID the GUID from Cache
-     */
-    public void setOriginatingCacheGUID(String originatingCacheGUID) {
-        this.originatingCacheGUID = originatingCacheGUID;
-    }
 
     /**
      * Returns the message as a String
@@ -88,8 +69,7 @@ public class JMSEventMessage extends EventMessage {
      */
     @Override
     public String toString() {
-        return "JMSEventMessage ( event = " + getEvent() + ", element = " + getElement() + ", cacheName = "
-                + cacheName + ", originatingCacheGUID = " + originatingCacheGUID;
+        return "JMSEventMessage ( event = " + getEvent() + ", element = " + getElement() + ", cacheName = " + cacheName;
     }
 
 }

@@ -295,10 +295,7 @@ public class JMSCacheReplicator implements CacheReplicator {
 
 
     private void replicatePut(Ehcache cache, Element element) {
-        //uniquely identifies the originator to ensure that a message does not update the originator
-        String originatingCacheGUID = cache.getGuid();
-        JMSEventMessage message = new JMSEventMessage(JMSEventMessage.PUT, element.getKey(), element, cache.getName(),
-                originatingCacheGUID);
+        JMSEventMessage message = new JMSEventMessage(JMSEventMessage.PUT, element.getKey(), element, cache.getName());
 
         sendNotification(cache, message);
     }
@@ -351,9 +348,8 @@ public class JMSCacheReplicator implements CacheReplicator {
 
     private void replicateRemoval(Ehcache cache, Element element) {
         //uniquely identifies the originator to ensure that a message does not update the originator
-        String originatingCacheGUID = cache.getGuid();
-        JMSEventMessage message = new JMSEventMessage(JMSEventMessage.REMOVE, element.getKey(), null, cache.getName(),
-                originatingCacheGUID);
+        JMSEventMessage message = new JMSEventMessage(JMSEventMessage.REMOVE, element.getKey(), null, cache.getName()
+        );
 
         sendNotification(cache, message);
     }
@@ -385,10 +381,7 @@ public class JMSCacheReplicator implements CacheReplicator {
             LOG.finest("notifyRemoveAll ( cache = " + cache + ") ");
         }
 
-
-        String originatingCacheGUID = cache.getGuid();
-        JMSEventMessage message = new JMSEventMessage(JMSEventMessage.REMOVE_ALL, null, null, cache.getName(),
-                originatingCacheGUID);
+        JMSEventMessage message = new JMSEventMessage(JMSEventMessage.REMOVE_ALL, null, null, cache.getName());
 
         sendNotification(cache, message);
     }
