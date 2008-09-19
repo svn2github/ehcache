@@ -20,8 +20,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CacheManagerEventListener;
 
-
-
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
@@ -31,9 +29,8 @@ import javax.management.ObjectName;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.logging.Level;
-import java.rmi.RMISecurityManager;
+import java.util.logging.Logger;
 
 /**
  * Ehcache CacheManagers and Caches have lifecycles. Often normal use of a CacheManager
