@@ -381,6 +381,86 @@ public class ExampleJavaClient {
 }
 ---
 
+*** PHP Code Samples
+
+**** GET
+
+---
+   <?php
+
+   $ch = curl_init();
+
+   curl_setopt ($ch, CURLOPT_URL, "http://localhost:8080/ehcache/rest/sampleCache2/3");
+   curl_setopt ($ch, CURLOPT_HEADER, 0);
+
+   curl_exec ($ch);
+
+   curl_close ($ch);
+   ?>
+---
+
+    The server responds with:
+
+---
+Hello Ingo
+---
+
+**** PUT
+
+---
+   <?php
+$url = "http://localhost:8080/ehcache/rest/sampleCache2/3";
+$localfile = "localfile.txt";
+
+$fp = fopen ($localfile, "r");
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_VERBOSE, 1);
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_PUT, 1);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_INFILE, $fp);
+curl_setopt($ch, CURLOPT_INFILESIZE, filesize($localfile));
+
+$http_result = curl_exec($ch);
+$error = curl_error($ch);
+$http_code = curl_getinfo($ch ,CURLINFO_HTTP_CODE);
+
+curl_close($ch);
+fclose($fp);
+
+print $http_code;
+print "<br /><br />$http_result";
+if ($error) {
+   print "<br /><br />$error";
+}
+
+?>
+---
+
+    The server responds with:
+
+---
+* About to connect() to localhost port 8080 (#0)
+*   Trying ::1... * connected
+* Connected to localhost (::1) port 8080 (#0)
+> PUT /ehcache/rest/sampleCache2/3 HTTP/1.1
+Host: localhost:8080
+Accept: */*
+Content-Length: 11
+Expect: 100-continue
+
+< HTTP/1.1 100 Continue
+< HTTP/1.1 201 Created
+< Location: http://localhost:8080/ehcache/rest/sampleCache2/3
+< Content-Length: 0
+< Server: Jetty(6.1.10)
+<
+* Connection #0 to host localhost left intact
+* Closing connection #0
+---
+
+
+
 *   Creating Massive Caches with Load Balancers and Partioning
 
     The RESTful Ehcache Server is designed to achieve massive scaling using data partitioning - all from a RESTful interface.
