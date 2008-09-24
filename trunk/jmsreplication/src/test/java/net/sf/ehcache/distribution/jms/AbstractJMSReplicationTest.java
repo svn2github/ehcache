@@ -31,6 +31,10 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.logging.Logger;
 
+import com.sun.messaging.ConnectionConfiguration;
+
+import javax.jms.Connection;
+
 public abstract class AbstractJMSReplicationTest {
 
     private static final int NBR_ELEMENTS = 100;
@@ -350,5 +354,8 @@ public abstract class AbstractJMSReplicationTest {
         Thread.sleep(1000);
 
     }
+
+
+   
 
 }
