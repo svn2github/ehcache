@@ -37,7 +37,7 @@ public class TestActiveMQInitialContextFactory extends ActiveMQInitialContextFac
 	        
         Map<String, Object> data = new ConcurrentHashMap<String, Object>();
         
-        String factoryBindingName = (String)environment.get(JMSCacheManagerPeerProviderFactory.TOPICCONNECTIONFACTORYBINDINGNAME);
+        String factoryBindingName = (String)environment.get(JMSCacheManagerPeerProviderFactory.TOPIC_CONNECTION_FACTORY_BINDING_NAME);
         
         try {
         	data.put(factoryBindingName, createConnectionFactory(environment));
@@ -45,7 +45,7 @@ public class TestActiveMQInitialContextFactory extends ActiveMQInitialContextFac
         	throw new NamingException("Error initialisating ConnectionFactory with message " + e.getMessage());
         }
         
-        String topicBindingName = (String)environment.get(JMSCacheManagerPeerProviderFactory.TOPICBINDINGNAME);
+        String topicBindingName = (String)environment.get(JMSCacheManagerPeerProviderFactory.TOPIC_BINDING_NAME);
 
         data.put(topicBindingName, createTopic(topicBindingName));
 

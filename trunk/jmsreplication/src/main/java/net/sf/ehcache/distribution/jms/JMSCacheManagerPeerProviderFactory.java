@@ -47,7 +47,7 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
     /**
      * Enables acknowledgement mode to be specifiec
      */
-    public enum AcknowledgeMode {
+    public enum AcknowledgementMode {
 
         AUTO_ACKNOWLEDGE(Session.AUTO_ACKNOWLEDGE),
         //CLIENT_ACKNOWLEDGE(Session.CLIENT_ACKNOWLEDGE), not supported
@@ -56,8 +56,8 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
 
         private int mode;
 
-        public static AcknowledgeMode forString(String value) {
-            for (AcknowledgeMode mode : values()) {
+        public static AcknowledgementMode forString(String value) {
+            for (AcknowledgementMode mode : values()) {
                 if (mode.name().equals(value)) {
                     return mode;
                 }
@@ -65,7 +65,7 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
             return DUPS_OK_ACKNOWLEDGE;
         }
 
-        private AcknowledgeMode(int mode) {
+        private AcknowledgementMode(int mode) {
             this.mode = mode;
         }
 
@@ -77,17 +77,17 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
     /**
      * Configuration string
      */
-    protected static final String PROVIDERURL = "providerURL";
+    protected static final String PROVIDER_URL = "providerURL";
 
     /**
      * Configuration string
      */
-    protected static final String TOPICBINDINGNAME = "topicBindingName";
+    protected static final String TOPIC_BINDING_NAME = "topicBindingName";
 
     /**
      * Configuration string
      */
-    protected static final String TOPICCONNECTIONFACTORYBINDINGNAME = "topicConnectionFactoryBindingName";
+    protected static final String TOPIC_CONNECTION_FACTORY_BINDING_NAME = "topicConnectionFactoryBindingName";
 
     /**
      * Configuration string
@@ -101,10 +101,10 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
 
     private static final Logger LOG = Logger.getLogger(JMSCacheManagerPeerProviderFactory.class.getName());
 
-    private static final String SECURITYPINCIPALNAME = "securityPrincipalName";
-    private static final String SECURITYCREDENTIALS = "securityCredentials";
-    private static final String INITIALCONTEXTFACTORYNAME = "initialContextFactoryName";
-    private static final String URLPKGPREFIXES = "urlPkgPrefixes";
+    private static final String SECURITY_PRINCIPAL_NAME = "securityPrincipalName";
+    private static final String SECURITY_CREDENTIALS = "securityCredentials";
+    private static final String INITIAL_CONTEXT_FACTORY_NAME = "initialContextFactoryName";
+    private static final String URL_PKG_PREFIXES = "urlPkgPrefixes";
     private static final String ACKNOWLEDGEMENT_MODE = "acknowledgementMode";
 
 
@@ -124,13 +124,13 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
         }
 
 
-        String securityPrincipalName = PropertyUtil.extractAndLogProperty(SECURITYPINCIPALNAME, properties);
-        String securityCredentials = PropertyUtil.extractAndLogProperty(SECURITYCREDENTIALS, properties);
-        String initialContextFactoryName = PropertyUtil.extractAndLogProperty(INITIALCONTEXTFACTORYNAME, properties);
-        String urlPkgPrefixes = PropertyUtil.extractAndLogProperty(URLPKGPREFIXES, properties);
-        String providerURL = PropertyUtil.extractAndLogProperty(PROVIDERURL, properties);
-        String topicBindingName = PropertyUtil.extractAndLogProperty(TOPICBINDINGNAME, properties);
-        String topicConnectionFactoryBindingName = PropertyUtil.extractAndLogProperty(TOPICCONNECTIONFACTORYBINDINGNAME, properties);
+        String securityPrincipalName = PropertyUtil.extractAndLogProperty(SECURITY_PRINCIPAL_NAME, properties);
+        String securityCredentials = PropertyUtil.extractAndLogProperty(SECURITY_CREDENTIALS, properties);
+        String initialContextFactoryName = PropertyUtil.extractAndLogProperty(INITIAL_CONTEXT_FACTORY_NAME, properties);
+        String urlPkgPrefixes = PropertyUtil.extractAndLogProperty(URL_PKG_PREFIXES, properties);
+        String providerURL = PropertyUtil.extractAndLogProperty(PROVIDER_URL, properties);
+        String topicBindingName = PropertyUtil.extractAndLogProperty(TOPIC_BINDING_NAME, properties);
+        String topicConnectionFactoryBindingName = PropertyUtil.extractAndLogProperty(TOPIC_CONNECTION_FACTORY_BINDING_NAME, properties);
         String userName = PropertyUtil.extractAndLogProperty(USERNAME, properties);
         String password = PropertyUtil.extractAndLogProperty(PASSWORD, properties);
         String acknowledgementMode = PropertyUtil.extractAndLogProperty(ACKNOWLEDGEMENT_MODE, properties);
@@ -165,7 +165,7 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
         TopicSubscriber topicSubscriber;
         try {
             TopicConnection topicConnection = createTopicConnection(userName, password, topicConnectionFactory);
-            AcknowledgeMode effectiveAcknowledgementMode = AcknowledgeMode.forString(acknowledgementMode);
+            AcknowledgementMode effectiveAcknowledgementMode = AcknowledgementMode.forString(acknowledgementMode);
 
             LOG.fine("Creating TopicSessions in " + effectiveAcknowledgementMode.name() + " mode.");
             topicPublisherSession = topicConnection.createTopicSession(false, effectiveAcknowledgementMode.toInt());
@@ -221,8 +221,8 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
 
         Properties env = new Properties();
 
-        env.put(TOPICCONNECTIONFACTORYBINDINGNAME, topicConnectionFactoryBindingName);
-        env.put(TOPICBINDINGNAME, topicBindingName);
+        env.put(TOPIC_CONNECTION_FACTORY_BINDING_NAME, topicConnectionFactoryBindingName);
+        env.put(TOPIC_BINDING_NAME, topicBindingName);
         env.put(Context.PROVIDER_URL, providerURL);
 
         if (initialContextFactoryName != null) {

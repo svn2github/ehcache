@@ -1,6 +1,32 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="ehcache.xsd">
 
+    <!--
+    Configuring JMS replication.
+    ===========================
+
+    <cacheManagerPeerProviderFactory
+            class="net.sf.ehcache.distribution.jms.JMSCacheManagerPeerProviderFactory"
+            properties="..."
+            propertySeparator=","
+            />
+
+    The JMS PeerProviderFactory uses JNDI to maintain message queue independence. Refer to the manual for full configuration
+    examples using ActiveMQ and Open Message Queue.
+
+    Valid properties are:
+    * initialContextFactoryName (mandatory) - the name of the factory used to create the message queue initial context.
+    * providerURL (mandatory) - the JNDI configuration information for the service provider to use.
+    * topicConnectionFactoryBindingName (mandatory) - the JNDI binding name for the TopicConnectionFactory
+    * topicBindingName (mandatory) - the JNDI binding name for the topic name
+    * securityPrincipalName - the JNDI java.naming.security.principal
+    * securityCredentials - the JNDI java.naming.security.credentials
+    * urlPkgPrefixes - the JNDI java.naming.factory.url.pkgs
+    * userName - the user name to use when creating the TopicConnection to the Message Queue
+    * password - the password to use when creating the TopicConnection to the Message Queue
+    * acknowledgementMode - the JMS Acknowledgement mode for both publisher and subscriber. The available choices are
+                            AUTO_ACKNOWLEDGE, DUPS_OK_ACKNOWLEDGE and SESSION_TRANSACTED. The default is AUTO_ACKNOWLEDGE.
+    -->
     <cacheManagerPeerProviderFactory
             class="net.sf.ehcache.distribution.jms.JMSCacheManagerPeerProviderFactory"
             properties="initialContextFactoryName=net.sf.ehcache.distribution.jms.TestActiveMQInitialContextFactory,

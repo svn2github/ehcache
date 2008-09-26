@@ -20,6 +20,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.MimeTypeByteArray;
 import net.sf.ehcache.distribution.CachePeer;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.CACHE_NAME_PROPERTY;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.Action;
@@ -81,8 +82,9 @@ public class JMSCachePeer implements CachePeer, MessageListener {
      * <p/>
      * Unwraps the JMSEventMessage and performs the cache action
      * <p/>
+     *
      * @param message the message, which contains a payload and action
-     * @param cache the cache to perform the action upon
+     * @param cache   the cache to perform the action upon
      */
     private void handleNotification(JMSEventMessage message, Ehcache cache) {
 
@@ -115,8 +117,8 @@ public class JMSCachePeer implements CachePeer, MessageListener {
      * Performs the cache action
      *
      * @param element the element which was sent over JMS in an ObjectMessage
-     * @param cache the cache to perform the action upon
-     * @param action the action to perform
+     * @param cache   the cache to perform the action upon
+     * @param action  the action to perform
      */
     private void handleNotification(Element element, Serializable key, Ehcache cache, Action action) {
 
@@ -138,7 +140,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
      * <p/>
      * Performs the cache action
      *
-     * @param cache the cache to perform the action upon
+     * @param cache  the cache to perform the action upon
      * @param action the action to perform
      */
     private void handleNotification(Object object, Serializable key, Ehcache cache, Action action) {
@@ -239,44 +241,70 @@ public class JMSCachePeer implements CachePeer, MessageListener {
                     handleNotification(jmsEventMessage, cache);
 
                 } else {
+                    //no need for mimeType. An object has a type
                     Cache cache = extractAndValidateCache(objectMessage);
                     Action action = extractAndValidateAction(objectMessage);
                     Serializable key = extractAndValidateKey(objectMessage, action);
                     handleNotification(object, key, cache, action);
                 }
             } else if (message instanceof TextMessage) {
+                Cache cache = extractAndValidateCache(message);
+                Action action = extractAndValidateAction(message);
+                Serializable key = extractAndValidateKey(message, action);
+                String mimeType = extractAndValidateMimeType(message, action);
+                TextMessage textMessage = (TextMessage) message;
+                byte[] payload = new byte[0];
+                if (textMessage.getText() != null) {
+                    payload = textMessage.getText().getBytes();
+                }
+                MimeTypeByteArray value = new MimeTypeByteArray(mimeType, payload);
+                handleNotification(value, key, cache, action);
 
             } else if (message instanceof BytesMessage) {
-
+                Cache cache = extractAndValidateCache(message);
+                Action action = extractAndValidateAction(message);
+                Serializable key = extractAndValidateKey(message, action);
+                String mimeType = extractAndValidateMimeType(message, action);
+                BytesMessage bytesMessage = (BytesMessage) message;
+                byte[] payload = new byte[(int) bytesMessage.getBodyLength()];
+                bytesMessage.readBytes(payload);
+                MimeTypeByteArray value = new MimeTypeByteArray(mimeType, payload);
+                handleNotification(value, key, cache, action);
             } else {
-                LOG.severe("Cannot handle message of type (class=" + message.getClass().getName()
+                throw new InvalidJMSMessageException("Cannot handle message of type (class=" + message.getClass().getName()
                         + "). Notification ignored.");
             }
 
-        } catch (JMSException e) {
-            LOG.log(Level.SEVERE, "Unable to handle JMS Notification: " + e.getMessage(), e);
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "Unable to handle JMS Notification: " + e.getMessage(), e);
         }
     }
 
-    private Serializable extractAndValidateKey(ObjectMessage objectMessage, Action action) throws JMSException {
-        String key = objectMessage.getStringProperty(KEY_PROPERTY);
+    private Serializable extractAndValidateKey(Message message, Action action) throws JMSException {
+        String key = message.getStringProperty(KEY_PROPERTY);
         if (key == null && action.equals(Action.REMOVE)) {
             throw new InvalidJMSMessageException("No key property specified. The key is required when the action is REMOVE.");
         }
         return key;
     }
 
-    private String extractAndValidateMimeType(ObjectMessage objectMessage, Action action) throws JMSException {
-        String mimeType = objectMessage.getStringProperty(JMSEventMessage.MIME_TYPE_PROPERTY);
+    private String extractAndValidateMimeType(Message message, Action action) throws JMSException {
+        String mimeType = message.getStringProperty(JMSEventMessage.MIME_TYPE_PROPERTY);
         if (mimeType == null && action.equals(Action.PUT)) {
-            throw new InvalidJMSMessageException("No mimeType property specified. The mimeType is required when the action is PUT " +
-                    "unless the object is an Element.");
+            if (message instanceof TextMessage) {
+                mimeType = "text/plain";
+            } else if (message instanceof BytesMessage) {
+                mimeType = "application/octet-stream";
+            }
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("mimeType property not set. Auto setting MIME Type for message " + message.getJMSMessageID() + " to " + mimeType);
+            }
         }
         return mimeType;
     }
 
-    private Action extractAndValidateAction(ObjectMessage objectMessage) throws JMSException {
-        String actionString = objectMessage.getStringProperty(ACTION_PROPERTY);
+    private Action extractAndValidateAction(Message message) throws JMSException {
+        String actionString = message.getStringProperty(ACTION_PROPERTY);
         Action action;
         if (actionString == null || (action = Action.valueOf(actionString)) == null) {
             throw new InvalidJMSMessageException("No action specified. Must be one of PUT, REMOVE or REMOVE_ALL");
@@ -284,9 +312,9 @@ public class JMSCachePeer implements CachePeer, MessageListener {
         return action;
     }
 
-    private Cache extractAndValidateCache(ObjectMessage objectMessage) throws JMSException {
+    private Cache extractAndValidateCache(Message message) throws JMSException {
         Cache cache;
-        String cacheName = objectMessage.getStringProperty(CACHE_NAME_PROPERTY);
+        String cacheName = message.getStringProperty(CACHE_NAME_PROPERTY);
         if (cacheName == null) {
             throw new InvalidJMSMessageException("No cache name specified.");
         }
