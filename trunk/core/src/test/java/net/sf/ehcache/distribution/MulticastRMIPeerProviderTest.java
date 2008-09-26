@@ -22,7 +22,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.StopWatch;
-
+import net.sf.ehcache.Status;
 
 
 import java.io.IOException;
@@ -86,10 +86,16 @@ public class MulticastRMIPeerProviderTest extends TestCase {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
+        if (manager1.getStatus() != Status.STATUS_ALIVE) {
+            manager1.shutdown();
+        }
+        if (manager2.getStatus() != Status.STATUS_ALIVE) {
+            manager2.shutdown();
+        }
+        if (manager3.getStatus() != Status.STATUS_ALIVE) {
+            manager3.shutdown();
+        }
 
-        manager1.shutdown();
-        manager2.shutdown();
-        manager3.shutdown();
     }
 
     /**
@@ -100,6 +106,7 @@ public class MulticastRMIPeerProviderTest extends TestCase {
 
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR
                 + "distribution/ehcache-distributed-no-caches-replicating.xml");
+        //Thread.sleep(100000);
     }
 
     /**

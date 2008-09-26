@@ -79,6 +79,7 @@ public class RMIDistributedCacheTest extends TestCase {
         cacheManagerPeerListener.init();
         cache1Peer = (CachePeer) Naming.lookup(createNamingUrl() + cacheName1);
         cache2Peer = (CachePeer) Naming.lookup(createNamingUrl() + cacheName2);
+
     }
 
     /**
@@ -92,6 +93,10 @@ public class RMIDistributedCacheTest extends TestCase {
         Thread.sleep(10);
         manager.shutdown();
         int i = 0;
+    }
+
+    public void testManual() throws InterruptedException {
+        Thread.sleep(1000000000);
     }
 
 
@@ -141,6 +146,7 @@ public class RMIDistributedCacheTest extends TestCase {
         }
         cache1Peer = (CachePeer) Naming.lookup(createNamingUrl() + cacheName1);
         assertNotNull(cache1Peer);
+        cache1Peer.put(new Element(1,4));
 
         for (int i = 0; i < 100; i++) {
             listeners[i].dispose();

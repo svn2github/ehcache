@@ -8,58 +8,39 @@ Distributed Caching using {JMS}
 
     JMS distribution lets organisations with a message queue investment leverage it for caching.
 
+    Any message queue that has a JMS1.1 driver is supported. Integration Testing is done with two leading open source message queues: Active MQ 5 and Open Message Queue 4.
+
+    Ehcache replicates using JMS as follows:
+
+    * Each cache node subscribes to a predefined topic, configured as the <topicBindingName> in ehcache.xml.
+
+    * Each replicated cache publishes cache <<<Element>>>s to that topic. Replication is configured per cache.
+
+
     To set up distributed caching using JMS you need to configure a PeerProviderFactory
     of type JMSCacheManagerPeerProviderFactory which is done globally for a CacheManager
     For each cache that will operate distributed, you then need to add
     a cacheEventListenerFactory of type JGroupsCacheReplicatorFactory to propagate messages.
 
-*   How it Works
+    Ehcache also supports some JMS features in addition to replication:
 
-[images/rmi_replication.png]
-
-    Each cache node subscribes to a predefined topic, configured as the <topicBindingName> in ehcache.xml.
-    Each replicated cache publishes cache <<<Element>>>s to that topic. Replication is configured per cache.
-    Non cache publishers are also supported.
-
-*   Non Cache Publishers
-
-    Publishers that are not even Java based are also supported. Any non cache publisher may publish using
-    any payload type. These publishers need to set two properties on the message: mimeType and cacheName
-
-**  Setting the <<<mimeType>>> property
-
-    The property <<<mimeType>>> should be set to indicate what the type is.
-
-    If the <<<mimeType>>> is not set ehcache will assign the <<<mimeType>>> <<<text/plain>>> for text messages
-     and <<<application/octet-stream>>> for byte messages. Use <<<application/xml>>> when sending XML in
-     a test message. Ehcache will create an Element with value <<<MimeTypeByteArray>>> which encodes the
-     arbitrary payload as a byte[] and a MIME Type indicator. The Ehcache Server uses the same conventions.
-     If the type is an <<<ObjectMessage>>>, which requires the publisher to be Java based, then ehcache will
-     deserialize the object and store it in the Element's value as an <<<Object>>>.
-
-**  Setting the <<<cacheName>>> property
-
-    The entire CacheManager uses a single topic. The target cache needs to be provided so that the CacheManager
-       can work out where to put the published message. Set the <<<cacheName>>> property on the message to
-       address it. It should match the name of the cache you want the message to end up in.
-
-    If no cacheName is set the message will be <ignored>. A fine log message will indicate that the message
-       has been ignored.
+    * Publishing to caches from any JMS client. See the Non-Cache Publishers section.
 
 
-*   Supported Message Queues
-
-    Any message queue that has a JMS1.1 driver is supported.
-
-    Integration Testing is done with two leading open source message queues: Active MQ 5 and Open Message Queue 4.
+ images/jms_replication.png
 
 
-*   Message Queue Configuration
-
-    Each cluster needs to decide what the topic name will be.
+*   Configuration
 
 
-*   Ehcache Configuration
+**   Message Queue Configuration
+
+    Each cluster needs to use a fixed topic name for replication. Set up a topic using the tools in your
+    message queue. Out of the box, both ActiveMQ and Open MQ support auto creation of destinations, so this
+    step may be optional.
+
+
+**   Ehcache Configuration
 
     Configuration is done in the ehcache.xml.
 
@@ -73,177 +54,360 @@ Distributed Caching using {JMS}
     A connect property is passed directly to the JGroups channel and therefore all the protocol
     stacks and options available in JGroups can be set.
 
-* Example configuration using {UDP Multicast}
 
-    Suppose you have two servers in a cluster. You wish to distribute
-    sampleCache11 and sampleCache12 and you wish to use UDP multicast as the underlying mechanism.
+*** Configuring the JMSCacheManagerPeerProviderFactory
 
-    The configuration for server1 and server2 are identical and will look like this:
+    Following is the configuration instructions as it appears in the sample ehcache.xml shipped with ehcache:
+
+---
+
+Configuring JMS replication.
+===========================
+
+<cacheManagerPeerProviderFactory
+        class="net.sf.ehcache.distribution.jms.JMSCacheManagerPeerProviderFactory"
+        properties="..."
+        propertySeparator=","
+        />
+
+The JMS PeerProviderFactory uses JNDI to maintain message queue independence. Refer to the manual for full configuration
+examples using ActiveMQ and Open Message Queue.
+
+Valid properties are:
+* initialContextFactoryName (mandatory) - the name of the factory used to create the message queue initial context.
+* providerURL (mandatory) - the JNDI configuration information for the service provider to use.
+* topicConnectionFactoryBindingName (mandatory) - the JNDI binding name for the TopicConnectionFactory
+* topicBindingName (mandatory) - the JNDI binding name for the topic name
+* securityPrincipalName - the JNDI java.naming.security.principal
+* securityCredentials - the JNDI java.naming.security.credentials
+* urlPkgPrefixes - the JNDI java.naming.factory.url.pkgs
+* userName - the user name to use when creating the TopicConnection to the Message Queue
+* password - the password to use when creating the TopicConnection to the Message Queue
+* acknowledgementMode - the JMS Acknowledgement mode for both publisher and subscriber. The available choices are
+                        AUTO_ACKNOWLEDGE, DUPS_OK_ACKNOWLEDGE and SESSION_TRANSACTED. The default is AUTO_ACKNOWLEDGE.
+---
+
+    Usage is best illustrated with concrete examples for Active MQ and Open MQ.
+
+**** Configuring the JMSCacheManagerPeerProviderFactory for Active MQ
+
+    This configuration works with Active MQ out of the box.
+    
+---
+<cacheManagerPeerProviderFactory
+            class="net.sf.ehcache.distribution.jms.JMSCacheManagerPeerProviderFactory"
+            properties="initialContextFactoryName=ExampleActiveMQInitialContextFactory,
+                providerURL=tcp://localhost:61616,
+                topicConnectionFactoryBindingName=topicConnectionFactory,
+                topicBindingName=ehcache"
+            propertySeparator=","
+            />
+---
+
+    You need to provide your own ActiveMQInitialContextFactory for the initialContextFactoryName.
+
+    An example which should work for most purposes is:
+
+---
+
+public class ExampleActiveMQInitialContextFactory extends ActiveMQInitialContextFactory {
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public Context getInitialContext(Hashtable environment) throws NamingException {
+
+        Map<String, Object> data = new ConcurrentHashMap<String, Object>();
+
+        String factoryBindingName = (String)environment.get(JMSCacheManagerPeerProviderFactory.TOPIC_CONNECTION_FACTORY_BINDING_NAME);
+
+        try {
+        	data.put(factoryBindingName, createConnectionFactory(environment));
+        } catch (URISyntaxException e) {
+        	throw new NamingException("Error initialisating ConnectionFactory with message " + e.getMessage());
+        }
+
+        String topicBindingName = (String)environment.get(JMSCacheManagerPeerProviderFactory.TOPIC_BINDING_NAME);
+
+        data.put(topicBindingName, createTopic(topicBindingName));
+
+        return createContext(environment, data);
+    }
+}  
+
+---
+
+**** Configuring the JMSCacheManagerPeerProviderFactory for Open MQ
+
+    This configuration works with an out of the box Open MQ.
 
 ---
 <cacheManagerPeerProviderFactory
-     class="net.sf.ehcache.distribution.jgroups.JGroupsCacheManagerPeerProviderFactory"
-     properties="connect=UDP(mcast_addr=231.12.21.132;mcast_port=45566;):PING:
-     MERGE2:FD_SOCK:VERIFY_SUSPECT:pbcast.NAKACK:UNICAST:pbcast.STABLE:FRAG:pbcast.GMS"
-     propertySeparator="::"
-     />
+            class="net.sf.ehcache.distribution.jms.JMSCacheManagerPeerProviderFactory"
+            properties="initialContextFactoryName=com.sun.jndi.fscontext.RefFSContextFactory,
+                providerURL=file:///tmp,
+                topicConnectionFactoryBindingName=MyConnectionFactory,
+                topicBindingName=ehcache"
+            propertySeparator=","
+            />
 ---
 
-* Example configuration using {TCP Unicast}
-
-     The TCP protocol requires the IP address of all servers to be known.
-     They are configured through the {<<<TCPPING>>> protocol} of Jgroups.
-
-     Suppose you have 2 servers host1 and host2, then the configuration is:
+    To set up the Open MQ file system initial context to work with this example use the following
+    <<<imqobjmgr>>> commands to create the requires objects in the context.
 
 ---
- <cacheManagerPeerProviderFactory
-    class="net.sf.ehcache.distribution.jgroups.JGroupsCacheManagerPeerProviderFactory"
-    properties="connect=TCP(start_port=7800):
-        TCPPING(initial_hosts=host1[7800],host2[7800];port_range=10;timeout=3000;
-        num_initial_members=3;up_thread=true;down_thread=true):
-        VERIFY_SUSPECT(timeout=1500;down_thread=false;up_thread=false):
-        pbcast.NAKACK(down_thread=true;up_thread=true;gc_lag=100;retransmit_timeout=3000):
-        pbcast.GMS(join_timeout=5000;join_retry_timeout=2000;shun=false;
-        print_local_addr=false;down_thread=true;up_thread=true)"
-    propertySeparator="::" />
+imqobjmgr add -t tf -l 'MyConnectionFactory' -j java.naming.provider.url \
+=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f
+imqobjmgr add -t t -l 'ehcache' -o 'imqDestinationName=EhcacheTopicDest' -j java.naming.provider.url\
+=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f
 ---
 
-* Protocol considerations.
+*** Configuring the JMSCacheReplicatorFactory
 
-    You should read the JGroups documentation to configure the protocols correctly.
+    This is the same as configuring any of the cache replicators. The class should be
+        <<<net.sf.ehcache.distribution.jms.JMSCacheReplicatorFactory>>>.
 
-    See {{http://www.jgroups.org/javagroupsnew/docs/manual/html_single/index.html}}.
-
-    If using UDP you should at least configure PING, FD_SOCK (Failure detection), VERIFY_SUSPECT, pbcast.NAKACK (Message reliability),
-    pbcast.STABLE (message garbage collection).
-
-* Configuring CacheReplicators
-
-    Each cache that will be distributed needs to set a cache event listener
-    which then replicates messages to the other CacheManager peers. This is
-    done by adding a cacheEventListenerFactory element to each cache's
-    configuration. The properties are identical to the one used for RMI replication.
-
-    The listener factory <MUST> be of type <<<JGroupsCacheReplicatorFactory>>>.
-
-----
-<!-- Sample cache named sampleCache2. -->
-<cache name="sampleCache2"
-   maxElementsInMemory="10"
-   eternal="false"
-   timeToIdleSeconds="100"
-   timeToLiveSeconds="100"
-   overflowToDisk="false">
-   <cacheEventListenerFactory
-   class="net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory"
-   properties="replicateAsynchronously=true, replicatePuts=true,
-   replicateUpdates=true, replicateUpdatesViaCopy=false, replicateRemovals=true" />
-</cache>
-----
-
-    The configuration options are explained below:
-
-    class - use net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory
-
-    The factory recognises the following properties:
-
-    * replicatePuts=true | false - whether new elements placed in a cache are
-      replicated to others. Defaults to true.
-
-    * replicateUpdates=true | false - whether new elements which override an
-      element already existing with the same key are replicated. Defaults to true.
-
-    * replicateRemovals=true - whether element removals are replicated. Defaults to true.
-
-    * replicateAsynchronously=true | false - whether replications are
-      asyncrhonous (true) or synchronous (false). Defaults to true.
-
-    * replicateUpdatesViaCopy=true | false - whether the new elements are
-      copied to other caches (true), or whether a remove message is sent. Defaults to true.
-
-    * asynchronousReplicationIntervalMillis default 1000ms Time between updates when replication is asynchroneous
-
-
-* Complete Sample configuration
-
-    A typical complete configuration for one replicated cache configured for UDP will look like:
+    See the following example:
 
 ---
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:noNamespaceSchemaLocation="../../../main/config/ehcache.xsd">
-
-<diskStore path="java.io.tmpdir/one"/>
-
-<cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.jgroups
-    .JGroupsCacheManagerPeerProviderFactory"
-     properties="connect=UDP(mcast_addr=231.12.21.132;mcast_port=45566;ip_ttl=32;
-     mcast_send_buf_size=150000;mcast_recv_buf_size=80000):
-     PING(timeout=2000;num_initial_members=6):
-     MERGE2(min_interval=5000;max_interval=10000):
-     FD_SOCK:VERIFY_SUSPECT(timeout=1500):
-     pbcast.NAKACK(gc_lag=10;retransmit_timeout=3000):
-     UNICAST(timeout=5000):
-     pbcast.STABLE(desired_avg_gossip=20000):
-     FRAG:
-     pbcast.GMS(join_timeout=5000;join_retry_timeout=2000;
-     shun=false;print_local_addr=true)"
- propertySeparator="::"
-     />
 
 <cache name="sampleCacheAsync"
-   maxElementsInMemory="1000"
-   eternal="false"
-   timeToIdleSeconds="1000"
-   timeToLiveSeconds="1000"
-   overflowToDisk="false">
-    <cacheEventListenerFactory
-    class="net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory"
-    properties="replicateAsynchronously=true, replicatePuts=true,
-replicateUpdates=true, replicateUpdatesViaCopy=false,
-replicateRemovals=true" />
-</cache>
-
-</ehcache>
-
----
-
-
-* Common Problems
-
-    If replication using JGroups doesnt't work the way you have it configured try this configuration which
-    has been extensively tested:
-
----
-<cacheManagerPeerProviderFactory
-    class="net.sf.ehcache.distribution.jgroups.JGroupsCacheManagerPeerProviderFactory"/>
-
-<cache name="sampleCacheAsync"
-   maxElementsInMemory="1000"
-   eternal="false"
-   timeToIdleSeconds="1000"
-   timeToLiveSeconds="1000"
-   overflowToDisk="false">
+      maxElementsInMemory="1000"
+      eternal="false"
+      timeToIdleSeconds="1000"
+      timeToLiveSeconds="1000"
+      overflowToDisk="false">
    <cacheEventListenerFactory
-    class="net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory"
-    properties="replicateAsynchronously=true, replicatePuts=true,
-    replicateUpdates=true, replicateUpdatesViaCopy=false,
-    replicateRemovals=true" />
+          class="net.sf.ehcache.distribution.jms.JMSCacheReplicatorFactory"
+          properties="replicateAsynchronously=true,
+                       replicatePuts=true,
+                       replicateUpdates=true,
+                       replicateUpdatesViaCopy=true,
+                       replicateRemovals=true,
+                       asynchronousReplicationIntervalMillis=1000"
+           propertySeparator=","/>
 </cache>
+    
 ---
 
-   If this fails to replicate, try to get the example programs from JGroups to run:
 
-   http://www.jgroups.org/javagroupsnew/docs/manual/html/ch02.html#d0e451
+*   Non-Cache Publishers
 
-   and
-
-   http://www.jgroups.org/javagroupsnew/docs/manual/html/ch02.html#ItDoesntWork
-
-   Once you have figured out the connection string that works in your network for JGroups, you can directly paste it in the connect property of
-   <<<JGroupsCacheManagerPeerProviderFactory>>>.
+    Anything that can publish to a message queue can also add cache entries to ehcache. These are called non-cache
+    publishers.
 
 
+**  Required Message Properties
+
+    Publishers need to set up to four String properties on each message: cacheName, action, mimeType and key.
 
 
+***  {<<<cacheName>>>} Property
+
+    A JMS message property which contains the name of the cache to operate on.
+
+    If no cacheName is set the message will be <ignored>. A warning log message will indicate that the message has been ignored.
+
+***  {<<<action>>>} Property
+
+      A JMS message property which contains the action to perform on the cache.
+
+      Available actions are strings labeled <<<PUT>>>, <<<REMOVE>>> and <<<REMOVE_ALL>>>.
+
+      If not set no action is performed. A warning log message will indicate that the message has been ignored.
+
+***  {<<<mimeType>>>} Property
+
+      A JMS message property which contains the mimeType of the message.
+      Applies to the <<<PUT>>> action. If not set the message is interpreted as follows:
+
+      ObjectMessage - if it is an net.sf.ehcache.Element, then it is treated as such and stored in the cache.
+
+      For other objects, a new Element is created using the object in the ObjectMessage as the value and the key property
+      as a key. Because objects are already typed, the mimeType is ignored.
+
+      TextMessage - Stored in the cache as value of MimeTypeByteArray. The mimeType should be specified. If not specified
+      it is stored as type <<<text/plain>>>.
+
+      BytesMessage - Stored in the cache as value of MimeTypeByteArray. The mimeType should be specified. If not
+      specified it is stored as type <<<application/octet-stream>>>.
+
+      Other message types are not supported.
+
+      To send XML use a TextMessage or BytesMessage and set the mimeType to <<<application/xml>>>.It will be stored in the cache
+      as a value of MimeTypeByteArray.
+
+      The <<<REMOVE>>> and <<<REMOVE_ALL>>> actions do not require a <<<mimeType>>> property.
+
+***  {<<<key>>>} Property
+
+      The key in the cache on which to operate on. The key is of type String.
+
+      The <<<REMOVE_ALL>>> action does not require a key property.
+
+      If an ObjectMessage of type net.sf.ehcache.Element is sent, the key is contained in the element. Any key set as a property is ignored.
+
+      If the key is required but not provided, a warning log message will indicate that the message has been ignored.
+
+
+
+**  Code Samples
+
+    These samples use Open MQ as the message queue and use it with out of the box defaults. They are heavily based on
+    Ehcache's own JMS integration tests. See the test source for more details.
+
+    Messages should be sent to the topic that ehcache is listening on. In these samples it is <<<EhcacheTopicDest>>>.
+
+    All samples get a Topic Connection using the following method:
+
+---
+    private TopicConnection getMQConnection() throws JMSException {
+        com.sun.messaging.ConnectionFactory factory = new com.sun.messaging.ConnectionFactory();
+        factory.setProperty(ConnectionConfiguration.imqAddressList, "localhost:7676");
+        factory.setProperty(ConnectionConfiguration.imqReconnectEnabled, "true");
+        TopicConnection myConnection = factory.createTopicConnection();
+        return myConnection;
+    }
+---
+
+*** PUT a Java Object into an Ehcache JMS Cluster
+
+---
+String payload = "this is an object";
+TopicConnection connection = getMQConnection();
+connection.start();
+
+TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+
+ObjectMessage message = publisherSession.createObjectMessage(payload);
+message.setStringProperty(ACTION_PROPERTY, "PUT");
+message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
+//don't set. Should work.
+//message.setStringProperty(MIME_TYPE_PROPERTY, null);
+//should work. Key should be ignored when sending an element.
+message.setStringProperty(KEY_PROPERTY, "1234");
+
+
+Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+TopicPublisher publisher = publisherSession.createPublisher(topic);
+publisher.send(message);
+
+connection.stop();
+---
+
+    Ehcache will create an Element in cache "sampleCacheAsync" with key "1234" and a Java class String value of "this is an object".
+
+*** PUT XML into an Ehcache JMS Cluster
+
+---
+TopicConnection connection = getMQConnection();
+connection.start();
+
+TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+
+String value = "<?xml version=\"1.0\"?>\n" +
+        "<oldjoke>\n" +
+        "<burns>Say <quote>goodnight</quote>,\n" +
+        "Gracie.</burns>\n" +
+        "<allen><quote>Goodnight, \n" +
+        "Gracie.</quote></allen>\n" +
+        "<applause/>\n" +
+        "</oldjoke>";
+
+TextMessage message = publisherSession.createTextMessage(value);
+message.setStringProperty(ACTION_PROPERTY, "PUT");
+message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
+message.setStringProperty(MIME_TYPE_PROPERTY, "application/xml");
+message.setStringProperty(KEY_PROPERTY, "1234");
+
+
+Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+TopicPublisher publisher = publisherSession.createPublisher(topic);
+publisher.send(message);
+
+connection.stop();
+---
+
+    Ehcache will create an Element in cache "sampleCacheAsync" with key "1234" and a value of type MimeTypeByteArray.
+
+    On a get from the
+    cache the MimeTypeByteArray will be returned. It is an ehcache value object from which a mimeType and
+    byte[] can be retrieved. The mimeType will be "application/xml". The byte[] will contain the XML String
+    encoded in bytes, using the platform's default charset.
+
+
+*** PUT arbitrary bytes into an Ehcache JMS Cluster
+
+---
+byte[] bytes = new byte[]{0x34, (byte) 0xe3, (byte) 0x88};
+TopicConnection connection = getMQConnection();
+connection.start();
+
+TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+
+BytesMessage message = publisherSession.createBytesMessage();
+message.writeBytes(bytes);
+message.setStringProperty(ACTION_PROPERTY, "PUT");
+message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
+message.setStringProperty(MIME_TYPE_PROPERTY, "application/octet-stream");
+message.setStringProperty(KEY_PROPERTY, "1234");
+
+
+Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+TopicPublisher publisher = publisherSession.createPublisher(topic);
+publisher.send(message);
+---
+
+    Ehcache will create an Element in cache "sampleCacheAsync" with key "1234" in and a value of type MimeTypeByteArray.
+
+    On a get from the
+    cache the MimeTypeByteArray will be returned. It is an ehcache value object from which a mimeType and
+    byte[] can be retrieved. The mimeType will be "application/octet-stream". The byte[] will contain the original
+    bytes.
+
+
+
+*** REMOVE
+
+---
+TopicConnection connection = getMQConnection();
+connection.start();
+
+TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+
+ObjectMessage message = publisherSession.createObjectMessage();
+message.setStringProperty(ACTION_PROPERTY, "REMOVE");
+message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
+message.setStringProperty(KEY_PROPERTY, "1234");
+
+
+Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+TopicPublisher publisher = publisherSession.createPublisher(topic);
+publisher.send(message);
+---
+
+    Ehcache will remove the Element with key "1234"  from cache "sampleCacheAsync" from the cluster.
+
+*** REMOVE_ALL
+
+---
+TopicConnection connection = getMQConnection();
+connection.start();
+
+TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+
+ObjectMessage message = publisherSession.createObjectMessage();
+message.setStringProperty(ACTION_PROPERTY, "REMOVE_ALL");
+message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
+
+Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+TopicPublisher publisher = publisherSession.createPublisher(topic);
+publisher.send(message);
+
+connection.stop();
+---
+
+    Ehcache will remove all Elements from cache "sampleCacheAsync" in the cluster.
 

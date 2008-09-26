@@ -70,7 +70,7 @@
     <!--
     CacheManagerPeerProvider
     ========================
-    (Enable for distributed operation)
+    (For distributed operation)
 
     Specifies a CacheManagerPeerProviderFactory which will be used to create a
     CacheManagerPeerProvider, which discovers other CacheManagers in the cluster.
@@ -78,6 +78,11 @@
     The attributes of cacheManagerPeerProviderFactory are:
     * class - a fully qualified factory class name
     * properties - comma separated properties having meaning only to the factory.
+
+    Providers are available for RMI, JGroups and JMS as shown following.
+
+    RMICacheManagerPeerProvider
+    +++++++++++++++++++++++++++
 
     Ehcache comes with a built-in RMI-based distribution system with two means of discovery of
     CacheManager peers participating in the cluster:
@@ -126,7 +131,8 @@
     The hostname is the hostname of the remote CacheManager peer. The port is the listening
     port of the RMICacheManagerPeerListener of the remote CacheManager peer.
     
-    Configuring JGroups replication:
+    JGroupsCacheManagerPeerProvider
+    +++++++++++++++++++++++++++++++
     <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.jgroups.JGroupsCacheManagerPeerProviderFactory"
                                      properties="connect=UDP(mcast_addr=231.12.21.132;mcast_port=45566;ip_ttl=32;
                                      mcast_send_buf_size=150000;mcast_recv_buf_size=80000):
@@ -140,10 +146,34 @@
                                      pbcast.GMS(join_timeout=5000;join_retry_timeout=2000;shun=false;print_local_addr=false)"
                                      propertySeparator="::"
             />
-     The only property necessay is the connect String used by jgroups to configure itself. Refer to the Jgroups documentation for explanation
+     The only property necessary is the connect String used by jgroups to configure itself. Refer to the Jgroups documentation for explanation
      of all the protocols. The example above uses UDP multicast. If the connect property is not specified the default JGroups connection will be
      used.       
 
+
+    JMSCacheManagerPeerProviderFactory
+    ++++++++++++++++++++++++++++++++++
+    <cacheManagerPeerProviderFactory
+            class="net.sf.ehcache.distribution.jms.JMSCacheManagerPeerProviderFactory"
+            properties="..."
+            propertySeparator=","
+            />
+
+    The JMS PeerProviderFactory uses JNDI to maintain message queue independence. Refer to the manual for full configuration
+    examples using ActiveMQ and Open Message Queue.
+
+    Valid properties are:
+    * initialContextFactoryName (mandatory) - the name of the factory used to create the message queue initial context.
+    * providerURL (mandatory) - the JNDI configuration information for the service provider to use.
+    * topicConnectionFactoryBindingName (mandatory) - the JNDI binding name for the TopicConnectionFactory
+    * topicBindingName (mandatory) - the JNDI binding name for the topic name
+    * securityPrincipalName - the JNDI java.naming.security.principal
+    * securityCredentials - the JNDI java.naming.security.credentials
+    * urlPkgPrefixes - the JNDI java.naming.factory.url.pkgs
+    * userName - the user name to use when creating the TopicConnection to the Message Queue
+    * password - the password to use when creating the TopicConnection to the Message Queue
+    * acknowledgementMode - the JMS Acknowledgement mode for both publisher and subscriber. The available choices are
+                            AUTO_ACKNOWLEDGE, DUPS_OK_ACKNOWLEDGE and SESSION_TRANSACTED. The default is AUTO_ACKNOWLEDGE.
     -->
     <cacheManagerPeerProviderFactory
             class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
@@ -275,6 +305,7 @@
       synchronously to load objects into a cache.
 
     RMI Cache Replication
+    +++++++++++++++++++++
 
     Each cache that will be distributed needs to set a cache event listener which replicates
     messages to the other CacheManager peers. For the built-in RMI implementation this is done
@@ -311,14 +342,36 @@
       is 10. This property is only applicable if replicateAsynchronously=true
 
 
+    JGroups Replication
+    +++++++++++++++++++
+
 	For the Jgroups replication this is done with:
 	<cacheEventListenerFactory class="net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory"
                             properties="replicateAsynchronously=true, replicatePuts=true,
  							replicateUpdates=true, replicateUpdatesViaCopy=false,
  							replicateRemovals=true,asynchronousReplicationIntervalMillis=1000"/>
-    This listener supports the same property than the RMICacheReplicationFactory. 
+    This listener supports the same properties as the RMICacheReplicationFactory.
 
+
+    JMS Replication
+    +++++++++++++++
+
+	For JMS-based replication this is done with:
+	<cacheEventListenerFactory
+          class="net.sf.ehcache.distribution.jms.JMSCacheReplicatorFactory"
+          properties="replicateAsynchronously=true,
+                       replicatePuts=true,
+                       replicateUpdates=true,
+                       replicateUpdatesViaCopy=true,
+                       replicateRemovals=true,
+                       asynchronousReplicationIntervalMillis=1000"
+           propertySeparator=","/>
+
+    This listener supports the same properties as the RMICacheReplicationFactory.
+    
     Cluster Bootstrapping
+    +++++++++++++++++++++
+    (RMI clusters only)
 
     The RMIBootstrapCacheLoader bootstraps caches in clusters where RMICacheReplicators are
     used. It is configured as per the following example:
