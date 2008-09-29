@@ -413,7 +413,7 @@
         <site>
             <id>sourceforge.net</id>
             <name>SF EHCache Site</name>
-            <url>scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs</url>
+            <url>scp://gregluck,ehcache@web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs</url>
         </site>
     </distributionManagement>
 
