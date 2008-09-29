@@ -127,7 +127,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
         if (port == null || port.intValue() == 0) {
             assignFreePort(false);
         } else {
-            this.port = remoteObjectPort;
+            this.port = port;
         }
 
         //by default is 0, which is ok.

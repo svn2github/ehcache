@@ -78,8 +78,8 @@
             the default NIC IP address and 2000ms respectively.
 
     -->
-    <!--<cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"-->
-                                     <!--properties="port=40002"/>-->
+    <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
+                                     properties="port=40002"/>
 
 
     <!--Default Cache configuration. These will applied to caches programmatically created through
