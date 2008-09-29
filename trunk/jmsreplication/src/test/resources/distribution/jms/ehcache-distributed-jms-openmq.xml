@@ -6,7 +6,8 @@
             properties="initialContextFactoryName=com.sun.jndi.fscontext.RefFSContextFactory,
                 providerURL=file:///tmp,
                 topicConnectionFactoryBindingName=MyConnectionFactory,
-                topicBindingName=ehcache"
+                topicBindingName=ehcache,
+                getQueueBingingName=ehcacheGetQueue"
             propertySeparator=","
             />
 

@@ -16,7 +16,7 @@
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
-            <version>1.6.0-beta1</version>
+            <version>1.5.0</version>
         </dependency>
         <dependency>
             <groupId>javax.jms</groupId>
@@ -113,6 +113,10 @@
                                 <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
                                       executable="sh">
                                     <arg line="imqobjmgr add -t t -l 'ehcache' -o 'imqDestinationName=EhcacheTopicDest' -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
+                                </exec>
+                                <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
+                                      executable="sh">
+                                    <arg line="imqobjmgr add -t q -l 'ehcacheGetQueue' -o 'imqDestinationName=EhcacheGetQueueDest' -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
                                 </exec>
                                 <sleep seconds="5"/>
                             </tasks>
