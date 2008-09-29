@@ -26,8 +26,7 @@ Distributed Caching using {JMS}
 
     * Publishing to caches from any JMS client. See the Non-Cache Publishers section.
 
-
- images/jms_replication.png
+[images/jms_replication.png]
 
 
 *   Configuration

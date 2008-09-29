@@ -167,6 +167,7 @@
     * providerURL (mandatory) - the JNDI configuration information for the service provider to use.
     * topicConnectionFactoryBindingName (mandatory) - the JNDI binding name for the TopicConnectionFactory
     * topicBindingName (mandatory) - the JNDI binding name for the topic name
+    * getQueueBindingName (mandatory only if using jmsCacheLoader) - the JNDI binding name for the queue name
     * securityPrincipalName - the JNDI java.naming.security.principal
     * securityCredentials - the JNDI java.naming.security.credentials
     * urlPkgPrefixes - the JNDI java.naming.factory.url.pkgs

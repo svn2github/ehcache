@@ -35,6 +35,8 @@ Ehcache 1.5.0 User Guide
 
     * {{{./distributed_caching_with_jgroups.html}Distributed Caching With JGroups}}
 
+    * {{{./distributed_caching_with_jms.html}Distributed Caching With JMS}}
+
     * {{{./distributed_caching_with_terracotta.html}Distributed Caching With Terracotta}}
 
     * {{{./shutdown.html}Shutting Down Ehcache}}

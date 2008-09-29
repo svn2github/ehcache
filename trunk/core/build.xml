@@ -803,6 +803,7 @@
                 <arg value="distributed_caching.apt"/>
                 <arg value="distributed_caching_with_rmi.apt"/>
                 <arg value="distributed_caching_with_jgroups.apt"/>
+                <arg value="distributed_caching_with_jms.apt"/>
                 <arg value="distributed_caching_with_terracotta.apt"/>
                 <arg value="constructs.apt"/>
                 <arg value="cachemanager_event_listeners.apt"/>
