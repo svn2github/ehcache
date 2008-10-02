@@ -90,7 +90,7 @@
                     <execution>
                         <!--We test using two popular message -->
                         <id>start-message-queues</id>
-                        <phase>pre-integration-test</phase>
+                        <phase>validate</phase>
                         <configuration>
                             <tasks>
                                 <echo>Starting Active MQ from ${activemq.bin.dir} on ${os.name}</echo>
@@ -109,6 +109,10 @@
                                 <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
                                       executable="sh">
                                     <arg line="imqobjmgr add -t tf -l 'MyConnectionFactory' -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
+                                </exec>
+                                <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
+                                      executable="sh">
+                                    <arg line="imqobjmgr add -t qf -l 'queueConnectionFactory' -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
                                 </exec>
                                 <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
                                       executable="sh">

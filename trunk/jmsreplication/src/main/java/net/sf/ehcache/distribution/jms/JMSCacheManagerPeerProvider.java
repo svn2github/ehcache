@@ -29,6 +29,9 @@ import javax.jms.Session;
 import javax.jms.TopicSubscriber;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
+import javax.jms.QueueSession;
+import javax.jms.ConnectionConsumer;
+import javax.jms.QueueSender;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -58,9 +61,14 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
      * @param topicSubscriber
      * @param topicPublisher
      * @param topicSession
+     * @param getQueueSession
+     * @param connectionConsumer
+     * @param getQueueSender
      */
     public JMSCacheManagerPeerProvider(CacheManager cacheManager, TopicSubscriber topicSubscriber,
-                                       TopicPublisher topicPublisher, TopicSession topicSession) {
+                                       TopicPublisher topicPublisher, TopicSession topicSession,
+                                       QueueSession getQueueSession, ConnectionConsumer connectionConsumer,
+                                       QueueSender getQueueSender) {
 
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("JMSCacheManagerPeerProvider constructor ( cacheManager = "

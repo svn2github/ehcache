@@ -30,6 +30,12 @@ import javax.jms.TopicConnectionFactory;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
+import javax.jms.QueueConnectionFactory;
+import javax.jms.Queue;
+import javax.jms.QueueSession;
+import javax.jms.QueueSender;
+import javax.jms.QueueConnection;
+import javax.jms.ConnectionConsumer;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NameNotFoundException;
@@ -43,6 +49,9 @@ import java.util.logging.Level;
  * @author Greg Luck
  */
 public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProviderFactory {
+
+
+    private boolean useJMSCacheLoader;
 
     /**
      * Enables acknowledgement mode to be specifiec
@@ -82,12 +91,22 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
     /**
      * Configuration string
      */
-    protected static final String TOPIC_BINDING_NAME = "topicBindingName";
+    protected static final String REPLICATION_TOPIC_BINDING_NAME = "replicationTopicBindingName";
+
+    /**
+     * The JNDI binding name for the queue name used to do gets
+     */
+    protected static final String GET_QUEUE_BINDING_NAME = "getQueueBingingName";
 
     /**
      * Configuration string
      */
     protected static final String TOPIC_CONNECTION_FACTORY_BINDING_NAME = "topicConnectionFactoryBindingName";
+
+    /**
+     * Configuration string
+     */
+    protected static final String GET_QUEUE_CONNECTION_FACTORY_BINDING_NAME = "getQueueConnectionFactoryBindingName";
 
     /**
      * Configuration string
@@ -129,58 +148,81 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
         String initialContextFactoryName = PropertyUtil.extractAndLogProperty(INITIAL_CONTEXT_FACTORY_NAME, properties);
         String urlPkgPrefixes = PropertyUtil.extractAndLogProperty(URL_PKG_PREFIXES, properties);
         String providerURL = PropertyUtil.extractAndLogProperty(PROVIDER_URL, properties);
-        String topicBindingName = PropertyUtil.extractAndLogProperty(TOPIC_BINDING_NAME, properties);
+        String replicationTopicBindingName = PropertyUtil.extractAndLogProperty(REPLICATION_TOPIC_BINDING_NAME, properties);
+        String getQueueBindingName = PropertyUtil.extractAndLogProperty(GET_QUEUE_BINDING_NAME, properties);
+        String getQueueConnectionFactoryBindingName = PropertyUtil.extractAndLogProperty(GET_QUEUE_CONNECTION_FACTORY_BINDING_NAME, properties);
         String topicConnectionFactoryBindingName = PropertyUtil.extractAndLogProperty(TOPIC_CONNECTION_FACTORY_BINDING_NAME, properties);
         String userName = PropertyUtil.extractAndLogProperty(USERNAME, properties);
         String password = PropertyUtil.extractAndLogProperty(PASSWORD, properties);
         String acknowledgementMode = PropertyUtil.extractAndLogProperty(ACKNOWLEDGEMENT_MODE, properties);
 
+        validateJSMCacheLoaderConfiguration(getQueueBindingName, getQueueConnectionFactoryBindingName);
 
+        Context context = createInitialContext(securityPrincipalName, securityCredentials, initialContextFactoryName,
+                urlPkgPrefixes, providerURL, replicationTopicBindingName, topicConnectionFactoryBindingName,
+                getQueueBindingName, getQueueConnectionFactoryBindingName);
 
-
-        Context context = null;
-        Topic topic = null;
 
         TopicConnectionFactory topicConnectionFactory;
+        Topic topic;
+        QueueConnectionFactory queueConnectionFactory;
+        Queue queue;
+
         try {
 
             context = createInitialContext(securityPrincipalName, securityCredentials, initialContextFactoryName,
-                    urlPkgPrefixes, providerURL, topicBindingName, topicConnectionFactoryBindingName);
+                    urlPkgPrefixes, providerURL, replicationTopicBindingName, topicConnectionFactoryBindingName,
+                    getQueueBindingName, getQueueConnectionFactoryBindingName);
 
 
-            LOG.fine("Looking up [" + topicConnectionFactoryBindingName + "]");
-            topicConnectionFactory = (TopicConnectionFactory) lookup(context,
-                    topicConnectionFactoryBindingName);
-
-            LOG.fine("Looking up topic name [" + topicBindingName + "].");
-            topic = (Topic) lookup(context, topicBindingName);
+            topicConnectionFactory = (TopicConnectionFactory) lookup(context, topicConnectionFactoryBindingName);
+            topic = (Topic) lookup(context, replicationTopicBindingName);
+            queueConnectionFactory = (QueueConnectionFactory) lookup(context, getQueueConnectionFactoryBindingName);
+            queue = (Queue) lookup(context, getQueueBindingName);
 
         } catch (NamingException ne) {
 
-            throw new CacheException("NamingException " + topicConnectionFactoryBindingName, ne);
+            throw new CacheException("NamingException " + ne.getMessage(), ne);
         }
 
         TopicSession topicPublisherSession;
+        QueueSession getQueueSession;
         TopicPublisher topicPublisher;
+        QueueSender getQueueSender;
+        ConnectionConsumer connectionConsumer;
         TopicSubscriber topicSubscriber;
         try {
             TopicConnection topicConnection = createTopicConnection(userName, password, topicConnectionFactory);
-            AcknowledgementMode effectiveAcknowledgementMode = AcknowledgementMode.forString(acknowledgementMode);
 
-            LOG.fine("Creating TopicSessions in " + effectiveAcknowledgementMode.name() + " mode.");
+            AcknowledgementMode effectiveAcknowledgementMode = AcknowledgementMode.forString(acknowledgementMode);
+            LOG.fine("Creating TopicSession in " + effectiveAcknowledgementMode.name() + " mode.");
             topicPublisherSession = topicConnection.createTopicSession(false, effectiveAcknowledgementMode.toInt());
             TopicSession topicSubscriberSession = topicConnection.createTopicSession(false, effectiveAcknowledgementMode.toInt());
 
-            LOG.fine("Creating TopicPublisher.");
             topicPublisher = topicPublisherSession.createPublisher(topic);
 
-            LOG.fine("Creating TopicSubscriber.");
             //ignore messages we have sent. The third parameter is noLocal, which means do not deliver back to the sender
             //on the same connection
             topicSubscriber = topicSubscriberSession.createSubscriber(topic, null, true);
 
-            LOG.fine("Starting TopicConnection.");
             topicConnection.start();
+
+            QueueConnection queueConnection = createQueueConnection(userName, password, queueConnectionFactory);
+
+            effectiveAcknowledgementMode = AcknowledgementMode.forString(acknowledgementMode);
+            LOG.fine("Creating QueueSession in " + effectiveAcknowledgementMode.name() + " mode.");
+            getQueueSession = queueConnection.createQueueSession(false, effectiveAcknowledgementMode.toInt());
+            connectionConsumer = queueConnection.createConnectionConsumer(queue, null, null, 1);
+            getQueueSender = getQueueSession.createSender(queue);
+
+            //ignore messages we have sent. The third parameter is noLocal, which means do not deliver back to the sender
+            //on the same connection
+//            topicSubscriber = connectionConsumer.createSubscriber(topic, null, true);
+
+            queueConnection.start();
+
+
+
 
         } catch (JMSException e) {
             throw new CacheException("Exception while creating JMS connections: " + e.getMessage(), e);
@@ -193,13 +235,36 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
         } catch (NamingException e) {
             throw new CacheException("Exception while closing context", e);
         }
-        return new JMSCacheManagerPeerProvider(cacheManager, topicSubscriber, topicPublisher, topicPublisherSession);
+        return new JMSCacheManagerPeerProvider(cacheManager, topicSubscriber, topicPublisher, topicPublisherSession,
+                                                getQueueSession, connectionConsumer, getQueueSender);
+    }
+
+    private void validateJSMCacheLoaderConfiguration(String getQueueBindingName, String getQueueConnectionFactoryBindingName) {
+        if (getQueueConnectionFactoryBindingName != null || getQueueBindingName != null) {
+            useJMSCacheLoader = true;
+        }
+        if (getQueueConnectionFactoryBindingName != null && getQueueBindingName == null) {
+            throw new CacheException("The 'getQueueBindingName is null'. Please configure.");
+        }
+        if (getQueueConnectionFactoryBindingName == null && getQueueBindingName != null) {
+            throw new CacheException("The 'getQueueConnectionFactoryBindingName' is null. Please configure.");
+        }
+    }
+
+    private QueueConnection createQueueConnection(String userName, String password,
+                                                  QueueConnectionFactory queueConnectionFactory) throws JMSException {
+        QueueConnection queueConnection;
+        if (userName != null) {
+            queueConnection = queueConnectionFactory.createQueueConnection(userName, password);
+        } else {
+            queueConnection = queueConnectionFactory.createQueueConnection();
+        }
+        return queueConnection;
     }
 
     private TopicConnection createTopicConnection(String userName, String password,
                                                   TopicConnectionFactory topicConnectionFactory) throws JMSException {
 
-        LOG.fine("About to create TopicConnection.");
         TopicConnection topicConnection;
         if (userName != null) {
             topicConnection = topicConnectionFactory.createTopicConnection(userName, password);
@@ -214,15 +279,22 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
                                          String initialContextFactoryName,
                                          String urlPkgPrefixes,
                                          String providerURL,
-                                         String topicBindingName,
-                                         String topicConnectionFactoryBindingName) throws NamingException {
+                                         String replicationTopicBindingName,
+                                         String topicConnectionFactoryBindingName,
+                                         String getQueueBindingName,
+                                         String getQueueConnectionFactoryBindingName) {
         Context context;
         LOG.fine("Getting initial context.");
 
         Properties env = new Properties();
 
         env.put(TOPIC_CONNECTION_FACTORY_BINDING_NAME, topicConnectionFactoryBindingName);
-        env.put(TOPIC_BINDING_NAME, topicBindingName);
+        env.put(REPLICATION_TOPIC_BINDING_NAME, replicationTopicBindingName);
+
+
+        env.put(GET_QUEUE_CONNECTION_FACTORY_BINDING_NAME, getQueueConnectionFactoryBindingName);
+        env.put(GET_QUEUE_BINDING_NAME, getQueueBindingName);
+
         env.put(Context.PROVIDER_URL, providerURL);
 
         if (initialContextFactoryName != null) {
@@ -242,8 +314,12 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
                         + "SecurityCredentials. This is likely to cause problems.");
             }
         }
+        try {
+            context = new InitialContext(env);
+        } catch (NamingException ne) {
 
-        context = new InitialContext(env);
+            throw new CacheException("NamingException " + ne.getMessage(), ne);
+        }
         return context;
     }
 
