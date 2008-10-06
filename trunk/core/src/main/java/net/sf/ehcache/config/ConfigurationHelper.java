@@ -91,9 +91,9 @@ public final class ConfigurationHelper {
     protected static void registerCacheListeners(CacheConfiguration cacheConfiguration,
                                                  RegisteredEventListeners registeredEventListeners) {
         List cacheEventListenerConfigurations = cacheConfiguration.getCacheEventListenerConfigurations();
-        for (int i = 0; i < cacheEventListenerConfigurations.size(); i++) {
+        for (Object cacheEventListenerConfiguration : cacheEventListenerConfigurations) {
             CacheConfiguration.CacheEventListenerFactoryConfiguration factoryConfiguration =
-                    (CacheConfiguration.CacheEventListenerFactoryConfiguration) cacheEventListenerConfigurations.get(i);
+                    (CacheConfiguration.CacheEventListenerFactoryConfiguration) cacheEventListenerConfiguration;
             CacheEventListener cacheEventListener = createCacheEventListener(factoryConfiguration);
             registeredEventListeners.registerListener(cacheEventListener);
         }
@@ -101,16 +101,31 @@ public final class ConfigurationHelper {
 
     /**
      * A factory method to register cache extensions
+     * @param cacheConfiguration the cache configuration
+     * @param cache the cache
      */
     protected static void registerCacheExtensions(CacheConfiguration cacheConfiguration, Ehcache cache) {
-
         List cacheExtensionConfigurations = cacheConfiguration.getCacheExtensionConfigurations();
-
-        for (int i = 0; i < cacheExtensionConfigurations.size(); i++) {
+        for (Object cacheExtensionConfiguration : cacheExtensionConfigurations) {
             CacheConfiguration.CacheExtensionFactoryConfiguration factoryConfiguration =
-                    (CacheConfiguration.CacheExtensionFactoryConfiguration) cacheExtensionConfigurations.get(i);
+                    (CacheConfiguration.CacheExtensionFactoryConfiguration) cacheExtensionConfiguration;
             CacheExtension cacheExtension = createCacheExtension(factoryConfiguration, cache);
             cache.registerCacheExtension(cacheExtension);
+        }
+    }
+
+    /**
+     * A factory method to register cache Loaders
+     * @param cacheConfiguration the cache configuration
+     * @param cache the cache
+     */
+    protected static void registerCacheLoaders(CacheConfiguration cacheConfiguration, Ehcache cache) {
+        List cacheLoaderConfigurations = cacheConfiguration.getCacheLoaderConfigurations();
+        for (Object cacheLoaderConfiguration : cacheLoaderConfigurations) {
+            CacheConfiguration.CacheLoaderFactoryConfiguration factoryConfiguration =
+                    (CacheConfiguration.CacheLoaderFactoryConfiguration) cacheLoaderConfiguration;
+            CacheLoader cacheLoader = createCacheLoader(factoryConfiguration, cache);
+            cache.registerCacheLoader(cacheLoader);
         }
     }
 
@@ -163,6 +178,29 @@ public final class ConfigurationHelper {
             cacheExtension = factory.createCacheExtension(cache, properties);
         }
         return cacheExtension;
+    }
+
+    /**
+     * Tries to load the class specified otherwise defaults to null.
+     *
+     * @param factoryConfiguration
+     */
+    private static CacheLoader createCacheLoader(
+            CacheConfiguration.CacheLoaderFactoryConfiguration factoryConfiguration, Ehcache cache) {
+        String className = null;
+        CacheLoader cacheLoader = null;
+        if (factoryConfiguration != null) {
+            className = factoryConfiguration.getFullyQualifiedClassPath();
+        }
+        if (className == null) {
+            LOG.fine("CacheLoader factory not configured. Skipping...");
+        } else {
+            CacheLoaderFactory factory = (CacheLoaderFactory) ClassLoaderUtil.createNewInstance(className);
+            Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
+                    factoryConfiguration.getPropertySeparator());
+            cacheLoader = factory.createCacheLoader(cache, properties);
+        }
+        return cacheLoader;
     }
 
     /**
@@ -436,8 +474,7 @@ public final class ConfigurationHelper {
         BootstrapCacheLoader bootstrapCacheLoader = createBootstrapCacheLoader(
                 cacheConfiguration.getBootstrapCacheLoaderFactoryConfiguration());
         cache.setBootstrapCacheLoader(bootstrapCacheLoader);
-        CacheLoader cacheLoader = createCacheLoader(cacheConfiguration.getCacheLoaderFactoryConfiguration());
-        cache.setCacheLoader(cacheLoader);
+        registerCacheLoaders(cacheConfiguration, cache);
         cache = applyCacheExceptionHandler(cacheConfiguration, cache);
         return cache;
     }

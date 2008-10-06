@@ -687,6 +687,13 @@ public interface Ehcache extends Cloneable {
      */
     public void unregisterCacheExtension(CacheExtension cacheExtension);
 
+
+    /**
+     *
+     * @return the cache extensions as a live list
+     */
+    public List<CacheExtension> getRegisteredCacheExtensions();
+
     /**
      * The average get time in ms.
      */
@@ -703,18 +710,27 @@ public interface Ehcache extends Cloneable {
     public CacheExceptionHandler getCacheExceptionHandler();
 
     /**
-     * Setter for the CacheLoader. Changing the CacheLoader takes immediate effect.
+     * Register a {@link CacheLoader} with the cache. It will then be tied into the cache lifecycle.
+     * <p/>
+     * If the CacheLoader is not initialised, initialise it.
      *
-     * @param cacheLoader the loader to dynamically load new cache entries
+     * @param cacheLoader A Cache Loader to register
      */
-    public void setCacheLoader(CacheLoader cacheLoader);
+    public void registerCacheLoader(CacheLoader cacheLoader);
 
     /**
-     * Gets the CacheLoader registered in this cache
+     * Unregister a {@link CacheLoader} with the cache. It will then be detached from the cache lifecycle.
      *
-     * @return the loader, or null if there is none
+     * @param cacheLoader A Cache Loader to unregister
      */
-    public CacheLoader getCacheLoader();
+    public void unregisterCacheLoader(CacheLoader cacheLoader);
+
+
+    /**
+     *
+     * @return the cache loaders as a live list
+     */
+    public List<CacheLoader> getRegisteredCacheLoaders();
 
     /**
      * Warning: This method is related to the JSR107 specification, which is in draft. It is subject to change without notice.

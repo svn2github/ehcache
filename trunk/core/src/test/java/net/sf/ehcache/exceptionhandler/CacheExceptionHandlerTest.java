@@ -22,7 +22,11 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
+import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.event.CountingCacheEventListener;
+
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
@@ -86,7 +90,12 @@ public class CacheExceptionHandlerTest extends TestCase {
      */
     public void testKeyWithConfiguredCache() {
 
-        cache.setCacheLoader(new ExceptionThrowingLoader());
+        List<CacheLoader> loaders = new ArrayList<CacheLoader>(cache.getRegisteredCacheLoaders());
+        for (CacheLoader loader : loaders) {
+            cache.unregisterCacheLoader(loader);
+        }
+
+        cache.registerCacheLoader(new ExceptionThrowingLoader());
         cache.getWithLoader("key1", null, null);
 
         assertEquals(1, CountingExceptionHandler.HANDLED_EXCEPTIONS.size());
@@ -155,7 +164,12 @@ public class CacheExceptionHandlerTest extends TestCase {
      * actually passed on to exception handler
      */
     public void testExceptionThrown() {
-        cache.setCacheLoader(new CustomExceptionThrowingLoader());
+
+        List<CacheLoader> loaders = new ArrayList<CacheLoader>(cache.getRegisteredCacheLoaders());
+        for (CacheLoader loader : loaders) {
+            cache.unregisterCacheLoader(loader);
+        }
+        cache.registerCacheLoader(new CustomExceptionThrowingLoader());
 
         cache.getWithLoader("key1", null, null);
 

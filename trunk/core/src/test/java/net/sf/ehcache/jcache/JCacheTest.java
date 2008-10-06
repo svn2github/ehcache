@@ -20,6 +20,7 @@ import java.util.concurrent.ExecutionException;
 import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
 import net.sf.ehcache.loader.CountingCacheLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
+import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.StopWatch;
@@ -1377,10 +1378,14 @@ public class JCacheTest extends AbstractCacheTest {
 
         //null loader so no loading happens
         JCache jCache = new JCache(manager.getCache("sampleCache1"), null);
+        List<CacheLoader> list = new ArrayList<CacheLoader>(jCache.getBackingCache().getRegisteredCacheLoaders());
+        for (CacheLoader cacheLoader : list) {
+            jCache.getBackingCache().unregisterCacheLoader(cacheLoader);
+        }
+
         jCache.setCacheLoader(null);
         assertEquals(0, jCache.size());
         jCache.load("key1");
-        Thread.sleep(1000);
         assertEquals(0, jCache.size());
 
 

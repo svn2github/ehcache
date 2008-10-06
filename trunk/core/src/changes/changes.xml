@@ -24,6 +24,30 @@
                 mechanism which uses standard JDK types. The ehcache classpath
                 should be added to the client for this to work. e.g. jconsole -J-Djava.class.path=ehcache.jar
             </action>
+            <action dev="Greg Luck" type="update">
+                Due to requests for more sophisticated features and end user experience with the CacheLoader interface
+                the following changes have been made:
+
+                - A Cache may now have a list of CacheLoaders. If the first loader returns null, the next in the list
+                is attempted until a non-null result occurs or the chain of loaders ends.
+                - Loaders now have a maxLoadTimeMillis property which sets the maximum amount of time for the loader
+                to wait for the load.
+                - To support sophisticated loaders like the JMSCacheLoader, the CacheLoader interface adds lifecycle
+                methods, so that it can be bound into a cache's lifecyle. Also there is a new factory method for loaders
+                to bring them into line with extensions such that a back-reference to the owning Cache is injected
+                at configuration time.
+
+                The upshot of these changes is that implementers of CacheLoader will need to update their implementations
+                for these changes.
+
+                The setter and getter for CacheLoader has been removed because it now a list, not a scalar.
+                New registerCacheLoader and unregisterCacheLoader methods have been added for programmatic configuration.
+                The getCacheLoader method has been removed.
+
+                Finally, the loader methods used to put values in the cache even if they returned null. This has been
+                changed so that they only put if they return non null.
+
+            </action>
         </release>
 
 

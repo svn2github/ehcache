@@ -22,23 +22,20 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.loader.CacheLoader;
-import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
-import net.sf.ehcache.extension.CacheExtension;
-import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.constructs.concurrent.ConcurrencyUtil;
 import net.sf.ehcache.constructs.concurrent.Mutex;
 import net.sf.ehcache.event.RegisteredEventListeners;
+import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
+import net.sf.ehcache.extension.CacheExtension;
+import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
-
-
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Collection;
-import java.util.logging.Logger;
 
 
 /**
@@ -101,8 +98,6 @@ public class BlockingCache implements Ehcache {
      */
     public static final int LOCK_NUMBER = 2048;
 
-    private static final Logger LOG = Logger.getLogger(BlockingCache.class.getName());
-
     /**
      * Based on the lock striping concept from Brian Goetz. See Java Concurrency in Practice 11.4.3
      */
@@ -129,7 +124,7 @@ public class BlockingCache implements Ehcache {
      * Creates a BlockingCache which decorates the supplied cache.
      *
      * @param cache a backing ehcache.
-     * @throws CacheException
+     * @throws CacheException shouldn't happen
      * @since 1.2
      */
     public BlockingCache(final Ehcache cache) throws CacheException {
@@ -138,6 +133,8 @@ public class BlockingCache implements Ehcache {
 
     /**
      * Retrieve the EHCache backing cache
+     *
+     * @return the backing cache
      */
     protected Ehcache getCache() {
         return cache;
@@ -429,7 +426,7 @@ public class BlockingCache implements Ehcache {
     /**
      * Sets the CacheManager
      *
-     * @param cacheManager
+     * @param cacheManager the CacheManager this cache belongs to
      */
     public void setCacheManager(CacheManager cacheManager) {
         cache.setCacheManager(cacheManager);
@@ -509,14 +506,14 @@ public class BlockingCache implements Ehcache {
      * If this method throws an exception, it is the responsibility of the caller to catch that exception and call
      * <code>put(new Element(key, null));</code> to release the lock acquired. See {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
      * for an example.
-     *
-     * Note. If a LockTimeoutException is thrown while doing a {@link #get} it means the lock was never acquired,
+     * <p/>
+     * Note. If a LockTimeoutException is thrown while doing a <code>get</code> it means the lock was never acquired,
      * therefore it is a threading error to call {@link #put}
      *
      * @throws LockTimeoutException if timeout millis is non zero and this method has been unable to
      *                              acquire a lock in that time
-     * @throws RuntimeException if thrown the lock will not released. Catch and call<code>put(new Element(key, null));</code>
-     * to release the lock acquired.
+     * @throws RuntimeException     if thrown the lock will not released. Catch and call<code>put(new Element(key, null));</code>
+     *                              to release the lock acquired.
      */
     public Element get(final Object key) throws RuntimeException, LockTimeoutException {
         Mutex lock = getLockForKey(key);
@@ -726,7 +723,7 @@ public class BlockingCache implements Ehcache {
      * Also notifies the CacheEventListener after the element was removed, but only if an Element
      * with the key actually existed.
      *
-     * @param key
+     * @param key the key to remove
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
@@ -741,7 +738,7 @@ public class BlockingCache implements Ehcache {
      * Also notifies the CacheEventListener after the element was removed, but only if an Element
      * with the key actually existed.
      *
-     * @param key
+     * @param key the key to remove
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      * @since 1.2
@@ -757,7 +754,7 @@ public class BlockingCache implements Ehcache {
      * Also notifies the CacheEventListener after the element was removed, but only if an Element
      * with the key actually existed.
      *
-     * @param key
+     * @param key                         the key to remove
      * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
      *                                    further notification to doNotNotifyCacheReplicators cache peers
      * @return true if the element was removed, false if it was not found in the cache
@@ -774,7 +771,7 @@ public class BlockingCache implements Ehcache {
      * Also notifies the CacheEventListener after the element was removed, but only if an Element
      * with the key actually existed.
      *
-     * @param key
+     * @param key                         the key to remove
      * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
      *                                    further notification to doNotNotifyCacheReplicators cache peers
      * @return true if the element was removed, false if it was not found in the cache
@@ -789,7 +786,7 @@ public class BlockingCache implements Ehcache {
      * stores it may be in.
      * <p/>
      *
-     * @param key
+     * @param key the key to remove
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
@@ -802,7 +799,7 @@ public class BlockingCache implements Ehcache {
      * stores it may be in.
      * <p/>
      *
-     * @param key
+     * @param key the key to remove
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      * @since 1.2
@@ -917,6 +914,8 @@ public class BlockingCache implements Ehcache {
      * Synchronized version of getName to test liveness of the object lock.
      * <p/>
      * The time taken for this method to return is a useful measure of runtime contention on the cache.
+     *
+     * @return the name of the cache.
      */
     public synchronized String liveness() {
         return getName();
@@ -977,6 +976,13 @@ public class BlockingCache implements Ehcache {
     }
 
     /**
+     * @return the cache extensions as a live list
+     */
+    public List<CacheExtension> getRegisteredCacheExtensions() {
+        return cache.getRegisteredCacheExtensions();
+    }
+
+    /**
      * The average get time in ms.
      */
     public float getAverageGetTime() {
@@ -998,23 +1004,36 @@ public class BlockingCache implements Ehcache {
     }
 
     /**
-     * This method is not appropriate to use with BlockingCache.
-     */
-    public void setCacheLoader(CacheLoader cacheLoader) {
-        throw new CacheException("This method is not appropriate for a Blocking Cache");
-    }
-
-    /**
-     * Gets the CacheLoader registered in this cache
+     * Register a {@link CacheLoader} with the cache. It will then be tied into the cache lifecycle.
+     * <p/>
+     * If the CacheLoader is not initialised, initialise it.
      *
-     * @return the loader, or null if there is none
+     * @param cacheLoader A Cache Loader to register
      */
-    public CacheLoader getCacheLoader() {
-        return cache.getCacheLoader();
+    public void registerCacheLoader(CacheLoader cacheLoader) {
+        throw new CacheException("This method is not appropriate for a blocking cache.");
     }
 
     /**
+     * Unregister a {@link CacheLoader} with the cache. It will then be detached from the cache lifecycle.
+     *
+     * @param cacheLoader A Cache Loader to unregister
+     */
+    public void unregisterCacheLoader(CacheLoader cacheLoader) {
+        throw new CacheException("This method is not appropriate for a blocking cache.");
+    }
+
+    /**
+     * @return the cache loaders as a live list
+     */
+    public List<CacheLoader> getRegisteredCacheLoaders() {
+        return cache.getRegisteredCacheLoaders();
+    }
+
+
+    /**
      * This method is not appropriate to use with BlockingCache.
+     *
      * @throws CacheException if this method is called
      */
     public Element getWithLoader(Object key, CacheLoader loader, Object loaderArgument) throws CacheException {
@@ -1023,6 +1042,7 @@ public class BlockingCache implements Ehcache {
 
     /**
      * This method is not appropriate to use with BlockingCache.
+     *
      * @throws CacheException if this method is called
      */
     public Map getAllWithLoader(Collection keys, Object loaderArgument) throws CacheException {
@@ -1031,6 +1051,7 @@ public class BlockingCache implements Ehcache {
 
     /**
      * This method is not appropriate to use with BlockingCache.
+     *
      * @throws CacheException if this method is called
      */
     public void load(Object key) throws CacheException {
@@ -1039,6 +1060,7 @@ public class BlockingCache implements Ehcache {
 
     /**
      * This method is not appropriate to use with BlockingCache.
+     *
      * @throws CacheException if this method is called
      */
     public void loadAll(Collection keys, Object argument) throws CacheException {
@@ -1059,6 +1081,7 @@ public class BlockingCache implements Ehcache {
      * <p/>
      * By default caches are enabled on creation, unless the <code>net.sf.ehcache.disabled</code> system
      * property is set.
+     *
      * @return true if the cache is disabled.
      */
     public boolean isDisabled() {
@@ -1069,6 +1092,7 @@ public class BlockingCache implements Ehcache {
      * Disables or enables this cache. This call overrides the previous value of disabled, even if the
      * <code>net.sf.ehcache.disabled</code> system property is set
      * <p/>
+     *
      * @param disabled true if you wish to disable, false to enable
      * @see #isDisabled()
      */

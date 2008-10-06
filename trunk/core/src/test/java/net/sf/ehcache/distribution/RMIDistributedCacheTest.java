@@ -95,11 +95,6 @@ public class RMIDistributedCacheTest extends TestCase {
         int i = 0;
     }
 
-    public void testManual() throws InterruptedException {
-        Thread.sleep(1000000000);
-    }
-
-
     /**
      * Getting an RMI Server going is a big deal
      */

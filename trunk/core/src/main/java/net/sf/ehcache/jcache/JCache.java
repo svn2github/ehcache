@@ -32,6 +32,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collections;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -86,6 +88,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
     }
 
     /**
+     * todo test downcast
      * A constructor for JCache.
      * <p/>
      * JCache is an adaptor for an Ehcache, and therefore requires an Ehcache in its constructor.
@@ -93,15 +96,13 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * @param cache       An ehcache
      * @param cacheLoader used to load entries when they are not in the cache. If this is null, it is
      *                    set for the cache. If null, the JCache will inherit the CacheLoader set for the backing ehcache.
-     *                    If specified, the underlying ehcache will have it's loader replaced.
+     *                    If specified, the underlying ehcache will have it's loader(s) replaced.
      * @since 1.3
      * @see "class description for recommended usage"
      */
     public JCache(Ehcache cache, net.sf.jsr107cache.CacheLoader cacheLoader) {
         this.cache = cache;
-        if (cacheLoader != null) {
-            cache.setCacheLoader((CacheLoader) cacheLoader);
-        }
+        setCacheLoaderNullCheck((CacheLoader)cacheLoader);
     }
 
     /**
@@ -118,9 +119,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
      */
     public JCache(Ehcache cache, CacheLoader cacheLoader) {
         this.cache = cache;
-        if (cacheLoader != null) {
-            cache.setCacheLoader(cacheLoader);
-        }
+        setCacheLoaderNullCheck(cacheLoader);
     }
 
     /**
@@ -129,9 +128,19 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * @param cacheLoader the loader to dynamically load new cache entries. This replaces the CacheLoader in the underlying ehcache.
      */
     public void setCacheLoader(CacheLoader cacheLoader) {
-        cache.setCacheLoader(cacheLoader);
+        setCacheLoaderNullCheck(cacheLoader);
     }
 
+
+    private void setCacheLoaderNullCheck(CacheLoader cacheLoader) {
+        if (cacheLoader != null) {
+            List<CacheLoader> loaders = new ArrayList<CacheLoader>(cache.getRegisteredCacheLoaders());
+            for (CacheLoader loader : loaders) {
+                cache.unregisterCacheLoader(loader);
+            }
+            cache.registerCacheLoader((CacheLoader) cacheLoader);
+        }
+    }
 
     /**
      * Add a listener to the list of cache listeners. The behaviour of JCACHE and Ehcache listeners is a little
@@ -202,12 +211,18 @@ public class JCache implements net.sf.jsr107cache.Cache {
     }
 
     /**
-     * Gets the CacheLoader registered in this cache
+     * Gets the first of the CacheLoaders registered in this cache.
+     * Ehcache allows for a chain of cache loaders, JCache only one.
      *
      * @return the loader, or null if there is none
      */
     public CacheLoader getCacheLoader() {
-        return cache.getCacheLoader();
+        List<CacheLoader> loaders = cache.getRegisteredCacheLoaders();
+        if (loaders.size() >= 1) {
+            return cache.getRegisteredCacheLoaders().get(0);
+        } else {
+            return null;
+        }
     }
 
 

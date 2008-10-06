@@ -40,17 +40,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.util.concurrent.Future;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -171,7 +170,7 @@ public class Cache implements Ehcache {
 
     private RegisteredEventListeners registeredEventListeners;
 
-    private List registeredCacheExtensions;
+    private List<CacheExtension> registeredCacheExtensions;
 
     private String guid;
 
@@ -185,7 +184,7 @@ public class Cache implements Ehcache {
 
     private CacheExceptionHandler cacheExceptionHandler;
 
-    private CacheLoader cacheLoader;
+    private List<CacheLoader> registeredCacheLoaders;
 
     /**
      * A ThreadPoolExecutor which uses a thread pool to schedule loads in the order in which they are requested.
@@ -397,6 +396,7 @@ public class Cache implements Ehcache {
      *                                  how often to run the disk store expiry thread. A large number of 120 seconds plus is recommended
      * @param registeredEventListeners  a notification service. Optionally null, in which case a new one with no registered listeners will be created.
      * @param bootstrapCacheLoader      the BootstrapCacheLoader to use to populate the cache when it is first initialised. Null if none is required.
+     * @param maxElementsOnDisk         the maximum number of Elements to allow on the disk. 0 means unlimited.
      * @since 1.2.4
      */
     public Cache(String name,
@@ -454,6 +454,7 @@ public class Cache implements Ehcache {
      *                                  how often to run the disk store expiry thread. A large number of 120 seconds plus is recommended
      * @param registeredEventListeners  a notification service. Optionally null, in which case a new one with no registered listeners will be created.
      * @param bootstrapCacheLoader      the BootstrapCacheLoader to use to populate the cache when it is first initialised. Null if none is required.
+     * @param maxElementsOnDisk         the maximum number of Elements to allow on the disk. 0 means unlimited.
      * @param diskSpoolBufferSizeMB     the amount of memory to allocate the write buffer for puts to the DiskStore.
      * @since 1.2.4
      */
@@ -500,7 +501,8 @@ public class Cache implements Ehcache {
             this.registeredEventListeners = registeredEventListeners;
         }
 
-        registeredCacheExtensions = createNewCacheExtensionsList();
+        registeredCacheExtensions = Collections.synchronizedList(new ArrayList<CacheExtension>());
+        registeredCacheLoaders = Collections.synchronizedList(new ArrayList<CacheLoader>());
 
         //Set this to a safe value.
         if (diskExpiryThreadIntervalSeconds == 0) {
@@ -551,6 +553,7 @@ public class Cache implements Ehcache {
             memoryStore = MemoryStore.create(this, diskStore);
             changeStatus(Status.STATUS_ALIVE);
             initialiseRegisteredCacheExtensions();
+            initialiseRegisteredCacheLoaders();
         }
 
         if (LOG.isLoggable(Level.FINE)) {
@@ -571,6 +574,8 @@ public class Cache implements Ehcache {
      * <li>overflowToDisk is enabled
      * <li>diskPersistent is enabled
      * </ol>
+     *
+     * @return the disk store
      */
     protected Store createDiskStore() {
         if (isDiskStore()) {
@@ -582,6 +587,7 @@ public class Cache implements Ehcache {
 
     /**
      * Whether this cache uses a disk store
+     *
      * @return true if the cache either overflows to disk or is disk persistent
      */
     protected boolean isDiskStore() {
@@ -668,13 +674,12 @@ public class Cache implements Ehcache {
         if (element == null) {
             if (doNotNotifyCacheReplicators) {
                 if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Element from replicated put is null. This happens because the element is a SoftReference" +
-                        " and it has been collected.Increase heap memory on the JVM or set -Xms to be the same as " +
-                        "-Xmx to avoid this problem.");
+                    LOG.fine("Element from replicated put is null. This happens because the element is a SoftReference" +
+                            " and it has been collected.Increase heap memory on the JVM or set -Xms to be the same as " +
+                            "-Xmx to avoid this problem.");
                 }
-            } else {
-                throw new IllegalArgumentException("Element cannot be null");
             }
+            throw new IllegalArgumentException("Element cannot be null");
         }
 
         element.resetAccessStatistics();
@@ -842,7 +847,7 @@ public class Cache implements Ehcache {
             return element;
         }
 
-        if (cacheLoader == null && loader == null) {
+        if (registeredCacheLoaders.size() == 0 && loader == null) {
             return null;
         }
 
@@ -880,7 +885,7 @@ public class Cache implements Ehcache {
      * @throws CacheException
      */
     public void load(final Object key) throws CacheException {
-        if (cacheLoader == null) {
+        if (registeredCacheLoaders.size() == 0) {
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine("The CacheLoader is null. Returning.");
             }
@@ -927,17 +932,17 @@ public class Cache implements Ehcache {
         if (keys == null) {
             return new HashMap(0);
         }
-        Map map = new HashMap(keys.size());
+        Map<Object, Object> map = new HashMap<Object, Object>(keys.size());
 
-        List missingKeys = new ArrayList(keys.size());
+        List<Object> missingKeys = new ArrayList<Object>(keys.size());
 
-        if (cacheLoader != null) {
+        if (registeredCacheLoaders.size() > 0) {
             Object key = null;
             try {
-                map = new HashMap(keys.size());
+                map = new HashMap<Object, Object>(keys.size());
 
-                for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-                    key = iterator.next();
+                for (Object key1 : keys) {
+                    key = key1;
 
                     if (isKeyInCache(key)) {
                         Element element = get(key);
@@ -956,8 +961,8 @@ public class Cache implements Ehcache {
                 future.get();
 
 
-                for (int i = 0; i < missingKeys.size(); i++) {
-                    key = missingKeys.get(i);
+                for (Object missingKey : missingKeys) {
+                    key = missingKey;
                     Element element = get(key);
                     if (element != null) {
                         map.put(key, element.getObjectValue());
@@ -972,8 +977,7 @@ public class Cache implements Ehcache {
                 throw new CacheException(e.getMessage() + " for key " + key, e);
             }
         } else {
-            for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-                Object key = iterator.next();
+            for (Object key : keys) {
                 Element element = get(key);
                 if (element != null) {
                     map.put(key, element.getObjectValue());
@@ -1008,7 +1012,7 @@ public class Cache implements Ehcache {
      */
     public void loadAll(final Collection keys, final Object argument) throws CacheException {
 
-        if (cacheLoader == null) {
+        if (registeredCacheLoaders.size() == 0) {
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine("The CacheLoader is null. Returning.");
             }
@@ -1080,16 +1084,15 @@ public class Cache implements Ehcache {
             these duplicates do not cause problems when getting elements/
 
             This method removes these duplicates before returning the list of keys*/
-        List allKeyList = new ArrayList();
-        List keyList = Arrays.asList(memoryStore.getKeyArray());
+        List<Object> allKeyList = new ArrayList<Object>();
+        List<Object> keyList = Arrays.asList(memoryStore.getKeyArray());
         allKeyList.addAll(keyList);
         if (isDiskStore()) {
-            Set allKeys = new HashSet();
+            Set<Object> allKeys = new HashSet<Object>();
             //within the store keys will be unique
             allKeys.addAll(keyList);
             Object[] diskKeys = diskStore.getKeyArray();
-            for (int i = 0; i < diskKeys.length; i++) {
-                Object diskKey = diskKeys[i];
+            for (Object diskKey : diskKeys) {
                 if (allKeys.add(diskKey)) {
                     //Unique, so add it to the list
                     allKeyList.add(diskKey);
@@ -1123,7 +1126,7 @@ public class Cache implements Ehcache {
     public final List getKeysWithExpiryCheck() throws IllegalStateException, CacheException {
         List allKeyList = getKeys();
         //remove keys of expired elements
-        ArrayList nonExpiredKeys = new ArrayList(allKeyList.size());
+        ArrayList<Object> nonExpiredKeys = new ArrayList<Object>(allKeyList.size());
         int allKeyListSize = allKeyList.size();
         for (int i = 0; i < allKeyListSize; i++) {
             Object key = allKeyList.get(i);
@@ -1156,11 +1159,11 @@ public class Cache implements Ehcache {
      */
     public final synchronized List getKeysNoDuplicateCheck() throws IllegalStateException {
         checkStatus();
-        ArrayList allKeys = new ArrayList();
-        List memoryKeySet = Arrays.asList(memoryStore.getKeyArray());
+        ArrayList<Object> allKeys = new ArrayList<Object>();
+        List<Object> memoryKeySet = Arrays.asList(memoryStore.getKeyArray());
         allKeys.addAll(memoryKeySet);
         if (isDiskStore()) {
-            List diskKeySet = Arrays.asList(diskStore.getKeyArray());
+            List<Object> diskKeySet = Arrays.asList(diskStore.getKeyArray());
             allKeys.addAll(diskKeySet);
         }
         return allKeys;
@@ -1466,6 +1469,7 @@ public class Cache implements Ehcache {
             executorService.shutdown();
         }
         disposeRegisteredCacheExtensions();
+        disposeRegisteredCacheLoaders();
         registeredEventListeners.dispose();
 
         if (memoryStore != null) {
@@ -1480,16 +1484,26 @@ public class Cache implements Ehcache {
     }
 
     private void initialiseRegisteredCacheExtensions() {
-        for (int i = 0; i < registeredCacheExtensions.size(); i++) {
-            CacheExtension cacheExtension = (CacheExtension) registeredCacheExtensions.get(i);
+        for (CacheExtension cacheExtension : registeredCacheExtensions) {
             cacheExtension.init();
         }
     }
 
     private void disposeRegisteredCacheExtensions() {
-        for (int i = 0; i < registeredCacheExtensions.size(); i++) {
-            CacheExtension cacheExtension = (CacheExtension) registeredCacheExtensions.get(i);
+        for (CacheExtension cacheExtension : registeredCacheExtensions) {
             cacheExtension.dispose();
+        }
+    }
+
+    private void initialiseRegisteredCacheLoaders() {
+        for (CacheLoader cacheLoader : registeredCacheLoaders) {
+            cacheLoader.init();
+        }
+    }
+
+    private void disposeRegisteredCacheLoaders() {
+        for (CacheLoader cacheLoader : registeredCacheLoaders) {
+            cacheLoader.dispose();
         }
     }
 
@@ -1654,6 +1668,7 @@ public class Cache implements Ehcache {
     }
 
     /**
+     * todo consider removing deprecated methods
      * Number of times a requested item was found in the Disk Store.
      * <p/>
      * The internal representation of this statistic has been changed to a long
@@ -1662,6 +1677,7 @@ public class Cache implements Ehcache {
      * will be returned. Use {@link net.sf.ehcache.Statistics} which contains this statistic.
      * <p/>
      *
+     * @return the diskstore count, converted from a long.
      * @deprecated Use {@link net.sf.ehcache.Statistics}
      */
     public final int getDiskStoreHitCount() {
@@ -1679,6 +1695,7 @@ public class Cache implements Ehcache {
      * will be returned. Use {@link net.sf.ehcache.Statistics} which contains this statistic.
      * <p/>
      *
+     * @return the miss count not found, converted from a long
      * @deprecated Use {@link net.sf.ehcache.Statistics}
      */
     public final int getMissCountNotFound() {
@@ -1694,6 +1711,7 @@ public class Cache implements Ehcache {
      * will be returned. Use {@link net.sf.ehcache.Statistics} which contains this statistic.
      * <p/>
      *
+     * @return the miss count expired, converted from a long
      * @deprecated Use {@link net.sf.ehcache.Statistics}
      */
     public final int getMissCountExpired() {
@@ -1888,18 +1906,22 @@ public class Cache implements Ehcache {
         } else {
             copy.registeredEventListeners = new RegisteredEventListeners(copy);
             Set cacheEventListeners = registeredEventListeners.getCacheEventListeners();
-            for (Iterator iterator = cacheEventListeners.iterator(); iterator.hasNext();) {
-                CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
+            for (Object cacheEventListener1 : cacheEventListeners) {
+                CacheEventListener cacheEventListener = (CacheEventListener) cacheEventListener1;
                 CacheEventListener cacheEventListenerClone = (CacheEventListener) cacheEventListener.clone();
                 copy.registeredEventListeners.registerListener(cacheEventListenerClone);
             }
         }
 
 
-        copy.registeredCacheExtensions = createNewCacheExtensionsList();
-        for (int i = 0; i < registeredCacheExtensions.size(); i++) {
-            CacheExtension cacheExtension = (CacheExtension) registeredCacheExtensions.get(i);
-            copy.registerCacheExtension(cacheExtension.clone(copy));
+        copy.registeredCacheExtensions = Collections.synchronizedList(new ArrayList<CacheExtension>());
+        for (CacheExtension registeredCacheExtension : registeredCacheExtensions) {
+            copy.registerCacheExtension(registeredCacheExtension.clone(copy));
+        }
+
+        copy.registeredCacheLoaders = Collections.synchronizedList(new ArrayList<CacheLoader>());
+        for (CacheLoader registeredCacheLoader : registeredCacheLoaders) {
+            copy.registerCacheLoader(registeredCacheLoader.clone(copy));
         }
 
         if (bootstrapCacheLoader != null) {
@@ -2051,8 +2073,7 @@ public class Cache implements Ehcache {
     public void evictExpiredElements() {
         Object[] keys = memoryStore.getKeyArray();
         synchronized (this) {
-            for (int i = 0; i < keys.length; i++) {
-                Object key = keys[i];
+            for (Object key : keys) {
                 searchInMemoryStore(key, false);
             }
         }
@@ -2095,8 +2116,7 @@ public class Cache implements Ehcache {
             keys = Arrays.asList(memoryStore.getKeyArray());
         }
 
-        for (int i = 0; i < keys.size(); i++) {
-            Object key = keys.get(i);
+        for (Object key : keys) {
             Element element = get(key);
             if (element != null) {
                 Object elementValue = element.getValue();
@@ -2259,14 +2279,19 @@ public class Cache implements Ehcache {
     }
 
     /**
+     * @return the cache extensions as a live list
+     */
+    public List<CacheExtension> getRegisteredCacheExtensions() {
+        return registeredCacheExtensions;
+    }
+
+
+    /**
      * Unregister a {@link CacheExtension} with the cache. It will then be detached from the cache lifecycle.
      */
     public void unregisterCacheExtension(CacheExtension cacheExtension) {
+        cacheExtension.dispose();
         registeredCacheExtensions.remove(cacheExtension);
-    }
-
-    private List createNewCacheExtensionsList() {
-        return Collections.synchronizedList(new ArrayList());
     }
 
 
@@ -2306,51 +2331,43 @@ public class Cache implements Ehcache {
     }
 
     /**
-     * Setter for the CacheLoader. Changing the CacheLoader takes immediate effect.
+     * Register a {@link CacheLoader} with the cache. It will then be tied into the cache lifecycle.
+     * <p/>
+     * If the CacheLoader is not initialised, initialise it.
      *
-     * @param cacheLoader the loader to dynamically load new cache entries
+     * @param cacheLoader A Cache Loader to register
      */
-    public void setCacheLoader(CacheLoader cacheLoader) {
-        this.cacheLoader = cacheLoader;
+    public void registerCacheLoader(CacheLoader cacheLoader) {
+        registeredCacheLoaders.add(cacheLoader);
     }
 
     /**
-     * Gets the CacheLoader registered in this cache
+     * Unregister a {@link CacheLoader} with the cache. It will then be detached from the cache lifecycle.
      *
-     * @return the loader, or null if there is none
+     * @param cacheLoader A Cache Loader to unregister
      */
-    public CacheLoader getCacheLoader() {
-        return cacheLoader;
+    public void unregisterCacheLoader(CacheLoader cacheLoader) {
+        registeredCacheLoaders.remove(cacheLoader);
     }
 
+
     /**
-     * Used to store a future and the key it is in respect of
+     * @return the cache loaders as a live list
      */
-    class KeyedFuture {
-
-        private Object key;
-        private Future future;
-
-        /**
-         * Full constructor
-         *
-         * @param key
-         * @param future
-         */
-        public KeyedFuture(Object key, Future future) {
-            this.key = key;
-            this.future = future;
-        }
+    public List<CacheLoader> getRegisteredCacheLoaders() {
+        return registeredCacheLoaders;
     }
 
     /**
      * Does the asynchronous loading.
      *
+     * @param key
      * @param specificLoader a specific loader to use. If null the default loader is used.
+     * @param argument
      * @return a Future which can be used to monitor execution
      */
     Future asynchronousLoad(final Object key, final CacheLoader specificLoader, final Object argument) {
-        Future future = getExecutorService().submit(new Runnable() {
+        return getExecutorService().submit(new Runnable() {
 
             /**
              * Calls the CacheLoader and puts the result in the Cache
@@ -2362,14 +2379,10 @@ public class Cache implements Ehcache {
                     if (!existsOnRun) {
                         Object value;
                         if (specificLoader == null) {
-                            if (cacheLoader == null) {
+                            if (registeredCacheLoaders.size() == 0) {
                                 return;
                             }
-                            if (argument == null) {
-                                value = cacheLoader.load(key);
-                            } else {
-                                value = cacheLoader.load(key, argument);
-                            }
+                            value = loadWithRegisteredLoaders(argument, key);
                         } else {
                             if (argument == null) {
                                 value = specificLoader.load(key);
@@ -2377,51 +2390,86 @@ public class Cache implements Ehcache {
                                 value = specificLoader.load(key, argument);
                             }
                         }
+                        //todo change tests after full run
+                        //if (value != null) {
                         put(new Element(key, value), false);
+                        //}
                     }
                 } catch (Throwable e) {
                     if (LOG.isLoggable(Level.FINE)) {
                         LOG.log(Level.FINE, "Problem during load. Load will not be completed. Cause was " + e.getCause(), e);
                     }
-                    throw new CacheException(e);
+                    throw new CacheException("Problem during load. Load will not be completed. Cause was " + e.getCause(), e);
                 }
             }
         });
-        return future;
+    }
+
+    private Object loadWithRegisteredLoaders(Object argument, Object key) throws net.sf.jsr107cache.CacheException {
+
+        Object value = null;
+
+        if (argument == null) {
+            for (CacheLoader registeredCacheLoader : registeredCacheLoaders) {
+                value = registeredCacheLoader.load(key);
+                if (value != null) {
+                    break;
+                }
+            }
+        } else {
+            for (CacheLoader registeredCacheLoader : registeredCacheLoaders) {
+                value = registeredCacheLoader.load(key, argument);
+                if (value != null) {
+                    break;
+                }
+            }
+        }
+        return value;
     }
 
 
     /**
      * Does the asynchronous loading.
      *
+     * @param keys
      * @param argument the loader argument
      * @return a Future which can be used to monitor execution
      */
     Future asynchronousLoadAll(final Collection keys, final Object argument) {
-        java.util.concurrent.Future future = getExecutorService().submit(new Runnable() {
+        return getExecutorService().submit(new Runnable() {
             /**
              * Calls the CacheLoader and puts the result in the Cache
              */
             public void run() {
                 try {
-                    List nonLoadedKeys = new ArrayList(keys.size());
-                    for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-                        Object key = iterator.next();
+                    List<Object> nonLoadedKeys = new ArrayList<Object>(keys.size());
+                    for (Object key : keys) {
                         if (!isKeyInCache(key)) {
                             nonLoadedKeys.add(key);
                         }
                     }
-                    Map map;
+                    Map map = null;
                     if (argument == null) {
-                        map = cacheLoader.loadAll(nonLoadedKeys);
+                        for (CacheLoader registeredCacheLoader : registeredCacheLoaders) {
+                            map = registeredCacheLoader.loadAll(nonLoadedKeys);
+                            if (map != null) {
+                                break;
+                            }
+                        }
                     } else {
-                        map = cacheLoader.loadAll(nonLoadedKeys, argument);
+                        for (CacheLoader registeredCacheLoader : registeredCacheLoaders) {
+                            map = registeredCacheLoader.loadAll(nonLoadedKeys, argument);
+                            if (map != null) {
+                                break;
+                            }
+                        }
                     }
-
-                    for (Iterator iterator = map.keySet().iterator(); iterator.hasNext();) {
-                        Object key = iterator.next();
+                    //todo fix test first
+                    //if (map != null) {
+                    for (Object key : map.keySet()) {
                         put(new Element(key, map.get(key)));
                     }
+                    //}
                 } catch (Throwable e) {
                     if (LOG.isLoggable(Level.FINE)) {
                         LOG.log(Level.FINE, "Problem during load. Load will not be completed. Cause was " + e.getCause(), e);
@@ -2429,12 +2477,11 @@ public class Cache implements Ehcache {
                 }
             }
         });
-        return future;
     }
 
     /**
      * @return Gets the executor service. This is not publically accessible.
-     * todo sort this out. Oustanding from lib change.
+     *         todo sort this out. Oustanding from lib change.
      */
     ThreadPoolExecutor getExecutorService() {
         if (executorService == null) {
@@ -2461,6 +2508,7 @@ public class Cache implements Ehcache {
      * <p/>
      * By default caches are enabled on creation, unless the <code>net.sf.ehcache.disabled</code> system
      * property is set.
+     *
      * @return true if the cache is disabled.
      * @see #NET_SF_EHCACHE_DISABLED ?
      */
@@ -2472,6 +2520,7 @@ public class Cache implements Ehcache {
      * Disables or enables this cache. This call overrides the previous value of disabled, even if the
      * <code>net.sf.ehcache.disabled</code> system property is set
      * <p/>
+     *
      * @param disabled true if you wish to disable, false to enable
      * @see #isDisabled()
      */

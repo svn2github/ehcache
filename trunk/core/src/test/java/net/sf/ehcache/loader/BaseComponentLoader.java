@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import net.sf.jsr107cache.CacheException;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Status;
 
 
 /**
@@ -28,7 +30,7 @@ import net.sf.jsr107cache.CacheException;
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
-public abstract class BaseComponentLoader extends CacheLoaderFactory implements CacheLoader {
+public class BaseComponentLoader extends CacheLoaderFactory implements CacheLoader {
 
     /**
      *
@@ -48,6 +50,16 @@ public abstract class BaseComponentLoader extends CacheLoaderFactory implements 
      * create a ehCache Cache loader (which extends jsr107 cache loader)
      */
     public net.sf.ehcache.loader.CacheLoader createCacheLoader(Properties properties) {
+        this.props = properties;
+        return this;
+    }
+
+    /**
+     * @param cache      the cache this extension should hold a reference to, and to whose lifecycle it should be bound.
+     * @param properties implementation specific properties configured as delimiter separated name value pairs in ehcache.xml
+     * @return a constructed CacheLoader
+     */
+    public CacheLoader createCacheLoader(Ehcache cache, Properties properties) {
         this.props = properties;
         return this;
     }
@@ -92,6 +104,61 @@ public abstract class BaseComponentLoader extends CacheLoaderFactory implements 
      */
     public Map loadAll(Collection keys, Object argument) throws CacheException {
         throw new UnsupportedOperationException("Method not implemented");
+    }
+
+    /**
+     * Gets the name of a CacheLoader
+     *
+     * @return the name of this CacheLoader
+     */
+    public String getName() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    /**
+     * Creates a clone of this extension. This method will only be called by ehcache before a
+     * cache is initialized.
+     * <p/>
+     * Implementations should throw CloneNotSupportedException if they do not support clone
+     * but that will stop them from being used with defaultCache.
+     *
+     * @return a clone
+     * @throws CloneNotSupportedException if the extension could not be cloned.
+     */
+    public CacheLoader clone(Ehcache cache) throws CloneNotSupportedException {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    /**
+     * Notifies providers to initialise themselves.
+     * <p/>
+     * This method is called during the Cache's initialise method after it has changed it's
+     * status to alive. Cache operations are legal in this method.
+     *
+     * @throws net.sf.ehcache.CacheException
+     */
+    public void init() {
+        //nothing required
+    }
+
+    /**
+     * Providers may be doing all sorts of exotic things and need to be able to clean up on
+     * dispose.
+     * <p/>
+     * Cache operations are illegal when this method is called. The cache itself is partly
+     * disposed when this method is called.
+     *
+     * @throws net.sf.ehcache.CacheException
+     */
+    public void dispose() throws net.sf.ehcache.CacheException {
+        //no op
+    }
+
+    /**
+     * @return the status of the extension
+     */
+    public Status getStatus() {
+        return null;
     }
 
 }

@@ -137,9 +137,10 @@ public class CacheConfiguration implements Cloneable {
     protected CacheExceptionHandlerFactoryConfiguration cacheExceptionHandlerFactoryConfiguration;
 
     /**
-     * The CacheLoaderFactoryConfiguration.
+     * The cache loader factories added by BeanUtils.
      */
-    protected CacheLoaderFactoryConfiguration cacheLoaderFactoryConfiguration;
+    //protected CacheLoaderFactoryConfiguration cacheLoaderFactoryConfiguration;
+    protected List cacheLoaderConfigurations = new ArrayList();
 
     /**
      * Clones this object, following the usual contract.
@@ -147,13 +148,13 @@ public class CacheConfiguration implements Cloneable {
      * @return a copy, which independent other than configurations than cannot change.
      * @throws CloneNotSupportedException
      */
-    public Object clone() throws CloneNotSupportedException {
-        CacheConfiguration copy = (CacheConfiguration) super.clone();
-        return copy;
+    public CacheConfiguration clone() throws CloneNotSupportedException {
+        return (CacheConfiguration) super.clone();
     }
 
     /**
      * Sets the name of the cache. This must be unique.
+     * @param name the cache name
      */
     public final void setName(String name) {
         if (name == null) {
@@ -167,6 +168,7 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Sets the maximum objects to be held in memory.
+     * @param maxElementsInMemory param
      */
     public final void setMaxElementsInMemory(int maxElementsInMemory) {
         this.maxElementsInMemory = maxElementsInMemory;
@@ -319,13 +321,12 @@ public class CacheConfiguration implements Cloneable {
     public final class CacheLoaderFactoryConfiguration extends FactoryConfiguration {
     }
 
-
     /**
-     * Allows BeanHandler to add the CacheLoaderFactory to the configuration.
+     * Used by BeanUtils to add each cacheLoaderFactory to the cache configuration.
+     * @param factory
      */
-    public final void addCacheLoaderFactory(CacheLoaderFactoryConfiguration
-            cacheLoaderFactoryConfiguration) {
-        this.cacheLoaderFactoryConfiguration = cacheLoaderFactoryConfiguration;
+    public final void addCacheLoaderFactory(CacheLoaderFactoryConfiguration factory) {
+        cacheLoaderConfigurations.add(factory);
     }
 
     /**
@@ -407,13 +408,24 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Accessor
+     * @return the configuration
      */
     public List getCacheExtensionConfigurations() {
         return cacheExtensionConfigurations;
     }
 
+
     /**
      * Accessor
+     * @return the configuration
+     */
+    public List getCacheLoaderConfigurations() {
+        return cacheLoaderConfigurations;
+    }
+
+    /**
+     * Accessor
+     * @return the configuration
      */
     public BootstrapCacheLoaderFactoryConfiguration getBootstrapCacheLoaderFactoryConfiguration() {
         return bootstrapCacheLoaderFactoryConfiguration;
@@ -421,15 +433,9 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Accessor
+     * @return the configuration
      */
     public CacheExceptionHandlerFactoryConfiguration getCacheExceptionHandlerFactoryConfiguration() {
         return cacheExceptionHandlerFactoryConfiguration;
-    }
-
-    /**
-     * Accessor
-     */
-    public CacheLoaderFactoryConfiguration getCacheLoaderFactoryConfiguration() {
-        return cacheLoaderFactoryConfiguration;
     }
 }

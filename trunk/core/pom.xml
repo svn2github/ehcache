@@ -219,7 +219,7 @@
                 <!-- Doesn't work when not internet connected -->
                 <executions>
                     <execution>
-                        <phase>verify</phase>
+                        <phase>validate</phase>
                         <goals>
                             <goal>checkstyle</goal>
                         </goals>

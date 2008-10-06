@@ -1653,7 +1653,7 @@ public class CacheTest extends AbstractCacheTest {
         final Ehcache cache = manager.getEhcache("test3cache");
 
         CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
-        cache.setCacheLoader(countingCacheLoader);
+        cache.registerCacheLoader(countingCacheLoader);
 
         long start = System.currentTimeMillis();
         final List executables = new ArrayList();
@@ -1889,7 +1889,7 @@ public class CacheTest extends AbstractCacheTest {
 
 
         Cache cache = manager.getCache("sampleCache1");
-        cache.setCacheLoader(new CacheLoader() {
+        cache.registerCacheLoader(new CacheLoader() {
             public Object load(Object key, Object argument) throws CacheException {
                 LOG.info("load1 " + key);
                 return key;
@@ -1912,6 +1912,52 @@ public class CacheTest extends AbstractCacheTest {
 
 
             public String getName() {
+                return null;
+            }
+
+            /**
+             * Creates a clone of this extension. This method will only be called by ehcache before a
+             * cache is initialized.
+             * <p/>
+             * Implementations should throw CloneNotSupportedException if they do not support clone
+             * but that will stop them from being used with defaultCache.
+             *
+             * @return a clone
+             * @throws CloneNotSupportedException if the extension could not be cloned.
+             */
+            public CacheLoader clone(Ehcache cache) throws CloneNotSupportedException {
+                return null;
+            }
+
+            /**
+             * Notifies providers to initialise themselves.
+             * <p/>
+             * This method is called during the Cache's initialise method after it has changed it's
+             * status to alive. Cache operations are legal in this method.
+             *
+             * @throws CacheException
+             */
+            public void init() {
+                //noop
+            }
+
+            /**
+             * Providers may be doing all sorts of exotic things and need to be able to clean up on
+             * dispose.
+             * <p/>
+             * Cache operations are illegal when this method is called. The cache itself is partly
+             * disposed when this method is called.
+             *
+             * @throws CacheException
+             */
+            public void dispose() throws CacheException {
+                //noop
+            }
+
+            /**
+             * @return the status of the extension
+             */
+            public Status getStatus() {
                 return null;
             }
 
@@ -1946,7 +1992,7 @@ public class CacheTest extends AbstractCacheTest {
 
         CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
         Cache cache = manager.getCache("sampleCache1");
-        cache.setCacheLoader(countingCacheLoader);
+        cache.registerCacheLoader(countingCacheLoader);
         ExecutorService executorService = cache.getExecutorService();
 
         Future future = cache.asynchronousLoad("key1", null, null);
@@ -1967,7 +2013,7 @@ public class CacheTest extends AbstractCacheTest {
      */
     public void testGetWithLoaderException() {
         Cache cache = manager.getCache("sampleCache1");
-        cache.setCacheLoader(new ExceptionThrowingLoader());
+        cache.registerCacheLoader(new ExceptionThrowingLoader());
         try {
             cache.getWithLoader("key1", null, null);
             fail();
@@ -1984,7 +2030,7 @@ public class CacheTest extends AbstractCacheTest {
 
         CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
         Cache cache = manager.getCache("sampleCache1");
-        cache.setCacheLoader(countingCacheLoader);
+        cache.registerCacheLoader(countingCacheLoader);
         ExecutorService executorService = cache.getExecutorService();
 
         List keys = new ArrayList();

@@ -23,8 +23,8 @@ import java.util.logging.Logger;
 
 import net.sf.jsr107cache.CacheException;
 import net.sf.ehcache.loader.CacheLoader;
-
-
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Status;
 
 
 /**
@@ -134,6 +134,52 @@ public class CustomExceptionThrowingLoader implements CacheLoader {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Creates a clone of this extension. This method will only be called by ehcache before a
+     * cache is initialized.
+     * <p/>
+     * Implementations should throw CloneNotSupportedException if they do not support clone
+     * but that will stop them from being used with defaultCache.
+     *
+     * @return a clone
+     * @throws CloneNotSupportedException if the extension could not be cloned.
+     */
+    public CacheLoader clone(Ehcache cache) throws CloneNotSupportedException {
+        return null;
+    }
+
+    /**
+     * Notifies providers to initialise themselves.
+     * <p/>
+     * This method is called during the Cache's initialise method after it has changed it's
+     * status to alive. Cache operations are legal in this method.
+     *
+     * @throws net.sf.ehcache.CacheException
+     */
+    public void init() {
+        //nothing required
+    }
+
+    /**
+     * Providers may be doing all sorts of exotic things and need to be able to clean up on
+     * dispose.
+     * <p/>
+     * Cache operations are illegal when this method is called. The cache itself is partly
+     * disposed when this method is called.
+     *
+     * @throws net.sf.ehcache.CacheException
+     */
+    public void dispose() throws net.sf.ehcache.CacheException {
+        //nothing required
+    }
+
+    /**
+     * @return the status of the extension
+     */
+    public Status getStatus() {
+        return null;  
     }
 
 }

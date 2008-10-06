@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.loader;
 
+import net.sf.ehcache.Ehcache;
+
 import java.util.Map;
 import java.util.Properties;
 
@@ -52,4 +54,13 @@ public abstract class CacheLoaderFactory {
      * @return a constructed CacheLoader
      */
     public abstract net.sf.ehcache.loader.CacheLoader createCacheLoader(Properties properties);
+
+
+    /**
+     * @param cache the cache this extension should hold a reference to, and to whose lifecycle it should be bound.
+     * @param properties implementation specific properties configured as delimiter separated name value pairs in ehcache.xml
+     * @return a constructed CacheLoader
+     */
+    public abstract CacheLoader createCacheLoader(Ehcache cache, Properties properties);
+
 }

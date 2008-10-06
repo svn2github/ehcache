@@ -73,6 +73,7 @@ public interface CacheExtension {
      * Implementations should throw CloneNotSupportedException if they do not support clone
      * but that will stop them from being used with defaultCache.
      *
+     * @param cache the cache extended
      * @return a clone
      * @throws CloneNotSupportedException if the extension could not be cloned.
      */
