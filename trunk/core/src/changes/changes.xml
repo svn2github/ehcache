@@ -30,6 +30,8 @@
 
                 - A Cache may now have a list of CacheLoaders. If the first loader returns null, the next in the list
                 is attempted until a non-null result occurs or the chain of loaders ends.
+                - If a loader does not load, no element is put in the cache, rather than an element with a null value.
+                This is more consistent with the rest of the API anyway and has been requested by users.
                 - Loaders now have a maxLoadTimeMillis property which sets the maximum amount of time for the loader
                 to wait for the load.
                 - To support sophisticated loaders like the JMSCacheLoader, the CacheLoader interface adds lifecycle

@@ -1633,7 +1633,7 @@ public class Cache implements Ehcache {
             throw new IllegalStateException("The " + configuration.getName() + " Cache is disposed.");
         }
     }
-
+        
 
     /**
      * The number of times a requested item was found in the cache.
@@ -2390,10 +2390,9 @@ public class Cache implements Ehcache {
                                 value = specificLoader.load(key, argument);
                             }
                         }
-                        //todo change tests after full run
-                        //if (value != null) {
-                        put(new Element(key, value), false);
-                        //}
+                        if (value != null) {
+                            put(new Element(key, value), false);
+                        }
                     }
                 } catch (Throwable e) {
                     if (LOG.isLoggable(Level.FINE)) {
@@ -2464,12 +2463,11 @@ public class Cache implements Ehcache {
                             }
                         }
                     }
-                    //todo fix test first
-                    //if (map != null) {
-                    for (Object key : map.keySet()) {
-                        put(new Element(key, map.get(key)));
+                    if (map != null) {
+                        for (Object key : map.keySet()) {
+                            put(new Element(key, map.get(key)));
+                        }
                     }
-                    //}
                 } catch (Throwable e) {
                     if (LOG.isLoggable(Level.FINE)) {
                         LOG.log(Level.FINE, "Problem during load. Load will not be completed. Cause was " + e.getCause(), e);

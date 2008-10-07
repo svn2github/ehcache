@@ -1981,8 +1981,9 @@ public class CacheTest extends AbstractCacheTest {
         element = cache.getWithLoader("b", null, null);
         assertNotNull(element);
 
+        //should be null
         element = cache.getWithLoader("c", null, null);
-        assertNotNull(element);
+        assertNull(element);
     }
 
     /**

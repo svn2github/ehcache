@@ -336,5 +336,9 @@ public class BlockingCacheTest extends CacheTest {
     public void testInstrumented() throws Exception {
         super.testSizes();
     }
+
+    public void testGetWithLoader() {
+        super.testGetWithLoader();
+    }
 }
 

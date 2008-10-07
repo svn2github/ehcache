@@ -20,5 +20,29 @@
         <cacheLoaderFactory class="net.sf.ehcache.loader.ComponentBLoader"/>
     </cache>
 
+    <cache name="NullLoaderFirstCache"
+           eternal="true"
+           maxElementsInMemory="100"
+           overflowToDisk="false">
+        <cacheLoaderFactory class="net.sf.ehcache.loader.NullCountingCacheLoaderFactory"/>
+        <cacheLoaderFactory class="net.sf.ehcache.loader.CountingCacheLoaderFactory"/>
+    </cache>
+
+    <cache name="NullLoaderTwiceCache"
+           eternal="true"
+           maxElementsInMemory="100"
+           overflowToDisk="false">
+        <cacheLoaderFactory class="net.sf.ehcache.loader.NullCountingCacheLoaderFactory"/>
+        <cacheLoaderFactory class="net.sf.ehcache.loader.NullCountingCacheLoaderFactory"/>
+    </cache>
+
+    <cache name="NullLoaderLastCache"
+           eternal="true"
+           maxElementsInMemory="100"
+           overflowToDisk="false">
+        <cacheLoaderFactory class="net.sf.ehcache.loader.CountingCacheLoaderFactory"/>
+        <cacheLoaderFactory class="net.sf.ehcache.loader.NullCountingCacheLoaderFactory"/>
+    </cache>
+
 
 </ehcache>
