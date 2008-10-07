@@ -250,21 +250,6 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
         outstr.flush();
     }
 
-    /**
-     * Override the deprecated method and call non-deprecated method
-     */
-    public String encodeRedirectUrl(String s) {
-        return super.encodeRedirectURL(s);
-    }
-
-    /**
-     * Override the deprecated method and call non-deprecated method
-     */
-    public String encodeUrl(String s) {
-        return super.encodeURL(s);
-    }
-
-
 
 }
 

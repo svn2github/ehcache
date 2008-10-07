@@ -157,65 +157,6 @@ public class BlockingCache implements Ehcache {
     }
 
     /**
-     * Gets timeToIdleSeconds.
-     */
-    public long getTimeToIdleSeconds() {
-        return cache.getTimeToIdleSeconds();
-    }
-
-    /**
-     * Gets timeToLiveSeconds.
-     */
-    public long getTimeToLiveSeconds() {
-        return cache.getTimeToLiveSeconds();
-    }
-
-    /**
-     * Are elements eternal.
-     */
-    public boolean isEternal() {
-        return cache.isEternal();
-    }
-
-    /**
-     * Does the overflow go to disk.
-     */
-    public boolean isOverflowToDisk() {
-        return cache.isOverflowToDisk();
-    }
-
-    /**
-     * Gets the maximum number of elements to hold in memory.
-     */
-    public int getMaxElementsInMemory() {
-        return cache.getMaxElementsInMemory();
-    }
-
-    /**
-     * @return the maximum number of elements on Disk, or 0 if unlimited
-     * @see net.sf.ehcache.Cache#getMaxElementsOnDisk
-     */
-    public int getMaxElementsOnDisk() {
-        return cache.getMaxElementsOnDisk();
-    }
-
-    /**
-     * The policy used to evict elements from the {@link net.sf.ehcache.store.MemoryStore}.
-     * This can be one of:
-     * <ol>
-     * <li>LRU - least recently used
-     * <li>LFU - least frequently used
-     * <li>FIFO - first in first out, the oldest element by creation time
-     * </ol>
-     * The default value is LRU
-     *
-     * @since 1.2
-     */
-    public MemoryStoreEvictionPolicy getMemoryStoreEvictionPolicy() {
-        return cache.getMemoryStoreEvictionPolicy();
-    }
-
-    /**
      * Checks whether this cache element has expired.
      * <p/>
      * The element is expired if:
@@ -246,22 +187,6 @@ public class BlockingCache implements Ehcache {
      */
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
-    }
-
-    /**
-     * @return true if the cache overflows to disk and the disk is persistent between restarts
-     */
-    public boolean isDiskPersistent() {
-        return cache.isDiskPersistent();
-    }
-
-    /**
-     * @return the interval between runs
-     *         of the expiry thread, where it checks the disk store for expired elements. It is not the
-     *         the timeToLiveSeconds.
-     */
-    public long getDiskExpiryThreadIntervalSeconds() {
-        return cache.getDiskExpiryThreadIntervalSeconds();
     }
 
     /**

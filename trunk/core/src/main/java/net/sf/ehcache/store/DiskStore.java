@@ -21,6 +21,8 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
 import net.sf.ehcache.event.RegisteredEventListeners;
 
@@ -142,10 +144,12 @@ public class DiskStore implements Store {
         this.cache = cache;
         name = cache.getName();
         this.diskPath = diskPath;
-        expiryThreadInterval = cache.getDiskExpiryThreadIntervalSeconds();
-        persistent = cache.isDiskPersistent();
-        maxElementsOnDisk = cache.getMaxElementsOnDisk();
-        eternal = cache.isEternal();
+
+        CacheConfiguration config = cache.getCacheConfiguration();
+        expiryThreadInterval = config.getDiskExpiryThreadIntervalSeconds();
+        persistent = config.isDiskPersistent();
+        maxElementsOnDisk = config.getMaxElementsOnDisk();
+        eternal = config.isEternal();
         diskSpoolBufferSizeBytes = cache.getCacheConfiguration().getDiskSpoolBufferSizeMB() * ONE_MEGABYTE;
 
 

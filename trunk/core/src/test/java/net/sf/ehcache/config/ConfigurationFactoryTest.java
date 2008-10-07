@@ -106,10 +106,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //Check default cache
         Ehcache defaultCache = configurationHelper.createDefaultCache();
         assertEquals("default", defaultCache.getName());
-        assertEquals(false, defaultCache.isEternal());
-        assertEquals(5, defaultCache.getTimeToIdleSeconds());
-        assertEquals(10, defaultCache.getTimeToLiveSeconds());
-        assertEquals(true, defaultCache.isOverflowToDisk());
+        assertEquals(false, defaultCache.getCacheConfiguration().isEternal());
+        assertEquals(5, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
+        assertEquals(10, defaultCache.getCacheConfiguration().getTimeToLiveSeconds());
+        assertEquals(true, defaultCache.getCacheConfiguration().isOverflowToDisk());
 
         //Check caches
         assertEquals(CACHES_IN_TEST_EHCACHE, configurationHelper.createCaches().size());
@@ -125,11 +125,11 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         */
         Ehcache sampleCache1 = configurationHelper.createCacheFromName("sampleCache1");
         assertEquals("sampleCache1", sampleCache1.getName());
-        assertEquals(false, sampleCache1.isEternal());
-        assertEquals(360, sampleCache1.getTimeToIdleSeconds());
-        assertEquals(1000, sampleCache1.getTimeToLiveSeconds());
-        assertEquals(true, sampleCache1.isOverflowToDisk());
-        assertEquals(1000, sampleCache1.getMaxElementsOnDisk());
+        assertEquals(false, sampleCache1.getCacheConfiguration().isEternal());
+        assertEquals(360, sampleCache1.getCacheConfiguration().getTimeToIdleSeconds());
+        assertEquals(1000, sampleCache1.getCacheConfiguration().getTimeToLiveSeconds());
+        assertEquals(true, sampleCache1.getCacheConfiguration().isOverflowToDisk());
+        assertEquals(1000, sampleCache1.getCacheConfiguration().getMaxElementsOnDisk());
 
         /** A cache which overflows to disk. The disk store is persistent
          between cache and VM restarts. The disk expiry thread interval is set to 10 minutes, overriding
@@ -145,12 +145,12 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
          /> */
         Ehcache persistentLongExpiryIntervalCache = configurationHelper.createCacheFromName("persistentLongExpiryIntervalCache");
         assertEquals("persistentLongExpiryIntervalCache", persistentLongExpiryIntervalCache.getName());
-        assertEquals(false, persistentLongExpiryIntervalCache.isEternal());
-        assertEquals(300, persistentLongExpiryIntervalCache.getTimeToIdleSeconds());
-        assertEquals(600, persistentLongExpiryIntervalCache.getTimeToLiveSeconds());
-        assertEquals(true, persistentLongExpiryIntervalCache.isOverflowToDisk());
-        assertEquals(true, persistentLongExpiryIntervalCache.isDiskPersistent());
-        assertEquals(600, persistentLongExpiryIntervalCache.getDiskExpiryThreadIntervalSeconds());
+        assertEquals(false, persistentLongExpiryIntervalCache.getCacheConfiguration().isEternal());
+        assertEquals(300, persistentLongExpiryIntervalCache.getCacheConfiguration().getTimeToIdleSeconds());
+        assertEquals(600, persistentLongExpiryIntervalCache.getCacheConfiguration().getTimeToLiveSeconds());
+        assertEquals(true, persistentLongExpiryIntervalCache.getCacheConfiguration().isOverflowToDisk());
+        assertEquals(true, persistentLongExpiryIntervalCache.getCacheConfiguration().isDiskPersistent());
+        assertEquals(600, persistentLongExpiryIntervalCache.getCacheConfiguration().getDiskExpiryThreadIntervalSeconds());
 
         /*
            <!--
@@ -208,12 +208,12 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //Check default cache
         Ehcache defaultCache = configurationHelper.createDefaultCache();
         assertEquals("default", defaultCache.getName());
-        assertEquals(false, defaultCache.isEternal());
-        assertEquals(120, defaultCache.getTimeToIdleSeconds());
-        assertEquals(120, defaultCache.getTimeToLiveSeconds());
-        assertEquals(true, defaultCache.isOverflowToDisk());
-        assertEquals(10000, defaultCache.getMaxElementsInMemory());
-        assertEquals(10000000, defaultCache.getMaxElementsOnDisk());
+        assertEquals(false, defaultCache.getCacheConfiguration().isEternal());
+        assertEquals(120, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
+        assertEquals(120, defaultCache.getCacheConfiguration().getTimeToLiveSeconds());
+        assertEquals(true, defaultCache.getCacheConfiguration().isOverflowToDisk());
+        assertEquals(10000, defaultCache.getCacheConfiguration().getMaxElementsInMemory());
+        assertEquals(10000000, defaultCache.getCacheConfiguration().getMaxElementsOnDisk());
 
         //Check caches
         assertEquals(6, configurationHelper.createCaches().size());
@@ -237,11 +237,11 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //Check created cache
         Ehcache sampleCache1 = configurationHelper.createCacheFromName("sampleCache1");
         assertEquals("sampleCache1", sampleCache1.getName());
-        assertEquals(false, sampleCache1.isEternal());
-        assertEquals(300, sampleCache1.getTimeToIdleSeconds());
-        assertEquals(1000, sampleCache1.getMaxElementsOnDisk());
-        assertEquals(600, sampleCache1.getTimeToLiveSeconds());
-        assertEquals(true, sampleCache1.isOverflowToDisk());
+        assertEquals(false, sampleCache1.getCacheConfiguration().isEternal());
+        assertEquals(300, sampleCache1.getCacheConfiguration().getTimeToIdleSeconds());
+        assertEquals(1000, sampleCache1.getCacheConfiguration().getMaxElementsOnDisk());
+        assertEquals(600, sampleCache1.getCacheConfiguration().getTimeToLiveSeconds());
+        assertEquals(true, sampleCache1.getCacheConfiguration().isOverflowToDisk());
     }
 
 
@@ -269,12 +269,12 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //Check default cache
         Ehcache defaultCache = configurationHelper.createDefaultCache();
         assertEquals("default", defaultCache.getName());
-        assertEquals(false, defaultCache.isEternal());
-        assertEquals(5, defaultCache.getTimeToIdleSeconds());
-        assertEquals(10, defaultCache.getTimeToLiveSeconds());
-        assertEquals(true, defaultCache.isOverflowToDisk());
-        assertEquals(10, defaultCache.getMaxElementsInMemory());
-        assertEquals(0, defaultCache.getMaxElementsOnDisk());
+        assertEquals(false, defaultCache.getCacheConfiguration().isEternal());
+        assertEquals(5, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
+        assertEquals(10, defaultCache.getCacheConfiguration().getTimeToLiveSeconds());
+        assertEquals(true, defaultCache.getCacheConfiguration().isOverflowToDisk());
+        assertEquals(10, defaultCache.getCacheConfiguration().getMaxElementsInMemory());
+        assertEquals(0, defaultCache.getCacheConfiguration().getMaxElementsOnDisk());
 
         //Check caches
         assertEquals(8, configurationHelper.createCaches().size());
@@ -288,10 +288,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //  />
         Ehcache sampleCache1 = configurationHelper.createCacheFromName("sampleCache1");
         assertEquals("sampleCache1", sampleCache1.getName());
-        assertEquals(false, sampleCache1.isEternal());
-        assertEquals(360, sampleCache1.getTimeToIdleSeconds());
-        assertEquals(1000, sampleCache1.getTimeToLiveSeconds());
-        assertEquals(true, sampleCache1.isOverflowToDisk());
+        assertEquals(false, sampleCache1.getCacheConfiguration().isEternal());
+        assertEquals(360, sampleCache1.getCacheConfiguration().getTimeToIdleSeconds());
+        assertEquals(1000, sampleCache1.getCacheConfiguration().getTimeToLiveSeconds());
+        assertEquals(true, sampleCache1.getCacheConfiguration().isOverflowToDisk());
     }
 
     /**
@@ -482,10 +482,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //  />
         Ehcache sampleCache1 = configurationHelper.createCacheFromName("sampleCache1");
         assertEquals("sampleCache1", sampleCache1.getName());
-        assertEquals(false, sampleCache1.isEternal());
-        assertEquals(300, sampleCache1.getTimeToIdleSeconds());
-        assertEquals(600, sampleCache1.getTimeToLiveSeconds());
-        assertEquals(true, sampleCache1.isOverflowToDisk());
+        assertEquals(false, sampleCache1.getCacheConfiguration().isEternal());
+        assertEquals(300, sampleCache1.getCacheConfiguration().getTimeToIdleSeconds());
+        assertEquals(600, sampleCache1.getCacheConfiguration().getTimeToLiveSeconds());
+        assertEquals(true, sampleCache1.getCacheConfiguration().isOverflowToDisk());
     }
 
     /**
@@ -509,13 +509,13 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
         Ehcache sampleCacheNoOptionalAttributes = configurationHelper.createCacheFromName("sampleCacheNoOptionalAttributes");
         assertEquals("sampleCacheNoOptionalAttributes", sampleCacheNoOptionalAttributes.getName());
-        assertEquals(1000, sampleCacheNoOptionalAttributes.getMaxElementsInMemory());
-        assertEquals(true, sampleCacheNoOptionalAttributes.isEternal());
-        assertEquals(false, sampleCacheNoOptionalAttributes.isOverflowToDisk());
-        assertEquals(0, sampleCacheNoOptionalAttributes.getTimeToIdleSeconds());
-        assertEquals(0, sampleCacheNoOptionalAttributes.getTimeToLiveSeconds());
-        assertEquals(false, sampleCacheNoOptionalAttributes.isDiskPersistent());
-        assertEquals(120, sampleCacheNoOptionalAttributes.getDiskExpiryThreadIntervalSeconds());
+        assertEquals(1000, sampleCacheNoOptionalAttributes.getCacheConfiguration().getMaxElementsInMemory());
+        assertEquals(true, sampleCacheNoOptionalAttributes.getCacheConfiguration().isEternal());
+        assertEquals(false, sampleCacheNoOptionalAttributes.getCacheConfiguration().isOverflowToDisk());
+        assertEquals(0, sampleCacheNoOptionalAttributes.getCacheConfiguration().getTimeToIdleSeconds());
+        assertEquals(0, sampleCacheNoOptionalAttributes.getCacheConfiguration().getTimeToLiveSeconds());
+        assertEquals(false, sampleCacheNoOptionalAttributes.getCacheConfiguration().isDiskPersistent());
+        assertEquals(120, sampleCacheNoOptionalAttributes.getCacheConfiguration().getDiskExpiryThreadIntervalSeconds());
     }
 
 
@@ -544,10 +544,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //Check default cache
         Ehcache defaultCache = configurationHelper.createDefaultCache();
         assertEquals("default", defaultCache.getName());
-        assertEquals(false, defaultCache.isEternal());
-        assertEquals(5, defaultCache.getTimeToIdleSeconds());
-        assertEquals(10, defaultCache.getTimeToLiveSeconds());
-        assertEquals(false, defaultCache.isOverflowToDisk());
+        assertEquals(false, defaultCache.getCacheConfiguration().isEternal());
+        assertEquals(5, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
+        assertEquals(10, defaultCache.getCacheConfiguration().getTimeToLiveSeconds());
+        assertEquals(false, defaultCache.getCacheConfiguration().isOverflowToDisk());
 
         //Check caches
         assertEquals(2, configurationHelper.createCaches().size());
@@ -561,10 +561,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //  />
         Ehcache sampleCache1 = configurationHelper.createCacheFromName("sampleCache1");
         assertEquals("sampleCache1", sampleCache1.getName());
-        assertEquals(false, sampleCache1.isEternal());
-        assertEquals(360, sampleCache1.getTimeToIdleSeconds());
-        assertEquals(1000, sampleCache1.getTimeToLiveSeconds());
-        assertEquals(false, sampleCache1.isOverflowToDisk());
+        assertEquals(false, sampleCache1.getCacheConfiguration().isEternal());
+        assertEquals(360, sampleCache1.getCacheConfiguration().getTimeToIdleSeconds());
+        assertEquals(1000, sampleCache1.getCacheConfiguration().getTimeToLiveSeconds());
+        assertEquals(false, sampleCache1.getCacheConfiguration().isOverflowToDisk());
     }
 
     /**
@@ -594,10 +594,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //  />
         Ehcache sampleCache1 = configurationHelper.createCacheFromName("sampleCache1");
         assertEquals("sampleCache1", sampleCache1.getName());
-        assertEquals(false, sampleCache1.isEternal());
-        assertEquals(360, sampleCache1.getTimeToIdleSeconds());
-        assertEquals(1000, sampleCache1.getTimeToLiveSeconds());
-        assertEquals(false, sampleCache1.isOverflowToDisk());
+        assertEquals(false, sampleCache1.getCacheConfiguration().isEternal());
+        assertEquals(360, sampleCache1.getCacheConfiguration().getTimeToIdleSeconds());
+        assertEquals(1000, sampleCache1.getCacheConfiguration().getTimeToLiveSeconds());
+        assertEquals(false, sampleCache1.getCacheConfiguration().isOverflowToDisk());
     }
 
     /**
@@ -671,10 +671,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //Check default cache
         Ehcache defaultCache = configurationHelper.createDefaultCache();
         assertEquals("default", defaultCache.getName());
-        assertEquals(false, defaultCache.isEternal());
-        assertEquals(5, defaultCache.getTimeToIdleSeconds());
-        assertEquals(10, defaultCache.getTimeToLiveSeconds());
-        assertEquals(true, defaultCache.isOverflowToDisk());
+        assertEquals(false, defaultCache.getCacheConfiguration().isEternal());
+        assertEquals(5, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
+        assertEquals(10, defaultCache.getCacheConfiguration().getTimeToLiveSeconds());
+        assertEquals(true, defaultCache.getCacheConfiguration().isOverflowToDisk());
 
         //Check caches
         assertEquals(CACHES_IN_TEST_EHCACHE, configurationHelper.createCaches().size());
@@ -688,10 +688,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //  />
         Ehcache sampleCache1 = configurationHelper.createCacheFromName("sampleCache1");
         assertEquals("sampleCache1", sampleCache1.getName());
-        assertEquals(false, sampleCache1.isEternal());
-        assertEquals(360, sampleCache1.getTimeToIdleSeconds());
-        assertEquals(1000, sampleCache1.getTimeToLiveSeconds());
-        assertEquals(true, sampleCache1.isOverflowToDisk());
+        assertEquals(false, sampleCache1.getCacheConfiguration().isEternal());
+        assertEquals(360, sampleCache1.getCacheConfiguration().getTimeToIdleSeconds());
+        assertEquals(1000, sampleCache1.getCacheConfiguration().getTimeToLiveSeconds());
+        assertEquals(true, sampleCache1.getCacheConfiguration().isOverflowToDisk());
     }
 
     /**
@@ -773,10 +773,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //Check default cache
         Ehcache defaultCache = configurationHelper.createDefaultCache();
         assertEquals("default", defaultCache.getName());
-        assertEquals(false, defaultCache.isEternal());
-        assertEquals(120, defaultCache.getTimeToIdleSeconds());
-        assertEquals(120, defaultCache.getTimeToLiveSeconds());
-        assertEquals(true, defaultCache.isOverflowToDisk());
+        assertEquals(false, defaultCache.getCacheConfiguration().isEternal());
+        assertEquals(120, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
+        assertEquals(120, defaultCache.getCacheConfiguration().getTimeToLiveSeconds());
+        assertEquals(true, defaultCache.getCacheConfiguration().isOverflowToDisk());
 
         //Check caches
         assertEquals(6, configurationHelper.createCaches().size());
@@ -790,10 +790,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //  />
         Ehcache sampleCache1 = configurationHelper.createCacheFromName("sampleCache1");
         assertEquals("sampleCache1", sampleCache1.getName());
-        assertEquals(false, sampleCache1.isEternal());
-        assertEquals(300, sampleCache1.getTimeToIdleSeconds());
-        assertEquals(600, sampleCache1.getTimeToLiveSeconds());
-        assertEquals(true, sampleCache1.isOverflowToDisk());
+        assertEquals(false, sampleCache1.getCacheConfiguration().isEternal());
+        assertEquals(300, sampleCache1.getCacheConfiguration().getTimeToIdleSeconds());
+        assertEquals(600, sampleCache1.getCacheConfiguration().getTimeToLiveSeconds());
+        assertEquals(true, sampleCache1.getCacheConfiguration().isOverflowToDisk());
     }
 
     /**
@@ -826,10 +826,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
             //Check default cache
             Ehcache defaultCache = configurationHelper.createDefaultCache();
             assertEquals("default", defaultCache.getName());
-            assertEquals(false, defaultCache.isEternal());
-            assertEquals(120, defaultCache.getTimeToIdleSeconds());
-            assertEquals(120, defaultCache.getTimeToLiveSeconds());
-            assertEquals(true, defaultCache.isOverflowToDisk());
+            assertEquals(false, defaultCache.getCacheConfiguration().isEternal());
+            assertEquals(120, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
+            assertEquals(120, defaultCache.getCacheConfiguration().getTimeToLiveSeconds());
+            assertEquals(true, defaultCache.getCacheConfiguration().isOverflowToDisk());
 
             //Check caches
             assertEquals(0, configurationHelper.createCaches().size());

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
-        <release version="1.6.0-snapshot" date="2008-12-31" desc="1.6.0 Alpha">
+        <release version="2.0-snapshot" date="2008-12-31"
+                 desc="The 2.0 release is a cleanup release which sets the foundation for future development.
+                 It updates the required Java version to 1.5, removes consequently redundant libraries and
+                 removes long deprecated methods. It also fine tunes some of the newer API behaviours.">
 
             <!-- Feature Changes  -->
             <action dev="Greg Luck" type="remove">
@@ -49,6 +52,16 @@
                 Finally, the loader methods used to put values in the cache even if they returned null. This has been
                 changed so that they only put if they return non null.
 
+            </action>
+            <action dev="Greg Luck" type="remove">
+                Cache configuration individual methods have been deprecated for several years. In this version, the
+                deprecated methods are removed. Use cache.getCacheConfiguration() to get the configuration object
+                and then get individual properties.
+            </action>
+            <action dev="Greg Luck" type="remove">
+                Cache statistics individual methods have been deprecated for several years. In this version, the
+                deprecated methods are removed. Use cache.getStatistics() to get the Statistics object
+                and then get individual statistics.
             </action>
         </release>
 

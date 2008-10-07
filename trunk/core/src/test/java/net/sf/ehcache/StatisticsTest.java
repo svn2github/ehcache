@@ -38,45 +38,6 @@ public class StatisticsTest extends AbstractCacheTest {
     private static final Logger LOG = Logger.getLogger(StatisticsTest.class.getName());
 
     /**
-     * Test statistics directly from Cache
-     */
-    public void testStatistics() throws InterruptedException {
-        //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test", 1, true, false, 5, 2);
-        manager.addCache(cache);
-        cache.put(new Element("key1", "value1"));
-        cache.put(new Element("key2", "value1"));
-
-        //key1 should be in the Disk Store
-        cache.get("key1");
-        assertEquals(1, cache.getHitCount());
-        assertEquals(1, cache.getDiskStoreHitCount());
-        assertEquals(0, cache.getMemoryStoreHitCount());
-        assertEquals(0, cache.getMissCountExpired());
-        assertEquals(0, cache.getMissCountNotFound());
-
-        //key 1 should now be in the LruMemoryStore
-        cache.get("key1");
-        assertEquals(2, cache.getHitCount());
-        assertEquals(1, cache.getDiskStoreHitCount());
-        assertEquals(1, cache.getMemoryStoreHitCount());
-        assertEquals(0, cache.getMissCountExpired());
-        assertEquals(0, cache.getMissCountNotFound());
-
-        //Let the idle expire
-        Thread.sleep(5020);
-
-        //key 1 should now be expired
-        cache.get("key1");
-        assertEquals(2, cache.getHitCount());
-        assertEquals(1, cache.getDiskStoreHitCount());
-        assertEquals(1, cache.getMemoryStoreHitCount());
-        assertEquals(1, cache.getMissCountExpired());
-        assertEquals(1, cache.getMissCountNotFound());
-    }
-
-
-    /**
      * Test statistics directly from Statistics Object
      */
     public void testStatisticsFromStatisticsObject() throws InterruptedException {

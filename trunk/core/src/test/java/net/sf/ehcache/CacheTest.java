@@ -26,7 +26,7 @@ import net.sf.ehcache.loader.CountingCacheLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-
+import net.sf.ehcache.config.CacheConfiguration;
 
 
 import java.io.ByteArrayInputStream;
@@ -103,15 +103,6 @@ public class CacheTest extends AbstractCacheTest {
         } catch (IllegalStateException e) {
             assertEquals("The sampleCache1 Cache is not alive.", e.getMessage());
         }
-        if (cache instanceof Cache) {
-            Cache castCache = (Cache) cache;
-            //ok to get stats
-            castCache.getHitCount();
-            castCache.getMemoryStoreHitCount();
-            castCache.getDiskStoreHitCount();
-            castCache.getMissCountExpired();
-            castCache.getMissCountNotFound();
-        }
 
     }
 
@@ -141,12 +132,6 @@ public class CacheTest extends AbstractCacheTest {
         } catch (IllegalStateException e) {
             assertEquals("The testCache Cache is not alive.", e.getMessage());
         }
-        //ok to get stats
-        cache.getHitCount();
-        cache.getMemoryStoreHitCount();
-        cache.getDiskStoreHitCount();
-        cache.getMissCountExpired();
-        cache.getMissCountNotFound();
     }
 
     /**
@@ -223,7 +208,7 @@ public class CacheTest extends AbstractCacheTest {
         Ehcache cache = manager.getCache("sampleCacheNoIdle");
         assertEquals("sampleCacheNoIdle", cache.getName());
         assertEquals(Status.STATUS_ALIVE, cache.getStatus());
-        assertEquals(0, cache.getTimeToIdleSeconds());
+        assertEquals(0, cache.getCacheConfiguration().getTimeToIdleSeconds());
     }
 
     /**
@@ -810,18 +795,18 @@ public class CacheTest extends AbstractCacheTest {
 
         Element element1 = cache.get("key1");
         assertEquals("Should be one", 1, element1.getHitCount());
-        assertEquals("Should be one", 1, cache.getHitCount());
+        assertEquals("Should be one", 1, cache.getStatistics().getCacheHits());
         element1 = cache.getQuiet("key1");
         assertEquals("Should be one", 1, element1.getHitCount());
-        assertEquals("Should be one", 1, cache.getHitCount());
+        assertEquals("Should be one", 1, cache.getStatistics().getCacheHits());
         element1 = cache.get("key1");
         assertEquals("Should be two", 2, element1.getHitCount());
-        assertEquals("Should be two", 2, cache.getHitCount());
+        assertEquals("Should be two", 2, cache.getStatistics().getCacheHits());
 
 
-        assertEquals("Should be 0", 0, cache.getMissCountNotFound());
+        assertEquals("Should be 0", 0, cache.getStatistics().getCacheMisses());
         cache.get("doesnotexist");
-        assertEquals("Should be 1", 1, cache.getMissCountNotFound());
+        assertEquals("Should be 1", 1, cache.getStatistics().getCacheMisses());
 
 
     }
@@ -1622,7 +1607,7 @@ public class CacheTest extends AbstractCacheTest {
 
         CacheManager cacheManager = new CacheManager(new ByteArrayInputStream(config));
         Cache cache = new Cache("test3cache", 20000, true, false, 50, 30);
-        assertTrue(cache.isOverflowToDisk());
+        assertTrue(cache.getCacheConfiguration().isOverflowToDisk());
         cacheManager.addCache(cache);
 
         for (int i = 0; i < 25000; i++) {

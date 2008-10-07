@@ -389,50 +389,6 @@ public interface Ehcache extends Cloneable {
     void setName(String name);
 
     /**
-     * Gets timeToIdleSeconds.
-     */
-    long getTimeToIdleSeconds();
-
-    /**
-     * Gets timeToLiveSeconds.
-     */
-    long getTimeToLiveSeconds();
-
-    /**
-     * Are elements eternal.
-     */
-    boolean isEternal();
-
-    /**
-     * Does the overflow go to disk.
-     */
-    boolean isOverflowToDisk();
-
-    /**
-     * Gets the maximum number of elements to hold in memory.
-     */
-    int getMaxElementsInMemory();
-
-    /**
-     * Gets the maximum number of elements to hold on Disk.
-     */
-    int getMaxElementsOnDisk();
-
-    /**
-     * The policy used to evict elements from the {@link net.sf.ehcache.store.MemoryStore}.
-     * This can be one of:
-     * <ol>
-     * <li>LRU - least recently used
-     * <li>LFU - least frequently used
-     * <li>FIFO - first in first out, the oldest element by creation time
-     * </ol>
-     * The default value is LRU
-     *
-     * @since 1.2
-     */
-    MemoryStoreEvictionPolicy getMemoryStoreEvictionPolicy();
-
-    /**
      * Returns a {@link String} representation of {@link net.sf.ehcache.Cache}.
      */
     String toString();
@@ -467,17 +423,6 @@ public interface Ehcache extends Cloneable {
      */
     Object clone() throws CloneNotSupportedException;
 
-    /**
-     * @return true if the cache overflows to disk and the disk is persistent between restarts
-     */
-    boolean isDiskPersistent();
-
-    /**
-     * @return the interval between runs
-     *         of the expiry thread, where it checks the disk store for expired elements. It is not the
-     *         the timeToLiveSeconds.
-     */
-    long getDiskExpiryThreadIntervalSeconds();
 
     /**
      * Use this to access the service in order to register and unregister listeners

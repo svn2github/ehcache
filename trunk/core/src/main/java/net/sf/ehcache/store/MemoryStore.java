@@ -86,7 +86,7 @@ public abstract class MemoryStore implements Store {
      */
     public static MemoryStore create(Ehcache cache, Store diskStore) {
         MemoryStore memoryStore = null;
-        MemoryStoreEvictionPolicy policy = cache.getMemoryStoreEvictionPolicy();
+        MemoryStoreEvictionPolicy policy = cache.getCacheConfiguration().getMemoryStoreEvictionPolicy();
 
         if (policy.equals(MemoryStoreEvictionPolicy.LRU)) {
             memoryStore = new LruMemoryStore(cache, diskStore);
@@ -215,7 +215,7 @@ public abstract class MemoryStore implements Store {
      * Flush to disk only if the cache is diskPersistent.
      */
     public final synchronized void flush() {
-        if (cache.isDiskPersistent()) {
+        if (cache.getCacheConfiguration().isDiskPersistent()) {
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine(cache.getName() + " is persistent. Spooling " + map.size() + " elements to the disk store.");
             }
@@ -253,7 +253,7 @@ public abstract class MemoryStore implements Store {
 
     /**
      * Puts the element in the DiskStore.
-     * Should only be called if {@link Ehcache#isOverflowToDisk} is true
+     * Should only be called if overflowToDisk is true
      * <p/>
      * Relies on being called from a synchronized method
      *
@@ -341,7 +341,7 @@ public abstract class MemoryStore implements Store {
      */
     protected final void evict(Element element) throws CacheException {
         boolean spooled = false;
-        if (cache.isOverflowToDisk()) {
+        if (cache.getCacheConfiguration().isOverflowToDisk()) {
             if (!element.isSerializable()) {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.log(Level.FINE, new StringBuffer("Object with key ").append(element.getObjectKey())
@@ -371,7 +371,7 @@ public abstract class MemoryStore implements Store {
      * An algorithm to tell if the MemoryStore is at or beyond its carrying capacity.
      */
     protected final boolean isFull() {
-        return map.size() > cache.getMaxElementsInMemory();
+        return map.size() > cache.getCacheConfiguration().getMaxElementsInMemory();
     }
 
     /**

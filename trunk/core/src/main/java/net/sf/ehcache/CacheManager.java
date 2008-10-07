@@ -899,7 +899,6 @@ public class CacheManager {
      *
      * @param cacheManagerEventListener the listener to set.
      * @see "getCacheManagerEventListenerRegistry"
-     * @deprecated Use getCacheManagerEventListenerRegistry instead
      */
     public void setCacheManagerEventListener(CacheManagerEventListener cacheManagerEventListener) {
         getCacheManagerEventListenerRegistry().registerListener(cacheManagerEventListener);
