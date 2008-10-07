@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2007 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,8 +22,6 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.StopWatch;
-import net.sf.ehcache.Status;
-
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -86,17 +84,10 @@ public class MulticastRMIPeerProviderTest extends TestCase {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
-        if (manager1.getStatus() != Status.STATUS_ALIVE) {
-            manager1.shutdown();
-        }
-        if (manager2.getStatus() != Status.STATUS_ALIVE) {
-            manager2.shutdown();
-        }
-        if (manager3.getStatus() != Status.STATUS_ALIVE) {
-            manager3.shutdown();
-        }
-        Thread.sleep(2000);
 
+        manager1.shutdown();
+        manager2.shutdown();
+        manager3.shutdown();
     }
 
     /**
@@ -107,14 +98,12 @@ public class MulticastRMIPeerProviderTest extends TestCase {
 
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR
                 + "distribution/ehcache-distributed-no-caches-replicating.xml");
-        //Thread.sleep(100000);
     }
 
     /**
-     * todo got broken < 6 October checkin
      * test remote cache peers
      */
-    public void xTestProviderFromCacheManager() throws InterruptedException {
+    public void testProviderFromCacheManager() throws InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -182,11 +171,10 @@ public class MulticastRMIPeerProviderTest extends TestCase {
 
 
     /**
-     * todo got broken < 6 October checkin
      * The default caches for ehcache-dsitributed1-6.xml are set to replicate.
      * We create a new cache from the default and expect it to be replicated.
      */
-    public void xTestDeleteReplicatedCache() throws InterruptedException {
+    public void testDeleteReplicatedCache() throws InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;

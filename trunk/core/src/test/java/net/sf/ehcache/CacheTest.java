@@ -1982,7 +1982,6 @@ public class CacheTest extends AbstractCacheTest {
         ExecutorService executorService = cache.getExecutorService();
 
         Future future = cache.asynchronousLoad("key1", null, null);
-        assertFalse(future.isDone());
 
         Object object = future.get();
         assertTrue(future.isDone());

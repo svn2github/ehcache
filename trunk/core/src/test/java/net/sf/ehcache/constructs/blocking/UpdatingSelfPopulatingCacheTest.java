@@ -25,6 +25,7 @@ import net.sf.ehcache.Element;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 
@@ -211,5 +212,11 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
         super.testMemoryEfficiencyOfFlushWhenOverflowToDisk();
     }
 
-
+    /**
+     * Tests the async load with a single item
+     */
+    @Override
+    public void testAsynchronousLoad() throws InterruptedException, ExecutionException {
+        super.testAsynchronousLoad();
+    }
 }
