@@ -35,6 +35,9 @@ import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.BytesMessage;
+import javax.jms.QueueSender;
+import javax.jms.QueueSession;
+import javax.jms.ConnectionConsumer;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -55,14 +58,25 @@ public class JMSCachePeer implements CachePeer, MessageListener {
     private Session producerSession;
     private CacheManager cacheManager;
     private MessageProducer messageProducer;
+    private QueueSender getQueueSender;
+    private QueueSession getQueueSession;
+    private ConnectionConsumer connectionConsumer;
 
 
     /**
      * @param cacheManager
      * @param messageProducer
      * @param producerSession
+     * @param getQueueSender
+     * @param getQueueSession
+     * @param connectionConsumer
      */
-    public JMSCachePeer(CacheManager cacheManager, MessageProducer messageProducer, Session producerSession) {
+    public JMSCachePeer(CacheManager cacheManager,
+                        MessageProducer messageProducer,
+                        Session producerSession,
+                        QueueSender getQueueSender,
+                        QueueSession getQueueSession,
+                        ConnectionConsumer connectionConsumer) {
 
 
         if (LOG.isLoggable(Level.FINEST)) {
@@ -74,6 +88,10 @@ public class JMSCachePeer implements CachePeer, MessageListener {
         this.cacheManager = cacheManager;
         this.messageProducer = messageProducer;
         this.producerSession = producerSession;
+
+        this.getQueueSender = getQueueSender;
+        this.getQueueSession = getQueueSession;
+        this.connectionConsumer = connectionConsumer;
 
     }
 

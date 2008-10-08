@@ -36,6 +36,14 @@
                                                 replicateRemovals=true,
                                                 asynchronousReplicationIntervalMillis=1000"
                                    propertySeparator=","/>
+        <!--<cacheLoaderFactory class="net.sf.ehcache.distribution.jms.JMSCacheLoader"-->
+                            <!--properties="initialContextFactoryName=com.sun.jndi.fscontext.RefFSContextFactory,-->
+                <!--providerURL=file:///tmp,-->
+                <!--topicConnectionFactoryBindingName=MyConnectionFactory,-->
+                <!--replicationTopicBindingName=ehcache,-->
+                <!--getQueueConnectionFactoryBindingName=queueConnectionFactory,-->
+                <!--getQueueBingingName=ehcacheGetQueue,-->
+                <!--timeoutMillis=2000"/>-->
     </cache>
 
 

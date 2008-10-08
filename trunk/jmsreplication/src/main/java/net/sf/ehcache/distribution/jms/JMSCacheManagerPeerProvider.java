@@ -23,15 +23,16 @@ import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.distribution.CachePeer;
 
 import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
 import javax.jms.TopicSubscriber;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 import javax.jms.QueueSession;
 import javax.jms.ConnectionConsumer;
 import javax.jms.QueueSender;
+import javax.jms.TopicConnection;
+import javax.jms.QueueConnection;
+import javax.jms.Topic;
+import javax.jms.Queue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -40,6 +41,7 @@ import java.util.logging.Logger;
 /**
  * Creates a single instance of JMSCachePeer which does not publishing and subscribing to a single topic
  * for the CacheManager
+ *
  * @author benoit.perroud@elca.ch
  * @author Greg Luck
  */
@@ -50,61 +52,34 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
     private CacheManager cacheManager;
     private List<CachePeer> remoteCachePeers = new ArrayList<CachePeer>();
 
-    private TopicSubscriber topicSubscriber;
-    private TopicPublisher topicPublisher;
-    private TopicSession topicSession;
+
+    private TopicConnection replicationTopicConnection;
+    private Topic replicationTopic;
+    private QueueConnection getQueueConnection;
+    private Queue getQueue;
+    private AcknowledgementMode acknowledgementMode;
 
 
-    /**
-     *
-     * @param cacheManager
-     * @param topicSubscriber
-     * @param topicPublisher
-     * @param topicSession
-     * @param getQueueSession
-     * @param connectionConsumer
-     * @param getQueueSender
-     */
-    public JMSCacheManagerPeerProvider(CacheManager cacheManager, TopicSubscriber topicSubscriber,
-                                       TopicPublisher topicPublisher, TopicSession topicSession,
-                                       QueueSession getQueueSession, ConnectionConsumer connectionConsumer,
-                                       QueueSender getQueueSender) {
+    public JMSCacheManagerPeerProvider(CacheManager cacheManager,
+                                       TopicConnection replicationTopicConnection,
+                                       Topic replicationTopic,
+                                       QueueConnection getQueueConnection,
+                                       Queue getQueue,
+                                       AcknowledgementMode acknowledgementMode) {
 
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("JMSCacheManagerPeerProvider constructor ( cacheManager = "
-                    + cacheManager + ", topicSubscriber = " + topicSubscriber
-                    + ", topicPublisher = " + topicPublisher + ", topicSession = " + topicSession
-                    + " ) called");
-        }
 
         this.cacheManager = cacheManager;
-        this.topicSubscriber = topicSubscriber;
-        this.topicPublisher = topicPublisher;
-        this.topicSession = topicSession;
+        this.replicationTopicConnection = replicationTopicConnection;
+        this.replicationTopic = replicationTopic;
+        this.getQueueConnection = getQueueConnection;
+        this.getQueue = getQueue;
+        this.acknowledgementMode = acknowledgementMode;
     }
 
-    /**
-     * Providers may be doing all sorts of exotic things and need to be able to clean up on dispose.
-     * @throws CacheException
-     */
-    public void dispose() throws CacheException {
-
-        try {
-            topicSubscriber.close();
-            topicSession.close();
-            topicPublisher.close();
-        } catch (JMSException e) {
-            throw new CacheException(e.getMessage(), e);
-        }
-
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("dispose ( ) called ");
-        }
-
-    }
 
     /**
      * Time for a cluster to form. This varies considerably, depending on the implementation.
+     *
      * @return the time in ms, for a cluster to form
      */
     public long getTimeForClusterToForm() {
@@ -118,13 +93,52 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
 
     /**
      * Notifies providers to initialise themselves.
+     * <p/>
+     *
+     *
      * @throws CacheException
      */
     public void init() {
 
-        LOG.fine("init ( ) called ");
+        TopicSession topicPublisherSession;
+        TopicPublisher topicPublisher;
+        TopicSubscriber topicSubscriber;
 
-        JMSCachePeer peer = new JMSCachePeer(cacheManager, topicPublisher, topicSession);
+        QueueSession getQueueSession;
+        QueueSender getQueueSender;
+        ConnectionConsumer getQueueConnectionConsumer;
+
+        try {
+
+            topicPublisherSession = replicationTopicConnection.createTopicSession(false, acknowledgementMode.toInt());
+            TopicSession topicSubscriberSession = replicationTopicConnection.createTopicSession(false, acknowledgementMode.toInt());
+
+            topicPublisher = topicPublisherSession.createPublisher(replicationTopic);
+
+            //ignore messages we have sent. The third parameter is noLocal, which means do not deliver back to the sender
+            //on the same connection
+            topicSubscriber = topicSubscriberSession.createSubscriber(replicationTopic, null, true);
+
+            replicationTopicConnection.start();
+
+
+            getQueueSession = getQueueConnection.createQueueSession(false, acknowledgementMode.toInt());
+            getQueueConnectionConsumer = getQueueConnection.createConnectionConsumer(getQueue, null, null, 1);
+            getQueueSender = getQueueSession.createSender(getQueue);
+
+
+            getQueueConnection.start();
+
+
+        } catch (JMSException e) {
+            throw new CacheException("Exception while creating JMS connections: " + e.getMessage(), e);
+        }
+
+
+        JMSCachePeer peer = new JMSCachePeer(cacheManager, topicPublisher, topicPublisherSession,
+                getQueueSender, getQueueSession, getQueueConnectionConsumer);
+
+
         remoteCachePeers.add(peer);
         try {
             topicSubscriber.setMessageListener(peer);
@@ -132,7 +146,31 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
             LOG.log(Level.SEVERE, "Cannot register " + peer + " as messageListener", e);
         }
 
+
     }
+
+
+    /**
+     * Providers may be doing all sorts of exotic things and need to be able to clean up on dispose.
+     *
+     * @throws CacheException
+     */
+    public void dispose() throws CacheException {
+
+        try {
+            replicationTopicConnection.close();
+            getQueueConnection.close();
+
+        } catch (JMSException e) {
+            throw new CacheException(e.getMessage(), e);
+        }
+
+        if (LOG.isLoggable(Level.FINEST)) {
+            LOG.finest("dispose ( ) called ");
+        }
+
+    }
+
 
     /**
      * @return a list of {@link CachePeer} peers for the given cache, excluding the local peer.
@@ -141,8 +179,10 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
         return remoteCachePeers;
     }
 
+
     /**
      * Register a new peer.
+     *
      * @param rmiUrl
      */
     public void registerPeer(String rmiUrl) {
