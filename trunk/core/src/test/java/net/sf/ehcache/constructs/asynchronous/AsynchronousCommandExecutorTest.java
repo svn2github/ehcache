@@ -16,12 +16,13 @@
 
 package net.sf.ehcache.constructs.asynchronous;
 
-import junit.framework.TestCase;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.StopWatch;
-
-
+import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +34,7 @@ import java.util.logging.Logger;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class AsynchronousCommandExecutorTest extends TestCase {
+public class AsynchronousCommandExecutorTest {
 
     private static final Logger LOG = Logger.getLogger(AsynchronousCommandExecutorTest.class.getName());
 
@@ -53,7 +54,8 @@ public class AsynchronousCommandExecutorTest extends TestCase {
      *
      * @throws Exception
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         messages = new ArrayList();
         AsynchronousCommandExecutor.getInstance().setUnsafeDispatcherThreadIntervalSeconds(2);
         messageCache = AsynchronousCommandExecutor.getInstance().getMessageCache();
@@ -80,8 +82,6 @@ public class AsynchronousCommandExecutorTest extends TestCase {
 
     /**
      * Send a non-string Java serializable message to the Topic. Should be treated as an Object Message
-     *
-     *
      */
     public String sendSerializableMessage() throws AsynchronousCommandException, CacheException, InterruptedException {
         ListAppenderCommand command = new ListAppenderCommand(new IsSerializable(), 0, null);
@@ -106,21 +106,15 @@ public class AsynchronousCommandExecutorTest extends TestCase {
         Thread.sleep((long) (1700 + (200 * StopWatch.getSpeedAdjustmentFactor())));
     }
 
-    private void assertCommandsInCache(int number) throws CacheException {
-        assertEquals(number - 1, messageCache.getSize());
-    }
-
     private void assertNoCommandsInCache() throws CacheException {
         assertEquals(1, messageCache.getSize());
     }
 
 
-
     /**
      * Send a non-string Java serializable message to the Topic. Should be treated as an Object Message
-     *
-     *
      */
+    @Test
     public void testSendSerializableMessage() throws AsynchronousCommandException, CacheException, InterruptedException {
         ListAppenderCommand command = new ListAppenderCommand(new IsSerializable(), 0, null);
         AsynchronousCommandExecutor.getInstance().queueForExecution(command);
@@ -132,6 +126,7 @@ public class AsynchronousCommandExecutorTest extends TestCase {
     /**
      * Can we send messages asynchronously? Do they all get through and is the cache empty at the end?
      */
+    @Test
     public void testAsynchronousSerializableCommandExecution() throws Exception {
         ListAppenderCommand command = new ListAppenderCommand(new IsSerializable(), 10, null);
 
@@ -146,6 +141,7 @@ public class AsynchronousCommandExecutorTest extends TestCase {
     /**
      * Can we send messages asynchronously? Do they all get through and is the cache empty at the end?
      */
+    @Test
     public void testThreadingAsynchronousSerializableCommandExecution() throws Exception {
         ListAppenderCommand command = new ListAppenderCommand(new IsSerializable(), 0, null);
 
@@ -166,6 +162,7 @@ public class AsynchronousCommandExecutorTest extends TestCase {
      * is tried. This will take the thread interval which is overriden for testing purposes to 1 second * the
      * number of messages * 3 repeats + 1 = 16 seconds.
      */
+    @Test
     public void testAsynchronousNonSerializableCommandExecution() throws Exception {
         for (int i = 0; i < 12; i++) {
             sendNonSerializableMessage();
@@ -182,6 +179,7 @@ public class AsynchronousCommandExecutorTest extends TestCase {
      * This will not work if the thread does polling. It must be able to be woken up when new messages
      * arrive for processing.
      */
+    @Test
     public void testMessageSentImmediately() throws Exception {
         //Set the interval high and then wait for the initial 1 second interval to complete.
         AsynchronousCommandExecutor.getInstance().setDispatcherThreadIntervalSeconds(1000000);
@@ -202,6 +200,7 @@ public class AsynchronousCommandExecutorTest extends TestCase {
      *
      * @throws Exception
      */
+    @Test
     public void testMixOfGoodAndBadMessages() throws Exception {
 
         for (int i = 0; i < 2; i++) {
@@ -218,6 +217,7 @@ public class AsynchronousCommandExecutorTest extends TestCase {
     /**
      * Should ignore attempts to send messages if they are not due.
      */
+    @Test
     public void testMessagesNotRetriedBeforeAllowed() throws Exception {
         ListAppenderCommand command = new ListAppenderCommand(new IsSerializable(), 0, Exception.class);
         AsynchronousCommandExecutor commandExecutor = AsynchronousCommandExecutor.getInstance();
@@ -232,13 +232,13 @@ public class AsynchronousCommandExecutorTest extends TestCase {
     }
 
 
-
     /**
      * Multi-threaded command load/stability test
      * <p/>
      * 50 threads use the executor at the same time. We check that all messages came through
      * and no errors occurred;
      */
+    @Test
     public void testConcurrentExecutors() throws Exception {
 
         // Run a set of threads that get, put and remove an entry
@@ -261,8 +261,7 @@ public class AsynchronousCommandExecutorTest extends TestCase {
     }
 
 
-
-        /**
+    /**
      * Runs a set of threads, for a fixed amount of time.
      */
     protected void runThreads(final List executables) throws Exception {

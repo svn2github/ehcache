@@ -22,6 +22,7 @@ import java.io.Serializable;
 
 /**
  * Test class to investigate class loading issues
+ *
  * @author Greg Luck
  * @version $Id$
  */

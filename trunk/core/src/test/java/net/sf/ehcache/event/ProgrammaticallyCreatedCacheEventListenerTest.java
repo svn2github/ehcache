@@ -18,6 +18,9 @@ package net.sf.ehcache.event;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
+import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Same as {@link CacheEventListenerTest} except that the listener is set programmatically. This test inherits because
@@ -31,9 +34,11 @@ public class ProgrammaticallyCreatedCacheEventListenerTest extends CacheEventLis
 
     /**
      * {@inheritDoc}
+     *
      * @throws Exception
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         CountingCacheEventListener.resetCounters();
         manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-nolisteners.xml");
         cache = manager.getCache(cacheName);
@@ -45,6 +50,7 @@ public class ProgrammaticallyCreatedCacheEventListenerTest extends CacheEventLis
     /**
      * An instance that <code>equals</code> one already registered is ignored
      */
+    @Test
     public void testAttemptDoubleRegistrationOfSameInstance() {
         cache.getCacheEventNotificationService().registerListener(countingCacheEventListener);
         //should just be the one from setUp
@@ -54,15 +60,12 @@ public class ProgrammaticallyCreatedCacheEventListenerTest extends CacheEventLis
     /**
      * An new instance of the same class will be registered
      */
+    @Test
     public void testAttemptDoubleRegistrationOfSeparateInstance() {
         cache.getCacheEventNotificationService().registerListener(new CountingCacheEventListener());
         //should just be the one from setUp
         assertEquals(2, cache.getCacheEventNotificationService().getCacheEventListeners().size());
     }
-
-
-
-
 
 
 }

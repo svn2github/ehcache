@@ -16,14 +16,14 @@
 
 package net.sf.ehcache.loader;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
+import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.AbstractCacheTest;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Written for Dead-lock poc
@@ -52,7 +52,6 @@ public final class CacheHelper {
     }
 
     /**
-     *
      * @param cacheManagerUrl
      * @param cacheName
      * @return
@@ -71,7 +70,6 @@ public final class CacheHelper {
     }
 
     /**
-     *
      * @param cacheManagerUrl
      * @param cacheName
      * @param key
@@ -82,7 +80,6 @@ public final class CacheHelper {
     }
 
     /**
-     *
      * @param cacheManagerUrl
      * @param cacheName
      * @param key
@@ -96,7 +93,7 @@ public final class CacheHelper {
     }
 
     /**
-     * 
+     *
      */
     public static void shutdown() {
         for (Iterator iter = managers.values().iterator(); iter.hasNext();) {

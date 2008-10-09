@@ -16,8 +16,8 @@
 
 package net.sf.ehcache.distribution;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A utility class for distributed tests
@@ -40,8 +40,9 @@ public final class JVMUtil {
     /**
      * JDK Bug Id 4267864 affecting JDKs limits the number of RMI registries to one per virtual
      * machine. Because tests rely on creating multiple they will only work on JDK1.5.
-     *
+     * <p/>
      * This method is used to not run the affected tests on JDK1.4.
+     *
      * @return true if the JDK is limited to one RMI Registry per VM, else false
      */
     public static boolean isSingleRMIRegistryPerVM() {
@@ -55,6 +56,7 @@ public final class JVMUtil {
     /**
      * Some performance numbers and size limits are higher in 15.
      * This is used to set the tests as high as possible for each VM.
+     *
      * @return true if JDK1.5 or higher
      */
     public static boolean isJDK15() {
@@ -63,6 +65,7 @@ public final class JVMUtil {
 
     /**
      * Lists all the threads in the VM
+     *
      * @return a List of type Thread
      */
     public static List enumerateThreads() {

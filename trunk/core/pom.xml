@@ -50,11 +50,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.1</version>
+            <version>4.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -114,20 +110,32 @@
                         </goals>
                     </execution>
 
-                    <!--<execution>-->
-                    <!--<id>singlepageguide</id>-->
-                    <!--<phase>verify</phase>-->
-                    <!--<configuration>-->
-                    <!--<tasks>-->
-                    <!--<ant antfile="${basedir}/build.xml" inheritRefs="true">-->
-                    <!--<target name="singlepageguide"/>-->
-                    <!--</ant>-->
-                    <!--</tasks>-->
-                    <!--</configuration>-->
-                    <!--<goals>-->
-                    <!--<goal>run</goal>-->
-                    <!--</goals>-->
-                    <!--</execution>-->
+
+                    <execution>
+                        <id>prepare-and-start-orion</id>
+                        <phase>pre-integration-test</phase>
+                        <configuration>
+                            <tasks>
+                                <ant target="prepare-and-start-orion"/>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
+                        <id>stop-orion</id>
+                        <phase>post-integration-test</phase>
+                        <configuration>
+                            <tasks>
+                                <ant target="stop-orion"/>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
 
 
                 </executions>
@@ -138,18 +146,21 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
-                    <skip>${test.unit.skip}</skip>
+                    <skip>false</skip>
                     <includes>
-                        <include>**/*UnitTest.java</include>
+                        <include>**/*Test.java</include>
                     </includes>
                     <excludes>
                         <exclude>**/*$*</exclude>
+                        <exclude>**/web/**/*</exclude>
                         <exclude>**/Abstract*Test.java</exclude>
                         <exclude>**/constructs/web/**</exclude>
                     </excludes>
                     <forkMode>pertest</forkMode>
                     <childDelegation>false</childDelegation>
+                    <disableXmlReport>true</disableXmlReport>
                     <printSummary>true</printSummary>
+                    <!--<reportFormat>plain</reportFormat>-->
                     <redirectOutputToFile>true</redirectOutputToFile>
                     <systemProperties>
                         <property>
@@ -174,11 +185,13 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skip>${test.int.skip}</skip>
+                            <skip>false</skip>
                             <includes>
-                                <include>**/*IntegrationTest.java</include>
-                                <include>**/*WebTest.java</include>
+                                <include>**/web/**/*Test.java</include>
                             </includes>
+                            <excludes>
+                                <exclude>**/*$*</exclude>
+                            </excludes>
                         </configuration>
                     </execution>
                 </executions>
@@ -219,7 +232,7 @@
                 <!-- Doesn't work when not internet connected -->
                 <executions>
                     <execution>
-                        <phase>validate</phase>
+                        <phase>verify</phase>
                         <goals>
                             <goal>checkstyle</goal>
                         </goals>
@@ -395,6 +408,14 @@
                     <name>ehcache</name>
                 </configuration>
             </plugin>
+
+            <!--<plugin>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-surefire-report-plugin</artifactId>-->
+            <!--<configuration>-->
+            <!--<showSuccess>false</showSuccess>-->
+            <!--</configuration>-->
+            <!--</plugin>-->
 
         </plugins>
     </reporting>

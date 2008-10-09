@@ -20,11 +20,12 @@ import java.util.Properties;
 
 /**
  * A factory for CountingCacheEventListener
+ *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
 public class CountingCacheEventListenerFactory extends CacheEventListenerFactory {
-    
+
     /**
      * Create a <code>CacheEventListener</code>
      *

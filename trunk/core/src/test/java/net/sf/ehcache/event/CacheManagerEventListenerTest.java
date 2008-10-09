@@ -16,12 +16,17 @@
 
 package net.sf.ehcache.event;
 
-import junit.framework.TestCase;
+
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Uses a counting listener to make sure all the notifications came through
@@ -29,22 +34,26 @@ import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
  * @author Greg Luck
  * @version $Id$
  */
-public class CacheManagerEventListenerTest extends TestCase {
+public class CacheManagerEventListenerTest {
 
     /**
      * {@inheritDoc}
+     *
      * @throws Exception
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         CountingCacheManagerEventListener.resetCounters();
     }
 
 
     /**
      * {@inheritDoc}
+     *
      * @throws Exception
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         CountingCacheManagerEventListener.resetCounters();
     }
 
@@ -52,6 +61,7 @@ public class CacheManagerEventListenerTest extends TestCase {
     /**
      * Tests that we can set the listener through configuration, and that it gets notified of all events.
      */
+    @Test
     public void testListenerSpecifiedInConfigurationFile() throws CacheException {
         CacheManager manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-countinglisteners.xml");
         assertNotNull(manager);
@@ -73,6 +83,7 @@ public class CacheManagerEventListenerTest extends TestCase {
     /**
      * Tests we can programmatically set the listener, and that it gets notified of all events.
      */
+    @Test
     public void testListenerSpecifiedProgrammatically() throws CacheException {
         CacheConfiguration defaultCache = new CacheConfiguration();
         defaultCache.setEternal(false);
@@ -102,9 +113,6 @@ public class CacheManagerEventListenerTest extends TestCase {
         }
         manager.shutdown();
     }
-
-
-
 
 
 }

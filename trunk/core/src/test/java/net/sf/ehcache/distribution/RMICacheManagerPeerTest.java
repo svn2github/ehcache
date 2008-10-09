@@ -16,14 +16,17 @@
 
 package net.sf.ehcache.distribution;
 
-import junit.framework.TestCase;
+
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-
-
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.net.SocketTimeoutException;
 import java.rmi.RemoteException;
@@ -31,18 +34,18 @@ import java.rmi.UnmarshalException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Unit tests for RMICachePeer
- *
+ * <p/>
  * Note these tests need a live network interface running in multicast mode to work
  *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class RMICacheManagerPeerTest extends TestCase {
+public class RMICacheManagerPeerTest {
 
     private static final Logger LOG = Logger.getLogger(RMICacheManagerPeerTest.class.getName());
 
@@ -62,7 +65,8 @@ public class RMICacheManagerPeerTest extends TestCase {
      *
      * @throws Exception
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
         cache = new Cache("test", 10, false, false, 10, 10);
 
@@ -72,7 +76,8 @@ public class RMICacheManagerPeerTest extends TestCase {
     /**
      * Shutdown the cache
      */
-    protected void tearDown() throws InterruptedException {
+    @After
+    public void tearDown() throws InterruptedException {
         Thread.sleep(20);
         if (peerListener != null) {
             peerListener.dispose();
@@ -84,6 +89,7 @@ public class RMICacheManagerPeerTest extends TestCase {
     /**
      * Can we create the peer using remote port of 0?
      */
+    @Test
     public void testCreatePeerWithAutomaticRemotePort() throws RemoteException {
         for (int i = 0; i < 10; i++) {
             new RMICachePeer(cache, hostName, port, new Integer(0), new Integer(2000));
@@ -94,6 +100,7 @@ public class RMICacheManagerPeerTest extends TestCase {
     /**
      * Can we create the peer using a specified free remote port of 45000
      */
+    @Test
     public void testCreatePeerWithSpecificRemotePort() throws RemoteException {
         for (int i = 0; i < 10; i++) {
             new RMICachePeer(cache, hostName, port, new Integer(45000), new Integer(2000));
@@ -106,12 +113,12 @@ public class RMICacheManagerPeerTest extends TestCase {
      *
      * @throws RemoteException
      */
+    @Test
     public void testFailsIfTimeoutExceeded() throws Exception {
 
         RMICachePeer rmiCachePeer = new SlowRMICachePeer(cache, hostName, port, new Integer(1000));
         peerListener.addCachePeer(cache.getName(), rmiCachePeer);
         peerListener.init();
-        
 
 
         try {
@@ -129,6 +136,7 @@ public class RMICacheManagerPeerTest extends TestCase {
      *
      * @throws RemoteException
      */
+    @Test
     public void testWorksIfTimeoutNotExceeded() throws Exception {
 
         cache = new Cache("test", 10, false, false, 10, 10);
@@ -149,6 +157,7 @@ public class RMICacheManagerPeerTest extends TestCase {
      * to recompile the stub after any changes are made to the CachePeer source, something done by ant
      * compile but not by the IDE.
      */
+    @Test
     public void testSend() throws Exception {
 
         cache = new Cache("test", 10, false, false, 10, 10);
@@ -174,6 +183,7 @@ public class RMICacheManagerPeerTest extends TestCase {
 
         /**
          * Constructor
+         *
          * @param cache
          * @param hostName
          * @param port

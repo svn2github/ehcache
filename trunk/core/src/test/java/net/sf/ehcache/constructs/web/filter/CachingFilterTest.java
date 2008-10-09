@@ -18,7 +18,6 @@ package net.sf.ehcache.constructs.web.filter;
 
 import com.meterware.httpunit.HttpInternalErrorException;
 import com.meterware.httpunit.WebResponse;
-import junit.framework.AssertionFailedError;
 import net.sf.ehcache.constructs.web.AbstractWebTest;
 import net.sf.ehcache.constructs.web.PageInfo;
 import org.apache.commons.httpclient.Header;
@@ -26,6 +25,14 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.HeadMethod;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -50,6 +57,7 @@ public class CachingFilterTest extends AbstractWebTest {
      * Tests that a page which should be cached is cached.
      * Also, check that the pages returned are good.
      */
+    @Test
     public void testCachedPageIsCached() throws Exception {
         assertResponseGoodAndCached(cachedPageUrl, true);
     }
@@ -60,6 +68,7 @@ public class CachingFilterTest extends AbstractWebTest {
      * This test ensures that the SimplePageCachingFilter implements calculateKey
      * properly to avoid this problem.
      */
+    @Test
     public void testHeadThenGetOnCachedPage() throws Exception {
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new HeadMethod(buildUrl(cachedPageUrl));
@@ -80,6 +89,7 @@ public class CachingFilterTest extends AbstractWebTest {
     /**
      * Check that cyrillic (unicode) characters are handled on the first hit and subsequent hits
      */
+    @Test
     public void testCachedPageMultilingual() throws Exception {
         WebResponse response = getResponseFromAcceptGzipRequest(cachedPageUrl);
         //Check that we are dealing with Cyrillic characters ok
@@ -100,6 +110,7 @@ public class CachingFilterTest extends AbstractWebTest {
      * Tests whether the page is gzipped using the rawer HttpClient library.
      * Lets us check that the responseBody is really gzipped.
      */
+    @Test
     public void testCachedPageIsGzippedWhenEncodingHeaderSet() throws IOException {
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(buildUrl(cachedPageUrl));
@@ -113,6 +124,7 @@ public class CachingFilterTest extends AbstractWebTest {
      * Tests whether the page is gzipped using the rawer HttpClient library.
      * Lets us check that the responseBody is really not gzipped.
      */
+    @Test
     public void testCachedPageIsNotGzippedWhenEncodingHeaderNotSet() throws IOException {
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(buildUrl(cachedPageUrl));
@@ -127,6 +139,7 @@ public class CachingFilterTest extends AbstractWebTest {
      *
      * @throws IOException
      */
+    @Test
     public void testSequenceNonGzipThenGzipThenNonGzip() throws IOException {
         testCachedPageIsNotGzippedWhenEncodingHeaderNotSet();
         testCachedPageIsGzippedWhenEncodingHeaderSet();
@@ -138,6 +151,7 @@ public class CachingFilterTest extends AbstractWebTest {
      *
      * @throws IOException
      */
+    @Test
     public void testSequenceGzipThenNonGzipThenGzip() throws IOException {
         testCachedPageIsGzippedWhenEncodingHeaderSet();
         testCachedPageIsNotGzippedWhenEncodingHeaderNotSet();
@@ -149,6 +163,7 @@ public class CachingFilterTest extends AbstractWebTest {
      * The reentry check instruments the thread name to indicate it has entered a CachingFilter.
      * The name is reset at the end. Check that this works for concurrent situations.
      */
+    @Test
     public void testCachedPageConcurrent() throws Exception {
 
         final List executables = new ArrayList();
@@ -189,12 +204,13 @@ public class CachingFilterTest extends AbstractWebTest {
      *
      * @throws Exception
      */
+    @Test
     public void testFromJSPInclude() throws Exception {
         try {
             WebResponse response = getResponseFromAcceptGzipRequest("/legaldispatchtocachedpage/Include.jsp");
             assertPropertlyFormed(response);
             fail();
-        } catch (AssertionFailedError e) {
+        } catch (AssertionError e) {
             //noop Page is actually an error message in Orion
         } catch (HttpInternalErrorException e) {
             //noop 500 error in Tomcat. The log shows ResponseHeadersNotModifiableException when we try to set Gzip
@@ -210,12 +226,13 @@ public class CachingFilterTest extends AbstractWebTest {
      *
      * @throws Exception
      */
+    @Test
     public void testFromJSPIncludeNoGzip() throws Exception {
         try {
             WebResponse response = getResponseFromNonAcceptGzipRequest("/legaldispatchtocachedpage/Include.jsp");
             assertPropertlyFormed(response);
             fail();
-        } catch (AssertionFailedError e) {
+        } catch (AssertionError e) {
             //noop Page is actually an error message
         } catch (HttpInternalErrorException e) {
             //noop 500 error in Tomcat. The log shows ResponseHeadersNotModifiableException when we try to set Gzip
@@ -249,6 +266,7 @@ public class CachingFilterTest extends AbstractWebTest {
      *
      * @see {@link net.sf.ehcache.constructs.web.ResponseHeadersNotModifiableException}
      */
+    @Test
     public void testFromServletInclude() {
         String url = "/servletdispatchtocachedpage/IncludeCachedPageServlet";
         try {
@@ -269,6 +287,7 @@ public class CachingFilterTest extends AbstractWebTest {
      *
      * @throws Exception
      */
+    @Test
     public void testFromServletForward() throws Exception {
         String url = "/servletdispatchtocachedpage/ForwardToCachedPageServlet";
         WebResponse response = getResponseFromAcceptGzipRequest(url);
@@ -307,6 +326,7 @@ public class CachingFilterTest extends AbstractWebTest {
      *
      * @throws Exception
      */
+    @Test
     public void testBlankPageProblemFilterFromJSPInclude() throws Exception {
         WebResponse response = getResponseFromAcceptGzipRequest("/blankpageproblem/Include.jsp");
         assertResponseOk(response);
@@ -314,7 +334,7 @@ public class CachingFilterTest extends AbstractWebTest {
         try {
             assertPageNotBlank(response);
             fail();
-        } catch (AssertionFailedError e) {
+        } catch (AssertionError e) {
             //noop Page is blank. Should fail.
         }
 
@@ -347,6 +367,7 @@ public class CachingFilterTest extends AbstractWebTest {
      *
      * @throws Exception
      */
+    @Test
     public void testFromJSPIncludeWithNoFilter() throws Exception {
         WebResponse response = getResponseFromAcceptGzipRequest("/legaldispatchtocachedpage/IncludeWithNoFilter.jsp");
         assertResponseOk(response);
@@ -386,6 +407,7 @@ public class CachingFilterTest extends AbstractWebTest {
      *
      * @throws Exception
      */
+    @Test
     public void testFromJSPForward() throws Exception {
         WebResponse response = getResponseFromAcceptGzipRequest("/legaldispatchtocachedpage/Forward.jsp");
         assertResponseGood(response, true);
@@ -419,6 +441,7 @@ public class CachingFilterTest extends AbstractWebTest {
      *
      * @throws Exception
      */
+    @Test
     public void testCallCachedPageFromRedirect() throws Exception {
         WebResponse response = getResponseFromAcceptGzipRequest("/legaldispatchtocachedpage/Redirect.jsp");
         assertResponseGood(response, true);
@@ -430,7 +453,8 @@ public class CachingFilterTest extends AbstractWebTest {
     /**
      * @throws Exception Always reset the URL so we don't get dependencies
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         resetCachedPageUrl();
     }
 
@@ -465,6 +489,7 @@ public class CachingFilterTest extends AbstractWebTest {
      * A 0 length body should give a 0 length nongzipped body and content length
      * Manual Test: wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:9080/empty_caching_filter/empty.html
      */
+    @Test
     public void testIfModifiedZeroLengthHTML() throws Exception {
 
         String url = "http://localhost:9080/empty_caching_filter/empty.html";
@@ -488,6 +513,7 @@ public class CachingFilterTest extends AbstractWebTest {
      * <p/>
      * wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:9080/empty_caching_filter/SC_NOT_MODIFIED.jsp
      */
+    @Test
     public void testNotModifiedJSPGzipFilter() throws Exception {
 
         String url = "http://localhost:9080/empty_caching_filter/SC_NOT_MODIFIED.jsp";
@@ -514,6 +540,7 @@ public class CachingFilterTest extends AbstractWebTest {
      * <p/>
      * Manual Test: wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:9080/empty_caching_filter/SC_NO_CONTENT.jsp
      */
+    @Test
     public void testNoContentJSPGzipFilter() throws Exception {
 
         String url = "http://localhost:9080/empty_caching_filter/SC_NO_CONTENT.jsp";
@@ -537,6 +564,7 @@ public class CachingFilterTest extends AbstractWebTest {
      * <p/>
      * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:9080/non_ok/PageNotFound.jsp
      */
+    @Test
     public void testNotFound() throws Exception {
 
         String url = "http://localhost:9080/non_ok/PageNotFound.jsp";
@@ -557,6 +585,7 @@ public class CachingFilterTest extends AbstractWebTest {
      * <p/>
      * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:9080/non_ok/SendRedirect.jsp
      */
+    @Test
     public void testRedirect() throws Exception {
 
         String url = "http://localhost:9080/non_ok/SendRedirect.jsp";
@@ -570,7 +599,6 @@ public class CachingFilterTest extends AbstractWebTest {
         assertNotNull(responseBody);
         assertNull(httpMethod.getResponseHeader("Content-Encoding"));
     }
-
 
 
 }

@@ -16,18 +16,22 @@
 
 package net.sf.ehcache.extension;
 
-import junit.framework.TestCase;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CountingCacheEventListener;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
-public class CacheExtensionTest extends TestCase {
+public class CacheExtensionTest {
 
     /**
      * manager
@@ -40,7 +44,8 @@ public class CacheExtensionTest extends TestCase {
      *
      * @throws Exception
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         CountingCacheEventListener.resetCounters();
         manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-cacheextension.xml");
     }
@@ -51,7 +56,8 @@ public class CacheExtensionTest extends TestCase {
      *
      * @throws Exception
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         if (!manager.getStatus().equals(Status.STATUS_SHUTDOWN)) {
             manager.shutdown();
         }
@@ -61,6 +67,7 @@ public class CacheExtensionTest extends TestCase {
     /**
      * Tests the put listener.
      */
+    @Test
     public void testExtensionDirectly() {
 
         manager.addCache("test");
@@ -80,6 +87,7 @@ public class CacheExtensionTest extends TestCase {
     /**
      * Tests the put listener.
      */
+    @Test
     public void testExtensionFromConfiguration() {
 
         assertEquals(Status.STATUS_ALIVE, TestCacheExtension.getStaticStatus());
@@ -98,6 +106,7 @@ public class CacheExtensionTest extends TestCase {
     /**
      * Tests the put listener.
      */
+    @Test
     public void testProgrammaticAdd() {
 
         manager.addCache("test");
@@ -119,6 +128,7 @@ public class CacheExtensionTest extends TestCase {
      * We need to make sure that cloning a default cache results in a new cache with its own
      * set of cache extensions.
      */
+    @Test
     public void testClone() {
 
         //just test it does not blow up

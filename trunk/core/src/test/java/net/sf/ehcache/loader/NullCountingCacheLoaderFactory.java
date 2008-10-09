@@ -25,6 +25,7 @@ import java.util.Properties;
 /**
  * A factory for creating counting cache loaders. This can be hooked up to the JCacheFactory by
  * specifying "cacheLoaderFactoryClassName" in the environment
+ *
  * @author Greg Luck
  * @version $Id$
  */

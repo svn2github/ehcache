@@ -19,6 +19,11 @@ package net.sf.ehcache.jcache;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheException;
 import net.sf.jsr107cache.Cache;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -38,7 +43,8 @@ public class CacheListenerTest extends AbstractCacheTest {
     /**
      * setup test
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
 
     }
@@ -47,7 +53,8 @@ public class CacheListenerTest extends AbstractCacheTest {
      * teardown
      * limits to what we can do here under jsr107
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         getTest1Cache().clear();
     }
 
@@ -89,9 +96,12 @@ public class CacheListenerTest extends AbstractCacheTest {
 
     /**
      * Tests operations not normally called.
+     *
      * @throws net.sf.jsr107cache.CacheException
+     *
      * @throws CloneNotSupportedException
      */
+    @Test
     public void testSundryOperations() throws net.sf.jsr107cache.CacheException, CloneNotSupportedException {
 
         Cache cache = getTest1Cache();
@@ -113,6 +123,7 @@ public class CacheListenerTest extends AbstractCacheTest {
     /**
      * Tests the put listener.
      */
+    @Test
     public void testPutNotifications() throws net.sf.jsr107cache.CacheException {
 
         Cache cache = getTest1Cache();
@@ -147,6 +158,7 @@ public class CacheListenerTest extends AbstractCacheTest {
     /**
      * Tests the remove notifier
      */
+    @Test
     public void testRemoveNotifications() throws net.sf.jsr107cache.CacheException {
 
         Serializable key = "1";
@@ -179,6 +191,7 @@ public class CacheListenerTest extends AbstractCacheTest {
     /**
      * Tests the expiry notifier. These are mapped to evictions in the JCache adaptor.
      */
+    @Test
     public void testExpiryNotifications() throws InterruptedException, net.sf.jsr107cache.CacheException {
 
         Serializable key = "1";
@@ -212,6 +225,7 @@ public class CacheListenerTest extends AbstractCacheTest {
      * Tests the eviction notifier.
      * sampleCache2 does not overflow, so an evict should trigger a notification
      */
+    @Test
     public void testEvictNotificationsWhereNoOverflow() {
 
         JCache cache2 = new JCache(manager.getCache("sampleCache2"), null);
@@ -231,6 +245,7 @@ public class CacheListenerTest extends AbstractCacheTest {
      * Tests the eviction notifier.
      * sampleCache1 overflows, so the evict should overflow to disk and not trigger a notification
      */
+    @Test
     public void testEvictNotificationsWhereOverflow() {
 
 
@@ -250,6 +265,7 @@ public class CacheListenerTest extends AbstractCacheTest {
     /**
      * Tests the removeAll notifier.
      */
+    @Test
     public void testClearNotification() {
 
         JCache cache2 = new JCache(manager.getCache("sampleCache2"), null);
@@ -275,6 +291,7 @@ public class CacheListenerTest extends AbstractCacheTest {
      * Tests the remove notifier where the element does not exist in the local cache.
      * Listener notification is required for correct operation of cluster invalidation.
      */
+    @Test
     public void testRemoveNotificationWhereElementDidNotExist() throws net.sf.jsr107cache.CacheException {
 
         Serializable key = "1";
@@ -308,6 +325,7 @@ public class CacheListenerTest extends AbstractCacheTest {
      * store, then the element gets automatically evicted. This should
      * trigger an eviction notification.
      */
+    @Test
     public void testEvictionFromLRUMemoryStoreNotSerializable() throws IOException, CacheException, InterruptedException {
         String sampleCache1 = "sampleCache1";
         Cache cache = new JCache(manager.getCache(sampleCache1), null);
@@ -333,6 +351,7 @@ public class CacheListenerTest extends AbstractCacheTest {
      * <p/>
      * If the element has expired, it should not trigger an eviction notification.
      */
+    @Test
     public void testEvictionFromLRUMemoryStoreExpiry() throws IOException, CacheException, InterruptedException {
         String sampleCache2 = "sampleCache1";
         Cache cache = new JCache(manager.getCache(sampleCache2), null);

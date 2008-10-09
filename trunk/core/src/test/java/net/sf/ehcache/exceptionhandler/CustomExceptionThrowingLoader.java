@@ -16,21 +16,21 @@ package net.sf.ehcache.exceptionhandler;
  *  limitations under the License.
  */
 
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Status;
+import net.sf.ehcache.loader.CacheLoader;
+import net.sf.jsr107cache.CacheException;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
 import java.util.logging.Logger;
 
-import net.sf.jsr107cache.CacheException;
-import net.sf.ehcache.loader.CacheLoader;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Status;
-
 
 /**
  * A cache loader that throws a custom exception on load
- *
- *
+ * <p/>
+ * <p/>
  * Used for testing exception handlers
  *
  * @author Greg Luck
@@ -54,7 +54,7 @@ public class CustomExceptionThrowingLoader implements CacheLoader {
      * @throws net.sf.jsr107cache.CacheException
      *
      */
-    public Object load(Object key)  {
+    public Object load(Object key) {
         try {
             Thread.sleep(random.nextInt(3) + 1);
         } catch (InterruptedException e) {
@@ -75,14 +75,14 @@ public class CustomExceptionThrowingLoader implements CacheLoader {
      *
      */
 
-    public Map loadAll(Collection keys)  {
+    public Map loadAll(Collection keys) {
 
-      try {
-        Thread.sleep(random.nextInt(4));
-      } catch (InterruptedException e) {
-        LOG.severe("Interrupted");
-      }
-      throw new UnsupportedOperationException("loadAll not supported by CustomExceptionThrowingLoader");
+        try {
+            Thread.sleep(random.nextInt(4));
+        } catch (InterruptedException e) {
+            LOG.severe("Interrupted");
+        }
+        throw new UnsupportedOperationException("loadAll not supported by CustomExceptionThrowingLoader");
 
     }
 
@@ -119,12 +119,12 @@ public class CustomExceptionThrowingLoader implements CacheLoader {
      *
      */
     public Map loadAll(Collection keys, Object argument) throws CacheException {
-      try {
-        Thread.sleep(random.nextInt(3) + 1);
-      } catch (InterruptedException e) {
-        LOG.severe("Interrupted");
-      }
-      throw new UnsupportedOperationException("2-arg loadAll not supported by CustomExceptionThrowingLoader");
+        try {
+            Thread.sleep(random.nextInt(3) + 1);
+        } catch (InterruptedException e) {
+            LOG.severe("Interrupted");
+        }
+        throw new UnsupportedOperationException("2-arg loadAll not supported by CustomExceptionThrowingLoader");
     }
 
     /**
@@ -179,7 +179,7 @@ public class CustomExceptionThrowingLoader implements CacheLoader {
      * @return the status of the extension
      */
     public Status getStatus() {
-        return null;  
+        return null;
     }
 
 }

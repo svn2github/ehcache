@@ -16,6 +16,9 @@
 
 package net.sf.ehcache;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 
 /**
@@ -29,6 +32,7 @@ public class CacheExceptionTest extends AbstractCacheTest {
     /**
      * This will fail on JDK1.3 and lower.
      */
+    @Test
     public void testFullConstructor() {
         new StopWatch();
         try {

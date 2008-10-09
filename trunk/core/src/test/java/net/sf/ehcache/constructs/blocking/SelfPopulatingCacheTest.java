@@ -16,11 +16,18 @@
 
 package net.sf.ehcache.constructs.blocking;
 
+import static junit.framework.Assert.assertSame;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.CacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.logging.Logger;
 
@@ -57,7 +64,8 @@ public class SelfPopulatingCacheTest extends CacheTest {
     /**
      * Load up the test cache
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
         manager = new CacheManager();
         cache = manager.getCache("sampleIdlingExpiringCache");
@@ -68,7 +76,8 @@ public class SelfPopulatingCacheTest extends CacheTest {
     /**
      * teardown
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         selfPopulatingCache.removeAll();
         manager.shutdown();
         super.tearDown();
@@ -77,6 +86,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
     /**
      * Tests fetching an entry.
      */
+    @Test
     public void testFetch() throws Exception {
 
         // Lookup
@@ -87,6 +97,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
     /**
      * Tests fetching an unknown entry.
      */
+    @Test
     public void testFetchUnknown() throws Exception {
         final CacheEntryFactory factory = new CountingCacheEntryFactory(null);
         selfPopulatingCache = new SelfPopulatingCache(cache, factory);
@@ -98,6 +109,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
     /**
      * Tests when fetch fails.
      */
+    @Test
     public void testFetchFail() throws Exception {
         final Exception exception = new Exception("Failed.");
         final CacheEntryFactory factory = new CacheEntryFactory() {
@@ -121,6 +133,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
     /**
      * Tests that an entry is created once only.
      */
+    @Test
     public void testCreateOnce() throws Exception {
         final String value = "value";
         final CountingCacheEntryFactory factory = new CountingCacheEntryFactory(value);
@@ -136,6 +149,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
     /**
      * Tests refreshing the entries.
      */
+    @Test
     public void testRefresh() throws Exception {
         final String value = "value";
         final CountingCacheEntryFactory factory = new CountingCacheEntryFactory(value);
@@ -159,6 +173,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
      * Tests that the current thread, which gets renamed when it enters a SelfPopulatingCache, comes out with
      * its old name.
      */
+    @Test
     public void testThreadNaming() throws Exception {
         final String value = "value";
         final CountingCacheEntryFactory factory = new CountingCacheEntryFactory(value);
@@ -191,6 +206,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
      * overflowToDisk="true"
      * />
      */
+    @Test
     public void testDiscardLittleUsed() throws Exception {
         final CacheEntryFactory factory = new CountingCacheEntryFactory("value");
         selfPopulatingCache = new SelfPopulatingCache(cache, factory);
@@ -221,6 +237,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
      * overflowToDisk="true"
      * />
      */
+    @Test
     public void testDiscardLittleUsedSlow() throws Exception {
         final CacheEntryFactory factory = new CacheEntryFactory() {
             public Object createEntry(final Object key) throws Exception {
@@ -252,6 +269,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
      * <p/>
      * We then test that a thread that comes along later increments the counter.
      */
+    @Test
     public void testSelfPopulatingBlocksWithTimeoutSetNull() throws InterruptedException {
         selfPopulatingCache = new SelfPopulatingCache(new Cache("TestCache", 50, false, false, 0, 0), new NullCachePopulator());
         selfPopulatingCache.setTimeoutMillis(200);
@@ -286,8 +304,10 @@ public class SelfPopulatingCacheTest extends CacheTest {
     /**
      * Creating 11 Threads which attempt to get a null entry will result, eventually, in 11
      * calls to the CacheEntryFactory
+     *
      * @throws InterruptedException
      */
+    @Test
     public void testSelfPopulatingBlocksWithoutTimeoutSetNull() throws InterruptedException {
         selfPopulatingCache = new SelfPopulatingCache(new Cache("TestCache", 50, false, false, 0, 0), new NullCachePopulator());
         //selfPopulatingCache.setTimeoutMillis(200);
@@ -321,8 +341,10 @@ public class SelfPopulatingCacheTest extends CacheTest {
     /**
      * Creating 11 Threads which attempt to get a non-null entry will result in 1
      * call to the CacheEntryFactory
+     *
      * @throws InterruptedException
      */
+    @Test
     public void testSelfPopulatingBlocksWithoutTimeoutSetNonNull() throws InterruptedException {
         selfPopulatingCache = new SelfPopulatingCache(new Cache("TestCache", 50, false, false, 0, 0),
                 new NonNullCachePopulator());
@@ -408,6 +430,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
      * Shows the effect of jamming large amounts of puts into a cache that overflows to disk.
      * The DiskStore should cause puts to back off and avoid an out of memory error.
      */
+    @Test
     public void testBehaviourOnDiskStoreBackUp() throws Exception {
         Cache cache = new Cache("testGetMemoryStoreSize", 10, true, false, 100, 200, false, 0);
         manager.addCache(cache);

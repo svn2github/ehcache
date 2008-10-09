@@ -17,14 +17,17 @@
 package net.sf.ehcache.store;
 
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStoreTester;
-import net.sf.ehcache.StopWatch;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.Statistics;
-
-
+import net.sf.ehcache.StopWatch;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -49,7 +52,8 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
     /**
      * setup test
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
         createMemoryStore(MemoryStoreEvictionPolicy.LFU);
     }
@@ -67,6 +71,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
     /**
      * Tests the put by reading the config file
      */
+    @Test
     public void testPutFromConfigZeroMemoryStore() throws Exception {
         createMemoryStore(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-policy-test.xml", "sampleLFUCache2");
         Element element = new Element("1", "value");
@@ -77,6 +82,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
     /**
      * Tests the remove() method by using the parameters specified in the config file
      */
+    @Test
     public void testRemoveFromConfig() throws Exception {
         createMemoryStore(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-policy-test.xml", "sampleLFUCache1");
         removeTest();
@@ -87,6 +93,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      * This takes a little longer for LFU than the others.
      * Takes about 7400ms
      */
+    @Test
     public void testBenchmarkPutGetSurya() throws Exception {
         benchmarkPutGetSuryaTest(9000);
     }
@@ -94,6 +101,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
     /**
      * Tests the LFU policy
      */
+    @Test
     public void testLfuPolicy() throws Exception {
         createMemoryStore(MemoryStoreEvictionPolicy.LFU, 4);
         lfuPolicyTest();
@@ -102,6 +110,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
     /**
      * Tests the LFU policy by using the parameters specified in the config file
      */
+    @Test
     public void testLfuPolicyFromConfig() throws Exception {
         createMemoryStore(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-policy-test.xml", "sampleLFUCache1");
         lfuPolicyTest();
@@ -162,6 +171,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      * Benchmark to test speed.
      * new sampling LFU 417ms
      */
+    @Test
     public void testBenchmarkPutGetRemove() throws Exception {
         super.testBenchmarkPutGetRemove();
     }
@@ -173,6 +183,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      * using the removeAll which was the known cause of memory leaks with LruMemoryStore in JCS
      * new sampling LFU has no leaks
      */
+    @Test
     public void testMemoryLeak() throws Exception {
         super.testMemoryLeak();
     }
@@ -181,6 +192,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      * Benchmark to test speed.
      * new sampling LFU 132ms
      */
+    @Test
     public void testBenchmarkPutGet() throws Exception {
         super.testBenchmarkPutGet();
     }
@@ -195,6 +207,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      * <p/>
      * Conclusion: Unable to use the iterator as a pseudorandom selector.
      */
+    @Test
     public void testRandomnessOfIterator() {
         int mean = 0;
         int absoluteDifferences = 0;
@@ -235,6 +248,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      *
      * @throws IOException
      */
+    @Test
     public void testSampling() throws IOException {
         createMemoryStore(MemoryStoreEvictionPolicy.LFU, 1000);
         LfuPolicy.Metadata[] elements = null;
@@ -285,6 +299,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      *                     With a sample size of 10: 523ms for 5000 runs = 104 ?s per run
      *                     With a sample size of 30: 628ms for 5000 runs = 125 ?s per run
      */
+    @Test
     public void testLowest() throws IOException {
         createMemoryStore(MemoryStoreEvictionPolicy.LFU, 5000);
         Element element = null;
@@ -337,6 +352,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
     /**
      * Can we deal with NonSerializable objects?
      */
+    @Test
     public void testNonSerializable() {
         /**
          * Non-serializable test class
@@ -353,6 +369,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
     /**
      * Test which reproduced an issue with flushing of an LFU store to disk on shutdown
      */
+    @Test
     public void testPersistLFUMemoryStore() {
         manager.shutdown();
         CacheManager cacheManager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-policy-test.xml");
@@ -387,6 +404,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
 
 /**
  * A simple persistent JavaBean
+ *
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
@@ -396,6 +414,7 @@ class TestBean implements Serializable {
 
     /**
      * Constructor
+     *
      * @param string
      */
     public TestBean(String string) {

@@ -16,22 +16,22 @@
 
 package net.sf.ehcache.distribution;
 
-import junit.framework.TestCase;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.logging.Logger;
-import java.lang.ref.SoftReference;
-import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
-
-
-
-import net.sf.ehcache.Element;
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.Element;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.ref.SoftReference;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Tests Serialization and SoftReferences in EventMessage
@@ -39,7 +39,7 @@ import net.sf.ehcache.AbstractCacheTest;
  * @author Greg Luck
  * @version $Id$
  */
-public class EventMessageTest extends TestCase {
+public class EventMessageTest {
 
     private static final Logger LOG = Logger.getLogger(EventMessageTest.class.getName());
 
@@ -47,6 +47,7 @@ public class EventMessageTest extends TestCase {
     /**
      * SoftReference behaviour testing.
      */
+    @Test
     public void testSoftReferences() {
         AbstractCacheTest.forceVMGrowth();
         Map map = new HashMap();
@@ -71,6 +72,7 @@ public class EventMessageTest extends TestCase {
     /**
      * test serialization and deserialization of EventMessage.
      */
+    @Test
     public void testSerialization() throws IOException, ClassNotFoundException {
 
         EventMessage eventMessage = new EventMessage(EventMessage.PUT, "key", new Element("key", "element"));

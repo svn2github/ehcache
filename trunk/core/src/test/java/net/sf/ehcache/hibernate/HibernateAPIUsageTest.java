@@ -17,17 +17,21 @@
 package net.sf.ehcache.hibernate;
 
 import net.sf.ehcache.AbstractCacheTest;
-import net.sf.ehcache.CacheTest;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.CacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-
-
 import org.hibernate.cfg.Environment;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
 
-import java.io.Serializable;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -47,7 +51,8 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
     /**
      * teardown
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         super.tearDown();
     }
 
@@ -55,6 +60,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
     /**
      * Make sure ehcache works with one of the main projects using it: Hibernate-2.1.8
      */
+    @Test
     public void testAPIAsUsedByHibernate2() throws net.sf.hibernate.cache.CacheException {
         net.sf.hibernate.cache.EhCacheProvider provider = new net.sf.hibernate.cache.EhCacheProvider();
         provider.start(null);
@@ -78,6 +84,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
      * Note that getElementCountInMemory() is broken. It reports the total cache size rather than the memory size. Fixed in Hibernate 3.2
      * getTimeout appears to be broken. It returns 4096 minutes!
      */
+    @Test
     public void testAPIAsUsedByHibernate3() {
 
         /*Shutdown cache manager so that hibernate can start one using the same ehcache.xml disk path
@@ -159,6 +166,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
      * We can have two caches of the same name in different providers and interact with both
      * </ol>
      */
+    @Test
     public void testNewHibernate32CacheAndProviderNewFeatures() {
 
         /*Shutdown cache manager so that hibernate can start one using the same cache.xml disk path
@@ -262,6 +270,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
      * Test ehcache packaged provider and EhCache with Hibernate-3.1.3
      * Leave broken timeout until get clarification from Emmanuel
      */
+    @Test
     public void testNewHibernateEhcacheAndProviderBackwardCompatible() {
 
         /*Shutdown cache manager so that hibernate can start one using the same cache.xml disk path
@@ -341,6 +350,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
     /**
      * An integration test, at the CacheManager level, to make sure persistence works
      */
+    @Test
     public void testPersistentStoreFromCacheManager() throws IOException, InterruptedException, CacheException {
 
         manager.shutdown();
@@ -372,6 +382,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
     /**
      * An integration test, at the CacheManager level, to make sure persistence works
      */
+    @Test
     public void testPersistentStoreFromCacheManagerUsingHibernate321Provider() throws Exception {
 
         manager.shutdown();
@@ -396,7 +407,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
 
         assertEquals(100, hibernateCache.getElementCountInMemory() + hibernateCache.getElementCountOnDisk());
 
-         provider.stop();
+        provider.stop();
 
     }
 
@@ -411,6 +422,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
      * We can have two caches of the same name in different providers and interact with both
      * </ol>
      */
+    @Test
     public void testNewHibernateEhcacheAndProviderNewFeatures() {
 
         /*Shutdown cache manager so that hibernate can start one using the same ehcache.xml disk path
@@ -516,6 +528,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
      * <li>Support for Object signatures
      * </ol>
      */
+    @Test
     public void testNewHibernateSingletonEhcacheAndProviderNewFeatures() {
 
         /*Shutdown cache manager so that hibernate can start one using the same ehcache.xml disk path

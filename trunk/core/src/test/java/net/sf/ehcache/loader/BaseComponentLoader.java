@@ -16,17 +16,18 @@
 
 package net.sf.ehcache.loader;
 
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Status;
+import net.sf.jsr107cache.CacheException;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 
-import net.sf.jsr107cache.CacheException;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Status;
-
 
 /**
  * Written for Dead-lock poc
+ *
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
@@ -65,7 +66,6 @@ public class BaseComponentLoader extends CacheLoaderFactory implements CacheLoad
     }
 
     /**
-     *
      * @param arg0
      * @return
      * @throws CacheException
@@ -75,7 +75,6 @@ public class BaseComponentLoader extends CacheLoaderFactory implements CacheLoad
     }
 
     /**
-     *
      * @param arg0
      * @param argument
      * @return
@@ -86,7 +85,6 @@ public class BaseComponentLoader extends CacheLoaderFactory implements CacheLoad
     }
 
     /**
-     *
      * @param keys
      * @return
      * @throws CacheException
@@ -96,7 +94,6 @@ public class BaseComponentLoader extends CacheLoaderFactory implements CacheLoad
     }
 
     /**
-     *
      * @param keys
      * @param argument
      * @return

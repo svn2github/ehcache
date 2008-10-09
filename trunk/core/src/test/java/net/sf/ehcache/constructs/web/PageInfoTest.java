@@ -17,8 +17,12 @@
 package net.sf.ehcache.constructs.web;
 
 import net.sf.ehcache.StopWatch;
-
-
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -48,7 +52,8 @@ public class PageInfoTest extends AbstractWebTest {
      *
      * @throws Exception
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         String testGzipFile = System.getProperty("java.io.tmpdir") + File.separator + "test.gzip";
         testFile = new File(testGzipFile);
         FileOutputStream fout = new FileOutputStream(testFile);
@@ -66,7 +71,8 @@ public class PageInfoTest extends AbstractWebTest {
      *
      * @throws Exception
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         testFile.delete();
     }
 
@@ -81,6 +87,7 @@ public class PageInfoTest extends AbstractWebTest {
      *
      * @throws IOException
      */
+    @Test
     public void testAttemptedDoubleGzip() throws IOException {
         byte[] gzip = getGzipFileAsBytes();
         try {
@@ -96,10 +103,12 @@ public class PageInfoTest extends AbstractWebTest {
      * Based on the gunzip1 implementation.
      * <p/>
      * Takes 9ms for the 100kb test document on the reference machine
+     *
      * @throws IOException
      * @throws AlreadyGzippedException
      * @throws InterruptedException
      */
+    @Test
     public void testUsedGunzipImplementationPerformance() throws IOException, AlreadyGzippedException, InterruptedException {
         byte[] gzip = getGzipFileAsBytes();
         Collection headers = new ArrayList();
@@ -139,6 +148,7 @@ public class PageInfoTest extends AbstractWebTest {
     /**
      * Tests the performance of gunzip using a variety of implementations.
      */
+    @Test
     public void testGunzipPerformance() throws IOException, InterruptedException {
         long initialMemoryUsed = memoryUsed();
         byte[] gzip = getGzipFileAsBytes();
@@ -229,6 +239,7 @@ public class PageInfoTest extends AbstractWebTest {
     /**
      * Tests the performance and correctness of gzip.
      */
+    @Test
     public void testGzipPerformance() throws IOException, InterruptedException {
         long initialMemoryUsed = memoryUsed();
         byte[] gzip = getGzipFileAsBytes();
@@ -301,6 +312,7 @@ public class PageInfoTest extends AbstractWebTest {
      * gunzips 100000 of ungzipped content in 9ms on the reference machine.
      * It does not use a fixed size buffer and is therefore suitable for arbitrary
      * length arrays.
+     *
      * @param gzipped
      * @return
      * @throws IOException

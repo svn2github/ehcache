@@ -18,23 +18,30 @@
 package net.sf.ehcache.config;
 
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
-import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.distribution.MulticastRMICacheManagerPeerProvider;
 import net.sf.ehcache.distribution.RMIAsynchronousCacheReplicator;
-import net.sf.ehcache.distribution.RMICacheManagerPeerListener;
 import net.sf.ehcache.distribution.RMIBootstrapCacheLoader;
+import net.sf.ehcache.distribution.RMICacheManagerPeerListener;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.event.CountingCacheEventListener;
 import net.sf.ehcache.event.CountingCacheManagerEventListener;
+import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
+import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -67,7 +74,8 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     /**
      * setup test
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
         manager.removalAll();
     }
@@ -85,6 +93,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * overflowToDisk="true"
      * />
      */
+    @Test
     public void testLoadConfigurationFromClasspath() throws Exception {
 
         Configuration configuration = ConfigurationFactory.parseConfiguration();
@@ -172,8 +181,6 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertTrue(exceptionHandlingCache.getCacheExceptionHandler() != null);
         assertTrue(exceptionHandlingCache.getCacheExceptionHandler() instanceof CountingExceptionHandler);
         assertTrue(exceptionHandlingCache.getCacheExceptionHandler() instanceof CacheExceptionHandler);
-
-
     }
 
 
@@ -189,6 +196,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * overflowToDisk="true"
      * />
      */
+    @Test
     public void testLoadConfigurationFromFile() throws Exception {
 
         File file = new File(SRC_CONFIG_DIR + "ehcache.xml");
@@ -257,6 +265,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * overflowToDisk="true"
      * />
      */
+    @Test
     public void testLoadConfigurationFromEhcache11File() throws Exception {
 
         File file = new File(TEST_CONFIG_DIR + "ehcache-1_1.xml");
@@ -298,6 +307,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * Tests that the CacheManagerEventListener is null when
      * no CacheManagerEventListener class is specified.
      */
+    @Test
     public void testLoadConfigurationFromFileNoCacheManagerListenerDefault() throws Exception {
         File file = new File(TEST_CONFIG_DIR + "ehcache-nolisteners.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
@@ -315,6 +325,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * Tests that the CacheManagerEventListener class is set as the CacheManagerEventListener
      * when the class is unloadable.
      */
+    @Test
     public void testLoadConfigurationFromFileUnloadableCacheManagerListenerDefault() throws Exception {
         File file = new File(TEST_CONFIG_DIR + "ehcache-unloadablecachemanagerlistenerclass.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
@@ -333,6 +344,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     /**
      * Positive and negative Tests for setting a list of CacheEventListeners in the configuration
      */
+    @Test
     public void testLoadConfigurationFromFileCountingCacheListener() throws Exception {
         File file = new File(TEST_CONFIG_DIR + "ehcache-countinglisteners.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
@@ -375,6 +387,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     /**
      * Tests for Distributed Cache config
      */
+    @Test
     public void testLoadConfigurationFromFileDistribution() throws Exception {
         File file = new File(TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
@@ -415,6 +428,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * The following should give defaults of true and 5000000
      * <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory" />
      */
+    @Test
     public void testLoadConfigurationFromFileNoBootstrapPropertiesSet() throws Exception {
         File file = new File(TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
@@ -431,6 +445,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"
      * properties="bootstrapAsynchronously=false, maximumChunkSizeBytes=10000"/>
      */
+    @Test
     public void testLoadConfigurationFromFileWithSpecificPropertiesSet() throws Exception {
         File file = new File(TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
@@ -454,6 +469,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * overflowToDisk="true"
      * />
      */
+    @Test
     public void testLoadConfigurationFromFileNoDefault() throws Exception {
         File file = new File(TEST_CONFIG_DIR + "ehcache-nodefault.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
@@ -502,6 +518,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * overflowToDisk="false"
      * />
      */
+    @Test
     public void testDefaultValues() throws Exception {
         File file = new File(TEST_CONFIG_DIR + "ehcache-nodefault.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
@@ -533,6 +550,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * No disk store path specified as disk store not being used
      * />
      */
+    @Test
     public void testLoadConfigurationFromFileNoDisk() throws Exception {
         File file = new File(TEST_CONFIG_DIR + "ehcache-nodisk.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
@@ -545,7 +563,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Ehcache defaultCache = configurationHelper.createDefaultCache();
         assertEquals("default", defaultCache.getName());
         assertEquals(false, defaultCache.getCacheConfiguration().isEternal());
-        assertEquals(5, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
+        assertEquals(5L, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
         assertEquals(10, defaultCache.getCacheConfiguration().getTimeToLiveSeconds());
         assertEquals(false, defaultCache.getCacheConfiguration().isOverflowToDisk());
 
@@ -580,6 +598,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * No disk store path specified as disk store not being used
      * />
      */
+    @Test
     public void testOptionalAttributeDefaultValues() throws Exception {
         File file = new File(TEST_CONFIG_DIR + "ehcache-nodisk.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
@@ -605,6 +624,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * If manual peer provider configuration is selected then an info message should be
      * logged if there is no list.
      */
+    @Test
     public void testEmptyPeerListManualDistributedConfiguration() {
         CacheManager cacheManager = new CacheManager(TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed3.xml");
         assertEquals(0, cacheManager.getCacheManagerPeerProvider()
@@ -627,6 +647,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * overflowToDisk="true"
      * />
      */
+    @Test
     public void testLoadConfigurationFromURL() throws Exception {
         URL url = getClass().getResource("/ehcache.xml");
         testDefaultConfiguration(url);
@@ -638,6 +659,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      *
      * @throws Exception When the test fails.
      */
+    @Test
     public void testLoadConfigurationFromJarURL() throws Exception {
 
         // first, create the jar
@@ -672,7 +694,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Ehcache defaultCache = configurationHelper.createDefaultCache();
         assertEquals("default", defaultCache.getName());
         assertEquals(false, defaultCache.getCacheConfiguration().isEternal());
-        assertEquals(5, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
+        assertEquals(5L, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
         assertEquals(10, defaultCache.getCacheConfiguration().getTimeToLiveSeconds());
         assertEquals(true, defaultCache.getCacheConfiguration().isOverflowToDisk());
 
@@ -757,6 +779,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * overflowToDisk="true"
      * />
      */
+    @Test
     public void testLoadConfigurationFromInputStream() throws Exception {
         InputStream fis = new FileInputStream(new File(SRC_CONFIG_DIR + "ehcache.xml").getAbsolutePath());
         ConfigurationHelper configurationHelper;
@@ -813,6 +836,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * overflowToDisk="true"
      * />
      */
+    @Test
     public void testLoadConfigurationFromFailsafe() throws Exception {
         try {
             File file = new File(AbstractCacheTest.TEST_CLASSES_DIR + "ehcache.xml");
@@ -845,6 +869,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * Make sure that the empty Configuration constructor remains public for those wishing to create CacheManagers
      * purely programmatically.
      */
+    @Test
     public void testCreateEmptyConfiguration() {
         Configuration configuration = new Configuration();
         configuration.setSource("programmatic");
@@ -854,6 +879,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     /**
      * Tests that you cannot use the name default for a cache.
      */
+    @Test
     public void testLoadConfigurationFromInvalidXMLFileWithDefaultCacheNameUsed() throws Exception {
         File file = new File(TEST_CONFIG_DIR + "ehcache-withdefaultset.xml");
         try {
@@ -868,6 +894,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     /**
      * Tests replacement in the config file.
      */
+    @Test
     public void testLoadConfigurationWithReplacement() throws Exception {
         System.setProperty("multicastGroupPort", "4446");
         File file = new File(TEST_CONFIG_DIR + "ehcache-replacement.xml");
@@ -887,6 +914,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     /**
      * Tests the property token extraction logic
      */
+    @Test
     public void testMatchPropertyTokensProperlyFormed() {
         String example = "<cacheManagerPeerProviderFactory class=\"net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory\"" +
                 "properties=\"peerDiscovery=automatic, " +
@@ -901,6 +929,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     /**
      * Tests the property token extraction logic
      */
+    @Test
     public void testMatchPropertyTokensProperlyFormedTwo() {
         String example = "<cacheManagerPeerProviderFactory class=\"net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory\"" +
                 "properties=\"peerDiscovery=automatic, " +
@@ -916,6 +945,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     /**
      * Tests the property token extraction logic
      */
+    @Test
     public void testMatchPropertyTokensProperlyFormedTwoUnique() {
         String example = "<cacheManagerPeerProviderFactory class=\"net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory\"" +
                 "properties=\"peerDiscovery=automatic, " +
@@ -928,6 +958,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     /**
      * If you leave off the } then no match.
      */
+    @Test
     public void testMatchPropertyTokensNotClosed() {
         String example = "<cacheManagerPeerProviderFactory class=\"net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory\"" +
                 "properties=\"peerDiscovery=automatic, " +

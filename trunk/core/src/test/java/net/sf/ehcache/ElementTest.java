@@ -17,7 +17,10 @@
 package net.sf.ehcache;
 
 
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -47,6 +50,7 @@ public class ElementTest extends AbstractCacheTest {
      * <p/>
      * For 310232 bytes the average serialization time is 7 ms
      */
+    @Test
     public void testSerializationPerformanceByteArray() throws CacheException {
         Serializable key = "key";
 
@@ -76,6 +80,7 @@ public class ElementTest extends AbstractCacheTest {
      * Checks the serialization time for a large compound Java object
      * Serialization time was 126ms for a size of 349225
      */
+    @Test
     public void testSerializationPerformanceJavaObjects() throws Exception {
         //Set up object graphs
         HashMap map = new HashMap(10000);
@@ -98,6 +103,7 @@ public class ElementTest extends AbstractCacheTest {
      * Checks the expense of cloning a large object
      * Average clone time 175ms for a size of 349225
      */
+    @Test
     public void testCalculateClonePerformanceJavaObjects() throws Exception {
         //Set up object graphs
         HashMap map = new HashMap(10000);
@@ -126,6 +132,7 @@ public class ElementTest extends AbstractCacheTest {
      * like a performance regression.
      * <p/>
      */
+    @Test
     public void testClonePerformanceByteArray() throws CacheException, CloneNotSupportedException {
         Serializable key = "key";
 
@@ -162,6 +169,7 @@ public class ElementTest extends AbstractCacheTest {
      * @throws IOException
      * @throws ClassNotFoundException
      */
+    @Test
     public void testDeserializationPerformance() throws IOException, ClassNotFoundException {
 
         byte[] value = getTestByteArray();
@@ -189,6 +197,7 @@ public class ElementTest extends AbstractCacheTest {
     /**
      * ehcache-1.2 adds support to Objects in addition to Serializable. Check that this works
      */
+    @Test
     public void testObjectAccess() {
         Object key = new Object();
         Object value = new Object();
@@ -210,6 +219,7 @@ public class ElementTest extends AbstractCacheTest {
     /**
      * ehcache-1.1 and earllier exclusively uses Serializable keys and values. Check that this works
      */
+    @Test
     public void testSerializableAccess() {
         Serializable key = "";
         Serializable value = "";
@@ -230,6 +240,7 @@ public class ElementTest extends AbstractCacheTest {
      * Tests that isSerializable does not blow up is if either key or value is null
      * A null, null will not be serializable
      */
+    @Test
     public void testIsSerializable() {
 
         Element element = new Element(null, null);
@@ -249,6 +260,7 @@ public class ElementTest extends AbstractCacheTest {
     /**
      * Tests the robustness of equals
      */
+    @Test
     public void testEquals() {
 
         Element element = new Element("key", "value");
@@ -261,6 +273,7 @@ public class ElementTest extends AbstractCacheTest {
     /**
      * Tests that the full constructor sets everything right.
      */
+    @Test
     public void testFullConstructor() {
 
         Element element = new Element("key", "value", 1L, 123L, 1234L, 12345L, 123456L, 1234567L);

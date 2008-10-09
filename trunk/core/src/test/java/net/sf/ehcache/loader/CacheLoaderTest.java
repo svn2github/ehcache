@@ -16,14 +16,19 @@
 
 package net.sf.ehcache.loader;
 
-import junit.framework.TestCase;
+
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Status;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
 import net.sf.ehcache.extension.TestCacheExtension;
-import net.sf.ehcache.event.CountingCacheEventListener;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.List;
 
@@ -31,7 +36,7 @@ import java.util.List;
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
-public class CacheLoaderTest extends TestCase {
+public class CacheLoaderTest {
 
     /**
      * manager
@@ -44,7 +49,8 @@ public class CacheLoaderTest extends TestCase {
      *
      * @throws Exception
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-loaderinteractions.xml");
     }
 
@@ -54,12 +60,14 @@ public class CacheLoaderTest extends TestCase {
      *
      * @throws Exception
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         if (!manager.getStatus().equals(Status.STATUS_SHUTDOWN)) {
             manager.shutdown();
         }
     }
 
+    @Test
     public void testLoaderChainNullFirst() {
         Cache cache = manager.getCache("NullLoaderFirstCache");
         assertNotNull(cache.getWithLoader("key", null, null));
@@ -69,6 +77,7 @@ public class CacheLoaderTest extends TestCase {
         assertEquals(1, countingCacheLoader.getLoadCounter());
     }
 
+    @Test
     public void testLoaderChainNullLast() {
         Cache cache = manager.getCache("NullLoaderLastCache");
         assertNotNull(cache.getWithLoader("key", null, null));
@@ -78,6 +87,7 @@ public class CacheLoaderTest extends TestCase {
         assertEquals(0, nullCountingCacheLoader.getLoadCounter());
     }
 
+    @Test
     public void testLoaderChainNullBoth() {
         Cache cache = manager.getCache("NullLoaderTwiceCache");
         Element element = cache.getWithLoader("key", null, null);
@@ -118,6 +128,7 @@ public class CacheLoaderTest extends TestCase {
     /**
      * Tests the put listener.
      */
+    @Test
     public void testExtensionDirectly() {
 
         manager.addCache("test");
@@ -134,13 +145,11 @@ public class CacheLoaderTest extends TestCase {
     }
 
 
-
-
-
     /**
      * We need to make sure that cloning a default cache results in a new cache with its own
      * set of cache extensions.
      */
+    @Test
     public void testClone() {
 
         //just test it does not blow up

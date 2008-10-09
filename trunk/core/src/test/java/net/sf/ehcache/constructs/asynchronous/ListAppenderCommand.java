@@ -17,8 +17,6 @@
 package net.sf.ehcache.constructs.asynchronous;
 
 
-
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -28,6 +26,7 @@ import java.util.logging.Logger;
 
 /**
  * A test command
+ *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */

@@ -16,12 +16,11 @@
 
 package net.sf.ehcache;
 
-import java.io.Serializable;
 import java.io.IOException;
+import java.io.Serializable;
 
 
 /**
- *
  * A class which throws a RuntimeException when serialized or deserialized. This
  * should be enough to kill threads that do not have special handling.
  *

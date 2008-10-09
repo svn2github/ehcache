@@ -16,14 +16,18 @@
 
 package net.sf.ehcache.jcache;
 
-import junit.framework.TestCase;
+
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-
 import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheException;
 import net.sf.jsr107cache.CacheFactory;
 import net.sf.jsr107cache.CacheManager;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +36,7 @@ import java.util.Map;
  * @author Greg Luck
  * @version $Id$
  */
-public class CacheManagerTest extends TestCase {
+public class CacheManagerTest {
 
 
     /**
@@ -49,7 +53,8 @@ public class CacheManagerTest extends TestCase {
      * Shutdown managers.
      * Check that the manager is removed from CacheManager.ALL_CACHE_MANAGERS
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
 
     }
 
@@ -61,6 +66,7 @@ public class CacheManagerTest extends TestCase {
      * <p/>
      * getInstance always returns the same instance
      */
+    @Test
     public void testCacheManagerConstructor() {
         CacheManager cacheManager = new CacheManager();
         CacheManager cacheManager2 = CacheManager.getInstance();
@@ -76,6 +82,7 @@ public class CacheManagerTest extends TestCase {
      *
      * @throws CacheException
      */
+    @Test
     public void testLoadCacheFactory() throws CacheException {
 
         manager = CacheManager.getInstance();
@@ -92,6 +99,7 @@ public class CacheManagerTest extends TestCase {
      *
      * @throws CacheException
      */
+    @Test
     public void testCreateCacheFromFactory() throws CacheException {
 
         manager = CacheManager.getInstance();
@@ -117,6 +125,7 @@ public class CacheManagerTest extends TestCase {
     /**
      * Tests that the CacheManager was successfully created
      */
+    @Test
     public void testCreateCacheManager() throws net.sf.ehcache.CacheException {
         manager = CacheManager.getInstance();
         CacheManager singletonManager2 = CacheManager.getInstance();
@@ -128,6 +137,7 @@ public class CacheManagerTest extends TestCase {
     /**
      * Tests that the CacheManager was successfully created
      */
+    @Test
     public void testRegisterCache() throws net.sf.ehcache.CacheException {
         manager = CacheManager.getInstance();
         Ehcache ehcache = new net.sf.ehcache.Cache("name", 10, MemoryStoreEvictionPolicy.LFU,
@@ -140,6 +150,7 @@ public class CacheManagerTest extends TestCase {
     /**
      * Tests that we can use a Cache obtained from CacheManager
      */
+    @Test
     public void testUseCache() throws net.sf.ehcache.CacheException {
         manager = CacheManager.getInstance();
         Ehcache ehcache = new net.sf.ehcache.Cache("UseCache", 10, MemoryStoreEvictionPolicy.LFU,

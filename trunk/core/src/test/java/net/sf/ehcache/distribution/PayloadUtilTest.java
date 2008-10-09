@@ -16,43 +16,48 @@
 
 package net.sf.ehcache.distribution;
 
-import junit.framework.TestCase;
+
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.StopWatch;
-
-
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.logging.Logger;
 
 /**
- *
  * Note these tests need a live network interface running in multicast mode to work
  *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
- *
  */
-public class PayloadUtilTest extends TestCase {
+public class PayloadUtilTest {
 
     private static final Logger LOG = Logger.getLogger(PayloadUtilTest.class.getName());
     private CacheManager manager;
 
     /**
      * setup test
+     *
      * @throws Exception
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         String fileName = AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-big.xml";
         manager = new CacheManager(fileName);
     }
 
     /**
      * Shuts down the cachemanager
+     *
      * @throws Exception
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         manager.shutdown();
     }
 
@@ -61,6 +66,7 @@ public class PayloadUtilTest extends TestCase {
      * <p/>
      * We want to be able to work with 100 caches
      */
+    @Test
     public void testMaximumDatagram() throws IOException {
         String payload = createReferenceString();
 
@@ -75,9 +81,11 @@ public class PayloadUtilTest extends TestCase {
     /**
      * 376 µs per one gzipping each time.
      * .1 µs if we compare hashCodes on the String and only gzip as necessary.
+     *
      * @throws IOException
      * @throws InterruptedException
      */
+    @Test
     public void testGzipSanityAndPerformance() throws IOException, InterruptedException {
         String payload = createReferenceString();
         //warmup vm
@@ -100,9 +108,11 @@ public class PayloadUtilTest extends TestCase {
 
     /**
      * 169 µs per one.
+     *
      * @throws IOException
      * @throws InterruptedException
      */
+    @Test
     public void testUngzipPerformance() throws IOException, InterruptedException {
         String payload = createReferenceString();
         int length = payload.toCharArray().length;
@@ -126,7 +136,6 @@ public class PayloadUtilTest extends TestCase {
     }
 
 
-
     private String createReferenceString() {
 
         String[] names = manager.getCacheNames();
@@ -141,7 +150,6 @@ public class PayloadUtilTest extends TestCase {
         String payload = buffer.toString();
         return payload;
     }
-
 
 
 }

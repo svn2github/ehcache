@@ -139,6 +139,9 @@
     <target name="test-web" depends="test-orion, test-tomcat"
             description="Integration tests for web containers"/>
 
+    <target name="prepare-and-start-orion"
+            depends="compile, prepare-web-tests, start-orion"/>
+
     <target name="test-orion"
             depends="compile, prepare-web-tests, start-orion, run-web-tests-no-check-orion, stop-orion"
             if="tests.failed" description="Runs Tests">
@@ -475,9 +478,10 @@
         </sequential>
     </macrodef>
 
-
+<!--  todo put back          depends="compile, dist-jar, deploy-default-web-app-orion, deploy-default-web-app-tomcat, deploy-default-web-app-glassfish"
+-->
     <target name="prepare-web-tests"
-            depends="compile, dist-jar, deploy-default-web-app-orion, deploy-default-web-app-tomcat, deploy-default-web-app-glassfish"
+            depends="compile, dist-jar, deploy-default-web-app-orion, deploy-default-web-app-tomcat"
             if="${run.web.tests}"
             description="Prepare to run  the web tests ">
     </target>

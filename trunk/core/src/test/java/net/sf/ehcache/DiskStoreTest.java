@@ -16,24 +16,30 @@
 
 package net.sf.ehcache;
 
+import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Primitive;
-import net.sf.ehcache.config.DiskStoreConfiguration;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
 
-
-
-import java.io.IOException;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.RandomAccessFile;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.util.Random;
-import java.util.List;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Random;
 import java.util.logging.Logger;
 
 /**
@@ -55,7 +61,8 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * teardown
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         super.tearDown();
         if (manager2 != null) {
             manager2.shutdown();
@@ -72,21 +79,21 @@ public class DiskStoreTest extends AbstractCacheTest {
     private DiskStore createNonExpiringDiskStore() {
         Cache cache = new Cache("testNonPersistent", 10000, true, true, 2, 1, false, 1);
         manager.addCache(cache);
-        DiskStore diskStore = (DiskStore)cache.getDiskStore();
+        DiskStore diskStore = (DiskStore) cache.getDiskStore();
         return diskStore;
     }
 
     private DiskStore createDiskStore() {
         Cache cache = new Cache("testNonPersistent", 10000, true, false, 2, 1, false, 1);
         manager.addCache(cache);
-        DiskStore diskStore = (DiskStore)cache.getDiskStore();
+        DiskStore diskStore = (DiskStore) cache.getDiskStore();
         return diskStore;
     }
 
     private DiskStore createPersistentDiskStore(String cacheName) {
         Cache cache = new Cache(cacheName, 10000, true, true, 5, 1, true, 600);
         manager.addCache(cache);
-        DiskStore diskStore = (DiskStore)cache.getDiskStore();
+        DiskStore diskStore = (DiskStore) cache.getDiskStore();
         return diskStore;
     }
 
@@ -95,19 +102,20 @@ public class DiskStoreTest extends AbstractCacheTest {
         manager2 = new CacheManager();
         //manager.setDiskStorePath(System.getProperty("java.io.tmpdir") + File.separator + DiskStore.generateUniqueDirectory());
         manager2.addCache(cache);
-        DiskStore diskStore = (DiskStore)cache.getDiskStore();
+        DiskStore diskStore = (DiskStore) cache.getDiskStore();
         return diskStore;
     }
 
     private DiskStore createPersistentDiskStoreFromCacheManager() {
         Cache cache = manager.getCache("persistentLongExpiryIntervalCache");
-        return (DiskStore)cache.getDiskStore();
+        return (DiskStore) cache.getDiskStore();
     }
 
 
     /**
      * Test to help debug DiskStore test
      */
+    @Test
     public void testNothing() {
         //just tests setup and teardown
     }
@@ -116,6 +124,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * Tests that a file is created with the right size after puts, and that the file is
      * deleted on disposal
      */
+    @Test
     public void testNonPersistentStore() throws IOException, InterruptedException {
         DiskStore diskStore = createNonExpiringDiskStore();
         File dataFile = new File(diskStore.getDataFilePath() + File.separator + diskStore.getDataFileName());
@@ -140,6 +149,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * This test uses a preconfigured cache from the test cache.xml. Note that teardown causes
      * an exception because the disk store is being shut down twice.
      */
+    @Test
     public void testPersistentStore() throws IOException, InterruptedException, CacheException {
         //initialise
         DiskStore diskStore = createPersistentDiskStoreFromCacheManager();
@@ -162,6 +172,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * An integration test, at the CacheManager level, to make sure persistence works
      */
+    @Test
     public void testPersistentStoreFromCacheManager() throws IOException, InterruptedException, CacheException {
         //initialise with an instance CacheManager so that the following line actually does something
         CacheManager manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-disk.xml");
@@ -175,7 +186,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         manager.shutdown();
 
-        manager =  new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-disk.xml");
+        manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-disk.xml");
         cache = manager.getCache("persistentLongExpiryIntervalCache");
         assertEquals(100, cache.getSize());
 
@@ -189,6 +200,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * It should work by putting elements in the DiskStore initially and then loading them into memory as they
      * are called.
      */
+    @Test
     public void testPersistentNonOverflowToDiskStoreFromCacheManager() throws IOException, InterruptedException, CacheException {
         //initialise with an instance CacheManager so that the following line actually does something
         CacheManager manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-disk.xml");
@@ -202,7 +214,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         manager.shutdown();
 
-        manager =  new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-disk.xml");
+        manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-disk.xml");
         cache = manager.getCache("persistentLongExpiryIntervalNonOverflowCache");
 
         //Now check that the DiskStore is involved in Cache methods it needs to be involved in.
@@ -228,10 +240,11 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Tests that the spool thread dies on dispose.
      */
+    @Test
     public void testSpoolThreadDiesOnDispose() throws IOException, InterruptedException {
         Cache cache = new Cache("testNonPersistent", 10000, true, false, 5, 1, false, 100);
         cache.initialise();
-        DiskStore diskStore = (DiskStore)cache.getDiskStore();
+        DiskStore diskStore = (DiskStore) cache.getDiskStore();
 
         //Put in some data
         for (int i = 0; i < 100; i++) {
@@ -251,6 +264,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Tests that we can save and load a persistent store in a repeatable way
      */
+    @Test
     public void testLoadPersistentStore() throws IOException, InterruptedException {
         //initialise
         String cacheName = "testLoadPersistent";
@@ -285,6 +299,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Any disk store with an auto generated random directory should not be able to be loaded.
      */
+    @Test
     public void testCannotLoadPersistentStoreWithAutoDir() throws IOException, InterruptedException {
         //initialise
         String cacheName = "testPersistent";
@@ -318,6 +333,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * Tests that we can save and load a persistent store in a repeatable way,
      * and delete and add data.
      */
+    @Test
     public void testLoadPersistentStoreWithDelete() throws IOException, InterruptedException {
         //initialise
         String cacheName = "testPersistentWithDelete";
@@ -353,6 +369,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Tests that we can load a store after the index has been corrupted
      */
+    @Test
     public void testLoadPersistentStoreAfterCorruption() throws IOException, InterruptedException {
         //initialise
         String cacheName = "testPersistent";
@@ -387,6 +404,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * Tests that we can save and load a persistent store in a repeatable way,
      * and delete and add data.
      */
+    @Test
     public void testFreeSpaceBehaviour() throws IOException, InterruptedException {
         //initialise
         String cacheName = "testPersistent";
@@ -438,6 +456,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Tests looking up an entry that does not exist.
      */
+    @Test
     public void testGetUnknownThenKnown() throws Exception {
         final DiskStore diskStore = createDiskStore();
         Element element = diskStore.get("key");
@@ -450,6 +469,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Tests looking up an entry that does not exist.
      */
+    @Test
     public void testGetQuietUnknownThenKnown() throws Exception {
         final DiskStore diskStore = createDiskStore();
         Element element = diskStore.getQuiet("key");
@@ -462,6 +482,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Tests adding an entry.
      */
+    @Test
     public void testPut() throws Exception {
         final DiskStore diskStore = createDiskStore();
 
@@ -486,11 +507,12 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      *
      */
+    @Test
     public void testLFUEvictionFromDiskStore() throws IOException, InterruptedException {
         Cache cache = new Cache("testNonPersistent", 0, MemoryStoreEvictionPolicy.LFU, true,
                 null, false, 2000, 1000, false, 1, null, null, 10);
         manager.addCache(cache);
-        DiskStore store = (DiskStore)cache.getDiskStore();
+        DiskStore store = (DiskStore) cache.getDiskStore();
 
         Element element;
 
@@ -539,6 +561,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Tests the loading of classes
      */
+    @Test
     public void testClassloading() throws Exception {
         final DiskStore diskStore = createDiskStore();
 
@@ -576,6 +599,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Tests adding an entry and waiting for it to be written.
      */
+    @Test
     public void testPutSlow() throws Exception {
         final DiskStore diskStore = createDiskStore();
 
@@ -602,6 +626,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Tests removing an entry.
      */
+    @Test
     public void testRemove() throws Exception {
         final DiskStore diskStore = createDiskStore();
 
@@ -627,6 +652,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Tests removing an entry, after it has been written
      */
+    @Test
     public void testRemoveSlow() throws Exception {
         final DiskStore diskStore = createDiskStore();
 
@@ -655,6 +681,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Tests removing all the entries.
      */
+    @Test
     public void testRemoveAll() throws Exception {
         final DiskStore diskStore = createDiskStore();
 
@@ -679,6 +706,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Tests removing all the entries, after they have been written to disk.
      */
+    @Test
     public void testRemoveAllSlow() throws Exception {
         final DiskStore diskStore = createDiskStore();
 
@@ -706,6 +734,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Tests bulk load.
      */
+    @Test
     public void testBulkLoad() throws Exception {
         final DiskStore diskStore = createDiskStore();
 
@@ -744,6 +773,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Tests for element expiry.
      */
+    @Test
     public void testExpiry() throws Exception {
         // Create a diskStore with a cranked up expiry thread
         final DiskStore diskStore = createDiskStore();
@@ -776,6 +806,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      *
      * @throws InterruptedException
      */
+    @Test
     public void testExpiryWithSize() throws InterruptedException {
         DiskStore diskStore = createDiskStore();
         diskStore.removeAll();
@@ -817,6 +848,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Multi-thread read-only test. Will fail on memory constrained VMs
      */
+    @Test
     public void testReadOnlyMultipleThreads() throws Exception {
         final DiskStore diskStore = createNonExpiringDiskStore();
 
@@ -846,6 +878,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Multi-thread concurrent read remove test.
      */
+    @Test
     public void testReadRemoveMultipleThreads() throws Exception {
         final Random random = new Random();
         final DiskStore diskStore = createDiskStore();
@@ -883,6 +916,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * <p/>
      * It makes sure that bytes are immediately written to disk after a write.
      */
+    @Test
     public void testWriteToFile() throws IOException {
         // Create and set up file
         String dataFileName = "fileTest";
@@ -911,6 +945,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * 2 seconds v1.42 DiskStore
      * Adjusted for change to laptop
      */
+    @Test
     public void testOverflowToDiskWithLargeNumberofCacheEntries() throws Exception {
 
         //Set size so the second element overflows to disk.
@@ -935,6 +970,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * This test is designed to be used with a profiler to explore the ways in which DiskStore
      * uses memory. It does not do much on its own.
      */
+    @Test
     public void testOutOfMemoryErrorOnOverflowToDisk() throws Exception {
 
         //Set size so the second element overflows to disk.
@@ -957,6 +993,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * 35 seconds v1.38 DiskStore
      * 26 seconds v1.42 DiskStore
      */
+    @Test
     public void testOverflowToDiskWithLargeNumberofCacheEntriesAndGets() throws Exception {
 
         //Set size so the second element overflows to disk.
@@ -1004,6 +1041,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * <p/>
      * Slow tests
      */
+    @Test
     public void testMaximumCacheEntriesIn64MBWithOverflowToDisk() throws Exception {
 
         Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);
@@ -1100,6 +1138,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * http://www.rationalpi.com/blog/replyToComment.action?entry=1146628709626&comment=1155660875090
      * Can we fix c:\temp\\greg?
      */
+    @Test
     public void testWindowsAndSolarisTempDirProblem() throws InterruptedException {
 
         String originalPath = "c:" + File.separator + "temp" + File.separator + File.separator + "greg";

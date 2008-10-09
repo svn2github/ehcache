@@ -20,12 +20,13 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
  * A Null Object Pattern implementation of CacheEventListener. It simply logs the calls made.
+ *
  * @author Greg Luck
  * @version $Id$
  * @since 1.2
@@ -71,7 +72,7 @@ public class NullCacheEventListener implements CacheEventListener {
      * @param element the element which was just put into the cache.
      */
     public void notifyElementUpdated(final Ehcache cache, final Element element) throws CacheException {
-         if (LOG.isLoggable(Level.FINEST)) {
+        if (LOG.isLoggable(Level.FINEST)) {
             Object key = null;
             if (element != null) {
                 key = element.getObjectKey();
@@ -115,6 +116,7 @@ public class NullCacheEventListener implements CacheEventListener {
      * <p/>
      * This may not be possible for listeners after they have been initialized. Implementations should throw
      * CloneNotSupportedException if they do not support clone.
+     *
      * @return a clone
      * @throws CloneNotSupportedException if the listener could not be cloned.
      */

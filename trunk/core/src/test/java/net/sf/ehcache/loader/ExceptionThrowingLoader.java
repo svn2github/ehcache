@@ -18,17 +18,17 @@ package net.sf.ehcache.loader;
 
 import net.sf.jsr107cache.CacheException;
 
-import java.util.Random;
-import java.util.Map;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Random;
 import java.util.logging.Logger;
 
 
 /**
  * A cache loader that throws exceptions when used
- *
+ * <p/>
  * Each load has a random delay to introduce some nice threading entropy.
  *
  * @author Greg Luck
@@ -90,7 +90,6 @@ public class ExceptionThrowingLoader extends CountingCacheLoader {
 
         return map;
     }
-
 
 
     /**

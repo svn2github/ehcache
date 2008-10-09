@@ -87,7 +87,6 @@ public class CountingCacheEventListener implements CacheEventListener {
     }
 
 
-
     /**
      * Resets the counters to 0
      */
@@ -264,6 +263,7 @@ public class CountingCacheEventListener implements CacheEventListener {
      * CloneNotSupportedException if they do not support clone.
      * <p/>
      * This class uses static counters. Clones will share the same counters.
+     *
      * @return a clone
      * @throws CloneNotSupportedException if the listener could not be cloned.
      */

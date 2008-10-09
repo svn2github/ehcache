@@ -16,23 +16,28 @@
 
 package net.sf.ehcache.exceptionhandler;
 
-import junit.framework.TestCase;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
+
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.loader.ExceptionThrowingLoader;
-import net.sf.ehcache.loader.CacheLoader;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.event.CountingCacheEventListener;
+import net.sf.ehcache.loader.CacheLoader;
+import net.sf.ehcache.loader.ExceptionThrowingLoader;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.Test;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
-public class CacheExceptionHandlerTest extends TestCase {
+public class CacheExceptionHandlerTest {
 
     /**
      * manager
@@ -52,7 +57,8 @@ public class CacheExceptionHandlerTest extends TestCase {
      *
      * @throws Exception
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         CountingCacheEventListener.resetCounters();
         manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
         cache = manager.getEhcache(cacheName);
@@ -65,7 +71,8 @@ public class CacheExceptionHandlerTest extends TestCase {
      *
      * @throws Exception
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         CountingExceptionHandler.resetCounters();
         manager.shutdown();
     }
@@ -73,6 +80,7 @@ public class CacheExceptionHandlerTest extends TestCase {
     /**
      * Test a cache which has been configured to have a CountingExceptionHandler configured
      */
+    @Test
     public void testConfiguredCache() {
         manager.removeCache("exceptionHandlingCache");
         //Would normally throw an IllegalStateException
@@ -88,6 +96,7 @@ public class CacheExceptionHandlerTest extends TestCase {
      * Test a cache which has been configured to have an ExceptionThrowingLoader screw up loading.
      * This one should have a key set.
      */
+    @Test
     public void testKeyWithConfiguredCache() {
 
         List<CacheLoader> loaders = new ArrayList<CacheLoader>(cache.getRegisteredCacheLoaders());
@@ -107,6 +116,7 @@ public class CacheExceptionHandlerTest extends TestCase {
     /**
      * Double proxy test
      */
+    @Test
     public void testCacheExceptionHandler() {
         Ehcache proxiedCache = ExceptionHandlingDynamicCacheProxy.createProxy(cache);
 
@@ -123,6 +133,7 @@ public class CacheExceptionHandlerTest extends TestCase {
     /**
      * Test some gnarly parsing code
      */
+    @Test
     public void testKeyExtraction() {
 
         String testMessage = "For key 1234";
@@ -163,6 +174,7 @@ public class CacheExceptionHandlerTest extends TestCase {
      * Tests that the exception thrown by a configured loader, is
      * actually passed on to exception handler
      */
+    @Test
     public void testExceptionThrown() {
 
         List<CacheLoader> loaders = new ArrayList<CacheLoader>(cache.getRegisteredCacheLoaders());
@@ -188,7 +200,7 @@ public class CacheExceptionHandlerTest extends TestCase {
 
         //Recurse through the chain
         while ((cause = cause.getCause()) != null) {
-            
+
             if (cause.getClass().equals(expectedExceptionClass)) {
                 foundExceptionInChain = true;
                 break;

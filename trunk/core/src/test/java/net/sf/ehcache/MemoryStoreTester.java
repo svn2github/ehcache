@@ -20,11 +20,16 @@ import net.sf.ehcache.distribution.JVMUtil;
 import net.sf.ehcache.store.LruMemoryStoreTest;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Store;
-
-
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
-import java.io.EOFException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -56,6 +61,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     /**
      * For automatic suite generators
      */
+    @Test
     public void testNoop() {
         //noop
     }
@@ -63,14 +69,16 @@ public class MemoryStoreTester extends AbstractCacheTest {
     /**
      * setup test
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         manager = CacheManager.getInstance();
     }
 
     /**
      * teardown
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         try {
             if (manager != null) {
                 manager.shutdown();
@@ -203,6 +211,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     /**
      * Check no NPE on put
      */
+    @Test
     public void testNullPut() throws IOException {
         store.put(null);
     }
@@ -210,6 +219,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     /**
      * Check no NPE on get
      */
+    @Test
     public void testNullGet() throws IOException {
         assertNull(store.get(null));
     }
@@ -217,6 +227,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     /**
      * Check no NPE on remove
      */
+    @Test
     public void testNullRemove() throws IOException {
         assertNull(store.remove(null));
     }
@@ -224,6 +235,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     /**
      * Tests looking up an entry that does not exist.
      */
+    @Test
     public void testGetUnknown() throws Exception {
         final Element element = store.get("key");
         assertNull(element);
@@ -232,6 +244,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     /**
      * Tests adding an entry.
      */
+    @Test
     public void testPut() throws Exception {
         final String value = "value";
         final String key = "key";
@@ -255,6 +268,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     /**
      * Tests removing an entry.
      */
+    @Test
     public void testRemove() throws Exception {
         final String value = "value";
         final String key = "key";
@@ -281,6 +295,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     /**
      * Tests removing all the entries.
      */
+    @Test
     public void testRemoveAll() throws Exception {
         final String value = "value";
         final String key = "key";
@@ -305,6 +320,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     /**
      * Tests bulk load.
      */
+    @Test
     public void testBulkLoad() throws Exception {
         final Random random = new Random();
         StopWatch stopWatch = new StopWatch();
@@ -338,6 +354,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     /**
      * Benchmark to test speed.
      */
+    @Test
     public void testBenchmarkPutGetRemove() throws Exception {
         final String key = "key";
         byte[] value = new byte[500];
@@ -360,6 +377,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     /**
      * Benchmark to test speed.
      */
+    @Test
     public void testBenchmarkPutGet() throws Exception {
         final String key = "key";
         byte[] value = new byte[500];
@@ -410,6 +428,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     /**
      * Multi-thread read-only test.
      */
+    @Test
     public void testReadOnlyThreads() throws Exception {
 
         // Add a couple of elements
@@ -435,6 +454,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     /**
      * Multi-thread read-write test.
      */
+    @Test
     public void testReadWriteThreads() throws Exception {
 
         final String value = "value";
@@ -472,6 +492,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
      * This checks for memory leaks
      * using the removeAll which was the known cause of memory leaks with MemoryStore in JCS
      */
+    @Test
     public void testMemoryLeak() throws Exception {
         long differenceMemoryCache = thrashCache();
         assertTrue(differenceMemoryCache < 500000);
@@ -538,6 +559,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     /**
      * Multi-thread read-write test.
      */
+    @Test
     public void testReadWriteThreadsSurya() throws Exception {
 
         long start = System.currentTimeMillis();
@@ -590,8 +612,9 @@ public class MemoryStoreTester extends AbstractCacheTest {
      * Takes too long to run therefore switch off
      * <p/>
      * These memory size asserts were 100,000 and 60,000. The ApacheLRU map does not get quite as high numbers.
-     * This test varies according to architecture. 64 bit architectures 
+     * This test varies according to architecture. 64 bit architectures
      */
+    @Test
     public void testMemoryStoreOutOfMemoryLimit() throws Exception {
         //Set size so the second element overflows to disk.
         cache = new Cache("memoryLimitTest", 1000000, false, false, 500, 500);

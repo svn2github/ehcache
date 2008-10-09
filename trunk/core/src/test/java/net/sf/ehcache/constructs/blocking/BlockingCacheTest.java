@@ -16,14 +16,19 @@
 
 package net.sf.ehcache.constructs.blocking;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.StopWatch;
-import net.sf.ehcache.CacheTest;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.Cache;
-
-
+import net.sf.ehcache.StopWatch;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -47,7 +52,8 @@ public class BlockingCacheTest extends CacheTest {
     /**
      * Load up the test cache
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
         Ehcache cache = manager.getCache("sampleIdlingExpiringCache");
         blockingCache = new BlockingCache(cache);
@@ -56,7 +62,8 @@ public class BlockingCacheTest extends CacheTest {
     /**
      * teardown
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         if (manager.getStatus() == Status.STATUS_ALIVE) {
             blockingCache.removeAll();
         }
@@ -66,6 +73,7 @@ public class BlockingCacheTest extends CacheTest {
     /**
      * Tests adding and looking up an entry.
      */
+    @Test
     public void testAddEntry() throws Exception {
         final String key = "key";
         final String value = "value";
@@ -88,6 +96,7 @@ public class BlockingCacheTest extends CacheTest {
     /**
      * Tests that getting entries matches a list of known entries
      */
+    @Test
     public void testGetEntries() throws Exception {
         Ehcache cache = blockingCache.getCache();
         for (int i = 0; i < 100; i++) {
@@ -114,6 +123,7 @@ public class BlockingCacheTest extends CacheTest {
     /**
      * Tests looking up a missing entry, then adding it.
      */
+    @Test
     public void testAddMissingEntry() throws Exception {
         Element element = new Element("key", "value");
 
@@ -133,6 +143,7 @@ public class BlockingCacheTest extends CacheTest {
     /**
      * Does a second tread block until the first thread puts the entry?
      */
+    @Test
     public void testSecondThreadActuallyBlocks() throws Exception {
         Element element = new Element("key", "value");
         final List threadResults = new ArrayList();
@@ -141,10 +152,10 @@ public class BlockingCacheTest extends CacheTest {
         assertNull(blockingCache.get("key"));
 
         Thread secondThread = new Thread() {
-                public void run() {
-                    threadResults.add(blockingCache.get("key"));
-                }
-            };
+            public void run() {
+                threadResults.add(blockingCache.get("key"));
+            }
+        };
         secondThread.start();
         assertEquals(0, threadResults.size());
 
@@ -162,6 +173,7 @@ public class BlockingCacheTest extends CacheTest {
     /**
      * Elements with null valuea are not stored in the blocking cache
      */
+    @Test
     public void testUnknownEntry() throws Exception {
         // Make sure the entry does not exist
         assertNull(blockingCache.get("key"));
@@ -173,6 +185,7 @@ public class BlockingCacheTest extends CacheTest {
     /**
      * Overwriting an Element with an element with a null value effectively removes it from the cache
      */
+    @Test
     public void testRemoveEntry() throws Exception {
         Element element = new Element("key", "value");
 
@@ -189,6 +202,7 @@ public class BlockingCacheTest extends CacheTest {
     /**
      * Tests clearing the cache
      */
+    @Test
     public void testClear() throws Exception {
         Ehcache cache = manager.getCache("sampleCacheNotEternalButNoIdleOrExpiry");
         blockingCache = new BlockingCache(cache);
@@ -208,6 +222,7 @@ public class BlockingCacheTest extends CacheTest {
      * Thrashes a BlockingCache and looks for liveness problems
      * Note. These timings are without logging. Turn logging off to run this test.
      */
+    @Test
     public void testThrashBlockingCache() throws Exception {
         Ehcache cache = manager.getCache("sampleCache1");
         blockingCache = new BlockingCache(cache);
@@ -220,6 +235,7 @@ public class BlockingCacheTest extends CacheTest {
      * a LockTimeoutException caused by queued threads not getting the lock
      * in the required time.
      */
+    @Test
     public void testThrashBlockingCacheTinyTimeout() throws Exception {
         Ehcache cache = manager.getCache("sampleCache1");
         blockingCache = new BlockingCache(cache);
@@ -238,6 +254,7 @@ public class BlockingCacheTest extends CacheTest {
      * Thrashes a BlockingCache which has a reasonable timeout. Should work.
      * The old implementation, which had scalability limits, needed 5, 1000L, 5000L to pass
      */
+    @Test
     public void testThrashBlockingCacheReasonableTimeout() throws Exception {
         Ehcache cache = manager.getCache("sampleCache1");
         blockingCache = new BlockingCache(cache);
@@ -246,38 +263,38 @@ public class BlockingCacheTest extends CacheTest {
         LOG.fine("Thrash Duration:" + duration);
     }
 
-        /**
-         * This method tries to get the cache to slow up.
-         * It creates 300 threads, does blocking gets and monitors the liveness right the way through
-         */
-        private long thrashCache(final BlockingCache cache, final int numberOfThreads,
-                                 final long liveness, final long retrievalTime) throws Exception {
-            StopWatch stopWatch = new StopWatch();
+    /**
+     * This method tries to get the cache to slow up.
+     * It creates 300 threads, does blocking gets and monitors the liveness right the way through
+     */
+    private long thrashCache(final BlockingCache cache, final int numberOfThreads,
+                             final long liveness, final long retrievalTime) throws Exception {
+        StopWatch stopWatch = new StopWatch();
 
-            // Create threads that do gets
-            final List executables = new ArrayList();
-            for (int i = 0; i < numberOfThreads; i++) {
-                final Executable executable = new Executable() {
-                    public void execute() throws Exception {
-                        for (int i = 0; i < 10; i++) {
-                            final String key = "key" + i;
-                            Object value = cache.get(key);
-                            checkLiveness(cache, liveness);
-                            if (value == null) {
-                                cache.put(new Element(key, "value" + i));
-                            }
-                            //The key will be in. Now check we can get it quickly
-                            checkRetrievalOnKnownKey(cache, retrievalTime, key);
+        // Create threads that do gets
+        final List executables = new ArrayList();
+        for (int i = 0; i < numberOfThreads; i++) {
+            final Executable executable = new Executable() {
+                public void execute() throws Exception {
+                    for (int i = 0; i < 10; i++) {
+                        final String key = "key" + i;
+                        Object value = cache.get(key);
+                        checkLiveness(cache, liveness);
+                        if (value == null) {
+                            cache.put(new Element(key, "value" + i));
                         }
+                        //The key will be in. Now check we can get it quickly
+                        checkRetrievalOnKnownKey(cache, retrievalTime, key);
                     }
-                };
-                executables.add(executable);
-            }
-
-            runThreads(executables);
-            cache.removeAll();
-            return stopWatch.getElapsedTime();
+                }
+            };
+            executables.add(executable);
         }
+
+        runThreads(executables);
+        cache.removeAll();
+        return stopWatch.getElapsedTime();
+    }
 
     /**
      * Checks that the liveness method returns in less than a given amount of time.
@@ -319,7 +336,7 @@ public class BlockingCacheTest extends CacheTest {
     protected Ehcache createTestCache() {
         Ehcache cache = super.createTestCache();
         return new BlockingCache(cache);
-}
+    }
 
     /**
      * Gets the sample cache 1
@@ -333,10 +350,12 @@ public class BlockingCacheTest extends CacheTest {
     /**
      * Use to manually test super class tests
      */
+    @Test
     public void testInstrumented() throws Exception {
         super.testSizes();
     }
 
+    @Test
     public void testGetWithLoader() {
         super.testGetWithLoader();
     }

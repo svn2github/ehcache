@@ -16,7 +16,9 @@
 
 package net.sf.ehcache;
 
-import junit.framework.TestCase;
+
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import java.util.logging.Logger;
 
@@ -27,7 +29,7 @@ import java.util.logging.Logger;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class StatusTest extends TestCase {
+public class StatusTest {
 
     private static final Logger LOG = Logger.getLogger(StatusTest.class.getName());
 
@@ -40,10 +42,10 @@ public class StatusTest extends TestCase {
      * It has to be fast.
      * This test keeps it that way.
      */
+    @Test
     public void testEqualsPerformance() {
         StopWatch stopWatch = new StopWatch();
         stopWatch.getElapsedTime();
-
 
 
         Status status2 = Status.STATUS_SHUTDOWN;
@@ -65,6 +67,7 @@ public class StatusTest extends TestCase {
      * An alternate implementation that is and override of the equals in Object. This would not normally
      * be used
      */
+    @Test
     public void testObjectEqualsPerformance() {
         StopWatch stopWatch = new StopWatch();
         stopWatch.getElapsedTime();
@@ -88,6 +91,7 @@ public class StatusTest extends TestCase {
     /**
      * This was the implementation up to ehcache 1.2
      */
+    @Test
     public void testIntEqualsPerformance() {
         StopWatch stopWatch = new StopWatch();
         stopWatch.getElapsedTime();
@@ -107,8 +111,6 @@ public class StatusTest extends TestCase {
 
 
     }
-
-
 
 
 }

@@ -16,11 +16,14 @@
 
 package net.sf.ehcache.constructs.blocking;
 
+import static junit.framework.Assert.assertSame;
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.StopWatch;
 import net.sf.ehcache.Element;
-
-
+import net.sf.ehcache.StopWatch;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -42,6 +45,7 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
     /**
      * Tests fetching an entry, and then an update.
      */
+    @Test
     public void testFetchAndUpdate() throws Exception {
         final String value = "value";
         final CountingCacheEntryFactory factory = new CountingCacheEntryFactory(value);
@@ -68,6 +72,7 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
     /**
      * Tests when fetch fails.
      */
+    @Test
     public void testFetchFail() throws Exception {
         final Exception exception = new Exception("Failed.");
         final UpdatingCacheEntryFactory factory = new UpdatingCacheEntryFactory() {
@@ -100,6 +105,7 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
     /**
      * Tests refreshing the entries.
      */
+    @Test
     public void testRefresh() throws Exception {
         final String value = "value";
         final CountingCacheEntryFactory factory = new CountingCacheEntryFactory(value);
@@ -122,6 +128,7 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
      * <p/>
      * To get this test to fail, add the synchronized keyword to {@link UpdatingSelfPopulatingCache#get(java.io.Serializable)}.
      */
+    @Test
     public void testThrashUpdatingSelfPopulatingCache() throws Exception {
         final String value = "value";
         final CountingCacheEntryFactory factory = new CountingCacheEntryFactory(value);
@@ -208,6 +215,7 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
      *
      * @throws Exception
      */
+    @Test
     public void testMemoryEfficiencyOfFlushWhenOverflowToDisk() throws Exception {
         super.testMemoryEfficiencyOfFlushWhenOverflowToDisk();
     }
@@ -216,6 +224,7 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
      * Tests the async load with a single item
      */
     @Override
+    @Test
     public void testAsynchronousLoad() throws InterruptedException, ExecutionException {
         super.testAsynchronousLoad();
     }

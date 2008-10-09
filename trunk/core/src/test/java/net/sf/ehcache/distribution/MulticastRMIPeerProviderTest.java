@@ -16,12 +16,16 @@
 
 package net.sf.ehcache.distribution;
 
-import junit.framework.TestCase;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.StopWatch;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -43,7 +47,7 @@ import java.util.logging.Logger;
  * @author Greg Luck
  * @version $Id$
  */
-public class MulticastRMIPeerProviderTest extends TestCase {
+public class MulticastRMIPeerProviderTest {
 
     private static final Logger LOG = Logger.getLogger(MulticastRMIPeerProviderTest.class.getName());
 
@@ -63,7 +67,8 @@ public class MulticastRMIPeerProviderTest extends TestCase {
     /**
      * {@inheritDoc}
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
@@ -79,7 +84,8 @@ public class MulticastRMIPeerProviderTest extends TestCase {
     /**
      * {@inheritDoc}
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -93,6 +99,7 @@ public class MulticastRMIPeerProviderTest extends TestCase {
     /**
      * Make sure no exceptions get logged. Manual inspection.
      */
+    @Test
     public void testSolePeer() throws Exception {
         tearDown();
 
@@ -103,6 +110,7 @@ public class MulticastRMIPeerProviderTest extends TestCase {
     /**
      * test remote cache peers
      */
+    @Test
     public void testProviderFromCacheManager() throws InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -139,6 +147,7 @@ public class MulticastRMIPeerProviderTest extends TestCase {
      * The default caches for ehcache-dsitributed1-6.xml are set to replicate.
      * We create a new cache from the default and expect it to be replicated.
      */
+    @Test
     public void testProviderCreatedFromDefaultCache() throws InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -174,6 +183,7 @@ public class MulticastRMIPeerProviderTest extends TestCase {
      * The default caches for ehcache-dsitributed1-6.xml are set to replicate.
      * We create a new cache from the default and expect it to be replicated.
      */
+    @Test
     public void testDeleteReplicatedCache() throws InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -221,6 +231,7 @@ public class MulticastRMIPeerProviderTest extends TestCase {
      * @throws InterruptedException .19ms
      *                              This seems to imply a maximum of 5000 per second best case. Not bad.
      */
+    @Test
     public void testRemoteGetName() throws RemoteException, InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -252,12 +263,13 @@ public class MulticastRMIPeerProviderTest extends TestCase {
      * Determines that the multicast TTL default is 1, which means that packets are restricted to the same subnet.
      * peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446, multicastPacketTimeToLive=255
      */
+    @Test
     public void testMulticastTTL() throws IOException {
         InetAddress groupAddress = InetAddress.getByName("230.0.0.1");
         MulticastSocket socket = new MulticastSocket();
         socket.joinGroup(groupAddress);
         int ttl = socket.getTimeToLive();
         assertEquals(1, ttl);
-}
+    }
 
 }

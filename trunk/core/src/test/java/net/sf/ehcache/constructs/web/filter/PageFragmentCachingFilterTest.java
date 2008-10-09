@@ -23,6 +23,11 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 /**
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
@@ -33,6 +38,7 @@ public class PageFragmentCachingFilterTest extends AbstractWebTest {
     /**
      * Tests that we can get the page successfully
      */
+    @Test
     public void testBasic() throws Exception {
         WebResponse response = getResponseFromAcceptGzipRequest("/include/Footer.jsp");
         assertResponseOk(response);
@@ -43,6 +49,7 @@ public class PageFragmentCachingFilterTest extends AbstractWebTest {
     /**
      * Tests that a page which is in the cache fragment filter pattern is cached.
      */
+    @Test
     public void testCachedPageFragmentIsCached() throws Exception {
         WebResponse response = getResponseFromAcceptGzipRequest("/fragment/CachedFragment.jsp");
         assertResponseOk(response);
@@ -62,6 +69,7 @@ public class PageFragmentCachingFilterTest extends AbstractWebTest {
     /**
      * Tests that a page which is in the cache fragment filter pattern is cached.
      */
+    @Test
     public void testCachedPageFragmentMultilingual() throws Exception {
         WebResponse response = getResponseFromAcceptGzipRequest("/fragment/CachedFragment.jsp");
         //Check that we are dealing with Cyrillic characters ok
@@ -86,6 +94,7 @@ public class PageFragmentCachingFilterTest extends AbstractWebTest {
     /**
      * Tests that a page which is not storeGzipped is not gzipped when the user agent accepts gzip encoding
      */
+    @Test
     public void testNotGzippedWhenAcceptEncodingPageFragment() throws Exception {
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(buildUrl("/include/Footer.jsp"));
@@ -99,6 +108,7 @@ public class PageFragmentCachingFilterTest extends AbstractWebTest {
     /**
      * Tests that a page which is not storeGzipped is not gzipped when the user agent does not accept gzip encoding
      */
+    @Test
     public void testNotGzippedWhenNotAcceptEncodingPageFragment() throws Exception {
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(buildUrl("/include/Footer.jsp"));
@@ -114,6 +124,7 @@ public class PageFragmentCachingFilterTest extends AbstractWebTest {
      *
      * @throws Exception
      */
+    @Test
     public void testFromJSPInclude() throws Exception {
         WebResponse response = getResponseFromAcceptGzipRequest("/fragment/NonCachedPageIncludingCachedFragment.jsp");
         assertResponseOk(response);

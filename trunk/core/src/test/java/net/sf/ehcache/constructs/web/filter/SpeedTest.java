@@ -23,8 +23,7 @@ import net.sf.ehcache.constructs.web.AbstractWebTest;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
-
-
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -41,6 +40,7 @@ public class SpeedTest extends AbstractWebTest {
      * Time to get 200 Cached Pages
      * StopWatch time: 947ms
      */
+    @Test
     public void testSpeedHttpClientNotCached() throws IOException {
         StopWatch stopWatch = new StopWatch();
         String url = "http://localhost:9080/Login.jsp";
@@ -59,6 +59,7 @@ public class SpeedTest extends AbstractWebTest {
      * Time to get 200 Cached Pages
      * StopWatch time: 1021ms
      */
+    @Test
     public void testSpeedHttpClientCached() throws IOException {
         StopWatch stopWatch = new StopWatch();
         String url = "http://localhost:9080/CachedPage.jsp";
@@ -76,6 +77,7 @@ public class SpeedTest extends AbstractWebTest {
     /**
      * StopWatch time: 2251ms
      */
+    @Test
     public void testSpeedNoDom() throws Exception {
         StopWatch stopWatch = new StopWatch();
         final WebConversation conversation = createWebConversation(true);
@@ -96,6 +98,7 @@ public class SpeedTest extends AbstractWebTest {
      * StopWatch time: 2686ms without JavaScript library
      * This test gets the CacheLogin twice so we need half as many
      */
+    @Test
     public void testSpeedDom() throws Exception {
         StopWatch stopWatch = new StopWatch();
         CachingFilterTest cachingFilterTest = new CachingFilterTest();
@@ -113,6 +116,7 @@ public class SpeedTest extends AbstractWebTest {
     /**
      * This is the last test run in the suite. It tells clover to flush.
      */
+    @Test
     public void testFlushClover() {
         ///CLOVER:FLUSH
     }

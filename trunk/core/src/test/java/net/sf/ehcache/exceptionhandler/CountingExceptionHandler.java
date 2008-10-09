@@ -18,11 +18,12 @@ package net.sf.ehcache.exceptionhandler;
 
 import net.sf.ehcache.Ehcache;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A test handler, used to test the Exception handling mechanism
+ *
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
@@ -64,6 +65,7 @@ public class CountingExceptionHandler implements CacheExceptionHandler {
 
         /**
          * Constructor
+         *
          * @param ehcache
          * @param key
          * @param exception
@@ -82,7 +84,6 @@ public class CountingExceptionHandler implements CacheExceptionHandler {
         }
 
         /**
-         *
          * @return underlying exception
          */
         public Exception getException() {

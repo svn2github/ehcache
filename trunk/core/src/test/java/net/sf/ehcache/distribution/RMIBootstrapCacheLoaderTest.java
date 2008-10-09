@@ -16,15 +16,17 @@
 
 package net.sf.ehcache.distribution;
 
-import junit.framework.TestCase;
+
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CountingCacheEventListener;
-
-
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Date;
 import java.util.logging.Logger;
@@ -33,7 +35,7 @@ import java.util.logging.Logger;
  * @author Greg Luck
  * @version $Id$
  */
-public class RMIBootstrapCacheLoaderTest extends TestCase {
+public class RMIBootstrapCacheLoaderTest {
 
 
     /**
@@ -84,7 +86,8 @@ public class RMIBootstrapCacheLoaderTest extends TestCase {
      *
      * @throws Exception
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
@@ -116,7 +119,8 @@ public class RMIBootstrapCacheLoaderTest extends TestCase {
      *
      * @throws Exception
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -145,6 +149,7 @@ public class RMIBootstrapCacheLoaderTest extends TestCase {
     /**
      * Tests loading from bootstrap
      */
+    @Test
     public void testBootstrapFromClusterWithAsyncLoader() throws CacheException, InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -182,6 +187,7 @@ public class RMIBootstrapCacheLoaderTest extends TestCase {
     /**
      * Tests loading from bootstrap
      */
+    @Test
     public void testBootstrapFromClusterWithSyncLoader() throws CacheException, InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -223,6 +229,7 @@ public class RMIBootstrapCacheLoaderTest extends TestCase {
      * Create the same named cache in two CacheManagers. Populate the first one. Check that the second one gets the
      * entries.
      */
+    @Test
     public void testAddCacheAndBootstrapOccurs() throws InterruptedException {
 
         manager1.addCache("testBootstrap1");

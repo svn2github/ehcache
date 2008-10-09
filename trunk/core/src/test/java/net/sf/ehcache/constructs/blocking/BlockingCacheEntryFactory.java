@@ -31,6 +31,7 @@ public class BlockingCacheEntryFactory implements CacheEntryFactory {
 
     /**
      * Constructs a new object
+     *
      * @param value the factory always creates values equal to this value
      */
     public BlockingCacheEntryFactory(final Object value) {

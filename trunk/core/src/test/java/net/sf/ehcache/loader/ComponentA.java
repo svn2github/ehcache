@@ -18,6 +18,7 @@ package net.sf.ehcache.loader;
 
 /**
  * Written for Dead-lock poc
+ *
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
@@ -27,7 +28,6 @@ public class ComponentA {
     private ComponentB b;
 
     /**
-     *
      * @param name
      * @param b
      */
@@ -37,7 +37,6 @@ public class ComponentA {
     }
 
     /**
-     *
      * @return
      */
     public String getName() {
@@ -45,7 +44,6 @@ public class ComponentA {
     }
 
     /**
-     *
      * @return
      */
     public ComponentB getB() {
@@ -53,7 +51,6 @@ public class ComponentA {
     }
 
     /**
-     * 
      * @return
      */
     public String toString() {

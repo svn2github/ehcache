@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 
 /**
  * Written for Dead-lock poc
+ *
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
@@ -31,7 +32,6 @@ public class ComponentALoader extends BaseComponentLoader {
     private static final Logger LOG = Logger.getLogger(ComponentALoader.class.getName());
 
     /**
-     *
      * @return
      */
     public String getName() {
@@ -39,7 +39,6 @@ public class ComponentALoader extends BaseComponentLoader {
     }
 
     /**
-     * 
      * @param arg0
      * @return
      * @throws CacheException

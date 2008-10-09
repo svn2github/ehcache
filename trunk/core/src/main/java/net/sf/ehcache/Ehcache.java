@@ -16,18 +16,17 @@
 
 package net.sf.ehcache;
 
-import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.extension.CacheExtension;
+import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
+import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Collection;
 
 /**
  * An interface for Ehcache.

@@ -17,7 +17,6 @@
 package net.sf.ehcache;
 
 
-
 import net.sf.ehcache.util.PropertyUtil;
 
 import java.util.logging.Logger;
@@ -60,7 +59,7 @@ public class StopWatch {
      * Used for performance benchmarking
      */
     private long timeStamp = System.currentTimeMillis();
-    
+
 
     /**
      * Get the speed adjustment factor
@@ -80,9 +79,9 @@ public class StopWatch {
                 speedAdjustmentFactor = Float.parseFloat(speedAdjustmentFactorString);
             } catch (NumberFormatException e) {
                 LOG.fine("Consider setting system property 'net.sf.ehcache.speedAdjustmentFactor=n' " +
-                    "where n is the number of times your machine is slower than the reference machine, " +
-                    "which is currently a dual G5 PowerMac. e.g. 1.2, which then enables elasped time " +
-                    "measurement to be adjusted accordingly.");
+                        "where n is the number of times your machine is slower than the reference machine, " +
+                        "which is currently a dual G5 PowerMac. e.g. 1.2, which then enables elasped time " +
+                        "measurement to be adjusted accordingly.");
             }
             LOG.fine("Using speedAjustmentFactor of " + speedAdjustmentFactor);
 

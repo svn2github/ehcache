@@ -18,6 +18,11 @@ package net.sf.ehcache.store;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStoreTester;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Map;
 
@@ -47,7 +52,8 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
     /**
      * setup test
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
         createMemoryStore(MemoryStoreEvictionPolicy.LRU);
     }
@@ -56,6 +62,7 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
      * The LRU map implementation can be overridden by setting the "net.sf.ehcache.useLRUMap" System property.
      * Here we do not do that and it should be the java.util.LinkedHashMap.
      */
+    @Test
     public void testCorrectMapImplementation() throws Exception {
         createMemoryStore(MemoryStoreEvictionPolicy.LRU, 5);
 
@@ -67,6 +74,7 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
     /**
      * Test the LRU policy
      */
+    @Test
     public void testPolicy() throws Exception {
         createMemoryStore(MemoryStoreEvictionPolicy.LRU, 5);
 
@@ -133,6 +141,7 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
      * v 1.41 DiskStore 1609
      * Adjusted for change to laptop
      */
+    @Test
     public void testBenchmarkPutGetSurya() throws Exception {
         benchmarkPutGetSuryaTest(2500);
     }

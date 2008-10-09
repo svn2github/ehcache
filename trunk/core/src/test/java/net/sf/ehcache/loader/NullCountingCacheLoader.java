@@ -16,23 +16,21 @@
 
 package net.sf.ehcache.loader;
 
-import net.sf.jsr107cache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
+import net.sf.jsr107cache.CacheException;
 
-import java.util.Random;
-import java.util.Map;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Map;
+import java.util.Random;
 import java.util.logging.Logger;
 
 
 /**
  * A cache loader that counts the number of things it has loaded, useful for testing.
  * This one returns null to all load methods.
- *
- *
+ * <p/>
+ * <p/>
  * Each load has a random delay to introduce some nice threading entropy.
  *
  * @author Greg Luck

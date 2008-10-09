@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 /**
  * A class which is <code>Serializable</code> but has no other attributes.
+ *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */

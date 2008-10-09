@@ -31,6 +31,7 @@ public class CountingCacheEntryFactory implements UpdatingCacheEntryFactory {
 
     /**
      * Creates a new instance
+     *
      * @param value the factory always creates values equal to this value
      */
     public CountingCacheEntryFactory(final Object value) {

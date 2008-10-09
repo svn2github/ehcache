@@ -17,9 +17,11 @@
 package net.sf.ehcache.constructs.web;
 
 import com.meterware.httpunit.WebResponse;
+import org.junit.Test;
 
 /**
  * Tests that the test Orion server is properly installed and running.
+ *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
@@ -28,6 +30,7 @@ public class BasicWebServerTest extends AbstractWebTest {
     /**
      * Tests Orion supplied page
      */
+    @Test
     public void testOrionDefaultPage() throws Exception {
         WebResponse response = getResponseFromAcceptGzipRequest("/index.html");
         assertResponseOk(response);
@@ -36,6 +39,7 @@ public class BasicWebServerTest extends AbstractWebTest {
     /**
      * Tests that we have enough of Orion to use a JSP
      */
+    @Test
     public void testBasicJsp() throws Exception {
         WebResponse response = getResponseFromAcceptGzipRequest("/Login.jsp");
         assertResponseGood(response, true);
@@ -44,6 +48,7 @@ public class BasicWebServerTest extends AbstractWebTest {
     /**
      * Tests that a page which is not   in the cache filter pattern is not cached.
      */
+    @Test
     public void testUncachedPageIsNotCached() throws Exception {
         assertResponseGoodAndNotCached("/Login.jsp", true);
     }

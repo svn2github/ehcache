@@ -17,18 +17,20 @@
 package net.sf.ehcache.jcache;
 
 
-
-
-import net.sf.jsr107cache.CacheManager;
-import net.sf.jsr107cache.Cache;
-import net.sf.jsr107cache.CacheException;
-import net.sf.jsr107cache.CacheEntry;
-
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Element;
+import net.sf.jsr107cache.Cache;
+import net.sf.jsr107cache.CacheEntry;
+import net.sf.jsr107cache.CacheException;
+import net.sf.jsr107cache.CacheManager;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -47,7 +49,8 @@ public class JCacheEntryTest extends AbstractCacheTest {
      * teardown
      * limits to what we can do here under jsr107
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         getTestCache().clear();
     }
 
@@ -73,6 +76,7 @@ public class JCacheEntryTest extends AbstractCacheTest {
      * jsr107 does not allow a CacheEntry to be put into a cache. So testing
      * recycling of elements is pointless.
      */
+    @Test
     public void testAccessTimes() throws Exception {
         Cache cache = getTestCache();
 
@@ -100,6 +104,7 @@ public class JCacheEntryTest extends AbstractCacheTest {
     /**
      * This implementation does not have a notion of cost.
      */
+    @Test
     public void testCost() throws Exception {
         Cache cache = getTestCache();
 
@@ -111,6 +116,7 @@ public class JCacheEntryTest extends AbstractCacheTest {
     /**
      * Check the expiry time is correct.
      */
+    @Test
     public void testExpirationTime() throws Exception {
 
         Cache cache = getTestCache();
@@ -126,6 +132,7 @@ public class JCacheEntryTest extends AbstractCacheTest {
     /**
      * Check the expiry time is correct.
      */
+    @Test
     public void testCannotSet() throws Exception {
 
         Cache cache = getTestCache();
@@ -144,6 +151,7 @@ public class JCacheEntryTest extends AbstractCacheTest {
     /**
      * Each get should cause a hit.
      */
+    @Test
     public void testHits() throws Exception {
 
         Cache cache = getTestCache();
@@ -165,6 +173,7 @@ public class JCacheEntryTest extends AbstractCacheTest {
     /**
      * Last access time should be 0 if not accessed and then the last get time.
      */
+    @Test
     public void testLastAccessTime() throws Exception {
 
         Cache cache = getTestCache();
@@ -182,6 +191,7 @@ public class JCacheEntryTest extends AbstractCacheTest {
     /**
      * 0 when first created. 0 when first put. 1 when replaced.
      */
+    @Test
     public void testLastUpdateTime() throws Exception {
 
         Cache cache = getTestCache();
@@ -202,6 +212,7 @@ public class JCacheEntryTest extends AbstractCacheTest {
     /**
      * 0 when first created. 1 when first put. > 2 when replaced.
      */
+    @Test
     public void testVersion() throws Exception {
 
         Cache cache = getTestCache();
@@ -221,6 +232,7 @@ public class JCacheEntryTest extends AbstractCacheTest {
     /**
      * valid when first created. valid if not expired, invalid if expired.
      */
+    @Test
     public void testIsValid() throws Exception {
 
         Cache cache = getTestCache();
@@ -239,10 +251,10 @@ public class JCacheEntryTest extends AbstractCacheTest {
     }
 
 
-
     /**
      * Test getting the entry set
      */
+    @Test
     public void testEntrySet() throws Exception {
 
         JCache jcache = (JCache) getTestCache();

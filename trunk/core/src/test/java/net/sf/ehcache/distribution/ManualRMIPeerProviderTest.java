@@ -19,6 +19,10 @@ package net.sf.ehcache.distribution;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.List;
 
@@ -32,7 +36,8 @@ public class ManualRMIPeerProviderTest extends MulticastRMIPeerProviderTest {
     /**
      * {@inheritDoc}
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
@@ -56,6 +61,7 @@ public class ManualRMIPeerProviderTest extends MulticastRMIPeerProviderTest {
     /**
      * test remote cache peers
      */
+    @Test
     public void testProviderFromCacheManager() throws InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {

@@ -16,7 +16,7 @@
 
 package net.sf.ehcache.distribution;
 
-import junit.framework.TestCase;
+
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -24,6 +24,11 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CountingCacheEventListener;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -37,7 +42,7 @@ import java.util.List;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class RMICacheManagerPeerListenerTest extends TestCase {
+public class RMICacheManagerPeerListenerTest {
 
     /**
      * CacheManager 1 in the cluster
@@ -84,7 +89,8 @@ public class RMICacheManagerPeerListenerTest extends TestCase {
      *
      * @throws Exception
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
@@ -115,7 +121,8 @@ public class RMICacheManagerPeerListenerTest extends TestCase {
      *
      * @throws Exception
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
@@ -138,6 +145,7 @@ public class RMICacheManagerPeerListenerTest extends TestCase {
     /**
      * Are all of the replicated caches bound to the RMI listener?
      */
+    @Test
     public void testPeersBound() {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -181,6 +189,7 @@ public class RMICacheManagerPeerListenerTest extends TestCase {
     /**
      * Are all of the replicated caches bound to the listener and working?
      */
+    @Test
     public void testBoundListenerPeers() throws RemoteException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -194,6 +203,7 @@ public class RMICacheManagerPeerListenerTest extends TestCase {
     /**
      * Are all of the CachePeers for replicated caches bound to the listener and working?
      */
+    @Test
     public void testBoundListenerPeersAfterDefaultCacheAdd() throws RemoteException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -214,6 +224,7 @@ public class RMICacheManagerPeerListenerTest extends TestCase {
     /**
      * Are all of the CachePeers for replicated caches bound to the listener and working?
      */
+    @Test
     public void testBoundListenerPeersAfterProgrammaticCacheAdd() throws RemoteException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -242,6 +253,7 @@ public class RMICacheManagerPeerListenerTest extends TestCase {
     /**
      * Are all of the CachePeers for replicated caches bound to the listener and working?
      */
+    @Test
     public void testBoundListenerPeersAfterCacheRemove() throws RemoteException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -272,6 +284,7 @@ public class RMICacheManagerPeerListenerTest extends TestCase {
     /**
      * Does the RMI listener stop?
      */
+    @Test
     public void testListenerShutsdown() {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -295,6 +308,7 @@ public class RMICacheManagerPeerListenerTest extends TestCase {
      * see "VM shutting down with the RMICacheManagerPeerListener for localhost still active. Calling dispose..."
      * in the log with FINE level when this test is run individually or as the last test in the run. i.e. on VM shutdown.
      */
+    @Test
     public void testListenerShutsdownFromShutdownHook() {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {

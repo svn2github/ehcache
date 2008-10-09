@@ -20,22 +20,26 @@ import com.meterware.httpunit.ClientProperties;
 import com.meterware.httpunit.HttpUnitOptions;
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebResponse;
-import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 import org.apache.commons.httpclient.HttpMethod;
-
-
 import org.dom4j.Document;
 import org.dom4j.io.DOMReader;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Before;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A convenient base class for ehcache filter tests
@@ -43,7 +47,7 @@ import java.util.logging.Level;
  * @author Greg Luck
  * @version $Id$
  */
-public abstract class AbstractWebTest extends TestCase {
+public abstract class AbstractWebTest {
 
 
     /**
@@ -86,14 +90,16 @@ public abstract class AbstractWebTest extends TestCase {
     /**
      * @throws Exception
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         instanceManager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
     }
 
     /**
      * @throws Exception
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         instanceManager.shutdown();
     }
 
@@ -103,7 +109,7 @@ public abstract class AbstractWebTest extends TestCase {
      */
     protected static void assertContains(final String string, final String content) {
         if (content.indexOf(string) == -1) {
-            throw new AssertionFailedError(content + "' does not contain '" + string + "'");
+            throw new AssertionError(content + "' does not contain '" + string + "'");
         }
     }
 

@@ -16,8 +16,10 @@
 
 package net.sf.ehcache.constructs.concurrent;
 
-import junit.framework.TestCase;
+
 import net.sf.ehcache.CacheException;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import java.util.logging.Logger;
 
@@ -28,7 +30,7 @@ import java.util.logging.Logger;
  * @author Greg Luck
  * @version $Id$
  */
-public class ConcurrencyUtilTest extends TestCase {
+public class ConcurrencyUtilTest {
 
     private static final Logger LOG = Logger.getLogger(ConcurrencyUtilTest.class.getName());
 
@@ -36,6 +38,7 @@ public class ConcurrencyUtilTest extends TestCase {
     /**
      * Tests that stripes are evently distributed
      */
+    @Test
     public void testStripingDistribution() {
 
         int[] lockIndexes = new int[2048];
@@ -60,6 +63,7 @@ public class ConcurrencyUtilTest extends TestCase {
     /**
      * Tests edge conditions for striping mechanism.
      */
+    @Test
     public void testNullKey() {
         ConcurrencyUtil.selectLock(null, 2048);
         ConcurrencyUtil.selectLock("", 2048);
@@ -69,6 +73,7 @@ public class ConcurrencyUtilTest extends TestCase {
     /**
      * Tests edge conditions for striping mechanism.
      */
+    @Test
     public void testEvenLockNumber() {
         try {
             ConcurrencyUtil.selectLock("anything", 100);

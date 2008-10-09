@@ -16,23 +16,29 @@
 
 package net.sf.ehcache.jcache;
 
-import java.util.concurrent.ExecutionException;
-import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
-import net.sf.ehcache.loader.CountingCacheLoader;
-import net.sf.ehcache.loader.ExceptionThrowingLoader;
-import net.sf.ehcache.loader.CacheLoader;
-import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 import net.sf.ehcache.StopWatch;
 import net.sf.ehcache.ThreadKiller;
-import net.sf.ehcache.Element;
+import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
+import net.sf.ehcache.loader.CacheLoader;
+import net.sf.ehcache.loader.CountingCacheLoader;
+import net.sf.ehcache.loader.ExceptionThrowingLoader;
 import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheEntry;
 import net.sf.jsr107cache.CacheException;
 import net.sf.jsr107cache.CacheManager;
 import net.sf.jsr107cache.CacheStatistics;
-
-
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -43,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 /**
@@ -58,7 +65,8 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * setup test
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
         System.gc();
         Thread.sleep(100);
@@ -70,7 +78,8 @@ public class JCacheTest extends AbstractCacheTest {
      * teardown
      * limits to what we can do here under jsr107
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         getTest1Cache().clear();
         getTest2Cache().clear();
         getTest4Cache().clear();
@@ -148,25 +157,25 @@ public class JCacheTest extends AbstractCacheTest {
      * Checks we cannot use a cache after shutdown
      * test cannot be implemented due to lack of lifecycle support in jsr107
      */
-//    public void testUseCacheAfterManagerShutdown() throws CacheException {
+//    @Test public void testUseCacheAfterManagerShutdown() throws CacheException {
 
     /**
      * Checks we cannot use a cache outside the manager
      * Is the jsr107 silent on whether you can do this?
      */
-//    public void testUseCacheOutsideManager() throws CacheException {
+//    @Test public void testUseCacheOutsideManager() throws CacheException {
 
     /**
      * Checks when and how we can set the cache name.
      * This is not allowed in jsr107
      */
-    //public void testSetCacheName() throws CacheException {
+    //@Test public void testSetCacheName() throws CacheException {
 
     /**
      * Test using a cache which has been removed and replaced.
      * Is the jsr107 silent on whether you can do this?
      */
-//    public void testStaleCacheReference() throws CacheException {
+//    @Test public void testStaleCacheReference() throws CacheException {
 
     /**
      * Tests getting the cache name
@@ -174,7 +183,7 @@ public class JCacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-//    public void testCacheWithNoIdle() throws Exception {
+//    @Test public void testCacheWithNoIdle() throws Exception {
 
     /**
      * Test expiry based on time to live
@@ -185,6 +194,7 @@ public class JCacheTest extends AbstractCacheTest {
      * overflowToDisk="false"
      * />
      */
+    @Test
     public void testExpiryBasedOnTimeToLiveWhenNoIdle() throws Exception {
         net.sf.ehcache.Cache ehcache = manager.getCache("sampleCacheNoIdle");
         JCache jCache = new JCache(ehcache, null);
@@ -211,11 +221,12 @@ public class JCacheTest extends AbstractCacheTest {
      * Test expiry based on time to live where an Eelment override is set on TTL
      * jsr107 does not support TTL overrides per put.
      */
-//    public void testExpiryBasedOnTimeToLiveWhenNoIdleElementOverride() throws Exception {
+//    @Test public void testExpiryBasedOnTimeToLiveWhenNoIdleElementOverride() throws Exception {
 
     /**
      * Test overflow to disk = false
      */
+    @Test
     public void testNoOverflowToDisk() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testNoOverflowToDisk", 1, false, true, 500, 200);
         manager.addCache(ehcache);
@@ -230,6 +241,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Test isEmpty
      */
+    @Test
     public void testIsEmpty() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testIsEmpty", 1, true, true, 500, 200);
         manager.addCache(ehcache);
@@ -252,6 +264,7 @@ public class JCacheTest extends AbstractCacheTest {
      * <p/>
      * Check that getting JCache, Ehcache and Cache all make sense.
      */
+    @Test
     public void testEhcacheConstructor() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testJCacheCreation", 1, true, true, 500, 200);
         JCache cache = new JCache(ehcache);
@@ -278,6 +291,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Test isEmpty
      */
+    @Test
     public void testEvict() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testEvict", 1, true, false, 1, 200);
         manager.addCache(ehcache);
@@ -306,6 +320,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Test containsKey
      */
+    @Test
     public void testContainsKey() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testContainsKey", 1, true, true, 500, 200);
         manager.addCache(ehcache);
@@ -329,6 +344,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Test containsValue
      */
+    @Test
     public void testContainsValue() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testContainsValue", 2, true, true, 500, 200);
         manager.addCache(ehcache);
@@ -352,6 +368,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Test the get method.
      */
+    @Test
     public void testGet() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testGet", 10, true, true, 500, 200);
         manager.addCache(ehcache);
@@ -435,6 +452,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Test the loader name method.
      */
+    @Test
     public void testLoaderName() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testName", 10, true, true, 500, 200);
         manager.addCache(ehcache);
@@ -452,6 +470,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Test the get values method.
      */
+    @Test
     public void testGetValues() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testGetValue", 2, true, true, 500, 200);
         manager.addCache(ehcache);
@@ -481,6 +500,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Tests putAll
      */
+    @Test
     public void testPutAll() {
         Ehcache ehcache = new net.sf.ehcache.Cache("testPutAll", 2, true, true, 500, 200);
         manager.addCache(ehcache);
@@ -505,6 +525,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Tests clear()
      */
+    @Test
     public void testClear() {
         Ehcache ehcache = new net.sf.ehcache.Cache("testClear", 2, true, true, 500, 200);
         manager.addCache(ehcache);
@@ -523,6 +544,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Test the keyset method
      */
+    @Test
     public void testKeySet() {
         Ehcache ehcache = new net.sf.ehcache.Cache("testKeySet", 2, true, true, 500, 200);
         manager.addCache(ehcache);
@@ -550,6 +572,7 @@ public class JCacheTest extends AbstractCacheTest {
      * <p/>
      * Threading changes were made in v1.41 of DiskStore. The before and after numbers are shown.
      */
+    @Test
     public void testProportionMemoryAndDiskPerformance() throws Exception {
         StopWatch stopWatch = new StopWatch();
         long time = 0;
@@ -629,11 +652,12 @@ public class JCacheTest extends AbstractCacheTest {
      * </ol>
      * jsr107 does not support lifecycles.
      */
-//    public void testCreateAddDisposeAdd() throws CacheException {
+//    @Test public void testCreateAddDisposeAdd() throws CacheException {
 
     /**
      * Test expiry based on time to live
      */
+    @Test
     public void testExpiryBasedOnTimeToLive() throws Exception {
         //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("testExpiryBasedOnTimeToLive", 1, true, false, 3, 0);
@@ -662,6 +686,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Test expiry based on time to live where the TTL is set in the put
      */
+    @Test
     public void testExpiryBasedOnTimeToLiveTTL() throws Exception {
 
         //Set size so the second element overflows to disk.
@@ -693,6 +718,7 @@ public class JCacheTest extends AbstractCacheTest {
      * Test expiry based on time to live.
      * This test uses peek, which behaves the same as get
      */
+    @Test
     public void testExpiryBasedOnTimeToLiveUsingPeek() throws Exception {
         //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("testExpiryBasedOnTimeToLiveUsingPeek", 1, true, false, 3, 0);
@@ -723,7 +749,7 @@ public class JCacheTest extends AbstractCacheTest {
 //     * the default expiry policy.
 //     * Caches cannot be created from default in jsr107
 //     */
-//    public void testExpiryBasedOnTimeToLiveForDefault() throws Exception {
+//    @Test public void testExpiryBasedOnTimeToLiveForDefault() throws Exception {
 
     /**
      * Test expiry based on time to live.
@@ -732,12 +758,13 @@ public class JCacheTest extends AbstractCacheTest {
      * The elements should expire as if the putQuiet had not happened.
      * jsr107
      */
-//    public void testExpiryBasedOnTimeToLiveAfterPutQuiet() throws Exception {
+//    @Test public void testExpiryBasedOnTimeToLiveAfterPutQuiet() throws Exception {
 
 
     /**
      * Test expiry based on time to live
      */
+    @Test
     public void testNoIdleOrExpiryBasedOnTimeToLiveForEternal() throws Exception {
         //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("testNoIdleOrExpiryBasedOnTimeToLiveForEternal", 1, true, true, 5, 2);
@@ -765,6 +792,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Test expiry based on time to idle.
      */
+    @Test
     public void testExpiryBasedOnTimeToIdle() throws Exception {
         //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("testExpiryBasedOnTimeToIdle", 1, true, false, 6, 2);
@@ -797,7 +825,7 @@ public class JCacheTest extends AbstractCacheTest {
      * Test expiry based on time to idle.
      * jsr107 has no put quiet
      */
-//    public void testExpiryBasedOnTimeToIdleAfterPutQuiet() throws Exception {
+//    @Test public void testExpiryBasedOnTimeToIdleAfterPutQuiet() throws Exception {
 
     /**
      * Test element statistics, including get and getQuiet
@@ -808,6 +836,7 @@ public class JCacheTest extends AbstractCacheTest {
      * <p/>
      * jsr107 has no put quiet
      */
+    @Test
     public void testElementStatistics() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testElementStatistics", 1, true, false, 5, 2);
         manager.addCache(ehcache);
@@ -826,6 +855,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Check getting a cache entry where it does not exist
      */
+    @Test
     public void testNullCacheEntry() {
         Ehcache ehcache = new net.sf.ehcache.Cache("testNullCacheEntry", 1, true, false, 5, 2);
         manager.addCache(ehcache);
@@ -843,6 +873,7 @@ public class JCacheTest extends AbstractCacheTest {
      * Test cache statistics, including get.
      * Reconcile CacheEntry stats with cache stats and make sure they agree
      */
+    @Test
     public void testCacheStatistics() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testCacheStatistics", 1, true, false, 5, 2);
         manager.addCache(ehcache);
@@ -874,13 +905,14 @@ public class JCacheTest extends AbstractCacheTest {
      * Checks that getQuiet works how we expect it to
      * not supported in jsr107
      */
-//    public void testGetQuietAndPutQuiet() throws Exception {
+//    @Test public void testGetQuietAndPutQuiet() throws Exception {
 
     /**
      * Test size with put and remove.
      * <p/>
      * It checks that size makes sense, and also that getKeys.size() matches getSize()
      */
+    @Test
     public void testSizeWithPutAndRemove() throws Exception {
         //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("testSizeWithPutAndRemove", 1, true, true, 0, 0);
@@ -929,6 +961,7 @@ public class JCacheTest extends AbstractCacheTest {
      * <p/>
      * Makes sure that if an element is expired, its key should also be expired
      */
+    @Test
     public void testGetKeysAfterExpiry() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = getTest2Cache();
@@ -952,6 +985,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Test size after multiple calls, with put and remove
      */
+    @Test
     public void testSizeMultipleCallsWithPutAndRemove() throws Exception {
         //Set size so the second element overflows to disk.
         //Cache cache = new Cache("test3", 1, true, true, 0, 0);
@@ -987,6 +1021,7 @@ public class JCacheTest extends AbstractCacheTest {
      * 31ms for 2000 keys, half in memory and half on disk
      * <p/>
      */
+    @Test
     public void testGetKeysPerformance() throws Exception {
         Cache cache = getTest2Cache();
 
@@ -1015,12 +1050,13 @@ public class JCacheTest extends AbstractCacheTest {
      * 3467890 bytes in 1601ms for JDK1.4.2
      * N/A to jsr107
      */
-//    public void testCalculateInMemorySizePerformanceAndReasonableness() throws Exception {
+//    @Test public void testCalculateInMemorySizePerformanceAndReasonableness() throws Exception {
 
 
     /**
      * Expire elements and verify size is correct.
      */
+    @Test
     public void testGetSizeAfterExpiry() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = getTest2Cache();
@@ -1039,7 +1075,7 @@ public class JCacheTest extends AbstractCacheTest {
      * Tests initialisation failures
      * jsr107 has no lifecycle management
      */
-//    public void testInitialiseFailures() {
+//    @Test public void testInitialiseFailures() {
 
 
     /**
@@ -1047,6 +1083,7 @@ public class JCacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
+    @Test
     public void testNullTreatment() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testNullTreatment", 1, false, false, 5, 1);
         manager.addCache(ehcache);
@@ -1069,6 +1106,7 @@ public class JCacheTest extends AbstractCacheTest {
      * Tests cache, memory store and disk store sizes from config
      * jsr107 does not breakdowns of store sizes.
      */
+    @Test
     public void testSizes() throws Exception {
         Cache cache = getTest1Cache();
         assertEquals(0, cache.getCacheStatistics().getObjectCount());
@@ -1097,14 +1135,14 @@ public class JCacheTest extends AbstractCacheTest {
      * Tests flushing the cache
      * jsr107 does not specify a disk store and therefore does not have a flush.
      */
-//    public void testFlushWhenOverflowToDisk() throws Exception {
+//    @Test public void testFlushWhenOverflowToDisk() throws Exception {
 
     /**
      * Tests put works correctly for Elements with overriden TTL
      * jsr107 does not support overriding TTL on a per entry basis
      *
      */
-//    public void testPutWithOverriddenTTLAndTTI() throws Exception {
+//    @Test public void testPutWithOverriddenTTLAndTTI() throws Exception {
 
 
     /**
@@ -1112,6 +1150,7 @@ public class JCacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
+    @Test
     public void testNonSerializableElement() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testElementWithNonSerializableValue", 1, true, false, 100, 200);
         manager.addCache(ehcache);
@@ -1139,6 +1178,7 @@ public class JCacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
+    @Test
     public void testSpoolThreadHandlesThreadKiller() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testThreadKiller", 1, true, false, 100, 200);
         manager.addCache(ehcache);
@@ -1158,19 +1198,20 @@ public class JCacheTest extends AbstractCacheTest {
      * Tests disk store and memory store size
      * jsr107 does not support getting store sizes
      */
-//    public void testGetDiskStoreSize() throws Exception {
+//    @Test public void testGetDiskStoreSize() throws Exception {
 
     /**
      * Tests that attempting to clone a cache fails with the right exception.
      * jsr107 does not make clone available
      *
      */
-//    public void testCloneFailures() throws Exception {
+//    @Test public void testCloneFailures() throws Exception {
 
 
     /**
      * Tests that the toString() method works.
      */
+    @Test
     public void testToString() throws CacheException {
         Cache cache = getTest2Cache();
         cache.clear();
@@ -1183,18 +1224,19 @@ public class JCacheTest extends AbstractCacheTest {
      * When does equals mean the same thing as == for an element?
      * NA JSR107 does not have elements
      */
-//    public void testEquals() throws CacheException, InterruptedException {
+//    @Test public void testEquals() throws CacheException, InterruptedException {
 
     /**
      * Tests the uniqueness of the GUID
      * Not part of jsr107
      */
-//    public void testGuid() {
+//    @Test public void testGuid() {
 
     /**
      * Does the Object API work?
      * jsr107 is an object API
      */
+    @Test
     public void testAPIObjectCompatibility() throws CacheException {
         Cache cache = getTest1Cache();
 
@@ -1216,6 +1258,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Does the Serializable API work?
      */
+    @Test
     public void testAPISerializableCompatibility() throws CacheException {
         //Set size so the second element overflows to disk.
         Cache cache = getTest2Cache();
@@ -1232,7 +1275,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Test issues reported. N/A
      */
-//    public void testDiskStoreFlorian() {
+//    @Test public void testDiskStoreFlorian() {
 
 
     /**
@@ -1243,6 +1286,7 @@ public class JCacheTest extends AbstractCacheTest {
      * The get here will often load data, so it does not give raw cache performance. See the similar test in CacheTest
      * for that.
      */
+    @Test
     public void testReadWriteThreads() throws Exception {
 
         final int size = 10000;
@@ -1361,6 +1405,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Tests the public API load method with a single item
      */
+    @Test
     public void testLoad() throws InterruptedException, ExecutionException, CacheException {
 
         CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
@@ -1374,6 +1419,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Tests that the setLoader method allows the loader to be changed. The load is async so timing is important.
      */
+    @Test
     public void testLoadWithDynamicLoaderInjection() throws InterruptedException, ExecutionException, CacheException {
 
         //null loader so no loading happens
@@ -1402,6 +1448,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Test exception handling from JCache
      */
+    @Test
     public void testCacheExceptionHandler() {
         JCache jcache = manager.getJCache("exceptionHandlingCache");
 
@@ -1419,6 +1466,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Tests the loadAll Public API method
      */
+    @Test
     public void testLoadAll() throws InterruptedException, ExecutionException, CacheException {
 
         CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
@@ -1449,6 +1497,7 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * Tests the getAll Public API method
      */
+    @Test
     public void testGetAll() throws InterruptedException, ExecutionException, CacheException {
 
         JCache jcache = new JCache(manager.getCache("sampleCache1"), null);

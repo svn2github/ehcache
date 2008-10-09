@@ -21,8 +21,11 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheStatistics;
-
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -45,6 +48,7 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
     /**
      * Test statistics directly from Statistics Object
      */
+    @Test
     public void testStatisticsFromStatisticsObject() throws InterruptedException {
         //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("testStatistics", 1, true, false, 5, 2);
@@ -99,6 +103,7 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
     /**
      * CacheStatistics should always be sensible when the cache has not started.
      */
+    @Test
     public void testCacheStatisticsDegradesElegantlyWhenCacheDisposed() {
         Ehcache ehcache = new net.sf.ehcache.Cache("test", 1, true, false, 5, 2);
         Cache cache = new JCache(ehcache, null);
@@ -116,6 +121,7 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
      * We want to be able to use Statistics as a value object.
      * We need to do some magic with the reference held to Cache
      */
+    @Test
     public void testSerialization() throws IOException, ClassNotFoundException {
 
         Ehcache ehcache = new net.sf.ehcache.Cache("test", 1, true, false, 5, 2);
@@ -156,6 +162,7 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
     /**
      * Test statistics directly from Statistics Object
      */
+    @Test
     public void testClearStatistics() throws InterruptedException {
         //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("test", 1, true, false, 5, 2);
@@ -181,6 +188,7 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
     /**
      * Tests average get time
      */
+    @Test
     public void testAverageGetTime() {
         //set to 0 to make it run slow
         Ehcache ehcache = new net.sf.ehcache.Cache("test", 0, true, false, 5, 2);
@@ -210,6 +218,7 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
     /**
      * Tests eviction statistics
      */
+    @Test
     public void testEvictionStatistics() throws InterruptedException {
         //set to 0 to make it run slow
         Ehcache ehcache = new net.sf.ehcache.Cache("test", 10, false, false, 2, 2);

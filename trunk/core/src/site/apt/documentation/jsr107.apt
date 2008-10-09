@@ -269,7 +269,7 @@
 
 
 -----
-    public void testIntOverflow() {
+    @Test public void testIntOverflow() {
         long value = Integer.MAX_VALUE;
         value += Integer.MAX_VALUE;
         value += 5;

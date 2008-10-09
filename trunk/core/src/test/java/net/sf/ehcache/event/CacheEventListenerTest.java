@@ -21,14 +21,21 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -56,7 +63,8 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
         CountingCacheEventListener.resetCounters();
         manager.shutdown();
@@ -71,7 +79,8 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         CountingCacheEventListener.resetCounters();
         super.tearDown();
     }
@@ -80,6 +89,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
     /**
      * Tests the put listener.
      */
+    @Test
     public void testPutNotifications() {
 
         Serializable key = new Date();
@@ -105,6 +115,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
     /**
      * Tests the put and update listeners.
      */
+    @Test
     public void testUpdateNotifications() {
 
         //Put and update
@@ -133,6 +144,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
     /**
      * Tests the remove notifier
      */
+    @Test
     public void testRemoveNotifications() {
 
         Serializable key = "1";
@@ -164,6 +176,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      * Tests the eviction notifier.
      * sampleCache2 does not overflow, so an evict should trigger a notification
      */
+    @Test
     public void testEvictNotificationsWhereNoOverflow() {
 
         Ehcache cache2 = manager.getCache("sampleCache2");
@@ -183,6 +196,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      * Tests the eviction notifier.
      * sampleCache1 overflows, so the evict should overflow to disk and not trigger a notification
      */
+    @Test
     public void testEvictNotificationsWhereOverflow() {
 
         Ehcache cache1 = manager.getCache("sampleCache1");
@@ -201,6 +215,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
     /**
      * Tests the removeAll notifier.
      */
+    @Test
     public void testRemoveAllNotification() {
 
         Ehcache cache2 = manager.getCache("sampleCache2");
@@ -226,6 +241,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      * Tests the remove notifier where the element does not exist in the local cache.
      * Listener notification is required for correct operation of cluster invalidation.
      */
+    @Test
     public void testRemoveNotificationWhereElementDidNotExist() {
 
         Serializable key = "1";
@@ -254,6 +270,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
     /**
      * Tests the expiry notifier. Check a reported scenario
      */
+    @Test
     public void testExpiryNotifications() throws InterruptedException {
 
         Serializable key = "1";
@@ -446,6 +463,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      * store, then the element gets automatically removed. This should
      * trigger an eviction notification.
      */
+    @Test
     public void testEvictionFromLRUMemoryStoreNoExpiry() throws IOException, CacheException, InterruptedException {
         String sampleCache2 = "sampleCache2";
         cache = manager.getCache(sampleCache2);
@@ -466,6 +484,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      * store, then the element gets automatically evicted. This should
      * trigger an eviction notification.
      */
+    @Test
     public void testEvictionFromLRUMemoryStoreNotSerializable() throws IOException, CacheException, InterruptedException {
         String sampleCache1 = "sampleCache1";
         cache = manager.getCache(sampleCache1);
@@ -492,6 +511,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      * <p/>
      * If the element has expired, it should instead trigger an expiry notification.
      */
+    @Test
     public void testEvictionFromLRUMemoryStoreExpiry() throws IOException, CacheException, InterruptedException {
         String sampleCache2 = "sampleCache2";
         cache = manager.getCache(sampleCache2);
@@ -515,6 +535,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      * store, then the element gets automatically evicted. This should
      * trigger a notification.
      */
+    @Test
     public void testEvictionFromFIFOMemoryStoreNoExpiry() throws IOException, CacheException {
         String sampleCache3 = "sampleCache3";
         cache = manager.getCache(sampleCache3);
@@ -539,6 +560,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      * <p/>
      * If the element has expired, it should instead trigger an expiry notification.
      */
+    @Test
     public void testEvictionFromFIFOMemoryStoreExpiry() throws IOException, CacheException, InterruptedException {
         String sampleCache3 = "sampleCache3";
         cache = manager.getCache(sampleCache3);
@@ -562,6 +584,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      * store, then the element gets automatically evicted. This should
      * trigger a notification.
      */
+    @Test
     public void testEvictionFromLFUMemoryStoreNoExpiry() throws IOException, CacheException {
         String sampleCache4 = "sampleCache4";
         cache = manager.getCache(sampleCache4);
@@ -586,6 +609,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      * <p/>
      * If the element has expired, it should instead trigger an expiry notification.
      */
+    @Test
     public void testEvictionFromLFUMemoryStoreExpiry() throws IOException, CacheException, InterruptedException {
         String sampleCache4 = "sampleCache4";
         cache = manager.getCache(sampleCache4);
@@ -611,6 +635,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      * @throws InterruptedException
      * @throws CacheException
      */
+    @Test
     public void testExpiryViaMemoryStoreCheckingOnGet() throws InterruptedException, CacheException, IOException {
 
         cache.removeAll();
@@ -638,6 +663,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      * @throws InterruptedException
      * @throws CacheException
      */
+    @Test
     public void testExpiryViaDiskStoreCheckingOnGet() throws InterruptedException, CacheException, IOException {
         //Overflow 10 elements to disk store
         for (int i = 0; i < 20; i++) {
@@ -667,6 +693,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      *
      * @throws InterruptedException
      */
+    @Test
     public void testExpiryViaDiskStoreExpiryThread() throws InterruptedException {
         //Overflow 10 elements to disk store
         for (int i = 0; i < 20; i++) {
@@ -713,6 +740,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
     /**
      * Test adding and removing of listeners while events are being notified
      */
+    @Test
     public void testAddAndRemoveListenerConcurrency() throws Exception {
 
         final List executables = new ArrayList();

@@ -22,6 +22,13 @@ import net.sf.ehcache.constructs.web.AbstractWebTest;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import java.net.HttpURLConnection;
 
@@ -36,6 +43,7 @@ public class GzipFilterTest extends AbstractWebTest {
     /**
      * Fetch NoFiltersPage.jsp, which is excluded from all filters and check it is not gzipped.
      */
+    @Test
     public void testNegativeGzip() throws Exception {
         WebConversation client = createWebConversation(true);
         client.getClientProperties().setAcceptGzip(true);
@@ -56,6 +64,7 @@ public class GzipFilterTest extends AbstractWebTest {
     /**
      * Tests that a page which is storeGzipped is gzipped when the user agent accepts gzip encoding
      */
+    @Test
     public void testGzippedWhenAcceptEncodingHomePage() throws Exception {
         WebConversation client = createWebConversation(true);
         client.getClientProperties().setAcceptGzip(true);
@@ -80,6 +89,7 @@ public class GzipFilterTest extends AbstractWebTest {
      * <p/>
      * Manual test: wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:9080/empty_gzip/empty.html
      */
+    @Test
     public void testZeroLengthHTML() throws Exception {
 
         String url = "http://localhost:9080/empty_gzip/empty.html";
@@ -96,7 +106,6 @@ public class GzipFilterTest extends AbstractWebTest {
     }
 
 
-
     /**
      * JSPs and Servlets can send bodies when the response is SC_NOT_MODIFIED.
      * In this case there should not be a body but there is. Orion seems to kill the body
@@ -106,6 +115,7 @@ public class GzipFilterTest extends AbstractWebTest {
      * <p/>
      * Manual test: wget -d --server-response --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:9080/empty_gzip/SC_NOT_MODIFIED.jsp
      */
+    @Test
     public void testNotModifiedJSPGzipFilter() throws Exception {
 
         String url = "http://localhost:9080/empty_gzip/SC_NOT_MODIFIED.jsp";
@@ -131,6 +141,7 @@ public class GzipFilterTest extends AbstractWebTest {
      * <p/>
      * Manual test: wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:9080/empty_gzip/SC_NO_CONTENT.jsp
      */
+    @Test
     public void testNoContentJSPGzipFilter() throws Exception {
 
         String url = "http://localhost:9080/empty_gzip/SC_NO_CONTENT.jsp";
@@ -150,6 +161,7 @@ public class GzipFilterTest extends AbstractWebTest {
     /**
      * Tests that a page which is storeGzipped is not gzipped when the user agent does not accept gzip encoding
      */
+    @Test
     public void testNotGzippedWhenNotAcceptEncodingHomePage() throws Exception {
         WebConversation client = createWebConversation(false);
         String url = buildUrl("/GzipOnlyPage.jsp");
@@ -167,17 +179,19 @@ public class GzipFilterTest extends AbstractWebTest {
      * Tests that hitting a page with a non gzip browser then a gzip browser causes the
      * right behaviours.
      */
+    @Test
     public void testNonGzipThenGzipBrowserHomePage() throws Exception {
         testNotGzippedWhenNotAcceptEncodingHomePage();
         testGzippedWhenAcceptEncodingHomePage();
     }
 
-        /**
+    /**
      * When the servlet container generates a 404 page not found, we want to pass
      * it through without caching and without adding anything to it.
      * <p/>
      * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:9080/non_ok/PageNotFoundGzip.jsp
      */
+    @Test
     public void testNotFound() throws Exception {
 
         String url = "http://localhost:9080/non_ok/PageNotFoundGzip.jsp";
@@ -198,6 +212,7 @@ public class GzipFilterTest extends AbstractWebTest {
      * <p/>
      * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:9080/non_ok/SendRedirectGzip.jsp
      */
+    @Test
     public void testRedirect() throws Exception {
 
         String url = "http://localhost:9080/non_ok/SendRedirectGzip.jsp";
@@ -217,6 +232,7 @@ public class GzipFilterTest extends AbstractWebTest {
      * <p/>
      * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:9080/non_ok/ForwardFromGzip.jsp
      */
+    @Test
     public void testForward() throws Exception {
 
         String url = "http://localhost:9080/non_ok/ForwardFromGzip.jsp";

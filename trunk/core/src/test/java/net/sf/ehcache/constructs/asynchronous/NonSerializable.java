@@ -21,12 +21,13 @@ import java.io.Serializable;
 
 /**
  * A class which purports to be <code>Serializable</code> but will fail to serialize. Used for testing.
+ *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
 class NonSerializable implements Serializable {
-        private void writeObject(java.io.ObjectOutputStream stream) throws IOException {
-            stream.write(1);            
-            throw new IOException();
-        }
+    private void writeObject(java.io.ObjectOutputStream stream) throws IOException {
+        stream.write(1);
+        throw new IOException();
     }
+}

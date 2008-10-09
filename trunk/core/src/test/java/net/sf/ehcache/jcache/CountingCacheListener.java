@@ -18,10 +18,10 @@ package net.sf.ehcache.jcache;
 
 import net.sf.jsr107cache.CacheListener;
 
-import java.util.List;
-import java.util.Collections;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Greg Luck

@@ -21,8 +21,12 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
-
-
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.management.JMException;
 import javax.management.MBeanAttributeInfo;
@@ -65,7 +69,8 @@ public class ManagementServiceTest extends AbstractCacheTest {
     /**
      * setup test
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
         mBeanServer = createMBeanServer();
     }
@@ -77,7 +82,8 @@ public class ManagementServiceTest extends AbstractCacheTest {
     /**
      * teardown
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         super.tearDown();
         //Ensure the CacheManager shutdown clears all ObjectNames from the MBeanServer
         assertEquals(0, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
@@ -87,6 +93,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
     /**
      * Integration test for the registration service
      */
+    @Test
     public void testRegistrationServiceFourTrue() throws Exception {
         ManagementService.registerMBeans(manager, mBeanServer, true, true, true, true);
         assertEquals(OBJECTS_IN_TEST_EHCACHE, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
@@ -95,6 +102,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
     /**
      * Integration test for the registration service
      */
+    @Test
     public void testRegistrationServiceFourTrueUsing14MBeanServer() throws Exception {
         mBeanServer = create14MBeanServer();
         ManagementService.registerMBeans(manager, mBeanServer, true, true, true, true);
@@ -106,6 +114,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
      * Integration test for the registration service using a contructed ManagementService as would be done
      * by an IoC container.
      */
+    @Test
     public void testRegistrationServiceFourTrueUsing14MBeanServerWithConstructorInjection() throws Exception {
         mBeanServer = create14MBeanServer();
         ManagementService managementService = new ManagementService(manager, mBeanServer, true, true, true, true);
@@ -116,6 +125,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
     /**
      * Integration test for the registration service
      */
+    @Test
     public void testRegistrationServiceListensForCacheChanges() throws Exception {
         ManagementService.registerMBeans(manager, mBeanServer, true, true, true, true);
         assertEquals(OBJECTS_IN_TEST_EHCACHE, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
@@ -129,6 +139,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
     /**
      * Integration test for the registration service
      */
+    @Test
     public void testMultipleCacheManagers() throws Exception {
         ManagementService.registerMBeans(manager, mBeanServer, true, true, true, true);
         assertEquals(OBJECTS_IN_TEST_EHCACHE, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
@@ -147,6 +158,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
     /**
      * Checks that Statistics updates
      */
+    @Test
     public void testStatisticsMBeanUpdatesAsStatsChange() throws Exception {
         ManagementService.registerMBeans(manager, mBeanServer, false, false, false, true);
         Ehcache cache = manager.getCache("sampleCache1");
@@ -165,6 +177,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
     /**
      * Integration test for the registration service
      */
+    @Test
     public void testRegistrationServiceThreeTrue() throws Exception {
         ManagementService.registerMBeans(manager, mBeanServer, true, true, true, false);
         assertEquals(27, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
@@ -174,6 +187,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
     /**
      * Integration test for the registration service
      */
+    @Test
     public void testRegistrationServiceTwoTrue() throws Exception {
         ManagementService.registerMBeans(manager, mBeanServer, true, true, false, false);
         assertEquals(14, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
@@ -183,6 +197,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
     /**
      * Integration test for the registration service
      */
+    @Test
     public void testRegistrationServiceOneTrue() throws Exception {
         ManagementService.registerMBeans(manager, mBeanServer, true, false, false, false);
         assertEquals(1, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
@@ -192,6 +207,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
     /**
      * Integration test for the registration service
      */
+    @Test
     public void testRegistrationServiceNoneTrue() throws Exception {
         ManagementService.registerMBeans(manager, mBeanServer, false, false, false, false);
         assertEquals(0, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
@@ -201,6 +217,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
     /**
      * Can we register the CacheManager MBean?
      */
+    @Test
     public void testRegisterCacheManager() throws Exception {
         //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("testNoOverflowToDisk", 1, false, true, 500, 200);
@@ -231,6 +248,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
     /**
      * Can we register the CacheManager MBean?
      */
+    @Test
     public void testListCachesFromManager() throws Exception {
         ManagementService.registerMBeans(manager, mBeanServer, true, false, false, false);
 
@@ -260,8 +278,10 @@ public class ManagementServiceTest extends AbstractCacheTest {
 
     /**
      * Shows that all MBeans are fully traversable locally
+     *
      * @throws JMException
      */
+    @Test
     public void testTraversalUsingMBeanServer() throws JMException {
         //Test CacheManager
         //not all attributes are accessible due to serializability constraints
@@ -283,12 +303,11 @@ public class ManagementServiceTest extends AbstractCacheTest {
     /**
      * Creates an RMI JMXConnectorServer, connects to it and demonstrates what attributes are traversable.
      * The answer is not all.
-     *
+     * <p/>
      * Note that this test creates a Registry which will keep running until the JVM Exists. There
      * is no way to stop it but it should do no harm.
-     *
-     *
      */
+    @Test
     public void testJMXConnectorServer() throws Exception {
 
         ManagementService.registerMBeans(manager, mBeanServer, true, true, true, true);

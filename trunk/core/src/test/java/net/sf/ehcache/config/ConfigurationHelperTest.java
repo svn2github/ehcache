@@ -18,13 +18,15 @@ package net.sf.ehcache.config;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
-
-
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Tests programmatically constructed Configuration instances
@@ -40,6 +42,7 @@ public class ConfigurationHelperTest extends AbstractCacheTest {
     /**
      * Should not give exceptions
      */
+    @Test
     public void testValidParameters() {
         Configuration configuration = new Configuration();
         CacheConfiguration defaultCache = new CacheConfiguration();
@@ -53,6 +56,7 @@ public class ConfigurationHelperTest extends AbstractCacheTest {
     /**
      * Will fail if all params null
      */
+    @Test
     public void testNullParameters() {
         try {
             new ConfigurationHelper((CacheManager) null, null);
@@ -67,8 +71,10 @@ public class ConfigurationHelperTest extends AbstractCacheTest {
      * Test the expansion of Java system properties.
      * These can be mixed in with other path information, in which case they should be expanded and the other
      * path information catenatated.
+     *
      * @throws IOException
      */
+    @Test
     public void testDiskStorePathExpansion() throws IOException {
         DiskStoreConfiguration diskStore = new DiskStoreConfiguration();
 
@@ -85,7 +91,6 @@ public class ConfigurationHelperTest extends AbstractCacheTest {
 
         System.setProperty("ehcache.disk.store.dir", "/tmp");
         specificPathTest(diskStore, "ehcache.disk.store.dir/cacheManager1/dir1", "user.home");
-
 
 
     }

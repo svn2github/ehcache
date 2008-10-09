@@ -21,12 +21,9 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
 import net.sf.ehcache.event.RegisteredEventListeners;
-
-
+import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -47,8 +44,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A disk store implementation.

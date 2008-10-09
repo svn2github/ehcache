@@ -21,6 +21,10 @@ import net.sf.ehcache.loader.CountingCacheLoader;
 import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheException;
 import net.sf.jsr107cache.CacheManager;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,6 +49,7 @@ public class JCacheFactoryTest extends AbstractCacheTest {
      * <cacheEventListenerFactory class="net.sf.ehcache.event.NullCacheEventListenerFactory"/>
      * </cache>
      */
+    @Test
     public void testFactoryUsingCompleteEnvironment() throws CacheException {
 
         //sampleCache1
@@ -62,14 +67,16 @@ public class JCacheFactoryTest extends AbstractCacheTest {
         env.put("cacheLoaderFactoryClassName", "net.sf.ehcache.loader.CountingCacheLoaderFactory");
         Cache cache = CacheManager.getInstance().getCacheFactory().createCache(env);
         CacheManager.getInstance().registerCache("factoryTest1", cache);
-        assertEquals(((JCache)cache).getCacheLoader().getClass(), CountingCacheLoader.class);
+        assertEquals(((JCache) cache).getCacheLoader().getClass(), CountingCacheLoader.class);
         assertNotNull(CacheManager.getInstance().getCache("factoryTest1"));
     }
 
     /**
      * A Null cacheloader factory string should not attempt to create it.
+     *
      * @throws CacheException
      */
+    @Test
     public void testFactoryWithNullCacheLoaderFactory() throws CacheException {
         Cache cache = CacheManager.getInstance().getCache("test2");
         if (cache == null) {
@@ -83,15 +90,17 @@ public class JCacheFactoryTest extends AbstractCacheTest {
             env.put("cacheLoaderFactoryClassName", null);
             cache = CacheManager.getInstance().getCacheFactory().createCache(env);
             CacheManager.getInstance().registerCache("factoryTest2", cache);
-            assertNull(((JCache)cache).getCacheLoader());
+            assertNull(((JCache) cache).getCacheLoader());
             assertNotNull(CacheManager.getInstance().getCache("factoryTest2"));
         }
     }
 
     /**
      * Specifying a CacheLoaderFactory which cannot be found should throw an CacheException
+     *
      * @throws CacheException
      */
+    @Test
     public void testFactoryWithWrongCacheLoaderFactory() throws CacheException {
         Cache cache = CacheManager.getInstance().getCache("test4");
         if (cache == null) {

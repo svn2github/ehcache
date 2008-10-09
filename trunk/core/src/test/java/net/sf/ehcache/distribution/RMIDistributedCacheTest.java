@@ -16,23 +16,27 @@
 
 package net.sf.ehcache.distribution;
 
-import junit.framework.TestCase;
+
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.rmi.Naming;
 import java.util.Date;
 
 /**
- *
  * Note these tests need a live network interface running in multicast mode to work
  *
  * @author Greg Luck
  * @version $Id$
  */
-public class RMIDistributedCacheTest extends TestCase {
+public class RMIDistributedCacheTest {
 
 
     /**
@@ -63,7 +67,8 @@ public class RMIDistributedCacheTest extends TestCase {
      *
      * @throws Exception
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
@@ -85,7 +90,8 @@ public class RMIDistributedCacheTest extends TestCase {
     /**
      * Shutdown the cache
      */
-    protected void tearDown() throws InterruptedException {
+    @After
+    public void tearDown() throws InterruptedException {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
@@ -98,6 +104,7 @@ public class RMIDistributedCacheTest extends TestCase {
     /**
      * Getting an RMI Server going is a big deal
      */
+    @Test
     public void testCreation() throws Exception {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -111,6 +118,7 @@ public class RMIDistributedCacheTest extends TestCase {
      * The use of one-time registry creation and Naming.rebind should mean we can create as many listeneres as we like.
      * They will simply replace the ones that were there.
      */
+    @Test
     public void testMultipleCreationOfRMIServers() throws Exception {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -131,6 +139,7 @@ public class RMIDistributedCacheTest extends TestCase {
     /**
      * Same as the above with remoteObjectPort the same.
      */
+    @Test
     public void testMultipleCreationOfRMIServersWithSpecificRemoteObjectPort() throws Exception {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -141,7 +150,7 @@ public class RMIDistributedCacheTest extends TestCase {
         }
         cache1Peer = (CachePeer) Naming.lookup(createNamingUrl() + cacheName1);
         assertNotNull(cache1Peer);
-        cache1Peer.put(new Element(1,4));
+        cache1Peer.put(new Element(1, 4));
 
         for (int i = 0; i < 100; i++) {
             listeners[i].dispose();
@@ -160,6 +169,7 @@ public class RMIDistributedCacheTest extends TestCase {
      * @throws java.rmi.NotBoundException
      * @throws java.rmi.RemoteException
      */
+    @Test
     public void testGetName() throws Exception {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;

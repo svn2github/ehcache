@@ -18,6 +18,8 @@ package net.sf.ehcache.constructs.web.filter;
 
 import com.meterware.httpunit.HttpInternalErrorException;
 import net.sf.ehcache.constructs.web.AbstractWebTest;
+import static org.junit.Assert.fail;
+import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -43,6 +45,7 @@ public class CachingFilterReentranceTest extends AbstractWebTest {
      * <li>Check that an Exception is thrown rather than blocking forever.
      * </ol>
      */
+    @Test
     public void testReentranceOfCachingFilterThrowsException() throws IOException, SAXException {
         try {
             getResponseFromAcceptGzipRequest("/reentrant/MainPageAndIncludeBothGoThroughCachingFilter.jsp");
@@ -57,6 +60,7 @@ public class CachingFilterReentranceTest extends AbstractWebTest {
      *
      * @see #testReentranceOfCachingFilterThrowsException()
      */
+    @Test
     public void testReentranceOfCachingFilterViaForwardThrowsException() throws IOException, SAXException {
         try {
             getResponseFromAcceptGzipRequest("/reentrant/MainPageAndForwardBothGoThroughCachingFilter.jsp");

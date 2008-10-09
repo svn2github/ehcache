@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.distribution;
 
-import junit.framework.AssertionFailedError;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
@@ -25,10 +24,16 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.StopWatch;
 import net.sf.ehcache.ThreadKiller;
-import net.sf.ehcache.management.ManagementService;
 import net.sf.ehcache.event.CountingCacheEventListener;
-
-
+import net.sf.ehcache.management.ManagementService;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -38,8 +43,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Tests replication of Cache events
@@ -119,7 +124,8 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
         }
@@ -159,7 +165,8 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -198,6 +205,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     /**
      * 5 cache managers should means that each cache has four remote peers
      */
+    @Test
     public void testRemoteCachePeersEqualsNumberOfCacheManagersInCluster() {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -213,6 +221,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     /**
      * Does a new cache manager in the cluster get detected?
      */
+    @Test
     public void testRemoteCachePeersDetectsNewCacheManager() throws InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -236,6 +245,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     /**
      * Does a down cache manager in the cluster get removed?
      */
+    @Test
     public void testRemoteCachePeersDetectsDownCacheManager() throws InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -261,6 +271,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     /**
      * Does a down cache manager in the cluster get removed?
      */
+    @Test
     public void testRemoteCachePeersDetectsDownCacheManagerSlow() throws InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -294,6 +305,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * <p/>
      * This test goes into an infinite loop if the chain of notifications is not somehow broken.
      */
+    @Test
     public void testPutProgagatesFromAndToEveryCacheManagerAndCache() throws CacheException, InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -352,6 +364,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * Tests what happens when a CacheManager in the cluster comes and goes. In ehcache-1.2.4 this would cause the new RMI CachePeers in the CacheManager to
      * be permanently corrupt.
      */
+    @Test
     public void testPutProgagatesFromAndToEveryCacheManagerAndCacheDirty() throws CacheException, InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -472,6 +485,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * r39 - Batching asyn replicator. Send all queued messages in one RMI call once per second.
      * 2 seconds to get 2000 notifications with 6 peers, Elements with 400 byte payload (5 second heartbeat)
      */
+    @Test
     public void testBigPutsProgagatesAsynchronous() throws CacheException, InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -516,6 +530,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * Performance and capacity tests.
      * <p/>
      */
+    @Test
     public void testBootstrap() throws CacheException, InterruptedException, RemoteException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -640,6 +655,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * <p/>
      * 4 seconds to get all remove notifications with 6 peers, 5000 Elements and 400 byte payload
      */
+    @Test
     public void testBigRemovesProgagatesAsynchronous() throws CacheException, InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -703,6 +719,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * running on a 10Mbit ethernet network and are measured from the time the peer starts receiving to when
      * it has fully received.
      */
+    @Test
     public void testBigPutsProgagatesSynchronous() throws CacheException, InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -740,6 +757,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     /**
      * manager1 adds a replicating cache, then manager2 and so on. Then we remove one. Does everything work as expected?
      */
+    @Test
     public void testPutWithNewCacheAddedProgressively() throws InterruptedException {
 
         manager1.addCache("progressiveAddCache");
@@ -749,7 +767,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         try {
             putTest(manager1.getCache("progressiveAddCache"), manager2.getCache("progressiveAddCache"), ASYNCHRONOUS);
             fail();
-        } catch (AssertionFailedError e) {
+        } catch (AssertionError e) {
             //expected
         }
 
@@ -776,6 +794,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
+    @Test
     public void testPutWithExplicitReplicationConfig() throws InterruptedException {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -788,6 +807,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
+    @Test
     public void testPutWithThreadKiller() throws InterruptedException {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -799,6 +819,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * CacheEventListeners that are not CacheReplicators should receive cache events originated from receipt
      * of a remote event by a CachePeer.
      */
+    @Test
     public void testRemotelyReceivedPutNotifiesCountingListener() throws InterruptedException {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -813,6 +834,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=false, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
+    @Test
     public void testPutWithExplicitReplicationSynchronousConfig() throws InterruptedException {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -825,6 +847,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * Test put replicated for cache4 - no properties.
      * Defaults should be replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true
      */
+    @Test
     public void testPutWithEmptyReplicationPropertiesConfig() throws InterruptedException {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -837,6 +860,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true
      * should equal replicateAsynchronously=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true
      */
+    @Test
     public void testPutWithOneMissingReplicationPropertyConfig() throws InterruptedException {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -907,6 +931,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * <p/>
      * This test goes into an infinite loop if the chain of notifications is not somehow broken.
      */
+    @Test
     public void testRemotePutNotificationGetsToOtherListeners() throws CacheException, InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -969,6 +994,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
+    @Test
     public void testRemoveWithExplicitReplicationConfig() throws InterruptedException {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -980,6 +1006,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
+    @Test
     public void testRemoveWithExplicitReplicationSynchronousConfig() throws InterruptedException {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -992,6 +1019,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * Test put replicated for cache4 - no properties.
      * Defaults should be replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true
      */
+    @Test
     public void testRemoveWithEmptyReplicationPropertiesConfig() throws InterruptedException {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -1037,6 +1065,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     /**
      * test removeAll sync
      */
+    @Test
     public void testRemoveAllAsynchronous() throws Exception {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -1047,6 +1076,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     /**
      * test removeAll async
      */
+    @Test
     public void testRemoveAllSynchronous() throws Exception {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -1099,6 +1129,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
+    @Test
     public void testUpdateWithExplicitReplicationConfig() throws Exception {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -1110,6 +1141,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
+    @Test
     public void testUpdateWithExplicitReplicationSynchronousConfig() throws Exception {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -1122,6 +1154,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * Test put replicated for cache4 - no properties.
      * Defaults should be replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true
      */
+    @Test
     public void testUpdateWithEmptyReplicationPropertiesConfig() throws Exception {
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
             return;
@@ -1176,6 +1209,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * <p/>
      * This test goes into an infinite loop if the chain of notifications is not somehow broken.
      */
+    @Test
     public void testUpdateViaInvalidate() throws CacheException, InterruptedException, IOException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -1218,6 +1252,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     /**
      * What happens when two cache instances replicate to each other and a change is initiated
      */
+    @Test
     public void testInfiniteNotificationsLoop() throws InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -1298,9 +1333,10 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * INFO: Items written: 5492
      * Oct 29, 2007 11:44:52 AM net.sf.ehcache.distribution.RMICacheReplicatorTest testReplicatePerf
      * INFO: Items written: 10188
-     *
+     * <p/>
      * Also no pauses noted.
      */
+    @Test
     public void testReplicatePerf() throws InterruptedException {
 
         if (manager2 != null) {
@@ -1382,6 +1418,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * If a deadlock occurs, processing will stop until a SocketTimeout exception is thrown and
      * the deadlock will be released.
      */
+    @Test
     public void testCacheOperationsSynchronousMultiThreaded() throws Exception, InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {
@@ -1414,6 +1451,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * <li>we do puts, gets and removes to explore all the execution paths
      * </ol>
      */
+    @Test
     public void testCacheOperationsAynchronousMultiThreaded() throws Exception, InterruptedException {
 
         if (JVMUtil.isSingleRMIRegistryPerVM()) {

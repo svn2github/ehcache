@@ -16,18 +16,22 @@
 
 package net.sf.ehcache.loader;
 
-import junit.framework.TestCase;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.logging.Logger;
 
 
 /**
  * ComponentA is composed of ComponentB and some other fields. Tests the interactions between two loaders, where the first component's
- *  loader loads component B by using getWithLoader, which in turn invokes component B's loader.
+ * loader loads component B by using getWithLoader, which in turn invokes component B's loader.
+ *
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
-public class CompositeLoaderTest extends TestCase {
+public class CompositeLoaderTest {
 
     private static final Logger LOG = Logger.getLogger(CompositeLoaderTest.class.getName());
 
@@ -35,7 +39,8 @@ public class CompositeLoaderTest extends TestCase {
      * Sets up the fixture, for example, open a network connection.
      * This method is called before a test is executed.
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         CacheHelper.init();
     }
 
@@ -43,15 +48,17 @@ public class CompositeLoaderTest extends TestCase {
      * Tears down the fixture, for example, close a network connection.
      * This method is called after a test is executed.
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         CacheHelper.shutdown();
     }
 
     /**
      * This test reproduces a deadlock found in 1.4-beta1 around loading interactions and getWithLoader. Now fixed.
      */
+    @Test
     public void testCompositeLoad() {
-        LOG.info("Getting from cache"); 
+        LOG.info("Getting from cache");
         ComponentA compA = (ComponentA) CacheHelper.get("ehcache-loaderinteractions.xml", "ACache", "key1");
         LOG.info(compA.toString());
 

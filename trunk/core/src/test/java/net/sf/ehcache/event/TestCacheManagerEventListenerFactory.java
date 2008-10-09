@@ -22,6 +22,7 @@ import java.util.Properties;
 
 /**
  * A factory which creates a counter, for testing purposes
+ *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */

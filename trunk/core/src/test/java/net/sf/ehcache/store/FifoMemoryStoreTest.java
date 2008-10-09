@@ -19,16 +19,20 @@ package net.sf.ehcache.store;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStoreTester;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 
 /**
  * Test class for FifoMemoryStore
- * <p>
+ * <p/>
  *
  * @author <a href="ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
  * @author Greg Luck
- * 
  * @version $Id$
  */
 public class FifoMemoryStoreTest extends MemoryStoreTester {
@@ -36,7 +40,8 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
     /**
      * setup test
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
         createMemoryStore(MemoryStoreEvictionPolicy.FIFO);
     }
@@ -44,6 +49,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
     /**
      * Tests adding an entry.
      */
+    @Test
     public void testPut() throws Exception {
         putTest();
     }
@@ -51,6 +57,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
     /**
      * Tests put by using the parameters specified in the config file
      */
+    @Test
     public void testPutFromConfig() throws Exception {
         createMemoryStore(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-policy-test.xml", "sampleFIFOCache2");
         putTest();
@@ -58,6 +65,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
 
     /**
      * Put test and check policy
+     *
      * @throws IOException
      */
     protected void putTest() throws IOException {
@@ -87,6 +95,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
     /**
      * Can we deal with NonSerializable objects?
      */
+    @Test
     public void testNonSerializable() {
         /**
          * Non-serializable test class
@@ -102,6 +111,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
     /**
      * Tests removing the entries
      */
+    @Test
     public void testRemove() throws Exception {
         removeTest();
     }
@@ -109,6 +119,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
     /**
      * Tests remove by using the parameters specified in the config file
      */
+    @Test
     public void testRemoveFromConfig() throws Exception {
         createMemoryStore(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-policy-test.xml", "sampleFIFOCache2");
         removeTest();
@@ -120,6 +131,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
      * v 1.38 DiskStore 7238
      * v 1.42 DiskStore 1907
      */
+    @Test
     public void testBenchmarkPutGetSurya() throws Exception {
         benchmarkPutGetSuryaTest(3000);
     }
@@ -127,6 +139,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
 
     /**
      * Remove test and check policy
+     *
      * @throws IOException
      */
     protected void removeTest() throws IOException {
@@ -150,17 +163,17 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
 
         // Make sure that the elements are getting removed in the FIFO manner
         store.remove("key1");
-        element = ((FifoMemoryStore)store).getFirstElement();
+        element = ((FifoMemoryStore) store).getFirstElement();
         assertEquals("value2", element.getObjectValue());
         assertEquals(2, store.getSize());
 
         store.remove("key2");
-        element = ((FifoMemoryStore)store).getFirstElement();
+        element = ((FifoMemoryStore) store).getFirstElement();
         assertEquals("value3", element.getObjectValue());
         assertEquals(1, store.getSize());
 
         store.remove("key3");
-        element = ((FifoMemoryStore)store).getFirstElement();
+        element = ((FifoMemoryStore) store).getFirstElement();
         assertNull(element);
         assertEquals(0, store.getSize());
     }
@@ -168,6 +181,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
     /**
      * Test the policy
      */
+    @Test
     public void testFifoPolicy() throws Exception {
         createMemoryStore(MemoryStoreEvictionPolicy.FIFO, 5);
         fifoPolicyTest();
@@ -176,6 +190,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
     /**
      * Test the ploicy by using the parameters specified in the config file
      */
+    @Test
     public void testFifoPolicyFromConfig() throws Exception {
         createMemoryStore(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-policy-test.xml", "sampleFIFOCache2");
         fifoPolicyTest();

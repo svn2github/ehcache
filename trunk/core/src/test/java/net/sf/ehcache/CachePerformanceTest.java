@@ -1,22 +1,21 @@
 package net.sf.ehcache;
 
-import junit.framework.TestCase;
-
-
-import net.sf.ehcache.store.DiskStore;
+import org.junit.After;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.logging.Logger;
 
 /**
  * Isolated performance test which only runs one cache at a time.
+ *
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
-public class CachePerformanceTest extends TestCase {
+public class CachePerformanceTest {
 
     private static final Logger LOG = Logger.getLogger(CacheTest.class.getName());
-
-
 
 
     /**
@@ -27,14 +26,16 @@ public class CachePerformanceTest extends TestCase {
     /**
      * setup test
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-defaultonly.xml");
     }
 
     /**
      * teardown
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         if (manager != null) {
             manager.shutdown();
         }
@@ -45,8 +46,8 @@ public class CachePerformanceTest extends TestCase {
      * With 50,000 gets
      * m500d45500Cache: 15098 ms with write back to DiskStore
      * m500d45500Cache: 10941 ms without write back TODO we should be able to do this optimisation with a small change
-     *
      */
+    @Test
     public void testGetSpeedMostlyDisk() throws InterruptedException {
         StopWatch stopWatch = new StopWatch();
         long time = 0;
@@ -77,6 +78,7 @@ public class CachePerformanceTest extends TestCase {
      * With 50,000 gets
      * Time to get 50000 entries from m50000Cache: 174
      */
+    @Test
     public void testGetSpeedMemoryOnly() throws InterruptedException {
         StopWatch stopWatch = new StopWatch();
         long time = 0;
@@ -102,9 +104,6 @@ public class CachePerformanceTest extends TestCase {
         LOG.info("Time to get 50000 entries from m50000Cache: " + time);
         assertTrue("Time to get 50000 entries from m50000Cache", time < 20000);
     }
-
-
-
 
 
 }

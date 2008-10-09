@@ -17,13 +17,17 @@
 package net.sf.ehcache;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
 
-
-import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.logging.Logger;
 
 /**
@@ -40,6 +44,7 @@ public class StatisticsTest extends AbstractCacheTest {
     /**
      * Test statistics directly from Statistics Object
      */
+    @Test
     public void testStatisticsFromStatisticsObject() throws InterruptedException {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 2);
@@ -84,6 +89,7 @@ public class StatisticsTest extends AbstractCacheTest {
     /**
      * Test statistics directly from Statistics Object
      */
+    @Test
     public void testClearStatistics() throws InterruptedException {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 2);
@@ -114,6 +120,7 @@ public class StatisticsTest extends AbstractCacheTest {
     /**
      * CacheStatistics should always be sensible when the cache has not started.
      */
+    @Test
     public void testCacheStatisticsDegradesElegantlyWhenCacheDisposed() {
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         try {
@@ -130,6 +137,7 @@ public class StatisticsTest extends AbstractCacheTest {
      * We want to be able to use Statistics as a value object.
      * We need to do some magic with the refernence held to Cache
      */
+    @Test
     public void testSerialization() throws IOException, ClassNotFoundException {
 
         Cache cache = new Cache("test", 1, true, false, 5, 2);
@@ -176,6 +184,7 @@ public class StatisticsTest extends AbstractCacheTest {
      * <p/>
      * The answer is that negative numbers are reported. The cast value is incorrect.
      */
+    @Test
     public void testIntOverflow() {
 
         long value = Integer.MAX_VALUE;
@@ -191,6 +200,7 @@ public class StatisticsTest extends AbstractCacheTest {
     /**
      * Tests average get time
      */
+    @Test
     public void testAverageGetTime() {
         Ehcache cache = new Cache("test", 0, true, false, 5, 2);
         manager.addCache(cache);
@@ -215,9 +225,10 @@ public class StatisticsTest extends AbstractCacheTest {
         assertTrue(0 == statistics.getAverageGetTime());
     }
 
-        /**
+    /**
      * Tests eviction statistics
      */
+    @Test
     public void testEvictionStatistics() throws InterruptedException {
         //set to 0 to make it run slow
         Ehcache ehcache = new net.sf.ehcache.Cache("test", 10, false, false, 2, 2);

@@ -25,6 +25,7 @@ import java.util.List;
 
 /**
  * A counting cache manager listener.
+ *
  * @author Greg Luck
  * @version $Id$
  */

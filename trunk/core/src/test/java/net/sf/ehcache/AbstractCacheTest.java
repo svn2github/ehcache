@@ -17,18 +17,17 @@
 package net.sf.ehcache;
 
 
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Before;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.lang.reflect.Method;
-
-
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -37,7 +36,7 @@ import java.lang.reflect.Method;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public abstract class AbstractCacheTest extends TestCase {
+public abstract class AbstractCacheTest {
 
     /**
      * Where the config is
@@ -72,14 +71,16 @@ public abstract class AbstractCacheTest extends TestCase {
     /**
      * setup test
      */
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         manager = CacheManager.create();
     }
 
     /**
      * teardown
      */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         if (manager != null) {
             manager.shutdown();
         }
@@ -177,13 +178,14 @@ public abstract class AbstractCacheTest extends TestCase {
 
     /**
      * Obtains an MBeanServer, which varies with Java version
+     *
      * @return
      */
     public MBeanServer createMBeanServer() {
         try {
             Class managementFactoryClass = Class.forName("java.lang.management.ManagementFactory");
-            Method method = managementFactoryClass.getMethod("getPlatformMBeanServer", (Class[])null);
-            return (MBeanServer) method.invoke(null, (Object[])null);
+            Method method = managementFactoryClass.getMethod("getPlatformMBeanServer", (Class[]) null);
+            return (MBeanServer) method.invoke(null, (Object[]) null);
         } catch (Exception e) {
             LOG.log(Level.INFO, "JDK1.5 ManagementFactory not found. Falling back to JMX1.2.1", e);
             return MBeanServerFactory.createMBeanServer("SimpleAgent");

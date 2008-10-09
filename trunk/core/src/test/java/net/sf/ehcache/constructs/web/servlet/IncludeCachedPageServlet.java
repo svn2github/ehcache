@@ -39,7 +39,7 @@ public class IncludeCachedPageServlet extends HttpServlet {
      * @param response
      */
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/CachedPage.jsp");
-            dispatcher.include(request, response);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/CachedPage.jsp");
+        dispatcher.include(request, response);
     }
 }

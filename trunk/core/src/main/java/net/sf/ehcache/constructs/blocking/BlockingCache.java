@@ -30,7 +30,6 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 import java.io.Serializable;
 import java.util.Collection;

@@ -18,11 +18,12 @@ package net.sf.ehcache.extension;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Status;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
 
 /**
  * Tests the interface methods of CacheExtension
+ *
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
@@ -42,8 +43,6 @@ public class TestCacheExtension implements CacheExtension {
      * Package local so we can test
      */
     private Ehcache cache;
-
-
 
 
     /**
@@ -79,7 +78,6 @@ public class TestCacheExtension implements CacheExtension {
     }
 
     /**
-     *
      * @return
      */
     public Status getStatus() {
@@ -87,7 +85,6 @@ public class TestCacheExtension implements CacheExtension {
     }
 
     /**
-     *
      * @return
      */
     public static Status getStaticStatus() {
@@ -96,7 +93,6 @@ public class TestCacheExtension implements CacheExtension {
 
 
     /**
-     *
      * @return
      */
     public static String getPropertyA() {
@@ -104,7 +100,6 @@ public class TestCacheExtension implements CacheExtension {
     }
 
     /**
-     * 
      * @return
      */
     public Ehcache getCache() {
@@ -125,11 +120,6 @@ public class TestCacheExtension implements CacheExtension {
         TestCacheExtension copy = new TestCacheExtension(newCache, propertyA);
         return copy;
     }
-
-
-
-
-
 
 
 }
