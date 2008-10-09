@@ -122,7 +122,8 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
     }
 
     /**
-     * Does the actual RMI remote call
+     * Does the actual RMI remote call.
+     * todo users would prefer try to send to all and then throw an exception
      *
      * @param element
      * @param cache

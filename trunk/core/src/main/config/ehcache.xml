@@ -206,6 +206,7 @@
         class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
         properties="hostName=fully_qualified_hostname_or_ip,
                     port=40001,
+                    remoteObjectPort=40002,
                     socketTimeoutMillis=120000"
                     propertySeparator="," />
 
