@@ -17,39 +17,20 @@ public class JMSConfiguration {
 
     private static final Logger LOG = Logger.getLogger(JMSConfiguration.class.getName());
 
-    /**
-     * Configuration string
-     */
     static final String PROVIDER_URL = "providerURL";
-    /**
-     * Configuration string
-     */
     static final String REPLICATION_TOPIC_BINDING_NAME = "replicationTopicBindingName";
-    /**
-     * The JNDI binding name for the queue name used to do gets
-     */
-    static final String GET_QUEUE_BINDING_NAME = "getQueueBingingName";
-    /**
-     * Configuration string
-     */
+    static final String GET_QUEUE_BINDING_NAME = "getQueueBindingName";
     static final String TOPIC_CONNECTION_FACTORY_BINDING_NAME = "topicConnectionFactoryBindingName";
-    /**
-     * Configuration string
-     */
     static final String GET_QUEUE_CONNECTION_FACTORY_BINDING_NAME = "getQueueConnectionFactoryBindingName";
-    /**
-     * Configuration string
-     */
     static final String USERNAME = "userName";
-    /**
-     * Configuration string
-     */
     static final String PASSWORD = "password";
     static final String SECURITY_PRINCIPAL_NAME = "securityPrincipalName";
     static final String SECURITY_CREDENTIALS = "securityCredentials";
     static final String INITIAL_CONTEXT_FACTORY_NAME = "initialContextFactoryName";
     static final String URL_PKG_PREFIXES = "urlPkgPrefixes";
     static final String ACKNOWLEDGEMENT_MODE = "acknowledgementMode";
+    static final String TIMEOUT_MILLIS = "timeoutMillis";
+    static final int MAX_PRIORITY = 9;
 
     public static Context createInitialContext(String securityPrincipalName,
                                          String securityCredentials,

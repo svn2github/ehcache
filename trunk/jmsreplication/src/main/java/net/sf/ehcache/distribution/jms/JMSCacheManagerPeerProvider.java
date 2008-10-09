@@ -33,6 +33,8 @@ import javax.jms.TopicConnection;
 import javax.jms.QueueConnection;
 import javax.jms.Topic;
 import javax.jms.Queue;
+import javax.jms.MessageConsumer;
+import javax.jms.QueueReceiver;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -106,7 +108,7 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
 
         QueueSession getQueueSession;
         QueueSender getQueueSender;
-        ConnectionConsumer getQueueConnectionConsumer;
+        QueueReceiver getQueueRequestReceiver;
 
         try {
 
@@ -123,7 +125,7 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
 
 
             getQueueSession = getQueueConnection.createQueueSession(false, acknowledgementMode.toInt());
-            getQueueConnectionConsumer = getQueueConnection.createConnectionConsumer(getQueue, null, null, 1);
+            getQueueRequestReceiver = getQueueSession.createReceiver(getQueue);
             getQueueSender = getQueueSession.createSender(getQueue);
 
 
@@ -136,12 +138,13 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
 
 
         JMSCachePeer peer = new JMSCachePeer(cacheManager, topicPublisher, topicPublisherSession,
-                getQueueSender, getQueueSession, getQueueConnectionConsumer);
+                getQueueSender, getQueueSession, getQueueRequestReceiver);
 
 
         remoteCachePeers.add(peer);
         try {
             topicSubscriber.setMessageListener(peer);
+            getQueueRequestReceiver.setMessageListener(peer);
         } catch (JMSException e) {
             LOG.log(Level.SEVERE, "Cannot register " + peer + " as messageListener", e);
         }

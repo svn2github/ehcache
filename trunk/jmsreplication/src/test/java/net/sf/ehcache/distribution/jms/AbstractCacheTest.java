@@ -185,8 +185,8 @@ public abstract class AbstractCacheTest extends TestCase {
     public MBeanServer createMBeanServer() {
         try {
             Class managementFactoryClass = Class.forName("java.lang.management.ManagementFactory");
-            Method method = managementFactoryClass.getMethod("getPlatformMBeanServer", null);
-            return (MBeanServer) method.invoke(null, null);
+            Method method = managementFactoryClass.getMethod("getPlatformMBeanServer", (Class[])null);
+            return (MBeanServer) method.invoke((Object[])null, (Object[])null);
         } catch (Exception e) {
             LOG.log(Level.INFO, "JDK1.5 ManagementFactory not found. Falling back to JMX1.2.1", e);
             return MBeanServerFactory.createMBeanServer("SimpleAgent");

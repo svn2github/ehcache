@@ -38,6 +38,8 @@ import javax.jms.BytesMessage;
 import javax.jms.QueueSender;
 import javax.jms.QueueSession;
 import javax.jms.ConnectionConsumer;
+import javax.jms.QueueReceiver;
+import javax.jms.DeliveryMode;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -60,7 +62,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
     private MessageProducer messageProducer;
     private QueueSender getQueueSender;
     private QueueSession getQueueSession;
-    private ConnectionConsumer connectionConsumer;
+    private QueueReceiver getQueueRequestReceiver;
 
 
     /**
@@ -69,14 +71,13 @@ public class JMSCachePeer implements CachePeer, MessageListener {
      * @param producerSession
      * @param getQueueSender
      * @param getQueueSession
-     * @param connectionConsumer
      */
     public JMSCachePeer(CacheManager cacheManager,
                         MessageProducer messageProducer,
                         Session producerSession,
                         QueueSender getQueueSender,
                         QueueSession getQueueSession,
-                        ConnectionConsumer connectionConsumer) {
+                        QueueReceiver getQueueRequestReceiver) {
 
 
         if (LOG.isLoggable(Level.FINEST)) {
@@ -91,8 +92,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
 
         this.getQueueSender = getQueueSender;
         this.getQueueSession = getQueueSession;
-        this.connectionConsumer = connectionConsumer;
-
+        this.getQueueRequestReceiver = getQueueRequestReceiver;
     }
 
     /**
@@ -128,6 +128,8 @@ public class JMSCachePeer implements CachePeer, MessageListener {
                 }
         }
     }
+
+
 
     /**
      * Process a non-cache message
@@ -256,6 +258,9 @@ public class JMSCachePeer implements CachePeer, MessageListener {
                         LOG.log(Level.SEVERE, e.getMessage(), e);
                         return;
                     }
+                    if (jmsEventMessage.getEvent() == JMSEventMessage.Action.GET.toInt()) {
+                        handleGetRequest(objectMessage, jmsEventMessage, cache);
+                    }
                     handleNotification(jmsEventMessage, cache);
 
                 } else {
@@ -296,6 +301,15 @@ public class JMSCachePeer implements CachePeer, MessageListener {
         } catch (Exception e) {
             LOG.log(Level.WARNING, "Unable to handle JMS Notification: " + e.getMessage(), e);
         }
+    }
+
+    private void handleGetRequest(ObjectMessage objectMessage, JMSEventMessage jmsEventMessage, Cache cache) throws JMSException {
+        Serializable key = jmsEventMessage.getSerializableKey();
+        Element element = cache.get(key);
+        ObjectMessage reply = getQueueSession.createObjectMessage(element);
+        reply.setJMSCorrelationID(objectMessage.getJMSMessageID());
+        getQueueSender.send(objectMessage.getJMSReplyTo(), reply, DeliveryMode.NON_PERSISTENT,
+                JMSConfiguration.MAX_PRIORITY, 0);
     }
 
     private Serializable extractAndValidateKey(Message message, Action action) throws JMSException {

@@ -64,17 +64,19 @@ public abstract class AbstractJMSReplicationTest {
 
     @After
     public void tearDown() throws Exception {
-        LOG.fine("Tearing down cm1");
-        manager1.shutdown();
-        LOG.fine("Tearing down cm2");
-        manager2.shutdown();
-        LOG.fine("Tearing down cm3");
-        manager3.shutdown();
-        LOG.fine("Tearing down cm4");
-        manager4.shutdown();
+        if (manager1 != null) {
+            manager1.shutdown();
+        }
+        if (manager2 != null) {
+            manager2.shutdown();
+        }
+        if (manager3 != null) {
+            manager3.shutdown();
+        }
+        if (manager4 != null) {
+            manager4.shutdown();
+        }
     }
-
-
 
 
     @Test
@@ -155,7 +157,6 @@ public abstract class AbstractJMSReplicationTest {
                 manager1.getCache(cacheName).getKeys().size() == 0);
 
     }
-
 
 
 //    @Test
@@ -239,6 +240,7 @@ public abstract class AbstractJMSReplicationTest {
 
     /**
      * What happens when two cache instances replicate to each other and a change is initiated
+     *
      * @throws InterruptedException -
      */
     @Test
@@ -258,7 +260,6 @@ public abstract class AbstractJMSReplicationTest {
         //Should have been replicated to cache2.
         Element element2 = cache2.get(key);
         assertEquals(element, element2);
-
 
 
         //Remove
@@ -283,9 +284,9 @@ public abstract class AbstractJMSReplicationTest {
     }
 
 
-
     /**
      * What happens when two cache instances replicate to each other and a change is initiated
+     *
      * @throws InterruptedException -
      */
     @Test
@@ -321,6 +322,42 @@ public abstract class AbstractJMSReplicationTest {
 
     }
 
+
+    /**
+     * Uses the JMSCacheLoader.
+     * <p/>
+     * We put an item in cache1, which does not replicate.
+     * <p/>
+     * We then do a get on cache2, which has a JMSCacheLoader which should ask the cluster for the answer.
+     * If a cache does not have an element it should leave the message on the queue for the next node to process.
+//     */
+//    @Test
+//    public void testGet() throws InterruptedException {
+//        cacheName = SAMPLE_CACHE_SYNC;
+//        Ehcache cache1 = manager1.getCache("sampleCacheNorep");
+//        Ehcache cache2 = manager2.getCache("sampleCacheNorep");
+//
+//        Serializable key = "1";
+//        Serializable value = new Date();
+//        Element element = new Element(key, value);
+//
+//        //Put
+//        cache1.put(element);
+//        long version = element.getVersion();
+//        Thread.sleep(1050);
+//
+//
+//        //Should not have been replicated to cache2.
+//        Element element2 = cache2.get(key);
+//        assertEquals(null, element2);
+//
+//        //Should load from cache1
+//        element2 = cache2.getWithLoader(key, null, null);
+//        assertEquals(element, element2);
+//
+//    }
+
+
     @Test
     public void testSimultaneousPutRemove() throws InterruptedException {
         cacheName = SAMPLE_CACHE_SYNC; //Synced one
@@ -355,7 +392,5 @@ public abstract class AbstractJMSReplicationTest {
 
     }
 
-
-   
 
 }

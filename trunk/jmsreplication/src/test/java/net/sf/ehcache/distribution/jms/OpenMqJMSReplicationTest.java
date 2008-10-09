@@ -4,6 +4,7 @@ import com.sun.messaging.ConnectionConfiguration;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MimeTypeByteArray;
+import net.sf.ehcache.util.ClassLoaderUtil;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.ACTION_PROPERTY;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.CACHE_NAME_PROPERTY;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.KEY_PROPERTY;
@@ -40,7 +41,19 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
         super.testPutAndRemove();
     }
 
-
+    /**
+     * Uses the JMSCacheLoader.
+     * <p/>
+     * We put an item in cache1, which does not replicate.
+     * <p/>
+     * We then do a get on cache2, which has a JMSCacheLoader which should ask the cluster for the answer.
+     * If a cache does not have an element it should leave the message on the queue for the next node to process.
+     */
+//    @Override
+//    @Test
+//    public void testGet() throws InterruptedException {
+//        super.testGet();
+//    }
 
     @Test
     public void testNonCachePublisherElementMessagePut() throws JMSException, InterruptedException {

@@ -39,7 +39,8 @@ public class JMSEventMessage extends EventMessage {
 
         PUT(EventMessage.PUT),
         REMOVE(EventMessage.REMOVE),
-        REMOVE_ALL(EventMessage.REMOVE_ALL);
+        REMOVE_ALL(EventMessage.REMOVE_ALL),
+        GET(10);
 
         private int action;
 

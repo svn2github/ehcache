@@ -16,7 +16,7 @@
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
-            <version>1.5.0</version>
+            <version>2.0-beta1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>javax.jms</groupId>
@@ -90,7 +90,7 @@
                     <execution>
                         <!--We test using two popular message -->
                         <id>start-message-queues</id>
-                        <phase>validate</phase>
+                        <phase>pre-integration-test</phase>
                         <configuration>
                             <tasks>
                                 <echo>Starting Active MQ from ${activemq.bin.dir} on ${os.name}</echo>
@@ -148,6 +148,7 @@
                     </excludes>
                     <forkMode>pertest</forkMode>
                     <childDelegation>false</childDelegation>
+                    <disableXmlReport>true</disableXmlReport>
                     <printSummary>true</printSummary>
                     <redirectOutputToFile>true</redirectOutputToFile>
                     <systemProperties>

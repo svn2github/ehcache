@@ -54,8 +54,7 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
      * @return a provider, already connected to the message queue
      */
     @Override
-    public CacheManagerPeerProvider createCachePeerProvider(
-            CacheManager cacheManager, Properties properties) {
+    public CacheManagerPeerProvider createCachePeerProvider(CacheManager cacheManager, Properties properties) {
 
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("createCachePeerProvider ( cacheManager = " + cacheManager
@@ -78,11 +77,11 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
         AcknowledgementMode effectiveAcknowledgementMode = AcknowledgementMode.forString(acknowledgementMode);
         LOG.fine("Creating TopicSession in " + effectiveAcknowledgementMode.name() + " mode.");
 
-        validateJSMCacheLoaderConfiguration(getQueueBindingName, getQueueConnectionFactoryBindingName);
+        validateJMSCacheLoaderConfiguration(getQueueBindingName, getQueueConnectionFactoryBindingName);
 
         Context context = null;
 
-         TopicConnection replicationTopicConnection;
+        TopicConnection replicationTopicConnection;
         QueueConnection getQueueConnection;
 
         TopicConnectionFactory topicConnectionFactory;
@@ -119,7 +118,7 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
                 getQueueConnection, getQueue, effectiveAcknowledgementMode);
     }
 
-    private void validateJSMCacheLoaderConfiguration(String getQueueBindingName, String getQueueConnectionFactoryBindingName) {
+    private void validateJMSCacheLoaderConfiguration(String getQueueBindingName, String getQueueConnectionFactoryBindingName) {
         if (getQueueConnectionFactoryBindingName != null || getQueueBindingName != null) {
             useJMSCacheLoader = true;
         }
