@@ -40,6 +40,8 @@ import javax.jms.QueueSession;
 import javax.jms.ConnectionConsumer;
 import javax.jms.QueueReceiver;
 import javax.jms.DeliveryMode;
+import javax.jms.Queue;
+import javax.jms.Destination;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -47,8 +49,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 /**
- * todo separate sending and receiving into separate classes
- * A JMS Cache Peer subscribes to JMS messages.
+ * A JMS Cache Peer subscribes to JMS messages, both from the replication topic and the get queue.
  *
  * @author benoit.perroud@elca.ch
  * @author Greg Luck
@@ -60,24 +61,16 @@ public class JMSCachePeer implements CachePeer, MessageListener {
     private Session producerSession;
     private CacheManager cacheManager;
     private MessageProducer messageProducer;
-    private QueueSender getQueueSender;
     private QueueSession getQueueSession;
-    private QueueReceiver getQueueRequestReceiver;
 
 
     /**
-     * @param cacheManager
-     * @param messageProducer
-     * @param producerSession
-     * @param getQueueSender
-     * @param getQueueSession
+     * Constructor
      */
     public JMSCachePeer(CacheManager cacheManager,
                         MessageProducer messageProducer,
                         Session producerSession,
-                        QueueSender getQueueSender,
-                        QueueSession getQueueSession,
-                        QueueReceiver getQueueRequestReceiver) {
+                        QueueSession getQueueSession) {
 
 
         if (LOG.isLoggable(Level.FINEST)) {
@@ -89,10 +82,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
         this.cacheManager = cacheManager;
         this.messageProducer = messageProducer;
         this.producerSession = producerSession;
-
-        this.getQueueSender = getQueueSender;
         this.getQueueSession = getQueueSession;
-        this.getQueueRequestReceiver = getQueueRequestReceiver;
     }
 
     /**
@@ -225,18 +215,18 @@ public class JMSCachePeer implements CachePeer, MessageListener {
      */
     public void onMessage(Message message) {
 
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("onMessage ( message = " + message + " ) called");
-        }
-
         try {
             if (message instanceof ObjectMessage) {
 
                 ObjectMessage objectMessage = (ObjectMessage) message;
                 Object object = objectMessage.getObject();
 
+
                 //If a non-cache publisher sends an Element
                 if (object instanceof Element) {
+                    LOG.info("Element message: " + object);
+
+
                     Element element = (Element) object;
 
                     Cache cache = extractAndValidateCache(objectMessage);
@@ -246,8 +236,12 @@ public class JMSCachePeer implements CachePeer, MessageListener {
                     handleNotification(element, key, cache, action);
 
                 } else if (object instanceof JMSEventMessage) {
+                    LOG.info("JMSEventMessage message: " + object);
+
+
                     //no need for cacheName, mimeType, key or action properties as all are in message.
                     JMSEventMessage jmsEventMessage = (JMSEventMessage) object;
+                    LOG.info("" + jmsEventMessage);
 
                     Cache cache;
                     String cacheName = null;
@@ -260,10 +254,13 @@ public class JMSCachePeer implements CachePeer, MessageListener {
                     }
                     if (jmsEventMessage.getEvent() == JMSEventMessage.Action.GET.toInt()) {
                         handleGetRequest(objectMessage, jmsEventMessage, cache);
+                    } else {
+                        handleNotification(jmsEventMessage, cache);
                     }
-                    handleNotification(jmsEventMessage, cache);
 
                 } else {
+                    LOG.info("Other object message: " + object);
+
                     //no need for mimeType. An object has a type
                     Cache cache = extractAndValidateCache(objectMessage);
                     Action action = extractAndValidateAction(objectMessage);
@@ -306,10 +303,16 @@ public class JMSCachePeer implements CachePeer, MessageListener {
     private void handleGetRequest(ObjectMessage objectMessage, JMSEventMessage jmsEventMessage, Cache cache) throws JMSException {
         Serializable key = jmsEventMessage.getSerializableKey();
         Element element = cache.get(key);
-        ObjectMessage reply = getQueueSession.createObjectMessage(element);
+        Serializable value = null;
+        if (element != null) {
+            value = element.getValue();
+        }
+        ObjectMessage reply = getQueueSession.createObjectMessage(value);
         reply.setJMSCorrelationID(objectMessage.getJMSMessageID());
-        getQueueSender.send(objectMessage.getJMSReplyTo(), reply, DeliveryMode.NON_PERSISTENT,
-                JMSConfiguration.MAX_PRIORITY, 0);
+        Queue replyQueue = (Queue) objectMessage.getJMSReplyTo();
+
+        QueueSender replyQueueSender = getQueueSession.createSender(replyQueue);
+        replyQueueSender.send(reply);
     }
 
     private Serializable extractAndValidateKey(Message message, Action action) throws JMSException {

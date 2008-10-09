@@ -58,8 +58,8 @@
     <cache name="sampleCacheNorep"
            maxElementsInMemory="1000"
            eternal="false"
-           timeToIdleSeconds="1000"
-           timeToLiveSeconds="1000"
+           timeToIdleSeconds="100000"
+           timeToLiveSeconds="100000"
            overflowToDisk="false">
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.jms.JMSCacheReplicatorFactory"
                                    properties="replicateAsynchronously=false, replicatePuts=false,
@@ -73,7 +73,7 @@
                 replicationTopicBindingName=ehcache,
                 getQueueConnectionFactoryBindingName=queueConnectionFactory,
                 getQueueBindingName=ehcacheGetQueue,
-                timeoutMillis=2000"/>
+                timeoutMillis=20000"/>
     </cache>
 
 

@@ -24,7 +24,9 @@ import java.io.Serializable;
 
 /**
  * @author Greg Luck
+ * todo maybe make cache name configurable for more flexibility. The load with argument could use it too.
  * todo put some of these better practices in replication code
+ *
  */
 public class JMSCacheLoader implements CacheLoader {
 
@@ -93,13 +95,16 @@ public class JMSCacheLoader implements CacheLoader {
                     keyAsSerializable, null, cache.getName());
             ObjectMessage loadRequest = getQueueSession.createObjectMessage(jmsEventMessage);
             loadRequest.setJMSReplyTo(temporaryReplyQueue);
-            loadRequest.getJMSMessageID();
-            getQueueSender.send(loadRequest, DeliveryMode.NON_PERSISTENT, 9, 0);
+            getQueueSender.send(loadRequest, DeliveryMode.NON_PERSISTENT, 9, timeoutMillis);
+            String initialMessageId = loadRequest.getJMSMessageID();
 
-            //now wait to get it.
             //todo multiple threads
             ObjectMessage reply = (ObjectMessage) replyReceiver.receive(timeoutMillis);
-            reply.getJMSCorrelationID();
+            String messageId = reply.getJMSCorrelationID();
+            if (!initialMessageId.equals(messageId)) {
+                throw new IllegalStateException("The load got an unrelated response: " + messageId);
+            }
+            int i = 0;
 
 
         } catch (JMSException e) {
@@ -121,7 +126,7 @@ public class JMSCacheLoader implements CacheLoader {
      *
      */
     public Map loadAll(Collection keys) throws CacheException {
-        return null;
+        return null;       //todo
     }
 
     /**
@@ -136,7 +141,7 @@ public class JMSCacheLoader implements CacheLoader {
      *
      */
     public Map loadAll(Collection keys, Object argument) throws CacheException {
-        return null;
+        return null;        //todo
     }
 
     /**
@@ -145,7 +150,7 @@ public class JMSCacheLoader implements CacheLoader {
      * @return the name of this CacheLoader
      */
     public String getName() {
-        return "JMSCacheLoader";
+        return "JMSCacheLoader for cache " + cache.getName();
     }
 
     /**
@@ -179,12 +184,13 @@ public class JMSCacheLoader implements CacheLoader {
                     LOG.log(Level.SEVERE, "Exception on 'getQueue' Connection: " + e.getMessage(), e);
                 }
             });
-
+      
             getQueueSession = getQueueConnection.createQueueSession(false, acknowledgementMode.toInt());
             getQueueSender = getQueueSession.createSender(getQueue);
             temporaryReplyQueue = getQueueSession.createTemporaryQueue();
-            //Do not listen for our own messages. If we had th?em we would not calling load.
-            replyReceiver = getQueueSession.createConsumer(temporaryReplyQueue);
+            //todo this only works for topics. How do we ensure we do not process the queue.
+            //Do not listen for our own messages. If we had them we would not calling load.
+            replyReceiver = getQueueSession.createConsumer(temporaryReplyQueue, null, true);
 
             getQueueConnection.start();
 

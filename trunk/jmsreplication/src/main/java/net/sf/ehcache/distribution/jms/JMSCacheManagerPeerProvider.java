@@ -136,10 +136,7 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
             throw new CacheException("Exception while creating JMS connections: " + e.getMessage(), e);
         }
 
-
-        JMSCachePeer peer = new JMSCachePeer(cacheManager, topicPublisher, topicPublisherSession,
-                getQueueSender, getQueueSession, getQueueRequestReceiver);
-
+        JMSCachePeer peer = new JMSCachePeer(cacheManager, topicPublisher, topicPublisherSession, getQueueSession);
 
         remoteCachePeers.add(peer);
         try {
