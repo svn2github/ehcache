@@ -198,7 +198,7 @@ public final class ConfigurationHelper {
             CacheLoaderFactory factory = (CacheLoaderFactory) ClassLoaderUtil.createNewInstance(className);
             Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
                     factoryConfiguration.getPropertySeparator());
-            cacheLoader = factory.createCacheLoader(cache, properties);
+            cacheLoader = factory.createCacheLoader(properties);
         }
         return cacheLoader;
     }
@@ -225,31 +225,6 @@ public final class ConfigurationHelper {
             return factory.createBootstrapCacheLoader(properties);
         }
         return bootstrapCacheLoader;
-    }
-
-    /**
-     * Tries to create a CacheLoader from the configuration using the factory
-     * specified.
-     *
-     * @return The CacheLoader, or null if it could not be found.
-     */
-    public final CacheLoader createCacheLoader(
-            CacheConfiguration.CacheLoaderFactoryConfiguration factoryConfiguration) throws CacheException {
-        String className = null;
-        CacheLoader cacheLoader = null;
-        if (factoryConfiguration != null) {
-            className = factoryConfiguration.getFullyQualifiedClassPath();
-        }
-        if (className == null || className.length() == 0) {
-            LOG.fine("No CacheLoaderFactory class specified. Skipping...");
-        } else {
-            CacheLoaderFactory factory = (CacheLoaderFactory)
-                    ClassLoaderUtil.createNewInstance(className);
-            Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
-                    factoryConfiguration.getPropertySeparator());
-            return factory.createCacheLoader(properties);
-        }
-        return cacheLoader;
     }
 
     /**

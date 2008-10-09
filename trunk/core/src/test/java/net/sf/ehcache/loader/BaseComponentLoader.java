@@ -56,16 +56,6 @@ public class BaseComponentLoader extends CacheLoaderFactory implements CacheLoad
     }
 
     /**
-     * @param cache      the cache this extension should hold a reference to, and to whose lifecycle it should be bound.
-     * @param properties implementation specific properties configured as delimiter separated name value pairs in ehcache.xml
-     * @return a constructed CacheLoader
-     */
-    public CacheLoader createCacheLoader(Ehcache cache, Properties properties) {
-        this.props = properties;
-        return this;
-    }
-
-    /**
      * @param arg0
      * @return
      * @throws CacheException
