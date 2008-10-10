@@ -30,6 +30,7 @@ public class JMSConfiguration {
     static final String URL_PKG_PREFIXES = "urlPkgPrefixes";
     static final String ACKNOWLEDGEMENT_MODE = "acknowledgementMode";
     static final String TIMEOUT_MILLIS = "timeoutMillis";
+    static final String DEFAULT_LOADER_ARGUMENT = "defaultLoaderArgument";
     static final int MAX_PRIORITY = 9;
 
     public static Context createInitialContext(String securityPrincipalName,

@@ -35,23 +35,22 @@ public class JMSCacheLoader implements CacheLoader {
     private AcknowledgementMode acknowledgementMode;
     private Status status;
 
-    private Ehcache cache;
     private QueueConnection getQueueConnection;
     private Queue getQueue;
-    private ConnectionConsumer getQueueConnectionConsumer;
     private QueueSender getQueueSender;
     private TemporaryQueue temporaryReplyQueue;
     private QueueSession getQueueSession;
     private MessageConsumer replyReceiver;
     private int timeoutMillis;
+    private String defaultLoaderArgument;
 
-    public JMSCacheLoader(Ehcache cache,
+    public JMSCacheLoader(String defaultLoaderArgument,
                           QueueConnection getQueueConnection,
                           Queue getQueue,
                           AcknowledgementMode acknowledgementMode,
                           int timeoutMillis) {
 
-        this.cache = cache;
+        this.defaultLoaderArgument = defaultLoaderArgument;
         this.getQueueConnection = getQueueConnection;
         this.acknowledgementMode = acknowledgementMode;
         this.getQueue = getQueue;
@@ -81,18 +80,32 @@ public class JMSCacheLoader implements CacheLoader {
      * <p/>
      * JCache will call through to the load(key) method, rather than this method, where the argument is null.
      *
-     * @param key      the key to load the object for
-     * @param argument can be anything that makes sense to the loader
+     * @param key      the key to load the object for.
+     * @param argument can be anything that makes sense to the loader. The argument is converted to a String with toString()
+     * to use for the JMS StringProperty loaderArgument
      * @return the Object loaded
      * @throws net.sf.jsr107cache.CacheException
      *
      */
     public Object load(Object key, Object argument) throws CacheException {
         Serializable keyAsSerializable = (Serializable) key;
+        Serializable argumentAsSerializable = (Serializable) argument;
+
+        //todo only needs to be a String to work with external responders
+
+        Serializable effectiveLoaderArgument;
+        if (argument == null) {
+            effectiveLoaderArgument = defaultLoaderArgument;
+        } else {
+            effectiveLoaderArgument = argumentAsSerializable;    
+        }
+
+
+        Object value;
 
         try {
             JMSEventMessage jmsEventMessage = new JMSEventMessage(JMSEventMessage.Action.GET.toInt(),
-                    keyAsSerializable, null, cache.getName());
+                    keyAsSerializable, null, effectiveLoaderArgument.toString());
             ObjectMessage loadRequest = getQueueSession.createObjectMessage(jmsEventMessage);
             loadRequest.setJMSReplyTo(temporaryReplyQueue);
             getQueueSender.send(loadRequest, DeliveryMode.NON_PERSISTENT, 9, timeoutMillis);
@@ -105,12 +118,12 @@ public class JMSCacheLoader implements CacheLoader {
                 throw new IllegalStateException("The load got an unrelated response: " + messageId);
             }
             int i = 0;
-
+            value = reply.getObject();
 
         } catch (JMSException e) {
             throw new CacheException("Problem loading: " + e.getMessage(), e);
         }
-        return null;
+        return value;
     }
 
 
@@ -150,7 +163,7 @@ public class JMSCacheLoader implements CacheLoader {
      * @return the name of this CacheLoader
      */
     public String getName() {
-        return "JMSCacheLoader for cache " + cache.getName();
+        return "JMSCacheLoader with default loaderArgument: " + defaultLoaderArgument;
     }
 
     /**

@@ -1,7 +1,6 @@
 package net.sf.ehcache.distribution.jms;
 
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Ehcache;
 import static net.sf.ehcache.distribution.jms.JMSConfiguration.SECURITY_PRINCIPAL_NAME;
 import static net.sf.ehcache.distribution.jms.JMSConfiguration.SECURITY_CREDENTIALS;
 import static net.sf.ehcache.distribution.jms.JMSConfiguration.INITIAL_CONTEXT_FACTORY_NAME;
@@ -15,6 +14,7 @@ import static net.sf.ehcache.distribution.jms.JMSConfiguration.USERNAME;
 import static net.sf.ehcache.distribution.jms.JMSConfiguration.PASSWORD;
 import static net.sf.ehcache.distribution.jms.JMSConfiguration.ACKNOWLEDGEMENT_MODE;
 import static net.sf.ehcache.distribution.jms.JMSConfiguration.TIMEOUT_MILLIS;
+import static net.sf.ehcache.distribution.jms.JMSConfiguration.DEFAULT_LOADER_ARGUMENT;
 import net.sf.ehcache.loader.CacheLoaderFactory;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.jsr107cache.CacheLoader;
@@ -59,11 +59,9 @@ public class JMSCacheLoaderFactory extends CacheLoaderFactory {
      *
      * @param properties implementation specific properties. These are configured as comma
      *                   separated name value pairs in ehcache.xml
-     * @param cache the cache this loader is bound to
      * @return a constructed CacheLoader
      */
-    public net.sf.ehcache.loader.CacheLoader createCacheLoader(Ehcache cache, Properties properties) {
-
+    public net.sf.ehcache.loader.CacheLoader createCacheLoader(Properties properties) {
 
         String securityPrincipalName = PropertyUtil.extractAndLogProperty(SECURITY_PRINCIPAL_NAME, properties);
         String securityCredentials = PropertyUtil.extractAndLogProperty(SECURITY_CREDENTIALS, properties);
@@ -79,20 +77,17 @@ public class JMSCacheLoaderFactory extends CacheLoaderFactory {
         if (getQueueBindingName == null ) {
             throw new CacheException("getQueueBindingName is not configured.");
         }
+
+        String defaultLoaderArgument = PropertyUtil.extractAndLogProperty(DEFAULT_LOADER_ARGUMENT, properties);
+
         String topicConnectionFactoryBindingName = PropertyUtil.extractAndLogProperty(TOPIC_CONNECTION_FACTORY_BINDING_NAME, properties);
         String userName = PropertyUtil.extractAndLogProperty(USERNAME, properties);
         String password = PropertyUtil.extractAndLogProperty(PASSWORD, properties);
         String acknowledgementMode = PropertyUtil.extractAndLogProperty(ACKNOWLEDGEMENT_MODE, properties);
 
-
-        if (getQueueBindingName == null ) {
-            throw new CacheException("getQueueBindingName is not configured.");
-        }
-
         int timeoutMillis = extractTimeoutMillis(properties);
 
         AcknowledgementMode effectiveAcknowledgementMode = AcknowledgementMode.forString(acknowledgementMode);
-
 
         Context context = null;
 
@@ -105,7 +100,6 @@ public class JMSCacheLoaderFactory extends CacheLoaderFactory {
             context = JMSConfiguration.createInitialContext(securityPrincipalName, securityCredentials, initialContextFactoryName,
                     urlPkgPrefixes, providerURL, replicationTopicBindingName, topicConnectionFactoryBindingName,
                     getQueueBindingName, getQueueConnectionFactoryBindingName);
-
 
             queueConnectionFactory = (QueueConnectionFactory) JMSConfiguration.lookup(context, getQueueConnectionFactoryBindingName);
             getQueue = (Queue) JMSConfiguration.lookup(context, getQueueBindingName);
@@ -121,7 +115,7 @@ public class JMSCacheLoaderFactory extends CacheLoaderFactory {
             throw new CacheException("Problem creating connections: " + e.getMessage(), e);
         }
 
-        return new JMSCacheLoader(cache, getQueueConnection, getQueue, effectiveAcknowledgementMode, timeoutMillis);
+        return new JMSCacheLoader(defaultLoaderArgument, getQueueConnection, getQueue, effectiveAcknowledgementMode, timeoutMillis);
     }
 
 

@@ -18,8 +18,6 @@
     * initialContextFactoryName (mandatory) - the name of the factory used to create the message queue initial context.
     * providerURL (mandatory) - the JNDI configuration information for the service provider to use.
     * topicConnectionFactoryBindingName (mandatory) - the JNDI binding name for the TopicConnectionFactory
-    * replicationTopicBindingName (mandatory) - the JNDI binding name for the topic name
-    * getQueueConnectionFactoryBindingName (mandatory only if using jmsCacheLoader) - the JNDI binding name for the QueueConnectionFactory
     * getQueueBindingName (mandatory only if using jmsCacheLoader) - the JNDI binding name for the queue name used to do gets
     * securityPrincipalName - the JNDI java.naming.security.principal
     * securityCredentials - the JNDI java.naming.security.credentials
@@ -28,6 +26,63 @@
     * password - the password to use when creating the TopicConnection to the Message Queue
     * acknowledgementMode - the JMS Acknowledgement mode for both publisher and subscriber. The available choices are
                             AUTO_ACKNOWLEDGE, DUPS_OK_ACKNOWLEDGE and SESSION_TRANSACTED. The default is AUTO_ACKNOWLEDGE.
+
+    This peer provider can also respond to JMSCacheLoader requests. Add the following properties to do so:
+    * replicationTopicBindingName (mandatory) - the JNDI binding name for the topic name
+    * getQueueConnectionFactoryBindingName (mandatory only if using jmsCacheLoader) -
+            the JNDI binding name for the QueueConnectionFactory
+
+
+    JMS Cache Loader
+
+    A CacheLoader which loads objects into the cache by sending requests to a JMS Queue.
+
+    The loader places an empty Message on the getQueue with the following String properties:
+
+    * key - the cache key the loader is requesting.
+    * loaderArgument - the defaultLoaderArgument, or the loaderArgument if specified on the
+     load request. To work with the JMSCacheManagerPeerProvider this should be the name of the cache to load from.
+     For custom responders, it can be anything which has meaning to the responder.
+
+     A queue responder, in any programming language, can also be created. The responder should respond to the replyQueue
+      with a messagecan respond with one of: ObjectMessage, TextMessage or BytesMessage.
+
+     The responder should set the a mimeType String property. The loader will a value of type MimetyeByteArray.
+     If the response is an ObjectMessage and no mimeType is set, the loader will pass the value through.
+
+
+    The JMSCacheLoader uses JNDI to maintain message queue independence. Refer to the manual for full configuration
+    examples using ActiveMQ and Open Message Queue.
+
+    It is configured as per the following example:
+
+    <cacheLoaderFactory class="net.sf.ehcache.distribution.jms.JMSCacheLoaderFactory"
+                        properties="initialContextFactoryName=com.sun.jndi.fscontext.RefFSContextFactory,
+            providerURL=file:///tmp,
+            topicConnectionFactoryBindingName=MyConnectionFactory,
+            replicationTopicBindingName=ehcache,
+            getQueueConnectionFactoryBindingName=queueConnectionFactory,
+            getQueueBindingName=ehcacheGetQueue,
+            timeoutMillis=20000
+            defaultLoaderArgument=sampleCacheNoRep"/>
+
+    Valid properties are:
+    * initialContextFactoryName (mandatory) - the name of the factory used to create the message queue initial context.
+    * providerURL (mandatory) - the JNDI configuration information for the service provider to use.
+    * getQueueConnectionFactoryBindingName (mandatory) - the JNDI binding name for the QueueConnectionFactory
+    * getQueueBindingName (mandatory) - the JNDI binding name for the queue name used to do make requests.
+    * loaderArgument - (required for use with the JMSCacheManagerPeerProvider) -
+    * timeoutMillis - time in milliseconds to wait for a reply to a request.
+    * securityPrincipalName - the JNDI java.naming.security.principal
+    * securityCredentials - the JNDI java.naming.security.credentials
+    * urlPkgPrefixes - the JNDI java.naming.factory.url.pkgs
+    * userName - the user name to use when creating the TopicConnection to the Message Queue
+    * password - the password to use when creating the TopicConnection to the Message Queue
+    * acknowledgementMode - the JMS Acknowledgement mode for both publisher and subscriber. The available choices are
+                            AUTO_ACKNOWLEDGE, DUPS_OK_ACKNOWLEDGE and SESSION_TRANSACTED. The default is AUTO_ACKNOWLEDGE.
+
+
+
     -->
     <cacheManagerPeerProviderFactory
             class="net.sf.ehcache.distribution.jms.JMSCacheManagerPeerProviderFactory"
@@ -95,8 +150,17 @@
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.jms.JMSCacheReplicatorFactory"
                                    properties="replicateAsynchronously=false, replicatePuts=false,
                                      replicateUpdates=false, replicateUpdatesViaCopy=false,
-                                     replicateRemovals=false"
+                                     replicateRemovals=false, loaderArgument=sampleCacheNorep"
                                     propertySeparator=","/>
+        <cacheLoaderFactory class="net.sf.ehcache.distribution.jms.JMSCacheLoaderFactory"
+            properties="initialContextFactoryName=net.sf.ehcache.distribution.jms.TestActiveMQInitialContextFactory,
+                providerURL=tcp://localhost:61616,
+                topicConnectionFactoryBindingName=topicConnectionFactory,
+                getQueueConnectionFactoryBindingName=queueConnectionFactory,
+                replicationTopicBindingName=ehcache,
+                getQueueBindingName=ehcacheGetQueue,
+                timeoutMillis=20000,
+                defaultLoaderArgument=sampleCacheNorep"/>
     </cache>
 
 
