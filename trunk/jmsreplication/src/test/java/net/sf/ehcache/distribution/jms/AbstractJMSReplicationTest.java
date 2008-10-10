@@ -353,9 +353,7 @@ public abstract class AbstractJMSReplicationTest {
 
         //Should load from cache1
         element2 = cache2.getWithLoader(key, null, null);
-        assertNotNull(element2);
-//        assertEquals(element, element2);
-
+        assertEquals(value, element2.getValue());
     }
 
 

@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * A factory for creating JMSCacheReplicators.
  * @author benoit.perroud@elca.ch
  * @author Greg Luck
  */
