@@ -3,6 +3,8 @@ package net.sf.ehcache.distribution.jms;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
+import static net.sf.ehcache.distribution.jms.JMSUtil.CACHE_MANAGER_UID;
+import static net.sf.ehcache.distribution.jms.JMSUtil.localCacheManagerUid;
 import net.sf.jsr107cache.CacheException;
 
 import javax.jms.QueueConnection;
@@ -43,13 +45,15 @@ public class JMSCacheLoader implements CacheLoader {
     private MessageConsumer replyReceiver;
     private int timeoutMillis;
     private String defaultLoaderArgument;
+    private Ehcache cache;
 
-    public JMSCacheLoader(String defaultLoaderArgument,
+    public JMSCacheLoader(Ehcache cache, String defaultLoaderArgument,
                           QueueConnection getQueueConnection,
                           Queue getQueue,
                           AcknowledgementMode acknowledgementMode,
                           int timeoutMillis) {
 
+        this.cache = cache;
         this.defaultLoaderArgument = defaultLoaderArgument;
         this.getQueueConnection = getQueueConnection;
         this.acknowledgementMode = acknowledgementMode;
@@ -108,15 +112,20 @@ public class JMSCacheLoader implements CacheLoader {
                     keyAsSerializable, null, effectiveLoaderArgument.toString());
             ObjectMessage loadRequest = getQueueSession.createObjectMessage(jmsEventMessage);
             loadRequest.setJMSReplyTo(temporaryReplyQueue);
+            loadRequest.setIntProperty(CACHE_MANAGER_UID, localCacheManagerUid(cache));
             getQueueSender.send(loadRequest, DeliveryMode.NON_PERSISTENT, 9, timeoutMillis);
+            
             String initialMessageId = loadRequest.getJMSMessageID();
 
             //todo multiple threads
             ObjectMessage reply = (ObjectMessage) replyReceiver.receive(timeoutMillis);
             String messageId = reply.getJMSCorrelationID();
-            if (!initialMessageId.equals(messageId)) {
-                throw new IllegalStateException("The load got an unrelated response: " + messageId);
-            }
+            String responder = reply.getStringProperty("responder");
+            LOG.info("Responder: " + responder);
+            //todo performance impact of statement after :
+            assert initialMessageId.equals(messageId) : "The load request received an uncorrelated request. " +
+                    "Request ID was " + messageId;
+
             int i = 0;
             value = reply.getObject();
 

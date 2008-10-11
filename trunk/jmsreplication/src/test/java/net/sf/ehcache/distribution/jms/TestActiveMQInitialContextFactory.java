@@ -38,7 +38,7 @@ public class TestActiveMQInitialContextFactory extends ActiveMQInitialContextFac
 	        
         Map<String, Object> data = new ConcurrentHashMap<String, Object>();
         
-        String topicConnectionfactoryBindingName = (String)environment.get(JMSConfiguration.TOPIC_CONNECTION_FACTORY_BINDING_NAME);
+        String topicConnectionfactoryBindingName = (String)environment.get(JMSUtil.TOPIC_CONNECTION_FACTORY_BINDING_NAME);
 
         try {
         	data.put(topicConnectionfactoryBindingName, createConnectionFactory(environment));
@@ -46,7 +46,7 @@ public class TestActiveMQInitialContextFactory extends ActiveMQInitialContextFac
         	throw new NamingException("Error initialisating TopicConnectionFactory with message " + e.getMessage());
         }
 
-        String getQueueConnectionfactoryBindingName = (String)environment.get(JMSConfiguration.GET_QUEUE_CONNECTION_FACTORY_BINDING_NAME);
+        String getQueueConnectionfactoryBindingName = (String)environment.get(JMSUtil.GET_QUEUE_CONNECTION_FACTORY_BINDING_NAME);
 
         try {
         	data.put(getQueueConnectionfactoryBindingName, createConnectionFactory(environment));
@@ -54,8 +54,8 @@ public class TestActiveMQInitialContextFactory extends ActiveMQInitialContextFac
         	throw new NamingException("Error initialisating TopicConnectionFactory with message " + e.getMessage());
         }
 
-        String replicationTopicBindingName = (String)environment.get(JMSConfiguration.REPLICATION_TOPIC_BINDING_NAME);
-        String getQueueBindingName = (String)environment.get(JMSConfiguration.GET_QUEUE_BINDING_NAME);
+        String replicationTopicBindingName = (String)environment.get(JMSUtil.REPLICATION_TOPIC_BINDING_NAME);
+        String getQueueBindingName = (String)environment.get(JMSUtil.GET_QUEUE_BINDING_NAME);
 
         data.put(replicationTopicBindingName, createTopic(replicationTopicBindingName));
         data.put(getQueueBindingName, createQueue(getQueueBindingName));

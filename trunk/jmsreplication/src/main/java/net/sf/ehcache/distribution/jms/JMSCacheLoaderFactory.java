@@ -1,20 +1,21 @@
 package net.sf.ehcache.distribution.jms;
 
 import net.sf.ehcache.CacheException;
-import static net.sf.ehcache.distribution.jms.JMSConfiguration.SECURITY_PRINCIPAL_NAME;
-import static net.sf.ehcache.distribution.jms.JMSConfiguration.SECURITY_CREDENTIALS;
-import static net.sf.ehcache.distribution.jms.JMSConfiguration.INITIAL_CONTEXT_FACTORY_NAME;
-import static net.sf.ehcache.distribution.jms.JMSConfiguration.URL_PKG_PREFIXES;
-import static net.sf.ehcache.distribution.jms.JMSConfiguration.PROVIDER_URL;
-import static net.sf.ehcache.distribution.jms.JMSConfiguration.REPLICATION_TOPIC_BINDING_NAME;
-import static net.sf.ehcache.distribution.jms.JMSConfiguration.GET_QUEUE_BINDING_NAME;
-import static net.sf.ehcache.distribution.jms.JMSConfiguration.GET_QUEUE_CONNECTION_FACTORY_BINDING_NAME;
-import static net.sf.ehcache.distribution.jms.JMSConfiguration.TOPIC_CONNECTION_FACTORY_BINDING_NAME;
-import static net.sf.ehcache.distribution.jms.JMSConfiguration.USERNAME;
-import static net.sf.ehcache.distribution.jms.JMSConfiguration.PASSWORD;
-import static net.sf.ehcache.distribution.jms.JMSConfiguration.ACKNOWLEDGEMENT_MODE;
-import static net.sf.ehcache.distribution.jms.JMSConfiguration.TIMEOUT_MILLIS;
-import static net.sf.ehcache.distribution.jms.JMSConfiguration.DEFAULT_LOADER_ARGUMENT;
+import net.sf.ehcache.Ehcache;
+import static net.sf.ehcache.distribution.jms.JMSUtil.SECURITY_PRINCIPAL_NAME;
+import static net.sf.ehcache.distribution.jms.JMSUtil.SECURITY_CREDENTIALS;
+import static net.sf.ehcache.distribution.jms.JMSUtil.INITIAL_CONTEXT_FACTORY_NAME;
+import static net.sf.ehcache.distribution.jms.JMSUtil.URL_PKG_PREFIXES;
+import static net.sf.ehcache.distribution.jms.JMSUtil.PROVIDER_URL;
+import static net.sf.ehcache.distribution.jms.JMSUtil.REPLICATION_TOPIC_BINDING_NAME;
+import static net.sf.ehcache.distribution.jms.JMSUtil.GET_QUEUE_BINDING_NAME;
+import static net.sf.ehcache.distribution.jms.JMSUtil.GET_QUEUE_CONNECTION_FACTORY_BINDING_NAME;
+import static net.sf.ehcache.distribution.jms.JMSUtil.TOPIC_CONNECTION_FACTORY_BINDING_NAME;
+import static net.sf.ehcache.distribution.jms.JMSUtil.USERNAME;
+import static net.sf.ehcache.distribution.jms.JMSUtil.PASSWORD;
+import static net.sf.ehcache.distribution.jms.JMSUtil.ACKNOWLEDGEMENT_MODE;
+import static net.sf.ehcache.distribution.jms.JMSUtil.TIMEOUT_MILLIS;
+import static net.sf.ehcache.distribution.jms.JMSUtil.DEFAULT_LOADER_ARGUMENT;
 import net.sf.ehcache.loader.CacheLoaderFactory;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.jsr107cache.CacheLoader;
@@ -61,7 +62,7 @@ public class JMSCacheLoaderFactory extends CacheLoaderFactory {
      *                   separated name value pairs in ehcache.xml
      * @return a constructed CacheLoader
      */
-    public net.sf.ehcache.loader.CacheLoader createCacheLoader(Properties properties) {
+    public net.sf.ehcache.loader.CacheLoader createCacheLoader(Ehcache cache, Properties properties) {
 
         String securityPrincipalName = PropertyUtil.extractAndLogProperty(SECURITY_PRINCIPAL_NAME, properties);
         String securityCredentials = PropertyUtil.extractAndLogProperty(SECURITY_CREDENTIALS, properties);
@@ -97,14 +98,14 @@ public class JMSCacheLoaderFactory extends CacheLoaderFactory {
 
         try {
 
-            context = JMSConfiguration.createInitialContext(securityPrincipalName, securityCredentials, initialContextFactoryName,
+            context = JMSUtil.createInitialContext(securityPrincipalName, securityCredentials, initialContextFactoryName,
                     urlPkgPrefixes, providerURL, replicationTopicBindingName, topicConnectionFactoryBindingName,
                     getQueueBindingName, getQueueConnectionFactoryBindingName);
 
-            queueConnectionFactory = (QueueConnectionFactory) JMSConfiguration.lookup(context, getQueueConnectionFactoryBindingName);
-            getQueue = (Queue) JMSConfiguration.lookup(context, getQueueBindingName);
+            queueConnectionFactory = (QueueConnectionFactory) JMSUtil.lookup(context, getQueueConnectionFactoryBindingName);
+            getQueue = (Queue) JMSUtil.lookup(context, getQueueBindingName);
 
-            JMSConfiguration.closeContext(context);
+            JMSUtil.closeContext(context);
         } catch (NamingException ne) {
             throw new CacheException("NamingException " + ne.getMessage(), ne);
         }
@@ -115,7 +116,8 @@ public class JMSCacheLoaderFactory extends CacheLoaderFactory {
             throw new CacheException("Problem creating connections: " + e.getMessage(), e);
         }
 
-        return new JMSCacheLoader(defaultLoaderArgument, getQueueConnection, getQueue, effectiveAcknowledgementMode, timeoutMillis);
+        return new JMSCacheLoader(cache, defaultLoaderArgument, getQueueConnection, getQueue, 
+                effectiveAcknowledgementMode, timeoutMillis);
     }
 
 

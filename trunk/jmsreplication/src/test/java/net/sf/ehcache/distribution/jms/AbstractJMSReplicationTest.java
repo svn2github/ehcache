@@ -55,9 +55,13 @@ public abstract class AbstractJMSReplicationTest {
     public void setUp() throws Exception {
 
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + getConfigurationFile());
+        manager1.setName("manager1");
         manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + getConfigurationFile());
+        manager2.setName("manager2");
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + getConfigurationFile());
+        manager3.setName("manager3");
         manager4 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + getConfigurationFile());
+        manager4.setName("manager4");
         cacheName = SAMPLE_CACHE_ASYNC;
         Thread.sleep(200);
     }
@@ -334,6 +338,8 @@ public abstract class AbstractJMSReplicationTest {
     @Test
     public void testGet() throws InterruptedException {
         cacheName = SAMPLE_CACHE_SYNC;
+        manager3.shutdown();
+        manager4.shutdown();
         Ehcache cache1 = manager1.getCache("sampleCacheNorep");
         Ehcache cache2 = manager2.getCache("sampleCacheNorep");
 
@@ -352,8 +358,11 @@ public abstract class AbstractJMSReplicationTest {
         assertEquals(null, element2);
 
         //Should load from cache1
-        element2 = cache2.getWithLoader(key, null, null);
-        assertEquals(value, element2.getValue());
+        for (int i = 0; i < 10; i++) {
+            element2 = cache2.getWithLoader(key, null, null);
+            assertEquals(value, element2.getValue());
+            cache2.remove(key);
+        }
     }
 
 

@@ -21,6 +21,8 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.distribution.CachePeer;
+import static net.sf.ehcache.distribution.jms.JMSUtil.CACHE_MANAGER_UID;
+import static net.sf.ehcache.distribution.jms.JMSUtil.localCacheManagerUid;
 
 import javax.jms.JMSException;
 import javax.jms.TopicSubscriber;
@@ -35,6 +37,7 @@ import javax.jms.Topic;
 import javax.jms.Queue;
 import javax.jms.MessageConsumer;
 import javax.jms.QueueReceiver;
+import javax.jms.Session;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -107,7 +110,6 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
         TopicSubscriber topicSubscriber;
 
         QueueSession getQueueSession;
-        QueueSender getQueueSender;
         QueueReceiver getQueueRequestReceiver;
 
         try {
@@ -124,9 +126,11 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
             replicationTopicConnection.start();
 
 
+            //noLocal is only supported in the JMS spec for topics. We need to use a message selector
+            //on the queue to achieve the same effect.
             getQueueSession = getQueueConnection.createQueueSession(false, acknowledgementMode.toInt());
-            getQueueRequestReceiver = getQueueSession.createReceiver(getQueue);
-            getQueueSender = getQueueSession.createSender(getQueue);
+            String messageSelector = CACHE_MANAGER_UID + " <> " + localCacheManagerUid(cacheManager);
+            getQueueRequestReceiver = getQueueSession.createReceiver(getQueue,  messageSelector);
 
 
             getQueueConnection.start();

@@ -21,11 +21,13 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.MimeTypeByteArray;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.distribution.CachePeer;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.CACHE_NAME_PROPERTY;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.Action;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.ACTION_PROPERTY;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.KEY_PROPERTY;
+import static net.sf.ehcache.distribution.jms.JMSUtil.CACHE_MANAGER_UID;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -224,7 +226,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
 
                 //If a non-cache publisher sends an Element
                 if (object instanceof Element) {
-                    LOG.info("Element message: " + object);
+                    LOG.fine(getName() +  ": Element message received - " + object);
 
 
                     Element element = (Element) object;
@@ -236,7 +238,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
                     handleNotification(element, key, cache, action);
 
                 } else if (object instanceof JMSEventMessage) {
-                    LOG.info("JMSEventMessage message: " + object);
+                    LOG.fine(getName() +  ": JMSEventMessage message received - " + object);
 
 
                     //no need for cacheName, mimeType, key or action properties as all are in message.
@@ -259,7 +261,8 @@ public class JMSCachePeer implements CachePeer, MessageListener {
                     }
 
                 } else {
-                    LOG.info("Other object message: " + object);
+                    LOG.fine(getName() +  ": Other ObjectMessage received - " + object);
+
 
                     //no need for mimeType. An object has a type
                     Cache cache = extractAndValidateCache(objectMessage);
@@ -268,11 +271,13 @@ public class JMSCachePeer implements CachePeer, MessageListener {
                     handleNotification(object, key, cache, action);
                 }
             } else if (message instanceof TextMessage) {
+                TextMessage textMessage = (TextMessage) message;
+                LOG.fine(getName() +  ": Other ObjectMessage received - " + textMessage);
+
                 Cache cache = extractAndValidateCache(message);
                 Action action = extractAndValidateAction(message);
                 Serializable key = extractAndValidateKey(message, action);
                 String mimeType = extractAndValidateMimeType(message, action);
-                TextMessage textMessage = (TextMessage) message;
                 byte[] payload = new byte[0];
                 if (textMessage.getText() != null) {
                     payload = textMessage.getText().getBytes();
@@ -281,11 +286,13 @@ public class JMSCachePeer implements CachePeer, MessageListener {
                 handleNotification(value, key, cache, action);
 
             } else if (message instanceof BytesMessage) {
+                BytesMessage bytesMessage = (BytesMessage) message;
+                LOG.fine(getName() +  ": Other ObjectMessage received - " + bytesMessage);
+
                 Cache cache = extractAndValidateCache(message);
                 Action action = extractAndValidateAction(message);
                 Serializable key = extractAndValidateKey(message, action);
                 String mimeType = extractAndValidateMimeType(message, action);
-                BytesMessage bytesMessage = (BytesMessage) message;
                 byte[] payload = new byte[(int) bytesMessage.getBodyLength()];
                 bytesMessage.readBytes(payload);
                 MimeTypeByteArray value = new MimeTypeByteArray(mimeType, payload);
@@ -301,13 +308,24 @@ public class JMSCachePeer implements CachePeer, MessageListener {
     }
 
     private void handleGetRequest(ObjectMessage objectMessage, JMSEventMessage jmsEventMessage, Cache cache) throws JMSException {
+        LOG.info(cacheManager.getName() +  ": JMSEventMessage message received - " + objectMessage.getJMSMessageID());
         Serializable key = jmsEventMessage.getSerializableKey();
         Element element = cache.get(key);
         Serializable value = null;
         if (element != null) {
             value = element.getValue();
         }
+        assert(objectMessage.getIntProperty(CACHE_MANAGER_UID) != JMSUtil.localCacheManagerUid(cache)) :
+                "The JMSCachePeer received a getQueue request sent by a JMSCacheLoader belonging to the same" +
+                        "CacheManager, which is invalid";
         ObjectMessage reply = getQueueSession.createObjectMessage(value);
+        String name = null;
+        try {
+            name = getName();
+        } catch (RemoteException e) {
+            //impossible - local call
+        }
+        reply.setStringProperty("responder", name);
         reply.setJMSCorrelationID(objectMessage.getJMSMessageID());
         Queue replyQueue = (Queue) objectMessage.getJMSReplyTo();
 
@@ -393,7 +411,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
      * Not implemented for JMS
      */
     public String getName() throws RemoteException {
-        throw new RemoteException("Not implemented for JMS");
+        return cacheManager.getName() + " JMSCachePeer";
     }
 
     /**

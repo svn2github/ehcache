@@ -1,6 +1,8 @@
 package net.sf.ehcache.distribution.jms;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.CacheManager;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -13,9 +15,9 @@ import java.util.logging.Level;
 /**
  * Configuration file strings used by both the JMS replication and loader.
  */
-public class JMSConfiguration {
+public class JMSUtil {
 
-    private static final Logger LOG = Logger.getLogger(JMSConfiguration.class.getName());
+    private static final Logger LOG = Logger.getLogger(JMSUtil.class.getName());
 
     static final String PROVIDER_URL = "providerURL";
     static final String REPLICATION_TOPIC_BINDING_NAME = "replicationTopicBindingName";
@@ -32,6 +34,7 @@ public class JMSConfiguration {
     static final String TIMEOUT_MILLIS = "timeoutMillis";
     static final String DEFAULT_LOADER_ARGUMENT = "defaultLoaderArgument";
     static final int MAX_PRIORITY = 9;
+    static final String CACHE_MANAGER_UID = "cacheManagerUniqueId";
 
     public static Context createInitialContext(String securityPrincipalName,
                                          String securityCredentials,
@@ -107,5 +110,26 @@ public class JMSConfiguration {
         } catch (NamingException e) {
             throw new CacheException("Exception while closing context", e);
         }
+    }
+
+    /**
+     * Returns a unique ID for a CacheManager. This method always returns the same value
+     * for the life of a CacheManager instance.
+     * @param cache the CacheManager is discovered through a cache
+     * @return an identifier for the local CacheManager
+     */
+    public static int localCacheManagerUid(Ehcache cache) {
+        return localCacheManagerUid(cache.getCacheManager());
+    }
+
+
+    /**
+     * Returns a unique ID for a CacheManager. This method always returns the same value
+     * for the life of a CacheManager instance.
+     * @param cacheManager the CacheManager of interest
+     * @return an identifier for the local CacheManager
+     */
+    public static int localCacheManagerUid(CacheManager cacheManager) {
+        return cacheManager.hashCode();
     }
 }

@@ -62,18 +62,18 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
         }
 
 
-        String securityPrincipalName = PropertyUtil.extractAndLogProperty(JMSConfiguration.SECURITY_PRINCIPAL_NAME, properties);
-        String securityCredentials = PropertyUtil.extractAndLogProperty(JMSConfiguration.SECURITY_CREDENTIALS, properties);
-        String initialContextFactoryName = PropertyUtil.extractAndLogProperty(JMSConfiguration.INITIAL_CONTEXT_FACTORY_NAME, properties);
-        String urlPkgPrefixes = PropertyUtil.extractAndLogProperty(JMSConfiguration.URL_PKG_PREFIXES, properties);
-        String providerURL = PropertyUtil.extractAndLogProperty(JMSConfiguration.PROVIDER_URL, properties);
-        String replicationTopicBindingName = PropertyUtil.extractAndLogProperty(JMSConfiguration.REPLICATION_TOPIC_BINDING_NAME, properties);
-        String getQueueBindingName = PropertyUtil.extractAndLogProperty(JMSConfiguration.GET_QUEUE_BINDING_NAME, properties);
-        String getQueueConnectionFactoryBindingName = PropertyUtil.extractAndLogProperty(JMSConfiguration.GET_QUEUE_CONNECTION_FACTORY_BINDING_NAME, properties);
-        String topicConnectionFactoryBindingName = PropertyUtil.extractAndLogProperty(JMSConfiguration.TOPIC_CONNECTION_FACTORY_BINDING_NAME, properties);
-        String userName = PropertyUtil.extractAndLogProperty(JMSConfiguration.USERNAME, properties);
-        String password = PropertyUtil.extractAndLogProperty(JMSConfiguration.PASSWORD, properties);
-        String acknowledgementMode = PropertyUtil.extractAndLogProperty(JMSConfiguration.ACKNOWLEDGEMENT_MODE, properties);
+        String securityPrincipalName = PropertyUtil.extractAndLogProperty(JMSUtil.SECURITY_PRINCIPAL_NAME, properties);
+        String securityCredentials = PropertyUtil.extractAndLogProperty(JMSUtil.SECURITY_CREDENTIALS, properties);
+        String initialContextFactoryName = PropertyUtil.extractAndLogProperty(JMSUtil.INITIAL_CONTEXT_FACTORY_NAME, properties);
+        String urlPkgPrefixes = PropertyUtil.extractAndLogProperty(JMSUtil.URL_PKG_PREFIXES, properties);
+        String providerURL = PropertyUtil.extractAndLogProperty(JMSUtil.PROVIDER_URL, properties);
+        String replicationTopicBindingName = PropertyUtil.extractAndLogProperty(JMSUtil.REPLICATION_TOPIC_BINDING_NAME, properties);
+        String getQueueBindingName = PropertyUtil.extractAndLogProperty(JMSUtil.GET_QUEUE_BINDING_NAME, properties);
+        String getQueueConnectionFactoryBindingName = PropertyUtil.extractAndLogProperty(JMSUtil.GET_QUEUE_CONNECTION_FACTORY_BINDING_NAME, properties);
+        String topicConnectionFactoryBindingName = PropertyUtil.extractAndLogProperty(JMSUtil.TOPIC_CONNECTION_FACTORY_BINDING_NAME, properties);
+        String userName = PropertyUtil.extractAndLogProperty(JMSUtil.USERNAME, properties);
+        String password = PropertyUtil.extractAndLogProperty(JMSUtil.PASSWORD, properties);
+        String acknowledgementMode = PropertyUtil.extractAndLogProperty(JMSUtil.ACKNOWLEDGEMENT_MODE, properties);
         AcknowledgementMode effectiveAcknowledgementMode = AcknowledgementMode.forString(acknowledgementMode);
         LOG.fine("Creating TopicSession in " + effectiveAcknowledgementMode.name() + " mode.");
 
@@ -91,18 +91,18 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
 
         try {
 
-            context = JMSConfiguration.createInitialContext(securityPrincipalName, securityCredentials, initialContextFactoryName,
+            context = JMSUtil.createInitialContext(securityPrincipalName, securityCredentials, initialContextFactoryName,
                     urlPkgPrefixes, providerURL, replicationTopicBindingName, topicConnectionFactoryBindingName,
                     getQueueBindingName, getQueueConnectionFactoryBindingName);
 
 
-            topicConnectionFactory = (TopicConnectionFactory) JMSConfiguration.lookup(context, topicConnectionFactoryBindingName);
-            replicationTopic = (Topic) JMSConfiguration.lookup(context, replicationTopicBindingName);
+            topicConnectionFactory = (TopicConnectionFactory) JMSUtil.lookup(context, topicConnectionFactoryBindingName);
+            replicationTopic = (Topic) JMSUtil.lookup(context, replicationTopicBindingName);
 
-            queueConnectionFactory = (QueueConnectionFactory) JMSConfiguration.lookup(context, getQueueConnectionFactoryBindingName);
-            getQueue = (Queue) JMSConfiguration.lookup(context, getQueueBindingName);
+            queueConnectionFactory = (QueueConnectionFactory) JMSUtil.lookup(context, getQueueConnectionFactoryBindingName);
+            getQueue = (Queue) JMSUtil.lookup(context, getQueueBindingName);
 
-            JMSConfiguration.closeContext(context);
+            JMSUtil.closeContext(context);
         } catch (NamingException ne) {
             throw new CacheException("NamingException " + ne.getMessage(), ne);
         }
