@@ -204,16 +204,14 @@ public class JMSCacheLoader implements CacheLoader {
             getQueueConnection.setExceptionListener(new ExceptionListener() {
 
                 public void onException(JMSException e) {
-                    LOG.log(Level.SEVERE, "Exception on 'getQueue' Connection: " + e.getMessage(), e);
+                    LOG.log(Level.SEVERE, "Exception on getQueue Connection: " + e.getMessage(), e);
                 }
             });
       
             getQueueSession = getQueueConnection.createQueueSession(false, acknowledgementMode.toInt());
             getQueueSender = getQueueSession.createSender(getQueue);
             temporaryReplyQueue = getQueueSession.createTemporaryQueue();
-            //todo this only works for topics. How do we ensure we do not process the queue.
-            //Do not listen for our own messages. If we had them we would not calling load.
-            replyReceiver = getQueueSession.createConsumer(temporaryReplyQueue, null, true);
+            replyReceiver = getQueueSession.createConsumer(temporaryReplyQueue);
 
             getQueueConnection.start();
 

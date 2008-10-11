@@ -22,6 +22,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.CacheException;
 import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -334,9 +335,99 @@ public abstract class AbstractJMSReplicationTest {
      */
     @Test
     public void testPutAndRemoveStability() throws InterruptedException {
+        for (int i = 0; i < 120; i++) {
+            testPutAndRemove();
+        }
+    }
+
+
+    /**
+     * This is a manual test.
+     * Start the test running and observe the output. You should see no exceptions.
+     * Then kill the message queue.
+     * <p/>
+     * You will see errors like these if using Open MQ.
+     * <p/>
+     * Oct 11, 2008 10:11:10 PM com.sun.messaging.jmq.jmsclient.ExceptionHandler logCaughtException
+     * WARNING: [I500]: Caught JVM Exception: java.io.EOFException
+     * Oct 11, 2008 10:11:10 PM com.sun.messaging.jmq.jmsclient.ExceptionHandler logCaughtException
+     * WARNING: [I500]: Caught JVM Exception: java.io.EOFException
+     * Oct 11, 2008 10:11:10 PM com.sun.messaging.jmq.jmsclient.ConnectionRecover logRecoverState
+     * INFO: [I107]: Connection recover state: RECOVER_INACTIVE, broker: localhost:7676(49990)
+     * Oct 11, 2008 10:11:10 PM com.sun.messaging.jmq.jmsclient.ConnectionRecover logRecoverState
+     * INFO: [I107]: Connection recover state: RECOVER_INACTIVE, broker: localhost:7676(49990)
+     * Oct 11, 2008 10:11:10 PM com.sun.messaging.jmq.jmsclient.ExceptionHandler logCaughtException
+     * WARNING: [I500]: Caught JVM Exception: java.io.EOFException
+     * Oct 11, 2008 10:11:10 PM com.sun.messaging.jmq.jmsclient.ConnectionRecover logRecoverState
+     * INFO: [I107]: Connection recover state: RECOVER_INACTIVE, broker: localhost:7676(49990)
+     * Oct 11, 2008 10:11:10 PM com.sun.messaging.jmq.jmsclient.ConnectionRecover logRecoverState
+     * INFO: [I107]: Connection recover state: RECOVER_INACTIVE, broker: localhost:7676(49990)
+     * Oct 11, 2008 10:11:10 PM com.sun.messaging.jmq.jmsclient.ConnectionRecover logRecoverState
+     * INFO: [I107]: Connection recover state: RECOVER_INACTIVE, broker: localhost:7676(49990)
+     * Oct 11, 2008 10:11:10 PM com.sun.messaging.jmq.jmsclient.ConnectionRecover logRecoverState
+     * INFO: [I107]: Connection recover state: RECOVER_INACTIVE, broker: localhost:7676(49990)
+     * Oct 11, 2008 10:11:13 PM com.sun.messaging.jmq.jmsclient.ExceptionHandler throwConnectionException
+     * WARNING: [C4003]: Error occurred on connection creation [localhost:7676]. - cause: java.net.ConnectException: Connection refused
+     * <p/>
+     * Then restart the message queue.
+     * <p/>
+     * You will see recover messages such as:
+     * <p/>
+     * INFO: [I107]: Connection recover state: RECOVER_INACTIVE, broker: localhost:7676(50206)
+     * Oct 11, 2008 10:13:46 PM com.sun.messaging.jmq.jmsclient.ConnectionRecover logRecoverState
+     * INFO: [I107]: Connection recover state: RECOVER_SUCCEEDED, broker: localhost:7676(50206)
+     * Oct 11, 2008 10:13:46 PM com.sun.messaging.jmq.jmsclient.ConnectionRecover logRecoverState
+     * INFO: [I107]: Connection recover state: RECOVER_INACTIVE, broker: localhost:7676(50206)
+     * Oct 11, 2008 10:13:46 PM com.sun.messaging.jmq.jmsclient.ConnectionRecover logRecoverState
+     * INFO: [I107]: Connection recover state: RECOVER_INACTIVE, broker: localhost:7676(50206)
+     * Oct 11, 2008 10:13:46 PM com.sun.messaging.jmq.jmsclient.ConsumerReader run
+     * WARNING: [C4001]: Write packet failed., packet type = ACKNOWLEDGE(24)
+     * com.sun.messaging.jms.JMSException: [C4001]: Write packet failed., packet type = ACKNOWLEDGE(24)
+     * at com.sun.messaging.jmq.jmsclient.ConnectionImpl.checkPacketType(ConnectionImpl.java:654)
+     * at com.sun.messaging.jmq.jmsclient.ConnectionImpl.checkReconnecting(ConnectionImpl.java:641)
+     * at com.sun.messaging.jmq.jmsclient.ProtocolHandler.checkConnectionState(ProtocolHandler.java:766)
+     * at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketNoAck(ProtocolHandler.java:360)
+     * at com.sun.messaging.jmq.jmsclient.ProtocolHandler.acknowledge(ProtocolHandler.java:2608)
+     * at com.sun.messaging.jmq.jmsclient.SessionImpl.doAcknowledge(SessionImpl.java:1382)
+     * at com.sun.messaging.jmq.jmsclient.SessionImpl.dupsOkCommitAcknowledge(SessionImpl.java:1427)
+     * at com.sun.messaging.jmq.jmsclient.SessionImpl.syncedDupsOkCommitAcknowledge(SessionImpl.java:1450)
+     * at com.sun.messaging.jmq.jmsclient.SessionReader.deliver(SessionReader.java:141)
+     * at com.sun.messaging.jmq.jmsclient.ConsumerReader.run(ConsumerReader.java:190)
+     * at java.lang.Thread.run(Thread.java:613)
+     * Oct 11, 2008 10:13:46 PM com.sun.messaging.jmq.jmsclient.ConnectionRecover logRecoverState
+     * INFO: [I107]: Connection recover state: RECOVER_INACTIVE, broker: localhost:7676(50206)
+     * Oct 11, 2008 10:13:46 PM com.sun.messaging.jmq.jmsclient.ConsumerReader run
+     * WARNING: [C4001]: Write packet failed., packet type = ACKNOWLEDGE(24)
+     * com.sun.messaging.jms.JMSException: [C4001]: Write packet failed., packet type = ACKNOWLEDGE(24)
+     * at com.sun.messaging.jmq.jmsclient.ConnectionImpl.checkPacketType(ConnectionImpl.java:654)
+     * at com.sun.messaging.jmq.jmsclient.ConnectionImpl.checkReconnecting(ConnectionImpl.java:641)
+     * at com.sun.messaging.jmq.jmsclient.ProtocolHandler.checkConnectionState(ProtocolHandler.java:766)
+     * at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketNoAck(ProtocolHandler.java:360)
+     * at com.sun.messaging.jmq.jmsclient.ProtocolHandler.acknowledge(ProtocolHandler.java:2608)
+     * at com.sun.messaging.jmq.jmsclient.SessionImpl.doAcknowledge(SessionImpl.java:1382)
+     * at com.sun.messaging.jmq.jmsclient.SessionImpl.dupsOkCommitAcknowledge(SessionImpl.java:1427)
+     * at com.sun.messaging.jmq.jmsclient.SessionImpl.syncedDupsOkCommitAcknowledge(SessionImpl.java:1450)
+     * at com.sun.messaging.jmq.jmsclient.SessionReader.deliver(SessionReader.java:141)
+     * at com.sun.messaging.jmq.jmsclient.ConsumerReader.run(ConsumerReader.java:190)
+     * at java.lang.Thread.run(Thread.java:613)
+     * Oct 11, 2008 10:13:46 PM com.sun.messaging.jmq.jmsclient.ConnectionRecover logRecoverState
+     * <p/>
+     * Normal processing will then resume. i.e. the ehcache cluster reforms once the message queue is back.
+     * <p/>
+     * To enable this behaviour the following must be set on the connection factory configuration.
+     * <p/>
+     * Open MQ
+     * imqReconnect='true' - without this reconnect will not happen
+     * imqPingInterval='5' - Consumers will not reconnect until they notice the connection is down. The ping interval
+     * does this. The default is 30. Set it lower if you want the ehcache cluster to reform more quickly.
+     * Finally, unlimited retry attempts are recommended. This is the default.
+     */
+    //@Test
+    public void testPutAndRemoveMessageQueueFailure() throws InterruptedException {
         for (int i = 0; i < 1000; i++) {
             try {
                 testPutAndRemove();
+                Thread.sleep(5000);
             } catch (Exception e) {
                 LOG.log(Level.SEVERE, e.getMessage(), e);
             }
@@ -458,14 +549,91 @@ public abstract class AbstractJMSReplicationTest {
             assertEquals(value, element2.getValue());
             cache2.remove(key);
         }
+    }
 
-        //See if Message Queue destroys objects
-        Thread.sleep(125000);
+    /**
+     * Manual test.
+     * <p/>
+     * todo - not recovering after message queue is restarted
+     * <p/>
+     * INFO: Responder: manager1 JMSCachePeer
+     * net.sf.ehcache.CacheException: Exception on load for key 1
+     * at net.sf.ehcache.Cache.getWithLoader(Cache.java:864)
+     * at net.sf.ehcache.distribution.jms.AbstractJMSReplicationTest.testGetMessageQueueFailure(AbstractJMSReplicationTest.java:584)
+     * at net.sf.ehcache.distribution.jms.OpenMqJMSReplicationTest.testGetMessageQueueFailure(OpenMqJMSReplicationTest.java:59)
+     * at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+     * at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+     * at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+     * at java.lang.reflect.Method.invoke(Method.java:585)
+     * at org.junit.internal.runners.TestMethodRunner.executeMethodBody(TestMethodRunner.java:99)
+     * at org.junit.internal.runners.TestMethodRunner.runUnprotected(TestMethodRunner.java:81)
+     * at org.junit.internal.runners.BeforeAndAfterRunner.runProtected(BeforeAndAfterRunner.java:34)
+     * at org.junit.internal.runners.TestMethodRunner.runMethod(TestMethodRunner.java:75)
+     * at org.junit.internal.runners.TestMethodRunner.run(TestMethodRunner.java:45)
+     * at org.junit.internal.runners.TestClassMethodsRunner.invokeTestMethod(TestClassMethodsRunner.java:71)
+     * at org.junit.internal.runners.TestClassMethodsRunner.run(TestClassMethodsRunner.java:35)
+     * at org.junit.internal.runners.TestClassRunner$1.runUnprotected(TestClassRunner.java:42)
+     * at org.junit.internal.runners.BeforeAndAfterRunner.runProtected(BeforeAndAfterRunner.java:34)
+     * at org.junit.internal.runners.TestClassRunner.run(TestClassRunner.java:52)
+     * at com.intellij.rt.junit4.Junit4TestMethodAdapter.run(Junit4TestMethodAdapter.java:53)
+     * at junit.textui.TestRunner.doRun(TestRunner.java:115)
+     * at com.intellij.rt.execution.junit.IdeaTestRunner.doRun(IdeaTestRunner.java:94)
+     * at junit.textui.TestRunner.doRun(TestRunner.java:108)
+     * at com.intellij.rt.execution.junit.IdeaTestRunner.startRunnerWithArgs(IdeaTestRunner.java:22)
+     * at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:118)
+     * at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:40)
+     * Caused by: java.util.concurrent.ExecutionException: net.sf.ehcache.CacheException: Problem during load. Load will not be completed. Cause was null
+     * at java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:205)
+     * at java.util.concurrent.FutureTask.get(FutureTask.java:80)
+     * at net.sf.ehcache.Cache.getWithLoader(Cache.java:862)
+     * ... 23 more
+     * Caused by: net.sf.ehcache.CacheException: Problem during load. Load will not be completed. Cause was null
+     * at net.sf.ehcache.Cache$1.run(Cache.java:2230)
+     * at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:417)
+     * at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:269)
+     * at java.util.concurrent.FutureTask.run(FutureTask.java:123)
+     * at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:650)
+     * at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:675)
+     * at java.lang.Thread.run(Thread.java:613)
+     * Caused by: java.lang.AssertionError: The load request received an uncorrelated request. Request ID was ID:417-192.168.1.101(ab:4b:8:f5:7c:f3)-50440-1223728658817
+     * at net.sf.ehcache.distribution.jms.JMSCacheLoader.load(JMSCacheLoader.java:130)
+     * at net.sf.ehcache.distribution.jms.JMSCacheLoader.load(JMSCacheLoader.java:78)
+     * at net.sf.ehcache.Cache.loadWithRegisteredLoaders(Cache.java:2242)
+     * at net.sf.ehcache.Cache.access$100(Cache.java:74)
+     * at net.sf.ehcache.Cache$1.run(Cache.java:2214)
+     * ... 6 more
+     * Oct 11, 2008 10:37:42 PM net.sf.ehcache.distribution.jms.JMSCachePeer onMessage
+     */
+    //@Test
+    public void testGetMessageQueueFailure() throws InterruptedException {
+        cacheName = SAMPLE_CACHE_SYNC;
+        manager3.shutdown();
+        manager4.shutdown();
+        Ehcache cache1 = manager1.getCache("sampleCacheNorep");
+        Ehcache cache2 = manager2.getCache("sampleCacheNorep");
 
+        Serializable key = "1";
+        Serializable value = new Date();
+        Element element = new Element(key, value);
+
+        //Put
+        cache1.put(element);
+        long version = element.getVersion();
+        Thread.sleep(1050);
+
+
+        //Should not have been replicated to cache2.
+        Element element2 = cache2.get(key);
+        assertEquals(null, element2);
 
         //Should load from cache1
         for (int i = 0; i < 1000; i++) {
-            element2 = cache2.getWithLoader(key, null, null);
+            Thread.sleep(2000);
+            try {
+                element2 = cache2.getWithLoader(key, null, null);
+            } catch (CacheException e) {
+                e.printStackTrace();
+            }
             assertEquals(value, element2.getValue());
             cache2.remove(key);
         }

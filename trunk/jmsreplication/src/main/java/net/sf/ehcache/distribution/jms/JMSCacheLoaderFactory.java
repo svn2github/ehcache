@@ -108,7 +108,7 @@ public class JMSCacheLoaderFactory extends CacheLoaderFactory {
             JMSUtil.closeContext(context);
         } catch (NamingException ne) {
             throw new CacheException("NamingException " + ne.getMessage(), ne);
-        }
+        }                                
 
         try {
             getQueueConnection = createQueueConnection(userName, password, queueConnectionFactory);
@@ -124,6 +124,7 @@ public class JMSCacheLoaderFactory extends CacheLoaderFactory {
     private QueueConnection createQueueConnection(String userName, String password,
                                                   QueueConnectionFactory queueConnectionFactory) throws JMSException {
         QueueConnection queueConnection;
+        //todo test user and pass
         if (userName != null) {
             queueConnection = queueConnectionFactory.createQueueConnection(userName, password);
         } else {

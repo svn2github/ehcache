@@ -108,11 +108,13 @@
                                 </echo>
                                 <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
                                       executable="sh">
-                                    <arg line="imqobjmgr add -t tf -l 'MyConnectionFactory' -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
+                                    <arg line="imqobjmgr add -t tf -l 'MyConnectionFactory' -o imqReconnect='true' -o imqPingInterval='5'
+                                     -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
                                 </exec>
                                 <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
                                       executable="sh">
-                                    <arg line="imqobjmgr add -t qf -l 'queueConnectionFactory' -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
+                                    <arg line="imqobjmgr add -t qf -l 'queueConnectionFactory' -o imqReconnect='true' -o imqPingInterval='5'
+                                    -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
                                 </exec>
                                 <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
                                       executable="sh">

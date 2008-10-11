@@ -120,7 +120,7 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
             replicationTopicConnection.setExceptionListener(new ExceptionListener() {
 
                 public void onException(JMSException e) {
-                    LOG.log(Level.SEVERE, "Exception on 'getQueue' Connection: " + e.getMessage(), e);
+                    LOG.log(Level.SEVERE, "Exception on replication Connection: " + e.getMessage(), e);
                 }
             });
 
