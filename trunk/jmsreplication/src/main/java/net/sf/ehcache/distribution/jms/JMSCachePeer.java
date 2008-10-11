@@ -28,6 +28,7 @@ import static net.sf.ehcache.distribution.jms.JMSEventMessage.Action;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.ACTION_PROPERTY;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.KEY_PROPERTY;
 import static net.sf.ehcache.distribution.jms.JMSUtil.CACHE_MANAGER_UID;
+import static net.sf.ehcache.distribution.jms.JMSUtil.localCacheManagerUid;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -315,7 +316,8 @@ public class JMSCachePeer implements CachePeer, MessageListener {
         if (element != null) {
             value = element.getValue();
         }
-        assert(objectMessage.getIntProperty(CACHE_MANAGER_UID) != JMSUtil.localCacheManagerUid(cache)) :
+        LOG.info("Receiver CacheManager UID: " + localCacheManagerUid(cache));
+        assert(objectMessage.getIntProperty(CACHE_MANAGER_UID) != localCacheManagerUid(cache)) :
                 "The JMSCachePeer received a getQueue request sent by a JMSCacheLoader belonging to the same" +
                         "CacheManager, which is invalid";
         ObjectMessage reply = getQueueSession.createObjectMessage(value);
@@ -331,6 +333,8 @@ public class JMSCachePeer implements CachePeer, MessageListener {
 
         QueueSender replyQueueSender = getQueueSession.createSender(replyQueue);
         replyQueueSender.send(reply);
+        replyQueueSender.close();
+
     }
 
     private Serializable extractAndValidateKey(Message message, Action action) throws JMSException {

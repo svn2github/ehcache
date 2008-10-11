@@ -39,7 +39,7 @@ import java.util.logging.Logger;
 public class JMSCacheReplicator implements CacheReplicator {
 
     /**
-     *
+     * The default replication interval
      */
     public static final long DEFAULT_ASYNC_INTERVAL = 1000;
 

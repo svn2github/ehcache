@@ -38,6 +38,7 @@ import javax.jms.Queue;
 import javax.jms.MessageConsumer;
 import javax.jms.QueueReceiver;
 import javax.jms.Session;
+import javax.jms.ExceptionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -116,6 +117,12 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
 
             topicPublisherSession = replicationTopicConnection.createTopicSession(false, acknowledgementMode.toInt());
             TopicSession topicSubscriberSession = replicationTopicConnection.createTopicSession(false, acknowledgementMode.toInt());
+            replicationTopicConnection.setExceptionListener(new ExceptionListener() {
+
+                public void onException(JMSException e) {
+                    LOG.log(Level.SEVERE, "Exception on 'getQueue' Connection: " + e.getMessage(), e);
+                }
+            });
 
             topicPublisher = topicPublisherSession.createPublisher(replicationTopic);
 

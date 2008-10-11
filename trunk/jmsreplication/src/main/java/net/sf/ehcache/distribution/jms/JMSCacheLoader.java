@@ -112,6 +112,8 @@ public class JMSCacheLoader implements CacheLoader {
                     keyAsSerializable, null, effectiveLoaderArgument.toString());
             ObjectMessage loadRequest = getQueueSession.createObjectMessage(jmsEventMessage);
             loadRequest.setJMSReplyTo(temporaryReplyQueue);
+            LOG.info("Request CacheManager UID: " + localCacheManagerUid(cache));
+            
             loadRequest.setIntProperty(CACHE_MANAGER_UID, localCacheManagerUid(cache));
             getQueueSender.send(loadRequest, DeliveryMode.NON_PERSISTENT, 9, timeoutMillis);
             
@@ -119,14 +121,13 @@ public class JMSCacheLoader implements CacheLoader {
 
             //todo multiple threads
             ObjectMessage reply = (ObjectMessage) replyReceiver.receive(timeoutMillis);
+
             String messageId = reply.getJMSCorrelationID();
             String responder = reply.getStringProperty("responder");
             LOG.info("Responder: " + responder);
             //todo performance impact of statement after :
             assert initialMessageId.equals(messageId) : "The load request received an uncorrelated request. " +
                     "Request ID was " + messageId;
-
-            int i = 0;
             value = reply.getObject();
 
         } catch (JMSException e) {

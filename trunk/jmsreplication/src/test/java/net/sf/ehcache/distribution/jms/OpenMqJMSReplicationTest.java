@@ -42,6 +42,15 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
     }
 
     /**
+     * Same as testPutandRemove but this one does:
+     */
+    @Override
+    @Test
+    public void testPutAndRemoveStability() throws InterruptedException {
+        super.testPutAndRemoveStability();
+    }
+
+    /**
      * Uses the JMSCacheLoader.
      * <p/>
      * We put an item in cache1, which does not replicate.
@@ -53,6 +62,20 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
     @Test
     public void testGet() throws InterruptedException {
         super.testGet();
+    }
+
+    /**
+     * Uses the JMSCacheLoader.
+     * <p/>
+     * We do not put an item in cache1, which does not replicate.
+     * <p/>
+     * We then do a get on cache2, which has a JMSCacheLoader which should ask the cluster for the answer.
+     * If a cache does not have an element it should leave the message on the queue for the next node to process.
+     */
+    @Override
+    @Test
+    public void testGetNull() throws InterruptedException {
+        super.testGetNull();
     }
 
     @Test
