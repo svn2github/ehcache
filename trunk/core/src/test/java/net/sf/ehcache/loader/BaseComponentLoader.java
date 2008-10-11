@@ -50,7 +50,7 @@ public class BaseComponentLoader extends CacheLoaderFactory implements CacheLoad
     /**
      * create a ehCache Cache loader (which extends jsr107 cache loader)
      */
-    public net.sf.ehcache.loader.CacheLoader createCacheLoader(Properties properties) {
+    public net.sf.ehcache.loader.CacheLoader createCacheLoader(Ehcache cache, Properties properties) {
         this.props = properties;
         return this;
     }

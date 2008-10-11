@@ -123,7 +123,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
 
     /**
      * Does the actual RMI remote call.
-     * todo users would prefer try to send to all and then throw an exception
+     * todo users would prefer this to be consistent with Async replicator. i.e. do not throw exception.
      *
      * @param element
      * @param cache

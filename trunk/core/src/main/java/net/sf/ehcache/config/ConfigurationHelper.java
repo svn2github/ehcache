@@ -198,7 +198,7 @@ public final class ConfigurationHelper {
             CacheLoaderFactory factory = (CacheLoaderFactory) ClassLoaderUtil.createNewInstance(className);
             Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
                     factoryConfiguration.getPropertySeparator());
-            cacheLoader = factory.createCacheLoader(properties);
+            cacheLoader = factory.createCacheLoader(cache, properties);
         }
         return cacheLoader;
     }

@@ -50,7 +50,7 @@ public class CountingCacheLoaderFactory extends CacheLoaderFactory {
      *                   separated name value pairs in ehcache.xml
      * @return a constructed CacheLoader
      */
-    public CacheLoader createCacheLoader(Properties properties) {
+    public CacheLoader createCacheLoader(Ehcache cache, Properties properties) {
         return new CountingCacheLoader();
     }
 }
