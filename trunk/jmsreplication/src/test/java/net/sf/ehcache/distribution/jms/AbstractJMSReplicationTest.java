@@ -23,19 +23,20 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Cache;
 import org.junit.After;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Random;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-
-import com.sun.messaging.ConnectionConfiguration;
-
-import javax.jms.Connection;
 
 public abstract class AbstractJMSReplicationTest {
 
@@ -56,13 +57,13 @@ public abstract class AbstractJMSReplicationTest {
     @Before
     public void setUp() throws Exception {
 
-        manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + getConfigurationFile());
+        manager1 = new CacheManager(TestUtil.TEST_CONFIG_DIR + getConfigurationFile());
         manager1.setName("manager1");
-        manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + getConfigurationFile());
+        manager2 = new CacheManager(TestUtil.TEST_CONFIG_DIR + getConfigurationFile());
         manager2.setName("manager2");
-        manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + getConfigurationFile());
+        manager3 = new CacheManager(TestUtil.TEST_CONFIG_DIR + getConfigurationFile());
         manager3.setName("manager3");
-        manager4 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + getConfigurationFile());
+        manager4 = new CacheManager(TestUtil.TEST_CONFIG_DIR + getConfigurationFile());
         manager4.setName("manager4");
         cacheName = SAMPLE_CACHE_ASYNC;
         Thread.sleep(200);
@@ -196,7 +197,7 @@ public abstract class AbstractJMSReplicationTest {
 
 
         Thread.sleep(1000);
-        manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + getConfigurationFile());
+        manager1 = new CacheManager(TestUtil.TEST_CONFIG_DIR + getConfigurationFile());
         Thread.sleep(3000);
         manager2.clearAll();
 
@@ -510,6 +511,61 @@ public abstract class AbstractJMSReplicationTest {
         element2 = cache2.getWithLoader(key, null, null);
         assertEquals(value, element2.getValue());
         cache2.remove(key);
+    }
+
+
+    @Test
+    public void testGetConcurrent() throws Exception {
+
+        final long maxTime = 1000;
+        cacheName = SAMPLE_CACHE_SYNC;
+        manager3.shutdown();
+        manager4.shutdown();
+        final Ehcache cache1 = manager1.getCache("sampleCacheNorep");
+        final Ehcache cache2 = manager2.getCache("sampleCacheNorep");
+
+
+        long start = System.currentTimeMillis();
+        final List executables = new ArrayList();
+        final Random random = new Random();
+
+
+        //some of the time get data
+        for (int i = 0; i < 50; i++) {
+            final int i1 = i;
+            final TestUtil.Executable executable = new TestUtil.Executable() {
+                public void execute() throws Exception {
+
+
+                    final Serializable key = "" + i1;
+                    final Serializable value = new Date();
+                    Element element = new Element(key, value);
+
+                    //Put
+                    cache1.put(element);
+                    Thread.sleep(1050);
+
+                    //Should load from cache1
+                    for (int i = 0; i < 50; i++) {
+                        final TestUtil.StopWatch stopWatch = new TestUtil.StopWatch();
+                        long start = stopWatch.getElapsedTime();
+                        Element element2 = cache2.getWithLoader(key, null, null);
+                        assertEquals(value, element2.getValue());
+                        cache2.remove(key);
+                        long end = stopWatch.getElapsedTime();
+                        long elapsed = end - start;
+                        //assertTrue("Get time outside of allowed time: " + elapsed, elapsed < maxTime);
+                    }
+
+                }
+            };
+            executables.add(executable);
+        }
+
+
+        TestUtil.runThreads(executables);
+        long end = System.currentTimeMillis();
+        LOG.info("Total time for the test: " + (end - start) + " ms");
     }
 
 

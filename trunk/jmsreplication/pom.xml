@@ -151,7 +151,7 @@
                     <forkMode>pertest</forkMode>
                     <childDelegation>false</childDelegation>
                     <disableXmlReport>true</disableXmlReport>
-                    <printSummary>true</printSummary>
+                    <printSummary>false</printSummary>
                     <redirectOutputToFile>true</redirectOutputToFile>
                     <systemProperties>
                         <property>

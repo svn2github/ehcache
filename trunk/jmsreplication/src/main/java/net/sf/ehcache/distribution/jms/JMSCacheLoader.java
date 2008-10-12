@@ -26,8 +26,6 @@ import java.io.Serializable;
 
 /**
  * @author Greg Luck
- * todo maybe make cache name configurable for more flexibility. The load with argument could use it too.
- * todo put some of these better practices in replication code
  *
  */
 public class JMSCacheLoader implements CacheLoader {
@@ -95,7 +93,8 @@ public class JMSCacheLoader implements CacheLoader {
         Serializable keyAsSerializable = (Serializable) key;
         Serializable argumentAsSerializable = (Serializable) argument;
 
-        //todo only needs to be a String to work with external responders
+        //todo factor in loaderArgument
+        //todo document creating a responder
 
         Serializable effectiveLoaderArgument;
         if (argument == null) {
@@ -123,9 +122,11 @@ public class JMSCacheLoader implements CacheLoader {
             ObjectMessage reply = (ObjectMessage) replyReceiver.receive(timeoutMillis);
 
             String messageId = reply.getJMSCorrelationID();
+
+            LOG.info("Initial ID: " + initialMessageId + ". Reply Correlation ID. " + messageId);
+
             String responder = reply.getStringProperty("responder");
             LOG.info("Responder: " + responder);
-            //todo performance impact of statement after :
             assert initialMessageId.equals(messageId) : "The load request received an uncorrelated request. " +
                     "Request ID was " + messageId;
             value = reply.getObject();

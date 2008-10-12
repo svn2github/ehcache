@@ -34,8 +34,9 @@
 
 
     JMS Cache Loader
+    ================
 
-    A CacheLoader which loads objects into the cache by sending requests to a JMS Queue.
+    The JMSCacheLoader is a CacheLoader which loads objects into the cache by sending requests to a JMS Queue.
 
     The loader places an empty Message on the getQueue with the following String properties:
 
@@ -44,12 +45,9 @@
      load request. To work with the JMSCacheManagerPeerProvider this should be the name of the cache to load from.
      For custom responders, it can be anything which has meaning to the responder.
 
-     A queue responder, in any programming language, can also be created. The responder should respond to the replyQueue
-      with a messagecan respond with one of: ObjectMessage, TextMessage or BytesMessage.
-
-     The responder should set the a mimeType String property. The loader will a value of type MimetyeByteArray.
-     If the response is an ObjectMessage and no mimeType is set, the loader will pass the value through.
-
+    A queue responder will respond to the request. You can either create your own, in any programming language supported
+    by your message queue, or use the one built-into the JMSCacheManagerPeerProviderFactory, which attempts to load
+    the queue from its cache. See the documentation for details on how to write a responder.
 
     The JMSCacheLoader uses JNDI to maintain message queue independence. Refer to the manual for full configuration
     examples using ActiveMQ and Open Message Queue.
@@ -64,15 +62,16 @@
             getQueueConnectionFactoryBindingName=queueConnectionFactory,
             getQueueBindingName=ehcacheGetQueue,
             timeoutMillis=20000
-            defaultLoaderArgument=sampleCacheNoRep"/>
+            defaultLoaderArgument="/>
 
     Valid properties are:
     * initialContextFactoryName (mandatory) - the name of the factory used to create the message queue initial context.
     * providerURL (mandatory) - the JNDI configuration information for the service provider to use.
     * getQueueConnectionFactoryBindingName (mandatory) - the JNDI binding name for the QueueConnectionFactory
     * getQueueBindingName (mandatory) - the JNDI binding name for the queue name used to do make requests.
-    * loaderArgument - (required for use with the JMSCacheManagerPeerProvider) -
-    * timeoutMillis - time in milliseconds to wait for a reply to a request.
+    * defaultLoaderArgument - (optional) - an application specific argument. If not supplied as a cache.load() parameter
+    this default value will be used. The argument is passed in the JMS request as a StringProperty called loaderArgument.
+    * timeoutMillis - time in milliseconds to wait for a reply.
     * securityPrincipalName - the JNDI java.naming.security.principal
     * securityCredentials - the JNDI java.naming.security.credentials
     * urlPkgPrefixes - the JNDI java.naming.factory.url.pkgs
@@ -80,9 +79,6 @@
     * password - the password to use when creating the TopicConnection to the Message Queue
     * acknowledgementMode - the JMS Acknowledgement mode for both publisher and subscriber. The available choices are
                             AUTO_ACKNOWLEDGE, DUPS_OK_ACKNOWLEDGE and SESSION_TRANSACTED. The default is AUTO_ACKNOWLEDGE.
-
-
-
     -->
     <cacheManagerPeerProviderFactory
             class="net.sf.ehcache.distribution.jms.JMSCacheManagerPeerProviderFactory"

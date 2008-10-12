@@ -21,17 +21,16 @@ import junit.framework.TestCase;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.List;
+import java.util.ArrayList;
 import java.io.IOException;
 import java.io.File;
 import java.lang.reflect.Method;
 
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.util.PropertyUtil;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
-
-
-
 
 
 /**
@@ -40,7 +39,7 @@ import javax.management.MBeanServerFactory;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public abstract class AbstractCacheTest extends TestCase {
+public class TestUtil extends TestCase {
 
     /**
      * Where the config is
@@ -57,43 +56,14 @@ public abstract class AbstractCacheTest extends TestCase {
     public static final String TEST_CLASSES_DIR = "target/test-classes/";
 
 
-    private static final Logger LOG = Logger.getLogger(AbstractCacheTest.class.getName());
-
-    /**
-     * name for sample cache 1
-     */
-    protected final String sampleCache1 = "sampleCache1";
-    /**
-     * name for sample cache 2
-     */
-    protected final String sampleCache2 = "sampleCache2";
-    /**
-     * the CacheManager instance
-     */
-    protected CacheManager manager;
-
-    /**
-     * setup test
-     */
-    protected void setUp() throws Exception {
-        manager = CacheManager.create();
-    }
-
-    /**
-     * teardown
-     */
-    protected void tearDown() throws Exception {
-        if (manager != null) {
-            manager.shutdown();
-        }
-    }
+    private static final Logger LOG = Logger.getLogger(TestUtil.class.getName());
 
 
     /**
      * Force the VM to grow to its full size. This stops SoftReferences from being reclaimed in favour of
      * Heap growth. Only an issue when a VM is cold.
      */
-    static public void forceVMGrowth() {
+    public static void forceVMGrowth() {
         allocateFiftyMegabytes();
         System.gc();
         try {
@@ -104,7 +74,7 @@ public abstract class AbstractCacheTest extends TestCase {
         System.gc();
     }
 
-    private static void allocateFiftyMegabytes() {
+    public static void allocateFiftyMegabytes() {
         byte[] forceVMGrowth = new byte[50000000];
     }
 
@@ -112,7 +82,7 @@ public abstract class AbstractCacheTest extends TestCase {
      * @param name
      * @throws java.io.IOException
      */
-    protected void deleteFile(String name) throws IOException {
+    public static void deleteFile(String name) throws IOException {
         String diskPath = System.getProperty("java.io.tmpdir");
         final File diskDir = new File(diskPath);
         File dataFile = new File(diskDir, name + ".data");
@@ -131,7 +101,7 @@ public abstract class AbstractCacheTest extends TestCase {
      * @return
      * @throws InterruptedException
      */
-    protected long measureMemoryUse() throws InterruptedException {
+    public static long measureMemoryUse() throws InterruptedException {
         System.gc();
         Thread.sleep(2000);
         System.gc();
@@ -141,10 +111,10 @@ public abstract class AbstractCacheTest extends TestCase {
     /**
      * Runs a set of threads, for a fixed amount of time.
      */
-    protected void runThreads(final List executables) throws Exception {
+    public static void runThreads(final List executables) throws Exception {
 
         final long endTime = System.currentTimeMillis() + 10000;
-        final Throwable[] errors = new Throwable[1];
+        final List<Throwable> errors = new ArrayList<Throwable>();
 
         // Spin up the threads
         final Thread[] threads = new Thread[executables.size()];
@@ -159,7 +129,7 @@ public abstract class AbstractCacheTest extends TestCase {
                         }
                     } catch (Throwable t) {
                         // Hang on to any errors
-                        errors[0] = t;
+                        errors.add(t);
                         LOG.info(t.getMessage());
                     }
                 }
@@ -168,36 +138,23 @@ public abstract class AbstractCacheTest extends TestCase {
         }
 
         // Wait for the threads to finish
-        for (int i = 0; i < threads.length; i++) {
-            threads[i].join();
+        for (Thread thread : threads) {
+            thread.join();
         }
 
         // Throw any error that happened
-        if (errors[0] != null) {
-            throw new Exception("Test thread failed.", errors[0]);
+        if (errors.size() != 0) {
+            for (Throwable error : errors) {
+                LOG.log(Level.SEVERE, error.getMessage(), error);
+            }
+            throw new Exception("Test thread failed with " + errors.size() + " exceptions.");
         }
     }
-
-    /**
-     * Obtains an MBeanServer, which varies with Java version
-     * @return
-     */
-    public MBeanServer createMBeanServer() {
-        try {
-            Class managementFactoryClass = Class.forName("java.lang.management.ManagementFactory");
-            Method method = managementFactoryClass.getMethod("getPlatformMBeanServer", (Class[])null);
-            return (MBeanServer) method.invoke((Object[])null, (Object[])null);
-        } catch (Exception e) {
-            LOG.log(Level.INFO, "JDK1.5 ManagementFactory not found. Falling back to JMX1.2.1", e);
-            return MBeanServerFactory.createMBeanServer("SimpleAgent");
-        }
-    }
-
 
     /**
      * A runnable, that can throw an exception.
      */
-    protected interface Executable {
+    public interface Executable {
         /**
          * Executes this object.
          *
@@ -205,6 +162,61 @@ public abstract class AbstractCacheTest extends TestCase {
          */
         void execute() throws Exception;
     }
+
+    /**
+     * A timer service used to check performance of tests.
+     * <p/>
+     * To enable this to work for different machines the following is done:
+     * <ul>
+     * <li>SimpleLog is used for logging with a known logging level controlled by <code>simplelog.properties</code>
+     * which is copied to the test classpath. This removes logging as a source of differences.
+     * Messages are sent to stderr which also makes it easy to see messages on remote continuous integration
+     * machines.
+     * <li>A speedAdjustmentFactor is used to equalize machines. It is supplied as a the System Property
+     * 'net.sf.ehcache.speedAdjustmentFactor=n', where n is the number of times the machine is slower
+     * than the reference machine e.g. 1.1. This factor is then used to adjust "elapsedTime"
+     * as returned by this class. Elapsed Time is therefore not true time, but notional time equalized with the reference
+     * machine. If you get performance tests failing add this property.
+     * </ul>
+     *
+     * @author Greg Luck
+     * @version $Id$
+     *          A stop watch that can be useful for instrumenting for performance
+     */
+    public static class StopWatch {
+
+
+        private static final String SUFFIX = "ms";
+
+
+        /**
+         * Used for performance benchmarking
+         */
+        private long timeStamp = System.currentTimeMillis();
+
+
+        /**
+         * Gets the time elapsed between now and for the first time, the creation
+         * time of the class, and after that, between each call to this method
+         * <p/>
+         * Note this method returns notional time elapsed. See class description
+         */
+        public long getElapsedTime() {
+            long now = System.currentTimeMillis();
+            long elapsed = now - timeStamp;
+            timeStamp = now;
+            return elapsed;
+        }
+
+        /**
+         * @return formatted elapsed Time
+         */
+        public String getElapsedTimeString() {
+            return String.valueOf(getElapsedTime()) + SUFFIX;
+        }
+
+    }
+
 
 }
 
