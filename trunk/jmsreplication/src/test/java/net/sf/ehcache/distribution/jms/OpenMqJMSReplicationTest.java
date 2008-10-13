@@ -36,67 +36,17 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
         return "distribution/jms/ehcache-distributed-jms-openmq.xml";
     }
 
-
-
-    /**
-     * Manual test.
-     * <p/>
-     * todo - not recovering after message queue is restarted
-     * <p/>
-     * INFO: Responder: manager1 JMSCachePeer
-     * net.sf.ehcache.CacheException: Exception on load for key 1
-     * at net.sf.ehcache.Cache.getWithLoader(Cache.java:864)
-     * at net.sf.ehcache.distribution.jms.AbstractJMSReplicationTest.testGetMessageQueueFailure(AbstractJMSReplicationTest.java:584)
-     * at net.sf.ehcache.distribution.jms.OpenMqJMSReplicationTest.testGetMessageQueueFailure(OpenMqJMSReplicationTest.java:59)
-     * at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-     * at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
-     * at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
-     * at java.lang.reflect.Method.invoke(Method.java:585)
-     * at org.junit.internal.runners.TestMethodRunner.executeMethodBody(TestMethodRunner.java:99)
-     * at org.junit.internal.runners.TestMethodRunner.runUnprotected(TestMethodRunner.java:81)
-     * at org.junit.internal.runners.BeforeAndAfterRunner.runProtected(BeforeAndAfterRunner.java:34)
-     * at org.junit.internal.runners.TestMethodRunner.runMethod(TestMethodRunner.java:75)
-     * at org.junit.internal.runners.TestMethodRunner.run(TestMethodRunner.java:45)
-     * at org.junit.internal.runners.TestClassMethodsRunner.invokeTestMethod(TestClassMethodsRunner.java:71)
-     * at org.junit.internal.runners.TestClassMethodsRunner.run(TestClassMethodsRunner.java:35)
-     * at org.junit.internal.runners.TestClassRunner$1.runUnprotected(TestClassRunner.java:42)
-     * at org.junit.internal.runners.BeforeAndAfterRunner.runProtected(BeforeAndAfterRunner.java:34)
-     * at org.junit.internal.runners.TestClassRunner.run(TestClassRunner.java:52)
-     * at com.intellij.rt.junit4.Junit4TestMethodAdapter.run(Junit4TestMethodAdapter.java:53)
-     * at junit.textui.TestRunner.doRun(TestRunner.java:115)
-     * at com.intellij.rt.execution.junit.IdeaTestRunner.doRun(IdeaTestRunner.java:94)
-     * at junit.textui.TestRunner.doRun(TestRunner.java:108)
-     * at com.intellij.rt.execution.junit.IdeaTestRunner.startRunnerWithArgs(IdeaTestRunner.java:22)
-     * at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:118)
-     * at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:40)
-     * Caused by: java.util.concurrent.ExecutionException: net.sf.ehcache.CacheException: Problem during load. Load will not be completed. Cause was null
-     * at java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:205)
-     * at java.util.concurrent.FutureTask.get(FutureTask.java:80)
-     * at net.sf.ehcache.Cache.getWithLoader(Cache.java:862)
-     * ... 23 more
-     * Caused by: net.sf.ehcache.CacheException: Problem during load. Load will not be completed. Cause was null
-     * at net.sf.ehcache.Cache$1.run(Cache.java:2230)
-     * at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:417)
-     * at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:269)
-     * at java.util.concurrent.FutureTask.run(FutureTask.java:123)
-     * at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:650)
-     * at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:675)
-     * at java.lang.Thread.run(Thread.java:613)
-     * Caused by: java.lang.AssertionError: The load request received an uncorrelated request. Request ID was ID:417-192.168.1.101(ab:4b:8:f5:7c:f3)-50440-1223728658817
-     * at net.sf.ehcache.distribution.jms.JMSCacheLoader.load(JMSCacheLoader.java:130)
-     * at net.sf.ehcache.distribution.jms.JMSCacheLoader.load(JMSCacheLoader.java:78)
-     * at net.sf.ehcache.Cache.loadWithRegisteredLoaders(Cache.java:2242)
-     * at net.sf.ehcache.Cache.access$100(Cache.java:74)
-     * at net.sf.ehcache.Cache$1.run(Cache.java:2214)
-     * ... 6 more
-     * Oct 11, 2008 10:37:42 PM net.sf.ehcache.distribution.jms.JMSCachePeer onMessage
-     */
+    @Test
     @Override
-    //@Test
-    public void testGetMessageQueueFailure() throws InterruptedException {
-        super.testGetMessageQueueFailure(); 
+    public void testGetConcurrent() throws Exception {
+        super.testGetConcurrent();
     }
 
+    @Test
+    @Override
+    public void testGet() throws InterruptedException {
+        super.testGet();
+    }
 
     @Test
     public void testNonCachePublisherElementMessagePut() throws JMSException, InterruptedException {
@@ -622,6 +572,8 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
         com.sun.messaging.ConnectionFactory factory = new com.sun.messaging.ConnectionFactory();
         factory.setProperty(ConnectionConfiguration.imqAddressList, "localhost:7676");
         factory.setProperty(ConnectionConfiguration.imqReconnectEnabled, "true");
+        factory.setProperty(ConnectionConfiguration.imqDefaultUsername, "test");
+        factory.setProperty(ConnectionConfiguration.imqDefaultPassword, "test");
         TopicConnection myConnection = factory.createTopicConnection();
         return myConnection;
     }

@@ -38,9 +38,7 @@ public class JMSCacheLoader implements CacheLoader {
     private QueueConnection getQueueConnection;
     private Queue getQueue;
     private QueueSender getQueueSender;
-    private TemporaryQueue temporaryReplyQueue;
     private QueueSession getQueueSession;
-    private MessageConsumer replyReceiver;
     private int timeoutMillis;
     private String defaultLoaderArgument;
     private Ehcache cache;
@@ -106,10 +104,14 @@ public class JMSCacheLoader implements CacheLoader {
 
         Object value;
 
+        MessageConsumer replyReceiver = null;
+        TemporaryQueue temporaryReplyQueue = null;
         try {
             JMSEventMessage jmsEventMessage = new JMSEventMessage(JMSEventMessage.Action.GET.toInt(),
                     keyAsSerializable, null, effectiveLoaderArgument.toString());
             ObjectMessage loadRequest = getQueueSession.createObjectMessage(jmsEventMessage);
+            temporaryReplyQueue = getQueueSession.createTemporaryQueue();
+            replyReceiver = getQueueSession.createConsumer(temporaryReplyQueue);
             loadRequest.setJMSReplyTo(temporaryReplyQueue);
             LOG.info("Request CacheManager UID: " + localCacheManagerUid(cache));
             
@@ -118,7 +120,6 @@ public class JMSCacheLoader implements CacheLoader {
             
             String initialMessageId = loadRequest.getJMSMessageID();
 
-            //todo multiple threads
             ObjectMessage reply = (ObjectMessage) replyReceiver.receive(timeoutMillis);
 
             String messageId = reply.getJMSCorrelationID();
@@ -133,6 +134,13 @@ public class JMSCacheLoader implements CacheLoader {
 
         } catch (JMSException e) {
             throw new CacheException("Problem loading: " + e.getMessage(), e);
+        } finally {
+            try {
+                replyReceiver.close();
+                temporaryReplyQueue.delete();
+            } catch (JMSException e) {
+                LOG.log(Level.SEVERE, "Problem closing JMS Resources: " + e.getMessage(), e);
+            }
         }
         return value;
     }
@@ -211,8 +219,7 @@ public class JMSCacheLoader implements CacheLoader {
       
             getQueueSession = getQueueConnection.createQueueSession(false, acknowledgementMode.toInt());
             getQueueSender = getQueueSession.createSender(getQueue);
-            temporaryReplyQueue = getQueueSession.createTemporaryQueue();
-            replyReceiver = getQueueSession.createConsumer(temporaryReplyQueue);
+
 
             getQueueConnection.start();
 

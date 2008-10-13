@@ -90,7 +90,7 @@
                     <execution>
                         <!--We test using two popular message -->
                         <id>start-message-queues</id>
-                        <phase>pre-integration-test</phase>
+                        <phase>validate</phase>
                         <configuration>
                             <tasks>
                                 <echo>Starting Active MQ from ${activemq.bin.dir} on ${os.name}</echo>
@@ -108,23 +108,30 @@
                                 </echo>
                                 <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
                                       executable="sh">
+                                    <arg line="imqusermgr add -u test -p test -f"/>
+                                </exec>
+                                <!--todo user test nor working-->
+                                <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
+                                      executable="sh">
                                     <arg line="imqobjmgr add -t tf -l 'MyConnectionFactory' -o imqReconnect='true' -o imqPingInterval='5'
+                                     -o imqDefaultUsername='test' -o imqDefaultPassword='test'
                                      -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
                                 </exec>
                                 <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
                                       executable="sh">
-                                    <arg line="imqobjmgr add -t qf -l 'queueConnectionFactory' -o imqReconnect='true' -o imqPingInterval='5'
-                                    -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
+                                    <arg line="imqobjmgr add -t qf -l 'queueConnectionFactory' -o imqReconnect='true' -o imqPingInterval='5' 
+                                     -o imqDefaultUsername='test' -o imqDefaultPassword='test'
+                                     -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
                                 </exec>
-                                <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
-                                      executable="sh">
-                                    <arg line="imqobjmgr add -t t -l 'ehcache' -o 'imqDestinationName=EhcacheTopicDest' -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
-                                </exec>
-                                <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
-                                      executable="sh">
-                                    <arg line="imqobjmgr add -t q -l 'ehcacheGetQueue' -o 'imqDestinationName=EhcacheGetQueueDest' -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
-                                </exec>
-                                <sleep seconds="5"/>
+                                <!--<exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"-->
+                                      <!--executable="sh">-->
+                                    <!--<arg line="imqobjmgr add -t t -l 'ehcache' -o 'imqDestinationName=EhcacheTopicDest' -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>-->
+                                <!--</exec>-->
+                                <!--<exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"-->
+                                      <!--executable="sh">-->
+                                    <!--<arg line="imqobjmgr add -t q -l 'ehcacheGetQueue' -o 'imqDestinationName=EhcacheGetQueueDest' -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>-->
+                                <!--</exec>-->
+                                <!--<sleep seconds="5"/>-->
                             </tasks>
                         </configuration>
                         <goals>

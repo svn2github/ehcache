@@ -50,6 +50,8 @@ public class OpenMessageQueueIntegrationTest {
         com.sun.messaging.ConnectionFactory factory = new com.sun.messaging.ConnectionFactory();
         factory.setProperty(ConnectionConfiguration.imqAddressList, "localhost:7676");
         factory.setProperty(ConnectionConfiguration.imqReconnectEnabled, "true");
+        factory.setProperty(ConnectionConfiguration.imqDefaultUsername, "test");
+        factory.setProperty(ConnectionConfiguration.imqDefaultPassword, "test");
         Connection myConnection = factory.createConnection();
         assertNotNull(myConnection);
     }
@@ -120,8 +122,7 @@ public class OpenMessageQueueIntegrationTest {
             // Lookup my queue from the admin object store.
             // The name I search for here must match the lookup name used when
             // the admin object was stored.
-            LOG.info("Looking up Queue object with lookup name: "
-                    + MYQUEUE_LOOKUP_NAME);
+            LOG.info("Looking up Queue object with lookup name: " + MYQUEUE_LOOKUP_NAME);
             queue = (javax.jms.Topic) ctx.lookup(MYQUEUE_LOOKUP_NAME);
             LOG.info("Queue object found.");
         } catch (NamingException ne) {

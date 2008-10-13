@@ -124,7 +124,6 @@ public class JMSCacheLoaderFactory extends CacheLoaderFactory {
     private QueueConnection createQueueConnection(String userName, String password,
                                                   QueueConnectionFactory queueConnectionFactory) throws JMSException {
         QueueConnection queueConnection;
-        //todo test user and pass
         if (userName != null) {
             queueConnection = queueConnectionFactory.createQueueConnection(userName, password);
         } else {
