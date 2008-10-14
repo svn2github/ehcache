@@ -41,6 +41,7 @@
     The loader places an empty Message on the getQueue with the following String properties:
 
     * key - the cache key the loader is requesting.
+    * action - this must be 'get'
     * loaderArgument - the defaultLoaderArgument, or the loaderArgument if specified on the
      load request. To work with the JMSCacheManagerPeerProvider this should be the name of the cache to load from.
      For custom responders, it can be anything which has meaning to the responder.
@@ -48,6 +49,25 @@
     A queue responder will respond to the request. You can either create your own, in any programming language supported
     by your message queue, or use the one built-into the JMSCacheManagerPeerProviderFactory, which attempts to load
     the queue from its cache. See the documentation for details on how to write a responder.
+
+    The responder creates a message with the following properties:
+
+    * StringProperty responder - the name of the responder. This is optional but is useful for debugging.
+    * JMSCorrelationId - this must be the id of the requester message. The loader uses this to ensure the right response
+    comes back to the correct request.
+    * StringProperty MimeType - the MIME Type of the body of the message. This is not optional.
+
+    The value from the responder is contained in the body of the message. The following messages and their treatments
+    in ehcache are as follows:
+
+    ObjectMessage - becomes the value part of an Ehcache Element
+    TextMessage - stored as a String in the value part of an Ehcache Element if the MimeType StringProperty is null. If
+     non-null it is converted to bytes using the platform's default character set and stored, along with the Mime Type
+     as a net.sf.ehcache.MimeTypeByteArray in the value part of an Ehcache Element.
+
+    BytesMessage - stored as a byte[] in the value part of an Ehcache Element if the MimeType StringProperty is null. If
+     non-null it stored, along with the Mime Type as a net.sf.ehcache.MimeTypeByteArray in the value part of an Ehcache Element.
+
 
     The JMSCacheLoader uses JNDI to maintain message queue independence. Refer to the manual for full configuration
     examples using ActiveMQ and Open Message Queue.
@@ -155,7 +175,7 @@
                 getQueueConnectionFactoryBindingName=queueConnectionFactory,
                 replicationTopicBindingName=ehcache,
                 getQueueBindingName=ehcacheGetQueue,
-                timeoutMillis=20000,
+                timeoutMillis=10000,
                 defaultLoaderArgument=sampleCacheNorep"/>
     </cache>
 

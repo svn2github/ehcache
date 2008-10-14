@@ -48,6 +48,13 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
         super.testGet();
     }
 
+
+    @Test
+    @Override
+    public void testGetTimeout() throws InterruptedException {
+        super.testGetTimeout();
+    }
+
     @Test
     public void testNonCachePublisherElementMessagePut() throws JMSException, InterruptedException {
 

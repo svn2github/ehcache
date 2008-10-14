@@ -514,6 +514,42 @@ public abstract class AbstractJMSReplicationTest {
     }
 
 
+    /**
+     * Tests the JMSCacheLoader.
+     * <p/>
+     * We put an item in cache1, which does not replicate.
+     * <p/>
+     * We then do a get on cache2, which has a JMSCacheLoader which should ask the cluster for the answer.
+     * If a cache does not have an element it should leave the message on the queue for the next node to process.
+     */
+    @Test
+    public void testGetTimeout() throws InterruptedException {
+        cacheName = SAMPLE_CACHE_SYNC;
+        manager3.shutdown();
+        manager4.shutdown();
+        Ehcache cache1 = manager1.getCache("sampleCacheNorep");
+        Ehcache cache2 = manager2.getCache("sampleCacheNorep");
+
+        Serializable key = "net.sf.ehcache.distribution.jms.Delay";
+        Serializable value = new Date();
+        Element element = new Element(key, value);
+
+        //Put
+        cache1.put(element);
+        long version = element.getVersion();
+        Thread.sleep(1050);
+
+        //Should not have been replicated to cache2.
+        Element element2 = cache2.get(key);
+        assertEquals(null, element2);
+
+        //Should timeout loading from cache2
+        element2 = cache2.getWithLoader(key, null, null);
+        assertNull(element2);
+        cache2.remove(key);
+    }
+
+
     @Test
     public void testGetConcurrent() throws Exception {
 

@@ -91,8 +91,7 @@ public class JMSCacheLoader implements CacheLoader {
         Serializable keyAsSerializable = (Serializable) key;
         Serializable argumentAsSerializable = (Serializable) argument;
 
-        //todo factor in loaderArgument
-        //todo document creating a responder
+        //todo handle non-Java responders.
 
         Serializable effectiveLoaderArgument;
         if (argument == null) {
@@ -113,25 +112,25 @@ public class JMSCacheLoader implements CacheLoader {
             temporaryReplyQueue = getQueueSession.createTemporaryQueue();
             replyReceiver = getQueueSession.createConsumer(temporaryReplyQueue);
             loadRequest.setJMSReplyTo(temporaryReplyQueue);
-            LOG.info("Request CacheManager UID: " + localCacheManagerUid(cache));
-            
             loadRequest.setIntProperty(CACHE_MANAGER_UID, localCacheManagerUid(cache));
             getQueueSender.send(loadRequest, DeliveryMode.NON_PERSISTENT, 9, timeoutMillis);
-            
+
+            //must send first before getting id
             String initialMessageId = loadRequest.getJMSMessageID();
 
+
             ObjectMessage reply = (ObjectMessage) replyReceiver.receive(timeoutMillis);
-
+            if (reply == null) {
+                return null;
+            }
             String messageId = reply.getJMSCorrelationID();
-
             LOG.info("Initial ID: " + initialMessageId + ". Reply Correlation ID. " + messageId);
 
             String responder = reply.getStringProperty("responder");
             LOG.info("Responder: " + responder);
             assert initialMessageId.equals(messageId) : "The load request received an uncorrelated request. " +
-                    "Request ID was " + messageId;
+                        "Request ID was " + messageId;
             value = reply.getObject();
-
         } catch (JMSException e) {
             throw new CacheException("Problem loading: " + e.getMessage(), e);
         } finally {

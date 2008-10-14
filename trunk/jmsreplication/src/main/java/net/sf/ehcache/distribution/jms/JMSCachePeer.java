@@ -317,6 +317,8 @@ public class JMSCachePeer implements CachePeer, MessageListener {
             value = element.getValue();
         }
         LOG.info("Receiver CacheManager UID: " + localCacheManagerUid(cache));
+        delayForTest(key);
+
         assert(objectMessage.getIntProperty(CACHE_MANAGER_UID) != localCacheManagerUid(cache)) :
                 "The JMSCachePeer received a getQueue request sent by a JMSCacheLoader belonging to the same" +
                         "CacheManager, which is invalid";
@@ -335,6 +337,19 @@ public class JMSCachePeer implements CachePeer, MessageListener {
         replyQueueSender.send(reply);
         replyQueueSender.close();
 
+    }
+
+    /**
+     * @param key
+     */
+    private void delayForTest(Serializable key) {
+        if (key.equals("net.sf.ehcache.distribution.jms.Delay")) {
+            try {
+                Thread.sleep(11000);
+            } catch (InterruptedException e) {
+                //
+            }
+        }
     }
 
     private Serializable extractAndValidateKey(Message message, Action action) throws JMSException {

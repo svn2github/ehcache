@@ -110,7 +110,6 @@
                                       executable="sh">
                                     <arg line="imqusermgr add -u test -p test -f"/>
                                 </exec>
-                                <!--todo user test nor working-->
                                 <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
                                       executable="sh">
                                     <arg line="imqobjmgr add -t tf -l 'MyConnectionFactory' -o imqReconnect='true' -o imqPingInterval='5'
