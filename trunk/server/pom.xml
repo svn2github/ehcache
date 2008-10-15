@@ -9,7 +9,7 @@
     </parent>
     <name>Ehcache Server</name>
     <artifactId>ehcache-server</artifactId>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.5</version>
     <packaging>war</packaging>
     <description>The ehcache W3C and RESTful web services server.</description>
     <dependencies>
@@ -144,7 +144,7 @@
                         </systemProperties>
                     </container>
                     <properties>
-                        <!--Not working as usual for a maven plugin-->
+                        Not working as usual for a maven plugin
                         <cargo.jvmargs>com.sun.management.jmxremote</cargo.jvmargs>
                     </properties>
                 </configuration>
@@ -337,9 +337,16 @@
         <snapshotRepository>
             <id>sourceforge.net</id>
             <name>SF EHCache Snapshot Repository</name>
-            <url>scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs/snapshotrepository</url>
-
+            <url>scp://gregluck,ehcache@web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs/snapshotrepository</url>
         </snapshotRepository>
+
+        <repository>
+            <id>sourceforge.net</id>
+            <name>SF EHCache Repository</name>
+            <url>scp://gregluck,ehcache@web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs/repository</url>
+        </repository>
+
+
         <site>
             <id>sourceforge.net</id>
             <name>SF EHCache Site</name>
