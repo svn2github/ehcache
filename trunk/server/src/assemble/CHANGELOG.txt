@@ -1,6 +1,6 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
-<release version="0.4" date="2008-10-15" desc="Initial release of ehcache server">
+<release version="0.5" date="2008-10-15" desc="Initial release of ehcache server">
     <!-- Features and Enhancements -->
     <action dev="Greg Luck" type="update">
         Set the "application/octet-stream" mime type to uploads which do not set a MIME Type, rather than erroring out.
