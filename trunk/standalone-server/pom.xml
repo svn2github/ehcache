@@ -9,7 +9,7 @@
     </parent>
     <name>Ehcache Standalone Server</name>
     <artifactId>ehcache-standalone-server</artifactId>
-    <version>0.4</version>
+    <version>0.5</version>
     <packaging>jar</packaging>
     <description>The ehcache W3C and RESTful web services standalone server.
         This is packaged as a distribution complete with all required dependencies.
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-server</artifactId>
-            <version>0.3</version>
+            <version>0.5</version>
             <type>war</type>
         </dependency>
         <dependency>
@@ -167,6 +167,7 @@
                 </executions>
             </plugin>
 
+
         </plugins>
     </build>
     <properties>
@@ -195,4 +196,35 @@
             <url>http://download.java.net/maven/2</url>
         </pluginRepository>
     </pluginRepositories>
+
+
+    <!-- Note: site URL repeated here to ensure correct deployment path -->
+    <distributionManagement>
+        <!--
+          The server id here defined must also appear in ~/.m2/settings.xml with username
+
+          For some crazy reason either sourceforge or maven-deploy or wagon-ssh is suddenly not creating
+          missing directories when uploading such as the new version number directory.
+
+          Not sure why. Changing deploy and wagon versions is not helping.
+        -->
+        <snapshotRepository>
+            <id>sourceforge.net</id>
+            <name>SF EHCache Snapshot Repository</name>
+            <url>scp://gregluck,ehcache@web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs/snapshotrepository</url>
+        </snapshotRepository>
+
+        <repository>
+            <id>sourceforge.net</id>
+            <name>SF EHCache Repository</name>
+            <url>scp://gregluck,ehcache@web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs/repository</url>
+        </repository>
+
+        <site>
+            <id>sourceforge.net</id>
+            <name>SF EHCache Site</name>
+            <url>scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs</url>
+        </site>
+    </distributionManagement>
+
 </project>                  
