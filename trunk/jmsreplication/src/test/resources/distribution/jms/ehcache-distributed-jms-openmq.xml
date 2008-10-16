@@ -74,7 +74,6 @@
                 getQueueConnectionFactoryBindingName=queueConnectionFactory,
                 getQueueBindingName=ehcacheGetQueue,
                 timeoutMillis=10000,
-                defaultLoaderArgument=sampleCacheNorep,
                 userName=test,
                 password=test"/>
     </cache>

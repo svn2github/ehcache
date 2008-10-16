@@ -105,8 +105,8 @@ public class JMSCacheLoader implements CacheLoader {
         MessageConsumer replyReceiver = null;
         TemporaryQueue temporaryReplyQueue = null;
         try {
-            JMSEventMessage jmsEventMessage = new JMSEventMessage(Action.GET.toInt(),
-                    keyAsSerializable, null, effectiveLoaderArgument.toString());
+            JMSEventMessage jmsEventMessage = new JMSEventMessage(Action.GET,
+                    keyAsSerializable, null, cache.getName(), effectiveLoaderArgument);
             ObjectMessage loadRequest = getQueueSession.createObjectMessage(jmsEventMessage);
             temporaryReplyQueue = getQueueSession.createTemporaryQueue();
             replyReceiver = getQueueSession.createConsumer(temporaryReplyQueue);

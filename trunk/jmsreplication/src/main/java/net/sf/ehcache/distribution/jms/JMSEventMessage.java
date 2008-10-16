@@ -19,7 +19,6 @@ package net.sf.ehcache.distribution.jms;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.distribution.EventMessage;
 
-import javax.jms.Session;
 import java.io.Serializable;
 
 
@@ -74,16 +73,22 @@ public class JMSEventMessage extends EventMessage {
     private static final long serialVersionUID = 927345728947584L;
 
     private String cacheName;
+    private Serializable loaderArgument;
 
     /**
-     * @param event     one of the types from EventMessage
+     * @param action    one of the types from Action
      * @param key       the key of the Element. May be null for the removeAll message type
      * @param element   may be null for removal and invalidation message types
      * @param cacheName the name of the cache in the CacheManager.
      */
-    public JMSEventMessage(int event, Serializable key, Element element, String cacheName) {
-        super(event, key, element);
+    public JMSEventMessage(Action action,
+                           Serializable key,
+                           Element element,
+                           String cacheName,
+                           Serializable loaderArgument) {
+        super(action.toInt(), key, element);
         setCacheName(cacheName);
+        this.loaderArgument = loaderArgument;
     }
 
     /**
@@ -104,6 +109,21 @@ public class JMSEventMessage extends EventMessage {
         this.cacheName = cacheName;
     }
 
+    /**
+     *
+     * @return
+     */
+    public Serializable getLoaderArgument() {
+        return loaderArgument;
+    }
+
+    /**
+     *
+     * @param loaderArgument
+     */
+    public void setLoaderArgument(Serializable loaderArgument) {
+        this.loaderArgument = loaderArgument;
+    }
 
     /**
      * Returns the message as a String
@@ -112,7 +132,9 @@ public class JMSEventMessage extends EventMessage {
      */
     @Override
     public String toString() {
-        return "JMSEventMessage ( event = " + getEvent() + ", element = " + getElement() + ", cacheName = " + cacheName;
+        return new StringBuilder().append("JMSEventMessage ( event = ").append(getEvent()).append(", element = ")
+                .append(getElement()).append(", cacheName = ").append(cacheName)
+                .append(", loaderArgument = ").append(loaderArgument).append(" )").toString();
     }
 
 }

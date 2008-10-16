@@ -295,7 +295,7 @@ public class JMSCacheReplicator implements CacheReplicator {
 
 
     private void replicatePut(Ehcache cache, Element element) {
-        JMSEventMessage message = new JMSEventMessage(JMSEventMessage.PUT, element.getKey(), element, cache.getName());
+        JMSEventMessage message = new JMSEventMessage(Action.PUT, element.getKey(), element, cache.getName(), null);
 
         sendNotification(cache, message);
     }
@@ -348,8 +348,8 @@ public class JMSCacheReplicator implements CacheReplicator {
 
     private void replicateRemoval(Ehcache cache, Element element) {
         //uniquely identifies the originator to ensure that a message does not update the originator
-        JMSEventMessage message = new JMSEventMessage(JMSEventMessage.REMOVE, element.getKey(), null, cache.getName()
-        );
+        JMSEventMessage message = new JMSEventMessage(Action.REMOVE, element.getKey(), null, cache.getName(),
+                null);
 
         sendNotification(cache, message);
     }
@@ -381,7 +381,7 @@ public class JMSCacheReplicator implements CacheReplicator {
             LOG.finest("notifyRemoveAll ( cache = " + cache + ") ");
         }
 
-        JMSEventMessage message = new JMSEventMessage(JMSEventMessage.REMOVE_ALL, null, null, cache.getName());
+        JMSEventMessage message = new JMSEventMessage(Action.REMOVE_ALL, null, null, cache.getName(), null);
 
         sendNotification(cache, message);
     }
