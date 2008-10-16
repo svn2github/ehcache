@@ -32,36 +32,6 @@ import java.io.Serializable;
  */
 public class JMSEventMessage extends EventMessage {
 
-    /**
-     * Actions that tie in with EventMessage actions. EventMessage has not been updated to use enums.
-     */
-    public enum Action {
-
-        PUT(EventMessage.PUT),
-        REMOVE(EventMessage.REMOVE),
-        REMOVE_ALL(EventMessage.REMOVE_ALL),
-        GET(10);
-
-        private int action;
-
-        public static Action forString(String value) {
-            for (Action action : values()) {
-                if (action.name().equals(value)) {
-                    return action;
-                }
-            }
-            return null;
-        }
-
-        private Action(int mode) {
-            this.action = mode;
-        }
-
-        public int toInt() {
-            return action;
-        }
-    }
-
 
     /**
      * A JMS message property which contains the name of the cache to operate on.

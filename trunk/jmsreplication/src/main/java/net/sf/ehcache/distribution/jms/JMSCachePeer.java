@@ -21,10 +21,9 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.MimeTypeByteArray;
-import net.sf.ehcache.CacheException;
 import net.sf.ehcache.distribution.CachePeer;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.CACHE_NAME_PROPERTY;
-import static net.sf.ehcache.distribution.jms.JMSEventMessage.Action;
+import net.sf.ehcache.distribution.jms.Action;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.ACTION_PROPERTY;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.KEY_PROPERTY;
 import static net.sf.ehcache.distribution.jms.JMSUtil.CACHE_MANAGER_UID;
@@ -40,11 +39,7 @@ import javax.jms.TextMessage;
 import javax.jms.BytesMessage;
 import javax.jms.QueueSender;
 import javax.jms.QueueSession;
-import javax.jms.ConnectionConsumer;
-import javax.jms.QueueReceiver;
-import javax.jms.DeliveryMode;
 import javax.jms.Queue;
-import javax.jms.Destination;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -255,7 +250,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
                         LOG.log(Level.SEVERE, e.getMessage(), e);
                         return;
                     }
-                    if (jmsEventMessage.getEvent() == JMSEventMessage.Action.GET.toInt()) {
+                    if (jmsEventMessage.getEvent() == Action.GET.toInt()) {
                         handleGetRequest(objectMessage, jmsEventMessage, cache);
                     } else {
                         handleNotification(jmsEventMessage, cache);

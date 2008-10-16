@@ -11,7 +11,6 @@ import javax.jms.QueueConnection;
 import javax.jms.Queue;
 import javax.jms.QueueSession;
 import javax.jms.QueueSender;
-import javax.jms.ConnectionConsumer;
 import javax.jms.JMSException;
 import javax.jms.ExceptionListener;
 import javax.jms.TemporaryQueue;
@@ -106,7 +105,7 @@ public class JMSCacheLoader implements CacheLoader {
         MessageConsumer replyReceiver = null;
         TemporaryQueue temporaryReplyQueue = null;
         try {
-            JMSEventMessage jmsEventMessage = new JMSEventMessage(JMSEventMessage.Action.GET.toInt(),
+            JMSEventMessage jmsEventMessage = new JMSEventMessage(Action.GET.toInt(),
                     keyAsSerializable, null, effectiveLoaderArgument.toString());
             ObjectMessage loadRequest = getQueueSession.createObjectMessage(jmsEventMessage);
             temporaryReplyQueue = getQueueSession.createTemporaryQueue();

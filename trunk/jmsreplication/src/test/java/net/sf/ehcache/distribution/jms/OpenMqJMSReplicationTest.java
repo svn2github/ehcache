@@ -4,7 +4,6 @@ import com.sun.messaging.ConnectionConfiguration;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MimeTypeByteArray;
-import net.sf.ehcache.util.ClassLoaderUtil;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.ACTION_PROPERTY;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.CACHE_NAME_PROPERTY;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.KEY_PROPERTY;
@@ -65,7 +64,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
         TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
         ObjectMessage message = publisherSession.createObjectMessage(payload);
-        message.setStringProperty(ACTION_PROPERTY, JMSEventMessage.Action.PUT.name());
+        message.setStringProperty(ACTION_PROPERTY, Action.PUT.name());
         message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
         //don't set. Should work.
         //message.setStringProperty(MIME_TYPE_PROPERTY, null);
@@ -96,7 +95,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
         TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
         ObjectMessage message = publisherSession.createObjectMessage(payload);
-        message.setStringProperty(ACTION_PROPERTY, JMSEventMessage.Action.PUT.name());
+        message.setStringProperty(ACTION_PROPERTY, Action.PUT.name());
         message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
         //don't set. Should work.
         //message.setStringProperty(MIME_TYPE_PROPERTY, null);
@@ -129,7 +128,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
         BytesMessage message = publisherSession.createBytesMessage();
         message.writeBytes(bytes);
-        message.setStringProperty(ACTION_PROPERTY, JMSEventMessage.Action.PUT.name());
+        message.setStringProperty(ACTION_PROPERTY, Action.PUT.name());
         message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
         message.setStringProperty(MIME_TYPE_PROPERTY, "application/x-greg");
         message.setStringProperty(KEY_PROPERTY, "1234");
@@ -160,7 +159,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
         BytesMessage message = publisherSession.createBytesMessage();
         message.writeBytes(bytes);
-        message.setStringProperty(ACTION_PROPERTY, JMSEventMessage.Action.PUT.name());
+        message.setStringProperty(ACTION_PROPERTY, Action.PUT.name());
         message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
 //        message.setStringProperty(MIME_TYPE_PROPERTY, "application/octet-stream");
         message.setStringProperty(KEY_PROPERTY, "1234");
@@ -199,7 +198,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
                 "</oldjoke>";
 
         TextMessage message = publisherSession.createTextMessage(value);
-        message.setStringProperty(ACTION_PROPERTY, JMSEventMessage.Action.PUT.name());
+        message.setStringProperty(ACTION_PROPERTY, Action.PUT.name());
         message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
         message.setStringProperty(MIME_TYPE_PROPERTY, "text/x-greg");
         message.setStringProperty(KEY_PROPERTY, "1234");
@@ -229,7 +228,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
         String value = "this is a string";
         TextMessage message = publisherSession.createTextMessage(value);
-        message.setStringProperty(ACTION_PROPERTY, JMSEventMessage.Action.PUT.name());
+        message.setStringProperty(ACTION_PROPERTY, Action.PUT.name());
         message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
 //        message.setStringProperty(MIME_TYPE_PROPERTY, "text/plain");
         message.setStringProperty(KEY_PROPERTY, "1234");
@@ -262,7 +261,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
         TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
         ObjectMessage message = publisherSession.createObjectMessage();
-        message.setStringProperty(ACTION_PROPERTY, JMSEventMessage.Action.REMOVE.name());
+        message.setStringProperty(ACTION_PROPERTY, Action.REMOVE.name());
         message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
         //don't set. Should work.
         //message.setStringProperty(MIME_TYPE_PROPERTY, null);
@@ -295,7 +294,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
         TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
         BytesMessage message = publisherSession.createBytesMessage();
-        message.setStringProperty(ACTION_PROPERTY, JMSEventMessage.Action.REMOVE.name());
+        message.setStringProperty(ACTION_PROPERTY, Action.REMOVE.name());
         message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
         //don't set. Should work.
         //message.setStringProperty(MIME_TYPE_PROPERTY, null);
@@ -328,7 +327,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
         TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
         TextMessage message = publisherSession.createTextMessage();
-        message.setStringProperty(ACTION_PROPERTY, JMSEventMessage.Action.REMOVE.name());
+        message.setStringProperty(ACTION_PROPERTY, Action.REMOVE.name());
         message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
         //don't set. Should work.
         //message.setStringProperty(MIME_TYPE_PROPERTY, null);
@@ -366,7 +365,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
         TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
         ObjectMessage message = publisherSession.createObjectMessage(new Element("ignored", "dog"));
-        message.setStringProperty(ACTION_PROPERTY, JMSEventMessage.Action.REMOVE.name());
+        message.setStringProperty(ACTION_PROPERTY, Action.REMOVE.name());
         message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
         //don't set. Should work.
         //message.setStringProperty(MIME_TYPE_PROPERTY, null);
@@ -399,7 +398,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
         TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
         ObjectMessage message = publisherSession.createObjectMessage();
-        message.setStringProperty(ACTION_PROPERTY, JMSEventMessage.Action.REMOVE_ALL.name());
+        message.setStringProperty(ACTION_PROPERTY, Action.REMOVE_ALL.name());
         message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
 
         Topic topic = publisherSession.createTopic("EhcacheTopicDest");
@@ -426,7 +425,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
         TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
         ObjectMessage message = publisherSession.createObjectMessage(new Element("1", "dog"));
-        message.setStringProperty(ACTION_PROPERTY, JMSEventMessage.Action.REMOVE_ALL.name());
+        message.setStringProperty(ACTION_PROPERTY, Action.REMOVE_ALL.name());
         message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
         //don't set. Should work.
         //message.setStringProperty(MIME_TYPE_PROPERTY, null);
@@ -459,7 +458,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
         TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
         TextMessage message = publisherSession.createTextMessage();
-        message.setStringProperty(ACTION_PROPERTY, JMSEventMessage.Action.REMOVE_ALL.name());
+        message.setStringProperty(ACTION_PROPERTY, Action.REMOVE_ALL.name());
         message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
 
 
@@ -487,7 +486,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
         TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
         BytesMessage message = publisherSession.createBytesMessage();
-        message.setStringProperty(ACTION_PROPERTY, JMSEventMessage.Action.REMOVE_ALL.name());
+        message.setStringProperty(ACTION_PROPERTY, Action.REMOVE_ALL.name());
         message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
 
 
@@ -548,7 +547,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
         TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
         ObjectMessage message = publisherSession.createObjectMessage();
-        message.setStringProperty(ACTION_PROPERTY, JMSEventMessage.Action.REMOVE.name());
+        message.setStringProperty(ACTION_PROPERTY, Action.REMOVE.name());
         message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
         //don't set. Should work.
         //message.setStringProperty(MIME_TYPE_PROPERTY, null);
