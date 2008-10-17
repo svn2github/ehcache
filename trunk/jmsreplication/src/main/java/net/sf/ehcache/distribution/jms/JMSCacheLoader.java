@@ -42,13 +42,12 @@ import java.util.logging.Logger;
 
 /**
  * @author Greg Luck
- *
  */
 public class JMSCacheLoader implements CacheLoader {
 
     private static final int HIGHEST_JMS_PRORITY = 9;
     private static final Logger LOG = Logger.getLogger(JMSCacheLoader.class.getName());
-    
+
     private AcknowledgementMode acknowledgementMode;
 
     private Status status;
@@ -62,6 +61,7 @@ public class JMSCacheLoader implements CacheLoader {
 
     /**
      * Constructor.
+     *
      * @param cache
      * @param defaultLoaderArgument
      * @param getQueueConnection
@@ -108,8 +108,8 @@ public class JMSCacheLoader implements CacheLoader {
      *
      * @param key      the key to load the object for.
      * @param argument can be anything that makes sense to the loader.
-     * The argument is converted to a String with toString()
-     * to use for the JMS StringProperty loaderArgument
+     *                 The argument is converted to a String with toString()
+     *                 to use for the JMS StringProperty loaderArgument
      * @return the Object loaded
      * @throws net.sf.jsr107cache.CacheException
      *
@@ -119,13 +119,14 @@ public class JMSCacheLoader implements CacheLoader {
         Serializable effectiveLoaderArgument = effectiveLoaderArgument(argument);
 
         JMSEventMessage jmsEventMessage = new JMSEventMessage(Action.GET,
-                    keyAsSerializable, null, cache.getName(), effectiveLoaderArgument);
+                keyAsSerializable, null, cache.getName(), effectiveLoaderArgument);
 
         return loadFromJMS(jmsEventMessage);
     }
 
     /**
      * A common loader which handles the JMS interactions.
+     *
      * @param jmsEventMessage
      * @return
      * @throws CacheException
@@ -136,9 +137,9 @@ public class JMSCacheLoader implements CacheLoader {
         TemporaryQueue temporaryReplyQueue = null;
         try {
 
-
             ObjectMessage loadRequest = getQueueSession.createObjectMessage(jmsEventMessage);
             temporaryReplyQueue = getQueueSession.createTemporaryQueue();
+
             replyReceiver = getQueueSession.createConsumer(temporaryReplyQueue);
             loadRequest.setJMSReplyTo(temporaryReplyQueue);
             loadRequest.setIntProperty(CACHE_MANAGER_UID, localCacheManagerUid(cache));
@@ -162,7 +163,7 @@ public class JMSCacheLoader implements CacheLoader {
                 LOG.fine("Responder: " + responder);
             }
             assert initialMessageId.equals(messageId) : "The load request received an uncorrelated request. " +
-                        "Request ID was " + messageId;
+                    "Request ID was " + messageId;
             value = reply.getObject();
         } catch (JMSException e) {
             throw new CacheException("Problem loading: " + e.getMessage(), e);
@@ -198,7 +199,7 @@ public class JMSCacheLoader implements CacheLoader {
      * <p/>
      * JCache will use the loadAll(key) method where the argument is null.
      *
-     * @param keys a <code>Collection</code> of keys to load objects for. Each key must be <code>Serializable</code>.
+     * @param keys     a <code>Collection</code> of keys to load objects for. Each key must be <code>Serializable</code>.
      * @param argument can be anything that makes sense to the loader. It must be <code>Serializable</code>.
      * @return a map of Objects keyed by the collection of keys passed in.
      * @throws net.sf.jsr107cache.CacheException
@@ -217,7 +218,7 @@ public class JMSCacheLoader implements CacheLoader {
 
         Map responseMap;
         JMSEventMessage jmsEventMessage = new JMSEventMessage(Action.GET,
-                    requestList, null, cache.getName(), effectiveLoaderArgument);
+                requestList, null, cache.getName(), effectiveLoaderArgument);
         responseMap = (Map) loadFromJMS(jmsEventMessage);
         return responseMap;
     }
@@ -272,7 +273,7 @@ public class JMSCacheLoader implements CacheLoader {
                     LOG.log(Level.SEVERE, "Exception on getQueue Connection: " + e.getMessage(), e);
                 }
             });
-      
+
             getQueueSession = getQueueConnection.createQueueSession(false, acknowledgementMode.toInt());
             getQueueSender = getQueueSession.createSender(getQueue);
 
@@ -302,7 +303,7 @@ public class JMSCacheLoader implements CacheLoader {
             getQueueConnection.close();
 
         } catch (JMSException e) {
-            throw new net.sf.ehcache.CacheException("Problem stopping queue connection: "  + e.getMessage(), e);
+            throw new net.sf.ehcache.CacheException("Problem stopping queue connection: " + e.getMessage(), e);
         }
         status = Status.STATUS_SHUTDOWN;
     }

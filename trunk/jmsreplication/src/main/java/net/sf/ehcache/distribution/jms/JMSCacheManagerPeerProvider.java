@@ -65,6 +65,7 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
     private TopicPublisher topicPublisher;
     private TopicSubscriber topicSubscriber;
     private QueueSession getQueueSession;
+    private JMSCachePeer cachePeer;
 
 
     /**
@@ -152,14 +153,14 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
         }
 
 
-        JMSCachePeer peer = new JMSCachePeer(cacheManager, topicPublisher, topicPublisherSession, getQueueSession);
+        cachePeer = new JMSCachePeer(cacheManager, topicPublisher, topicPublisherSession, getQueueSession);
 
-        remoteCachePeers.add(peer);
+        remoteCachePeers.add(cachePeer);
         try {
-            topicSubscriber.setMessageListener(peer);
-            getQueueRequestReceiver.setMessageListener(peer);
+            topicSubscriber.setMessageListener(cachePeer);
+            getQueueRequestReceiver.setMessageListener(cachePeer);
         } catch (JMSException e) {
-            LOG.log(Level.SEVERE, "Cannot register " + peer + " as messageListener", e);
+            LOG.log(Level.SEVERE, "Cannot register " + cachePeer + " as messageListener", e);
         }
 
 
@@ -173,7 +174,12 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
      */
     public void dispose() throws CacheException {
 
+        LOG.fine("JMSCacheManagerPeerProvider for CacheManager " + cacheManager.getName() + " being disposed.");
+
         try {
+
+            cachePeer.dispose();
+
             topicPublisher.close();
             topicSubscriber.close();
             topicPublisherSession.close();
@@ -184,12 +190,10 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
             getQueueConnection.close();
 
         } catch (JMSException e) {
+            LOG.severe(e.getMessage());
             throw new CacheException(e.getMessage(), e);
         }
 
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("dispose ( ) called ");
-        }
 
     }
 

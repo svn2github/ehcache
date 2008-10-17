@@ -157,8 +157,7 @@
                 getQueueConnectionFactoryBindingName=queueConnectionFactory,
                 replicationTopicBindingName=ehcache,
                 getQueueBindingName=ehcacheGetQueue,
-                timeoutMillis=10000,
-                defaultLoaderArgument=sampleCacheNorep"/>
+                timeoutMillis=10000"/>
     </cache>
 
 

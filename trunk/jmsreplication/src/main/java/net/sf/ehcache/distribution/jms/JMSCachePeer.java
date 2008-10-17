@@ -65,6 +65,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
     private CacheManager cacheManager;
     private MessageProducer messageProducer;
     private QueueSession getQueueSession;
+    private boolean shutdown;
 
 
     /**
@@ -86,6 +87,21 @@ public class JMSCachePeer implements CachePeer, MessageListener {
         this.messageProducer = messageProducer;
         this.producerSession = producerSession;
         this.getQueueSession = getQueueSession;
+    }
+
+
+    /**
+     * Cleanup on shutdown
+     */
+    public void dispose() throws JMSException {
+
+        producerSession.close();
+        cacheManager = null;
+        messageProducer.close();
+        getQueueSession.close();
+
+        shutdown = true;
+
     }
 
     /**
@@ -217,6 +233,8 @@ public class JMSCachePeer implements CachePeer, MessageListener {
      */
     public void onMessage(Message message) {
 
+        assert !shutdown : "Peer is shutdown. " + message;
+
         try {
             if (message instanceof ObjectMessage) {
                 handleObjectMessage(message);
@@ -270,6 +288,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
             try {
                 cacheName = jmsEventMessage.getCacheName();
                 cache = cacheManager.getCache(cacheName);
+                assert cache != null : "Cache was null, which is an illegal state. " + jmsEventMessage;
             } catch (Exception e) {
                 LOG.log(Level.SEVERE, e.getMessage(), e);
                 return;

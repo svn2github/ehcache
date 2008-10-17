@@ -134,6 +134,7 @@ public class JMSEventMessage extends EventMessage {
     public String toString() {
         return new StringBuilder().append("JMSEventMessage ( event = ").append(getEvent()).append(", element = ")
                 .append(getElement()).append(", cacheName = ").append(cacheName)
+                .append(", key = ").append(getSerializableKey())
                 .append(", loaderArgument = ").append(loaderArgument).append(" )").toString();
     }
 
