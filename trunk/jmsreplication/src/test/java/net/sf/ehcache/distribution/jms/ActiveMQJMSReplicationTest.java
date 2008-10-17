@@ -21,9 +21,8 @@ package net.sf.ehcache.distribution.jms;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.Status;
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Cache;
+import net.sf.ehcache.Status;
 import org.junit.After;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
@@ -32,27 +31,34 @@ import org.junit.Test;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
-public abstract class AbstractJMSReplicationTest {
+public class ActiveMQJMSReplicationTest {
 
-    private static final int NBR_ELEMENTS = 100;
 
-    private static final String SAMPLE_CACHE_ASYNC = "sampleCacheAsync";
-    private static final String SAMPLE_CACHE_SYNC = "sampleCacheSync";
-    private static final String SAMPLE_CACHE_NOREP = "sampleCacheNorep";
+
+    static final int NBR_ELEMENTS = 100;
+
+    static final String SAMPLE_CACHE_ASYNC = "sampleCacheAsync";
+    static final String SAMPLE_CACHE_SYNC = "sampleCacheSync";
+    static final String SAMPLE_CACHE_NOREP = "sampleCacheNorep";
 
     String cacheName;
 
-    private static final Logger LOG = Logger.getLogger(AbstractJMSReplicationTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(ActiveMQJMSReplicationTest.class.getName());
 
-    protected CacheManager manager1, manager2, manager3, manager4, manager5;
+    protected CacheManager manager1, manager2, manager3, manager4;
 
-    protected abstract String getConfigurationFile();
+    //protected abstract String getConfigurationFile();
+
+    protected String getConfigurationFile() {
+        return "distribution/jms/ehcache-distributed-jms-activemq.xml";
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -514,200 +520,4 @@ public abstract class AbstractJMSReplicationTest {
     }
 
 
-    /**
-     * Tests the JMSCacheLoader.
-     * <p/>
-     * We put an item in cache1, which does not replicate.
-     * <p/>
-     * We then do a get on cache2, which has a JMSCacheLoader which should ask the cluster for the answer.
-     * If a cache does not have an element it should leave the message on the queue for the next node to process.
-     */
-    @Test
-    public void testGetTimeout() throws InterruptedException {
-        cacheName = SAMPLE_CACHE_SYNC;
-        manager3.shutdown();
-        manager4.shutdown();
-        Ehcache cache1 = manager1.getCache("sampleCacheNorep");
-        Ehcache cache2 = manager2.getCache("sampleCacheNorep");
-
-        Serializable key = "net.sf.ehcache.distribution.jms.Delay";
-        Serializable value = new Date();
-        Element element = new Element(key, value);
-
-        //Put
-        cache1.put(element);
-        long version = element.getVersion();
-        Thread.sleep(1050);
-
-        //Should not have been replicated to cache2.
-        Element element2 = cache2.get(key);
-        assertEquals(null, element2);
-
-        //Should timeout loading from cache2
-        element2 = cache2.getWithLoader(key, null, null);
-        assertNull(element2);
-        cache2.remove(key);
-    }
-
-
-    @Test
-    public void testGetConcurrent() throws Exception {
-
-        final long maxTime = 5000;
-        cacheName = SAMPLE_CACHE_SYNC;
-        manager3.shutdown();
-        manager4.shutdown();
-        final Ehcache cache1 = manager1.getCache("sampleCacheNorep");
-        final Ehcache cache2 = manager2.getCache("sampleCacheNorep");
-
-
-        long start = System.currentTimeMillis();
-        final List executables = new ArrayList();
-        final Random random = new Random();
-
-
-        //some of the time get data
-        for (int i = 0; i < 50; i++) {
-            final int i1 = i;
-            final TestUtil.Executable executable = new TestUtil.Executable() {
-                public void execute() throws Exception {
-
-
-                    final Serializable key = "" + i1;
-                    final Serializable value = new Date();
-                    Element element = new Element(key, i1);
-
-                    //Put
-                    cache1.put(element);
-                    Thread.sleep(1050);
-
-                    //Should load from cache1
-                    for (int i = 0; i < 20; i++) {
-                        final TestUtil.StopWatch stopWatch = new TestUtil.StopWatch();
-                        long start = stopWatch.getElapsedTime();
-                        Element element2 = cache2.getWithLoader(key, null, null);
-                        assertEquals(i1, element2.getValue());
-                        cache2.remove(key);
-                        long end = stopWatch.getElapsedTime();
-                        long elapsed = end - start;
-                        assertTrue("Get time outside of allowed time: " + elapsed, elapsed < maxTime);
-                    }
-
-                }
-            };
-            executables.add(executable);
-        }
-
-
-        TestUtil.runThreads(executables);
-        long end = System.currentTimeMillis();
-        LOG.info("Total time for the test: " + (end - start) + " ms");
-    }
-
-
-    /**
-     * Same as get, but this one tests out a few things that can cause problems with message queues (and have been
-     * reproduced with this test - until the code was corrected that is)
-     * <p/>
-     * 1. Do two loops of 1000 requests. If there is any resource leakage this will fail
-     * 2. Find a UID so that the reqestor does not satisfy its own request
-     * 3. Pause for 125 seconds between the two runs. Open MQ closes unused destinations after 120 seconds.
-     */
-    @Test
-    public void testGetStability() throws InterruptedException {
-        cacheName = SAMPLE_CACHE_SYNC;
-        manager3.shutdown();
-        manager4.shutdown();
-        Ehcache cache1 = manager1.getCache("sampleCacheNorep");
-        Ehcache cache2 = manager2.getCache("sampleCacheNorep");
-
-        Serializable key = "1";
-        Serializable value = new Date();
-        Element element = new Element(key, value);
-
-        //Put
-        cache1.put(element);
-        long version = element.getVersion();
-        Thread.sleep(1050);
-
-
-        //Should not have been replicated to cache2.
-        Element element2 = cache2.get(key);
-        assertEquals(null, element2);
-
-        //Should load from cache1
-        for (int i = 0; i < 1000; i++) {
-            element2 = cache2.getWithLoader(key, null, null);
-            assertEquals(value, element2.getValue());
-            cache2.remove(key);
-        }
-    }
-
-    /**
-     * Manual test.
-     * <p/>
-     * Run the test, stop the message queue and then start the message queue. load should throw exceptions but then
-     * start loading again shortly after the message queue restarts.
-     */
-    //@Test
-    public void testGetMessageQueueFailure() throws InterruptedException {
-        cacheName = SAMPLE_CACHE_SYNC;
-        manager3.shutdown();
-        manager4.shutdown();
-        Ehcache cache1 = manager1.getCache("sampleCacheNorep");
-        Ehcache cache2 = manager2.getCache("sampleCacheNorep");
-
-        Serializable key = "1";
-        Serializable value = new Date();
-        Element element = new Element(key, value);
-
-        //Put
-        cache1.put(element);
-        long version = element.getVersion();
-        Thread.sleep(1050);
-
-
-        //Should not have been replicated to cache2.
-        Element element2 = cache2.get(key);
-        assertEquals(null, element2);
-
-        //Should load from cache1
-        for (int i = 0; i < 1000; i++) {
-            Thread.sleep(2000);
-            try {
-                element2 = cache2.getWithLoader(key, null, null);
-            } catch (CacheException e) {
-                e.printStackTrace();
-            }
-            assertEquals(value, element2.getValue());
-            cache2.remove(key);
-        }
-    }
-
-    /**
-     * Uses the JMSCacheLoader.
-     * <p/>
-     * We do not put an item in cache1, which does not replicate.
-     * <p/>
-     * We then do a get on cache2, which has a JMSCacheLoader which should ask the cluster for the answer.
-     * If a cache does not have an element it should leave the message on the queue for the next node to process.
-     */
-    @Test
-    public void testGetNull() throws InterruptedException {
-        cacheName = SAMPLE_CACHE_SYNC;
-        Ehcache cache1 = manager1.getCache("sampleCacheNorep");
-        Ehcache cache2 = manager2.getCache("sampleCacheNorep");
-
-        Serializable key = "1";
-
-        //Should not have been replicated to cache2.
-        Element element2 = cache2.get(key);
-        assertEquals(null, element2);
-
-        //Should load from cache1
-        for (int i = 0; i < 100; i++) {
-            Element element = cache2.getWithLoader(key, null, null);
-            assertNull("" + element2, element2);
-        }
-    }
 }

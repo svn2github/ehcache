@@ -1,3 +1,19 @@
+/**
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package net.sf.ehcache.distribution.jms;
 
 import net.sf.ehcache.CacheException;
@@ -14,42 +30,97 @@ import java.util.logging.Level;
 
 /**
  * Configuration file strings used by both the JMS replication and loader.
+ *
+ * @author Greg Luck
  */
-public class JMSUtil {
+public final class JMSUtil {
+
+    /***/
+    public static final String PROVIDER_URL = "providerURL";
+
+    /***/
+    public static final String REPLICATION_TOPIC_BINDING_NAME = "replicationTopicBindingName";
+
+    /***/
+    public static final String GET_QUEUE_BINDING_NAME = "getQueueBindingName";
+
+    /***/
+    public static final String TOPIC_CONNECTION_FACTORY_BINDING_NAME = "replicationTopicConnectionFactoryBindingName";
+
+    /***/
+    public static final String GET_QUEUE_CONNECTION_FACTORY_BINDING_NAME = "getQueueConnectionFactoryBindingName";
+
+    /***/
+    public static final String USERNAME = "userName";
+
+    /***/
+    public static final String PASSWORD = "password";
+
+    /***/
+    public static final String SECURITY_PRINCIPAL_NAME = "securityPrincipalName";
+
+    /***/
+    public static final String SECURITY_CREDENTIALS = "securityCredentials";
+
+    /***/
+    public static final String INITIAL_CONTEXT_FACTORY_NAME = "initialContextFactoryName";
+
+    /***/
+    public static final String URL_PKG_PREFIXES = "urlPkgPrefixes";
+
+    /***/
+    public static final String ACKNOWLEDGEMENT_MODE = "acknowledgementMode";
+
+    /***/
+    public static final String TIMEOUT_MILLIS = "timeoutMillis";
+
+    /***/
+    public static final String DEFAULT_LOADER_ARGUMENT = "defaultLoaderArgument";
+
+    /***/
+    public static final int MAX_PRIORITY = 9;
+
+    /***/
+    public static final String CACHE_MANAGER_UID = "cacheManagerUniqueId";
+
 
     private static final Logger LOG = Logger.getLogger(JMSUtil.class.getName());
 
-    static final String PROVIDER_URL = "providerURL";
-    static final String REPLICATION_TOPIC_BINDING_NAME = "replicationTopicBindingName";
-    static final String GET_QUEUE_BINDING_NAME = "getQueueBindingName";
-    static final String TOPIC_CONNECTION_FACTORY_BINDING_NAME = "topicConnectionFactoryBindingName";
-    static final String GET_QUEUE_CONNECTION_FACTORY_BINDING_NAME = "getQueueConnectionFactoryBindingName";
-    static final String USERNAME = "userName";
-    static final String PASSWORD = "password";
-    static final String SECURITY_PRINCIPAL_NAME = "securityPrincipalName";
-    static final String SECURITY_CREDENTIALS = "securityCredentials";
-    static final String INITIAL_CONTEXT_FACTORY_NAME = "initialContextFactoryName";
-    static final String URL_PKG_PREFIXES = "urlPkgPrefixes";
-    static final String ACKNOWLEDGEMENT_MODE = "acknowledgementMode";
-    static final String TIMEOUT_MILLIS = "timeoutMillis";
-    static final String DEFAULT_LOADER_ARGUMENT = "defaultLoaderArgument";
-    static final int MAX_PRIORITY = 9;
-    static final String CACHE_MANAGER_UID = "cacheManagerUniqueId";
+    private JMSUtil() {
+        //Utility class
+    }
 
+    /**
+     * Creates a JNDI initial context.
+     *
+     * @param initialContextFactoryName (mandatory) - the name of the factory used to create the message queue initial context.
+     * @param providerURL               (mandatory) - the JNDI configuration information for the service provider to use.
+     * @param getQueueConnectionFactoryBindingName
+     *                                  (mandatory) - the JNDI binding name for the QueueConnectionFactory
+     * @param replicationTopicBindingName (mandatory) - the JNDI binding name for the topic name used for replication
+     * @param replicationTopicConnectionFactoryBindingName (mandatory) - the JNDI binding name for the replication TopicConnectionFactory
+     * @param getQueueBindingName       (mandatory) - the JNDI binding name for the queue name used to do make requests.
+     * @param securityPrincipalName     the JNDI java.naming.security.principal
+     * @param securityCredentials       the JNDI java.naming.security.credentials
+     * @param urlPkgPrefixes            the JNDI java.naming.factory.url.pkgs
+     *                                  AUTO_ACKNOWLEDGE, DUPS_OK_ACKNOWLEDGE and SESSION_TRANSACTED.
+     *                                  The default is AUTO_ACKNOWLEDGE.
+     * @return a context, ready for lookups
+     */
     public static Context createInitialContext(String securityPrincipalName,
-                                         String securityCredentials,
-                                         String initialContextFactoryName,
-                                         String urlPkgPrefixes,
-                                         String providerURL,
-                                         String replicationTopicBindingName,
-                                         String topicConnectionFactoryBindingName,
-                                         String getQueueBindingName,
-                                         String getQueueConnectionFactoryBindingName) {
+                                               String securityCredentials,
+                                               String initialContextFactoryName,
+                                               String urlPkgPrefixes,
+                                               String providerURL,
+                                               String replicationTopicBindingName,
+                                               String replicationTopicConnectionFactoryBindingName,
+                                               String getQueueBindingName,
+                                               String getQueueConnectionFactoryBindingName) {
         Context context;
 
         Properties env = new Properties();
 
-        env.put(TOPIC_CONNECTION_FACTORY_BINDING_NAME, topicConnectionFactoryBindingName);
+        env.put(TOPIC_CONNECTION_FACTORY_BINDING_NAME, replicationTopicConnectionFactoryBindingName);
         env.put(REPLICATION_TOPIC_BINDING_NAME, replicationTopicBindingName);
 
 
@@ -102,6 +173,10 @@ public class JMSUtil {
         }
     }
 
+    /**
+     * Closes the JNDI context.
+     * @param context the context to cose
+     */
     public static void closeContext(Context context) {
         try {
             if (context != null) {
@@ -115,6 +190,7 @@ public class JMSUtil {
     /**
      * Returns a unique ID for a CacheManager. This method always returns the same value
      * for the life of a CacheManager instance.
+     *
      * @param cache the CacheManager is discovered through a cache
      * @return an identifier for the local CacheManager
      */
@@ -126,6 +202,7 @@ public class JMSUtil {
     /**
      * Returns a unique ID for a CacheManager. This method always returns the same value
      * for the life of a CacheManager instance.
+     *
      * @param cacheManager the CacheManager of interest
      * @return an identifier for the local CacheManager
      */

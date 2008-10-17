@@ -358,10 +358,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
                 <configuration>
-                    <targetjdk>1.4</targetjdk>
+                    <targetjdk>1.5</targetjdk>
                     <rulesets>
                         <ruleset>/rulesets/basic.xml</ruleset>
-                        <ruleset>/rulesets/controversial.xml</ruleset>
                     </rulesets>
                     <format>xml</format>
                     <linkXref>true</linkXref>
@@ -409,13 +408,6 @@
                 </configuration>
             </plugin>
 
-            <!--<plugin>-->
-            <!--<groupId>org.apache.maven.plugins</groupId>-->
-            <!--<artifactId>maven-surefire-report-plugin</artifactId>-->
-            <!--<configuration>-->
-            <!--<showSuccess>false</showSuccess>-->
-            <!--</configuration>-->
-            <!--</plugin>-->
 
         </plugins>
     </reporting>

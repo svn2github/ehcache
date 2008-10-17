@@ -1,3 +1,19 @@
+/**
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package net.sf.ehcache.distribution.jms;
 
 import net.sf.ehcache.CacheException;
@@ -33,9 +49,7 @@ import java.util.logging.Logger;
 /**
  * A factory to create JMSCacheLoaders.
  *
- *
  * @author Greg Luck
- *
  */
 public class JMSCacheLoaderFactory extends CacheLoaderFactory {
 
@@ -70,18 +84,20 @@ public class JMSCacheLoaderFactory extends CacheLoaderFactory {
         String urlPkgPrefixes = PropertyUtil.extractAndLogProperty(URL_PKG_PREFIXES, properties);
         String providerURL = PropertyUtil.extractAndLogProperty(PROVIDER_URL, properties);
         String replicationTopicBindingName = PropertyUtil.extractAndLogProperty(REPLICATION_TOPIC_BINDING_NAME, properties);
-        String getQueueConnectionFactoryBindingName = PropertyUtil.extractAndLogProperty(GET_QUEUE_CONNECTION_FACTORY_BINDING_NAME, properties);
-        if (getQueueConnectionFactoryBindingName == null ) {
+        String getQueueConnectionFactoryBindingName =
+                PropertyUtil.extractAndLogProperty(GET_QUEUE_CONNECTION_FACTORY_BINDING_NAME, properties);
+        if (getQueueConnectionFactoryBindingName == null) {
             throw new CacheException("getQueueConnectionFactoryBindingName is not configured.");
         }
         String getQueueBindingName = PropertyUtil.extractAndLogProperty(GET_QUEUE_BINDING_NAME, properties);
-        if (getQueueBindingName == null ) {
+        if (getQueueBindingName == null) {
             throw new CacheException("getQueueBindingName is not configured.");
         }
 
         String defaultLoaderArgument = PropertyUtil.extractAndLogProperty(DEFAULT_LOADER_ARGUMENT, properties);
 
-        String topicConnectionFactoryBindingName = PropertyUtil.extractAndLogProperty(TOPIC_CONNECTION_FACTORY_BINDING_NAME, properties);
+        String replicationTopicConnectionFactoryBindingName =
+                PropertyUtil.extractAndLogProperty(TOPIC_CONNECTION_FACTORY_BINDING_NAME, properties);
         String userName = PropertyUtil.extractAndLogProperty(USERNAME, properties);
         String password = PropertyUtil.extractAndLogProperty(PASSWORD, properties);
         String acknowledgementMode = PropertyUtil.extractAndLogProperty(ACKNOWLEDGEMENT_MODE, properties);
@@ -99,7 +115,7 @@ public class JMSCacheLoaderFactory extends CacheLoaderFactory {
         try {
 
             context = JMSUtil.createInitialContext(securityPrincipalName, securityCredentials, initialContextFactoryName,
-                    urlPkgPrefixes, providerURL, replicationTopicBindingName, topicConnectionFactoryBindingName,
+                    urlPkgPrefixes, providerURL, replicationTopicBindingName, replicationTopicConnectionFactoryBindingName,
                     getQueueBindingName, getQueueConnectionFactoryBindingName);
 
             queueConnectionFactory = (QueueConnectionFactory) JMSUtil.lookup(context, getQueueConnectionFactoryBindingName);
@@ -108,7 +124,7 @@ public class JMSCacheLoaderFactory extends CacheLoaderFactory {
             JMSUtil.closeContext(context);
         } catch (NamingException ne) {
             throw new CacheException("NamingException " + ne.getMessage(), ne);
-        }                                
+        }
 
         try {
             getQueueConnection = createQueueConnection(userName, password, queueConnectionFactory);
@@ -116,7 +132,7 @@ public class JMSCacheLoaderFactory extends CacheLoaderFactory {
             throw new CacheException("Problem creating connections: " + e.getMessage(), e);
         }
 
-        return new JMSCacheLoader(cache, defaultLoaderArgument, getQueueConnection, getQueue, 
+        return new JMSCacheLoader(cache, defaultLoaderArgument, getQueueConnection, getQueue,
                 effectiveAcknowledgementMode, timeoutMillis);
     }
 
@@ -136,6 +152,7 @@ public class JMSCacheLoaderFactory extends CacheLoaderFactory {
     /**
      * Extracts the value of timeoutMillis. Sets it to 30000ms if
      * either not set or there is a problem parsing the number
+     *
      * @param properties
      */
     protected int extractTimeoutMillis(Properties properties) {

@@ -397,6 +397,7 @@ public class JMSCacheReplicator implements CacheReplicator {
      * @throws CloneNotSupportedException if the listener could not be cloned.
      */
     public Object clone() throws CloneNotSupportedException {
+        super.clone();
         return new JMSCacheReplicator(replicatePuts, replicateUpdates,
                 replicateUpdatesViaCopy, replicateRemovals, replicateAsync, asynchronousReplicationInterval);
     }
@@ -446,19 +447,16 @@ public class JMSCacheReplicator implements CacheReplicator {
     private final class JMSReplicationThread extends Thread {
 
         /**
-         *
+         * Contructs a new replication daemon thread with normal priority.
          */
         public JMSReplicationThread() {
             super("JMS Replication Thread");
             setDaemon(true);
-            int replicationThreadPriority = Thread.NORM_PRIORITY;
-            setPriority(replicationThreadPriority);
+            setPriority(Thread.NORM_PRIORITY);
         }
 
-        /**
-         *
-         */
-        public final void run() {
+        @Override
+        public void run() {
             replicationThreadMain();
         }
     }
@@ -466,7 +464,7 @@ public class JMSCacheReplicator implements CacheReplicator {
     /**
      * Used to hold the JMSEventMessage and the cache the message belongs to
      */
-    protected final static class AsyncJMSEventMessage {
+    protected static final class AsyncJMSEventMessage {
         private Ehcache cache;
         private JMSEventMessage message;
 

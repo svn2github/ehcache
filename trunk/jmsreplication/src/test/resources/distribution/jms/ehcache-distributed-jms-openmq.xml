@@ -5,7 +5,7 @@
             class="net.sf.ehcache.distribution.jms.JMSCacheManagerPeerProviderFactory"
             properties="initialContextFactoryName=com.sun.jndi.fscontext.RefFSContextFactory,
                 providerURL=file:///tmp,
-                topicConnectionFactoryBindingName=MyConnectionFactory,
+                replicationTopicConnectionFactoryBindingName=MyConnectionFactory,
                 replicationTopicBindingName=ehcache,
                 getQueueConnectionFactoryBindingName=queueConnectionFactory,
                 getQueueBindingName=ehcacheGetQueue"
@@ -69,7 +69,7 @@
         <cacheLoaderFactory class="net.sf.ehcache.distribution.jms.JMSCacheLoaderFactory"
                             properties="initialContextFactoryName=com.sun.jndi.fscontext.RefFSContextFactory,
                 providerURL=file:///tmp,
-                topicConnectionFactoryBindingName=MyConnectionFactory,
+                replicationTopicConnectionFactoryBindingName=MyConnectionFactory,
                 replicationTopicBindingName=ehcache,
                 getQueueConnectionFactoryBindingName=queueConnectionFactory,
                 getQueueBindingName=ehcacheGetQueue,

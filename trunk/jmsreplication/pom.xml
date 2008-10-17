@@ -88,7 +88,7 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
-                        <!--We test using two popular message -->
+                        <!--We test using two popular message queues -->
                         <id>start-message-queues</id>
                         <phase>pre-integration-test</phase>
                         <configuration>
@@ -118,7 +118,7 @@
                                 </exec>
                                 <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
                                       executable="sh">
-                                    <arg line="imqobjmgr add -t qf -l 'queueConnectionFactory' -o imqReconnect='true' -o imqPingInterval='5' 
+                                    <arg line="imqobjmgr add -t qf -l 'queueConnectionFactory' -o imqReconnect='true' -o imqPingInterval='5'
                                      -o imqDefaultUsername='test' -o imqDefaultPassword='test'
                                      -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
                                 </exec>
@@ -214,6 +214,53 @@
                         </configuration>
                         <goals>
                             <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>checkstyle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>
+                    <suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>
+                    <headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>
+                    <enableRSS>false</enableRSS>
+                    <linkXRef>true</linkXRef>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <failsOnViolation>true</failsOnViolation>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <enableRulesSummary>true</enableRulesSummary>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <filters>
+                        <filter>src/assemble/filter.properties</filter>
+                    </filters>
+                    <descriptors>
+                        <descriptor>src/assemble/distribution.xml</descriptor>
+                    </descriptors>
+                    <tarLongFileMode>gnu</tarLongFileMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>assemble</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>assembly</goal>
                         </goals>
                     </execution>
                 </executions>

@@ -31,7 +31,6 @@ import java.io.Serializable;
  */
 public class JMSEventMessage extends EventMessage {
 
-
     /**
      * A JMS message property which contains the name of the cache to operate on.
      */
@@ -46,7 +45,7 @@ public class JMSEventMessage extends EventMessage {
      * When the ObjectMessage is of type net.sf.ehcache.Element, the mimeType is ignored. 
      * <li>TextMessage - Stored in the cache as value of MimeTypeByteArray. The mimeType is stored as type of <code>text/plain</code>.
      * <li>BytesMessage - Stored in the cache as value of MimeTypeByteArray. The mimeType is stored as type of <code>application/octet-stream</code>.
-     * </ol>
+     * </ul>
      * Other message types are not supported.
      * <p/>
      * To send XML use a TextMessage and set the mimeType to <code>application/xml</code>.It will be stored in the cache
@@ -77,7 +76,8 @@ public class JMSEventMessage extends EventMessage {
 
     /**
      * @param action    one of the types from Action
-     * @param key       the key of the Element. May be null for the removeAll message type
+     * @param key       the key of the Element. May be null for the removeAll message type. For loadAll requests,
+     *                  key may actually be an ArrayList of keys.
      * @param element   may be null for removal and invalidation message types
      * @param cacheName the name of the cache in the CacheManager.
      */

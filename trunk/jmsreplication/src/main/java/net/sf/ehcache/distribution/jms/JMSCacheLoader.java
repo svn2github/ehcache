@@ -1,27 +1,44 @@
+/**
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package net.sf.ehcache.distribution.jms;
 
-import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import static net.sf.ehcache.distribution.jms.JMSUtil.CACHE_MANAGER_UID;
 import static net.sf.ehcache.distribution.jms.JMSUtil.localCacheManagerUid;
+import net.sf.ehcache.loader.CacheLoader;
 import net.sf.jsr107cache.CacheException;
 
-import javax.jms.QueueConnection;
-import javax.jms.Queue;
-import javax.jms.QueueSession;
-import javax.jms.QueueSender;
-import javax.jms.JMSException;
-import javax.jms.ExceptionListener;
-import javax.jms.TemporaryQueue;
-import javax.jms.ObjectMessage;
 import javax.jms.DeliveryMode;
+import javax.jms.ExceptionListener;
+import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
-import java.util.Map;
-import java.util.Collection;
-import java.util.logging.Logger;
-import java.util.logging.Level;
+import javax.jms.ObjectMessage;
+import javax.jms.Queue;
+import javax.jms.QueueConnection;
+import javax.jms.QueueSender;
+import javax.jms.QueueSession;
+import javax.jms.TemporaryQueue;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Greg Luck
@@ -29,11 +46,12 @@ import java.io.Serializable;
  */
 public class JMSCacheLoader implements CacheLoader {
 
+    private static final int HIGHEST_JMS_PRORITY = 9;
     private static final Logger LOG = Logger.getLogger(JMSCacheLoader.class.getName());
-
+    
     private AcknowledgementMode acknowledgementMode;
-    private Status status;
 
+    private Status status;
     private QueueConnection getQueueConnection;
     private Queue getQueue;
     private QueueSender getQueueSender;
@@ -42,6 +60,15 @@ public class JMSCacheLoader implements CacheLoader {
     private String defaultLoaderArgument;
     private Ehcache cache;
 
+    /**
+     * Constructor.
+     * @param cache
+     * @param defaultLoaderArgument
+     * @param getQueueConnection
+     * @param getQueue
+     * @param acknowledgementMode
+     * @param timeoutMillis
+     */
     public JMSCacheLoader(Ehcache cache, String defaultLoaderArgument,
                           QueueConnection getQueueConnection,
                           Queue getQueue,
@@ -80,7 +107,8 @@ public class JMSCacheLoader implements CacheLoader {
      * JCache will call through to the load(key) method, rather than this method, where the argument is null.
      *
      * @param key      the key to load the object for.
-     * @param argument can be anything that makes sense to the loader. The argument is converted to a String with toString()
+     * @param argument can be anything that makes sense to the loader.
+     * The argument is converted to a String with toString()
      * to use for the JMS StringProperty loaderArgument
      * @return the Object loaded
      * @throws net.sf.jsr107cache.CacheException
@@ -88,31 +116,33 @@ public class JMSCacheLoader implements CacheLoader {
      */
     public Object load(Object key, Object argument) throws CacheException {
         Serializable keyAsSerializable = (Serializable) key;
-        Serializable argumentAsSerializable = (Serializable) argument;
+        Serializable effectiveLoaderArgument = effectiveLoaderArgument(argument);
 
-        //todo handle non-Java responders.
+        JMSEventMessage jmsEventMessage = new JMSEventMessage(Action.GET,
+                    keyAsSerializable, null, cache.getName(), effectiveLoaderArgument);
 
-        Serializable effectiveLoaderArgument;
-        if (argument == null) {
-            effectiveLoaderArgument = defaultLoaderArgument;
-        } else {
-            effectiveLoaderArgument = argumentAsSerializable;    
-        }
+        return loadFromJMS(jmsEventMessage);
+    }
 
-
+    /**
+     * A common loader which handles the JMS interactions.
+     * @param jmsEventMessage
+     * @return
+     * @throws CacheException
+     */
+    protected Object loadFromJMS(JMSEventMessage jmsEventMessage) throws CacheException {
         Object value;
-
         MessageConsumer replyReceiver = null;
         TemporaryQueue temporaryReplyQueue = null;
         try {
-            JMSEventMessage jmsEventMessage = new JMSEventMessage(Action.GET,
-                    keyAsSerializable, null, cache.getName(), effectiveLoaderArgument);
+
+
             ObjectMessage loadRequest = getQueueSession.createObjectMessage(jmsEventMessage);
             temporaryReplyQueue = getQueueSession.createTemporaryQueue();
             replyReceiver = getQueueSession.createConsumer(temporaryReplyQueue);
             loadRequest.setJMSReplyTo(temporaryReplyQueue);
             loadRequest.setIntProperty(CACHE_MANAGER_UID, localCacheManagerUid(cache));
-            getQueueSender.send(loadRequest, DeliveryMode.NON_PERSISTENT, 9, timeoutMillis);
+            getQueueSender.send(loadRequest, DeliveryMode.NON_PERSISTENT, HIGHEST_JMS_PRORITY, timeoutMillis);
 
             //must send first before getting id
             String initialMessageId = loadRequest.getJMSMessageID();
@@ -123,10 +153,14 @@ public class JMSCacheLoader implements CacheLoader {
                 return null;
             }
             String messageId = reply.getJMSCorrelationID();
-            LOG.info("Initial ID: " + initialMessageId + ". Reply Correlation ID. " + messageId);
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Initial ID: " + initialMessageId + ". Reply Correlation ID. " + messageId);
+            }
 
             String responder = reply.getStringProperty("responder");
-            LOG.info("Responder: " + responder);
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Responder: " + responder);
+            }
             assert initialMessageId.equals(messageId) : "The load request received an uncorrelated request. " +
                         "Request ID was " + messageId;
             value = reply.getObject();
@@ -156,7 +190,7 @@ public class JMSCacheLoader implements CacheLoader {
      *
      */
     public Map loadAll(Collection keys) throws CacheException {
-        return null;       //todo
+        return loadAll(keys, null);
     }
 
     /**
@@ -164,14 +198,38 @@ public class JMSCacheLoader implements CacheLoader {
      * <p/>
      * JCache will use the loadAll(key) method where the argument is null.
      *
-     * @param keys     the keys to load objects for
-     * @param argument can be anything that makes sense to the loader
+     * @param keys a <code>Collection</code> of keys to load objects for. Each key must be <code>Serializable</code>.
+     * @param argument can be anything that makes sense to the loader. It must be <code>Serializable</code>.
      * @return a map of Objects keyed by the collection of keys passed in.
      * @throws net.sf.jsr107cache.CacheException
      *
      */
     public Map loadAll(Collection keys, Object argument) throws CacheException {
-        return null;        //todo
+
+        Serializable effectiveLoaderArgument;
+        effectiveLoaderArgument = effectiveLoaderArgument(argument);
+
+        ArrayList<Serializable> requestList = new ArrayList<Serializable>();
+        for (Object key : keys) {
+            Serializable keyAsSerializable = (Serializable) key;
+            requestList.add(keyAsSerializable);
+        }
+
+        Map responseMap;
+        JMSEventMessage jmsEventMessage = new JMSEventMessage(Action.GET,
+                    requestList, null, cache.getName(), effectiveLoaderArgument);
+        responseMap = (Map) loadFromJMS(jmsEventMessage);
+        return responseMap;
+    }
+
+    private Serializable effectiveLoaderArgument(Object argument) {
+        Serializable effectiveLoaderArgument;
+        if (argument == null) {
+            effectiveLoaderArgument = defaultLoaderArgument;
+        } else {
+            effectiveLoaderArgument = (Serializable) argument;
+        }
+        return effectiveLoaderArgument;
     }
 
     /**
@@ -238,7 +296,11 @@ public class JMSCacheLoader implements CacheLoader {
      */
     public void dispose() throws net.sf.ehcache.CacheException {
         try {
+            getQueueConnection.stop();
+            getQueueSession.close();
+            getQueueSender.close();
             getQueueConnection.close();
+
         } catch (JMSException e) {
             throw new net.sf.ehcache.CacheException("Problem stopping queue connection: "  + e.getMessage(), e);
         }

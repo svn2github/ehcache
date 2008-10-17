@@ -38,10 +38,10 @@ public class TestActiveMQInitialContextFactory extends ActiveMQInitialContextFac
 	        
         Map<String, Object> data = new ConcurrentHashMap<String, Object>();
         
-        String topicConnectionfactoryBindingName = (String)environment.get(JMSUtil.TOPIC_CONNECTION_FACTORY_BINDING_NAME);
+        String replicationTopicConnectionFactoryBindingName = (String)environment.get(JMSUtil.TOPIC_CONNECTION_FACTORY_BINDING_NAME);
 
         try {
-        	data.put(topicConnectionfactoryBindingName, createConnectionFactory(environment));
+        	data.put(replicationTopicConnectionFactoryBindingName, createConnectionFactory(environment));
         } catch (URISyntaxException e) {
         	throw new NamingException("Error initialisating TopicConnectionFactory with message " + e.getMessage());
         }

@@ -24,21 +24,17 @@ import net.sf.ehcache.distribution.CachePeer;
 import static net.sf.ehcache.distribution.jms.JMSUtil.CACHE_MANAGER_UID;
 import static net.sf.ehcache.distribution.jms.JMSUtil.localCacheManagerUid;
 
+import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
-import javax.jms.TopicSubscriber;
+import javax.jms.Queue;
+import javax.jms.QueueConnection;
+import javax.jms.QueueReceiver;
+import javax.jms.QueueSession;
+import javax.jms.Topic;
+import javax.jms.TopicConnection;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
-import javax.jms.QueueSession;
-import javax.jms.ConnectionConsumer;
-import javax.jms.QueueSender;
-import javax.jms.TopicConnection;
-import javax.jms.QueueConnection;
-import javax.jms.Topic;
-import javax.jms.Queue;
-import javax.jms.MessageConsumer;
-import javax.jms.QueueReceiver;
-import javax.jms.Session;
-import javax.jms.ExceptionListener;
+import javax.jms.TopicSubscriber;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -64,8 +60,22 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
     private QueueConnection getQueueConnection;
     private Queue getQueue;
     private AcknowledgementMode acknowledgementMode;
+    private QueueReceiver getQueueRequestReceiver;
+    private TopicSession topicPublisherSession;
+    private TopicPublisher topicPublisher;
+    private TopicSubscriber topicSubscriber;
+    private QueueSession getQueueSession;
 
 
+    /**
+     * Constructor
+     * @param cacheManager
+     * @param replicationTopicConnection
+     * @param replicationTopic
+     * @param getQueueConnection
+     * @param getQueue
+     * @param acknowledgementMode
+     */
     public JMSCacheManagerPeerProvider(CacheManager cacheManager,
                                        TopicConnection replicationTopicConnection,
                                        Topic replicationTopic,
@@ -106,13 +116,6 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
      */
     public void init() {
 
-        TopicSession topicPublisherSession;
-        TopicPublisher topicPublisher;
-        TopicSubscriber topicSubscriber;
-
-        QueueSession getQueueSession;
-        QueueReceiver getQueueRequestReceiver;
-
         try {
 
             topicPublisherSession = replicationTopicConnection.createTopicSession(false, acknowledgementMode.toInt());
@@ -140,12 +143,14 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
             getQueueRequestReceiver = getQueueSession.createReceiver(getQueue,  messageSelector);
 
 
+
             getQueueConnection.start();
 
 
         } catch (JMSException e) {
             throw new CacheException("Exception while creating JMS connections: " + e.getMessage(), e);
         }
+
 
         JMSCachePeer peer = new JMSCachePeer(cacheManager, topicPublisher, topicPublisherSession, getQueueSession);
 
@@ -169,7 +174,13 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
     public void dispose() throws CacheException {
 
         try {
+            topicPublisher.close();
+            topicSubscriber.close();
+            topicPublisherSession.close();
             replicationTopicConnection.close();
+
+            getQueueRequestReceiver.close();
+            getQueueSession.close();
             getQueueConnection.close();
 
         } catch (JMSException e) {

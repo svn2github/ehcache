@@ -42,8 +42,6 @@ import java.util.logging.Level;
 public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProviderFactory {
 
 
-    private boolean useJMSCacheLoader;
-
     private static final Logger LOG = Logger.getLogger(JMSCacheManagerPeerProviderFactory.class.getName());
 
 
@@ -69,8 +67,10 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
         String providerURL = PropertyUtil.extractAndLogProperty(JMSUtil.PROVIDER_URL, properties);
         String replicationTopicBindingName = PropertyUtil.extractAndLogProperty(JMSUtil.REPLICATION_TOPIC_BINDING_NAME, properties);
         String getQueueBindingName = PropertyUtil.extractAndLogProperty(JMSUtil.GET_QUEUE_BINDING_NAME, properties);
-        String getQueueConnectionFactoryBindingName = PropertyUtil.extractAndLogProperty(JMSUtil.GET_QUEUE_CONNECTION_FACTORY_BINDING_NAME, properties);
-        String topicConnectionFactoryBindingName = PropertyUtil.extractAndLogProperty(JMSUtil.TOPIC_CONNECTION_FACTORY_BINDING_NAME, properties);
+        String getQueueConnectionFactoryBindingName =
+                PropertyUtil.extractAndLogProperty(JMSUtil.GET_QUEUE_CONNECTION_FACTORY_BINDING_NAME, properties);
+        String replicationTopicConnectionFactoryBindingName =
+                PropertyUtil.extractAndLogProperty(JMSUtil.TOPIC_CONNECTION_FACTORY_BINDING_NAME, properties);
         String userName = PropertyUtil.extractAndLogProperty(JMSUtil.USERNAME, properties);
         String password = PropertyUtil.extractAndLogProperty(JMSUtil.PASSWORD, properties);
         String acknowledgementMode = PropertyUtil.extractAndLogProperty(JMSUtil.ACKNOWLEDGEMENT_MODE, properties);
@@ -92,11 +92,11 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
         try {
 
             context = JMSUtil.createInitialContext(securityPrincipalName, securityCredentials, initialContextFactoryName,
-                    urlPkgPrefixes, providerURL, replicationTopicBindingName, topicConnectionFactoryBindingName,
+                    urlPkgPrefixes, providerURL, replicationTopicBindingName, replicationTopicConnectionFactoryBindingName,
                     getQueueBindingName, getQueueConnectionFactoryBindingName);
 
 
-            topicConnectionFactory = (TopicConnectionFactory) JMSUtil.lookup(context, topicConnectionFactoryBindingName);
+            topicConnectionFactory = (TopicConnectionFactory) JMSUtil.lookup(context, replicationTopicConnectionFactoryBindingName);
             replicationTopic = (Topic) JMSUtil.lookup(context, replicationTopicBindingName);
 
             queueConnectionFactory = (QueueConnectionFactory) JMSUtil.lookup(context, getQueueConnectionFactoryBindingName);
@@ -119,9 +119,6 @@ public class JMSCacheManagerPeerProviderFactory extends CacheManagerPeerProvider
     }
 
     private void validateJMSCacheLoaderConfiguration(String getQueueBindingName, String getQueueConnectionFactoryBindingName) {
-        if (getQueueConnectionFactoryBindingName != null || getQueueBindingName != null) {
-            useJMSCacheLoader = true;
-        }
         if (getQueueConnectionFactoryBindingName != null && getQueueBindingName == null) {
             throw new CacheException("The 'getQueueBindingName is null'. Please configure.");
         }
