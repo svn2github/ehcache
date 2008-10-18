@@ -7,7 +7,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.sf.ehcache</groupId>
-    <artifactId>ehcache-jmssreplication</artifactId>
+    <artifactId>ehcache-jmsreplication</artifactId>
     <name>JMS Replication</name>
     <version>0.1</version>
     <packaging>jar</packaging>
@@ -145,6 +145,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
+                    <skipTests>true</skipTests>
                     <includes>
                         <include>**/*UnitTest.java</include>
                     </includes>
@@ -175,7 +176,6 @@
                     </systemProperties>
                 </configuration>
                 <executions>
-                    <!--You need open mq running to run these-->
                     <execution>
                         <id>integration-tests</id>
                         <phase>integration-test</phase>
@@ -183,6 +183,8 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
+                            <skip>true</skip>
+                            <skipTests>true</skipTests>
                             <includes>
                                 <include>**/*IntegrationTest.java</include>
                                 <include>**/*JMSReplicationTest.java</include>
@@ -268,4 +270,34 @@
 
         </plugins>
     </build>
+
+
+    <!-- Note: site URL repeated here to ensure correct deployment path -->
+    <distributionManagement>
+        <!--
+          The server id here defined must also appear in ~/.m2/settings.xml with username
+
+          For some crazy reason either sourceforge or maven-deploy or wagon-ssh is suddenly not creating
+          missing directories when uploading such as the new version number directory.
+
+          Not sure why. Changing deploy and wagon versions is not helping.
+        -->
+        <snapshotRepository>
+            <id>sourceforge.net</id>
+            <name>SF EHCache Snapshot Repository</name>
+            <url>scp://web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs/snapshotrepository</url>
+        </snapshotRepository>
+
+        <repository>
+            <id>sourceforge.net</id>
+            <name>SF EHCache Repository</name>
+            <url>scp://web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs/repository</url>
+        </repository>
+
+        <site>
+            <id>sourceforge.net</id>
+            <name>SF EHCache Site</name>
+            <url>scp://shell.sf.net:/home/groups/e/eh/ehcache/htdocs</url>
+        </site>
+    </distributionManagement>
 </project>
