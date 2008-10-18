@@ -91,7 +91,52 @@
                     <source>1.5</source>
                     <target>1.5</target>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>compile_for_javadoc</id>
+                        <phase>pre-site</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <doclet>ydoc.doclets.YStandard</doclet>
+                    <docletPath>
+                        ${ydoc.home}/lib/ydoc.jar${path.separator}${ydoc.home}/lib/class2svg.jar${path.separator}${ydoc.home}/resources
+                    </docletPath>
+                    <additionalparam>-license ${ydoc.license} -filter ydoc.filters.ExcludeFilter -filterpath
+                        ${ydoc.home}/lib/ydoc.jar -umlautogen
+                    </additionalparam>
+                    <author>true</author>
+                    <bottom>true</bottom>
+                    <!--<destDir>${project.build.directory}/site/javadoc</destDir>-->
+                    <header><![CDATA[<a href="/" target="_top">ehcache</a>]]></header>
+                    <minmemory>128m</minmemory>
+                    <maxmemory>512</maxmemory>
+                    <overview>${basedir}/src/main/java/net/sf/ehcache/overview.html</overview>
+                    <use>true</use>
+                    <version>true</version>
+                    <windowtitle>${project.name} ${project.version} API</windowtitle>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>generate-javadoc</id>
+                        <phase>pre-site</phase>
+                        <goals>
+                            <goal>javadoc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -110,6 +155,18 @@
                         </goals>
                     </execution>
 
+                    <execution>
+                        <id>singlepageguide</id>
+                        <phase>pre-site</phase>
+                        <configuration>
+                            <tasks>
+                                <ant target="singlepageguide"/>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
 
                     <execution>
                         <id>prepare-and-start-orion</id>
@@ -227,30 +284,30 @@
             </plugin>
 
             <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-checkstyle-plugin</artifactId>-->
-                <!-- Doesn't work when not internet connected -->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>verify</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>checkstyle</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-                <!--<configuration>-->
-                    <!--<configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>-->
-                    <!--<suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>-->
-                    <!--<headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>-->
-                    <!--<enableRSS>false</enableRSS>-->
-                    <!--<linkXRef>true</linkXRef>-->
-                    <!--<enableRulesSummary>false</enableRulesSummary>-->
-                    <!--<consoleOutput>true</consoleOutput>-->
-                    <!--<failsOnError>true</failsOnError>-->
-                    <!--<failsOnViolation>true</failsOnViolation>-->
-                    <!--<includeTestSourceDirectory>true</includeTestSourceDirectory>-->
-                    <!--<enableRulesSummary>true</enableRulesSummary>-->
-                <!--</configuration>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-checkstyle-plugin</artifactId>-->
+            <!-- Doesn't work when not internet connected -->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<phase>verify</phase>-->
+            <!--<goals>-->
+            <!--<goal>checkstyle</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--<configuration>-->
+            <!--<configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>-->
+            <!--<suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>-->
+            <!--<headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>-->
+            <!--<enableRSS>false</enableRSS>-->
+            <!--<linkXRef>true</linkXRef>-->
+            <!--<enableRulesSummary>false</enableRulesSummary>-->
+            <!--<consoleOutput>true</consoleOutput>-->
+            <!--<failsOnError>true</failsOnError>-->
+            <!--<failsOnViolation>true</failsOnViolation>-->
+            <!--<includeTestSourceDirectory>true</includeTestSourceDirectory>-->
+            <!--<enableRulesSummary>true</enableRulesSummary>-->
+            <!--</configuration>-->
             <!--</plugin>-->
 
 
@@ -306,49 +363,6 @@
                 </reportSets>
             </plugin>
 
-
-            <!--Javadoc -->
-            <!--Note: the yDoc doclet requires the following profiles configured in ~/.m2/settings.xml-->
-            <!--and the symlinks of ydoc.home and ydoc.license properly set for the local build system.-->
-            <!--<profiles>-->
-            <!--<profile>-->
-            <!--<id>default</id>-->
-            <!--<activation>-->
-            <!--<activeByDefault />-->
-            <!--</activation>-->
-            <!--<properties>-->
-            <!--<ydoc.home>${user.home}/ydoc</ydoc.home>-->
-            <!--<ydoc.license>${user.home}/licenses/ydoc.license</ydoc.license>-->
-            <!--</properties>-->
-            <!--</profile>-->
-            <!--</profiles>-->
-            <!--<activeProfiles>-->
-            <!--<activeProfile>default</activeProfile>-->
-            <!--</activeProfiles>-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.3</version>
-                <configuration>
-                    <doclet>ydoc.doclets.YStandard</doclet>
-                    <docletPath>
-                        ${ydoc.home}/lib/ydoc.jar${path.separator}${ydoc.home}/lib/class2svg.jar${path.separator}${ydoc.home}/resources
-                    </docletPath>
-                    <additionalparam>-license ${ydoc.license} -filter ydoc.filters.ExcludeFilter -filterpath
-                        ${ydoc.home}/lib/ydoc.jar -umlautogen
-                    </additionalparam>
-                    <author>true</author>
-                    <bottom>true</bottom>
-                    <destDir>${project.build.directory}/site/javadoc</destDir>
-                    <header><![CDATA[<a href="/" target="_top">ehcache</a>]]></header>
-                    <minmemory>128m</minmemory>
-                    <maxmemory>512</maxmemory>
-                    <overview>${basedir}/src/main/java/net/sf/ehcache/overview.html</overview>
-                    <use>true</use>
-                    <version>true</version>
-                    <windowtitle>${project.name} ${project.version} API</windowtitle>
-                </configuration>
-            </plugin>
 
             <!--PMD and CPD -->
             <plugin>
@@ -414,16 +428,20 @@
         <!--
           The server id here defined must also appear in ~/.m2/settings.xml with username
         -->
+        <repository>
+            <id>sourceforge.net</id>
+            <name>SF EHCache Repository</name>
+            <url>scp://web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs/repository</url>
+        </repository>
         <snapshotRepository>
             <id>sourceforge.net</id>
             <name>SF EHCache Snapshot Repository</name>
-            <url>scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs/snapshotrepository</url>
-
+            <url>scp://web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs/snapshotrepository</url>
         </snapshotRepository>
         <site>
             <id>sourceforge.net</id>
             <name>SF EHCache Site</name>
-            <url>scp://gregluck,ehcache@web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs</url>
+            <url>scp://web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs</url>
         </site>
     </distributionManagement>
 

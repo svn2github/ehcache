@@ -50,6 +50,15 @@ Welcome to ehcache
    Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. The documentation is
     {{{http://ehcache.sourceforge.net/documentation//src/site/apt/documentation/distributed_caching_with_jms.html}here}}.
 
+** 16 October 2008: ehcache-server 0.5 released
+
+   This release of the SOAP and RESTful cache serverconsolidates minor changes and improvements based on feedback from
+    users , since the 0.1 release. The release is packaged both as a WAR for dropping into your web container of choice,
+     and as a ready to go server with Glassfish V3 embedded.
+
+   Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. The documentation is
+    {{{http://ehcache.sourceforge.net/documentation/cache_server.html}here}}.
+
 ** 18 August 2008: Ehcache 1.6 development underway
 
    Ehcache-1.6 development is underway.
@@ -81,87 +90,6 @@ Welcome to ehcache
    the book covers the new RESTful and SOAP Cache Server.
 
    It is available in downloadable PDF or print versions.
-
-
-** 17 July 2008: ehcache-standalone-server 0.1 released
-
-   The standalone server provides a ready to go cache server out of the box, using the WAR from the ehcache-server module. Unix-based
-    and Windows servers are supported.
-
-   Start it with <<<java -jar ../lib/ehcache-standalone-server-0.1.jar 8080 ../war>>>
-   or the jsvc wrapper with <<<daemon.sh start>>>.
-
-** 12 July 2008: ehcache-server-0.1 released
-
-   This is the first version of an ehcache W3C Web Services server, packaged as a WAR. This version is made available for testing.
-   See the {{{http://ehcache.sourceforge.net/documentation/cache_server.html} documentation}}.
-
-   Two APIs are supported: A soap API specified in {{{http://ehcache.sf.net/wsdl/EhcacheWebServiceEndpointService.wsdl}EhcacheWebServiceEndpointService.wsdl}}
-   and a RESTful, resource oriented API. This release provides a feature-complete soap API. The RESTful API is not yet feature complete.
-
-** 12 July 2008: ehcache-debugger-1.5.0 released
-
-   This is a standalone ehcache debugger used to monitor RMI cache clusters. It is available from Maven central or the downloads page.
-
-** 12 July 2008: ehcache-1.5.0 released
-
-   Ehcache 1.5.0 is a major new release. 
-
-*** New Features
-
-    * Added JGroups Implementation. Thanks to Pierre Monestie for the patch(es) for this. Though new to the
-      core distribution JGroups replication has been in production use in a large cluster for the last year.
-      JGroups has a "provided" scope. So, anyone wishing to use this form of replication will need to add
-      it to their dependencies.
-
-    * CachingFilter performance improvements
-
-    * Constructs performance improvements
-
-    * added loadAll() to the loader implementation to enable preload without specifying keys.
-
-    * diskPersistent now can be used with caches that use only MemoryStore in normal use but want to persist to disk
-
-    * DiskStores are now optional. The element is now non-mandatory. This will simplify configurations particularly
-                where multiple CacheManagers are being used.
-              If one or more caches requires a DiskStore, and none is configured, java.io.tmpdir will be used and
-                a warning message will be logged to encourage explicity configuration of the diskStore path.
-
-    * The default RMI based cache replication can now configure a RemoteObject port so that it can be easily configured
-      to work through firewalls. This is done by adding a new property remoteListenerPort to RMICacheManagerPeerListenerFactory
-                to enable it to be specified.
-
-    * Added a new system property expansion token "ehcache.disk.store.dir" to DiskStore configuration which
-      can be used to specify the DiskStore directory on the command line or in an environment variable.
-
----
-    e.g. java -Dehcache.disk.store.dir=/u01/myapp/diskdir ...
----
-
-    * Added the ability to specify system property tokens using ${tokenname} in ehcache.xml which are then
-                replaced when the configuration is loaded.
-
-    * Updated the remote debugger with enhanced reporting and better documentation (See Logging page in
-      the documentation).
-
-      The new version prints a list of caches with replication configured, prints notifications as they
-      happen, and periodically prints the cache name, size and total events received.
-
-      Note that the debugger is gaining more attention and is now distributed in its own tar ball. It has also moved to its own
-      pure maven build and has additional testing.
-
-
-***   Summary of Bug Fixes
-
-    * CachingFilter bug fixes for various rare edge conditions
-
-    * Major speed up to shutdown process when diskPersistent is not being used
-
-    * Fixed various shutdown exception when both Hibernate and Spring both try to destroy caches
-
-
-    See the {{{http://ehcache.sourceforge.net/changes-report.html#1.5.0}changelog}} for complete details.
-
 
  More {{{news.html}news}}...
 

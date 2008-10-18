@@ -1,15 +1,5 @@
 {Building from Source}
 
-*   Building Approach
-
-    Ehcache is transitioning, slowly, from a full ant based build to a Maven build. At present ant is used
-    to build, but using Maven Antlib for dependency resolution.
-
-    The website and documentation are built using Maven.
-
-    Because of the transition, the ant based ehcache build is in a sub-directory called core in the ehcache
-    directory.
-
 *   {Building an ehcache distribution from source}
 
     To build Ehcache from source:
@@ -31,11 +21,31 @@
 
     [[1]] The integration tests rely on a standard Tomcat to be installed. Define TOMCAT_HOME to point to a Tomcat 5 or 6 installation.
 
-    [[1]] From within the ehcache/core directory, type <<<ant test>>>
+    [[1]] From within the ehcache/core directory, type <<<mvn test>>>
 
     [[1]] If some {performance tests fail}, add a <<<-D net.sf.ehcache.speedAdjustmentFactor=x>>> System property to
             your command line, where x is how many times your machine is slower than the reference machine. Try setting
             it to 5 for a start.
+
+*   Deploying Maven Artifacts
+
+    Ehcache has a repository and snapshot repository at SourceForge in the web directory.
+
+    http://ehcache.sf.net/repository
+
+    http://ehcahce.sf.net/snapshotrepository
+
+    The repository is synced with the Maven Central Repository.
+
+
+    To deploy:
+
+---
+   mvn deploy
+---
+
+    This will fail because SourceForge has disabled ssh exec. You need to create missing directories manuallusing
+    sftp access <<<sftp gregluck,ehcache@web.sourceforge.net>>>
 
 *   {Building the Site}
 
@@ -43,7 +53,7 @@
 
     You need the following unix utilities installed:
 
-    * {Maven} 2.0.5
+    * {Maven} 2.0.7
 
     * latex or tetex
 
@@ -60,8 +70,14 @@
     With all that, build the site as below:
 
 ---
-    mvn compile site:site site:deploy
+    mvn site:site
 ---
+
+    Unfortunately, sourceforge scp is broken, since they removed the ability for ssh to execute shell commands.
+
+    The site needs to be deployed from the target/site directory using:
+
+    rsync -v --rsh="ssh -l gregluck,ehcache" -r * gregluck,ehcache@web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs    
 
 *   Deploying a release
 
@@ -72,13 +88,5 @@
 ---
 
     then manually upload to SourceForge and complete the file release process
-
-**  {Central Maven Repository}
-
----
-    mvn deploy
----
-
-    This deploys to http://ehcache.sourceforge.net/repository/ which is synced with the Maven central repository.
 
     

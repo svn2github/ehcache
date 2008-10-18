@@ -9,7 +9,7 @@ Distributed Caching using {JMS}
     own implementations. There are also several open source choices including Open MQ and Active MQ. Ehcache
     is integration tested against both of these.
 
-    The ehcache jmsreplication module lets organisations with a message queue investment leverage it for caching.
+    The ehcache {jmsreplication module} lets organisations with a message queue investment leverage it for caching.
 
     It provides:
 
@@ -73,7 +73,7 @@ Distributed Caching using {JMS}
 
 ---
 
-Configuring JMS replication.
+{Configuring JMS replication}.
 ===========================
 
 <cacheManagerPeerProviderFactory
@@ -103,7 +103,7 @@ Valid properties are:
 
     Usage is best illustrated with concrete examples for Active MQ and Open MQ.
 
-***** Configuring the JMSCacheManagerPeerProviderFactory for Active MQ
+***** Configuring the JMSCacheManagerPeerProviderFactory for {Active MQ}
 
     This configuration works with Active MQ out of the box.
     
@@ -153,7 +153,7 @@ public class ExampleActiveMQInitialContextFactory extends ActiveMQInitialContext
 
 ---
 
-***** Configuring the JMSCacheManagerPeerProviderFactory for Open MQ
+***** Configuring the JMSCacheManagerPeerProviderFactory for {Open MQ}
 
     This configuration works with an out of the box Open MQ.
 
@@ -207,7 +207,7 @@ imqobjmgr add -t t -l 'ehcache' -o 'imqDestinationName=EhcacheTopicDest' -j java
 ---
 
 
-**   External Publishers
+**   {External JMS Publishers}
 
     Anything that can publish to a message queue can also add cache entries to ehcache. These are called non-cache
     publishers.
@@ -267,7 +267,7 @@ imqobjmgr add -t t -l 'ehcache' -o 'imqDestinationName=EhcacheTopicDest' -j java
 
 
 
-***  Code Samples
+***  {Code Samples}
 
     These samples use Open MQ as the message queue and use it with out of the box defaults. They are heavily based on
     Ehcache's own JMS integration tests. See the test source for more details.
@@ -530,7 +530,7 @@ connection.stop();
 </cache>
 ---
 
-*   Configuring Message Queue Clients for Reliability
+*   Configuring Clients for {Message Queue Reliability}
 
     Ehcache replication and cache loading is designed to gracefully degrade if the message queue infrastructure
      stops. Replicates and loads will fail. But when the message queue comes back, these operations will start
@@ -541,14 +541,17 @@ connection.stop();
     For example, with Open MQ, reconnection is configured as follows:
 
      * imqReconnect='true' - without this reconnect will not happen
+
      * imqPingInterval='5' - Consumers will not reconnect until they notice the connection is down. The ping interval
+
      * does this. The default is 30. Set it lower if you want the ehcache cluster to reform more quickly.
+
      * Finally, unlimited retry attempts are recommended. This is also the default.
 
      For greater reliability consider using a message queue cluster. Most message queues support clustering. The
      cluster configuration is once again placed in the ConnectionFactory configuration.
 
-*   Known JMS Issues
+*   {Known JMS Issues}
 
 **  Active MQ Temporary Destinatons
 
@@ -564,4 +567,6 @@ connection.stop();
     The JMSCacheLoader uses temporary reply queues when loading. The Active MQ issue is readily reproduced in
     Ehcache integration testing. Accordingly, use of the JMSCacheLoader with ActiveMQ is not recommended. Open MQ
     tests fine.
+
+
 

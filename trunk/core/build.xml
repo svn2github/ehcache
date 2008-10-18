@@ -824,18 +824,14 @@
     </macrodef>
 
     <target name="prepare-book-resources">
-        <antcall target="compile"/>
-        <antcall target="ydoc"/>
+        <antcall target="copy-ydoc"/>
     </target>
 
     <!-- Produce the ydocs images for the book and singlepage guide.  -->
-    <target name="ydoc" description="Creates the javadocs">
-
+    <target name="copy-ydoc" description="Creates the javadocs" depends="javadoc">
         <copy todir="${build.dir}/book/javadoc">
-            <fileset dir="${build.dir}/site/javadoc"/>
+            <fileset dir="${build.dir}/site/apidocs"/>
         </copy>
-        <!--Relies on ydoc being created from mvn-->
-
     </target>
 
 

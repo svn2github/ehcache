@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<project name="Maven">
+<project name="Ehcache">
     <bannerLeft>
         <name>ehcache</name>
         <src>images/ehcache_logo.gif</src>
@@ -33,8 +33,8 @@
 
         <menu name="Documentation">
             <item name="Getting Started" href="documentation/getting_started.html"/>
-            <item name="Ehcache 1.5 Book" href="http://www.lulu.com/content/3553390" />
-            <item name="HTML Single Page User Guide" href="EhcacheUserGuide.html" />
+            <item name="Ehcache 1.5 Book" href="http://www.lulu.com/content/3553390"/>
+            <item name="HTML Single Page User Guide" href="EhcacheUserGuide.html"/>
             <item name="HTML Multi Page User Guide" href="documentation/index.html"/>
             <item name="Older User Guides" href="documentation/older_guides.html" collapse="true">
                 <item name="ehcache 1.4" href="http://www.lulu.com/content/1538666"/>
