@@ -10,7 +10,7 @@
     <name>Ehcache Core</name>
     <artifactId>ehcache</artifactId>
     <packaging>jar</packaging>
-    <version>1.6.0-beta1-SNAPSHOT</version>
+    <version>1.6.0-beta1</version>
 
     <dependencies>
         <dependency>

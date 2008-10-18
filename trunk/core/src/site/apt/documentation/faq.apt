@@ -401,4 +401,17 @@ java.net.ConnectException: Connection refused
     released in July 2008.
 
 
-    
+*   Active MQ Temporary Destinatons
+
+    ActiveMQ seems to have a bug in at least ActiveMQ 5.1 where it does not cleanup temporary queues, even though they have been
+    deleted. That bug appears to be long standing but was though to have been fixed.
+
+    See:
+
+    * http://www.nabble.com/Memory-Leak-Using-Temporary-Queues-td11218217.html#a11218217
+
+    * http://issues.apache.org/activemq/browse/AMQ-1255
+
+    The JMSCacheLoader uses temporary reply queues when loading. The Active MQ issue is readily reproduced in
+    Ehcache integration testing. Accordingly, use of the JMSCacheLoader with ActiveMQ is not recommended. Open MQ
+    tests fine.

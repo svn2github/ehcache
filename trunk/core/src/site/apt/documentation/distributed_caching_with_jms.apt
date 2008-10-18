@@ -1,14 +1,29 @@
 Distributed Caching using {JMS}
 
     As of version 1.6, JMS can be used as the underlying mechanism for
-    the distributed operations in ehcache.
+    the distributed operations in ehcache with the jmsreplication module.
 
-    JMS, Java Message Service is an industry standard mechanism for interacting with message queues.
-    Message queues are very mature infrastructure pieces used in many enterprise software contexts.
+    JMS, ("Java Message Service") is an industry standard mechanism for interacting with message queues.
+    Message queues themselves are a very mature piece of infrastructure used in many enterprise software contexts.
+    Because they are a required part of the Java EE specification, the large enterprise vendors all provide their
+    own implementations. There are also several open source choices including Open MQ and Active MQ. Ehcache
+    is integration tested against both of these.
 
-    JMS distribution lets organisations with a message queue investment leverage it for caching.
+    The ehcache jmsreplication module lets organisations with a message queue investment leverage it for caching.
 
-    Any message queue that has a JMS1.1 driver is supported. Integration Testing is done with two leading open source message queues: Active MQ 5 and Open Message Queue 4.
+    It provides:
+
+    * replication between cache nodes using a replication topic, in accordance with ehcache's standard replication mechanism
+
+    * pushing of data directly to cache nodes from external topic publishers, in any language. This is done by sending
+      the data to the replication topic, where it automatically picked up by the cache subscribers.
+
+    * a JMSCacheLoader, which sends cache load requests to a queue. Either an ehcache cluster node, or an external
+      queue receiver can respond.
+
+
+*   Ehcache Replication and External Publishers
+
 
     Ehcache replicates using JMS as follows:
 
@@ -17,29 +32,27 @@ Distributed Caching using {JMS}
     * Each replicated cache publishes cache <<<Element>>>s to that topic. Replication is configured per cache.
 
 
-    To set up distributed caching using JMS you need to configure a PeerProviderFactory
-    of type JMSCacheManagerPeerProviderFactory which is done globally for a CacheManager
-    For each cache that will operate distributed, you then need to add
-    a cacheEventListenerFactory of type JGroupsCacheReplicatorFactory to propagate messages.
+    To set up distributed caching using JMS you need to configure a JMSCacheManagerPeerProviderFactory
+     which is done globally for a CacheManager.
 
-    Ehcache also supports some JMS features in addition to replication:
+    For each cache that wishing to replicate, you add
+    a JGroupsCacheReplicatorFactory element to the cache element.
 
-    * Publishing to caches from any JMS client. See the Non-Cache Publishers section.
 
 [images/jms_replication.png]
 
 
-*   Configuration
+**   Configuration
 
 
-**   Message Queue Configuration
+***   Message Queue Configuration
 
     Each cluster needs to use a fixed topic name for replication. Set up a topic using the tools in your
     message queue. Out of the box, both ActiveMQ and Open MQ support auto creation of destinations, so this
     step may be optional.
 
 
-**   Ehcache Configuration
+***   Ehcache Configuration
 
     Configuration is done in the ehcache.xml.
 
@@ -54,7 +67,7 @@ Distributed Caching using {JMS}
     stacks and options available in JGroups can be set.
 
 
-*** Configuring the JMSCacheManagerPeerProviderFactory
+**** Configuring the JMSCacheManagerPeerProviderFactory
 
     Following is the configuration instructions as it appears in the sample ehcache.xml shipped with ehcache:
 
@@ -86,9 +99,11 @@ Valid properties are:
                         AUTO_ACKNOWLEDGE, DUPS_OK_ACKNOWLEDGE and SESSION_TRANSACTED. The default is AUTO_ACKNOWLEDGE.
 ---
 
+**** Example Configurations
+
     Usage is best illustrated with concrete examples for Active MQ and Open MQ.
 
-**** Configuring the JMSCacheManagerPeerProviderFactory for Active MQ
+***** Configuring the JMSCacheManagerPeerProviderFactory for Active MQ
 
     This configuration works with Active MQ out of the box.
     
@@ -138,7 +153,7 @@ public class ExampleActiveMQInitialContextFactory extends ActiveMQInitialContext
 
 ---
 
-**** Configuring the JMSCacheManagerPeerProviderFactory for Open MQ
+***** Configuring the JMSCacheManagerPeerProviderFactory for Open MQ
 
     This configuration works with an out of the box Open MQ.
 
@@ -163,7 +178,7 @@ imqobjmgr add -t t -l 'ehcache' -o 'imqDestinationName=EhcacheTopicDest' -j java
 =file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f
 ---
 
-*** Configuring the JMSCacheReplicatorFactory
+**** Configuring the JMSCacheReplicatorFactory
 
     This is the same as configuring any of the cache replicators. The class should be
         <<<net.sf.ehcache.distribution.jms.JMSCacheReplicatorFactory>>>.
@@ -192,24 +207,24 @@ imqobjmgr add -t t -l 'ehcache' -o 'imqDestinationName=EhcacheTopicDest' -j java
 ---
 
 
-*   Non-Cache Publishers
+**   External Publishers
 
     Anything that can publish to a message queue can also add cache entries to ehcache. These are called non-cache
     publishers.
 
 
-**  Required Message Properties
+***  Required Message Properties
 
     Publishers need to set up to four String properties on each message: cacheName, action, mimeType and key.
 
 
-***  {<<<cacheName>>>} Property
+****  {<<<cacheName>>>} Property
 
     A JMS message property which contains the name of the cache to operate on.
 
     If no cacheName is set the message will be <ignored>. A warning log message will indicate that the message has been ignored.
 
-***  {<<<action>>>} Property
+****  {<<<action>>>} Property
 
       A JMS message property which contains the action to perform on the cache.
 
@@ -217,7 +232,7 @@ imqobjmgr add -t t -l 'ehcache' -o 'imqDestinationName=EhcacheTopicDest' -j java
 
       If not set no action is performed. A warning log message will indicate that the message has been ignored.
 
-***  {<<<mimeType>>>} Property
+****  {<<<mimeType>>>} Property
 
       A JMS message property which contains the mimeType of the message.
       Applies to the <<<PUT>>> action. If not set the message is interpreted as follows:
@@ -240,7 +255,7 @@ imqobjmgr add -t t -l 'ehcache' -o 'imqDestinationName=EhcacheTopicDest' -j java
 
       The <<<REMOVE>>> and <<<REMOVE_ALL>>> actions do not require a <<<mimeType>>> property.
 
-***  {<<<key>>>} Property
+****  {<<<key>>>} Property
 
       The key in the cache on which to operate on. The key is of type String.
 
@@ -252,7 +267,7 @@ imqobjmgr add -t t -l 'ehcache' -o 'imqDestinationName=EhcacheTopicDest' -j java
 
 
 
-**  Code Samples
+***  Code Samples
 
     These samples use Open MQ as the message queue and use it with out of the box defaults. They are heavily based on
     Ehcache's own JMS integration tests. See the test source for more details.
@@ -409,4 +424,144 @@ connection.stop();
 ---
 
     Ehcache will remove all Elements from cache "sampleCacheAsync" in the cluster.
+
+
+
+
+*   {Using the JMSCacheLoader}
+
+    The JMSCacheLoader is a CacheLoader which loads objects into the cache by sending requests to a JMS Queue.
+
+    The loader places an ObjectMessage of type JMSEventMessage on the getQueue with an Action of type GET.
+
+    It is configured with the following String properties:
+
+    * loaderArgument - the defaultLoaderArgument, or the loaderArgument if specified on the
+     load request. To work with the JMSCacheManagerPeerProvider this should be the name of the cache to load from.
+     For custom responders, it can be anything which has meaning to the responder.
+
+    A queue responder will respond to the request. You can either create your own or use the one built-into
+    the JMSCacheManagerPeerProviderFactory, which attempts to load the queue from its cache.
+
+    The JMSCacheLoader uses JNDI to maintain message queue independence. Refer to the manual for full configuration
+    examples using ActiveMQ and Open Message Queue.
+
+    It is configured as per the following example:
+
+---
+<cacheLoaderFactory class="net.sf.ehcache.distribution.jms.JMSCacheLoaderFactory"
+                    properties="initialContextFactoryName=com.sun.jndi.fscontext.RefFSContextFactory,
+        providerURL=file:///tmp,
+        replicationTopicConnectionFactoryBindingName=MyConnectionFactory,
+        replicationTopicBindingName=ehcache,
+        getQueueConnectionFactoryBindingName=queueConnectionFactory,
+        getQueueBindingName=ehcacheGetQueue,
+        timeoutMillis=20000
+        defaultLoaderArgument=/>
+---
+    Valid properties are:
+
+    * initialContextFactoryName (mandatory) - the name of the factory used to create the message queue initial context.
+    * providerURL (mandatory) - the JNDI configuration information for the service provider to use.
+    * getQueueConnectionFactoryBindingName (mandatory) - the JNDI binding name for the QueueConnectionFactory
+    * getQueueBindingName (mandatory) - the JNDI binding name for the queue name used to do make requests.
+    * defaultLoaderArgument - (optional) - an application specific argument. If not supplied as a cache.load() parameter
+    this default value will be used. The argument is passed in the JMS request as a StringProperty called loaderArgument.
+    * timeoutMillis - time in milliseconds to wait for a reply.
+    * securityPrincipalName - the JNDI java.naming.security.principal
+    * securityCredentials - the JNDI java.naming.security.credentials
+    * urlPkgPrefixes - the JNDI java.naming.factory.url.pkgs
+    * userName - the user name to use when creating the TopicConnection to the Message Queue
+    * password - the password to use when creating the TopicConnection to the Message Queue
+    * acknowledgementMode - the JMS Acknowledgement mode for both publisher and subscriber. The available choices are
+                            AUTO_ACKNOWLEDGE, DUPS_OK_ACKNOWLEDGE and SESSION_TRANSACTED. The default is AUTO_ACKNOWLEDGE.
+
+
+**  Example Configuration Using Active MQ
+
+---
+<cache name="sampleCacheNorep"
+       maxElementsInMemory="1000"
+       eternal="false"
+       timeToIdleSeconds="1000"
+       timeToLiveSeconds="1000"
+       overflowToDisk="false">
+       <cacheEventListenerFactory class="net.sf.ehcache.distribution.jms.JMSCacheReplicatorFactory"
+                               properties="replicateAsynchronously=false, replicatePuts=false,
+                                 replicateUpdates=false, replicateUpdatesViaCopy=false,
+                                 replicateRemovals=false, loaderArgument=sampleCacheNorep"
+                                propertySeparator=","/>
+       <cacheLoaderFactory class="net.sf.ehcache.distribution.jms.JMSCacheLoaderFactory"
+        properties="initialContextFactoryName=net.sf.ehcache.distribution.jms.TestActiveMQInitialContextFactory,
+            providerURL=tcp://localhost:61616,
+            replicationTopicConnectionFactoryBindingName=topicConnectionFactory,
+            getQueueConnectionFactoryBindingName=queueConnectionFactory,
+            replicationTopicBindingName=ehcache,
+            getQueueBindingName=ehcacheGetQueue,
+            timeoutMillis=10000"/>
+</cache>
+---
+
+**  Example Configuration Using Open MQ
+
+
+---
+<cache name="sampleCacheNorep"
+   maxElementsInMemory="1000"
+   eternal="false"
+   timeToIdleSeconds="100000"
+   timeToLiveSeconds="100000"
+   overflowToDisk="false">
+   <cacheEventListenerFactory class="net.sf.ehcache.distribution.jms.JMSCacheReplicatorFactory"
+                           properties="replicateAsynchronously=false, replicatePuts=false,
+                             replicateUpdates=false, replicateUpdatesViaCopy=false,
+                             replicateRemovals=false"
+                           propertySeparator=","/>
+   <cacheLoaderFactory class="net.sf.ehcache.distribution.jms.JMSCacheLoaderFactory"
+                    properties="initialContextFactoryName=com.sun.jndi.fscontext.RefFSContextFactory,
+        providerURL=file:///tmp,
+        replicationTopicConnectionFactoryBindingName=MyConnectionFactory,
+        replicationTopicBindingName=ehcache,
+        getQueueConnectionFactoryBindingName=queueConnectionFactory,
+        getQueueBindingName=ehcacheGetQueue,
+        timeoutMillis=10000,
+        userName=test,
+        password=test"/>
+</cache>
+---
+
+*   Configuring Message Queue Clients for Reliability
+
+    Ehcache replication and cache loading is designed to gracefully degrade if the message queue infrastructure
+     stops. Replicates and loads will fail. But when the message queue comes back, these operations will start
+     up again.
+
+    For this to work, the ConnectionFactory used with the specific message queue needs to be configured correctly.
+
+    For example, with Open MQ, reconnection is configured as follows:
+
+     * imqReconnect='true' - without this reconnect will not happen
+     * imqPingInterval='5' - Consumers will not reconnect until they notice the connection is down. The ping interval
+     * does this. The default is 30. Set it lower if you want the ehcache cluster to reform more quickly.
+     * Finally, unlimited retry attempts are recommended. This is also the default.
+
+     For greater reliability consider using a message queue cluster. Most message queues support clustering. The
+     cluster configuration is once again placed in the ConnectionFactory configuration.
+
+*   Known JMS Issues
+
+**  Active MQ Temporary Destinatons
+
+    ActiveMQ seems to have a bug in at least ActiveMQ 5.1 where it does not cleanup temporary queues, even though they have been
+    deleted. That bug appears to be long standing but was though to have been fixed.
+
+    See:
+
+    * http://www.nabble.com/Memory-Leak-Using-Temporary-Queues-td11218217.html#a11218217
+
+    * http://issues.apache.org/activemq/browse/AMQ-1255
+
+    The JMSCacheLoader uses temporary reply queues when loading. The Active MQ issue is readily reproduced in
+    Ehcache integration testing. Accordingly, use of the JMSCacheLoader with ActiveMQ is not recommended. Open MQ
+    tests fine.
 

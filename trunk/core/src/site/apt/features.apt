@@ -71,7 +71,7 @@
 
  * Distributed
 
-   * {{{#Support for replication via RMI or JGroups}Support for replication via RMI or JGroups}}
+   * {{{#Support for replication via RMI or JGroups}Support for replication via RMI, JGroups, JMS or Terracotta}}
 
    * {{{#Peer Discovery}Peer Discovery}}
 
@@ -362,7 +362,7 @@
 
 ** {Support for replication via RMI or JGroups}
 
-    From ehcache 1.5, there is support for JGroups based replication using the JGroups plugin which is shipped with the core distribution.
+    Ehcache 1.6 supports replication via RMI, JGroups, JMS or Terracotta.
 
 ** {Peer Discovery}
 
