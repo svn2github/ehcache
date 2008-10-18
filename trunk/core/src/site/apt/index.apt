@@ -16,7 +16,39 @@ Welcome to ehcache
 
 * Latest News
 
+** 18 October 2008: Ehcache 1.6-beta1 released.
 
+   The 1.6 release is a cleanup release which sets the foundation for future development.
+   It updates the required Java version to 1.5, removes consequently redundant libraries and
+   removes long deprecated methods. It also makes some fine tuning to the CacheLoader API.
+
+   Finally, this release completes ehcache's long migration to a pure maven build. As part of that,
+   JGRoups replication has been broken out into its own module.
+
+   See the {{{http://ehcache.sourceforge.net/changes-report.html#1.5.0}changelog}} for complete details.
+
+   Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. The documentation is
+    {{{http://ehcache.sourceforge.net/documentation//src/site/apt/documentation/}here}}.
+
+** 18 October 2008: ehcache-jmsreplication 0.1 released
+
+    This is the first release of JMS replication for ehcache. Thanks to Benoit Perroud for getting this going
+    with a code contribution.
+
+    It provides:
+
+    * replication between cache nodes using a replication topic, in accordance with ehcache's standard replication mechanism
+
+    * pushing of data directly to cache nodes from external topic publishers, in any language. This is done by sending
+      the data to the replication topic, where it automatically picked up by the cache subscribers.
+
+    * a JMSCacheLoader, which sends cache load requests to a queue. Either an ehcache cluster node, or an external
+      queue receiver can respond.
+
+   jmsreplication is it's own Maven module and downloadable distribution.
+
+   Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. The documentation is
+    {{{http://ehcache.sourceforge.net/documentation//src/site/apt/documentation/distributed_caching_with_jms.html}here}}.
 
 ** 18 August 2008: Ehcache 1.6 development underway
 

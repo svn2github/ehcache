@@ -31,9 +31,6 @@
     <!-- Set up project.class.path -->
     <path id="project.class.path">
         <path refid="dependency.classpath"/>
-        <!--Overcome Maven Antlib bugs -->
-        <path location="tools/jmxremote-1_0_1.jar"/>
-        <path location="tools/jmxri-1.2.1.jar"/>
     </path>
 
     <target name="clean" description="Cleans the build directory">
@@ -332,8 +329,6 @@
     </target>
 
     <artifact:dependencies filesetId="runtime-dependencies.fileset">
-        <dependency groupId="commons-logging" artifactId="commons-logging" version="1.0.4"/>
-        <dependency groupId="backport-util-concurrent" artifactId="backport-util-concurrent" version="3.0"/>
         <dependency groupId="net.sf.jsr107cache" artifactId="jsr107cache" version="1.0"/>
     </artifact:dependencies>
 

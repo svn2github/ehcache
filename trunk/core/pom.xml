@@ -161,7 +161,7 @@
                     <disableXmlReport>true</disableXmlReport>
                     <printSummary>true</printSummary>
                     <!--<reportFormat>plain</reportFormat>-->
-                    <redirectOutputToFile>true</redirectOutputToFile>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <systemProperties>
                         <property>
                             <name>java.awt.headless</name>
@@ -344,12 +344,9 @@
                     <minmemory>128m</minmemory>
                     <maxmemory>512</maxmemory>
                     <overview>${basedir}/src/main/java/net/sf/ehcache/overview.html</overview>
-                    <packagenames>net.sf.*</packagenames>
                     <use>true</use>
                     <version>true</version>
                     <windowtitle>${project.name} ${project.version} API</windowtitle>
-                    <tag name="noinspection" description="IntelliJ Inspection Ignore tag"
-                         enabled="false"/>
                 </configuration>
             </plugin>
 
@@ -358,12 +355,12 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
                 <configuration>
-                    <targetjdk>1.5</targetjdk>
                     <rulesets>
                         <ruleset>/rulesets/basic.xml</ruleset>
                     </rulesets>
                     <format>xml</format>
-                    <linkXref>true</linkXref>
+                    <targetJdk>1.5</targetJdk>
+                    <linkXRef>true</linkXRef>
                     <sourceEncoding>utf-8</sourceEncoding>
                     <minimumTokens>100</minimumTokens>
                     <outputDirectory>${project.reporting.outputDirectory}</outputDirectory>
@@ -404,7 +401,7 @@
                 <artifactId>jxr-maven-plugin</artifactId>
                 <configuration>
                     <outputDirectory>${project.build.directory}/site</outputDirectory>
-                    <name>ehcache</name>
+                    <docTitle>ehcache</docTitle>
                 </configuration>
             </plugin>
 
