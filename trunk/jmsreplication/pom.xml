@@ -159,7 +159,7 @@
                     <childDelegation>false</childDelegation>
                     <disableXmlReport>true</disableXmlReport>
                     <printSummary>false</printSummary>
-                    <redirectOutputToFile>true</redirectOutputToFile>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <systemProperties>
                         <property>
                             <name>java.awt.headless</name>
@@ -240,7 +240,7 @@
                     <linkXRef>true</linkXRef>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
-                    <failsOnViolation>true</failsOnViolation>
+                    <failOnViolation>true</failOnViolation>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <enableRulesSummary>true</enableRulesSummary>
                 </configuration>
