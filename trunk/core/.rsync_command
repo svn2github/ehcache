@@ -1,1 +1,0 @@
-rsync -r * gregluck,ehcache@web.sourceforge.net:htdocs

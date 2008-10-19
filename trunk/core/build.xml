@@ -1,5 +1,19 @@
 <project name="ehcache" default="build" xmlns:artifact="urn:maven-artifact-ant">
 
+
+    <!-- The following functions are now in Maven:
+
+    1. Compiling
+    2. Running tests
+    3. checkstyle
+    4. Building the distribution
+
+    What's left:
+    1. Single Page Guide and Book. Run "mvn compile site" first.
+    2. Deploying to, starting and stopping the app servers. Wire the app server of choice into the mvn pre-integration
+    -test and post-integration-test steps
+    -->
+
     <!-- Load Maven antlib and make pom.xml available as maven.project -->
     <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="urn:maven-artifact-ant">
         <classpath>
@@ -33,290 +47,14 @@
         <path refid="dependency.classpath"/>
     </path>
 
-    <target name="clean" description="Cleans the build directory">
-        <delete dir="${build.dir}"/>
-        <!-- Stop the last installed version from coming into the ant classpath.  -->
-        <delete dir="${user.home}/.m2/repository/net/sf/ehcache/${name}/${version}"/>
-    </target>
-
-    <!-- Use this for doing releases -->
-    <target name="build" depends="clean, dist-tgz, buildnumber"
-            description="Builds a clean distribution"/>
-
-    <!-- This is primarily used to make it easy to keep a log of commits, as this file will change for each commit -->
-    <target name="buildnumber">
-        <buildnumber/>
-    </target>
-
-    <!-- Generate Clover code coverage report -->
-    <target name="clover"
-            depends="clean, with.clover, test, clover.html, clover-check-coverage"
-            description="Runs tests and test coverage">
-        <echo message="Use ant build to build a distribution"/>
-    </target>
-
-    <target name="qa">
-        <echo message="Moved to maven. Use mvn validate."/>
-    </target>
-
-    <!-- compiles -->
-    <target name="compile" depends="compile-src, rmic, compile-tests"
-            description="Performs a compile"/>
-
-
-    <!-- Runs checkstyle over the java source -->
-    <target name="checkstyle">
-        <echo message="Moved to maven. Use mvn validate."/>
-    </target>
-
-    <target name="generate-checkstyle-config">
-        <mkdir dir="${build.log.dir}"/>
-        <!-- Make hardcoded version available to IDE plugin and maven -->
-        <copy file="${checkstyle.config}" todir="${build.log.dir}">
-            <filterchain>
-                <expandproperties/>
-            </filterchain>
-        </copy>
-    </target>
-
-
-    <!-- Compiles the source classes -->
-    <target name="compile-src" description="compile src files">
-        <mkdir dir="${build.classes.dir}"/>
-        <javac destdir="${build.classes.dir}"
-               target="1.5"
-               debug="${compiler.debug}"
-               deprecation="${compiler.deprecation}"
-               source="1.5">
-            <src location="${src.java.dir}"/>
-            <classpath refid="project.class.path"/>
-        </javac>
-        <copy file="src/main/resources/ehcache-failsafe.xml" todir="${build.classes.dir}"/>
-        <copy todir="${build.classes.dir}">
-            <fileset dir="${src.resources.dir}/jcache"/>
-        </copy>
-    </target>
-
-    <target name="rmic">
-        <rmic base="${build.classes.dir}" includes="**/RMICachePeer.class"
-              excludes="**/*CLOVER*"/>
-    </target>
-
-    <target name="compile-tests" depends="compile-src">
-        <mkdir dir="${test.classes.dir}"/>
-        <mkdir dir="${build.tmp.dir}"/>
-        <javac destdir="${test.classes.dir}"
-               target="1.5"
-               debug="${compiler.debug}"
-               deprecation="${compiler.deprecation}"
-               source="1.5">
-            <src location="${test.java.dir}"/>
-            <classpath>
-                <path path="${build.classes.dir}"/>
-                <path refid="project.class.path"/>
-            </classpath>
-        </javac>
-        <copy file="${test.config.dir}/ehcache.xml" todir="${test.classes.dir}"/>
-        <copy file="${test.config.dir}/ehcache-2.xml" todir="${test.classes.dir}"/>
-        <copy file="${test.config.dir}/spring/ehcache-beans.xml" todir="${test.classes.dir}/spring"/>
-        <copy file="${test.config.dir}/simplelog.properties" todir="${test.classes.dir}"/>
-    </target>
-
-
-    <target name="test" depends="test-non-web, test-orion, test-tomcat"
-            description="Runs Tests">
-        <antcall target="junitreport"/>
-    </target>
-
-    <target name="test-non-web" depends="compile, run-tests-no-check"
-            if="tests.failed" description="Runs Tests">
-        <fail message="One or more tests failed. See the log file for details."/>
-    </target>
-
-    <target name="test-web" depends="test-orion, test-tomcat"
-            description="Integration tests for web containers"/>
-
     <target name="prepare-and-start-orion"
-            depends="compile, prepare-web-tests, start-orion"/>
+            depends="prepare-web-tests, start-orion"/>
 
-    <target name="test-orion"
-            depends="compile, prepare-web-tests, start-orion, run-web-tests-no-check-orion, stop-orion"
-            if="tests.failed" description="Runs Tests">
-        <fail message="One or more tests failed. See the log file for details."/>
-    </target>
 
-    <target name="test-tomcat"
-            depends="compile, prepare-web-tests, start-tomcat, run-web-tests-no-check-tomcat, stop-tomcat"
-            if="tests.failed" description="Runs web tests on tomcat">
-        <fail message="One or more tests failed. See the log file for details."/>
-    </target>
 
-    <target name="test-glassfish"
-            depends="compile, prepare-web-tests, start-glassfish, run-web-tests-no-check-glassfish, stop-glassfish"
-            if="tests.failed" description="Runs web tests on Glassfish">
-        <fail message="One or more tests failed. See the log file for details."/>
-    </target>
-
-    <!-- Make sure you have copied junit-3.8.1.jar to $ANT_HOME/lib -->
-    <target name="run-tests-no-check">
-        <mkdir dir="${test.results.dir}"/>
-
-        <condition property="test.pattern" value="*">
-            <not>
-                <isset property="test.case"/>
-            </not>
-        </condition>
-        <condition property="test.pattern" value="${test.case}">
-            <isset property="test.case"/>
-        </condition>
-
-        <echo message="net.sf.ehcache.speedAdjustmentFactor ${net.sf.ehcache.speedAdjustmentFactor}"/>
-        <junit printSummary="withOutAndErr" failureproperty="tests.failed" fork="true"
-               forkmode="perTest" dir="${basedir}" showoutput="false" newenvironment="false">
-            <jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog"/>
-            <sysproperty key="java.io.tmpdir" value="${build.tmp.dir}"/>
-            <sysproperty key="net.sf.ehcache.speedAdjustmentFactor"
-                         value="${net.sf.ehcache.speedAdjustmentFactor}"/>
-            <classpath>
-                <path location="${test.classes.dir}"/>
-                <path location="${build.classes.dir}"/>
-                <path refid="project.class.path"/>
-            </classpath>
-            <formatter type="xml"/>
-            <formatter type="plain" usefile="false"/>
-            <batchtest todir="${test.results.dir}">
-                <fileset dir="${test.classes.dir}">
-                    <include name="**/${test.directory.pattern}/**/${test.pattern}Test.class"/>
-                    <exclude name="**/Abstract*"/>
-                    <exclude name="**/constructs/web/**"/>
-                </fileset>
-            </batchtest>
-        </junit>
-    </target>
-
-    <target name="run-web-tests-no-check-orion">
-        <mkdir dir="${test.results.dir}"/>
-
-        <condition property="test.pattern" value="*">
-            <not>
-                <isset property="test.case"/>
-            </not>
-        </condition>
-        <condition property="test.pattern" value="${test.case}">
-            <isset property="test.case"/>
-        </condition>
-
-        <junit printSummary="withOutAndErr" failureproperty="tests.failed" fork="true"
-               forkmode="perTest" dir="${basedir}" showoutput="false">
-            <jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog"/>
-            <!--<jvmarg value="-Xmx256m"/>-->
-            <sysproperty key="java.io.tmpdir" value="${build.tmp.dir}"/>
-            <sysproperty key="net.sf.ehcache.speedAdjustmentFactor"
-                         value="${net.sf.ehcache.speedAdjustmentFactor}"/>
-
-            <classpath>
-                <path location="${test.classes.dir}"/>
-                <path location="${build.classes.dir}"/>
-                <path refid="project.class.path"/>
-            </classpath>
-            <formatter type="xml"/>
-            <formatter type="plain" usefile="false"/>
-            <batchtest todir="${test.results.dir}">
-                <fileset dir="${test.classes.dir}">
-                    <include
-                            name="**/${test.directory.pattern}/**/constructs/web/**/${test.pattern}Test.class"/>
-                    <exclude name="**/Abstract*"/>
-                </fileset>
-            </batchtest>
-        </junit>
-    </target>
-
-    <target name="run-web-tests-no-check-tomcat">
-        <mkdir dir="${test.results.dir}"/>
-
-        <condition property="test.pattern" value="*">
-            <not>
-                <isset property="test.case"/>
-            </not>
-        </condition>
-        <condition property="test.pattern" value="${test.case}">
-            <isset property="test.case"/>
-        </condition>
-
-        <junit printSummary="withOutAndErr" failureproperty="tests.failed" fork="true"
-               forkmode="perTest" dir="${basedir}" showoutput="false">
-            <jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog"/>
-            <!--<jvmarg value="-Xmx256m"/>-->
-            <sysproperty key="java.io.tmpdir" value="${build.tmp.dir}"/>
-            <sysproperty key="net.sf.ehcache.speedAdjustmentFactor"
-                         value="${net.sf.ehcache.speedAdjustmentFactor}"/>
-            <classpath>
-                <path location="${test.classes.dir}"/>
-                <path location="${build.classes.dir}"/>
-                <path refid="project.class.path"/>
-            </classpath>
-            <formatter type="xml"/>
-            <formatter type="plain" usefile="false"/>
-            <batchtest todir="${test.results.dir}">
-                <fileset dir="${test.classes.dir}">
-                    <include
-                            name="**/${test.directory.pattern}/**/constructs/web/**/${test.pattern}Test.class"/>
-                    <exclude name="**/Abstract*"/>
-                </fileset>
-            </batchtest>
-        </junit>
-    </target>
-
-    <target name="run-web-tests-no-check-glassfish">
-        <mkdir dir="${test.results.dir}"/>
-
-        <condition property="test.pattern" value="*">
-            <not>
-                <isset property="test.case"/>
-            </not>
-        </condition>
-        <condition property="test.pattern" value="${test.case}">
-            <isset property="test.case"/>
-        </condition>
-
-        <junit printSummary="withOutAndErr" failureproperty="tests.failed" fork="true"
-               forkmode="perTest" dir="${basedir}" showoutput="false">
-            <jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog"/>
-            <!--<jvmarg value="-Xmx256m"/>-->
-            <sysproperty key="java.io.tmpdir" value="${build.tmp.dir}"/>
-            <sysproperty key="net.sf.ehcache.speedAdjustmentFactor"
-                         value="${net.sf.ehcache.speedAdjustmentFactor}"/>
-            <classpath>
-                <path location="${test.classes.dir}"/>
-                <path location="${build.classes.dir}"/>
-                <path refid="project.class.path"/>
-            </classpath>
-            <formatter type="xml"/>
-            <formatter type="plain" usefile="false"/>
-            <batchtest todir="${test.results.dir}">
-                <fileset dir="${test.classes.dir}">
-                    <include
-                            name="**/${test.directory.pattern}/**/constructs/web/**/${test.pattern}Test.class"/>
-                    <exclude name="**/Abstract*"/>
-                </fileset>
-            </batchtest>
-        </junit>
-    </target>
-
-    <!-- Transform test results into a junit report. -->
-    <target name="junitreport">
-        <echo message="Compiling JUnit Report"/>
-        <mkdir dir="${test.report.dir}"/>
-        <junitreport todir="${test.report.dir}" tofile="${test.log.file}">
-            <fileset dir="${test.results.dir}">
-                <include name="TEST-*.xml"/>
-            </fileset>
-            <report format="frames" todir="${test.report.dir}"/>
-        </junitreport>
-    </target>
 
     <!-- Builds a jar file containing for the application  -->
-    <target name="dist-jar" depends="compile" description="Builds the application jar">
+    <target name="dist-jar" description="Builds the application jar">
         <mkdir dir="${dist.dir}"/>
         <jar destfile="${dist.dir}/${name}-${version}.jar">
             <manifest>
@@ -332,118 +70,7 @@
         <dependency groupId="net.sf.jsr107cache" artifactId="jsr107cache" version="1.0"/>
     </artifact:dependencies>
 
-    <!-- Builds a release tar-ball -->
-    <target name="dist-tgz"
-            depends="dist-jar, dist-javadoc, dist-sources">
-
-        <mkdir dir="${dist.dir}/lib"/>
-        <copy todir="${dist.dir}/lib" flatten="true">
-            <fileset refid="runtime-dependencies.fileset"/>
-        </copy>
-        <tar destfile="${dist.dir}/${name}-${version}.tgz"
-             compression="gzip">
-
-            <tarfileset dir="${dist.dir}" prefix="${name}-${version}">
-                <include name="${name}-${version}.jar"/>
-                <include name="${name}-${version}-${javadoc.zip}"/>
-                <include name="${name}-${version}-sources.jar"/>
-                <include name="lib/*.jar"/>
-            </tarfileset>
-            <tarfileset dir="${basedir}" prefix="${name}-${version}">
-                <include name="RELEASE_NOTES.txt"/>
-                <include name="LICENSE.txt"/>
-                <include name="CHANGELOG.txt"/>
-            </tarfileset>
-            <tarfileset dir="${src.config.dir}" prefix="${name}-${version}">
-                <include name="ehcache.*"/>
-            </tarfileset>
-        </tar>
-    </target>
-
-    <!-- Create zip file for javadocs -->
-    <target name="dist-javadoc" depends="javadoc"
-            description="Creates a zip file for javadocs">
-        <zip destfile="${dist.dir}/${name}-${version}-${javadoc.zip}">
-            <zipfileset dir="${build.javadoc.dir}" prefix="docs/"/>
-        </zip>
-    </target>
-
-    <!-- Create a jar file for src -->
-    <target name="dist-sources" description="Creates a zip file for src">
-        <jar destfile="${dist.dir}/${name}-${version}-sources.jar">
-            <zipfileset dir="${src.java.dir}"/>
-        </jar>
-    </target>
-
     <property name="classpath" refid="project.class.path"/>
-
-    <!-- Produce the javadocs. Note the maven version of javadoc includes yDoc. Too big to include in download though  -->
-    <target name="javadoc"
-            description="Creates the javadocs">
-
-        <mkdir dir="${build.javadoc.dir}"/>
-        <javadoc
-                sourcepath="${src.java.dir}"
-                destdir="${build.javadoc.dir}"
-                packagenames="net.sf.*"
-                Package="true"
-                overview="${src.java.dir}/net/sf/ehcache/overview.html"
-                author="true"
-                version="true"
-                use="true"
-                windowtitle="${name}">
-            <tag name="noinspection" description="IntelliJ Inspection Ignore tag"
-                 enabled="false"/>
-            <classpath refid="project.class.path"/>
-            <header><![CDATA[<a href="/" target="_top">${name}</a>]]></header>
-        </javadoc>
-    </target>
-
-
-    <!-- Not Broken in TeamCity 1.1 -->
-    <taskdef resource="com/cenqua/ant/antlib.xml" classpath="tools/cenquatasks.jar"/>
-    <extendclasspath path="tools/clover-1.3.13.jar"/>
-
-    <taskdef resource="clovertasks" classpath="tools/clover-1.3.13.jar"/>
-    <typedef resource="clovertypes">
-        <classpath refid="project.class.path"/>
-    </typedef>
-
-    <target name="with.clover">
-        <mkdir dir="${build.log.dir}"/>
-        <clover-setup initString="${build.log.dir}/mycoverage.db"
-                      flushpolicy="directed">
-            <fileset dir="${src.java.dir}/" includes="**/*.java"/>
-            <statementContext name="log" regexp="^LOG\..*"/>
-            <statementContext name="iflog" regexp="^if \(LOG\.is.*"/>
-        </clover-setup>
-    </target>
-
-    <target name="clover.html" depends="with.clover">
-
-        <clover-report>
-            <current outfile="${build.log.dir}/clover">
-                <format type="html" filter="log,iflog,catch"/>
-            </current>
-        </clover-report>
-        <clover-log level="summary" filter="log,iflog,catch"/>
-    </target>
-
-    <target name="clover-check-coverage" depends="with.clover" if="singleRMIRegistryPerVM">
-        <echo message="Java: ${ant.java.version}"/>
-        <clover-check target="${clover.test.coverage.percentage}" filter="log,iflog,catch"
-                      haltOnFailure="true"/>
-    </target>
-
-    <!-- JDKs below 1.5 do not support multiple RMI Registries per VM and we must therefore exclude some tests -->
-    <condition property="singleRMIRegistryPerVM" value="true">
-        <not>
-            <or>
-                <equals arg1="1.3" arg2="${ant.java.version}"/>
-                <equals arg1="1.4" arg2="${ant.java.version}"/>
-            </or>
-        </not>
-    </condition>
 
     <!-- Start up the test instance of the Orion server -->
     <target name="start-orion" description="Starts the Orion server">
@@ -476,24 +103,17 @@
 <!--  todo put back          depends="compile, dist-jar, deploy-default-web-app-orion, deploy-default-web-app-tomcat, deploy-default-web-app-glassfish"
 -->
     <target name="prepare-web-tests"
-            depends="compile, dist-jar, deploy-default-web-app-orion, deploy-default-web-app-tomcat"
+            depends="dist-jar, deploy-default-web-app-orion, deploy-default-web-app-tomcat"
             if="${run.web.tests}"
             description="Prepare to run  the web tests ">
     </target>
 
-    <artifact:dependencies filesetId="clover.fileset">
-        <dependency groupId="com.cenqua.clover" artifactId="clover"
-                    version="1.3.13"/>
-    </artifact:dependencies>
 
     <target name="deploy-default-web-app-orion">
         <unzip dest="${build.dir}" src="${lib.compile.dir}/web/orion.zip"/>
         <copy file="${dist.dir}/${name}-${version}.jar" todir="${build.orion.lib.dir}"/>
         <copy todir="${build.orion.lib.dir}" flatten="true">
             <fileset refid="runtime-dependencies.fileset"/>
-        </copy>
-        <copy todir="${build.orion.lib.dir}" flatten="true">
-            <fileset refid="clover.fileset"/>
         </copy>
         <copy file="${test.config.dir}/ehcache.xml" todir="${build.orion.lib.dir}"/>
         <jar destfile="${build.orion.lib.dir}/${name}-tests-${version}.jar">
@@ -534,14 +154,12 @@
             <copy todir="@{build.tomcat.dir}/lib" flatten="true" overwrite="true">
                 <fileset file="${dist.dir}/${name}-${version}.jar"/>
                 <fileset refid="runtime-dependencies.fileset"/>
-                <fileset refid="clover.fileset"/>
             </copy>
 
             <!--tomcat 5.5-->
             <copy todir="@{build.tomcat.dir}/common/lib" flatten="true" overwrite="true">
                 <fileset file="${dist.dir}/${name}-${version}.jar"/>
                 <fileset refid="runtime-dependencies.fileset"/>
-                <fileset refid="clover.fileset"/>
             </copy>
 
             <copy file="${test.config.dir}/ehcache.xml" todir="@{build.tomcat.defaultwebapp.dir}/WEB-INF/classes"
@@ -592,9 +210,6 @@
               todir="${build.glassfish.webapp.dir}/WEB-INF/lib"/>
         <copy todir="${build.glassfish.webapp.dir}/WEB-INF/lib" flatten="true">
             <fileset refid="runtime-dependencies.fileset"/>
-        </copy>
-        <copy todir="${build.glassfish.webapp.dir}/WEB-INF/lib" flatten="true">
-            <fileset refid="clover.fileset"/>
         </copy>
         <copy file="${test.config.dir}/ehcache.xml"
               todir="${build.glassfish.webapp.dir}/WEb-INF/classes"/>
@@ -667,7 +282,7 @@
         </sequential>
     </macrodef>
 
-    <target name="deploy-and-start-multiple-tomcats" depends="compile, dist-jar" description="Allows manual testing of tomcat apps">
+    <target name="deploy-and-start-multiple-tomcats" depends="dist-jar" description="Allows manual testing of tomcat apps">
         <deploy-default-web-app-tomcat_macro port-prefix="80"/>
         <start-tomcat-macro port-prefix="80"/>
 
@@ -827,8 +442,8 @@
         <antcall target="copy-ydoc"/>
     </target>
 
-    <!-- Produce the ydocs images for the book and singlepage guide.  -->
-    <target name="copy-ydoc" description="Creates the javadocs" depends="javadoc">
+    <!-- Produce the ydocs images for the book and singlepage guide. Relies on Maven javadoc.  -->
+    <target name="copy-ydoc" description="Creates the javadocs" >
         <copy todir="${build.dir}/book/javadoc">
             <fileset dir="${build.dir}/site/apidocs"/>
         </copy>
