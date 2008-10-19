@@ -28,7 +28,7 @@ Welcome to ehcache
    See the {{{http://ehcache.sourceforge.net/changes-report.html#1.5.0}changelog}} for complete details.
 
    Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. The documentation is
-    {{{http://ehcache.sourceforge.net/documentation//src/site/apt/documentation/}here}}.
+    {{{http://ehcache.sourceforge.net/documentation}here}}.
 
 ** 18 October 2008: ehcache-jmsreplication 0.1 released
 
@@ -48,7 +48,7 @@ Welcome to ehcache
    jmsreplication is it's own Maven module and downloadable distribution.
 
    Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. The documentation is
-    {{{http://ehcache.sourceforge.net/documentation//src/site/apt/documentation/distributed_caching_with_jms.html}here}}.
+    {{{http://ehcache.sourceforge.net/documentation/distributed_caching_with_jms.html}here}}.
 
 ** 16 October 2008: ehcache-server 0.5 released
 
