@@ -14,6 +14,9 @@ Welcome to ehcache
 
  Ehcache is available under an Apache open source {{{license.html}license}} and is actively developed, maintained and supported.
 
+[images/layered_architecture.png] 
+
+
 * Latest News
 
 ** 18 October 2008: Ehcache 1.6-beta1 released.
