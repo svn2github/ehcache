@@ -7,9 +7,7 @@
         <fileSet>
             <directory>target</directory>
             <includes>
-                <include>*.war</include>
-                <include>*.sources.jar</include>
-                <include>*.javadoc.jar</include>
+                <include>*.jar</include>
             </includes>
             <outputDirectory>/</outputDirectory>
         </fileSet>
@@ -17,13 +15,6 @@
             <directory>${basedir}/src/assemble</directory>
             <includes>
                 <include>*.txt</include>
-            </includes>
-            <outputDirectory>/</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>target/jaxws/wsgen</directory>
-            <includes>
-                <include>**/*</include>
             </includes>
             <outputDirectory>/</outputDirectory>
         </fileSet>

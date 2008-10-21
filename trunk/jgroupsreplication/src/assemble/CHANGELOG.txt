@@ -1,28 +1,24 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
-<release version="0.4" date="2008-12-31" desc="Initial release of ehcache server">
-    <!-- Features and Enhancements -->
-    <action dev="Greg Luck" type="update">
-        Set the "application/octet-stream" mime type to uploads which do not set a MIME Type, rather than erroring out.
-    </action>
-</release>
-<release version="0.3" date="2008-8-3" desc="Initial release of ehcache server">
-    <!-- Features and Enhancements -->
-    <action dev="Greg Luck" type="add">
-        Add RESTful, resource oriented implementation.
-    </action>
-</release>
-<release version="0.2" date="2008-7-17" desc="Initial release of ehcache server">
-    <!-- Features and Enhancements -->
-    <action dev="Greg Luck" type="add">
-        Added wsdl files which for some reason are required by Glassfish V3 embedded but not Glassfish V3.
-    </action>
-</release>
-<release version="0.1" date="2008-7-12" desc="Initial release of ehcache server">
+<release version="1.1" date="2008-10-20" desc="Maintenance release of JGroups Replication">
 
     <!-- Features and Enhancements -->
     <action dev="Greg Luck" type="add">
-        Initial release. Provides RESTful and SOAP Web Services via a web container deployable WAR.
+        Separated JGroups into its own ehcache-jgroupsreplication module and distribution.
+    </action>
+    <action dev="Greg Luck" type="add">
+        Pure Maven build.
+    </action>
+    <action dev="Greg Luck" type="update">
+        Significant performance improvements to the replicator. Applied fixes made to some bottlenecks
+        in the RMI replicator to the JGroups replicator.
+    </action>
+</release>
+<release version="1.0" date="2008-7-12" desc="Initial release of JGroups">
+
+    <!-- Features and Enhancements -->
+    <action dev="Greg Luck" type="add">
+        Initial release of JGroups. Released in the ehcache core maven module and distribution.
     </action>
 
 </release>
