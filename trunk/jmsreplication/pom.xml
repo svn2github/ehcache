@@ -145,7 +145,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
-                    <skipTests>true</skipTests>
                     <includes>
                         <include>**/*UnitTest.java</include>
                     </includes>
@@ -183,8 +182,6 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skip>true</skip>
-                            <skipTests>true</skipTests>
                             <includes>
                                 <include>**/*IntegrationTest.java</include>
                                 <include>**/*JMSReplicationTest.java</include>

@@ -120,12 +120,20 @@ public final class JMSUtil {
 
         Properties env = new Properties();
 
-        env.put(TOPIC_CONNECTION_FACTORY_BINDING_NAME, replicationTopicConnectionFactoryBindingName);
-        env.put(REPLICATION_TOPIC_BINDING_NAME, replicationTopicBindingName);
+        if (replicationTopicConnectionFactoryBindingName != null) {
+            env.put(TOPIC_CONNECTION_FACTORY_BINDING_NAME, replicationTopicConnectionFactoryBindingName);
+        }
+        if (replicationTopicBindingName != null) {
+            env.put(REPLICATION_TOPIC_BINDING_NAME, replicationTopicBindingName);
+        }
 
 
-        env.put(GET_QUEUE_CONNECTION_FACTORY_BINDING_NAME, getQueueConnectionFactoryBindingName);
-        env.put(GET_QUEUE_BINDING_NAME, getQueueBindingName);
+        if (getQueueConnectionFactoryBindingName != null) {
+            env.put(GET_QUEUE_CONNECTION_FACTORY_BINDING_NAME, getQueueConnectionFactoryBindingName);
+        }
+        if (getQueueBindingName != null) {
+            env.put(GET_QUEUE_BINDING_NAME, getQueueBindingName);
+        }
 
         env.put(Context.PROVIDER_URL, providerURL);
 

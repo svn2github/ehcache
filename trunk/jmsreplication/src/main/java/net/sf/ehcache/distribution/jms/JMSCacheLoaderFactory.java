@@ -18,20 +18,18 @@ package net.sf.ehcache.distribution.jms;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
-import static net.sf.ehcache.distribution.jms.JMSUtil.SECURITY_PRINCIPAL_NAME;
-import static net.sf.ehcache.distribution.jms.JMSUtil.SECURITY_CREDENTIALS;
-import static net.sf.ehcache.distribution.jms.JMSUtil.INITIAL_CONTEXT_FACTORY_NAME;
-import static net.sf.ehcache.distribution.jms.JMSUtil.URL_PKG_PREFIXES;
-import static net.sf.ehcache.distribution.jms.JMSUtil.PROVIDER_URL;
-import static net.sf.ehcache.distribution.jms.JMSUtil.REPLICATION_TOPIC_BINDING_NAME;
+import static net.sf.ehcache.distribution.jms.JMSUtil.ACKNOWLEDGEMENT_MODE;
+import static net.sf.ehcache.distribution.jms.JMSUtil.DEFAULT_LOADER_ARGUMENT;
 import static net.sf.ehcache.distribution.jms.JMSUtil.GET_QUEUE_BINDING_NAME;
 import static net.sf.ehcache.distribution.jms.JMSUtil.GET_QUEUE_CONNECTION_FACTORY_BINDING_NAME;
-import static net.sf.ehcache.distribution.jms.JMSUtil.TOPIC_CONNECTION_FACTORY_BINDING_NAME;
-import static net.sf.ehcache.distribution.jms.JMSUtil.USERNAME;
+import static net.sf.ehcache.distribution.jms.JMSUtil.INITIAL_CONTEXT_FACTORY_NAME;
 import static net.sf.ehcache.distribution.jms.JMSUtil.PASSWORD;
-import static net.sf.ehcache.distribution.jms.JMSUtil.ACKNOWLEDGEMENT_MODE;
+import static net.sf.ehcache.distribution.jms.JMSUtil.PROVIDER_URL;
+import static net.sf.ehcache.distribution.jms.JMSUtil.SECURITY_CREDENTIALS;
+import static net.sf.ehcache.distribution.jms.JMSUtil.SECURITY_PRINCIPAL_NAME;
 import static net.sf.ehcache.distribution.jms.JMSUtil.TIMEOUT_MILLIS;
-import static net.sf.ehcache.distribution.jms.JMSUtil.DEFAULT_LOADER_ARGUMENT;
+import static net.sf.ehcache.distribution.jms.JMSUtil.URL_PKG_PREFIXES;
+import static net.sf.ehcache.distribution.jms.JMSUtil.USERNAME;
 import net.sf.ehcache.loader.CacheLoaderFactory;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.jsr107cache.CacheLoader;
@@ -83,7 +81,6 @@ public class JMSCacheLoaderFactory extends CacheLoaderFactory {
         String initialContextFactoryName = PropertyUtil.extractAndLogProperty(INITIAL_CONTEXT_FACTORY_NAME, properties);
         String urlPkgPrefixes = PropertyUtil.extractAndLogProperty(URL_PKG_PREFIXES, properties);
         String providerURL = PropertyUtil.extractAndLogProperty(PROVIDER_URL, properties);
-        String replicationTopicBindingName = PropertyUtil.extractAndLogProperty(REPLICATION_TOPIC_BINDING_NAME, properties);
         String getQueueConnectionFactoryBindingName =
                 PropertyUtil.extractAndLogProperty(GET_QUEUE_CONNECTION_FACTORY_BINDING_NAME, properties);
         if (getQueueConnectionFactoryBindingName == null) {
@@ -96,8 +93,6 @@ public class JMSCacheLoaderFactory extends CacheLoaderFactory {
 
         String defaultLoaderArgument = PropertyUtil.extractAndLogProperty(DEFAULT_LOADER_ARGUMENT, properties);
 
-        String replicationTopicConnectionFactoryBindingName =
-                PropertyUtil.extractAndLogProperty(TOPIC_CONNECTION_FACTORY_BINDING_NAME, properties);
         String userName = PropertyUtil.extractAndLogProperty(USERNAME, properties);
         String password = PropertyUtil.extractAndLogProperty(PASSWORD, properties);
         String acknowledgementMode = PropertyUtil.extractAndLogProperty(ACKNOWLEDGEMENT_MODE, properties);
@@ -115,7 +110,7 @@ public class JMSCacheLoaderFactory extends CacheLoaderFactory {
         try {
 
             context = JMSUtil.createInitialContext(securityPrincipalName, securityCredentials, initialContextFactoryName,
-                    urlPkgPrefixes, providerURL, replicationTopicBindingName, replicationTopicConnectionFactoryBindingName,
+                    urlPkgPrefixes, providerURL, null, null,
                     getQueueBindingName, getQueueConnectionFactoryBindingName);
 
             queueConnectionFactory = (QueueConnectionFactory) JMSUtil.lookup(context, getQueueConnectionFactoryBindingName);

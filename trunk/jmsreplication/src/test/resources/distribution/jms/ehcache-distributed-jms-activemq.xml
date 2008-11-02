@@ -153,9 +153,7 @@
         <cacheLoaderFactory class="net.sf.ehcache.distribution.jms.JMSCacheLoaderFactory"
             properties="initialContextFactoryName=net.sf.ehcache.distribution.jms.TestActiveMQInitialContextFactory,
                 providerURL=tcp://localhost:61616,
-                replicationTopicConnectionFactoryBindingName=topicConnectionFactory,
                 getQueueConnectionFactoryBindingName=queueConnectionFactory,
-                replicationTopicBindingName=ehcache,
                 getQueueBindingName=ehcacheGetQueue,
                 timeoutMillis=10000"/>
     </cache>

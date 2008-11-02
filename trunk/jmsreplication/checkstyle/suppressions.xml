@@ -19,6 +19,7 @@
 
     <suppress checks="IllegalTypeCheck" files="JMSCachePeer.java"/>
     <suppress checks="NPathComplexity" files="JMSCacheReplicator.java"/>
+    <suppress checks="NPathComplexity" files="JMSUtil.java"/>
     <suppress checks="GenericIllegalRegexpCheck" files="Server.java"/>
     <suppress checks="GenericIllegalRegexpCheck" files="SecurityHandler.java"/>
     <suppress checks="GenericIllegalRegexpCheck" files="SecurityEnvironmentHandler.java"/>

@@ -69,8 +69,6 @@
         <cacheLoaderFactory class="net.sf.ehcache.distribution.jms.JMSCacheLoaderFactory"
                             properties="initialContextFactoryName=com.sun.jndi.fscontext.RefFSContextFactory,
                 providerURL=file:///tmp,
-                replicationTopicConnectionFactoryBindingName=MyConnectionFactory,
-                replicationTopicBindingName=ehcache,
                 getQueueConnectionFactoryBindingName=queueConnectionFactory,
                 getQueueBindingName=ehcacheGetQueue,
                 timeoutMillis=10000,
