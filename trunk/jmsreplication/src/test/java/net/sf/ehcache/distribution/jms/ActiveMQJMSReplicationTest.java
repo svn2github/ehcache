@@ -62,8 +62,6 @@ public class ActiveMQJMSReplicationTest {
 
     protected CacheManager manager1, manager2, manager3, manager4;
 
-    //protected abstract String getConfigurationFile();
-
     protected String getConfigurationFile() {
         return "distribution/jms/ehcache-distributed-jms-activemq.xml";
     }
@@ -614,6 +612,34 @@ public class ActiveMQJMSReplicationTest {
         element2 = cache2.getWithLoader(key, null, null);
         assertNull(element2);
         cache2.remove(key);
+    }
+
+    @Test
+    public void testOneWayReplicate() throws Exception {
+
+        CacheManager managerA, managerB, managerC;
+
+        String nonListeningConfigurationFile = "distribution/jms/ehcache-distributed-nonlistening-jms-activemq.xml";
+        String listeningConfigurationFile = "distribution/jms/ehcache-distributed-jms-activemq.xml";
+
+        managerA = new CacheManager(TestUtil.TEST_CONFIG_DIR + nonListeningConfigurationFile);
+        managerA.setName("managerA");
+        managerB = new CacheManager(TestUtil.TEST_CONFIG_DIR + listeningConfigurationFile);
+        managerB.setName("managerB");
+        managerC = new CacheManager(TestUtil.TEST_CONFIG_DIR + nonListeningConfigurationFile);
+        managerC.setName("managerC");
+
+        Element element = new Element("1", "value");
+        managerA.getCache(SAMPLE_CACHE_ASYNC).put(element);
+
+        Thread.sleep(1000);
+
+        assertNotNull(managerB.getCache(SAMPLE_CACHE_ASYNC).get("1"));
+        assertNull(managerC.getCache(SAMPLE_CACHE_ASYNC).get("1"));
+
+        managerA.shutdown();
+        managerB.shutdown();
+        managerC.shutdown();
     }
 
 

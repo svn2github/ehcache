@@ -1,11 +1,23 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+<release version="0.2" date="2008-11-4" desc="Maintenance release of jmsreplication">
+
+    <!-- Features and Enhancements -->
+    <action dev="Greg Luck" type="update">
+        Add a new property attribute to JMSCacheManagerPeerProviderFactory, listenToTopic.
+         If set to false, the CacheManager will not listen to the replication topic. This permits
+         configurations where some cluster nodes can send to, but not, subscribe to the event topic.
+    </action>
+    <action dev="Greg Luck" type="bug">
+        Remove topic configuration from loader, as it is redundant.
+    </action>
+</release>
+
 <release version="0.1" date="2008-10-19" desc="Initial release of jmsreplication">
 
     <!-- Features and Enhancements -->
     <action dev="Greg Luck" type="add">
         Initial release. Provides distributed caching via JMS and a JMSCacheLoader.
     </action>
-
 </release>
 

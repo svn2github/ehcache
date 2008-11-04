@@ -81,7 +81,7 @@
     * password - the password to use when creating the TopicConnection to the Message Queue
     * acknowledgementMode - the JMS Acknowledgement mode for both publisher and subscriber. The available choices are
                             AUTO_ACKNOWLEDGE, DUPS_OK_ACKNOWLEDGE and SESSION_TRANSACTED. The default is AUTO_ACKNOWLEDGE.
-    * listenToTopic - true or false. If false, this CacheManager will not listen for replication updates. Default is true.
+    * listenToTopic - true or false. If false, this cache will send to the JMS topic but will not listen for updates. Default is true.
     -->
     <cacheManagerPeerProviderFactory
             class="net.sf.ehcache.distribution.jms.JMSCacheManagerPeerProviderFactory"
@@ -91,7 +91,7 @@
                 getQueueConnectionFactoryBindingName=queueConnectionFactory,
                 replicationTopicBindingName=ehcache,
                 getQueueBindingName=ehcacheGetQueue,
-                listenToTopic=true"
+                listenToTopic=false"
             propertySeparator=","
             />
 

@@ -83,6 +83,9 @@ public final class JMSUtil {
     /***/
     public static final String CACHE_MANAGER_UID = "cacheManagerUniqueId";
 
+    /***/
+    public static final String LISTEN_TO_TOPIC = "listenToTopic";
+
 
     private static final Logger LOG = Logger.getLogger(JMSUtil.class.getName());
 

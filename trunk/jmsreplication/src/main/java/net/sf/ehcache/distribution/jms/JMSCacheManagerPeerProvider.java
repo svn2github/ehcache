@@ -66,6 +66,7 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
     private TopicSubscriber topicSubscriber;
     private QueueSession getQueueSession;
     private JMSCachePeer cachePeer;
+    private boolean listenToTopic;
 
 
     /**
@@ -76,13 +77,15 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
      * @param getQueueConnection
      * @param getQueue
      * @param acknowledgementMode
+     * @param listenToTopic whether this provider should listen to events made to the JMS topic
      */
     public JMSCacheManagerPeerProvider(CacheManager cacheManager,
                                        TopicConnection replicationTopicConnection,
                                        Topic replicationTopic,
                                        QueueConnection getQueueConnection,
                                        Queue getQueue,
-                                       AcknowledgementMode acknowledgementMode) {
+                                       AcknowledgementMode acknowledgementMode,
+                                       boolean listenToTopic) {
 
 
         this.cacheManager = cacheManager;
@@ -91,6 +94,7 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
         this.getQueueConnection = getQueueConnection;
         this.getQueue = getQueue;
         this.acknowledgementMode = acknowledgementMode;
+        this.listenToTopic = listenToTopic;
     }
 
 
@@ -120,7 +124,6 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
         try {
 
             topicPublisherSession = replicationTopicConnection.createTopicSession(false, acknowledgementMode.toInt());
-            TopicSession topicSubscriberSession = replicationTopicConnection.createTopicSession(false, acknowledgementMode.toInt());
             replicationTopicConnection.setExceptionListener(new ExceptionListener() {
 
                 public void onException(JMSException e) {
@@ -130,11 +133,16 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
 
             topicPublisher = topicPublisherSession.createPublisher(replicationTopic);
 
-            //ignore messages we have sent. The third parameter is noLocal, which means do not deliver back to the sender
-            //on the same connection
-            topicSubscriber = topicSubscriberSession.createSubscriber(replicationTopic, null, true);
+            //todo test non-replication
+            if (listenToTopic) {
 
-            replicationTopicConnection.start();
+                LOG.fine("Listening for message on topic " + replicationTopic.getTopicName());
+                //ignore messages we have sent. The third parameter is noLocal, which means do not deliver back to the sender
+                //on the same connection
+                TopicSession topicSubscriberSession = replicationTopicConnection.createTopicSession(false, acknowledgementMode.toInt());
+                topicSubscriber = topicSubscriberSession.createSubscriber(replicationTopic, null, true);
+                replicationTopicConnection.start();
+            }
 
 
             //noLocal is only supported in the JMS spec for topics. We need to use a message selector
@@ -157,7 +165,9 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
 
         remoteCachePeers.add(cachePeer);
         try {
-            topicSubscriber.setMessageListener(cachePeer);
+            if (listenToTopic) {
+                topicSubscriber.setMessageListener(cachePeer);
+            }
             getQueueRequestReceiver.setMessageListener(cachePeer);
         } catch (JMSException e) {
             LOG.log(Level.SEVERE, "Cannot register " + cachePeer + " as messageListener", e);
@@ -181,7 +191,10 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
             cachePeer.dispose();
 
             topicPublisher.close();
-            topicSubscriber.close();
+            if (listenToTopic) {
+                topicSubscriber.close();
+                replicationTopicConnection.stop();
+            }
             topicPublisherSession.close();
             replicationTopicConnection.close();
 

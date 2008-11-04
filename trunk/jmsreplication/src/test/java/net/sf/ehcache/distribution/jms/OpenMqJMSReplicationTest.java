@@ -6,6 +6,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.MimeTypeByteArray;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.ACTION_PROPERTY;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.CACHE_NAME_PROPERTY;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.KEY_PROPERTY;
@@ -15,6 +16,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import org.junit.Before;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -137,7 +139,7 @@ public class OpenMqJMSReplicationTest extends ActiveMQJMSReplicationTest {
         Thread.sleep(100);
 
 
-        MimeTypeByteArray payload = ((MimeTypeByteArray)manager1.getCache("sampleCacheAsync").get("1234").getObjectValue());
+        MimeTypeByteArray payload = ((MimeTypeByteArray) manager1.getCache("sampleCacheAsync").get("1234").getObjectValue());
         assertEquals("application/x-greg", payload.getMimeType());
         assertEquals(new String(bytes), new String(payload.getValue()));
     }
@@ -168,7 +170,7 @@ public class OpenMqJMSReplicationTest extends ActiveMQJMSReplicationTest {
         Thread.sleep(100);
 
 
-        MimeTypeByteArray payload = ((MimeTypeByteArray)manager1.getCache("sampleCacheAsync").get("1234").getObjectValue());
+        MimeTypeByteArray payload = ((MimeTypeByteArray) manager1.getCache("sampleCacheAsync").get("1234").getObjectValue());
         assertEquals("application/octet-stream", payload.getMimeType());
         assertEquals(new String(bytes), new String(payload.getValue()));
     }
@@ -207,7 +209,7 @@ public class OpenMqJMSReplicationTest extends ActiveMQJMSReplicationTest {
         Thread.sleep(100);
 
 
-        MimeTypeByteArray payload = ((MimeTypeByteArray)manager1.getCache("sampleCacheAsync").get("1234").getObjectValue());
+        MimeTypeByteArray payload = ((MimeTypeByteArray) manager1.getCache("sampleCacheAsync").get("1234").getObjectValue());
         assertEquals("text/x-greg", payload.getMimeType());
         assertEquals(value, new String(payload.getValue()));
     }
@@ -237,11 +239,10 @@ public class OpenMqJMSReplicationTest extends ActiveMQJMSReplicationTest {
         Thread.sleep(100);
 
 
-        MimeTypeByteArray payload = ((MimeTypeByteArray)manager1.getCache("sampleCacheAsync").get("1234").getObjectValue());
+        MimeTypeByteArray payload = ((MimeTypeByteArray) manager1.getCache("sampleCacheAsync").get("1234").getObjectValue());
         assertEquals("text/plain", payload.getMimeType());
         assertEquals(value, new String(payload.getValue()));
     }
-
 
 
     @Test
@@ -277,7 +278,7 @@ public class OpenMqJMSReplicationTest extends ActiveMQJMSReplicationTest {
         assertEquals(null, manager2.getCache("sampleCacheAsync").get("1234"));
     }
 
-@Test
+    @Test
     public void testNonCachePublisherBytesMessageRemove() throws JMSException, InterruptedException {
 
         //make sure there is an element
@@ -342,7 +343,6 @@ public class OpenMqJMSReplicationTest extends ActiveMQJMSReplicationTest {
         assertEquals(null, manager1.getCache("sampleCacheAsync").get("1234"));
         assertEquals(null, manager2.getCache("sampleCacheAsync").get("1234"));
     }
-
 
 
     /**
@@ -524,8 +524,6 @@ public class OpenMqJMSReplicationTest extends ActiveMQJMSReplicationTest {
     }
 
 
-
-
     /**
      * Malformed test
      * Does not work if do not set key
@@ -566,6 +564,7 @@ public class OpenMqJMSReplicationTest extends ActiveMQJMSReplicationTest {
 
     /**
      * Gets a connection without using JNDI, so that it is fully independent.
+     *
      * @throws JMSException
      */
     private TopicConnection getMQConnection() throws JMSException {
@@ -577,8 +576,6 @@ public class OpenMqJMSReplicationTest extends ActiveMQJMSReplicationTest {
         TopicConnection myConnection = factory.createTopicConnection();
         return myConnection;
     }
-
-
 
 
     @Test
@@ -741,6 +738,36 @@ public class OpenMqJMSReplicationTest extends ActiveMQJMSReplicationTest {
             assertNull("" + element2, element2);
         }
     }
+
+    @Test
+    public void testOneWayReplicate() throws Exception {
+
+        CacheManager managerA, managerB, managerC;
+
+        String nonListeningConfigurationFile = "distribution/jms/ehcache-distributed-nonlistening-jms-openmq.xml";
+        String listeningConfigurationFile = "distribution/jms/ehcache-distributed-jms-openmq.xml";
+
+        managerA = new CacheManager(TestUtil.TEST_CONFIG_DIR + nonListeningConfigurationFile);
+        managerA.setName("managerA");
+        managerB = new CacheManager(TestUtil.TEST_CONFIG_DIR + listeningConfigurationFile);
+        managerB.setName("managerB");
+        managerC = new CacheManager(TestUtil.TEST_CONFIG_DIR + nonListeningConfigurationFile);
+        managerC.setName("managerC");
+
+        Element element = new Element("1", "value");
+        managerA.getCache(SAMPLE_CACHE_ASYNC).put(element);
+
+        Thread.sleep(1000);
+
+        assertNotNull(managerB.getCache(SAMPLE_CACHE_ASYNC).get("1"));
+        assertNull(managerC.getCache(SAMPLE_CACHE_ASYNC).get("1"));
+
+        managerA.shutdown();
+        managerB.shutdown();
+        managerC.shutdown();
+    }
+
+
 
 
 }
