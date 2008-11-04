@@ -19,6 +19,16 @@ Welcome to ehcache
 
 * Latest News
 
+** 21 October 2008: ehcache-jgroupsreplication-0.1 released
+
+    This is the second release of JGroups replication. This release moves it to its own module. It contains some performance
+    improvements.
+
+    JGroups Replication is it's own Maven module and downloadable distribution.
+
+   Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. The documentation is
+    {{{http://ehcache.sourceforge.net/documentation/distributed_caching_with_jgroups.html}here}}.
+
 ** 18 October 2008: Ehcache 1.6-beta1 released.
 
    The 1.6 release is a cleanup release which sets the foundation for future development.

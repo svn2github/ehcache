@@ -159,7 +159,7 @@ CacheManager.getInstance().shutdown();
 manager.shutdown();
 ---------------------------------
 
- See the {{{xref-test/net/sf/ehcache/CacheManagerTest.html}CacheManagerTest}} for more examples.
+ See the {{{/xref-test/net/sf/ehcache/CacheManagerTest.html}CacheManagerTest}} for more examples.
 
 * {Using Caches}
 
@@ -294,7 +294,7 @@ Cache cache = manager.getCache("sampleCache1");
 int hits = cache.getMissCountExpired();
 ---------------------------------
 
- These are just the most commonly used methods. See {{{xref-test/net/sf/ehcache/CacheTest.html}CacheTest}} for more examples.
+ These are just the most commonly used methods. See {{{/xref-test/net/sf/ehcache/CacheTest.html}CacheTest}} for more examples.
  See {{{xref/net/sf/ehcache/Cache.html}Cache}} for the full API.
 
 
@@ -362,7 +362,7 @@ public Cache(
 
  Ehcache comes with a comprehensive JUnit test suite, which not only tests the code, but shows you how to use ehcache.
 
- A link to {{{xref-test/index.html}browsable unit test source code}} for the major ehcache classes is given per section. The unit tests are also
+ A link to {{{/xref-test/index.html}browsable unit test source code}} for the major ehcache classes is given per section. The unit tests are also
    in the src.zip in the ehcache tarball.
 
 

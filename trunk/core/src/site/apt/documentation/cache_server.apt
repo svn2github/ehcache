@@ -461,7 +461,7 @@ Expect: 100-continue
 
 
 
-*   Creating Massive Caches with Load Balancers and Partioning
+*   {Creating Massive Caches} with {Load Balancers} and Partitioning
 
     The RESTful Ehcache Server is designed to achieve massive scaling using data partitioning - all from a RESTful interface.
     The largest ehcache single instances run at around 20GB in memory. The largest disk stores run at 100Gb each.

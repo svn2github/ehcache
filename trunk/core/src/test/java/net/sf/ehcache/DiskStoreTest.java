@@ -143,6 +143,20 @@ public class DiskStoreTest extends AbstractCacheTest {
     }
 
     /**
+     * Tests that the Disk Store can be changed
+     */
+    @Test
+    public void testSetDiskStorePath() throws IOException, InterruptedException {
+        Cache cache = new Cache("testChangePath", 10000, true, true, 5, 1, true, 600);
+        manager2 = new CacheManager();
+        cache.setDiskStorePath(System.getProperty("java.io.tmpdir") + File.separator + "changedDiskStorePath");
+        manager2.addCache(cache);
+        DiskStore diskStore = (DiskStore) cache.getDiskStore();
+        File dataFile = new File(diskStore.getDataFilePath() + File.separator + diskStore.getDataFileName());
+        assertTrue("File exists", dataFile.exists());
+    }
+
+    /**
      * Tests that a file is created with the right size after puts, and that the file is not
      * deleted on disposal
      * <p/>
