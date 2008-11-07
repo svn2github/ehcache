@@ -1100,8 +1100,13 @@ public class DiskStoreTest extends AbstractCacheTest {
      * <p/>
      * Slow tests
      * 235 with get. 91 for 1.2.3. 169 with remove.
+     *
+     * put 14, get 32
+     * put 13, get 19
+     *
      */
-    public void xTestLargePutGetPerformanceWithOverflowToDisk() throws Exception {
+    //@Test
+    public void testLargePutGetPerformanceWithOverflowToDisk() throws Exception {
 
         Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 10000, null);
         manager.addCache(cache);
@@ -1119,16 +1124,16 @@ public class DiskStoreTest extends AbstractCacheTest {
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
             }
-            //wait to write entries
-            Thread.sleep(2000);
         }
         long elapsed = stopWatch.getElapsedTime();
         long putTime = ((elapsed / 1000) - 10);
         LOG.info("Put Elapsed time: " + putTime);
-        assertTrue(putTime < 15);
+        assertTrue(putTime < 20);
 
         //wait for Disk Store to finish spooling
-        Thread.sleep(2000);
+        while (cache.getDiskStore().backedUp()) {
+            Thread.sleep(2000);
+        }
         Random random = new Random();
         StopWatch getStopWatch = new StopWatch();
         long getStart = stopWatch.getElapsedTime();

@@ -180,8 +180,8 @@ public abstract class CachingFilter extends Filter {
                         }
                         blockingCache.put(new Element(key, pageInfo));
                     } else {
-                        if (LOG.isLoggable(Level.WARNING)) {
-                            LOG.warning("PageInfo was not ok(200). Putting null into cache " + blockingCache.getName()
+                        if (LOG.isLoggable(Level.FINE)) {
+                            LOG.fine("PageInfo was not ok(200). Putting null into cache " + blockingCache.getName()
                                     + " with key " + key);
                         }
                         blockingCache.put(new Element(key, null));
