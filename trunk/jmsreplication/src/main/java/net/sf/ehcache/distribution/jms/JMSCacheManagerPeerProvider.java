@@ -133,7 +133,6 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
 
             topicPublisher = topicPublisherSession.createPublisher(replicationTopic);
 
-            //todo test non-replication
             if (listenToTopic) {
 
                 LOG.fine("Listening for message on topic " + replicationTopic.getTopicName());
