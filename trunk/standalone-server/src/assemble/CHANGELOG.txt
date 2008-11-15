@@ -1,5 +1,11 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+0.6 ? November 2008
+===================
+
+1. Upgrade to Glassfish V3 Prelude Embedded.
+
+
 0.5 15 October 2008
 ===================
 
