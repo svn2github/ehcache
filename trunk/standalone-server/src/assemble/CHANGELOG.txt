@@ -4,6 +4,7 @@ $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 ===================
 
 1. Upgrade to Glassfish V3 Prelude Embedded.
+2. Added RMI JMXConnectorServer, exposing the platform MBeanServer which the server module is using to register ehcache mbeans.
 
 
 0.5 15 October 2008

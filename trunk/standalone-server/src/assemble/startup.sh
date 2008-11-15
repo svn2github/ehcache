@@ -1,1 +1,1 @@
-java -jar ../lib/ehcache-standalone-server-0.5.jar 8080 ../war
+java -jar ../lib/ehcache-standalone-server-0.6.jar 8080 ../war

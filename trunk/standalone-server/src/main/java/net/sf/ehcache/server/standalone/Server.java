@@ -28,6 +28,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * todo update daemon_start
+ * todo doco JMX
  * The ehcache server.
  * <p/>
  * This version uses the Java 6 built-in lightweight HTTP server, which is not suitable for production,
