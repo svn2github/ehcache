@@ -20,12 +20,10 @@ package net.sf.ehcache.server.standalone;
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 import org.apache.commons.daemon.DaemonController;
-import org.glassfish.embed.GFApplication;
-import org.glassfish.embed.GFException;
-import org.glassfish.embed.GlassFish;
+import org.glassfish.embed.EmbeddedException;
+import org.glassfish.embed.EmbeddedInfo;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,7 +52,6 @@ public class Server implements Daemon {
     private File war;
     private Integer port = DEFAULT_PORT;
 
-    private boolean deployed;
 
     /**
      * Empty constructor.
@@ -130,7 +127,7 @@ public class Server implements Daemon {
      * A test method for stopping a server
      * @throws InterruptedException if the server is interrupted while stopping
      */
-    static void stopStatic() throws InterruptedException {
+    static void stopStatic() throws InterruptedException, EmbeddedException {
         serverThread.stopServer();
         //wait indefinitely until it shuts down
         serverThread.join();
@@ -141,7 +138,7 @@ public class Server implements Daemon {
     /**
      * Shuts down the HTTP server in an orderly way.
      */
-    public void stop() throws InterruptedException {
+    public void stop() throws InterruptedException, EmbeddedException {
         System.out.println("\nEhcache standalone server stopping...");
         stopStatic();
         System.out.println("\nEhcache standalone server stopped.");
@@ -211,7 +208,7 @@ public class Server implements Daemon {
         /**
          * Stops the server.
          */
-        public abstract void stopServer();
+        public abstract void stopServer() throws EmbeddedException;
     }
 
     /**
@@ -219,7 +216,7 @@ public class Server implements Daemon {
      */
     class GlassfishServerThread extends ServerThread {
 
-        private GlassFish glassfish;
+        private org.glassfish.embed.Server server;
 
 
         /**
@@ -232,20 +229,20 @@ public class Server implements Daemon {
         }
 
 
-        /**
-         * @throws IOException
-         */
         private void startWithGlassfish() {
 
             try {
-                glassfish = new GlassFish(port);
 
-                GFApplication application = glassfish.deploy(war);
-                deployed = true;
+                EmbeddedInfo embeddedInfo = new EmbeddedInfo();
+                embeddedInfo.setHttpPort(port);
+
+                server = org.glassfish.embed.Server.create(embeddedInfo);
+
+                server.start();
+                server.deploy(war);
+
                 LOG.info("Glassfish server running on port " + port + " with WAR " + war);
-            } catch (GFException e) {
-                LOG.log(Level.SEVERE, "Cannot start server. ", e);
-            } catch (IOException e) {
+            } catch (EmbeddedException e) {
                 LOG.log(Level.SEVERE, "Cannot start server. ", e);
             }
         }
@@ -253,9 +250,9 @@ public class Server implements Daemon {
         /**
          * Stops the server
          */
-        public void stopServer() {
+        public void stopServer() throws EmbeddedException {
             //will cause the startsWithGlassfish method to return, and thus run() thus ending the thread.
-            glassfish.stop();
+            server.stop();
         }
     }
 

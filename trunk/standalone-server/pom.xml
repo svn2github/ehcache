@@ -17,13 +17,8 @@
     <dependencies>
         <dependency>
             <groupId>org.glassfish.embedded</groupId>
-            <artifactId>gf-embedded-api</artifactId>
-            <version>1.0-alpha-4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.distributions</groupId>
-            <artifactId>web-all</artifactId>
-            <version>10.0-build-20080430</version>
+            <artifactId>glassfish-embedded-all</artifactId>
+            <version>3.0-Prelude-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
@@ -140,7 +135,7 @@
                     <enableRulesSummary>false</enableRulesSummary>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
-                    <failsOnViolation>true</failsOnViolation>
+                    <failOnViolation>true</failOnViolation>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <enableRulesSummary>true</enableRulesSummary>
                 </configuration>
@@ -187,6 +182,11 @@
             <id>java.net2</id>
             <name>Java.net Maven2 Repository</name>
             <url>http://download.java.net/maven/2</url>
+        </repository>
+        <repository>
+            <id>repo</id>
+            <name>New Glassfish Repo</name>
+            <url>http://maven.dyndns.org/glassfish</url>
         </repository>
     </repositories>
     <pluginRepositories>
