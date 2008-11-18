@@ -17,8 +17,15 @@
 package net.sf.ehcache.server;
 
 
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.management.ManagementService;
+
+import javax.management.MBeanServer;
+import javax.management.remote.JMXConnectorServer;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import java.lang.management.ManagementFactory;
+import java.util.logging.Logger;
 
 /**
  * The ehcache server.
@@ -28,30 +35,10 @@ import javax.servlet.ServletContextListener;
  */
 public class ServerContext implements ServletContextListener {
 
-//
-//    private static final Logger LOG = Logger.getLogger(ServerContext.class.getName());
-//
-//    /**
-//     * Provide a reference to CacheManager.
-//     * This one avoids synchronized, using the synchronized singleton from {@link CacheManager#getInstance()}
-//     */
-//    private static CacheManager manager;
-//
-//    static {
-//        try {
-//            manager = CacheManager.getInstance();
-//        } catch (CacheException e) {
-//            LOG.log(Level.SEVERE, "Cannot obtain CacheManager instance", e);
-//        }
-//    }
-//
-//
-//    /**
-//     * The CacheManager singleton used by this server
-//     */
-//    public static CacheManager getCacheManager() {
-//        return manager;
-//    }
+
+    private static final Logger LOG = Logger.getLogger(ServerContext.class.getName());
+
+    private JMXConnectorServer jmxConnectorServer;
 
 
     /**
@@ -59,15 +46,39 @@ public class ServerContext implements ServletContextListener {
      * are notified of context initialization before any filter or servlet in the web application is initialized.
      */
     public void contextInitialized(ServletContextEvent sce) {
-//        ManagementService.registerMBeans(getCacheManager(), ManagementFactory.getPlatformMBeanServer(),
-//                true, true, true, true);
+        System.setProperty("com.sun.management.jmxremote", "");
+        LOG.info("Starting JMS MBeanServer");
+        MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+        ManagementService.registerMBeans(CacheManager.getInstance(), mBeanServer,
+                true, true, true, true);
+
+
+//        try {
+//            final String hostname = InetAddress.getLocalHost().getHostName();
+//            int port = 8081;
+//            LocateRegistry.createRegistry(port);
+//            JMXServiceURL url = new JMXServiceURL(
+//                    "service:jmx:rmi://" + hostname + ":" + port + "/jndi/rmi://" + hostname + ":" + port + "/jmxrmi");
+//            jmxConnectorServer = JMXConnectorServerFactory.newJMXConnectorServer(url, null, mBeanServer);
+//            LOG.info("Start the RMI connector server on url " + url);
+//            jmxConnectorServer.start();
+//
+//        } catch (Exception e) {
+//            LOG.severe(e.getMessage());
+//
+//        }
+
     }
 
     /**
      * Notification that the servlet context is about to be shut down. All servlets and filters have been
-     * destroy()ed before any ServletContextListeners are notified of context destruction.
+     * destroyed before any ServletContextListeners are notified of context destruction.
      */
     public void contextDestroyed(ServletContextEvent sce) {
-//        manager.shutdown();
+//        try {
+//            jmxConnectorServer.stop();
+//        } catch (IOException e) {
+//            LOG.severe(e.getMessage());
+//        }
     }
 }

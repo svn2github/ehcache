@@ -9,7 +9,7 @@
     </parent>
     <name>Ehcache Server</name>
     <artifactId>ehcache-server</artifactId>
-    <version>0.5</version>
+    <version>0.6</version>
     <packaging>war</packaging>
     <description>The ehcache W3C and RESTful web services server.</description>
     <dependencies>
@@ -35,9 +35,9 @@
             <version>1.2</version>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>com.sun.xml.ws</groupId>-->
-            <!--<artifactId>metro-glassfishv3-webservices-rt</artifactId>-->
-            <!--<version>1.2</version>-->
+        <!--<groupId>com.sun.xml.ws</groupId>-->
+        <!--<artifactId>metro-glassfishv3-webservices-rt</artifactId>-->
+        <!--<version>1.2</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>com.sun.xml.ws</groupId>
@@ -116,7 +116,7 @@
                     <enableRulesSummary>false</enableRulesSummary>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
-                    <failsOnViolation>true</failsOnViolation>
+                    <failOnViolation>true</failOnViolation>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <enableRulesSummary>true</enableRulesSummary>
                 </configuration>
@@ -128,7 +128,6 @@
                 <version>1.0-alpha-4</version>
             </plugin>
 
-
             <plugin>
                 <groupId>org.codehaus.cargo</groupId>
                 <artifactId>cargo-maven2-plugin</artifactId>
@@ -139,14 +138,15 @@
                         <containerId>jetty6x</containerId>
                         <type>embedded</type>
                         <systemProperties>
+                            <com.sun.management.jmxremote></com.sun.management.jmxremote>
+                            <com.sun.management.jmxremote.port>8999</com.sun.management.jmxremote.port>
+                            <com.sun.management.jmxremote.ssl>false</com.sun.management.jmxremote.ssl>
+                            <com.sun.management.jmxremote.authenticate>false</com.sun.management.jmxremote.authenticate>
+                            <java.rmi.server.hostname>localhost</java.rmi.server.hostname>
                             <com.sun.management.jmxremote>true</com.sun.management.jmxremote>
                             <Ron>noR</Ron>
                         </systemProperties>
                     </container>
-                    <properties>
-                        Not working as usual for a maven plugin
-                        <cargo.jvmargs>com.sun.management.jmxremote</cargo.jvmargs>
-                    </properties>
                 </configuration>
 
                 <executions>
@@ -172,14 +172,35 @@
                 <groupId>org.mortbay.jetty</groupId>
                 <artifactId>maven-jetty-plugin</artifactId>
                 <configuration>
-                    <integration>true</integration>
+                    <systemProperties>
+                        <systemProperty>
+                            <name>com.sun.management.jmxremote</name>
+                            <value>true</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <name>com.sun.management.jmxremote.port</name>
+                            <value>8999</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <name>com.sun.management.jmxremote.ssl</name>
+                            <value>true</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <name>com.sun.management.jmxremote.authenticate</name>
+                            <value>false</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <name>java.rmi.server.hostname</name>
+                            <value>localhost</value>
+                        </systemProperty>
+                    </systemProperties>
                 </configuration>
             </plugin>
 
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <skip>false</skip>
+                    <skip>true</skip>
                     <includes>
                         <include>**/*UnitTest.java</include>
                     </includes>
@@ -199,7 +220,7 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skip>false</skip>
+                            <skip>true</skip>
                             <includes>
                                 <include>**/*Test.java</include>
                             </includes>

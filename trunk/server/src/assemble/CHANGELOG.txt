@@ -1,5 +1,12 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+<release version="0.6" date="2008-11-?" desc="Initial release of ehcache server">
+    <!-- Features and Enhancements -->
+    <action dev="Greg Luck" type="add">
+        Register Ehcache core MBeans with the platform MBeanServer. 
+    </action>
+</release>
+
 <release version="0.5" date="2008-10-15" desc="Initial release of ehcache server">
     <!-- Features and Enhancements -->
     <action dev="Greg Luck" type="update">

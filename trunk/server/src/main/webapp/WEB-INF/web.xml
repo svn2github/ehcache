@@ -29,7 +29,7 @@
     SOAP Servlet
     Comment out to disable SOAP Web Services
     -->
-    
+
     <servlet>
         <servlet-name>EhcacheWebServiceEndpoint</servlet-name>
         <servlet-class>com.sun.xml.ws.transport.http.servlet.WSServlet</servlet-class>
