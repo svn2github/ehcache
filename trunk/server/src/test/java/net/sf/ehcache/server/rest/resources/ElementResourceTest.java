@@ -329,7 +329,8 @@ public class ElementResourceTest {
         urlConnection.setRequestMethod("GET");
         assertEquals(200, urlConnection.getResponseCode());
         assertTrue(urlConnection.getContentType().matches("application/xml"));
-        assertTrue(!eTag.equals(urlConnection.getHeaderField("Etag")));
+        String eTagInResponse = urlConnection.getHeaderField("Etag");
+        assertTrue(!eTag.equals(eTagInResponse));
         LOG.info("eTag: " + urlConnection.getHeaderField("Etag"));
         LOG.info("lastModified: " + urlConnection.getHeaderField("Last-Modified"));
         //HttpURLConnection weirdness. It works from wget.
@@ -340,13 +341,9 @@ public class ElementResourceTest {
         urlConnection = (HttpURLConnection) u.openConnection();
         urlConnection.setRequestMethod("GET");
         urlConnection.setIfModifiedSince(System.currentTimeMillis());
-        urlConnection.setUseCaches(true);
-//        urlConnection.setRequestProperty("");
+        urlConnection.setRequestProperty("If-None-Match", eTagInResponse);
+
         assertEquals(304, urlConnection.getResponseCode());
-        int i = 0;
-//        assertTrue(urlConnection.getContentType().matches("application/xml"));
-        //assertTrue(!eTag.equals(urlConnection.getHeaderField("Etag")));
-        //assertTrue(!lastModified.equals(urlConnection.getHeaderField("Last-Modified")));
 
     }
 

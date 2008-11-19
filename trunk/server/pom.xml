@@ -18,9 +18,9 @@
          seem to work is to move asm-3.1 up the classpath. -->
         <dependency>
             <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey</artifactId>
-            <version>0.8-ea</version>
+            <artifactId>jersey-server</artifactId>
             <scope>compile</scope>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
@@ -34,11 +34,6 @@
             <artifactId>metro-webservices-rt</artifactId>
             <version>1.2</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>com.sun.xml.ws</groupId>-->
-        <!--<artifactId>metro-glassfishv3-webservices-rt</artifactId>-->
-        <!--<version>1.2</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>metro-webservices-api</artifactId>
@@ -62,9 +57,9 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>sun.net</groupId>
-            <artifactId>httpserver</artifactId>
-            <version>1.6</version>
+            <groupId>com.sun.net.httpserver</groupId>
+            <artifactId>http</artifactId>
+            <version>20070405</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -200,7 +195,7 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <skip>true</skip>
+                    <skip>false</skip>
                     <includes>
                         <include>**/*UnitTest.java</include>
                     </includes>
@@ -220,7 +215,7 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skip>true</skip>
+                            <skip>false</skip>
                             <includes>
                                 <include>**/*Test.java</include>
                             </includes>

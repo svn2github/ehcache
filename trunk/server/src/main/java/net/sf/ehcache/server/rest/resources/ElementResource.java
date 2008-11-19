@@ -137,6 +137,7 @@ public class ElementResource {
         EntityTag entityTag = createETag(ehcacheElement);
 
 
+//        Response.ResponseBuilder responseBuilder = request.evaluatePreconditions(lastModifiedDate);
         Response.ResponseBuilder responseBuilder = request.evaluatePreconditions(lastModifiedDate, entityTag);
         //returns 304 if preconditions are met
         if (responseBuilder != null) {

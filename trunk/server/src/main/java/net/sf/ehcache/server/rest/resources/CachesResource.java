@@ -23,7 +23,7 @@ import net.sf.ehcache.server.jaxb.Caches;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.ProduceMime;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
@@ -47,7 +47,7 @@ import java.util.logging.Logger;
  * @version $Id$
  */
 @Path("/")
-@ProduceMime("application/xml")
+@Produces("application/xml")
 public class CachesResource {
 
     private static final Logger LOG = Logger.getLogger(CachesResource.class.getName());

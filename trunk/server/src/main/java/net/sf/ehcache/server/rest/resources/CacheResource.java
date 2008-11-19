@@ -26,7 +26,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.ProduceMime;
+import javax.ws.rs.Produces;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Request;
@@ -60,7 +60,7 @@ import java.util.logging.Level;
  * @author Greg Luck
  * @version $Id$
  */
-@ProduceMime("application/xml")
+@Produces("application/xml")
 public class CacheResource {
 
     private static final Logger LOG = Logger.getLogger(CacheResource.class.getName());
@@ -188,7 +188,7 @@ public class CacheResource {
      * @param element
      * @return
      */
-    @Path(value = "{element}", limited = false)
+    @Path(value = "{element}")
     public ElementResource getElementResource(@PathParam("element")String element) {
         return new ElementResource(uriInfo, request, cache, element);
     }
