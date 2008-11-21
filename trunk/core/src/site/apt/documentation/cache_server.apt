@@ -775,4 +775,43 @@ The programmatic interfaces made available are referred to as Web services.
     windows - java -jar ..\lib\ehcache-standalone-server-0.1.jar 8080 ..\war
 ---
 
+*   Monitoring
+
+    The CacheServer registers Ehcache MBeans with the platform MBeanServer.
+
+    Remote monitoring of the MBeanServer is the responsibility of the Web Container or Application Server vendor.
+
+    For example, some instructions for Tomcat are here:
+    {{https://wiki.internet2.edu/confluence/display/CPD/Monitoring+Tomcat+with+JMX}}
+
+    See your Web Container documentation for how to do this for your web container.
+
+**  Remotely Monitoring the Standalone Server
+
+    The standalone server automatically exposes the MBeanServer.
+
+    When it starts you will see the JMS service URL print out. e.g.
+
+---
+Nov 20, 2008 1:00:00 PM org.glassfish.admin.mbeanserver.ConnectorStartupService$ConnectorsStarterThread startConnector
+INFO: Started JMXConnector, JMXService URL = service:jmx:rmi:///jndi/rmi://192.168.1.108:8686/jmxrmi
+---
+
+    To connect with <<<JConsole>>> simply fire up JConsole, click on the Advanced Tab and then paste in the
+    service URL. In the above example that is
+
+---
+service:jmx:rmi:///jndi/rmi://192.168.1.108:8686/jmxrmi
+---
+
+    Then click <<<Connect>>>.
+
+    To the ehcache MBean, click on the <<<Mbeans>>> tab and expand the <<<net.sf.ehcache>>> tree node.
+
+    You will see something like the following.
+
+[images/JConsoleExample.png] CacheStatistics MBeans in JConsole    
+
+    Of course, from there you can hook the Cache Server up to your monitoring tool of choice. See the chapter
+    on JMX Management and Monitoring for more information.
 

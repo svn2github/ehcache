@@ -203,7 +203,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
-                    <skip>false</skip>
+                    <skip>true</skip>
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
@@ -242,7 +242,7 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skip>false</skip>
+                            <skip>true</skip>
                             <includes>
                                 <include>**/web/**/*Test.java</include>
                             </includes>

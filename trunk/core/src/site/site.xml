@@ -10,7 +10,7 @@
             <item name="Download" href="http://sourceforge.net/project/showfiles.php?group_id=93232"/>
         </links>
 
-        <menu name="About" href="maven-reports.html">
+        <menu name="About">
             <item name="Overview" href="/index.html"/>
             <item name="Features" href="/features.html"/>
             <item name="Support" href="/support.html"/>
@@ -21,7 +21,12 @@
             <item name="Name &amp; Logo" href="/nameandlogo.html"/>
         </menu>
 
-        <menu name="Code" href="maven-reports.html">
+        <menu name="Services">
+            <item name="Consulting" href="/consulting.html"/>
+            <item name="Commercial Support" href="/support.html"/>
+        </menu>
+
+        <menu name="Code">
             <item name="Download" href="http://sourceforge.net/project/showfiles.php?group_id=93232"/>
             <item name="Maven Release Repository" href="http://repo1.maven.org/maven2/net/sf/ehcache/"/>
             <item name="Maven Snapshot Repository" href="http://ehcache.sf.net/snapshotrepository"/>
@@ -49,7 +54,7 @@
             <item name="Whitepaper on caching constructs" href="documentation/constructs_design.html"/>
         </menu>
 
-        <menu name="Community" href="maven-reports.html">
+        <menu name="Community">
             <item name="SourceForge Home" href="http://sourceforge.net/projects/ehcache/"/>
             <item name="Mailing Lists" href="/mail-lists.html"/>
             <item name="Issue Tracking" href="/issue-tracking.html"/>
@@ -62,7 +67,7 @@
         </menu>
 
 
-        <menu name="Project Reports" href="maven-reports.html">
+        <menu name="Project Reports">
             <item name="fisheye Subversion browser" href="http://fisheye3.cenqua.com/changelog/ehcache/"/>
             <item name="Checkstyle" href="/checkstyle.html"/>
             <item name="CPD" href="/cpd.html"/>

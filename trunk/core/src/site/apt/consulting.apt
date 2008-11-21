@@ -1,0 +1,78 @@
+     ------
+     Consulting
+     ------
+     ------
+     Date
+     ------
+
+
+Consulting
+
+* Packaged Consulting
+
+    Our popular packaged consulting offerings make it easy to get the help you need in a set timeframe at a set price, with no hidden costs. They are easy to budget for, easy to buy, and they will help deliver results quickly.
+
+    For each engagement, you have the focused attention of a Luck Systems consultant.
+
+** Pricing
+
+    Packaged Consulting is at USD200 per hour, purchased in blocks of 10 hours.
+
+    Buy Now. todo add link
+
+
+* Custom Features
+
+New features can also be commissioned which are typically developed for a fixed cost after a specification has been agreed.
+
+    A condition of these features is that they are added back into the source code base under the Apache 2 license. The
+    advantage for the client is that maintenance is effectively free. The feature will get used by other users and
+    will benefit from bug reports and submitted patches.
+
+    Examples of features which have been developed for clients are:
+
+    * JCACHE API
+
+    * CacheLoader
+
+    * CacheExtension
+
+    * CacheExceptionHandler
+
+    * Cache Server with SOAP and RESTful APIs
+
+    * JMS Distribution
+
+** Delivery Approach
+
+   A feature is provided under a Statement of Work covered by a Master Professional Services Agreement.
+
+   Standard features of delivery are:
+
+   * Specification of Deliverables
+
+   * Source code implementing the deliverable
+
+   * JUnit tests covering 100% method coverage
+
+   * Integration tests
+
+   * Code documentation with 100% JavaDoc method documentation in accordance with Sun standards
+
+   * Versioned binary, source code and javadoc release via Maven central repo and distribution file download
+
+   * Documentation added to the http://ehcache.sf.net/documentation
+
+   * Maven build
+
+   Deliverables are provided for formal acceptance testing before billing.
+
+
+**  Pricing
+
+    Pricing is fixed price after creation of a specification and discussion. It is typically based on a rate
+    of USD150 per hour.
+
+
+
+
