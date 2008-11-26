@@ -51,8 +51,6 @@
             depends="prepare-web-tests, start-orion"/>
 
 
-
-
     <!-- Builds a jar file containing for the application  -->
     <target name="dist-jar" description="Builds the application jar">
         <mkdir dir="${dist.dir}"/>
@@ -100,8 +98,8 @@
         </sequential>
     </macrodef>
 
-<!--  todo put back          depends="compile, dist-jar, deploy-default-web-app-orion, deploy-default-web-app-tomcat, deploy-default-web-app-glassfish"
--->
+    <!--  todo put back          depends="compile, dist-jar, deploy-default-web-app-orion, deploy-default-web-app-tomcat, deploy-default-web-app-glassfish"
+    -->
     <target name="prepare-web-tests"
             depends="dist-jar, deploy-default-web-app-orion, deploy-default-web-app-tomcat"
             if="${run.web.tests}"
@@ -282,7 +280,8 @@
         </sequential>
     </macrodef>
 
-    <target name="deploy-and-start-multiple-tomcats" depends="dist-jar" description="Allows manual testing of tomcat apps">
+    <target name="deploy-and-start-multiple-tomcats" depends="dist-jar"
+            description="Allows manual testing of tomcat apps">
         <deploy-default-web-app-tomcat_macro port-prefix="80"/>
         <start-tomcat-macro port-prefix="80"/>
 
@@ -443,12 +442,84 @@
     </target>
 
     <!-- Produce the ydocs images for the book and singlepage guide. Relies on Maven javadoc.  -->
-    <target name="copy-ydoc" description="Creates the javadocs" >
+    <target name="copy-ydoc" description="Creates the javadocs">
         <copy todir="${build.dir}/book/javadoc">
             <fileset dir="${build.dir}/site/apidocs"/>
         </copy>
     </target>
 
+    <target name="unhide_html" description="unhides html">
+        <replace dir="${build.dir}/site">
+            <replacetoken><![CDATA[@standard_support@]]></replacetoken>
+            <replacevalue><![CDATA[
+
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="1346142">
+<table>
+<tr><td><input type="hidden" name="on0" value="Support Contacts (maximum of 2)">Support Contacts (maximum of 2)</td></tr><tr><td><input type="text" name="os0" maxlength="60">
+<tr><td><input type="hidden" name="on1" value="Email Address">Email Address</td></tr><tr><td><input type="text" name="os1" maxlength="60">
+</table>
+<input type="image" src="https://www.paypal.com/en_AU/i/btn/btn_buynow_SM.gif" border="0" name="submit" alt="">
+<img alt="" border="0" src="https://www.paypal.com/en_AU/i/scr/pixel.gif" width="1" height="1">
+</form>
+
+            ]]></replacevalue>
+        </replace>
+
+        <replace dir="${build.dir}/site">
+            <replacetoken><![CDATA[@extended_support@]]></replacetoken>
+            <replacevalue><![CDATA[
+            
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="1391796">
+<table>
+<tr><td><input type="hidden" name="on0" value="Support Contacts (maximum of 2)">Support Contacts (maximum of 2)</td></tr><tr><td><input type="text" name="os0" maxlength="60">
+<tr><td><input type="hidden" name="on1" value="Email Address">Email Address</td></tr><tr><td><input type="text" name="os1" maxlength="60">
+</table>
+<input type="image" src="https://www.paypal.com/en_AU/i/btn/btn_buynow_SM.gif" border="0" name="submit" alt="">
+<img alt="" border="0" src="https://www.paypal.com/en_AU/i/scr/pixel.gif" width="1" height="1">
+</form>
+
+            ]]></replacevalue>
+        </replace>
+
+        <replace dir="${build.dir}/site">
+            <replacetoken><![CDATA[@consulting@]]></replacetoken>
+            <replacevalue><![CDATA[
+
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="1393995">
+<table>
+<tr><td><input type="hidden" name="on0" value="Consulting Contacts (maximum of 2)">Consulting Contacts (maximum of 2)</td></tr><tr><td><input type="text" name="os0" maxlength="60">
+<tr><td><input type="hidden" name="on1" value="Email Address">Email Address</td></tr><tr><td><input type="text" name="os1" maxlength="60">
+</table>
+<input type="image" src="https://www.paypal.com/en_AU/i/btn/btn_buynow_SM.gif" border="0" name="submit" alt="">
+<img alt="" border="0" src="https://www.paypal.com/en_AU/i/scr/pixel.gif" width="1" height="1">
+</form>
+
+            ]]></replacevalue>
+        </replace>
+
+        <!--Add google code-->
+        <replace dir="${build.dir}/site">
+            <replacetoken><![CDATA[</body>]]></replacetoken>
+            <replacevalue><![CDATA[
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-3138913-3");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+            ]]></replacevalue>
+        </replace>
+    </target>
 
     <target name="create_singlepageguide" depends="prepare-book-resources">
         <create_artifact extension="html"/>

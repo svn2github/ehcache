@@ -169,6 +169,19 @@
                     </execution>
 
                     <execution>
+                        <id>unhide_embedded_html</id>
+                        <phase>site</phase>
+                        <configuration>
+                            <tasks>
+                                <ant target="unhide_html"/>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
                         <id>prepare-and-start-orion</id>
                         <phase>pre-integration-test</phase>
                         <configuration>

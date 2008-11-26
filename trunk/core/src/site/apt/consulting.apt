@@ -8,22 +8,29 @@
 
 Consulting
 
-* Packaged Consulting
+* Prepaid Blocks of Hours
 
-    Our popular packaged consulting offerings make it easy to get the help you need in a set timeframe at a set price, with no hidden costs. They are easy to budget for, easy to buy, and they will help deliver results quickly.
+    Our popular prepaid blocks of hours makes it easy to get the help you need in a set timeframe at a set price,
+    with no hidden costs. It is easy to budget for, easy to buy, and it will help deliver results quickly.
 
-    For each engagement, you have the focused attention of a Luck Systems consultant.
+    Typically, 5 hours is long enough to understand the environment, application and provide advice on how best
+    to use ehcache.
+
+    For each engagement, you have the focused attention of expert ehcache consultants.
+
+    On ordering you will be sent a consulting entitlement for your number of hours.
 
 ** Pricing
 
-    Packaged Consulting is at USD200 per hour, purchased in blocks of 10 hours.
+    Packaged Consulting is at USD200 per hour, purchased in blocks of 5 hours.
 
-    Buy Now. todo add link
+    @consulting@
 
+    Please contact {{{mailto:ehcache_sales@gregluck.com}Ehcache Sales}} for alternate payment options.
 
 * Custom Features
 
-New features can also be commissioned which are typically developed for a fixed cost after a specification has been agreed.
+    New features can also be commissioned which are typically developed for a fixed cost after a specification has been agreed.
 
     A condition of these features is that they are added back into the source code base under the Apache 2 license. The
     advantage for the client is that maintenance is effectively free. The feature will get used by other users and
@@ -65,7 +72,7 @@ New features can also be commissioned which are typically developed for a fixed 
 
    * Maven build
 
-   Deliverables are provided for formal acceptance testing before billing.
+   Deliverables are provided for formal software acceptance before invoicing.
 
 
 **  Pricing
@@ -73,6 +80,7 @@ New features can also be commissioned which are typically developed for a fixed 
     Pricing is fixed price after creation of a specification and discussion. It is typically based on a rate
     of USD150 per hour.
 
-
+    Please contact {{{mailto:ehcache_sales@gregluck.com}Ehcache Sales}} to discuss your custom feature or to
+    get a copy of the standard Master Services Agreement.
 
 

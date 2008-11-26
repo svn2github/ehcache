@@ -77,7 +77,7 @@
 
     The site needs to be deployed from the target/site directory using:
 
-    rsync -v --rsh="ssh -l gregluck,ehcache" -r * gregluck,ehcache@web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs    
+    rsync -v -r * gregluck,ehcache@web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs    
 
 *   Deploying a release
 
