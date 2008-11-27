@@ -75,7 +75,7 @@ public class CacheResource {
     /**
      * The full URI of the resource
      */
-    @Context
+    @Context                      
     private UriInfo uriInfo;
 
     /**

@@ -117,6 +117,9 @@
                 </configuration>
             </plugin>
 
+            <!--Conflicts with Dave Whitla's plugin with the same goal.
+            Use mvn org.glassfish:maven-glassfish-plugin:run instead
+            -->
             <plugin>
                 <groupId>org.glassfish</groupId>
                 <artifactId>maven-glassfish-plugin</artifactId>
@@ -160,6 +163,13 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.glassfish</groupId>
+                <artifactId>maven-glassfish-plugin</artifactId>
+                <version>1.0-alpha-4</version>
             </plugin>
 
 
@@ -232,12 +242,12 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <artifactId>maven-plugin-plugin</artifactId>
-                <configuration>
-                    <goalPrefix>glassfish</goalPrefix>
-                </configuration>
-            </plugin>
+            <!--<plugin>-->
+                <!--<artifactId>maven-plugin-plugin</artifactId>-->
+                <!--<configuration>-->
+                    <!--<goalPrefix>glassfish</goalPrefix>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jaxws-maven-plugin</artifactId>

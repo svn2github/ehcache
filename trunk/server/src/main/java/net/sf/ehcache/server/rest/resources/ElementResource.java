@@ -197,6 +197,8 @@ public class ElementResource {
 
     /**
      * Implements the DELETE RESTful operation
+     * <p/>
+     * If the element resource is specified as "*", then <code>cache.removeAll()</code> is called.
      *
      * @throws com.sun.jersey.api.NotFoundException
      *          if either the cache or the element did not exist
@@ -206,9 +208,13 @@ public class ElementResource {
         LOG.log(Level.FINE, "DELETE element {0}", element);
         net.sf.ehcache.Cache ehcache = lookupCache();
 
-        boolean removed = ehcache.remove(element);
-        if (!removed) {
-            throw new NotFoundException("Element " + element + " not found");
+        if (element.equals("*")) {
+            ehcache.removeAll();
+        } else {
+            boolean removed = ehcache.remove(element);
+            if (!removed) {
+                throw new NotFoundException("Element " + element + " not found");
+            }
         }
     }
 

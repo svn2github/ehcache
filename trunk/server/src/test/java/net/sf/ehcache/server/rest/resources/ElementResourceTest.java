@@ -52,8 +52,13 @@ import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.MalformedURLException;
+import java.net.URLEncoder;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -188,6 +193,59 @@ public class ElementResourceTest {
                         urlConnection.getLastModified() < System.currentTimeMillis());
         //We use the Element version + Last-Modified
         assertNotNull(urlConnection.getHeaderField("ETag"));
+    }
+
+
+    /**
+     *
+     * @throws java.io.IOException
+     * @throws javax.xml.parsers.ParserConfigurationException
+     *
+     * @throws org.xml.sax.SAXException
+     */
+    @Test
+    public void testDeleteElement() throws Exception {
+        long beforeCreated = System.currentTimeMillis();
+        Thread.sleep(10);
+        String originalString = "The rain in Spain falls mainly on the plain";
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(originalString.getBytes());
+
+        int status = HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream);
+        assertEquals(201, status);
+        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
+        assertEquals(200, urlConnection.getResponseCode());
+
+        urlConnection = HttpUtil.delete("http://localhost:8080/ehcache/rest/sampleCache2/1");
+        assertEquals(404, HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1").getResponseCode());
+    }
+
+
+    /**
+     *
+     * @throws java.io.IOException
+     * @throws javax.xml.parsers.ParserConfigurationException
+     *
+     * @throws org.xml.sax.SAXException
+     */
+    @Test
+    public void testDeleteAllElement() throws Exception {
+        long beforeCreated = System.currentTimeMillis();
+        Thread.sleep(10);
+        String originalString = "The rain in Spain falls mainly on the plain";
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(originalString.getBytes());
+
+        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream);
+        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/2", "text/plain", byteArrayInputStream);
+        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/3", "text/plain", byteArrayInputStream);
+
+
+        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
+        assertEquals(200, urlConnection.getResponseCode());
+
+        urlConnection = HttpUtil.delete("http://localhost:8080/ehcache/rest/sampleCache2/*");
+        assertEquals(404, HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1").getResponseCode());
+        assertEquals(404, HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/2").getResponseCode());
+        assertEquals(404, HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/3").getResponseCode());
     }
 
     /**
@@ -481,6 +539,20 @@ public class ElementResourceTest {
 //        Status status = cacheService.getStatus("sampleCache1");
 //        assertTrue(status == Status.STATUS_ALIVE);
     }
+
+
+    @Test
+    public void testEncoding() throws URISyntaxException, MalformedURLException, UnsupportedEncodingException {
+
+        //Uses RFC 2396 - i.e. does not encode the *
+        String encoded = URLEncoder.encode("*,", "UTF-8");
+
+        //legal to use * and ,
+        URI uri = new URI("http://localhost/ehcache/sampleCache1/*,");
+        URI url2 = uri.resolve("http://localhost/ehcache/sampleCache1/*,");
+
+    }
+
 
 //
 //    private Element getElementFromCache() throws CacheException_Exception, IllegalStateException_Exception, NoSuchCacheException_Exception {
