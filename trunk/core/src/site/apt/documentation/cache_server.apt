@@ -100,6 +100,8 @@
 
     Deletes the element from the cache.
 
+    The resource representation for all elements is <<<*>>>. <<<DELETE/\{cache\}/\* will call <<<cache.removeAll()>>>.
+
 **  Resource Representations
 
     We deal with resource representations rather than resources themselves.

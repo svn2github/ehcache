@@ -29,6 +29,8 @@
             <item name="Download" href="http://sourceforge.net/project/showfiles.php?group_id=93232"/>
             <item name="Maven Release Repository" href="http://repo1.maven.org/maven2/net/sf/ehcache/"/>
             <item name="Maven Snapshot Repository" href="http://ehcache.sf.net/snapshotrepository"/>
+            <item name="ehcache.xml" href="/ehcache.xml"/>
+            <item name="ehcache.xsd" href="/ehcache.xsd"/>
             <item name="Change logs" href="/changes-report.html"/>
             <item name="Code Samples" href="documentation/samples.html"/>
             <item name="Source Repository" href="/source-repository.html"/>

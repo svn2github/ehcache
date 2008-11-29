@@ -448,7 +448,12 @@
         </copy>
     </target>
 
-    <target name="unhide_html" description="unhides html">
+    <target name="unhide_html" description="extra site processing">
+
+        <copy file="${src.config.dir}/ehcache.xml" todir="${build.dir}/site"/>
+        <copy file="${src.config.dir}/ehcache.xsd" todir="${build.dir}/site"/>
+
+
         <replace dir="${build.dir}/site">
             <replacetoken><![CDATA[@standard_support@]]></replacetoken>
             <replacevalue><![CDATA[

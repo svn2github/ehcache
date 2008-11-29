@@ -21,9 +21,13 @@
     If one is not provided, download ehcache from {{http://ehcache.sf.net}}. It, and the ehcache.xsd is provided in
     the distribution.
 
+
+
 * {ehcache.xsd}
 
    Ehcache configuration files must be comply with the ehcache XML schema, ehcache.xsd, reproduced below.
+
+   It can also be downloaded from {{http://ehcache.sf.net/ehcache.xsd}}.
 
 --------------------------------------------
 <?xml version="1.0" encoding="UTF-8"?>
@@ -200,6 +204,8 @@
    The sample ehcache.xml, which is included in the ehcache distribution is reproduced below. The
    sample contains full commentary required to configure each element. Further information can be
    found in specific chapters in the Guide.
+
+   It can also be downloaded from {{http://ehcache.sf.net/ehcache.xml}}.
 
 ---------------------
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
