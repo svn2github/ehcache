@@ -359,6 +359,7 @@ public class CacheTest extends AbstractCacheTest {
      * />
      * <p/>
      * where an Elment override is set on TTL
+     * todo
      */
     @Test
     public void testExpiryBasedOnTimeToIdleElementOverride() throws Exception {
@@ -1266,6 +1267,7 @@ public class CacheTest extends AbstractCacheTest {
     }
 
     /**
+     * todo fix
      * Shows the effect of jamming large amounts of puts into a cache that overflows to disk.
      * The DiskStore should cause puts to back off and avoid an out of memory error.
      */

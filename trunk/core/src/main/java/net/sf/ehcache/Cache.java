@@ -101,6 +101,7 @@ public class Cache implements Ehcache {
     public static final long DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS = 120;
 
     /**
+     * todo change to 200
      * Set a buffer size for the spool of approx 30MB
      */
     private static final int DEFAULT_SPOOL_BUFFER_SIZE = 30;
@@ -1633,8 +1634,6 @@ public class Cache implements Ehcache {
             throw new IllegalStateException("The " + configuration.getName() + " Cache is disposed.");
         }
     }
-        
-
 
 
     /**
@@ -2308,12 +2307,10 @@ public class Cache implements Ehcache {
 
     /**
      * @return Gets the executor service. This is not publically accessible.
-     *         todo sort this out. Oustanding from lib change.
      */
     ThreadPoolExecutor getExecutorService() {
         if (executorService == null) {
             synchronized (this) {
-                //0, 10, 60000, ?, Integer.MAXVALUE
                 executorService = new ThreadPoolExecutor(EXECUTOR_CORE_POOL_SIZE, EXECUTOR_MAXIMUM_POOL_SIZE,
                         EXECUTOR_KEEP_ALIVE_TIME, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
             }
