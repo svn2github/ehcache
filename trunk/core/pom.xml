@@ -216,7 +216,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
-                    <skip>false</skip>
+                    <skip>true</skip>
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
