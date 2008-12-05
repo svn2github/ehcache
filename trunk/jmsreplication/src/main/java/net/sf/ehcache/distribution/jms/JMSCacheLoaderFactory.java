@@ -51,9 +51,12 @@ import java.util.logging.Logger;
  */
 public class JMSCacheLoaderFactory extends CacheLoaderFactory {
 
-    private static final Logger LOG = Logger.getLogger(JMSCacheLoaderFactory.class.getName());
-    /***/
+    /**
+     * The default timeoutMillis - time in milliseconds to wait for a reply from a JMS Cache Loader. 
+     */
     protected static final int DEFAULT_TIMEOUT_INTERVAL_MILLIS = 30000;
+
+    private static final Logger LOG = Logger.getLogger(JMSCacheLoaderFactory.class.getName());
 
     /**
      * Creates a CacheLoader using the JSR107 creational mechanism.
@@ -159,7 +162,7 @@ public class JMSCacheLoaderFactory extends CacheLoaderFactory {
             try {
                 timeoutMillis = Integer.parseInt(timeoutMillisString);
             } catch (NumberFormatException e) {
-                LOG.warning("Number format exception trying to set asynchronousReplicationIntervalMillis. " +
+                LOG.warning("Number format exception trying to set timeoutMillis. " +
                         "Using the default instead. String value was: '" + timeoutMillisString + "'");
                 timeoutMillis = DEFAULT_TIMEOUT_INTERVAL_MILLIS;
             }

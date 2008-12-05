@@ -45,24 +45,32 @@ import java.util.logging.Logger;
  */
 public class JMSCacheLoader implements CacheLoader {
 
-    /***/
+    /**
+     * The highest JMS priority
+     */
     protected static final int HIGHEST_JMS_PRORITY = 9;
+
     private static final Logger LOG = Logger.getLogger(JMSCacheLoader.class.getName());
 
-    private AcknowledgementMode acknowledgementMode;
-
-    private Status status;
-    private QueueConnection getQueueConnection;
-    private Queue getQueue;
     /***/
     protected QueueSender getQueueSender;
+
     /***/
     protected QueueSession getQueueSession;
+
     /***/
     protected int timeoutMillis;
-    private String defaultLoaderArgument;
+
     /***/
     protected Ehcache cache;
+
+
+    private AcknowledgementMode acknowledgementMode;
+    private Status status;
+    private QueueConnection getQueueConnection;
+    private String defaultLoaderArgument;
+    private Queue getQueue;
+
 
     /**
      * Constructor.
