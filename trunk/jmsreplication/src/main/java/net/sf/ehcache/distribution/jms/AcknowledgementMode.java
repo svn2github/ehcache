@@ -20,6 +20,7 @@ import javax.jms.Session;
 
 /**
  * An enum of JMS acknowledgement mode.
+ *
  * @author Greg Luck
  */
 public enum AcknowledgementMode {
@@ -28,7 +29,7 @@ public enum AcknowledgementMode {
      *
      */
     AUTO_ACKNOWLEDGE(Session.AUTO_ACKNOWLEDGE),
-    
+
     //CLIENT_ACKNOWLEDGE(Session.CLIENT_ACKNOWLEDGE), not supported
     /**
      *
@@ -44,6 +45,7 @@ public enum AcknowledgementMode {
 
     /**
      * Constructor
+     *
      * @param mode an integer being the mode as per JMS
      */
     AcknowledgementMode(int mode) {
@@ -52,6 +54,7 @@ public enum AcknowledgementMode {
 
     /**
      * Return an AcknowledgementMode that matches a string
+     *
      * @param value matched with the name() value of the enum
      * @return the matching enum, or DUPS_OK_ACKNOWLEDGE if there is no match
      */
@@ -66,6 +69,7 @@ public enum AcknowledgementMode {
 
     /**
      * Returns the int value of the enum.
+     *
      * @return an int matching the JMS values
      */
     public int toInt() {

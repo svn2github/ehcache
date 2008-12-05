@@ -96,18 +96,19 @@ public final class JMSUtil {
     /**
      * Creates a JNDI initial context.
      *
-     * @param initialContextFactoryName (mandatory) - the name of the factory used to create the message queue initial context.
-     * @param providerURL               (mandatory) - the JNDI configuration information for the service provider to use.
+     * @param initialContextFactoryName   (mandatory) - the name of the factory used to create the message queue initial context.
+     * @param providerURL                 (mandatory) - the JNDI configuration information for the service provider to use.
      * @param getQueueConnectionFactoryBindingName
-     *                                  (mandatory) - the JNDI binding name for the QueueConnectionFactory
+     *                                    (mandatory) - the JNDI binding name for the QueueConnectionFactory
      * @param replicationTopicBindingName (mandatory) - the JNDI binding name for the topic name used for replication
-     * @param replicationTopicConnectionFactoryBindingName (mandatory) - the JNDI binding name for the replication TopicConnectionFactory
-     * @param getQueueBindingName       (mandatory) - the JNDI binding name for the queue name used to do make requests.
-     * @param securityPrincipalName     the JNDI java.naming.security.principal
-     * @param securityCredentials       the JNDI java.naming.security.credentials
-     * @param urlPkgPrefixes            the JNDI java.naming.factory.url.pkgs
-     *                                  AUTO_ACKNOWLEDGE, DUPS_OK_ACKNOWLEDGE and SESSION_TRANSACTED.
-     *                                  The default is AUTO_ACKNOWLEDGE.
+     * @param replicationTopicConnectionFactoryBindingName
+     *                                    (mandatory) - the JNDI binding name for the replication TopicConnectionFactory
+     * @param getQueueBindingName         (mandatory) - the JNDI binding name for the queue name used to do make requests.
+     * @param securityPrincipalName       the JNDI java.naming.security.principal
+     * @param securityCredentials         the JNDI java.naming.security.credentials
+     * @param urlPkgPrefixes              the JNDI java.naming.factory.url.pkgs
+     *                                    AUTO_ACKNOWLEDGE, DUPS_OK_ACKNOWLEDGE and SESSION_TRANSACTED.
+     *                                    The default is AUTO_ACKNOWLEDGE.
      * @return a context, ready for lookups
      */
     public static Context createInitialContext(String securityPrincipalName,
@@ -186,6 +187,7 @@ public final class JMSUtil {
 
     /**
      * Closes the JNDI context.
+     *
      * @param context the context to cose
      */
     public static void closeContext(Context context) {

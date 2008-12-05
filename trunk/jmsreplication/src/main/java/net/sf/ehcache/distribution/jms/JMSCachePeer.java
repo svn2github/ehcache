@@ -61,9 +61,11 @@ public class JMSCachePeer implements CachePeer, MessageListener {
      */
     private static final int TEST_DELAY = 11000;
 
-    private Session producerSession;
+    /***/
+    protected Session producerSession;
     private CacheManager cacheManager;
-    private MessageProducer messageProducer;
+    /***/
+    protected MessageProducer messageProducer;
     private QueueSession getQueueSession;
     private boolean shutdown;
 

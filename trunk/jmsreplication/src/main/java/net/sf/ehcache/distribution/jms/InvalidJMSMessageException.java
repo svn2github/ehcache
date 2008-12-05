@@ -25,6 +25,7 @@ import net.sf.ehcache.CacheException;
  * available JMS Message types.
  * <p/>
  * See the documentation for Ehcache replication for details.
+ *
  * @author Greg Luck
  */
 public class InvalidJMSMessageException extends CacheException {

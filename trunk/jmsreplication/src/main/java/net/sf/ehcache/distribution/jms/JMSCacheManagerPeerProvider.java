@@ -51,33 +51,59 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
 
     private static final Logger LOG = Logger.getLogger(JMSCacheManagerPeerProvider.class.getName());
 
-    private CacheManager cacheManager;
-    private List<CachePeer> remoteCachePeers = new ArrayList<CachePeer>();
+    /***/
+    protected CacheManager cacheManager;
 
+    /***/
+    protected List<CachePeer> remoteCachePeers = new ArrayList<CachePeer>();
 
-    private TopicConnection replicationTopicConnection;
-    private Topic replicationTopic;
-    private QueueConnection getQueueConnection;
-    private Queue getQueue;
-    private AcknowledgementMode acknowledgementMode;
-    private QueueReceiver getQueueRequestReceiver;
-    private TopicSession topicPublisherSession;
-    private TopicPublisher topicPublisher;
-    private TopicSubscriber topicSubscriber;
-    private QueueSession getQueueSession;
-    private JMSCachePeer cachePeer;
-    private boolean listenToTopic;
+    /***/
+    protected TopicConnection replicationTopicConnection;
+
+    /***/
+    protected Topic replicationTopic;
+
+    /***/
+    protected QueueConnection getQueueConnection;
+
+    /***/
+    protected Queue getQueue;
+
+    /***/
+    protected AcknowledgementMode acknowledgementMode;
+
+    /***/
+    protected QueueReceiver getQueueRequestReceiver;
+
+    /***/
+    protected TopicSession topicPublisherSession;
+
+    /***/
+    protected TopicPublisher topicPublisher;
+
+    /***/
+    protected TopicSubscriber topicSubscriber;
+
+    /***/
+    protected QueueSession getQueueSession;
+
+    /***/
+    protected JMSCachePeer cachePeer;
+
+    /***/
+    protected boolean listenToTopic;
 
 
     /**
      * Constructor
+     *
      * @param cacheManager
      * @param replicationTopicConnection
      * @param replicationTopic
      * @param getQueueConnection
      * @param getQueue
      * @param acknowledgementMode
-     * @param listenToTopic whether this provider should listen to events made to the JMS topic
+     * @param listenToTopic              whether this provider should listen to events made to the JMS topic
      */
     public JMSCacheManagerPeerProvider(CacheManager cacheManager,
                                        TopicConnection replicationTopicConnection,
@@ -116,7 +142,6 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
      * Notifies providers to initialise themselves.
      * <p/>
      *
-     *
      * @throws CacheException
      */
     public void init() {
@@ -148,8 +173,7 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
             //on the queue to achieve the same effect.
             getQueueSession = getQueueConnection.createQueueSession(false, acknowledgementMode.toInt());
             String messageSelector = CACHE_MANAGER_UID + " <> " + localCacheManagerUid(cacheManager);
-            getQueueRequestReceiver = getQueueSession.createReceiver(getQueue,  messageSelector);
-
+            getQueueRequestReceiver = getQueueSession.createReceiver(getQueue, messageSelector);
 
 
             getQueueConnection.start();

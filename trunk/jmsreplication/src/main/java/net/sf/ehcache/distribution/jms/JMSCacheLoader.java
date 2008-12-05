@@ -45,7 +45,8 @@ import java.util.logging.Logger;
  */
 public class JMSCacheLoader implements CacheLoader {
 
-    private static final int HIGHEST_JMS_PRORITY = 9;
+    /***/
+    protected static final int HIGHEST_JMS_PRORITY = 9;
     private static final Logger LOG = Logger.getLogger(JMSCacheLoader.class.getName());
 
     private AcknowledgementMode acknowledgementMode;
@@ -53,11 +54,15 @@ public class JMSCacheLoader implements CacheLoader {
     private Status status;
     private QueueConnection getQueueConnection;
     private Queue getQueue;
-    private QueueSender getQueueSender;
-    private QueueSession getQueueSession;
-    private int timeoutMillis;
+    /***/
+    protected QueueSender getQueueSender;
+    /***/
+    protected QueueSession getQueueSession;
+    /***/
+    protected int timeoutMillis;
     private String defaultLoaderArgument;
-    private Ehcache cache;
+    /***/
+    protected Ehcache cache;
 
     /**
      * Constructor.

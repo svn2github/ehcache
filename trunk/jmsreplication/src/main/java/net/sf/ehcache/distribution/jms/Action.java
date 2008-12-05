@@ -20,6 +20,7 @@ import net.sf.ehcache.distribution.EventMessage;
 
 /**
  * Actions that tie in with EventMessage actions. EventMessage has not been updated to use enums.
+ *
  * @author Greg Luck
  */
 public enum Action {
@@ -40,14 +41,13 @@ public enum Action {
     REMOVE_ALL(EventMessage.REMOVE_ALL),
 
     /**
-     * 
+     *
      */
     GET(10);
 
     private int action;
-    
+
     /**
-     *
      * @param mode
      */
     Action(int mode) {
@@ -55,7 +55,6 @@ public enum Action {
     }
 
     /**
-     *
      * @param value
      * @return
      */
@@ -70,7 +69,6 @@ public enum Action {
 
 
     /**
-     *
      * @return
      */
     public int toInt() {

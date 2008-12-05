@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 
 /**
  * A factory for creating JMSCacheReplicators.
+ *
  * @author benoit.perroud@elca.ch
  * @author Greg Luck
  */
@@ -80,6 +81,7 @@ public class JMSCacheReplicatorFactory extends CacheEventListenerFactory {
 
     /**
      * Extracts the AsynchronousReplicationIntervalMillis
+     *
      * @return the AsynchronousReplicationIntervalMillis
      */
     protected long extractAsynchronousReplicationIntervalMillis(
@@ -103,7 +105,8 @@ public class JMSCacheReplicatorFactory extends CacheEventListenerFactory {
 
     /**
      * Extract the given property, setting the default if it does not parse
-     * @return  the boolean value
+     *
+     * @return the boolean value
      */
     protected boolean extractBooleanProperty(Properties properties, String propertyName, boolean defaultValue) {
         boolean ret;

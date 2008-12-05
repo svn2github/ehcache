@@ -42,7 +42,7 @@ public class JMSEventMessage extends EventMessage {
      * <ul>
      * <li>ObjectMessage - if it is an net.sf.ehcache.Element, then it is treated as such and stored in the cache. All others
      * are stored in the cache as value of  MimeTypeByteArray. The mimeType is stored as type of <code>application/x-java-serialized-object</code>.
-     * When the ObjectMessage is of type net.sf.ehcache.Element, the mimeType is ignored. 
+     * When the ObjectMessage is of type net.sf.ehcache.Element, the mimeType is ignored.
      * <li>TextMessage - Stored in the cache as value of MimeTypeByteArray. The mimeType is stored as type of <code>text/plain</code>.
      * <li>BytesMessage - Stored in the cache as value of MimeTypeByteArray. The mimeType is stored as type of <code>application/octet-stream</code>.
      * </ul>
@@ -110,7 +110,6 @@ public class JMSEventMessage extends EventMessage {
     }
 
     /**
-     *
      * @return
      */
     public Serializable getLoaderArgument() {
@@ -118,7 +117,6 @@ public class JMSEventMessage extends EventMessage {
     }
 
     /**
-     *
      * @param loaderArgument
      */
     public void setLoaderArgument(Serializable loaderArgument) {

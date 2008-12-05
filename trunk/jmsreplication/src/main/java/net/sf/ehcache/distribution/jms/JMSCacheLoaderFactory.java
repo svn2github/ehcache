@@ -52,7 +52,8 @@ import java.util.logging.Logger;
 public class JMSCacheLoaderFactory extends CacheLoaderFactory {
 
     private static final Logger LOG = Logger.getLogger(JMSCacheLoaderFactory.class.getName());
-    private static final int DEFAULT_TIMEOUT_INTERVAL_MILLIS = 30000;
+    /***/
+    protected static final int DEFAULT_TIMEOUT_INTERVAL_MILLIS = 30000;
 
     /**
      * Creates a CacheLoader using the JSR107 creational mechanism.
