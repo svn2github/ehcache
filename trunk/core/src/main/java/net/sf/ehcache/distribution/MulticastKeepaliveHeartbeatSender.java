@@ -171,7 +171,7 @@ public final class MulticastKeepaliveHeartbeatSender {
          * @return a gzipped byte[]
          */
         private List createCachePeersPayload() {
-            List localCachePeers = cacheManager.getCachePeerListener().getBoundCachePeers();
+            List localCachePeers = cacheManager.getCachePeerListener("RMI").getBoundCachePeers();
             int newCachePeersHash = localCachePeers.hashCode();
             if (cachePeersHash != newCachePeersHash) {
                 cachePeersHash = newCachePeersHash;

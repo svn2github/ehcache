@@ -49,7 +49,7 @@ public class ManualRMIPeerProviderTest extends MulticastRMIPeerProviderTest {
         /* manager3 has an empty manual configuration, which is topped up by adding manual entries.
          * The sampleCache1 from manager3 is added to the rmiUrls list for manager1 and manager2
          */
-        CacheManagerPeerProvider peerProvider = manager3.getCacheManagerPeerProvider();
+        CacheManagerPeerProvider peerProvider = manager3.getCacheManagerPeerProvider("RMI");
         peerProvider.registerPeer("//localhost:40001/sampleCache1");
         peerProvider.registerPeer("//localhost:40002/sampleCache1");
 
@@ -71,25 +71,25 @@ public class ManualRMIPeerProviderTest extends MulticastRMIPeerProviderTest {
         Ehcache m1sampleCache1 = manager1.getCache("sampleCache1");
         Thread.sleep(2000);
 
-        List peerUrls = manager1.getCachePeerProvider().listRemoteCachePeers(m1sampleCache1);
+        List peerUrls = manager1.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(m1sampleCache1);
         assertEquals(expectedPeers(), peerUrls.size());
 
         Ehcache m2sampleCache1 = manager2.getCache("sampleCache1");
         assertFalse(m1sampleCache1.getGuid().equals(m2sampleCache1.getGuid()));
 
-        List peerUrls2 = manager2.getCachePeerProvider().listRemoteCachePeers(m2sampleCache1);
+        List peerUrls2 = manager2.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(m2sampleCache1);
         assertEquals(expectedPeers(), peerUrls2.size());
 
         Ehcache m3sampleCache1 = manager3.getCache("sampleCache1");
         assertFalse(m1sampleCache1.getGuid().equals(m3sampleCache1.getGuid()));
 
-        List peerUrls3 = manager3.getCachePeerProvider().listRemoteCachePeers(m3sampleCache1);
+        List peerUrls3 = manager3.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(m3sampleCache1);
         assertEquals(expectedPeers(), peerUrls3.size());
 
         //Now remove a node, wait for the cluster to self-heal and then test
         manager1.shutdown();
         Thread.sleep(1000);
-        peerUrls3 = manager3.getCachePeerProvider().listRemoteCachePeers(m3sampleCache1);
+        peerUrls3 = manager3.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(m3sampleCache1);
         //The manual provider removes the cache peer that was not reachable
         assertEquals(1, peerUrls3.size());
 

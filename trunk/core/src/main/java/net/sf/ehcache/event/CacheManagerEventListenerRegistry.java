@@ -97,6 +97,7 @@ public class CacheManagerEventListenerRegistry implements CacheManagerEventListe
      * Initialises the listeners, ready to receive events.
      */
     public void init() {
+        //init once
         Iterator iterator = listeners.iterator();
         while (iterator.hasNext()) {
             CacheManagerEventListener cacheManagerEventListener = (CacheManagerEventListener) iterator.next();

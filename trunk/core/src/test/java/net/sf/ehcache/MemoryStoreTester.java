@@ -621,7 +621,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
         manager.addCache(cache);
         int i = 0;
         try {
-            for (; i < 1000000; i++) {
+            for (; i < 120000; i++) {
                 cache.put(new Element("" +
                         i, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                         + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"

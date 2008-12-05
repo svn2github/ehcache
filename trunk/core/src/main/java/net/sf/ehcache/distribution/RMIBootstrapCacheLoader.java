@@ -186,7 +186,7 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
     protected List acquireCachePeers(Ehcache cache) {
 
         long timeForClusterToForm = 0;
-        CacheManagerPeerProvider cacheManagerPeerProvider = cache.getCacheManager().getCacheManagerPeerProvider();
+        CacheManagerPeerProvider cacheManagerPeerProvider = cache.getCacheManager().getCacheManagerPeerProvider("RMI");
         if (cacheManagerPeerProvider != null) {
             timeForClusterToForm = cacheManagerPeerProvider.getTimeForClusterToForm();
         }
@@ -240,7 +240,7 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
      * @param cache
      */
     protected List listRemoteCachePeers(Ehcache cache) {
-        CacheManagerPeerProvider provider = cache.getCacheManager().getCachePeerProvider();
+        CacheManagerPeerProvider provider = cache.getCacheManager().getCacheManagerPeerProvider("RMI");
         if (provider == null) {
             return null;
         } else {

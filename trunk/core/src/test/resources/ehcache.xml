@@ -149,10 +149,10 @@
            overflowToDisk="true"
            memoryStoreEvictionPolicy="LRU">
         <cacheEventListenerFactory class="net.sf.ehcache.event.NullCacheEventListenerFactory"/>
-        <cacheExceptionHandlerFactory class="net.sf.ehcache.exceptionhandler.CountingExceptionHandlerFactory"
-                                      properties="logLevel=FINE"/>
         <cacheLoaderFactory class="net.sf.ehcache.loader.CountingCacheLoaderFactory"
                             properties="type=int,startCounter=10"/>
+        <cacheExceptionHandlerFactory class="net.sf.ehcache.exceptionhandler.CountingExceptionHandlerFactory"
+                                      properties="logLevel=FINE"/>
     </cache>
 
 

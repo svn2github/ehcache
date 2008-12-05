@@ -75,6 +75,9 @@
     Specifies a CacheManagerPeerProviderFactory which will be used to create a
     CacheManagerPeerProvider, which discovers other CacheManagers in the cluster.
 
+    One or more providers can be configured. The first one in the ehcache.xml is the default, which is used
+    for replication and bootstrapping.
+
     The attributes of cacheManagerPeerProviderFactory are:
     * class - a fully qualified factory class name
     * properties - comma separated properties having meaning only to the factory.

@@ -213,7 +213,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         }
 
 
-        CacheManagerPeerProvider provider = manager1.getCachePeerProvider();
+        CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider("RMI");
         List remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
         assertEquals(4, remotePeersOfCache1.size());
     }
@@ -228,7 +228,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
             return;
         }
 
-        CacheManagerPeerProvider provider = manager1.getCachePeerProvider();
+        CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider("RMI");
         List remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
         assertEquals(4, remotePeersOfCache1.size());
 
@@ -253,7 +253,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         }
 
 
-        CacheManagerPeerProvider provider = manager1.getCachePeerProvider();
+        CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider("RMI");
         List remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
         assertEquals(4, remotePeersOfCache1.size());
 
@@ -279,7 +279,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         }
 
         try {
-            CacheManagerPeerProvider provider = manager1.getCachePeerProvider();
+            CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider("RMI");
             List remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
             assertEquals(4, remotePeersOfCache1.size());
 
@@ -567,7 +567,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         //now test bootstrap
         manager1.addCache("bootStrapResults");
         Cache cache = manager1.getCache("bootStrapResults");
-        List cachePeers = manager1.getCacheManagerPeerProvider().listRemoteCachePeers(cache1);
+        List cachePeers = manager1.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(cache1);
         CachePeer cachePeer = (CachePeer) cachePeers.get(0);
 
         List keys = cachePeer.getKeys();

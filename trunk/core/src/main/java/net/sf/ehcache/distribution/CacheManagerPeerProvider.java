@@ -18,6 +18,7 @@ package net.sf.ehcache.distribution;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Status;
 
 import java.util.List;
 
@@ -64,4 +65,13 @@ public interface CacheManagerPeerProvider {
      * @return the time in ms, for a cluster to form
      */
     long getTimeForClusterToForm();
+
+
+    /**
+     * The replication scheme. Each peer provider has a scheme name, which can be used by caches to specify
+     * for replication and bootstrap purposes.
+     * @return the well-known scheme name, which is determined by the replication provider author.
+     */
+    String getScheme();
+
 }

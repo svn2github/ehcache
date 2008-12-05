@@ -21,9 +21,12 @@ import net.sf.ehcache.ObjectExistsException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * A bean, used by BeanUtils, to set configuration from an XML configuration file.
+ *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
@@ -31,8 +34,8 @@ public final class Configuration {
 
     private DiskStoreConfiguration diskStoreConfiguration;
     private CacheConfiguration defaultCacheConfiguration;
-    private FactoryConfiguration cacheManagerPeerProviderFactoryConfiguration;
-    private FactoryConfiguration cacheManagerPeerListenerFactoryConfiguration;
+    private List<FactoryConfiguration> cacheManagerPeerProviderFactoryConfiguration = new ArrayList<FactoryConfiguration>();
+    private List<FactoryConfiguration> cacheManagerPeerListenerFactoryConfiguration = new ArrayList<FactoryConfiguration>();
     private FactoryConfiguration cacheManagerEventListenerFactoryConfiguration;
     private final Map cacheConfigurations = new HashMap();
     private String configurationSource;
@@ -43,7 +46,8 @@ public final class Configuration {
      * If you are using it programmtically you need to call the relevant add and setter methods in this class to
      * populate everything.
      */
-    public Configuration() { }
+    public Configuration() {
+    }
 
 
     /**
@@ -56,7 +60,6 @@ public final class Configuration {
         diskStoreConfiguration = diskStoreConfigurationParameter;
     }
 
-    
 
     /**
      * Allows BeanHandler to add the CacheManagerEventListener to the configuration.
@@ -69,14 +72,11 @@ public final class Configuration {
     }
 
 
-
     /**
      * Adds a CachePeerProviderFactoryConfiguration.
      */
     public final void addCacheManagerPeerProviderFactory(FactoryConfiguration factory) {
-        if (cacheManagerPeerProviderFactoryConfiguration == null) {
-            cacheManagerPeerProviderFactoryConfiguration = factory;
-        }
+        cacheManagerPeerProviderFactoryConfiguration.add(factory);
     }
 
     /**
@@ -85,9 +85,7 @@ public final class Configuration {
      * properties="hostName=localhost, port=5000"
      */
     public final void addCacheManagerPeerListenerFactory(FactoryConfiguration factory) {
-        if (cacheManagerPeerListenerFactoryConfiguration == null) {
-            cacheManagerPeerListenerFactoryConfiguration = factory;
-        }
+        cacheManagerPeerListenerFactoryConfiguration.add(factory);
     }
 
 
@@ -131,7 +129,6 @@ public final class Configuration {
     }
 
     /**
-     *
      * @param defaultCacheConfiguration
      */
     public final void setDefaultCacheConfiguration(CacheConfiguration defaultCacheConfiguration) {
@@ -149,14 +146,14 @@ public final class Configuration {
     /**
      * Gets the CacheManagerPeerProvider factory configuration.
      */
-    public final FactoryConfiguration getCacheManagerPeerProviderFactoryConfiguration() {
+    public final List<FactoryConfiguration> getCacheManagerPeerProviderFactoryConfiguration() {
         return cacheManagerPeerProviderFactoryConfiguration;
     }
 
     /**
      * Gets the CacheManagerPeerListener factory configuration.
      */
-    public final FactoryConfiguration getCacheManagerPeerListenerFactoryConfiguration() {
+    public final List<FactoryConfiguration> getCacheManagerPeerListenerFactoryConfigurations() {
         return cacheManagerPeerListenerFactoryConfiguration;
     }
 
@@ -176,8 +173,9 @@ public final class Configuration {
 
     /**
      * Sets the configuration source.
-     * @param configurationSource  an informative description of the source, preferably
-     * including the resource name and location.
+     *
+     * @param configurationSource an informative description of the source, preferably
+     *                            including the resource name and location.
      */
     public final void setSource(String configurationSource) {
         this.configurationSource = configurationSource;

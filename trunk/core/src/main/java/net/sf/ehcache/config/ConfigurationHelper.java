@@ -42,13 +42,13 @@ import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.PropertyUtil;
 
 
-
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
 /**
@@ -101,8 +101,9 @@ public final class ConfigurationHelper {
 
     /**
      * A factory method to register cache extensions
+     *
      * @param cacheConfiguration the cache configuration
-     * @param cache the cache
+     * @param cache              the cache
      */
     protected static void registerCacheExtensions(CacheConfiguration cacheConfiguration, Ehcache cache) {
         List cacheExtensionConfigurations = cacheConfiguration.getCacheExtensionConfigurations();
@@ -116,8 +117,9 @@ public final class ConfigurationHelper {
 
     /**
      * A factory method to register cache Loaders
+     *
      * @param cacheConfiguration the cache configuration
-     * @param cache the cache
+     * @param cache              the cache
      */
     protected static void registerCacheLoaders(CacheConfiguration cacheConfiguration, Ehcache cache) {
         List cacheLoaderConfigurations = cacheConfiguration.getCacheLoaderConfigurations();
@@ -255,47 +257,66 @@ public final class ConfigurationHelper {
 
     /**
      * Tries to load the class specified otherwise defaults to null
+     *
+     * @return
      */
-    public final CacheManagerPeerProvider createCachePeerProvider() {
+    public Map<String, CacheManagerPeerProvider> createCachePeerProviders() {
         String className = null;
-        FactoryConfiguration cachePeerProviderFactoryConfiguration =
+        Map<String, CacheManagerPeerProvider> cacheManagerPeerProviders = new HashMap<String, CacheManagerPeerProvider>();
+        List<FactoryConfiguration> cachePeerProviderFactoryConfiguration =
                 configuration.getCacheManagerPeerProviderFactoryConfiguration();
-        if (cachePeerProviderFactoryConfiguration != null) {
-            className = cachePeerProviderFactoryConfiguration.getFullyQualifiedClassPath();
+        boolean first = true;
+        for (FactoryConfiguration factoryConfiguration : cachePeerProviderFactoryConfiguration) {
+
+            if (factoryConfiguration != null) {
+                className = factoryConfiguration.getFullyQualifiedClassPath();
+            }
+            if (className == null) {
+                LOG.fine("No CachePeerProviderFactoryConfiguration specified. Not configuring a CacheManagerPeerProvider.");
+                return null;
+            } else {
+                CacheManagerPeerProviderFactory cacheManagerPeerProviderFactory =
+                        (CacheManagerPeerProviderFactory)
+                                ClassLoaderUtil.createNewInstance(className);
+                Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
+                        factoryConfiguration.getPropertySeparator());
+                CacheManagerPeerProvider cacheManagerPeerProvider =
+                        cacheManagerPeerProviderFactory.createCachePeerProvider(cacheManager, properties);
+                cacheManagerPeerProviders.put(cacheManagerPeerProvider.getScheme(), cacheManagerPeerProvider);
+
+            }
         }
-        if (className == null) {
-            LOG.fine("No CachePeerProviderFactoryConfiguration specified. Not configuring a CacheManagerPeerProvider.");
-            return null;
-        } else {
-            CacheManagerPeerProviderFactory cacheManagerPeerProviderFactory =
-                    (CacheManagerPeerProviderFactory)
-                            ClassLoaderUtil.createNewInstance(className);
-            Properties properties = PropertyUtil.parseProperties(cachePeerProviderFactoryConfiguration.getProperties(),
-                    cachePeerProviderFactoryConfiguration.getPropertySeparator());
-            return cacheManagerPeerProviderFactory.createCachePeerProvider(cacheManager, properties);
-        }
+        return cacheManagerPeerProviders;
     }
 
     /**
      * Tries to load the class specified otherwise defaults to null
      */
-    public final CacheManagerPeerListener createCachePeerListener() {
+    public Map<String, CacheManagerPeerListener> createCachePeerListeners() {
         String className = null;
-        FactoryConfiguration cachePeerListenerFactoryConfiguration =
-                configuration.getCacheManagerPeerListenerFactoryConfiguration();
-        if (cachePeerListenerFactoryConfiguration != null) {
-            className = cachePeerListenerFactoryConfiguration.getFullyQualifiedClassPath();
+        Map<String, CacheManagerPeerListener> cacheManagerPeerListeners = new HashMap<String, CacheManagerPeerListener>();
+        List<FactoryConfiguration> cacheManagerPeerListenerFactoryConfigurations =
+                configuration.getCacheManagerPeerListenerFactoryConfigurations();
+        boolean first = true;
+        for (FactoryConfiguration factoryConfiguration : cacheManagerPeerListenerFactoryConfigurations) {
+
+            if (factoryConfiguration != null) {
+                className = factoryConfiguration.getFullyQualifiedClassPath();
+            }
+            if (className == null) {
+                LOG.fine("No CachePeerListenerFactoryConfiguration specified. Not configuring a CacheManagerPeerListener.");
+                return null;
+            } else {
+                CacheManagerPeerListenerFactory cacheManagerPeerListenerFactory = (CacheManagerPeerListenerFactory)
+                        ClassLoaderUtil.createNewInstance(className);
+                Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
+                        factoryConfiguration.getPropertySeparator());
+                CacheManagerPeerListener cacheManagerPeerListener =
+                        cacheManagerPeerListenerFactory.createCachePeerListener(cacheManager, properties);
+                cacheManagerPeerListeners.put(cacheManagerPeerListener.getScheme(), cacheManagerPeerListener);
+            }
         }
-        if (className == null) {
-            LOG.fine("No CachePeerListenerFactoryConfiguration specified. Not configuring a CacheManagerPeerListener.");
-            return null;
-        } else {
-            CacheManagerPeerListenerFactory cacheManagerPeerListenerFactory = (CacheManagerPeerListenerFactory)
-                    ClassLoaderUtil.createNewInstance(className);
-            Properties properties = PropertyUtil.parseProperties(cachePeerListenerFactoryConfiguration.getProperties(),
-                    cachePeerListenerFactoryConfiguration.getPropertySeparator());
-            return cacheManagerPeerListenerFactory.createCachePeerListener(cacheManager, properties);
-        }
+        return cacheManagerPeerListeners;
     }
 
     /**

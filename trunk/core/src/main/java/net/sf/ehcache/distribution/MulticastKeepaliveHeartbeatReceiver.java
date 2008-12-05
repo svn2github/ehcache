@@ -198,7 +198,7 @@ public final class MulticastKeepaliveHeartbeatReceiver {
          */
         private boolean self(String rmiUrls) {
             CacheManager cacheManager = peerProvider.getCacheManager();
-            CacheManagerPeerListener cacheManagerPeerListener = cacheManager.getCachePeerListener();
+            CacheManagerPeerListener cacheManagerPeerListener = cacheManager.getCachePeerListener("RMI");
             if (cacheManagerPeerListener == null) {
                 return false;
             }

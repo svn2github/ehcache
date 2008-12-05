@@ -19,7 +19,7 @@ package net.sf.ehcache.distribution;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
-
+import net.sf.ehcache.Status;
 
 
 import java.util.ArrayList;

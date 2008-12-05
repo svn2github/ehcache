@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="1.6">
     <xs:element name="ehcache" >
         <xs:complexType>
             <xs:sequence>
                 <xs:element minOccurs="0" maxOccurs="1" ref="diskStore"/>
                 <xs:element minOccurs="0" maxOccurs="1"
                             ref="cacheManagerEventListenerFactory"/>
-                <xs:element minOccurs="0" maxOccurs="1"
+                <xs:element minOccurs="0" maxOccurs="unbounded"
                             ref="cacheManagerPeerProviderFactory"/>
-                <xs:element minOccurs="0" maxOccurs="1"
+                <xs:element minOccurs="0" maxOccurs="unbounded"
                             ref="cacheManagerPeerListenerFactory"/>
                 <xs:element ref="defaultCache"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cache"/>
@@ -65,7 +65,7 @@
     </xs:element>
     <xs:element name="cache">
         <xs:complexType>
-            <xs:sequence>
+            <xs:sequence >
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheEventListenerFactory"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheExtensionFactory"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheLoaderFactory"/>

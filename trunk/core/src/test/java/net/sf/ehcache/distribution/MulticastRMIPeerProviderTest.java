@@ -120,25 +120,25 @@ public class MulticastRMIPeerProviderTest {
         Ehcache m1sampleCache1 = manager1.getCache("sampleCache1");
         Thread.sleep(2000);
 
-        List peerUrls = manager1.getCachePeerProvider().listRemoteCachePeers(m1sampleCache1);
+        List peerUrls = manager1.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(m1sampleCache1);
         assertEquals(expectedPeers(), peerUrls.size());
 
         Ehcache m2sampleCache1 = manager2.getCache("sampleCache1");
         assertFalse(m1sampleCache1.getGuid().equals(m2sampleCache1.getGuid()));
 
-        List peerUrls2 = manager2.getCachePeerProvider().listRemoteCachePeers(m2sampleCache1);
+        List peerUrls2 = manager2.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(m2sampleCache1);
         assertEquals(expectedPeers(), peerUrls2.size());
 
         Ehcache m3sampleCache1 = manager3.getCache("sampleCache1");
         assertFalse(m1sampleCache1.getGuid().equals(m3sampleCache1.getGuid()));
 
-        List peerUrls3 = manager3.getCachePeerProvider().listRemoteCachePeers(m3sampleCache1);
+        List peerUrls3 = manager3.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(m3sampleCache1);
         assertEquals(expectedPeers(), peerUrls3.size());
 
         //Now remove a node, wait for the cluster to self-heal and then test
         manager1.shutdown();
         Thread.sleep(5000);
-        peerUrls3 = manager3.getCachePeerProvider().listRemoteCachePeers(m3sampleCache1);
+        peerUrls3 = manager3.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(m3sampleCache1);
         assertEquals(expectedPeers() - 1, peerUrls3.size());
 
     }
@@ -160,17 +160,17 @@ public class MulticastRMIPeerProviderTest {
         }
 
         manager1.addCache("fromDefaultCache");
-        RMICacheManagerPeerListener peerListener1 = (RMICacheManagerPeerListener) manager1.getCachePeerListener();
+        RMICacheManagerPeerListener peerListener1 = (RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI");
         //peerListener1.notifyCacheAdded("fromDefaultCache");
         manager2.addCache("fromDefaultCache");
-        RMICacheManagerPeerListener peerListener2 = (RMICacheManagerPeerListener) manager2.getCachePeerListener();
+        RMICacheManagerPeerListener peerListener2 = (RMICacheManagerPeerListener) manager2.getCachePeerListener("RMI");
         //peerListener2.notifyCacheAdded("fromDefaultCache");
         manager3.addCache("fromDefaultCache");
-        RMICacheManagerPeerListener peerListener3 = (RMICacheManagerPeerListener) manager3.getCachePeerListener();
+        RMICacheManagerPeerListener peerListener3 = (RMICacheManagerPeerListener) manager3.getCachePeerListener("RMI");
         //peerListener3.notifyCacheAdded("fromDefaultCache");
         Thread.sleep(2000);
 
-        CacheManagerPeerProvider cachePeerProvider = manager1.getCachePeerProvider();
+        CacheManagerPeerProvider cachePeerProvider = manager1.getCacheManagerPeerProvider("RMI");
 
         Cache cache = manager1.getCache("fromDefaultCache");
         List peerUrls = cachePeerProvider.listRemoteCachePeers(cache);
@@ -200,7 +200,7 @@ public class MulticastRMIPeerProviderTest {
         manager3.addCache("fromDefaultCache");
         Thread.sleep(2200);
 
-        CacheManagerPeerProvider cachePeerProvider = manager1.getCachePeerProvider();
+        CacheManagerPeerProvider cachePeerProvider = manager1.getCacheManagerPeerProvider("RMI");
         Cache cache = manager1.getCache("fromDefaultCache");
 
         //Should be three
@@ -240,7 +240,7 @@ public class MulticastRMIPeerProviderTest {
 
         Ehcache m1sampleCache1 = manager1.getCache("sampleCache1");
         Thread.sleep(2000);
-        List peerUrls = manager1.getCachePeerProvider().listRemoteCachePeers(m1sampleCache1);
+        List peerUrls = manager1.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(m1sampleCache1);
 
         CachePeer m1SampleCach1Peer = (CachePeer) peerUrls.get(0);
 

@@ -52,4 +52,10 @@ public interface CacheManagerPeerListener extends CacheManagerEventListener {
      */
     void attemptResolutionOfUniqueResourceConflict() throws IllegalStateException, CacheException;
 
+    /**
+     * The replication scheme this listener interacts with.
+     * Each peer provider has a scheme name, which can be used by caches to specify for replication and bootstrap purposes.
+     * @return the well-known scheme name, which is determined by the replication provider author.
+     */
+    String getScheme();
 }

@@ -19,7 +19,7 @@ package net.sf.ehcache.distribution;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
-
+import net.sf.ehcache.Status;
 
 
 import java.net.MalformedURLException;
@@ -142,9 +142,13 @@ public abstract class RMICacheManagerPeerProvider implements CacheManagerPeerPro
         return cacheManager;
     }
 
-
-
-
-
-
+    /**
+     * The replication scheme. Each peer provider has a scheme name, which can be used by caches to specify
+     * for replication and bootstrap purposes.
+     *
+     * @return the well-known scheme name, which is determined by the replication provider author. For this one it is "RMI"
+     */
+    public String getScheme() {
+        return "RMI";
+    }
 }

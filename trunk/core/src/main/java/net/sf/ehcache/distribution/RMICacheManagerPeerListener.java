@@ -198,6 +198,9 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      * {@inheritDoc}
      */
     public void init() throws CacheException {
+        if (!status.equals(Status.STATUS_UNINITIALISED)) {
+            return;
+        }
         RMICachePeer rmiCachePeer = null;
         try {
             startRegistry();
@@ -351,6 +354,9 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      * </ul>
      */
     public void dispose() throws CacheException {
+        if (!status.equals(Status.STATUS_ALIVE)) {
+            return;
+        }
         try {
             int counter = 0;
             synchronized (cachePeers) {
@@ -466,6 +472,16 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
      */
     public void attemptResolutionOfUniqueResourceConflict() throws IllegalStateException, CacheException {
         assignFreePort(true);
+    }
+
+    /**
+     * The replication scheme this listener interacts with.
+     * Each peer provider has a scheme name, which can be used by caches to specify for replication and bootstrap purposes.
+     *
+     * @return the well-known scheme name, which is determined by the replication provider author.
+     */
+    public String getScheme() {
+        return "RMI";
     }
 
     /**

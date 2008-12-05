@@ -55,6 +55,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 
@@ -103,7 +104,9 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(null, configurationHelper.getDiskStorePath());
 
         //Check CacheManagerPeerProvider
-        CacheManagerPeerProvider peerProvider = configurationHelper.createCachePeerProvider();
+        Map<String,CacheManagerPeerProvider> peerProviders = configurationHelper.createCachePeerProviders();
+        CacheManagerPeerProvider peerProvider = peerProviders.get("RMI");
+
 
         //Check TTL
         assertTrue(peerProvider instanceof MulticastRMICacheManagerPeerProvider);
@@ -207,11 +210,14 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
 
         //Check CacheManagerPeerProvider
-        CacheManagerPeerProvider peerProvider = configurationHelper.createCachePeerProvider();
+        Map<String,CacheManagerPeerProvider> peerProviders = configurationHelper.createCachePeerProviders();
+        CacheManagerPeerProvider peerProvider = peerProviders.get("RMI");
+
 
         //Check TTL
         assertTrue(peerProvider instanceof MulticastRMICacheManagerPeerProvider);
         assertEquals(new Integer(1), ((MulticastRMICacheManagerPeerProvider) peerProvider).getHeartBeatSender().getTimeToLive());
+
 
         //Check default cache
         Ehcache defaultCache = configurationHelper.createDefaultCache();
@@ -394,15 +400,22 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
         //Check CacheManagerPeerProvider
-        CacheManagerPeerProvider peerProvider = configurationHelper.createCachePeerProvider();
+        Map<String,CacheManagerPeerProvider> peerProviders = configurationHelper.createCachePeerProviders();
+        CacheManagerPeerProvider peerProvider = peerProviders.get("RMI");
+
 
         //Check TTL
         assertTrue(peerProvider instanceof MulticastRMICacheManagerPeerProvider);
         assertEquals(new Integer(64), ((MulticastRMICacheManagerPeerProvider) peerProvider).getHeartBeatSender().getTimeToLive());
 
+
         //check CacheManagerPeerListener
-        CacheManagerPeerListener peerListener = configurationHelper.createCachePeerListener();
-        assertTrue(peerListener instanceof RMICacheManagerPeerListener);
+        Map<String, CacheManagerPeerListener> peerListeners = configurationHelper.createCachePeerListeners();
+
+        //should be one in this config
+        for (CacheManagerPeerListener peerListener : peerListeners.values()) {
+            assertTrue(peerListener instanceof RMICacheManagerPeerListener);
+        }
 
         //Check caches. Configuration should have completed
         assertEquals(61, configurationHelper.createCaches().size());
@@ -627,7 +640,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     @Test
     public void testEmptyPeerListManualDistributedConfiguration() {
         CacheManager cacheManager = new CacheManager(TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed3.xml");
-        assertEquals(0, cacheManager.getCacheManagerPeerProvider()
+        assertEquals(0, cacheManager.getCacheManagerPeerProvider("RMI")
                 .listRemoteCachePeers(cacheManager.getCache("sampleCache1")).size());
 
     }
@@ -904,7 +917,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
         //Check disk path  <diskStore path="/tmp"/>
         assertNotSame(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
-        assertTrue(configuration.getCacheManagerPeerProviderFactoryConfiguration()
+        assertTrue(configuration.getCacheManagerPeerProviderFactoryConfiguration().get(0)
                 .getProperties().indexOf("multicastGroupPort=4446") != -1);
 
 

@@ -20,8 +20,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 
-
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.rmi.NotBoundException;
@@ -29,8 +27,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A peer provider which discovers peers using Multicast.
