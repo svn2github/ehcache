@@ -23,6 +23,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.CacheException;
+import static net.sf.ehcache.distribution.jms.TestUtil.forceVMGrowth;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -49,12 +50,12 @@ import java.util.logging.Logger;
 public class ActiveMQJMSReplicationTest {
 
 
-
     static final int NBR_ELEMENTS = 100;
 
     static final String SAMPLE_CACHE_ASYNC = "sampleCacheAsync";
     static final String SAMPLE_CACHE_SYNC = "sampleCacheSync";
     static final String SAMPLE_CACHE_NOREP = "sampleCacheNorep";
+    static final String SAMPLE_CACHE_JMS_REPLICATION_BOOTSTRAP = "sampleJMSReplicateRMIBootstrap";
 
     String cacheName;
 
@@ -541,7 +542,7 @@ public class ActiveMQJMSReplicationTest {
         cacheName = SAMPLE_CACHE_SYNC;
         manager3.shutdown();
         manager4.shutdown();
-        Thread.sleep(20);
+        Thread.sleep(1000);
         Ehcache cache1 = manager1.getCache("sampleCacheNorep");
         Ehcache cache2 = manager2.getCache("sampleCacheNorep");
 
@@ -559,7 +560,7 @@ public class ActiveMQJMSReplicationTest {
         cache1.put(element);
         cache1.put(element2);
         cache1.put(element3);
-        Thread.sleep(1050);
+        Thread.sleep(2050);
 
 
         //Should not have been replicated to cache2.
@@ -585,6 +586,7 @@ public class ActiveMQJMSReplicationTest {
      * <p/>
      * We then do a get on cache2, which has a JMSCacheLoader which should ask the cluster for the answer.
      * If a cache does not have an element it should leave the message on the queue for the next node to process.
+     *
      * @throws InterruptedException -
      */
     @Test
@@ -642,6 +644,42 @@ public class ActiveMQJMSReplicationTest {
         managerC.shutdown();
     }
 
+
+    /**
+     * Tests loading from bootstrap for a cache which is configured to load using RMI and replicate using JMS
+     */
+    @Test
+    public void testBootstrapFromClusterWithAsyncLoader() throws CacheException, InterruptedException {
+
+        cacheName = SAMPLE_CACHE_JMS_REPLICATION_BOOTSTRAP;
+        Ehcache cache1 = manager1.getCache(cacheName);
+        Ehcache cache2 = manager2.getCache(cacheName);
+
+
+        Integer index = null;
+        for (int j = 0; j < 1000; j++) {
+            index = new Integer(j);
+            cache1.put(new Element(index,
+                    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                            + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                            + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                            + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                            + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
+
+        }
+
+        //verify was replicated as usualy using JMS
+        Thread.sleep(3000);
+        assertEquals(1000, cache2.getSize());
+
+        forceVMGrowth();
+
+        //Now fire up a new CacheManager and see if bootstrapping using RMI works
+        CacheManager manager5 = new CacheManager(TestUtil.TEST_CONFIG_DIR + getConfigurationFile());
+        manager5.setName("manager5");
+        Thread.sleep(5000);
+        assertEquals(1000, manager5.getCache(SAMPLE_CACHE_JMS_REPLICATION_BOOTSTRAP).getSize());
+    }
 
 
 }

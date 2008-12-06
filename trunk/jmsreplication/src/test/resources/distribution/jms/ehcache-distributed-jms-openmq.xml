@@ -1,6 +1,15 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="ehcache.xsd">
 
+
+    <cacheManagerPeerProviderFactory
+            class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+            properties="peerDiscovery=automatic,
+                        multicastGroupAddress=230.0.0.1,
+                        multicastGroupPort=4446, timeToLive=1"
+            propertySeparator=","
+            />
+
     <!--listenToTopic=true which is the default.-->
     <cacheManagerPeerProviderFactory
             class="net.sf.ehcache.distribution.jms.JMSCacheManagerPeerProviderFactory"
@@ -12,6 +21,10 @@
                 getQueueBindingName=ehcacheGetQueue"
             propertySeparator=","
             />
+
+    <cacheManagerPeerListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
+
 
     <defaultCache
             maxElementsInMemory="10000"
@@ -30,7 +43,7 @@
            timeToLiveSeconds="1000"
            overflowToDisk="false">
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.jms.JMSCacheReplicatorFactory"
-                                   properties="replicateAsynchronously=true, 
+                                   properties="replicateAsynchronously=true,
                                                 replicatePuts=true,
                                                 replicateUpdates=true,
                                                 replicateUpdatesViaCopy=true,
@@ -75,6 +88,26 @@
                 timeoutMillis=10000,
                 userName=test,
                 password=test"/>
+    </cache>
+
+    <cache name="sampleJMSReplicateRMIBootstrap"
+           maxElementsInMemory="1000"
+           eternal="false"
+           timeToIdleSeconds="1000"
+           timeToLiveSeconds="1000"
+           overflowToDisk="false">
+        <cacheEventListenerFactory class="net.sf.ehcache.distribution.jms.JMSCacheReplicatorFactory"
+                                   properties="replicateAsynchronously=true,
+                                                replicatePuts=true,
+                                                replicateUpdates=true,
+                                                replicateUpdatesViaCopy=true,
+                                                replicateRemovals=true,
+                                                asynchronousReplicationIntervalMillis=1000"
+                                   propertySeparator=","/>
+        <bootstrapCacheLoaderFactory
+                class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"
+                properties="bootstrapAsynchronously=true, maximumChunkSizeBytes=5000000"
+                propertySeparator=","/>
     </cache>
 
 

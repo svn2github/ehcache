@@ -16,21 +16,12 @@
 
 package net.sf.ehcache.distribution.jms;
 
-import junit.framework.TestCase;
-
-import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.util.List;
-import java.util.ArrayList;
-import java.io.IOException;
 import java.io.File;
-import java.lang.reflect.Method;
-
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.util.PropertyUtil;
-
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -39,7 +30,7 @@ import javax.management.MBeanServerFactory;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class TestUtil extends TestCase {
+public class TestUtil {
 
     /**
      * Where the config is

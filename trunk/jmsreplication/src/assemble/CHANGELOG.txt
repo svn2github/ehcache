@@ -1,5 +1,15 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+<release version="0.3" date="2008-12-31" desc="Maintenance release of jmsreplication">
+
+    <!-- Features and Enhancements -->
+    <action dev="Greg Luck" type="update">
+        Update to ehcache core 1.6 beta2 which brings in the ability to have multiple peer providers and listeners.
+        In turn this enables JMS to be used for replication and RMI for bootstrap.
+    </action>
+</release>
+
+
 <release version="0.2" date="2008-11-4" desc="Maintenance release of jmsreplication">
 
     <!-- Features and Enhancements -->

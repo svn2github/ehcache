@@ -139,6 +139,16 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
     }
 
     /**
+     * The replication scheme. Each peer provider has a scheme name, which can be used by caches to specify
+     * for replication and bootstrap purposes.
+     *
+     * @return the well-known scheme name, which is determined by the replication provider author.
+     */
+    public String getScheme() {
+        return "JMS";
+    }
+
+    /**
      * Notifies providers to initialise themselves.
      * <p/>
      *
@@ -259,4 +269,7 @@ public class JMSCacheManagerPeerProvider implements CacheManagerPeerProvider {
     public void unregisterPeer(String rmiUrl) {
         throw new CacheException("Not implemented for JMS");
     }
+
+
+
 }

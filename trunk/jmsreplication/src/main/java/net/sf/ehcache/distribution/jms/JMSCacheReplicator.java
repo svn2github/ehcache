@@ -438,7 +438,7 @@ public class JMSCacheReplicator implements CacheReplicator {
      * @return the list of cache peers
      */
     protected static List<CachePeer> listRemoteCachePeers(Ehcache cache) {
-        CacheManagerPeerProvider provider = cache.getCacheManager().getCachePeerProvider();
+        CacheManagerPeerProvider provider = cache.getCacheManager().getCacheManagerPeerProvider("JMS");
         return provider.listRemoteCachePeers(cache);
     }
 

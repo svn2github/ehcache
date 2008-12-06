@@ -84,6 +84,14 @@
     * listenToTopic - true or false. If false, this CacheManager will not listen for replication updates. Default is true.
     -->
     <cacheManagerPeerProviderFactory
+            class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+            properties="peerDiscovery=automatic,
+                        multicastGroupAddress=230.0.0.1,
+                        multicastGroupPort=4446, timeToLive=1"
+            propertySeparator=","
+            />
+
+    <cacheManagerPeerProviderFactory
             class="net.sf.ehcache.distribution.jms.JMSCacheManagerPeerProviderFactory"
             properties="initialContextFactoryName=net.sf.ehcache.distribution.jms.TestActiveMQInitialContextFactory,
                 providerURL=tcp://localhost:61616,
@@ -94,6 +102,11 @@
                 listenToTopic=true"
             propertySeparator=","
             />
+
+
+
+    <cacheManagerPeerListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
 
     <defaultCache
             maxElementsInMemory="10000"
@@ -118,11 +131,8 @@
                                                 replicateUpdatesViaCopy=true,
                                                 replicateRemovals=true,
                                                 asynchronousReplicationIntervalMillis=1000"
-                                    propertySeparator=","/>
+                                   propertySeparator=","/>
     </cache>
-
-
-
 
 
     <cache name="sampleCacheSync"
@@ -151,13 +161,33 @@
                                    properties="replicateAsynchronously=false, replicatePuts=false,
                                      replicateUpdates=false, replicateUpdatesViaCopy=false,
                                      replicateRemovals=false, loaderArgument=sampleCacheNorep"
-                                    propertySeparator=","/>
+                                   propertySeparator=","/>
         <cacheLoaderFactory class="net.sf.ehcache.distribution.jms.JMSCacheLoaderFactory"
-            properties="initialContextFactoryName=net.sf.ehcache.distribution.jms.TestActiveMQInitialContextFactory,
+                            properties="initialContextFactoryName=net.sf.ehcache.distribution.jms.TestActiveMQInitialContextFactory,
                 providerURL=tcp://localhost:61616,
                 getQueueConnectionFactoryBindingName=queueConnectionFactory,
                 getQueueBindingName=ehcacheGetQueue,
                 timeoutMillis=10000"/>
+    </cache>
+
+    <cache name="sampleJMSReplicateRMIBootstrap"
+           maxElementsInMemory="1000"
+           eternal="false"
+           timeToIdleSeconds="1000"
+           timeToLiveSeconds="1000"
+           overflowToDisk="false">
+        <cacheEventListenerFactory class="net.sf.ehcache.distribution.jms.JMSCacheReplicatorFactory"
+                                   properties="replicateAsynchronously=true,
+                                                replicatePuts=true,
+                                                replicateUpdates=true,
+                                                replicateUpdatesViaCopy=true,
+                                                replicateRemovals=true,
+                                                asynchronousReplicationIntervalMillis=1000"
+                                   propertySeparator=","/>
+        <bootstrapCacheLoaderFactory
+                class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"
+                properties="bootstrapAsynchronously=true, maximumChunkSizeBytes=5000000"
+                propertySeparator=","/>
     </cache>
 
 
