@@ -61,6 +61,9 @@ public class StatisticsTest extends AbstractCacheTest {
         assertEquals(1, statistics.getOnDiskHits());
         assertEquals(0, statistics.getInMemoryHits());
         assertEquals(0, statistics.getCacheMisses());
+        assertEquals(2, statistics.getObjectCount());
+        assertEquals(1, statistics.getMemoryStoreObjectCount());
+        assertEquals(1, statistics.getDiskStoreObjectCount());
 
         //key 1 should now be in the LruMemoryStore
         cache.get("key1");

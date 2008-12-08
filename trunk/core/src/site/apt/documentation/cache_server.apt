@@ -64,7 +64,7 @@
 
 *** GET /\{cache\}
 
-    Gets a cache.
+    Gets a cache representation. This includes useful metadata such as the configuration and cache statistics.
 
 *** {PUT} /\{cache\}
 

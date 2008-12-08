@@ -209,6 +209,24 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
         return statistics.getObjectCount();
     }
 
+    /**
+     * Gets the number of objects in the MemoryStore
+     * @return the MemoryStore size which is always a count unadjusted for duplicates or expiries
+     */
+    public long getMemoryStoreObjectCount() {
+        updateIfNeeded();
+        return statistics.getMemoryStoreObjectCount();
+    }
+
+    /**
+     * Gets the number of objects in the DiskStore
+     * @return the DiskStore size which is always a count unadjusted for duplicates or expiries
+     */
+    public long getDiskStoreObjectCount() {
+        updateIfNeeded();
+        return statistics.getDiskStoreObjectCount();
+    }
+
 
     /**
      * @return the object name for this MBean

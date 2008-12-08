@@ -1979,7 +1979,8 @@ public class Cache implements Ehcache {
         }
         return new Statistics(this, statisticsAccuracy, hitCount, diskStoreHitCount, memoryStoreHitCount,
                 missCountExpired + missCountNotFound, size, getAverageGetTime(),
-                registeredEventListeners.getElementsEvictedCounter());
+                registeredEventListeners.getElementsEvictedCounter(),
+                getMemoryStoreSize(), getDiskStoreSize());
     }
 
     /**

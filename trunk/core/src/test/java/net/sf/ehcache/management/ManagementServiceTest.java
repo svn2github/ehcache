@@ -168,6 +168,8 @@ public class ManagementServiceTest extends AbstractCacheTest {
         cache.get("1");
         Thread.sleep(20);
         assertEquals(new Long(1), mBeanServer.getAttribute(name, "ObjectCount"));
+        assertEquals(new Long(1), mBeanServer.getAttribute(name, "MemoryStoreObjectCount"));
+        assertEquals(new Long(0), mBeanServer.getAttribute(name, "DiskStoreObjectCount"));
 
 //        Thread.sleep(1000000);
 

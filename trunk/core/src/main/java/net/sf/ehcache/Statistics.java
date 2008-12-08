@@ -70,6 +70,10 @@ public class Statistics implements Serializable {
 
     private final long size;
 
+    private final long memoryStoreSize;
+
+    private final long diskStoreSize;
+
     private float averageGetTime;
 
     private long evictionCount;
@@ -87,7 +91,8 @@ public class Statistics implements Serializable {
      * @param size
      */
     public Statistics(Ehcache cache, int statisticsAccuracy, long cacheHits, long onDiskHits, long inMemoryHits,
-                      long misses, long size, float averageGetTime, long evictionCount) {
+                      long misses, long size, float averageGetTime, long evictionCount, long memoryStoreSize,
+                      long diskStoreSize) {
         this.statisticsAccuracy = statisticsAccuracy;
         this.cacheHits = cacheHits;
         this.onDiskHits = onDiskHits;
@@ -97,6 +102,8 @@ public class Statistics implements Serializable {
         this.size = size;
         this.averageGetTime = averageGetTime;
         this.evictionCount = evictionCount;
+        this.memoryStoreSize = memoryStoreSize;
+        this.diskStoreSize = diskStoreSize;
     }
 
     /**
@@ -179,6 +186,22 @@ public class Statistics implements Serializable {
      */
     public long getObjectCount() {
         return size;
+    }
+
+    /**
+     *
+     * @return the number of objects in the memory store
+     */
+    public long getMemoryStoreObjectCount() {
+        return memoryStoreSize;
+    }
+
+    /**
+     *
+     * @return the number of objects in the disk store
+     */
+    public long getDiskStoreObjectCount() {
+        return diskStoreSize;
     }
 
     /**

@@ -89,6 +89,19 @@ public interface CacheStatisticsMBean {
      */
     public long getObjectCount();
 
+
+    /**
+     * Gets the number of objects in the MemoryStore
+     * @return the MemoryStore size which is always a count unadjusted for duplicates or expiries
+     */
+    public long getMemoryStoreObjectCount();
+
+    /**
+     * Gets the number of objects in the DiskStore
+     * @return the DiskStore size which is always a count unadjusted for duplicates or expiries
+     */
+    public long getDiskStoreObjectCount();
+
     /**
      * Accurately measuring statistics can be expensive. Returns the current accuracy setting.
      *
