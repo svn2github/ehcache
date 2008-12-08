@@ -127,6 +127,10 @@ public final class EhCache implements Cache {
      * @throws CacheException if the {@link net.sf.ehcache.CacheManager} is shutdown or another {@link Exception} occurs.
      */
     public final void put(Object key, Object value) throws CacheException {
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("key: " + key + " value: " + value);
+        }
+        
         try {
             Element element = new Element(key, value);
             cache.put(element);

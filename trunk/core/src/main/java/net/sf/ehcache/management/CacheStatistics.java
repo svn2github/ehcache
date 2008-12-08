@@ -235,4 +235,12 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
         return objectName;
     }
 
+    /**
+     * Return the backing cache.
+     * @return the backing cache, if one is connected. On Serialization
+     * the transient Ehcache reference is dropped.  
+     */
+    public Ehcache getEhcache() {
+        return ehcache;
+    }
 }

@@ -9,6 +9,13 @@
                 Allow multiple replication schemes to be used within the same CacheManager. i.e. use JMS for some
                 caches and RMI for others.
             </action>
+            <action dev="Greg Luck" type="add">
+                Add a reference to Ehcache from CacheStatistics. Request 2128129
+            </action>
+            <action dev="Greg Luck" type="add">
+                Add FINE level LOG statement for Hibernate EhCache provider puts. This enables puts to be debugged
+                with LOG statement. Request 2061030.
+            </action>
             <action dev="Greg Luck" type="update">
                 Removed cacheManager.getCachePeerProvider() in favour of cacheManager.getCacheManagerPeerProvider("scheme")
                 where scheme is the replication scheme. Each replicator type can then call its own scheme provider,
