@@ -20,6 +20,7 @@ import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.api.ConflictException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.server.jaxb.Cache;
+import net.sf.ehcache.server.jaxb.Statistics;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -135,7 +136,9 @@ public class CacheResource {
         String cacheAsString = ehcache.toString();
         cacheAsString = cacheAsString.substring(0, cacheAsString.length() - 1);
         cacheAsString = cacheAsString + "size = " + ehcache.getSize() + " ]";
-        return new Cache(ehcache.getName(), uriInfo.getAbsolutePath().toString(), cacheAsString);
+
+        return new Cache(ehcache.getName(), uriInfo.getAbsolutePath().toString(), cacheAsString,
+                new Statistics(ehcache.getStatistics()), ehcache.getCacheConfiguration());
     }
 
     /**

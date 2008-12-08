@@ -17,8 +17,10 @@
 package net.sf.ehcache.server.rest.resources;
 
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.server.jaxb.Cache;
 import net.sf.ehcache.server.jaxb.Caches;
+import net.sf.ehcache.server.jaxb.Statistics;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -97,8 +99,10 @@ public class CachesResource {
         List<Cache> cacheList = new ArrayList<Cache>();
 
         for (String cacheName : cacheNames) {
+            Ehcache ehcache = MANAGER.getCache(cacheName);
             URI cacheUri = uriInfo.getAbsolutePathBuilder().path(cacheName).build().normalize();
-            Cache cache = new Cache(cacheName, cacheUri.toString(), MANAGER.getCache(cacheName).toString());
+            Cache cache = new Cache(cacheName, cacheUri.toString(), ehcache.toString(),
+                    new Statistics(ehcache.getStatistics()), ehcache.getCacheConfiguration());
             cacheList.add(cache);
         }
 

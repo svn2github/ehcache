@@ -55,6 +55,10 @@ public class Statistics {
 
     private long size;
 
+    private long memoryStoreSize;
+
+    private long diskStoreSize;
+
 
     /**
      * Empty constructor to create a new statistics object.
@@ -78,6 +82,9 @@ public class Statistics {
         averageGetTime = statistics.getAverageGetTime();
         evictionCount = statistics.getEvictionCount();
         size = statistics.getObjectCount();
+        memoryStoreSize = statistics.getMemoryStoreObjectCount();
+        diskStoreSize = statistics.getDiskStoreObjectCount();
+
     }
 
     /**
@@ -121,8 +128,8 @@ public class Statistics {
      * <h3>Best Effort Size</h3>
      * This result is returned when the statistics accuracy setting is {@link StatisticsAccuracy#STATISTICS_ACCURACY_BEST_EFFORT}.
      * <p/>
-     * The size is the number of {@link net.sf.ehcache.Element}s in the {@link net.sf.ehcache.store.MemoryStore} plus
-     * the number of {@link net.sf.ehcache.Element}s in the {@link net.sf.ehcache.store.DiskStore}.
+     * The size is the number of net.sf.ehcache.Elements in the net.sf.ehcache.store.MemoryStore plus
+     * the number of net.sf.ehcache.Elements in the net.sf.ehcache.store.DiskStore.
      * <p/>
      * This number is the actual number of elements, including expired elements that have
      * not been removed. Any duplicates between stores are accounted for.
@@ -234,10 +241,58 @@ public class Statistics {
     }
 
     /**
+     * 
+     * @return
+     */
+    public long getSize() {
+        return size;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public long getMisses() {
+        return misses;
+    }
+
+    /**
      *
      * @param size
      */
     public void setSize(long size) {
         this.size = size;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public long getMemoryStoreSize() {
+        return memoryStoreSize;
+    }
+
+    /**
+     *
+     * @param memoryStoreSize
+     */
+    public void setMemoryStoreSize(long memoryStoreSize) {
+        this.memoryStoreSize = memoryStoreSize;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public long getDiskStoreSize() {
+        return diskStoreSize;
+    }
+
+    /**
+     *
+     * @param diskStoreSize
+     */
+    public void setDiskStoreSize(long diskStoreSize) {
+        this.diskStoreSize = diskStoreSize;
     }
 }

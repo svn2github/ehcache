@@ -389,6 +389,7 @@ public class ElementResourceTest {
         assertTrue(urlConnection.getContentType().matches("application/xml"));
         String eTagInResponse = urlConnection.getHeaderField("Etag");
         assertTrue(!eTag.equals(eTagInResponse));
+        String content = HttpUtil.inputStreamToText(urlConnection.getInputStream());
         LOG.info("eTag: " + urlConnection.getHeaderField("Etag"));
         LOG.info("lastModified: " + urlConnection.getHeaderField("Last-Modified"));
         //HttpURLConnection weirdness. It works from wget.

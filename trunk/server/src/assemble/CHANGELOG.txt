@@ -1,12 +1,22 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
-<release version="0.6" date="2008-11-?" desc="Initial release of ehcache server">
+<release version="0.6" date="2008-12-?" desc="Initial release of ehcache server">
     <!-- Features and Enhancements -->
     <action dev="Greg Luck" type="add">
-        Register Ehcache core MBeans with the platform MBeanServer. 
+        Register Ehcache core MBeans with the platform MBeanServer. This adds Ehcache JMX support
+        to the web container, which can then be accessed by JMX consoles in the same way that the
+        web container supports, which is normally exposing an RMI service URL. See the documentation
+        for examples on how to use this with Tomcat and Glassfish.
     </action>
     <action dev="Greg Luck" type="update">
-        Upgrade Jersey to 1.0. 
+        Upgrade Jersey to the 1.0 release. There are no behavioural changes.
+    </action>
+    <action dev="Greg Luck" type="update">
+        Cache resources now return a more complete representation showing configuration and statistics sub-elements. 
+    </action>
+    <action dev="Greg Luck" type="add">
+        Added a DELETE cachename/* method to the API. Use this to clear the contents of a cache without removing
+         the cache itself.
     </action>
 </release>
 

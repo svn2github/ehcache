@@ -17,6 +17,7 @@
 package net.sf.ehcache.server.jaxb;
 
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.config.CacheConfiguration;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -31,6 +32,10 @@ public class Cache {
     private String uri;
 
     private String description;
+
+    private Statistics statistics;
+    private CacheConfiguration cacheConfiguration;
+
 
     /**
      * Empty Constructor
@@ -52,11 +57,15 @@ public class Cache {
     /**
      * Full Constructor
      */
-    public Cache(String name, String uri, String description) {
+    public Cache(String name, String uri, String description,
+                 Statistics statistics, CacheConfiguration cacheConfiguration) {
         setName(name);
         setUri(uri);
         setDescription(description);
+        this.statistics = statistics;
+        this.cacheConfiguration = cacheConfiguration;
     }
+
 
     /**
      * @return The cache name
@@ -82,6 +91,13 @@ public class Cache {
     }
 
     /**
+     * @return the current statistics for this cache
+     */
+    public Statistics getStatistics() {
+        return statistics;
+    }
+
+    /**
      *
      * @param uri the full URI of the resource
      */
@@ -103,6 +119,29 @@ public class Cache {
      */
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    /**
+     * Sets the statistics
+     * @param statistics a JAXB statistics object
+     */
+    public void setStatistics(Statistics statistics) {
+        this.statistics = statistics;
+    }
+
+    /**
+     * @return the active configuration of this cache
+     */
+    public CacheConfiguration getCacheConfiguration() {
+        return cacheConfiguration;
+    }
+
+    /**
+     *
+     * @param cacheConfiguration the active configuration of this cache
+     */
+    public void setCacheConfiguration(CacheConfiguration cacheConfiguration) {
+        this.cacheConfiguration = cacheConfiguration;
     }
 
     /**

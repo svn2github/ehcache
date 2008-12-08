@@ -23,9 +23,9 @@
             <version>1.0</version>
         </dependency>
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
-            <version>1.5.0</version>
+            <version>1.6.0-beta2-SNAPSHOT</version>
         </dependency>
         <!--Cannot find these complete anywhere. Bug logged against WSIT project. prefix with metro to stop
          a broken one coming down. Must be installed locally. -->
