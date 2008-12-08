@@ -34,10 +34,10 @@
 
 *   Declarative Configuration
 
-    Cache event listeners are configured per cache. Each cache can have
-    at most one exception handler.
-
-    An exception handler is configured by adding a cacheExceptionHandlerFactory element as shown in the following example:
+    cacheLoaderFactory - Specifies a CacheLoader, which can be used both asynchronously and
+      synchronously to load objects into a cache. More than one cacheLoaderFactory element
+      can be added, in which case the loaders form a chain which are executed in order. If a
+      loader returns null, the next in chain is called.
 
 ------------------------------------------
 
