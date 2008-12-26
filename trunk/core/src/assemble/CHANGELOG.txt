@@ -1,5 +1,32 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+ehcache-1.6.0-beta2
+===================
+
+<release version="1.6.0-beta2" date="2008-12-24"
+         desc="The focus of this release is enabling multiple replication schemes in the same configuration.">
+
+    <!-- Feature Changes  -->
+    <action dev="Greg Luck" type="update">
+        Allow multiple replication schemes to be used within the same CacheManager. i.e. use JMS for some
+        caches and RMI for others.
+    </action>
+    <action dev="Greg Luck" type="add">
+        Add a reference to Ehcache from CacheStatistics. Request 2128129
+    </action>
+    <action dev="Greg Luck" type="add">
+        Add FINE level LOG statement for Hibernate EhCache provider puts. This enables puts to be debugged
+        with LOG statement. Request 2061030.
+    </action>
+    <action dev="Greg Luck" type="update">
+        Removed cacheManager.getCachePeerProvider() in favour of cacheManager.getCacheManagerPeerProvider("scheme")
+        where scheme is the replication scheme. Each replicator type can then call its own scheme provider,
+        allowing multiple replication schemes to be used within the same CacheManager.
+    </action>
+</release>
+
+
+
 ehcache-1.6.0-beta1
 ===================
 

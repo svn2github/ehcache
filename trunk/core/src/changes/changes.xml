@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
-        <release version="1.6.0-beta2" date="2008-12-31"
-                 desc="The focus of this release is enabling multiple replication schemes.">
+        <release version="1.6.0-beta2" date="2008-12-24"
+                 desc="The focus of this release is enabling multiple replication schemes in the same configuration.">
 
             <!-- Feature Changes  -->
             <action dev="Greg Luck" type="update">
