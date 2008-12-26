@@ -1,6 +1,6 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
-<release version="0.3" date="2008-12-31" desc="Maintenance release of jmsreplication">
+<release version="0.3" date="2008-12-24" desc="Maintenance release of jmsreplication">
 
     <!-- Features and Enhancements -->
     <action dev="Greg Luck" type="update">
