@@ -18,7 +18,7 @@
         <dependency>
             <groupId>org.glassfish.embedded</groupId>
             <artifactId>glassfish-embedded-all</artifactId>
-            <version>3.0-Prelude-SNAPSHOT</version>
+            <version>3.0-Prelude-Embedded-m2</version>
         </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
@@ -85,6 +85,8 @@
                     <excludes>
                         <exclude>**/*$*</exclude>
                     </excludes>
+                    <disableXmlReport>true</disableXmlReport>
+                    <printSummary>true</printSummary>
                     <enableAssertions>false</enableAssertions>
                     <additionalClasspathElements>
                         <additionalClasspathElement>target/classes</additionalClasspathElement>

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.xml.sax.SAXException;
+import org.glassfish.embed.EmbeddedException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayOutputStream;
@@ -29,7 +30,7 @@ public class ServerIntegrationTest {
     @BeforeClass
     public static void startup() throws Exception, InterruptedException {
         Server.main(new String[]{"8080", "target/war/work/net.sf.ehcache/ehcache-server/"});
-        Thread.sleep(10000);
+        Thread.sleep(20000);
     }
 
     /**
@@ -67,8 +68,13 @@ public class ServerIntegrationTest {
 
 
     @AfterClass
-    public static void shutdown() {
-//        Server.
+    public static void shutdown() throws EmbeddedException, InterruptedException {
+        Server.stopStatic();
+    }
+
+    //Test
+    public void testManual() throws InterruptedException {
+        Thread.sleep(1000000);
     }
 
 

@@ -1,11 +1,25 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
-0.6 ? November 2008
-===================
+0.6 24 December 2008
+====================
 
 1. Upgrade to Glassfish V3 Prelude Embedded.
 2. Added RMI JMXConnectorServer, exposing the platform MBeanServer which the server module is using to register ehcache mbeans.
+3. Bundles the upgrade to 0.6 of Ehcache Server, with several improvements as follows:
 
+   -    Register Ehcache core MBeans with the platform MBeanServer. This adds Ehcache JMX support
+        to the web container, which can then be accessed by JMX consoles in the same way that the
+        web container supports, which is normally exposing an RMI service URL. See the documentation
+        for examples on how to use this with Tomcat and Glassfish.
+
+   -    Upgrade Jersey to the 1.0 release. There are no behavioural changes.
+
+   -    Cache resources now return a more complete representation showing configuration and statistics sub-elements.
+
+   -    Added a DELETE cachename/* method to the API. Use this to clear the contents of a cache without removing
+         the cache itself.
+
+   -    Upgraded to ehcache-1.6-beta2.
 
 0.5 15 October 2008
 ===================
@@ -24,7 +38,6 @@ $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
 1. Fix bug in jsvc where it will not start on Java's that do not suppor -server
 2. Upgrade cache server to 0.3. This version skips 0.2 so as to get in sync with the cache server releases.
-
 
 
 0.1 18 July 2008

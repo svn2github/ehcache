@@ -28,8 +28,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * todo update daemon_start
- * todo doco JMX
  * The ehcache server.
  * <p/>
  * This version uses the Java 6 built-in lightweight HTTP server, which is not suitable for production,
@@ -79,6 +77,7 @@ public class Server implements Daemon {
     /**
      * Invoked by Jsvc with a context which includes the arguments passed to Jsvc. The main() method
      * also calls through here so that the server can be started using either Jsvc or java -jar...
+     *
      * @param daemonContext
      * @throws Exception
      */
@@ -114,19 +113,18 @@ public class Server implements Daemon {
     /**
      * Starts the server. This method is called by Jsvc. The main() method
      * also calls through here so that the server can be started using either Jsvc or java -jar...
+     *
      * @throws Exception
      */
     public void start() throws Exception {
         System.out.println("\nStarting standalone ehcache server on port " + port + " with WAR file or directory " + war);
         serverThread = new GlassfishServerThread();
         serverThread.start();
-
-//        ManagementService.registerMBeans(Server.getCacheManager(), ManagementFactory.getPlatformMBeanServer(),
-//                true, true, true, true);
     }
 
     /**
-     * A test method for stopping a server
+     * A method for stopping a server. This is meant to be used by integration tests thus the package protected.
+     *
      * @throws InterruptedException if the server is interrupted while stopping
      */
     static void stopStatic() throws InterruptedException, EmbeddedException {
@@ -163,6 +161,7 @@ public class Server implements Daemon {
 
         /**
          * Constructor.
+         *
          * @param args the <code>main()</code> method arguments.
          */
         public MockDaemonContext(String[] args) {
@@ -237,16 +236,19 @@ public class Server implements Daemon {
 
                 EmbeddedInfo embeddedInfo = new EmbeddedInfo();
                 embeddedInfo.setHttpPort(port);
+                embeddedInfo.setServerName("Ehcache Server");
 
-                server = org.glassfish.embed.Server.create(embeddedInfo);
-
+                server = org.glassfish.embed.Server.getServer("Ehcache Server");
+                if (server == null) {
+                    server = new org.glassfish.embed.Server(embeddedInfo);
+                }
                 server.start();
                 server.deploy(war);
 
                 LOG.info("Glassfish server running on port " + port + " with WAR " + war);
-            } catch (EmbeddedException e) {
+            } catch (Exception e) {
                 LOG.log(Level.SEVERE, "Cannot start server. ", e);
-            }
+            } 
         }
 
         /**
