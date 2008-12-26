@@ -19,6 +19,14 @@ Welcome to ehcache
 
 * Latest News
 
+** 24 December 2008: New releases of Ehcache, JMS Replication, Ehcache Server and Ehcache Standalone Server
+
+   Releases of minor bug fixes and features aimed at perfecting JMS Replication, including as used from Ehcache Server.
+
+   Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. All documentation is
+    {{{http://ehcache.sourceforge.net/documentation}here}}.
+
+
 ** 21 October 2008: ehcache-jgroupsreplication-0.1 released
 
     This is the second release of JGroups replication. This release moves it to its own module. It contains some performance
