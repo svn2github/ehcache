@@ -314,6 +314,8 @@ public class ElementResourceTest {
     /**
      * Stick in a java object without mime type of application/x-java-serialized-object.
      * Server does not accept the content and responds with a 400
+     *
+     * Note: it this test causes a java.lang.IllegalArgumentException: Error parsing media type '' in the server log.
      */
     @Test
     public void testPutEmptyMimeType() throws Exception {
