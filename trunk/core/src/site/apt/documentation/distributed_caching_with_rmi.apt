@@ -290,7 +290,18 @@ socketTimeoutMillis=2000"/>
   This could cause synchronous transaction replicates to back up. To solve this problem, commits will be
    accepted, but not written to the cache until after bootstrap. Coherency is maintained because the cache
    is not available until bootstrap has completed and the transactions have been completed.
+
+* Full Example
+
+   Ehcache's own integration tests provide complete examples of RMI-based replication.
+   The best example is the integration test for cache replication. You can see it online here:
+   {{http://ehcache.sourceforge.net/xref-test/net/sf/ehcache/distribution/RMICacheReplicatorTest.html}}
+
+   The test uses 5 ehcache.xml's representing 5 CacheManagers set up to distribute using RMI.
+   You can copy and paste them from:
+   {{http://ehcache.svn.sourceforge.net/viewvc/ehcache/trunk/core/src/test/resources/distribution/}}
    
+
 * Common Problems
 
 ** Tomcat on Windows
