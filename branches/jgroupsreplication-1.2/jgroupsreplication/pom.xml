@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<project>
+    <parent>
+        <artifactId>ehcache-parent</artifactId>
+        <groupId>net.sf.ehcache</groupId>
+        <version>1.5.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>net.sf.ehcache</groupId>
+    <artifactId>ehcache-jgroupsreplication</artifactId>
+    <name>JGroups Replication</name>
+    <version>1.2</version>
+    <packaging>jar</packaging>
+    <description>This module provides replication via JGroups</description>
+    <dependencies>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>1.6.0-beta2</version>
+        </dependency>
+        <dependency>
+            <groupId>jgroups</groupId>
+            <artifactId>jgroups-all</artifactId>
+            <version>2.4.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>bsh</groupId>
+                    <artifactId>bsh</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <filters>
+                        <filter>src/assemble/filter.properties</filter>
+                    </filters>
+                    <descriptors>
+                        <descriptor>src/assemble/distribution.xml</descriptor>
+                    </descriptors>
+                    <tarLongFileMode>gnu</tarLongFileMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>assemble</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>assembly</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+
+    </build>
+
+
+    <!-- Note: site URL repeated here to ensure correct deployment path -->
+    <distributionManagement>
+        <!--
+          The server id here defined must also appear in ~/.m2/settings.xml with username
+        -->
+        <repository>
+            <id>sourceforge.net</id>
+            <name>SF EHCache Repository</name>
+            <url>scp://web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs/repository</url>
+        </repository>
+        <snapshotRepository>
+            <id>sourceforge.net</id>
+            <name>SF EHCache Snapshot Repository</name>
+            <url>scp://web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs/snapshotrepository</url>
+        </snapshotRepository>
+        <site>
+            <id>sourceforge.net</id>
+            <name>SF EHCache Site</name>
+            <url>scp://web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs</url>
+        </site>
+    </distributionManagement>
+</project>
+
+        
