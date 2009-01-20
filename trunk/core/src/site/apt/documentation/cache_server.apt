@@ -383,6 +383,41 @@ public class ExampleJavaClient {
 }
 ---
 
+*** Scala Code Samples
+
+**** GET
+
+---
+   import java.net.URL
+   import scala.io.Source.fromInputStream
+
+   object ExampleScalaGet extends Application {
+     val url = new URL("http://localhost:8080/ehcache/rest/sampleCache2/2")
+     fromInputStream(url.openStream).getLines.foreach(print)
+   }
+---
+
+ Run it with:
+
+---
+    scala -e ExampleScalaGet
+---
+
+    The program outputs:
+
+---
+     <?xml version="1.0"?>
+     <oldjoke>
+     <burns>Say <quote>goodnight</quote>,
+     Gracie.</burns>
+     <allen><quote>Goodnight,
+     Gracie.</quote></allen>
+     <applause/>
+---
+
+
+
+
 *** PHP Code Samples
 
 **** GET
