@@ -287,6 +287,20 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
     }
 
     /**
+     * The replication scheme. Each peer provider has a scheme name, which can be used to specify
+     * the scheme for replication and bootstrap purposes. Each <code>CacheReplicator</code> should lookup
+     * the provider for its scheme type during replication. Similarly a <code>BootstrapCacheLoader</code>
+     * should also look up the provider for its scheme.
+     * <p/>
+     *
+     * @return the well-known scheme name, which is determined by the replication provider author.
+     * @since 1.6 introduced to permit multiple distribution schemes to be used in the same CacheManager
+     */
+    public String getScheme() {
+        return "JGroups";
+    }
+
+    /**
      * {@inheritDoc}
      */
     public void init() {

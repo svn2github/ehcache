@@ -83,7 +83,7 @@ public class JGroupsReplicationTest {
         }
         Thread.sleep(3000);
 
-        LOG.fine(manager1.getEhcache(cacheName).getKeys().size() + "  " + manager2.getEhcache(cacheName).getKeys().size() + " " + manager3.getEhcache(cacheName).getKeys().size());
+        LOG.info(manager1.getEhcache(cacheName).getKeys().size() + "  " + manager2.getEhcache(cacheName).getKeys().size() + " " + manager3.getEhcache(cacheName).getKeys().size());
         assertTrue(manager1.getEhcache(cacheName).getKeys().size() == manager2.getEhcache(cacheName).getKeys().size() &&
                 manager1.getEhcache(cacheName).getKeys().size() == manager3.getEhcache(cacheName).getKeys().size() &&
                 manager1.getEhcache(cacheName).getKeys().size() == manager4.getEhcache(cacheName).getKeys().size() &&
@@ -99,7 +99,7 @@ public class JGroupsReplicationTest {
     }
 
     @Test
-    public void testBasicReplicationSynchroneous() throws Exception {
+    public void testBasicReplicationSynchronous() throws Exception {
         cacheName = SAMPLE_CACHE2;
         testBasicReplication();
     }
@@ -110,7 +110,7 @@ public class JGroupsReplicationTest {
         manager1.getEhcache(cacheName).removeAll();
         Thread.sleep(1000);
 
-        CacheManagerPeerProvider provider = manager1.getCachePeerProvider();
+        CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider("JGroups");
         JGroupManager jg = (JGroupManager) provider;
         assertEquals(Status.STATUS_ALIVE, jg.getStatus());
         manager1.shutdown();

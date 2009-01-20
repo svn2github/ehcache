@@ -1,5 +1,14 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+<release version="1.2" date="2009-1-20" desc="Update to ehcache core 1.6-beta2">
+
+    <!-- Features and Enhancements -->
+    <action dev="Greg Luck" type="update">
+        Updated for interface change in 1.6-beta2.
+    </action>
+</release>
+
+
 <release version="1.1" date="2008-10-20" desc="Maintenance release of JGroups Replication">
 
     <!-- Features and Enhancements -->

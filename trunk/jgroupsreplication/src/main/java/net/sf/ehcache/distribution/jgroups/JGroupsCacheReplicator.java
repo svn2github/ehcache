@@ -167,7 +167,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
             addMessageToQueue(e);
             return;
         }
-        CacheManagerPeerProvider provider = cache.getCacheManager().getCachePeerProvider();
+        CacheManagerPeerProvider provider = cache.getCacheManager().getCacheManagerPeerProvider("JGroups");
         List l = provider.listRemoteCachePeers(cache);
         ArrayList a = new ArrayList();
 
@@ -287,7 +287,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
      *         the local peer.
      */
     static List listRemoteCachePeers(Ehcache cache) {
-        CacheManagerPeerProvider provider = cache.getCacheManager().getCachePeerProvider();
+        CacheManagerPeerProvider provider = cache.getCacheManager().getCacheManagerPeerProvider("JGroups");
         return provider.listRemoteCachePeers(cache);
     }
 
