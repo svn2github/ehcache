@@ -1,4 +1,4 @@
-Glassfish HowTo & Known Issues
+Glassfish HowTo & FAQ
 
     The maintainer uses Ehcache in production with Glassfish. This chapter provides a Glassfish HOWTO.
 
@@ -76,13 +76,17 @@ Glassfish HowTo & Known Issues
 ---
 
 
-*   Glassfish Known Issues
+*   {Glassfish FAQ}
 
 **  Ehcache page caching versions below Ehcache 1.3 get an IllegalStateException in Glassfish.
 
     This issue was fixed in Ehcache 1.3.
 
+**  I get a <<<Could not ungzip. Heartbeat will not be working. Not in GZIP format>>> reported from PayloadUtil
+    exception when using ehcache with my Glassfish cluster. Why?
 
-
+    Ehcache and Glassfish clustering have nothing to do with each other. The error is caused because ehcache has
+    received a multicast message from the Glassfish cluster. Ensure that ehcache clustering has its own unique
+    multicast address different to Glassfish.
     
 
