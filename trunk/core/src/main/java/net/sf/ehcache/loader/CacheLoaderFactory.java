@@ -18,31 +18,17 @@ package net.sf.ehcache.loader;
 
 import net.sf.ehcache.Ehcache;
 
-import java.util.Map;
 import java.util.Properties;
 
 /**
  * An abstract factory for creating cache loaders. Implementers should provide their own
  * concrete factory extending this factory.
  * <p/>
- * There is one factory method for JSR107 Cache Loaders and one for Ehcache ones. The Ehcache
- * loader is a sub interface of the JSR107 Cache Loader.
- * <p/>
- * Note that both the JCache and Ehcache APIs also allow the CacheLoader to be set programmatically.
+ * Note that Ehcache API also allows the CacheLoader to be set programmatically.
  * @author Greg Luck
  * @version $Id$
  */
 public abstract class CacheLoaderFactory {
-
-    /**
-     * Creates a CacheLoader using the JSR107 creational mechanism.
-     * This method is called from {@link net.sf.ehcache.jcache.JCacheFactory}
-     *
-     * @param environment the same environment passed into {@link net.sf.ehcache.jcache.JCacheFactory}.
-     * This factory can extract any properties it needs from the environment.
-     * @return a constructed CacheLoader
-     */
-    public abstract net.sf.jsr107cache.CacheLoader createCacheLoader(Map environment);
 
     /**
      * Creates a CacheLoader using the Ehcache configuration mechanism at the time the associated cache

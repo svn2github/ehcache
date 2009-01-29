@@ -18,7 +18,7 @@ package net.sf.ehcache.loader;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
-import net.sf.jsr107cache.CacheException;
+import net.sf.ehcache.CacheException;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -54,7 +54,6 @@ public class CountingCacheLoader implements CacheLoader {
      *
      * @param key the key identifying the object being loaded
      * @return The object that is to be stored in the cache.
-     * @throws net.sf.jsr107cache.CacheException
      *
      */
     public Object load(Object key) throws CacheException {
@@ -74,7 +73,6 @@ public class CountingCacheLoader implements CacheLoader {
      *
      * @param keys a Collection of keys identifying the objects to be loaded
      * @return A Map of objects that are to be stored in the cache.
-     * @throws net.sf.jsr107cache.CacheException
      *
      */
 
@@ -115,7 +113,6 @@ public class CountingCacheLoader implements CacheLoader {
      * @param key
      * @param argument
      * @return
-     * @throws net.sf.jsr107cache.CacheException
      *
      */
     public Object load(Object key, Object argument) throws CacheException {
@@ -135,7 +132,6 @@ public class CountingCacheLoader implements CacheLoader {
      * @param keys
      * @param argument
      * @return
-     * @throws net.sf.jsr107cache.CacheException
      *
      */
     public Map loadAll(Collection keys, Object argument) throws CacheException {

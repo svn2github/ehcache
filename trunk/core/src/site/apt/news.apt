@@ -8,6 +8,21 @@
 News
 
 
+* 28 January 2009: New releases which break JCache into its own module.
+
+    A new release of Ehcache core, ehcache-1.6.0-beta3 and the new ehcache-jcache-1.1 break JCache functionality
+    into its own Maven module and file download. jsr107cache has been updated to 1.1.
+
+    The upshot of this change is that ehcache core has no third party dependencies, simplifying its use for many
+    and making it easier to add ehcache to other projects.
+
+    This completes the modularisation work for 1.6. The next beta will add bug fixes, performance improvements
+    and some longstanding feature requests.
+
+   Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. All documentation is
+    {{{http://ehcache.sourceforge.net/documentation}here}}.
+
+
 * 24 December 2008: New releases of Ehcache, JMS Replication, Ehcache Server and Ehcache Standalone Server
 
    Releases of minor bug fixes and features aimed at perfecting JMS Replication, including as used from Ehcache Server.

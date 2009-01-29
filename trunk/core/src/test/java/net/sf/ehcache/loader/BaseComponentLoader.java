@@ -18,7 +18,7 @@ package net.sf.ehcache.loader;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
-import net.sf.jsr107cache.CacheException;
+import net.sf.ehcache.CacheException;
 
 import java.util.Collection;
 import java.util.Map;
@@ -39,16 +39,16 @@ public class BaseComponentLoader extends CacheLoaderFactory implements CacheLoad
     protected Properties props;
 
     /**
-     * Create a JSR107 cache loader
+     * Create a cache loader
      */
-    public net.sf.jsr107cache.CacheLoader createCacheLoader(Map arg0) {
+    public CacheLoader createCacheLoader(Map arg0) {
         Properties p = new Properties();
         p.putAll(arg0);
         return createCacheLoader(p);
     }
 
     /**
-     * create a ehCache Cache loader (which extends jsr107 cache loader)
+     * create a ehCache Cache loader
      */
     public net.sf.ehcache.loader.CacheLoader createCacheLoader(Ehcache cache, Properties properties) {
         this.props = properties;

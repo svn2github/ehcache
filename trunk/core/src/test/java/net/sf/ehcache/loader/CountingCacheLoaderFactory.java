@@ -33,13 +33,8 @@ public class CountingCacheLoaderFactory extends CacheLoaderFactory {
 
 
     /**
-     * Creates a CacheLoader. This method is called from {@link net.sf.ehcache.jcache.JCacheFactory}
-     *
-     * @param environment the same environment passed into {@link net.sf.ehcache.jcache.JCacheFactory}. This factory can
-     *                    extract any properties it needs from the environment.
-     * @return a constructed CacheLoader
      */
-    public net.sf.jsr107cache.CacheLoader createCacheLoader(Map environment) {
+    public CacheLoader createCacheLoader(Map environment) {
         return new CountingCacheLoader();
     }
 

@@ -16,7 +16,7 @@
 
 package net.sf.ehcache.loader;
 
-import net.sf.jsr107cache.CacheException;
+import net.sf.ehcache.CacheException;
 
 import java.util.logging.Logger;
 

@@ -1,4 +1,5 @@
 <assembly>
+    <!--todo include ehcache.xml-->
     <id>distribution</id>
     <formats>
         <format>tar.gz</format>
@@ -24,6 +25,8 @@
             <directory>${basedir}/src/main/config</directory>
             <includes>
                 <include>*.txt</include>
+                <include>*.xml</include>
+                <include>*.xsd</include>
             </includes>
             <outputDirectory>/</outputDirectory>
         </fileSet>

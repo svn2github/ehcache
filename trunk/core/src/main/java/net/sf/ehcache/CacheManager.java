@@ -27,7 +27,6 @@ import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.event.CacheManagerEventListenerRegistry;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.util.PropertyUtil;
-import net.sf.ehcache.jcache.JCache;
 
 
 
@@ -51,7 +50,7 @@ import java.util.logging.Level;
  * CacheManager may be either be a singleton if created with factory methods, or multiple instances may exist,
  * in which case resources required by each must be unique.
  * <p/>
- * A CacheManager holds references to Cache, Ehcache, and JCache objects and manages their creation and lifecycle.
+ * A CacheManager holds references to Caches and Ehcaches and manages their creation and lifecycle.
  *
  * @author Greg Luck
  * @version $Id$
@@ -89,30 +88,29 @@ public class CacheManager {
     protected final Map caches = new HashMap();
 
     /**
-     * JCaches managed by this manager. For each JCache there is a backing ehcache stored in the ehcaches map.
-     */
-    protected final Map jCaches = new HashMap();
-
-    /**
-     * Default cache cache.
-     */
-    private Ehcache defaultCache;
-
-    /**
-     * The path for the directory in which disk caches are created.
-     */
-    private String diskStorePath;
-
-    /**
      * A name for this CacheManager to distinguish it from others.
      */
-    private String name;
+    protected String name;
 
-    private Status status;
+    /**
+     * Status of the Cache Manager
+     */
+    protected Status status;
 
-    private Map<String, CacheManagerPeerProvider> cacheManagerPeerProviders = new HashMap<String, CacheManagerPeerProvider>();
-    private Map<String, CacheManagerPeerListener> cacheManagerPeerListeners = new HashMap<String, CacheManagerPeerListener>();;
-    private CacheManagerEventListenerRegistry cacheManagerEventListenerRegistry = new CacheManagerEventListenerRegistry();
+    /**
+     * The map of providers
+     */
+    protected Map<String, CacheManagerPeerProvider> cacheManagerPeerProviders = new HashMap<String, CacheManagerPeerProvider>();
+
+    /**
+     * The map of listeners
+     */
+    protected Map<String, CacheManagerPeerListener> cacheManagerPeerListeners = new HashMap<String, CacheManagerPeerListener>();
+
+    /**
+     * The listener registry
+     */
+    protected CacheManagerEventListenerRegistry cacheManagerEventListenerRegistry = new CacheManagerEventListenerRegistry();
 
     /**
      * The shutdown hook thread for CacheManager. This ensures that the CacheManager and Caches are left in a
@@ -124,7 +122,18 @@ public class CacheManager {
      * Of course kill -9 or abrupt termination will not run the shutdown hook. In this case, various
      * sanity checks are made at start up.
      */
-    private Thread shutdownHook;
+    protected Thread shutdownHook;
+
+    /**
+     * Default cache cache.
+     */
+    private Ehcache defaultCache;
+
+    /**
+     * The path for the directory in which disk caches are created.
+     */
+    private String diskStorePath;
+
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -215,7 +224,10 @@ public class CacheManager {
         init(null, null, null, null);
     }
 
-    private void init(Configuration configuration, String configurationFileName, URL configurationURL,
+    /**
+     * initialises the CacheManager
+     */
+    protected void init(Configuration configuration, String configurationFileName, URL configurationURL,
                       InputStream configurationInputStream) {
         Configuration localConfiguration = configuration;
         if (configuration == null) {
@@ -528,25 +540,6 @@ public class CacheManager {
         return (Ehcache) ehcaches.get(name);
     }
 
-    /**
-     * Gets a draft JSR107 spec JCache.
-     * <p/>
-     * If a JCache does not exist for the name, but an ehcache does, a new JCache will be created dynamically and added
-     * to the list of JCaches managed by this CacheManager.
-     * Warning: JCache will change as the specification changes, so no guarantee of backward compatibility is made for this method.
-     *
-     * @return a JSR 107 Cache, if an object of that type exists by that name, else null
-     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
-     */
-    public synchronized JCache getJCache(String name) throws IllegalStateException {
-        checkStatus();
-        if (jCaches.get(name) != null) {
-            return (JCache) jCaches.get(name);
-        } else if (ehcaches.get(name) != null) {
-            jCaches.put(name, new JCache((Ehcache) ehcaches.get(name), null));
-        }
-        return (JCache) jCaches.get(name);
-    }
 
     /**
      * Some caches might be persistent, so we want to add a shutdown hook if that is the
@@ -664,27 +657,6 @@ public class CacheManager {
         caches.put(cache.getName(), cache);
     }
 
-    /**
-     * Adds a {@link Cache} to the CacheManager.
-     * <p/>
-     * Memory and Disk stores will be configured for it and it will be added to the map of caches.
-     * Also notifies the CacheManagerEventListener after the cache was initialised and added.
-     *
-     * @param jCache
-     * @throws IllegalStateException if the cache is not {@link Status#STATUS_UNINITIALISED} before this method is called.
-     * @throws ObjectExistsException if the cache already exists in the CacheManager
-     * @throws CacheException        if there was an error adding the cache to the CacheManager
-     */
-    public synchronized void addCache(JCache jCache) throws IllegalStateException,
-            ObjectExistsException, CacheException {
-        checkStatus();
-        if (jCache == null) {
-            return;
-        }
-        Ehcache backingCache = jCache.getBackingCache();
-        addCache(backingCache);
-        jCaches.put(backingCache.getName(), jCache);
-    }
 
     /**
      * Adds an {@link Ehcache} to the CacheManager.
@@ -772,7 +744,6 @@ public class CacheManager {
             cache.dispose();
             cacheManagerEventListenerRegistry.notifyCacheRemoved(cache.getName());
         }
-        jCaches.remove(cacheName);
         caches.remove(cacheName);
     }
 
@@ -837,7 +808,10 @@ public class CacheManager {
     }
 
 
-    private void checkStatus() {
+    /**
+     * Checks the state of the CacheManager for legal operation
+     */
+    protected void checkStatus() {
         if (!(status.equals(Status.STATUS_ALIVE))) {
             throw new IllegalStateException("The CacheManager is not alive.");
         }
@@ -965,28 +939,6 @@ public class CacheManager {
 
     }
 
-    /**
-     * Replaces in the map of Caches managed by this CacheManager an Ehcache with a JCache decorated version of the <i>same</i> (see Ehcache equals method)
-     * Ehcache, in a single synchronized method.
-     * <p/>
-     * Warning: JCache will change as the specification changes, so no guarantee of backward compatibility is made for this method.
-     *
-     * @param ehcache
-     * @param jCache  A JCache that wraps the original cache.
-     * @throws CacheException
-     */
-    public synchronized void replaceEhcacheWithJCache(Ehcache ehcache, JCache jCache) throws CacheException {
-        if (!ehcache.getName().equals(jCache.getBackingCache().getName())) {
-            throw new CacheException("Cannot replace ehcache with a JCache where the backing cache has a different name");
-        }
-        Ehcache backingCache = jCache.getBackingCache();
-        if (!ehcache.equals(backingCache)) {
-            throw new CacheException("Cannot replace " + backingCache.getName()
-                    + " It does not equal the incumbent cache.");
-        } else {
-            jCaches.put(backingCache.getName(), jCache);
-        }
-    }
 
     /**
      * Gets the name of the CacheManager. This is useful for distinguishing multiple CacheManagers

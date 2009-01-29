@@ -20,8 +20,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.distribution.CacheReplicator;
-import net.sf.ehcache.jcache.JCacheListenerAdaptor;
-import net.sf.jsr107cache.CacheListener;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -244,9 +242,6 @@ public class RegisteredEventListeners {
      * @return true if the listener was present
      */
     public final boolean unregisterListener(CacheEventListener cacheEventListener) {
-        if (cacheEventListener instanceof JCacheListenerAdaptor) {
-            removeCacheListenerAdaptor(((JCacheListenerAdaptor) cacheEventListener).getCacheListener());
-        }
         boolean removed;
         synchronized (cacheEventListeners) {
             removed = cacheEventListeners.remove(cacheEventListener);
@@ -254,21 +249,6 @@ public class RegisteredEventListeners {
         return removed;
     }
 
-    private void removeCacheListenerAdaptor(CacheListener cacheListener) {
-        synchronized (cacheEventListeners) {
-            for (Iterator iterator = createThreadSafeIterator(); iterator.hasNext();) {
-                CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
-                if (cacheEventListener instanceof JCacheListenerAdaptor) {
-                    if (((JCacheListenerAdaptor) cacheEventListener).getCacheListener() == cacheListener) {
-                        synchronized (cacheEventListeners) {
-                            cacheEventListeners.remove(cacheEventListener);
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-    }
 
     /**
      * Gets a list of the listeners registered to this class

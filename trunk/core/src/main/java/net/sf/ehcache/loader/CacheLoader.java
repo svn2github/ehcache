@@ -18,7 +18,7 @@ package net.sf.ehcache.loader;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
-import net.sf.jsr107cache.CacheException;
+import net.sf.ehcache.CacheException;
 
 import java.util.Collection;
 import java.util.Map;
@@ -26,10 +26,41 @@ import java.util.Map;
 /**
  * Extends JCache CacheLoader with load methods that take an argument in addition to a key
  *
+ * This interface has exactly the same interface as in the JCache module.
+ *
  * @author Greg Luck
  * @version $Id$
  */
-public interface CacheLoader extends net.sf.jsr107cache.CacheLoader {
+public interface CacheLoader {
+
+
+     /**
+     * loads an object. Application writers should implement this
+     * method to customize the loading of cache object. This method is called
+     * by the caching service when the requested object is not in the cache.
+     * <P>
+     *
+     * @param key the key identifying the object being loaded
+     *
+     * @return The object that is to be stored in the cache.
+     * @throws CacheException
+     *
+     */
+    public Object load(Object key) throws CacheException;
+
+    /**
+     * loads multiple object. Application writers should implement this
+     * method to customize the loading of cache object. This method is called
+     * by the caching service when the requested object is not in the cache.
+     * <P>
+     *
+     * @param keys a Collection of keys identifying the objects to be loaded
+     *
+     * @return A Map of objects that are to be stored in the cache.
+     * @throws CacheException
+     *
+     */
+    public Map loadAll(Collection keys);
 
 
     /**
@@ -42,7 +73,7 @@ public interface CacheLoader extends net.sf.jsr107cache.CacheLoader {
      * @return the Object loaded
      * @throws CacheException
      */
-    Object load(Object key, Object argument) throws CacheException;
+    Object load(Object key, Object argument);
 
     /**
      * Load using both a key and an argument.
@@ -54,7 +85,7 @@ public interface CacheLoader extends net.sf.jsr107cache.CacheLoader {
      * @return a map of Objects keyed by the collection of keys passed in.
      * @throws CacheException
      */
-    Map loadAll(Collection keys, Object argument) throws CacheException;
+    Map loadAll(Collection keys, Object argument);
 
     /**
      * Gets the name of a CacheLoader

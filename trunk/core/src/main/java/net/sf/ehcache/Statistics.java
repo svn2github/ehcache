@@ -31,8 +31,7 @@ import java.io.Serializable;
  * Because this class maintains a reference to an Ehcache, any references held to this class will precent the Ehcache
  * from getting garbage collected.
  * <p/>
- * The {@link #STATISTICS_ACCURACY_BEST_EFFORT}, {@link #STATISTICS_ACCURACY_GUARANTEED} and {@link #STATISTICS_ACCURACY_NONE}
- * constants have the same values as in JSR107.
+ * todo Add missCountExpired. Request from user.
  *
  * @author Greg Luck
  * @version $Id$

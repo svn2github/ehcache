@@ -16,7 +16,8 @@
 
 package net.sf.ehcache.loader;
 
-import net.sf.jsr107cache.CacheException;
+
+import net.sf.ehcache.CacheException;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -51,7 +52,6 @@ public class ExceptionThrowingLoader extends CountingCacheLoader {
      *
      * @param key the key identifying the object being loaded
      * @return The object that is to be stored in the cache.
-     * @throws net.sf.jsr107cache.CacheException
      *
      */
     public Object load(Object key) throws CacheException {
@@ -71,7 +71,6 @@ public class ExceptionThrowingLoader extends CountingCacheLoader {
      *
      * @param keys a Collection of keys identifying the objects to be loaded
      * @return A Map of objects that are to be stored in the cache.
-     * @throws net.sf.jsr107cache.CacheException
      *
      */
 
@@ -96,12 +95,6 @@ public class ExceptionThrowingLoader extends CountingCacheLoader {
      * Load using both a key and an argument.
      * <p/>
      * JCache will use the load(key) method where the argument is null.
-     *
-     * @param key
-     * @param argument
-     * @return
-     * @throws net.sf.jsr107cache.CacheException
-     *
      */
     public Object load(Object key, Object argument) throws CacheException {
         try {
@@ -116,12 +109,6 @@ public class ExceptionThrowingLoader extends CountingCacheLoader {
      * Load using both a key and an argument.
      * <p/>
      * JCache will use the loadAll(key) method where the argument is null.
-     *
-     * @param keys
-     * @param argument
-     * @return
-     * @throws net.sf.jsr107cache.CacheException
-     *
      */
     public Map loadAll(Collection keys, Object argument) throws CacheException {
         throw new CacheException("Some exception with key " + keys.toArray()[0]);

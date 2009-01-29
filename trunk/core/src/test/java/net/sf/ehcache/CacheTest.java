@@ -1954,10 +1954,10 @@ public class CacheTest extends AbstractCacheTest {
              * @param keys     the keys to load objects for
              * @param argument can be anything that makes sense to the loader
              * @return a map of Objects keyed by the collection of keys passed in.
-             * @throws net.sf.jsr107cache.CacheException
+             * @throws CacheException
              *
              */
-            public Map loadAll(Collection keys, Object argument) throws net.sf.jsr107cache.CacheException {
+            public Map loadAll(Collection keys, Object argument) throws CacheException {
                 return null;
             }
 

@@ -677,8 +677,6 @@ public interface Ehcache extends Cloneable {
     public List<CacheLoader> getRegisteredCacheLoaders();
 
     /**
-     * Warning: This method is related to the JSR107 specification, which is in draft. It is subject to change without notice.
-     * <p/>
      * This method will return, from the cache, the object associated with
      * the argument "key".
      * <p/>
@@ -698,8 +696,6 @@ public interface Ehcache extends Cloneable {
     public Element getWithLoader(Object key, CacheLoader loader, Object loaderArgument) throws CacheException;
 
     /**
-     * Warning: This method is related to the JSR107 specification, which is in draft. It is subject to change without notice.
-     * <p/>
      * The getAll method will return, from the cache, a Map of the objects associated with the Collection of keys in argument "keys".
      * If the objects are not in the cache, the associated cache loader will be called. If no loader is associated with an object,
      * a null is returned. If a problem is encountered during the retrieving or loading of the objects, an exception will be thrown.
@@ -725,8 +721,6 @@ public interface Ehcache extends Cloneable {
 
 
     /**
-     * Warning: This method is related to the JSR107 specification, which is in draft. It is subject to change without notice.
-     * <p/>
      * The load method provides a means to "pre load" the cache. This method will, asynchronously, load the specified
      * object into the cache using the associated cacheloader. If the object already exists in the cache, no action is
      * taken. If no loader is associated with the object, no object will be loaded into the cache. If a problem is
@@ -746,8 +740,6 @@ public interface Ehcache extends Cloneable {
 
 
     /**
-     * Warning: This method is related to the JSR107 specification, which is in draft. It is subject to change without notice.
-     * <p/>
      * The loadAll method provides a means to "pre load" objects into the cache. This method will, asynchronously, load
      * the specified objects into the cache using the associated cache loader. If the an object already exists in the
      * cache, no action is taken. If no loader is associated with the object, no object will be loaded into the cache.

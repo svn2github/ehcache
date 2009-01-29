@@ -1,5 +1,22 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+
+ehcache-1.6.0-beta3
+===================
+
+<release version="1.6.0-beta3" date="2009-1-28"
+                 desc="This release breaks JCache into its own ehcache-jcache module and removes all
+                 dependencies other than the JDK.">
+
+            <!-- Feature Changes  -->
+            <action dev="Greg Luck" type="update">
+                Remove all of JSR107 JCACHE into its own module called ehcache-jcache, which will have its own
+                release cycle. The jsr107cache dependency is thus no longer required.
+            </action>
+        </release>
+
+
+
 ehcache-1.6.0-beta2
 ===================
 
