@@ -126,6 +126,26 @@
                 <version>1.0-alpha-4</version>
             </plugin>
 
+            <!--mvn jar:jar to create this jar plugin -->
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <version>2.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            <addClasspath>true</addClasspath>
+                        </manifest>
+                    </archive>
+                    <excludes>
+                        <exclude>**/ehcache.xml</exclude>
+                    </excludes>
+                    <classifier>jaronly</classifier>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.codehaus.cargo</groupId>
                 <artifactId>cargo-maven2-plugin</artifactId>
@@ -243,10 +263,10 @@
                 </executions>
             </plugin>
             <!--<plugin>-->
-                <!--<artifactId>maven-plugin-plugin</artifactId>-->
-                <!--<configuration>-->
-                    <!--<goalPrefix>glassfish</goalPrefix>-->
-                <!--</configuration>-->
+            <!--<artifactId>maven-plugin-plugin</artifactId>-->
+            <!--<configuration>-->
+            <!--<goalPrefix>glassfish</goalPrefix>-->
+            <!--</configuration>-->
             <!--</plugin>-->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
