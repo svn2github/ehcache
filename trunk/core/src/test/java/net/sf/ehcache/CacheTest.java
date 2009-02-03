@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -1819,6 +1820,107 @@ public class CacheTest extends AbstractCacheTest {
         LOG.info("Total time for the test: " + (end - start) + " ms");
         LOG.info("Total loads: " + countingCacheLoader.getLoadCounter());
         LOG.info("Total loadAlls: " + countingCacheLoader.getLoadAllCounter());
+    }
+
+
+    /**
+     * Multi-thread read-write test with 20 threads
+     * Just use MemoryStore to put max stress on cache
+     * Values that work:
+     * <pre>
+     * Results 3/2/09
+     * Feb 3, 2009 5:57:35 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
+     * INFO: 200 threads. Average Get time: 0.029238183 ms
+     * Feb 3, 2009 5:57:45 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
+     * INFO: 400 threads. Average Get time: 0.033715356 ms
+     * Feb 3, 2009 5:57:55 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
+     * INFO: 600 threads. Average Get time: 3.0990555 ms
+     * Feb 3, 2009 5:58:05 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
+     * INFO: 800 threads. Average Get time: 18.419634 ms
+     * Feb 3, 2009 5:58:16 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
+     * INFO: 1000 threads. Average Get time: 42.440605 ms
+     * Feb 3, 2009 5:58:26 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
+     * INFO: 1200 threads. Average Get time: 56.21161 ms
+     * Feb 3, 2009 5:58:36 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
+     * INFO: 1400 threads. Average Get time: 51.93427 ms
+     * Feb 3, 2009 5:58:46 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
+     * INFO: 1600 threads. Average Get time: 85.19998 ms
+     * Feb 3, 2009 5:58:56 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
+     * INFO: 1800 threads. Average Get time: 57.406494 ms
+     * Feb 3, 2009 5:59:06 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
+     * INFO: 2000 threads. Average Get time: 85.83994 ms
+     * </pre>
+     * With sync off:
+     * <pre>
+     * Feb 3, 2009 6:07:12 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
+     * INFO: 200 threads. Average Get time: 0.008563759 ms
+     * Feb 3, 2009 6:07:23 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
+     * INFO: 400 threads. Average Get time: 0.0060892655 ms
+     * Feb 3, 2009 6:07:33 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
+     * INFO: 600 threads. Average Get time: 0.024769783 ms
+     * Feb 3, 2009 6:07:43 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
+     * INFO: 800 threads. Average Get time: 0.020709602 ms
+     * Feb 3, 2009 6:07:53 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
+     * INFO: 1000 threads. Average Get time: 0.0048103807 ms
+     * Feb 3, 2009 6:08:03 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
+     * INFO: 1200 threads. Average Get time: 0.39105186 ms
+     * Feb 3, 2009 6:08:14 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
+     * INFO: 1400 threads. Average Get time: 0.4481754 ms
+     * Feb 3, 2009 6:08:24 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
+     * INFO: 1600 threads. Average Get time: 0.025191493 ms
+     * Feb 3, 2009 6:08:34 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
+     * INFO: 1800 threads. Average Get time: 0.06914814 ms
+     * Feb 3, 2009 6:08:45 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
+     * INFO: 2000 threads. Average Get time: 0.704792 ms
+     * </pre>
+     */
+    @Test
+    public void testConcurrentReadPerformanceMemoryOnly() throws Exception {
+
+        final int size = 10000;
+
+        manager.addCache(new Cache("test3cache", size, false, true, 1000, 1000));
+        final Ehcache cache = manager.getEhcache("test3cache");
+        final Vector<Long> readTimes = new Vector<Long>();
+
+
+        for (int threads = 200; threads <= 2000; threads += 200) {
+
+            readTimes.clear();
+
+            final List executables = new ArrayList();
+            final Random random = new Random();
+
+            for (int i = 0; i < size; i++) {
+                cache.put(new Element("" + i, "value"));
+            }
+
+            //some of the time get data
+            for (int i = 0; i < threads; i++) {
+                final Executable executable = new Executable() {
+                    public void execute() throws Exception {
+                        final StopWatch stopWatch = new StopWatch();
+                        long start = stopWatch.getElapsedTime();
+                        cache.get("key" + random.nextInt(size));
+                        long end = stopWatch.getElapsedTime();
+                        long elapsed = end - start;
+                        readTimes.add(elapsed);
+                        Thread.sleep(10);
+                    }
+                };
+                executables.add(executable);
+            }
+
+
+            runThreads(executables);
+
+            long totalReadTime = 0;
+            for (Long readTime : readTimes) {
+                totalReadTime += readTime;
+            }
+            LOG.info(threads + " threads. Average Get time: " + totalReadTime / (float) readTimes.size() + " ms");
+        }
+
     }
 
 
