@@ -692,16 +692,30 @@ The programmatic interfaces made available are referred to as Web services.
 
 **  Maven
 
-    The Ehcache Server is in the central Maven repository packaged as type <jar>. Use the following Maven pom snippet:
+    The Ehcache Server is in the central Maven repository packaged as type <war>. Use the following Maven pom snippet:
 
 ---
    <dependency>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-server</artifactId>
-        <version>0.1</version>
+        <version>enter_version_here</version>
         <type>war</type>
    </dependency>
 ---
+
+    It is also available as a jaronly version, which makes it easier to embed. This version excludes all META-INF
+    and WEB-INF configuration files, and also excludes the ehcache.xml. You need to provide these in your maven project.
+
+---
+    <dependency>
+        <groupId>net.sf.ehcache</groupId>
+        <artifactId>ehcache-server</artifactId>
+        <version>enter_version_here</version>
+        <type>jar</type>
+        <classifier>jaronly</classifier>
+   </dependency>
+---
+
 
 *   Installation
 
