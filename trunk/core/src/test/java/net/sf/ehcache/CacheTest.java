@@ -46,6 +46,7 @@ import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
 
@@ -1115,30 +1116,18 @@ public class CacheTest extends AbstractCacheTest {
     }
 
     /**
-     * Tests putting nulls throws correct exception
+     * Nulls should be ignored
      *
      * @throws Exception
      */
     @Test
-    public void testPutFailures() throws Exception {
+    public void testNullPuts() throws Exception {
         Cache cache = new Cache("testPutFailures", 1, false, false, 5, 1);
         manager.addCache(cache);
 
-        try {
-            cache.put(null);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            //noop
-        }
-
-        try {
-            cache.putQuiet(null);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            //noop
-        }
-
-        //Null Elements like this are OK
+        cache.put(null);
+        cache.put(null, false);
+        cache.putQuiet(null);
         cache.putQuiet(new Element(null, null));
     }
 
@@ -1190,7 +1179,7 @@ public class CacheTest extends AbstractCacheTest {
     public void testFlushWhenOverflowToDisk() throws Exception {
         Cache cache = new Cache("testFlushWhenOverflowToDisk", 50, true, false, 100, 200, true, 120);
         manager.addCache(cache);
-//        cache.removeAll();
+        cache.removeAll();
 
         assertEquals(0, cache.getMemoryStoreSize());
         assertEquals(0, cache.getDiskStoreSize());
@@ -1204,14 +1193,14 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element(new Object(), new Object()));
         cache.put(new Element(new Object(), "value"));
 
-        //these "null" Elements are keyed the same way and only count as one
+        //these "null" Elements are ignored and do not get put in
         cache.put(new Element(null, null));
         cache.put(new Element(null, null));
 
         cache.put(new Element("nullValue", null));
 
         assertEquals(50, cache.getMemoryStoreSize());
-        assertEquals(55, cache.getDiskStoreSize());
+        assertEquals(54, cache.getDiskStoreSize());
 
         cache.flush();
         assertEquals(0, cache.getMemoryStoreSize());
@@ -1690,20 +1679,82 @@ public class CacheTest extends AbstractCacheTest {
      * 200000   50          500
      * 200000   500         800
      * </pre>
+     *
+     * @throws Exception
+     */
+//    @Test
+//    public void testConcurrentReadWriteRemoveOldLRU() throws Exception {
+//        testConcurrentReadWriteRemove(MemoryStoreEvictionPolicy.LRU);
+//    }
+
+    /**
+     * Orig.
+     * INFO: Average Get Time: 0.37618342 ms
+     * INFO: Average Put Time: 0.61346555 ms
+     * INFO: Average Remove Time: 0.43651128 ms
+     * INFO: Average Remove All Time: 0.20818481 ms
+     * INFO: Average keySet Time: 0.11898771 ms
+     *
+     * @throws Exception
      */
     @Test
-    public void testReadWriteThreads() throws Exception {
+    public void testConcurrentReadWriteRemoveLRU() throws Exception {
+        testConcurrentReadWriteRemove(MemoryStoreEvictionPolicy.LRU);
+    }
+
+    /**
+     * Orig.
+     * INFO: Average Get Time: 1.2396777 ms
+     * INFO: Average Put Time: 1.4968935 ms
+     * INFO: Average Remove Time: 1.3399061 ms
+     * INFO: Average Remove All Time: 0.22590445 ms
+     * INFO: Average keySet Time: 0.20492058 ms
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testConcurrentReadWriteRemoveLFU() throws Exception {
+        testConcurrentReadWriteRemove(MemoryStoreEvictionPolicy.LFU);
+    }
+
+    /**
+     * INFO: Average Get Time: 0.28684255 ms
+     * INFO: Average Put Time: 0.34759903 ms
+     * INFO: Average Remove Time: 0.31298608 ms
+     * INFO: Average Remove All Time: 0.21396147 ms
+     * INFO: Average keySet Time: 0.11740683 ms
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testConcurrentReadWriteRemoveFIFO() throws Exception {
+        testConcurrentReadWriteRemove(MemoryStoreEvictionPolicy.FIFO);
+    }
+
+
+    //todo reduce maxtime
+    public void testConcurrentReadWriteRemove(MemoryStoreEvictionPolicy policy) throws Exception {
 
         final int size = 10000;
-        //set it higher for normal continuous integration so occasional higher numbes do not berak tests
+        //set it higher for normal continuous integration so occasional higher numbes do not break tests
         final int maxTime = (int) (500 * StopWatch.getSpeedAdjustmentFactor());
-        manager.addCache(new Cache("test3cache", size, false, true, 30, 30));
+        manager.addCache(new Cache("test3cache", size, policy, false, null, true, 30, 30, false, 120, null));
         final Ehcache cache = manager.getEhcache("test3cache");
+
+        final AtomicLong getTimeSum = new AtomicLong();
+        final AtomicLong getTimeCount = new AtomicLong();
+        final AtomicLong putTimeSum = new AtomicLong();
+        final AtomicLong putTimeCount = new AtomicLong();
+        final AtomicLong removeTimeSum = new AtomicLong();
+        final AtomicLong removeTimeCount = new AtomicLong();
+        final AtomicLong removeAllTimeSum = new AtomicLong();
+        final AtomicLong removeAllTimeCount = new AtomicLong();
+        final AtomicLong keySetTimeSum = new AtomicLong();
+        final AtomicLong keySetTimeCount = new AtomicLong();
 
         CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
         cache.registerCacheLoader(countingCacheLoader);
 
-        long start = System.currentTimeMillis();
         final List executables = new ArrayList();
         final Random random = new Random();
 
@@ -1721,6 +1772,8 @@ public class CacheTest extends AbstractCacheTest {
                     long end = stopWatch.getElapsedTime();
                     long elapsed = end - start;
                     assertTrue("Get time outside of allowed range: " + elapsed, elapsed < maxTime);
+                    getTimeSum.getAndAdd(elapsed);
+                    getTimeCount.getAndIncrement();
                 }
             };
             executables.add(executable);
@@ -1736,6 +1789,8 @@ public class CacheTest extends AbstractCacheTest {
                     long end = stopWatch.getElapsedTime();
                     long elapsed = end - start;
                     assertTrue("Put time outside of allowed range: " + elapsed, elapsed < maxTime);
+                    putTimeSum.getAndAdd(elapsed);
+                    putTimeCount.getAndIncrement();
                 }
             };
             executables.add(executable);
@@ -1751,27 +1806,15 @@ public class CacheTest extends AbstractCacheTest {
                     long end = stopWatch.getElapsedTime();
                     long elapsed = end - start;
                     assertTrue("Remove time outside of allowed range: " + elapsed, elapsed < maxTime);
+                    removeTimeSum.getAndAdd(elapsed);
+                    removeTimeCount.getAndIncrement();
                 }
             };
             executables.add(executable);
         }
 
-        //some of the time remove the data
-        for (int i = 0; i < 10; i++) {
-            final Executable executable = new Executable() {
-                public void execute() throws Exception {
-                    final StopWatch stopWatch = new StopWatch();
-                    long start = stopWatch.getElapsedTime();
-                    cache.remove("key" + random.nextInt(size));
-                    long end = stopWatch.getElapsedTime();
-                    long elapsed = end - start;
-                    assertTrue("Remove time outside of allowed range: " + elapsed, elapsed < maxTime);
-                }
-            };
-            executables.add(executable);
-        }
 
-        //some of the time remove the data
+        //some of the time removeAll the data
         for (int i = 0; i < 10; i++) {
             final Executable executable = new Executable() {
                 public void execute() throws Exception {
@@ -1785,6 +1828,30 @@ public class CacheTest extends AbstractCacheTest {
                     long elapsed = end - start;
                     //remove all is slower
                     assertTrue("RemoveAll time outside of allowed range: " + elapsed, elapsed < (maxTime * 3));
+                    removeAllTimeSum.getAndAdd(elapsed);
+                    removeAllTimeCount.getAndIncrement();
+                }
+            };
+            executables.add(executable);
+        }
+
+
+        //some of the time iterate
+        for (int i = 0; i < 10; i++) {
+            final Executable executable = new Executable() {
+                public void execute() throws Exception {
+                    final StopWatch stopWatch = new StopWatch();
+                    long start = stopWatch.getElapsedTime();
+                    int randomInteger = random.nextInt(20);
+                    if (randomInteger == 3) {
+                        cache.getKeys();
+                    }
+                    long end = stopWatch.getElapsedTime();
+                    long elapsed = end - start;
+                    //remove all is slower
+                    assertTrue("cache.getKeys() time outside of allowed range: " + elapsed, elapsed < (maxTime * 3));
+                    keySetTimeSum.getAndAdd(elapsed);
+                    keySetTimeCount.getAndIncrement();
                 }
             };
             executables.add(executable);
@@ -1815,11 +1882,17 @@ public class CacheTest extends AbstractCacheTest {
             executables.add(executable);
         }
 
-        runThreads(executables);
-        long end = System.currentTimeMillis();
-        LOG.info("Total time for the test: " + (end - start) + " ms");
-        LOG.info("Total loads: " + countingCacheLoader.getLoadCounter());
-        LOG.info("Total loadAlls: " + countingCacheLoader.getLoadAllCounter());
+        try {
+            runThreads(executables);
+        } finally {
+            LOG.info("Average Get Time: " + getTimeSum.floatValue() / getTimeCount.get() + " ms");
+            LOG.info("Average Put Time: " + putTimeSum.floatValue() / putTimeCount.get() + " ms");
+            LOG.info("Average Remove Time: " + removeTimeSum.floatValue() / removeTimeCount.get() + " ms");
+            LOG.info("Average Remove All Time: " + removeAllTimeSum.floatValue() / removeAllTimeCount.get() + " ms");
+            LOG.info("Average keySet Time: " + keySetTimeSum.floatValue() / keySetTimeCount.get() + " ms");
+            LOG.info("Total loads: " + countingCacheLoader.getLoadCounter());
+            LOG.info("Total loadAlls: " + countingCacheLoader.getLoadAllCounter());
+        }
     }
 
 
@@ -1830,48 +1903,21 @@ public class CacheTest extends AbstractCacheTest {
      * <pre>
      * Results 3/2/09
      * Feb 3, 2009 5:57:35 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
-     * INFO: 200 threads. Average Get time: 0.029238183 ms
-     * Feb 3, 2009 5:57:45 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
      * INFO: 400 threads. Average Get time: 0.033715356 ms
-     * Feb 3, 2009 5:57:55 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
-     * INFO: 600 threads. Average Get time: 3.0990555 ms
-     * Feb 3, 2009 5:58:05 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
      * INFO: 800 threads. Average Get time: 18.419634 ms
-     * Feb 3, 2009 5:58:16 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
-     * INFO: 1000 threads. Average Get time: 42.440605 ms
-     * Feb 3, 2009 5:58:26 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
      * INFO: 1200 threads. Average Get time: 56.21161 ms
-     * Feb 3, 2009 5:58:36 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
-     * INFO: 1400 threads. Average Get time: 51.93427 ms
-     * Feb 3, 2009 5:58:46 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
      * INFO: 1600 threads. Average Get time: 85.19998 ms
-     * Feb 3, 2009 5:58:56 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
-     * INFO: 1800 threads. Average Get time: 57.406494 ms
-     * Feb 3, 2009 5:59:06 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
      * INFO: 2000 threads. Average Get time: 85.83994 ms
      * </pre>
-     * With sync off:
+     * With ConcurrentHashMap
      * <pre>
-     * Feb 3, 2009 6:07:12 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
-     * INFO: 200 threads. Average Get time: 0.008563759 ms
-     * Feb 3, 2009 6:07:23 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
-     * INFO: 400 threads. Average Get time: 0.0060892655 ms
-     * Feb 3, 2009 6:07:33 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
-     * INFO: 600 threads. Average Get time: 0.024769783 ms
-     * Feb 3, 2009 6:07:43 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
-     * INFO: 800 threads. Average Get time: 0.020709602 ms
-     * Feb 3, 2009 6:07:53 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
-     * INFO: 1000 threads. Average Get time: 0.0048103807 ms
-     * Feb 3, 2009 6:08:03 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
-     * INFO: 1200 threads. Average Get time: 0.39105186 ms
-     * Feb 3, 2009 6:08:14 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
-     * INFO: 1400 threads. Average Get time: 0.4481754 ms
-     * Feb 3, 2009 6:08:24 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
-     * INFO: 1600 threads. Average Get time: 0.025191493 ms
-     * Feb 3, 2009 6:08:34 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
-     * INFO: 1800 threads. Average Get time: 0.06914814 ms
-     * Feb 3, 2009 6:08:45 PM net.sf.ehcache.CacheTest testConcurrentReadPerformanceMemoryOnly
-     * INFO: 2000 threads. Average Get time: 0.704792 ms
+     * INFO: 1 threads. Average Get time: 0.082987554 ms
+     * INFO: 401 threads. Average Get time: 0.0070842816 ms
+     * INFO: 801 threads. Average Get time: 0.0066290447 ms
+     * INFO: 1201 threads. Average Get time: 0.0063261427 ms
+     * INFO: 1601 threads. Average Get time: 0.005570657 ms
+     * INFO: 2001 threads. Average Get time: 0.015918251 ms
+     * <p/>
      * </pre>
      */
     @Test
@@ -1884,7 +1930,7 @@ public class CacheTest extends AbstractCacheTest {
         final Vector<Long> readTimes = new Vector<Long>();
 
 
-        for (int threads = 200; threads <= 2000; threads += 200) {
+        for (int threads = 1; threads <= 2100; threads += 400) {
 
             readTimes.clear();
 

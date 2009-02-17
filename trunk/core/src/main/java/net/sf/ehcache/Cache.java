@@ -37,12 +37,12 @@ import java.rmi.server.UID;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -502,8 +502,8 @@ public class Cache implements Ehcache {
             this.registeredEventListeners = registeredEventListeners;
         }
 
-        registeredCacheExtensions = Collections.synchronizedList(new ArrayList<CacheExtension>());
-        registeredCacheLoaders = Collections.synchronizedList(new ArrayList<CacheLoader>());
+        registeredCacheExtensions = new CopyOnWriteArrayList<CacheExtension>();
+        registeredCacheLoaders = new CopyOnWriteArrayList<CacheLoader>();
 
         //Set this to a safe value.
         if (diskExpiryThreadIntervalSeconds == 0) {
@@ -629,9 +629,9 @@ public class Cache implements Ehcache {
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
      * This exception should be caught in those cirucmstances.
      *
-     * @param element An object. If Serializable it can fully participate in replication and the DiskStore.
+     * @param element A cache Element. If Serializable it can fully participate in replication and the DiskStore. If it is
+     * <code>null</code> or the key is <code>null</code>, it is ignored as a NOOP.
      * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
-     * @throws IllegalArgumentException if the element is null
      * @throws CacheException
      */
     public final void put(Element element) throws IllegalArgumentException, IllegalStateException,
@@ -657,7 +657,8 @@ public class Cache implements Ehcache {
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
      * This exception should be caught in those cirucmstances.
      *
-     * @param element                     An object. If Serializable it can fully participate in replication and the DiskStore.
+     * @param element A cache Element. If Serializable it can fully participate in replication and the DiskStore. If it is
+     * <code>null</code> or the key is <code>null</code>, it is ignored as a NOOP.
      * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
      *                                    further notification to doNotNotifyCacheReplicators cache peers
      * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
@@ -680,7 +681,14 @@ public class Cache implements Ehcache {
                             "-Xmx to avoid this problem.");
                 }
             }
-            throw new IllegalArgumentException("Element cannot be null");
+            //nulls are ignored
+            return;
+        }
+
+
+        if (element.getObjectKey() == null) {
+            //nulls are ignored
+            return;
         }
 
         element.resetAccessStatistics();
@@ -695,9 +703,7 @@ public class Cache implements Ehcache {
         backOffIfDiskSpoolFull();
 
 
-        synchronized (this) {
-            memoryStore.put(element);
-        }
+        memoryStore.put(element);
 
         if (elementExists) {
             registeredEventListeners.notifyElementUpdated(element, doNotNotifyCacheReplicators);
@@ -743,7 +749,8 @@ public class Cache implements Ehcache {
      * This exception should be caught in those cirucmstances.
      * <p/>
      *
-     * @param element An object. If Serializable it can fully participate in replication and the DiskStore.
+     * @param element A cache Element. If Serializable it can fully participate in replication and the DiskStore. If it is
+     * <code>null</code> or the key is <code>null</code>, it is ignored as a NOOP.
      * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
      * @throws IllegalArgumentException if the element is null
      */
@@ -755,15 +762,14 @@ public class Cache implements Ehcache {
             return;
         }
 
-        if (element == null) {
-            throw new IllegalArgumentException("Element cannot be null");
+        if (element == null || element.getObjectKey() == null) {
+            //nulls are ignored
+            return;
         }
 
         applyDefaultsToElementWithoutLifespanSet(element);
 
-        synchronized (this) {
-            memoryStore.put(element);
-        }
+        memoryStore.put(element);
     }
 
     /**
@@ -774,7 +780,7 @@ public class Cache implements Ehcache {
      * <p/>
      * Synchronization is handled within the method.
      *
-     * @param key a serializable value
+     * @param key a serializable value. Null keys are not stored so get(null) always returns null
      * @return the element, or null, if it does not exist.
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @see #isExpired
@@ -803,19 +809,17 @@ public class Cache implements Ehcache {
         Element element;
         long start = System.currentTimeMillis();
 
-        synchronized (this) {
-            element = searchInMemoryStore(key, true);
-            if (element == null && isDiskStore()) {
-                element = searchInDiskStore(key, true);
+        element = searchInMemoryStore(key, true);
+        if (element == null && isDiskStore()) {
+            element = searchInDiskStore(key, true);
+        }
+        if (element == null) {
+            missCountNotFound++;
+            if (LOG.isLoggable(Level.FINEST)) {
+                LOG.finest(configuration.getName() + " cache - Miss");
             }
-            if (element == null) {
-                missCountNotFound++;
-                if (LOG.isLoggable(Level.FINEST)) {
-                    LOG.finest(configuration.getName() + " cache - Miss");
-                }
-            } else {
-                hitCount++;
-            }
+        } else {
+            hitCount++;
         }
         long end = System.currentTimeMillis();
         totalGetTime += (end - start);
@@ -1048,11 +1052,9 @@ public class Cache implements Ehcache {
         checkStatus();
         Element element;
 
-        synchronized (this) {
-            element = searchInMemoryStore(key, false);
-            if (element == null && isDiskStore()) {
-                element = searchInDiskStore(key, false);
-            }
+        element = searchInMemoryStore(key, false);
+        if (element == null && isDiskStore()) {
+            element = searchInDiskStore(key, false);
         }
         return element;
     }
@@ -1070,7 +1072,7 @@ public class Cache implements Ehcache {
      * @return a list of {@link Object} keys
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public final synchronized List getKeys() throws IllegalStateException, CacheException {
+    public final List getKeys() throws IllegalStateException, CacheException {
         checkStatus();
         /* An element with the same key can exist in both the memory store and the
             disk store at the same time. Because the memory store is always searched first
@@ -1150,7 +1152,7 @@ public class Cache implements Ehcache {
      * @return a list of {@link Object} keys
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public final synchronized List getKeysNoDuplicateCheck() throws IllegalStateException {
+    public final List getKeysNoDuplicateCheck() throws IllegalStateException {
         checkStatus();
         ArrayList<Object> allKeys = new ArrayList<Object>();
         List<Object> memoryKeySet = Arrays.asList(memoryStore.getKeyArray());
@@ -1210,6 +1212,7 @@ public class Cache implements Ehcache {
             } else {
                 diskStoreHitCount++;
                 //Put the item back into memory to preserve policies in the memory store and to save updated statistics
+                //todo - do not put back
                 memoryStore.put(element);
             }
         }
@@ -1362,18 +1365,16 @@ public class Cache implements Ehcache {
         boolean removed = false;
         Element elementFromMemoryStore;
         Element elementFromDiskStore;
-        synchronized (this) {
-            elementFromMemoryStore = memoryStore.remove(key);
+        elementFromMemoryStore = memoryStore.remove(key);
 
-            //could have been removed from both places, if there are two copies in the cache
-            elementFromDiskStore = null;
-            if (isDiskStore()) {
-                if ((key instanceof Serializable)) {
-                    Serializable serializableKey = (Serializable) key;
-                    elementFromDiskStore = diskStore.remove(serializableKey);
-                }
-
+        //could have been removed from both places, if there are two copies in the cache
+        elementFromDiskStore = null;
+        if (isDiskStore()) {
+            if ((key instanceof Serializable)) {
+                Serializable serializableKey = (Serializable) key;
+                elementFromDiskStore = diskStore.remove(serializableKey);
             }
+
         }
 
         boolean removeNotified = false;
@@ -1433,11 +1434,9 @@ public class Cache implements Ehcache {
      */
     public void removeAll(boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
         checkStatus();
-        synchronized (this) {
-            memoryStore.removeAll();
-            if (isDiskStore()) {
-                diskStore.removeAll();
-            }
+        memoryStore.removeAll();
+        if (isDiskStore()) {
+            diskStore.removeAll();
         }
         registeredEventListeners.notifyRemoveAll(doNotNotifyCacheReplicators);
     }
@@ -1554,7 +1553,7 @@ public class Cache implements Ehcache {
      * @return The size value
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public final synchronized int getSize() throws IllegalStateException, CacheException {
+    public final int getSize() throws IllegalStateException, CacheException {
         checkStatus();
         /* The memory store and the disk store can simultaneously contain elements with the same key
             Cache size is the size of the union of the two key sets.*/
@@ -1573,7 +1572,7 @@ public class Cache implements Ehcache {
      * @return the approximate size of the memory store in bytes
      * @throws IllegalStateException
      */
-    public final synchronized long calculateInMemorySize() throws IllegalStateException, CacheException {
+    public final long calculateInMemorySize() throws IllegalStateException, CacheException {
         checkStatus();
         return memoryStore.getSizeInBytes();
     }
@@ -1734,12 +1733,12 @@ public class Cache implements Ehcache {
         }
 
 
-        copy.registeredCacheExtensions = Collections.synchronizedList(new ArrayList<CacheExtension>());
+        copy.registeredCacheExtensions = new CopyOnWriteArrayList<CacheExtension>();
         for (CacheExtension registeredCacheExtension : registeredCacheExtensions) {
             copy.registerCacheExtension(registeredCacheExtension.clone(copy));
         }
 
-        copy.registeredCacheLoaders = Collections.synchronizedList(new ArrayList<CacheLoader>());
+        copy.registeredCacheLoaders = new CopyOnWriteArrayList<CacheLoader>();
         for (CacheLoader registeredCacheLoader : registeredCacheLoaders) {
             copy.registerCacheLoader(registeredCacheLoader.clone(copy));
         }
@@ -1858,7 +1857,7 @@ public class Cache implements Ehcache {
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public synchronized void clearStatistics() throws IllegalStateException {
+    public void clearStatistics() throws IllegalStateException {
         checkStatus();
         hitCount = 0;
         memoryStoreHitCount = 0;
@@ -1892,11 +1891,11 @@ public class Cache implements Ehcache {
      */
     public void evictExpiredElements() {
         Object[] keys = memoryStore.getKeyArray();
-        synchronized (this) {
-            for (Object key : keys) {
-                searchInMemoryStore(key, false);
-            }
+
+        for (Object key : keys) {
+            searchInMemoryStore(key, false);
         }
+
         //This is called regularly by the expiry thread, but call it here synchronously
         if (isDiskStore()) {
             diskStore.expireElements();

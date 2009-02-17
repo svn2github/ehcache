@@ -120,12 +120,20 @@ public class CacheExceptionHandlerTest {
     public void testCacheExceptionHandler() {
         Ehcache proxiedCache = ExceptionHandlingDynamicCacheProxy.createProxy(cache);
 
+        List<CacheLoader> loaders = new ArrayList<CacheLoader>(cache.getRegisteredCacheLoaders());
+        for (CacheLoader loader : loaders) {
+            cache.unregisterCacheLoader(loader);
+        }
+        cache.registerCacheLoader(new CustomExceptionThrowingLoader());
+        proxiedCache.getWithLoader("key1", null, null);
+
+
         //Would normally throw an IllegalArgumentException
-        proxiedCache.put(null);
+//        proxiedCache.put(null);
 
         assertEquals(1, CountingExceptionHandler.HANDLED_EXCEPTIONS.size());
-        assertEquals(null, ((CountingExceptionHandler.HandledException) CountingExceptionHandler.HANDLED_EXCEPTIONS.get(0)).getKey());
-        assertEquals(IllegalArgumentException.class, ((CountingExceptionHandler.HandledException) CountingExceptionHandler.HANDLED_EXCEPTIONS
+        assertEquals("key1", ((CountingExceptionHandler.HandledException) CountingExceptionHandler.HANDLED_EXCEPTIONS.get(0)).getKey());
+        assertEquals(CacheException.class, ((CountingExceptionHandler.HandledException) CountingExceptionHandler.HANDLED_EXCEPTIONS
                 .get(0)).getException().getClass());
     }
 

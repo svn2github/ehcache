@@ -28,21 +28,19 @@ import net.sf.ehcache.event.CacheManagerEventListenerRegistry;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.util.PropertyUtil;
 
-
-
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A container for {@link Ehcache}s that maintain all aspects of their lifecycle.
@@ -61,7 +59,7 @@ public class CacheManager {
      * Keeps track of all known CacheManagers. Used to check on conflicts.
      * CacheManagers should remove themselves from this list during shut down.
      */
-    public static final List ALL_CACHE_MANAGERS = Collections.synchronizedList(new ArrayList());
+    public static final List ALL_CACHE_MANAGERS = new CopyOnWriteArrayList();
 
 
     /**
@@ -79,13 +77,13 @@ public class CacheManager {
     /**
      * Ehcaches managed by this manager.
      */
-    protected final Map ehcaches = new HashMap();
+    protected final Map ehcaches = new ConcurrentHashMap();
 
     /**
      * Caches managed by this manager. A Cache is also an Ehcache.
      * For central managment the cache is also in the ehcaches map.
      */
-    protected final Map caches = new HashMap();
+    protected final Map caches = new ConcurrentHashMap();
 
     /**
      * A name for this CacheManager to distinguish it from others.
@@ -228,7 +226,7 @@ public class CacheManager {
      * initialises the CacheManager
      */
     protected void init(Configuration configuration, String configurationFileName, URL configurationURL,
-                      InputStream configurationInputStream) {
+                        InputStream configurationInputStream) {
         Configuration localConfiguration = configuration;
         if (configuration == null) {
             localConfiguration = parseConfiguration(configurationFileName, configurationURL, configurationInputStream);
@@ -523,7 +521,7 @@ public class CacheManager {
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @see #getEhcache(String)
      */
-    public synchronized Cache getCache(String name) throws IllegalStateException, ClassCastException {
+    public Cache getCache(String name) throws IllegalStateException, ClassCastException {
         checkStatus();
         return (Cache) caches.get(name);
     }
@@ -535,7 +533,7 @@ public class CacheManager {
      * @return a Cache, if an object of type Cache exists by that name, else null
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public synchronized Ehcache getEhcache(String name) throws IllegalStateException {
+    public Ehcache getEhcache(String name) throws IllegalStateException {
         checkStatus();
         return (Ehcache) ehcaches.get(name);
     }
@@ -612,11 +610,11 @@ public class CacheManager {
      * @throws ObjectExistsException if the cache already exists
      * @throws CacheException        if there was an error creating the cache.
      */
-    public synchronized void addCache(String cacheName) throws IllegalStateException,
+    public void addCache(String cacheName) throws IllegalStateException,
             ObjectExistsException, CacheException {
         checkStatus();
 
-//NPE guard
+        //NPE guard
         if (cacheName == null || cacheName.length() == 0) {
             return;
         }
@@ -647,7 +645,7 @@ public class CacheManager {
      * @throws ObjectExistsException if the cache already exists in the CacheManager
      * @throws CacheException        if there was an error adding the cache to the CacheManager
      */
-    public synchronized void addCache(Cache cache) throws IllegalStateException,
+    public void addCache(Cache cache) throws IllegalStateException,
             ObjectExistsException, CacheException {
         checkStatus();
         if (cache == null) {
@@ -669,7 +667,7 @@ public class CacheManager {
      * @throws ObjectExistsException if the cache already exists in the CacheManager
      * @throws CacheException        if there was an error adding the cache to the CacheManager
      */
-    public synchronized void addCache(Ehcache cache) throws IllegalStateException,
+    public void addCache(Ehcache cache) throws IllegalStateException,
             ObjectExistsException, CacheException {
         checkStatus();
         if (cache == null) {
@@ -678,7 +676,7 @@ public class CacheManager {
         addCacheNoCheck(cache);
     }
 
-    private synchronized void addCacheNoCheck(Ehcache cache) throws IllegalStateException,
+    private void addCacheNoCheck(Ehcache cache) throws IllegalStateException,
             ObjectExistsException, CacheException {
         if (ehcaches.get(cache.getName()) != null) {
             throw new ObjectExistsException("Cache " + cache.getName() + " already exists");
@@ -710,7 +708,7 @@ public class CacheManager {
      * @return true if it exists
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public synchronized boolean cacheExists(String cacheName) throws IllegalStateException {
+    public boolean cacheExists(String cacheName) throws IllegalStateException {
         checkStatus();
         return (ehcaches.get(cacheName) != null);
     }
@@ -718,10 +716,9 @@ public class CacheManager {
     /**
      * Removes all caches using {@link #removeCache} for each cache.
      */
-    public synchronized void removalAll() {
+    public void removalAll() {
         String[] cacheNames = getCacheNames();
-        for (int i = 0; i < cacheNames.length; i++) {
-            String cacheName = cacheNames[i];
+        for (String cacheName : cacheNames) {
             removeCache(cacheName);
         }
     }
@@ -732,7 +729,7 @@ public class CacheManager {
      * @param cacheName the cache name
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public synchronized void removeCache(String cacheName) throws IllegalStateException {
+    public void removeCache(String cacheName) throws IllegalStateException {
         checkStatus();
 
         //NPE guard
@@ -801,7 +798,7 @@ public class CacheManager {
      * @return an array of {@link String}s
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public synchronized String[] getCacheNames() throws IllegalStateException {
+    public String[] getCacheNames() throws IllegalStateException {
         checkStatus();
         String[] list = new String[ehcaches.size()];
         return (String[]) ehcaches.keySet().toArray(list);
@@ -923,7 +920,7 @@ public class CacheManager {
      * @param decoratedCache An implementation of Ehcache that wraps the original cache.
      * @throws CacheException if the two caches do not equal each other.
      */
-    public synchronized void replaceCacheWithDecoratedCache(Ehcache ehcache, Ehcache decoratedCache) throws CacheException {
+    public void replaceCacheWithDecoratedCache(Ehcache ehcache, Ehcache decoratedCache) throws CacheException {
         if (!ehcache.equals(decoratedCache)) {
             throw new CacheException("Cannot replace " + decoratedCache.getName()
                     + " It does not equal the incumbent cache.");
@@ -975,6 +972,7 @@ public class CacheManager {
      * Returns the disk store path. This may be null if no caches need a DiskStore and none was configured.
      * The path cannot be changed after creation of the CacheManager. All caches take the disk store path
      * from this value.
+     *
      * @return the disk store path.
      */
     public String getDiskStorePath() {
