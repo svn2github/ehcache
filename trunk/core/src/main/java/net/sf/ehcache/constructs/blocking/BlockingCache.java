@@ -24,8 +24,8 @@ import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.constructs.concurrent.ConcurrencyUtil;
-import net.sf.ehcache.constructs.concurrent.Mutex;
+import net.sf.ehcache.concurrent.Mutex;
+import net.sf.ehcache.concurrent.StripedMutex;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.extension.CacheExtension;
@@ -92,22 +92,6 @@ import java.util.Map;
  */
 public class BlockingCache implements Ehcache {
 
-    /**
-     * The default number of locks to use. Must be a power of 2
-     */
-    public static final int LOCK_NUMBER = 2048;
-
-    /**
-     * Based on the lock striping concept from Brian Goetz. See Java Concurrency in Practice 11.4.3
-     */
-    protected final Mutex[] locks = new Mutex[LOCK_NUMBER];
-
-    {
-        for (int i = 0; i < LOCK_NUMBER; i++) {
-            locks[i] = new Mutex();
-        }
-    }
-
 
     /**
      * The backing Cache
@@ -120,6 +104,11 @@ public class BlockingCache implements Ehcache {
     protected int timeoutMillis;
 
     /**
+     * locks
+     */
+    protected StripedMutex stripedMutex;
+
+    /**
      * Creates a BlockingCache which decorates the supplied cache.
      *
      * @param cache a backing ehcache.
@@ -128,6 +117,7 @@ public class BlockingCache implements Ehcache {
      */
     public BlockingCache(final Ehcache cache) throws CacheException {
         this.cache = cache;
+        this.stripedMutex = new StripedMutex();
     }
 
     /**
@@ -440,7 +430,7 @@ public class BlockingCache implements Ehcache {
      *                              to release the lock acquired.
      */
     public Element get(final Object key) throws RuntimeException, LockTimeoutException {
-        Mutex lock = getLockForKey(key);
+        Mutex lock = stripedMutex.getMutexForKey(key);
         try {
             if (timeoutMillis == 0) {
                 lock.acquire();
@@ -468,18 +458,6 @@ public class BlockingCache implements Ehcache {
         }
     }
 
-
-    /**
-     * Gets the Mutex to use for a given key.
-     *
-     * @param key the key
-     * @return one of a limited number of Mutexes.
-     */
-    protected Mutex getLockForKey(final Object key) {
-        int lockNumber = ConcurrencyUtil.selectLock(key, LOCK_NUMBER);
-        return locks[lockNumber];
-    }
-
     /**
      * Adds an entry and unlocks it
      */
@@ -491,7 +469,7 @@ public class BlockingCache implements Ehcache {
         Object key = element.getObjectKey();
         Object value = element.getObjectValue();
 
-        Mutex lock = getLockForKey(key);
+        Mutex lock = stripedMutex.getMutexForKey(key);
         try {
             if (value != null) {
                 cache.put(element);

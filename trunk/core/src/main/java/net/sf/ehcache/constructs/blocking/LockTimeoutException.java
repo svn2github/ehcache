@@ -21,7 +21,7 @@ import net.sf.ehcache.CacheException;
 
 /**
  * Indicates that a timeout has occured while attempting to obtain a lock using
- * {@link net.sf.ehcache.constructs.concurrent.Mutex#attempt(long)}
+ * {@link net.sf.ehcache.concurrent.Mutex#attempt(long)}
  * <p/>
  * This is a normal runtime exception which should be handled by calling code.
  * It is possible that simply reattempting to obtain the lock may succeed.

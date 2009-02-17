@@ -20,7 +20,7 @@ package net.sf.ehcache.constructs.blocking;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.constructs.concurrent.Mutex;
+import net.sf.ehcache.concurrent.Mutex;
 
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -75,7 +75,7 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
             if (element == null) {
                 element = super.get(key);
             } else {
-                Mutex lock = getLockForKey(key);
+                Mutex lock = stripedMutex.getMutexForKey(key);
                 try {
                     lock.acquire();
                     update(key);

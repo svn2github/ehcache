@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.constructs.concurrent;
+package net.sf.ehcache.concurrent;
 
 
 import net.sf.ehcache.CacheException;

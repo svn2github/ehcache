@@ -62,8 +62,10 @@
     <suppress checks="CyclomaticComplexity" files="AsynchronousCommandExecutor.java"/>
     <suppress checks="NPathComplexity" files="AsynchronousCommandExecutor.java"/>
 
-    <!-- Doug Lea's contributed code -->
+    <!-- Contributed code -->
     <suppress checks="CyclomaticComplexity" files="Mutex.java"/>
+    <suppress checks="" files="ConcurrentLinkedHashMap.java"/>
+
 
     <!-- Contains a thread therefore cannot.  -->
     <suppress checks="SuperClone" files="RMIBootstrapCacheLoader.java"/>
