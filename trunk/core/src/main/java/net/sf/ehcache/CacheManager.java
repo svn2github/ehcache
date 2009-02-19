@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -98,12 +97,12 @@ public class CacheManager {
     /**
      * The map of providers
      */
-    protected Map<String, CacheManagerPeerProvider> cacheManagerPeerProviders = new HashMap<String, CacheManagerPeerProvider>();
+    protected Map<String, CacheManagerPeerProvider> cacheManagerPeerProviders = new ConcurrentHashMap<String, CacheManagerPeerProvider>();
 
     /**
      * The map of listeners
      */
-    protected Map<String, CacheManagerPeerListener> cacheManagerPeerListeners = new HashMap<String, CacheManagerPeerListener>();
+    protected Map<String, CacheManagerPeerListener> cacheManagerPeerListeners = new ConcurrentHashMap<String, CacheManagerPeerListener>();
 
     /**
      * The listener registry
@@ -405,6 +404,9 @@ public class CacheManager {
      * @throws CacheException if the CacheManager cannot be created
      */
     public static CacheManager create() throws CacheException {
+        if (singleton != null) {
+            return singleton;
+        }
         synchronized (CacheManager.class) {
             if (singleton == null) {
                 if (LOG.isLoggable(Level.FINE)) {
@@ -443,6 +445,9 @@ public class CacheManager {
      *                              When the {@link CacheManager} is no longer required, call shutdown to free resources.
      */
     public static CacheManager create(String configurationFileName) throws CacheException {
+        if (singleton != null) {
+            return singleton;
+        }
         synchronized (CacheManager.class) {
             if (singleton == null) {
                 if (LOG.isLoggable(Level.FINE)) {
@@ -475,6 +480,9 @@ public class CacheManager {
      *                             When the {@link CacheManager} is no longer required, call shutdown to free resources.
      */
     public static CacheManager create(URL configurationFileURL) throws CacheException {
+        if (singleton != null) {
+            return singleton;
+        }
         synchronized (CacheManager.class) {
             if (singleton == null) {
                 if (LOG.isLoggable(Level.FINE)) {
@@ -500,6 +508,9 @@ public class CacheManager {
      *                    When the {@link CacheManager} is no longer required, call shutdown to free resources.
      */
     public static CacheManager create(InputStream inputStream) throws CacheException {
+        if (singleton != null) {
+            return singleton;
+        }
         synchronized (CacheManager.class) {
             if (singleton == null) {
                 if (LOG.isLoggable(Level.FINE)) {

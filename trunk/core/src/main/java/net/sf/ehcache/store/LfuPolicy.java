@@ -27,6 +27,7 @@ import java.util.Random;
  */
 public final class LfuPolicy {
 
+    //can we reduce
     private static final int DEFAULT_SAMPLE_SIZE = 30;
 
     private static final Random RANDOM = new Random();

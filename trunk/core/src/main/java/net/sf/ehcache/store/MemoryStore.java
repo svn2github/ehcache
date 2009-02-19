@@ -128,7 +128,7 @@ public abstract class MemoryStore implements Store {
      * @param key the cache key
      * @return the element, or null if there was no match for the key
      */
-    public final synchronized Element get(Object key) {
+    public synchronized Element get(Object key) {
         Element element = (Element) map.get(key);
 
         if (element != null) {
@@ -169,7 +169,11 @@ public abstract class MemoryStore implements Store {
      * @param key the key of the Element, usually a String
      * @return the Element if one was found, else null
      */
-    public final synchronized Element remove(Object key) {
+    public synchronized Element remove(Object key) {
+
+        if (key == null) {
+            return null;
+        }
 
         // remove single item.
         Element element = (Element) map.remove(key);

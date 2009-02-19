@@ -19,12 +19,11 @@ package net.sf.ehcache.store;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
-
-
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.logging.Logger;
+import java.util.NoSuchElementException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Less Frequently Used (LFU) implementation of the memory store. Actually keeping track of the least used, then the
@@ -55,11 +54,51 @@ public class LfuMemoryStore extends MemoryStore {
     private static final Logger LOG = Logger.getLogger(LfuMemoryStore.class.getName());
 
     /**
+     * This is the default from {@link ConcurrentHashMap}. It should never be used, because
+     * we size the map to the max size of the store.
+     */
+    private static final float DEFAULT_LOAD_FACTOR = .75f;
+
+    /**
+     * Set optimisation for 100 concurrent threads.
+     */
+    private static final int CONCURRENCY_LEVEL = 100;
+
+    /**
      * Constructor for the LfuMemoryStore object.
      */
     protected LfuMemoryStore(Ehcache cache, Store diskStore) {
         super(cache, diskStore);
-        map = new HashMap();
+        map = new ConcurrentHashMap(cache.getCacheConfiguration().getMaxElementsInMemory(), DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
+    }
+
+
+    /**
+     * todo remove once all done
+     * Gets an item from the cache.
+     * <p/>
+     * The last access time in {@link net.sf.ehcache.Element} is updated.
+     *
+     * @param key the cache key
+     * @return the element, or null if there was no match for the key
+     */
+    public final Element get(Object key) {
+
+        if (key == null) {
+            return null;
+        }
+
+        Element element = (Element) map.get(key);
+
+        if (element != null) {
+            element.updateAccessStatistics();
+            if (LOG.isLoggable(Level.FINEST)) {
+                LOG.finest(cache.getName() + "Cache: " + cache.getName() + "MemoryStore hit for " + key);
+            }
+        } else if (LOG.isLoggable(Level.FINEST)) {
+            LOG.finest(cache.getName() + "Cache: " + cache.getName() + "MemoryStore miss for " + key);
+        }
+        return element;
     }
 
     /**
@@ -80,6 +119,10 @@ public class LfuMemoryStore extends MemoryStore {
 
         // First element of the sorted list is the candidate for the removal
         Element element = findRelativelyUnused(elementJustAdded);
+        //this CAN happen rarely. Let the store get one bigger
+        if (element == null) {
+            return;
+        }
 
         // If the element is expired remove
         if (element.isExpired()) {
@@ -98,6 +141,10 @@ public class LfuMemoryStore extends MemoryStore {
     final Element findRelativelyUnused(Element elementJustAdded) {
         LfuPolicy.Metadata[] elements = sampleElements(map.size());
         LfuPolicy.Metadata metadata = LfuPolicy.leastHit(elements, new ElementMetadata(elementJustAdded));
+        //this can happend. Let the cache get bigger by one.
+        if (metadata == null) {
+            return null;
+        }
         return (Element) map.get(metadata.getObjectKey());
     }
 
@@ -112,9 +159,19 @@ public class LfuMemoryStore extends MemoryStore {
         Iterator iterator = map.values().iterator();
         for (int i = 0; i < offsets.length; i++) {
             for (int j = 0; j < offsets[i]; j++) {
-                iterator.next();
+                //fast forward
+                try {
+                    iterator.next();
+                } catch (NoSuchElementException e) {
+                    //e.printStackTrace();
+                }
             }
-            elements[i] = new ElementMetadata((Element) iterator.next());
+
+            try {
+                elements[i] = new ElementMetadata((Element) iterator.next());
+            } catch (NoSuchElementException e) {
+                //e.printStackTrace();
+            }
         }
         return elements;
     }

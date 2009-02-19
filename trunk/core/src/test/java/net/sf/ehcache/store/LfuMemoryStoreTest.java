@@ -60,6 +60,23 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
 
 
     /**
+     * Check no NPE on get
+     */
+    @Test
+    public void testNullGet() throws IOException {
+        assertNull(store.get(null));
+    }
+
+    /**
+     * Check no NPE on remove
+     */
+    @Test
+    public void testNullRemove() throws IOException {
+        assertNull(store.remove(null));
+    }
+
+
+    /**
      * todo starting breaking 16/11/07 ?
      * Tests the put by reading the config file
      */
@@ -270,11 +287,12 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      * 2000 times.
      * <p/>
      * 1 to 5000 population, with hit counts ranging from 1 to 500, not selecting lowest half. 5000 tests
-     * S  Cost  No
-     * 7        38 99.24% confidence
-     * 8        27 99.46% confidence
+     *
+     * Samples  Cost    No
+     * 7        38      99.24% confidence
+     * 8        27      99.46% confidence
      * 9        10
-     * 10 11300 4  99.92% confidence
+     * 10       11300 4       99.92% confidence
      * 12       2
      * 20 11428 0  99.99% confidence
      * <p/>
