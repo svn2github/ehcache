@@ -16,7 +16,8 @@
 
 package net.sf.ehcache.store;
 
-import java.util.Random;
+import net.sf.ehcache.Element;
+
 
 /**
  * Contains common LFU policy code for use between the LfuMemoryStore and the DiskStore, which also
@@ -25,32 +26,7 @@ import java.util.Random;
  * @author Greg Luck
  * @version $Id$
  */
-public final class LfuPolicy {
-
-    //can we reduce
-    private static final int DEFAULT_SAMPLE_SIZE = 30;
-
-    private static final Random RANDOM = new Random();
-
-    /**
-     * Utilitiy class therefore no constructor
-     */
-    private LfuPolicy() {
-    }
-
-    /**
-     * sampleSize how many samples to take
-     * @return the smaller of the map size and the default sample size of 30
-     */
-    private static int calculateSampleSize(int populationSize) {
-        if (populationSize < DEFAULT_SAMPLE_SIZE) {
-            return populationSize;
-        } else {
-            return DEFAULT_SAMPLE_SIZE;
-        }
-
-    }
-
+public class LfuPolicy extends Policy {
 
     /**
      * Finds the least hit of the sampled elements provided
@@ -58,14 +34,13 @@ public final class LfuPolicy {
      * @param justAdded we never want to select the element just added. May be null.
      * @return the least hit
      */
-    public static LfuPolicy.Metadata leastHit(LfuPolicy.Metadata[] sampledElements, LfuPolicy.Metadata justAdded) {
+    public Element selectedBasedOnPolicy(Element[] sampledElements, Element justAdded) {
         //edge condition when Memory Store configured to size 0
         if (sampledElements.length == 1 && justAdded != null) {
             return justAdded;
         }
-        LfuPolicy.Metadata lowestElement = null;
-        for (int i = 0; i < sampledElements.length; i++) {
-            LfuPolicy.Metadata element = sampledElements[i];
+        Element lowestElement = null;
+        for (Element element : sampledElements) {
             if (lowestElement == null) {
                 if (!element.equals(justAdded)) {
                     lowestElement = element;
@@ -79,36 +54,4 @@ public final class LfuPolicy {
         return lowestElement;
     }
 
-    /**
-     * Generates a random sample from a population
-     * @param populationSize the size to draw from
-     */
-    public static int[] generateRandomSample(int populationSize) {
-        int sampleSize = LfuPolicy.calculateSampleSize(populationSize);
-        int[] offsets = new int[sampleSize];
-        int maxOffset = populationSize / sampleSize;
-        for (int i = 0; i < sampleSize; i++) {
-            offsets[i] = RANDOM.nextInt(maxOffset);
-        }
-        return offsets;
-    }
-
-
-    /**
-     * A type representing relevant metadata from an element, used by LfuPolicy for its operations.
-     */
-    public static interface Metadata {
-
-        /**
-         * @return the key of this object
-         */
-        Object getObjectKey();
-
-        /**
-         *
-         * @return the hit count for the element
-         */
-        long getHitCount();
-
-    }
 }

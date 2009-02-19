@@ -967,7 +967,7 @@ public class DiskStore implements Store {
      * that we do not need to load the data from Disk to get this often used information.
      *
      */
-    private static final class DiskElement implements Serializable, LfuPolicy.Metadata {
+    private static final class DiskElement implements Serializable {
 
         private static final long serialVersionUID = -717310932566592289L;
 
@@ -1132,19 +1132,48 @@ public class DiskStore implements Store {
 
     /**
      * Find a "relatively" unused disk element, but not the element just added.
+     * @return a DiskElement likely not to be in the bottom quartile of use
      */
     private DiskElement findRelativelyUnused() {
-        LfuPolicy.Metadata[] elements = sampleElements(diskElements);
-        LfuPolicy.Metadata metadata = LfuPolicy.leastHit(elements, null);
-        return (DiskElement) metadata;
+        DiskElement[] elements = sampleElements(diskElements);
+        return leastHit(elements, null);
+    }
+
+
+
+    /**
+     * Finds the least hit of the sampled elements provided
+     * @param sampledElements this should be a random subset of the population
+     * @param justAdded we never want to select the element just added. May be null.
+     * @return the least hit
+     */
+    public static DiskElement leastHit(DiskElement[] sampledElements, DiskElement justAdded) {
+        //edge condition when Memory Store configured to size 0
+        if (sampledElements.length == 1 && justAdded != null) {
+            return justAdded;
+        }
+        DiskElement lowestElement = null;
+        for (DiskElement diskElement : sampledElements) {
+            if (lowestElement == null) {
+                if (!diskElement.equals(justAdded)) {
+                    lowestElement = diskElement;
+                }
+            } else {
+                if (diskElement.getHitCount() < lowestElement.getHitCount() && !diskElement.equals(justAdded)) {
+                    lowestElement = diskElement;
+                }
+            }
+        }
+        return lowestElement;
     }
 
     /**
      * Uses random numbers to sample the entire map.
      *
+     * @param map
      * @return an array of sampled elements
      */
-    private LfuPolicy.Metadata[] sampleElements(Map map) {
+    private DiskElement[] sampleElements(Map map) {
         int[] offsets = LfuPolicy.generateRandomSample(map.size());
         DiskElement[] elements = new DiskElement[offsets.length];
         Iterator iterator = map.values().iterator();

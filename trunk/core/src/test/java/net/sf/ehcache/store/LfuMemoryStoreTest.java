@@ -268,7 +268,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
     @Test
     public void testSampling() throws IOException {
         createMemoryStore(MemoryStoreEvictionPolicy.LFU, 1000);
-        LfuPolicy.Metadata[] elements = null;
+        Element[] elements = null;
         for (int i = 0; i < 10; i++) {
             store.put(new Element("" + i, new Date()));
             elements = ((LfuMemoryStore) store).sampleElements(i + 1);

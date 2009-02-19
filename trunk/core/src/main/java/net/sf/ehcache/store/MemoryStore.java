@@ -21,12 +21,9 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 
-
-
-import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * An abstract class for the Memory Stores. All Memory store implementations for different
@@ -238,8 +235,8 @@ public abstract class MemoryStore implements Store {
      */
     protected final void spoolAllToDisk() {
         Object[] keys = getKeyArray();
-        for (int i = 0; i < keys.length; i++) {
-            Element element = (Element) map.get(keys[i]);
+        for (Object key : keys) {
+            Element element = (Element) map.get(key);
             if (element != null) {
                 if (!element.isSerializable()) {
                     if (LOG.isLoggable(Level.FINE)) {
@@ -249,7 +246,7 @@ public abstract class MemoryStore implements Store {
                 } else {
                     spoolToDisk(element);
                     //Don't notify listeners. They are not being removed from the cache, only a store
-                    remove(keys[i]);
+                    remove(key);
                 }
             }
         }
@@ -322,8 +319,8 @@ public abstract class MemoryStore implements Store {
      */
     public final synchronized long getSizeInBytes() throws CacheException {
         long sizeInBytes = 0;
-        for (Iterator iterator = map.values().iterator(); iterator.hasNext();) {
-            Element element = (Element) iterator.next();
+        for (Object o : map.values()) {
+            Element element = (Element) o;
             if (element != null) {
                 sizeInBytes += element.getSerializedSize();
             }

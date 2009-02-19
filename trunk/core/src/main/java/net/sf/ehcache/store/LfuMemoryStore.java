@@ -64,11 +64,15 @@ public class LfuMemoryStore extends MemoryStore {
      */
     private static final int CONCURRENCY_LEVEL = 100;
 
+
+    private Policy policy;
+
     /**
      * Constructor for the LfuMemoryStore object.
      */
     protected LfuMemoryStore(Ehcache cache, Store diskStore) {
         super(cache, diskStore);
+        policy = new LfuPolicy();
         map = new ConcurrentHashMap(cache.getCacheConfiguration().getMaxElementsInMemory(), DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
     }
 
@@ -139,13 +143,9 @@ public class LfuMemoryStore extends MemoryStore {
      * Find a "relatively" unused element, but not the element just added.
      */
     final Element findRelativelyUnused(Element elementJustAdded) {
-        LfuPolicy.Metadata[] elements = sampleElements(map.size());
-        LfuPolicy.Metadata metadata = LfuPolicy.leastHit(elements, new ElementMetadata(elementJustAdded));
-        //this can happend. Let the cache get bigger by one.
-        if (metadata == null) {
-            return null;
-        }
-        return (Element) map.get(metadata.getObjectKey());
+        Element[] elements = sampleElements(map.size());
+        //can be null. Let the cache get bigger by one.
+        return policy.selectedBasedOnPolicy(elements, elementJustAdded);
     }
 
     /**
@@ -153,9 +153,9 @@ public class LfuMemoryStore extends MemoryStore {
      *
      * @return an array of sampled elements
      */
-     LfuPolicy.Metadata[] sampleElements(int size) {
+     Element[] sampleElements(int size) {
         int[] offsets = LfuPolicy.generateRandomSample(size);
-        ElementMetadata[] elements = new ElementMetadata[offsets.length];
+        Element[] elements = new Element[offsets.length];
         Iterator iterator = map.values().iterator();
         for (int i = 0; i < offsets.length; i++) {
             for (int j = 0; j < offsets[i]; j++) {
@@ -168,64 +168,12 @@ public class LfuMemoryStore extends MemoryStore {
             }
 
             try {
-                elements[i] = new ElementMetadata((Element) iterator.next());
+                elements[i] = ((Element) iterator.next());
             } catch (NoSuchElementException e) {
                 //e.printStackTrace();
             }
         }
         return elements;
-    }
-
-
-    /**
-     * A Metadata wrapper for Element
-     */
-    private class ElementMetadata implements LfuPolicy.Metadata {
-
-        private Element element;
-
-        public ElementMetadata(Element element) {
-            this.element = element;
-        }
-
-
-        /**
-         * @return the key of this object
-         */
-        public Object getObjectKey() {
-            return element.getObjectKey();
-        }
-
-        /**
-         * @return the hit count for the element
-         */
-        public long getHitCount() {
-            return element.getHitCount();
-        }
-
-
-        /**
-         * Hashcode implementation
-         */
-        public int hashCode() {
-            if (element != null) {
-                return element.getKey().hashCode();
-            } else {
-                return 0;
-            }
-        }
-
-        /**
-         * Delegates to {@link Element#equals(Object)}
-         */
-        public boolean equals(Object object) {
-            if (object != null && object instanceof LfuPolicy.Metadata) {
-                LfuPolicy.Metadata metadata = (LfuPolicy.Metadata) object;
-                return this.getObjectKey().equals(metadata.getObjectKey());
-            } else {
-                return false;
-            }
-        }
     }
 
 }
