@@ -32,10 +32,12 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
+import java.util.HashMap;
+import java.util.Collection;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 /**
@@ -219,7 +221,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      * <p/>
      * If iterate was ordered in either insert or reverse insert order the mean difference would be 1.
      * Using Random gives a mean difference of 343.
-     * The observed value is 175 but always 175 for a key set of 500 because it always iterates in the same order,
+     * The observed value is 75, always 75 for a key set of 500 because it always iterates in the same order,
      * just not an obvious order.
      * <p/>
      * Conclusion: Unable to use the iterator as a pseudorandom selector.
@@ -229,7 +231,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         int mean = 0;
         int absoluteDifferences = 0;
         int lastReading = 0;
-        Map map = new HashMap();
+        Map map = new ConcurrentHashMap();
         for (int i = 1; i <= 500; i++) {
             mean += i;
             map.put("" + i, " ");
@@ -238,6 +240,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         for (Iterator iterator = map.keySet().iterator(); iterator.hasNext();) {
             String string = (String) iterator.next();
             int thisReading = Integer.parseInt(string);
+            LOG.info("reading: " + thisReading);
             absoluteDifferences += Math.abs(lastReading - thisReading);
             lastReading = thisReading;
         }
@@ -259,6 +262,34 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
 
     }
 
+
+    /**
+     * HashMap
+     * INFO: done putting: 128ms
+     * INFO: 15ms
+     * <p/>
+     * ConcurrentHashMap
+     * INFO: done putting: 200ms
+     * INFO: 117ms
+     * <p/>
+     * ConcurrentHashMap
+     */
+    @Test
+    public void testSpeedOfIteration() {
+        StopWatch stopWatch = new StopWatch();
+        Map map = new ConcurrentHashMap(100000);
+        for (int i = 1; i <= 100000; i++) {
+            map.put(i, i);
+        }
+        LOG.info("done putting: " + stopWatch.getElapsedTimeString());
+
+        Collection collection =  map.values();
+        for (Object o : collection) {
+           // 
+        }
+        LOG.info(stopWatch.getElapsedTimeString());
+
+    }
 
     /**
      * Check nothing breaks and that we get the right number of samples
@@ -287,7 +318,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      * 2000 times.
      * <p/>
      * 1 to 5000 population, with hit counts ranging from 1 to 500, not selecting lowest half. 5000 tests
-     *
+     * <p/>
      * Samples  Cost    No
      * 7        38      99.24% confidence
      * 8        27      99.46% confidence

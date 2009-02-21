@@ -1694,6 +1694,13 @@ public class CacheTest extends AbstractCacheTest {
      * INFO: Average Remove Time: 0.43651128 ms
      * INFO: Average Remove All Time: 0.20818481 ms
      * INFO: Average keySet Time: 0.11898771 ms
+     * <p/>
+     * CLHM
+     * INFO: Average Get Time for 4165401 observations: 0.004529696 ms
+     * INFO: Average Put Time for 437527 obervations: 0.022044353 ms
+     * INFO: Average Remove Time for 303574 obervations: 0.009424391 ms
+     * INFO: Average Remove All Time for 4791108 observations: 0.0026709896 ms
+     * INFO: Average keySet Time for 4166273 observations: 0.0043571317 ms
      *
      * @throws Exception
      */
@@ -1716,7 +1723,7 @@ public class CacheTest extends AbstractCacheTest {
      * INFO: Average Remove All Time: 0.16385451 ms
      * INFO: Average keySet Time: 0.1549516 ms
      * <p/>
-     * CHM version with no sync on get. 
+     * CHM version with no sync on get.
      * INFO: Average Get Time for 2582432 observations: 0.019930825 ms
      * INFO: Average Put Time for 297 obervations: 41.40404 ms
      * INFO: Average Remove Time for 1491 obervations: 13.892018 ms
@@ -1736,16 +1743,19 @@ public class CacheTest extends AbstractCacheTest {
      * INFO: Average Remove Time: 0.31298608 ms
      * INFO: Average Remove All Time: 0.21396147 ms
      * INFO: Average keySet Time: 0.11740683 ms
-     *
-     * @throws Exception
+     * <p/>
+     * CLHM
+     * INFO: Average Get Time for 4567959 observations: 0.005231658 ms
+     * INFO: Average Put Time for 437078 obervations: 0.01527645 ms
+     * INFO: Average Remove Time for 178915 obervations: 0.013335941 ms
+     * INFO: Average Remove All Time for 3500724 observations: 0.0070434003 ms
+     * INFO: Average keySet Time for 3207776 observations: 0.011053764 ms
      */
     @Test
     public void testConcurrentReadWriteRemoveFIFO() throws Exception {
         testConcurrentReadWriteRemove(MemoryStoreEvictionPolicy.FIFO);
     }
 
-
-    //todo reduce maxtime
     public void testConcurrentReadWriteRemove(MemoryStoreEvictionPolicy policy) throws Exception {
 
         final int size = 10000;

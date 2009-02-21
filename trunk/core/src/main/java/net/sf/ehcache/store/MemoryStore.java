@@ -57,6 +57,11 @@ public abstract class MemoryStore implements Store {
     protected Status status;
 
     /**
+     * The maximum size of the store
+     */
+    protected int maximumSize;
+
+    /**
      * Constructs things that all MemoryStores have in common.
      *
      * @param cache
@@ -65,6 +70,7 @@ public abstract class MemoryStore implements Store {
     protected MemoryStore(Ehcache cache, Store diskStore) {
         status = Status.STATUS_UNINITIALISED;
         this.cache = cache;
+        this.maximumSize = cache.getCacheConfiguration().getMaxElementsInMemory();
         this.diskStore = diskStore;
         status = Status.STATUS_ALIVE;
 
@@ -96,12 +102,11 @@ public abstract class MemoryStore implements Store {
     }
 
     /**
-     * Puts an item in the cache. Note that this automatically results in
-     * {@link net.sf.ehcache.store.LruMemoryStore.SpoolingLinkedHashMap#removeEldestEntry} being called.
+     * Puts an item in the cache. Note that this automatically results in an eviction if the store is full.
      *
      * @param element the element to add
      */
-    public final synchronized void put(Element element) throws CacheException {
+    public final void put(Element element) throws CacheException {
         if (element != null) {
             map.put(element.getObjectKey(), element);
             doPut(element);
@@ -113,9 +118,7 @@ public abstract class MemoryStore implements Store {
      *
      * @param element
      */
-    protected void doPut(Element element) throws CacheException {
-        //empty
-    }
+    protected abstract void doPut(Element element) throws CacheException;
 
     /**
      * Gets an item from the cache.
@@ -125,7 +128,12 @@ public abstract class MemoryStore implements Store {
      * @param key the cache key
      * @return the element, or null if there was no match for the key
      */
-    public synchronized Element get(Object key) {
+    public final Element get(Object key) {
+
+        if (key == null) {
+            return null;
+        }
+
         Element element = (Element) map.get(key);
 
         if (element != null) {
@@ -136,8 +144,10 @@ public abstract class MemoryStore implements Store {
         } else if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest(cache.getName() + "Cache: " + cache.getName() + "MemoryStore miss for " + key);
         }
+
         return element;
     }
+
 
     /**
      * Gets an item from the cache, without updating statistics.
@@ -145,7 +155,7 @@ public abstract class MemoryStore implements Store {
      * @param key the cache key
      * @return the element, or null if there was no match for the key
      */
-    public final synchronized Element getQuiet(Object key) {
+    public final Element getQuiet(Object key) {
         Element cacheElement = (Element) map.get(key);
 
         if (cacheElement != null) {
@@ -166,7 +176,7 @@ public abstract class MemoryStore implements Store {
      * @param key the key of the Element, usually a String
      * @return the Element if one was found, else null
      */
-    public synchronized Element remove(Object key) {
+    public final Element remove(Object key) {
 
         if (key == null) {
             return null;
@@ -187,7 +197,7 @@ public abstract class MemoryStore implements Store {
     /**
      * Remove all of the elements from the store.
      */
-    public final synchronized void removeAll() throws CacheException {
+    public final void removeAll() throws CacheException {
         clear();
     }
 
@@ -215,7 +225,7 @@ public abstract class MemoryStore implements Store {
     /**
      * Flush to disk only if the cache is diskPersistent.
      */
-    public final synchronized void flush() {
+    public final void flush() {
         if (cache.getCacheConfiguration().isDiskPersistent()) {
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine(cache.getName() + " is persistent. Spooling " + map.size() + " elements to the disk store.");
@@ -235,8 +245,8 @@ public abstract class MemoryStore implements Store {
      */
     protected final void spoolAllToDisk() {
         Object[] keys = getKeyArray();
-        for (Object key : keys) {
-            Element element = (Element) map.get(key);
+        for (int i = 0; i < keys.length; i++) {
+            Element element = (Element) map.get(keys[i]);
             if (element != null) {
                 if (!element.isSerializable()) {
                     if (LOG.isLoggable(Level.FINE)) {
@@ -246,7 +256,7 @@ public abstract class MemoryStore implements Store {
                 } else {
                     spoolToDisk(element);
                     //Don't notify listeners. They are not being removed from the cache, only a store
-                    remove(key);
+                    remove(keys[i]);
                 }
             }
         }
@@ -281,7 +291,7 @@ public abstract class MemoryStore implements Store {
      *
      * @return An Object[]
      */
-    public final synchronized Object[] getKeyArray() {
+    public final Object[] getKeyArray() {
         return map.keySet().toArray();
     }
 
@@ -317,7 +327,7 @@ public abstract class MemoryStore implements Store {
      *
      * @return the size, in bytes
      */
-    public final synchronized long getSizeInBytes() throws CacheException {
+    public final long getSizeInBytes() throws CacheException {
         long sizeInBytes = 0;
         for (Object o : map.values()) {
             Element element = (Element) o;
@@ -354,6 +364,8 @@ public abstract class MemoryStore implements Store {
             }
         }
 
+        //todo should notify expiry if expired
+
         if (!spooled) {
             cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
         }
@@ -372,7 +384,7 @@ public abstract class MemoryStore implements Store {
      * An algorithm to tell if the MemoryStore is at or beyond its carrying capacity.
      */
     protected final boolean isFull() {
-        return map.size() > cache.getCacheConfiguration().getMaxElementsInMemory();
+        return map.size() > maximumSize;
     }
 
     /**

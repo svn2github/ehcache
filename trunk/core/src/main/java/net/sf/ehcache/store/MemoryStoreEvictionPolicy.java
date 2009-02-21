@@ -17,11 +17,9 @@
 package net.sf.ehcache.store;
 
 
-
-
 import java.io.Serializable;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A typesafe enumeration of eviction policies.

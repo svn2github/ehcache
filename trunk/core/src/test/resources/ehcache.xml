@@ -2,7 +2,7 @@
          xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd">
 
     <!-- Disable for test ehcache.xml. Should go to the same place. -->
-    <!--<diskStore path="java.io.tmpdir"/>-->
+    <diskStore path="java.io.tmpdir"/>
 
     <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
                                      properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446"/>

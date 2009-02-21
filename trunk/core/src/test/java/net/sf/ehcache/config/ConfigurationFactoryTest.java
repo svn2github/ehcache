@@ -100,8 +100,9 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Configuration configuration = ConfigurationFactory.parseConfiguration();
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
-        //Check disk store we have it missing in the test ehcache.xml />
-        assertEquals(null, configurationHelper.getDiskStorePath());
+        //Check disk store />
+        assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
+
 
         //Check CacheManagerPeerProvider
         Map<String,CacheManagerPeerProvider> peerProviders = configurationHelper.createCachePeerProviders();
@@ -560,8 +561,6 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      * timeToLiveSeconds="120"
      * overflowToDisk="false"
      * <p/>
-     * No disk store path specified as disk store not being used
-     * />
      */
     @Test
     public void testLoadConfigurationFromFileNoDisk() throws Exception {
@@ -616,6 +615,9 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         File file = new File(TEST_CONFIG_DIR + "ehcache-nodisk.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+
+        assertEquals(null, configurationHelper.getDiskStorePath());
+
 
         //  <cache name="sampleCache1"
         //  maxElementsInMemory="10000"
@@ -701,7 +703,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
         //Check disk path missing in test ehcache.xml"/>
-        assertEquals(null, configurationHelper.getDiskStorePath());
+        assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
 
         //Check default cache
         Ehcache defaultCache = configurationHelper.createDefaultCache();

@@ -18,6 +18,7 @@ package net.sf.ehcache.store;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStoreTester;
+import net.sf.ehcache.concurrent.ConcurrentLinkedHashMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -67,7 +68,7 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
         createMemoryStore(MemoryStoreEvictionPolicy.LRU, 5);
 
         Map map = ((MemoryStore) store).getBackingMap();
-        assertTrue(map instanceof java.util.LinkedHashMap);
+        assertTrue(map instanceof ConcurrentLinkedHashMap);
     }
 
 
@@ -114,6 +115,8 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
         //Create a new element and put in the store so as to force the policy
         element = new Element("key6", "value6");
         store.put(element);
+
+        store.get("key6");
 
         //max size
         assertEquals(5, store.getSize());

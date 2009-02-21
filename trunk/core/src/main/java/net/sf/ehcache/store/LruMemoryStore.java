@@ -19,12 +19,10 @@ package net.sf.ehcache.store;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.concurrent.ConcurrentLinkedHashMap;
 
-
-
-import java.util.Map;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -40,6 +38,7 @@ public class LruMemoryStore extends MemoryStore {
 
     private static final Logger LOG = Logger.getLogger(LruMemoryStore.class.getName());
 
+
     /**
      * Constructor for the LruMemoryStore object
      * The backing {@link java.util.LinkedHashMap} is created with LRU by access order.
@@ -48,82 +47,42 @@ public class LruMemoryStore extends MemoryStore {
         super(cache, diskStore);
 
         try {
-            map = new SpoolingLinkedHashMap();
+            map = new ConcurrentLinkedHashMap(ConcurrentLinkedHashMap.EvictionPolicy.SECOND_CHANCE,
+                    cache.getCacheConfiguration().getMaxElementsInMemory(), new LruEvictionListener());
         } catch (CacheException e) {
             LOG.log(Level.SEVERE, cache.getName() + "Cache: Cannot start LruMemoryStore. Initial cause was " + e.getMessage(), e);
         }
     }
 
     /**
-     * An extension of LinkedHashMap which overrides {@link #removeEldestEntry}
-     * to persist cache entries to the auxiliary cache before they are removed.
-     * <p/>
-     * This implementation also provides LRU by access order.
+     * Allow specialised actions after adding the element to the map.
+     *
+     * @param element
      */
-    public final class SpoolingLinkedHashMap extends java.util.LinkedHashMap {
-        private static final int INITIAL_CAPACITY = 100;
-        private static final float GROWTH_FACTOR = .75F;
+    protected void doPut(Element element) throws CacheException {
+        //noop
+    }
+
+    /**
+     * A class that is notified when the map evicts an element
+     */
+    public final class LruEvictionListener implements ConcurrentLinkedHashMap.EvictionListener {
 
         /**
-         * Default constructor.
-         * Will create an initial capacity of 100, a loading of .75 and
-         * LRU by access order.
-         */
-        public SpoolingLinkedHashMap() {
-            super(INITIAL_CAPACITY, GROWTH_FACTOR, true);
-        }
-
-        /**
-         * Returns <tt>true</tt> if this map should remove its eldest entry.
-         * This method is invoked by <tt>put</tt> and <tt>putAll</tt> after
-         * inserting a new entry into the map.  It provides the implementer
-         * with the opportunity to remove the eldest entry each time a new one
-         * is added.  This is useful if the map represents a cache: it allows
-         * the map to reduce memory consumption by deleting stale entries.
-         * <p/>
-         * Will return true if:
-         * <ol>
-         * <li> the element has expired
-         * <li> the cache size is greater than the in-memory actual.
-         * In this case we spool to disk before returning.
-         * </ol>
+         * A call-back notification that the entry was evicted.
          *
-         * @param eldest The least recently inserted entry in the map, or if
-         *               this is an access-ordered map, the least recently accessed
-         *               entry.  This is the entry that will be removed it this
-         *               method returns <tt>true</tt>.  If the map was empty prior
-         *               to the <tt>put</tt> or <tt>putAll</tt> invocation resulting
-         *               in this invocation, this will be the entry that was just
-         *               inserted; in other words, if the map contains a single
-         *               entry, the eldest entry is also the newest.
-         * @return true if the eldest entry should be removed
-         *         from the map; <tt>false</t> if it should be retained.
+         * @param key   The evicted key.
+         * @param value The evicted value.
          */
-        protected final boolean removeEldestEntry(Map.Entry eldest) {
-            Element element = (Element) eldest.getValue();
-            return removeLeastRecentlyUsedElement(element);
-        }
+        public void onEviction(Object key, Object value) {
+            Element element = (Element) value;
 
-        /**
-         * Relies on being called from a synchronized method
-         *
-         * @param element
-         * @return true if the LRU element should be removed
-         */
-        private boolean removeLeastRecentlyUsedElement(Element element) throws CacheException {
             //check for expiry and remove before going to the trouble of spooling it
             if (element.isExpired()) {
                 notifyExpiry(element);
-                return true;
-            }
-
-            if (isFull()) {
-                evict(element);
-                return true;
             } else {
-                return false;
+                evict(element);
             }
-
         }
     }
 }

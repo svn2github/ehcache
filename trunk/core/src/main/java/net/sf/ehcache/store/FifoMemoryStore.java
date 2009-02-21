@@ -19,13 +19,8 @@ package net.sf.ehcache.store;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.concurrent.ConcurrentLinkedHashMap;
 
-
-
-import java.io.Serializable;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -46,57 +41,40 @@ public class FifoMemoryStore extends MemoryStore {
      */
     public FifoMemoryStore(Ehcache cache, Store diskStore) {
         super(cache, diskStore);
-        map = new LinkedHashMap();
+        map = new ConcurrentLinkedHashMap(ConcurrentLinkedHashMap.EvictionPolicy.FIFO,
+                cache.getCacheConfiguration().getMaxElementsInMemory(), new FifoEvictionListener());
     }
 
     /**
-     * Allow specialised actions over adding the element to the map
+     * Allow specialised actions over adding the element to the map.
      *
      * @param element
      */
-    protected final void doPut(Element element) throws CacheException {
-        if (isFull()) {
-            removeFirstElement();
-        }
-    }
-
-
-    /**
-     * Returns the first eligible element that can be taken out of the cache
-     * based on the FIFO policy
-     */
-    Element getFirstElement() {
-        if (map.size() == 0) {
-            return null;
-        }
-
-        Element element = null;
-        Serializable key;
-
-        Set keySet = map.keySet();
-        Iterator itr = keySet.iterator();
-        // The first element is the candidate to remove
-        if (itr.hasNext()) {
-            key = (Serializable) itr.next();
-            element = (Element) map.get(key);
-        }
-
-        return element;
+    protected void doPut(Element element) throws CacheException {
+        //noop
     }
 
     /**
-     * Remove the first element that is eligible to removed from the store
-     * based on the FIFO policy
+     * A class that is notified when the map evicts an element
      */
-    private void removeFirstElement() throws CacheException {
-        Element element = getFirstElement();
+    public final class FifoEvictionListener implements ConcurrentLinkedHashMap.EvictionListener {
 
-        if (element.isExpired()) {
-            remove(element.getObjectKey());
-            notifyExpiry(element);
-            return;
+
+        /**
+         * A call-back notification that the entry was evicted.
+         *
+         * @param key   The evicted key.
+         * @param value The evicted value.
+         */
+        public void onEviction(Object key, Object value) {
+            Element element = (Element) value;
+
+            //check for expiry and remove before going to the trouble of spooling it
+            if (element.isExpired()) {
+                notifyExpiry(element);
+            } else {
+                evict(element);
+            }
         }
-        remove(element.getObjectKey());
-        evict(element);
     }
 }

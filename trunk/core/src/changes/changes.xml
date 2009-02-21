@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
+        <release version="1.6.0-beta4" date="2009-2-28"
+                 desc="This release introduces new high perforamnce cache core, which is two orders of magnitude
+                 faster.">
+
+            <!-- Feature Changes  -->
+            <action dev="Greg Luck" type="update">
+                Remove many uses of synchronize and replace with new concurrency techniques available in Java 5.
+                A concurrent test with 70 threads doing a realistic mix of operations gets are 92.5 times faster,
+                puts are 30 times faster, removes are 48 times faster, removeAlls are 80 times faster,
+                and keySet is 30 times faster.
+            </action>
+        </release>
+
         <release version="1.6.0-beta3" date="2009-1-28"
                  desc="This release breaks JCache into its own ehcache-jcache module and removes all
                  dependencies other than the JDK.">

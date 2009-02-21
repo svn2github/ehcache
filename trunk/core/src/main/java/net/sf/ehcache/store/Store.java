@@ -16,11 +16,11 @@
 
 package net.sf.ehcache.store;
 
-import java.io.IOException;
-
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+
+import java.io.IOException;
 
 /**
  * This is the interface for all stores. A store is a physical counterpart to a cache, which

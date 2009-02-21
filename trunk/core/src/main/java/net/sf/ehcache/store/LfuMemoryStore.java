@@ -78,34 +78,6 @@ public class LfuMemoryStore extends MemoryStore {
 
 
     /**
-     * todo remove once all done
-     * Gets an item from the cache.
-     * <p/>
-     * The last access time in {@link net.sf.ehcache.Element} is updated.
-     *
-     * @param key the cache key
-     * @return the element, or null if there was no match for the key
-     */
-    public final Element get(Object key) {
-
-        if (key == null) {
-            return null;
-        }
-
-        Element element = (Element) map.get(key);
-
-        if (element != null) {
-            element.updateAccessStatistics();
-            if (LOG.isLoggable(Level.FINEST)) {
-                LOG.finest(cache.getName() + "Cache: " + cache.getName() + "MemoryStore hit for " + key);
-            }
-        } else if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest(cache.getName() + "Cache: " + cache.getName() + "MemoryStore miss for " + key);
-        }
-        return element;
-    }
-
-    /**
      * Puts an element into the cache.
      */
     public final synchronized void doPut(Element elementJustAdded) {
