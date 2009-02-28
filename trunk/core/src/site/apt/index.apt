@@ -19,6 +19,12 @@ Welcome to ehcache
 
 * Latest News
 
+** 23 February 2009: Exciting News! Ehcache Core two orders of magnitude faster
+
+  With all of the focus on new replication schemes and Cache Server, the core has been pretty stable for a while.
+  The forthcoming 1.6.0-beta4 shows off Gets that are 92 times faster than Ehcache 1.5. See {{{http://gregluck.com/blog/archives/2009/02/i_have_been_wai.html}
+     Greg Luck's Blog}} for some amazing charts.
+
 ** 28 January 2009: New releases which break JCache into its own module.
 
     A new release of Ehcache core, ehcache-1.6.0-beta3 and the new ehcache-jcache-1.1 break JCache functionality

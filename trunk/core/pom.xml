@@ -178,33 +178,6 @@
                         </goals>
                     </execution>
 
-                    <execution>
-                        <id>prepare-and-start-orion</id>
-                        <phase>pre-integration-test</phase>
-                        <configuration>
-                            <tasks>
-                                <ant target="prepare-and-start-orion"/>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-
-                    <execution>
-                        <id>stop-orion</id>
-                        <phase>post-integration-test</phase>
-                        <configuration>
-                            <tasks>
-                                <ant target="stop-orion"/>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-
-
                 </executions>
             </plugin>
 
