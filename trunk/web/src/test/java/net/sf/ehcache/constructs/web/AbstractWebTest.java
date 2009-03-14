@@ -50,11 +50,14 @@ import java.util.logging.Logger;
  * A convenient base class for ehcache filter tests
  *
  * To run these you MUST be online due to a bug in glassfish embedded:
+ *
+ * 1) Do a maven package
+ *
  * Running using Jetty
  * 1) comment out the BeforeClass and AfterClass methods in this class which uses Glassfish Embedded.
- * 1) mvn clean package
- * 2) mvn jetty:run-war
- * 3) run your tests from the IDE
+ * 2) mvn clean package
+ * 3) mvn jetty:run-war
+ * 4) run your tests from the IDE
  *
  * Running using Glassfish
  * 1) run your tests from the IDE. Glassfish Embedded is included
@@ -104,16 +107,13 @@ public abstract class AbstractWebTest {
     private static Server server;
 
 
-//    @BeforeClass
-//    public static void startup() throws Exception, InterruptedException {
-//            server = new Server(8080, new File("target/ehcache-web-1.6.war"));
-//            server.start();
-//            Thread.sleep(10000);
-//    }
+    //@BeforeClass
+    public static void startup() throws Exception, InterruptedException {
+            server = new Server(8080, new File("target/ehcache-web-1.6.war"));
+            server.start();
+            Thread.sleep(15000);
+    }
 
-    /**
-     * @throws Exception
-     */
     @Before
     public void setUp() throws Exception {
         instanceManager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
@@ -126,9 +126,6 @@ public abstract class AbstractWebTest {
     }
 
 
-    /**
-     * @throws Exception
-     */
     @After
     public void tearDown() throws Exception {
         instanceManager.shutdown();

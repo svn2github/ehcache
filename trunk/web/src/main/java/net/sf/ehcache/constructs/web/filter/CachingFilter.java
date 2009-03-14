@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Date;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.zip.DataFormatException;
@@ -223,9 +224,11 @@ public abstract class CachingFilter extends Filter {
         chain.doFilter(request, wrapper);
         wrapper.flush();
 
+        long timeToLiveSeconds = blockingCache.getCacheConfiguration().getTimeToLiveSeconds();
+
         // Return the page info
         return new PageInfo(wrapper.getStatus(), wrapper.getContentType(), wrapper.getHeaders(), wrapper.getCookies(),
-                outstr.toByteArray(), true);
+                outstr.toByteArray(), true, timeToLiveSeconds);
     }
 
     /**

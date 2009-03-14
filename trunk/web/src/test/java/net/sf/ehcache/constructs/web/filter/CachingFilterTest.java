@@ -20,6 +20,7 @@ import com.meterware.httpunit.HttpInternalErrorException;
 import com.meterware.httpunit.WebResponse;
 import net.sf.ehcache.constructs.web.AbstractWebTest;
 import net.sf.ehcache.constructs.web.PageInfo;
+import net.sf.ehcache.constructs.web.HttpUtil;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
@@ -35,10 +36,13 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
@@ -46,7 +50,10 @@ import java.util.List;
  */
 public class CachingFilterTest extends AbstractWebTest {
 
+    private static final Logger LOG = Logger.getLogger(CachingFilterTest.class.getName());
+
     private String cachedPageUrl = "/CachedPage.jsp";
+    private String cachedPageUrl2 = "/CachedPage2.jsp";
 
     private void resetCachedPageUrl() {
         cachedPageUrl = "/CachedPage.jsp";
@@ -60,6 +67,60 @@ public class CachingFilterTest extends AbstractWebTest {
     @Test
     public void testCachedPageIsCached() throws Exception {
         assertResponseGoodAndCached(cachedPageUrl, true);
+    }
+
+
+    /**
+     * Tests that a page which should be cached is cached.
+     * Also, check that the pages returned are good.
+     * <p/>
+     */
+    @Test
+    public void testCachedPage2IsCached() throws Exception {
+        assertResponseGoodAndCached(cachedPageUrl2, true);
+    }
+
+    /**
+     * HTTP/1.1 200 OK
+     * Last-Modified: Mon, 09 Mar 2009 08:03:57 GMT
+     * Expires: Mon, 09 Mar 2009 10:50:37 GMT
+     * Cache-Control: max-age=10000
+     * ETag: 492543a8
+     * Content-Type: text/html; charset=utf-8
+     * Content-Length: 15544
+     * Connection: keep-alive
+     * Server: Jetty(6.1.10)
+     * Length: 15,544 (15K) [text/html]
+     */
+    @Test
+    public void testCachePage2Headers() throws IOException, ParserConfigurationException, SAXException {
+
+        HttpURLConnection urlConnection;
+        URL u = new URL("http://localhost:8080" + cachedPageUrl2);
+//        urlConnection = (HttpURLConnection) u.openConnection();
+//        urlConnection.setRequestMethod("GET");
+//        assertEquals(200, urlConnection.getResponseCode());
+//        String eTag = urlConnection.getHeaderField("ETag");
+//        assertNotNull(eTag);
+//        String lastModified = urlConnection.getHeaderField("Last-Modified");
+//        assertNotNull(lastModified);
+//        String expires = urlConnection.getHeaderField("Expires");
+//        assertNotNull(expires);
+
+        
+        //Check Caching Behaviour
+        u = new URL("http://localhost:8080/" + cachedPageUrl2);
+        urlConnection = (HttpURLConnection) u.openConnection();
+        urlConnection.setUseCaches(false);
+        urlConnection.setRequestMethod("GET");
+        urlConnection.setIfModifiedSince(System.currentTimeMillis());
+        urlConnection.setRequestProperty("If-None-Match", "sdfdsf");
+//        urlConnection.setRequestProperty("If-None-Match", eTag);
+
+        assertEquals(200, urlConnection.getResponseCode());
+        String eTagInResponse = urlConnection.getHeaderField("ETag");
+
+
     }
 
     /**

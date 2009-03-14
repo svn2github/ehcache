@@ -17,8 +17,6 @@
 package net.sf.ehcache.constructs.web;
 
 
-
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
@@ -29,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Date;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.zip.GZIPInputStream;
@@ -53,9 +52,13 @@ public class PageInfo implements Serializable {
     private byte[] ungzippedBody;
     private int statusCode;
     private boolean storeGzipped;
+    private Date created;
+    private long timeToLiveSeconds;
+    private static final long ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365;
+    ;
 
     /**
-     * Creates a PageInfo.
+     * Creates a PageInfo object representing the "page". 
      * <p/>
      *
      * @param statusCode
@@ -64,17 +67,24 @@ public class PageInfo implements Serializable {
      * @param cookies
      * @param body
      * @param storeGzipped      set this to false for images and page fragments which should never
-     *                     be gzipped.
+     * @param timeToLiveSeconds the time to Live in seconds. 0 means maximum, which is one year per RFC2616.
+     * @throws AlreadyGzippedException
      */
     public PageInfo(final int statusCode, final String contentType, final Collection headers, final Collection cookies,
-                    final byte[] body, boolean storeGzipped) throws AlreadyGzippedException {
+                    final byte[] body, boolean storeGzipped, long timeToLiveSeconds) throws AlreadyGzippedException {
         if (headers != null) {
             this.headers.addAll(headers);
         }
+        setTimeToLiveWithCheckForNeverExpires(timeToLiveSeconds);
+
+
+        created = new Date();
         this.headers.remove("Content-Encoding");
         this.contentType = contentType;
         this.storeGzipped = storeGzipped;
         this.statusCode = statusCode;
+        this.created = created;
+        this.timeToLiveSeconds = timeToLiveSeconds;
         extractCookies(cookies);
 
         try {
@@ -98,6 +108,26 @@ public class PageInfo implements Serializable {
         }
 
 
+    }
+
+    /**
+     * See http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
+     * To mark a response as "never expires," an origin server sends an Expires date approximately one year
+     * from the time the response is sent. HTTP/1.1 servers SHOULD NOT send Expires dates more than one year
+     * in the future.
+     * @param timeToLiveSeconds accepts 0, which means eternal. If the time is 0 or > one year, it is set to one
+     * year in accordance with the RFC.
+     * <p/>
+     * Note: PageInfo does not hold a reference to the ehcache Element and therefore does not know what the
+     * Element ttl is. It would normally make most sense to set the TTL to the same as the element expiry.
+     */
+    protected void setTimeToLiveWithCheckForNeverExpires(long timeToLiveSeconds) {
+        //0 means eternal
+        if (timeToLiveSeconds == 0 || timeToLiveSeconds > ONE_YEAR_IN_SECONDS) {
+            this.timeToLiveSeconds = ONE_YEAR_IN_SECONDS;
+        } else {
+            this.timeToLiveSeconds = timeToLiveSeconds;
+        }
     }
 
     private void extractCookies(Collection cookies) {
@@ -250,10 +280,28 @@ public class PageInfo implements Serializable {
 
     /**
      * Returns true if the response is Ok.
+     *
      * @return true if the response code is 200.
      */
     public boolean isOk() {
         return (statusCode == HttpServletResponse.SC_OK);
+    }
+
+
+    /**
+     * The <code>Date</code> this PageInfo object was created
+     */
+    public Date getCreated() {
+        return created;
+    }
+
+    /**
+     * The time to live in seconds.
+     *
+     * @return the time to live, or 0 if the wrapping element is eternal
+     */
+    public long getTimeToLiveSeconds() {
+        return timeToLiveSeconds;
     }
 }
 

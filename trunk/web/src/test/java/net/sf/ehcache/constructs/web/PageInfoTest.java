@@ -91,7 +91,7 @@ public class PageInfoTest extends AbstractWebTest {
     public void testAttemptedDoubleGzip() throws IOException {
         byte[] gzip = getGzipFileAsBytes();
         try {
-            new PageInfo(200, "text/plain", new ArrayList(), new ArrayList(), gzip, true);
+            new PageInfo(200, "text/plain", new ArrayList(), new ArrayList(), gzip, true, 0);
             fail();
         } catch (AlreadyGzippedException e) {
             assertEquals("The byte[] is already gzipped. It should not be gzipped again.", e.getMessage());
@@ -114,7 +114,7 @@ public class PageInfoTest extends AbstractWebTest {
         Collection headers = new ArrayList();
         String[] header = new String[]{"Content-Encoding", "gzip"};
         headers.add(header);
-        PageInfo pageInfo = new PageInfo(200, "text/plain", headers, new ArrayList(), gzip, true);
+        PageInfo pageInfo = new PageInfo(200, "text/plain", headers, new ArrayList(), gzip, true, 0);
         long initialMemoryUsed = memoryUsed();
         StopWatch stopWatch = new StopWatch();
         int size = 0;

@@ -66,8 +66,12 @@ import javax.servlet.http.HttpServletRequest;
  * Responses are automatically gzipped and stored that way in the cache. For requests which do not accept gzip
  * encoding the page is retrieved from the cache, ungzipped and returned to the user agent. The ungzipping is
  * high performance.
+ * <p/>
+ * This filter does not set browser caching headers such as ETag, Last-Modified, Expires, and If-None-Match. If
+ * you wish to minimise browser requests, use SimpleBrowserHeadersPageCachingFilter.
  * @author Greg Luck
  * @version $Id: SimplePageCachingFilter.java 744 2008-08-16 20:10:49Z gregluck $
+ * @see SimpleBrowserHeadersPageCachingFilter
  */
 public class SimplePageCachingFilter extends CachingFilter {
 

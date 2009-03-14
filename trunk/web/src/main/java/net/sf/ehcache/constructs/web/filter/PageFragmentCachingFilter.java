@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Date;
 
 
 /**
@@ -71,9 +72,11 @@ public abstract class PageFragmentCachingFilter extends CachingFilter {
         chain.doFilter(request, wrapper);
         wrapper.flush();
 
+        long timeToLiveSeconds = blockingCache.getCacheConfiguration().getTimeToLiveSeconds();
+
         // Return the page info
         return new PageInfo(wrapper.getStatus(), wrapper.getContentType(), wrapper.getHeaders(), wrapper.getCookies(),
-                outstr.toByteArray(), false);
+                outstr.toByteArray(), false, timeToLiveSeconds);
     }
 
 
