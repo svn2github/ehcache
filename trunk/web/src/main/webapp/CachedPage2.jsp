@@ -2,9 +2,9 @@
 <%@ page contentType="text/html; charset=utf-8" %>
 <!--<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">-->
 
-<%
-    response.setDateHeader("Last-Modified", System.currentTimeMillis());
-%>
+<%--<%--%>
+    <%--response.setDateHeader("Last-Modified", System.currentTimeMillis());--%>
+<%--%>--%>
 <html>
 <head>
     <title>Cached Page</title>
@@ -29,4 +29,4 @@ Here is a chunk of randomly generated text which takes 5 seconds to produce:
     out.print((char)random.nextInt(255));
 }
 %>
-<jsp:include page="/include/Footer.jsp"/>
+</html>
