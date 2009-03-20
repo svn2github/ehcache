@@ -81,49 +81,6 @@ public class CachingFilterTest extends AbstractWebTest {
     }
 
     /**
-     * HTTP/1.1 200 OK
-     * Last-Modified: Mon, 09 Mar 2009 08:03:57 GMT
-     * Expires: Mon, 09 Mar 2009 10:50:37 GMT
-     * Cache-Control: max-age=10000
-     * ETag: 492543a8
-     * Content-Type: text/html; charset=utf-8
-     * Content-Length: 15544
-     * Connection: keep-alive
-     * Server: Jetty(6.1.10)
-     * Length: 15,544 (15K) [text/html]
-     */
-    @Test
-    public void testCachePage2Headers() throws IOException, ParserConfigurationException, SAXException {
-
-        HttpURLConnection urlConnection;
-        URL u = new URL("http://localhost:8080" + cachedPageUrl2);
-//        urlConnection = (HttpURLConnection) u.openConnection();
-//        urlConnection.setRequestMethod("GET");
-//        assertEquals(200, urlConnection.getResponseCode());
-//        String eTag = urlConnection.getHeaderField("ETag");
-//        assertNotNull(eTag);
-//        String lastModified = urlConnection.getHeaderField("Last-Modified");
-//        assertNotNull(lastModified);
-//        String expires = urlConnection.getHeaderField("Expires");
-//        assertNotNull(expires);
-
-        
-        //Check Caching Behaviour
-        u = new URL("http://localhost:8080/" + cachedPageUrl2);
-        urlConnection = (HttpURLConnection) u.openConnection();
-        urlConnection.setUseCaches(false);
-        urlConnection.setRequestMethod("GET");
-        urlConnection.setIfModifiedSince(System.currentTimeMillis());
-        urlConnection.setRequestProperty("If-None-Match", "sdfdsf");
-//        urlConnection.setRequestProperty("If-None-Match", eTag);
-
-        assertEquals(200, urlConnection.getResponseCode());
-        String eTagInResponse = urlConnection.getHeaderField("ETag");
-
-
-    }
-
-    /**
      * HEAD methods return an empty response body. If a HEAD request populates
      * a cache and then a GET follorws, a blank page will result.
      * This test ensures that the SimplePageCachingFilter implements calculateKey

@@ -45,7 +45,7 @@ public class PageInfo implements Serializable {
     private static final int FOUR_KB = 4196;
     private static final int GZIP_MAGIC_NUMBER_BYTE_1 = 31;
     private static final int GZIP_MAGIC_NUMBER_BYTE_2 = -117;
-    private final ArrayList headers = new ArrayList();
+    private final ArrayList responseHeaders = new ArrayList();
     private final ArrayList serializableCookies = new ArrayList();
     private String contentType;
     private byte[] gzippedBody;
@@ -73,13 +73,13 @@ public class PageInfo implements Serializable {
     public PageInfo(final int statusCode, final String contentType, final Collection headers, final Collection cookies,
                     final byte[] body, boolean storeGzipped, long timeToLiveSeconds) throws AlreadyGzippedException {
         if (headers != null) {
-            this.headers.addAll(headers);
+            this.responseHeaders.addAll(headers);
         }
         setTimeToLiveWithCheckForNeverExpires(timeToLiveSeconds);
 
 
         created = new Date();
-        this.headers.remove("Content-Encoding");
+        this.responseHeaders.remove("Content-Encoding");
         this.contentType = contentType;
         this.storeGzipped = storeGzipped;
         this.statusCode = statusCode;
@@ -160,8 +160,8 @@ public class PageInfo implements Serializable {
      * @return true if the body is gzipped
      */
     private boolean isBodyParameterGzipped() {
-        for (int i = 0; i < headers.size(); i++) {
-            String[] keyValuePair = (String[]) headers.get(i);
+        for (int i = 0; i < responseHeaders.size(); i++) {
+            String[] keyValuePair = (String[]) responseHeaders.get(i);
             if (keyValuePair[1].equals("gzip")) {
                 return true;
             }
@@ -209,8 +209,8 @@ public class PageInfo implements Serializable {
     /**
      * Returns the headers of the response.
      */
-    public List getHeaders() {
-        return headers;
+    public List getResponseHeaders() {
+        return responseHeaders;
     }
 
     /**
