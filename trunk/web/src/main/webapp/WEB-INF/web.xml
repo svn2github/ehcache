@@ -50,6 +50,11 @@
             <param-name>suppressStackTraces</param-name>
             <param-value>false</param-value>
         </init-param>
+        <init-param>
+            <param-name>cacheName</param-name>
+            <param-value>CachedPage2Cache</param-value>
+        </init-param>
+
     </filter>
 
     <!-- Test only filter -->

@@ -107,6 +107,13 @@
            overflowToDisk="true">
     </cache>
 
+    <cache name="CachedPage2Cache"
+           maxElementsInMemory="10"
+           eternal="false"
+           timeToLiveSeconds="3600"
+           overflowToDisk="true">
+    </cache>
+
     <cache name="SimplePageFragmentCachingFilter"
            maxElementsInMemory="10"
            eternal="false"
