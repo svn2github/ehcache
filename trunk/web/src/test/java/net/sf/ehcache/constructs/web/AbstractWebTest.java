@@ -107,29 +107,18 @@ public abstract class AbstractWebTest {
     private static Server server;
 
 
-    //@BeforeClass
-    public static void startup() throws Exception, InterruptedException {
-            server = new Server(8080, new File("target/ehcache-web-1.6.war"));
-            server.start();
-            Thread.sleep(15000);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        instanceManager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
-    }
+//    //@BeforeClass
+//    public static void startup() throws Exception, InterruptedException {
+//            server = new Server(8080, new File("target/ehcache-web-1.6.war"));
+//            server.start();
+//            Thread.sleep(15000);
+//    }
 
 
-    @AfterClass
-    public static void shutdown() throws EmbeddedException, InterruptedException {
-        //server.stop();
-    }
-
-
-    @After
-    public void tearDown() throws Exception {
-        instanceManager.shutdown();
-    }
+//    @AfterClass
+//    public static void shutdown() throws EmbeddedException, InterruptedException {
+//        //server.stop();
+//    }
 
 
     /**

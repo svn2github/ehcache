@@ -19,6 +19,8 @@ package net.sf.ehcache.constructs.web.filter;
 import net.sf.ehcache.CacheManager;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * A simple page {@link CachingFilter} suitable for most uses.
@@ -44,7 +46,7 @@ import javax.servlet.http.HttpServletRequest;
  * parse the request parameters and override {@link #calculateKey(javax.servlet.http.HttpServletRequest)} with
  * an implementation that takes account of only the significant ones.
  * <h3>Configuring Caching with ehcache</h3>
- * A cache entry in ehcache.xml should be configured with the name {@link #NAME}.
+ * A cache entry in ehcache.xml should be configured with the name {@link #DEFAULT_CACHE_NAME}.
  * <p/>
  * Cache attributes including expiry are configured per cache name. To specify a different behaviour simply
  * subclass, specify a new name and create a separate cache entry for it.
@@ -75,20 +77,28 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class SimplePageCachingFilter extends CachingFilter {
 
+    private static final Logger LOG = Logger.getLogger(SimplePageCachingFilter.class.getName());
+
     /**
      * The name of the filter. This should match a cache name in ehcache.xml
      */
-    public static final String NAME = "SimplePageCachingFilter";
+    public static final String DEFAULT_CACHE_NAME = "SimplePageCachingFilter";
 
     /**
-     * A meaningful name representative of the JSP page being cached.
+     * A meaningful name representative of the page being cached.
      * <p/>
      * The name must match the name of a configured cache in ehcache.xml
      *
      * @return the name of the cache to use for this filter.
      */
     protected String getCacheName() {
-        return NAME;
+        if (cacheName != null && cacheName.length() > 0) {
+            LOG.log(Level.FINE, "Using configured cacheName of {0}.", cacheName);
+            return cacheName;
+        } else {
+            LOG.log(Level.FINE, "No cacheName configured. Using default of {0}.", DEFAULT_CACHE_NAME);
+            return DEFAULT_CACHE_NAME;
+        }
     }
 
     /**

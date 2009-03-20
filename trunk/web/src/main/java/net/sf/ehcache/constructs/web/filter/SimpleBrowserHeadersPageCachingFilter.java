@@ -71,6 +71,11 @@ import net.sf.ehcache.config.CacheConfiguration;
  */
 public class SimpleBrowserHeadersPageCachingFilter extends SimplePageCachingFilter {
 
+    /**
+     * The name of the filter. This should match a cache name in ehcache.xml
+     */
+    public static final String NAME = "SimpleBrowserHeadersPageCachingFilter";
+
     private static final Logger LOG = Logger.getLogger(SimpleBrowserHeadersPageCachingFilter.class.getName());
 
 
@@ -81,13 +86,13 @@ public class SimpleBrowserHeadersPageCachingFilter extends SimplePageCachingFilt
         //add expires and last-modified headers
         Date now = new Date();
 
-        List<String[]> headers = pageInfo.getHeaders();
+        List<String[]> headers = pageInfo.getResponseHeaders();
 
         HttpDateFormatter httpDateFormatter = new HttpDateFormatter();
         String lastModified = httpDateFormatter.formatHttpDate(pageInfo.getCreated());
         long ttlSeconds = calculateTimeToLiveSeconds();
 
-//        headers.add(new String[]{"Last-Modified", formatHttpDate(now)});
+        headers.add(new String[]{"Last-Modified", lastModified});
         headers.add(new String[]{"Expires", httpDateFormatter.formatHttpDate(new Date(now.getTime() + ttlSeconds * 1000))});
         headers.add(new String[]{"Cache-Control", "max-age=" + ttlSeconds});
         headers.add(new String[]{"ETag", httpDateFormatter.formatHttpDate(new Date(now.getTime() + ttlSeconds * 1000))});
@@ -100,18 +105,19 @@ public class SimpleBrowserHeadersPageCachingFilter extends SimplePageCachingFilt
         HttpDateFormatter httpDateFormatter = new HttpDateFormatter();
 
 
-        final Collection headers = pageInfo.getHeaders();
+        final Collection responseHeaders = pageInfo.getResponseHeaders();
         final int header = 0;
         final int value = 1;
-        for (Object header1 : headers) {
+        for (Object header1 : responseHeaders) {
             final String[] headerPair = (String[]) header1;
 
 
-            if (headerPair[header].equals("Etag")) {
-                if (headerPair[value].equals(request.getHeader("If-None-Match"))) {
+            if (headerPair[header].equals("ETag")) {
+                String requestIfNoneMatch = request.getHeader("If-None-Match");
+                if (headerPair[value].equals(requestIfNoneMatch)) {
                     response.sendError(HttpServletResponse.SC_NOT_MODIFIED);
                     // use the same date we sent when we created the ETag the first time through
-                    response.setHeader("Last-Modified", request.getHeader("If-Modified-Since"));
+                    //response.setHeader("Last-Modified", request.getHeader("If-Modified-Since"));
                     return;
                 }
                 break;

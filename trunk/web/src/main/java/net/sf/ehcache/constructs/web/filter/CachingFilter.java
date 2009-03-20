@@ -43,7 +43,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Date;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.zip.DataFormatException;
@@ -54,7 +53,7 @@ import java.util.zip.DataFormatException;
  * This class should be sub-classed for each page to be cached.
  * <p/>
  * The filters must be declared in the web.xml deployment descriptor. Then a mapping from a web resource,
- * such as a JSP, Servlet or static resouce needs to be defined. Finally, a succession of mappings can be used
+ * such as a JSP Page, FreeMarker page, Velocity page, Servlet or static resouce needs to be defined. Finally, a succession of mappings can be used
  * to create a filter chain. See SRV.6 of the Servlet 2.3 specification for more details.
  * <p/>
  * Care should be taken not to define a filter chain such that the same {@link CachingFilter} class is reentered.
@@ -68,6 +67,12 @@ import java.util.zip.DataFormatException;
 public abstract class CachingFilter extends Filter {
 
     private static final Logger LOG = Logger.getLogger(CachingFilter.class.getName());
+
+    /**
+     * The cache name can be set through init parameters. If it is set it is stored here.
+     */
+    protected String cacheName;
+
 
     /**
      * The cache holding the web pages. Ensure that all threads for a given cache name are using the same instance of this.
@@ -87,6 +92,7 @@ public abstract class CachingFilter extends Filter {
     public void doInit(FilterConfig filterConfig) throws CacheException {
         synchronized (this.getClass()) {
             if (blockingCache == null) {
+                setCacheNameIfAnyConfigured(filterConfig);
                 final String cacheName = getCacheName();
                 Ehcache cache = getCacheManager().getEhcache(cacheName);
                 if (!(cache instanceof BlockingCache)) {
@@ -97,6 +103,14 @@ public abstract class CachingFilter extends Filter {
                 blockingCache = (BlockingCache) getCacheManager().getEhcache(getCacheName());
             }
         }
+    }
+
+    /**
+     * Sets the cacheName from the filterConfig
+     */
+    protected void setCacheNameIfAnyConfigured(FilterConfig filterConfig) {
+        this.cacheName = filterConfig.getInitParameter("cacheName");
+
     }
 
 
@@ -300,7 +314,7 @@ public abstract class CachingFilter extends Filter {
                               boolean requestAcceptsGzipEncoding,
                               final HttpServletResponse response) {
 
-        final Collection headers = pageInfo.getHeaders();
+        final Collection headers = pageInfo.getResponseHeaders();
         final int header = 0;
         final int value = 1;
 
@@ -313,6 +327,8 @@ public abstract class CachingFilter extends Filter {
 
     /**
      * A meaningful name representative of the JSP page being cached.
+     * <p/>
+     * <code>cacheName</code> will be set by 
      *
      * @return the name of the cache to use for this filter.
      */
