@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -93,14 +93,15 @@ public abstract class CachingFilter extends Filter {
         synchronized (this.getClass()) {
             if (blockingCache == null) {
                 setCacheNameIfAnyConfigured(filterConfig);
-                final String cacheName = getCacheName();
-                Ehcache cache = getCacheManager().getEhcache(cacheName);
+                //todo cacheName is also set
+                final String localCacheName = getCacheName();
+                Ehcache cache = getCacheManager().getEhcache(localCacheName);
                 if (!(cache instanceof BlockingCache)) {
                     //decorate and substitute
                     BlockingCache newBlockingCache = new BlockingCache(cache);
                     getCacheManager().replaceCacheWithDecoratedCache(cache, newBlockingCache);
                 }
-                blockingCache = (BlockingCache) getCacheManager().getEhcache(getCacheName());
+                blockingCache = (BlockingCache) getCacheManager().getEhcache(localCacheName);
             }
         }
     }

@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -70,19 +70,19 @@ import java.util.logging.Level;
  * high performance.
  * <p/>
  * This filter does not set browser caching headers such as ETag, Last-Modified, Expires, and If-None-Match. If
- * you wish to minimise browser requests, use SimpleBrowserHeadersPageCachingFilter.
+ * you wish to minimise browser requests, use SimpleCachingHeadersPageCachingFilter.
  * @author Greg Luck
  * @version $Id: SimplePageCachingFilter.java 744 2008-08-16 20:10:49Z gregluck $
- * @see SimpleBrowserHeadersPageCachingFilter
+ * @see SimpleCachingHeadersPageCachingFilter
  */
 public class SimplePageCachingFilter extends CachingFilter {
-
-    private static final Logger LOG = Logger.getLogger(SimplePageCachingFilter.class.getName());
 
     /**
      * The name of the filter. This should match a cache name in ehcache.xml
      */
     public static final String DEFAULT_CACHE_NAME = "SimplePageCachingFilter";
+
+    private static final Logger LOG = Logger.getLogger(SimplePageCachingFilter.class.getName());
 
     /**
      * A meaningful name representative of the page being cached.

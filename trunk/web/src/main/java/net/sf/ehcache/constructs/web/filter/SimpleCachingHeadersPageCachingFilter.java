@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -12,8 +12,11 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- * Portions released at http://candrews.integralblue.com/2009/02/http-caching-header-aware-servlet-filter/
+ */
+
+/*
+ * Based on a contribution from Craig Andrews which has been released also under the Apache 2 license at
+ * http://candrews.integralblue.com/2009/02/http-caching-header-aware-servlet-filter/. Copyright notice follows.
  *
  * Copyright 2009 Craig Andrews
  *
@@ -48,6 +51,7 @@ import javax.servlet.http.HttpServletResponse;
 import net.sf.ehcache.constructs.web.AlreadyGzippedException;
 import net.sf.ehcache.constructs.web.PageInfo;
 import net.sf.ehcache.constructs.web.ResponseHeadersNotModifiableException;
+import net.sf.ehcache.constructs.web.HttpDateFormatter;
 import net.sf.ehcache.config.CacheConfiguration;
 
 
@@ -69,19 +73,32 @@ import net.sf.ehcache.config.CacheConfiguration;
  * @author Greg Luck
  * @see SimplePageCachingFilter
  */
-public class SimpleBrowserHeadersPageCachingFilter extends SimplePageCachingFilter {
+public class SimpleCachingHeadersPageCachingFilter extends SimplePageCachingFilter {
 
     /**
      * The name of the filter. This should match a cache name in ehcache.xml
      */
-    public static final String NAME = "SimpleBrowserHeadersPageCachingFilter";
+    public static final String NAME = "SimpleCachingHeadersPageCachingFilter";
 
-    private static final Logger LOG = Logger.getLogger(SimpleBrowserHeadersPageCachingFilter.class.getName());
+    private static final Logger LOG = Logger.getLogger(SimpleCachingHeadersPageCachingFilter.class.getName());
+    private static final long ONE_YEAR_IN_MILLISECONDS = 60 * 60 * 24 * 365 * 1000L;
+    private static final int MILLISECONDS_PER_SECOND = 1000;
 
 
+    /**
+     * Builds the PageInfo object by passing the request along the filter chain
+     *
+     * @param request
+     * @param response
+     * @param chain
+     * @return a Serializable value object for the page or page fragment
+     * @throws AlreadyGzippedException if an attempt is made to double gzip the body
+     * @throws Exception
+     */
     @SuppressWarnings("unchecked")
     @Override
-    protected PageInfo buildPage(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws AlreadyGzippedException, Exception {
+    protected PageInfo buildPage(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws AlreadyGzippedException, Exception {
         PageInfo pageInfo = super.buildPage(request, response, chain);
         //add expires and last-modified headers
         Date now = new Date();
@@ -90,17 +107,26 @@ public class SimpleBrowserHeadersPageCachingFilter extends SimplePageCachingFilt
 
         HttpDateFormatter httpDateFormatter = new HttpDateFormatter();
         String lastModified = httpDateFormatter.formatHttpDate(pageInfo.getCreated());
-        long ttlSeconds = calculateTimeToLiveSeconds();
-
+        long ttlMilliseconds = calculateTimeToLiveMilliseconds();
+       //todo what if headers are already set?
         headers.add(new String[]{"Last-Modified", lastModified});
-        headers.add(new String[]{"Expires", httpDateFormatter.formatHttpDate(new Date(now.getTime() + ttlSeconds * 1000))});
-        headers.add(new String[]{"Cache-Control", "max-age=" + ttlSeconds});
-        headers.add(new String[]{"ETag", httpDateFormatter.formatHttpDate(new Date(now.getTime() + ttlSeconds * 1000))});
+        headers.add(new String[]{"Expires", httpDateFormatter.formatHttpDate(new Date(now.getTime() + ttlMilliseconds))});
+        headers.add(new String[]{"Cache-Control", "max-age=" + ttlMilliseconds});
+        headers.add(new String[]{"ETag", httpDateFormatter.formatHttpDate(new Date(now.getTime() + ttlMilliseconds))});
         return pageInfo;
     }
 
+    /**
+     * Writes the response from a PageInfo object.
+     *
+     * This method actually performs the conditional GET and returns 304
+     * if not modified, short-circuiting the normal writeResponse.
+     * <p/>
+     * Indeed, if the short cicruit does not occur it calls the super method.
+     */
     @Override
-    protected void writeResponse(HttpServletRequest request, HttpServletResponse response, PageInfo pageInfo) throws IOException, DataFormatException, ResponseHeadersNotModifiableException {
+    protected void writeResponse(HttpServletRequest request, HttpServletResponse response, PageInfo pageInfo)
+            throws IOException, DataFormatException, ResponseHeadersNotModifiableException {
 
         HttpDateFormatter httpDateFormatter = new HttpDateFormatter();
 
@@ -140,19 +166,19 @@ public class SimpleBrowserHeadersPageCachingFilter extends SimplePageCachingFilt
     }
 
     /**
-     * Get the time to live for a page, in seconds
+     * Get the time to live for a page, in milliseconds
      *
-     * @return time to live in seconds
+     * @return time to live in milliseconds
      */
-    protected long calculateTimeToLiveSeconds() {
+    protected long calculateTimeToLiveMilliseconds() {
         if (blockingCache.isDisabled()) {
             return -1;
         } else {
             CacheConfiguration cacheConfiguration = blockingCache.getCacheConfiguration();
             if (cacheConfiguration.isEternal()) {
-                return 60 * 60 * 24 * 365; //one year, in seconds
+                return ONE_YEAR_IN_MILLISECONDS;
             } else {
-                return cacheConfiguration.getTimeToLiveSeconds();
+                return cacheConfiguration.getTimeToLiveSeconds() * MILLISECONDS_PER_SECOND;
             }
         }
     }

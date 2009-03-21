@@ -43,8 +43,8 @@
     </filter>
 
     <filter>
-        <filter-name>SimpleBrowserHeadersPageCachingFilter</filter-name>
-        <filter-class>net.sf.ehcache.constructs.web.filter.SimpleBrowserHeadersPageCachingFilter
+        <filter-name>SimpleCachingHeadersPageCachingFilter</filter-name>
+        <filter-class>net.sf.ehcache.constructs.web.filter.SimpleCachingHeadersPageCachingFilter
         </filter-class>
         <init-param>
             <param-name>suppressStackTraces</param-name>
@@ -90,7 +90,7 @@
     </filter-mapping>
 
     <filter-mapping>
-        <filter-name>SimpleBrowserHeadersPageCachingFilter</filter-name>
+        <filter-name>SimpleCachingHeadersPageCachingFilter</filter-name>
         <url-pattern>/CachedPage2.jsp</url-pattern>
     </filter-mapping>
 

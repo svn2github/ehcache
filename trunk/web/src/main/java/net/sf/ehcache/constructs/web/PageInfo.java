@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ public class PageInfo implements Serializable {
     private static final int FOUR_KB = 4196;
     private static final int GZIP_MAGIC_NUMBER_BYTE_1 = 31;
     private static final int GZIP_MAGIC_NUMBER_BYTE_2 = -117;
+    private static final long ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365;
     private final ArrayList responseHeaders = new ArrayList();
     private final ArrayList serializableCookies = new ArrayList();
     private String contentType;
@@ -54,8 +55,6 @@ public class PageInfo implements Serializable {
     private boolean storeGzipped;
     private Date created;
     private long timeToLiveSeconds;
-    private static final long ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365;
-    ;
 
     /**
      * Creates a PageInfo object representing the "page". 
