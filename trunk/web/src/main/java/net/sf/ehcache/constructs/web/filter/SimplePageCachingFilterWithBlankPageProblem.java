@@ -25,7 +25,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * todo exclude from jar
  * This implementation only writes the response when it is not committed. This is half
  * right. In the wild it can cause the dreaded blank page problem.
  * <p/>

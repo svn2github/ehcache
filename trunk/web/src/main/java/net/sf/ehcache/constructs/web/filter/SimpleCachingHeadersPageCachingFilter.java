@@ -61,7 +61,7 @@ import net.sf.ehcache.config.CacheConfiguration;
  * <p/>
  * Because browsers and other HTTP clients have the expiry information returned in the response headers,
  * they do not even need to request the page again. Even once the local browser copy has expired, the browser
- * will do a conditional GET. If the todo ?? the element will always be new ?? is unchanged, a 304 will be returned.
+ * will do a conditional GET.
  * <p/>
  * So why would you ever want to use SimplePageCachingFilter, which does not set these headers? Because in some caching
  * scenarios you may wish to remove a page before its natural expiry. Consider a scenario where a web page shows dynamic
@@ -87,6 +87,17 @@ public class SimpleCachingHeadersPageCachingFilter extends SimplePageCachingFilt
 
     /**
      * Builds the PageInfo object by passing the request along the filter chain
+     * <p>
+     * The following headers are set:
+     * <ul>
+     * <li>Last-Modified
+     * <li>Expires
+     * <li>Cache-Control
+     * <li>ETag
+     * </ul>
+     * Any of these headers aleady set in the response are ignored, and new ones generated. To control
+     * your own caching headers, use {@link SimplePageCachingFilter}.
+     *
      *
      * @param request
      * @param response
@@ -94,6 +105,7 @@ public class SimpleCachingHeadersPageCachingFilter extends SimplePageCachingFilt
      * @return a Serializable value object for the page or page fragment
      * @throws AlreadyGzippedException if an attempt is made to double gzip the body
      * @throws Exception
+     *
      */
     @SuppressWarnings("unchecked")
     @Override
@@ -108,10 +120,9 @@ public class SimpleCachingHeadersPageCachingFilter extends SimplePageCachingFilt
         HttpDateFormatter httpDateFormatter = new HttpDateFormatter();
         String lastModified = httpDateFormatter.formatHttpDate(pageInfo.getCreated());
         long ttlMilliseconds = calculateTimeToLiveMilliseconds();
-       //todo what if headers are already set?
         headers.add(new String[]{"Last-Modified", lastModified});
         headers.add(new String[]{"Expires", httpDateFormatter.formatHttpDate(new Date(now.getTime() + ttlMilliseconds))});
-        headers.add(new String[]{"Cache-Control", "max-age=" + ttlMilliseconds});
+        headers.add(new String[]{"Cache-Control", "max-age=" + ttlMilliseconds / MILLISECONDS_PER_SECOND});
         headers.add(new String[]{"ETag", httpDateFormatter.formatHttpDate(new Date(now.getTime() + ttlMilliseconds))});
         return pageInfo;
     }

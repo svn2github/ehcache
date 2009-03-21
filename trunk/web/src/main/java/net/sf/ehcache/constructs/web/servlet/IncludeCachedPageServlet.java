@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * todo exclude from jar
  * A Front Controller for the /CachedPage.jsp page.
  * <p/>
  *

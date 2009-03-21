@@ -224,6 +224,19 @@ public class CachingHeadersCachingFilterTest extends AbstractWebTest {
         assertTrue(PageInfo.isGzipped(responseBody));
     }
 
+    @Test
+    public void testCachingHeadersSet() throws IOException {
+        HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = new GetMethod(buildUrl(cachedPageUrl));
+        httpClient.executeMethod(httpMethod);
+        byte[] responseBody = httpMethod.getResponseBody();
+        assertNotNull(httpMethod.getResponseHeader("Last-Modified"));
+        assertNotNull(httpMethod.getResponseHeader("Expires"));
+        assertEquals("max-age=3600", httpMethod.getResponseHeader("Cache-Control").getValue());
+        assertFalse("this did not get overriden".equals(httpMethod.getResponseHeader("Last-Modified").getValue()));
+    }
+
+
     /**
      * Tests whether the page is gzipped using the rawer HttpClient library.
      * Lets us check that the responseBody is really not gzipped.

@@ -2,9 +2,10 @@
 <%@ page contentType="text/html; charset=utf-8" %>
 <!--<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">-->
 
-<%--<%--%>
-    <%--response.setDateHeader("Last-Modified", System.currentTimeMillis());--%>
-<%--%>--%>
+<%
+    //This header should get overridden by the caching headers filter.
+    response.setHeader("Last-Modified", "this did not get overriden");
+%>
 <html>
 <head>
     <title>Cached Page</title>

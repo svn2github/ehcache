@@ -18,6 +18,14 @@
             <artifactId>ehcache</artifactId>
             <version>1.6.0-beta3</version>
         </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -40,19 +48,12 @@
             <artifactId>commons-httpclient</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--We use Embedded Glassfish for testing-->
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-standalone-server</artifactId>
             <version>0.6</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
 
     </dependencies>
 
@@ -84,15 +85,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <!-- Doesn't work when not internet connected -->
-                <executions>
-                    <execution>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>checkstyle</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>
                     <suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>
@@ -245,8 +237,36 @@
                     </descriptors>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/servlet/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+
         </plugins>
     </build>
+
+    <contributors>
+            <contributor>
+                <name>Craig Andrews</name>
+                <email/>
+                <url/>
+                <organization/>
+                <organizationUrl/>
+                <roles>
+                    <role>Developer</role>
+                </roles>
+                <timezone>+10</timezone>
+                <properties>
+                    <contribution>Contributed to the CachingHeaders implementation.</contribution>
+                </properties>
+            </contributor>
+    </contributors>
 
     <!-- Note: site URL repeated here to ensure correct deployment path -->
     <distributionManagement>
