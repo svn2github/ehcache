@@ -21,6 +21,7 @@ import com.meterware.httpunit.WebResponse;
 import net.sf.ehcache.constructs.web.AbstractWebTest;
 import net.sf.ehcache.constructs.web.PageInfo;
 import net.sf.ehcache.constructs.web.HttpUtil;
+import net.sf.ehcache.CacheManager;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
@@ -37,11 +38,15 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Enumeration;
 import java.util.logging.Logger;
 
 /**
@@ -54,6 +59,8 @@ public class CachingFilterTest extends AbstractWebTest {
 
     private String cachedPageUrl = "/CachedPage.jsp";
     private String cachedPageUrl2 = "/CachedPage2.jsp";
+    private String cachedPageUrl3 = "/CachedPage3.jsp";
+    private String cachedPageUrl4 = "/CachedPage4.jsp";
 
     private void resetCachedPageUrl() {
         cachedPageUrl = "/CachedPage.jsp";
@@ -74,10 +81,35 @@ public class CachingFilterTest extends AbstractWebTest {
      * Tests that a page which should be cached is cached.
      * Also, check that the pages returned are good.
      * <p/>
+     * This one has the blocking timeout set to 7 seconds.
+     */
+    @Test
+    public void testPageWithinLockTimeoutTime() throws Exception {
+        assertResponseGoodAndCached(cachedPageUrl3, true);
+    }
+
+    /**
+     * Tests that a page which should be cached is cached.
+     * Also, check that the pages returned are good.
+     * <p/>
+     * This one has the blocking timeout set to 7 seconds.
+     * todo
+     */
+    @Test
+    public void testPageOutsideOfLockTimeoutTime() throws Exception {
+        WebResponse firstResponse = getResponseFromAcceptGzipRequest(cachedPageUrl4);
+
+    }
+
+
+    /**
+     * Tests that a page which should be cached is cached.
+     * Also, check that the pages returned are good.
+     * <p/>
      */
     @Test
     public void testCachedPage2IsCached() throws Exception {
-        assertResponseGoodAndCached(cachedPageUrl2, true);
+        assertResponseGoodAndCached(cachedPageUrl3, true);
     }
 
     /**
@@ -618,5 +650,120 @@ public class CachingFilterTest extends AbstractWebTest {
         assertNull(httpMethod.getResponseHeader("Content-Encoding"));
     }
 
+    /**
+     * todo test timeouts
+     */
+    @Test
+    public void testParsing() {
 
+        CachingFilter filter = new CachingFilter() {
+
+
+            protected CacheManager getCacheManager() {
+                return null;
+            }
+
+            protected String calculateKey(HttpServletRequest httpRequest) {
+                return null;
+            }
+        };
+
+        assertNull(filter.parseBlockingCacheTimeoutMillis(new FilterConfig() {
+
+            public String getFilterName() {
+                return null;
+            }
+
+            public ServletContext getServletContext() {
+                return null;
+            }
+
+            public String getInitParameter(String name) {
+                return null;
+            }
+
+            public Enumeration getInitParameterNames() {
+                return null;
+            }
+
+
+        }));
+        assertNull(filter.parseBlockingCacheTimeoutMillis(new FilterConfig() {
+
+            public String getFilterName() {
+                return null;
+            }
+
+            public ServletContext getServletContext() {
+                return null;
+            }
+
+            public String getInitParameter(String name) {
+                return "sdfsd";
+            }
+
+            public Enumeration getInitParameterNames() {
+                return null;
+            }
+
+        }));
+        assertNull(filter.parseBlockingCacheTimeoutMillis(new FilterConfig() {
+
+            public String getFilterName() {
+                return null;
+            }
+
+            public ServletContext getServletContext() {
+                return null;
+            }
+
+            public String getInitParameter(String name) {
+                return "10L";
+            }
+
+            public Enumeration getInitParameterNames() {
+                return null;
+            }
+
+        }));
+        assertEquals(1000, filter.parseBlockingCacheTimeoutMillis(new FilterConfig() {
+
+            public String getFilterName() {
+                return null;
+            }
+
+            public ServletContext getServletContext() {
+                return null;
+            }
+
+            public String getInitParameter(String name) {
+                return "1000";
+            }
+
+            public Enumeration getInitParameterNames() {
+                return null;
+            }
+
+        }));
+        //120 seconds
+        assertEquals(120000, filter.parseBlockingCacheTimeoutMillis(new FilterConfig() {
+
+            public String getFilterName() {
+                return null;
+            }
+
+            public ServletContext getServletContext() {
+                return null;
+            }
+
+            public String getInitParameter(String name) {
+                return "120000";
+            }
+
+            public Enumeration getInitParameterNames() {
+                return null;
+            }
+
+        }));
+    }
 }

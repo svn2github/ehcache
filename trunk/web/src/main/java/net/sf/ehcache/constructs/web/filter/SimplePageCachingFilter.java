@@ -33,7 +33,7 @@ import java.util.logging.Level;
  * <li>A content type suitable for gzipping. e.g. text or text/html
  * </ul>
  * For jsp:included page fragments see {@link SimplePageFragmentCachingFilter}.
- * <h3>Keys</h3>
+ * <h3>calculateKey</h3>
  * Pages are cached based on their key. The key for this cache is the URI followed by the query string. An example
  * is <code>/admin/SomePage.jsp?id=1234&name=Beagle</code>.
  * <p/>
@@ -41,15 +41,24 @@ import java.util.logging.Level;
  * work well in situations where there are multiple domains which get the same content, or where users access
  * based on different port numbers.
  * <p/>
- * A problem can occur with tracking software, where unique ids are inserted into request query strings. Because
+ * A problem can occur with tracking software such as Google AdWords, where unique ids are inserted into request query strings. Because
  * each request generates a unique key, there will never be a cache hit. For these situations it is better to
- * parse the request parameters and override {@link #calculateKey(javax.servlet.http.HttpServletRequest)} with
- * an implementation that takes account of only the significant ones.
- * <h3>Configuring Caching with ehcache</h3>
- * A cache entry in ehcache.xml should be configured with the name {@link #DEFAULT_CACHE_NAME}.
+ *  override {@link #calculateKey(javax.servlet.http.HttpServletRequest)} with
+ * an implementation that takes account of only the significant parameters.
+ *
+ * <h3>Configuring the cacheName</h3>
+ * A cache entry in ehcache.xml should be configured with the name of the filter.
  * <p/>
- * Cache attributes including expiry are configured per cache name. To specify a different behaviour simply
- * subclass, specify a new name and create a separate cache entry for it.
+ * Names can be set using the init-param <code>cacheName</code>, or by sub-classing this class and overriding the name.
+ * <h3>Concurent Cache Misses</h3>
+ * A cache miss will cause the filter chain, upstream of the caching filter to be processed. To avoid threads requesting
+ * the same key to do useless duplicate work, these threads block behind the first thread.
+ * </p>
+ * The thead timeout can be set to fail after a certain wait by setting the init-param <code>blockingTimeoutMillis</code>.
+ * By default threads wait indefinitely. In the event upstream processing never returns, eventually the web server
+ * may get overwhelmed with connections it has not responded to. By setting a timeout, the waiting threads will only block
+ * for the set time, and then throw a {@link net.sf.ehcache.constructs.blocking.LockTimeoutException}. Under either
+ * scenario an upstream failure will still cause a failure.
  * <h3>Gzipping</h3>
  * Significant network efficiencies can be gained by gzipping responses.
  * <p/>
@@ -68,11 +77,23 @@ import java.util.logging.Level;
  * Responses are automatically gzipped and stored that way in the cache. For requests which do not accept gzip
  * encoding the page is retrieved from the cache, ungzipped and returned to the user agent. The ungzipping is
  * high performance.
- * <p/>
+ * <h3>Caching Headers</h3>
  * This filter does not set browser caching headers such as ETag, Last-Modified, Expires, and If-None-Match. If
  * you wish to minimise browser requests, use SimpleCachingHeadersPageCachingFilter.
+ * <p/>
+ * <h3>Init-Params</h3>
+ * The following init-params are supported:
+ * <ol>
+ * <li>cacheName - the name in ehcache.xml used by the filter.
+ * <li>blockingTimeoutMillis - the time, in milliseconds, to wait for the filter chain to return with a response on a cache
+ * miss. This is useful to fail fast in the event of an infrastructure failure.
+ * </ol>
+ * <h3>Reentrance</h3>
+ * Care should be taken not to define a filter chain such that the same {@link CachingFilter} class is reentered.
+ * The {@link CachingFilter} uses the {@link net.sf.ehcache.constructs.blocking.BlockingCache}. It blocks until the thread which
+ * did a get which results in a null does a put. If reentry happens a second get happens before the first put. The second
+ * get could wait indefinitely. This situation is monitored and if it happens, an IllegalStateException will be thrown.
  * @author Greg Luck
- * @version $Id: SimplePageCachingFilter.java 744 2008-08-16 20:10:49Z gregluck $
  * @see SimpleCachingHeadersPageCachingFilter
  */
 public class SimplePageCachingFilter extends CachingFilter {

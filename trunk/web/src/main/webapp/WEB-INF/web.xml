@@ -57,6 +57,25 @@
 
     </filter>
 
+    <filter>
+        <filter-name>SimpleCachingHeadersTimeoutPageCachingFilter</filter-name>
+        <filter-class>net.sf.ehcache.constructs.web.filter.SimpleCachingHeadersPageCachingFilter
+        </filter-class>
+        <init-param>
+            <param-name>suppressStackTraces</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <init-param>
+            <param-name>cacheName</param-name>
+            <param-value>CachedPage2Cache</param-value>
+        </init-param>
+        <init-param>
+            <param-name>blockingTimeoutMillis</param-name>
+            <param-value>100</param-value>
+        </init-param>
+    </filter>
+
+
     <!-- Test only filter -->
     <filter>
         <filter-name>SimplePageCachingFilterWithBlankPageProblem</filter-name>
@@ -94,6 +113,12 @@
         <url-pattern>/CachedPage2.jsp</url-pattern>
     </filter-mapping>
 
+
+    <filter-mapping>
+        <filter-name>SimpleCachingHeadersTimeoutPageCachingFilter</filter-name>
+        <url-pattern>/CachedPage3.jsp</url-pattern>
+        <url-pattern>/CachedPage4.jsp</url-pattern>
+    </filter-mapping>
 
     <!-- Test 404 and 302 -->
     <filter-mapping>

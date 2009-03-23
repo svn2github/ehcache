@@ -60,13 +60,20 @@ import java.util.zip.DataFormatException;
  * The {@link CachingFilter} uses the {@link net.sf.ehcache.constructs.blocking.BlockingCache}. It blocks until the thread which
  * did a get which results in a null does a put. If reentry happens a second get happens before the first put. The second
  * get could wait indefinitely. This situation is monitored and if it happens, an IllegalStateException will be thrown.
- *
+ * <p/>
+ * The following init-params are supported:
+ * <ol>
+ * <li>cacheName - the name in ehcache.xml used by the filter. 
+ * <li>blockingTimeoutMillis - the time, in milliseconds, to wait for the filter chain to return with a response on a cache
+ * miss. This is useful to fail fast in the event of an infrastructure failure.
+ * </ol>
  * @author @author Greg Luck
- * @version $Id: CachingFilter.java 840 2008-11-07 07:41:06Z gregluck $
  */
 public abstract class CachingFilter extends Filter {
 
     private static final Logger LOG = Logger.getLogger(CachingFilter.class.getName());
+    private static final String BLOCKING_TIMEOUT_MILLIS = "blockingTimeoutMillis";
+    private static final String CACHE_NAME = "cacheName";
 
     /**
      * The cache name can be set through init parameters. If it is set it is stored here.
@@ -79,6 +86,7 @@ public abstract class CachingFilter extends Filter {
      */
     protected BlockingCache blockingCache;
 
+
     /**
      * Initialises blockingCache to use. The BlockingCache created by this method does not have a lock timeout set.
      * <p/>
@@ -87,7 +95,7 @@ public abstract class CachingFilter extends Filter {
      *
      * @throws CacheException The most likely cause is that a cache has not been
      *                        configured in ehcache's configuration file ehcache.xml for the filter name
-     * @param filterConfig
+     * @param filterConfig this filter's configuration.
      */
     public void doInit(FilterConfig filterConfig) throws CacheException {
         synchronized (this.getClass()) {
@@ -101,15 +109,34 @@ public abstract class CachingFilter extends Filter {
                     getCacheManager().replaceCacheWithDecoratedCache(cache, newBlockingCache);
                 }
                 blockingCache = (BlockingCache) getCacheManager().getEhcache(localCacheName);
+                Integer blockingTimeoutMillis = parseBlockingCacheTimeoutMillis(filterConfig);
+                if (blockingTimeoutMillis != null && blockingTimeoutMillis > 0) {
+                    blockingCache.setTimeoutMillis(blockingTimeoutMillis);
+                }
             }
         }
+    }
+
+    /**
+     * Reads the filterConfig for the parameter "blockingTimeoutMillis", and if found,
+     * set the blocking timeout. If there is a parsing exception, no timeout is set.
+     */
+    Integer parseBlockingCacheTimeoutMillis(FilterConfig filterConfig) {
+
+        String timeout = filterConfig.getInitParameter(BLOCKING_TIMEOUT_MILLIS);
+        try {
+            return Integer.parseInt(timeout);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+
     }
 
     /**
      * Sets the cacheName from the filterConfig
      */
     protected void setCacheNameIfAnyConfigured(FilterConfig filterConfig) {
-        this.cacheName = filterConfig.getInitParameter("cacheName");
+        this.cacheName = filterConfig.getInitParameter(CACHE_NAME);
 
     }
 
@@ -328,11 +355,15 @@ public abstract class CachingFilter extends Filter {
     /**
      * A meaningful name representative of the JSP page being cached.
      * <p/>
-     * <code>cacheName</code> will be set by 
+     * The <code>cacheName</code> field is be set by the <code>doInit</code> method.
+     * Override to control the name used. The significance is that the name is used to find a cache
+     * configuration in <code>ehcache.xml</code>
      *
      * @return the name of the cache to use for this filter.
      */
-    protected abstract String getCacheName();
+    protected String getCacheName() {
+        return cacheName;
+    }
 
 
     /**

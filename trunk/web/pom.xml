@@ -10,7 +10,7 @@
     <name>Ehcache Web Filters</name>
     <artifactId>ehcache-web</artifactId>
     <packaging>jar</packaging>
-    <version>1.6</version>
+    <version>1.6.0</version>
     <description><![CDATA[Web caching filters.]]> </description>
     <dependencies>
         <dependency>
@@ -51,6 +51,10 @@
 
     </dependencies>
 
+    <properties>
+        <maven.test.skip>true</maven.test.skip>
+    </properties>
+
     <profiles>
         <profile>
             <id>test</id>
@@ -60,6 +64,9 @@
                     <value>test</value>
                 </property>
             </activation>
+            <properties>
+                <maven.test.skip>false</maven.test.skip>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -67,7 +74,7 @@
                         <version>2.0.2</version>
                         <executions>
                             <execution>
-                                <phase>pre-integration-test</phase>
+                                <phase>package</phase>
                                 <goals>
                                     <goal>war</goal>
                                 </goals>
@@ -169,7 +176,7 @@
                             </execution>
                         </executions>
                     </plugin>
-                    
+
                 </plugins>
             </build>
         </profile>
@@ -253,7 +260,6 @@
                 <configuration>
                     <excludes>
                         <exclude>**/servlet/**</exclude>
-                        <exclude>**/WEB-INF/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>

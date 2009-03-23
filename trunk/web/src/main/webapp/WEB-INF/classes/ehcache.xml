@@ -131,6 +131,14 @@
            overflowToDisk="true">
     </cache>
 
+    <cache name="SimpleCachingHeadersTimeoutPageCachingFilter"
+           maxElementsInMemory="10"
+           eternal="false"
+           timeToIdleSeconds="10000"
+           timeToLiveSeconds="10000"
+           overflowToDisk="true">
+    </cache>
+
     <!-- Asynchronous Caching tests -->
     <cache name="net.sf.ehcache.constructs.asynchronous.MessageCache"
            maxElementsInMemory="1"
