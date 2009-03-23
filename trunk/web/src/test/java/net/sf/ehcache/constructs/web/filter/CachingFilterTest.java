@@ -93,7 +93,6 @@ public class CachingFilterTest extends AbstractWebTest {
      * Also, check that the pages returned are good.
      * <p/>
      * This one has the blocking timeout set to 7 seconds.
-     * todo
      */
     @Test
     public void testPageOutsideOfLockTimeoutTime() throws Exception {

@@ -83,7 +83,8 @@ public class PageInfo implements Serializable {
         this.storeGzipped = storeGzipped;
         this.statusCode = statusCode;
         this.timeToLiveSeconds = timeToLiveSeconds;
-        extractCookies(cookies);
+        //bug 2630970
+        //extractCookies(cookies);
 
         try {
             if (storeGzipped) {

@@ -53,7 +53,7 @@ import java.util.logging.Level;
  * <h3>Concurent Cache Misses</h3>
  * A cache miss will cause the filter chain, upstream of the caching filter to be processed. To avoid threads requesting
  * the same key to do useless duplicate work, these threads block behind the first thread.
- * </p>
+ * <p/>
  * The thead timeout can be set to fail after a certain wait by setting the init-param <code>blockingTimeoutMillis</code>.
  * By default threads wait indefinitely. In the event upstream processing never returns, eventually the web server
  * may get overwhelmed with connections it has not responded to. By setting a timeout, the waiting threads will only block
