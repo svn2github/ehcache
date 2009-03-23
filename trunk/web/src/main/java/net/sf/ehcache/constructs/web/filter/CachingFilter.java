@@ -93,7 +93,6 @@ public abstract class CachingFilter extends Filter {
         synchronized (this.getClass()) {
             if (blockingCache == null) {
                 setCacheNameIfAnyConfigured(filterConfig);
-                //todo cacheName is also set
                 final String localCacheName = getCacheName();
                 Ehcache cache = getCacheManager().getEhcache(localCacheName);
                 if (!(cache instanceof BlockingCache)) {

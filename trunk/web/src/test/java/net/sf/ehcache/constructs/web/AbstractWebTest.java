@@ -22,7 +22,6 @@ import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebResponse;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.server.standalone.Server;
 import org.apache.commons.httpclient.HttpMethod;
 import org.dom4j.Document;
 import org.dom4j.io.DOMReader;
@@ -37,7 +36,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
 import org.xml.sax.SAXException;
-import org.glassfish.embed.EmbeddedException;
 
 import java.io.IOException;
 import java.io.File;
@@ -103,22 +101,6 @@ public abstract class AbstractWebTest {
      * instance CacheManager with the same config.
      */
     private CacheManager instanceManager;
-
-    private static Server server;
-
-
-//    //@BeforeClass
-//    public static void startup() throws Exception, InterruptedException {
-//            server = new Server(8080, new File("target/ehcache-web-1.6.war"));
-//            server.start();
-//            Thread.sleep(15000);
-//    }
-
-
-//    @AfterClass
-//    public static void shutdown() throws EmbeddedException, InterruptedException {
-//        //server.stop();
-//    }
 
 
     /**
