@@ -82,7 +82,6 @@ public class PageInfo implements Serializable {
         this.contentType = contentType;
         this.storeGzipped = storeGzipped;
         this.statusCode = statusCode;
-        this.created = created;
         this.timeToLiveSeconds = timeToLiveSeconds;
         extractCookies(cookies);
 
