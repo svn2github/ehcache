@@ -66,6 +66,9 @@ public class SelfPopulatingCacheTest extends CacheTest {
      */
     @Before
     public void setUp() throws Exception {
+        LOG.severe(".");
+        System.out.println("-=-");
+        System.err.println("-+-");
         super.setUp();
         manager = new CacheManager();
         cache = manager.getCache("sampleIdlingExpiringCache");
@@ -88,6 +91,8 @@ public class SelfPopulatingCacheTest extends CacheTest {
      */
     @Test
     public void testFetch() throws Exception {
+        LOG.severe(".");
+        System.out.println("-=-");
 
         // Lookup
         final Element element = selfPopulatingCache.get("key");

@@ -1,4 +1,4 @@
-{Java EE Servlet Caching}
+{Web Caching}
 
 * {CachingFilter}
 
@@ -24,14 +24,12 @@
     to exclude referral query parameters which have no bearing on the result to be returned.
 
 
-* Read Behind Configuration
+* Concurrent Cache Miss Requests
 
     The CachingFilter queues multiple requests for the same key, so that the downsteam infrastructure only has to
-    do the work once.
+    do the work once, and moreover, so that it does not get overwhelmed on very busy sites.
 
-    The request which hits an empty cache element, or an expired one, has to wait while the downstream
-    processing occurs.
-
+    
 
 * {SimplePageCachingFilter}
 
@@ -46,6 +44,22 @@
     If you use this default implementation, the cache name is called "SimplePageCachingFilter". You need to define a cache with that
      name in ehcache.xml.
 
+
+
+* {SimpleCachingHeadersPageCachingFilter}
+
+  This Filter extends SimplePageCachingFilter, adding support for
+  the HTTP cache headers, ETag, Last-Modified, Expires, and If-None-Match.
+
+  Because browsers and other HTTP clients have the expiry information returned in the response headers,
+  they do not even need to request the page again. Even once the local browser copy has expired, the browser
+  will do a conditional GET.
+
+  So why would you ever want to use SimplePageCachingFilter, which does not set these headers? Because in some caching
+  scenarios you may wish to remove a page before its natural expiry. Consider a scenario where a web page shows dynamic
+  data. Under ehcache the Element can be removed at any time. However if a browser is holding expiry information, those
+  browsers will have to wait until the expiry time before getting updated. The caching in this scenario is more about
+  defraying server load rather than minimising browser calls.
 
 * {PageFragmentCachingFilter}
 
@@ -64,6 +78,4 @@
     which has a calculateKey method already implemented. It uses <<<httpRequest.getRequestURI()).append(httpRequest.getQueryString()>>>
     for the key. This works most of the time. It tends to get less effective when referrals and affiliates are added to the query,
     which is the case for a lot of e-commerce sites.
-
-    SimplePageFragmentCachingFilter is 10 lines of code.
 

@@ -412,7 +412,7 @@
                 <arg value="performance_considerations.apt"/>
                 <arg value="cache_decorators.apt"/>
                 <arg value="shutdown.apt"/>
-                <arg value="jee_servlet_caching.apt"/>
+                <arg value="web_caching.apt"/>
                 <arg value="distributed_caching.apt"/>
                 <arg value="distributed_caching_with_rmi.apt"/>
                 <arg value="distributed_caching_with_jgroups.apt"/>

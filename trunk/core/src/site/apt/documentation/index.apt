@@ -27,7 +27,7 @@ Ehcache 1.5.0 User Guide
 
     * {{{./cache_decorators.html}Cache Decorators}} 
 
-    * {{{./jee_servlet_caching.html}Java EE Servlet Caching}} 
+    * {{{./web_caching.html}Web Caching}} 
 
     * {{{./distributed_caching.html}Distributed Caching}}
 

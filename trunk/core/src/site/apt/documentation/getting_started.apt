@@ -44,7 +44,7 @@ Getting Started
     * Configure the web.xml. Declare the filters created above and create filter mapping associating the filter with
     a URL.
 
-    See the {{{./j2ee_servlet_caching.html}Java EE Servlet Caching}} chapter for more information.
+    See the {{{./web_caching.html}Web Caching}} chapter for more information.
 
 * RESTful and SOAP Caching with the Cache Server
 
