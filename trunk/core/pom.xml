@@ -10,7 +10,7 @@
     <name>Ehcache Core</name>
     <artifactId>ehcache</artifactId>
     <packaging>jar</packaging>
-    <version>1.6.0-beta3</version>
+    <version>1.6.0</version>
 
     <dependencies>
 
@@ -123,6 +123,7 @@
                     <version>true</version>
                     <windowtitle>${project.name} ${project.version} API</windowtitle>
                 </configuration>
+
                 <executions>
                     <execution>
                         <id>generate-javadoc</id>
@@ -212,9 +213,10 @@
                         <exclude>**/constructs/web/**</exclude>
                     </excludes>
                     <forkMode>pertest</forkMode>
+                    <debugForkedProcess>true</debugForkedProcess>
                     <childDelegation>false</childDelegation>
-                    <disableXmlReport>true</disableXmlReport>
-                    <printSummary>true</printSummary>
+                    <!--<disableXmlReport>true</disableXmlReport>-->
+                    <!--<printSummary>true</printSummary>-->
                     <!--<reportFormat>plain</reportFormat>-->
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <systemProperties>

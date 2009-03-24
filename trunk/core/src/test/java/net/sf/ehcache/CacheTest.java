@@ -1670,24 +1670,6 @@ public class CacheTest extends AbstractCacheTest {
 
 
     /**
-     * Multi-thread read-write test with 20 threads
-     * Just use MemoryStore to put max stress on cache
-     * Values that work:
-     * <pre>
-     * size     threads     maxTime
-     * 10000    50          200
-     * 200000   50          500
-     * 200000   500         800
-     * </pre>
-     *
-     * @throws Exception
-     */
-//    @Test
-//    public void testConcurrentReadWriteRemoveOldLRU() throws Exception {
-//        testConcurrentReadWriteRemove(MemoryStoreEvictionPolicy.LRU);
-//    }
-
-    /**
      * Orig.
      * INFO: Average Get Time: 0.37618342 ms
      * INFO: Average Put Time: 0.61346555 ms
@@ -1695,12 +1677,11 @@ public class CacheTest extends AbstractCacheTest {
      * INFO: Average Remove All Time: 0.20818481 ms
      * INFO: Average keySet Time: 0.11898771 ms
      * <p/>
-     * CLHM
-     * INFO: Average Get Time for 4165401 observations: 0.004529696 ms
-     * INFO: Average Put Time for 437527 obervations: 0.022044353 ms
-     * INFO: Average Remove Time for 303574 obervations: 0.009424391 ms
-     * INFO: Average Remove All Time for 4791108 observations: 0.0026709896 ms
-     * INFO: Average keySet Time for 4166273 observations: 0.0043571317 ms
+     * INFO: Average Get Time for 3611277 observations: 0.0043137097 ms
+     * INFO: Average Put Time for 554433 obervations: 0.011824693 ms
+     * INFO: Average Remove Time for 802361 obervations: 0.008200797 ms
+     * INFO: Average Remove All Time for 2887862 observations: 4.685127E-4 ms
+     * INFO: Average keySet Time for 2659524 observations: 0.003155828 ms
      *
      * @throws Exception
      */
@@ -1710,6 +1691,7 @@ public class CacheTest extends AbstractCacheTest {
     }
 
     /**
+     * <pre>
      * Orig.
      * INFO: Average Get Time: 1.2396777 ms
      * INFO: Average Put Time: 1.4968935 ms
@@ -1729,6 +1711,15 @@ public class CacheTest extends AbstractCacheTest {
      * INFO: Average Remove Time for 1491 obervations: 13.892018 ms
      * INFO: Average Remove All Time for 135893 observations: 0.54172766 ms
      * INFO: Average keySet Time for 112686 observations: 0.7157411 ms
+     * <p/>
+     * 1.6
+     * INFO: Average Get Time for 4984448 observations: 0.006596317 ms
+     * INFO: Average Put Time for 7266 obervations: 0.42361686 ms
+     * INFO: Average Remove Time for 2024066 obervations: 0.012883473 ms
+     * INFO: Average Remove All Time for 3572412 observations: 8.817572E-5 ms
+     * INFO: Average keySet Time for 2653539 observations: 0.002160511 ms
+     * INFO: Total loads: 38
+     * </pre>
      *
      * @throws Exception
      */
@@ -1950,6 +1941,13 @@ public class CacheTest extends AbstractCacheTest {
      * INFO: 1601 threads. Average Get time: 0.005570657 ms
      * INFO: 2001 threads. Average Get time: 0.015918251 ms
      * <p/>
+     * v207
+     * INFO: 1 threads. Average Get time: 0.051759835 ms
+     * INFO: 401 threads. Average Get time: 0.0118925795 ms
+     * INFO: 801 threads. Average Get time: 0.021494854 ms
+     * INFO: 1201 threads. Average Get time: 0.07880102 ms
+     * INFO: 1601 threads. Average Get time: 0.067811936 ms
+     * INFO: 2001 threads. Average Get time: 0.12559706 ms
      * </pre>
      */
     @Test
