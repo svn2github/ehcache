@@ -12,6 +12,11 @@
                 puts are 30 times faster, removes are 48 times faster, removeAlls are 80 times faster,
                 and keySet is 30 times faster.
             </action>
+
+            <!-- Bug Fixes -->
+            <action dev="Greg Luck" type="fix" issue="2540579">
+                Fix documentation: missing parentheses from samples.html.
+            </action>
         </release>
 
         <release version="1.6.0-beta3" date="2009-1-28"

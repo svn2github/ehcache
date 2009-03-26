@@ -191,9 +191,9 @@ cache.put(element);
 
 ---------------------------------
 Cache cache = manager.getCache("sampleCache1");
-cache.put(new Element("key1", "value1");
+cache.put(new Element("key1", "value1"));
 //This updates the entry for "key1"
-cache.put(new Element("key1", "value2");
+cache.put(new Element("key1", "value2"));
 ---------------------------------
 
 
@@ -217,7 +217,7 @@ Object value = element.getObjectValue();
 
 ---------------------------------
 Cache cache = manager.getCache("sampleCache1");
-Element element = new Element("key1", "value1"
+Element element = new Element("key1", "value1");
 cache.remove("key1");
 ---------------------------------
 
