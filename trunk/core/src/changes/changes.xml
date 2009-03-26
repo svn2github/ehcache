@@ -17,6 +17,10 @@
             <action dev="Greg Luck" type="fix" issue="2540579">
                 Fix documentation: missing parentheses from samples.html.
             </action>
+            <action dev="Greg Luck" type="fix" issue="2026586">
+                The Serializable test was too narrow in DiskStore. Null objects of Serializable classes will serialize.
+                They still come back null, but they will persist.
+            </action>
         </release>
 
         <release version="1.6.0-beta3" date="2009-1-28"

@@ -909,11 +909,12 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(0, cache.getSize());
 
         //try null values
-        cache.put(new Element("nullValue1", null));
-        cache.put(new Element("nullValue2", null));
+        Object object = new Object();
+        cache.put(new Element(object, null));
+        cache.put(new Element(object, null));
         //Cannot overflow therefore just one
         assertEquals(1, cache.getSize());
-        Element nullValueElement = cache.get("nullValue2");
+        Element nullValueElement = cache.get(object);
         assertNull(nullValueElement.getValue());
         assertNull(nullValueElement.getObjectValue());
 
@@ -1197,6 +1198,7 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element(null, null));
         cache.put(new Element(null, null));
 
+        //this one does
         cache.put(new Element("nullValue", null));
 
         assertEquals(50, cache.getMemoryStoreSize());
@@ -1205,7 +1207,7 @@ public class CacheTest extends AbstractCacheTest {
         cache.flush();
         assertEquals(0, cache.getMemoryStoreSize());
         //Non Serializable Elements get discarded
-        assertEquals(100, cache.getDiskStoreSize());
+        assertEquals(101, cache.getDiskStoreSize());
 
         cache.removeAll();
 
@@ -1393,6 +1395,32 @@ public class CacheTest extends AbstractCacheTest {
         assertNull(cache.get("key1"));
 
         //Second one should be in the MemoryStore and retrievable
+        assertNotNull(cache.get("key2"));
+    }
+
+
+    /**
+     * Tests serialization of Serializable classes with null values.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testNullCollectionsAreSerializable() throws Exception {
+        Cache cache = new Cache("testElementWithNonSerializableValue", 1, true, false, 100, 200);
+        manager.addCache(cache);
+        ArrayList arrayList = null;
+
+        Element element1 = new Element("key1", arrayList);
+        Element element2 = new Element("key2", arrayList);
+        cache.put(element1);
+        cache.put(element2);
+
+        //Still retrievable because null Serializable classes are still Serializable
+        Element element = cache.get("key1");
+        assertNotNull(element);
+        assertNull(element.getValue());
+
+        //Still retrievable because null Serializable classes are still Serializable
         assertNotNull(cache.get("key2"));
     }
 

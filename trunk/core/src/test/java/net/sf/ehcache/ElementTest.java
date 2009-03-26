@@ -28,8 +28,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.io.NotSerializableException;
 import java.util.HashMap;
 import java.util.logging.Logger;
+
+import static junit.framework.Assert.fail;
 
 /**
  * Test cases for the Element.
@@ -238,22 +241,24 @@ public class ElementTest extends AbstractCacheTest {
 
     /**
      * Tests that isSerializable does not blow up is if either key or value is null
-     * A null, null will not be serializable
      */
     @Test
     public void testIsSerializable() {
 
         Element element = new Element(null, null);
-        assertFalse(element.isKeySerializable());
-        assertFalse(element.isSerializable());
+        assertTrue(element.isSerializable());
 
 
         Element elementWithNullValue = new Element("1", null);
-        assertFalse(elementWithNullValue.isSerializable());
+        assertTrue(elementWithNullValue.isSerializable());
 
 
-        Object object = null;
-        assertFalse(object instanceof Serializable);
+        Element elementWithNullKey = new Element(null, "1");
+        assertTrue(elementWithNullValue.isSerializable());
+
+        Element elementWithObjectKey = new Element(new Object(), "1");
+        assertTrue(elementWithNullValue.isSerializable());
+
 
     }
 
@@ -286,6 +291,44 @@ public class ElementTest extends AbstractCacheTest {
         assertEquals(123456L, element.getLastUpdateTime());
         assertEquals(1234567L, element.getHitCount());
 
+    }
+
+
+    /**
+     * Shows that null, regardless of class can be serialized.
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    @Test
+    public void testSerializable() throws IOException, ClassNotFoundException {
+
+        String string1 = "string";
+        String string2 = null;
+        Object object1 = new Object();
+        Object object2 = null;
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(1000);
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(baos);
+        objectOutputStream.writeObject(string1);
+        objectOutputStream.writeObject(string2);
+
+        try {
+            objectOutputStream.writeObject(object1);
+            fail();
+        } catch (NotSerializableException e) {
+            //expected
+        }
+        try {
+            objectOutputStream.writeObject(object2);
+        } catch (NotSerializableException e) {
+            //expected
+        }
+
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        ObjectInputStream objectInputStream = new ObjectInputStream(bais);
+        assertEquals("string", objectInputStream.readObject());
+        assertEquals(null, objectInputStream.readObject());
     }
 
 

@@ -18,8 +18,6 @@
 package net.sf.ehcache;
 
 
-
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -147,10 +145,10 @@ public final class Element implements Serializable, Cloneable {
      *
      * @since 1.3
      */
-    public Element(Object key, Object value, long version, 
-            long creationTime, long lastAccessTime, 
-            long nextToLastAccessTime, long lastUpdateTime, 
-            long hitCount) {
+    public Element(Object key, Object value, long version,
+                   long creationTime, long lastAccessTime,
+                   long nextToLastAccessTime, long lastUpdateTime,
+                   long hitCount) {
         this.key = key;
         this.value = value;
         this.version = version;
@@ -164,9 +162,10 @@ public final class Element implements Serializable, Cloneable {
 
     /**
      * Constructor used by ehcache-server
-     * @param key any non null value
-     * @param value any value, including nulls
-     * @param eternal specify as non-null to override cache configuration
+     *
+     * @param key               any non null value
+     * @param value             any value, including nulls
+     * @param eternal           specify as non-null to override cache configuration
      * @param timeToIdleSeconds specify as non-null to override cache configuration
      * @param timeToLiveSeconds specify as non-null to override cache configuration
      */
@@ -478,6 +477,7 @@ public final class Element implements Serializable, Cloneable {
      * Warning: This method can be <b>very slow</b> for values which contain large object graphs.
      * <p/>
      * If the key or value of the Element is not Serializable, an error will be logged and 0 will be returned.
+     *
      * @return The serialized size in bytes
      */
     public final long getSerializedSize() {
@@ -514,12 +514,16 @@ public final class Element implements Serializable, Cloneable {
      * While Element implements Serializable, it is possible to create non Serializable elements
      * for use in MemoryStores. This method checks that an instance of Element really is Serializable
      * and will not throw a NonSerializableException if Serialized.
+     * <p/>
+     * This method was tweaked in 1.6 as it has been shown that Serializable classes can be serializaed as can
+     * null, regardless of what class it is a null of. ObjectOutputStream.write(null) works and ObjectInputStream.read()
+     * will read null back.
      *
      * @return true if the element is Serializable
      * @since 1.2
      */
     public final boolean isSerializable() {
-        return key instanceof Serializable && value instanceof Serializable;
+        return isKeySerializable() && (value instanceof Serializable || value == null);
     }
 
     /**
@@ -535,7 +539,7 @@ public final class Element implements Serializable, Cloneable {
      * @since 1.2
      */
     public final boolean isKeySerializable() {
-        return key instanceof Serializable;
+        return key instanceof Serializable || key == null;
     }
 
     /**

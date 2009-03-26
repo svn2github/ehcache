@@ -21,7 +21,6 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
 
-
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.logging.Logger;
@@ -81,28 +80,14 @@ public class SelfPopulatingCache extends BlockingCache {
             //do not release the lock, because you never acquired it
             String message = "Timeout after " + timeoutMillis + " waiting on another thread " +
                     "to fetch object for cache entry \"" + key + "\".";
-            try {
-                throw new LockTimeoutException(message, e);
-            } catch (NoSuchMethodError noSuchMethodError) {
-                //Running 1.3 or lower
-                throw new LockTimeoutException(message);
-            }
-
+            throw new LockTimeoutException(message, e);
 
         } catch (final Throwable throwable) {
             // Could not fetch - Ditch the entry from the cache and rethrow
 
             //release the lock you acquired
             put(new Element(key, null));
-
-            try {
-                throw new CacheException("Could not fetch object for cache entry with key \"" + key + "\".", throwable);
-            } catch (NoSuchMethodError noSuchMethodError) {
-                //Running 1.3 or lower
-                throw new CacheException("Could not fetch object for cache entry with key \"" + key + "\".");
-            }
-
-
+            throw new CacheException("Could not fetch object for cache entry with key \"" + key + "\".", throwable);
         }
     }
 
