@@ -202,9 +202,32 @@ public class SimpleCachingHeadersPageCachingFilter extends SimplePageCachingFilt
         headers.add(new String[]{"Last-Modified", lastModified});
         headers.add(new String[]{"Expires", httpDateFormatter.formatHttpDate(new Date(now.getTime() + ttlMilliseconds))});
         headers.add(new String[]{"Cache-Control", "max-age=" + ttlMilliseconds / MILLISECONDS_PER_SECOND});
-        headers.add(new String[]{"ETag", httpDateFormatter.formatHttpDate(new Date(now.getTime() + ttlMilliseconds))});
+        headers.add(new String[]{"ETag", generateEtag(ttlMilliseconds)});
         return pageInfo;
     }
+
+
+    /**
+     * ETags are required to have double quotes around the value, unlike any other header.
+     * <p/>
+     * The ehcache eTag is effectively the Expires time, but accurate to milliseconds, i.e.
+     * no conversion to the nearest second is done as is done for the Expires tag. It therefore
+     * is the most precise indicator of whether the client cached version is the same as the server
+     * version.
+     * <p/>
+     * MD5 is not used to calculate ETag, as it is in some implementations, because it does not
+     * add any extra value in this situation, and it has a higher cost.
+     *
+     * @see "http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.3.3"
+     */
+    private String generateEtag(long ttlMilliseconds) {
+        StringBuffer stringBuffer = new StringBuffer();
+        Long eTagRaw = System.currentTimeMillis() + ttlMilliseconds;
+        String eTag = stringBuffer.append("\"").append(eTagRaw).append("\"").toString();
+        return eTag;
+    }
+
+
 
     /**
      * Writes the response from a PageInfo object.

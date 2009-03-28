@@ -12,5 +12,9 @@ $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
     </action>
     <action dev="Greg Luck" type="fix" issue="2630970">
         Turned off caching of cookies.
+    </action>
+    <action dev="Greg Luck" type="fix" >
+        The ETag value was not using double quotes in contravention of the specification. Fixed.
+    </action>
 </release>
 

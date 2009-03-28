@@ -21,7 +21,6 @@ import com.meterware.httpunit.WebResponse;
 import com.meterware.httpunit.WebConversation;
 import net.sf.ehcache.constructs.web.AbstractWebTest;
 import net.sf.ehcache.constructs.web.PageInfo;
-import net.sf.ehcache.constructs.web.HttpUtil;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
@@ -40,7 +39,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -49,9 +47,9 @@ import java.util.logging.Logger;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id: CachingFilterTest.java 796 2008-10-09 02:39:03Z gregluck $
  */
-public class CachingHeadersCachingFilterTest extends AbstractWebTest {
+public class SinpleCachingHeadersPageCachingFilterTest extends AbstractWebTest {
 
-    private static final Logger LOG = Logger.getLogger(CachingHeadersCachingFilterTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(SinpleCachingHeadersPageCachingFilterTest.class.getName());
 
     private String cachedPageUrl = "/CachedPage2.jsp";
 

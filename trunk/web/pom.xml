@@ -10,7 +10,7 @@
     <name>Ehcache Web Filters</name>
     <artifactId>ehcache-web</artifactId>
     <packaging>jar</packaging>
-    <version>1.6.0-beta1</version>
+    <version>1.6.0-beta2</version>
     <description><![CDATA[Web caching filters.]]> </description>
     <dependencies>
         <dependency>
@@ -89,6 +89,12 @@
                         <version>6.1.10</version>
                         <configuration>
                             <contextPath>/</contextPath>
+                            <connectors>
+                                <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+                                    <port>8080</port>
+                                    <maxIdleTime>60000</maxIdleTime>
+                                </connector>
+                            </connectors>
                             <scanIntervalSeconds>10</scanIntervalSeconds>
                             <stopKey>foo</stopKey>
                             <stopPort>9999</stopPort>
@@ -175,6 +181,14 @@
                                 </configuration>
                             </execution>
                         </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>com.atlassian.maven.plugins</groupId>
+                        <artifactId>maven-clover2-plugin</artifactId>
+                        <configuration>
+                            <license><![CDATA[f8f1ea99d9fd4fab107592960]]></license>
+                        </configuration>
                     </plugin>
 
                 </plugins>
