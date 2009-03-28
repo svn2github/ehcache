@@ -132,8 +132,8 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
 
         //Required to get SoftReference tests to pass. The VM clean up SoftReferences rather than allocating
         // memory to -Xmx!
-        //forceVMGrowth();
-        //System.gc();
+//        forceVMGrowth();
+//        System.gc();
         MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
 
         CountingCacheEventListener.resetCounters();
@@ -155,7 +155,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         cache2.removeAll();
 
         //enable distributed removeAlls to finish
-        waitForProgagate();
+        waitForPropagate();
 
 
     }
@@ -190,7 +190,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         if (manager6 != null) {
             manager6.shutdown();
         }
-        Thread.sleep(5000);
+        Thread.sleep(2000);
 
         List threads = JVMUtil.enumerateThreads();
         for (int i = 0; i < threads.size(); i++) {
@@ -323,7 +323,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
             manager1.getCache(name).put(new Element("nonSerializable" + i, new Object()));
         }
 
-        waitForProgagate();
+        waitForPropagate();
 
         int count2 = 0;
         int count3 = 0;
@@ -352,10 +352,11 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
                 count5++;
             }
         }
-        assertEquals(numberOfCaches, count2);
-        assertEquals(numberOfCaches, count3);
-        assertEquals(numberOfCaches, count4);
-        assertEquals(numberOfCaches, count5);
+        //sampleCache2 in manager1 replicates puts via invalidate, so the count will be 1 less
+        assertEquals(numberOfCaches - 1, count2);
+        assertEquals(numberOfCaches - 1, count3);
+        assertEquals(numberOfCaches - 1, count4);
+        assertEquals(numberOfCaches - 1, count5);
 
 
     }
@@ -390,7 +391,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
             manager1.getCache(name).put(new Element("nonSerializable" + i, new Object()));
         }
 
-        waitForProgagate();
+        waitForPropagate();
 
         int count2 = 0;
         int count3 = 0;
@@ -419,10 +420,11 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
                 count5++;
             }
         }
-        assertEquals(numberOfCaches, count2);
-        assertEquals(numberOfCaches, count3);
-        assertEquals(numberOfCaches, count4);
-        assertEquals(numberOfCaches, count5);
+        //sampleCache2 in manager1 replicates puts via invalidate, so the count will be 1 less
+        assertEquals(numberOfCaches - 1, count2);
+        assertEquals(numberOfCaches - 1, count3);
+        assertEquals(numberOfCaches - 1, count4);
+        assertEquals(numberOfCaches - 1, count5);
 
 
     }
@@ -885,7 +887,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         int i = 0;
 
         if (asynchronous) {
-            waitForProgagate();
+            waitForPropagate();
         }
 
         //Should have been replicated to toCache.
@@ -905,7 +907,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
 
         fromCache.put(new Element("thread killer", new ThreadKiller()));
         if (asynchronous) {
-            waitForProgagate();
+            waitForPropagate();
         }
 
         Serializable key = new Date();
@@ -916,7 +918,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         fromCache.put(sourceElement);
 
         if (asynchronous) {
-            waitForProgagate();
+            waitForPropagate();
         }
 
         //Should have been replicated to toCache.
@@ -952,7 +954,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         cache1.put(new Element(nonSerializableObject, new Object()));
 
 
-        waitForProgagate();
+        waitForPropagate();
 
         //local initiating cache's counting listener should have been notified
         assertEquals(4, CountingCacheEventListener.getCacheElementsPut(cache1).size());
@@ -967,7 +969,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         //Nonserializable and non deliverable put
         cache1.put(new Element(nonSerializableObject, new Object()));
 
-        waitForProgagate();
+        waitForPropagate();
 
         //local initiating cache's counting listener should have been notified
         assertEquals(4, CountingCacheEventListener.getCacheElementsUpdated(cache1).size());
@@ -980,7 +982,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         cache1.remove("3");
         cache1.remove(nonSerializableObject);
 
-        waitForProgagate();
+        waitForPropagate();
 
         //local initiating cache's counting listener should have been notified
         assertEquals(4, CountingCacheEventListener.getCacheElementsRemoved(cache1).size());
@@ -1042,7 +1044,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         fromCache.put(element1);
 
         if (asynchronous) {
-            waitForProgagate();
+            waitForPropagate();
         }
 
         //Should have been replicated to cache2.
@@ -1052,7 +1054,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         //Remove
         fromCache.remove(key);
         if (asynchronous) {
-            waitForProgagate();
+            waitForPropagate();
         }
 
         //Should have been replicated to cache2.
@@ -1092,7 +1094,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     public void removeAllTest(Ehcache fromCache, Ehcache toCache, boolean asynchronous) throws Exception {
 
         //removeAll is distributed. Stop it colliding with the rest of the test
-        waitForProgagate();
+        waitForPropagate();
 
 
         Serializable key = new Date();
@@ -1104,7 +1106,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
 
 
         if (asynchronous) {
-            waitForProgagate();
+            waitForPropagate();
         }
 
         //Should have been replicated to cache2.
@@ -1114,7 +1116,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         //Remove
         fromCache.removeAll();
         if (asynchronous) {
-            waitForProgagate();
+            waitForPropagate();
         }
 
         //Should have been replicated to cache2.
@@ -1173,7 +1175,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         toCache.removeAll();
 
         //removeAll is distributed. Stop it colliding with the rest of the test
-        waitForProgagate();
+        waitForPropagate();
 
         Serializable key = new Date();
         Serializable value = new Date();
@@ -1182,7 +1184,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         //Put
         fromCache.put(element1);
         if (asynchronous) {
-            waitForProgagate();
+            waitForPropagate();
         }
 
         //Should have been replicated to cache2.
@@ -1194,12 +1196,67 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
 
         fromCache.put(updatedElement1);
         if (asynchronous) {
-            waitForProgagate();
+            waitForPropagate();
         }
 
         //Should have been replicated to cache2.
         Element receivedUpdatedElement2 = toCache.get(key);
         assertEquals(updatedElement1, receivedUpdatedElement2);
+
+    }
+
+
+
+    /**
+     * Tests put through invalidation initiated from cache1 in a cluster
+     * <p/>
+     * This test goes into an infinite loop if the chain of notifications is not somehow broken.
+     */
+    @Test
+    public void testPutViaInvalidate() throws CacheException, InterruptedException, IOException {
+
+        if (JVMUtil.isSingleRMIRegistryPerVM()) {
+            return;
+        }
+
+        cache1 = manager1.getCache("sampleCache2");
+        cache1.removeAll();
+
+        cache2 = manager2.getCache("sampleCache2");
+        cache2.removeAll();
+
+        //removeAll is distributed. Stop it colliding with the rest of the test
+        waitForPropagate();
+
+        String key = "1";
+        Serializable value = new Date();
+        Element element1 = new Element(key, value);
+
+        Element element3 = new Element("key2", "two");
+
+        //Put into 2. 2 is configured to replicate puts via copy
+        cache2.put(element1);
+        assertNotNull(cache2.get(key));
+        waitForPropagate();
+
+        //Should have been replicated to cache1.
+        Element element2 = cache1.get(key);
+        assertEquals(element1, element2);
+
+        //Put
+        cache1.put(element3);
+        waitForPropagate();
+
+        //Invalidate should have been replicated to cache2.
+        assertNull(cache2.get("key2"));
+
+        //Update
+        cache1.put(element3);
+        waitForPropagate();
+
+        //Should have been removed in cache2.
+        element2 = cache2.get("key2");
+        assertNull(element2);
 
     }
 
@@ -1223,25 +1280,20 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         cache2.removeAll();
 
         //removeAll is distributed. Stop it colliding with the rest of the test
-        waitForProgagate();
+        waitForPropagate();
 
         String key = "1";
         Serializable value = new Date();
         Element element1 = new Element(key, value);
 
         //Put
-        cache1.put(element1);
-        waitForProgagate();
-
-        //Should have been replicated to cache2.
+        cache2.put(element1);
         Element element2 = cache2.get(key);
         assertEquals(element1, element2);
 
         //Update
         cache1.put(element1);
-        waitForProgagate();
-        waitForProgagate();
-        waitForProgagate();
+        waitForPropagate();
 
         //Should have been removed in cache2.
         element2 = cache2.get(key);
@@ -1265,7 +1317,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
 
         //Put
         cache1.put(element);
-        waitForProgagate();
+        waitForPropagate();
 
         //Should have been replicated to cache2.
         Element element2 = cache2.get(key);
@@ -1276,14 +1328,14 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         assertNull(cache1.get(key));
 
         //Should have been replicated to cache2.
-        waitForProgagate();
+        waitForPropagate();
         element2 = cache2.get(key);
         assertNull(element2);
 
         //Put into 2
         Element element3 = new Element("3", "ddsfds");
         cache2.put(element3);
-        waitForProgagate();
+        waitForPropagate();
         Element element4 = cache2.get("3");
         assertEquals(element3, element4);
 
@@ -1356,8 +1408,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         }
 
         //wait for cluster to drop back to just one: manager1
-        waitForProgagate();
-        waitForProgagate();
+        waitForPropagate();
 
 
         long start = System.currentTimeMillis();
@@ -1388,8 +1439,8 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      *
      * @throws InterruptedException
      */
-    protected void waitForProgagate() throws InterruptedException {
-        Thread.sleep(2000);
+    protected void waitForPropagate() throws InterruptedException {
+        Thread.sleep(1500);
     }
 
     /**
@@ -1397,7 +1448,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      *
      * @throws InterruptedException
      */
-    protected void waitForSlowProgagate() throws InterruptedException {
+    protected void waitForSlowPropagate() throws InterruptedException {
         Thread.sleep(6000);
     }
 

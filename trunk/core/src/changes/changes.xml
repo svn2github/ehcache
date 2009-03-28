@@ -13,6 +13,17 @@
                 and keySet is 30 times faster.
             </action>
 
+            <action dev="Greg Luck" type="add" issue="2684466">
+                Add replicatePutsViaCopy to the RMI replicator. This determines whether the new elements are
+                copied to other caches (true), or whether a remove message is sent. Defaults to true.
+
+                A replicateUpdatesViaCopy property was already there.
+
+                With these two properties, fine-grained control is available to ensure distributed cache
+                coherency is maintained.
+            </action>
+
+
             <!-- Bug Fixes -->
             <action dev="Greg Luck" type="fix" issue="2540579">
                 Fix documentation: missing parentheses from samples.html.

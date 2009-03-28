@@ -22,7 +22,6 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 
 
-
 import java.io.Serializable;
 import java.rmi.UnmarshalException;
 import java.util.ArrayList;
@@ -77,21 +76,16 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
 
     /**
      * Constructor for internal and subclass use
-     *
-     * @param replicatePuts
-     * @param replicateUpdates
-     * @param replicateUpdatesViaCopy
-     * @param replicateRemovals
-     * @param asynchronousReplicationInterval
-     *
      */
     public RMIAsynchronousCacheReplicator(
             boolean replicatePuts,
+            boolean replicatePutsViaCopy,
             boolean replicateUpdates,
             boolean replicateUpdatesViaCopy,
             boolean replicateRemovals,
             int asynchronousReplicationInterval) {
         super(replicatePuts,
+                replicatePutsViaCopy,
                 replicateUpdates,
                 replicateUpdatesViaCopy,
                 replicateRemovals);
@@ -154,7 +148,14 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
             }
             return;
         }
-        addToReplicationQueue(new CacheEventMessage(EventMessage.PUT, cache, element, null));
+
+
+        if (replicatePutsViaCopy) {
+            addToReplicationQueue(new CacheEventMessage(EventMessage.PUT, cache, element, null));
+        } else {
+            addToReplicationQueue(new CacheEventMessage(EventMessage.REMOVE, cache, null, element.getKey()));
+        }
+
     }
 
     /**
@@ -178,21 +179,16 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
             return;
         }
 
-        if (replicateUpdatesViaCopy) {
-            if (!element.isSerializable()) {
-                if (LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Object with key " + element.getObjectKey() + " is not Serializable and cannot be updated via copy");
-                }
-                return;
+        if (!element.isSerializable()) {
+            if (LOG.isLoggable(Level.WARNING)) {
+                LOG.warning("Object with key " + element.getObjectKey() + " is not Serializable and cannot be updated via copy");
             }
+            return;
+        }
+
+        if (replicateUpdatesViaCopy) {
             addToReplicationQueue(new CacheEventMessage(EventMessage.PUT, cache, element, null));
         } else {
-            if (!element.isKeySerializable()) {
-                if (LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
-                }
-                return;
-            }
             addToReplicationQueue(new CacheEventMessage(EventMessage.REMOVE, cache, null, element.getKey()));
         }
     }
@@ -420,7 +416,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
         //shutup checkstyle
         super.clone();
         return new RMIAsynchronousCacheReplicator(replicatePuts, replicateUpdates,
-                replicateUpdatesViaCopy, replicateRemovals, asynchronousReplicationInterval);
+                replicateUpdatesViaCopy, replicateRemovals, replicateRemovals, asynchronousReplicationInterval);
     }
 
 

@@ -48,6 +48,7 @@ public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
 
     private static final Logger LOG = Logger.getLogger(RMICacheReplicatorFactory.class.getName());
     private static final String REPLICATE_PUTS = "replicatePuts";
+    private static final String REPLICATE_PUTS_VIA_COPY = "replicatePutsViaCopy";
     private static final String REPLICATE_UPDATES = "replicateUpdates";
     private static final String REPLICATE_UPDATES_VIA_COPY = "replicateUpdatesViaCopy";
     private static final String REPLICATE_REMOVALS = "replicateRemovals";
@@ -61,6 +62,7 @@ public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
      * The defaults if properties are not specified are:
      * <ul>
      * <li>replicatePuts=true
+     * <li>replicatePutsViaCopy=true
      * <li>replicateUpdates=true
      * <li>replicateUpdatesViaCopy=true
      * <li>replicateRemovals=true;
@@ -85,6 +87,7 @@ public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
      */
     public final CacheEventListener createCacheEventListener(Properties properties) {
         boolean replicatePuts = extractReplicatePuts(properties);
+        boolean replicatePutsViaCopy = extractReplicatePutsViaCopy(properties);
         boolean replicateUpdates = extractReplicateUpdates(properties);
         boolean replicateUpdatesViaCopy = extractReplicateUpdatesViaCopy(properties);
         boolean replicateRemovals = extractReplicateRemovals(properties);
@@ -94,6 +97,7 @@ public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         if (replicateAsynchronously) {
             return new RMIAsynchronousCacheReplicator(
                     replicatePuts,
+                    replicatePutsViaCopy,
                     replicateUpdates,
                     replicateUpdatesViaCopy,
                     replicateRemovals,
@@ -101,6 +105,7 @@ public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         } else {
             return new RMISynchronousCacheReplicator(
                     replicatePuts,
+                    replicatePutsViaCopy,
                     replicateUpdates,
                     replicateUpdatesViaCopy,
                     replicateRemovals);
@@ -121,7 +126,7 @@ public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
                 int asynchronousReplicationIntervalMillisCandidate =
                         Integer.parseInt(asynchronousReplicationIntervalMillisString);
                 if (asynchronousReplicationIntervalMillisCandidate < MINIMUM_REASONABLE_INTERVAL) {
-                    LOG.warning("Trying to set the asynchronousReplicationIntervalMillis to an unreasonable number." +
+                    LOG.fine("Trying to set the asynchronousReplicationIntervalMillis to an unreasonable number." +
                             " Using the default instead.");
                     asynchronousReplicationIntervalMillis = DEFAULT_ASYNCHRONOUS_REPLICATION_INTERVAL_MILLIS;
                 } else {
@@ -181,6 +186,21 @@ public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
             replicateUpdatesViaCopy = true;
         }
         return replicateUpdatesViaCopy;
+    }
+
+    /**
+     * Extracts the value of replicatePutsViaCopy from the properties
+     * @param properties
+     */
+    protected boolean extractReplicatePutsViaCopy(Properties properties) {
+        boolean replicatePutsViaCopy;
+        String replicatePutsViaCopyString = PropertyUtil.extractAndLogProperty(REPLICATE_PUTS_VIA_COPY, properties);
+        if (replicatePutsViaCopyString != null) {
+            replicatePutsViaCopy = PropertyUtil.parseBoolean(replicatePutsViaCopyString);
+        } else {
+            replicatePutsViaCopy = true;
+        }
+        return replicatePutsViaCopy;
     }
 
     /**

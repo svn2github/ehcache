@@ -322,6 +322,7 @@
     <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
          properties="replicateAsynchronously=true,
          replicatePuts=true,
+         replicatePutsViaCopy=false,
          replicateUpdates=true,
          replicateUpdatesViaCopy=true,
          replicateRemovals=true
@@ -332,6 +333,9 @@
 
     * replicatePuts=true|false - whether new elements placed in a cache are
       replicated to others. Defaults to true.
+
+    * replicatePutsViaCopy=true|false - whether the new elements are
+      copied to other caches (true), or whether a remove message is sent. Defaults to true.  
 
     * replicateUpdates=true|false - whether new elements which override an
       element already existing with the same key are replicated. Defaults to true.
@@ -552,8 +556,8 @@
         <cacheEventListenerFactory
                 class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
                 properties="replicateAsynchronously=false, replicatePuts=false,
-                            replicateUpdates=true, replicateUpdatesViaCopy=true,
-                            replicateRemovals=false"/>
+                            replicatePutsViaCopy=false, replicateUpdates=true,
+                            replicateUpdatesViaCopy=true, replicateRemovals=false"/>
     </cache>
 
     <!--

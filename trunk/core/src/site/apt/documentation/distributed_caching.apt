@@ -95,7 +95,7 @@ Distributed Caching with ehcache
 
      Whether data inconsistency is a problem depends on the data and how it
      is used. For those times when it is important, ehcache provides for
-     synchronous delivery of updates via invalidation. These are discussed below:
+     synchronous delivery of puts and updates via invalidation. These are discussed below:
 
 *** Synchronous Delivery
 
@@ -106,12 +106,16 @@ Distributed Caching with ehcache
      all peers in the cluster before the cache operation returns.
 
 
-*** Update via Invalidation
+*** Put and Update via Invalidation
 
      The default is to update other caches by copying the new value to
-     them. If the replicateUpdatesViaCopy property is set to false in the
+     them. If the replicatePutsViaCopy property is set to false in the
+     replication configuration, puts are made by removing the element in
+     any other cache peers. If the replicateUpdatesViaCopy property is set to false in the
      replication configuration, updates are made by removing the element in
-     any other cache peers. This forces the applications using the cache
+     any other cache peers.
+
+     This forces the applications using the cache
      peers to return to a canonical source for the data.
 
      A similar effect can be obtained by setting the element TTL to a low value such

@@ -163,7 +163,7 @@ public class RMIBootstrapCacheLoaderTest {
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 1000; j++) {
                 index = new Integer(((1000 * i) + j));
-                manager1.getCache("sampleCache1").put(new Element(index,
+                manager2.getCache("sampleCache1").put(new Element(index,
                         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -172,10 +172,10 @@ public class RMIBootstrapCacheLoaderTest {
             }
 
         }
-        assertEquals(2000, manager1.getCache("sampleCache1").getSize());
+        assertEquals(2000, manager2.getCache("sampleCache1").getSize());
 
         Thread.sleep(8000);
-        assertEquals(2000, manager2.getCache("sampleCache1").getSize());
+        assertEquals(2000, manager1.getCache("sampleCache1").getSize());
 
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
         Thread.sleep(5000);
@@ -201,7 +201,7 @@ public class RMIBootstrapCacheLoaderTest {
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 1000; j++) {
                 index = new Integer(((1000 * i) + j));
-                manager1.getCache("sampleCache2").put(new Element(index,
+                manager2.getCache("sampleCache2").put(new Element(index,
                         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -211,10 +211,10 @@ public class RMIBootstrapCacheLoaderTest {
 
         }
 
-        assertEquals(2000, manager1.getCache("sampleCache2").getSize());
+        assertEquals(2000, manager2.getCache("sampleCache2").getSize());
 
         Thread.sleep(8000);
-        assertEquals(2000, manager2.getCache("sampleCache2").getSize());
+        assertEquals(2000, manager1.getCache("sampleCache2").getSize());
 
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
         //Should not need to wait because the load is synchronous

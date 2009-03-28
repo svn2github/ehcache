@@ -51,6 +51,17 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
     protected final boolean replicatePuts;
 
     /**
+     * Whether a put should replicated by copy or by invalidation, (a remove).
+     * <p/>
+     * By copy is best when the entry is expensive to produce. By invalidation is best when
+     * we are really trying to force other caches to sync back to a canonical source like a database.
+     * An example of a latter usage would be a read/write cache being used in Hibernate.
+     * <p/>
+     * This setting only has effect if <code>#replicateUpdates</code> is true.
+     */
+    protected boolean replicatePutsViaCopy;
+
+    /**
      * Whether to replicate updates.
      */
     protected final boolean replicateUpdates;
@@ -65,7 +76,6 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
      * This setting only has effect if <code>#replicateUpdates</code> is true.
      */
     protected final boolean replicateUpdatesViaCopy;
-
     /**
      * Whether to replicate removes
      */
@@ -81,10 +91,12 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
      */
     public RMISynchronousCacheReplicator(
             boolean replicatePuts,
+            boolean replicatePutsViaCopy,
             boolean replicateUpdates,
             boolean replicateUpdatesViaCopy,
             boolean replicateRemovals) {
         this.replicatePuts = replicatePuts;
+        this.replicatePutsViaCopy = replicatePutsViaCopy;
         this.replicateUpdates = replicateUpdates;
         this.replicateUpdatesViaCopy = replicateUpdatesViaCopy;
         this.replicateRemovals = replicateRemovals;
@@ -117,8 +129,11 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
             return;
         }
 
-
-        replicatePutNotification(cache, element);
+        if (replicatePutsViaCopy) {
+            replicatePutNotification(cache, element);
+        } else {
+            replicateRemovalNotification(cache, (Serializable) element.getObjectKey());
+        }
     }
 
     /**
@@ -363,6 +378,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
     public Object clone() throws CloneNotSupportedException {
         //shutup checkstyle
         super.clone();
-        return new RMISynchronousCacheReplicator(replicatePuts, replicateUpdates, replicateUpdatesViaCopy, replicateRemovals);
+        return new RMISynchronousCacheReplicator(replicatePuts, replicatePutsViaCopy, replicateUpdates, 
+                replicateUpdatesViaCopy, replicateRemovals);
     }
 }
