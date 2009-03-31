@@ -32,6 +32,11 @@
                 The Serializable test was too narrow in DiskStore. Null objects of Serializable classes will serialize.
                 They still come back null, but they will persist.
             </action>
+            <action dev="Greg Luck" type="fix">
+                Made the synchronous RMI replicator log exceptions as SEVERE rather than throwing them, to make this
+                consistent with the asynchronous replicator. The change means that you cannot detect that replication
+                has not occured to a given peer. Given that we are not transactional, this probably does not matter.
+            </action>
         </release>
 
         <release version="1.6.0-beta3" date="2009-1-28"

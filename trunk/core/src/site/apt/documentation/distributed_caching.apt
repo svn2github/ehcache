@@ -102,8 +102,8 @@ Distributed Caching with ehcache
      Delivery can be specified to be synchronous or asynchronous.
      Asynchronous delivery gives faster returns to operations on the local
      cache and is usually preferred. Synchronous delivery adds time to the
-     local operation, however requires successful delivery of an update to
-     all peers in the cluster before the cache operation returns.
+     local operation, however delivery of an update to
+     all peers in the cluster happens before the cache operation returns.
 
 
 *** Put and Update via Invalidation

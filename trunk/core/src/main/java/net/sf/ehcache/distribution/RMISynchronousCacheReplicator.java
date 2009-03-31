@@ -22,11 +22,11 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 
 
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.rmi.RemoteException;
 
 /**
  * Listens to {@link net.sf.ehcache.CacheManager} and {@link net.sf.ehcache.Cache} events and propagates those to
@@ -138,20 +138,19 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
 
     /**
      * Does the actual RMI remote call.
-     * todo users would prefer this to be consistent with Async replicator. i.e. do not throw exception.
-     *
-     * @param element
-     * @param cache
-     * @throws RemoteCacheException if anything goes wrong with the remote call
+     * <p/>
+     * If a Throwable occurs a SEVERE log message will be logged, but attempts to replicate to the other
+     * peers will continue.
      */
-    private static void replicatePutNotification(Ehcache cache, Element element) throws RemoteCacheException {
+    protected static void replicatePutNotification(Ehcache cache, Element element) throws RemoteCacheException {
         List cachePeers = listRemoteCachePeers(cache);
-        for (int i = 0; i < cachePeers.size(); i++) {
-            CachePeer cachePeer = (CachePeer) cachePeers.get(i);
+        for (Object cachePeer1 : cachePeers) {
+            CachePeer cachePeer = (CachePeer) cachePeer1;
             try {
                 cachePeer.put(element);
             } catch (Throwable t) {
-                throw new RemoteCacheException("Error doing put to remote peer. Message was: " + t.getMessage());
+                LOG.log(Level.SEVERE, "Exception on replication of putNotification. "
+                        + t.getMessage() + ". Continuing...", t);
             }
         }
     }
@@ -232,20 +231,20 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
     }
 
     /**
-     * Does the actual RMI remote call
-     *
-     * @param key
-     * @param cache
-     * @throws RemoteCacheException if anything goes wrong with the remote call
+     * Does the actual RMI remote call.
+     * <p/>
+     * If a Throwable occurs a SEVERE log message will be logged, but attempts to replicate to the other
+     * peers will continue.
      */
-    private static void replicateRemovalNotification(Ehcache cache, Serializable key) throws RemoteCacheException {
+    protected static void replicateRemovalNotification(Ehcache cache, Serializable key) throws RemoteCacheException {
         List cachePeers = listRemoteCachePeers(cache);
-        for (int i = 0; i < cachePeers.size(); i++) {
-            CachePeer cachePeer = (CachePeer) cachePeers.get(i);
+        for (Object cachePeer1 : cachePeers) {
+            CachePeer cachePeer = (CachePeer) cachePeer1;
             try {
                 cachePeer.remove(key);
-            } catch (Throwable e) {
-                throw new RemoteCacheException("Error doing remove to remote peer. Message was: " + e.getMessage());
+            } catch (Throwable t) {
+                LOG.log(Level.SEVERE, "Exception on replication of removeNotification. "
+                        + t.getMessage() + ". Continuing...", t);
             }
         }
     }
@@ -308,14 +307,22 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
         replicateRemoveAllNotification(cache);
     }
 
-    private void replicateRemoveAllNotification(Ehcache cache) {
+    /**
+     * Does the actual RMI remote call.
+     *
+     * If a Throwable occurs a SEVERE log message will be logged, but attempts to replicate to the other
+     * peers will continue.
+     *
+     */
+    protected void replicateRemoveAllNotification(Ehcache cache) {
         List cachePeers = listRemoteCachePeers(cache);
-        for (int i = 0; i < cachePeers.size(); i++) {
-            CachePeer cachePeer = (CachePeer) cachePeers.get(i);
+        for (Object cachePeer1 : cachePeers) {
+            CachePeer cachePeer = (CachePeer) cachePeer1;
             try {
                 cachePeer.removeAll();
-            } catch (Throwable e) {
-                throw new RemoteCacheException("Error doing removeAll to remote peer. Message was: " + e.getMessage());
+            } catch (Throwable t) {
+                LOG.log(Level.SEVERE, "Exception on replication of removeAllNotification. "
+                        + t.getMessage() + ". Continuing...", t);
             }
         }
     }
@@ -378,7 +385,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
     public Object clone() throws CloneNotSupportedException {
         //shutup checkstyle
         super.clone();
-        return new RMISynchronousCacheReplicator(replicatePuts, replicatePutsViaCopy, replicateUpdates, 
+        return new RMISynchronousCacheReplicator(replicatePuts, replicatePutsViaCopy, replicateUpdates,
                 replicateUpdatesViaCopy, replicateRemovals);
     }
 }

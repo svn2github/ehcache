@@ -22,8 +22,7 @@
 
 --------------------------------------------
 
-java -classpath backport-util-concurrent-3.1.jar:commons-logging-1.0.4.jar:
-   commons-collections-3.2.jar:jsr107cache-1.0.jar
+java -classpath [add your application jars here]
  -jar ehcache-debugger-1.5.0.jar ehcache.xml sampleCache1 path_to_ehcache.xml [cacheToMonitor]
 
 --------------------------------------------
