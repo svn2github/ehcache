@@ -76,7 +76,7 @@ import net.sf.ehcache.config.CacheConfiguration;
  * <li>A complete response i.e. not a fragment.
  * <li>A content type suitable for gzipping. e.g. text or text/html
  * </ul>
- * For jsp:included page fragments see {@link SimplePageFragmentCachingFilter}.
+ * For jsp:included page fragme?nts see {@link SimplePageFragmentCachingFilter}.
  * <h3>calculateKey</h3>
  * Pages are cached based on their key. The key for this cache is the URI followed by the query string. An example
  * is <code>/admin/SomePage.jsp?id=1234&name=Beagle</code>.

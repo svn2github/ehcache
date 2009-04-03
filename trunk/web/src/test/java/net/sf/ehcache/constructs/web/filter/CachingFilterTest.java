@@ -85,7 +85,7 @@ public class CachingFilterTest extends AbstractWebTest {
      */
     @Test
     public void testPageWithinLockTimeoutTime() throws Exception {
-        assertResponseGoodAndCached(cachedPageUrl3, true);
+        assertResponseGoodAndCached(cachedPageUrl2, true);
     }
 
     /**
@@ -108,7 +108,38 @@ public class CachingFilterTest extends AbstractWebTest {
      */
     @Test
     public void testCachedPage2IsCached() throws Exception {
-        assertResponseGoodAndCached(cachedPageUrl3, true);
+        assertResponseGoodAndCached(cachedPageUrl2, true);
+    }
+
+
+    /**
+     * Tests that response.setHeader(Content-Type, ...) makes it through.
+     */
+    @Test
+    public void testContentTypeByContentType() throws Exception {
+        HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = new HeadMethod(buildUrl(cachedPageUrl2));
+        int responseCode = httpClient.executeMethod(httpMethod);
+        //httpclient follows redirects, so gets the home page.
+        assertEquals(HttpURLConnection.HTTP_OK, responseCode);
+        String responseBody = httpMethod.getResponseBodyAsString();
+        assertNull(responseBody);
+        assertContains("text/html; charset=utf-8", httpMethod.getResponseHeader("Content-Type").getValue());
+    }
+
+    /**
+     * Tests that response.setHeader(Content-Type, ...) makes it through.
+     */
+    @Test
+    public void testContentTypeByHeader() throws Exception {
+        HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = new HeadMethod(buildUrl(cachedPageUrl3));
+        int responseCode = httpClient.executeMethod(httpMethod);
+        //httpclient follows redirects, so gets the home page.
+        assertEquals(HttpURLConnection.HTTP_OK, responseCode);
+        String responseBody = httpMethod.getResponseBodyAsString();
+        assertNull(responseBody);
+        assertEquals("Some Content Type", httpMethod.getResponseHeader("Content-Type").getValue());
     }
 
     /**

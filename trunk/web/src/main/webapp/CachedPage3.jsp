@@ -1,10 +1,10 @@
 <%@ page import="java.util.Random" %>
-<%@ page contentType="text/html; charset=utf-8" %>
 <!--<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">-->
 
 <%
     //This header should get overridden by the caching headers filter.
     response.setHeader("Last-Modified", "this did not get overriden");
+    response.setHeader("Content-Type", "Some Content Type");
 %>
 <html>
 <head>

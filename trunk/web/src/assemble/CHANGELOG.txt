@@ -1,6 +1,12 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
-<release version="1.1" date="2009-3-23" desc="Initial release of separate web module">
+<release version="1.6-beta2" date="2009-4-4" desc="Initial release of separate web module">
+    <action dev="Greg Luck" type="fix" issue="2620231">
+        Content-Type set through a header does not override implicit Content-Type
+    </action>
+</release>
+
+<release version="1.6-beta1" date="2009-3-23" desc="Initial release of separate web module">
 
     <!-- Features and Enhancements -->
     <action dev="Greg Luck" type="add">

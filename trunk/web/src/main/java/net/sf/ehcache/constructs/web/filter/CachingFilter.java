@@ -274,6 +274,8 @@ public abstract class CachingFilter extends Filter {
 
     /**
      * Writes the response from a PageInfo object.
+     * <p/>
+     * Headers are set last so that there is an opportunity to override 
      *
      * @param request
      * @param response
@@ -288,20 +290,24 @@ public abstract class CachingFilter extends Filter {
         boolean requestAcceptsGzipEncoding = acceptsGzipEncoding(request);
 
         setStatus(response, pageInfo);
-        setHeaders(pageInfo, requestAcceptsGzipEncoding, response);
-        setCookies(pageInfo, response);
         setContentType(response, pageInfo);
+        setCookies(pageInfo, response);
+        //do headers last so that users can override with their own header sets
+        setHeaders(pageInfo, requestAcceptsGzipEncoding, response);
         writeContent(request, response, pageInfo);
     }
 
     /**
-     * Set the content type
+     * Set the content type.
      *
      * @param response
      * @param pageInfo
      */
     protected void setContentType(final HttpServletResponse response, final PageInfo pageInfo) {
-        response.setContentType(pageInfo.getContentType());
+        String contentType = pageInfo.getContentType();
+        if (contentType != null && contentType.length() >  0) {
+            response.setContentType(contentType);
+        }
     }
 
     /**

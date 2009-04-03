@@ -210,7 +210,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <!-- Doesn't work when not internet connected -->
                 <executions>
                     <execution>
                         <phase>validate</phase>
