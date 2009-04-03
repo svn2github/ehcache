@@ -37,6 +37,10 @@
                 consistent with the asynchronous replicator. The change means that you cannot detect that replication
                 has not occured to a given peer. Given that we are not transactional, this probably does not matter.
             </action>
+            <action dev="Greg Luck" type="fix" issue="2725134">
+                Notifications happening on removeQuiet when they should not. 
+            </action>
+
         </release>
 
         <release version="1.6.0-beta3" date="2009-1-28"

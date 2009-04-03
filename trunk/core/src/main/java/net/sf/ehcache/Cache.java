@@ -630,8 +630,8 @@ public class Cache implements Ehcache {
      * This exception should be caught in those cirucmstances.
      *
      * @param element A cache Element. If Serializable it can fully participate in replication and the DiskStore. If it is
-     * <code>null</code> or the key is <code>null</code>, it is ignored as a NOOP.
-     * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
+     *                <code>null</code> or the key is <code>null</code>, it is ignored as a NOOP.
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @throws CacheException
      */
     public final void put(Element element) throws IllegalArgumentException, IllegalStateException,
@@ -657,8 +657,8 @@ public class Cache implements Ehcache {
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
      * This exception should be caught in those cirucmstances.
      *
-     * @param element A cache Element. If Serializable it can fully participate in replication and the DiskStore. If it is
-     * <code>null</code> or the key is <code>null</code>, it is ignored as a NOOP.
+     * @param element                     A cache Element. If Serializable it can fully participate in replication and the DiskStore. If it is
+     *                                    <code>null</code> or the key is <code>null</code>, it is ignored as a NOOP.
      * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
      *                                    further notification to doNotNotifyCacheReplicators cache peers
      * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
@@ -750,7 +750,7 @@ public class Cache implements Ehcache {
      * <p/>
      *
      * @param element A cache Element. If Serializable it can fully participate in replication and the DiskStore. If it is
-     * <code>null</code> or the key is <code>null</code>, it is ignored as a NOOP.
+     *                <code>null</code> or the key is <code>null</code>, it is ignored as a NOOP.
      * @throws IllegalStateException    if the cache is not {@link Status#STATUS_ALIVE}
      * @throws IllegalArgumentException if the element is null
      */
@@ -1380,28 +1380,28 @@ public class Cache implements Ehcache {
         boolean removeNotified = false;
 
         if (elementFromMemoryStore != null) {
-            if (notifyListeners) {
-                if (expiry) {
-                    registeredEventListeners.notifyElementExpiry(elementFromMemoryStore, doNotNotifyCacheReplicators);
-                } else {
-                    removeNotified = true;
-                    registeredEventListeners.notifyElementRemoved(elementFromMemoryStore, doNotNotifyCacheReplicators);
-                }
+            if (expiry) {
+                //always notify expire which is lazy regardless of the removeQuiet
+                registeredEventListeners.notifyElementExpiry(elementFromMemoryStore, doNotNotifyCacheReplicators);
+            } else if (notifyListeners) {
+                removeNotified = true;
+                registeredEventListeners.notifyElementRemoved(elementFromMemoryStore, doNotNotifyCacheReplicators);
             }
             removed = true;
         }
         if (elementFromDiskStore != null) {
             if (expiry) {
                 registeredEventListeners.notifyElementExpiry(elementFromDiskStore, doNotNotifyCacheReplicators);
-            } else {
+            } else if (notifyListeners) {
                 removeNotified = true;
                 registeredEventListeners.notifyElementRemoved(elementFromDiskStore, doNotNotifyCacheReplicators);
             }
             removed = true;
         }
+
         //If we are trying to remove an element which does not exist locally, we should still notify so that
         //cluster invalidations work.
-        if (!expiry && !removeNotified) {
+        if (notifyListeners && !expiry && !removeNotified) {
             Element syntheticElement = new Element(key, null);
             registeredEventListeners.notifyElementRemoved(syntheticElement, doNotNotifyCacheReplicators);
         }
