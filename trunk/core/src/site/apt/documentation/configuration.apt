@@ -189,6 +189,10 @@
 
 * ehcache.xml and other configuration files
 
+   Prior to ehcache-1.6, ehcache only supported ASCII ehcache.xml configuration files.
+   Since ehcache-1.6, UTF8 is supported, so that configuration can use Unicode. As UTF8 is backwardly compatible
+   with ASCII, no conversion is necessary.
+
    If the CacheManager default constructor or factory method is called, ehcache looks for a
    file called ehcache.xml in the top level of the classpath.
 

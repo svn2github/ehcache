@@ -20,7 +20,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.util.ClassLoaderUtil;
 
 
-
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.BufferedInputStream;
@@ -29,6 +28,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -173,15 +174,15 @@ public final class ConfigurationFactory {
 
         StringBuffer stringBuffer = new StringBuffer();
         int c;
-        while ((c = inputStream.read()) != -1) {
+        Reader reader = new InputStreamReader(inputStream, "UTF-8");
+        while ((c = reader.read()) != -1) {
             stringBuffer.append((char) c);
         }
         String configuration = stringBuffer.toString();
 
         Set tokens = extractPropertyTokens(configuration);
-        Iterator tokenIterator = tokens.iterator();
-        while (tokenIterator.hasNext()) {
-            String token = (String) tokenIterator.next();
+        for (Object tokenObject : tokens) {
+            String token = (String) tokenObject;
             String leftTrimmed = token.replaceAll("\\$\\{", "");
             String trimmedToken = leftTrimmed.replaceAll("\\}", "");
 
@@ -204,6 +205,7 @@ public final class ConfigurationFactory {
 
     /**
      * Extracts properties of the form ${...}
+     *
      * @param sourceDocument the source document
      * @return a Set of properties. So, duplicates are only counted once.
      */

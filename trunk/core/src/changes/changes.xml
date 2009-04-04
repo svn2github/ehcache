@@ -32,7 +32,7 @@
                 The Serializable test was too narrow in DiskStore. Null objects of Serializable classes will serialize.
                 They still come back null, but they will persist.
             </action>
-            <action dev="Greg Luck" type="fix">
+            <action dev="Greg Luck" type="fix" issue="2018964">
                 Made the synchronous RMI replicator log exceptions as SEVERE rather than throwing them, to make this
                 consistent with the asynchronous replicator. The change means that you cannot detect that replication
                 has not occured to a given peer. Given that we are not transactional, this probably does not matter.
@@ -41,7 +41,11 @@
                 Notifications happening on removeQuiet when they should not. 
             </action>
             <action dev="Greg Luck" type="fix" issue="2492568">
-                Notifications happening on removeQuiet when they should not. 
+                Extra logging around RMICachePeer. Add the cacheName to the FINE log output. 
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2584798">
+                Added support for UTF8 file encoding of ehcache.xml. This makes it possible to specify cache names
+                in non Western languages. 
             </action>
 
         </release>

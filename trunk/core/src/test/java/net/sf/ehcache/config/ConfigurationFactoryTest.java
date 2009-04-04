@@ -259,6 +259,17 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(true, sampleCache1.getCacheConfiguration().isOverflowToDisk());
     }
 
+    /**
+     * Can we read from a UTF8 encoded file which uses Japanese characters 
+     */
+    @Test
+    public void testLoadUTF8ConfigurationFromFile() throws Exception {
+
+        File file = new File(TEST_CONFIG_DIR + "ehcacheUTF8.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+    }
+
 
     /**
      * Tests that the loader successfully loads from ehcache-1.1.xml
