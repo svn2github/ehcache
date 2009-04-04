@@ -29,8 +29,9 @@
                 Fix documentation: missing parentheses from samples.html.
             </action>
             <action dev="Greg Luck" type="fix" issue="2026586">
-                The Serializable test was too narrow in DiskStore. Null objects of Serializable classes will serialize.
-                They still come back null, but they will persist.
+                The isSerializable() method on Element was too narrowly defined. Adjusted to allow Elements with
+                null values to be Serialized. This change affects DiskStore and replication.
+                Null objects of any class will serialize. Also recorded as 2153609.
             </action>
             <action dev="Greg Luck" type="fix" issue="2018964">
                 Made the synchronous RMI replicator log exceptions as SEVERE rather than throwing them, to make this
@@ -46,6 +47,10 @@
             <action dev="Greg Luck" type="fix" issue="2584798">
                 Added support for UTF8 file encoding of ehcache.xml. This makes it possible to specify cache names
                 in non Western languages. 
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2035287">
+                Updated provided scope dependency of Hibernate to 3.2.6GA to pick up a signature change in
+                CacheException to Throwable.
             </action>
 
         </release>

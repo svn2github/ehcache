@@ -21,12 +21,10 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 
-
 import java.io.Serializable;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.logging.Level;
-import java.rmi.RemoteException;
+import java.util.logging.Logger;
 
 /**
  * Listens to {@link net.sf.ehcache.CacheManager} and {@link net.sf.ehcache.Cache} events and propagates those to
