@@ -40,6 +40,9 @@
             <action dev="Greg Luck" type="fix" issue="2725134">
                 Notifications happening on removeQuiet when they should not. 
             </action>
+            <action dev="Greg Luck" type="fix" issue="2492568">
+                Notifications happening on removeQuiet when they should not. 
+            </action>
 
         </release>
 

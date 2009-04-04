@@ -174,7 +174,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
     public void put(Element element) throws RemoteException, IllegalArgumentException, IllegalStateException {
         cache.put(element, true);
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Remote put received. Element is: " + element);
+            LOG.fine("RMICachePeer for cache " + cache.getName() + ": remote put received. Element is: " + element);
         }
     }
 
@@ -189,7 +189,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      */
     public final boolean remove(Serializable key) throws RemoteException, IllegalStateException {
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Remote remove received for key: " + key);
+            LOG.fine("RMICachePeer for cache " + cache.getName() + ": remote remove received for key: " + key);
         }
         return cache.remove(key, true);
     }
@@ -201,7 +201,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      */
     public final void removeAll() throws RemoteException, IllegalStateException {
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Remote removeAll received");
+            LOG.fine("RMICachePeer for cache " + cache.getName() + ": remote removeAll received");
         }
         cache.removeAll(true);
     }
