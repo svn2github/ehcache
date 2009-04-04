@@ -976,6 +976,7 @@ public class DiskStoreTest extends AbstractCacheTest {
                             + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
         }
         long time = stopWatch.getElapsedTime();
+        LOG.info("time: " + time);
         assertTrue(4 < time);
     }
 

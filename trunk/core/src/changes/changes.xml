@@ -22,7 +22,9 @@
                 With these two properties, fine-grained control is available to ensure distributed cache
                 coherency is maintained.
             </action>
-
+            <action dev="Greg Luck" type="update" issue="2003322">
+                Don't automatically delete the DiskStore index on startup.
+            </action>
 
             <!-- Bug Fixes -->
             <action dev="Greg Luck" type="fix" issue="2540579">

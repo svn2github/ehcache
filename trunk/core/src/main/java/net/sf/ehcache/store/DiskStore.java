@@ -806,13 +806,16 @@ public class DiskStore implements Store {
                 success = true;
             } catch (StreamCorruptedException e) {
                 LOG.severe("Corrupt index file. Creating new index.");
+                createNewIndexFile();
             } catch (IOException e) {
                 //normal when creating the cache for the first time
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("IOException reading index. Creating new index. ");
                 }
+                createNewIndexFile();
             } catch (ClassNotFoundException e) {
                 LOG.log(Level.SEVERE, "Class loading problem reading index. Creating new index. Initial cause was " + e.getMessage(), e);
+                createNewIndexFile();
             } finally {
                 try {
                     if (objectInputStream != null) {
@@ -823,11 +826,6 @@ public class DiskStore implements Store {
                 } catch (IOException e) {
                     LOG.severe("Problem closing the index file.");
                 }
-
-                //Always zero out file. That way if there is a dirty shutdown, the file will still be empty
-                //the next time we start up and readIndex will automatically fail.
-                //If there was a problem reading the index this time we also want to zero it out.
-                createNewIndexFile();
             }
         } else {
             createNewIndexFile();
