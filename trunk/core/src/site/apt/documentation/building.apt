@@ -70,7 +70,7 @@
     With all that, build the site as below:
 
 ---
-    mvn site:site
+    mvn clean site
 ---
 
     Unfortunately, sourceforge scp is broken, since they removed the ability for ssh to execute shell commands.

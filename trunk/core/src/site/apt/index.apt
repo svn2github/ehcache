@@ -19,6 +19,15 @@ Welcome to ehcache
 
 * Latest News
 
+
+** 7 April 2009: Ehcache 1.6.0-beta4 released
+
+    This beta release of ehcache-1.6.0 adds bug fixes and dramatic performance improvements.
+
+   Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. All documentation is
+    {{{http://ehcache.sourceforge.net/documentation}here}}.
+
+
 ** 23 February 2009: Exciting News! Ehcache Core two orders of magnitude faster
 
   With all of the focus on new replication schemes and Cache Server, the core has been pretty stable for a while.
