@@ -1,5 +1,65 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+ehcache-1.6.0-beta4
+===================
+
+<release version="1.6.0-beta4" date="2009-4-7"
+                 desc="This release introduces new high perforamnce cache core, which is two orders of magnitude
+                 faster.">
+
+            <!-- Feature Changes  -->
+            <action dev="Greg Luck" type="update">
+                Remove many uses of synchronize and replace with new concurrency techniques available in Java 5.
+                A concurrent test with 70 threads doing a realistic mix of operations gets are 92.5 times faster,
+                puts are 30 times faster, removes are 48 times faster, removeAlls are 80 times faster,
+                and keySet is 30 times faster.
+            </action>
+
+            <action dev="Greg Luck" type="add" issue="2684466">
+                Add replicatePutsViaCopy to the RMI replicator. This determines whether the new elements are
+                copied to other caches (true), or whether a remove message is sent. Defaults to true.
+
+                A replicateUpdatesViaCopy property was already there.
+
+                With these two properties, fine-grained control is available to ensure distributed cache
+                coherency is maintained.
+            </action>
+            <action dev="Greg Luck" type="update" issue="2003322">
+                Don't automatically delete the DiskStore index on startup.
+            </action>
+
+            <!-- Bug Fixes -->
+            <action dev="Greg Luck" type="fix" issue="2540579">
+                Fix documentation: missing parentheses from samples.html.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2026586">
+                The isSerializable() method on Element was too narrowly defined. Adjusted to allow Elements with
+                null values to be Serialized. This change affects DiskStore and replication.
+                Null objects of any class will serialize. Also recorded as 2153609.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2018964">
+                Made the synchronous RMI replicator log exceptions as SEVERE rather than throwing them, to make this
+                consistent with the asynchronous replicator. The change means that you cannot detect that replication
+                has not occured to a given peer. Given that we are not transactional, this probably does not matter.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2725134">
+                Notifications happening on removeQuiet when they should not.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2492568">
+                Extra logging around RMICachePeer. Add the cacheName to the FINE log output.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2584798">
+                Added support for UTF8 file encoding of ehcache.xml. This makes it possible to specify cache names
+                in non Western languages.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2035287">
+                Updated provided scope dependency of Hibernate to 3.2.6GA to pick up a signature change in
+                CacheException to Throwable.
+            </action>
+
+        </release>
+
+
 
 ehcache-1.6.0-beta3
 ===================

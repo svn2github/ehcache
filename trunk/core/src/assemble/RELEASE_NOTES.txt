@@ -1,7 +1,7 @@
 $Id: RELEASE_NOTES.txt,v 1.16 2006/03/01 01:52:03 gregluck Exp $
 
 
-Release Notes For ehcache 1.6.0
+Release Notes For ehcache 1.6.0-beta4
 
 Introduction
 ============
@@ -29,14 +29,14 @@ Ehcache is a pure Java, in-process cache with the following features:
 Java Requirements
 =================
 
-    Ehcache 1.6.0 and above supports 1.5 and 1.6 at runtime. Ehcache final releases are compiled with -target 1.5.
+    Ehcache 1.6.0 and above supports Java 1.5 and 1.6 at runtime. Ehcache final releases are compiled with -target 1.5.
 
     The Ehcache 1.5 branch is being maintained for Java 1.4 users.
 
 Dependencies
 ============
 
-The JSR107, which is available via Maven and supplied in the tarball, is the only dependency.
+None.
 
 Maven POM snippet
 =================
@@ -48,7 +48,7 @@ Maven POM snippet
      <dependency>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache</artifactId>
-        <version>1.6.0-beta1</version>
+        <version>1.6.0-beta4</version>
      </dependency>
 
 Installation

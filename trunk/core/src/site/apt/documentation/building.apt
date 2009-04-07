@@ -44,7 +44,7 @@
    mvn deploy
 ---
 
-    This will fail because SourceForge has disabled ssh exec. You need to create missing directories manuallusing
+    This will fail because SourceForge has disabled ssh exec. You need to create missing directories manually using
     sftp access <<<sftp gregluck,ehcache@web.sourceforge.net>>>
 
 *   {Building the Site}
@@ -88,5 +88,7 @@
 ---
 
     then manually upload to SourceForge and complete the file release process
+
+    <<<sftp gregluck@frs.sourceforge.net>>>
 
     
