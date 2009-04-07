@@ -1,0 +1,365 @@
+
+Introduction
+
+    Ehcache is a cache library. Before getting into ehcache, it is worth stepping back and thinking about caching generally.
+
+* About Caches
+
+    Wiktionary defines a cache as <A store of things that will be required in future, and can be retrieved rapidly>. That is the
+    nub of it.
+
+    In computer science terms, a cache is a collection of temporary data which either duplicates data located elsewhere or is the result of a computation.
+    Once in the cache, the data can be repeatedly accessed inexpensively.
+
+* Why caching works
+
+** {Locality of Reference}
+
+    While ehcache concerns itself with Java objects, caching is used throughout computing, from CPU caches to the DNS system.
+   Why? Because many computer systems exhibit <locality of reference>. Data that is near other data or has just been used
+    is more likely to be used again.
+
+** {The Long Tail}
+
+    Chris Anderson, of Wired Magazine, coined the term <The Long Tail> to refer to Ecommerce systems. The idea that a small
+    number of items may make up the bulk of sales, a small number of blogs might get the most hits and so on. While there
+    is a small list of popular items, there is a long tail of less popular ones.
+
+[images/longtail.png] The Long Tail
+
+    The Long Tail is itself a vernacular term for a Power Law probability distribution. They don't just appear in ecommerce,
+    but throughout nature. One form of a Power Law distribution is the Pareto distribution, commonly know as the 80:20 rule.
+
+    This phenomenon is useful for caching. If 20% of objects are used 80% of the time and a way can be found to reduce the
+    cost of obtaining that 20%, then the system performance will improve.
+
+
+* Will an Application Benefit from Caching?
+
+    The short answer is that it often does, due to the effects noted above.
+
+    The medium answer is that it often depends on whether it is CPU bound or I/O bound. If an application is I/O bound then
+    then the time taken to complete a computation depends principally on the rate at which data can be obtained. If it is
+    CPU bound, then the time taken principally depends on the speed of the CPU and main memory.
+
+    While the focus for caching is on improving performance, it it also worth realizing that it reduces load. The time it
+    takes something to complete is usually related to the expense of it. So, caching often reduces load on scarce resources.
+
+
+
+** Speeding up {CPU bound Applications}
+
+  CPU bound applications are often sped up by:
+
+   * improving algorithm performance
+
+   * parallelizing the computations across multiple CPUs (SMP) or multiple machines (Clusters).
+
+   * upgrading the CPU speed.
+
+   The role of caching, if there is one, is to temporarily store computations that may be reused again.
+
+   An example from ehcache would be large web pages that have a high rendering cost. Another caching of authentication
+   status, where authentication requires cryptographic transforms.
+
+** Speeding up {I/O bound Applications}
+
+    Many applications are I/O bound, either by disk or network operations. In the case of databases they can be limited
+     by both.
+
+    There is no Moore's law for hard disks. A 10,000 RPM disk was fast 10 years ago and is still fast. Hard disks are
+     speeding up by using their own caching of blocks into memory.
+
+    Network operations can be bound by a number of factors:
+
+    * time to set up and tear down connections
+
+    * latency, or the minimum round trip time
+
+    * throughput limits
+
+    * marshalling and unmarhshalling overhead
+
+    The caching of data can often help a lot with I/O bound applications. Some examples of ehcache uses are:
+
+   * Data Access Object caching for Hibernate
+
+   * Web page caching, for pages generated from databases.
+
+** Increased Application Scalability
+
+   The flip side of increased performance is increased scalability. Say you have a database which can do 100 expensive
+    queries per second. After that it backs up and if connections are added to it it slowly dies.
+
+    In this case, caching may be able to reduce the workload required. If caching can cause 90 of that 100 to be cache hits
+    and not even get to the database, then the database can scale 10 times higher than otherwise.
+
+
+* How much will an application speed up with Caching?
+
+** The short answer
+
+   The short answer is that it depends on a multitude of factors being:
+
+   * how many times a cached piece of data can and is reused by the application
+
+   * the proportion of the response time that is alleviated by caching
+
+   In applications that are I/O bound, which is most business applications, most of the response time is getting data
+    from a database. Therefore the speed up mostly depends on how much reuse a piece of data gets.
+
+    In a system where each piece of data is used just once, it is zero. In a system where data is reused a lot, the speed
+    up is large.
+
+    []
+
+    The long answer, unfortunately, is complicated and mathematical. It is considered next.
+
+
+
+** Applying {Amdahl's Law}
+
+    Amdahl's law, after Gene Amdahl, is used to find the system speed up from a speed up in part of the system.
+
+------
+    1 / ((1 - Proportion Sped Up) + Proportion Sped Up / Speed up)
+------
+
+    The following examples show how to apply Amdahl's law to common situations. In the interests of simplicity,
+    we assume:
+
+    * a single server
+
+    * a system with a single thing in it, which when cached, gets 100% cache hits and lives forever.
+
+*** Persistent Object Relational Caching
+
+    A Hibernate Session.load() for a single object is about 1000 times faster from cache than from a database.
+
+    A typical Hibernate query will return a list of IDs from the database, and then attempt to load each. If Session.iterate()
+    is used Hibernate goes back to the database to load each object.
+
+    Imagine a scenario where we execute a query against the database which returns a hundred IDs and then load each one.
+
+    The query takes 20% of the time and the roundtrip loading takes the rest (80%). The database query itself is 75% of
+    the time that the operation takes. The proportion being sped up is thus 60% (75% * 80%).
+
+    The expected system speedup is thus:
+
+-------
+    1 / ((1 - .6) + .6 / 1000)
+
+    = 1 / (.4 + .006)
+
+    = 2.5 times system speedup
+-------
+
+
+*** Web Page Caching
+
+    An observed speed up from caching a web page is 1000 times. Ehcache can retrieve a page from its SimplePageCachingFilter
+    in a few ms.
+
+    Because the web page is the end result of a computation, it has a proportion of 100%.
+
+    The expected system speedup is thus:
+
+
+------
+        1 / ((1 - 1) + 1 / 1000)
+
+        = 1 / (0 + .001)
+
+        = 1000 times system speedup
+------
+
+*** Web Page Fragment Caching
+
+    Caching the entire page is a big win. Sometimes the liveness requirements vary in different parts of the page.
+    Here the SimplePageFragmentCachingFilter can be used.
+
+    Let's say we have a 1000 fold improvement on a page fragment that taking 40% of the page render time.
+
+    The expected system speedup is thus:
+
+------
+        1 / ((1 - .4) + .4 / 1000)
+
+        = 1 / (6 + .004)
+
+        = 1.6 times system speedup
+------
+
+
+** Cache Efficiency
+
+    In real life cache entrie do not live forever. Some examples that come close are "static" web pages
+     or fragments of same, like page footers, and in the database realm, reference data, such as the currencies in the world.
+
+    Factors which affect the efficiency of a cache are:
+
+    [liveness] how live the data needs to be. The less live the more it can be cached
+
+    [proportion of data cached] what proportion of the data can fit into the resource limits of the machine. For 32 bit Java
+       systems, there was a hard limit of 2GB of address space. While now relaxed, garbage collection issues make it harder to
+       go a lot large. Various eviction algorithms are used to evict excess entries.
+
+    [Shape of the usage distribution] If only 300 out of 3000 entries can be cached, but the Pareto distribution applies,
+       it may be that 80% of the time, those 300 will be the ones requested. This drives up the average request lifespan.
+
+    [Read/Write ratio] The proportion of times data is read compared with how often it is written. Things such as the
+       number of rooms left in a hotel will be written to quite a lot. However the details of a room sold are immutable
+       once created so have a maximum write of 1 with a potentially large number of reads.
+
+    Ehcache keeps these statistics for each Cache and each element, so they can be measured directly rather than estimated.
+
+
+** Cluster Efficiency
+
+ Also in real life, we generally do not find a single server?
+
+ Assume a round robin load balancer where each hit goes to the next server.
+
+ The cache has one entry which has a variable lifespan of requests, say caused by a time to live. The following
+ table shows how that lifespan can affect hits and misses.
+
+------
+
+ Server 1    Server 2   Server 3    Server 4
+
+  M             M           M           M
+  H             H           H           H
+  H             H           H           H
+  H             H           H           H
+  H             H           H           H
+  ...           ...         ...         ...
+------
+
+    The cache hit ratios for the system as a whole are as follows:
+
+-------
+
+Entry
+Lifespan  Hit Ratio   Hit Ratio  Hit Ratio   Hit Ratio
+in Hits   1 Server    2 Servers  3 Servers   4 Servers
+
+2          1/2           0/2         0/2         0/2
+4          3/4           2/4         1/4         0/4
+10         9/10          8/10        7/10        6/10
+20         19/20         18/20       17/20       16/10
+50         49/50         48/50       47/20       46/50
+
+-------
+
+    The efficiency of a cluster of standalone caches is generally:
+
+-----
+    (Lifespan in requests - Number of Standalone Caches) / Lifespan in requests
+-----
+
+    Where the lifespan is large relative to the number of standalone caches, cache efficiency is not much affected.
+
+    However when the lifespan is short, cache efficiency is dramatically affected.
+
+    (To solve this problem, ehcache supports distributed caching, where an entry put in a local cache is also propagated
+    to other servers in the cluster.)
+
+** A cache version of Amdahl's law
+
+       From the above we now have:
+
+
+--------
+ 1 / ((1 - Proportion Sped Up * effective cache efficiency) +
+ (Proportion Sped Up  * effective cache efficiency)/ Speed up)
+--------
+
+ effective cache efficiency = cache efficiency * cluster efficiency
+
+
+** Web Page example
+
+ Applying this to the earlier web page cache example where we have cache efficiency of 35% and average request lifespan of 10 requests
+  and two servers:
+
+------
+
+  cache efficiency = .35
+
+  cluster efficiency = .(10 - 1) / 10
+                     = .9
+
+  effective cache efficiency = .35 * .9
+                             = .315
+
+        1 / ((1 - 1 * .315) + 1 * .315 / 1000)
+
+        = 1 / (.685 + .000315)
+
+        = 1.45 times system speedup
+------
+
+  What if, instead the cache efficiency is 70%; a doubling of efficiency. We keep to two servers.
+
+------
+
+  cache efficiency = .70
+
+  cluster efficiency = .(10 - 1) / 10
+                     = .9
+
+  effective cache efficiency = .70 * .9
+                             = .63
+
+        1 / ((1 - 1 * .63) + 1 * .63 / 1000)
+
+        = 1 / (.37 + .00063)
+
+        = 2.69 times system speedup
+------
+
+  What if, instead the cache efficiency is 90%; a doubling of efficiency. We keep to two servers.
+
+------
+
+  cache efficiency = .90
+
+  cluster efficiency = .(10 - 1) / 10
+                     = .9
+
+  effective cache efficiency = .9 * .9
+                             = .81
+
+        1 / ((1 - 1 * .81) + 1 * .81 / 1000)
+
+        = 1 / (.19 + .00081)
+
+        = 5.24 times system speedup
+------
+
+
+
+ Why is the reduction so dramatic? Because Amdahl's law is most sensitive to the proportion of the system that is sped up.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

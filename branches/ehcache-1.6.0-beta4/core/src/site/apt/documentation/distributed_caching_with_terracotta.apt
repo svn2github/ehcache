@@ -1,0 +1,22 @@
+{Distributed Caching via Terracotta}
+
+    Terracotta provides direct integration with ehcache. Both the Terracotta and Ehcache maintainers
+    collaborate to ensure this works seamlessly.
+
+    Because of the nature of Terracotta, you start with a non-distributed ehcache configuration.
+
+    Rather than repeat the Terracotta documentation, links are provided.
+
+*   Features
+
+    See {{http://www.terracotta.org/confluence/display/integrations/EHCache}}.
+
+*   Getting Started
+
+    See {{http://www.terracotta.org/confluence/display/howto/EHCache+Quick+Start}}.
+        
+
+
+    
+
+    
