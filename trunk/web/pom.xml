@@ -16,7 +16,7 @@
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>ehcache</artifactId>
-            <version>[1.5,1.6]</version>
+            <version>[1.6.0-beta4,]</version>
         </dependency>
 
         <dependency>
@@ -206,7 +206,7 @@
                     <target>1.5</target>
                 </configuration>
             </plugin>
-
+<!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
@@ -232,7 +232,7 @@
                     <enableRulesSummary>true</enableRulesSummary>
                 </configuration>
             </plugin>
-
+-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
