@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
+
+        <release version="1.6.0" date="2009-12-31"
+                 desc="This release introduces new high perforamnce cache core, which is two orders of magnitude
+                 faster.">
+
+            <!-- Bug Fixes -->
+            <action dev="Greg Luck" type="fix" issue="2750578">
+                Fix DiskStore recovery after dirty shutdown bug introduced in beta4.
+            </action>
+        </release>
+
         <release version="1.6.0-beta4" date="2009-4-7"
                  desc="This release introduces new high perforamnce cache core, which is two orders of magnitude
                  faster.">

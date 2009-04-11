@@ -806,16 +806,13 @@ public class DiskStore implements Store {
                 success = true;
             } catch (StreamCorruptedException e) {
                 LOG.severe("Corrupt index file. Creating new index.");
-                createNewIndexFile();
             } catch (IOException e) {
                 //normal when creating the cache for the first time
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("IOException reading index. Creating new index. ");
                 }
-                createNewIndexFile();
             } catch (ClassNotFoundException e) {
                 LOG.log(Level.SEVERE, "Class loading problem reading index. Creating new index. Initial cause was " + e.getMessage(), e);
-                createNewIndexFile();
             } finally {
                 try {
                     if (objectInputStream != null) {
@@ -825,6 +822,10 @@ public class DiskStore implements Store {
                     }
                 } catch (IOException e) {
                     LOG.severe("Problem closing the index file.");
+                }
+
+                if (!success) {
+                    createNewIndexFile();
                 }
             }
         } else {
@@ -838,9 +839,12 @@ public class DiskStore implements Store {
 
     private void createNewIndexFile() throws IOException {
         if (indexFile.exists()) {
-            indexFile.delete();
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Index file " + indexFile + " deleted.");
+            if (indexFile.delete()) {
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Index file " + indexFile + " deleted.");
+                }
+            } else {
+                throw new IOException("Index file " + indexFile + " could not deleted.");
             }
         }
         if (indexFile.createNewFile()) {
