@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import static java.lang.Thread.sleep;
 
 /**
  * Tests the server on its own.
@@ -30,8 +31,9 @@ public class ServerIntegrationTest {
     @BeforeClass
     public static void startup() throws Exception, InterruptedException {
         Server.main(new String[]{"8080", "target/war/work/net.sf.ehcache/ehcache-server/"});
-        Thread.sleep(20000);
+        sleep(10000);
     }
+
 
     /**
      * Checks that the SOAP Web Service is actually running
@@ -74,7 +76,7 @@ public class ServerIntegrationTest {
 
     //Test
     public void testManual() throws InterruptedException {
-        Thread.sleep(1000000);
+        sleep(1000000);
     }
 
 

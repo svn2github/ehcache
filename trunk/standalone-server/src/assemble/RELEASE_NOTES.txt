@@ -14,6 +14,3 @@ Known Issues
 1. The JSVC source does not compile on Mac OS X. See https://issues.apache.org/jira/browse/DAEMON-98, which
    contains a patch for this issue. JSVC has 38 unclosed bugs at this time. If you have trouble with JSVC, use the
    shell scripts provided.
-
-2. GFV3 Embedded m2 does not start up the JMX server. This bug has been fixed in GFV3 trunk but will not
-   fixed until the next release. In the meantime JMX will not be available.

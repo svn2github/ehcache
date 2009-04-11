@@ -22,6 +22,7 @@ import org.apache.commons.daemon.DaemonContext;
 import org.apache.commons.daemon.DaemonController;
 import org.glassfish.embed.EmbeddedException;
 import org.glassfish.embed.EmbeddedInfo;
+import org.glassfish.embed.EmbeddedDeployer;
 
 import java.io.File;
 import java.util.logging.Level;
@@ -29,9 +30,13 @@ import java.util.logging.Logger;
 
 /**
  * The ehcache server.
- * <p/>
- * This version uses the Java 6 built-in lightweight HTTP server, which is not suitable for production,
- * according to the research I have done.
+ *
+ * By default the server listens for HTTP at 8080 and JMX at 8081.
+ *
+ * The HTTP Port may be passed in. The JMX port is always the HTTP port + 1. So, if the HTTP port is 9076, the JMX
+ * listening port will be 9077.
+ *
+ * No other ports are opened.
  *
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
@@ -42,7 +47,7 @@ public class Server implements Daemon {
     /**
      * Default port: 8080
      */
-    public static final Integer DEFAULT_PORT = 8080;
+    public static final Integer DEFAULT_BASE_PORT = 8080;
 
     private static final Logger LOG = Logger.getLogger(Server.class.getName());
 
@@ -50,8 +55,7 @@ public class Server implements Daemon {
 
     private DaemonController controller;
     private File war;
-    private Integer port = DEFAULT_PORT;
-
+    private Integer httpPort = DEFAULT_BASE_PORT;
 
     /**
      * Empty constructor.
@@ -64,12 +68,13 @@ public class Server implements Daemon {
     }
 
     /**
-     * Constructs a server on a given port
+     * Constructs a server listening at the given HTTP port
      *
-     * @param port the port to listen on.
+     * @param httpPort the HTTP port to listen on. The JMX connector port is always to set to the HTTP port + 1.
+     * @param ehcacheServerWar the ehcache-server.war
      */
-    public Server(Integer port, File ehcacheServerWar) {
-        this.port = port;
+    public Server(Integer httpPort, File ehcacheServerWar) {
+        this.httpPort = httpPort;
         this.war = ehcacheServerWar;
     }
 
@@ -84,7 +89,7 @@ public class Server implements Daemon {
     public void init(DaemonContext daemonContext) throws Exception {
         String[] args = daemonContext.getArguments();
         if (args.length < 1 || args.length > 2 || (args.length == 1 && args[0].matches("--help"))) {
-            System.out.println("Usage: java -jar ...  [http port] warfile | wardir ");
+            System.out.println("Usage: java -jar ...  [http httpPort] warfile | wardir ");
             System.exit(0);
         }
         if (args.length == 1) {
@@ -95,7 +100,7 @@ public class Server implements Daemon {
             }
         }
         if (args.length == 2) {
-            port = Integer.parseInt(args[0]);
+            httpPort = Integer.parseInt(args[0]);
             war = new File(args[1]);
             if (!war.exists()) {
                 System.err.println("Error: War file or exploded directory " + war + " does not exist.");
@@ -117,7 +122,7 @@ public class Server implements Daemon {
      * @throws Exception
      */
     public void start() throws Exception {
-        System.out.println("\nStarting standalone ehcache server on port " + port + " with WAR file or directory " + war);
+        System.out.println("\nStarting standalone ehcache server on httpPort " + httpPort + " with WAR file or directory " + war);
         serverThread = new GlassfishServerThread();
         serverThread.start();
     }
@@ -235,20 +240,26 @@ public class Server implements Daemon {
             try {
 
                 EmbeddedInfo embeddedInfo = new EmbeddedInfo();
-                embeddedInfo.setHttpPort(port);
+                embeddedInfo.setHttpPort(httpPort);
+                Integer jmxPort = httpPort + 1;
+                embeddedInfo.setJmxConnectorPort(jmxPort);
                 embeddedInfo.setServerName("Ehcache Server");
+                embeddedInfo.setLogging(false);
 
                 server = org.glassfish.embed.Server.getServer("Ehcache Server");
                 if (server == null) {
                     server = new org.glassfish.embed.Server(embeddedInfo);
                 }
                 server.start();
-                server.deploy(war);
+                server.setListings(true);
+                EmbeddedDeployer embeddedDeployer = server.getDeployer();
+                embeddedDeployer.deploy(war);
 
-                LOG.info("Glassfish server running on port " + port + " with WAR " + war);
+                LOG.info("Glassfish server running on httpPort " + httpPort + " with WAR " + war
+                        + ". JMX is listening at " + jmxPort);
             } catch (Exception e) {
                 LOG.log(Level.SEVERE, "Cannot start server. ", e);
-            } 
+            }
         }
 
         /**

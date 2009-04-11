@@ -1,5 +1,22 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+0.7 11 April 2009
+=================
+
+1. Upgraded to GFV3 Embedded b14. This fixes a number of issues that were reported to the GFV3 team by this project:
+
+    - the JMX server now starts, so Ehcache Standalone Server may be monitored
+    - directory listings are now disabled, avoiding confusion.
+    - the default port of 8888 was always started and then swapped out to the port specified in the command line. That
+      is now fixed, so that only the specified port starts. This issue was preventing installation of more than
+      one instance on a machine and on machines with that port already in use.
+
+2. Upgraded ehcache-server to 0.7. This brings in an improvement to PUT so that a per element time to live may
+       be specified using the HTTP request header "ehcacheTimeToLiveSeconds".
+
+3. As of this release two ports are used: the HTTP port which is specfied in the command line, and the JMX port, which is
+   set to the HTTP listening port + 1. 
+
 0.6 24 December 2008
 ====================
 

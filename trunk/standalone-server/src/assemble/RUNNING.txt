@@ -44,7 +44,14 @@ start - startup.sh
 
 From the bin directory you can also invoke the following command directly:
 
-unix    - java -jar ../lib/ehcache-standalone-server-0.1.jar 8080 ../war
-windows - java -jar ..\lib\ehcache-standalone-server-0.1.jar 8080 ..\war
+unix    - java -jar ../lib/${project.build.finalName}.jar <http port> ../war
+windows - java -jar ..\lib\${project.build.finalName}.jar <http port> ..\war
 
+
+Ports
+-----
+
+The HTTP listening port is specified on the command line. The Ehcache Server also opens a JMX listening port so that it
+can be monitored. This is always the HTTP listening port + 1. So, if port 8080 is specified for HTTP, port 8081 will be
+used for JMX.
 
