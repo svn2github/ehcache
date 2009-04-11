@@ -9,7 +9,7 @@
     </parent>
     <name>Ehcache Server</name>
     <artifactId>ehcache-server</artifactId>
-    <version>0.6</version>
+    <version>0.7</version>
     <packaging>war</packaging>
     <description>The ehcache W3C and RESTful web services server.</description>
     <dependencies>
@@ -25,7 +25,7 @@
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
-            <version>1.6.0-beta2</version>
+            <version>[1.6.0-beta4,]</version>
         </dependency>
         <!--Cannot find these complete anywhere. Bug logged against WSIT project. prefix with metro to stop
          a broken one coming down. Must be installed locally. -->
@@ -90,32 +90,32 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-checkstyle-plugin</artifactId>-->
                 <!-- Doesn't work when not internet connected -->
-                <executions>
-                    <execution>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>checkstyle</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>
-                    <suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>
-                    <headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>
-                    <enableRSS>false</enableRSS>
-                    <linkXRef>true</linkXRef>
-                    <enableRulesSummary>false</enableRulesSummary>
-                    <consoleOutput>true</consoleOutput>
-                    <failsOnError>true</failsOnError>
-                    <failOnViolation>true</failOnViolation>
-                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                    <enableRulesSummary>true</enableRulesSummary>
-                </configuration>
-            </plugin>
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<phase>verify</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>checkstyle</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+                <!--<configuration>-->
+                    <!--<configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>-->
+                    <!--<suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>-->
+                    <!--<headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>-->
+                    <!--<enableRSS>false</enableRSS>-->
+                    <!--<linkXRef>true</linkXRef>-->
+                    <!--<enableRulesSummary>false</enableRulesSummary>-->
+                    <!--<consoleOutput>true</consoleOutput>-->
+                    <!--<failsOnError>true</failsOnError>-->
+                    <!--<failOnViolation>true</failOnViolation>-->
+                    <!--<includeTestSourceDirectory>true</includeTestSourceDirectory>-->
+                    <!--<enableRulesSummary>true</enableRulesSummary>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
 
             <!--Conflicts with Dave Whitla's plugin with the same goal.
             Use mvn org.glassfish:maven-glassfish-plugin:run instead
@@ -268,31 +268,31 @@
             <!--<goalPrefix>glassfish</goalPrefix>-->
             <!--</configuration>-->
             <!--</plugin>-->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxws-maven-plugin</artifactId>
-                <configuration>
-                    <sei>net.sf.ehcache.server.soap.EhcacheWebServiceEndpoint</sei>
-                    <genWsdl>true</genWsdl>
-                    <destDir></destDir>
-                    <keep>true</keep>
-                    <verbose>true</verbose>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>wsgen</goal>
-                        </goals>
-                        <configuration>
-                            <sei>net.sf.ehcache.server.soap.EhcacheWebServiceEndpoint</sei>
-                            <genWsdl>true</genWsdl>
-                            <keep>true</keep>
-                            <verbose>true</verbose>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.codehaus.mojo</groupId>-->
+                <!--<artifactId>jaxws-maven-plugin</artifactId>-->
+                <!--<configuration>-->
+                    <!--<sei>net.sf.ehcache.server.soap.EhcacheWebServiceEndpoint</sei>-->
+                    <!--<genWsdl>true</genWsdl>-->
+                    <!--<destDir></destDir>-->
+                    <!--<keep>true</keep>-->
+                    <!--<verbose>true</verbose>-->
+                <!--</configuration>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<phase>verify</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>wsgen</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<sei>net.sf.ehcache.server.soap.EhcacheWebServiceEndpoint</sei>-->
+                            <!--<genWsdl>true</genWsdl>-->
+                            <!--<keep>true</keep>-->
+                            <!--<verbose>true</verbose>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>

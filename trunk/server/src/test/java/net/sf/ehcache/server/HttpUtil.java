@@ -31,6 +31,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.util.logging.Logger;
+import java.util.Set;
+import java.util.Map;
 
 /**
  * Utilities used by tests
@@ -41,9 +43,7 @@ public class HttpUtil {
 
     private static final Logger LOG = Logger.getLogger(HttpUtil.class.getName());
 
-    private HttpUtil() {
-        //utility class
-    }
+
 
     public static HttpURLConnection get(String uri) throws IOException, ParserConfigurationException, SAXException {
         URL u = new URL(uri);
@@ -72,6 +72,28 @@ public class HttpUtil {
     public static int put(String uri, String mediaType, InputStream in) throws IOException {
         URL u = new URL(uri);
         HttpURLConnection uc = (HttpURLConnection) u.openConnection();
+        uc.setRequestMethod("PUT");
+        uc.setRequestProperty("Content-Type", mediaType);
+        uc.setDoOutput(true);
+
+        OutputStream out = uc.getOutputStream();
+
+        byte[] data = new byte[2048];
+        int read;
+        while ((read = in.read(data)) != -1)
+            out.write(data, 0, read);
+        out.close();
+
+        int status = uc.getResponseCode();
+        LOG.info("Status: " + status);
+        uc.disconnect();
+        return status;
+    }
+
+    public static int put(String uri, String mediaType, InputStream in, Header requestHeader) throws IOException {
+        URL u = new URL(uri);
+        HttpURLConnection uc = (HttpURLConnection) u.openConnection();
+        uc.setRequestProperty(requestHeader.key, requestHeader.value);
         uc.setRequestMethod("PUT");
         uc.setRequestProperty("Content-Type", mediaType);
         uc.setDoOutput(true);
@@ -165,6 +187,18 @@ public class HttpUtil {
         String mediaType = httpURLConnection.getContentType();
         LOG.info("Content Type: " + mediaType);
         return httpURLConnection;
+    }
+
+    public static class Header {
+
+        public Header(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public String key;
+        public String value;
+
     }
 
 

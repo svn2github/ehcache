@@ -34,6 +34,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -156,11 +157,11 @@ public class ElementResource {
     /**
      * Implements the PUT method
      *
-     * @param headers
-     * @param data
-     * @return
-     * @throws com.sun.jersey.api.NotFoundException
-     *          if the cache is not found. Jersey will send a 404 response with the message.
+     * @param headers this method parses the mime type header and also ehcacheTimeToLiveSeconds, which is used
+     * to override the cache's default time to live.
+     * @param data the data is stored in a MimeTypeByteArray
+     * @return 201 for a successful PUT
+     * @throws com.sun.jersey.api.NotFoundException if the cache is not found a 404 response with the message.
      */
     @PUT
     public Response putElement(@Context HttpHeaders headers, byte[] data) throws NotFoundException {
@@ -169,6 +170,9 @@ public class ElementResource {
         net.sf.ehcache.Cache ehcache = lookupCache();
 
         URI uri = uriInfo.getAbsolutePath();
+
+        Integer ehcacheTimeToLiveSeconds = extractEhcacheTimeToLiveSeconds(headers);
+
         MediaType mimeType = headers.getMediaType();
         String mimeTypeString = null;
         if (mimeType == null) {
@@ -176,6 +180,7 @@ public class ElementResource {
         } else {
             mimeTypeString = mimeType.toString();
         }
+
         Element localElement = new Element(data, uri.toString(), mimeTypeString);
 
         Response response;
@@ -188,11 +193,32 @@ public class ElementResource {
 
         MimeTypeByteArray mimeTypeByteArray = new MimeTypeByteArray(localElement.getMimeType(), data);
 
-        ehcache.put(new net.sf.ehcache.Element(this.element, mimeTypeByteArray));
+        net.sf.ehcache.Element element = new net.sf.ehcache.Element(this.element, mimeTypeByteArray);
+        if (ehcacheTimeToLiveSeconds != null) {
+            element.setTimeToLive(ehcacheTimeToLiveSeconds);
+        }
+        ehcache.put(element);
+
 
         // Create the cache if one has not been created
 //            URI cacheUri = uriInfo.getAbsolutePathBuilder().path("..").build().normalize();
         return response;
+    }
+
+    private Integer extractEhcacheTimeToLiveSeconds(HttpHeaders headers) {
+        Integer ehcacheTimeToLiveSeconds = null;
+        List<String> ttlHeaders = headers.getRequestHeader("ehcacheTimeToLiveSeconds");
+        if (ttlHeaders != null && !ttlHeaders.isEmpty()) {
+            String ehcacheTimeToLiveSecondsString = ttlHeaders.get(0);
+            try {
+                ehcacheTimeToLiveSeconds = Integer.parseInt(ehcacheTimeToLiveSecondsString);
+            } catch (NumberFormatException e) {
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Cannot parse " + ehcacheTimeToLiveSecondsString);
+                }
+            }
+        }
+        return ehcacheTimeToLiveSeconds;
     }
 
     /**

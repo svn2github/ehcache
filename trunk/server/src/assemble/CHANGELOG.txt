@@ -1,5 +1,13 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+<release version="0.7" date="2008-04-11" desc="Minor release">
+    <!-- Features and Enhancements -->
+    <action dev="Greg Luck" type="add">
+        Add ehcacheTimeToLiveSeconds as a PUT request header which enables the per element time to live to override
+        the defaults for a cache.
+    </action>
+</release>
+
 <release version="0.6" date="2008-12-24" desc="Major release">
     <!-- Features and Enhancements -->
     <action dev="Greg Luck" type="add">
@@ -12,7 +20,7 @@ $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
         Upgrade Jersey to the 1.0 release. There are no behavioural changes.
     </action>
     <action dev="Greg Luck" type="update">
-        Cache resources now return a more complete representation showing configuration and statistics sub-elements. 
+        Cache resources now return a more complete representation showing configuration and statistics sub-elements.
     </action>
     <action dev="Greg Luck" type="add">
         Added a DELETE cachename/* method to the API. Use this to clear the contents of a cache without removing

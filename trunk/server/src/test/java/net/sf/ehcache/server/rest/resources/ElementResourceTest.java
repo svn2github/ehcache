@@ -60,6 +60,7 @@ import java.net.URISyntaxException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
 
@@ -197,7 +198,60 @@ public class ElementResourceTest {
 
 
     /**
-     *
+     * Tests specifying the ehcacheTimeToLiveSeconds request header
+     */
+    @Test
+    public void testPutOverrideTTL() throws Exception {
+        long beforeCreated = System.currentTimeMillis();
+        Thread.sleep(10);
+        String originalString = "The rain in Spain falls mainly on the plain";
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(originalString.getBytes());
+
+        assertEquals(404, HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1").getResponseCode());
+        HttpUtil.Header header = new HttpUtil.Header("ehcacheTimeToLiveSeconds", "2");
+        int status = HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream, header);
+        assertEquals(201, status);
+
+        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
+        assertEquals(200, urlConnection.getResponseCode());
+
+        Thread.sleep(3000);
+        urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
+        assertEquals(404, urlConnection.getResponseCode());
+
+        header = new HttpUtil.Header("ehcacheTimeToLiveSeconds", "garbage");
+        status = HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream, header);
+        assertEquals(201, status);
+
+        //Should have not parsed
+        Thread.sleep(3000);
+        urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
+        assertEquals(200, urlConnection.getResponseCode());
+
+
+        header = new HttpUtil.Header("ehcacheTimeToLiveSeconds", null);
+        status = HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream, header);
+        assertEquals(201, status);
+
+        //Should have not parsed
+        Thread.sleep(3000);
+        urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
+        assertEquals(200, urlConnection.getResponseCode());
+
+        //the header is case insensitive
+        header = new HttpUtil.Header("EhcachetImeToLiveSeconds", "1");
+        status = HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream, header);
+        assertEquals(201, status);
+
+        Thread.sleep(3000);
+        urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
+        assertEquals(404, urlConnection.getResponseCode());
+
+
+    }
+
+
+    /**
      * @throws java.io.IOException
      * @throws javax.xml.parsers.ParserConfigurationException
      *
@@ -221,7 +275,6 @@ public class ElementResourceTest {
 
 
     /**
-     *
      * @throws java.io.IOException
      * @throws javax.xml.parsers.ParserConfigurationException
      *
@@ -310,11 +363,10 @@ public class ElementResourceTest {
     }
 
 
-
     /**
      * Stick in a java object without mime type of application/x-java-serialized-object.
      * Server does not accept the content and responds with a 400
-     *
+     * <p/>
      * Note: it this test causes a java.lang.IllegalArgumentException: Error parsing media type '' in the server log.
      */
     @Test
@@ -407,10 +459,6 @@ public class ElementResourceTest {
         assertEquals(304, urlConnection.getResponseCode());
 
     }
-
-
-
-
 
 
     @Test
