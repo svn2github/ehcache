@@ -1456,7 +1456,6 @@ public class Cache implements Ehcache {
      */
     public synchronized void dispose() throws IllegalStateException {
         checkStatusNotDisposed();
-        changeStatus(Status.STATUS_SHUTDOWN);
 
         if (executorService != null) {
             executorService.shutdown();
@@ -1473,6 +1472,7 @@ public class Cache implements Ehcache {
             diskStore.dispose();
             diskStore = null;
         }
+        changeStatus(Status.STATUS_SHUTDOWN);
     }
 
     private void initialiseRegisteredCacheExtensions() {
