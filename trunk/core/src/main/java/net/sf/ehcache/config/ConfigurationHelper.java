@@ -258,14 +258,13 @@ public final class ConfigurationHelper {
     /**
      * Tries to load the class specified otherwise defaults to null
      *
-     * @return
+     * @return a map of CacheManagerPeerProviders
      */
     public Map<String, CacheManagerPeerProvider> createCachePeerProviders() {
         String className = null;
         Map<String, CacheManagerPeerProvider> cacheManagerPeerProviders = new HashMap<String, CacheManagerPeerProvider>();
         List<FactoryConfiguration> cachePeerProviderFactoryConfiguration =
                 configuration.getCacheManagerPeerProviderFactoryConfiguration();
-        boolean first = true;
         for (FactoryConfiguration factoryConfiguration : cachePeerProviderFactoryConfiguration) {
 
             if (factoryConfiguration != null) {

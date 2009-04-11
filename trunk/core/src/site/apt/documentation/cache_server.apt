@@ -6,8 +6,8 @@
     The Cache Server has two APIs: RESTful resource oriented, and SOAP. Both support clients in any programming
     language.
 
-    A Note on terminology: Leonard Richardson and Sam Ruby have done a great job of clarifying the different Web Services architectures and
-    distinguishing them from each other. We use their taxonomy in describing web services. See {{http://www.oreilly.com/catalog/9780596529260/}}.
+    (A Note on terminology: Leonard Richardson and Sam Ruby have done a great job of clarifying the different Web Services architectures and
+    distinguishing them from each other. We use their taxonomy in describing web services. See {{http://www.oreilly.com/catalog/9780596529260/}}.)
 
 *   RESTful Web Services
 
@@ -95,6 +95,10 @@
 *** {PUT} /\{cache\}/\{element\}
 
     Puts an element into the Cache.
+
+    The time to live of new Elements defaults to that for the cache. This may be overridden by setting the
+    HTTP request header <<<ehcacheTimeToLiveSeconds>>>. Values of 0 to 2147483647 are accepted. A value of 0
+    means eternal.
 
 *** {DELETE} / \{cache\}/\{element\}
 
@@ -762,19 +766,16 @@ The programmatic interfaces made available are referred to as Web services.
 
     * Untar the download
 
-    * bin/start.sh to start. By default it will listen on port 8080, will have both RESTful and SOAP
-      web services enabled, and will use a sample Ehcache configuration from the WAR module.
+    * bin/start.sh to start. By default it will listen on port 8080, with JMX listening on port 8081,
+      will have both RESTful and SOAP web services enabled, and will use a sample Ehcache configuration from the WAR module.
 
     * bin/stop.sh to stop
-
-    See the INSTALL.txt that comes with the tarball for detailed instructions.
 
 **  Configuring the Standalone Server
 
     Configuration is by editing the war/web.xml file as per the instructions for the WAR packaging.
 
 **  Starting and Stopping the Standalone Server
-
 
 *** Using Commons Daemon jsvc
 
@@ -822,8 +823,8 @@ The programmatic interfaces made available are referred to as Web services.
     From the bin directory you can also invoke the following command directly:
 
 ---
-    unix    - java -jar ../lib/ehcache-standalone-server-0.1.jar 8080 ../war
-    windows - java -jar ..\lib\ehcache-standalone-server-0.1.jar 8080 ..\war
+    unix    - java -jar ../lib/ehcache-standalone-server-0.7.jar 8080 ../war
+    windows - java -jar ..\lib\ehcache-standalone-server-0.7.jar 8080 ..\war
 ---
 
 *   Monitoring
@@ -837,27 +838,20 @@ The programmatic interfaces made available are referred to as Web services.
 
     See your Web Container documentation for how to do this for your web container.
 
-**  Remotely Monitoring the Standalone Server
+**  Remotely Monitoring the Standalone Server with JMX
 
-    The standalone server automatically exposes the MBeanServer.
+    The standalone server automatically exposes the MBeanServer on a port 1 higher than the HTTP listening port.
 
-    When it starts you will see the JMS service URL print out. e.g.
 
----
-Nov 20, 2008 1:00:00 PM org.glassfish.admin.mbeanserver.ConnectorStartupService$ConnectorsStarterThread startConnector
-INFO: Started JMXConnector, JMXService URL = service:jmx:rmi:///jndi/rmi://192.168.1.108:8686/jmxrmi
----
-
-    To connect with <<<JConsole>>> simply fire up JConsole, click on the Advanced Tab and then paste in the
-    service URL. In the above example that is
+    To connect with <<<JConsole>>> simply fire up JConsole, enter the host in the Remote field and portIn the above example that is
 
 ---
-service:jmx:rmi:///jndi/rmi://192.168.1.108:8686/jmxrmi
+192.168.1.108:8686
 ---
 
     Then click <<<Connect>>>.
 
-    To the ehcache MBean, click on the <<<Mbeans>>> tab and expand the <<<net.sf.ehcache>>> tree node.
+    To see the ehcache MBeans, click on the <<<Mbeans>>> tab and expand the <<<net.sf.ehcache>>> tree node.
 
     You will see something like the following.
 

@@ -7,6 +7,24 @@
 
 News
 
+* 11 April 2009: Ehcache Server and Ehcache Web updates released
+
+    Ehcache Server, Standalone Server and Ehcache Web have been released to Maven Central and Sourceforge Downloads.
+
+    Ehcache Server adds per PUT ttls to its REST API. The Standalone Server is upgraded to build 14 of Glassfish V3 Prelude
+    Embedded which fixes all outstanding feature requests raised against it by this project. See the updated
+    {{{http://ehcache.sourceforge.net/documentation/cache_server.html}documentation}}.
+
+    Ehcache Web 1.6.0-beta2 contains a minor bug fix over beta1.
+
+    This beta release of ehcache-1.6.0 adds bug fixes and dramatic performance improvements.
+
+   Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. All documentation is
+    {{{http://ehcache.sourceforge.net/documentation}here}}.
+
+    A note on naming. With ehcache fully modularised, each module has its own release cycle which may or may not
+    correspond with the Ehcache core releases.
+
 
 * 7 April 2009: Ehcache 1.6.0-beta4 released
 

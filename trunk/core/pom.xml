@@ -10,7 +10,7 @@
     <name>Ehcache Core</name>
     <artifactId>ehcache</artifactId>
     <packaging>jar</packaging>
-    <version>1.6.0-beta4</version>
+    <version>1.6.0</version>
 
     <dependencies>
 
@@ -270,7 +270,7 @@
                     </execution>
                 </executions>
             </plugin>
-
+<!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
@@ -295,7 +295,7 @@
                     <enableRulesSummary>true</enableRulesSummary>
                 </configuration>
             </plugin>
-
+-->
 
             <!-- Use this to specify a different template. It also needs a local copy of maven-base.css -->
             <plugin>

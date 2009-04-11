@@ -36,8 +36,8 @@ import java.util.logging.Logger;
  * Ehcache CacheManagers and Caches have lifecycles. Often normal use of a CacheManager
  * will be to shut it down and create a new one from within a running JVM. For example,
  * in Java EE environments, applications are often undeployed and then redeployed. A
- * servlet listener, {@link net.sf.ehcache.constructs.web.ShutdownListener} enables this
- * to be detected and the CacheManager shutdown.
+ * servlet listener available in the web module, <code>net.sf.ehcache.constructs.web.ShutdownListener</code>}
+ * enables this to be detected and the CacheManager shutdown.
  * <p/>
  * When a CacheManager is shut down we need to ensure there is no memory, resource or
  * thread leakage. An MBeanServer, particularly a platform MBeanServer, can be expected

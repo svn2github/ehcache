@@ -33,7 +33,7 @@
 
     http://ehcache.sf.net/repository
 
-    http://ehcahce.sf.net/snapshotrepository
+    http://ehcache.sf.net/snapshotrepository
 
     The repository is synced with the Maven Central Repository.
 

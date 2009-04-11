@@ -20,6 +20,24 @@ Welcome to ehcache
 * Latest News
 
 
+** 11 April 2009: Ehcache Server and Ehcache Web updates released
+
+    Ehcache Server, Standalone Server and Ehcache Web have been released to Maven Central and Sourceforge Downloads.
+
+    Ehcache Server adds per PUT ttls to its REST API. The Standalone Server is upgraded to build 14 of Glassfish V3 Prelude
+    Embedded which fixes all outstanding feature requests raised against it by this project. See the updated
+    {{{http://ehcache.sourceforge.net/documentation/cache_server.html}documentation}}.
+
+    Ehcache Web 1.6.0-beta2 contains a minor bug fix over beta1.
+
+    This beta release of ehcache-1.6.0 adds bug fixes and dramatic performance improvements.
+
+   Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. All documentation is
+    {{{http://ehcache.sourceforge.net/documentation}here}}.
+
+    A note on naming. With ehcache fully modularised, each module has its own release cycle which may or may not
+    correspond with the Ehcache core releases.
+
 ** 7 April 2009: Ehcache 1.6.0-beta4 released
 
     This beta release of ehcache-1.6.0 adds bug fixes and dramatic performance improvements.
@@ -67,80 +85,7 @@ Welcome to ehcache
    Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. The documentation is
     {{{http://ehcache.sourceforge.net/documentation/distributed_caching_with_jgroups.html}here}}.
 
-** 18 October 2008: Ehcache 1.6-beta1 released.
 
-   The 1.6 release is a cleanup release which sets the foundation for future development.
-   It updates the required Java version to 1.5, removes consequently redundant libraries and
-   removes long deprecated methods. It also makes some fine tuning to the CacheLoader API.
-
-   Finally, this release completes ehcache's long migration to a pure maven build. As part of that,
-   JGRoups replication has been broken out into its own module.
-
-   See the {{{http://ehcache.sourceforge.net/changes-report.html#1.5.0}changelog}} for complete details.
-
-   Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. The documentation is
-    {{{http://ehcache.sourceforge.net/documentation}here}}.
-
-** 18 October 2008: ehcache-jmsreplication 0.1 released
-
-    This is the first release of JMS replication for ehcache. Thanks to Benoit Perroud for getting this going
-    with a code contribution.
-
-    It provides:
-
-    * replication between cache nodes using a replication topic, in accordance with ehcache's standard replication mechanism
-
-    * pushing of data directly to cache nodes from external topic publishers, in any language. This is done by sending
-      the data to the replication topic, where it automatically picked up by the cache subscribers.
-
-    * a JMSCacheLoader, which sends cache load requests to a queue. Either an ehcache cluster node, or an external
-      queue receiver can respond.
-
-   jmsreplication is it's own Maven module and downloadable distribution.
-
-   Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. The documentation is
-    {{{http://ehcache.sourceforge.net/documentation/distributed_caching_with_jms.html}here}}.
-
-** 16 October 2008: ehcache-server 0.5 released
-
-   This release of the SOAP and RESTful cache serverconsolidates minor changes and improvements based on feedback from
-    users , since the 0.1 release. The release is packaged both as a WAR for dropping into your web container of choice,
-     and as a ready to go server with Glassfish V3 embedded.
-
-   Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. The documentation is
-    {{{http://ehcache.sourceforge.net/documentation/cache_server.html}here}}.
-
-** 18 August 2008: Ehcache 1.6 development underway
-
-   Ehcache-1.6 development is underway.
-
-   1.6 Goals:
-
-   * Minimum Java version 1.5
-
-   * minimise dependencies for core users: drop commons logging, commons collections and backport concurrent (already done in trunk and snapshot)
-
-   * add a JMS distributed cache replicator
-
-   * add RESTful ehcache server as secondary store, leveraging the new ehcache-server, and using partitioning (memcached feature)
-
-   * introduce new performance strategies and secondary store categories to allow greater optimisation. The goal
-   is to make ehcache faster than java.util.concurrent for in-process caching and as scalable as memcached for out-of-process
-   caching.
-
-   * group invalidation (OSCACHE feature)
-
-   * add other oustanding feature requests
-
-   Check trunk regularly for updates. For maven users (of which ehcache is one) a SNAPSOT repository has been added. See
-    {{http://ehcache.sf.net/snapshotrepository}}
-
-** 11 August 2008: Ehcache 1.5 Book released on Lulu.com
-
-   The new edition of the {{{http://www.lulu.com/content/3553390}Ehcache Book}} has been released on Lulu.com. In particular
-   the book covers the new RESTful and SOAP Cache Server.
-
-   It is available in downloadable PDF or print versions.
 
  More {{{news.html}news}}...
 
