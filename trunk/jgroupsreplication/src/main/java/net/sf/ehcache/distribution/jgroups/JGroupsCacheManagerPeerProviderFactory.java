@@ -32,7 +32,6 @@ import net.sf.ehcache.util.PropertyUtil;
  */
 
 public class JGroupsCacheManagerPeerProviderFactory extends CacheManagerPeerProviderFactory {
-    
     private static final Logger LOG = Logger.getLogger(JGroupsCacheManagerPeerProviderFactory.class.getName());
     private static final String CONNECT = "connect";
 

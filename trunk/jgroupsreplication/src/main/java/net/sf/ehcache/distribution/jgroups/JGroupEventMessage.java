@@ -34,6 +34,9 @@ public class JGroupEventMessage extends EventMessage {
 
     private String cacheName;
 
+    public static final int ASK_FOR_BOOTSTRAP = 10;
+    public static final int BOOTSTRAP_REPLY = 11;
+    
     /**
      * An event message for the JGroupsCacheReplicator. We keep as transient the
      * origin cache and we serialize the cacheName. That way the JgroupManager

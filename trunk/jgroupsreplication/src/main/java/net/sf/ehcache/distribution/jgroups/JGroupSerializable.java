@@ -43,6 +43,10 @@ public class JGroupSerializable implements Serializable {
      * A removeAll, which removes all elements from a cache
      */
     public static final int REMOVE_ALL = EventMessage.REMOVE_ALL;
+    
+    public static final int ASK_FOR_BOOTSTRAP = JGroupEventMessage.ASK_FOR_BOOTSTRAP;
+    
+    public static final int BOOTSTRAP_REPLY = JGroupEventMessage.BOOTSTRAP_REPLY;
 
     private int event;
 

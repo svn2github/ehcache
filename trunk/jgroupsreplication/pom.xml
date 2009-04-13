@@ -1,5 +1,6 @@
-<?xml version="1.0"?>
-<project>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
         <artifactId>ehcache-parent</artifactId>
         <groupId>net.sf.ehcache</groupId>
@@ -9,30 +10,27 @@
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-jgroupsreplication</artifactId>
     <name>JGroups Replication</name>
-    <version>1.2</version>
+    <version>1.3</version>
     <packaging>jar</packaging>
     <description>This module provides replication via JGroups</description>
     <dependencies>
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>ehcache</artifactId>
-            <version>1.6.0-beta2</version>
+            <version>1.6.0-beta3</version>
         </dependency>
         <dependency>
             <groupId>jgroups</groupId>
-            <artifactId>jgroups-all</artifactId>
-            <version>2.4.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>bsh</groupId>
-                    <artifactId>bsh</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>jgroups</artifactId>
+            <version>2.6.8.GA</version>
         </dependency>
+        <!--Required by JGroups even though it is undeclared by JGroups-->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -40,8 +38,19 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <repositories>
+        <repository>
+            <id>jboss</id>
+            <url>http://repository.jboss.com/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
     <build>
-
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -72,10 +81,7 @@
                 </executions>
             </plugin>
         </plugins>
-
-
     </build>
-
 
     <!-- Note: site URL repeated here to ensure correct deployment path -->
     <distributionManagement>
@@ -100,4 +106,3 @@
     </distributionManagement>
 </project>
 
-        

@@ -16,6 +16,16 @@
 
 package net.sf.ehcache.distribution.jgroups;
 
+import java.io.Serializable;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -25,49 +35,33 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.distribution.CachePeer;
 
-
 import org.jgroups.Address;
 import org.jgroups.Channel;
 import org.jgroups.blocks.NotificationBus;
-
-import java.io.Serializable;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Logger;
-import java.util.logging.Level;
+import org.jgroups.stack.IpAddress;
 
 /**
- * The main Jgroup class for replication via JGroup. Starts up the Jgroup
- * communication bus and listen for message in the bus. Because of Ehcache
- * design we have to register this as a CachePeer. In reality this class listen
- * for change on the bus and tells the cachemanager to update.
- * 
+ * The main Jgroup class for replication via JGroup. Starts up the Jgroup communication bus and listen for message in
+ * the bus. Because of Ehcache design we have to register this as a CachePeer. In reality this class listen for change
+ * on the bus and tells the cachemanager to update.
+ *
  * @author Pierre Monestie (pmonestie__REMOVE__THIS__@gmail.com)
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
 public class JGroupManager implements NotificationBus.Consumer, CachePeer, CacheManagerPeerProvider {
 
-    private static String hostname = "localhost";
-
     private static final Logger LOG = Logger.getLogger(JGroupManager.class.getName());
-
-    private static HashMap properties = new HashMap();
 
     private NotificationBus bus;
 
     private CacheManager cacheManager;
 
     /**
-     * Construc a new JGroupManager with a specific Jgroups connection String
-     * 
-     * @param m
-     *            the cache manager
-     * @param connect
-     *            the connection String
+     * Construct a new JGroupManager with a specific JGroups connection String
+     *
+     * @param m the cache manager
+     * @param connect the connection String
      */
     public JGroupManager(CacheManager m, String connect) {
 
@@ -96,26 +90,58 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
     }
 
     private void handleJGroupNotification(JGroupSerializable e) {
-        // LOG.fine("got notified:"+e.getSerializableKey());
-        Cache c = cacheManager.getCache(e.getCacheName());
-        if (c != null) {
-            if (e.getEvent() == e.REMOVE && c.getQuiet(e.getKey()) != null) {
-                c.remove(e.getKey(), true);
+        Cache cache = cacheManager.getCache(e.getCacheName());
+        if (cache != null) {
+            if (e.getEvent() == e.REMOVE && cache.getQuiet(e.getKey()) != null) {
+                cache.remove(e.getKey(), true);
             } else if (e.getEvent() == e.PUT) {
-
-                c.put(new Element(e.getKey(), e.getValue()), true);
+                cache.put(new Element(e.getKey(), e.getValue()), true);
+            } else if (e.getEvent() == e.BOOTSTRAP_REPLY) {
+                LOG.fine("received bootstrap reply: cache=" + e.getCacheName() + ", key=" + e.getKey());
+                cache.put(new Element(e.getKey(), e.getValue()), true);
             } else if (e.getEvent() == e.REMOVE_ALL) {
-                // c.removeAll(true);
-                LOG.fine("remove all");
-                c.removeAll(true);
+                LOG.info("remove all");
+                cache.removeAll(true);
+            } else if (e.getEvent() == e.ASK_FOR_BOOTSTRAP) {
+                IpAddress requestAddress = (IpAddress) e.getKey();
+                LOG.info("received bootstrap request from " + requestAddress + ", cache=" + e.getCacheName());
+                List keys = cache.getKeys();
+                if (keys != null && keys.size() > 0) {
+
+                    List events = new ArrayList();
+                    for (Object key : keys) {
+                        Element element = cache.get(key);
+                        JGroupEventMessage r = new JGroupEventMessage(JGroupEventMessage.BOOTSTRAP_REPLY, (Serializable) key, element, cache, cache.getName());
+                        events.add(r);
+                        if (events.size() > 99) {
+                            LOG.info("reply " + events.size() + " elements to " + requestAddress + " to boot cache " + cache.getName());
+                            try {
+                                send(requestAddress, events);
+                            } catch (RemoteException e1) {
+                                LOG.log(Level.SEVERE, "error repling to " + requestAddress, e1);
+                            }
+                            events = new ArrayList();
+                        }
+                    }
+                    if (events.size() > 0) {
+                        LOG.info("reply " + events.size() + " elements to " + requestAddress + " to boot cache " + cache.getName());
+                        try {
+                            send(requestAddress, events);
+                        } catch (RemoteException e1) {
+                            LOG.log(Level.SEVERE, "error repling to " + requestAddress, e1);
+                        }
+                    }
+
+                } else {
+                    LOG.log(Level.FINE, "no keys to reply to " + requestAddress + " to boot cache " + cache.getName());
+                }
             }
         }
 
     }
 
     /**
-     * Handles notification: Looks at type of message and unwrap if the argument
-     * is a list
+     * Handles notification: Looks at type of message and unwrap if the argument is a list
      */
     public void handleNotification(Serializable arg0) {
 
@@ -140,7 +166,7 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
      * {@inheritDoc}
      */
     public void memberJoined(Address arg0) {
-        LOG.finest("joined:" + arg0);
+        LOG.info("joined:" + arg0);
 
     }
 
@@ -148,7 +174,7 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
      * {@inheritDoc}
      */
     public void memberLeft(Address arg0) {
-        LOG.finest("left:" + arg0);
+        LOG.info("left:" + arg0);
 
     }
 
@@ -231,6 +257,10 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
      * {@inheritDoc}
      */
     public void send(List eventMessages) throws RemoteException {
+        send(null, eventMessages);
+    }
+
+    public void send(Address address, List eventMessages) throws RemoteException {
         if (eventMessages.size() == 1) {
             bus.sendNotification(wrapMessage((JGroupEventMessage) eventMessages.get(0)));
             return;
@@ -244,7 +274,7 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
 
         try {
 
-            bus.sendNotification(msg);
+            bus.sendNotification(address, msg);
         } catch (Throwable t) {
             throw new RemoteException(t.getMessage());
         }
@@ -287,10 +317,10 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
     }
 
     /**
-     * The replication scheme. Each peer provider has a scheme name, which can be used to specify
-     * the scheme for replication and bootstrap purposes. Each <code>CacheReplicator</code> should lookup
-     * the provider for its scheme type during replication. Similarly a <code>BootstrapCacheLoader</code>
-     * should also look up the provider for its scheme.
+     * The replication scheme. Each peer provider has a scheme name, which can be used to specify the scheme for
+     * replication and bootstrap purposes. Each <code>CacheReplicator</code> should lookup the provider for its scheme
+     * type during replication. Similarly a <code>BootstrapCacheLoader</code> should also look up the provider for its
+     * scheme.
      * <p/>
      *
      * @return the well-known scheme name, which is determined by the replication provider author.
@@ -309,6 +339,7 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
 
     /**
      * {@inheritDoc}
+     * We act as our own peer in this implementation
      */
     public List listRemoteCachePeers(Ehcache cache) throws CacheException {
         ArrayList a = new ArrayList();
@@ -328,6 +359,14 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
      */
     public void unregisterPeer(String rmiUrl) {
 
+    }
+
+    public Vector getBusMembership() {
+        return bus.getMembership();
+    }
+
+    public Address getBusLocalAddress() {
+        return bus.getLocalAddress();
     }
 
 }
