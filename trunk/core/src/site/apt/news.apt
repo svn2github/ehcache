@@ -7,6 +7,12 @@
 
 News
 
+* 20 April 2009: Ehcache 1.6-beta4 withdrawn
+
+   Ehcache 1.6-beta4 has been marked as inactive on SourceForge. In extensive testing last week a very rare
+     concurrency issue was found in the new high-performance threading code. A specific test has been created
+     which reliably reproduces the issue. Will re-release once this as fixed under beta5.
+
 * 11 April 2009: Ehcache Server and Ehcache Web updates released
 
     Ehcache Server, Standalone Server and Ehcache Web have been released to Maven Central and Sourceforge Downloads.
@@ -29,6 +35,8 @@ News
 * 7 April 2009: Ehcache 1.6.0-beta4 released
 
     This beta release of ehcache-1.6.0 adds bug fixes and dramatic performance improvements.
+
+    Please DO NOT use this version in production. It is beta and contains significant changes to threading.
 
    Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. All documentation is
     {{{http://ehcache.sourceforge.net/documentation}here}}.
