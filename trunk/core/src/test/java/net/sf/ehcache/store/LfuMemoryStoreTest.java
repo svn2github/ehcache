@@ -35,7 +35,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
-import java.util.HashMap;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -110,7 +109,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
     /**
      * Benchmark to test speed.
      * This takes a little longer for LFU than the others.
-     * Takes about 7400ms
+     * Used to take about 7400ms. Now takes 827.
      */
     @Test
     public void testBenchmarkPutGetSurya() throws Exception {
@@ -244,7 +243,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
             absoluteDifferences += Math.abs(lastReading - thisReading);
             lastReading = thisReading;
         }
-        LOG.info("Mean difference through iteration: " + absoluteDifferences / 500);
+        LOG.fine("Mean difference through iteration: " + absoluteDifferences / 500);
 
         //Random selection without replacement
         Random random = new Random();

@@ -18,10 +18,13 @@ package net.sf.ehcache.store;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.util.FastRandom;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReferenceArray;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,6 +57,18 @@ public class LfuMemoryStore extends MemoryStore {
     private static final Logger LOG = Logger.getLogger(LfuMemoryStore.class.getName());
 
     /**
+     * This number is magic. It was established using empirical testing of the two approaches
+     * in CacheTest#testConcurrentReadWriteRemoveLFU. 5000 is the cross over point
+     * between the two algorithms.
+     */
+    private static final int TOO_LARGE_TO_EFFICIENTLY_ITERATE = 5000;
+
+    /**
+     * 10% of the time updata data in our sample population
+     */
+    private static final float PUT_SAMPLING_PERCENTAGE = .10f;
+
+    /**
      * This is the default from {@link ConcurrentHashMap}. It should never be used, because
      * we size the map to the max size of the store.
      */
@@ -64,25 +79,99 @@ public class LfuMemoryStore extends MemoryStore {
      */
     private static final int CONCURRENCY_LEVEL = 100;
 
+    private static final int ONE_THOUSAND = 1000;
+    private static final int ONE_HUNDRED_THOUSAND = 100000;
+    private static final int TWO_THOUSAND = 2000;
 
+    private FastRandom fastRandom;
     private Policy policy;
+    private AtomicReferenceArray<Object> keySample;
+    private AtomicInteger keySamplePointer;
+    private int size;
+
+    private int sampleSize;
+    private boolean useKeySample;
 
     /**
      * Constructor for the LfuMemoryStore object.
+     *
+     * @param cache     The cache which owns this store
+     * @param diskStore The DiskStore referenced by this store, if any
      */
     protected LfuMemoryStore(Ehcache cache, Store diskStore) {
         super(cache, diskStore);
         policy = new LfuPolicy();
-        map = new ConcurrentHashMap(cache.getCacheConfiguration().getMaxElementsInMemory(), DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
+        size = cache.getCacheConfiguration().getMaxElementsInMemory();
+        sampleSize = calculateKeySampleSize();
+        map = new ConcurrentHashMap(size, DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
+        if (size > TOO_LARGE_TO_EFFICIENTLY_ITERATE) {
+            useKeySample = true;
+            keySample = new AtomicReferenceArray<Object>(sampleSize);
+            keySamplePointer = new AtomicInteger(0);
+            fastRandom = new FastRandom(PUT_SAMPLING_PERCENTAGE);
+        }
+    }
+
+    /**
+     * These numbers are not really based on any rigid analysis.
+     */
+    private int calculateKeySampleSize() {
+        if (size < ONE_THOUSAND) {
+            return size;
+        } else if (size > ONE_THOUSAND && size < ONE_HUNDRED_THOUSAND) {
+            return ONE_THOUSAND;
+        } else {
+            return TWO_THOUSAND;
+        }
     }
 
 
     /**
      * Puts an element into the cache.
      */
-    public final synchronized void doPut(Element elementJustAdded) {
+    public final void doPut(Element elementJustAdded) {
         if (isFull()) {
             removeLfuElement(elementJustAdded);
+        }
+        if (useKeySample) {
+
+            if (fastRandom.select(elementJustAdded.getLatestOfCreationAndUpdateTime())) {
+                saveKey(elementJustAdded);
+            }
+        }
+
+    }
+
+    private void saveKey(Element elementJustAdded) {
+        int index = incrementIndex();
+        Object key = keySample.get(index);
+        Element oldElement = null;
+        if (key != null) {
+            oldElement = (Element) map.get(key);
+        }
+        if (oldElement != null) {
+            if (policy.compare(oldElement, elementJustAdded)) {
+                //new one will always be more desirable for eviction as no gets yet, unless no gets on old one.
+                //Consequence of this algorithm
+                //new one more desirable for eviction so save it
+                keySample.set(index, elementJustAdded.getObjectKey());
+            }
+        } else {
+            keySample.set(index, elementJustAdded.getObjectKey());
+        }
+
+    }
+
+    /**
+     * A safe incrementer, which loops back to zero when it exceeds the array size
+     */
+    private int incrementIndex() {
+        int index = keySamplePointer.getAndIncrement();
+        if (index > (keySample.length() - 1)) {
+            keySamplePointer.set(0);
+            return 0;
+        } else {
+            return index;
         }
     }
 
@@ -111,13 +200,48 @@ public class LfuMemoryStore extends MemoryStore {
         remove(element.getObjectKey());
     }
 
+//    /**
+//     * Find a "relatively" unused element, but not the element just added.
+//     */
+//    final Element findRelativelyUnused(Element elementJustAdded) {
+//        Element[] elements = sampleElements(map.size());
+//        //can be null. Let the cache get bigger by one.
+//        return policy.selectedBasedOnPolicy(elements, elementJustAdded);
+//    }
+
     /**
      * Find a "relatively" unused element, but not the element just added.
      */
     final Element findRelativelyUnused(Element elementJustAdded) {
-        Element[] elements = sampleElements(map.size());
-        //can be null. Let the cache get bigger by one.
-        return policy.selectedBasedOnPolicy(elements, elementJustAdded);
+        Element[] elements;
+        if (useKeySample) {
+            elements = chooseElementsFromPopulationSample();
+            //this can return null. Let the cache get bigger by one.
+            return policy.selectedBasedOnPolicy(elements, elementJustAdded);
+        } else {
+            //+1 because element was added
+            elements = sampleElements(map.size());
+            //this can return null. Let the cache get bigger by one.
+            return policy.selectedBasedOnPolicy(elements, elementJustAdded);
+        }
+    }
+
+    /**
+     * Uses a random sample from the population sample.
+     *
+     * @return an array of sampled elements
+     */
+    Element[] chooseElementsFromPopulationSample() {
+        int[] indices = LfuPolicy.generateRandomSampleIndices(sampleSize);
+        Element[] elements = new Element[indices.length];
+        for (int i = 0; i < indices.length; i++) {
+            Object key = keySample.get(indices[i]);
+            if (key == null) {
+                continue;
+            }
+            elements[i] = (Element) map.get(key);
+        }
+        return elements;
     }
 
     /**
@@ -125,7 +249,7 @@ public class LfuMemoryStore extends MemoryStore {
      *
      * @return an array of sampled elements
      */
-     Element[] sampleElements(int size) {
+    Element[] sampleElements(int size) {
         int[] offsets = LfuPolicy.generateRandomSample(size);
         Element[] elements = new Element[offsets.length];
         Iterator iterator = map.values().iterator();
@@ -147,6 +271,7 @@ public class LfuMemoryStore extends MemoryStore {
         }
         return elements;
     }
+
 
 }
 

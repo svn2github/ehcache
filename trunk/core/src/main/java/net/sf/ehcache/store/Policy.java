@@ -60,6 +60,14 @@ public abstract class Policy {
     public abstract Element selectedBasedOnPolicy(Element[] sampledElements, Element justAdded);
 
     /**
+     * Compares the desirableness for eviction of two elements
+     * @param element1 the element to compare against
+     * @param element2 the element to compare
+     * @return true if the second element is preferable to the first element for ths policy
+     */
+    public abstract boolean compare(Element element1, Element element2);
+
+    /**
      * Generates a random sample from a population
      * @param populationSize the size to draw from
      * @return a list of random offsets
@@ -72,5 +80,20 @@ public abstract class Policy {
             offsets[i] = RANDOM.nextInt(maxOffset);
         }
         return offsets;
+    }
+
+    /**
+     * Generates a random set of indices
+     * @param arraySize the maximum number
+     * @return a list of indices, zero based
+     */
+    public static int[] generateRandomSampleIndices(int arraySize) {
+        int sampleSize = calculateSampleSize(arraySize);
+        int[] indices = new int[sampleSize];
+        for (int i = 0; i < sampleSize; i++) {
+            //it is possible that the same index can be selected twice
+            indices[i] = RANDOM.nextInt(arraySize);
+        }
+        return indices;
     }
 }

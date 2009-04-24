@@ -329,6 +329,18 @@ public final class Element implements Serializable, Cloneable {
     }
 
     /**
+     * Calculates the latest of creation and update time
+     * @return if never updated, creation time is returned, otherwise updated time
+     */
+    public final long getLatestOfCreationAndUpdateTime() {
+        if (lastUpdateTime == 0) {
+            return creationTime;
+        } else {
+            return lastUpdateTime;
+        }
+    }
+
+    /**
      * Sets the creationTime attribute of the ElementAttributes object.
      */
     public final void setCreateTime() {

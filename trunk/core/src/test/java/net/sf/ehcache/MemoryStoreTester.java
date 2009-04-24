@@ -99,7 +99,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
      * @throws CacheException
      */
     protected void createMemoryStore(MemoryStoreEvictionPolicy evictionPolicy) throws CacheException {
-        cache = new Cache("test", 1000, evictionPolicy, true, System.getProperty("java.io.tmpdir"), true, 60, 30, false, 60, null);
+        cache = new Cache("test", 12000, evictionPolicy, true, System.getProperty("java.io.tmpdir"), true, 60, 30, false, 60, null);
         manager.addCache(cache);
         store = cache.getMemoryStore();
     }

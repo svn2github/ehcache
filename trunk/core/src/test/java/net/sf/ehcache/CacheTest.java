@@ -1748,6 +1748,40 @@ public class CacheTest extends AbstractCacheTest {
      * INFO: Average keySet Time for 2653539 observations: 0.002160511 ms
      * INFO: Total loads: 38
      * </pre>
+     * With iterator
+     * 1.6 with 100,000 store size: puts take 45ms. keySet 7ms
+     * 1.6 with 1000,000 store size: puts take 381ms. keySet 7ms
+     * 1,000,000 - using FastRandom (j.u.Random was dog slow)
+     * INFO: Average Get Time for 2065131 observations: 0.013553619 ms
+     * INFO: Average Put Time for 46404 obervations: 0.1605034 ms
+     * INFO: Average Remove Time for 20515 obervations: 0.1515964 ms
+     * INFO: Average Remove All Time for 0 observations: NaN ms
+     * INFO: Average keySet Time for 198 observations: 0.0 ms
+     * <p/>
+     * 9999 - using iterator
+     * INFO: Average Get Time for 4305030 observations: 0.006000423 ms
+     * INFO: Average Put Time for 3216 obervations: 0.92008704 ms
+     * INFO: Average Remove Time for 5294 obervations: 0.048545524 ms
+     * INFO: Average Remove All Time for 0 observations: NaN ms
+     * INFO: Average keySet Time for 147342 observations: 0.5606073 ms
+     * 10001 - using FastRandom
+     * INFO: Average Get Time for 4815249 observations: 0.005541354 ms
+     * INFO: Average Put Time for 5186 obervations: 0.49826455 ms
+     * INFO: Average Remove Time for 129163 obervations: 0.015120429 ms
+     * INFO: Average Remove All Time for 0 observations: NaN ms
+     * INFO: Average keySet Time for 177342 observations: 0.500733 ms
+     * 4999 - using iterator
+     * INFO: Average Get Time for 4317409 observations: 0.0061599445 ms
+     * INFO: Average Put Time for 2708 obervations: 1.0768094 ms
+     * INFO: Average Remove Time for 17664 obervations: 0.11713089 ms
+     * INFO: Average Remove All Time for 0 observations: NaN ms
+     * INFO: Average keySet Time for 321180 observations: 0.26723954 ms
+     * 5001 - using FastRandom
+     * INFO: Average Get Time for 3203904 observations: 0.0053447294 ms
+     * INFO: Average Put Time for 152905 obervations: 0.056616854 ms
+     * INFO: Average Remove Time for 737289 obervations: 0.008854059 ms
+     * INFO: Average Remove All Time for 0 observations: NaN ms
+     * INFO: Average keySet Time for 272898 observations: 0.3118601 ms
      *
      * @throws Exception
      */
@@ -1844,7 +1878,7 @@ public class CacheTest extends AbstractCacheTest {
         }
 
         //some of the time remove the data
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 7; i++) {
             final Executable executable = new Executable() {
                 public void execute() throws Exception {
                     final StopWatch stopWatch = new StopWatch();
@@ -1862,25 +1896,25 @@ public class CacheTest extends AbstractCacheTest {
 
 
         //some of the time removeAll the data
-        for (int i = 0; i < 10; i++) {
-            final Executable executable = new Executable() {
-                public void execute() throws Exception {
-                    final StopWatch stopWatch = new StopWatch();
-                    long start = stopWatch.getElapsedTime();
-                    int randomInteger = random.nextInt(20);
-                    if (randomInteger == 3) {
-                        cache.removeAll();
-                    }
-                    long end = stopWatch.getElapsedTime();
-                    long elapsed = end - start;
-                    //remove all is slower
-                    assertTrue("RemoveAll time outside of allowed range: " + elapsed, elapsed < (maxTime * 3));
-                    removeAllTimeSum.getAndAdd(elapsed);
-                    removeAllTimeCount.getAndIncrement();
-                }
-            };
-            executables.add(executable);
-        }
+//        for (int i = 0; i < 10; i++) {
+//            final Executable executable = new Executable() {
+//                public void execute() throws Exception {
+//                    final StopWatch stopWatch = new StopWatch();
+//                    long start = stopWatch.getElapsedTime();
+//                    int randomInteger = random.nextInt(20);
+//                    if (randomInteger == 3) {
+//                        cache.removeAll();
+//                    }
+//                    long end = stopWatch.getElapsedTime();
+//                    long elapsed = end - start;
+//                    //remove all is slower
+//                    assertTrue("RemoveAll time outside of allowed range: " + elapsed, elapsed < (maxTime * 3));
+//                    removeAllTimeSum.getAndAdd(elapsed);
+//                    removeAllTimeCount.getAndIncrement();
+//                }
+//            };
+//            executables.add(executable);
+//        }
 
 
         //some of the time iterate

@@ -41,6 +41,9 @@ public class LfuPolicy extends Policy {
         }
         Element lowestElement = null;
         for (Element element : sampledElements) {
+            if (element == null) {
+                continue;
+            }
             if (lowestElement == null) {
                 if (!element.equals(justAdded)) {
                     lowestElement = element;
@@ -52,6 +55,20 @@ public class LfuPolicy extends Policy {
             }
         }
         return lowestElement;
+    }
+
+    /**
+     * Compares the desirableness for eviction of two elements
+     *
+     * Compares hit counts. If both zero, 
+     *
+     * @param element1 the element to compare against
+     * @param element2 the element to compare
+     * @return true if the second element is preferable to the first element for ths policy
+     */
+    public boolean compare(Element element1, Element element2) {
+        return element2.getHitCount() < element1.getHitCount();
+        
     }
 
 }
