@@ -717,6 +717,7 @@ public class Cache implements Ehcache {
      * wait outside of synchronized block so as not to block readers
      * If the disk store spool is full wait a short time to give it a chance to
      * catch up.
+     * todo maybe provide a warning if this is continually happening.
      */
     private void backOffIfDiskSpoolFull() {
 
@@ -1703,7 +1704,7 @@ public class Cache implements Ehcache {
     /**
      * Clones a cache. This is only legal if the cache has not been
      * initialized. At that point only primitives have been set and no
-     * {@link net.sf.ehcache.store.LruMemoryStore} or {@link net.sf.ehcache.store.DiskStore} has been created.
+     * stores have been created.
      * <p/>
      * A new, empty, RegisteredEventListeners is created on clone.
      * <p/>

@@ -26,20 +26,20 @@ import net.sf.ehcache.Element;
  * @author Greg Luck
  * @version $Id$
  */
-public class LfuPolicy extends AbstractPolicy {
+public class FifoPolicy extends AbstractPolicy {
 
     /**
      * Compares the desirableness for eviction of two elements
      *
-     * Compares hit counts. If both zero, 
+     * Compares hit counts. If both zero,
      *
      * @param element1 the element to compare against
      * @param element2 the element to compare
      * @return true if the second element is preferable to the first element for ths policy
      */
     public boolean compare(Element element1, Element element2) {
-        return element2.getHitCount() < element1.getHitCount();
-        
+        return element2.getLatestOfCreationAndUpdateTime() < element1.getLatestOfCreationAndUpdateTime();
+
     }
 
 }

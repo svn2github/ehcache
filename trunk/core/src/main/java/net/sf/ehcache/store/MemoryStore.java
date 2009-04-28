@@ -22,19 +22,58 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 
 import java.util.Map;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicReferenceArray;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * An abstract class for the Memory Stores. All Memory store implementations for different
- * policies (e.g: FIFO, LFU, LRU, etc.) should extend this class.
+ * A Store implementation suitable for fast, concurrent in memory stores. The policy is determined by that
+ * configured in the cache.
  *
  * @author <a href="mailto:ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
  * @version $Id$
  */
-public abstract class MemoryStore implements Store {
+public class MemoryStore implements Store {
+
+    /**
+     * This number is magic. It was established using empirical testing of the two approaches
+     * in CacheTest#testConcurrentReadWriteRemoveLFU. 5000 is the cross over point
+     * between the two algorithms.
+     */
+    protected static final int TOO_LARGE_TO_EFFICIENTLY_ITERATE = 5000;
+
+    /**
+     * 10% of the time updata data in our sample population
+     */
+    protected static final float PUT_SAMPLING_PERCENTAGE = .10f;
+
+    /**
+     * This is the default from {@link java.util.concurrent.ConcurrentHashMap}. It should never be used, because
+     * we size the map to the max size of the store.
+     */
+    protected static final float DEFAULT_LOAD_FACTOR = .75f;
+
+    /**
+     * Set optimisation for 100 concurrent threads.
+     */
+    protected static final int CONCURRENCY_LEVEL = 100;
 
     private static final Logger LOG = Logger.getLogger(MemoryStore.class.getName());
+
+    /**
+     * The eviction policy to use
+
+     */
+    protected Policy policy;
+
+    /**
+     * when sampling elements, whether to iterate or to use the keySample array for faster random access
+     */
+    protected boolean useKeySample;
 
     /**
      * The cache this store is associated with.
@@ -61,6 +100,13 @@ public abstract class MemoryStore implements Store {
      */
     protected int maximumSize;
 
+
+    private AtomicReferenceArray<Object> keySample;
+    private AtomicInteger keySamplePointer;
+    private int size;
+    private int sampleSize;
+    
+
     /**
      * Constructs things that all MemoryStores have in common.
      *
@@ -72,6 +118,17 @@ public abstract class MemoryStore implements Store {
         this.cache = cache;
         this.maximumSize = cache.getCacheConfiguration().getMaxElementsInMemory();
         this.diskStore = diskStore;
+        determineEvictionPolicy(cache);
+
+        size = cache.getCacheConfiguration().getMaxElementsInMemory();
+        map = new ConcurrentHashMap(size, DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
+        if (size > TOO_LARGE_TO_EFFICIENTLY_ITERATE) {
+            useKeySample = true;
+            sampleSize = calculateKeySampleSize();
+            keySample = new AtomicReferenceArray<Object>(sampleSize);
+            keySamplePointer = new AtomicInteger(0);
+        }
+
         status = Status.STATUS_ALIVE;
 
         if (LOG.isLoggable(Level.FINE)) {
@@ -88,18 +145,18 @@ public abstract class MemoryStore implements Store {
      * @return an instance of a MemoryStore, configured with the appropriate eviction policy
      */
     public static MemoryStore create(Ehcache cache, Store diskStore) {
-        MemoryStore memoryStore = null;
-        MemoryStoreEvictionPolicy policy = cache.getCacheConfiguration().getMemoryStoreEvictionPolicy();
-
-        if (policy.equals(MemoryStoreEvictionPolicy.LRU)) {
-            memoryStore = new LruMemoryStore(cache, diskStore);
-        } else if (policy.equals(MemoryStoreEvictionPolicy.FIFO)) {
-            memoryStore = new FifoMemoryStore(cache, diskStore);
-        } else if (policy.equals(MemoryStoreEvictionPolicy.LFU)) {
-            memoryStore = new LfuMemoryStore(cache, diskStore);
-        }
+        MemoryStore memoryStore = new MemoryStore(cache, diskStore);
         return memoryStore;
     }
+
+    /**
+     * Calculates the size of the sample to use
+     */
+    private int calculateKeySampleSize() {
+        //using 100% sample size for now
+        return size;
+    }
+
 
     /**
      * Puts an item in the cache. Note that this automatically results in an eviction if the store is full.
@@ -112,13 +169,6 @@ public abstract class MemoryStore implements Store {
             doPut(element);
         }
     }
-
-    /**
-     * Allow specialised actions over adding the element to the map.
-     *
-     * @param element
-     */
-    protected abstract void doPut(Element element) throws CacheException;
 
     /**
      * Gets an item from the cache.
@@ -206,6 +256,14 @@ public abstract class MemoryStore implements Store {
      */
     protected final void clear() {
         map.clear();
+        //also clear sample as chances of producing a useful result after a removeAll are 0
+        if (useKeySample) {
+            //clear this. Because this is not locked, a few puts may get overwritten and be unable to be sample
+            //for eviction. Not a problem.
+            for (int i = 0; i < keySample.length(); i++) {
+                keySample.set(i, null);
+            }
+        }
     }
 
     /**
@@ -364,8 +422,6 @@ public abstract class MemoryStore implements Store {
             }
         }
 
-        //todo should notify expiry if expired
-
         if (!spooled) {
             cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
         }
@@ -410,4 +466,186 @@ public abstract class MemoryStore implements Store {
     Map getBackingMap() {
         return map;
     }
+
+
+    /**
+     * Puts an element into the store
+     */
+    protected void doPut(Element elementJustAdded) {
+        if (isFull()) {
+            removeElementChosenByEvictionPolicy(elementJustAdded);
+        }
+        if (useKeySample) {
+
+            //use 100% sample size for now
+            //if (fastRandom.select(elementJustAdded.getLatestOfCreationAndUpdateTime())) {
+                saveKey(elementJustAdded);
+            //}
+        }
+
+    }
+
+    /**
+     * Saves the key to our fast access AtomicReferenceArray
+     * @param elementJustAdded the new element
+     */
+    protected void saveKey(Element elementJustAdded) {
+        int index = incrementIndex();
+        Object key = keySample.get(index);
+        Element oldElement = null;
+        if (key != null) {
+            oldElement = (Element) map.get(key);
+        }
+        if (oldElement != null) {
+            if (policy.compare(oldElement, elementJustAdded)) {
+                //new one will always be more desirable for eviction as no gets yet, unless no gets on old one.
+                //Consequence of this algorithm
+                keySample.set(index, elementJustAdded.getObjectKey());
+            }
+        } else {
+            keySample.set(index, elementJustAdded.getObjectKey());
+        }
+
+    }
+
+    /**
+     * A bounds-safe incrementer, which loops back to zero when it exceeds the array size
+     */
+    protected int incrementIndex() {
+        int index = keySamplePointer.getAndIncrement();
+        if (index > (keySample.length() - 1)) {
+            keySamplePointer.set(0);
+            return 0;
+        } else {
+            return index;
+        }
+    }
+
+
+    /**
+     * Removes the element chosen by the eviction policy
+     * @param elementJustAdded it is possible for this to be null
+     */
+    protected void removeElementChosenByEvictionPolicy(Element elementJustAdded) {
+
+        if (LOG.isLoggable(Level.FINEST)) {
+            LOG.finest("Cache is full. Removing element ...");
+        }
+
+        Element element = findEvictionCandidate(elementJustAdded);
+        //this CAN happen rarely. Let the store get one bigger
+        if (element == null) {
+            LOG.info("Eviction selection miss. Selected element is null");
+            return;
+        }
+
+        // If the element is expired remove
+        if (element.isExpired()) {
+            remove(element.getObjectKey());
+            notifyExpiry(element);
+            return;
+        }
+
+        evict(element);
+        remove(element.getObjectKey());
+    }
+
+    /**
+     * Find a "relatively" unused element, but not the element just added.
+     */
+    protected final Element findEvictionCandidate(Element elementJustAdded) {
+        Element[] elements;
+        if (useKeySample) {
+            elements = chooseElementsFromPopulationSample();
+            //this can return null. Let the cache get bigger by one.
+            Element element = policy.selectedBasedOnPolicy(elements, elementJustAdded);
+            return element;
+        } else {
+            //+1 because element was added
+            elements = sampleElements(map.size());
+            //this can return null. Let the cache get bigger by one.
+            return policy.selectedBasedOnPolicy(elements, elementJustAdded);
+        }
+    }
+
+    /**
+     * Uses a random sample from the population sample.
+     *
+     * @return an array of sampled elements
+     */
+    protected Element[] chooseElementsFromPopulationSample() {
+        int[] indices = LfuPolicy.generateRandomSampleIndices(sampleSize);
+        Element[] elements = new Element[indices.length];
+        for (int i = 0; i < indices.length; i++) {
+            Object key = keySample.get(indices[i]);
+            if (key == null) {
+                continue;
+            }
+            elements[i] = (Element) map.get(key);
+        }
+        return elements;
+    }
+
+    /**
+     * Uses random numbers to sample the entire map.
+     *
+     * @return an array of sampled elements
+     */
+    protected Element[] sampleElements(int size) {
+        int[] offsets = LfuPolicy.generateRandomSample(size);
+        Element[] elements = new Element[offsets.length];
+        Iterator iterator = map.values().iterator();
+        for (int i = 0; i < offsets.length; i++) {
+            for (int j = 0; j < offsets[i]; j++) {
+                //fast forward
+                try {
+                    iterator.next();
+                } catch (NoSuchElementException e) {
+                    //e.printStackTrace();
+                }
+            }
+
+            try {
+                elements[i] = ((Element) iterator.next());
+            } catch (NoSuchElementException e) {
+                //e.printStackTrace();
+            }
+        }
+        return elements;
+    }
+
+
+   /**
+    * Chooses the Policy from the cache configuration
+    * @param cache
+    * @return
+    */
+    protected void determineEvictionPolicy(Ehcache cache) {
+        MemoryStoreEvictionPolicy policySelection = cache.getCacheConfiguration().getMemoryStoreEvictionPolicy();
+
+        if (policySelection.equals(MemoryStoreEvictionPolicy.LRU)) {
+            policy = new LruPolicy();
+        } else if (policySelection.equals(MemoryStoreEvictionPolicy.FIFO)) {
+            policy = new FifoPolicy();
+        } else if (policySelection.equals(MemoryStoreEvictionPolicy.LFU)) {
+            policy = new LfuPolicy();
+        }
+    }
+
+    /**
+     * Gets the policy
+     */
+    public Policy getPolicy() {
+        return policy;
+    }
+
+    /**
+     * Sets the policy.
+     * @param policy a new policy to be used in evicting elements in this store
+     */
+    public void setPolicy(Policy policy) {
+        this.policy = policy;
+    }
+
+
 }

@@ -18,82 +18,32 @@ package net.sf.ehcache.store;
 
 import net.sf.ehcache.Element;
 
-import java.util.Random;
-
 /**
- * A base policy class
+ * An eviction policy.
+ * todo work out how to let people set their own
  *
  * @author Greg Luck
  */
-public abstract class Policy {
-
-
-    /**
-     * The sample size to use
-     */
-    static final int DEFAULT_SAMPLE_SIZE = 30;
+public interface Policy {
 
     /**
-     * Used to select random numbers
-     */
-    static final Random RANDOM = new Random();
-
-    /**
-     * sampleSize how many samples to take
-     * @param populationSize the size of the store
-     * @return the smaller of the map size and the default sample size of 30
-     */
-    private static int calculateSampleSize(int populationSize) {
-        if (populationSize < DEFAULT_SAMPLE_SIZE) {
-            return populationSize;
-        } else {
-            return DEFAULT_SAMPLE_SIZE;
-        }
-    }
-
-    /**
-     * Finds the least hit of the sampled elements provided
+     * Finds the best eviction candidate based on the sampled elements. What distuingishes this approach
+     * from the classic data structures approach is that an Element contains metadata (e.g. usage statistics)
+     * which can be used for making policy decisions, while generic data structures do not. It is expected that
+     *  implementations will take advantage of that metadata.
+     *
      * @param sampledElements this should be a random subset of the population
-     * @param justAdded we never want to select the element just added. May be null.
+     * @param justAdded       we never want to select the element just added. May be null.
      * @return the least hit
      */
-    public abstract Element selectedBasedOnPolicy(Element[] sampledElements, Element justAdded);
+    Element selectedBasedOnPolicy(Element[] sampledElements, Element justAdded);
 
     /**
      * Compares the desirableness for eviction of two elements
+     *
      * @param element1 the element to compare against
      * @param element2 the element to compare
-     * @return true if the second element is preferable to the first element for ths policy
+     * @return true if the second element is preferable for eviction to the first element under ths policy
      */
-    public abstract boolean compare(Element element1, Element element2);
-
-    /**
-     * Generates a random sample from a population
-     * @param populationSize the size to draw from
-     * @return a list of random offsets
-     */
-    public static int[] generateRandomSample(int populationSize) {
-        int sampleSize = calculateSampleSize(populationSize);
-        int[] offsets = new int[sampleSize];
-        int maxOffset = populationSize / sampleSize;
-        for (int i = 0; i < sampleSize; i++) {
-            offsets[i] = RANDOM.nextInt(maxOffset);
-        }
-        return offsets;
-    }
-
-    /**
-     * Generates a random set of indices
-     * @param arraySize the maximum number
-     * @return a list of indices, zero based
-     */
-    public static int[] generateRandomSampleIndices(int arraySize) {
-        int sampleSize = calculateSampleSize(arraySize);
-        int[] indices = new int[sampleSize];
-        for (int i = 0; i < sampleSize; i++) {
-            //it is possible that the same index can be selected twice
-            indices[i] = RANDOM.nextInt(arraySize);
-        }
-        return indices;
-    }
+    boolean compare(Element element1, Element element2);
 }
