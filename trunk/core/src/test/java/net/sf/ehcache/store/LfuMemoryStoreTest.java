@@ -76,16 +76,6 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         assertNull(store.remove(null));
     }
 
-
-    /**
-     * todo starting breaking 16/11/07 ?
-     * Tests the put by reading the config file
-     */
-    public void xTtestPutFromConfig() throws Exception {
-        createMemoryStore(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-policy-test.xml", "sampleLFUCache1");
-        putTest();
-    }
-
     /**
      * Tests the put by reading the config file
      */
@@ -301,12 +291,12 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         Element[] elements = null;
         for (int i = 0; i < 10; i++) {
             store.put(new Element("" + i, new Date()));
-            elements = ((LfuMemoryStore) store).sampleElements(i + 1);
+            elements = ((MemoryStore) store).sampleElements(i + 1);
         }
 
         for (int i = 10; i < 2000; i++) {
             store.put(new Element("" + i, new Date()));
-            elements = ((LfuMemoryStore) store).sampleElements(10);
+            elements = ((MemoryStore) store).sampleElements(10);
             assertEquals(10, elements.length);
         }
     }
@@ -360,7 +350,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
                 store.get("" + i);
             }
             if (i > 0) {
-                element = ((LfuMemoryStore) store).findRelativelyUnused(newElement);
+                element = ((MemoryStore) store).findEvictionCandidate(newElement);
                 assertTrue(!element.equals(newElement));
                 assertTrue(element.getHitCount() < 2);
             }
@@ -380,7 +370,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
             }
 
             stopWatch.getElapsedTime();
-            element = ((LfuMemoryStore) store).findRelativelyUnused(newElement);
+            element = ((MemoryStore) store).findEvictionCandidate(newElement);
             findTime += stopWatch.getElapsedTime();
             long lowest = element.getHitCount();
             long bottomQuarter = (Math.round(maximumHitCount / 4.0) + 1);

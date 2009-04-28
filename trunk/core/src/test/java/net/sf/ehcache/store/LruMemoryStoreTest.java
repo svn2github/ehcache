@@ -18,7 +18,6 @@ package net.sf.ehcache.store;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStoreTester;
-import net.sf.ehcache.concurrent.ConcurrentLinkedHashMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -59,18 +58,6 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
         createMemoryStore(MemoryStoreEvictionPolicy.LRU);
     }
 
-    /**
-     * The LRU map implementation can be overridden by setting the "net.sf.ehcache.useLRUMap" System property.
-     * Here we do not do that and it should be the java.util.LinkedHashMap.
-     */
-    @Test
-    public void testCorrectMapImplementation() throws Exception {
-        createMemoryStore(MemoryStoreEvictionPolicy.LRU, 5);
-
-        Map map = ((MemoryStore) store).getBackingMap();
-        assertTrue(map instanceof ConcurrentLinkedHashMap);
-    }
-
 
     /**
      * Test the LRU policy
@@ -107,15 +94,18 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
         // hit count is immaterial for this test.
         store.get("key1");
         store.get("key1");
+        Thread.sleep(15);
         store.get("key3");
         store.get("key3");
         store.get("key3");
+        Thread.sleep(15);
         store.get("key4");
 
         //Create a new element and put in the store so as to force the policy
         element = new Element("key6", "value6");
         store.put(element);
 
+        Thread.sleep(15);
         store.get("key6");
 
         //max size
@@ -125,6 +115,7 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
         assertNull(store.get("key2"));
 
         // Make some more accesses
+        Thread.sleep(15);
         store.get("key5");
         store.get("key5");
 

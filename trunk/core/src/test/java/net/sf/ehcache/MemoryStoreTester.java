@@ -531,7 +531,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
         }
         //Create 15 threads that are insert 500 keys with large byte[] as values
         for (int i = 0; i < 15; i++) {
-            final LruMemoryStoreTest.Executable executable = new MemoryStoreTester.Executable() {
+            final MemoryStoreTester.Executable executable = new MemoryStoreTester.Executable() {
                 public void execute() throws Exception {
 
                     // Add a bunch of entries
@@ -605,7 +605,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     /**
      * Test behaviour of memory store using 1 million records.
      * This is expected to run out of memory on a 64MB machine. Where it runs out
-     * is asserted so that design changes do not start using more memory per element.
+     * is asserted so that design changes do not start using more memory per element.                      
      * <p/>
      * This test will fail (ie not get an out of memory error) on VMs configured to be server which do not have a fixed upper memory limit.
      * <p/>
@@ -637,11 +637,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
             System.gc();
 
             try {
-                if (JVMUtil.isJDK15()) {
-                    assertTrue(i > 90000);
-                } else {
-                    assertTrue(i > 50000);
-                }
+                assertTrue(i > 90000);
                 LOG.info("Ran out of memory putting " + i + "th element");
             } catch (OutOfMemoryError e1) {
                 //sometimes if we are really out of memory we cannot do anything

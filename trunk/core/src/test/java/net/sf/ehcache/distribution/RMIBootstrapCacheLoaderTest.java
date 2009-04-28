@@ -88,18 +88,12 @@ public class RMIBootstrapCacheLoaderTest {
      */
     @Before
     public void setUp() throws Exception {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
 
         CountingCacheEventListener.resetCounters();
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
         manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml");
-
-        //manager6 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-jndi6.xml");
-
 
         //allow cluster to be established
         Thread.sleep(3000);
@@ -110,7 +104,7 @@ public class RMIBootstrapCacheLoaderTest {
      * Heap growth. Only an issue when a VM is cold.
      */
     protected void forceVMGrowth() {
-        byte[] forceVMGrowth = new byte[50000000];
+        byte[] forceVMGrowth = new byte[40000000];
     }
 
 
@@ -121,10 +115,6 @@ public class RMIBootstrapCacheLoaderTest {
      */
     @After
     public void tearDown() throws Exception {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         if (manager1 != null) {
             manager1.shutdown();
@@ -151,10 +141,6 @@ public class RMIBootstrapCacheLoaderTest {
      */
     @Test
     public void testBootstrapFromClusterWithAsyncLoader() throws CacheException, InterruptedException {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         forceVMGrowth();
 
@@ -189,10 +175,6 @@ public class RMIBootstrapCacheLoaderTest {
      */
     @Test
     public void testBootstrapFromClusterWithSyncLoader() throws CacheException, InterruptedException {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         forceVMGrowth();
 

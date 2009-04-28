@@ -490,11 +490,12 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         cache = manager.getCache(sampleCache1);
         cache.removeAll();
 
-        //should trigger a removal notification because it is not Serializable and will be evicted
+        //should trigger a removal notification because it is not Serializable when it is evicted
         cache.put(new Element(12 + "", new Object()));
 
         for (int i = 0; i < 10; i++) {
             cache.put(new Element(i + "", new Date()));
+            cache.get(i + "");
         }
 
         List evictionNotifications = CountingCacheEventListener.getCacheElementsEvicted(cache);

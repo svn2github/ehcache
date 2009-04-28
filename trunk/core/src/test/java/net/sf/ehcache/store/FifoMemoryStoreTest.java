@@ -133,7 +133,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
      */
     @Test
     public void testBenchmarkPutGetSurya() throws Exception {
-        benchmarkPutGetSuryaTest(3000);
+        benchmarkPutGetSuryaTest(1000);
     }
 
 
@@ -189,29 +189,34 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
         fifoPolicyTest();
     }
 
-    private void fifoPolicyTest() throws IOException {
+    private void fifoPolicyTest() throws IOException, InterruptedException {
         //Make sure that the store is empty to start with
         assertEquals(0, store.getSize());
 
         // Populate the store till the max limit
         Element element = new Element("key1", "value1");
         store.put(element);
+        Thread.sleep(15);
         assertEquals(1, store.getSize());
 
         element = new Element("key2", "value2");
         store.put(element);
+        Thread.sleep(15);
         assertEquals(2, store.getSize());
 
         element = new Element("key3", "value3");
         store.put(element);
+        Thread.sleep(15);
         assertEquals(3, store.getSize());
 
         element = new Element("key4", "value4");
         store.put(element);
+        Thread.sleep(15);
         assertEquals(4, store.getSize());
 
         element = new Element("key5", "value5");
         store.put(element);
+        Thread.sleep(15);
         assertEquals(5, store.getSize());
 
         // Now access the elements to boost the hits count, although irrelevant for this test just to demonstrate
@@ -226,6 +231,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
         //Create a new element and put in the store so as to force the policy
         element = new Element("key6", "value6");
         store.put(element);
+        Thread.sleep(15);
 
         //max size
         assertEquals(5, store.getSize());
@@ -236,6 +242,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
         // Make some more accesses
         store.get("key5");
         store.get("key5");
+        Thread.sleep(15);
 
         // Insert another element to force the policy
         element = new Element("key7", "value7");
