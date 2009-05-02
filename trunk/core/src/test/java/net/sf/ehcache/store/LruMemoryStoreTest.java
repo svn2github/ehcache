@@ -54,9 +54,12 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
      */
     @Before
     public void setUp() throws Exception {
+
         super.setUp();
         createMemoryStore(MemoryStoreEvictionPolicy.LRU);
     }
+
+
 
 
     /**

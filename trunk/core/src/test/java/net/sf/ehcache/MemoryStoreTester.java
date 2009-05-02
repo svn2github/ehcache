@@ -637,8 +637,8 @@ public class MemoryStoreTester extends AbstractCacheTest {
             System.gc();
 
             try {
-                assertTrue(i > 90000);
                 LOG.info("Ran out of memory putting " + i + "th element");
+                assertTrue(i > 89000);
             } catch (OutOfMemoryError e1) {
                 //sometimes if we are really out of memory we cannot do anything
             }

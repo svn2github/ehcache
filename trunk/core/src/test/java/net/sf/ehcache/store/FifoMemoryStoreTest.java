@@ -133,7 +133,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
      */
     @Test
     public void testBenchmarkPutGetSurya() throws Exception {
-        benchmarkPutGetSuryaTest(1000);
+        benchmarkPutGetSuryaTest(1500);
     }
 
 
