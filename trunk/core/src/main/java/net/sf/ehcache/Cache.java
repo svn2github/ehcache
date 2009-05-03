@@ -28,6 +28,7 @@ import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.Policy;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -101,7 +102,6 @@ public class Cache implements Ehcache {
     public static final long DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS = 120;
 
     /**
-     * todo change to 200
      * Set a buffer size for the spool of approx 30MB
      */
     private static final int DEFAULT_SPOOL_BUFFER_SIZE = 30;
@@ -2344,4 +2344,26 @@ public class Cache implements Ehcache {
     public void setDisabled(boolean disabled) {
         this.disabled = disabled;
     }
+
+    /**
+     * @return the current MemoryStore policy. This may not be the configured policy, if it has been
+     * dynamically set.
+     */
+    public Policy getMemoryStoreEvictionPolicy() {
+        return memoryStore.getPolicy();
+    }
+
+    /**
+     * Sets the eviction policy strategy. The Cache will use a policy at startup. There are three policies
+     * which can be configured: LRU, LFU and FIFO. However many other policies are possible. That the policy
+     * has access to the whole element enables policies based on the key, value, metadata, statistics, or a combination of
+     * any of the above. It is safe to change the policy of a store at any time. The new policy takes effect
+     * immediately.
+     * @param policy the new policy
+     */
+    public void setMemoryStoreEvictionPolicy(Policy policy) {
+        memoryStore.setPolicy(policy);
+    }
+
+
 }

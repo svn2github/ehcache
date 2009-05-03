@@ -495,6 +495,8 @@ public class MemoryStoreTester extends AbstractCacheTest {
     @Test
     public void testMemoryLeak() throws Exception {
         long differenceMemoryCache = thrashCache();
+        LOG.info("Difference is : " + differenceMemoryCache);
+        //Sometimes this can be higher but a three hour run confirms no memory leak. Consider increasing.
         assertTrue(differenceMemoryCache < 500000);
     }
 
@@ -506,7 +508,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
 
 
         long startingSize = measureMemoryUse();
-        LOG.info("Memory Used is: " + startingSize);
+        LOG.info("Starting memory used is: " + startingSize);
 
         final String value = "value";
         final String key = "key";
@@ -551,7 +553,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
         store.removeAll();
 
         long finishingSize = measureMemoryUse();
-        LOG.info("Memory Used is: " + finishingSize);
+        LOG.info("Ending memory used is: " + finishingSize);
         return finishingSize - startingSize;
     }
 
@@ -605,7 +607,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     /**
      * Test behaviour of memory store using 1 million records.
      * This is expected to run out of memory on a 64MB machine. Where it runs out
-     * is asserted so that design changes do not start using more memory per element.                      
+     * is asserted so that design changes do not start using more memory per element.
      * <p/>
      * This test will fail (ie not get an out of memory error) on VMs configured to be server which do not have a fixed upper memory limit.
      * <p/>
@@ -616,12 +618,16 @@ public class MemoryStoreTester extends AbstractCacheTest {
      */
     @Test
     public void testMemoryStoreOutOfMemoryLimit() throws Exception {
+        LOG.info("Starting out of memory limit test");
         //Set size so the second element overflows to disk.
-        cache = new Cache("memoryLimitTest", 1000000, false, false, 500, 500);
-        manager.addCache(cache);
+        cache = manager.getCache("memoryLimitTest");
+        if (cache == null) {
+            cache = new Cache("memoryLimitTest", 1000000, false, false, 500, 500);
+            manager.addCache(cache);
+        }
         int i = 0;
         try {
-            for (; i < 120000; i++) {
+            for (; i < 1000000; i++) {
                 cache.put(new Element("" +
                         i, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                         + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -630,6 +636,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
                         + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                         + "AAAAA " + i));
             }
+            LOG.info("About to fail out of memory limit test");            
             fail();
         } catch (OutOfMemoryError e) {
             System.gc();
@@ -638,7 +645,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
 
             try {
                 LOG.info("Ran out of memory putting " + i + "th element");
-                assertTrue(i > 89000);
+                assertTrue(i > 65000);
             } catch (OutOfMemoryError e1) {
                 //sometimes if we are really out of memory we cannot do anything
             }

@@ -1,5 +1,4 @@
 <assembly>
-    <!--todo include ehcache.xml-->
     <id>distribution</id>
     <formats>
         <format>tar.gz</format>

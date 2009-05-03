@@ -47,11 +47,6 @@ public class MemoryStore implements Store {
     protected static final int TOO_LARGE_TO_EFFICIENTLY_ITERATE = 5000;
 
     /**
-     * 10% of the time updata data in our sample population
-     */
-    protected static final float PUT_SAMPLING_PERCENTAGE = .10f;
-
-    /**
      * This is the default from {@link java.util.concurrent.ConcurrentHashMap}. It should never be used, because
      * we size the map to the max size of the store.
      */
@@ -66,7 +61,6 @@ public class MemoryStore implements Store {
 
     /**
      * The eviction policy to use
-
      */
     protected Policy policy;
 
@@ -101,11 +95,8 @@ public class MemoryStore implements Store {
     protected int maximumSize;
 
 
-    private AtomicReferenceArray<Object> keySample;
+    private AtomicReferenceArray<Object> keyArray;
     private AtomicInteger keySamplePointer;
-    private int size;
-    private int sampleSize;
-    
 
     /**
      * Constructs things that all MemoryStores have in common.
@@ -120,12 +111,10 @@ public class MemoryStore implements Store {
         this.diskStore = diskStore;
         determineEvictionPolicy(cache);
 
-        size = cache.getCacheConfiguration().getMaxElementsInMemory();
-        map = new ConcurrentHashMap(size, DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
-        if (size > TOO_LARGE_TO_EFFICIENTLY_ITERATE) {
+        map = new ConcurrentHashMap(maximumSize, DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
+        if (maximumSize > TOO_LARGE_TO_EFFICIENTLY_ITERATE) {
             useKeySample = true;
-            sampleSize = calculateKeySampleSize();
-            keySample = new AtomicReferenceArray<Object>(sampleSize);
+            keyArray = new AtomicReferenceArray<Object>(maximumSize);
             keySamplePointer = new AtomicInteger(0);
         }
 
@@ -148,15 +137,6 @@ public class MemoryStore implements Store {
         MemoryStore memoryStore = new MemoryStore(cache, diskStore);
         return memoryStore;
     }
-
-    /**
-     * Calculates the size of the sample to use
-     */
-    private int calculateKeySampleSize() {
-        //using 100% sample size for now
-        return size;
-    }
-
 
     /**
      * Puts an item in the cache. Note that this automatically results in an eviction if the store is full.
@@ -260,8 +240,8 @@ public class MemoryStore implements Store {
         if (useKeySample) {
             //clear this. Because this is not locked, a few puts may get overwritten and be unable to be sample
             //for eviction. Not a problem.
-            for (int i = 0; i < keySample.length(); i++) {
-                keySample.set(i, null);
+            for (int i = 0; i < keyArray.length(); i++) {
+                keyArray.set(i, null);
             }
         }
     }
@@ -278,6 +258,9 @@ public class MemoryStore implements Store {
 
         //release reference to cache
         cache = null;
+        map = null;
+        keyArray = null;
+        keySamplePointer = null;
     }
 
     /**
@@ -354,7 +337,7 @@ public class MemoryStore implements Store {
     }
 
     /**
-     * Returns the current cache size.
+     * Returns the current store size.
      *
      * @return The size value
      */
@@ -479,7 +462,7 @@ public class MemoryStore implements Store {
 
             //use 100% sample size for now
             //if (fastRandom.select(elementJustAdded.getLatestOfCreationAndUpdateTime())) {
-                saveKey(elementJustAdded);
+            saveKey(elementJustAdded);
             //}
         }
 
@@ -487,11 +470,12 @@ public class MemoryStore implements Store {
 
     /**
      * Saves the key to our fast access AtomicReferenceArray
+     *
      * @param elementJustAdded the new element
      */
     protected void saveKey(Element elementJustAdded) {
         int index = incrementIndex();
-        Object key = keySample.get(index);
+        Object key = keyArray.get(index);
         Element oldElement = null;
         if (key != null) {
             oldElement = (Element) map.get(key);
@@ -500,10 +484,10 @@ public class MemoryStore implements Store {
             if (policy.compare(oldElement, elementJustAdded)) {
                 //new one will always be more desirable for eviction as no gets yet, unless no gets on old one.
                 //Consequence of this algorithm
-                keySample.set(index, elementJustAdded.getObjectKey());
+                keyArray.set(index, elementJustAdded.getObjectKey());
             }
         } else {
-            keySample.set(index, elementJustAdded.getObjectKey());
+            keyArray.set(index, elementJustAdded.getObjectKey());
         }
 
     }
@@ -513,7 +497,7 @@ public class MemoryStore implements Store {
      */
     protected int incrementIndex() {
         int index = keySamplePointer.getAndIncrement();
-        if (index > (keySample.length() - 1)) {
+        if (index > (keyArray.length() - 1)) {
             keySamplePointer.set(0);
             return 0;
         } else {
@@ -524,6 +508,7 @@ public class MemoryStore implements Store {
 
     /**
      * Removes the element chosen by the eviction policy
+     *
      * @param elementJustAdded it is possible for this to be null
      */
     protected void removeElementChosenByEvictionPolicy(Element elementJustAdded) {
@@ -556,7 +541,7 @@ public class MemoryStore implements Store {
     protected final Element findEvictionCandidate(Element elementJustAdded) {
         Element[] elements;
         if (useKeySample) {
-            elements = chooseElementsFromPopulationSample();
+            elements = sampleElementsViaKeyArray();
             //this can return null. Let the cache get bigger by one.
             Element element = policy.selectedBasedOnPolicy(elements, elementJustAdded);
             return element;
@@ -569,15 +554,17 @@ public class MemoryStore implements Store {
     }
 
     /**
-     * Uses a random sample from the population sample.
+     * Uses random numbers to sample the entire map.
+     * <p/>
+     * This implemenation uses a key array.
      *
-     * @return an array of sampled elements
+     * @return a random sample of elements
      */
-    protected Element[] chooseElementsFromPopulationSample() {
-        int[] indices = LfuPolicy.generateRandomSampleIndices(sampleSize);
+    protected Element[] sampleElementsViaKeyArray() {
+        int[] indices = LfuPolicy.generateRandomSampleIndices(maximumSize);
         Element[] elements = new Element[indices.length];
         for (int i = 0; i < indices.length; i++) {
-            Object key = keySample.get(indices[i]);
+            Object key = keyArray.get(indices[i]);
             if (key == null) {
                 continue;
             }
@@ -588,8 +575,10 @@ public class MemoryStore implements Store {
 
     /**
      * Uses random numbers to sample the entire map.
+     * <p/>
+     * This implemenation uses the {@link ConcurrentHashMap} iterator.
      *
-     * @return an array of sampled elements
+     * @return a random sample of elements
      */
     protected Element[] sampleElements(int size) {
         int[] offsets = LfuPolicy.generateRandomSample(size);
@@ -615,11 +604,12 @@ public class MemoryStore implements Store {
     }
 
 
-   /**
-    * Chooses the Policy from the cache configuration
-    * @param cache
-    * @return
-    */
+    /**
+     * Chooses the Policy from the cache configuration
+     *
+     * @param cache
+     * @return
+     */
     protected void determineEvictionPolicy(Ehcache cache) {
         MemoryStoreEvictionPolicy policySelection = cache.getCacheConfiguration().getMemoryStoreEvictionPolicy();
 
@@ -641,6 +631,7 @@ public class MemoryStore implements Store {
 
     /**
      * Sets the policy.
+     *
      * @param policy a new policy to be used in evicting elements in this store
      */
     public void setPolicy(Policy policy) {

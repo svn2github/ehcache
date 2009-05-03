@@ -821,7 +821,11 @@ public class CacheManager {
      */
     protected void checkStatus() {
         if (!(status.equals(Status.STATUS_ALIVE))) {
-            throw new IllegalStateException("The CacheManager is not alive.");
+            if (status.equals(Status.STATUS_UNINITIALISED)) {
+                throw new IllegalStateException("The CacheManager has not yet been initialised. It cannot be used yet.");
+            } else if (status.equals(Status.STATUS_SHUTDOWN)) {
+                throw new IllegalStateException("The CacheManager has been shut down. It can no longer be used.");
+            }
         }
     }
 

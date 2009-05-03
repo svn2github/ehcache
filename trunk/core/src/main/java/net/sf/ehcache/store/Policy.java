@@ -20,7 +20,11 @@ import net.sf.ehcache.Element;
 
 /**
  * An eviction policy.
- * todo work out how to let people set their own
+ * <p/>
+ * The Cache will use a policy at startup. There are three policy implementations provided in ehcache:
+ * LRU, LFU and FIFO. However many other policies are possible. That the policy
+ * has access to the whole element enables policies based on the key, value, metadata, statistics, or a combination of
+ * any of the above.
  *
  * @author Greg Luck
  */
@@ -30,11 +34,12 @@ public interface Policy {
      * Finds the best eviction candidate based on the sampled elements. What distuingishes this approach
      * from the classic data structures approach is that an Element contains metadata (e.g. usage statistics)
      * which can be used for making policy decisions, while generic data structures do not. It is expected that
-     *  implementations will take advantage of that metadata.
+     * implementations will take advantage of that metadata.
      *
      * @param sampledElements this should be a random subset of the population
-     * @param justAdded       we never want to select the element just added. May be null.
-     * @return the least hit
+     * @param justAdded       we probably never want to select the element just added. It is provided so that it can
+     * be ignored if selected. May be null.
+     * @return the selected Element
      */
     Element selectedBasedOnPolicy(Element[] sampledElements, Element justAdded);
 

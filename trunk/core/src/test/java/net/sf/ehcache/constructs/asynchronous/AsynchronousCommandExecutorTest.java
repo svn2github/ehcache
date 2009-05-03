@@ -20,9 +20,12 @@ package net.sf.ehcache.constructs.asynchronous;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.StopWatch;
+import net.sf.ehcache.CacheManager;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.After;
+import org.junit.AfterClass;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +65,13 @@ public class AsynchronousCommandExecutorTest {
         messageCache.removeAll();
         messages.clear();
     }
+
+    @AfterClass
+    public static void tearDown() throws AsynchronousCommandException {
+        AsynchronousCommandExecutor.getInstance().dispose();
+        CacheManager.getInstance().shutdown();
+    }
+
 
     /**
      * Getter

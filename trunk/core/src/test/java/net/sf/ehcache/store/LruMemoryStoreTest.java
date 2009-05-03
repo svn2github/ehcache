@@ -144,4 +144,27 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
     }
 
 
+    /**
+     * Multi-thread read, put and removeAll test.
+     * This checks for memory leaks
+     * using the removeAll which was the known cause of memory leaks with MemoryStore in JCS
+     */
+    //@Test
+//    public void testMemoryLeakRepeat() throws Exception {
+//        for (;;) {
+//            testMemoryLeak();
+//        }
+//    }
+
+    /**
+     * Multi-thread read, put and removeAll test.
+     * This checks for memory leaks
+     * using the removeAll which was the known cause of memory leaks with MemoryStore in JCS
+     */
+    @Test
+    public void testMemoryLeak() throws Exception {
+        super.testMemoryLeak();
+    }
+
+
 }
