@@ -37,7 +37,7 @@ import java.util.logging.Logger;
  * @author Greg Luck
  * @version $Id$
  */
-public final class Element implements Serializable, Cloneable {
+public class Element implements Serializable, Cloneable {
     /**
      * serial version
      * Updated for version 1.2 and again for 1.2.1
