@@ -608,7 +608,7 @@ public class MemoryStore implements Store {
      * Chooses the Policy from the cache configuration
      *
      * @param cache
-     * @return
+     *
      */
     protected void determineEvictionPolicy(Ehcache cache) {
         MemoryStoreEvictionPolicy policySelection = cache.getCacheConfiguration().getMemoryStoreEvictionPolicy();
@@ -623,14 +623,14 @@ public class MemoryStore implements Store {
     }
 
     /**
-     * Gets the policy
+     * @return the active eviction policy.
      */
     public Policy getPolicy() {
         return policy;
     }
 
     /**
-     * Sets the policy.
+     * Sets the policy. Use this method to inject a custom policy. This can be done while the store is alive.
      *
      * @param policy a new policy to be used in evicting elements in this store
      */
