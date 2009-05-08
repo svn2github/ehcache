@@ -274,12 +274,12 @@
         <repository>
             <id>sourceforge-releases</id>
             <name>Sourceforge Release Repository</name>
-            <url>dav:http://oss.sonatype.org/content/repositories/sourceforge-releases</url>
+            <url>http://oss.sonatype.org/content/repositories/sourceforge-releases</url>
         </repository>
         <snapshotRepository>
             <id>sourceforge-snapshots</id>
             <name>Sourceforge Snapshot Repository</name>
-            <url>dav:http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
+            <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 </project>
