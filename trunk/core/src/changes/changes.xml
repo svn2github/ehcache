@@ -2,9 +2,14 @@
 <document>
     <body>
 
-        <release version="1.6.0" date="2009-12-31"
+        <release version="1.6.0-beta5" date="2009-12-31"
                  desc="This release introduces new high perforamnce cache core, which is two orders of magnitude
                  faster.">
+
+            <!-- Bug Fixes -->
+            <action dev="Greg Luck" type="fix" issue="2740073">
+                Fix NPE on cache operations during cache.dispose();
+            </action>
 
             <!-- Bug Fixes -->
             <action dev="Greg Luck" type="fix" issue="2750578">

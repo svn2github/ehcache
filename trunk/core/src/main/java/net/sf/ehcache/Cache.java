@@ -1468,10 +1468,8 @@ public class Cache implements Ehcache {
         if (memoryStore != null) {
             memoryStore.dispose();
         }
-        memoryStore = null;
         if (diskStore != null) {
             diskStore.dispose();
-            diskStore = null;
         }
         changeStatus(Status.STATUS_SHUTDOWN);
     }

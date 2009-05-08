@@ -140,6 +140,7 @@ public class MemoryStore implements Store {
 
     /**
      * Puts an item in the cache. Note that this automatically results in an eviction if the store is full.
+     * todo check notifications on put
      *
      * @param element the element to add
      */
