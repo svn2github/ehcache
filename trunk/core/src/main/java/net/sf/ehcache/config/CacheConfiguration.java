@@ -154,6 +154,8 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Sets the name of the cache. This must be unique.
+     * The / character is illegal. The # character does not work
+     * with RMI replication.
      * @param name the cache name
      */
     public final void setName(String name) {

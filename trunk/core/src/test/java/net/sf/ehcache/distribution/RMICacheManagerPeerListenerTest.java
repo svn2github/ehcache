@@ -91,10 +91,6 @@ public class RMICacheManagerPeerListenerTest {
      */
     @Before
     public void setUp() throws Exception {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
         CountingCacheEventListener.resetCounters();
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
         manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml");
@@ -123,10 +119,6 @@ public class RMICacheManagerPeerListenerTest {
      */
     @After
     public void tearDown() throws Exception {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
 
         manager1.shutdown();
         manager2.shutdown();
@@ -147,10 +139,6 @@ public class RMICacheManagerPeerListenerTest {
      */
     @Test
     public void testPeersBound() {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         List cachePeers1 = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).getBoundCachePeers();
         assertEquals(55, cachePeers1.size());
@@ -192,10 +180,6 @@ public class RMICacheManagerPeerListenerTest {
     @Test
     public void testBoundListenerPeers() throws RemoteException {
 
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
         String[] boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
         validateBoundCachePeer(boundCachePeers);
     }
@@ -205,10 +189,6 @@ public class RMICacheManagerPeerListenerTest {
      */
     @Test
     public void testBoundListenerPeersAfterDefaultCacheAdd() throws RemoteException {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         String[] boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
         assertEquals(55, boundCachePeers.length);
@@ -226,10 +206,6 @@ public class RMICacheManagerPeerListenerTest {
      */
     @Test
     public void testBoundListenerPeersAfterProgrammaticCacheAdd() throws RemoteException {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         String[] boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
         assertEquals(55, boundCachePeers.length);
@@ -255,11 +231,6 @@ public class RMICacheManagerPeerListenerTest {
      */
     @Test
     public void testBoundListenerPeersAfterCacheRemove() throws RemoteException {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
         String[] boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
         assertEquals(55, boundCachePeers.length);
         validateBoundCachePeer(boundCachePeers);
@@ -286,11 +257,6 @@ public class RMICacheManagerPeerListenerTest {
      */
     @Test
     public void testListenerShutsdown() {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
         CacheManagerPeerListener cachePeerListener = manager1.getCachePeerListener("RMI");
         List cachePeers1 = cachePeerListener.getBoundCachePeers();
         assertEquals(55, cachePeers1.size());
@@ -310,11 +276,6 @@ public class RMICacheManagerPeerListenerTest {
      */
     @Test
     public void testListenerShutsdownFromShutdownHook() {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
         CacheManager manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed6.xml");
 
         CacheManagerPeerListener cachePeerListener = manager.getCachePeerListener("RMI");

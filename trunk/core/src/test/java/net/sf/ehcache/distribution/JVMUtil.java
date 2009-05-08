@@ -38,32 +38,6 @@ public final class JVMUtil {
 
 
     /**
-     * JDK Bug Id 4267864 affecting JDKs limits the number of RMI registries to one per virtual
-     * machine. Because tests rely on creating multiple they will only work on JDK1.5.
-     * <p/>
-     * This method is used to not run the affected tests on JDK1.4.
-     *
-     * @return true if the JDK is limited to one RMI Registry per VM, else false
-     */
-    public static boolean isSingleRMIRegistryPerVM() {
-        String version = System.getProperty("java.version");
-        String majorVersion = version.substring(0, FIRST_THREE_CHARS);
-        float majorVersionFloat = Float.parseFloat(majorVersion);
-        return majorVersionFloat < JDK_1_5;
-    }
-
-
-    /**
-     * Some performance numbers and size limits are higher in 15.
-     * This is used to set the tests as high as possible for each VM.
-     *
-     * @return true if JDK1.5 or higher
-     */
-    public static boolean isJDK15() {
-        return !isSingleRMIRegistryPerVM();
-    }
-
-    /**
      * Lists all the threads in the VM
      *
      * @return a List of type Thread

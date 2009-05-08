@@ -126,9 +126,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Before
     public void setUp() throws Exception {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         //Required to get SoftReference tests to pass. The VM clean up SoftReferences rather than allocating
         // memory to -Xmx!
@@ -168,10 +165,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     @After
     public void tearDown() throws Exception {
 
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
         if (manager1 != null) {
             manager1.shutdown();
         }
@@ -208,11 +201,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     @Test
     public void testRemoteCachePeersEqualsNumberOfCacheManagersInCluster() {
 
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
-
         CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider("RMI");
         List remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
         assertEquals(4, remotePeersOfCache1.size());
@@ -223,10 +211,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testRemoteCachePeersDetectsNewCacheManager() throws InterruptedException {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider("RMI");
         List remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
@@ -248,11 +232,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     @Test
     public void testRemoteCachePeersDetectsDownCacheManager() throws InterruptedException {
 
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
-
         CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider("RMI");
         List remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
         assertEquals(4, remotePeersOfCache1.size());
@@ -273,10 +252,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testRemoteCachePeersDetectsDownCacheManagerSlow() throws InterruptedException {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         try {
             CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider("RMI");
@@ -307,10 +282,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testPutProgagatesFromAndToEveryCacheManagerAndCache() throws CacheException, InterruptedException {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         //Put
         String[] cacheNames = manager1.getCacheNames();
@@ -367,11 +338,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testPutProgagatesFromAndToEveryCacheManagerAndCacheDirty() throws CacheException, InterruptedException {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
 
         manager3.shutdown();
 
@@ -490,10 +456,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     @Test
     public void testBigPutsProgagatesAsynchronous() throws CacheException, InterruptedException {
 
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
         //Give everything a chance to startup
         //Thread.sleep(10000);
         StopWatch stopWatch = new StopWatch();
@@ -534,10 +496,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testBootstrap() throws CacheException, InterruptedException, RemoteException {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         //load up some data
         StopWatch stopWatch = new StopWatch();
@@ -613,10 +571,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     public void xTestHugePutsBreaksAsynchronous() throws CacheException, InterruptedException {
 
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
         //Give everything a chance to startup
         StopWatch stopWatch = new StopWatch();
         Integer index = null;
@@ -659,10 +613,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testBigRemovesProgagatesAsynchronous() throws CacheException, InterruptedException {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         //Give everything a chance to startup
         Integer index = null;
@@ -723,10 +673,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testBigPutsProgagatesSynchronous() throws CacheException, InterruptedException {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         //Give everything a chance to startup
         StopWatch stopWatch = new StopWatch();
@@ -798,9 +744,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testPutWithExplicitReplicationConfig() throws InterruptedException {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
+
         putTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
     }
 
@@ -811,9 +755,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testPutWithThreadKiller() throws InterruptedException {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
+
         putTestWithThreadKiller(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
     }
 
@@ -823,9 +765,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testRemotelyReceivedPutNotifiesCountingListener() throws InterruptedException {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
+
         putTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
         assertEquals(1, CountingCacheEventListener.getCacheElementsPut(manager1.getCache("sampleCache1")).size());
         assertEquals(1, CountingCacheEventListener.getCacheElementsPut(manager2.getCache("sampleCache1")).size());
@@ -838,9 +778,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testPutWithExplicitReplicationSynchronousConfig() throws InterruptedException {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
         putTest(manager1.getCache("sampleCache3"), manager2.getCache("sampleCache3"), SYNCHRONOUS);
     }
 
@@ -851,9 +788,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testPutWithEmptyReplicationPropertiesConfig() throws InterruptedException {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
         putTest(manager1.getCache("sampleCache4"), manager2.getCache("sampleCache4"), ASYNCHRONOUS);
     }
 
@@ -864,9 +798,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testPutWithOneMissingReplicationPropertyConfig() throws InterruptedException {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
         putTest(manager1.getCache("sampleCache5"), manager2.getCache("sampleCache5"), ASYNCHRONOUS);
     }
 
@@ -936,10 +867,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     @Test
     public void testRemotePutNotificationGetsToOtherListeners() throws CacheException, InterruptedException {
 
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
         Serializable key = new Date();
         Serializable value = new Date();
         Element element1 = new Element(key, value);
@@ -998,9 +925,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testRemoveWithExplicitReplicationConfig() throws InterruptedException {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
         removeTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
     }
 
@@ -1010,9 +934,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testRemoveWithExplicitReplicationSynchronousConfig() throws InterruptedException {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
         removeTest(manager1.getCache("sampleCache3"), manager2.getCache("sampleCache3"), SYNCHRONOUS);
     }
 
@@ -1023,9 +944,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testRemoveWithEmptyReplicationPropertiesConfig() throws InterruptedException {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
         removeTest(manager1.getCache("sampleCache4"), manager2.getCache("sampleCache4"), ASYNCHRONOUS);
     }
 
@@ -1069,9 +987,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testRemoveAllAsynchronous() throws Exception {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
         removeAllTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
     }
 
@@ -1080,9 +995,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testRemoveAllSynchronous() throws Exception {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
         removeAllTest(manager1.getCache("sampleCache3"), manager2.getCache("sampleCache3"), SYNCHRONOUS);
     }
 
@@ -1133,9 +1045,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testUpdateWithExplicitReplicationConfig() throws Exception {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
         updateViaCopyTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
     }
 
@@ -1145,9 +1054,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testUpdateWithExplicitReplicationSynchronousConfig() throws Exception {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
         updateViaCopyTest(manager1.getCache("sampleCache3"), manager2.getCache("sampleCache3"), SYNCHRONOUS);
     }
 
@@ -1158,9 +1064,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testUpdateWithEmptyReplicationPropertiesConfig() throws Exception {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
         updateViaCopyTest(manager1.getCache("sampleCache4"), manager2.getCache("sampleCache4"), ASYNCHRONOUS);
     }
 
@@ -1215,10 +1118,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     @Test
     public void testPutViaInvalidate() throws CacheException, InterruptedException, IOException {
 
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
         cache1 = manager1.getCache("sampleCache2");
         cache1.removeAll();
 
@@ -1269,10 +1168,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     @Test
     public void testUpdateViaInvalidate() throws CacheException, InterruptedException, IOException {
 
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
         cache1 = manager1.getCache("sampleCache2");
         cache1.removeAll();
 
@@ -1306,10 +1201,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testInfiniteNotificationsLoop() throws InterruptedException {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         Serializable key = "1";
         Serializable value = new Date();
@@ -1472,10 +1363,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     @Test
     public void testCacheOperationsSynchronousMultiThreaded() throws Exception, InterruptedException {
 
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
         // Run a set of threads, that attempt to fetch the elements
         final List executables = new ArrayList();
 
@@ -1504,10 +1391,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     @Test
     public void testCacheOperationsAynchronousMultiThreaded() throws Exception, InterruptedException {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         // Run a set of threads, that attempt to fetch the elements
         final List executables = new ArrayList();

@@ -69,9 +69,6 @@ public class MulticastRMIPeerProviderTest {
      */
     @Before
     public void setUp() throws Exception {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
         MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
         manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml");
@@ -86,11 +83,6 @@ public class MulticastRMIPeerProviderTest {
      */
     @After
     public void tearDown() throws Exception {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
         manager1.shutdown();
         manager2.shutdown();
         manager3.shutdown();
@@ -112,10 +104,6 @@ public class MulticastRMIPeerProviderTest {
      */
     @Test
     public void testProviderFromCacheManager() throws InterruptedException {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         Ehcache m1sampleCache1 = manager1.getCache("sampleCache1");
         Thread.sleep(2000);
@@ -150,9 +138,6 @@ public class MulticastRMIPeerProviderTest {
     @Test
     public void testProviderCreatedFromDefaultCache() throws InterruptedException {
 
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         //manual does not nor should it work this way
         if (this.getClass() != MulticastRMIPeerProviderTest.class) {
@@ -186,9 +171,6 @@ public class MulticastRMIPeerProviderTest {
     @Test
     public void testDeleteReplicatedCache() throws InterruptedException {
 
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         //manual does not nor should it work this way
         if (this.getClass() != MulticastRMIPeerProviderTest.class) {
@@ -234,9 +216,6 @@ public class MulticastRMIPeerProviderTest {
     @Test
     public void testRemoteGetName() throws RemoteException, InterruptedException {
 
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         Ehcache m1sampleCache1 = manager1.getCache("sampleCache1");
         Thread.sleep(2000);

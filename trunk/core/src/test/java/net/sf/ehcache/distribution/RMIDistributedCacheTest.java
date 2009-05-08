@@ -69,9 +69,6 @@ public class RMIDistributedCacheTest {
      */
     @Before
     public void setUp() throws Exception {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
         MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
@@ -92,9 +89,6 @@ public class RMIDistributedCacheTest {
      */
     @After
     public void tearDown() throws InterruptedException {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
 
         Thread.sleep(10);
         manager.shutdown();
@@ -106,10 +100,6 @@ public class RMIDistributedCacheTest {
      */
     @Test
     public void testCreation() throws Exception {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
         assertNotNull(cache1Peer);
         assertNotNull(cache2Peer);
     }
@@ -120,9 +110,6 @@ public class RMIDistributedCacheTest {
      */
     @Test
     public void testMultipleCreationOfRMIServers() throws Exception {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
         RMICacheManagerPeerListener[] listeners = new RMICacheManagerPeerListener[100];
         for (int i = 0; i < 100; i++) {
             listeners[i] = new RMICacheManagerPeerListener(hostName, port, remoteObjectPort, manager, new Integer(2000));
@@ -141,9 +128,6 @@ public class RMIDistributedCacheTest {
      */
     @Test
     public void testMultipleCreationOfRMIServersWithSpecificRemoteObjectPort() throws Exception {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
         RMICacheManagerPeerListener[] listeners = new RMICacheManagerPeerListener[100];
         for (int i = 0; i < 100; i++) {
             listeners[i] = new RMICacheManagerPeerListener(hostName, port, new Integer(45000), manager, new Integer(2000));
@@ -171,10 +155,6 @@ public class RMIDistributedCacheTest {
      */
     @Test
     public void testGetName() throws Exception {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
         String lookupCacheName = cache1Peer.getName();
         assertEquals(cacheName1, lookupCacheName);
         lookupCacheName = cache2Peer.getName();

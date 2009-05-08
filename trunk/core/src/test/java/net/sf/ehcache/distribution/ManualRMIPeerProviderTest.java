@@ -38,10 +38,6 @@ public class ManualRMIPeerProviderTest extends MulticastRMIPeerProviderTest {
      */
     @Before
     public void setUp() throws Exception {
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed1.xml");
         manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed2.xml");
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed3.xml");
@@ -63,11 +59,6 @@ public class ManualRMIPeerProviderTest extends MulticastRMIPeerProviderTest {
      */
     @Test
     public void testProviderFromCacheManager() throws InterruptedException {
-
-        if (JVMUtil.isSingleRMIRegistryPerVM()) {
-            return;
-        }
-
         Ehcache m1sampleCache1 = manager1.getCache("sampleCache1");
         Thread.sleep(2000);
 
