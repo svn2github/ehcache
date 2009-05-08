@@ -32,7 +32,6 @@ import static net.sf.ehcache.distribution.jms.JMSUtil.URL_PKG_PREFIXES;
 import static net.sf.ehcache.distribution.jms.JMSUtil.USERNAME;
 import net.sf.ehcache.loader.CacheLoaderFactory;
 import net.sf.ehcache.util.PropertyUtil;
-import net.sf.jsr107cache.CacheLoader;
 
 import javax.jms.JMSException;
 import javax.jms.Queue;
@@ -40,7 +39,6 @@ import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
 import javax.naming.Context;
 import javax.naming.NamingException;
-import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -57,18 +55,6 @@ public class JMSCacheLoaderFactory extends CacheLoaderFactory {
     protected static final int DEFAULT_TIMEOUT_INTERVAL_MILLIS = 30000;
 
     private static final Logger LOG = Logger.getLogger(JMSCacheLoaderFactory.class.getName());
-
-    /**
-     * Creates a CacheLoader using the JSR107 creational mechanism.
-     * This method is called from {@link net.sf.ehcache.jcache.JCacheFactory}
-     *
-     * @param environment the same environment passed into {@link net.sf.ehcache.jcache.JCacheFactory}.
-     *                    This factory can extract any properties it needs from the environment.
-     * @return a constructed CacheLoader
-     */
-    public CacheLoader createCacheLoader(Map environment) {
-        throw new CacheException("Use the factory method which takes a cache parameter");
-    }
 
     /**
      * Creates a CacheLoader using the Ehcache configuration mechanism at the time the associated cache

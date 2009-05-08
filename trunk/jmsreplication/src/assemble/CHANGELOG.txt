@@ -1,5 +1,16 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+<release version="0.4" date="2009-5-8" desc="Maintenance release of jmsreplication">
+
+    <!-- Features and Enhancements -->
+    <action dev="Greg Luck" type="update">
+        Update ehcache to [1.6-beta5,]. This brings in a change for CacheLoaderFactory.
+    </action>
+    <action dev="Greg Luck" type="fix" issue="">
+        Replace references to Cache with Ehcache, so that decorated caches work.
+    </action>
+</release>
+
 <release version="0.3" date="2008-12-24" desc="Maintenance release of jmsreplication">
 
     <!-- Features and Enhancements -->

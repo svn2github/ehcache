@@ -56,7 +56,7 @@ public enum Action {
 
     /**
      * @param value
-     * @return
+     * @return The action enum corresponsing to the string value
      */
     public static Action forString(String value) {
         for (Action action : values()) {
@@ -69,7 +69,7 @@ public enum Action {
 
 
     /**
-     * @return
+     * @return an int value for the action. The same int values as EventMessage are used
      */
     public int toInt() {
         return action;

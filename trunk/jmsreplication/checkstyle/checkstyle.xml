@@ -123,7 +123,7 @@
         </module>
         <module name="TabCharacter"/>
 
-        <module name="ModifierOrder"/> 
+        <module name="ModifierOrder"/>
         <module name="RedundantModifier"/>
 
         <!-- Blocks -->
@@ -245,7 +245,11 @@
                  escape it and use \. to match dots. -->
             <property name="format" value="[^entry]\\.getValue\\(\\)"/>
         </module>
-        <module name="ArrayTypeStyle"/>
+        <module name="GenericIllegalRegexp">
+            <!-- . matches any character, so we need to
+                 escape it and use \. to match dots. -->
+            <property name="format" value="import net.sf.ehcache.Cache;"/>
+        </module><module name="ArrayTypeStyle"/>
         <module name="TodoComment"/>
         <module name="TrailingComment"/>
         <module name="UpperEll"/>

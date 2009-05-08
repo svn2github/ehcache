@@ -66,7 +66,7 @@ public class TestUtil {
     }
 
     public static void allocateFiftyMegabytes() {
-        byte[] forceVMGrowth = new byte[50000000];
+        byte[] forceVMGrowth = new byte[40000000];
     }
 
     /**

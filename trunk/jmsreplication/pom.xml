@@ -9,14 +9,14 @@
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-jmsreplication</artifactId>
     <name>JMS Replication</name>
-    <version>0.3</version>
+    <version>0.4</version>
     <packaging>jar</packaging>
     <description>This module provides replication via JMS 1.1</description>
     <dependencies>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
-            <version>1.6.0-beta2</version>
+            <version>[1.6.0-beta5,]</version>
         </dependency>
         <dependency>
             <groupId>javax.jms</groupId>
@@ -271,30 +271,15 @@
 
     <!-- Note: site URL repeated here to ensure correct deployment path -->
     <distributionManagement>
-        <!--
-          The server id here defined must also appear in ~/.m2/settings.xml with username
-
-          For some crazy reason either sourceforge or maven-deploy or wagon-ssh is suddenly not creating
-          missing directories when uploading such as the new version number directory.
-
-          Not sure why. Changing deploy and wagon versions is not helping.
-        -->
-        <snapshotRepository>
-            <id>sourceforge.net</id>
-            <name>SF EHCache Snapshot Repository</name>
-            <url>scp://web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs/snapshotrepository</url>
-        </snapshotRepository>
-
         <repository>
-            <id>sourceforge.net</id>
-            <name>SF EHCache Repository</name>
-            <url>scp://web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs/repository</url>
+            <id>sourceforge-releases</id>
+            <name>Sourceforge Release Repository</name>
+            <url>dav:http://oss.sonatype.org/content/repositories/sourceforge-releases</url>
         </repository>
-
-        <site>
-            <id>sourceforge.net</id>
-            <name>SF EHCache Site</name>
-            <url>scp://shell.sf.net:/home/groups/e/eh/ehcache/htdocs</url>
-        </site>
+        <snapshotRepository>
+            <id>sourceforge-snapshots</id>
+            <name>Sourceforge Snapshot Repository</name>
+            <url>dav:http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
+        </snapshotRepository>
     </distributionManagement>
 </project>

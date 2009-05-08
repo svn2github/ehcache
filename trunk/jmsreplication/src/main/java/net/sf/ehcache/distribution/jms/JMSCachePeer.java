@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.distribution.jms;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -271,7 +270,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
 
             Element element = (Element) object;
 
-            Cache cache = extractAndValidateCache(objectMessage);
+            Ehcache cache = extractAndValidateCache(objectMessage);
             Action action = extractAndValidateAction(objectMessage);
             //not required for Element
             Serializable key = extractAndValidateKey(objectMessage, action);
@@ -289,12 +288,17 @@ public class JMSCachePeer implements CachePeer, MessageListener {
                 LOG.fine(jmsEventMessage.toString());
             }
 
-            Cache cache;
+            Ehcache cache;
             String cacheName;
             try {
                 cacheName = jmsEventMessage.getCacheName();
-                cache = cacheManager.getCache(cacheName);
-                assert cache != null : "Cache was null, which is an illegal state. " + jmsEventMessage;
+                if (cacheName == null) {
+                    throw new InvalidJMSMessageException("No cache name specified.");
+                }
+                cache = cacheManager.getEhcache(cacheName);
+                if (cache == null) {
+                    throw new InvalidJMSMessageException("No cache named " + cacheName + "exists in the target CacheManager.");
+                }
             } catch (Exception e) {
                 LOG.log(Level.SEVERE, e.getMessage(), e);
                 return;
@@ -310,7 +314,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
 
 
             //no need for mimeType. An object has a type
-            Cache cache = extractAndValidateCache(objectMessage);
+            Ehcache cache = extractAndValidateCache(objectMessage);
             Action action = extractAndValidateAction(objectMessage);
             Serializable key = extractAndValidateKey(objectMessage, action);
             handleNotification(object, key, cache, action);
@@ -323,7 +327,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
             LOG.fine(getName() + ": Other ObjectMessage received - " + textMessage);
         }
 
-        Cache cache = extractAndValidateCache(message);
+        Ehcache cache = extractAndValidateCache(message);
         Action action = extractAndValidateAction(message);
         Serializable key = extractAndValidateKey(message, action);
         String mimeType = extractAndValidateMimeType(message, action);
@@ -341,7 +345,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
             LOG.fine(getName() + ": Other ObjectMessage received - " + bytesMessage);
         }
 
-        Cache cache = extractAndValidateCache(message);
+        Ehcache cache = extractAndValidateCache(message);
         Action action = extractAndValidateAction(message);
         Serializable key = extractAndValidateKey(message, action);
         String mimeType = extractAndValidateMimeType(message, action);
@@ -351,7 +355,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
         handleNotification(value, key, cache, action);
     }
 
-    private void handleGetRequest(ObjectMessage objectMessage, JMSEventMessage jmsEventMessage, Cache cache)
+    private void handleGetRequest(ObjectMessage objectMessage, JMSEventMessage jmsEventMessage, Ehcache cache)
             throws JMSException {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine(cacheManager.getName() + ": JMSEventMessage message received - " + objectMessage.getJMSMessageID());
@@ -394,7 +398,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
 
     }
 
-    private Serializable loadKeyOrKeys(Cache cache, Serializable keyOrKeys, boolean collectionLoad) {
+    private Serializable loadKeyOrKeys(Ehcache cache, Serializable keyOrKeys, boolean collectionLoad) {
         if (collectionLoad) {
             ArrayList keys = (ArrayList) keyOrKeys;
             return loadKeys(cache, keys);
@@ -403,7 +407,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
         }
     }
 
-    private Serializable loadKey(Cache cache, Serializable key) {
+    private Serializable loadKey(Ehcache cache, Serializable key) {
         Element element = cache.get(key);
         delayForTest(key);
         Serializable value = null;
@@ -413,7 +417,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
         return value;
     }
 
-    private HashMap loadKeys(Cache cache, ArrayList keys) {
+    private HashMap loadKeys(Ehcache cache, ArrayList keys) {
         HashMap<Serializable, Serializable> responseMap = new HashMap<Serializable, Serializable>(keys.size());
 
         for (Object listKey : keys) {
@@ -473,13 +477,13 @@ public class JMSCachePeer implements CachePeer, MessageListener {
         return action;
     }
 
-    private Cache extractAndValidateCache(Message message) throws JMSException {
-        Cache cache;
+    private Ehcache extractAndValidateCache(Message message) throws JMSException {
+        Ehcache cache;
         String cacheName = message.getStringProperty(CACHE_NAME_PROPERTY);
         if (cacheName == null) {
             throw new InvalidJMSMessageException("No cache name specified.");
         }
-        cache = cacheManager.getCache(cacheName);
+        cache = cacheManager.getEhcache(cacheName);
         if (cache == null) {
             throw new InvalidJMSMessageException("No cache named " + cacheName + "exists in the target CacheManager.");
         }

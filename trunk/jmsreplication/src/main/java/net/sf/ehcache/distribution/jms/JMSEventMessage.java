@@ -110,7 +110,7 @@ public class JMSEventMessage extends EventMessage {
     }
 
     /**
-     * @return
+     * @return the loader argument. May be and is usually null.
      */
     public Serializable getLoaderArgument() {
         return loaderArgument;

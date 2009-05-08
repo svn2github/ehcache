@@ -21,7 +21,7 @@ import net.sf.ehcache.Status;
 import static net.sf.ehcache.distribution.jms.JMSUtil.CACHE_MANAGER_UID;
 import static net.sf.ehcache.distribution.jms.JMSUtil.localCacheManagerUid;
 import net.sf.ehcache.loader.CacheLoader;
-import net.sf.jsr107cache.CacheException;
+import net.sf.ehcache.CacheException;
 
 import javax.jms.DeliveryMode;
 import javax.jms.ExceptionListener;
@@ -141,7 +141,7 @@ public class JMSCacheLoader implements CacheLoader {
      * A common loader which handles the JMS interactions.
      *
      * @param jmsEventMessage
-     * @return
+     * @return the object loaded from JMS.
      * @throws CacheException
      */
     protected Object loadFromJMS(JMSEventMessage jmsEventMessage) throws CacheException {
