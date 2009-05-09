@@ -71,7 +71,11 @@ public class SelfPopulatingCache extends BlockingCache {
             if (element == null) {
                 // Value not cached - fetch it
                 Object value = factory.createEntry(key);
-                element = new Element(key, value);
+                if (value instanceof Element) {
+                    element = (Element) value;
+                } else {
+                    element = new Element(key, value);
+                }
                 put(element);
             }
             return element;

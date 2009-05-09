@@ -66,9 +66,6 @@ public class SelfPopulatingCacheTest extends CacheTest {
      */
     @Before
     public void setUp() throws Exception {
-        LOG.severe(".");
-        System.out.println("-=-");
-        System.err.println("-+-");
         super.setUp();
         manager = new CacheManager();
         cache = manager.getCache("sampleIdlingExpiringCache");

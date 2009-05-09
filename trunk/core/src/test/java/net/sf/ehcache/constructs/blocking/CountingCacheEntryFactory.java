@@ -16,6 +16,10 @@
 
 package net.sf.ehcache.constructs.blocking;
 
+import net.sf.ehcache.Element;
+
+import java.util.Random;
+
 /**
  * A cache entry factory that counts the number of entries it has created.
  * <p/>
@@ -28,6 +32,7 @@ public class CountingCacheEntryFactory implements UpdatingCacheEntryFactory {
 
     private int count;
     private final Object value;
+    private Random random;
 
     /**
      * Creates a new instance
@@ -36,6 +41,7 @@ public class CountingCacheEntryFactory implements UpdatingCacheEntryFactory {
      */
     public CountingCacheEntryFactory(final Object value) {
         this.value = value;
+        random = new Random();
     }
 
     /**
@@ -43,7 +49,11 @@ public class CountingCacheEntryFactory implements UpdatingCacheEntryFactory {
      */
     public Object createEntry(final Object key) {
         count++;
-        return value;
+        if (random.nextInt(2) == 1) {
+            return value;
+        } else {
+            return new Element(key, value);
+        }
     }
 
     /**
