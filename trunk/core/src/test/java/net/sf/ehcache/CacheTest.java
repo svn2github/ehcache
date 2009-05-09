@@ -1756,7 +1756,7 @@ public class CacheTest extends AbstractCacheTest {
      * CLHM
      * INFO: Average Get Time for 3611277 observations: 0.0043137097 ms
      * INFO: Average Put Time for 554433 obervations: 0.011824693 ms
-     * INFO: Average Remove Time for 802361 obervations: 0.008200797 ms
+     * INFO: Average Remove Time for 802361 obervations: 0.008200797 ms     
      * INFO: Average Remove All Time for 2887862 observations: 4.685127E-4 ms
      * INFO: Average keySet Time for 2659524 observations: 0.003155828 ms
      * <p/>

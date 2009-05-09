@@ -7,6 +7,39 @@
 
 News
 
+* 10 May 2009: Ehcache 1.6 core beta 5 released
+
+  This beta release of ehcache-1.6 adds bug fixes and massive performance improvements. This release contains
+  the changes mooted in February.
+
+  The changes made remove used of the <<<synchronized>>> keyword from CacheManager, Cache and MemoryStore. The speed
+  improvements kick in with significant numbers of threads which is what happens in production.
+  Single-threaded performance, which is what you will see in your IDE is unchanged.
+
+  The improvements are:
+
+  * Gets 81 times faster
+
+  * Puts 22 times faster
+
+  * Removes 42 times faster
+
+  The upshot of all this is that ehcache performance is now comparable with direct use of <<<java.util.concurrent.ConcurrentHashMap>>>
+
+  See {{{http://gregluck.com/blog/archives/2009/02/i_have_been_wai.html}
+     Greg Luck's Blog}} for some amazing charts generated with JBoss' cache performance testing tool.
+
+  This version removes usage of
+
+  Download {{{/download.html}here}}. All documentation is {{{http://ehcache.sourceforge.net/documentation}here}}.
+
+* 10 May 2009: New Ehcache Maven repo
+
+  The primary ehcache repo has been migrated, with all history to {{http://oss.sonatype.org}}. This change simplifies
+  deployment and provides an advanced Maven Repository Manager to ehcache users. As usual all release artifacts are
+  deployed to the central Maven repository.
+  See {{{http://gregluck.com/blog/archives/2009/05/anyone_with_a_p.html}Greg Luck's blog}} for the full details.
+
 * 20 April 2009: Ehcache 1.6-beta4 withdrawn
 
    Ehcache 1.6-beta4 has been marked as inactive on SourceForge. In extensive testing last week a very rare

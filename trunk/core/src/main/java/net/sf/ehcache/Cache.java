@@ -717,7 +717,7 @@ public class Cache implements Ehcache {
      * wait outside of synchronized block so as not to block readers
      * If the disk store spool is full wait a short time to give it a chance to
      * catch up.
-     * todo maybe provide a warning if this is continually happening.
+     * todo maybe provide a warning if this is continually happening or monitor via JMX
      */
     private void backOffIfDiskSpoolFull() {
 

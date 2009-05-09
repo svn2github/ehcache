@@ -1,44 +1,37 @@
  ------
  Development Roadmap
  ------
- ------
- Date
- ------
 
 Development Roadmap
 
- Last Updated 12 July 2008.
+ Last Updated 10 May 2009.
 
-* 18 August 2008: Ehcache 1.6 development underway
+* Ehcache 1.7 Possibles
 
-   1.6 Goals:
+   * add the RESTful ehcache server as a secondary store, leveraging the new ehcache-server, and using partitioning (memcached feature)
 
-   * Minimum Java version 1.5
+   * add j.u.c. optimisations to DiskStore (MemoryStore done in 1.6).
 
-   * minimise dependencies for core users: drop commons logging, commons collections and backport concurrent (already done in trunk and snapshot)
-
-   * add a JMS distributed cache replicator
-
-   * add RESTful ehcache server as secondary store, leveraging the new ehcache-server, and using partitioning (memcached feature)
-
-   * introduce new performance strategies and secondary store categories to allow greater optimisation. The goal
-   is to make ehcache faster than java.util.concurrent for in-process caching and as scalable as memcached for out-of-process
-   caching.
+   * add extra write and replacement options e.g. write to secondary store straight away, do not overflow
 
    * group invalidation (OSCACHE feature)
 
-   * add other oustanding feature requests
+   * SoftReference store (some preliminary work has been done on this). 
 
-   Check trunk regularly for updates. For maven users (of which ehcache is one) a SNAPSOT repository has been added. See
+
+   Check trunk regularly for updates. For maven users (of which ehcache is one) a SNAPSHOT repository has been added. See
     {{http://ehcache.sf.net/snapshotrepository}}
 
-* Distributed Transactions with RMI Replication
+
+* Ideas not Scheduled
+
+** Distributed Transactions with RMI Replication
 
   A common scenario is where each cache in a cluster replicates to others. We usually want each cache to be coherent.
 
   Following is a discussion of a potential design for both synchronous and asynchronous:
 
-** Synchronous Replication with Transactions Enabled
+*** Synchronous Replication with Transactions Enabled
 
   If an Exception is thrown during replication to any peer, then the caches have become incoherent.
 
@@ -58,12 +51,12 @@ Development Roadmap
   This then provides the option to the caller to reattempt the operation. Given that cache operations
   are simple and idempotent (other than the lastUpdated and version statistics), this should be a practical option.
 
-*** Speed Impact
+**** Speed Impact
 
   The number of messages required is doubled, therefore enabling transactions will halve synchronous replication
   speed.
 
-** Asynchronous Replicaton with Transactions Enabled
+*** Asynchronous Replicaton with Transactions Enabled
 
   This works the same as with synchronous, except the caller is not informed if the transaction failed.
 
@@ -80,18 +73,17 @@ Development Roadmap
   cause of a failure is that peer has dropped off the network (or the network has failed) in which case
   redoing the transaction will ensure the remaining cache peers are coherent.
 
-*** Speed Impact
+**** Speed Impact
 
   Because asynchronous replication uses batches in a single RMI call, all that will happen is that there will
   be a small extra commit message for each other message. Performance should only be mildy degraded.
 
 
-* Updated JCache implementation
+** Updated JCache implementation
 
   Now looking to finalise JCache with ehcache as the RI. This will probably be maintained in a branch until the JSR process
    is concluded. The net.sf.jsr107cache will be updated in the meantime.
 
-* Maybe...
 
 ** Pluggable Disk Stores
 
@@ -103,12 +95,6 @@ Development Roadmap
 
  Ehcache supports LRU, LFU and FIFO. There are plenty more eviction policies. An extension mechanism should be added to
  support these.
-
-** SoftReferenceMemoryStore
-
- A MemoryStore built using SoftReferences. This would enable potentially much large MemoryStores with no risk of
- OutOfMemory errors. SoftReferences are already used in ehcache for the asynchronous replication spool.
-
 
 ** Derby DiskStore Implementation
 

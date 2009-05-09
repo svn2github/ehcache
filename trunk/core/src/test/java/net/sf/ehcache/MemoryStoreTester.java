@@ -655,5 +655,4 @@ public class MemoryStoreTester extends AbstractCacheTest {
         System.gc();
         Thread.sleep(1000);
     }
-
 }
