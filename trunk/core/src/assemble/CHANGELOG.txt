@@ -1,5 +1,25 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+ehcache-1.6.0-beta5
+===================
+
+<release version="1.6.0-beta5" date="2009-5-10"
+                 desc="This release introduces new high perforamnce cache core, which is two orders of magnitude faster.">
+            <action dev="Greg Luck" type="add">
+                Make MemoryStore eviction policies injectable.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2740073">
+                Fix NPE on cache operations during cache.dispose();
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2750578">
+                Fix DiskStore recovery after dirty shutdown bug introduced in beta4.
+            </action>
+            <action dev="Greg Luck" type="fix">
+                Fix MemoryStore concurrency issue introduced in beta4.
+            </action>
+        </release>
+
+
 ehcache-1.6.0-beta4
 ===================
 

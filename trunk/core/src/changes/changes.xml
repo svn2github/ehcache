@@ -2,18 +2,19 @@
 <document>
     <body>
 
-        <release version="1.6.0-beta5" date="2009-12-31"
-                 desc="This release introduces new high perforamnce cache core, which is two orders of magnitude
-                 faster.">
-
-            <!-- Bug Fixes -->
+        <release version="1.6.0-beta5" date="2009-5-10"
+                 desc="This release introduces new high perforamnce cache core, which is two orders of magnitude faster.">
+            <action dev="Greg Luck" type="add">
+                Make MemoryStore eviction policies injectable.
+            </action>
             <action dev="Greg Luck" type="fix" issue="2740073">
                 Fix NPE on cache operations during cache.dispose();
             </action>
-
-            <!-- Bug Fixes -->
             <action dev="Greg Luck" type="fix" issue="2750578">
                 Fix DiskStore recovery after dirty shutdown bug introduced in beta4.
+            </action>
+            <action dev="Greg Luck" type="fix">
+                Fix MemoryStore concurrency issue introduced in beta4.
             </action>
         </release>
 
@@ -57,14 +58,14 @@
                 has not occured to a given peer. Given that we are not transactional, this probably does not matter.
             </action>
             <action dev="Greg Luck" type="fix" issue="2725134">
-                Notifications happening on removeQuiet when they should not. 
+                Notifications happening on removeQuiet when they should not.
             </action>
             <action dev="Greg Luck" type="fix" issue="2492568">
-                Extra logging around RMICachePeer. Add the cacheName to the FINE log output. 
+                Extra logging around RMICachePeer. Add the cacheName to the FINE log output.
             </action>
             <action dev="Greg Luck" type="fix" issue="2584798">
                 Added support for UTF8 file encoding of ehcache.xml. This makes it possible to specify cache names
-                in non Western languages. 
+                in non Western languages.
             </action>
             <action dev="Greg Luck" type="fix" issue="2035287">
                 Updated provided scope dependency of Hibernate to 3.2.6GA to pick up a signature change in
@@ -99,7 +100,8 @@
                 with LOG statement. Request 2061030.
             </action>
             <action dev="Greg Luck" type="update">
-                Removed cacheManager.getCachePeerProvider() in favour of cacheManager.getCacheManagerPeerProvider("scheme")
+                Removed cacheManager.getCachePeerProvider() in favour of
+                cacheManager.getCacheManagerPeerProvider("scheme")
                 where scheme is the replication scheme. Each replicator type can then call its own scheme provider,
                 allowing multiple replication schemes to be used within the same CacheManager.
             </action>
@@ -111,7 +113,8 @@
 
             <!-- Feature Changes  -->
             <action dev="Greg Luck" type="remove">
-                Removed commons-collections. The LRUHashMap was only being used by early versions of Terracotta integration
+                Removed commons-collections. The LRUHashMap was only being used by early versions of Terracotta
+                integration
                 and is not longer required to support Terracotta.
             </action>
             <action dev="Greg Luck" type="remove" issue="1987750">
@@ -121,7 +124,8 @@
                 Removed dependency on commons-logging. Ehcache now uses java.util.logging at the request of many users.
             </action>
             <action dev="Greg Luck" type="update">
-                Java 1.5 is now the minimum version for ehcache 1.6. Java 1.4 will continue to be supported on the ehcache
+                Java 1.5 is now the minimum version for ehcache 1.6. Java 1.4 will continue to be supported on the
+                ehcache
                 1.5 branch. Ehcache can reduce its dependency list for the core and therefore occupy a smaller footprint
                 in new applications.
             </action>
@@ -145,11 +149,13 @@
                 to bring them into line with extensions such that a back-reference to the owning Cache is injected
                 at configuration time.
 
-                The upshot of these changes is that implementers of CacheLoader will need to update their implementations
+                The upshot of these changes is that implementers of CacheLoader will need to update their
+                implementations
                 for these changes.
 
                 The setter and getter for CacheLoader has been removed because it now a list, not a scalar.
-                New registerCacheLoader and unregisterCacheLoader methods have been added for programmatic configuration.
+                New registerCacheLoader and unregisterCacheLoader methods have been added for programmatic
+                configuration.
                 The getCacheLoader method has been removed.
             </action>
             <action dev="Greg Luck" type="remove">
@@ -169,29 +175,35 @@
             <!--Bug Fixes-->
             <action dev="Greg Luck" type="fix" issue="1977481">
                 Fix loading of net.sf.ehcache.hibernate.EhCacheProvider from multiple class loaders. The insistence
-                that a leading slash be at the front of the "net.sf.ehcache.configurationResourceName" property has been removed.
+                that a leading slash be at the front of the "net.sf.ehcache.configurationResourceName" property has been
+                removed.
                 If this fix causes anyone an issue, add the "/" to the front of your path.
             </action>
             <action dev="Greg Luck" type="fix" issue="1990091">
                 Updated the BlockingCache.get() JavaDoc to clarify the contract when a RuntimeException is thrown.
             </action>
             <action dev="Greg Luck" type="fix" issue="2002319">
-                Added a more meaningful LOG message when a null element is encountered from a replication. The only reason
+                Added a more meaningful LOG message when a null element is encountered from a replication. The only
+                reason
                 that an element can be null is because a SoftRefernence has been reclaimed by the JVM. The log message
-                recommends either increasing heap or setting -Xms to be the same as -Xmx as the Sun JDK will reclaim SoftReferences
+                recommends either increasing heap or setting -Xms to be the same as -Xmx as the Sun JDK will reclaim
+                SoftReferences
                 in preference to increasing heap.
             </action>
             <!--Changes-->
-             <action dev="Greg Luck" type="update">
-                The remote debugger has had many improvements. It is now packaged in its own tarball available from the downloads
-                 page, and also continues to be published as a maven module. It is not in the core tarball so that more focus
-                 can be given to it.
+            <action dev="Greg Luck" type="update">
+                The remote debugger has had many improvements. It is now packaged in its own tarball available from the
+                downloads
+                page, and also continues to be published as a maven module. It is not in the core tarball so that more
+                focus
+                can be given to it.
             </action>
         </release>
         <release version="1.5.0-beta2" date="2008-06-7" desc="Second beta of 1.5.0 Maintenance release">
             <!--Bug Fixes-->
             <action dev="Greg Luck" type="fix">
-                Fixes to changes made in 1.5.0-beta1: token replacement in ehcache.xml parsing and Cache.get() not searching
+                Fixes to changes made in 1.5.0-beta1: token replacement in ehcache.xml parsing and Cache.get() not
+                searching
                 the DiskStore.
             </action>
         </release>
@@ -539,7 +551,8 @@
             </action>
             <action dev="Greg Luck" type="fix" issue="1680964">
                 Make clear in the JavaDoc documentation in Cache that RemoteCacheException can be thrown by calls to
-                put, remove and removeAll when the cache replication policy is synchronous and a remote peer is unavailable.
+                put, remove and removeAll when the cache replication policy is synchronous and a remote peer is
+                unavailable.
                 Thanks to Christopher G. Stach II for reporting this issue.
             </action>
         </release>
