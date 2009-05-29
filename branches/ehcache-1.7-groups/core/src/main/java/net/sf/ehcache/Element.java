@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -38,11 +39,12 @@ import java.util.logging.Logger;
  * @version $Id$
  */
 public class Element implements Serializable, Cloneable {
-    /**
+
+	/**
      * serial version
-     * Updated for version 1.2 and again for 1.2.1
+     * Updated for version 1.2, 1.2.1 and 1.7 (groupKeys feature)
      */
-    private static final long serialVersionUID = 3343087714201120157L;
+    private static final long serialVersionUID = 318529397738968752L;
 
     private static final Logger LOG = Logger.getLogger(Element.class.getName());
 
@@ -110,6 +112,8 @@ public class Element implements Serializable, Cloneable {
      * Whether any combination of eternal, TTL or TTI has been set.
      */
     private boolean lifespanSet;
+    
+    private Set groupKeys;
 
     /**
      * A full constructor.
@@ -650,6 +654,15 @@ public class Element implements Serializable, Cloneable {
     public int getTimeToIdle() {
         return timeToIdle;
     }
+
+	public Set getGroupKeys() {
+		return groupKeys;
+	}
+
+	public void setGroupKeys(Set groupKeys) {
+		this.groupKeys = groupKeys;
+	}
+    
 }
 
 

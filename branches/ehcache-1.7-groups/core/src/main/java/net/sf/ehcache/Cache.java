@@ -38,6 +38,7 @@ import java.rmi.server.UID;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -128,7 +129,7 @@ public class Cache implements Ehcache {
             LOG.log(Level.SEVERE, "Unable to set localhost. This prevents creation of a GUID. Cause was: " + e.getMessage(), e);
         }
     }
-
+    
     private boolean disabled;
 
     private Store diskStore;
@@ -201,7 +202,9 @@ public class Cache implements Ehcache {
      */
     private ThreadPoolExecutor executorService;
 
+    private String masterGroupKey = GroupElement.MASTER_GROUP_KEY;
 
+    
     /**
      * 1.0 Constructor.
      * <p/>
@@ -711,6 +714,7 @@ public class Cache implements Ehcache {
             registeredEventListeners.notifyElementPut(element, doNotNotifyCacheReplicators);
         }
 
+        addToGroups(element, false, doNotNotifyCacheReplicators);
     }
 
     /**
@@ -771,6 +775,8 @@ public class Cache implements Ehcache {
         applyDefaultsToElementWithoutLifespanSet(element);
 
         memoryStore.put(element);
+        
+        addToGroups(element, true, false);
     }
 
     /**
@@ -1406,7 +1412,7 @@ public class Cache implements Ehcache {
             Element syntheticElement = new Element(key, null);
             registeredEventListeners.notifyElementRemoved(syntheticElement, doNotNotifyCacheReplicators);
         }
-
+//xx
         return removed;
     }
 
@@ -2363,5 +2369,132 @@ public class Cache implements Ehcache {
         memoryStore.setPolicy(policy);
     }
 
+    private void addToGroups(Element element, boolean quiet, 
+    		boolean doNotNotifyCacheReplicators) throws CacheException {
+
+    	//does this element have group membership?
+    	if((element.getGroupKeys()==null) || (element.getGroupKeys().isEmpty()))
+    		return;
+    	
+    	//loop through group keys, look for them in the cache and create/update them
+    	for(Object groupKey : element.getGroupKeys()) {
+    		addMemberToGroup(groupKey, element.getObjectKey(), quiet, doNotNotifyCacheReplicators);
+    	}
+    }
+    
+    private void addMemberToGroup(Object groupKey, Object memberKey, boolean quiet, 
+    		boolean doNotNotifyCacheReplicators) throws CacheException {
+		Element groupE = getQuiet(groupKey);
+		GroupElement group = null;
+		boolean groupIsNew = false;
+
+		//TODO: consider whether we need some kind of Mutex whilst group modification goes on
+		
+		if(groupE instanceof GroupElement) {
+			group = (GroupElement)	groupE;
+		}
+		else if(groupE==null) {
+			group = new GroupElement(groupKey);
+			groupIsNew = true;
+			if(!groupKey.equals(getMasterGroupKey())) {
+				//for any non-master group, define it as belonging to the Master Group
+				//when this new group is put into the cache, this method will end up
+				//being re-executed to add this new group into that Master Group
+				Set<String> masterGroupKey = Collections.unmodifiableSet(Collections.singleton(getMasterGroupKey()));
+				group.setGroupKeys(masterGroupKey);
+			}
+		}
+		else {
+    		throw new CacheException("The new Element with key " + memberKey 
+    				+ " references the group " + groupKey + ".  This key is already"
+    				+ " in use for a non-group element;"
+    				+ " GroupKeys co-exist in the same namespace "
+    				+ " as regular Elements - cache users are responsible of ensuring "
+    				+ " that namespace collisions do not occur");
+    	}
+		
+		boolean addedMember = group.getGroupKeys().add(memberKey);
+		if(!addedMember && !groupIsNew) {
+			//memberKey is already in the group - nothing to do
+			return;
+		}
+		
+		//now place the group back into the cache
+		if(quiet) {
+			putQuiet(group);
+		}
+		else {
+			put(group, doNotNotifyCacheReplicators);
+		}
+    }
+    
+    private void removeFromGroups(Element element, boolean quiet, 
+    		boolean doNotNotifyCacheReplicators) throws CacheException {
+    	
+    	//does this element have group membership?
+    	if((element.getGroupKeys()==null) || (element.getGroupKeys().isEmpty()))
+    		return;
+    	
+    	//loop through group keys, look for them in the cache and modify/remove them
+    	for(Object groupKey : element.getGroupKeys()) {
+    		removeMemberFromGroup(groupKey, element.getObjectKey(), quiet, doNotNotifyCacheReplicators);
+    	}
+    }
+    
+    private void removeMemberFromGroup(Object groupKey, Object memberKey, boolean quiet, 
+    		boolean doNotNotifyCacheReplicators) throws CacheException {
+		Element groupE = getQuiet(groupKey);
+		GroupElement group = null;
+
+		//TODO: consider whether we need some kind of Mutex whilst group modification goes on
+		
+		if(groupE instanceof GroupElement) {
+			group = (GroupElement)	groupE;
+		}
+		else if(groupE==null) {
+			//TODO: this condition should not occur, it it sufficient just to log it?
+			LOG.log(Level.WARNING, "Group " + groupKey + " is missing from the Cache?"
+					+ " - discovered while removing cache element with key " + memberKey);
+			return;
+		}
+		else {
+			//TODO: this condition should not occur, it it sufficient just to log it?
+			LOG.log(Level.WARNING, "Group " + groupKey + " is wrong type!");
+			return;
+    	}
+		
+		boolean removedMember = group.getGroupKeys().remove(memberKey);
+		if(!removedMember) {
+			//TODO: this condition should not occur, it it sufficient just to log it?
+			LOG.log(Level.WARNING, "Group " + groupKey + " did not contain the "
+					+ " element key " + memberKey + " as expected!");
+			//nothing more to do then
+			return;
+		}
+		
+		if(group.getGroupKeys().isEmpty()) {
+			//this group is now empty so now tidy up the cache by removing the group
+//HERE			
+		}
+		else {
+			//group still has members to update the group
+			if(quiet) {
+				putQuiet(group);
+			}
+			else {
+				put(group, doNotNotifyCacheReplicators);
+			}
+		}
+    }
+
+	public String getMasterGroupKey() {
+		return masterGroupKey;
+	}
+
+	public void setMasterGroupKey(String masterGroupKey) {
+		if(masterGroupKey==null)
+			throw new NullPointerException("masterGroupKey may not be null");
+		this.masterGroupKey = masterGroupKey;
+	}
 
 }
