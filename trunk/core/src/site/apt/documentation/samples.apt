@@ -217,7 +217,6 @@ Object value = element.getObjectValue();
 
 ---------------------------------
 Cache cache = manager.getCache("sampleCache1");
-Element element = new Element("key1", "value1");
 cache.remove("key1");
 ---------------------------------
 

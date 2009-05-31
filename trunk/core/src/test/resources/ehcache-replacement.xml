@@ -1,7 +1,7 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd">
 
     <!-- This does not work, because the java.io.tmpdir gets replaced before the property replacement-->
-    <diskStore path="${java.io.tmpdir}"/>
+    <diskStore path="${specialdir}/subdirectory/nextone"/>
 
     <cacheManagerPeerProviderFactory
                             class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"

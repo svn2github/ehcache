@@ -56,6 +56,9 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Map;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 
@@ -70,6 +73,8 @@ import java.util.jar.JarOutputStream;
  */
 public class ConfigurationFactoryTest extends AbstractCacheTest {
     private static final int CACHES_IN_TEST_EHCACHE = 13;
+
+    private static final Logger LOG = Logger.getLogger(ConfigurationFactoryTest.class.getName());
 
 
     /**
@@ -932,6 +937,27 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertNotSame(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
         assertTrue(configuration.getCacheManagerPeerProviderFactoryConfiguration().get(0)
                 .getProperties().indexOf("multicastGroupPort=4446") != -1);
+
+
+    }
+
+
+    /**
+     * Fun with replaceAll which clobbers \\ by default!
+     */
+    @Test
+    public void testPathExpansionAndReplacement() throws Exception {
+
+        String configuration = "This is my ${basedir}.";
+        String trimmedToken	= "basedir";
+        String property	= "D:\\sonatype\\workspace\\nexus-aggregator\\nexus\\nexus-app";
+        System.out.println("Property: " + property);
+
+        System.out.println("configuration is: " + configuration);
+        String propertyWithQuotesProtected = Matcher.quoteReplacement(property);
+        configuration = configuration.replaceAll("\\$\\{" + trimmedToken + "\\}", propertyWithQuotesProtected);
+        assertTrue(configuration.contains(property));
+        LOG.info("configuration is: " + configuration);
 
 
     }

@@ -191,7 +191,9 @@ public final class ConfigurationFactory {
                             " token specified in the configuration.Replacing with \"\"");
                 }
             } else {
-                configuration = configuration.replaceAll("\\$\\{" + trimmedToken + "\\}", property);
+                //replaceAll by default clobbers \ and $
+                String propertyWithQuotesProtected = Matcher.quoteReplacement(property);
+                configuration = configuration.replaceAll("\\$\\{" + trimmedToken + "\\}", propertyWithQuotesProtected);
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Found system property value of " + property + " for the " + token +
                             " token specified in the configuration.");

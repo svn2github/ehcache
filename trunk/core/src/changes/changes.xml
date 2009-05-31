@@ -2,6 +2,14 @@
 <document>
     <body>
 
+        <release version="1.6.0" date="2009-6-5"
+                 desc="This release introduces new high perforamnce cache core, which is two orders of magnitude faster.">
+            <action dev="Greg Luck" type="fix">
+                Preserve \ and $ when in ehcache.xml.
+            </action>
+        </release>
+
+
         <release version="1.6.0-beta5" date="2009-5-10"
                  desc="This release introduces new high perforamnce cache core, which is two orders of magnitude faster.">
             <action dev="Greg Luck" type="add">
