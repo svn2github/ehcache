@@ -454,6 +454,94 @@ public class SelfPopulatingCacheTest extends CacheTest {
             fail();
         }
     }
+
+
+    /**
+     * Original design behaviour of CacheEntryFactory was that its return was
+     * treated as the value of the Element and an Element was constructed on the fly.
+     * This meant the CacheEntryFactory could not set Element properties, for instance.
+     * As of SVN 950, if the returned Object is an Element then this is directly
+     * used in the Cache.  This test checked this behaviour by setting the
+     * Element version number to an improbable value that is then checked
+     */
+    @Test
+    public void testCacheEntryFactoryReturningElementMake() throws Exception {
+        final long SPECIAL_VERSION_NUMBER = 54321L;
+        final CacheEntryFactory elementReturningFactory = new CacheEntryFactory() {
+            public Object createEntry(final Object key) throws Exception {
+                Element e = new Element(key, "V_" + key);
+                e.setVersion(SPECIAL_VERSION_NUMBER);
+                return e;
+            }
+        };
+        selfPopulatingCache = new SelfPopulatingCache(cache, elementReturningFactory);
+        Element e = null;
+        e = selfPopulatingCache.get("key1");
+        assertEquals("V_key1", e.getValue());
+        assertEquals(SPECIAL_VERSION_NUMBER, e.getVersion());
+        e = selfPopulatingCache.get("key2");
+        assertEquals("V_key2", e.getValue());
+        assertEquals(SPECIAL_VERSION_NUMBER, e.getVersion());
+        assertEquals(2, selfPopulatingCache.getSize());
+    }
+
+    /**
+     * See {@link #testCacheEntryFactoryReturningElementMake}
+     * this test ensures the Refresh functionality works
+     */
+    @Test
+    public void testCacheEntryFactoryReturningElementRefresh() throws Exception {
+        final long SPECIAL_VERSION_NUMBER = 54321L;
+        final CacheEntryFactory elementReturningFactory = new CacheEntryFactory() {
+            public Object createEntry(final Object key) throws Exception {
+                Element e = new Element(key, "V_" + key);
+                e.setVersion(SPECIAL_VERSION_NUMBER);
+                return e;
+            }
+        };
+        selfPopulatingCache = new SelfPopulatingCache(cache, elementReturningFactory);
+        Element e = null;
+        e = selfPopulatingCache.get("key1");
+        assertEquals("V_key1", e.getValue());
+        assertEquals(SPECIAL_VERSION_NUMBER, e.getVersion());
+        e = selfPopulatingCache.get("key2");
+        assertEquals("V_key2", e.getValue());
+        assertEquals(SPECIAL_VERSION_NUMBER, e.getVersion());
+        assertEquals(2, selfPopulatingCache.getSize());
+        selfPopulatingCache.refresh();
+        e = selfPopulatingCache.get("key1");
+        assertEquals("V_key1", e.getValue());
+        assertEquals(SPECIAL_VERSION_NUMBER, e.getVersion());
+        e = selfPopulatingCache.get("key2");
+        assertEquals("V_key2", e.getValue());
+        assertEquals(SPECIAL_VERSION_NUMBER, e.getVersion());
+        assertEquals(2, selfPopulatingCache.getSize());
+    }
+
+    /**
+     * See {@link #testCacheEntryFactoryReturningElementMake}
+     * this test ensures the Refresh functionality works
+     */
+    @Test
+    public void testCacheEntryFactoryReturningElementBadKey() throws Exception {
+        final CacheEntryFactory elementReturningFactory = new CacheEntryFactory() {
+            public Object createEntry(final Object key) throws Exception {
+                Object modifiedKey = key.toString() + "XX";
+                Element e = new Element(modifiedKey, "V_" + modifiedKey);
+                return e;
+            }
+        };
+        selfPopulatingCache = new SelfPopulatingCache(cache, elementReturningFactory);
+        try {
+            selfPopulatingCache.get("key");
+            fail("Should fail because key was changed");
+        } catch (final Exception e) {
+            Thread.sleep(20);
+            // Check the error
+            assertEquals("Could not fetch object for cache entry with key \"key\".", e.getMessage());
+        }
+    }
+
 }
 
 

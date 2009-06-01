@@ -67,19 +67,13 @@ public class SelfPopulatingCache extends BlockingCache {
         try {
             //if null will lock here
             Element element = super.get(key);
-
             if (element == null) {
                 // Value not cached - fetch it
                 Object value = factory.createEntry(key);
-                if (value instanceof Element) {
-                    element = (Element) value;
-                } else {
-                    element = new Element(key, value);
-                }
+                element = makeAndCheckElement(key, value);
                 put(element);
             }
             return element;
-
         } catch (LockTimeoutException e) {
             //do not release the lock, because you never acquired it
             String message = "Timeout after " + timeoutMillis + " waiting on another thread " +
@@ -180,9 +174,48 @@ public class SelfPopulatingCache extends BlockingCache {
             // backingCache no longer does.
         } else {
             final Object value = factory.createEntry(key);
-            replacementElement = new Element(key, value);
+            replacementElement = makeAndCheckElement(key, value);
         }
 
         backingCache.putQuiet(replacementElement);
     }
+
+
+    /**
+     * Both CacheEntryFactory can return an Element rather than just a regular value
+     * this method test this, making a fresh Element otherwise.  It also enforces
+     * the rule that the CacheEntryFactory must provide the same key (via equals()
+     * not necessarily same object) if it is returning an Element.
+     *
+     * @param key
+     * @param value
+     * @return the Element to be put back in the cache
+     * @throws CacheException for various illegals states which could be harmful
+     */
+    private static Element makeAndCheckElement(Object key, Object value) throws CacheException {
+        //check if null
+        if (value == null) {
+            return new Element(key, value);
+        }
+
+        //simply build a new element using the supplied key
+        if (!(value instanceof Element)) {
+            return new Element(key, value);
+        }
+
+
+        //It is already an element - perform sanity checks
+        Element element = (Element) value;
+        if ((element.getObjectKey() == null) && (key == null)) {
+            return element;
+        } else if (element.getObjectKey() == null) {
+            throw new CacheException("CacheEntryFactory returned an Element with a null key");
+        } else if (!element.getObjectKey().equals(key)) {
+            throw new CacheException("CacheEntryFactory returned an Element with a different key: " +
+                element.getObjectKey() + " compared to the key that was requested: " + key);
+        } else {
+            return element;
+        }
+    }
+
 }
