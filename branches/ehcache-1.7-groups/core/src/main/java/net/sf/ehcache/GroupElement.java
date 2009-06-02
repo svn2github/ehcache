@@ -25,7 +25,24 @@ class GroupElement extends Element {
 				null, //Integer timeToIdleSeconds, 
 				null); //Integer timeToLiveSeconds);
 	}
-	
+
+	/** Use with care, GroupElements should only be created by Ehcache
+	 * @param key
+	 * @param value
+	 * @param version
+	 * @param creationTime
+	 * @param lastAccessTime
+	 * @param nextToLastAccessTime
+	 * @param lastUpdateTime
+	 * @param hitCount
+	 */
+	public GroupElement(Object key, Object value, long version,
+			long creationTime, long lastAccessTime, long nextToLastAccessTime,
+			long lastUpdateTime, long hitCount) {
+		super(key, value, version, creationTime, lastAccessTime, nextToLastAccessTime,
+				lastUpdateTime, hitCount);
+	}
+
 	public Set<Object> getElementKeys() {
 		return (Set<Object>) getObjectValue();
 	}

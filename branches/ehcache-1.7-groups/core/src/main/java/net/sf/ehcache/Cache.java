@@ -1395,6 +1395,8 @@ public class Cache implements Ehcache {
                 registeredEventListeners.notifyElementRemoved(elementFromMemoryStore, doNotNotifyCacheReplicators);
             }
             removed = true;
+            
+            removeFromGroups(elementFromMemoryStore, notifyListeners, doNotNotifyCacheReplicators);
         }
         if (elementFromDiskStore != null) {
             if (expiry) {
@@ -1404,6 +1406,8 @@ public class Cache implements Ehcache {
                 registeredEventListeners.notifyElementRemoved(elementFromDiskStore, doNotNotifyCacheReplicators);
             }
             removed = true;
+            
+            removeFromGroups(elementFromDiskStore, notifyListeners, doNotNotifyCacheReplicators);
         }
 
         //If we are trying to remove an element which does not exist locally, we should still notify so that
@@ -1412,7 +1416,7 @@ public class Cache implements Ehcache {
             Element syntheticElement = new Element(key, null);
             registeredEventListeners.notifyElementRemoved(syntheticElement, doNotNotifyCacheReplicators);
         }
-//xx
+        
         return removed;
     }
 
@@ -2419,7 +2423,8 @@ public class Cache implements Ehcache {
 			return;
 		}
 		
-		//now place the group back into the cache
+		//now place the group back into the cache; 
+		//the following put calls will cause recursion into this method
 		if(quiet) {
 			putQuiet(group);
 		}
@@ -2441,8 +2446,8 @@ public class Cache implements Ehcache {
     	}
     }
     
-    private void removeMemberFromGroup(Object groupKey, Object memberKey, boolean quiet, 
-    		boolean doNotNotifyCacheReplicators) throws CacheException {
+    private void removeMemberFromGroup(Object groupKey, Object memberKey, boolean notifyListeners,
+            boolean doNotNotifyCacheReplicators) throws CacheException {
 		Element groupE = getQuiet(groupKey);
 		GroupElement group = null;
 
@@ -2452,15 +2457,19 @@ public class Cache implements Ehcache {
 			group = (GroupElement)	groupE;
 		}
 		else if(groupE==null) {
-			//TODO: this condition should not occur, it it sufficient just to log it?
+			//TODO: this condition should not occur, is it sufficient just to log it?
 			LOG.log(Level.WARNING, "Group " + groupKey + " is missing from the Cache?"
 					+ " - discovered while removing cache element with key " + memberKey);
 			return;
 		}
 		else {
-			//TODO: this condition should not occur, it it sufficient just to log it?
-			LOG.log(Level.WARNING, "Group " + groupKey + " is wrong type!");
-			return;
+			//we should have got a GroupElement, but got some other type
+    		throw new CacheException("The new Element with key " + memberKey 
+    				+ " references the group " + groupKey + ".  This key is already"
+    				+ " in use for a non-group element;"
+    				+ " GroupKeys co-exist in the same namespace "
+    				+ " as regular Elements - cache users are responsible of ensuring "
+    				+ " that namespace collisions do not occur");
     	}
 		
 		boolean removedMember = group.getGroupKeys().remove(memberKey);
@@ -2468,17 +2477,18 @@ public class Cache implements Ehcache {
 			//TODO: this condition should not occur, it it sufficient just to log it?
 			LOG.log(Level.WARNING, "Group " + groupKey + " did not contain the "
 					+ " element key " + memberKey + " as expected!");
-			//nothing more to do then
+			//nothing more to do 
 			return;
 		}
 		
 		if(group.getGroupKeys().isEmpty()) {
 			//this group is now empty so now tidy up the cache by removing the group
-//HERE			
+			//the following call will cause recursion into this method
+			remove(groupKey, false, notifyListeners, doNotNotifyCacheReplicators);
 		}
 		else {
-			//group still has members to update the group
-			if(quiet) {
+			//group still has members so update the group by re-injecting the group into the cache
+			if(notifyListeners) {
 				putQuiet(group);
 			}
 			else {
@@ -2497,4 +2507,6 @@ public class Cache implements Ehcache {
 		this.masterGroupKey = masterGroupKey;
 	}
 
+	
+	//TODO: self-pop, update semantic - what if groups makeup is changed?
 }
