@@ -55,6 +55,7 @@
             <xs:attribute name="diskPersistent" use="optional" type="xs:boolean"/>
             <xs:attribute name="eternal" use="required" type="xs:boolean"/>
             <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
+            <xs:attribute name="clearOnFlush" use="optional" type="xs:boolean"/>
             <xs:attribute name="memoryStoreEvictionPolicy" use="optional" type="xs:string"/>
             <xs:attribute name="overflowToDisk" use="required" type="xs:boolean"/>
             <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
@@ -77,6 +78,7 @@
             <xs:attribute name="eternal" use="required" type="xs:boolean"/>
             <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
             <xs:attribute name="memoryStoreEvictionPolicy" use="optional" type="xs:string"/>
+            <xs:attribute name="clearOnFlush" use="optional" type="xs:boolean"/>
             <xs:attribute name="name" use="required" type="xs:string"/>
             <xs:attribute name="overflowToDisk" use="required" type="xs:boolean"/>
             <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>

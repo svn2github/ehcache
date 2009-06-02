@@ -462,7 +462,8 @@ public final class ConfigurationHelper {
                 null,
                 null,
                 cacheConfiguration.maxElementsOnDisk,
-                cacheConfiguration.diskSpoolBufferSizeMB);
+                cacheConfiguration.diskSpoolBufferSizeMB,
+                cacheConfiguration.clearOnFlush);
         RegisteredEventListeners listeners = cache.getCacheEventNotificationService();
         registerCacheListeners(cacheConfiguration, listeners);
         registerCacheExtensions(cacheConfiguration, cache);

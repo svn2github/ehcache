@@ -7,6 +7,11 @@
             <action dev="Greg Luck" type="fix">
                 Preserve \ and $ when in ehcache.xml.
             </action>
+            <action dev="Greg Luck" type="add">
+                added clearOnFlush cache parameter. It determines whether the MemoryStore should be cleared when flush()
+                is called on the cache. By default, the MemoryStore is cleared. Useful is you want to back up a cache
+                to the file system without clearing the MemoryStore. Thanks to Matt Passell for the patch.
+            </action>
         </release>
 
 

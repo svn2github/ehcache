@@ -70,6 +70,12 @@ public class CacheConfiguration implements Cloneable {
      */
     protected MemoryStoreEvictionPolicy memoryStoreEvictionPolicy;
 
+    /**
+     * Sets whether the MemoryStore should be cleared when
+     * {@link net.sf.ehcache.Ehcache#flush flush()} is called on the cache - true by default.
+     */
+    protected boolean clearOnFlush = true;
+
 
     /**
      * Sets whether elements are eternal. If eternal,  timeouts are ignored and the element
@@ -190,6 +196,14 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setMemoryStoreEvictionPolicyFromObject(MemoryStoreEvictionPolicy memoryStoreEvictionPolicy) {
         this.memoryStoreEvictionPolicy = memoryStoreEvictionPolicy;
+    }
+    
+    /**
+     * Sets whether the MemoryStore should be cleared when
+     * {@link net.sf.ehcache.Ehcache#flush flush()} is called on the cache - true by default.
+     */
+    public final void setClearOnFlush(boolean clearOnFlush) {
+      this.clearOnFlush = clearOnFlush;
     }
 
     /**
@@ -357,6 +371,13 @@ public class CacheConfiguration implements Cloneable {
      */
     public MemoryStoreEvictionPolicy getMemoryStoreEvictionPolicy() {
         return memoryStoreEvictionPolicy;
+    }
+
+    /**
+     * Accessor
+     */
+    public boolean getClearOnFlush() {
+      return clearOnFlush;
     }
 
     /**

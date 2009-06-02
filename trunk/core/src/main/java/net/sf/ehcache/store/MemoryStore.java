@@ -273,18 +273,20 @@ public class MemoryStore implements Store {
             }
             spoolAllToDisk();
         }
-        //should be emptied in any case
-        clear();
+        
+        //should be emptied if clearOnFlush is true
+        if (cache.getCacheConfiguration().getClearOnFlush()) {
+          clear();
+        }
     }
 
     /**
      * Spools all elements to disk, in preparation for shutdown.
      * <p/>
-     * Relies on being called from a synchronized method
-     * <p/>
      * This revised implementation is a little slower but avoids using increased memory during the method.
      */
     protected final void spoolAllToDisk() {
+        boolean clearOnFlush = cache.getCacheConfiguration().getClearOnFlush();
         Object[] keys = getKeyArray();
         for (int i = 0; i < keys.length; i++) {
             Element element = (Element) map.get(keys[i]);
@@ -297,7 +299,10 @@ public class MemoryStore implements Store {
                 } else {
                     spoolToDisk(element);
                     //Don't notify listeners. They are not being removed from the cache, only a store
-                    remove(keys[i]);
+                    //Leave it in the memory store for performance if do not want to clear on flush
+                    if (clearOnFlush) {
+                        remove(keys[i]);
+                    }
                 }
             }
         }

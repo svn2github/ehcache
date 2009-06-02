@@ -107,7 +107,9 @@
            eternal="false"
            timeToIdleSeconds="10000"
            timeToLiveSeconds="10000"
-           overflowToDisk="true">
+           overflowToDisk="true"
+           diskPersistent="true"
+           clearOnFlush="false" >
     </cache>
 
     <cache name="SimplePageFragmentCachingFilter"
@@ -115,6 +117,7 @@
            eternal="false"
            timeToIdleSeconds="10000"
            timeToLiveSeconds="10000"
+           diskPersistent="true"
            overflowToDisk="true">
     </cache>
 

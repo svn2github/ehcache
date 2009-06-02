@@ -90,6 +90,7 @@
         <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
         <xs:attribute name="memoryStoreEvictionPolicy" use="optional" type="xs:string"/>
         <xs:attribute name="overflowToDisk" use="required" type="xs:boolean"/>
+        <xs:attribute name="clearOnFlush" use="optional" type="xs:boolean"/>
         <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
         <xs:attribute name="timeToLiveSeconds" use="optional" type="xs:integer"/>
         <xs:attribute name="maxElementsOnDisk" use="optional" type="xs:integer"/>
@@ -110,6 +111,7 @@
         <xs:attribute name="eternal" use="required" type="xs:boolean"/>
         <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
         <xs:attribute name="memoryStoreEvictionPolicy" use="optional" type="xs:string"/>
+        <xs:attribute name="clearOnFlush" use="optional" type="xs:boolean"/>
         <xs:attribute name="name" use="required" type="xs:string"/>
         <xs:attribute name="overflowToDisk" use="required" type="xs:boolean"/>
         <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
@@ -431,6 +433,11 @@ The default value is 0.
 diskPersistent:
 Whether the disk store persists between restarts of the Virtual Machine.
 The default value is false.
+
+clearOnFlush:
+cache parameter. It determines whether the MemoryStore should be cleared when flush()
+is called on the cache. By default, the MemoryStore is cleared. Useful is you want to
+back up a cache to the file system without clearing the MemoryStore.
 
 diskExpiryThreadIntervalSeconds:
 The number of seconds between runs of the disk expiry thread. The default value

@@ -1188,7 +1188,7 @@ public class CacheTest extends AbstractCacheTest {
 
 
     /**
-     * Tests flushing the cache
+     * Tests flushing the cache, with the default, which is to flush
      *
      * @throws Exception
      */
@@ -1257,6 +1257,52 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(101, cache.getDiskStoreSize());
 
         cache.removeAll();
+
+    }
+
+    @Test
+    public void testFlushWithoutClear() throws InterruptedException {
+
+        CacheManager cacheManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
+        Cache cache = cacheManager.getCache("SimplePageCachingFilter");
+        cache.removeAll();
+        for (int i = 0; i < 100; i++) {
+            cache.put(new Element("" + i, new Date()));
+            //hit
+            cache.get("" + i);
+        }
+        assertEquals(10, cache.getMemoryStoreSize());
+        assertEquals(90, cache.getDiskStoreSize());
+
+        cache.flush();
+        Thread.sleep(1000);
+
+        assertEquals(10, cache.getMemoryStoreSize());
+        assertEquals(100, cache.getDiskStoreSize());
+        cacheManager.shutdown();
+
+    }
+
+    @Test
+    public void testFlushWithClear() throws InterruptedException {
+
+        CacheManager cacheManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
+        Cache cache = cacheManager.getCache("SimplePageFragmentCachingFilter");
+        cache.removeAll();
+        for (int i = 0; i < 100; i++) {
+            cache.put(new Element("" + i, new Date()));
+            //hit
+            cache.get("" + i);
+        }
+        assertEquals(10, cache.getMemoryStoreSize());
+        assertEquals(90, cache.getDiskStoreSize());
+
+        cache.flush();
+        Thread.sleep(1000);
+
+        assertEquals(0, cache.getMemoryStoreSize());
+        assertEquals(100, cache.getDiskStoreSize());
+        cacheManager.shutdown();
 
     }
 
@@ -1756,7 +1802,7 @@ public class CacheTest extends AbstractCacheTest {
      * CLHM
      * INFO: Average Get Time for 3611277 observations: 0.0043137097 ms
      * INFO: Average Put Time for 554433 obervations: 0.011824693 ms
-     * INFO: Average Remove Time for 802361 obervations: 0.008200797 ms     
+     * INFO: Average Remove Time for 802361 obervations: 0.008200797 ms
      * INFO: Average Remove All Time for 2887862 observations: 4.685127E-4 ms
      * INFO: Average keySet Time for 2659524 observations: 0.003155828 ms
      * <p/>

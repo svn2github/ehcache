@@ -428,12 +428,13 @@ public class Cache implements Ehcache {
                 registeredEventListeners,
                 bootstrapCacheLoader,
                 maxElementsOnDisk,
-                0);
+                0,
+                true);
 
     }
 
     /**
-     * 1.2.4 Constructor
+     * 1.3 Constructor
      * <p/>
      * The {@link net.sf.ehcache.config.ConfigurationFactory} and clients can create these.
      * <p/>
@@ -457,7 +458,7 @@ public class Cache implements Ehcache {
      * @param bootstrapCacheLoader      the BootstrapCacheLoader to use to populate the cache when it is first initialised. Null if none is required.
      * @param maxElementsOnDisk         the maximum number of Elements to allow on the disk. 0 means unlimited.
      * @param diskSpoolBufferSizeMB     the amount of memory to allocate the write buffer for puts to the DiskStore.
-     * @since 1.2.4
+     * @since 1.3
      */
     public Cache(String name,
                  int maxElementsInMemory,
@@ -473,6 +474,68 @@ public class Cache implements Ehcache {
                  BootstrapCacheLoader bootstrapCacheLoader,
                  int maxElementsOnDisk,
                  int diskSpoolBufferSizeMB) {
+        this(name,
+                maxElementsInMemory,
+                memoryStoreEvictionPolicy,
+                overflowToDisk,
+                diskStorePath,
+                eternal,
+                timeToLiveSeconds,
+                timeToIdleSeconds,
+                diskPersistent,
+                diskExpiryThreadIntervalSeconds,
+                registeredEventListeners,
+                bootstrapCacheLoader,
+                maxElementsOnDisk,
+                diskSpoolBufferSizeMB,
+                true);
+
+    }
+
+
+    /**
+     * 1.6.0 Constructor
+     * <p/>
+     * The {@link net.sf.ehcache.config.ConfigurationFactory} and clients can create these.
+     * <p/>
+     * A client can specify their own settings here and pass the {@link Cache} object
+     * into {@link CacheManager#addCache} to specify parameters other than the defaults.
+     * <p/>
+     * Only the CacheManager can initialise them.
+     *
+     * @param name                      the name of the cache. Note that "default" is a reserved name for the defaultCache.
+     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted
+     * @param memoryStoreEvictionPolicy one of LRU, LFU and FIFO. Optionally null, in which case it will be set to LRU.
+     * @param overflowToDisk            whether to use the disk store
+     * @param diskStorePath             this parameter is ignored. CacheManager sets it using setter injection.
+     * @param eternal                   whether the elements in the cache are eternal, i.e. never expire
+     * @param timeToLiveSeconds         the default amount of time to live for an element from its creation date
+     * @param timeToIdleSeconds         the default amount of time to live for an element from its last accessed or modified date
+     * @param diskPersistent            whether to persist the cache to disk between JVM restarts
+     * @param diskExpiryThreadIntervalSeconds
+     *                                  how often to run the disk store expiry thread. A large number of 120 seconds plus is recommended
+     * @param registeredEventListeners  a notification service. Optionally null, in which case a new one with no registered listeners will be created.
+     * @param bootstrapCacheLoader      the BootstrapCacheLoader to use to populate the cache when it is first initialised. Null if none is required.
+     * @param maxElementsOnDisk         the maximum number of Elements to allow on the disk. 0 means unlimited.
+     * @param diskSpoolBufferSizeMB     the amount of memory to allocate the write buffer for puts to the DiskStore.
+     * @param clearOnFlush              whether the MemoryStore should be cleared when {@link #flush flush()} is called on the cache
+     * @since 1.6.0
+     */
+    public Cache(String name,
+                 int maxElementsInMemory,
+                 MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
+                 boolean overflowToDisk,
+                 String diskStorePath,
+                 boolean eternal,
+                 long timeToLiveSeconds,
+                 long timeToIdleSeconds,
+                 boolean diskPersistent,
+                 long diskExpiryThreadIntervalSeconds,
+                 RegisteredEventListeners registeredEventListeners,
+                 BootstrapCacheLoader bootstrapCacheLoader,
+                 int maxElementsOnDisk,
+                 int diskSpoolBufferSizeMB,
+                 boolean clearOnFlush) {
 
         changeStatus(Status.STATUS_UNINITIALISED);
 
@@ -488,6 +551,7 @@ public class Cache implements Ehcache {
         configuration.setTimeToIdleSeconds(timeToIdleSeconds);
         configuration.setDiskPersistent(diskPersistent);
         configuration.setMaxElementsOnDisk(maxElementsOnDisk);
+        configuration.setClearOnFlush(clearOnFlush);
 
 
         if (diskStorePath == null) {
@@ -2345,7 +2409,7 @@ public class Cache implements Ehcache {
 
     /**
      * @return the current MemoryStore policy. This may not be the configured policy, if it has been
-     * dynamically set.
+     *         dynamically set.
      */
     public Policy getMemoryStoreEvictionPolicy() {
         return memoryStore.getPolicy();
@@ -2357,6 +2421,7 @@ public class Cache implements Ehcache {
      * has access to the whole element enables policies based on the key, value, metadata, statistics, or a combination of
      * any of the above. It is safe to change the policy of a store at any time. The new policy takes effect
      * immediately.
+     *
      * @param policy the new policy
      */
     public void setMemoryStoreEvictionPolicy(Policy policy) {
