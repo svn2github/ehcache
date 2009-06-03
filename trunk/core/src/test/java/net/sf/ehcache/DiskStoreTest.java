@@ -77,14 +77,14 @@ public class DiskStoreTest extends AbstractCacheTest {
      * size-related characteristics without elements being deleted under us.
      */
     private DiskStore createNonExpiringDiskStore() {
-        Cache cache = new Cache("testNonPersistent", 10000, true, true, 2, 1, false, 1);
+        Cache cache = new Cache("test/NonPersistent", 10000, true, true, 2, 1, false, 1);
         manager.addCache(cache);
         DiskStore diskStore = (DiskStore) cache.getDiskStore();
         return diskStore;
     }
 
     private DiskStore createDiskStore() {
-        Cache cache = new Cache("testNonPersistent", 10000, true, false, 2, 1, false, 1);
+        Cache cache = new Cache("test/NonPersistent", 10000, true, false, 2, 1, false, 1);
         manager.addCache(cache);
         DiskStore diskStore = (DiskStore) cache.getDiskStore();
         return diskStore;

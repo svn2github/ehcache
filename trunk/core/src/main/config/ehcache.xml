@@ -570,13 +570,14 @@
     Sample distributed cache named sampleDistributedCache3.
     This cache replicates using defaults except that the asynchronous replication
     interval is set to 200ms.
+    This one includes / and # which were illegal in ehcache 1.5.
     -->
-    <cache name="sampleDistributedCache3"
+    <cache name="sample/DistributedCache3"
            maxElementsInMemory="10"
            eternal="false"
            timeToIdleSeconds="100"
            timeToLiveSeconds="100"
-           overflowToDisk="false">
+           overflowToDisk="true">
         <cacheEventListenerFactory
                 class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
                 properties="asynchronousReplicationIntervalMillis=200"/>

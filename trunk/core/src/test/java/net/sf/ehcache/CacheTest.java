@@ -161,12 +161,7 @@ public class CacheTest extends AbstractCacheTest {
             //expected
         }
 
-        try {
-            cache.setName("illegal/name");
-            fail();
-        } catch (IllegalArgumentException e) {
-            //expected
-        }
+        cache.setName("name/with/slash");
 
         manager.addCache(cache);
         try {

@@ -12,6 +12,10 @@
                 is called on the cache. By default, the MemoryStore is cleared. Useful is you want to back up a cache
                 to the file system without clearing the MemoryStore. Thanks to Matt Passell for the patch.
             </action>
+            <action dev="Greg Luck" type="update">
+                / used to be an illegal character in ehcache cache names. However JBoss 5 uses / in its JPA cache names.
+                / is now a legal character so as to interoperate with JBoss 5.
+            </action>
         </release>
 
 

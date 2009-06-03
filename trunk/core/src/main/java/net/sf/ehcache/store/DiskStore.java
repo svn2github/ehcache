@@ -1086,10 +1086,13 @@ public class DiskStore implements Store {
     }
 
     /**
+     * Creates a file system safe data file. Any incidences of or <code>/</code> are replaced with <code>_</code>
+     *  so there are no unwanted side effects.
      * @return the file name of the data file where the disk store stores data, without any path information.
      */
     public final String getDataFileName() {
-        return name + ".data";
+        String safeName = name.replace('/','_');
+        return safeName + ".data";
     }
 
     /**

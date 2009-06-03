@@ -168,9 +168,6 @@ public class CacheConfiguration implements Cloneable {
         if (name == null) {
             throw new IllegalArgumentException("Cache name cannot be null.");
         }
-        if (name.indexOf('/') != -1) {
-            throw new IllegalArgumentException("Cache name cannot contain '/' characters.");
-        }
         this.name = name;
     }
 
