@@ -20,7 +20,7 @@ class GroupElement extends Element {
 
 	GroupElement(Object key) {
 		super(key, 
-				makeGroupStore(), //Object value, 
+				makeMemberKeySet(), //Object value, 
 				new Boolean(true), //Boolean eternal,
 				null, //Integer timeToIdleSeconds, 
 				null); //Integer timeToLiveSeconds);
@@ -43,15 +43,15 @@ class GroupElement extends Element {
 				lastUpdateTime, hitCount);
 	}
 
-	public Set<Object> getElementKeys() {
-		return (Set<Object>) getObjectValue();
+	public Set getMemberKeys() {
+		return (Set) getObjectValue();
 	}
 	
 	/** Create the value object for a Group Element
 	 * @return
 	 */
-	private static Object makeGroupStore() {
-		return Collections.synchronizedSet(new HashSet<Object>());
+	private static Set makeMemberKeySet() {
+		return Collections.synchronizedSet(new HashSet());
 	}
 
 }

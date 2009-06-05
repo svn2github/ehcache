@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -661,6 +662,42 @@ public class Element implements Serializable, Cloneable {
 
 	public void setGroupKeys(Set groupKeys) {
 		this.groupKeys = groupKeys;
+	}
+	
+	public boolean hasGroupKeys() {
+		return (getGroupKeys()!=null) && (!getGroupKeys().isEmpty());
+	}
+	
+	/**
+	 * 
+	 * @param groupKey groupKey to be added to the Elements group keys set
+     * @return <tt>true</tt> if this set did not already contain the specified
+     *         element
+     */
+	public boolean addGroupKey(Object groupKey) {
+		Set groupKeys = getGroupKeys();
+		if(groupKeys==null) {
+			groupKeys = new HashSet();
+		}
+		boolean added = groupKeys.add(groupKey);
+		setGroupKeys(groupKeys);
+		return added;
+	}
+	
+	/**
+	 * 
+	 * @param groupKey groupKey to be removed from the Elements group keys set, if present 
+     * @return <tt>true</tt> if this set contained the specified element
+	 */
+	public boolean removeGroupKey(Object groupKey) {
+		Set groupKeys = getGroupKeys();
+		if(groupKeys==null) {
+			groupKeys = new HashSet();
+		}
+		boolean removed = groupKeys.remove(groupKey);
+		//TODO: if groupKeys.isEmtpy should we set to null?
+		setGroupKeys(groupKeys);
+		return removed;
 	}
     
 }

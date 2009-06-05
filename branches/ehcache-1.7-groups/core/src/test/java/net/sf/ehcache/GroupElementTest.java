@@ -27,6 +27,10 @@ public class GroupElementTest extends AbstractCacheTest {
         assertTrue(element.getObjectValue() instanceof Set);
         assertEquals(0, ((Set) element.getValue()).size());
         
+        //and there should be a special accessor for the Set
+        assertNotNull(element.getMemberKeys());
+        assertEquals(0, element.getMemberKeys().size());
+        
         assertEquals(0L, element.getVersion());
         long now = System.currentTimeMillis();
         long MARGIN = 2000L;

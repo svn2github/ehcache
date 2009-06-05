@@ -784,5 +784,7 @@ public interface Ehcache extends Cloneable {
      */
     public void setDisabled(boolean disabled);
 
+	public String getMasterGroupKey();
 
+	public void setMasterGroupKey(String masterGroupKey);
 }

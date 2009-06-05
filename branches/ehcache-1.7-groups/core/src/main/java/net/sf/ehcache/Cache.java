@@ -2377,7 +2377,7 @@ public class Cache implements Ehcache {
     		boolean doNotNotifyCacheReplicators) throws CacheException {
 
     	//does this element have group membership?
-    	if((element.getGroupKeys()==null) || (element.getGroupKeys().isEmpty()))
+    	if(!element.hasGroupKeys())
     		return;
     	
     	//loop through group keys, look for them in the cache and create/update them
@@ -2388,6 +2388,7 @@ public class Cache implements Ehcache {
     
     private void addMemberToGroup(Object groupKey, Object memberKey, boolean quiet, 
     		boolean doNotNotifyCacheReplicators) throws CacheException {
+    	
 		Element groupE = getQuiet(groupKey);
 		GroupElement group = null;
 		boolean groupIsNew = false;
@@ -2398,12 +2399,18 @@ public class Cache implements Ehcache {
 			group = (GroupElement)	groupE;
 		}
 		else if(groupE==null) {
+			//group does not exist, so make it - use the special GroupElement 
+			//constructor that makes an element with a Set ready to receive the
+			//group keys
 			group = new GroupElement(groupKey);
 			groupIsNew = true;
 			if(!groupKey.equals(getMasterGroupKey())) {
-				//for any non-master group, define it as belonging to the Master Group
-				//when this new group is put into the cache, this method will end up
-				//being re-executed to add this new group into that Master Group
+				//for any group, G, that is not the special Master Group, MG, 
+				//add the sole groups G belongs to is MG.
+				//Then when this new group G is put into the cache, 
+				//this very method will be re-executed to add G
+				//into the MG.  (And if MG does not exist it will be created,
+				//but the recursion stops there)
 				Set<String> masterGroupKey = Collections.unmodifiableSet(Collections.singleton(getMasterGroupKey()));
 				group.setGroupKeys(masterGroupKey);
 			}
@@ -2417,7 +2424,7 @@ public class Cache implements Ehcache {
     				+ " that namespace collisions do not occur");
     	}
 		
-		boolean addedMember = group.getGroupKeys().add(memberKey);
+		boolean addedMember = group.getMemberKeys().add(memberKey);
 		if(!addedMember && !groupIsNew) {
 			//memberKey is already in the group - nothing to do
 			return;
@@ -2437,7 +2444,7 @@ public class Cache implements Ehcache {
     		boolean doNotNotifyCacheReplicators) throws CacheException {
     	
     	//does this element have group membership?
-    	if((element.getGroupKeys()==null) || (element.getGroupKeys().isEmpty()))
+    	if(!element.hasGroupKeys())
     		return;
     	
     	//loop through group keys, look for them in the cache and modify/remove them
@@ -2448,6 +2455,7 @@ public class Cache implements Ehcache {
     
     private void removeMemberFromGroup(Object groupKey, Object memberKey, boolean notifyListeners,
             boolean doNotNotifyCacheReplicators) throws CacheException {
+    	
 		Element groupE = getQuiet(groupKey);
 		GroupElement group = null;
 
@@ -2472,7 +2480,7 @@ public class Cache implements Ehcache {
     				+ " that namespace collisions do not occur");
     	}
 		
-		boolean removedMember = group.getGroupKeys().remove(memberKey);
+		boolean removedMember = group.getMemberKeys().remove(memberKey);
 		if(!removedMember) {
 			//TODO: this condition should not occur, it it sufficient just to log it?
 			LOG.log(Level.WARNING, "Group " + groupKey + " did not contain the "
@@ -2481,7 +2489,7 @@ public class Cache implements Ehcache {
 			return;
 		}
 		
-		if(group.getGroupKeys().isEmpty()) {
+		if(group.getMemberKeys().isEmpty()) {
 			//this group is now empty so now tidy up the cache by removing the group
 			//the following call will cause recursion into this method
 			remove(groupKey, false, notifyListeners, doNotNotifyCacheReplicators);
@@ -2508,5 +2516,5 @@ public class Cache implements Ehcache {
 	}
 
 	
-	//TODO: self-pop, update semantic - what if groups makeup is changed?
+	
 }

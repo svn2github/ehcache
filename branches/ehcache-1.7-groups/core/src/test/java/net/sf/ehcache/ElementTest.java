@@ -17,22 +17,25 @@
 package net.sf.ehcache;
 
 
+import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import org.junit.Test;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.io.NotSerializableException;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
-import static junit.framework.Assert.fail;
+import org.junit.Test;
 
 /**
  * Test cases for the Element.
@@ -329,6 +332,58 @@ public class ElementTest extends AbstractCacheTest {
         ObjectInputStream objectInputStream = new ObjectInputStream(bais);
         assertEquals("string", objectInputStream.readObject());
         assertEquals(null, objectInputStream.readObject());
+    }
+    
+    @Test
+    public void testGroupElementOperations() {
+    	Element element = new Element("key", "value");
+
+    	//group key set should initially be null, or least empty
+    	assertTrue((element.getGroupKeys()==null) || (element.getGroupKeys().isEmpty()));
+    	assertFalse(element.hasGroupKeys());
+    	
+    	//set with empty set
+    	Set groupKeys = new HashSet();
+    	element.setGroupKeys(groupKeys);
+    	assertNotNull(element.getGroupKeys());
+    	assertTrue(element.getGroupKeys().isEmpty());
+    	assertFalse(element.hasGroupKeys());
+    	
+    	//set with filled set
+    	Set groupKeys2 = new HashSet();
+    	groupKeys2.add("g1");
+    	groupKeys2.add("g2");
+    	element.setGroupKeys(groupKeys2);
+    	assertNotNull(element.getGroupKeys());
+    	assertEquals(2, element.getGroupKeys().size());
+    	assertTrue(element.hasGroupKeys());
+    	
+    	//use add to add a key to an existing set
+    	element.addGroupKey("g3");
+    	assertNotNull(element.getGroupKeys());
+    	assertEquals(3, element.getGroupKeys().size());
+    	assertTrue(element.getGroupKeys().contains("g1"));
+    	assertTrue(element.getGroupKeys().contains("g2"));
+    	assertTrue(element.getGroupKeys().contains("g3"));
+    	
+    	//remove on existing set
+    	element.removeGroupKey("g1");
+    	assertNotNull(element.getGroupKeys());
+    	assertEquals(2, element.getGroupKeys().size());
+    
+    	Element element2 = new Element("key2", "value2");
+    	//use add to add a key to a non-existent set
+    	element2.addGroupKey("g2");
+    	assertNotNull(element2.getGroupKeys());
+    	assertTrue(element2.hasGroupKeys());
+    	assertEquals(1, element2.getGroupKeys().size());
+    	assertTrue(element2.getGroupKeys().contains("g2"));
+    	
+    	Element element3 = new Element("key3", "value3");
+    	//use remove on a non-existant set
+    	element2.removeGroupKey("g2");
+    	assertTrue((element3.getGroupKeys()==null) || (element3.getGroupKeys().isEmpty()));
+    	assertFalse(element3.hasGroupKeys());
     }
 
 
