@@ -424,8 +424,12 @@ public class Element implements Serializable, Cloneable {
                 .append(", version=").append(version)
                 .append(", hitCount=").append(hitCount)
                 .append(", CreationTime = ").append(this.getCreationTime())
-                .append(", LastAccessTime = ").append(this.getLastAccessTime())
-                .append(" ]");
+                .append(", LastAccessTime = ").append(this.getLastAccessTime());
+        if(this.hasGroupKeys() && this.getGroupKeys().size()>0)
+            sb.append(", groupKeys = ").append(this.getGroupKeys());
+        else
+            sb.append(", groupKeys = null");
+        sb.append(" ]");
 
         return sb.toString();
     }

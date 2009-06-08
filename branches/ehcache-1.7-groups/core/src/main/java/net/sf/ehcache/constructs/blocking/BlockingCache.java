@@ -35,6 +35,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -1002,6 +1003,22 @@ public class BlockingCache implements Ehcache {
         cache.setDisabled(disabled);
     }
 
+	public String getMasterGroupKey() {
+		return cache.getMasterGroupKey();
+	}
+
+	public void setMasterGroupKey(String masterGroupKey) {
+		cache.getMasterGroupKey();
+	}
+
+	public Set removeByGroup(Object groupKey, boolean doNotNotifyCacheReplicators) throws IllegalStateException,
+			CacheException {
+		return removeByGroup(groupKey, doNotNotifyCacheReplicators);
+	}
+
+	public Set getKeysForGroup(Object groupKey) throws IllegalStateException, CacheException {
+		return cache.getKeysForGroup(groupKey);
+	}
 
 }
 

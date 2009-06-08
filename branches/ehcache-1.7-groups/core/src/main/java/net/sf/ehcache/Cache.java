@@ -2389,14 +2389,15 @@ public class Cache implements Ehcache {
     private void addMemberToGroup(Object groupKey, Object memberKey, boolean quiet, 
     		boolean doNotNotifyCacheReplicators) throws CacheException {
     	
-		Element groupE = getQuiet(groupKey);
+    	//TODO: should we use getQuiet() here instead?
+		Element groupE = get(groupKey);
 		GroupElement group = null;
 		boolean groupIsNew = false;
 
 		//TODO: consider whether we need some kind of Mutex whilst group modification goes on
 		
 		if(groupE instanceof GroupElement) {
-			group = (GroupElement)	groupE;
+			group = (GroupElement) groupE;
 		}
 		else if(groupE==null) {
 			//group does not exist, so make it - use the special GroupElement 
@@ -2456,13 +2457,14 @@ public class Cache implements Ehcache {
     private void removeMemberFromGroup(Object groupKey, Object memberKey, boolean notifyListeners,
             boolean doNotNotifyCacheReplicators) throws CacheException {
     	
-		Element groupE = getQuiet(groupKey);
+    	//TODO: should we use getQuiet() here instead?
+		Element groupE = get(groupKey);
 		GroupElement group = null;
 
 		//TODO: consider whether we need some kind of Mutex whilst group modification goes on
 		
 		if(groupE instanceof GroupElement) {
-			group = (GroupElement)	groupE;
+			group = (GroupElement) groupE;
 		}
 		else if(groupE==null) {
 			//TODO: this condition should not occur, is it sufficient just to log it?
@@ -2515,6 +2517,68 @@ public class Cache implements Ehcache {
 		this.masterGroupKey = masterGroupKey;
 	}
 
-	
-	
+    /**
+     * Returns a list of all element keys in the cache, whether or not they are expired,
+     * whose elements are members are members of the specificed group
+     * <p/>
+     * The Set returned is not live. It is a copy, and may be out of date since 
+     * an Element expiry does not necessarily cause a cleanup of the group membership 
+     * <p/>
+     * The group element's statistics are update by this access.
+     * 
+     * @param groupKey the group identifier
+     * @return a set of {@link Object} keys, or null if the group is not present in the cache
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     * @throws CacheException if the key does not identify a Group but a regular Element
+     */
+    public final Set getKeysForGroup(Object groupKey) throws IllegalStateException, CacheException {
+		Element groupE = get(groupKey);
+    	if(groupE==null)
+    		return null;
+    	if(groupE instanceof GroupElement) {
+			GroupElement group = (GroupElement) groupE;
+			return group.getMemberKeys();
+    	}
+    	else {
+			//we should have got a GroupElement, but got some other type
+    		throw new CacheException("The groupKey " + groupKey 
+    				+ " references  a non-group element;"
+    				+ " GroupKeys co-exist in the same namespace "
+    				+ " as regular Elements - cache users are responsible of ensuring "
+    				+ " that namespace collisions do not occur");
+    	}
+    }
+    
+    /**
+     * Removes all elements which participate in the given group.
+     * <p/>
+     * The Set returned is the set of Elements that were removed, this may be a 
+     * subset of the set returned by {@link #getKeysForGroups(Object)}; since this
+     * method only includes in the set the keys that were actually removed.
+     * <p/>
+     * The group element's statistics are update by this access.
+     * 
+     * @param groupKey the group identifier
+     * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
+     *                                    further notification to doNotNotifyCacheReplicators cache peers
+     * @return a set of {@link Object} keys removed, or null if the group is not present in the cache
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     * @throws CacheException if the key does not identify a Group but a regular Element
+     */
+    public final Set removeByGroup(Object groupKey, boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
+    	//TODO: do we need an overload for this which takes only groupKey and defaults the boolean?
+    	//for the given groupKey, get its Set of members 
+    	Set proposedRemovals = getKeysForGroup(groupKey);
+    	if(proposedRemovals==null)
+    		return null;
+    	//make a copy as we will be modifying the underlying set as we iterate through it  
+    	proposedRemovals = new HashSet(proposedRemovals);
+    	Set actualRemovals = new HashSet();
+    	for(Object key : proposedRemovals) {
+    		boolean removed = remove(key, doNotNotifyCacheReplicators);
+    		if(removed)
+    			actualRemovals.add(key);
+    	}
+    	return actualRemovals;
+    }    
 }

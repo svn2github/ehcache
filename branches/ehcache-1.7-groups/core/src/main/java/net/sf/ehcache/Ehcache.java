@@ -27,6 +27,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * An interface for Ehcache.
@@ -787,4 +788,39 @@ public interface Ehcache extends Cloneable {
 	public String getMasterGroupKey();
 
 	public void setMasterGroupKey(String masterGroupKey);
+	
+    /**
+     * Returns a list of all element keys in the cache, whether or not they are expired,
+     * whose elements are members are members of the specificed group
+     * <p/>
+     * The Set returned is not live. It is a copy, and may be out of date since 
+     * an Element expiry does not necessarily cause a cleanup of the group membership 
+     * <p/>
+     * The group element's statistics are update by this access.
+     * 
+     * @param groupKey the group identifier
+     * @return a set of {@link Object} keys, or null if the group is not present in the cache
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     * @throws CacheException if the key does not identify a Group but a regular Element
+     */
+    public Set getKeysForGroup(Object groupKey) throws IllegalStateException, CacheException;
+
+    /**
+     * Removes all elements which participate in the given group.
+     * <p/>
+     * The Set returned is the set of Elements that were removed, this may be a 
+     * subset of the set returned by {@link #getKeysForGroups(Object)}; since this
+     * method only includes in the set the keys that were actually removed.
+     * <p/>
+     * The group element's statistics are update by this access.
+     * 
+     * @param groupKey the group identifier
+     * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
+     *                                    further notification to doNotNotifyCacheReplicators cache peers
+     * @return a set of {@link Object} keys removed, or null if the group is not present in the cache
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     * @throws CacheException if the key does not identify a Group but a regular Element
+     */
+    public Set removeByGroup(Object groupKey, boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException;
+    
 }
