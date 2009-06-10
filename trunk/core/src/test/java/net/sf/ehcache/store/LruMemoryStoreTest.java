@@ -18,6 +18,7 @@ package net.sf.ehcache.store;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStoreTester;
+import net.sf.ehcache.StopWatch;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -25,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Map;
+import java.util.logging.Logger;
 
 
 /**
@@ -49,6 +51,8 @@ import java.util.Map;
  */
 public class LruMemoryStoreTest extends MemoryStoreTester {
 
+    private static final Logger LOG = Logger.getLogger(LruMemoryStoreTest.class.getName());
+
     /**
      * setup test
      */
@@ -58,8 +62,6 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
         super.setUp();
         createMemoryStore(MemoryStoreEvictionPolicy.LRU);
     }
-
-
 
 
     /**
@@ -164,6 +166,51 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
     @Test
     public void testMemoryLeak() throws Exception {
         super.testMemoryLeak();
+    }
+
+
+    /**
+     * Specifically to verify the sampling algorithm.
+     * <p/>
+     * This test demonstrates a memory leak if we let the store simply get bigger on an eviction sampling miss.
+     * as is done in r960. e.g.
+     * Jun 9, 2009 10:47:30 AM net.sf.ehcache.store.LruMemoryStoreTest testMemoryLeakPutGetRemove
+     * INFO: Store size is: 12538
+     * Jun 9, 2009 10:47:32 AM net.sf.ehcache.store.LruMemoryStoreTest testMemoryLeakPutGetRemove
+     * INFO: Store size is: 13527
+     * Jun 9, 2009 10:47:34 AM net.sf.ehcache.store.LruMemoryStoreTest testMemoryLeakPutGetRemove
+     * INFO: Store size is: 14475
+     * Jun 9, 2009 10:47:37 AM net.sf.ehcache.store.LruMemoryStoreTest testMemoryLeakPutGetRemove
+     * INFO: Store size is: 15446
+     * Jun 9, 2009 10:47:39 AM net.sf.ehcache.store.LruMemoryStoreTest testMemoryLeakPutGetRemove
+     * INFO: Store size is: 16424
+     * Jun 9, 2009 10:47:41 AM net.sf.ehcache.store.LruMemoryStoreTest testMemoryLeakPutGetRemove
+     * INFO: Store size is: 17399
+     * Jun 9, 2009 10:47:43 AM net.sf.ehcache.store.LruMemoryStoreTest testMemoryLeakPutGetRemove
+     * INFO: Store size is: 18353
+     * Jun 9, 2009 10:47:46 AM net.sf.ehcache.store.LruMemoryStoreTest testMemoryLeakPutGetRemove
+     * INFO: Store size is: 19324
+     * Jun 9, 2009 10:47:48 AM net.sf.ehcache.store.LruMemoryStoreTest testMemoryLeakPutGetRemove
+     * INFO: Store size is: 20300
+     */
+    @Test
+    public void testMemoryLeakPutGetRemove() throws Exception {
+
+        //use MemoryOnly to isolate out the effects of the DiskStore
+        createMemoryOnlyStore(MemoryStoreEvictionPolicy.LRU);
+
+        final String key = "key";
+        String value = "value";
+
+        for (int j = 0; j < 1200000; j += 300000) {
+
+            for (int i = j; i < 300000 + j; i++) {
+                Element element = new Element(key + i, value);
+                store.put(element);
+            }
+            assertEquals(12000, store.getSize());
+            LOG.info("Store size is: " + store.getSize());
+        }
     }
 
 

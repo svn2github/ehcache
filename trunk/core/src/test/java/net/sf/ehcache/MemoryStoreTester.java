@@ -110,6 +110,18 @@ public class MemoryStoreTester extends AbstractCacheTest {
      * @param evictionPolicy
      * @throws CacheException
      */
+    protected void createMemoryOnlyStore(MemoryStoreEvictionPolicy evictionPolicy) throws CacheException {
+        cache = new Cache("testMemoryOnly", 12000, evictionPolicy, false, System.getProperty("java.io.tmpdir"), true, 60, 30, false, 60, null);
+        manager.addCache(cache);
+        store = cache.getMemoryStore();
+    }
+
+    /**
+     * Creates a cache with the given policy and adds it to the manager.
+     *
+     * @param evictionPolicy
+     * @throws CacheException
+     */
     protected void createMemoryStore(MemoryStoreEvictionPolicy evictionPolicy, int memoryStoreSize) throws CacheException {
         manager.removeCache("test");
         cache = new Cache("test", memoryStoreSize, evictionPolicy, true, null, true, 60, 30, false, 60, null);
@@ -373,6 +385,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
         LOG.info("Time for benchmarkPutGetRemove: " + time);
         assertTrue("Too slow. Time was " + time, time < 500);
     }
+
 
     /**
      * Benchmark to test speed.

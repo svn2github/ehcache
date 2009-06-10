@@ -273,10 +273,10 @@ public class MemoryStore implements Store {
             }
             spoolAllToDisk();
         }
-        
+
         //should be emptied if clearOnFlush is true
         if (cache.getCacheConfiguration().getClearOnFlush()) {
-          clear();
+            clear();
         }
     }
 
@@ -523,13 +523,12 @@ public class MemoryStore implements Store {
         }
 
         Element element = findEvictionCandidate(elementJustAdded);
-        //this CAN happen rarely. Let the store get one bigger
         if (element == null) {
-            LOG.info("Eviction selection miss. Selected element is null");
+            LOG.fine("Eviction selection miss. Selected element is null");
             return;
         }
 
-        // If the element is expired remove
+        // If the element is expired, remove
         if (element.isExpired()) {
             remove(element.getObjectKey());
             notifyExpiry(element);
@@ -538,24 +537,30 @@ public class MemoryStore implements Store {
 
         evict(element);
         remove(element.getObjectKey());
+        //todo should this notify removal?
     }
 
     /**
      * Find a "relatively" unused element, but not the element just added.
      */
     protected final Element findEvictionCandidate(Element elementJustAdded) {
-        Element[] elements;
+        Element element = null;
+
+        //attempt quicker eviction
         if (useKeySample) {
-            elements = sampleElementsViaKeyArray();
+            Element[] elements = sampleElementsViaKeyArray();
             //this can return null. Let the cache get bigger by one.
-            Element element = policy.selectedBasedOnPolicy(elements, elementJustAdded);
-            return element;
-        } else {
-            //+1 because element was added
-            elements = sampleElements(map.size());
-            //this can return null. Let the cache get bigger by one.
-            return policy.selectedBasedOnPolicy(elements, elementJustAdded);
+            element = policy.selectedBasedOnPolicy(elements, elementJustAdded);
         }
+
+        if (element != null) {
+            return element;
+            //else fall through to more expensive search
+        }
+
+        Element[] elements = sampleElements(map.size());
+        return policy.selectedBasedOnPolicy(elements, elementJustAdded);
+
     }
 
     /**
@@ -613,7 +618,6 @@ public class MemoryStore implements Store {
      * Chooses the Policy from the cache configuration
      *
      * @param cache
-     *
      */
     protected void determineEvictionPolicy(Ehcache cache) {
         MemoryStoreEvictionPolicy policySelection = cache.getCacheConfiguration().getMemoryStoreEvictionPolicy();
