@@ -3,9 +3,13 @@
     <body>
 
         <release version="1.6.0" date="2009-6-5"
-                 desc="This release introduces new high perforamnce cache core, which is two orders of magnitude faster.">
+                 desc="This release introduces new high performance cache core, which is two orders of magnitude faster.">
             <action dev="Greg Luck" type="fix">
                 Preserve \ and $ when in ehcache.xml.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2791732">
+                It was possible for the probabilistic eviction algorithm to return null, which could cause a slow
+                memory leak. Fixed. If this happens we drop back to selection via iteration rather than the key sample.
             </action>
             <action dev="Greg Luck" type="add">
                 added clearOnFlush cache parameter. It determines whether the MemoryStore should be cleared when flush()
@@ -19,8 +23,7 @@
             <action dev="Greg Luck" type="update">
                 Brought back the LruMemoryStore from ehcache-1.5 and prior. This can be switched in for LRU eviction
                 algorithm cache using set java -Dnet.sf.ehcache.use.classic.lru=true
-
-                By default the new, high performance MemoryStore is used for all eviction algorithms. 
+                By default the new, high performance MemoryStore is used for all eviction algorithms.
             </action>
 
         </release>
