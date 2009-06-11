@@ -16,6 +16,13 @@
                 / used to be an illegal character in ehcache cache names. However JBoss 5 uses / in its JPA cache names.
                 / is now a legal character so as to interoperate with JBoss 5.
             </action>
+            <action dev="Greg Luck" type="update">
+                Brought back the LruMemoryStore from ehcache-1.5 and prior. This can be switched in for LRU eviction
+                algorithm cache using set java -Dnet.sf.ehcache.use.classic.lru=true
+
+                By default the new, high performance MemoryStore is used for all eviction algorithms. 
+            </action>
+
         </release>
 
 

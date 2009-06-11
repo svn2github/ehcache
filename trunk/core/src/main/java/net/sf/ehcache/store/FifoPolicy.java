@@ -29,6 +29,13 @@ import net.sf.ehcache.Element;
 public class FifoPolicy extends AbstractPolicy {
 
     /**
+     * @return the name of the Policy. Inbuilt examples are LRU, LFU and FIFO.
+     */
+    public String getName() {
+        return "FIFO";
+    }
+
+    /**
      * Compares the desirableness for eviction of two elements
      *
      * Compares hit counts. If both zero,

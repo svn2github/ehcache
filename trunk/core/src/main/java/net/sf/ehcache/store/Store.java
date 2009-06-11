@@ -76,9 +76,20 @@ public interface Store {
     void dispose();
 
     /**
-     * Returns the current store size.
+     * Returns the current store size
+     * @return the count of the Elements in the Store
      */
     int getSize();
+
+    /**
+     * Gets the size of the store, in bytes.
+     * <p/>
+     * This method may be expensive to run, depending on implementation. Implementers may choose to return
+     * an approximate size.
+     *
+     * @return the approximate size of the store in bytes
+     */
+    long getSizeInBytes();
 
     /**
      * Returns the cache status.
@@ -104,13 +115,29 @@ public interface Store {
      * Flush elements to persistent store.
      * @throws IOException if any IO error occurs
      */
-    public void flush() throws IOException;
+    void flush() throws IOException;
 
     /**
-     * Some store types, such as the disk stores can get backed up
-     * when puts come in to fast.
-     * @return true if the store is backed up.
+     * Some store types, such as the disk stores can fill their write buffers if puts
+     * come in too fast. The thread will wait for a short time before checking again.
+     * @return true if the store write buffer is backed up.
      */
-    public boolean backedUp();
+    boolean bufferFull();
+
+    /**
+     * @return the current eviction policy. This may not be the configured policy, if it has been
+     *         dynamically set.
+     * @see #setEvictionPolicy(Policy)
+     */
+    Policy getEvictionPolicy();
+
+    /**
+     * Sets the eviction policy strategy. The Store will use a policy at startup. The store may allow changing
+     * the eviction policy strategy dynamically. Otherwise implementations will throw an exception if this method
+     * is called.
+     *
+     * @param policy the new policy
+     */
+    void setEvictionPolicy(Policy policy);
 
 }

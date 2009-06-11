@@ -44,8 +44,9 @@ public class CachePerformanceTest {
 
     /**
      * With 50,000 gets
-     * m500d45500Cache: 15098 ms with write back to DiskStore
-     * m500d45500Cache: 10941 ms without write back TODO we should be able to do this optimisation with a small change
+     * Time to get 50000 entries from m500d45500Cache: 5746
+     * Time to get 50000 entries from m500d45500Cache: 3795 if writeback to the memory store is turned off
+     * TODO we should be able to do this optimisation with a small change
      */
     @Test
     public void testGetSpeedMostlyDisk() throws InterruptedException {

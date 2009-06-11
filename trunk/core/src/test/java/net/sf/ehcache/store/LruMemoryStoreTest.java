@@ -151,18 +151,6 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
      * This checks for memory leaks
      * using the removeAll which was the known cause of memory leaks with MemoryStore in JCS
      */
-    //@Test
-//    public void testMemoryLeakRepeat() throws Exception {
-//        for (;;) {
-//            testMemoryLeak();
-//        }
-//    }
-
-    /**
-     * Multi-thread read, put and removeAll test.
-     * This checks for memory leaks
-     * using the removeAll which was the known cause of memory leaks with MemoryStore in JCS
-     */
     @Test
     public void testMemoryLeak() throws Exception {
         super.testMemoryLeak();
@@ -192,6 +180,8 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
      * INFO: Store size is: 19324
      * Jun 9, 2009 10:47:48 AM net.sf.ehcache.store.LruMemoryStoreTest testMemoryLeakPutGetRemove
      * INFO: Store size is: 20300
+     *
+     * Now fixed and this test consistently gives a size of 12000
      */
     @Test
     public void testMemoryLeakPutGetRemove() throws Exception {
@@ -212,6 +202,8 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
             LOG.info("Store size is: " + store.getSize());
         }
     }
+
+
 
 
 }

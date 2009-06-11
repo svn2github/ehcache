@@ -1132,7 +1132,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         assertTrue(putTime < 20);
 
         //wait for Disk Store to finish spooling
-        while (cache.getDiskStore().backedUp()) {
+        while (cache.getDiskStore().bufferFull()) {
             Thread.sleep(2000);
         }
         Random random = new Random();

@@ -43,8 +43,10 @@ public class MemoryStore implements Store {
      * This number is magic. It was established using empirical testing of the two approaches
      * in CacheTest#testConcurrentReadWriteRemoveLFU. 5000 is the cross over point
      * between the two algorithms.
+     * <p/>
+     * Programmatic changes to this static field need to be made before the MemoryStore is created to have effect.
      */
-    protected static final int TOO_LARGE_TO_EFFICIENTLY_ITERATE = 5000;
+    public static int TOO_LARGE_TO_EFFICIENTLY_ITERATE = 5000;
 
     /**
      * This is the default from {@link java.util.concurrent.ConcurrentHashMap}. It should never be used, because
@@ -288,8 +290,8 @@ public class MemoryStore implements Store {
     protected final void spoolAllToDisk() {
         boolean clearOnFlush = cache.getCacheConfiguration().getClearOnFlush();
         Object[] keys = getKeyArray();
-        for (int i = 0; i < keys.length; i++) {
-            Element element = (Element) map.get(keys[i]);
+        for (Object key : keys) {
+            Element element = (Element) map.get(key);
             if (element != null) {
                 if (!element.isSerializable()) {
                     if (LOG.isLoggable(Level.FINE)) {
@@ -301,7 +303,7 @@ public class MemoryStore implements Store {
                     //Don't notify listeners. They are not being removed from the cache, only a store
                     //Leave it in the memory store for performance if do not want to clear on flush
                     if (clearOnFlush) {
-                        remove(keys[i]);
+                        remove(key);
                     }
                 }
             }
@@ -444,7 +446,7 @@ public class MemoryStore implements Store {
     /**
      * Memory stores are never backed up and always return false
      */
-    public boolean backedUp() {
+    public boolean bufferFull() {
         return false;
     }
 
@@ -634,7 +636,7 @@ public class MemoryStore implements Store {
     /**
      * @return the active eviction policy.
      */
-    public Policy getPolicy() {
+    public Policy getEvictionPolicy() {
         return policy;
     }
 
@@ -643,7 +645,7 @@ public class MemoryStore implements Store {
      *
      * @param policy a new policy to be used in evicting elements in this store
      */
-    public void setPolicy(Policy policy) {
+    public void setEvictionPolicy(Policy policy) {
         this.policy = policy;
     }
 

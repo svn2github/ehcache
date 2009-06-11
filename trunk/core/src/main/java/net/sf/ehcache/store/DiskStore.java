@@ -129,6 +129,8 @@ public class DiskStore implements Store {
     private int lastElementSize;
     private int diskSpoolBufferSizeBytes;
 
+    private Policy evictionPolicy;
+
 
     /**
      * Creates a disk store.
@@ -365,8 +367,9 @@ public class DiskStore implements Store {
     }
 
     /**
-     * Returns the current store size.
+     * Returns the current store size in number of Elements.
      *
+     * @see #getDataFileSize()
      */
     public final synchronized int getSize() {
         try {
@@ -384,6 +387,20 @@ public class DiskStore implements Store {
             LOG.log(Level.SEVERE, name + "Cache: Could not determine size of disk store.. Initial cause was " + e.getMessage(), e);
             return 0;
         }
+    }
+
+    /**
+     * Gets the size of the store, in bytes.
+     * <p/>
+     * This method may be expensive to run, depending on implementation. Implementers may choose to return
+     * an approximate size.
+     * <p/>
+     * This implementation returns the size of the data file, but does not take into account the memory in the spool.
+     *
+     * @return the approximate size of the store in bytes
+     */
+    public long getSizeInBytes() {
+        return getDataFileSize();
     }
 
     /**
@@ -430,11 +447,11 @@ public class DiskStore implements Store {
      *
      * @return true if the spool is not being cleared fast enough
      */
-    public boolean backedUp() {
+    public boolean bufferFull() {
         long estimatedSpoolSize = spool.size() * lastElementSize;
         boolean backedUp = estimatedSpoolSize > diskSpoolBufferSizeBytes;
-        if (backedUp && LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("A back up on cache puts occurred. Consider increasing diskSpoolBufferSizeMB for cache " + name);
+        if (backedUp && LOG.isLoggable(Level.FINE)) {
+            LOG.fine("A back up on disk store puts occurred. Consider increasing diskSpoolBufferSizeMB for cache " + name);
         }
         return backedUp;
 
@@ -1179,7 +1196,7 @@ public class DiskStore implements Store {
      * @return an array of sampled elements
      */
     private DiskElement[] sampleElements(Map map) {
-        int[] offsets = LfuPolicy.generateRandomSample(map.size());
+        int[] offsets = AbstractPolicy.generateRandomSample(map.size());
         DiskElement[] elements = new DiskElement[offsets.length];
         Iterator iterator = map.values().iterator();
         for (int i = 0; i < offsets.length; i++) {
@@ -1206,6 +1223,28 @@ public class DiskStore implements Store {
         }
 
     }
+
+
+    /**
+     * @return the current eviction policy. This may not be the configured policy, if it has been
+     *         dynamically set.
+     * @see #setEvictionPolicy(Policy)
+     */
+    public Policy getEvictionPolicy() {
+        return evictionPolicy;
+    }
+
+    /**
+     * Sets the eviction policy strategy. The Store will use a policy at startup. The store may allow changing
+     * the eviction policy strategy dynamically. Otherwise implementations will throw an exception if this method
+     * is called.
+     *
+     * @param policy the new policy
+     */
+    public void setEvictionPolicy(Policy policy) {
+        throw new UnsupportedOperationException("Disk store only uses LFU.");
+    }
+
 
 
 }

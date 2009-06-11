@@ -1183,7 +1183,7 @@ public class CacheTest extends AbstractCacheTest {
 
 
     /**
-     * Tests flushing the cache, with the default, which is to flush
+     * Tests flushing the cache, with the default, which is to clear
      *
      * @throws Exception
      */
@@ -1208,15 +1208,11 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(50, cache.getDiskStoreSize());
 
 
-        //Not spoolable, should get ignored
-        //Gets spooled and discarded
         cache.put(new Element("key", new Object()));
-        //Gets spooled and discarded
         cache.put(new Element("key2", new Object()));
-        assertNull(cache.get("key"));
-        //cannot get evicted because lastElement
         Object key = new Object();
         cache.put(new Element(key, "value"));
+
         //get it and make sure it is mru
         Thread.sleep(15);
         cache.get(key);
@@ -1304,7 +1300,7 @@ public class CacheTest extends AbstractCacheTest {
 
     /**
      * When flushing large MemoryStores, OutOfMemory issues can happen if we are
-     * not careful to move each to Element to the DiskStore, rather than copy them all
+     * not careful to move each Element to the DiskStore, rather than copy them all
      * and then delete them from the MemoryStore.
      * <p/>
      * This test manipulates a MemoryStore right on the edge of what can fit into the 64MB standard VM size.
@@ -1315,6 +1311,7 @@ public class CacheTest extends AbstractCacheTest {
     @Test
     public void testMemoryEfficiencyOfFlushWhenOverflowToDisk() throws Exception {
         Cache cache = new Cache("testGetMemoryStoreSize", 40000, true, false, 100, 200, false, 120);
+
         manager.addCache(cache);
         StopWatch stopWatch = new StopWatch();
 
@@ -1330,8 +1327,7 @@ public class CacheTest extends AbstractCacheTest {
 
         long beforeMemory = measureMemoryUse();
         stopWatch.getElapsedTime();
-        //todo
-        //cache.flush();
+        cache.flush();
         LOG.info("Flush time: " + stopWatch.getElapsedTime());
 
         //It takes a while to write all the Elements to disk
@@ -1341,7 +1337,7 @@ public class CacheTest extends AbstractCacheTest {
         long memoryIncrease = afterMemory - beforeMemory;
         assertTrue(memoryIncrease < 40000000);
 
-        assertEquals(40000, cache.getMemoryStoreSize());
+        assertEquals(0, cache.getMemoryStoreSize());
         assertEquals(40000, cache.getDiskStoreSize());
 
     }

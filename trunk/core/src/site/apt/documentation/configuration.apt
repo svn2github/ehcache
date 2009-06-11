@@ -709,3 +709,20 @@ interval is set to 200ms.
 
 ---------------------
    
+* Special System Properties
+
+** {net.sf.ehcache.disabled}
+
+    Setting this System Property to <<<true>>> disables caching in ehcache. If disabled no elements will be added to a cache.
+    i.e. puts are silently discarded.
+
+  e.g. <<<java -Dnet.sf.ehcache.disabled=true>>> in the Java command line.
+
+** {net.sf.ehcache.use.classic.lru}
+
+  Set this System property to <<<true>>> to use the older LruMemoryStore implementation
+  when LRU is selected as the eviction policy.
+
+  This is provided for ease of migration.
+
+  e.g. <<<java -Dnet.sf.ehcache.use.classic.lru=true>>> in the Java command line.

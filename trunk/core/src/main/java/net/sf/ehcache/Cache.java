@@ -29,6 +29,7 @@ import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.Policy;
+import net.sf.ehcache.store.LruMemoryStore;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -97,6 +98,24 @@ public class Cache implements Ehcache {
     }
 
     /**
+     * System Property based method of selecting the LruMemoryStore in use up to ehcache 1.5. This is provided
+     * for ease of migration.
+     * <p/>
+     * Set the property "net.sf.ehcache.use.classic.lru=true" to use the older LruMemoryStore implementation
+     * when LRU is selected as the eviction policy.
+     * <p/>
+     * This can easily be done using <code>java -Dnet.sf.ehcache.use.classic.lru=true</code> in the command line.
+     */
+    public static final String NET_SF_EHCACHE_USE_CLASSIC_LRU = "net.sf.ehcache.use.classic.lru";
+
+    {
+        String value = System.getProperty(NET_SF_EHCACHE_USE_CLASSIC_LRU);
+        if (value != null) {
+            useClassicLru = value.equalsIgnoreCase("true");
+        }
+    }
+
+    /**
      * The default interval between runs of the expiry thread.
      */
     public static final long DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS = 120;
@@ -130,6 +149,8 @@ public class Cache implements Ehcache {
     }
 
     private boolean disabled;
+
+    private boolean useClassicLru;
 
     private Store diskStore;
 
@@ -167,7 +188,7 @@ public class Cache implements Ehcache {
     /**
      * The {@link MemoryStore} of this {@link Cache}. All caches have a memory store.
      */
-    private MemoryStore memoryStore;
+    private Store memoryStore;
 
     private RegisteredEventListeners registeredEventListeners;
 
@@ -615,7 +636,11 @@ public class Cache implements Ehcache {
 
             this.diskStore = createDiskStore();
 
-            memoryStore = MemoryStore.create(this, diskStore);
+            if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
+                memoryStore = new LruMemoryStore(this, diskStore);
+            } else {
+                memoryStore = MemoryStore.create(this, diskStore);
+            }
             changeStatus(Status.STATUS_ALIVE);
             initialiseRegisteredCacheExtensions();
             initialiseRegisteredCacheLoaders();
@@ -785,7 +810,7 @@ public class Cache implements Ehcache {
      */
     private void backOffIfDiskSpoolFull() {
 
-        if (diskStore != null && diskStore.backedUp()) {
+        if (diskStore != null && diskStore.bufferFull()) {
             //back off to avoid OutOfMemoryError
             try {
                 Thread.sleep(BACK_OFF_TIME_MILLIS);
@@ -1277,7 +1302,7 @@ public class Cache implements Ehcache {
             } else {
                 diskStoreHitCount++;
                 //Put the item back into memory to preserve policies in the memory store and to save updated statistics
-                //todo - do not put back
+                //todo - maybe make the DiskStore a one-way evict. i.e. Do not replace See testGetSpeedMostlyDisk for speed comp.
                 memoryStore.put(element);
             }
         }
@@ -1831,7 +1856,7 @@ public class Cache implements Ehcache {
      * @return the MemoryStore referenced by this cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    final MemoryStore getMemoryStore() throws IllegalStateException {
+    final Store getMemoryStore() throws IllegalStateException {
         checkStatus();
         return memoryStore;
     }
@@ -2412,7 +2437,7 @@ public class Cache implements Ehcache {
      *         dynamically set.
      */
     public Policy getMemoryStoreEvictionPolicy() {
-        return memoryStore.getPolicy();
+        return memoryStore.getEvictionPolicy();
     }
 
     /**
@@ -2425,7 +2450,7 @@ public class Cache implements Ehcache {
      * @param policy the new policy
      */
     public void setMemoryStoreEvictionPolicy(Policy policy) {
-        memoryStore.setPolicy(policy);
+        memoryStore.setEvictionPolicy(policy);
     }
 
 
