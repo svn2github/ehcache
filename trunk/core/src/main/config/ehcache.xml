@@ -289,7 +289,7 @@
 
     clearOnFlush:
     whether the MemoryStore should be cleared when flush() is called on the cache.
-    By default, the MemoryStore is cleared.
+    By default, this is true i.e. the MemoryStore is cleared.
 
     memoryStoreEvictionPolicy:
     Policy would be enforced upon reaching the maxElementsInMemory limit. Default

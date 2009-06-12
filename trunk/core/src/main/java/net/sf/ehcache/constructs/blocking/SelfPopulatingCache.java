@@ -166,7 +166,7 @@ public class SelfPopulatingCache extends BlockingCache {
         if (factory instanceof UpdatingCacheEntryFactory) {
             //update the value of the cloned Element in place
             replacementElement = element;
-            ((UpdatingCacheEntryFactory) factory).updateEntryValue(key, replacementElement.getValue());
+            ((UpdatingCacheEntryFactory) factory).updateEntryValue(key, replacementElement.getObjectValue());
 
             //put the updated element back into the backingCache, without updating stats
             //It is not usually necessary to do this. We do this in case the element expired

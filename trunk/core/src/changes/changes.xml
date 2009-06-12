@@ -8,8 +8,20 @@
                 Preserve \ and $ when in ehcache.xml.
             </action>
             <action dev="Greg Luck" type="fix" issue="2791732">
+                Fix to an issue introduced in 1.6.0-beta5.
                 It was possible for the probabilistic eviction algorithm to return null, which could cause a slow
-                memory leak. Fixed. If this happens we drop back to selection via iteration rather than the key sample.
+                memory leak. Fixed. If this happens on an eviction we do a further selection via iteration
+                which is guaranteed not to return null.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2804387">
+                Fix Bug in RMIAsynchronousCacheReplicator.clone introduced in the 1.6 beta series.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2790350">
+                UpdatingSelfPopulatingCache had not been converted to work with non-Serializable objects. Fixed.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2008055">
+                Fixed rare ConcurrentModificationException when calling cache.flush() to persist to the disk store
+                during cache operation. cache.flush() is now asynchronous as a result.
             </action>
             <action dev="Greg Luck" type="add">
                 added clearOnFlush cache parameter. It determines whether the MemoryStore should be cleared when flush()

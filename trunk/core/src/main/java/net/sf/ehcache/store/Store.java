@@ -32,7 +32,7 @@ import java.io.IOException;
 public interface Store {
 
     /**
-     * Puts an item into the cache.
+     * Puts an item into the store.
      */
     void put(Element element) throws CacheException;
 

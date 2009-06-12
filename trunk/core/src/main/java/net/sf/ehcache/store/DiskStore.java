@@ -44,6 +44,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Delayed;
+import java.util.concurrent.Exchanger;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -129,8 +133,12 @@ public class DiskStore implements Store {
     private int lastElementSize;
     private int diskSpoolBufferSizeBytes;
 
-    private Policy evictionPolicy;
+    // indicates to the spoolAndExpiryThread that it needs to write the index on next flush to disk.
+    private final AtomicBoolean writeIndexFlag;
+    private final Object writeIndexFlagLock;
 
+    //The spoolAndExpiryThread keeps running until this is set to false;
+    private volatile boolean spoolAndExpiryThreadActive;
 
     /**
      * Creates a disk store.
@@ -150,7 +158,8 @@ public class DiskStore implements Store {
         maxElementsOnDisk = config.getMaxElementsOnDisk();
         eternal = config.isEternal();
         diskSpoolBufferSizeBytes = cache.getCacheConfiguration().getDiskSpoolBufferSizeMB() * ONE_MEGABYTE;
-
+        writeIndexFlag = new AtomicBoolean(false);
+        writeIndexFlagLock = new Object();
 
 
         try {
@@ -459,7 +468,6 @@ public class DiskStore implements Store {
 
     /**
      * Removes an item from the disk store.
-     *
      */
     public final synchronized Element remove(final Object key) {
         Element element;
@@ -540,7 +548,7 @@ public class DiskStore implements Store {
      * after we have read the elements, so that it has a zero length. On a dirty restart, it still will have
      * and the data file will automatically be deleted, thus preserving safety.
      */
-    public final synchronized void dispose() {
+    public final void dispose() {
 
         if (!active) {
             return;
@@ -549,11 +557,15 @@ public class DiskStore implements Store {
         // Close the cache
         try {
 
+            //set the write index flag. Ignored if not persistent
             flush();
 
-            //stop the spool thread
+            //tell the spool thread to spool down. It will loop one last time if flush was caled.
+            spoolAndExpiryThreadActive = false;
+
+            //wait for the spool thread to spool down.
             if (spoolAndExpiryThread != null) {
-                spoolAndExpiryThread.interrupt();
+                spoolAndExpiryThread.join();
             }
 
             //Clear in-memory data structures
@@ -572,7 +584,6 @@ public class DiskStore implements Store {
         } finally {
             active = false;
             randomAccessFile = null;
-            notifyAll();
 
             //release reference to cache
             cache = null;
@@ -581,13 +592,15 @@ public class DiskStore implements Store {
 
     /**
      * Flush the spool if persistent, so we don't lose any data.
-     *
-     * @throws IOException
+     * <p/>
+     * This, as of ehcache-1.6.0, is an asynchronous operation. It will write the next time the spoolAndExpiryThread
+     * runs. By default this is every 200ms.
      */
-    public final void flush() throws IOException {
+    public final void flush() {
         if (persistent) {
-            flushSpool();
-            writeIndex();
+            synchronized (writeIndexFlagLock) {
+                writeIndexFlag.set(true);
+            }
         }
     }
 
@@ -600,7 +613,7 @@ public class DiskStore implements Store {
      */
     private void spoolAndExpiryThreadMain() {
         long nextExpiryTime = System.currentTimeMillis();
-        while (true) {
+        while (spoolAndExpiryThreadActive || writeIndexFlag.get()) {
 
             try {
                 Thread.sleep(SPOOL_THREAD_INTERVAL);
@@ -609,13 +622,12 @@ public class DiskStore implements Store {
                 return;
             }
 
-            if (!active) {
-                return;
+            if (writeIndexFlag.get()) {
+                int i = 0; //breakpoint
             }
-
             throwableSafeFlushSpoolIfRequired();
 
-            if (!active) {
+            if (!spoolAndExpiryThreadActive) {
                 return;
             }
             nextExpiryTime = throwableSafeExpireElementsIfRequired(nextExpiryTime);
@@ -642,12 +654,23 @@ public class DiskStore implements Store {
     }
 
     private void throwableSafeFlushSpoolIfRequired() {
-        if (spool != null && spool.size() != 0) {
-            // Write elements to disk
-            try {
-                flushSpool();
-            } catch (Throwable e) {
-                LOG.log(Level.SEVERE, name + " Cache: Could not flush elements to disk due to " + e.getMessage() + ". Continuing...", e);
+        synchronized (writeIndexFlagLock) {
+            if (spool != null && (spool.size() != 0 || writeIndexFlag.get())) {
+                // Write elements to disk
+                try {
+                    flushSpool();
+                    if (persistent && writeIndexFlag.get()) {
+                        try {
+                            writeIndex();
+                        } finally {
+                            //make sure we set this to false to stop an infinite loop it if keeps failing
+                            writeIndexFlag.set(false);
+                        }
+
+                    }
+                } catch (Throwable e) {
+                    LOG.log(Level.SEVERE, name + " Cache: Could not flush elements to disk due to " + e.getMessage() + ". Continuing...", e);
+                }
             }
         }
     }
@@ -656,7 +679,6 @@ public class DiskStore implements Store {
     /**
      * Flushes all spooled elements to disk.
      * Note that the cache is locked for the entire time that the spool is being flushed.
-     *
      */
     private synchronized void flushSpool() throws IOException {
         if (spool.size() == 0) {
@@ -780,11 +802,11 @@ public class DiskStore implements Store {
     }
 
     /**
-     * Writes the Index to disk on shutdown
+     * Writes the Index to disk on shutdown or flush
      * <p/>
      * The index consists of the elements Map and the freeSpace List
      * <p/>
-     * Note that the cache is locked for the entire time that the index is being written
+     * Note that the store is locked for the entire time that the index is being written
      */
     private synchronized void writeIndex() throws IOException {
 
@@ -878,7 +900,6 @@ public class DiskStore implements Store {
      * <p/>
      * Note that the DiskStore cannot efficiently expire based on TTI. It does it on TTL. However any gets out
      * of the DiskStore are check for both before return.
-     *
      */
     public void expireElements() {
         final long now = System.currentTimeMillis();
@@ -984,7 +1005,6 @@ public class DiskStore implements Store {
      * <p/>
      * Copies of expiryTime and hitcount are held here as a performance optimisation, so
      * that we do not need to load the data from Disk to get this often used information.
-     *
      */
     private static final class DiskElement implements Serializable {
 
@@ -1042,10 +1062,12 @@ public class DiskStore implements Store {
      * A background daemon thread that writes objects to the file.
      */
     private final class SpoolAndExpiryThread extends Thread {
+
         public SpoolAndExpiryThread() {
             super("Store " + name + " Spool Thread");
             setDaemon(true);
             setPriority(Thread.NORM_PRIORITY);
+            spoolAndExpiryThreadActive = true;
         }
 
         /**
@@ -1104,11 +1126,12 @@ public class DiskStore implements Store {
 
     /**
      * Creates a file system safe data file. Any incidences of or <code>/</code> are replaced with <code>_</code>
-     *  so there are no unwanted side effects.
+     * so there are no unwanted side effects.
+     *
      * @return the file name of the data file where the disk store stores data, without any path information.
      */
     public final String getDataFileName() {
-        String safeName = name.replace('/','_');
+        String safeName = name.replace('/', '_');
         return safeName + ".data";
     }
 
@@ -1154,6 +1177,7 @@ public class DiskStore implements Store {
 
     /**
      * Find a "relatively" unused disk element, but not the element just added.
+     *
      * @return a DiskElement likely not to be in the bottom quartile of use
      */
     private DiskElement findRelativelyUnused() {
@@ -1162,11 +1186,11 @@ public class DiskStore implements Store {
     }
 
 
-
     /**
      * Finds the least hit of the sampled elements provided
+     *
      * @param sampledElements this should be a random subset of the population
-     * @param justAdded we never want to select the element just added. May be null.
+     * @param justAdded       we never want to select the element just added. May be null.
      * @return the least hit
      */
     public static DiskElement leastHit(DiskElement[] sampledElements, DiskElement justAdded) {
@@ -1231,7 +1255,7 @@ public class DiskStore implements Store {
      * @see #setEvictionPolicy(Policy)
      */
     public Policy getEvictionPolicy() {
-        return evictionPolicy;
+        return new LfuPolicy();
     }
 
     /**
@@ -1244,7 +1268,6 @@ public class DiskStore implements Store {
     public void setEvictionPolicy(Policy policy) {
         throw new UnsupportedOperationException("Disk store only uses LFU.");
     }
-
 
 
 }

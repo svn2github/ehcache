@@ -193,7 +193,7 @@ public class LruMemoryStore implements Store {
         }
 
         //should be emptied if clearOnFlush is true
-        if (cache.getCacheConfiguration().getClearOnFlush()) {
+        if (cache.getCacheConfiguration().isClearOnFlush()) {
             clear();
         }
     }
@@ -205,7 +205,7 @@ public class LruMemoryStore implements Store {
      * This revised implementation is a little slower but avoids using increased memory during the method.
      */
     protected final void spoolAllToDisk() {
-        boolean clearOnFlush = cache.getCacheConfiguration().getClearOnFlush();
+        boolean clearOnFlush = cache.getCacheConfiguration().isClearOnFlush();
         Object[] keys = getKeyArray();
         for (Object key : keys) {
             Element element = (Element) map.get(key);

@@ -8,6 +8,7 @@ import static org.junit.Assert.assertNull;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 import java.util.logging.Logger;
+import java.util.Date;
 
 /**
  * Does the cache tests using the classic LRUMemoryStore implementation.
@@ -50,5 +51,73 @@ public class CacheClassicLruMemoryStoreTest extends CacheTest {
     public void testConcurrentReadWriteRemoveLRU() throws Exception {
         testConcurrentReadWriteRemove(MemoryStoreEvictionPolicy.LRU);
     }
+
+    /**
+     * Tests flushing the cache, with the default, which is to clear
+     *
+     * Has different numbers because LRU works slightly differently
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFlushWhenOverflowToDisk() throws Exception {
+        if (manager.getCache("testFlushWhenOverflowToDisk") == null) {
+            manager.addCache(new Cache("testFlushWhenOverflowToDisk", 50, true, false, 100, 200, true, 120));
+        }
+        Cache cache = manager.getCache("testFlushWhenOverflowToDisk");
+        cache.removeAll();
+
+        assertEquals(0, cache.getMemoryStoreSize());
+        assertEquals(0, cache.getDiskStoreSize());
+
+
+        for (int i = 0; i < 100; i++) {
+            cache.put(new Element("" + i, new Date()));
+            //hit
+            cache.get("" + i);
+        }
+        assertEquals(50, cache.getMemoryStoreSize());
+        assertEquals(50, cache.getDiskStoreSize());
+
+
+        cache.put(new Element("key", new Object()));
+        cache.put(new Element("key2", new Object()));
+        Object key = new Object();
+        cache.put(new Element(key, "value"));
+
+        //get it and make sure it is mru
+        Thread.sleep(15);
+        cache.get(key);
+
+        assertEquals(103, cache.getSize());
+        assertEquals(50, cache.getMemoryStoreSize());
+        assertEquals(53, cache.getDiskStoreSize());
+
+
+        //these "null" Elements are ignored and do not get put in
+        cache.put(new Element(null, null));
+        cache.put(new Element(null, null));
+
+        assertEquals(103, cache.getSize());
+        assertEquals(50, cache.getMemoryStoreSize());
+        assertEquals(53, cache.getDiskStoreSize());
+
+        //this one does
+        cache.put(new Element("nullValue", null));
+
+        LOG.info("Size: " + cache.getDiskStoreSize());
+
+        assertEquals(50, cache.getMemoryStoreSize());
+        assertEquals(54, cache.getDiskStoreSize());
+
+        cache.flush();
+        assertEquals(0, cache.getMemoryStoreSize());
+        //Non Serializable Elements get discarded
+        assertEquals(101, cache.getDiskStoreSize());
+
+        cache.removeAll();
+
+    }
+
 
 }

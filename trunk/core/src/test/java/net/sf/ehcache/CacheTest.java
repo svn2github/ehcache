@@ -1124,6 +1124,14 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(null, false);
         cache.putQuiet(null);
         cache.putQuiet(new Element(null, null));
+
+        //Null Elements like this are ignored
+        cache.put(new Element(null, "dog"));
+        cache.put(new Element(null, null));
+
+        //Null Elements like this are ignored
+        cache.putQuiet(new Element(null, "dog"));
+        cache.putQuiet(new Element(null, null));
     }
 
 
@@ -1217,10 +1225,6 @@ public class CacheTest extends AbstractCacheTest {
         Thread.sleep(15);
         cache.get(key);
 
-
-        if (cache.getSize() > 101) {
-            Thread.sleep(100000);
-        }
         assertEquals(101, cache.getSize());
         assertEquals(50, cache.getMemoryStoreSize());
         assertEquals(51, cache.getDiskStoreSize());

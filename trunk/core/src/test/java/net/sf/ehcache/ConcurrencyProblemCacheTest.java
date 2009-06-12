@@ -29,11 +29,16 @@ import java.util.logging.Logger;
 
 
 /**
- * Demonstrates a problem with CLHM
+ * Demonstrates a problem with Ben Manes' ConcurrentLinkedHashmap. This was used in beta4 but was found not to be
+ * threadsafe. After a few days of work isolating the issue to ConcurrentLinkedHashmap, this test pinpoints the problem
+ * in about 30 seconds.
+ *
+ * Though ConcurrentLinkedHashmap is no longer used, leave this test here so that we can retest new versions that
+ * may come out.
  *
  * @author Greg Luck
  */
-public class ConcurrencyProblemCacheTest extends CacheTest {
+public class ConcurrencyProblemCacheTest extends AbstractCacheTest {
 
     private static final Logger LOG = Logger.getLogger(ConcurrencyProblemCacheTest.class.getName());
 
@@ -56,23 +61,22 @@ public class ConcurrencyProblemCacheTest extends CacheTest {
         super.tearDown();
     }
 
-    //@Test
+    @Test
     public void testContinuousThrashConfiguration() throws Exception {
         cache = manager.getCache("sampleIdlingExpiringCache");
-        while (true) {
+        for (int i = 0; i < 5; i++) {
             thrashCache(cache, 1500L);
-            LOG.info("\n\n\n\n\nFinished run...\n\n\n\n\n");
-
+            LOG.info("Finished run.");
         }
     }
 
-    //@Test
+    @Test
     public void testContinuousThrashProgrammatic() throws Exception {
         cache = new Cache("thrashcache", 5, false, false, 2, 5);
         manager.addCache(cache);
-        while (true) {
+        for (int i = 0; i < 5; i++) {
             thrashCache(cache, 1500L);
-            LOG.info("\n\n\n\n\nFinished run...\n\n\n\n\n");
+            LOG.info("Finished run.");
 
         }
     }

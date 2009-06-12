@@ -372,9 +372,8 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Accessor
-     * todo change to is
      */
-    public boolean getClearOnFlush() {
+    public boolean isClearOnFlush() {
       return clearOnFlush;
     }
 

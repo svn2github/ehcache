@@ -415,8 +415,8 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
     public Object clone() throws CloneNotSupportedException {
         //shutup checkstyle
         super.clone();
-        return new RMIAsynchronousCacheReplicator(replicatePuts, replicateUpdates,
-                replicateUpdatesViaCopy, replicateRemovals, replicateRemovals, asynchronousReplicationInterval);
+        return new RMIAsynchronousCacheReplicator(replicatePuts, replicatePutsViaCopy,
+                replicateUpdates, replicateUpdatesViaCopy, replicateRemovals, asynchronousReplicationInterval);
     }
 
 

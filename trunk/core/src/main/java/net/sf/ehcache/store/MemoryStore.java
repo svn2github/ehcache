@@ -141,7 +141,7 @@ public class MemoryStore implements Store {
     }
 
     /**
-     * Puts an item in the cache. Note that this automatically results in an eviction if the store is full.
+     * Puts an item in the store. Note that this automatically results in an eviction if the store is full.
      *
      * @param element the element to add
      */
@@ -277,7 +277,7 @@ public class MemoryStore implements Store {
         }
 
         //should be emptied if clearOnFlush is true
-        if (cache.getCacheConfiguration().getClearOnFlush()) {
+        if (cache.getCacheConfiguration().isClearOnFlush()) {
             clear();
         }
     }
@@ -288,7 +288,7 @@ public class MemoryStore implements Store {
      * This revised implementation is a little slower but avoids using increased memory during the method.
      */
     protected final void spoolAllToDisk() {
-        boolean clearOnFlush = cache.getCacheConfiguration().getClearOnFlush();
+        boolean clearOnFlush = cache.getCacheConfiguration().isClearOnFlush();
         Object[] keys = getKeyArray();
         for (Object key : keys) {
             Element element = (Element) map.get(key);
