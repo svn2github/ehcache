@@ -560,7 +560,9 @@ public class DiskStore implements Store {
             //tell the spool thread to spool down. It will loop one last time if flush was caled.
             spoolAndExpiryThreadActive = false;
 
-            //wait for the spool thread to spool down.
+            //interrupt the spoolAndExpiryThread if it is waiting to run again to get it to run now
+            // Then wait for it to write
+            spoolAndExpiryThread.interrupt();
             if (spoolAndExpiryThread != null) {
                 spoolAndExpiryThread.join();
             }
@@ -613,10 +615,13 @@ public class DiskStore implements Store {
         while (spoolAndExpiryThreadActive || writeIndexFlag.get()) {
 
             try {
-                Thread.sleep(SPOOL_THREAD_INTERVAL);
+                //don't wait when we want to flish
+                if (!writeIndexFlag.get()) {
+                    Thread.sleep(SPOOL_THREAD_INTERVAL);
+                }
             } catch (InterruptedException e) {
-                LOG.debug("Spool Thread interrupted.");
-                return;
+//                LOG.debug("Spool Thread interrupted.");
+//                return;
             }
 
             if (writeIndexFlag.get()) {
@@ -628,8 +633,6 @@ public class DiskStore implements Store {
                 return;
             }
             nextExpiryTime = throwableSafeExpireElementsIfRequired(nextExpiryTime);
-
-
         }
     }
 
