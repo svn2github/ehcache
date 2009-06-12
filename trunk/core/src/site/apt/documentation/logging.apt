@@ -3,7 +3,7 @@
 
 * {Java Util Logging}
 
-    As of 1.6, Ehcache uses the built-in Java Util library for logging.
+    As of 1.6, Ehcache uses the the sl4j logging facade. Plug in your own logging framework.
 
 
 * Recommended Logging Levels

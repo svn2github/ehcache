@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2007 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -128,9 +128,9 @@ public class LruMemoryStore implements Store {
     public final synchronized Element getQuiet(Object key) {
         Element cacheElement = (Element) map.get(key);
 
-        if (cacheElement != null) {
+//        if (cacheElement != null) {
             //cacheElement.updateAccessStatistics(); Don't update statistics
-        }
+//        }
         return cacheElement;
     }
 

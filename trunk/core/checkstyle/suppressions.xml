@@ -23,6 +23,9 @@
 
     <!-- Suppress duplicate checking of copyright notice -->
     <suppress checks="StrictDuplicateCode" files=".java" lines="1-53"/>
+    <!--Have some duplication until we get rid of Old Lru-->
+    <suppress checks="StrictDuplicateCode" files="LruMemoryStore.java" />
+    <suppress checks="StrictDuplicateCode" files="MemoryStore.java" />
 
     <!-- super.clone won't work here -->
     <suppress checks="SuperClone" files="Element.java"/>
@@ -47,7 +50,6 @@
     <suppress checks="ParameterNumber" files="Cache.java"/>
     <suppress checks="FileLengthCheck" files="Cache.java"/>
     <suppress checks="ExecutableStatementCount" files="Cache.java"/>
-    <suppress checks="ThrowsCountCheck" files="CachingFilter.java"/>
     <suppress checks="AnonInnerLengthCheck" files="MulticastKeepaliveHeartbeatReceiver.java"/>
     <suppress checks="AnonInnerLengthCheck" files="Cache.java"/>
     <suppress checks="ClassFanOutComplexity" files="ConfigurationHelper.java"/>

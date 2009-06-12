@@ -84,11 +84,6 @@
 **  {Sourceforge Release}
 
 ---
-    ant dist-tgz
+    mvn deploy
 ---
 
-    then manually upload to SourceForge and complete the file release process
-
-    <<<sftp gregluck@frs.sourceforge.net>>>
-
-    

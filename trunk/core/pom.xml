@@ -10,7 +10,7 @@
     <name>Ehcache Core</name>
     <artifactId>ehcache</artifactId>
     <packaging>jar</packaging>
-    <version>1.6.0-beta5</version>
+    <version>1.6.0-rc1</version>
 
     <dependencies>
 
@@ -285,30 +285,30 @@
                         </plugin>
             -->
 
-            <!--<plugin>-->
-            <!--<groupId>org.apache.maven.plugins</groupId>-->
-            <!--<artifactId>maven-checkstyle-plugin</artifactId>-->
-            <!--<executions>-->
-            <!--<execution>-->
-            <!--<phase>validate</phase>-->
-            <!--<goals>-->
-            <!--<goal>checkstyle</goal>-->
-            <!--</goals>-->
-            <!--</execution>-->
-            <!--</executions>-->
-            <!--<configuration>-->
-            <!--<configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>-->
-            <!--<suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>-->
-            <!--<headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>-->
-            <!--<enableRSS>false</enableRSS>-->
-            <!--<linkXRef>true</linkXRef>-->
-            <!--<consoleOutput>true</consoleOutput>-->
-            <!--<failsOnError>true</failsOnError>-->
-            <!--<failOnViolation>true</failOnViolation>-->
-            <!--<includeTestSourceDirectory>true</includeTestSourceDirectory>-->
-            <!--<enableRulesSummary>true</enableRulesSummary>-->
-            <!--</configuration>-->
-            <!--</plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>checkstyle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>
+                    <suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>
+                    <headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>
+                    <enableRSS>false</enableRSS>
+                    <linkXRef>true</linkXRef>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <failOnViolation>true</failOnViolation>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <enableRulesSummary>true</enableRulesSummary>
+                </configuration>
+            </plugin>
 
             <!-- Use this to specify a different template. It also needs a local copy of maven-base.css -->
             <plugin>

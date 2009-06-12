@@ -19,6 +19,16 @@ Welcome to ehcache
 
 * Latest News
 
+** 12 June 2009: Ehcache 1.6.0-rc1 released
+
+  The first release candidate of the ehcache-1.6, with its new higher performance engine. This version has benefited
+  from production use of beta5. At date of release there are no open bugs.
+
+  This release uses the sl4j logging facade. Plug in your own logger.
+
+  For those wishing to use the old engine it can be turned on at runtime
+  using <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>.
+
 ** 10 May 2009: Ehcache 1.6 core beta 5 released
 
   This beta release of ehcache-1.6 adds bug fixes and massive performance improvements. This release contains

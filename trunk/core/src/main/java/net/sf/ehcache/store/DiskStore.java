@@ -620,13 +620,9 @@ public class DiskStore implements Store {
                     Thread.sleep(SPOOL_THREAD_INTERVAL);
                 }
             } catch (InterruptedException e) {
-//                LOG.debug("Spool Thread interrupted.");
-//                return;
+                //expected on shutdown
             }
 
-            if (writeIndexFlag.get()) {
-                int i = 0; //breakpoint
-            }
             throwableSafeFlushSpoolIfRequired();
 
             if (!spoolAndExpiryThreadActive) {

@@ -2,7 +2,7 @@
 <document>
     <body>
 
-        <release version="1.6.0" date="2009-6-5"
+        <release version="1.6.0-rc1" date="2009-6-12"
                  desc="This release introduces new high performance cache core, which is two orders of magnitude faster.">
             <action dev="Greg Luck" type="fix">
                 Preserve \ and $ when in ehcache.xml.
@@ -39,7 +39,8 @@
             </action>
             <action dev="Greg Luck" type="update">
                 Added slf4j, replacing java.util.logging. I succumbed to the logic that a library should use an abstract
-                logging interface.
+                logging interface. This _may_ be replaced by configurable logging in ehcache.xml, which will then
+                remove the dependency on sl4j while still permitting its and other logging frameworks use.
             </action>
         </release>
 

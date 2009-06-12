@@ -43,10 +43,8 @@ public class MemoryStore implements Store {
      * This number is magic. It was established using empirical testing of the two approaches
      * in CacheTest#testConcurrentReadWriteRemoveLFU. 5000 is the cross over point
      * between the two algorithms.
-     * <p/>
-     * Programmatic changes to this static field need to be made before the MemoryStore is created to have effect.
      */
-    public static int TOO_LARGE_TO_EFFICIENTLY_ITERATE = 5000;
+    protected static final int TOO_LARGE_TO_EFFICIENTLY_ITERATE = 5000;
 
     /**
      * This is the default from {@link java.util.concurrent.ConcurrentHashMap}. It should never be used, because
