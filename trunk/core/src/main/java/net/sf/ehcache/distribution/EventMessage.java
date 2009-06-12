@@ -18,8 +18,8 @@ package net.sf.ehcache.distribution;
 
 import net.sf.ehcache.Element;
 
-import java.io.Serializable;
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.ref.SoftReference;
 
 /**

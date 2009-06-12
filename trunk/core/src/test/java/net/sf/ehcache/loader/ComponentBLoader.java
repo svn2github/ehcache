@@ -18,7 +18,8 @@ package net.sf.ehcache.loader;
 
 import net.sf.ehcache.CacheException;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -29,7 +30,7 @@ import java.util.logging.Logger;
  */
 public class ComponentBLoader extends BaseComponentLoader {
 
-    private static final Logger LOG = Logger.getLogger(ComponentBLoader.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(ComponentBLoader.class.getName());
 
     /**
      * @return

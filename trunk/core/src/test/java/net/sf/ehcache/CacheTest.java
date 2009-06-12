@@ -47,7 +47,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -58,7 +59,7 @@ import java.util.logging.Logger;
  */
 public class CacheTest extends AbstractCacheTest {
 
-    private static final Logger LOG = Logger.getLogger(CacheTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(CacheTest.class.getName());
 
 
     /**
@@ -646,7 +647,7 @@ public class CacheTest extends AbstractCacheTest {
         CacheManager manager = CacheManager.getInstance();
         cache = manager.getCache(name);
         if (cache == null) {
-            LOG.warning("Could not find configuration for " + name
+            LOG.warn("Could not find configuration for " + name
                     + ". Configuring using the defaultCache settings.");
             manager.addCache(name);
             cache = manager.getCache(name);

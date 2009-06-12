@@ -18,11 +18,11 @@ package net.sf.ehcache.config;
 
 import net.sf.ehcache.ObjectExistsException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * A bean, used by BeanUtils, to set configuration from an XML configuration file.

@@ -27,7 +27,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Note these tests need a live network interface running in multicast mode to work
@@ -37,7 +38,7 @@ import java.util.logging.Logger;
  */
 public class PayloadUtilTest {
 
-    private static final Logger LOG = Logger.getLogger(PayloadUtilTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(PayloadUtilTest.class.getName());
     private CacheManager manager;
 
     /**

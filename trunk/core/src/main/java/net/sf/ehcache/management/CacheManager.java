@@ -18,10 +18,10 @@ package net.sf.ehcache.management;
 
 import net.sf.ehcache.CacheException;
 
-import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
-import java.util.List;
+import javax.management.ObjectName;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An MBean implementation for those attributes and operations we wish to expose on net.sf.ehcache.CacheManager.

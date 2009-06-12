@@ -24,6 +24,8 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -44,12 +46,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Delayed;
-import java.util.concurrent.Exchanger;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A disk store implementation.
@@ -76,7 +73,7 @@ public class DiskStore implements Store {
      */
     public static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
 
-    private static final Logger LOG = Logger.getLogger(DiskStore.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(DiskStore.class.getName());
     private static final int MS_PER_SECOND = 1000;
     private static final int SPOOL_THREAD_INTERVAL = 200;
     private static final int ESTIMATED_MINIMUM_PAYLOAD_SIZE = 512;
@@ -199,20 +196,20 @@ public class DiskStore implements Store {
         if (persistent) {
             //if diskpath contains auto generated string
             if (diskPath.indexOf(AUTO_DISK_PATH_DIRECTORY_PREFIX) != -1) {
-                LOG.warning("Data in persistent disk stores is ignored for stores from automatically created directories"
+                LOG.warn("Data in persistent disk stores is ignored for stores from automatically created directories"
                         + " (they start with " + AUTO_DISK_PATH_DIRECTORY_PREFIX + ").\n"
                         + "Remove diskPersistent or resolve the conflicting disk paths in cache configuration.\n"
                         + "Deleting data file " + getDataFileName());
                 dataFile.delete();
             } else if (!readIndex()) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Index file dirty or empty. Deleting data file " + getDataFileName());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Index file dirty or empty. Deleting data file " + getDataFileName());
                 }
                 dataFile.delete();
             }
         } else {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Deleting data file " + getDataFileName());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Deleting data file " + getDataFileName());
             }
             dataFile.delete();
             indexFile = null;
@@ -226,8 +223,8 @@ public class DiskStore implements Store {
         boolean dataFileExists = dataFile.exists();
         boolean indexFileExists = indexFile.exists();
         if (!dataFileExists && indexFileExists) {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Matching data file missing for index file. Deleting index file " + getIndexFileName());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Matching data file missing for index file. Deleting index file " + getIndexFileName());
             }
             indexFile.delete();
         }
@@ -272,7 +269,7 @@ public class DiskStore implements Store {
             element.updateAccessStatistics();
             return element;
         } catch (Exception exception) {
-            LOG.log(Level.SEVERE, name + "Cache: Could not read disk store element for key " + key + ". Error was "
+            LOG.error(name + "Cache: Could not read disk store element for key " + key + ". Error was "
                     + exception.getMessage(), exception);
         }
         return null;
@@ -348,7 +345,7 @@ public class DiskStore implements Store {
             //element.updateAccessStatistics(); Don't update statistics
             return element;
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, name + "Cache: Could not read disk store element for key " + key
+            LOG.error(name + "Cache: Could not read disk store element for key " + key
                     + ". Initial cause was " + e.getMessage(), e);
         }
         return null;
@@ -393,7 +390,7 @@ public class DiskStore implements Store {
             }
             return spoolSize + diskSize;
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, name + "Cache: Could not determine size of disk store.. Initial cause was " + e.getMessage(), e);
+            LOG.error(name + "Cache: Could not determine size of disk store.. Initial cause was " + e.getMessage(), e);
             return 0;
         }
     }
@@ -435,7 +432,7 @@ public class DiskStore implements Store {
                     spool.put(element.getObjectKey(), element);
                 }
             } else {
-                LOG.severe(name + "Cache: Elements cannot be written to disk store because the" +
+                LOG.error(name + "Cache: Elements cannot be written to disk store because the" +
                         " spool thread has died.");
                 synchronized (spoolLock) {
                     spool.clear();
@@ -443,7 +440,7 @@ public class DiskStore implements Store {
             }
 
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, name + "Cache: Could not write disk store element for " + element.getObjectKey()
+            LOG.error(name + "Cache: Could not write disk store element for " + element.getObjectKey()
                     + ". Initial cause was " + e.getMessage(), e);
         }
     }
@@ -459,8 +456,8 @@ public class DiskStore implements Store {
     public boolean bufferFull() {
         long estimatedSpoolSize = spool.size() * lastElementSize;
         boolean backedUp = estimatedSpoolSize > diskSpoolBufferSizeBytes;
-        if (backedUp && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("A back up on disk store puts occurred. Consider increasing diskSpoolBufferSizeMB for cache " + name);
+        if (backedUp && LOG.isDebugEnabled()) {
+            LOG.debug("A back up on disk store puts occurred. Consider increasing diskSpoolBufferSizeMB for cache " + name);
         }
         return backedUp;
 
@@ -490,7 +487,7 @@ public class DiskStore implements Store {
         } catch (Exception exception) {
             String message = name + "Cache: Could not remove disk store entry for key " + key
                     + ". Error was " + exception.getMessage();
-            LOG.log(Level.SEVERE, message, exception);
+            LOG.error(message, exception);
             throw new CacheException(message);
         }
         return element;
@@ -535,7 +532,7 @@ public class DiskStore implements Store {
             }
         } catch (Exception e) {
             // Clean up
-            LOG.log(Level.SEVERE, name + " Cache: Could not rebuild disk store. Initial cause was " + e.getMessage(), e);
+            LOG.error(name + " Cache: Could not rebuild disk store. Initial cause was " + e.getMessage(), e);
             dispose();
         }
     }
@@ -576,11 +573,11 @@ public class DiskStore implements Store {
                 randomAccessFile.close();
             }
             if (!persistent) {
-                LOG.fine("Deleting file " + dataFile.getName());
+                LOG.debug("Deleting file " + dataFile.getName());
                 dataFile.delete();
             }
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, name + "Cache: Could not shut down disk cache. Initial cause was " + e.getMessage(), e);
+            LOG.error(name + "Cache: Could not shut down disk cache. Initial cause was " + e.getMessage(), e);
         } finally {
             active = false;
             randomAccessFile = null;
@@ -618,7 +615,7 @@ public class DiskStore implements Store {
             try {
                 Thread.sleep(SPOOL_THREAD_INTERVAL);
             } catch (InterruptedException e) {
-                LOG.fine("Spool Thread interrupted.");
+                LOG.debug("Spool Thread interrupted.");
                 return;
             }
 
@@ -646,7 +643,7 @@ public class DiskStore implements Store {
                 updatedNextExpiryTime += expiryThreadInterval * MS_PER_SECOND;
                 expireElements();
             } catch (Throwable e) {
-                LOG.log(Level.SEVERE, name + " Cache: Could not expire elements from disk due to "
+                LOG.error(name + " Cache: Could not expire elements from disk due to "
                         + e.getMessage() + ". Continuing...", e);
             }
         }
@@ -669,7 +666,7 @@ public class DiskStore implements Store {
 
                     }
                 } catch (Throwable e) {
-                    LOG.log(Level.SEVERE, name + " Cache: Could not flush elements to disk due to " + e.getMessage() + ". Continuing...", e);
+                    LOG.error(name + " Cache: Could not flush elements to disk due to " + e.getMessage() + ". Continuing...", e);
                 }
             }
         }
@@ -750,13 +747,13 @@ public class DiskStore implements Store {
                     diskElements.put(key, diskElement);
                 }
             } catch (OutOfMemoryError e) {
-                LOG.severe("OutOfMemoryError on serialize: " + key);
+                LOG.error("OutOfMemoryError on serialize: " + key);
 
             }
 
         } catch (Exception e) {
             // Catch any exception that occurs during serialization
-            LOG.log(Level.SEVERE, name + "Cache: Failed to write element to disk '" + key
+            LOG.error(name + "Cache: Failed to write element to disk '" + key
                     + "'. Initial cause was " + e.getMessage(), e);
         }
 
@@ -844,14 +841,14 @@ public class DiskStore implements Store {
                 freeSpace = (List) objectInputStream.readObject();
                 success = true;
             } catch (StreamCorruptedException e) {
-                LOG.severe("Corrupt index file. Creating new index.");
+                LOG.error("Corrupt index file. Creating new index.");
             } catch (IOException e) {
                 //normal when creating the cache for the first time
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("IOException reading index. Creating new index. ");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("IOException reading index. Creating new index. ");
                 }
             } catch (ClassNotFoundException e) {
-                LOG.log(Level.SEVERE, "Class loading problem reading index. Creating new index. Initial cause was " + e.getMessage(), e);
+                LOG.error("Class loading problem reading index. Creating new index. Initial cause was " + e.getMessage(), e);
             } finally {
                 try {
                     if (objectInputStream != null) {
@@ -860,7 +857,7 @@ public class DiskStore implements Store {
                         fin.close();
                     }
                 } catch (IOException e) {
-                    LOG.severe("Problem closing the index file.");
+                    LOG.error("Problem closing the index file.");
                 }
 
                 if (!success) {
@@ -879,16 +876,16 @@ public class DiskStore implements Store {
     private void createNewIndexFile() throws IOException {
         if (indexFile.exists()) {
             if (indexFile.delete()) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Index file " + indexFile + " deleted.");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Index file " + indexFile + " deleted.");
                 }
             } else {
                 throw new IOException("Index file " + indexFile + " could not deleted.");
             }
         }
         if (indexFile.createNewFile()) {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Index file " + indexFile + " created successfully");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Index file " + indexFile + " created successfully");
             }
         } else {
             throw new IOException("Index file " + indexFile + " could not created.");
@@ -910,8 +907,8 @@ public class DiskStore implements Store {
                 final Element element = (Element) iterator.next();
                 if (element.isExpired()) {
                     // An expired element
-                    if (LOG.isLoggable(Level.FINE)) {
-                        LOG.fine(name + "Cache: Removing expired spool element " + element.getObjectKey());
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(name + "Cache: Removing expired spool element " + element.getObjectKey());
                     }
                     iterator.remove();
                     notifyExpiryListeners(element);
@@ -929,8 +926,8 @@ public class DiskStore implements Store {
 
                 if (now >= diskElement.expiryTime) {
                     // An expired element
-                    if (LOG.isLoggable(Level.FINE)) {
-                        LOG.fine(name + "Cache: Removing expired spool element " + entry.getKey() + " from Disk Store");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(name + "Cache: Removing expired spool element " + entry.getKey() + " from Disk Store");
                     }
 
                     iterator.remove();
@@ -941,7 +938,7 @@ public class DiskStore implements Store {
                             element = loadElementFromDiskElement(diskElement);
                             notifyExpiryListeners(element);
                         } catch (Exception exception) {
-                            LOG.log(Level.SEVERE, name + "Cache: Could not remove disk store entry for " + entry.getKey()
+                            LOG.error(name + "Cache: Could not remove disk store entry for " + entry.getKey()
                                     + ". Error was " + exception.getMessage(), exception);
                         }
                     }
@@ -1241,7 +1238,7 @@ public class DiskStore implements Store {
                 element = loadElementFromDiskElement(diskElement);
                 cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
             } catch (Exception exception) {
-                LOG.log(Level.SEVERE, name + "Cache: Could not notify disk store eviction of " + element.getObjectKey() +
+                LOG.error(name + "Cache: Could not notify disk store eviction of " + element.getObjectKey() +
                         ". Error was " + exception.getMessage(), exception);
             }
         }

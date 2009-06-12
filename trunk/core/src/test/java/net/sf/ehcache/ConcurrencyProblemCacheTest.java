@@ -25,7 +25,8 @@ import org.junit.Test;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -40,7 +41,7 @@ import java.util.logging.Logger;
  */
 public class ConcurrencyProblemCacheTest extends AbstractCacheTest {
 
-    private static final Logger LOG = Logger.getLogger(ConcurrencyProblemCacheTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(ConcurrencyProblemCacheTest.class.getName());
 
     private CacheManager manager;
 

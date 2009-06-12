@@ -34,7 +34,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Other than policy differences, the Store implementations should work identically
@@ -44,7 +45,7 @@ import java.util.logging.Logger;
  */
 public class MemoryStoreTester extends AbstractCacheTest {
 
-    private static final Logger LOG = Logger.getLogger(MemoryStoreTester.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(MemoryStoreTester.class.getName());
 
     /**
      * The memory store that tests will be performed on

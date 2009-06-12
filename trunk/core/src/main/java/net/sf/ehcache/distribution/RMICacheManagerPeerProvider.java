@@ -19,6 +19,8 @@ package net.sf.ehcache.distribution;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -29,7 +31,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * A provider of Peer RMI addresses.
@@ -39,7 +40,7 @@ import java.util.logging.Logger;
  */
 public abstract class RMICacheManagerPeerProvider implements CacheManagerPeerProvider {
 
-    private static final Logger LOG = Logger.getLogger(RMICacheManagerPeerProvider.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(RMICacheManagerPeerProvider.class.getName());
 
     /**
      * Contains a RMI URLs of the form: "//" + hostName + ":" + port + "/" + cacheName;

@@ -37,7 +37,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test class for LfuMemoryStore
@@ -48,7 +49,7 @@ import java.util.logging.Logger;
  */
 public class LfuMemoryStoreTest extends MemoryStoreTester {
 
-    private static final Logger LOG = Logger.getLogger(LfuMemoryStoreTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(LfuMemoryStoreTest.class.getName());
 
     /**
      * setup test
@@ -233,7 +234,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
             absoluteDifferences += Math.abs(lastReading - thisReading);
             lastReading = thisReading;
         }
-        LOG.fine("Mean difference through iteration: " + absoluteDifferences / 500);
+        LOG.debug("Mean difference through iteration: " + absoluteDifferences / 500);
 
         //Random selection without replacement
         Random random = new Random();

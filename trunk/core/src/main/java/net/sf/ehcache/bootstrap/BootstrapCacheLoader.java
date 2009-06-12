@@ -16,8 +16,8 @@
 
 package net.sf.ehcache.bootstrap;
 
-import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
 
 /**
  * @author Greg Luck

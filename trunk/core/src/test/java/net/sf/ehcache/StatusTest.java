@@ -20,7 +20,8 @@ package net.sf.ehcache;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -31,7 +32,7 @@ import java.util.logging.Logger;
  */
 public class StatusTest {
 
-    private static final Logger LOG = Logger.getLogger(StatusTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(StatusTest.class.getName());
 
     private static int int1 = 1;
     private int int2 = 2;

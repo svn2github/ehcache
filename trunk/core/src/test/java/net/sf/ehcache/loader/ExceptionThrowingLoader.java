@@ -24,7 +24,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -37,7 +38,7 @@ import java.util.logging.Logger;
  */
 public class ExceptionThrowingLoader extends CountingCacheLoader {
 
-    private static final Logger LOG = Logger.getLogger(CountingCacheLoader.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(CountingCacheLoader.class.getName());
 
     private int loadCounter;
     private int loadAllCounter;
@@ -58,7 +59,7 @@ public class ExceptionThrowingLoader extends CountingCacheLoader {
         try {
             Thread.sleep(random.nextInt(3) + 1);
         } catch (InterruptedException e) {
-            LOG.severe("Interrupted");
+            LOG.error("Interrupted");
         }
         throw new CacheException("Some exception with key " + key);
     }
@@ -81,7 +82,7 @@ public class ExceptionThrowingLoader extends CountingCacheLoader {
             try {
                 Thread.sleep(random.nextInt(4));
             } catch (InterruptedException e) {
-                LOG.severe("Interrupted");
+                LOG.error("Interrupted");
             }
             map.put(key, new Integer(loadAllCounter++));
             throw new CacheException("Some exception with key " + key);
@@ -100,7 +101,7 @@ public class ExceptionThrowingLoader extends CountingCacheLoader {
         try {
             Thread.sleep(random.nextInt(3) + 1);
         } catch (InterruptedException e) {
-            LOG.severe("Interrupted");
+            LOG.error("Interrupted");
         }
         throw new CacheException("Some exception with key " + key);
     }

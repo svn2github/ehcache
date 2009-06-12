@@ -7,7 +7,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.Date;
 
 /**
@@ -15,7 +16,7 @@ import java.util.Date;
  */
 public class CacheClassicLruMemoryStoreTest extends CacheTest {
 
-    private static final Logger LOG = Logger.getLogger(CacheClassicLruMemoryStoreTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(CacheClassicLruMemoryStoreTest.class.getName());
 
     @BeforeClass
     public static void beforeClass() throws Exception {

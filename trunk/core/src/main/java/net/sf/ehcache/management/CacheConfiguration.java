@@ -18,8 +18,8 @@ package net.sf.ehcache.management;
 
 import net.sf.ehcache.CacheException;
 
-import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import java.io.Serializable;
 
 

@@ -20,15 +20,15 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Map;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.concurrent.atomic.AtomicReferenceArray;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * A Store implementation suitable for fast, concurrent in memory stores. The policy is determined by that
@@ -59,7 +59,7 @@ public class MemoryStore implements Store {
      */
     protected static final int CONCURRENCY_LEVEL = 100;
 
-    private static final Logger LOG = Logger.getLogger(MemoryStore.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(MemoryStore.class.getName());
 
     /**
      * The eviction policy to use
@@ -122,8 +122,8 @@ public class MemoryStore implements Store {
 
         status = Status.STATUS_ALIVE;
 
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Initialized " + this.getClass().getName() + " for " + cache.getName());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Initialized " + this.getClass().getName() + " for " + cache.getName());
         }
     }
 
@@ -170,11 +170,11 @@ public class MemoryStore implements Store {
 
         if (element != null) {
             element.updateAccessStatistics();
-            if (LOG.isLoggable(Level.FINEST)) {
-                LOG.finest(cache.getName() + "Cache: " + cache.getName() + "MemoryStore hit for " + key);
+            if (LOG.isTraceEnabled()) {
+                LOG.trace(cache.getName() + "Cache: " + cache.getName() + "MemoryStore hit for " + key);
             }
-        } else if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest(cache.getName() + "Cache: " + cache.getName() + "MemoryStore miss for " + key);
+        } else if (LOG.isTraceEnabled()) {
+            LOG.trace(cache.getName() + "Cache: " + cache.getName() + "MemoryStore miss for " + key);
         }
 
         return element;
@@ -192,11 +192,11 @@ public class MemoryStore implements Store {
 
         if (cacheElement != null) {
             //cacheElement.updateAccessStatistics(); Don't update statistics
-            if (LOG.isLoggable(Level.FINEST)) {
-                LOG.finest(cache.getName() + "Cache: " + cache.getName() + "MemoryStore hit for " + key);
+            if (LOG.isTraceEnabled()) {
+                LOG.trace(cache.getName() + "Cache: " + cache.getName() + "MemoryStore hit for " + key);
             }
-        } else if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest(cache.getName() + "Cache: " + cache.getName() + "MemoryStore miss for " + key);
+        } else if (LOG.isTraceEnabled()) {
+            LOG.trace(cache.getName() + "Cache: " + cache.getName() + "MemoryStore miss for " + key);
         }
         return cacheElement;
     }
@@ -219,8 +219,8 @@ public class MemoryStore implements Store {
         if (element != null) {
             return element;
         } else {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine(cache.getName() + "Cache: Cannot remove entry as key " + key + " was not found");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(cache.getName() + "Cache: Cannot remove entry as key " + key + " was not found");
             }
             return null;
         }
@@ -270,8 +270,8 @@ public class MemoryStore implements Store {
      */
     public final void flush() {
         if (cache.getCacheConfiguration().isDiskPersistent()) {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine(cache.getName() + " is persistent. Spooling " + map.size() + " elements to the disk store.");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(cache.getName() + " is persistent. Spooling " + map.size() + " elements to the disk store.");
             }
             spoolAllToDisk();
         }
@@ -290,12 +290,12 @@ public class MemoryStore implements Store {
     protected final void spoolAllToDisk() {
         boolean clearOnFlush = cache.getCacheConfiguration().isClearOnFlush();
         Object[] keys = getKeyArray();
-        for (Object key : keys) {
-            Element element = (Element) map.get(key);
+        for (int i = 0; i < keys.length; i++) {
+            Element element = (Element) map.get(keys[i]);
             if (element != null) {
                 if (!element.isSerializable()) {
-                    if (LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Object with key " + element.getObjectKey()
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Object with key " + element.getObjectKey()
                                 + " is not Serializable and is not being overflowed to disk.");
                     }
                 } else {
@@ -303,7 +303,7 @@ public class MemoryStore implements Store {
                     //Don't notify listeners. They are not being removed from the cache, only a store
                     //Leave it in the memory store for performance if do not want to clear on flush
                     if (clearOnFlush) {
-                        remove(key);
+                        remove(keys[i]);
                     }
                 }
             }
@@ -320,8 +320,8 @@ public class MemoryStore implements Store {
      */
     protected void spoolToDisk(Element element) {
         diskStore.put(element);
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine(cache.getName() + "Cache: spool to disk done for: " + element.getObjectKey());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(cache.getName() + "Cache: spool to disk done for: " + element.getObjectKey());
         }
     }
 
@@ -354,7 +354,7 @@ public class MemoryStore implements Store {
 
 
     /**
-     * An unsynchronized check to see if a key is in the Store. No check is made to see if the Element is expired.
+     * A check to see if a key is in the Store. No check is made to see if the Element is expired.
      *
      * @param key The Element key
      * @return true if found. If this method return false, it means that an Element with the given key is definitely not in the MemoryStore.
@@ -402,8 +402,8 @@ public class MemoryStore implements Store {
         boolean spooled = false;
         if (cache.getCacheConfiguration().isOverflowToDisk()) {
             if (!element.isSerializable()) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, new StringBuffer("Object with key ").append(element.getObjectKey())
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(new StringBuffer("Object with key ").append(element.getObjectKey())
                             .append(" is not Serializable and cannot be overflowed to disk").toString());
                 }
             } else {
@@ -520,13 +520,13 @@ public class MemoryStore implements Store {
      */
     protected void removeElementChosenByEvictionPolicy(Element elementJustAdded) {
 
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("Cache is full. Removing element ...");
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Cache is full. Removing element ...");
         }
 
         Element element = findEvictionCandidate(elementJustAdded);
         if (element == null) {
-            LOG.fine("Eviction selection miss. Selected element is null");
+            LOG.debug("Eviction selection miss. Selected element is null");
             return;
         }
 

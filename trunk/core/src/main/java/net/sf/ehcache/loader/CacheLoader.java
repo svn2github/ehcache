@@ -16,9 +16,9 @@
 
 package net.sf.ehcache.loader;
 
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.CacheException;
 
 import java.util.Collection;
 import java.util.Map;

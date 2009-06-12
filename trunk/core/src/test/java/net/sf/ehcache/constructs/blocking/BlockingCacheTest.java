@@ -35,7 +35,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test cases for the {@link BlockingCache}.
@@ -46,7 +47,7 @@ import java.util.logging.Logger;
  */
 public class BlockingCacheTest extends CacheTest {
 
-    private static final Logger LOG = Logger.getLogger(BlockingCacheTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(BlockingCacheTest.class.getName());
     private BlockingCache blockingCache;
 
     /**
@@ -227,7 +228,7 @@ public class BlockingCacheTest extends CacheTest {
         Ehcache cache = manager.getCache("sampleCache1");
         blockingCache = new BlockingCache(cache);
         long duration = thrashCache(blockingCache, 50, 500L, 1000L);
-        LOG.fine("Thrash Duration:" + duration);
+        LOG.debug("Thrash Duration:" + duration);
     }
 
     /**
@@ -247,7 +248,7 @@ public class BlockingCacheTest extends CacheTest {
         } catch (Exception e) {
             //expected
         }
-        LOG.fine("Thrash Duration:" + duration);
+        LOG.debug("Thrash Duration:" + duration);
     }
 
     /**
@@ -260,7 +261,7 @@ public class BlockingCacheTest extends CacheTest {
         blockingCache = new BlockingCache(cache);
         blockingCache.setTimeoutMillis((int) (400 * StopWatch.getSpeedAdjustmentFactor()));
         long duration = thrashCache(blockingCache, 50, 400L, (long) (1000L * StopWatch.getSpeedAdjustmentFactor()));
-        LOG.fine("Thrash Duration:" + duration);
+        LOG.debug("Thrash Duration:" + duration);
     }
 
     /**

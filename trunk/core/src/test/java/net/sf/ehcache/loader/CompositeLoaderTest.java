@@ -21,7 +21,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -33,7 +34,7 @@ import java.util.logging.Logger;
  */
 public class CompositeLoaderTest {
 
-    private static final Logger LOG = Logger.getLogger(CompositeLoaderTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(CompositeLoaderTest.class.getName());
 
     /**
      * Sets up the fixture, for example, open a network connection.

@@ -20,15 +20,14 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.rmi.UnmarshalException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
 /**
  * Listens to {@link net.sf.ehcache.CacheManager} and {@link net.sf.ehcache.Cache} events and propagates those to
@@ -56,7 +55,7 @@ import java.util.logging.Level;
 public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicator {
 
 
-    private static final Logger LOG = Logger.getLogger(RMIAsynchronousCacheReplicator.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(RMIAsynchronousCacheReplicator.class.getName());
 
     /**
      * A thread which handles replication, so that replication can take place asynchronously and not hold up the cache
@@ -106,7 +105,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
                 try {
                     Thread.sleep(asynchronousReplicationInterval);
                 } catch (InterruptedException e) {
-                    LOG.fine("Spool Thread interrupted.");
+                    LOG.debug("Spool Thread interrupted.");
                     return;
                 }
             }
@@ -118,7 +117,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
                     flushReplicationQueue();
                 }
             } catch (Throwable e) {
-                LOG.log(Level.SEVERE, "Exception on flushing of replication queue: " + e.getMessage()
+                LOG.error("Exception on flushing of replication queue: " + e.getMessage()
                         + ". Continuing...", e);
             }
         }
@@ -143,8 +142,8 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
         }
 
         if (!element.isSerializable()) {
-            if (LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Object with key " + element.getObjectKey() + " is not Serializable and cannot be replicated");
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Object with key " + element.getObjectKey() + " is not Serializable and cannot be replicated");
             }
             return;
         }
@@ -180,8 +179,8 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
         }
 
         if (!element.isSerializable()) {
-            if (LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Object with key " + element.getObjectKey() + " is not Serializable and cannot be updated via copy");
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Object with key " + element.getObjectKey() + " is not Serializable and cannot be updated via copy");
             }
             return;
         }
@@ -216,8 +215,8 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
         }
 
         if (!element.isKeySerializable()) {
-            if (LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
             }
             return;
         }
@@ -260,7 +259,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      */
     protected void addToReplicationQueue(CacheEventMessage cacheEventMessage) {
         if (!replicationThread.isAlive()) {
-            LOG.severe("CacheEventMessages cannot be added to the replication queue"
+            LOG.error("CacheEventMessages cannot be added to the replication queue"
                     + " because the replication thread has died.");
         } else {
             synchronized (replicationQueue) {
@@ -308,20 +307,20 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
             } catch (UnmarshalException e) {
                 String message = e.getMessage();
                 if (message.indexOf("Read time out") != 0) {
-                    LOG.warning("Unable to send message to remote peer due to socket read timeout. Consider increasing" +
+                    LOG.warn("Unable to send message to remote peer due to socket read timeout. Consider increasing" +
                             " the socketTimeoutMillis setting in the cacheManagerPeerListenerFactory. " +
                             "Message was: " + e.getMessage());
                 } else {
-                    LOG.fine("Unable to send message to remote peer.  Message was: " + e.getMessage());
+                    LOG.debug("Unable to send message to remote peer.  Message was: " + e.getMessage());
                 }
             } catch (Throwable t) {
-                LOG.log(Level.WARNING, "Unable to send message to remote peer.  Message was: " + t.getMessage(), t);
+                LOG.warn("Unable to send message to remote peer.  Message was: " + t.getMessage(), t);
             }
         }
-        if (LOG.isLoggable(Level.WARNING)) {
+        if (LOG.isWarnEnabled()) {
             int eventMessagesNotResolved = replicationQueueCopy.size() - resolvedEventMessages.size();
             if (eventMessagesNotResolved > 0) {
-                LOG.warning(eventMessagesNotResolved + " messages were discarded on replicate due to reclamation of " +
+                LOG.warn(eventMessagesNotResolved + " messages were discarded on replicate due to reclamation of " +
                         "SoftReferences by the VM. Consider increasing the maximum heap size and/or setting the " +
                         "starting heap size to a higher value.");
             }

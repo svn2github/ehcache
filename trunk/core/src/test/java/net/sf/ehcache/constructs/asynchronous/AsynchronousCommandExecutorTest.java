@@ -29,7 +29,8 @@ import org.junit.AfterClass;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tests of the package.
@@ -39,7 +40,7 @@ import java.util.logging.Logger;
  */
 public class AsynchronousCommandExecutorTest {
 
-    private static final Logger LOG = Logger.getLogger(AsynchronousCommandExecutorTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(AsynchronousCommandExecutorTest.class.getName());
 
     private static List messages = new ArrayList();
 
@@ -308,7 +309,7 @@ public class AsynchronousCommandExecutorTest {
         for (int i = 0; i < threads.length; i++) {
             threads[i].join(maximumWait);
             if (System.currentTimeMillis() >= time + maximumWait) {
-                LOG.severe("Killed Threads after timeout");
+                LOG.error("Killed Threads after timeout");
             }
         }
 

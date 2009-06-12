@@ -45,7 +45,8 @@ import java.rmi.registry.LocateRegistry;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * These tests use the JDK1.5 platform mbean server
@@ -61,7 +62,7 @@ import java.util.logging.Logger;
  */
 public class ManagementServiceTest extends AbstractCacheTest {
 
-    private static final Logger LOG = Logger.getLogger(ManagementServiceTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(ManagementServiceTest.class.getName());
     private static final int OBJECTS_IN_TEST_EHCACHE = 40;
     private MBeanServer mBeanServer;
 

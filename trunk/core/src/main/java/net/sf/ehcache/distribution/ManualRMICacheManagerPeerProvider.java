@@ -19,13 +19,13 @@ package net.sf.ehcache.distribution;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A provider of Peer RMI addresses based off manual configuration.
@@ -39,7 +39,7 @@ import java.util.logging.Logger;
  */
 public final class ManualRMICacheManagerPeerProvider extends RMICacheManagerPeerProvider {
 
-    private static final Logger LOG = Logger.getLogger(ManualRMICacheManagerPeerProvider.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(ManualRMICacheManagerPeerProvider.class.getName());
 
     /**
      * Empty constructor.
@@ -94,15 +94,15 @@ public final class ManualRMICacheManagerPeerProvider extends RMICacheManagerPeer
                     cachePeer = lookupRemoteCachePeer(rmiUrl);
                     remoteCachePeers.add(cachePeer);
                 } catch (Exception e) {
-                    if (LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "Looking up rmiUrl " + rmiUrl + " through exception " + e.getMessage()
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Looking up rmiUrl " + rmiUrl + " through exception " + e.getMessage()
                                 + ". This may be normal if a node has gone offline. Or it may indicate network connectivity"
                                 + " difficulties", e);
                     }
                 }
             } else {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("rmiUrl " + rmiUrl + " should never be stale for a manually configured cluster.");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("rmiUrl " + rmiUrl + " should never be stale for a manually configured cluster.");
                 }
                 staleList.add(rmiUrl);
             }

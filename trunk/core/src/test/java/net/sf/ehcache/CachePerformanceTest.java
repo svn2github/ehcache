@@ -5,7 +5,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Isolated performance test which only runs one cache at a time.
@@ -15,7 +16,7 @@ import java.util.logging.Logger;
  */
 public class CachePerformanceTest {
 
-    private static final Logger LOG = Logger.getLogger(CacheTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(CacheTest.class.getName());
 
 
     /**

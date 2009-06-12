@@ -17,12 +17,12 @@
 package net.sf.ehcache.exceptionhandler;
 
 import net.sf.ehcache.Ehcache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
 
 /**
@@ -51,7 +51,7 @@ import java.util.logging.Level;
  */
 public final class ExceptionHandlingDynamicCacheProxy implements InvocationHandler {
 
-    private static final Logger LOG = Logger.getLogger(ExceptionHandlingDynamicCacheProxy.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(ExceptionHandlingDynamicCacheProxy.class.getName());
 
     private Ehcache ehcache;
 
@@ -143,8 +143,8 @@ public final class ExceptionHandlingDynamicCacheProxy implements InvocationHandl
                     causeAsException = (Exception) cause;
                 } catch (ClassCastException cce) {
                     //we only handle exceptions, not errors.
-                    if (LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Underlying cause was not an Exception: " + cce);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Underlying cause was not an Exception: " + cce);
                     }
                 }
 

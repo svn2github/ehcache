@@ -48,7 +48,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tests for CacheManager
@@ -58,7 +59,7 @@ import java.util.logging.Logger;
  */
 public class CacheManagerTest {
 
-    private static final Logger LOG = Logger.getLogger(CacheManagerTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(CacheManagerTest.class.getName());
 
 
     /**

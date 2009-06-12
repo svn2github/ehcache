@@ -21,7 +21,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -32,7 +33,7 @@ import java.util.logging.Logger;
  */
 class ListAppenderCommand implements Command {
 
-    private static final Logger LOG = Logger.getLogger(ListAppenderCommand.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(ListAppenderCommand.class.getName());
 
     private static final int NUMBER_OF_ATTEMPTS = 3;
     private static final int DELAY_IN_SECONDS = 1200;
@@ -58,7 +59,7 @@ class ListAppenderCommand implements Command {
      * @see #getThrowablesToRetryOn() to set {@link Throwable}s that should are expected
      */
     public void execute() throws Throwable {
-        LOG.fine("About to attempt execution");
+        LOG.debug("About to attempt execution");
         checkSerializability(payload);
         Thread.sleep(timeToCompleteInMs);
         if (exceptionOnExecute != null) {

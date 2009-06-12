@@ -37,7 +37,10 @@
                 algorithm cache using set java -Dnet.sf.ehcache.use.classic.lru=true
                 By default the new, high performance MemoryStore is used for all eviction algorithms.
             </action>
-
+            <action dev="Greg Luck" type="update">
+                Added slf4j, replacing java.util.logging. I succumbed to the logic that a library should use an abstract
+                logging interface.
+            </action>
         </release>
 
 

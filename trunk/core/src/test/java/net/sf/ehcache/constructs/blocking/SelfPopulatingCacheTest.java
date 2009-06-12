@@ -29,7 +29,8 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,7 +42,7 @@ import java.util.logging.Logger;
  */
 public class SelfPopulatingCacheTest extends CacheTest {
 
-    private static final Logger LOG = Logger.getLogger(SelfPopulatingCache.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(SelfPopulatingCache.class.getName());
 
     /**
      * Shared with subclass
@@ -88,7 +89,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
      */
     @Test
     public void testFetch() throws Exception {
-        LOG.severe(".");
+        LOG.error(".");
         System.out.println("-=-");
 
         // Lookup

@@ -40,7 +40,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test cases for the DiskStore.
@@ -54,7 +55,7 @@ import java.util.logging.Logger;
  */
 public class DiskStoreTest extends AbstractCacheTest {
 
-    private static final Logger LOG = Logger.getLogger(DiskStoreTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(DiskStoreTest.class.getName());
     private static final int ELEMENT_ON_DISK_SIZE = 1340;
     private CacheManager manager2;
 

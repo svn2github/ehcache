@@ -32,7 +32,8 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.rmi.RemoteException;
 import java.util.List;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Multicast tests. These require special machine configuration.
@@ -49,7 +50,7 @@ import java.util.logging.Logger;
  */
 public class MulticastRMIPeerProviderTest {
 
-    private static final Logger LOG = Logger.getLogger(MulticastRMIPeerProviderTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(MulticastRMIPeerProviderTest.class.getName());
 
     /**
      * Cache Manager 1

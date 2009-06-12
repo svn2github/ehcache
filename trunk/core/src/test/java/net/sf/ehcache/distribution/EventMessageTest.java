@@ -31,7 +31,8 @@ import java.io.ObjectOutputStream;
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tests Serialization and SoftReferences in EventMessage
@@ -41,7 +42,7 @@ import java.util.logging.Logger;
  */
 public class EventMessageTest {
 
-    private static final Logger LOG = Logger.getLogger(EventMessageTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(EventMessageTest.class.getName());
 
 
     /**

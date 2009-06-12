@@ -30,7 +30,8 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.NotSerializableException;
 import java.util.HashMap;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static junit.framework.Assert.fail;
 
@@ -42,7 +43,7 @@ import static junit.framework.Assert.fail;
  */
 public class ElementTest extends AbstractCacheTest {
 
-    private static final Logger LOG = Logger.getLogger(ElementTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(ElementTest.class.getName());
 
 
     /**
@@ -62,7 +63,7 @@ public class ElementTest extends AbstractCacheTest {
             try {
                 bout.write("abcdefghijklmnopqrstv1234567890".getBytes());
             } catch (IOException e) {
-                LOG.severe("This should not happen");
+                LOG.error("This should not happen");
             }
         }
         byte[] value = bout.toByteArray();
@@ -159,7 +160,7 @@ public class ElementTest extends AbstractCacheTest {
             try {
                 bout.write("abcdefghijklmnopqrstv1234567890".getBytes());
             } catch (IOException e) {
-                LOG.severe("This should not happen");
+                LOG.error("This should not happen");
             }
         }
         return bout.toByteArray();

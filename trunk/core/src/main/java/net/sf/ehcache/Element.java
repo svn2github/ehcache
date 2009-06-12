@@ -18,13 +18,15 @@
 package net.sf.ehcache;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.logging.Logger;
 
 /**
  * A Cache Element, consisting of a key, value and attributes.
@@ -44,7 +46,7 @@ public class Element implements Serializable, Cloneable {
      */
     private static final long serialVersionUID = 3343087714201120157L;
 
-    private static final Logger LOG = Logger.getLogger(Element.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(Element.class.getName());
 
     private static final long ONE_SECOND = 1000L;
 
@@ -461,10 +463,10 @@ public class Element implements Serializable, Cloneable {
             ois = new ObjectInputStream(bin);
             newValue = (Serializable) ois.readObject();
         } catch (IOException e) {
-            LOG.severe("Error cloning Element with key " + key
+            LOG.error("Error cloning Element with key " + key
                     + " during serialization and deserialization of value");
         } catch (ClassNotFoundException e) {
-            LOG.severe("Error cloning Element with key " + key
+            LOG.error("Error cloning Element with key " + key
                     + " during serialization and deserialization of value");
         } finally {
             try {
@@ -475,7 +477,7 @@ public class Element implements Serializable, Cloneable {
                     ois.close();
                 }
             } catch (Exception e) {
-                LOG.severe("Error closing Stream");
+                LOG.error("Error closing Stream");
             }
         }
         return newValue;
@@ -506,14 +508,14 @@ public class Element implements Serializable, Cloneable {
             size = bout.size();
             return size;
         } catch (IOException e) {
-            LOG.fine("Error measuring element size for element with key " + key + ". Cause was: " + e.getMessage());
+            LOG.debug("Error measuring element size for element with key " + key + ". Cause was: " + e.getMessage());
         } finally {
             try {
                 if (oos != null) {
                     oos.close();
                 }
             } catch (Exception e) {
-                LOG.severe("Error closing ObjectOutputStream");
+                LOG.error("Error closing ObjectOutputStream");
             }
         }
 
