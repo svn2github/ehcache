@@ -29,6 +29,9 @@ Welcome to ehcache
   For those wishing to use the old engine it can be turned on at runtime
   using <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>.
 
+  Download {{{/download.html}here}}. All documentation is {{{http://ehcache.sourceforge.net/documentation}here}}.
+  The release is also available on Maven central.
+
 ** 10 May 2009: Ehcache 1.6 core beta 5 released
 
   This beta release of ehcache-1.6 adds bug fixes and massive performance improvements. This release contains
