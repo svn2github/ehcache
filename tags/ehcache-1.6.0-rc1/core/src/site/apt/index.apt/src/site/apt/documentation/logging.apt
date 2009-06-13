@@ -1,0 +1,23 @@
+{Logging}
+
+
+* {Java Util Logging}
+
+    As of 1.6, Ehcache uses the the sl4j logging facade. Plug in your own logging framework.
+
+
+* Recommended Logging Levels
+
+    Ehcache seeks to trade off informing production support developers or important messages and cluttering the log.
+
+    {SEVERE} JDK logging SEVERE messages should not occur in normal production and indicate that action should be taken.
+
+    {WARN} JDK logging WARN messages generally indicate a configuration change should be made or an unusual event
+    has occurred.
+
+    {FINE} JDK logging FINE messages are for development use. All DEBUG level statements are surrounded with a guard
+    so that they are not executed unless the level is DEBUG.
+
+    Setting the logging level to FINE should provide more information on the source of any problems.
+    Many logging systems enable a logging level change to be made without restarting the application.
+
