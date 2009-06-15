@@ -1,5 +1,53 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+
+
+ehcache-1.6.0-rc1
+=================
+
+        <release version="1.6.0-rc1" date="2009-6-12"
+                 desc="This release introduces new high performance cache core, which is two orders of magnitude faster.">
+            <action dev="Greg Luck" type="fix">
+                Preserve \ and $ when in ehcache.xml.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2791732">
+                Fix to an issue introduced in 1.6.0-beta5.
+                It was possible for the probabilistic eviction algorithm to return null, which could cause a slow
+                memory leak. Fixed. If this happens on an eviction we do a further selection via iteration
+                which is guaranteed not to return null.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2804387">
+                Fix Bug in RMIAsynchronousCacheReplicator.clone introduced in the 1.6 beta series.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2790350">
+                UpdatingSelfPopulatingCache had not been converted to work with non-Serializable objects. Fixed.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2008055">
+                Fixed rare ConcurrentModificationException when calling cache.flush() to persist to the disk store
+                during cache operation. cache.flush() is now asynchronous as a result.
+            </action>
+            <action dev="Greg Luck" type="add">
+                added clearOnFlush cache parameter. It determines whether the MemoryStore should be cleared when flush()
+                is called on the cache. By default, the MemoryStore is cleared. Useful is you want to back up a cache
+                to the file system without clearing the MemoryStore. Thanks to Matt Passell for the patch.
+            </action>
+            <action dev="Greg Luck" type="update">
+                / used to be an illegal character in ehcache cache names. However JBoss 5 uses / in its JPA cache names.
+                / is now a legal character so as to interoperate with JBoss 5.
+            </action>
+            <action dev="Greg Luck" type="update">
+                Brought back the LruMemoryStore from ehcache-1.5 and prior. This can be switched in for LRU eviction
+                algorithm cache using set java -Dnet.sf.ehcache.use.classic.lru=true
+                By default the new, high performance MemoryStore is used for all eviction algorithms.
+            </action>
+            <action dev="Greg Luck" type="update">
+                Added slf4j, replacing java.util.logging. I succumbed to the logic that a library should use an abstract
+                logging interface. This _may_ be replaced by configurable logging in ehcache.xml, which will then
+                remove the dependency on sl4j while still permitting its and other logging frameworks use.
+            </action>
+        </release>
+
+
 ehcache-1.6.0-beta5
 ===================
 

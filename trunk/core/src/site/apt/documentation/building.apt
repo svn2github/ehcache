@@ -81,9 +81,22 @@
 
 *   Deploying a release
 
-**  {Sourceforge Release}
+**  {Maven Release}
 
 ---
     mvn deploy
 ---
+
+**  {Sourceforge Release}
+
+---
+    mvn assembly:assembly
+---
+
+    then manually upload to SourceForge
+
+    <<<sftp gregluck@frs.sourceforge.net>>>
+
+    and complete the file release process
+
 
