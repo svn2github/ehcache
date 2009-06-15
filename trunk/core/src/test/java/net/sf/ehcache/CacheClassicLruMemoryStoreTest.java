@@ -40,11 +40,15 @@ public class CacheClassicLruMemoryStoreTest extends CacheTest {
      * INFO: Total loadAlls: 469
      * <p/>
      * Contrast this with the new one:
-     * CHM with sampling
-     * INFO: Average Get Time for 5424446 observations: 0.0046010227 ms
-     * INFO: Average Put Time for 358907 obervations: 0.027190888 ms
-     * INFO: Average Remove Time for 971741 obervations: 0.00924732 ms
-     * INFO: Average keySet Time for 466812 observations: 0.15059596 ms
+     *
+     * INFO: Average Get Time for 4754409 observations: 0.0072621014 ms
+     * INFO: Average Put Time for 491269 obervations: 0.03955267 ms
+     * INFO: Average Remove Time for 1183817 obervations: 0.009963533 ms
+     * INFO: Average Remove All Time for 0 observations: NaN ms
+     * INFO: Average keySet Time for 364313 observations: 0.2294785 ms
+     * INFO: Total loads: 197
+     * INFO: Total loadAlls: 511
+     *
      *
      * @throws Exception
      */
