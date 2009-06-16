@@ -10,7 +10,7 @@
     <name>Ehcache Core</name>
     <artifactId>ehcache</artifactId>
     <packaging>jar</packaging>
-    <version>1.6.0-rc1</version>
+    <version>1.6.0-SNAPSHOT</version>
 
     <dependencies>
 
@@ -44,6 +44,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
             <version>1.5.6</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -106,14 +107,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.3</version>
+
                 <configuration>
-                    <doclet>ydoc.doclets.YStandard</doclet>
-                    <docletPath>
-                        ${ydoc.home}/lib/ydoc.jar${path.separator}${ydoc.home}/lib/class2svg.jar${path.separator}${ydoc.home}/resources
-                    </docletPath>
-                    <additionalparam>-license ${ydoc.license} -filter ydoc.filters.ExcludeFilter -filterpath
-                        ${ydoc.home}/lib/ydoc.jar -umlautogen
-                    </additionalparam>
                     <author>true</author>
                     <bottom>true</bottom>
                     <!--<destDir>${project.build.directory}/site/javadoc</destDir>-->
@@ -133,6 +128,25 @@
                         <goals>
                             <goal>javadoc</goal>
                         </goals>
+                        <configuration>
+                            <doclet>ydoc.doclets.YStandard</doclet>
+                            <docletPath>
+                                ${ydoc.home}/lib/ydoc.jar${path.separator}${ydoc.home}/lib/class2svg.jar${path.separator}${ydoc.home}/resources
+                            </docletPath>
+                            <additionalparam>-license ${ydoc.license} -filter ydoc.filters.ExcludeFilter -filterpath
+                                ${ydoc.home}/lib/ydoc.jar -umlautogen
+                            </additionalparam>
+                            <author>true</author>
+                            <bottom>true</bottom>
+                            <!--<destDir>${project.build.directory}/site/javadoc</destDir>-->
+                            <header><![CDATA[<a href="/" target="_top">ehcache</a>]]></header>
+                            <minmemory>128m</minmemory>
+                            <maxmemory>512</maxmemory>
+                            <overview>${basedir}/src/main/java/net/sf/ehcache/overview.html</overview>
+                            <use>true</use>
+                            <version>true</version>
+                            <windowtitle>${project.name} ${project.version} API</windowtitle>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

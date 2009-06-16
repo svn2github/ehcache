@@ -108,6 +108,8 @@
 
   * {{{#Works with Hibernate}Works with Hibernate}}
 
+  * {{{#Works with Google App Engine}Works with Google App Engine}}
+
  * High Quality
 
   * {{{#High Test Coverage}High Test Coverage}}
@@ -489,6 +491,12 @@
 
    A new <<<net.sf.ehcache.hibernate.EhCacheProvider>>> makes those additional features available to Hibernate-3.1.3. A version of the new provider should make it into
    the Hibernate3.2 release.
+
+** {Works with Google App Engine}
+
+   Ehcache-1.6 is compatible with Google App Engine.
+
+   See the {{{/documentation/googleappengine.html}Google App Engine HowTo}}.
 
 * {High Quality}
 

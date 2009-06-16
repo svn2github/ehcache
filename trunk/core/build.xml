@@ -159,6 +159,7 @@
                 <arg value="hibernate.apt"/>
                 <arg value="jsr107.apt"/>
                 <arg value="glassfish.apt"/>
+                <arg value="googleappengine.apt"/>
                 <arg value="tomcat.apt"/>
                 <arg value="building.apt"/>
                 <arg value="faq.apt"/>

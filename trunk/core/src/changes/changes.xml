@@ -2,8 +2,17 @@
 <document>
     <body>
 
+        <release version="1.6.0" date="2009-12-31"
+                 desc="This release introduces a new high performance cache core, which is two orders of magnitude faster.">
+
+            <action dev="Greg Luck" type="add">
+                Added compatibility for Google App Engine.
+            </action>
+        </release>
+
+
         <release version="1.6.0-rc1" date="2009-6-12"
-                 desc="This release introduces new high performance cache core, which is two orders of magnitude faster.">
+                 desc="This release introduces a new high performance cache core, which is two orders of magnitude faster.">
             <action dev="Greg Luck" type="fix">
                 Preserve \ and $ when in ehcache.xml.
             </action>

@@ -1,5 +1,5 @@
 
-Ehcache 1.5.0 User Guide
+Ehcache 1.6 User Guide
 
     * {{{./preface.html}Preface}}
 
@@ -65,7 +65,9 @@ Ehcache 1.5.0 User Guide
 
     * {{{./hibernate.html}Using ehcache with Hibernate}}
 
-    * {{{./glassfish.html}Glassfish HowTo & Issues}}
+    * {{{./glassfish.html}Glassfish HowTo}}
+
+    * {{{./googleappengine.html}Google App Engine HowTo}}
 
     * {{{./tomcat.html}Tomcat Issues and Best Practices}}
 

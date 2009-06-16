@@ -145,6 +145,9 @@ public class Cache implements Ehcache {
             localhost = InetAddress.getLocalHost();
         } catch (UnknownHostException e) {
             LOG.error("Unable to set localhost. This prevents creation of a GUID. Cause was: " + e.getMessage(), e);
+        } catch (java.lang.NoClassDefFoundError e) {
+            LOG.debug("InetAddress is being blocked by your runtime environment. e.g. Google App Engine." +
+                    " Ehcache will work as a local cache.");
         }
     }
 
@@ -560,7 +563,6 @@ public class Cache implements Ehcache {
 
         changeStatus(Status.STATUS_UNINITIALISED);
 
-        guid = createGuid();
 
         configuration = new CacheConfiguration();
         configuration.setName(name);
@@ -574,6 +576,7 @@ public class Cache implements Ehcache {
         configuration.setMaxElementsOnDisk(maxElementsOnDisk);
         configuration.setClearOnFlush(clearOnFlush);
 
+        guid = createGuid();
 
         if (diskStorePath == null) {
             this.diskStorePath = DiskStoreConfiguration.getDefaultPath();
@@ -2171,7 +2174,16 @@ public class Cache implements Ehcache {
      * Create globally unique ID for this cache.
      */
     private String createGuid() {
-        return new StringBuffer().append(localhost).append("-").append(new UID()).toString();
+        StringBuffer buffer = null;
+        try {
+            buffer = new StringBuffer().append(localhost).append("-").append(new UID());
+        } catch (java.lang.NoClassDefFoundError e) {
+            //Runtime environment restriction. e.g. Google App Engine
+            //Weaker form of GUID. but we do not need it if networking is blocked.
+            buffer = new StringBuffer().append(configuration.getName()).append("-").append(System.currentTimeMillis());
+        }
+
+        return buffer.toString();
     }
 
     /**

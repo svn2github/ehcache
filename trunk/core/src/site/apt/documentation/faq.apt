@@ -409,3 +409,7 @@ java.net.ConnectException: Connection refused
     Ehcache integration testing. Accordingly, use of the JMSCacheLoader with ActiveMQ is not recommended. Open MQ
     tests fine.
 
+*   Is Ehcache compatible with Google App Engine?
+
+    Version 1.6 is compatible. See the {{{./googleappengine.html}Google App Engine Howto}}
+

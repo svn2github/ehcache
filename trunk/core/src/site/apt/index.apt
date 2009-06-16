@@ -19,6 +19,14 @@ Welcome to ehcache
 
 * Latest News
 
+** 16 June 2009: Ehcache is now compatible with Google App Engine
+
+   The shipping Ehcache-1.6.0 will be compatible with Google App Engine.
+
+   The fixes are now in the {{{http://oss.sonatype.org/content/repositories/sourceforge-snapshots/net/sf/ehcache/}snapshots}}.
+
+   See the extensive {{{/documentation/googleappengine.html}Google App Engine HowTo}}for configuration, recipes and more.
+
 ** 12 June 2009: Ehcache 1.6.0-rc1 released
 
   The first release candidate of the ehcache-1.6, with its new higher performance engine. This version has benefited
@@ -91,22 +99,6 @@ Welcome to ehcache
     A note on naming. With ehcache fully modularised, each module has its own release cycle which may or may not
     correspond with the Ehcache core releases.
 
-** 7 April 2009: Ehcache 1.6.0-beta4 released
-
-    This beta release of ehcache-1.6.0 adds bug fixes and dramatic performance improvements.
-
-    Please DO NOT use this version in production. It is beta and contains significant changes to threading.
-
-   Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. All documentation is
-    {{{http://ehcache.sourceforge.net/documentation}here}}.
-
-
-** 23 February 2009: Exciting News! Ehcache Core two orders of magnitude faster
-
-  With all of the focus on new replication schemes and Cache Server, the core has been pretty stable for a while.
-  The forthcoming 1.6.0-beta4 shows off Gets that are 92 times faster than Ehcache 1.5. See {{{http://gregluck.com/blog/archives/2009/02/i_have_been_wai.html}
-     Greg Luck's Blog}} for some amazing charts.
-
 ** 28 January 2009: New releases which break JCache into its own module.
 
     A new release of Ehcache core, ehcache-1.6.0-beta3 and the new ehcache-jcache-1.1 break JCache functionality
@@ -120,25 +112,6 @@ Welcome to ehcache
 
    Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. All documentation is
     {{{http://ehcache.sourceforge.net/documentation}here}}.
-
-
-** 24 December 2008: New releases of Ehcache, JMS Replication, Ehcache Server and Ehcache Standalone Server
-
-   Releases of minor bug fixes and features aimed at perfecting JMS Replication, including as used from Ehcache Server.
-
-   Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. All documentation is
-    {{{http://ehcache.sourceforge.net/documentation}here}}.
-
-
-** 21 October 2008: ehcache-jgroupsreplication-0.1 released
-
-    This is the second release of JGroups replication. This release moves it to its own module. It contains some performance
-    improvements.
-
-    JGroups Replication is it's own Maven module and downloadable distribution.
-
-   Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. The documentation is
-    {{{http://ehcache.sourceforge.net/documentation/distributed_caching_with_jgroups.html}here}}.
 
 
 

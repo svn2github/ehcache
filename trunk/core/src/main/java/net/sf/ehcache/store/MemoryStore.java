@@ -537,7 +537,6 @@ public class MemoryStore implements Store {
 
         evict(element);
         remove(element.getObjectKey());
-        //todo should this notify removal?
     }
 
     /**
