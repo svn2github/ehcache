@@ -17,14 +17,13 @@
 package net.sf.ehcache.distribution;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -54,7 +53,7 @@ final class PayloadUtil {
      */
     public static final String URL_DELIMITER = "|";
 
-    private static final Logger LOG = LoggerFactory.getLogger(PayloadUtil.class.getName());
+    private static final Logger LOG = Logger.getLogger(PayloadUtil.class.getName());
 
 
     /**
@@ -78,7 +77,7 @@ final class PayloadUtil {
             try {
                 rmiUrl = cachePeer.getUrl();
             } catch (RemoteException e) {
-                LOG.error("This should never be thrown as it is called locally");
+                LOG.log(Level.SEVERE, "This should never be thrown as it is called locally");
             }
             if (i != localCachePeers.size() - 1) {
                 sb.append(rmiUrl).append(URL_DELIMITER);
@@ -86,8 +85,8 @@ final class PayloadUtil {
                 sb.append(rmiUrl);
             }
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Cache peers for this CacheManager to be advertised: " + sb);
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.log(Level.FINE, "Cache peers for this CacheManager to be advertised: " + sb);
         }
         return sb.toString().getBytes();
     }
@@ -104,7 +103,7 @@ final class PayloadUtil {
             gzipOutputStream.write(ungzipped);
             gzipOutputStream.close();
         } catch (IOException e) {
-            LOG.error("Could not gzip " + ungzipped);
+            LOG.log(Level.SEVERE, "Could not gzip " + ungzipped);
         }
         return bytes.toByteArray();
     }
@@ -136,7 +135,7 @@ final class PayloadUtil {
             inputStream.close();
             byteArrayOutputStream.close();
         } catch (IOException e) {
-            LOG.error("Could not ungzip. Heartbeat will not be working. " + e.getMessage());
+            LOG.log(Level.SEVERE, "Could not ungzip. Heartbeat will not be working. " + e.getMessage());
         }
         return ungzipped;
     }

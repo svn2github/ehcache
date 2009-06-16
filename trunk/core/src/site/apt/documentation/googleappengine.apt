@@ -14,8 +14,13 @@
 
     Google App Engine provides a constrained runtime which restricts networking, threading and file system access.
 
+*   Limitations
+
     All features of Ehcache can be used except for the DiskStore and replication. Having said that, there are workarounds
     for these limitations. See the Recipes section below.
+
+    As of June 2009, Google App Engine appears to be limited to a heap size of 100MB.
+    (See {{http://gregluck.com/blog/archives/2009/06/the_limitations.html}} for the evidence of this).
 
 *   Versions
 

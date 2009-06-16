@@ -273,9 +273,9 @@
         long value = Integer.MAX_VALUE;
         value += Integer.MAX_VALUE;
         value += 5;
-        LOG.info("" + value);
+        LOG.log(Level.INFO, "" + value);
         int valueAsInt = (int) value;
-        LOG.info("" + valueAsInt);
+        LOG.log(Level.INFO, "" + valueAsInt);
         assertEquals(3, valueAsInt);
     }
 -----

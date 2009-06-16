@@ -17,8 +17,6 @@
 package net.sf.ehcache.distribution;
 
 import net.sf.ehcache.CacheManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -32,6 +30,8 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Receives heartbeats from any {@link MulticastKeepaliveHeartbeatSender}s out there.
@@ -43,7 +43,7 @@ import java.util.concurrent.Executors;
  */
 public final class MulticastKeepaliveHeartbeatReceiver {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MulticastKeepaliveHeartbeatReceiver.class.getName());
+    private static final Logger LOG = Logger.getLogger(MulticastKeepaliveHeartbeatReceiver.class.getName());
 
     private ExecutorService processingThreadPool;
     private Set rmiUrlsProcessingQueue = Collections.synchronizedSet(new HashSet());
@@ -85,7 +85,7 @@ public final class MulticastKeepaliveHeartbeatReceiver {
      * Shutdown the heartbeat.
      */
     public final void dispose() {
-        LOG.debug("dispose called");
+        LOG.log(Level.FINE, "dispose called");
         processingThreadPool.shutdownNow();
         stopped = true;
         receiverThread.interrupt();
@@ -117,13 +117,13 @@ public final class MulticastKeepaliveHeartbeatReceiver {
 
                     } catch (IOException e) {
                         if (!stopped) {
-                            LOG.error("Error receiving heartbeat. " + e.getMessage() +
+                            LOG.log(Level.SEVERE, "Error receiving heartbeat. " + e.getMessage() +
                                     ". Initial cause was " + e.getMessage(), e);
                         }
                     }
                 }
             } catch (Throwable t) {
-                LOG.error("Multicast receiver thread caught throwable. Cause was " + t.getMessage() + ". Continuing...");
+                LOG.log(Level.SEVERE, "Multicast receiver thread caught throwable. Cause was " + t.getMessage() + ". Continuing...");
             }
         }
 
@@ -134,8 +134,8 @@ public final class MulticastKeepaliveHeartbeatReceiver {
                 return;
             }
             rmiUrls = rmiUrls.trim();
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("rmiUrls received " + rmiUrls);
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("rmiUrls received " + rmiUrls);
             }
             processRmiUrls(rmiUrls);
         }
@@ -150,8 +150,8 @@ public final class MulticastKeepaliveHeartbeatReceiver {
          */
         private void processRmiUrls(final String rmiUrls) {
             if (rmiUrlsProcessingQueue.contains(rmiUrls)) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("We are already processing these rmiUrls. Another heartbeat came before we finished: " + rmiUrls);
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.log(Level.FINE, "We are already processing these rmiUrls. Another heartbeat came before we finished: " + rmiUrls);
                 }
                 return;
             }
@@ -173,8 +173,8 @@ public final class MulticastKeepaliveHeartbeatReceiver {
                             String rmiUrl = stringTokenizer.nextToken();
                             registerNotification(rmiUrl);
                             if (!peerProvider.peerUrls.containsKey(rmiUrl)) {
-                                if (LOG.isDebugEnabled()) {
-                                    LOG.debug("Aborting processing of rmiUrls since failed to add rmiUrl: " + rmiUrl);
+                                if (LOG.isLoggable(Level.FINE)) {
+                                    LOG.log(Level.FINE, "Aborting processing of rmiUrls since failed to add rmiUrl: " + rmiUrl);
                                 }
                                 return;
                             }
@@ -208,7 +208,7 @@ public final class MulticastKeepaliveHeartbeatReceiver {
             try {
                 cacheManagerUrlBase = peer.getUrlBase();
             } catch (RemoteException e) {
-                LOG.error("Error geting url base");
+                LOG.log(Level.SEVERE, "Error geting url base");
             }
             int baseUrlMatch = rmiUrls.indexOf(cacheManagerUrlBase);
             return baseUrlMatch != -1;
@@ -226,7 +226,7 @@ public final class MulticastKeepaliveHeartbeatReceiver {
             try {
                 socket.leaveGroup(groupMulticastAddress);
             } catch (IOException e) {
-                LOG.error("Error leaving group");
+                LOG.log(Level.SEVERE, "Error leaving group");
             }
             socket.close();
             super.interrupt();

@@ -27,8 +27,6 @@ import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.event.CacheManagerEventListenerRegistry;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.util.PropertyUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
@@ -40,6 +38,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A container for {@link Ehcache}s that maintain all aspects of their lifecycle.
@@ -66,7 +66,7 @@ public class CacheManager {
      */
     public static final String ENABLE_SHUTDOWN_HOOK_PROPERTY = "net.sf.ehcache.enableShutdownHook";
 
-    private static final Logger LOG = LoggerFactory.getLogger(CacheManager.class.getName());
+    private static final Logger LOG = Logger.getLogger(CacheManager.class.getName());
 
     /**
      * The Singleton Instance.
@@ -267,8 +267,8 @@ public class CacheManager {
         Configuration configuration;
         String configurationSource;
         if (configurationFileName != null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Configuring CacheManager from " + configurationFileName);
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "Configuring CacheManager from " + configurationFileName);
             }
             configuration = ConfigurationFactory.parseConfiguration(new File(configurationFileName));
             configurationSource = "file located at " + configurationFileName;
@@ -279,8 +279,8 @@ public class CacheManager {
             configuration = ConfigurationFactory.parseConfiguration(configurationInputStream);
             configurationSource = "InputStream " + configurationInputStream;
         } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Configuring ehcache from classpath.");
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "Configuring ehcache from classpath.");
             }
             configuration = ConfigurationFactory.parseConfiguration();
             configurationSource = "classpath";
@@ -298,7 +298,7 @@ public class CacheManager {
 
         if (diskStorePath == null && cachesRequiringDiskStores > 0) {
             diskStorePath = DiskStoreConfiguration.getDefaultPath();
-            LOG.warn("One or more caches require a DiskStore but there is no diskStore element configured." +
+            LOG.log(Level.WARNING, "One or more caches require a DiskStore but there is no diskStore element configured." +
                     " Using the default disk store path of " + DiskStoreConfiguration.getDefaultPath() +
                     ". Please explicitly configure the diskStore element in ehcache.xml.");
         }
@@ -324,8 +324,8 @@ public class CacheManager {
 
     private void detectAndFixDiskStorePathConflict(ConfigurationHelper configurationHelper) {
         if (diskStorePath == null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("No disk store path defined. Skipping disk store path conflict test.");
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "No disk store path defined. Skipping disk store path conflict test.");
             }
             return;
         }
@@ -334,7 +334,7 @@ public class CacheManager {
             CacheManager cacheManager = (CacheManager) ALL_CACHE_MANAGERS.get(i);
             if (diskStorePath.equals(cacheManager.diskStorePath)) {
                 String newDiskStorePath = diskStorePath + File.separator + DiskStore.generateUniqueDirectory();
-                LOG.warn("Creating a new instance of CacheManager using the diskStorePath \""
+                LOG.log(Level.WARNING, "Creating a new instance of CacheManager using the diskStorePath \""
                         + diskStorePath + "\" which is already used" +
                         " by an existing CacheManager.\nThe source of the configuration was "
                         + configurationHelper.getConfigurationBean().getConfigurationSource() + ".\n" +
@@ -362,7 +362,7 @@ public class CacheManager {
                     }
                     String otherUniqueResourceIdentifier = otherCacheManagerPeerListener.getUniqueResourceIdentifier();
                     if (uniqueResourceIdentifier.equals(otherUniqueResourceIdentifier)) {
-                        LOG.warn("Creating a new instance of CacheManager with a CacheManagerPeerListener which " +
+                        LOG.log(Level.WARNING, "Creating a new instance of CacheManager with a CacheManagerPeerListener which " +
                                 "has a conflict on a resource that must be unique.\n" +
                                 "The resource is " + uniqueResourceIdentifier + ".\n" +
                                 "Attempting automatic resolution. The source of the configuration was "
@@ -409,13 +409,13 @@ public class CacheManager {
         }
         synchronized (CacheManager.class) {
             if (singleton == null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Creating new CacheManager with default config");
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.log(Level.FINE, "Creating new CacheManager with default config");
                 }
                 singleton = new CacheManager();
             } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Attempting to create an existing singleton. Existing singleton returned.");
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.log(Level.FINE, "Attempting to create an existing singleton. Existing singleton returned.");
                 }
             }
             return singleton;
@@ -450,8 +450,8 @@ public class CacheManager {
         }
         synchronized (CacheManager.class) {
             if (singleton == null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Creating new CacheManager with config file: " + configurationFileName);
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.log(Level.FINE, "Creating new CacheManager with config file: " + configurationFileName);
                 }
                 singleton = new CacheManager(configurationFileName);
             }
@@ -485,8 +485,8 @@ public class CacheManager {
         }
         synchronized (CacheManager.class) {
             if (singleton == null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Creating new CacheManager with config URL: " + configurationFileURL);
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.log(Level.FINE, "Creating new CacheManager with config URL: " + configurationFileURL);
                 }
                 singleton = new CacheManager(configurationFileURL);
 
@@ -513,8 +513,8 @@ public class CacheManager {
         }
         synchronized (CacheManager.class) {
             if (singleton == null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Creating new CacheManager with InputStream");
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.log(Level.FINE, "Creating new CacheManager with InputStream");
                 }
                 singleton = new CacheManager(inputStream);
             }
@@ -561,7 +561,7 @@ public class CacheManager {
         if (!enabled) {
             return;
         } else {
-            LOG.info("The CacheManager shutdown hook is enabled because " + ENABLE_SHUTDOWN_HOOK_PROPERTY + " is set to true.");
+            LOG.log(Level.INFO, "The CacheManager shutdown hook is enabled because " + ENABLE_SHUTDOWN_HOOK_PROPERTY + " is set to true.");
 
             Thread localShutdownHook = new Thread() {
                 public void run() {
@@ -571,8 +571,8 @@ public class CacheManager {
                             // removeShutdownHook to remove it during shutdown
                             shutdownHook = null;
 
-                            if (LOG.isInfoEnabled()) {
-                                LOG.info("VM shutting down with the CacheManager still active. Calling shutdown.");
+                            if (LOG.isLoggable(Level.INFO)) {
+                                LOG.log(Level.INFO, "VM shutting down with the CacheManager still active. Calling shutdown.");
                             }
                             shutdown();
                         }
@@ -598,8 +598,8 @@ public class CacheManager {
                 //This will be thrown if the VM is shutting down. In this case
                 //we do not need to worry about leaving references to CacheManagers lying
                 //around and the call is ok to fail.
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("IllegalStateException due to attempt to remove a shutdown" +
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.log(Level.FINE, "IllegalStateException due to attempt to remove a shutdown" +
                             "hook while the VM is actually shutting down.", e);
                 }
             }
@@ -698,7 +698,7 @@ public class CacheManager {
         try {
             cache.bootstrap();
         } catch (CacheException e) {
-            LOG.warn("Cache " + cache.getName() + "requested bootstrap but a CacheException occured. " + e.getMessage(), e);
+            LOG.log(Level.WARNING, "Cache " + cache.getName() + "requested bootstrap but a CacheException occured. " + e.getMessage(), e);
         }
         ehcaches.put(cache.getName(), cache);
         if (cache instanceof Cache) {
@@ -768,8 +768,8 @@ public class CacheManager {
     public void shutdown() {
         synchronized (CacheManager.class) {
             if (status.equals(Status.STATUS_SHUTDOWN)) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("CacheManager already shutdown");
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.log(Level.FINE, "CacheManager already shutdown");
                 }
                 return;
             }
@@ -847,8 +847,8 @@ public class CacheManager {
      */
     public void clearAll() throws CacheException {
         String[] cacheNames = getCacheNames();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Clearing all caches");
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.log(Level.FINE, "Clearing all caches");
         }
         for (int i = 0; i < cacheNames.length; i++) {
             String cacheName = cacheNames[i];

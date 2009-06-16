@@ -1,7 +1,7 @@
 $Id: RELEASE_NOTES.txt,v 1.16 2006/03/01 01:52:03 gregluck Exp $
 
 
-Release Notes For ehcache 1.6.0-rc1
+Release Notes For ehcache 1.6.0
 
 Introduction
 ============
@@ -25,6 +25,7 @@ Ehcache is a pure Java, in-process cache with the following features:
    16. Web caching, pull-through caches and other common caching implementations are provided in the ehcache-constructs module.
    17. Full JMX monitoring implementation
    18. Complete implementation of the draft JCACHE (JSR107) specification.
+   19. Compatible with Google App Engine
 
 Java Requirements
 =================
@@ -36,7 +37,7 @@ Java Requirements
 Dependencies
 ============
 
-    This release uses the sl4j logging facade. 
+    None. 
 
 Maven POM snippet
 =================

@@ -6,7 +6,13 @@
                  desc="This release introduces a new high performance cache core, which is two orders of magnitude faster.">
 
             <action dev="Greg Luck" type="add">
-                Added compatibility for Google App Engine.
+                Added compatibility for Google App Engine. To get started read
+                http://ehcache.sourceforge.net/documentation/googleappengine.html for more details.
+            </action>
+            <action dev="Greg Luck" type="update">
+                Removed slf4j, which was causing ClassNotFoundException for some users.
+                You can still log via SL4J using the SLF4JBridgeHandler. See {{http://www.slf4j.org/legacy.html}}
+                See the http://ehcache.sourceforge.net/documentation/logging.html for more details.
             </action>
         </release>
 

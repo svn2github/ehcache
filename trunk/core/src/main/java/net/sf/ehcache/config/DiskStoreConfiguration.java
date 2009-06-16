@@ -17,10 +17,9 @@
 package net.sf.ehcache.config;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A class to represent DiskStore configuration
@@ -31,7 +30,7 @@ import java.io.File;
  */
 public final class DiskStoreConfiguration {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DiskStoreConfiguration.class.getName());
+    private static final Logger LOG = Logger.getLogger(DiskStoreConfiguration.class.getName());
 
 
     /**
@@ -96,8 +95,8 @@ public final class DiskStoreConfiguration {
         translatedPath = replaceToken(File.separator + File.separator, File.separator, translatedPath);
 
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Disk Store Path: " + translatedPath);
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.log(Level.FINE, "Disk Store Path: " + translatedPath);
         }
         return translatedPath;
     }

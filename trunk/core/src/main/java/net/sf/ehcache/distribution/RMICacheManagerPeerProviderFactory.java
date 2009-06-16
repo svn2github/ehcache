@@ -19,13 +19,13 @@ package net.sf.ehcache.distribution;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.util.PropertyUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Builds a factory based on RMI
@@ -35,7 +35,7 @@ import java.util.StringTokenizer;
  */
 public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProviderFactory {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RMICacheManagerPeerProviderFactory.class.getName());
+    private static final Logger LOG = Logger.getLogger(RMICacheManagerPeerProviderFactory.class.getName());
 
     private static final String PEER_DISCOVERY = "peerDiscovery";
     private static final String AUTOMATIC_PEER_DISCOVERY = "automatic";
@@ -74,7 +74,8 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
     protected CacheManagerPeerProvider createManuallyConfiguredCachePeerProvider(Properties properties) {
         String rmiUrls = PropertyUtil.extractAndLogProperty(RMI_URLS, properties);
         if (rmiUrls == null || rmiUrls.length() == 0) {
-            LOG.info("Starting manual peer provider with empty list of peers. No replication will occur unless peers are added.");
+            LOG.log(Level.INFO, "Starting manual peer provider with empty list of peers. " +
+                    "No replication will occur unless peers are added.");
             rmiUrls = new String();
         }
         rmiUrls = rmiUrls.trim();
@@ -84,8 +85,8 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
             String rmiUrl = stringTokenizer.nextToken();
             rmiUrl = rmiUrl.trim();
             rmiPeerProvider.registerPeer(rmiUrl);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Registering peer " + rmiUrl);
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "Registering peer " + rmiUrl);
             }
         }
         return rmiPeerProvider;
@@ -104,7 +105,7 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
         Integer timeToLive;
         if (packetTimeToLiveString == null) {
             timeToLive = new Integer(1);
-            LOG.debug("No TTL set. Setting it to the default of 1, which means packets are limited to the same subnet.");
+            LOG.log(Level.FINE, "No TTL set. Setting it to the default of 1, which means packets are limited to the same subnet.");
         } else {
             timeToLive = new Integer(packetTimeToLiveString);
             if (timeToLive.intValue() < 0 || timeToLive.intValue() > MAXIMUM_TTL) {

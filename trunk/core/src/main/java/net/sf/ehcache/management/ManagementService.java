@@ -19,8 +19,6 @@ package net.sf.ehcache.management;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CacheManagerEventListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
@@ -31,6 +29,8 @@ import javax.management.ObjectName;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Ehcache CacheManagers and Caches have lifecycles. Often normal use of a CacheManager
@@ -56,7 +56,7 @@ import java.util.Set;
  */
 public class ManagementService implements CacheManagerEventListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ManagementService.class.getName());
+    private static final Logger LOG = Logger.getLogger(ManagementService.class.getName());
 
     private MBeanServer mBeanServer;
     private net.sf.ehcache.CacheManager backingCacheManager;
@@ -224,14 +224,14 @@ public class ManagementService implements CacheManagerEventListener {
                     + backingCacheManager.toString()), null));
         } catch (MalformedObjectNameException e) {
             //this should not happen
-            LOG.error("Error querying MBeanServer. Error was " + e.getMessage(), e);
+            LOG.log(Level.SEVERE, "Error querying MBeanServer. Error was " + e.getMessage(), e);
         }
         for (Iterator iterator = registeredObjectNames.iterator(); iterator.hasNext();) {
             ObjectName objectName = (ObjectName) iterator.next();
             try {
                 mBeanServer.unregisterMBean(objectName);
             } catch (Exception e) {
-                LOG.error("Error unregistering object instance " + objectName
+                LOG.log(Level.SEVERE, "Error unregistering object instance " + objectName
                         + " . Error was " + e.getMessage(), e);
             }
         }
@@ -268,7 +268,7 @@ public class ManagementService implements CacheManagerEventListener {
                 registerCacheStatisticsIfRequired(cache);
                 registerCacheConfigurationIfRequired(cache);
             } catch (Exception e) {
-                LOG.error("Error registering cache for management for " + cache.getObjectName()
+                LOG.log(Level.SEVERE, "Error registering cache for management for " + cache.getObjectName()
                         + " . Error was " + e.getMessage(), e);
             }
         }
@@ -303,7 +303,7 @@ public class ManagementService implements CacheManagerEventListener {
                 mBeanServer.unregisterMBean(objectName);
             }
         } catch (Exception e) {
-            LOG.error("Error unregistering cache for management for " + objectName
+            LOG.log(Level.SEVERE, "Error unregistering cache for management for " + objectName
                     + " . Error was " + e.getMessage(), e);
         }
 

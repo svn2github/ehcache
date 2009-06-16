@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
@@ -28,6 +26,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A SAX handler that configures a bean.
@@ -38,7 +38,7 @@ import java.util.ArrayList;
  */
 final class BeanHandler extends DefaultHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BeanHandler.class.getName());
+    private static final Logger LOG = Logger.getLogger(BeanHandler.class.getName());
     private final Object bean;
     private ElementInfo element;
     private Locator locator;
@@ -210,8 +210,8 @@ final class BeanHandler extends DefaultHandler {
             } else {
                 //allow references to an XML schema but do not use it
                 if (element.elementName.equals("ehcache")) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Ignoring ehcache attribute " + attrName);
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.log(Level.FINE, "Ignoring ehcache attribute " + attrName);
                     }
                     return;
                 }

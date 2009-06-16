@@ -20,11 +20,11 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Listens to {@link net.sf.ehcache.CacheManager} and {@link net.sf.ehcache.Cache} events and propagates those to
@@ -35,7 +35,7 @@ import java.util.List;
  */
 public class RMISynchronousCacheReplicator implements CacheReplicator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RMISynchronousCacheReplicator.class.getName());
+    private static final Logger LOG = Logger.getLogger(RMISynchronousCacheReplicator.class.getName());
 
 
     /**
@@ -121,8 +121,8 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
         }
 
         if (!element.isSerializable()) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Object with key " + element.getObjectKey() + " is not Serializable and cannot be replicated");
+            if (LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Object with key " + element.getObjectKey() + " is not Serializable and cannot be replicated");
             }
             return;
         }
@@ -147,7 +147,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
             try {
                 cachePeer.put(element);
             } catch (Throwable t) {
-                LOG.error("Exception on replication of putNotification. "
+                LOG.log(Level.SEVERE, "Exception on replication of putNotification. "
                         + t.getMessage() + ". Continuing...", t);
             }
         }
@@ -177,8 +177,9 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
 
         if (replicateUpdatesViaCopy) {
             if (!element.isSerializable()) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Object with key " + element.getObjectKey() + " is not Serializable and cannot be updated via copy");
+                if (LOG.isLoggable(Level.WARNING)) {
+                    LOG.log(Level.WARNING, "Object with key " + element.getObjectKey()
+                            + " is not Serializable and cannot be updated via copy");
                 }
                 return;
             }
@@ -186,8 +187,8 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
             replicatePutNotification(cache, element);
         } else {
             if (!element.isKeySerializable()) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
+                if (LOG.isLoggable(Level.WARNING)) {
+                    LOG.log(Level.WARNING, "Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
                 }
                 return;
             }
@@ -219,8 +220,8 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
         }
 
         if (!element.isKeySerializable()) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
+            if (LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Key " + element.getObjectKey() + " is not Serializable and cannot be replicated.");
             }
             return;
         }
@@ -241,7 +242,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
             try {
                 cachePeer.remove(key);
             } catch (Throwable t) {
-                LOG.error("Exception on replication of removeNotification. "
+                LOG.log(Level.SEVERE, "Exception on replication of removeNotification. "
                         + t.getMessage() + ". Continuing...", t);
             }
         }
@@ -319,7 +320,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
             try {
                 cachePeer.removeAll();
             } catch (Throwable t) {
-                LOG.error("Exception on replication of removeAllNotification. "
+                LOG.log(Level.SEVERE, "Exception on replication of removeAllNotification. "
                         + t.getMessage() + ". Continuing...", t);
             }
         }

@@ -3,7 +3,29 @@
 
 * {Java Util Logging}
 
-    As of 1.6, Ehcache uses the the sl4j logging facade. Plug in your own logging framework.
+    As of 1.6, Ehcache uses the built-in Java Util library ("{j.u.l}") for logging.
+
+
+* Working with SL4J
+
+    Simple Logging Facade For Java (SL4J) is an increasingly popular replacement for commons-logging.
+
+    You can still log via SL4J using the SLF4JBridgeHandler. See {{http://www.slf4j.org/legacy.html}}
+
+    According to {{http://blog.cn-consult.dk/2009/03/bridging-javautillogging-to-slf4j.html}}
+    this will install an extra logger. To stop j.u.l. from logging at all
+
+    To remove j.u.l logging all together use the following code snippet.
+
+---
+    java.util.logging.Logger rootLogger = LogManager.getLogManager().getLogger("");
+    Handler[] handlers = rootLogger.getHandlers();
+    for (int i = 0; i < handlers.length; i++) {
+        rootLogger.removeHandler(handlers[i]);
+    }
+    SLF4JBridgeHandler.install();
+---
+
 
 
 * Recommended Logging Levels
