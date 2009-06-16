@@ -30,8 +30,8 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.NotSerializableException;
 import java.util.HashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import static junit.framework.Assert.fail;
 
@@ -43,7 +43,7 @@ import static junit.framework.Assert.fail;
  */
 public class ElementTest extends AbstractCacheTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ElementTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(ElementTest.class.getName());
 
 
     /**
@@ -63,7 +63,7 @@ public class ElementTest extends AbstractCacheTest {
             try {
                 bout.write("abcdefghijklmnopqrstv1234567890".getBytes());
             } catch (IOException e) {
-                LOG.error("This should not happen");
+                LOG.log(Level.SEVERE, "This should not happen");
             }
         }
         byte[] value = bout.toByteArray();
@@ -74,7 +74,7 @@ public class ElementTest extends AbstractCacheTest {
             element.getSerializedSize();
         }
         long elapsed = stopWatch.getElapsedTime() / 100;
-        LOG.info("In-memory size in bytes: " + element.getSerializedSize()
+        LOG.log(Level.INFO, "In-memory size in bytes: " + element.getSerializedSize()
                 + " time to serialize in ms: " + elapsed);
         assertTrue("Large object clone takes more than than 100ms", elapsed < 100);
     }
@@ -97,7 +97,7 @@ public class ElementTest extends AbstractCacheTest {
             element.getSerializedSize();
         }
         long elapsed = stopWatch.getElapsedTime() / 100;
-        LOG.info("In-memory size in bytes: " + element.getSerializedSize()
+        LOG.log(Level.INFO, "In-memory size in bytes: " + element.getSerializedSize()
                 + " time to serialize in ms: " + elapsed);
         assertTrue("Large object clone took more than 500ms", elapsed < 500);
     }
@@ -120,8 +120,8 @@ public class ElementTest extends AbstractCacheTest {
             element.clone();
         }
         long elapsed = stopWatch.getElapsedTime() / 100;
-        LOG.info("Time to clone object in ms: " + elapsed);
-        LOG.info("In-memory size in bytes: " + element.getSerializedSize()
+        LOG.log(Level.INFO, "Time to clone object in ms: " + elapsed);
+        LOG.log(Level.INFO, "In-memory size in bytes: " + element.getSerializedSize()
                 + " time to clone in ms: " + elapsed);
         assertTrue("Large object clone takes less than 1 second", elapsed < 1000);
     }
@@ -148,7 +148,7 @@ public class ElementTest extends AbstractCacheTest {
             element.clone();
         }
         long elapsed = stopWatch.getElapsedTime() / 100;
-        LOG.info("In-memory size in bytes: " + element.getSerializedSize()
+        LOG.log(Level.INFO, "In-memory size in bytes: " + element.getSerializedSize()
                 + " time to serialize in ms: " + elapsed);
         assertTrue("Large object clone takes less than 130 milliseconds", elapsed < 180);
     }
@@ -160,7 +160,7 @@ public class ElementTest extends AbstractCacheTest {
             try {
                 bout.write("abcdefghijklmnopqrstv1234567890".getBytes());
             } catch (IOException e) {
-                LOG.error("This should not happen");
+                LOG.log(Level.SEVERE, "This should not happen");
             }
         }
         return bout.toByteArray();
@@ -192,7 +192,7 @@ public class ElementTest extends AbstractCacheTest {
             ois.close();
         }
         long elapsed = stopWatch.getElapsedTime() / 100;
-        LOG.info("In-memory size in bytes: " + serializedValue.length
+        LOG.log(Level.INFO, "In-memory size in bytes: " + serializedValue.length
                 + " time to deserialize in ms: " + elapsed);
         assertTrue(elapsed < 30);
     }

@@ -31,8 +31,8 @@ import java.io.ObjectOutputStream;
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Tests Serialization and SoftReferences in EventMessage
@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public class EventMessageTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EventMessageTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(EventMessageTest.class.getName());
 
 
     /**
@@ -61,7 +61,7 @@ public class EventMessageTest {
             SoftReference softReference = (SoftReference) map.get(new Integer(i));
             byte[] payload = (byte[]) softReference.get();
             if (payload != null) {
-                LOG.info("Value found for " + i);
+                LOG.log(Level.INFO, "Value found for " + i);
                 counter++;
             }
         }

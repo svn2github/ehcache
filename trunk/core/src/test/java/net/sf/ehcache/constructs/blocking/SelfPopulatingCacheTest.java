@@ -29,8 +29,8 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 /**
@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SelfPopulatingCacheTest extends CacheTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SelfPopulatingCache.class.getName());
+    private static final Logger LOG = Logger.getLogger(SelfPopulatingCacheTest.class.getName());
 
     /**
      * Shared with subclass
@@ -89,7 +89,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
      */
     @Test
     public void testFetch() throws Exception {
-        LOG.error(".");
+        LOG.log(Level.SEVERE, ".");
         System.out.println("-=-");
 
         // Lookup
@@ -399,7 +399,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
             try {
                 cache.get(key);
             } catch (Exception e) {
-                LOG.info("Exception: " + e.getMessage());
+                LOG.log(Level.INFO, "Exception: " + e.getMessage());
             }
         }
     }
@@ -451,7 +451,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
             }
         } catch (OutOfMemoryError e) {
             //the disk store backs up on the laptop. 
-            LOG.info("OutOfMemoryError: " + e.getMessage() + " " + i);
+            LOG.log(Level.INFO, "OutOfMemoryError: " + e.getMessage() + " " + i);
             fail();
         }
     }

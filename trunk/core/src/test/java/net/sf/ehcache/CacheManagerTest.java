@@ -48,8 +48,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Tests for CacheManager
@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CacheManagerTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CacheManagerTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(CacheManagerTest.class.getName());
 
 
     /**
@@ -623,7 +623,7 @@ public class CacheManagerTest {
             }
         }
         long elapsedTime = stopWatch.getElapsedTime();
-        LOG.info("Time taken was: " + elapsedTime);
+        LOG.log(Level.INFO, "Time taken was: " + elapsedTime);
         assertTrue("Time taken was: " + elapsedTime, elapsedTime < 5000);
     }
 
@@ -754,7 +754,7 @@ public class CacheManagerTest {
         for (int i = 0; i < threads.size(); i++) {
             Thread thread = (Thread) threads.get(i);
             String name = thread.getName();
-            LOG.info(name);
+            LOG.log(Level.INFO, name);
         }
     }
 

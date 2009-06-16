@@ -28,8 +28,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Tests for the statistics class
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 public class StatisticsTest extends AbstractCacheTest {
 
 
-    private static final Logger LOG = LoggerFactory.getLogger(StatisticsTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(StatisticsTest.class.getName());
 
     /**
      * Test statistics directly from Statistics Object
@@ -194,9 +194,9 @@ public class StatisticsTest extends AbstractCacheTest {
         long value = Integer.MAX_VALUE;
         value += Integer.MAX_VALUE;
         value += 5;
-        LOG.info("" + value);
+        LOG.log(Level.INFO, "" + value);
         int valueAsInt = (int) value;
-        LOG.info("" + valueAsInt);
+        LOG.log(Level.INFO, "" + valueAsInt);
         assertEquals(3, valueAsInt);
 
     }

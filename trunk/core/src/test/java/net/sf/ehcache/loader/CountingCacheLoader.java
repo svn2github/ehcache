@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 /**
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CountingCacheLoader implements CacheLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CountingCacheLoader.class.getName());
+    private static final Logger LOG = Logger.getLogger(CountingCacheLoader.class.getName());
 
     private volatile int loadCounter;
     private volatile int loadAllCounter;
@@ -61,7 +61,7 @@ public class CountingCacheLoader implements CacheLoader {
         try {
             Thread.sleep(random.nextInt(3) + 1);
         } catch (InterruptedException e) {
-            LOG.error("Interrupted");
+            LOG.log(Level.SEVERE, "Interrupted");
         }
         return new Integer(loadCounter++);
     }
@@ -84,7 +84,7 @@ public class CountingCacheLoader implements CacheLoader {
             try {
                 Thread.sleep(random.nextInt(4));
             } catch (InterruptedException e) {
-                LOG.error("Interrupted");
+                LOG.log(Level.SEVERE, "Interrupted");
             }
             map.put(key, new Integer(loadAllCounter++));
         }
@@ -120,7 +120,7 @@ public class CountingCacheLoader implements CacheLoader {
         try {
             Thread.sleep(random.nextInt(3) + 1);
         } catch (InterruptedException e) {
-            LOG.error("Interrupted");
+            LOG.log(Level.SEVERE, "Interrupted");
         }
         return name + ":" + argument;
     }

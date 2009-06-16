@@ -29,10 +29,10 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.ArrayList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 /**
@@ -58,7 +58,7 @@ public abstract class AbstractCacheTest {
     public static final String TEST_CLASSES_DIR = "target/test-classes/";
 
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractCacheTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(AbstractCacheTest.class.getName());
 
     /**
      * name for sample cache 1
@@ -150,7 +150,7 @@ public abstract class AbstractCacheTest {
      */
     protected void runThreads(final List executables) throws Exception {
         int failures = runThreadsNoCheck(executables);
-            LOG.info(failures + " failures");
+            LOG.log(Level.INFO, failures + " failures");
             //CHM does have the occasional very slow time.
             assertTrue("Failures = " + failures, failures <= 35);
     }
@@ -183,9 +183,9 @@ public abstract class AbstractCacheTest {
                         // Hang on to any errors
                         errors.add(t);
                         if (t instanceof AssertionError) {
-                            LOG.info("Throwable " + t + " " + t.getMessage());
+                            LOG.log(Level.INFO, "Throwable " + t + " " + t.getMessage());
                         } else {
-                            LOG.error("Throwable " + t + " " + t.getMessage(), t);
+                            LOG.log(Level.SEVERE, "Throwable " + t + " " + t.getMessage(), t);
                         }
                     }
                 }
@@ -212,7 +212,7 @@ public abstract class AbstractCacheTest {
             Method method = managementFactoryClass.getMethod("getPlatformMBeanServer", (Class[]) null);
             return (MBeanServer) method.invoke(null, (Object[]) null);
         } catch (Exception e) {
-            LOG.info("JDK1.5 ManagementFactory not found. Falling back to JMX1.2.1", e);
+            LOG.log(Level.INFO, "JDK1.5 ManagementFactory not found. Falling back to JMX1.2.1", e);
             return MBeanServerFactory.createMBeanServer("SimpleAgent");
         }
     }

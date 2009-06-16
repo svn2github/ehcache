@@ -45,8 +45,8 @@ import java.rmi.registry.LocateRegistry;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * These tests use the JDK1.5 platform mbean server
@@ -62,7 +62,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ManagementServiceTest extends AbstractCacheTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ManagementServiceTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(ManagementServiceTest.class.getName());
     private static final int OBJECTS_IN_TEST_EHCACHE = 40;
     private MBeanServer mBeanServer;
 
@@ -265,7 +265,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
         ObjectName name = CacheManager.createObjectName(manager);
 
         Object object = mBeanServer.getAttribute(name, "Status");
-        LOG.info(object.toString());
+        LOG.log(Level.INFO, object.toString());
 
         List caches = (List) mBeanServer.getAttribute(name, "Caches");
         assertEquals(13, caches.size());
@@ -275,7 +275,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
             String cacheName = cache.getName();
             CacheStatistics cacheStatistics = cache.getStatistics();
             CacheConfiguration cacheConfiguration = cache.getCacheConfiguration();
-            LOG.info(cacheName + " " + cacheStatistics + " " + cacheConfiguration);
+            LOG.log(Level.INFO, cacheName + " " + cacheStatistics + " " + cacheConfiguration);
         }
     }
 
@@ -358,7 +358,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
             MBeanAttributeInfo[] attributes = mBeanInfo.getAttributes();
             for (int i = 0; i < attributes.length; i++) {
                 MBeanAttributeInfo attribute = attributes[i];
-                LOG.info(attribute.getName() + " " + connection.getAttribute(objectName, attribute.getName()));
+                LOG.log(Level.INFO, attribute.getName() + " " + connection.getAttribute(objectName, attribute.getName()));
             }
         }
     }
@@ -371,7 +371,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
             MBeanAttributeInfo[] attributes = mBeanInfo.getAttributes();
             for (int i = 0; i < attributes.length; i++) {
                 MBeanAttributeInfo attribute = attributes[i];
-                LOG.info(attribute.getName() + " " + mBeanServer.getAttribute(objectName, attribute.getName()));
+                LOG.log(Level.INFO, attribute.getName() + " " + mBeanServer.getAttribute(objectName, attribute.getName()));
             }
         }
     }

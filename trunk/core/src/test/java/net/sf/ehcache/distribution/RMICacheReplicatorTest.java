@@ -43,10 +43,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Tests replication of Cache events
@@ -73,7 +73,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     protected static final boolean SYNCHRONOUS = false;
 
-    private static final Logger LOG = LoggerFactory.getLogger(RMICacheReplicatorTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(RMICacheReplicatorTest.class.getName());
 
 
     /**
@@ -476,7 +476,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         }
         long elapsed = stopWatch.getElapsedTime();
         long putTime = ((elapsed / 1000));
-        LOG.info("Put Elapsed time: " + putTime);
+        LOG.log(Level.INFO, "Put Elapsed time: " + putTime);
         //assertTrue(putTime < 8);
 
         assertEquals(2000, cache1.getSize());
@@ -516,7 +516,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         }
         long elapsed = stopWatch.getElapsedTime();
         long putTime = ((elapsed / 1000));
-        LOG.info("Put Elapsed time: " + putTime);
+        LOG.log(Level.INFO, "Put Elapsed time: " + putTime);
 
         assertEquals(2000, cache1.getSize());
 
@@ -590,7 +590,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         }
         long elapsed = stopWatch.getElapsedTime();
         long putTime = ((elapsed / 1000));
-        LOG.info("Put Elapsed time: " + putTime);
+        LOG.log(Level.INFO, "Put Elapsed time: " + putTime);
         //assertTrue(putTime < 8);
 
         assertEquals(100000, cache1.getSize());
@@ -659,7 +659,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         assertEquals(0, manager4.getCache("sampleCache1").getSize());
         assertEquals(0, manager5.getCache("sampleCache1").getSize());
 
-        LOG.info("Remove Elapsed time: " + timeForPropagate);
+        LOG.log(Level.INFO, "Remove Elapsed time: " + timeForPropagate);
 
 
     }
@@ -693,7 +693,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         }
         long elapsed = stopWatch.getElapsedTime();
         long putTime = ((elapsed / 1000));
-        LOG.info("Put and Propagate Synchronously Elapsed time: " + putTime + " seconds");
+        LOG.log(Level.INFO, "Put and Propagate Synchronously Elapsed time: " + putTime + " seconds");
 
         assertEquals(2000, manager1.getCache("sampleCache3").getSize());
         assertEquals(2000, manager2.getCache("sampleCache3").getSize());
@@ -1318,7 +1318,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
             final long end = System.currentTimeMillis();
             if (end - start >= 1000) {
                 start = end;
-                LOG.info("Items written: " + count);
+                LOG.log(Level.INFO, "Items written: " + count);
                 //make sure it does not choke
                 assertTrue(count > 1000);
                 count = 0;
@@ -1436,13 +1436,13 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
                 Cache cache = manager.getCache(cacheName);
                 if (operationSelector == 100) {
                     cache.get(key);
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(cache.getGuid() + ": get " + key);
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.log(Level.FINE, cache.getGuid() + ": get " + key);
                     }
                 } else if (operationSelector == 100) {
                     cache.remove(key);
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(cache.getGuid() + ": remove " + key);
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.log(Level.FINE, cache.getGuid() + ": remove " + key);
                     }
                 } else if (operationSelector == 2) {
                     cache.put(new Element(key,
@@ -1451,13 +1451,13 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
                                     + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                     + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                     + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(cache.getGuid() + ": put " + key);
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.log(Level.FINE, cache.getGuid() + ": put " + key);
                     }
                 } else {
                     //every twelfth time 1/4 * 1/3 = 1/12
                     if (random.nextInt(3) == 1) {
-                        LOG.debug("cache.removeAll()");
+                        LOG.log(Level.FINE, "cache.removeAll()");
                         cache.removeAll();
                     }
                 }

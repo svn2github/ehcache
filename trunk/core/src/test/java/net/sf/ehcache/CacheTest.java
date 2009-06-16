@@ -47,8 +47,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 /**
@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CacheTest extends AbstractCacheTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CacheTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(CacheTest.class.getName());
 
 
     /**
@@ -272,22 +272,22 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element("key1", "value1"));
         Element element = cache.get("key1");
         assertTrue(element.getCreationTime() >= beforeElementCreation);
-        LOG.info("version: " + element.getVersion());
-        LOG.info("creationTime: " + element.getCreationTime());
-        LOG.info("lastUpdateTime: " + element.getLastUpdateTime());
+        LOG.log(Level.INFO, "version: " + element.getVersion());
+        LOG.log(Level.INFO, "creationTime: " + element.getCreationTime());
+        LOG.log(Level.INFO, "lastUpdateTime: " + element.getLastUpdateTime());
         assertEquals(0, element.getLastUpdateTime());
 
         cache.put(new Element("key1", "value1"));
         element = cache.get("key1");
-        LOG.info("version: " + element.getVersion());
-        LOG.info("creationTime: " + element.getCreationTime());
-        LOG.info("lastUpdateTime: " + element.getLastUpdateTime());
+        LOG.log(Level.INFO, "version: " + element.getVersion());
+        LOG.log(Level.INFO, "creationTime: " + element.getCreationTime());
+        LOG.log(Level.INFO, "lastUpdateTime: " + element.getLastUpdateTime());
 
         cache.put(new Element("key1", "value1"));
         element = cache.get("key1");
-        LOG.info("version: " + element.getVersion());
-        LOG.info("creationTime: " + element.getCreationTime());
-        LOG.info("lastUpdateTime: " + element.getLastUpdateTime());
+        LOG.log(Level.INFO, "version: " + element.getVersion());
+        LOG.log(Level.INFO, "creationTime: " + element.getCreationTime());
+        LOG.log(Level.INFO, "lastUpdateTime: " + element.getLastUpdateTime());
     }
 
 
@@ -487,7 +487,7 @@ public class CacheTest extends AbstractCacheTest {
             memoryOnlyCache.get(key);
         }
         time = stopWatch.getElapsedTime();
-        LOG.info("Time for MemoryStore: " + time);
+        LOG.log(Level.INFO, "Time for MemoryStore: " + time);
         assertTrue("Time to put and get 5000 entries into MemoryStore", time < 300);
 
         //Memory only Typical 192ms
@@ -499,7 +499,7 @@ public class CacheTest extends AbstractCacheTest {
                 memoryOnlyCache.get(key);
             }
             time = stopWatch.getElapsedTime();
-            LOG.info("Time for MemoryStore: " + time);
+            LOG.log(Level.INFO, "Time for MemoryStore: " + time);
             assertTrue("Time to put and get 5000 entries into MemoryStore", time < 300);
             Thread.sleep(500);
         }
@@ -515,7 +515,7 @@ public class CacheTest extends AbstractCacheTest {
                 exceptionHandlingMemoryOnlyCache.get(key);
             }
             time = stopWatch.getElapsedTime();
-            LOG.info("Time for exception handling MemoryStore: " + time);
+            LOG.log(Level.INFO, "Time for exception handling MemoryStore: " + time);
             assertTrue("Time to put and get 5000 entries into exception handling MemoryStore", time < 300);
             Thread.sleep(500);
         }
@@ -532,7 +532,7 @@ public class CacheTest extends AbstractCacheTest {
             diskOnlyCache.get(key);
         }
         time = stopWatch.getElapsedTime();
-        LOG.info("Time for DiskStore: " + time);
+        LOG.log(Level.INFO, "Time for DiskStore: " + time);
         assertTrue("Time to put and get 5000 entries into DiskStore was less than 2 sec", time < 2000);
 
         // 1 Memory, 999 Disk
@@ -547,7 +547,7 @@ public class CacheTest extends AbstractCacheTest {
             m1d999Cache.get(key);
         }
         time = stopWatch.getElapsedTime();
-        LOG.info("Time for m1d999Cache: " + time);
+        LOG.log(Level.INFO, "Time for m1d999Cache: " + time);
         assertTrue("Time to put and get 5000 entries into m1d999Cache", time < 2000);
 
         // 500 Memory, 500 Disk
@@ -562,7 +562,7 @@ public class CacheTest extends AbstractCacheTest {
             m500d500Cache.get(key);
         }
         time = stopWatch.getElapsedTime();
-        LOG.info("Time for m500d500Cache: " + time);
+        LOG.log(Level.INFO, "Time for m500d500Cache: " + time);
         assertTrue("Time to put and get 5000 entries into m500d500Cache", time < 2000);
 
     }
@@ -647,7 +647,7 @@ public class CacheTest extends AbstractCacheTest {
         CacheManager manager = CacheManager.getInstance();
         cache = manager.getCache(name);
         if (cache == null) {
-            LOG.warn("Could not find configuration for " + name
+            LOG.log(Level.WARNING, "Could not find configuration for " + name
                     + ". Configuring using the defaultCache settings.");
             manager.addCache(name);
             cache = manager.getCache(name);
@@ -1012,7 +1012,7 @@ public class CacheTest extends AbstractCacheTest {
         long getKeysTime = stopWatch.getElapsedTime();
         cache.getKeysNoDuplicateCheck();
         long getKeysNoDuplicateCheckTime = stopWatch.getElapsedTime();
-        LOG.info("Time to get 1000 keys: With Duplicate Check: " + getKeysTime
+        LOG.log(Level.INFO, "Time to get 1000 keys: With Duplicate Check: " + getKeysTime
                 + " Without Duplicate Check: " + getKeysNoDuplicateCheckTime);
         assertTrue("Getting keys took more than 150ms", getKeysTime < 100);
     }
@@ -1039,7 +1039,7 @@ public class CacheTest extends AbstractCacheTest {
         long size = cache.calculateInMemorySize();
         assertTrue("Size is " + size + ". Check it for reasonableness.", size > 100000 && size < 5000000);
         long elapsed = stopWatch.getElapsedTime();
-        LOG.info("In-memory size in bytes: " + size
+        LOG.log(Level.INFO, "In-memory size in bytes: " + size
                 + " time to calculate in ms: " + elapsed);
         assertTrue("Calculate memory size takes less than 3.5 seconds", elapsed < 3500);
     }
@@ -1242,7 +1242,7 @@ public class CacheTest extends AbstractCacheTest {
         //this one does
         cache.put(new Element("nullValue", null));
 
-        LOG.info("Size: " + cache.getDiskStoreSize());
+        LOG.log(Level.INFO, "Size: " + cache.getDiskStoreSize());
 
         assertEquals(50, cache.getMemoryStoreSize());
         assertEquals(52, cache.getDiskStoreSize());
@@ -1325,7 +1325,7 @@ public class CacheTest extends AbstractCacheTest {
         for (int i = 0; i < 80000; i++) {
             cache.put(new Element("" + i, new byte[480]));
         }
-        LOG.info("Put time: " + stopWatch.getElapsedTime());
+        LOG.log(Level.INFO, "Put time: " + stopWatch.getElapsedTime());
 
         assertEquals(40000, cache.getMemoryStoreSize());
         assertEquals(40000, cache.getDiskStoreSize());
@@ -1333,7 +1333,7 @@ public class CacheTest extends AbstractCacheTest {
         long beforeMemory = measureMemoryUse();
         stopWatch.getElapsedTime();
         cache.flush();
-        LOG.info("Flush time: " + stopWatch.getElapsedTime());
+        LOG.log(Level.INFO, "Flush time: " + stopWatch.getElapsedTime());
 
         //It takes a while to write all the Elements to disk
         Thread.sleep(1000);
@@ -1368,7 +1368,7 @@ public class CacheTest extends AbstractCacheTest {
                 cache.put(a);
             }
         } catch (OutOfMemoryError e) {
-            LOG.info("OutOfMemoryError: " + e.getMessage() + " " + i);
+            LOG.log(Level.INFO, "OutOfMemoryError: " + e.getMessage() + " " + i);
             fail();
         }
     }
@@ -2063,17 +2063,17 @@ public class CacheTest extends AbstractCacheTest {
 
         try {
             int failures = runThreadsNoCheck(executables);
-            LOG.info(failures + " failures");
+            LOG.log(Level.INFO, failures + " failures");
             //CHM does have the occasional very slow time.
             assertTrue("Failures = " + failures, failures <= 50);
         } finally {
-            LOG.info("Average Get Time for " + getTimeCount.get() + " observations: " + getTimeSum.floatValue() / getTimeCount.get() + " ms");
-            LOG.info("Average Put Time for " + putTimeCount.get() + " obervations: " + putTimeSum.floatValue() / putTimeCount.get() + " ms");
-            LOG.info("Average Remove Time for " + removeTimeCount.get() + " obervations: " + removeTimeSum.floatValue() / removeTimeCount.get() + " ms");
-            LOG.info("Average Remove All Time for " + removeAllTimeCount.get() + " observations: " + removeAllTimeSum.floatValue() / removeAllTimeCount.get() + " ms");
-            LOG.info("Average keySet Time for " + keySetTimeCount.get() + " observations: " + keySetTimeSum.floatValue() / keySetTimeCount.get() + " ms");
-            LOG.info("Total loads: " + countingCacheLoader.getLoadCounter());
-            LOG.info("Total loadAlls: " + countingCacheLoader.getLoadAllCounter());
+            LOG.log(Level.INFO, "Average Get Time for " + getTimeCount.get() + " observations: " + getTimeSum.floatValue() / getTimeCount.get() + " ms");
+            LOG.log(Level.INFO, "Average Put Time for " + putTimeCount.get() + " obervations: " + putTimeSum.floatValue() / putTimeCount.get() + " ms");
+            LOG.log(Level.INFO, "Average Remove Time for " + removeTimeCount.get() + " obervations: " + removeTimeSum.floatValue() / removeTimeCount.get() + " ms");
+            LOG.log(Level.INFO, "Average Remove All Time for " + removeAllTimeCount.get() + " observations: " + removeAllTimeSum.floatValue() / removeAllTimeCount.get() + " ms");
+            LOG.log(Level.INFO, "Average keySet Time for " + keySetTimeCount.get() + " observations: " + keySetTimeSum.floatValue() / keySetTimeCount.get() + " ms");
+            LOG.log(Level.INFO, "Total loads: " + countingCacheLoader.getLoadCounter());
+            LOG.log(Level.INFO, "Total loadAlls: " + countingCacheLoader.getLoadAllCounter());
         }
     }
 
@@ -2148,13 +2148,13 @@ public class CacheTest extends AbstractCacheTest {
 
 
             int failures = runThreadsNoCheck(executables);
-            LOG.info(failures + " failures");
+            LOG.log(Level.INFO, failures + " failures");
             assertTrue(failures == 0);
             long totalReadTime = 0;
             for (Long readTime : readTimes) {
                 totalReadTime += readTime;
             }
-            LOG.info(threads + " threads. Average Get time: " + totalReadTime / (float) readTimes.size() + " ms");
+            LOG.log(Level.INFO, threads + " threads. Average Get time: " + totalReadTime / (float) readTimes.size() + " ms");
 
         }
 
@@ -2268,7 +2268,7 @@ public class CacheTest extends AbstractCacheTest {
          */
         protected void finalize() throws Throwable {
             manager.getCache("test").getQuiet("key");
-            LOG.info("finalize run from thread " + Thread.currentThread().getName());
+            LOG.log(Level.INFO, "finalize run from thread " + Thread.currentThread().getName());
             super.finalize();
         }
     }
@@ -2281,7 +2281,7 @@ public class CacheTest extends AbstractCacheTest {
         Cache cache = manager.getCache("sampleCache1");
         cache.registerCacheLoader(new CacheLoader() {
             public Object load(Object key, Object argument) throws CacheException {
-                LOG.info("load1 " + key);
+                LOG.log(Level.INFO, "load1 " + key);
                 return key;
             }
 
@@ -2352,7 +2352,7 @@ public class CacheTest extends AbstractCacheTest {
             }
 
             public Object load(Object o) throws CacheException {
-                LOG.info("load2 " + o + " " + o.getClass());
+                LOG.log(Level.INFO, "load2 " + o + " " + o.getClass());
                 if (o.equals("c")) {
                     return null;
                 }

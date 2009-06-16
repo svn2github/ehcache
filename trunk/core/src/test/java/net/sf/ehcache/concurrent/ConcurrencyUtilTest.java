@@ -21,8 +21,8 @@ import net.sf.ehcache.CacheException;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 /**
@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ConcurrencyUtilTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConcurrencyUtilTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(ConcurrencyUtilTest.class.getName());
 
 
     /**
@@ -55,7 +55,7 @@ public class ConcurrencyUtilTest {
             if (20 <= lockIndexes[i] && lockIndexes[i] <= 40) {
                 continue;
             }
-            LOG.info(i + ": " + lockIndexes[i]);
+            LOG.log(Level.INFO, i + ": " + lockIndexes[i]);
             outliers++;
         }
         assertTrue(outliers <= 128);

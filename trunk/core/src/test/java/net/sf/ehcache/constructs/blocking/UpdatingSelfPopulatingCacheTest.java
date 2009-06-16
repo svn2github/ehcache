@@ -29,8 +29,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 /**
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UpdatingSelfPopulatingCacheTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(UpdatingSelfPopulatingCacheTest.class.getName());
 
     /**
      * Tests fetching an entry, and then an update.
@@ -135,7 +135,7 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
         final CountingCacheEntryFactory factory = new CountingCacheEntryFactory(value);
         selfPopulatingCache = new UpdatingSelfPopulatingCache(cache, factory);
         long duration = thrashCache((UpdatingSelfPopulatingCache) selfPopulatingCache, 300L, 1500L);
-        LOG.debug("Thrash Duration:" + duration);
+        LOG.log(Level.FINE, "Thrash Duration:" + duration);
     }
 
     /**

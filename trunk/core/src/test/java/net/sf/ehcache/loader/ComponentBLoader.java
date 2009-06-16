@@ -18,8 +18,8 @@ package net.sf.ehcache.loader;
 
 import net.sf.ehcache.CacheException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 /**
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ComponentBLoader extends BaseComponentLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ComponentBLoader.class.getName());
+    private static final Logger LOG = Logger.getLogger(ComponentBLoader.class.getName());
 
     /**
      * @return
@@ -45,7 +45,7 @@ public class ComponentBLoader extends BaseComponentLoader {
      * @throws CacheException
      */
     public Object load(Object arg0) throws CacheException {
-        LOG.info("Loading Component B...");
+        LOG.log(Level.INFO, "Loading Component B...");
         String key = (String) arg0;
         return new ComponentB(key);
     }

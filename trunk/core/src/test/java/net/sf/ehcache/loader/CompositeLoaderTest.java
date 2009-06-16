@@ -21,8 +21,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 /**
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CompositeLoaderTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CompositeLoaderTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(CompositeLoaderTest.class.getName());
 
     /**
      * Sets up the fixture, for example, open a network connection.
@@ -59,9 +59,9 @@ public class CompositeLoaderTest {
      */
     @Test
     public void testCompositeLoad() {
-        LOG.info("Getting from cache");
+        LOG.log(Level.INFO, "Getting from cache");
         ComponentA compA = (ComponentA) CacheHelper.get("ehcache-loaderinteractions.xml", "ACache", "key1");
-        LOG.info(compA.toString());
+        LOG.log(Level.INFO, compA.toString());
 
     }
 

@@ -27,8 +27,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Note these tests need a live network interface running in multicast mode to work
@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PayloadUtilTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PayloadUtilTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(PayloadUtilTest.class.getName());
     private CacheManager manager;
 
     /**
@@ -74,7 +74,7 @@ public class PayloadUtilTest {
         final byte[] compressed = PayloadUtil.gzip(payload.getBytes());
 
         int length = compressed.length;
-        LOG.info("gzipped size: " + length);
+        LOG.log(Level.INFO, "gzipped size: " + length);
         assertTrue("Heartbeat too big for one Datagram " + length, length <= 1500);
 
     }
@@ -104,7 +104,7 @@ public class PayloadUtilTest {
             }
         }
         long elapsed = stopWatch.getElapsedTime();
-        LOG.info("Gzip took " + elapsed / 10F + " µs");
+        LOG.log(Level.INFO, "Gzip took " + elapsed / 10F + " µs");
     }
 
     /**
@@ -133,7 +133,7 @@ public class PayloadUtilTest {
             PayloadUtil.ungzip(compressed);
         }
         long elapsed = stopWatch.getElapsedTime();
-        LOG.info("Ungzip took " + elapsed / 10000F + " µs");
+        LOG.log(Level.INFO, "Ungzip took " + elapsed / 10000F + " µs");
     }
 
 

@@ -25,8 +25,8 @@ import org.junit.Test;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 /**
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ConcurrencyProblemCacheTest extends AbstractCacheTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConcurrencyProblemCacheTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(ConcurrencyProblemCacheTest.class.getName());
 
     private CacheManager manager;
 
@@ -67,7 +67,7 @@ public class ConcurrencyProblemCacheTest extends AbstractCacheTest {
         cache = manager.getCache("sampleIdlingExpiringCache");
         for (int i = 0; i < 5; i++) {
             thrashCache(cache, 1500L);
-            LOG.info("Finished run.");
+            LOG.log(Level.INFO, "Finished run.");
         }
     }
 
@@ -77,7 +77,7 @@ public class ConcurrencyProblemCacheTest extends AbstractCacheTest {
         manager.addCache(cache);
         for (int i = 0; i < 5; i++) {
             thrashCache(cache, 1500L);
-            LOG.info("Finished run.");
+            LOG.log(Level.INFO, "Finished run.");
 
         }
     }

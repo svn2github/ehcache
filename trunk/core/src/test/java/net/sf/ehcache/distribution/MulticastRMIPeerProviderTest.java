@@ -32,8 +32,8 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.rmi.RemoteException;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Multicast tests. These require special machine configuration.
@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MulticastRMIPeerProviderTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MulticastRMIPeerProviderTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(MulticastRMIPeerProviderTest.class.getName());
 
     /**
      * Cache Manager 1
@@ -235,7 +235,7 @@ public class MulticastRMIPeerProviderTest {
         }
         long time = stopWatch.getElapsedTime();
 
-        LOG.info("Remote name lookup time in ms: " + time / 1000f);
+        LOG.log(Level.INFO, "Remote name lookup time in ms: " + time / 1000f);
 
     }
 

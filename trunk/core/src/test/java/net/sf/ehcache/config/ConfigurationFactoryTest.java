@@ -56,8 +56,8 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.jar.JarEntry;
@@ -75,7 +75,7 @@ import java.util.jar.JarOutputStream;
 public class ConfigurationFactoryTest extends AbstractCacheTest {
     private static final int CACHES_IN_TEST_EHCACHE = 13;
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConfigurationFactoryTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(ConfigurationFactoryTest.class.getName());
 
 
     /**
@@ -958,7 +958,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         String propertyWithQuotesProtected = Matcher.quoteReplacement(property);
         configuration = configuration.replaceAll("\\$\\{" + trimmedToken + "\\}", propertyWithQuotesProtected);
         assertTrue(configuration.contains(property));
-        LOG.info("configuration is: " + configuration);
+        LOG.log(Level.INFO, "configuration is: " + configuration);
 
 
     }

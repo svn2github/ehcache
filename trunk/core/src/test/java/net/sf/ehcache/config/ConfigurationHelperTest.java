@@ -25,10 +25,10 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Tests programmatically constructed Configuration instances
@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ConfigurationHelperTest extends AbstractCacheTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConfigurationHelperTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(ConfigurationHelperTest.class.getName());
 
 
     /**
@@ -65,7 +65,7 @@ public class ConfigurationHelperTest extends AbstractCacheTest {
             fail();
         } catch (Exception e) {
             //expected
-            LOG.debug("Expected exception " + e.getMessage() + ". Initial cause was " + e.getMessage(), e);
+            LOG.log(Level.FINE, "Expected exception " + e.getMessage() + ". Initial cause was " + e.getMessage(), e);
         }
     }
 

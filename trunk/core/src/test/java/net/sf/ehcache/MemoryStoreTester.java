@@ -34,8 +34,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Other than policy differences, the Store implementations should work identically
@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MemoryStoreTester extends AbstractCacheTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MemoryStoreTester.class.getName());
+    private static final Logger LOG = Logger.getLogger(MemoryStoreTester.class.getName());
 
     /**
      * The memory store that tests will be performed on
@@ -86,10 +86,10 @@ public class MemoryStoreTester extends AbstractCacheTest {
             }
         } catch (OutOfMemoryError e) {
             //OutOfMemoryError Happens at different places on Apache LRU for some reason
-            LOG.info(e.getMessage());
+            LOG.log(Level.INFO, e.getMessage());
         } catch (Throwable t) {
             //OutOfMemoryError Happens at different places on Apache LRU for some reason
-            LOG.info(t.getMessage());
+            LOG.log(Level.INFO, t.getMessage());
         }
     }
 
@@ -361,7 +361,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
             assertNotNull(element);
         }
         long time = stopWatch.getElapsedTime();
-        LOG.info("Time for Bulk Load: " + time);
+        LOG.log(Level.INFO, "Time for Bulk Load: " + time);
     }
 
     /**
@@ -383,7 +383,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
             store.remove(key + i);
         }
         long time = stopWatch.getElapsedTime();
-        LOG.info("Time for benchmarkPutGetRemove: " + time);
+        LOG.log(Level.INFO, "Time for benchmarkPutGetRemove: " + time);
         assertTrue("Too slow. Time was " + time, time < 500);
     }
 
@@ -406,7 +406,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
             store.get(key + i);
         }
         long time = stopWatch.getElapsedTime();
-        LOG.info("Time for benchmarkPutGet: " + time);
+        LOG.log(Level.INFO, "Time for benchmarkPutGet: " + time);
         assertTrue("Too slow. Time was " + time, time < 300);
     }
 
@@ -435,7 +435,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
             }
         }
         long time = stopWatch.getElapsedTime();
-        LOG.info("Time for benchmarkPutGetSurya: " + time);
+        LOG.log(Level.INFO, "Time for benchmarkPutGetSurya: " + time);
         assertTrue("Too slow. Time was " + time, time < allowedTime);
     }
 
@@ -509,7 +509,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     @Test
     public void testMemoryLeak() throws Exception {
         long differenceMemoryCache = thrashCache();
-        LOG.info("Difference is : " + differenceMemoryCache);
+        LOG.log(Level.INFO, "Difference is : " + differenceMemoryCache);
         //Sometimes this can be higher but a three hour run confirms no memory leak. Consider increasing.
         assertTrue(differenceMemoryCache < 500000);
     }
@@ -522,7 +522,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
 
 
         long startingSize = measureMemoryUse();
-        LOG.info("Starting memory used is: " + startingSize);
+        LOG.log(Level.INFO, "Starting memory used is: " + startingSize);
 
         final String value = "value";
         final String key = "key";
@@ -567,7 +567,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
         store.removeAll();
 
         long finishingSize = measureMemoryUse();
-        LOG.info("Ending memory used is: " + finishingSize);
+        LOG.log(Level.INFO, "Ending memory used is: " + finishingSize);
         return finishingSize - startingSize;
     }
 
@@ -614,7 +614,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
 
         runThreads(executables);
         long end = System.currentTimeMillis();
-        LOG.info("Total time for the test: " + (end + start) + " ms");
+        LOG.log(Level.INFO, "Total time for the test: " + (end + start) + " ms");
     }
 
 
@@ -632,7 +632,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
      */
     @Test
     public void testMemoryStoreOutOfMemoryLimit() throws Exception {
-        LOG.info("Starting out of memory limit test");
+        LOG.log(Level.INFO, "Starting out of memory limit test");
         //Set size so the second element overflows to disk.
         cache = manager.getCache("memoryLimitTest");
         if (cache == null) {
@@ -650,7 +650,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
                         + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                         + "AAAAA " + i));
             }
-            LOG.info("About to fail out of memory limit test");            
+            LOG.log(Level.INFO, "About to fail out of memory limit test");
             fail();
         } catch (OutOfMemoryError e) {
             System.gc();
@@ -658,7 +658,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
             System.gc();
 
             try {
-                LOG.info("Ran out of memory putting " + i + "th element");
+                LOG.log(Level.INFO, "Ran out of memory putting " + i + "th element");
                 assertTrue(i > 65000);
             } catch (OutOfMemoryError e1) {
                 //sometimes if we are really out of memory we cannot do anything

@@ -40,8 +40,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Test cases for the DiskStore.
@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DiskStoreTest extends AbstractCacheTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DiskStoreTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(DiskStoreTest.class.getName());
     private static final int ELEMENT_ON_DISK_SIZE = 1340;
     private CacheManager manager2;
 
@@ -836,9 +836,9 @@ public class DiskStoreTest extends AbstractCacheTest {
             waitLonger();
             int predictedSize = 140800;
             long actualSize = diskStore.getDataFileSize();
-            LOG.info("Predicted Size: " + predictedSize + " Actual Size: " + actualSize);
+            LOG.log(Level.INFO, "Predicted Size: " + predictedSize + " Actual Size: " + actualSize);
             assertEquals(predictedSize, actualSize);
-            LOG.info("Memory Use: " + measureMemoryUse());
+            LOG.log(Level.INFO, "Memory Use: " + measureMemoryUse());
         }
 
 
@@ -977,7 +977,7 @@ public class DiskStoreTest extends AbstractCacheTest {
                             + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
         }
         long time = stopWatch.getElapsedTime();
-        LOG.info("time: " + time);
+        LOG.log(Level.INFO, "time: " + time);
         assertTrue(4 < time);
     }
 
@@ -1000,7 +1000,7 @@ public class DiskStoreTest extends AbstractCacheTest {
             random.nextBytes(bytes);
             cache.put(new Element("" + i, bytes));
         }
-        LOG.info("Elements written: " + i);
+        LOG.log(Level.INFO, "Elements written: " + i);
         //Thread.sleep(100000);
     }
 
@@ -1030,7 +1030,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 
 
         long elapsed = stopWatch.getElapsedTime();
-        LOG.info("Elapsed time: " + elapsed / 1000);
+        LOG.log(Level.INFO, "Elapsed time: " + elapsed / 1000);
         assertEquals(100000, cache.getSize());
         assertTrue(23 < elapsed);
         //Some entries may be in the Memory Store and Disk Store. cache.getSize removes dupes. a look at the
@@ -1082,10 +1082,10 @@ public class DiskStoreTest extends AbstractCacheTest {
                 Thread.sleep(2000);
             }
             long elapsed = stopWatch.getElapsedTime();
-            LOG.info("Elapsed time: " + elapsed / 1000);
+            LOG.log(Level.INFO, "Elapsed time: " + elapsed / 1000);
             fail();
         } catch (OutOfMemoryError e) {
-            LOG.info("All heap consumed after " + index + " entries created.");
+            LOG.log(Level.INFO, "All heap consumed after " + index + " entries created.");
             int expectedMax = 3090000;
             assertTrue("Achieved " + index.intValue() + " which was less than the expected value of " + expectedMax,
                     index.intValue() >= expectedMax);
@@ -1129,7 +1129,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         }
         long elapsed = stopWatch.getElapsedTime();
         long putTime = ((elapsed / 1000) - 10);
-        LOG.info("Put Elapsed time: " + putTime);
+        LOG.log(Level.INFO, "Put Elapsed time: " + putTime);
         assertTrue(putTime < 20);
 
         //wait for Disk Store to finish spooling
@@ -1147,7 +1147,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         long getElapsedTime = getStopWatch.getElapsedTime();
         int time = (int) ((getElapsedTime - getStart) / 1000);
-        LOG.info("Get Elapsed time: " + time);
+        LOG.log(Level.INFO, "Get Elapsed time: " + time);
 
         assertTrue(time < 180);
 

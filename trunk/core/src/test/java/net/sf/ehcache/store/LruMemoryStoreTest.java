@@ -26,8 +26,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 /**
@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
  */
 public class LruMemoryStoreTest extends MemoryStoreTester {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LruMemoryStoreTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(LruMemoryStoreTest.class.getName());
 
     /**
      * setup test
@@ -200,7 +200,7 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
                 store.put(element);
             }
             assertEquals(12000, store.getSize());
-            LOG.info("Store size is: " + store.getSize());
+            LOG.log(Level.INFO, "Store size is: " + store.getSize());
         }
     }
 

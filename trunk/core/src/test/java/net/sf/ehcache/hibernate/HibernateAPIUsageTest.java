@@ -34,8 +34,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Properties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 /**
@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * @version $Id$
  */
 public class HibernateAPIUsageTest extends AbstractCacheTest {
-    private static final Logger LOG = LoggerFactory.getLogger(CacheTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(HibernateAPIUsageTest.class.getName());
     private static final int EMPTY_ELEMENT_SIZE = 298;
 
 

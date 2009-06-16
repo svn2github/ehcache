@@ -29,8 +29,8 @@ import org.junit.AfterClass;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Tests of the package.
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AsynchronousCommandExecutorTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AsynchronousCommandExecutorTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(AsynchronousCommandExecutorTest.class.getName());
 
     private static List messages = new ArrayList();
 
@@ -161,7 +161,7 @@ public class AsynchronousCommandExecutorTest {
         }
         int count = 0;
         while ((count = AsynchronousCommandExecutor.getInstance().countCachedPublishCommands()) != 0) {
-            LOG.info("waiting: count is: " + count);
+            LOG.log(Level.INFO, "waiting: count is: " + count);
         }
         waitForProcessing();
         assertEquals(12, messages.size());
@@ -309,7 +309,7 @@ public class AsynchronousCommandExecutorTest {
         for (int i = 0; i < threads.length; i++) {
             threads[i].join(maximumWait);
             if (System.currentTimeMillis() >= time + maximumWait) {
-                LOG.error("Killed Threads after timeout");
+                LOG.log(Level.SEVERE, "Killed Threads after timeout");
             }
         }
 

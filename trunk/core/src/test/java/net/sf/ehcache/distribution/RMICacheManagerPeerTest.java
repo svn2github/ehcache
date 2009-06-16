@@ -34,10 +34,10 @@ import java.rmi.UnmarshalException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Unit tests for RMICachePeer
@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RMICacheManagerPeerTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RMICacheManagerPeerTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(RMICacheManagerPeerTest.class.getName());
 
 
     /**
@@ -209,7 +209,7 @@ public class RMICacheManagerPeerTest {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException exception) {
-                LOG.error(exception.getMessage(), exception);
+                LOG.log(Level.SEVERE, exception.getMessage(), exception);
             }
         }
     }

@@ -5,8 +5,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Isolated performance test which only runs one cache at a time.
@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CachePerformanceTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CacheTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(CachePerformanceTest.class.getName());
 
 
     /**
@@ -71,7 +71,7 @@ public class CachePerformanceTest {
             m500d500Cache.get(key);
         }
         time = stopWatch.getElapsedTime();
-        LOG.info("Time to get 50000 entries from m500d45500Cache: " + time);
+        LOG.log(Level.INFO, "Time to get 50000 entries from m500d45500Cache: " + time);
         assertTrue("Time to get 50000 entries from m500d500Cache", time < 20000);
     }
 
@@ -103,7 +103,7 @@ public class CachePerformanceTest {
             m500d500Cache.get(key);
         }
         time = stopWatch.getElapsedTime();
-        LOG.info("Time to get 50000 entries from m50000Cache: " + time);
+        LOG.log(Level.INFO, "Time to get 50000 entries from m50000Cache: " + time);
         assertTrue("Time to get 50000 entries from m50000Cache", time < 20000);
     }
 

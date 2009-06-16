@@ -19,8 +19,8 @@ package net.sf.ehcache;
 
 import net.sf.ehcache.util.PropertyUtil;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * A timer service used to check performance of tests.
@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  */
 public class StopWatch {
 
-    private static final Logger LOG = LoggerFactory.getLogger(StopWatch.class.getName());
+    private static final Logger LOG = Logger.getLogger(StopWatch.class.getName());
 
 
     private static final String SUFFIX = "ms";
@@ -79,15 +79,15 @@ public class StopWatch {
             try {
                 speedAdjustmentFactor = Float.parseFloat(speedAdjustmentFactorString);
             } catch (NumberFormatException e) {
-                LOG.debug("Consider setting system property 'net.sf.ehcache.speedAdjustmentFactor=n' " +
+                LOG.log(Level.FINE, "Consider setting system property 'net.sf.ehcache.speedAdjustmentFactor=n' " +
                         "where n is the number of times your machine is slower than the reference machine, " +
                         "which is currently a dual G5 PowerMac. e.g. 1.2, which then enables elasped time " +
                         "measurement to be adjusted accordingly.");
             }
-            LOG.debug("Using speedAjustmentFactor of " + speedAdjustmentFactor);
+            LOG.log(Level.FINE, "Using speedAjustmentFactor of " + speedAdjustmentFactor);
 
         } else {
-            LOG.debug("Consider setting system property 'net.sf.ehcache.speedAdjustmentFactor=n' " +
+            LOG.log(Level.FINE, "Consider setting system property 'net.sf.ehcache.speedAdjustmentFactor=n' " +
                     "where n is the number of times your machine is slower than the reference machine, " +
                     "which is currently a dual G5 PowerMac. e.g. 1.2, which then enables elasped time " +
                     "measurement to be adjusted accordingly.");
@@ -99,7 +99,7 @@ public class StopWatch {
         } catch (InterruptedException e) {
             //
         }
-        LOG.debug("100 measures as " + stopWatch.getElapsedTime());
+        LOG.log(Level.FINE, "100 measures as " + stopWatch.getElapsedTime());
 
 
     }
@@ -132,12 +132,12 @@ public class StopWatch {
 //        }
 //        long elapsedTime = System.currentTimeMillis() - start;
 //
-//        LOG.error("It took this machine: " + elapsedTime + " to perform a time trial compared with the reference time of "
+//        LOG.log(Level.SEVERE, "It took this machine: " + elapsedTime + " to perform a time trial compared with the reference time of "
 //                + referenceTime + "ms");
 //
 //        speedAdjustmentFactor = elapsedTime / referenceTime;
 //
-//        LOG.error("Elapsed stopwatch times will be adjusted divided by " + speedAdjustmentFactor);
+//        LOG.log(Level.SEVERE, "Elapsed stopwatch times will be adjusted divided by " + speedAdjustmentFactor);
 //    }
 
 

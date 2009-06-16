@@ -7,8 +7,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.util.Date;
 
 /**
@@ -16,7 +16,7 @@ import java.util.Date;
  */
 public class CacheClassicLruMemoryStoreTest extends CacheTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CacheClassicLruMemoryStoreTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(CacheClassicLruMemoryStoreTest.class.getName());
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -110,7 +110,7 @@ public class CacheClassicLruMemoryStoreTest extends CacheTest {
         //this one does
         cache.put(new Element("nullValue", null));
 
-        LOG.info("Size: " + cache.getDiskStoreSize());
+        LOG.log(Level.INFO, "Size: " + cache.getDiskStoreSize());
 
         assertEquals(50, cache.getMemoryStoreSize());
         assertEquals(54, cache.getDiskStoreSize());
