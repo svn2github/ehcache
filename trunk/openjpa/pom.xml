@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<project>
+    <parent>
+        <artifactId>ehcache-parent</artifactId>
+        <groupId>net.sf.ehcache</groupId>
+        <version>1.5.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>net.sf.ehcache</groupId>
+    <artifactId>ehcache-openjpa</artifactId>
+    <name>OpenJPA Caching Plugin</name>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <description>This module provides replication via JGroups</description>
+    <url>http://ehcache.sf.net/documentation/openjpa.html</url>
+    <dependencies>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>[1.6.0,]</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.5</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <filters>
+                        <filter>src/assemble/filter.properties</filter>
+                    </filters>
+                    <descriptors>
+                        <descriptor>src/assemble/distribution.xml</descriptor>
+                    </descriptors>
+                    <tarLongFileMode>gnu</tarLongFileMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>assemble</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>assembly</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <developers>
+        <developer>
+            <id>gregluck</id>
+            <name>Greg Luck</name>
+            <email>gregluck at users.sourceforge.net</email>
+            <url>http://gregluck.com</url>
+            <roles>
+                <role>Maintainer</role>
+                <role>Developer</role>
+            </roles>
+            <timezone>+10</timezone>
+            <properties>
+                <skype>gregrluck</skype>
+                <yahoo>gregrluck</yahoo>
+            </properties>
+        </developer>
+        <developer>
+            <id>craigandrews</id>
+            <name>Craig Andrews</name>
+            <email>craigandrews at users.sourceforge.net</email>
+            <url/>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+    </developers>
+
+    <!-- Note: site URL repeated here to ensure correct deployment path -->
+    <distributionManagement>
+        <!--
+          The server id here defined must also appear in ~/.m2/settings.xml with username
+        -->
+        <repository>
+            <id>sourceforge.net</id>
+            <name>SF EHCache Repository</name>
+            <url>scp://web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs/repository</url>
+        </repository>
+        <snapshotRepository>
+            <id>sourceforge.net</id>
+            <name>SF EHCache Snapshot Repository</name>
+            <url>scp://web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs/snapshotrepository</url>
+        </snapshotRepository>
+        <site>
+            <id>sourceforge.net</id>
+            <name>SF EHCache Site</name>
+            <url>scp://web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs</url>
+        </site>
+    </distributionManagement>
+
+</project>
