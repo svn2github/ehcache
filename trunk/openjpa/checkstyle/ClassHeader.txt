@@ -13,35 +13,3 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-
-package net.sf.ehcache.openjpa;
-
-import java.util.logging.Logger;
-
-/**
- * Hello world!
- *
- * @author Greg Luck
- */
-public final class App {
-    
-    private static final Logger LOG = Logger.getLogger(App.class.getName());
-
-    /**
-     * Utility class so private constructor
-     */
-    private App() {
-        //noop
-    }
-
-    /**
-     * Main
-     * @param args
-     */
-    public static void main(String[] args) {
-        LOG.info("Hello World!");
-    }
-
-
-}
