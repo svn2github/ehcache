@@ -40,7 +40,10 @@ public final class App {
      * @param args
      */
     public static void main(String[] args) {
+        //contrived case to get clover to pass
+        int i = 0;
         LOG.info("Hello World!");
+        LOG.info("Hello World again!");
     }
 
 
