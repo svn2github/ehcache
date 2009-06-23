@@ -18,6 +18,7 @@ package net.sf.ehcache.server;
 
 
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.management.ManagementService;
 
 import javax.management.MBeanServer;
@@ -26,9 +27,17 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.lang.management.ManagementFactory;
 import java.util.logging.Logger;
+import java.util.logging.Level;
+import java.util.List;
+import java.io.IOException;
 
 /**
- * The ehcache server.
+ * Listens to servlet context events.
+ * <p/>
+ * This class will register Ehcache's JMX insturmentation with the platform MBean Server. Follow the instructions in
+ * your app server to expose the app server's platform MBean server so that you can connect to and monitor it.
+ * <p/>
+ * When the web app shutsdown, an orderly shutdown of ehcache will commence. Any peristent disk stores will be preserved.
  *
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
@@ -37,8 +46,7 @@ public class ServerContext implements ServletContextListener {
 
 
     private static final Logger LOG = Logger.getLogger(ServerContext.class.getName());
-
-    private JMXConnectorServer jmxConnectorServer;
+    private ManagementService managementService;
 
 
     /**
@@ -49,36 +57,34 @@ public class ServerContext implements ServletContextListener {
         System.setProperty("com.sun.management.jmxremote", "");
         LOG.info("Starting JMS MBeanServer");
         MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-        ManagementService.registerMBeans(CacheManager.getInstance(), mBeanServer,
+        managementService = new ManagementService(CacheManager.getInstance(), mBeanServer,
                 true, true, true, true);
 
-
-//        try {
-//            final String hostname = InetAddress.getLocalHost().getHostName();
-//            int port = 8081;
-//            LocateRegistry.createRegistry(port);
-//            JMXServiceURL url = new JMXServiceURL(
-//                    "service:jmx:rmi://" + hostname + ":" + port + "/jndi/rmi://" + hostname + ":" + port + "/jmxrmi");
-//            jmxConnectorServer = JMXConnectorServerFactory.newJMXConnectorServer(url, null, mBeanServer);
-//            LOG.info("Start the RMI connector server on url " + url);
-//            jmxConnectorServer.start();
-//
-//        } catch (Exception e) {
-//            LOG.severe(e.getMessage());
-//
-//        }
-
     }
+
 
     /**
      * Notification that the servlet context is about to be shut down. All servlets and filters have been
      * destroyed before any ServletContextListeners are notified of context destruction.
+     * <p/>
+     * Shuts down all cache managers known to {@link CacheManager#ALL_CACHE_MANAGERS}
      */
     public void contextDestroyed(ServletContextEvent sce) {
-//        try {
-//            jmxConnectorServer.stop();
-//        } catch (IOException e) {
-//            LOG.severe(e.getMessage());
-//        }
+        //shutdown management service
+        try {
+            managementService.dispose();
+        } catch (CacheException e) {
+            LOG.severe(e.getMessage());
+        }
+        LOG.info("Shutting down Ehcache.");
+
+        //shutdown cache managers
+        List knownCacheManagers = CacheManager.ALL_CACHE_MANAGERS;
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Shutting down " + knownCacheManagers.size() + " CacheManagers.");
+        }
+        while (!knownCacheManagers.isEmpty()) {
+            ((CacheManager) CacheManager.ALL_CACHE_MANAGERS.get(0)).shutdown();
+        }
     }
 }

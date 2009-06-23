@@ -1,6 +1,14 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
-<release version="0.7" date="2008-04-11" desc="Minor release">
+<release version="0.8" date="2009-06-26" desc="Minor release">
+
+    <!-- Features and Enhancements -->
+    <action dev="Greg Luck" type="update">
+        Improve ServerContext so that it shut down Ehcache core in an orderly way when the war shutsdown.
+    </action>
+</release>
+
+<release version="0.7" date="2009-04-11" desc="Minor release">
     <!-- Features and Enhancements -->
     <action dev="Greg Luck" type="add">
         Add ehcacheTimeToLiveSeconds as a PUT request header which enables the per element time to live to override

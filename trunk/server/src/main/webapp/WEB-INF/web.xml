@@ -46,6 +46,8 @@
         <listener-class>com.sun.xml.ws.transport.http.servlet.WSServletContextListener</listener-class>
     </listener>
 
+
+    <!--Orderly startup and shutdown via this listener-->
     <listener>
         <listener-class>net.sf.ehcache.server.ServerContext</listener-class>
     </listener>
