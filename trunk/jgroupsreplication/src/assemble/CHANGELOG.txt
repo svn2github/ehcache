@@ -1,5 +1,18 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+
+<release version="1.3" date="2009-6-21" desc="This release adds bootstrap">
+
+    <!-- Features and Enhancements -->
+    <action dev="Greg Luck" type="add">
+        Add JGroups bootstrap.
+    </action>
+    <action dev="Greg Luck" type="update">
+        Updated ehcache version to dynamically resolve highest 1.6 release.
+    </action>
+</release>
+
+
 <release version="1.2" date="2009-1-20" desc="Update to ehcache core 1.6-beta2">
 
     <!-- Features and Enhancements -->

@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,16 +16,6 @@
 
 package net.sf.ehcache.distribution.jgroups;
 
-import java.io.Serializable;
-import java.rmi.RemoteException;
-import java.rmi.UnmarshalException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.logging.Logger;
-import java.util.logging.Level;
-
-
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -33,6 +23,15 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.distribution.CachePeer;
 import net.sf.ehcache.distribution.CacheReplicator;
+
+import java.io.Serializable;
+import java.rmi.RemoteException;
+import java.rmi.UnmarshalException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Pierre Monestie (pmonestie[at]@gmail.com)

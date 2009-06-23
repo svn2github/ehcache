@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,8 +19,6 @@ package net.sf.ehcache.distribution.jgroups;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheEventListenerFactory;
 import net.sf.ehcache.util.PropertyUtil;
-
-
 
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -106,13 +104,11 @@ public class JGroupsCacheReplicatorFactory extends CacheEventListenerFactory {
      * @return the extracted property
      */
     protected boolean extractBooleanProperty(Properties properties, String propertyName, boolean defaultValue) {
-        boolean ret;
-        String pString = PropertyUtil.extractAndLogProperty(propertyName, properties);
-        if (pString != null) {
-            ret = PropertyUtil.parseBoolean(pString);
+        String booleanCandidate = PropertyUtil.extractAndLogProperty(propertyName, properties);
+        if (booleanCandidate != null) {
+            return PropertyUtil.parseBoolean(booleanCandidate);
         } else {
-            ret = defaultValue;
+            return defaultValue;
         }
-        return ret;
     }
 }

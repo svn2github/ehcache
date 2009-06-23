@@ -61,6 +61,33 @@
 
     -->
 
+    <!--
+
+Cluster Bootstrapping
+    +++++++++++++++++++++
+    (RMI & JGroups clusters only)
+
+    The RMIBootstrapCacheLoader bootstraps caches in clusters where RMICacheReplicators are
+    used. It is configured as per the following example:
+
+    <bootstrapCacheLoaderFactory
+        class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"
+        properties="bootstrapAsynchronously=true, maximumChunkSizeBytes=5000000"
+        propertySeparator="," />
+
+    The RMIBootstrapCacheLoaderFactory recognises the following optional properties:
+
+    * bootstrapAsynchronously=true|false - whether the bootstrap happens in the background
+      after the cache has started. If false, bootstrapping must complete before the cache is
+      made available. The default value is true.
+
+    * maximumChunkSizeBytes=<integer> - Caches can potentially be very large, larger than the
+      memory limits of the VM. This property allows the bootstraper to fetched elements in
+      chunks. The default chunk size is 5000000 (5MB).
+
+
+    -->
+
     <defaultCache
             maxElementsInMemory="2000"
             eternal="false"
@@ -85,7 +112,7 @@
         <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.jgroups.JGroupsBootstrapCacheLoaderFactory" />
     </cache>
 
-    <cache name="sampleCacheSync"
+    <cache name="sampleCacheAsync2"
            maxElementsInMemory="2000"
            eternal="false"
            timeToIdleSeconds="1000"
@@ -95,7 +122,8 @@
                                    properties="replicateAsynchronously=false, replicatePuts=true,
                                                 replicateUpdates=true, replicateUpdatesViaCopy=false,
                                                 replicateRemovals=true"/>
-        <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.jgroups.JGroupsBootstrapCacheLoaderFactory"/>
+        <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.jgroups.JGroupsBootstrapCacheLoaderFactory"
+                                    properties="bootstrapAsynchronously=true"/>
     </cache>
 
     <cache name="sampleCacheNorep"

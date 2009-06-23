@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package net.sf.ehcache.distribution.jgroups;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.distribution.EventMessage;
+
 import java.io.Serializable;
 
 /**
@@ -30,13 +31,20 @@ import java.io.Serializable;
  */
 public class JGroupEventMessage extends EventMessage {
 
-    private transient Ehcache cache;
+    /**
+     * Request for bootstrap
+     */
+    public static final int ASK_FOR_BOOTSTRAP = 10;
+
+    /**
+     * Reply to bootstrap 
+     */
+    public static final int BOOTSTRAP_REPLY = 11;
 
     private String cacheName;
 
-    public static final int ASK_FOR_BOOTSTRAP = 10;
-    public static final int BOOTSTRAP_REPLY = 11;
-    
+    private transient Ehcache cache;
+
     /**
      * An event message for the JGroupsCacheReplicator. We keep as transient the
      * origin cache and we serialize the cacheName. That way the JgroupManager

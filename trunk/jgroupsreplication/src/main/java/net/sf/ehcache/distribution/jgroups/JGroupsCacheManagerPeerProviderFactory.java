@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,14 +16,13 @@
 
 package net.sf.ehcache.distribution.jgroups;
 
-import java.util.Properties;
-import java.util.logging.Logger;
-
-
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.distribution.CacheManagerPeerProviderFactory;
 import net.sf.ehcache.util.PropertyUtil;
+
+import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * @author Pierre Monestie (pmonestie__REMOVE__THIS__@gmail.com)

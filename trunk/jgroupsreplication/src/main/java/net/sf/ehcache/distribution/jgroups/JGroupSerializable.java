@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@ package net.sf.ehcache.distribution.jgroups;
 
 import java.io.Serializable;
 
-import net.sf.ehcache.distribution.EventMessage;
-
 /**
  * Serializable type used for Jgroups type replication
  * 
@@ -29,30 +27,11 @@ import net.sf.ehcache.distribution.EventMessage;
  */
 public class JGroupSerializable implements Serializable {
 
-    /**
-     * A put or update event.
-     */
-    public static final int PUT = EventMessage.PUT;
-
-    /**
-     * A remove or invalidate event.
-     */
-    public static final int REMOVE = EventMessage.REMOVE;
-
-    /**
-     * A removeAll, which removes all elements from a cache
-     */
-    public static final int REMOVE_ALL = EventMessage.REMOVE_ALL;
-    
-    public static final int ASK_FOR_BOOTSTRAP = JGroupEventMessage.ASK_FOR_BOOTSTRAP;
-    
-    public static final int BOOTSTRAP_REPLY = JGroupEventMessage.BOOTSTRAP_REPLY;
-
     private int event;
 
     private Serializable key;
 
-    private Object value;
+    private Serializable value;
 
     private String cacheName;
 
@@ -61,7 +40,7 @@ public class JGroupSerializable implements Serializable {
      * @param key the key
      * @param value can be null if REMOVE or REMOVE_ALL
      */
-    public JGroupSerializable(int event, Serializable key, Object value, String cacheName) {
+    public JGroupSerializable(int event, Serializable key, Serializable value, String cacheName) {
         super();
         this.event = event;
         this.key = key;
@@ -92,7 +71,7 @@ public class JGroupSerializable implements Serializable {
      * 
      * @return the value
      */
-    public Object getValue() {
+    public Serializable getValue() {
         return value;
     }
 

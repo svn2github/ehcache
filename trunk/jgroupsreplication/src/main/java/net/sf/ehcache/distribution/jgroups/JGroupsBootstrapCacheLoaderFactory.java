@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Luck Consulting Pty Ltd
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package net.sf.ehcache.distribution.jgroups;
 
-import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
 import net.sf.ehcache.util.PropertyUtil;
 
 import java.util.Properties;
@@ -68,7 +68,7 @@ public class JGroupsBootstrapCacheLoaderFactory extends BootstrapCacheLoaderFact
      * @return a constructed BootstrapCacheLoader
      */
     public BootstrapCacheLoader createBootstrapCacheLoader(Properties properties) {
-        boolean bootstrapAsynchronously = extractBootstrapAsynchronously(properties);
+        boolean bootstrapAsynchronously = extractAndValidateBootstrapAsynchronously(properties);
         int maximumChunkSizeBytes = extractMaximumChunkSizeBytes(properties);
         return new JGroupsBootstrapCacheLoader(bootstrapAsynchronously, maximumChunkSizeBytes);
     }
@@ -106,13 +106,17 @@ public class JGroupsBootstrapCacheLoaderFactory extends BootstrapCacheLoaderFact
      *
      * @param properties
      */
-    protected boolean extractBootstrapAsynchronously(Properties properties) {
+    protected boolean extractAndValidateBootstrapAsynchronously(Properties properties) {
         boolean bootstrapAsynchronously;
         String bootstrapAsynchronouslyString = PropertyUtil.extractAndLogProperty(BOOTSTRAP_ASYNCHRONOUSLY, properties);
         if (bootstrapAsynchronouslyString != null) {
             bootstrapAsynchronously = PropertyUtil.parseBoolean(bootstrapAsynchronouslyString);
         } else {
             bootstrapAsynchronously = true;
+        }
+
+        if (!bootstrapAsynchronously) {
+            throw new UnsupportedOperationException("JGroups bootstrap does not support synchronous bootstrap.");
         }
         return bootstrapAsynchronously;
     }

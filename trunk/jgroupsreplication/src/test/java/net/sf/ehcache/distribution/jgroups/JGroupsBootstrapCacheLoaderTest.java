@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Greg Luck
@@ -80,7 +81,7 @@ public class JGroupsBootstrapCacheLoaderTest {
         manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jgroups/ehcache-distributed-jgroups.xml");
 
         //allow cluster to be established
-        Thread.sleep(3000);
+        Thread.sleep(10000);
     }
 
     /**
@@ -158,7 +159,7 @@ public class JGroupsBootstrapCacheLoaderTest {
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 1000; j++) {
                 index = new Integer(((1000 * i) + j));
-                manager2.getCache("sampleCacheSync").put(new Element(index,
+                manager2.getCache("sampleCacheAsync2").put(new Element(index,
                         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -168,17 +169,17 @@ public class JGroupsBootstrapCacheLoaderTest {
 
         }
 
-        assertEquals(2000, manager2.getCache("sampleCacheSync").getSize());
+        assertEquals(2000, manager2.getCache("sampleCacheAsync2").getSize());
 
         Thread.sleep(8000);
         //normal replication
-        assertEquals(2000, manager1.getCache("sampleCacheSync").getSize());
+        assertEquals(2000, manager1.getCache("sampleCacheAsync2").getSize());
 
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jgroups/ehcache-distributed-jgroups.xml");
-        
+
         //Should not need to wait because the load is synchronous
-        Thread.sleep(5000);
-        assertEquals(2000, manager3.getCache("sampleCacheSync").getSize());
+        Thread.sleep(10000);
+        assertEquals(2000, manager3.getCache("sampleCacheAsync2").getSize());
 
 
     }
@@ -197,12 +198,30 @@ public class JGroupsBootstrapCacheLoaderTest {
             testBootstrap1.put(new Element("key" + i, new Date()));
         }
 
+
+
         manager2.addCache("testBootstrap1");
         Cache testBootstrap2 = manager2.getCache("testBootstrap1");
         //wait for async bootstrap
-        Thread.sleep(3000);
+
+        Thread.sleep(8000);
         assertEquals(1000, testBootstrap2.getSize());
 
+
+    }
+
+    /**
+     * Not supported.
+     */
+    @Test
+    public void testSynchronousBootstrap() {
+
+        try {
+            manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jgroups/ehcache-distributed-jgroups-sync.xml");
+            fail();
+        } catch (UnsupportedOperationException e) {
+            //expected
+        }
 
     }
 

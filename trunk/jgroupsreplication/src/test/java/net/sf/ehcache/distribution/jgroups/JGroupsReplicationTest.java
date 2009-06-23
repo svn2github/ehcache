@@ -44,7 +44,7 @@ public class JGroupsReplicationTest {
     private static final int NBR_ELEMENTS = 100;
 
     private static final String SAMPLE_CACHE1 = "sampleCacheAsync";
-    private static final String SAMPLE_CACHE2 = "sampleCacheSync";
+    private static final String SAMPLE_CACHE2 = "sampleCacheAsync2";
     String cacheName;
 
     private static final Logger LOG = Logger.getLogger(JGroupsReplicationTest.class.getName());
@@ -58,7 +58,7 @@ public class JGroupsReplicationTest {
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jgroups/ehcache-distributed-jgroups.xml");
         manager4 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jgroups/ehcache-distributed-jgroups.xml");
         cacheName = SAMPLE_CACHE1;
-        Thread.sleep(4000);
+        Thread.sleep(10000);
     }
 
     @After
@@ -71,6 +71,8 @@ public class JGroupsReplicationTest {
         manager3.shutdown();
         LOG.fine("Tearing down cm4");
         manager4.shutdown();
+        //JGroups needs to close sockets
+        Thread.sleep(2000);
     }
 
     @Test
@@ -98,11 +100,6 @@ public class JGroupsReplicationTest {
 
     }
 
-    @Test
-    public void testBasicReplicationSynchronous() throws Exception {
-        cacheName = SAMPLE_CACHE2;
-        testBasicReplication();
-    }
 
     @Test
     public void testShutdownManager() throws Exception {
@@ -113,8 +110,10 @@ public class JGroupsReplicationTest {
         CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider("JGroups");
         JGroupManager jg = (JGroupManager) provider;
         assertEquals(Status.STATUS_ALIVE, jg.getStatus());
+
         manager1.shutdown();
         assertEquals(Status.STATUS_SHUTDOWN, jg.getStatus());
+
         //Lets see if the other still replicate
         manager2.getEhcache(cacheName).put(new Element(1, new Date()));
         Thread.sleep(2000);
@@ -136,7 +135,7 @@ public class JGroupsReplicationTest {
 
         Thread.sleep(1000);
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jgroups/ehcache-distributed-jgroups.xml");
-        Thread.sleep(3000);
+        Thread.sleep(10000);
         manager2.clearAll();
 
         Thread.sleep(1000);
