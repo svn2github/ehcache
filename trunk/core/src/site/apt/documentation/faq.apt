@@ -1,13 +1,9 @@
 Frequently Asked Questions
 
 
-* Does ehcache run on {JDK1.3}?
+* Does ehcache run on {JDK1.3}/{JDK1.4}?
 
-     Yes. It runs on JDK1.3, 1.4 and 5. The restriction for JDK1.3 is
-      that you must either use the precompiled ehcache.jar or build
-    it using JDK1.4 with a target of 1.3. This is because ehcache makes use of some JDK1.4
-    features but substitutes alternatives at runtime if it does not find
-    those features.
+   Older versions run on 1.3. Ehcache 1.5 runs on 1.4. Ehcache 1.6 required JDK 1.5.
 
 * Can you use more than one instance of ehcache in a single VM?
 
@@ -254,7 +250,7 @@ class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
 
     You should see the listener port open on each server.
 
-    You can use the distributed debug tool to see what is going on. (See {{{http://ehcache.sourceforge.net/documentation/logging.html}}}).
+    You can use the distributed debug tool to see what is going on. (See {{http://ehcache.sourceforge.net/documentation/remotedebugger.html}}).
 
 
 
