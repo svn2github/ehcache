@@ -180,6 +180,12 @@
         </copy>
     </target>
 
+    <target name="copy_ehcache.xml" description="Copies the config files to the site">
+        <copy todir="${build.dir}/site">
+            <fileset dir="src/main/config"/>
+        </copy>
+    </target>
+
     <target name="unhide_html" description="extra site processing">
 
         <copy file="${src.config.dir}/ehcache.xml" todir="${build.dir}/site"/>

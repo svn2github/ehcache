@@ -7,6 +7,34 @@
 
 News
 
+* 17 June 2009: Ehcache 1.6.0 released
+
+  This production release of ehcache-1.6 adds bug fixes and massive performance improvements. This release contains
+  the changes mooted in February.
+
+  The changes made remove used of the <<<synchronized>>> keyword from CacheManager, Cache and MemoryStore. The speed
+  improvements kick in with significant numbers of threads which is what happens in production.
+  Single-threaded performance, which is what you will see in your IDE is unchanged.
+
+  The improvements are:
+
+  * Gets 60 times faster
+
+  * Puts 10 times faster
+
+  * Removes 50 times faster
+
+
+  This version removes all dependencies. Finally It is compatible with Google App Engine.
+
+  For those still wishing to use the old engine it can be turned on at runtime
+  using <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>.
+
+  Download {{{/download.html}here}}. All documentation is {{{http://ehcache.sourceforge.net/documentation}here}}.
+  The release is also available on Maven central.
+
+  There are no open bugs at time of release.
+
 * 16 June 2009: Ehcache is now compatible with Google App Engine
 
    The shipping Ehcache-1.6.0 will be compatible with Google App Engine.

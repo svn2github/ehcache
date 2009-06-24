@@ -19,30 +19,9 @@ Welcome to ehcache
 
 * Latest News
 
-** 16 June 2009: Ehcache is now compatible with Google App Engine
+** 17 June 2009: Ehcache 1.6.0 released
 
-   The shipping Ehcache-1.6.0 will be compatible with Google App Engine.
-
-   The fixes are now in the {{{http://oss.sonatype.org/content/repositories/sourceforge-snapshots/net/sf/ehcache/}snapshots}}.
-
-   See the extensive {{{/documentation/googleappengine.html}Google App Engine HowTo}}for configuration, recipes and more.
-
-** 12 June 2009: Ehcache 1.6.0-rc1 released
-
-  The first release candidate of the ehcache-1.6, with its new higher performance engine. This version has benefited
-  from production use of beta5. At date of release there are no open bugs.
-
-  This release uses the sl4j logging facade. Plug in your own logger.
-
-  For those wishing to use the old engine it can be turned on at runtime
-  using <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>.
-
-  Download {{{/download.html}here}}. All documentation is {{{http://ehcache.sourceforge.net/documentation}here}}.
-  The release is also available on Maven central.
-
-** 10 May 2009: Ehcache 1.6 core beta 5 released
-
-  This beta release of ehcache-1.6 adds bug fixes and massive performance improvements. This release contains
+  This production release of ehcache-1.6 adds bug fixes and massive performance improvements. This release contains
   the changes mooted in February.
 
   The changes made remove used of the <<<synchronized>>> keyword from CacheManager, Cache and MemoryStore. The speed
@@ -51,20 +30,23 @@ Welcome to ehcache
 
   The improvements are:
 
-  * Gets 81 times faster
+  * Gets 60 times faster
 
-  * Puts 22 times faster
+  * Puts 10 times faster
 
-  * Removes 42 times faster
+  * Removes 50 times faster
 
-  The upshot of all this is that ehcache performance is now comparable with direct use of <<<java.util.concurrent.ConcurrentHashMap>>>
 
-  See {{{http://gregluck.com/blog/archives/2009/02/i_have_been_wai.html}
-     Greg Luck's Blog}} for some amazing charts generated with JBoss' cache performance testing tool.
+  This version removes all dependencies. Finally It is compatible with Google App Engine.
 
-  This version removes usage of
+  For those still wishing to use the old engine it can be turned on at runtime
+  using <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>.
 
   Download {{{/download.html}here}}. All documentation is {{{http://ehcache.sourceforge.net/documentation}here}}.
+  The release is also available on Maven central.
+
+  There are no open bugs at time of release.
+  
 
 ** 10 May 2009: New Ehcache Maven repo
 
@@ -73,12 +55,6 @@ Welcome to ehcache
   deployed to the central Maven repository.
   See {{{http://gregluck.com/blog/archives/2009/05/anyone_with_a_p.html}Greg Luck's blog}} for the full details.
 
-
-** 20 April 2009: Ehcache 1.6-beta4 withdrawn
-
-   Ehcache 1.6-beta4 has been marked as inactive on SourceForge. In extensive testing last week a very rare
-     concurrency issue was found in the new high-performance threading code. A specific test has been created
-     which reliably reproduces the issue. Will re-release once this as fixed under beta5.
 
 
 ** 11 April 2009: Ehcache Server and Ehcache Web updates released

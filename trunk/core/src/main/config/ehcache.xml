@@ -389,7 +389,14 @@
     
     Cluster Bootstrapping
     +++++++++++++++++++++
-    (RMI clusters only)
+
+    Bootstrapping a cluster may use a different mechanism to replication. e.g you can mix
+    JMS replication with bootstrap via RMI - just make sure you have the cacheManagerPeerProviderFactory
+    and cacheManagerPeerListenerFactory configured.
+
+    There are two bootstrapping mechanisms: RMI and JGroups.
+
+    RMI Bootstrap
 
     The RMIBootstrapCacheLoader bootstraps caches in clusters where RMICacheReplicators are
     used. It is configured as per the following example:
@@ -408,6 +415,16 @@
     * maximumChunkSizeBytes=<integer> - Caches can potentially be very large, larger than the
       memory limits of the VM. This property allows the bootstraper to fetched elements in
       chunks. The default chunk size is 5000000 (5MB).
+
+    JGroups Bootstrap
+
+    Here is an example of bootstrap configuration using JGroups boostrap:
+
+    <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.jgroups.JGroupsBootstrapCacheLoaderFactory"
+                                    properties="bootstrapAsynchronously=true"/>
+
+    The configuration properties are the same as for RMI above. Note that JGroups bootstrap only supports
+    asynchronous bootstrap mode.                                
 
 
     Cache Exception Handling
