@@ -41,7 +41,7 @@ import java.util.logging.Logger;
  */
 public class Element implements Serializable, Cloneable {
 
-	/**
+    /**
      * serial version
      * Updated for version 1.2, 1.2.1 and 1.7 (groupKeys feature)
      */
@@ -113,7 +113,11 @@ public class Element implements Serializable, Cloneable {
      * Whether any combination of eternal, TTL or TTI has been set.
      */
     private boolean lifespanSet;
-    
+
+    /**
+     * The keys of the groups this Element has membership, 
+     * or null if it does not participate in Groups (the default)
+     */
     private Set groupKeys;
 
     /**
@@ -425,10 +429,12 @@ public class Element implements Serializable, Cloneable {
                 .append(", hitCount=").append(hitCount)
                 .append(", CreationTime = ").append(this.getCreationTime())
                 .append(", LastAccessTime = ").append(this.getLastAccessTime());
-        if(this.hasGroupKeys() && this.getGroupKeys().size()>0)
+        //TODO: Greg to check - this changes behaviour
+        if (this.hasGroupKeys() && this.getGroupKeys().size() > 0) {
             sb.append(", groupKeys = ").append(this.getGroupKeys());
-        else
+        } else {
             sb.append(", groupKeys = null");
+        }
         sb.append(" ]");
 
         return sb.toString();
@@ -660,50 +666,69 @@ public class Element implements Serializable, Cloneable {
         return timeToIdle;
     }
 
-	public Set getGroupKeys() {
-		return groupKeys;
-	}
-
-	public void setGroupKeys(Set groupKeys) {
-		this.groupKeys = groupKeys;
-	}
-	
-	public boolean hasGroupKeys() {
-		return (getGroupKeys()!=null) && (!getGroupKeys().isEmpty());
-	}
-	
-	/**
-	 * 
-	 * @param groupKey groupKey to be added to the Elements group keys set
-     * @return <tt>true</tt> if this set did not already contain the specified
-     *         element
+    /** Obtain all the group keys for this Element.
+     * This is the canonical definition of Group membership 
+     * for the Element, rather than, for instance
+     * {@link GroupElement#getMemberKeys()}
+     * @return
      */
-	public boolean addGroupKey(Object groupKey) {
-		Set groupKeys = getGroupKeys();
-		if(groupKeys==null) {
-			groupKeys = new HashSet();
-		}
-		boolean added = groupKeys.add(groupKey);
-		setGroupKeys(groupKeys);
-		return added;
-	}
-	
-	/**
-	 * 
-	 * @param groupKey groupKey to be removed from the Elements group keys set, if present 
-     * @return <tt>true</tt> if this set contained the specified element
-	 */
-	public boolean removeGroupKey(Object groupKey) {
-		Set groupKeys = getGroupKeys();
-		if(groupKeys==null) {
-			groupKeys = new HashSet();
-		}
-		boolean removed = groupKeys.remove(groupKey);
-		//TODO: if groupKeys.isEmtpy should we set to null?
-		setGroupKeys(groupKeys);
-		return removed;
-	}
-    
+    public Set getGroupKeys() {
+        return groupKeys;
+    }
+
+    /** Add this element to all the groups defined in the set,
+     * any previous group membership is cleared.
+     * As with all Cache operations, the state of the Element is
+     * not changed until the Element is put (back) into the Cache
+     * @param groupKeys
+     */
+    public void setGroupKeys(Set groupKeys) {
+        this.groupKeys = groupKeys;
+    }
+
+    /** 
+     * Indicates whether the Element has any group memberships
+     * @return
+     */
+    public boolean hasGroupKeys() {
+        return (getGroupKeys() != null) && (!getGroupKeys().isEmpty());
+    }
+
+    /**
+     * Add this element to the Group identified by the groupKey.
+     * As with all Cache operations, the state of the Element is
+     * not changed until the Element is put (back) into the Cache
+     * @param groupKey groupKey to be added to the Elements group keys set
+     * @return <tt>true</tt> if this Element was not already a member of the group
+     */
+    public boolean addGroupKey(Object groupKey) {
+        Set groupKeysTmp = getGroupKeys();
+        if (groupKeysTmp == null) {
+            groupKeysTmp = new HashSet();
+        }
+        boolean added = groupKeysTmp.add(groupKey);
+        setGroupKeys(groupKeysTmp);
+        return added;
+    }
+
+    /**
+     * Remove the element from the Group identified by the groupKey.
+     * As with all Cache operations, the state of the Element is
+     * not changed until the Element is put (back) into the Cache
+     * @param groupKey groupKey to be removed from the Elements group keys set, if present
+     * @return <tt>true</tt> if the Element previously was a member of the group
+     */
+    public boolean removeGroupKey(Object groupKey) {
+        Set groupKeysTmp = getGroupKeys();
+        if (groupKeysTmp == null) {
+            groupKeysTmp = new HashSet();
+        }
+        boolean removed = groupKeysTmp.remove(groupKey);
+        //TODO: if groupKeys.isEmtpy should we set to null?
+        setGroupKeys(groupKeysTmp);
+        return removed;
+    }
+
 }
 
 

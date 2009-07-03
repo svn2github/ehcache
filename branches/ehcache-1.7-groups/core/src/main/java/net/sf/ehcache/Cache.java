@@ -129,7 +129,7 @@ public class Cache implements Ehcache {
             LOG.log(Level.SEVERE, "Unable to set localhost. This prevents creation of a GUID. Cause was: " + e.getMessage(), e);
         }
     }
-    
+
     private boolean disabled;
 
     private Store diskStore;
@@ -204,7 +204,7 @@ public class Cache implements Ehcache {
 
     private String masterGroupKey = GroupElement.MASTER_GROUP_KEY;
 
-    
+
     /**
      * 1.0 Constructor.
      * <p/>
@@ -775,7 +775,7 @@ public class Cache implements Ehcache {
         applyDefaultsToElementWithoutLifespanSet(element);
 
         memoryStore.put(element);
-        
+
         addToGroups(element, true, false);
     }
 
@@ -1395,7 +1395,7 @@ public class Cache implements Ehcache {
                 registeredEventListeners.notifyElementRemoved(elementFromMemoryStore, doNotNotifyCacheReplicators);
             }
             removed = true;
-            
+
             removeFromGroups(elementFromMemoryStore, notifyListeners, doNotNotifyCacheReplicators);
         }
         if (elementFromDiskStore != null) {
@@ -1406,7 +1406,7 @@ public class Cache implements Ehcache {
                 registeredEventListeners.notifyElementRemoved(elementFromDiskStore, doNotNotifyCacheReplicators);
             }
             removed = true;
-            
+
             removeFromGroups(elementFromDiskStore, notifyListeners, doNotNotifyCacheReplicators);
         }
 
@@ -1416,7 +1416,7 @@ public class Cache implements Ehcache {
             Element syntheticElement = new Element(key, null);
             registeredEventListeners.notifyElementRemoved(syntheticElement, doNotNotifyCacheReplicators);
         }
-        
+
         return removed;
     }
 
@@ -2373,191 +2373,200 @@ public class Cache implements Ehcache {
         memoryStore.setPolicy(policy);
     }
 
-    private void addToGroups(Element element, boolean quiet, 
-    		boolean doNotNotifyCacheReplicators) throws CacheException {
+    private void addToGroups(Element element, boolean quiet,
+            boolean doNotNotifyCacheReplicators) throws CacheException {
 
-    	//does this element have group membership?
-    	if(!element.hasGroupKeys())
-    		return;
-    	
-    	//loop through group keys, look for them in the cache and create/update them
-    	for(Object groupKey : element.getGroupKeys()) {
-    		addMemberToGroup(groupKey, element.getObjectKey(), quiet, doNotNotifyCacheReplicators);
-    	}
-    }
-    
-    private void addMemberToGroup(Object groupKey, Object memberKey, boolean quiet, 
-    		boolean doNotNotifyCacheReplicators) throws CacheException {
-    	
-    	//TODO: should we use getQuiet() here instead?
-		Element groupE = get(groupKey);
-		GroupElement group = null;
-		boolean groupIsNew = false;
+        //does this element have group membership?
+        if (!element.hasGroupKeys()) {
+            return;
+        }
 
-		//TODO: consider whether we need some kind of Mutex whilst group modification goes on
-		
-		if(groupE instanceof GroupElement) {
-			group = (GroupElement) groupE;
-		}
-		else if(groupE==null) {
-			//group does not exist, so make it - use the special GroupElement 
-			//constructor that makes an element with a Set ready to receive the
-			//group keys
-			group = new GroupElement(groupKey);
-			groupIsNew = true;
-			if(!groupKey.equals(getMasterGroupKey())) {
-				//for any group, G, that is not the special Master Group, MG, 
-				//add the sole groups G belongs to is MG.
-				//Then when this new group G is put into the cache, 
-				//this very method will be re-executed to add G
-				//into the MG.  (And if MG does not exist it will be created,
-				//but the recursion stops there)
-				Set<String> masterGroupKey = Collections.unmodifiableSet(Collections.singleton(getMasterGroupKey()));
-				group.setGroupKeys(masterGroupKey);
-			}
-		}
-		else {
-    		throw new CacheException("The new Element with key " + memberKey 
-    				+ " references the group " + groupKey + ".  This key is already"
-    				+ " in use for a non-group element;"
-    				+ " GroupKeys co-exist in the same namespace "
-    				+ " as regular Elements - cache users are responsible of ensuring "
-    				+ " that namespace collisions do not occur");
-    	}
-		
-		boolean addedMember = group.getMemberKeys().add(memberKey);
-		if(!addedMember && !groupIsNew) {
-			//memberKey is already in the group - nothing to do
-			return;
-		}
-		
-		//now place the group back into the cache; 
-		//the following put calls will cause recursion into this method
-		if(quiet) {
-			putQuiet(group);
-		}
-		else {
-			put(group, doNotNotifyCacheReplicators);
-		}
+        //loop through group keys, look for them in the cache and create/update them
+        for (Object groupKey : element.getGroupKeys()) {
+            addMemberToGroup(groupKey, element.getObjectKey(), quiet, doNotNotifyCacheReplicators);
+        }
     }
-    
-    private void removeFromGroups(Element element, boolean quiet, 
-    		boolean doNotNotifyCacheReplicators) throws CacheException {
-    	
-    	//does this element have group membership?
-    	if(!element.hasGroupKeys())
-    		return;
-    	
-    	//loop through group keys, look for them in the cache and modify/remove them
-    	for(Object groupKey : element.getGroupKeys()) {
-    		removeMemberFromGroup(groupKey, element.getObjectKey(), quiet, doNotNotifyCacheReplicators);
-    	}
+
+    private void addMemberToGroup(Object groupKey, Object memberKey, boolean quiet,
+            boolean doNotNotifyCacheReplicators) throws CacheException {
+
+        //TODO: should we use getQuiet() here instead?
+        Element groupE = get(groupKey);
+        GroupElement group = null;
+        boolean groupIsNew = false;
+
+        //TODO: consider whether we need some kind of Mutex whilst group modification goes on
+
+        if (groupE instanceof GroupElement) {
+            group = (GroupElement) groupE;
+        } else if (groupE == null) {
+            //group does not exist, so make it - use the special GroupElement
+            //constructor that makes an element with a Set ready to receive the
+            //group keys
+            group = new GroupElement(groupKey);
+            groupIsNew = true;
+            if (!groupKey.equals(getMasterGroupKey())) {
+                //for any group, G, that is not the special Master Group, MG,
+                //add the sole groups G belongs to is MG.
+                //Then when this new group G is put into the cache,
+                //this very method will be re-executed to add G
+                //into the MG.  (And if MG does not exist it will be created,
+                //but the recursion stops there)
+                Set<String> masterGroupKeySet = Collections.unmodifiableSet(Collections.singleton(getMasterGroupKey()));
+                group.setGroupKeys(masterGroupKeySet);
+            }
+        } else {
+            throw new CacheException("The new Element with key " + memberKey
+                    + " references the group " + groupKey + ".  This key is already"
+                    + " in use for a non-group element;"
+                    + " GroupKeys co-exist in the same namespace "
+                    + " as regular Elements - cache users are responsible of ensuring "
+                    + " that namespace collisions do not occur");
+        }
+
+        boolean addedMember = group.getMemberKeys().add(memberKey);
+        if (!addedMember && !groupIsNew) {
+            //memberKey is already in the group - nothing to do
+            return;
+        }
+
+        //now place the group back into the cache;
+        //the following put calls will cause recursion into this method
+        if (quiet) {
+            putQuiet(group);
+        } else {
+            put(group, doNotNotifyCacheReplicators);
+        }
     }
-    
+
+    private void removeFromGroups(Element element, boolean quiet,
+            boolean doNotNotifyCacheReplicators) throws CacheException {
+
+        //does this element have group membership?
+        if (!element.hasGroupKeys()) {
+            return;
+        }
+
+        //loop through group keys, look for them in the cache and modify/remove them
+        for (Object groupKey : element.getGroupKeys()) {
+            removeMemberFromGroup(groupKey, element.getObjectKey(), quiet, doNotNotifyCacheReplicators);
+        }
+    }
+
     private void removeMemberFromGroup(Object groupKey, Object memberKey, boolean notifyListeners,
             boolean doNotNotifyCacheReplicators) throws CacheException {
-    	
-    	//TODO: should we use getQuiet() here instead?
-		Element groupE = get(groupKey);
-		GroupElement group = null;
 
-		//TODO: consider whether we need some kind of Mutex whilst group modification goes on
-		
-		if(groupE instanceof GroupElement) {
-			group = (GroupElement) groupE;
-		}
-		else if(groupE==null) {
-			//TODO: this condition should not occur, is it sufficient just to log it?
-			LOG.log(Level.WARNING, "Group " + groupKey + " is missing from the Cache?"
-					+ " - discovered while removing cache element with key " + memberKey);
-			return;
-		}
-		else {
-			//we should have got a GroupElement, but got some other type
-    		throw new CacheException("The new Element with key " + memberKey 
-    				+ " references the group " + groupKey + ".  This key is already"
-    				+ " in use for a non-group element;"
-    				+ " GroupKeys co-exist in the same namespace "
-    				+ " as regular Elements - cache users are responsible of ensuring "
-    				+ " that namespace collisions do not occur");
-    	}
-		
-		boolean removedMember = group.getMemberKeys().remove(memberKey);
-		if(!removedMember) {
-			//TODO: this condition should not occur, it it sufficient just to log it?
-			LOG.log(Level.WARNING, "Group " + groupKey + " did not contain the "
-					+ " element key " + memberKey + " as expected!");
-			//nothing more to do 
-			return;
-		}
-		
-		if(group.getMemberKeys().isEmpty()) {
-			//this group is now empty so now tidy up the cache by removing the group
-			//the following call will cause recursion into this method
-			remove(groupKey, false, notifyListeners, doNotNotifyCacheReplicators);
-		}
-		else {
-			//group still has members so update the group by re-injecting the group into the cache
-			if(notifyListeners) {
-				putQuiet(group);
-			}
-			else {
-				put(group, doNotNotifyCacheReplicators);
-			}
-		}
+        //TODO: should we use getQuiet() here instead?
+        Element groupE = get(groupKey);
+        GroupElement group = null;
+
+        //TODO: consider whether we need some kind of Mutex whilst group modification goes on
+
+        if (groupE instanceof GroupElement) {
+            group = (GroupElement) groupE;
+        } else if (groupE == null) {
+            //TODO: this condition should not occur, is it sufficient just to log it?
+            LOG.log(Level.WARNING, "Group " + groupKey + " is missing from the Cache?"
+                    + " - discovered while removing cache element with key " + memberKey);
+            return;
+        } else {
+            //we should have got a GroupElement, but got some other type
+            throw new CacheException("The new Element with key " + memberKey
+                    + " references the group " + groupKey + ".  This key is already"
+                    + " in use for a non-group element;"
+                    + " GroupKeys co-exist in the same namespace "
+                    + " as regular Elements - cache users are responsible of ensuring "
+                    + " that namespace collisions do not occur");
+        }
+
+        boolean removedMember = group.getMemberKeys().remove(memberKey);
+        if (!removedMember) {
+            //TODO: this condition should not occur, it it sufficient just to log it?
+            LOG.log(Level.WARNING, "Group " + groupKey + " did not contain the "
+                    + " element key " + memberKey + " as expected!");
+            //nothing more to do
+            return;
+        }
+
+        if (group.getMemberKeys().isEmpty()) {
+            //this group is now empty so now tidy up the cache by removing the group
+            //the following call will cause recursion into this method
+            remove(groupKey, false, notifyListeners, doNotNotifyCacheReplicators);
+        } else {
+            //group still has members so update the group by re-injecting the group into the cache
+            if (notifyListeners) {
+                putQuiet(group);
+            } else {
+                put(group, doNotNotifyCacheReplicators);
+            }
+        }
     }
 
-	public String getMasterGroupKey() {
-		return masterGroupKey;
-	}
+    /** Obtains the master group key, by default this is
+     * {@link GroupElement#MASTER_GROUP_KEY}.
+     * @return
+     * @see #setMasterGroupKey(String)
+     */
+    public String getMasterGroupKey() {
+        return masterGroupKey;
+    }
 
-	public void setMasterGroupKey(String masterGroupKey) {
-		if(masterGroupKey==null)
-			throw new NullPointerException("masterGroupKey may not be null");
-		this.masterGroupKey = masterGroupKey;
-	}
+    /** Change the Master Group Key.
+     * When groups are in use, Groups themselves are stored in the same cache
+     * as their elements.  In addition there is a special Master Group which contains
+     * a reference to all Groups.  The master group uses, by default, the key
+     * {@link GroupElement#MASTER_GROUP_KEY}.  This method allows the Master Group
+     * Key to be changed.
+     * @param masterGroupKey
+     */
+    public void setMasterGroupKey(String masterGroupKey) {
+        if (masterGroupKey == null) {
+            throw new NullPointerException("masterGroupKey may not be null");
+        }
+        this.masterGroupKey = masterGroupKey;
+    }
 
     /**
      * Returns a list of all element keys in the cache, whether or not they are expired,
      * whose elements are members are members of the specificed group
      * <p/>
-     * The Set returned is not live. It is a copy, and may be out of date since 
-     * an Element expiry does not necessarily cause a cleanup of the group membership 
+     * The Set returned is not live. It is a copy, and may be out of date since
+     * an Element expiry does not necessarily cause a cleanup of the group membership
      * <p/>
      * The group element's statistics are update by this access.
-     * 
+     *
      * @param groupKey the group identifier
      * @return a set of {@link Object} keys, or null if the group is not present in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @throws CacheException if the key does not identify a Group but a regular Element
      */
     public final Set getKeysForGroup(Object groupKey) throws IllegalStateException, CacheException {
-		Element groupE = get(groupKey);
-    	if(groupE==null)
-    		return null;
-    	if(groupE instanceof GroupElement) {
-			GroupElement group = (GroupElement) groupE;
-			return group.getMemberKeys();
-    	}
-    	else {
-			//we should have got a GroupElement, but got some other type
-    		throw new CacheException("The groupKey " + groupKey 
-    				+ " references  a non-group element;"
-    				+ " GroupKeys co-exist in the same namespace "
-    				+ " as regular Elements - cache users are responsible of ensuring "
-    				+ " that namespace collisions do not occur");
-    	}
+        Element groupE = get(groupKey);
+        if (groupE == null) {
+            return null;
+        }
+        if (groupE instanceof GroupElement) {
+            GroupElement group = (GroupElement) groupE;
+            return group.getMemberKeys();
+        } else {
+            //we should have got a GroupElement, but got some other type
+            throw new CacheException("The groupKey " + groupKey
+                    + " references  a non-group element;"
+                    + " GroupKeys co-exist in the same namespace "
+                    + " as regular Elements - cache users are responsible of ensuring "
+                    + " that namespace collisions do not occur");
+        }
     }
-    
+
     /**
      * Removes all elements which participate in the given group.
      * <p/>
-     * The Set returned is the set of Elements that were removed, this may be a 
+     * The Set returned is the set of Elements that were removed, this may be a
      * subset of the set returned by {@link #getKeysForGroups(Object)}; since this
      * method only includes in the set the keys that were actually removed.
      * <p/>
      * The group element's statistics are update by this access.
-     * 
+     *
      * @param groupKey the group identifier
      * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
      *                                    further notification to doNotNotifyCacheReplicators cache peers
@@ -2566,19 +2575,21 @@ public class Cache implements Ehcache {
      * @throws CacheException if the key does not identify a Group but a regular Element
      */
     public final Set removeByGroup(Object groupKey, boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
-    	//TODO: do we need an overload for this which takes only groupKey and defaults the boolean?
-    	//for the given groupKey, get its Set of members 
-    	Set proposedRemovals = getKeysForGroup(groupKey);
-    	if(proposedRemovals==null)
-    		return null;
-    	//make a copy as we will be modifying the underlying set as we iterate through it  
-    	proposedRemovals = new HashSet(proposedRemovals);
-    	Set actualRemovals = new HashSet();
-    	for(Object key : proposedRemovals) {
-    		boolean removed = remove(key, doNotNotifyCacheReplicators);
-    		if(removed)
-    			actualRemovals.add(key);
-    	}
-    	return actualRemovals;
-    }    
+        //TODO: do we need an overload for this which takes only groupKey and defaults the boolean?
+        //for the given groupKey, get its Set of members
+        Set proposedRemovals = getKeysForGroup(groupKey);
+        if (proposedRemovals == null) {
+            return null;
+        }
+        //make a copy as we will be modifying the underlying set as we iterate through it
+        proposedRemovals = new HashSet(proposedRemovals);
+        Set actualRemovals = new HashSet();
+        for (Object key : proposedRemovals) {
+            boolean removed = remove(key, doNotNotifyCacheReplicators);
+            if (removed) {
+                actualRemovals.add(key);
+            }
+        }
+        return actualRemovals;
+    }
 }

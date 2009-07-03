@@ -181,28 +181,31 @@ public class SelfPopulatingCache extends BlockingCache {
 
         backingCache.putQuiet(replacementElement);
     }
-    
+
     /** Both CacheEntryFactory can return an Element rather than just a regular value
      * this method test this, making a fresh Element otherwise.  It also enforces
      * the rule that the CacheEntryFactory must provide the same key (via equals()
-     * not necessarily same object) if it is returning an Element.  
+     * not necessarily same object) if it is returning an Element.
      * @param key
      * @param value
      * @return the Element to be put back in the cache
      * @throws CacheException
      */
-    private static Element makeAndCheckElement(Object key, Object value) throws CacheException{
+    private static Element makeAndCheckElement(Object key, Object value) throws CacheException {
         if (value instanceof Element) {
             Element element = (Element) value;
-            if((element.getObjectKey()==null) && (key==null))
-            	return element;
-            if(element.getObjectKey()==null)
-            	throw new CacheException("CacheEntryFactory returned an Element with a null key");
-            if(element.getObjectKey().equals(key))
-            	return element;
+            if ((element.getObjectKey() == null) && (key == null)) {
+                return element;
+            }
+            if (element.getObjectKey() == null) {
+                throw new CacheException("CacheEntryFactory returned an Element with a null key");
+            }
+            if (element.getObjectKey().equals(key)) {
+                return element;
+            }
             throw new CacheException("CacheEntryFactory returned an Element with a different key: "
-            		+ element.getObjectKey() + " compared to the key that was requested: "
-            		+ key);
+                    + element.getObjectKey() + " compared to the key that was requested: "
+                    + key);
         } else {
             return new Element(key, value);
         }

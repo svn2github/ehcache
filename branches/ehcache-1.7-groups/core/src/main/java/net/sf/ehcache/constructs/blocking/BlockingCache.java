@@ -1003,22 +1003,65 @@ public class BlockingCache implements Ehcache {
         cache.setDisabled(disabled);
     }
 
-	public String getMasterGroupKey() {
-		return cache.getMasterGroupKey();
-	}
+    /** Obtains the master group key, by default this is
+     * {@link net.sf.ehcache.GroupElement#MASTER_GROUP_KEY}.
+     * @return
+     * @see #setMasterGroupKey(String)
+     */
+    public String getMasterGroupKey() {
+        return cache.getMasterGroupKey();
+    }
 
-	public void setMasterGroupKey(String masterGroupKey) {
-		cache.getMasterGroupKey();
-	}
+    /** Change the Master Group Key.
+     * When groups are in use, Groups themselves are stored in the same cache
+     * as their elements.  In addition there is a special Master Group which contains
+     * a reference to all Groups.  The master group uses, by default, the key
+     * {@link net.sf.ehcache.GroupElement#MASTER_GROUP_KEY}.  This method allows the Master Group
+     * Key to be changed.
+     * @param masterGroupKey
+     */
+    public void setMasterGroupKey(String masterGroupKey) {
+        cache.getMasterGroupKey();
+    }
 
-	public Set removeByGroup(Object groupKey, boolean doNotNotifyCacheReplicators) throws IllegalStateException,
-			CacheException {
-		return removeByGroup(groupKey, doNotNotifyCacheReplicators);
-	}
+    /**
+     * Removes all elements which participate in the given group.
+     * <p/>
+     * The Set returned is the set of Elements that were removed, this may be a
+     * subset of the set returned by {@link #getKeysForGroups(Object)}; since this
+     * method only includes in the set the keys that were actually removed.
+     * <p/>
+     * The group element's statistics are update by this access.
+     *
+     * @param groupKey the group identifier
+     * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
+     *                                    further notification to doNotNotifyCacheReplicators cache peers
+     * @return a set of {@link Object} keys removed, or null if the group is not present in the cache
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     * @throws CacheException if the key does not identify a Group but a regular Element
+     */
+    public Set removeByGroup(Object groupKey, boolean doNotNotifyCacheReplicators) throws IllegalStateException,
+            CacheException {
+        return removeByGroup(groupKey, doNotNotifyCacheReplicators);
+    }
 
-	public Set getKeysForGroup(Object groupKey) throws IllegalStateException, CacheException {
-		return cache.getKeysForGroup(groupKey);
-	}
+    /**
+     * Returns a list of all element keys in the cache, whether or not they are expired,
+     * whose elements are members are members of the specificed group
+     * <p/>
+     * The Set returned is not live. It is a copy, and may be out of date since
+     * an Element expiry does not necessarily cause a cleanup of the group membership
+     * <p/>
+     * The group element's statistics are update by this access.
+     *
+     * @param groupKey the group identifier
+     * @return a set of {@link Object} keys, or null if the group is not present in the cache
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     * @throws CacheException if the key does not identify a Group but a regular Element
+     */
+    public Set getKeysForGroup(Object groupKey) throws IllegalStateException, CacheException {
+        return cache.getKeysForGroup(groupKey);
+    }
 
 }
 
