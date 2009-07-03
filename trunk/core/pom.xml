@@ -25,6 +25,7 @@
             <artifactId>hibernate</artifactId>
             <scope>provided</scope>
             <version>3.2.6.ga</version>
+            
         </dependency>
 
         <!--  Test scope -->
@@ -269,34 +270,34 @@
                 </executions>
             </plugin>
 
-            <!--<plugin>-->
-                <!--<groupId>org.apache.felix</groupId>-->
-                <!--<artifactId>maven-bundle-plugin</artifactId>-->
-                <!--<extensions>true</extensions>-->
-                <!--<configuration>-->
-                    <!--<instructions>-->
-                        <!--<Bundle-SymbolicName>-->
-                            <!--${pom.artifactId}-->
-                        <!--</Bundle-SymbolicName>-->
-                        <!--<Export-Package>-->
-                            <!--*;version=${pom.version}-->
-                        <!--</Export-Package>-->
-                        <!--<Import-Package>-->
-                            <!--net.sf.hibernate.cache;resolution:=optional,*;-split-package:=merge-first-->
-                        <!--</Import-Package>-->
-                    <!--</instructions>-->
-                    <!--<classifier>osgi</classifier>-->
-                <!--</configuration>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>bundle</id>-->
-                        <!--<phase>package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>bundle</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>
+                            ${pom.artifactId}
+                        </Bundle-SymbolicName>
+                        <Export-Package>
+                            *;version=${pom.version}
+                        </Export-Package>
+                        <Import-Package>
+                            net.sf.hibernate.cache;resolution:=optional,*;-split-package:=merge-first
+                        </Import-Package>
+                    </instructions>
+                    <classifier>osgi</classifier>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>bundle</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>bundle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
