@@ -141,17 +141,23 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
             return;
         }
 
-        if (!element.isSerializable()) {
-            if (LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Object with key " + element.getObjectKey() + " is not Serializable and cannot be replicated");
-            }
-            return;
-        }
-
-
         if (replicatePutsViaCopy) {
+            if (!element.isSerializable()) {
+                if (LOG.isLoggable(Level.WARNING)) {
+                    LOG.log(Level.WARNING, "Object with key " + element.getObjectKey()
+                            + " is not Serializable and cannot be replicated.");
+                }
+                return;
+            }
             addToReplicationQueue(new CacheEventMessage(EventMessage.PUT, cache, element, null));
         } else {
+            if (!element.isKeySerializable()) {
+                if (LOG.isLoggable(Level.WARNING)) {
+                    LOG.log(Level.WARNING, "Object with key " + element.getObjectKey()
+                            + " does not have a Serializable key and cannot be replicated via invalidate.");
+                }
+                return;
+            }
             addToReplicationQueue(new CacheEventMessage(EventMessage.REMOVE, cache, null, element.getKey()));
         }
 
@@ -178,16 +184,23 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
             return;
         }
 
-        if (!element.isSerializable()) {
-            if (LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Object with key " + element.getObjectKey() + " is not Serializable and cannot be updated via copy");
-            }
-            return;
-        }
-
         if (replicateUpdatesViaCopy) {
+            if (!element.isSerializable()) {
+                if (LOG.isLoggable(Level.WARNING)) {
+                    LOG.log(Level.WARNING, "Object with key " + element.getObjectKey()
+                            + " is not Serializable and cannot be updated via copy.");
+                }
+                return;
+            }
             addToReplicationQueue(new CacheEventMessage(EventMessage.PUT, cache, element, null));
         } else {
+            if (!element.isKeySerializable()) {
+                if (LOG.isLoggable(Level.WARNING)) {
+                    LOG.log(Level.WARNING, "Object with key " + element.getObjectKey()
+                            + " does not have a Serializable key and cannot be replicated via invalidate.");
+                }
+                return;
+            }
             addToReplicationQueue(new CacheEventMessage(EventMessage.REMOVE, cache, null, element.getKey()));
         }
     }

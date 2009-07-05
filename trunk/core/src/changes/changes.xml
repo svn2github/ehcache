@@ -2,6 +2,23 @@
 <document>
     <body>
 
+        <release version="1.6.1" date="2009-7-31"
+                 desc="This release fixes minor issues in Ehcache 1.6.0.">
+
+            <action dev="Greg Luck" type="fix">
+                Fixed ConcurrentModificationException when using DiskStore. This issue would log an exception
+                and those elements waiting to be spooled would be discarded. The DiskStore and cache would
+                continue to run unaffected.
+            </action>
+            <action dev="Greg Luck" type="fix">
+                Fixed regression in 1.6.0. When an Element is not Serializable, but it's key is, then replications
+                via invalidate should still work as only the key needs to be Serializable.
+            </action>
+            <action dev="Greg Luck" type="update">
+                Clarified and made consistent removeQuiet and getQuiet. Both do not update statistics nor call listeners.
+            </action>
+        </release>
+
         <release version="1.6.0" date="2009-6-17"
                  desc="This release introduces a new high performance cache core, which is two orders of magnitude faster.">
 

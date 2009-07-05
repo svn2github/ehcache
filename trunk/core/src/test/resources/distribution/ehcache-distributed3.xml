@@ -176,8 +176,7 @@
                                     replicatePuts=true,
                                     replicateUpdates=true,
                                     replicateUpdatesViaCopy=true,
-                                    replicateRemovals=true,
-                                    asynchronousReplicationIntervalMillis= "/>
+                                    replicateRemovals=true"/>
         <cacheEventListenerFactory class="net.sf.ehcache.event.CountingCacheEventListenerFactory"/>
         <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"
                                    properties="bootstrapAsynchronously=true,

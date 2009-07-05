@@ -141,11 +141,12 @@ public class AsynchronousCommandExecutorTest {
     public void testAsynchronousSerializableCommandExecution() throws Exception {
         ListAppenderCommand command = new ListAppenderCommand(new IsSerializable(), 10, null);
 
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 20; i++) {
             AsynchronousCommandExecutor.getInstance().queueForExecution(command);
         }
         waitForProcessing();
-        assertEquals(12, messages.size());
+        Thread.sleep(1000);
+        assertEquals(20, messages.size());
         assertNoCommandsInCache();
     }
 

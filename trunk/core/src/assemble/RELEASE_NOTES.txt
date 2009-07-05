@@ -44,12 +44,12 @@ Maven POM snippet
 
      All Ehcache releases are placed in the central Maven repository.
 
-     The Maven snippet for ehcache core is:
+     The Maven snippet for ehcache core (which automatically picks up any point releases in 1.6) is:
 
      <dependency>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache</artifactId>
-        <version>1.6.0-beta5</version>
+        <version>[1.6.0,]</version>
      </dependency>
 
 Installation

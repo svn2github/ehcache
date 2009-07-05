@@ -899,9 +899,9 @@ public class Cache implements Ehcache {
         Element element;
         long start = System.currentTimeMillis();
 
-        element = searchInMemoryStore(key, true);
+        element = searchInMemoryStore(key, true, true);
         if (element == null && isDiskStore()) {
-            element = searchInDiskStore(key, true);
+            element = searchInDiskStore(key, true, true);
         }
         if (element == null) {
             missCountNotFound++;
@@ -1113,10 +1113,8 @@ public class Cache implements Ehcache {
 
     /**
      * Gets an element from the cache, without updating Element statistics. Cache statistics are
-     * still updated.
+     * still updated. Listeners are not called.
      * <p/>
-     * Synchronization is handled within the method.
-     *
      * @param key a serializable value
      * @return the element, or null, if it does not exist.
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
@@ -1130,7 +1128,7 @@ public class Cache implements Ehcache {
      * Gets an element from the cache, without updating Element statistics. Cache statistics are
      * not updated.
      * <p/>
-     * Synchronization is handled within the method.
+     * Listeners are not called.
      *
      * @param key a serializable value
      * @return the element, or null, if it does not exist.
@@ -1142,9 +1140,9 @@ public class Cache implements Ehcache {
         checkStatus();
         Element element;
 
-        element = searchInMemoryStore(key, false);
+        element = searchInMemoryStore(key, false, false);
         if (element == null && isDiskStore()) {
-            element = searchInDiskStore(key, false);
+            element = searchInDiskStore(key, false, false);
         }
         return element;
     }
@@ -1254,7 +1252,7 @@ public class Cache implements Ehcache {
         return allKeys;
     }
 
-    private Element searchInMemoryStore(Object key, boolean updateStatistics) {
+    private Element searchInMemoryStore(Object key, boolean updateStatistics, boolean notifyListeners) {
         Element element;
         if (updateStatistics) {
             element = memoryStore.get(key);
@@ -1269,7 +1267,7 @@ public class Cache implements Ehcache {
                 if (updateStatistics) {
                     missCountExpired++;
                 }
-                remove(key, true, true, false);
+                remove(key, true, notifyListeners, false);
                 element = null;
             } else {
                 if (updateStatistics) {
@@ -1280,7 +1278,7 @@ public class Cache implements Ehcache {
         return element;
     }
 
-    private Element searchInDiskStore(Object key, boolean updateStatistics) {
+    private Element searchInDiskStore(Object key, boolean updateStatistics, boolean notifyListeners) {
         if (!(key instanceof Serializable)) {
             return null;
         }
@@ -1297,7 +1295,7 @@ public class Cache implements Ehcache {
                     LOG.log(Level.FINE, configuration.getName() + " cache - Disk Store hit, but element expired");
                 }
                 missCountExpired++;
-                remove(key, true, true, false);
+                remove(key, true, notifyListeners, false);
                 element = null;
             } else {
                 diskStoreHitCount++;
@@ -1396,7 +1394,7 @@ public class Cache implements Ehcache {
      * Removes an {@link Element} from the Cache, without notifying listeners. This also removes it from any
      * stores it may be in.
      * <p/>
-     * Synchronization is handled within the method.
+     * Listeners are not called.
      *
      * @param key the element key to operate on
      * @return true if the element was removed, false if it was not found in the cache
@@ -1410,7 +1408,7 @@ public class Cache implements Ehcache {
      * Removes an {@link Element} from the Cache, without notifying listeners. This also removes it from any
      * stores it may be in.
      * <p/>
-     * Synchronization is handled within the method.
+     * Listeners are not called.
      * <p/>
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
      * This exception should be caught in those cirucmstances.
@@ -1981,7 +1979,7 @@ public class Cache implements Ehcache {
         Object[] keys = memoryStore.getKeyArray();
 
         for (Object key : keys) {
-            searchInMemoryStore(key, false);
+            searchInMemoryStore(key, false, true);
         }
 
         //This is called regularly by the expiry thread, but call it here synchronously

@@ -87,7 +87,7 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
         } catch (final Throwable throwable) {
             // Could not fetch - Ditch the entry from the cache and rethrow
             put(new Element(key, null));
-            throw new LockTimeoutException("Could not fetch object for cache entry with key \"" + key + "\".", throwable);
+            throw new LockTimeoutException("Could not update object for cache entry with key \"" + key + "\".", throwable);
         }
     }
 

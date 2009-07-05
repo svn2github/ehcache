@@ -97,7 +97,7 @@
 
                 <configuration>
                     <author>true</author>
-                    <bottom>true</bottom>
+                    <bottom>true</bottom> 
                     <!--<destDir>${project.build.directory}/site/javadoc</destDir>-->
                     <header><![CDATA[<a href="/" target="_top">ehcache</a>]]></header>
                     <minmemory>128m</minmemory>
@@ -235,7 +235,7 @@
                     <disableXmlReport>true</disableXmlReport>
                     <printSummary>true</printSummary>
                     <reportFormat>plain</reportFormat>
-                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <redirectTestOutputToFile>false</redirectTestOutputToFile>
                     <systemProperties>
                         <property>
                             <name>java.awt.headless</name>

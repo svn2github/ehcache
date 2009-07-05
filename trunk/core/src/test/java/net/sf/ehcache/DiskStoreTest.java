@@ -1031,6 +1031,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         long elapsed = stopWatch.getElapsedTime();
         LOG.log(Level.INFO, "Elapsed time: " + elapsed / 1000);
+        Thread.sleep(500);
         assertEquals(100000, cache.getSize());
         assertTrue(23 < elapsed);
         //Some entries may be in the Memory Store and Disk Store. cache.getSize removes dupes. a look at the

@@ -92,9 +92,15 @@ public abstract class AbstractPolicy implements Policy {
     public static int[] generateRandomSample(int populationSize) {
         int sampleSize = calculateSampleSize(populationSize);
         int[] offsets = new int[sampleSize];
-        int maxOffset = populationSize / sampleSize;
-        for (int i = 0; i < sampleSize; i++) {
-            offsets[i] = RANDOM.nextInt(maxOffset);
+
+        //Guard against the possibility (which can happen) that the store has emptied, via another thread(s) and thus sampleSize is 0.
+        //Otherwise return an empty array.
+        if (sampleSize != 0) {
+            int maxOffset = 0;
+            maxOffset = populationSize / sampleSize;
+            for (int i = 0; i < sampleSize; i++) {
+                offsets[i] = RANDOM.nextInt(maxOffset);
+            }
         }
         return offsets;
     }

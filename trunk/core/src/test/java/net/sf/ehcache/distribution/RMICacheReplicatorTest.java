@@ -43,10 +43,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
 /**
  * Tests replication of Cache events
@@ -1197,6 +1195,53 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         assertNull(element2);
 
     }
+
+
+    /**
+     * Tests put and update through invalidation initiated from cache1 in a cluster
+     * <p/>
+     * This test goes into an infinite loop if the chain of notifications is not somehow broken.
+     */
+    @Test
+    public void testUpdateViaInvalidateNonSerializableValue() throws CacheException, InterruptedException, IOException {
+
+        cache1 = manager1.getCache("sampleCache2");
+        cache1.removeAll();
+
+        cache2 = manager2.getCache("sampleCache2");
+        cache2.removeAll();
+
+        //removeAll is distributed. Stop it colliding with the rest of the test
+        waitForPropagate();
+
+        String key = "1";
+        Serializable value = new Date();
+
+        /**
+         * Non-serializable test class
+         */
+        class NonSerializable {
+            //
+        }
+
+        NonSerializable value1 = new NonSerializable();
+        Element element1 = new Element(key, value1);
+
+        //Put
+        cache2.put(element1);
+        Element element2 = cache2.get(key);
+        assertEquals(element1, element2);
+
+        //Update
+        cache1.put(element1);
+        waitForPropagate();
+
+        //Should have been removed in cache2.
+        element2 = cache2.get(key);
+        assertNull(element2);
+
+    }
+
 
     /**
      * What happens when two cache instances replicate to each other and a change is initiated

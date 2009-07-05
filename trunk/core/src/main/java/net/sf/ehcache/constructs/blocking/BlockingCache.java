@@ -112,8 +112,22 @@ public class BlockingCache implements Ehcache {
      * Creates a BlockingCache which decorates the supplied cache.
      *
      * @param cache a backing ehcache.
+     * @param numberOfStripes how many stripes to has the keys against. Must be a non-zero even number. This is a trade-off between
+     * memory use and concurrency
      * @throws CacheException shouldn't happen
      * @since 1.2
+     */
+    public BlockingCache(final Ehcache cache, int numberOfStripes) throws CacheException {
+        this.cache = cache;
+        this.stripedMutex = new StripedMutex(numberOfStripes);
+    }
+
+    /**
+     * Creates a BlockingCache which decorates the supplied cache.
+     *
+     * @param cache a backing ehcache.
+     * @throws CacheException shouldn't happen
+     * @since 1.6.1
      */
     public BlockingCache(final Ehcache cache) throws CacheException {
         this.cache = cache;
@@ -430,7 +444,7 @@ public class BlockingCache implements Ehcache {
      *                              to release the lock acquired.
      */
     public Element get(final Object key) throws RuntimeException, LockTimeoutException {
-        Mutex lock = stripedMutex.getMutexForKey(key);
+        Mutex lock = getLockForKey(key);
         try {
             if (timeoutMillis == 0) {
                 lock.acquire();
@@ -458,6 +472,17 @@ public class BlockingCache implements Ehcache {
         }
     }
 
+
+    /**
+     * Gets the Mutex to use for a given key.
+     *
+     * @param key the key
+     * @return one of a limited number of Mutexes.
+     */
+    protected Mutex getLockForKey(final Object key) {
+        return stripedMutex.getMutexForKey(key);
+    }
+
     /**
      * Adds an entry and unlocks it
      */
@@ -469,7 +494,7 @@ public class BlockingCache implements Ehcache {
         Object key = element.getObjectKey();
         Object value = element.getObjectValue();
 
-        Mutex lock = stripedMutex.getMutexForKey(key);
+        Mutex lock = getLockForKey(key);
         try {
             if (value != null) {
                 cache.put(element);

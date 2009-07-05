@@ -1326,7 +1326,7 @@ public class CacheTest extends AbstractCacheTest {
             cache.put(new Element("" + i, new byte[480]));
         }
         LOG.log(Level.INFO, "Put time: " + stopWatch.getElapsedTime());
-
+        Thread.sleep(2000);
         assertEquals(40000, cache.getMemoryStoreSize());
         assertEquals(40000, cache.getDiskStoreSize());
 
@@ -1525,11 +1525,12 @@ public class CacheTest extends AbstractCacheTest {
      */
     @Test
     public void testSpoolThreadHandlesThreadKiller() throws Exception {
-        Cache cache = new Cache("testThreadKiller", 1, true, false, 100, 200);
+        Cache cache = new Cache("testThreadKiller", 0, true, false, 100, 200);
         manager.addCache(cache);
 
         Element elementThreadKiller = new Element("key", new ThreadKiller());
         cache.put(elementThreadKiller);
+        Thread.sleep(2000);
         Element element1 = new Element("key1", "one");
         Element element2 = new Element("key2", "two");
         cache.put(element1);
@@ -1911,7 +1912,7 @@ public class CacheTest extends AbstractCacheTest {
         final int size = 10000;
         //set it higher for normal continuous integration so occasional higher numbes do not break tests
         final int maxTime = (int) (500 * StopWatch.getSpeedAdjustmentFactor());
-        manager.addCache(new Cache("test3cache", size, policy, false, null, true, 30, 30, false, 120, null));
+        manager.addCache(new Cache("test3cache", size, policy, false, null, true, 120, 120, false, 1, null));
         final Ehcache cache = manager.getEhcache("test3cache");
 
         System.gc();
@@ -1993,25 +1994,25 @@ public class CacheTest extends AbstractCacheTest {
 
 
         //some of the time removeAll the data
-//        for (int i = 0; i < 10; i++) {
-//            final Executable executable = new Executable() {
-//                public void execute() throws Exception {
-//                    final StopWatch stopWatch = new StopWatch();
-//                    long start = stopWatch.getElapsedTime();
-//                    int randomInteger = random.nextInt(20);
-//                    if (randomInteger == 3) {
-//                        cache.removeAll();
-//                    }
-//                    long end = stopWatch.getElapsedTime();
-//                    long elapsed = end - start;
-//                    //remove all is slower
-//                    assertTrue("RemoveAll time outside of allowed range: " + elapsed, elapsed < (maxTime * 3));
-//                    removeAllTimeSum.getAndAdd(elapsed);
-//                    removeAllTimeCount.getAndIncrement();
-//                }
-//            };
-//            executables.add(executable);
-//        }
+        for (int i = 0; i < 10; i++) {
+            final Executable executable = new Executable() {
+                public void execute() throws Exception {
+                    final StopWatch stopWatch = new StopWatch();
+                    long start = stopWatch.getElapsedTime();
+                    int randomInteger = random.nextInt(20);
+                    if (randomInteger == 3) {
+                        cache.removeAll();
+                    }
+                    long end = stopWatch.getElapsedTime();
+                    long elapsed = end - start;
+                    //remove all is slower
+                    assertTrue("RemoveAll time outside of allowed range: " + elapsed, elapsed < (maxTime * 3));
+                    removeAllTimeSum.getAndAdd(elapsed);
+                    removeAllTimeCount.getAndIncrement();
+                }
+            };
+            executables.add(executable);
+        }
 
 
         //some of the time iterate
