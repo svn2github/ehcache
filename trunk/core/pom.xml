@@ -299,6 +299,7 @@
                 </executions>
             </plugin>
 
+	   <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
@@ -323,6 +324,7 @@
                     <enableRulesSummary>true</enableRulesSummary>
                 </configuration>
             </plugin>
+	    -->
 
             <!-- Use this to specify a different template. It also needs a local copy of maven-base.css -->
             <plugin>

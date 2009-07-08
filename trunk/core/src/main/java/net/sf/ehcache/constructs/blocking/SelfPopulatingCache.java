@@ -96,14 +96,39 @@ public class SelfPopulatingCache extends BlockingCache {
      * might be expensive, takes place.
      * <p/>
      * Quiet methods are used, so that statistics are not affected.
+     * Note that the refreshed elements will not be replicated to any cache peers.
      * <p/>
      * Configure ehcache.xml to stop elements from being refreshed forever:
      * <ul>
      * <li>use timeToIdle to discard elements unused for a period of time
      * <li>use timeToLive to discard elmeents that have existed beyond their allotted lifespan
      * </ul>
+     * @throws CacheException
      */
     public void refresh() throws CacheException {
+        refresh(true);
+    }
+    
+    /**
+     * Refresh the elements of this cache.
+     * <p/>
+     * Refreshes bypass the {@link BlockingCache} and act directly on the backing {@link Ehcache}.
+     * This way, {@link BlockingCache} gets can continue to return stale data while the refresh, which
+     * might be expensive, takes place.
+     * <p/>
+     * Quiet methods are used if argument 0 is true, so that statistics are not affected, 
+     * but note that replication will then not occur
+     * <p/>
+     * Configure ehcache.xml to stop elements from being refreshed forever:
+     * <ul>
+     * <li>use timeToIdle to discard elements unused for a period of time
+     * <li>use timeToLive to discard elmeents that have existed beyond their allotted lifespan
+     * </ul>
+     * @param quiet        whether the backing cache is quietly updated or not, if true replication will not occur
+     * @throws CacheException
+     * @since 1.6.1
+     */
+    public void refresh(boolean quiet) throws CacheException {
         Exception exception = null;
         Object keyWithException = null;
 
@@ -130,7 +155,7 @@ public class SelfPopulatingCache extends BlockingCache {
                     continue;
                 }
 
-                refreshElement(element, backingCache);
+                refreshElement(element, backingCache, quiet);
             } catch (final Exception e) {
                 // Collect the exception and keep going.
                 // Throw the exception once all the entries have been refreshed
@@ -147,12 +172,83 @@ public class SelfPopulatingCache extends BlockingCache {
 
     /**
      * Refresh a single element.
+     * <p/>
+     * Refreshes bypass the {@link BlockingCache} and act directly on the backing {@link Ehcache}.
+     * This way, {@link BlockingCache} gets can continue to return stale data while the refresh, which
+     * might be expensive, takes place.
+     * <p/>
+     * If the element is absent it is created
+     * <p/>
+     * Quiet methods are used, so that statistics are not affected.  
+     * Note that the refreshed element will not be replicated to any cache peers.
+     * 
+     * @param key
+     * @return the refreshed Element
+     * @throws CacheException
+     * @since 1.6.1
+     */
+    public Element refresh(Object key) throws CacheException {
+        return refresh(key, true);
+    }
+
+    /**
+     * Refresh a single element.
+     * <p/>
+     * Refreshes bypass the {@link BlockingCache} and act directly on the backing {@link Ehcache}.
+     * This way, {@link BlockingCache} gets can continue to return stale data while the refresh, which
+     * might be expensive, takes place.
+     * <p/>
+     * If the element is absent it is created
+     * <p/>
+     * Quiet methods are used if argument 1 is true, so that statistics are not affected, 
+     * but note that replication will then not occur
+     * 
+     * @param key
+     * @param quiet        whether the backing cache is quietly updated or not, 
+     * if true replication will not occur
+     * @return the refreshed Element
+     * @throws CacheException
+     * @since 1.6.1
+     */
+    public Element refresh(Object key, boolean quiet) throws CacheException {
+        try {
+            Ehcache backingCache = getCache();
+            Element element = backingCache.getQuiet(key);
+            if (element != null) {
+                return refreshElement(element, backingCache, quiet);
+            } else {
+                //need to create 
+                return get(key);
+            }
+        } catch (CacheException ce) {
+            throw ce;
+        } catch (Exception e) {
+            throw new CacheException(e.getMessage() + " on refresh with key " + key, e);
+        }
+    }
+    
+    /**
+     * Refresh a single element.
      *
      * @param element      the Element to refresh
      * @param backingCache the underlying {@link Ehcache}.
      * @throws Exception
      */
-    protected void refreshElement(final Element element, Ehcache backingCache)
+    protected void refreshElement(final Element element, Ehcache backingCache) throws Exception {
+        refreshElement(element, backingCache, true);
+    }
+
+    /**
+     * Refresh a single element.
+     *
+     * @param element      the Element to refresh
+     * @param backingCache the underlying {@link Ehcache}.
+     * @param quiet        whether to use putQuiet or not, if true replication will not occur
+     * @return the refreshed Element
+     * @throws Exception
+     * @since 1.6.1
+     */
+    protected Element refreshElement(final Element element, Ehcache backingCache, boolean quiet)
             throws Exception {
         Object key = element.getObjectKey();
 
@@ -176,9 +272,13 @@ public class SelfPopulatingCache extends BlockingCache {
             replacementElement = makeAndCheckElement(key, value);
         }
 
-        backingCache.putQuiet(replacementElement);
+        if (quiet) {
+            backingCache.putQuiet(replacementElement);
+        } else {
+            backingCache.put(replacementElement);
+        }
+        return replacementElement;
     }
-
 
     /**
      * Both CacheEntryFactory can return an Element rather than just a regular value
@@ -189,9 +289,9 @@ public class SelfPopulatingCache extends BlockingCache {
      * @param key
      * @param value
      * @return the Element to be put back in the cache
-     * @throws CacheException for various illegals states which could be harmful
+     * @throws CacheException for various illegal states which could be harmful
      */
-    private static Element makeAndCheckElement(Object key, Object value) throws CacheException {
+    protected static Element makeAndCheckElement(Object key, Object value) throws CacheException {
         //check if null
         if (value == null) {
             return new Element(key, value);
@@ -201,7 +301,6 @@ public class SelfPopulatingCache extends BlockingCache {
         if (!(value instanceof Element)) {
             return new Element(key, value);
         }
-
 
         //It is already an element - perform sanity checks
         Element element = (Element) value;
