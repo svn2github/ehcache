@@ -72,13 +72,18 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
      *
      * @param groupMulticastAddress 224.0.0.1 to 239.255.255.255 e.g. 230.0.0.1
      * @param groupMulticastPort    1025 to 65536 e.g. 4446
+     * @param hostAddress the address of the interface to use for sending and receiving multicast. May be null.
      */
     public MulticastRMICacheManagerPeerProvider(CacheManager cacheManager, InetAddress groupMulticastAddress,
-                                                Integer groupMulticastPort, Integer timeToLive) {
+                                                Integer groupMulticastPort, Integer timeToLive, InetAddress hostAddress) {
         super(cacheManager);
-        heartBeatReceiver = new MulticastKeepaliveHeartbeatReceiver(this, groupMulticastAddress, groupMulticastPort);
-        heartBeatSender =
-                new MulticastKeepaliveHeartbeatSender(cacheManager, groupMulticastAddress, groupMulticastPort, timeToLive);
+
+
+
+        heartBeatReceiver = new MulticastKeepaliveHeartbeatReceiver(this, groupMulticastAddress,
+                groupMulticastPort, hostAddress);
+        heartBeatSender = new MulticastKeepaliveHeartbeatSender(cacheManager, groupMulticastAddress,
+                        groupMulticastPort, timeToLive, hostAddress);
     }
 
     /**

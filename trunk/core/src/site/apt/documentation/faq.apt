@@ -409,3 +409,31 @@ java.net.ConnectException: Connection refused
 
     Version 1.6 is compatible. See the {{{./googleappengine.html}Google App Engine Howto}}
 
+*   Can my app server use JMS Replication?
+
+    Some App Servers do not permit the creation of message listeners. This issue has been reported on Websphere 5.
+    Websphere 4 did allow it. Tomcat allows it. Glassfish Allows it. Jetty allows it.
+
+    Usually there is a way to turn off strict EJB compliance checks in your app server. See your vendor documentation.
+
+*   Why does Ehcache 1.6 use more memory than 1.5?
+
+    ConcurrentHashMap does not provide an eviction mechanism. We add that ourselves. For caches larger than 5000
+    elements, we create an extra ArrayList equal to the size of the cache which holds keys. This can be an issue
+    with larger keys. An optimisation which cache clients can use is:
+
+---
+    http://www.codeinstructions.com/2008/09/instance-pools-with-weakhashmap.html
+
+    To reduce the number of key instances in memory to just one per logical
+    key, all puts to the underlying ConcurrentHashMap could be replaced by
+    map.put(pool.replace(key), value), as well as keyArray.set(index,
+    pool.replace(key))
+
+    You can take this approach when producing the keys before handing them over to EhCache.
+
+---
+
+    Even with this approach there is still some added overhead consumed by a reference consumed by each ArrayList element. 
+
+     

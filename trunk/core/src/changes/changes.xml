@@ -17,6 +17,11 @@
             <action dev="Greg Luck" type="update">
                 Clarified and made consistent removeQuiet and getQuiet. Both do not update statistics nor call listeners.
             </action>
+            <action dev="Greg Luck" type="update">
+                Allow the network interface to be specified on multi-homed machines for MulticastRMICacheManagerPeerProvider.
+                This can now be done by specifying hostName=<hostname or IP of network interface> in the properties.
+                The default interface is used if this is not specified as it has been in past versions.
+            </action>
         </release>
 
         <release version="1.6.0" date="2009-6-17"

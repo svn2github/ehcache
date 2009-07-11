@@ -43,6 +43,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.ConcurrentModificationException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -78,6 +79,7 @@ public class DiskStore implements Store {
     private static final int SPOOL_THREAD_INTERVAL = 200;
     private static final int ESTIMATED_MINIMUM_PAYLOAD_SIZE = 512;
     private static final int ONE_MEGABYTE = 1048576;
+    private static final int QUARTER_OF_A_SECOND = 250;
 
     private long expiryThreadInterval;
 
@@ -708,11 +710,31 @@ public class DiskStore implements Store {
             int bufferLength;
             long expirationTime = element.getExpirationTime();
 
+            //try two times to Serialize. A ConcurrentModificationException can occur because Java's serialization
+            //mechanism is not threadsafe and POJOs are seldom implemented in a threadsafe way.
+            //e.g. we are serializing an ArrayList field while another thread somewhere in the application is appending to it.
+            //The best we can do is try again and then give up.
+            int retryCount = 0;
+            MemoryEfficientByteArrayOutputStream buffer = null;
             try {
-                MemoryEfficientByteArrayOutputStream buffer =
-                        MemoryEfficientByteArrayOutputStream.serialize(element, estimatedPayloadSize());
+                buffer = MemoryEfficientByteArrayOutputStream.serialize(element, estimatedPayloadSize());
+                retryCount++;
+            } catch (ConcurrentModificationException e) {
+                if (retryCount == 2) {
+                    //give up.
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.log(Level.FINE, "Gave up trying to Serialize " + key, e);
+                    }
+                    return;
+                } else {
+                    //wait for the other thread(s) to finish
+                    Thread.sleep(QUARTER_OF_A_SECOND);
+                }
+            }
+            bufferLength = buffer.size();
 
-                bufferLength = buffer.size();
+            try {
+
                 DiskElement diskElement = checkForFreeBlock(bufferLength);
 
                 // Write the record

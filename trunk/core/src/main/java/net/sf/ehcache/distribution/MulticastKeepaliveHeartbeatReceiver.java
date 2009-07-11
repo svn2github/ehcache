@@ -53,6 +53,7 @@ public final class MulticastKeepaliveHeartbeatReceiver {
     private MulticastSocket socket;
     private boolean stopped;
     private final MulticastRMICacheManagerPeerProvider peerProvider;
+    private InetAddress hostAddress;
 
     /**
      * Constructor.
@@ -60,13 +61,17 @@ public final class MulticastKeepaliveHeartbeatReceiver {
      * @param peerProvider
      * @param multicastAddress
      * @param multicastPort
+     * @param hostAddress
      */
     public MulticastKeepaliveHeartbeatReceiver(
-            MulticastRMICacheManagerPeerProvider peerProvider, InetAddress multicastAddress, Integer multicastPort) {
+            MulticastRMICacheManagerPeerProvider peerProvider, InetAddress multicastAddress, Integer multicastPort,
+            InetAddress hostAddress) {
         this.peerProvider = peerProvider;
         this.groupMulticastAddress = multicastAddress;
         this.groupMulticastPort = multicastPort;
+        this.hostAddress = hostAddress;
     }
+
 
     /**
      * Start.
@@ -75,6 +80,9 @@ public final class MulticastKeepaliveHeartbeatReceiver {
      */
     final void init() throws IOException {
         socket = new MulticastSocket(groupMulticastPort.intValue());
+        if (hostAddress != null) {
+            socket.setInterface(hostAddress);
+        }
         socket.joinGroup(groupMulticastAddress);
         receiverThread = new MulticastReceiverThread();
         receiverThread.start();
@@ -98,7 +106,7 @@ public final class MulticastKeepaliveHeartbeatReceiver {
 
         /**
          * Constructor
-         */         
+         */
         public MulticastReceiverThread() {
             super("Multicast Heartbeat Receiver Thread");
             setDaemon(true);

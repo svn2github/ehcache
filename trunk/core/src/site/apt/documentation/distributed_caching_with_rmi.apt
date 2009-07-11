@@ -79,6 +79,9 @@
     multicastGroupAddress=multicast address | multicast host name
     multicastGroupPort=port
     timeToLive=0-255 (See below in common problems before setting this)
+    hostName= the hostname or IP of the interface to be used for sending and receiving multicast packets
+       (relevant to mulithomed hosts only)
+
 
 *** Example
 

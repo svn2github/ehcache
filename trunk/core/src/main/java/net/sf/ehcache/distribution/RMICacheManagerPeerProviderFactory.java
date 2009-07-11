@@ -37,6 +37,7 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
 
     private static final Logger LOG = Logger.getLogger(RMICacheManagerPeerProviderFactory.class.getName());
 
+    private static final String HOST_NAME = "hostName";
     private static final String PEER_DISCOVERY = "peerDiscovery";
     private static final String AUTOMATIC_PEER_DISCOVERY = "automatic";
     private static final String MANUALLY_CONFIGURED_PEER_DISCOVERY = "manual";
@@ -97,6 +98,17 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
      */
     protected CacheManagerPeerProvider createAutomaticallyConfiguredCachePeerProvider(CacheManager cacheManager,
                                                                                       Properties properties) throws IOException {
+        String hostName = PropertyUtil.extractAndLogProperty(HOST_NAME, properties);
+        InetAddress hostAddress = null;
+        if (hostName != null && hostName.length() != 0) {
+            hostAddress = InetAddress.getByName(hostName);
+            if (hostName.equals("localhost")) {
+                LOG.log(Level.WARNING, "Explicitly setting the multicast hostname to 'localhost' is not recommended. "
+                        + "It will only work if all CacheManager peers are on the same machine.");
+            }
+        }
+
+
         String groupAddressString = PropertyUtil.extractAndLogProperty(MULTICAST_GROUP_ADDRESS, properties);
         InetAddress groupAddress = InetAddress.getByName(groupAddressString);
         String multicastPortString = PropertyUtil.extractAndLogProperty(MULTICAST_GROUP_PORT, properties);
@@ -112,6 +124,6 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
                 throw new CacheException("The TTL must be set to a value between 0 and 255");
             }
         }
-        return new MulticastRMICacheManagerPeerProvider(cacheManager, groupAddress, multicastPort, timeToLive);
+        return new MulticastRMICacheManagerPeerProvider(cacheManager, groupAddress, multicastPort, timeToLive, hostAddress);
     }
 }

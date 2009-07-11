@@ -101,7 +101,8 @@
     Automatic discovery is configured as per the following example:
     <cacheManagerPeerProviderFactory
                         class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
-                        properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1,
+                        properties="hostName=fully_qualified_hostname_or_ip,
+                                    peerDiscovery=automatic, multicastGroupAddress=230.0.0.1,
                                     multicastGroupPort=4446, timeToLive=32"/>
 
     Valid properties are:
@@ -120,6 +121,9 @@
       128 - the same continent
       255 - unrestricted
 
+     * hostName - the hostname or IP of the interface to be used for sending and receiving multicast packets
+       (relevant to mulithomed hosts only)
+
     Configuring Manual Discovery:
     Manual discovery is configured as per the following example:
     <cacheManagerPeerProviderFactory class=
@@ -133,9 +137,8 @@
     * peerDiscovery (mandatory) - specify "manual"
     * rmiUrls (mandatory) - specify a pipe separated list of rmiUrls, in the form
                             //hostname:port
-
-    The hostname is the hostname of the remote CacheManager peer. The port is the listening
-    port of the RMICacheManagerPeerListener of the remote CacheManager peer.
+    * hostname (optional) - the hostname is the hostname of the remote CacheManager peer. The port is the listening
+      port of the RMICacheManagerPeerListener of the remote CacheManager peer.
     
     JGroupsCacheManagerPeerProvider
     +++++++++++++++++++++++++++++++
@@ -197,8 +200,7 @@
     (Enable for distributed operation)
 
     Specifies a CacheManagerPeerListenerFactory which will be used to create a
-    CacheManagerPeerListener, which
-    listens for messages from cache replicators participating in the cluster.
+    CacheManagerPeerListener, which listens for messages from cache replicators participating in the cluster.
 
     The attributes of cacheManagerPeerListenerFactory are:
     class - a fully qualified factory class name

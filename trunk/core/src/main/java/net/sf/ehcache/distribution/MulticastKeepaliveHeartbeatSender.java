@@ -64,6 +64,7 @@ public final class MulticastKeepaliveHeartbeatSender {
     private MulticastServerThread serverThread;
     private boolean stopped;
     private final CacheManager cacheManager;
+    private InetAddress hostAddress;
 
     /**
      * Constructor.
@@ -75,11 +76,13 @@ public final class MulticastKeepaliveHeartbeatSender {
      */
     public MulticastKeepaliveHeartbeatSender(CacheManager cacheManager,
                                              InetAddress multicastAddress, Integer multicastPort,
-                                             Integer timeToLive) {
+                                             Integer timeToLive,
+                                             InetAddress hostAddress) {
         this.cacheManager = cacheManager;
         this.groupMulticastAddress = multicastAddress;
         this.groupMulticastPort = multicastPort;
         this.timeToLive = timeToLive;
+        this.hostAddress = hostAddress;
 
     }
 
@@ -122,6 +125,9 @@ public final class MulticastKeepaliveHeartbeatSender {
             while (!stopped) {
                 try {
                     socket = new MulticastSocket(groupMulticastPort.intValue());
+                    if (hostAddress != null) {
+                        socket.setInterface(hostAddress);
+                    }
                     socket.setTimeToLive(timeToLive.intValue());
                     socket.joinGroup(groupMulticastAddress);
 

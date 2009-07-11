@@ -716,7 +716,7 @@ public class Cache implements Ehcache {
      * <li>if the element exists in the cache, that an update has occurred, even if the element would be expired
      * if it was requested
      * </ul>
-     * <p/>
+     * <p/>                  
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
      * This exception should be caught in those cirucmstances.
      *
@@ -735,7 +735,7 @@ public class Cache implements Ehcache {
      * Put an element in the cache.
      * <p/>
      * Resets the access statistics on the element, which would be the case if it has previously been
-     * gotten from a cache, and is now being put back.
+     * gotten from a cache, and is now being put back.               ÷
      * <p/>
      * Also notifies the CacheEventListener that:
      * <ul>
