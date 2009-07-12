@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * A provider of Peer RMI addresses.
@@ -121,7 +122,9 @@ public abstract class RMICacheManagerPeerProvider implements CacheManagerPeerPro
      * They will simply replace the ones that were there.
      */
     public CachePeer lookupRemoteCachePeer(String url) throws MalformedURLException, NotBoundException, RemoteException {
-        return (CachePeer) Naming.lookup(url);
+        LOG.log(Level.FINEST, "Lookup URL {0}", url);
+        CachePeer cachePeer = (CachePeer) Naming.lookup(url);
+        return cachePeer;
     }
 
     /**

@@ -125,13 +125,33 @@
        (relevant to mulithomed hosts only)
 
     Configuring Manual Discovery:
-    Manual discovery is configured as per the following example:
+    Manual discovery requires a unique configuration per host. It is contains a list of rmiURLs for the peers, other
+    than itself. So, if we have server1, server2 and server3 the configuration will be:
+
+    In server1's configuration:
+    <cacheManagerPeerProviderFactory class=
+                          "net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+                          properties="peerDiscovery=manual,
+                          rmiUrls=//server2:40000/sampleCache1|//server3:40000/sampleCache1
+                          | //server2:40000/sampleCache2|//server3:40000/sampleCache2"
+                          propertySeparator="," />
+
+    In server2's configuration:
+    <cacheManagerPeerProviderFactory class=
+                          "net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+                          properties="peerDiscovery=manual,
+                          rmiUrls=//server1:40000/sampleCache1|//server3:40000/sampleCache1
+                          | //server1:40000/sampleCache2|//server3:40000/sampleCache2"
+                          propertySeparator="," />
+
+    In server3's configuration:
     <cacheManagerPeerProviderFactory class=
                           "net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
                           properties="peerDiscovery=manual,
                           rmiUrls=//server1:40000/sampleCache1|//server2:40000/sampleCache1
                           | //server1:40000/sampleCache2|//server2:40000/sampleCache2"
                           propertySeparator="," />
+
 
     Valid properties are:
     * peerDiscovery (mandatory) - specify "manual"
