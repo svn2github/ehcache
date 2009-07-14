@@ -553,6 +553,26 @@ connection.stop();
      For greater reliability consider using a message queue cluster. Most message queues support clustering. The
      cluster configuration is once again placed in the ConnectionFactory configuration.
 
+*   Tested Message Queues
+
+**  Sun Open MQ
+
+    This open source message queue is tested in integration tests. It works perfectly.
+
+**  Active MQ
+
+    This open source message queue  is tested in integration tests. It works perfectly other than having a problem
+    with temporary reply queues which prevents the use of JMSCacheLoader. JMSCacheLoader is not used during replication.
+
+**  Oracle AQ
+
+    Versions up to an including 0.4 do not work, due to Oracle not supporting the unified API (send) for topics.
+
+**  JBoss Queue
+
+    Works as reported by a user.
+
+
 *   {Known JMS Issues}
 
 **  Active MQ Temporary Destinatons
@@ -570,5 +590,13 @@ connection.stop();
     Ehcache integration testing. Accordingly, use of the JMSCacheLoader with ActiveMQ is not recommended. Open MQ
     tests fine.
 
+    Active MQ works fine for replication.
 
+**  WebSphere 5 and 6
+
+    Websphere Application Server prevents MessageListeners, which are not MDBs, from being created in the container.
+    While this is a general Java EE limitation, most other app servers either are permissive or can be configured
+    to be permissive. WebSphere 4 worked, but 5 and 6 enforce the restriction.
+
+    Accordingly the JMS replicator cannot be used with WebSphere 5 and 6.
 
