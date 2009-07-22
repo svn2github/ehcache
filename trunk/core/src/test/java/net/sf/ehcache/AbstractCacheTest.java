@@ -18,21 +18,19 @@ package net.sf.ehcache;
 
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Assert;
 import static org.junit.Assert.assertTrue;
+import org.junit.Before;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.logging.Logger;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
 
 /**

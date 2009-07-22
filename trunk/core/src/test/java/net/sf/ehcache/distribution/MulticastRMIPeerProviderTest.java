@@ -32,8 +32,8 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.rmi.RemoteException;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Multicast tests. These require special machine configuration.

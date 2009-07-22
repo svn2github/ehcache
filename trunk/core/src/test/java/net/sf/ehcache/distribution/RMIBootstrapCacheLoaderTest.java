@@ -30,7 +30,6 @@ import org.junit.Test;
 
 import java.util.Date;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
 /**
  * @author Greg Luck

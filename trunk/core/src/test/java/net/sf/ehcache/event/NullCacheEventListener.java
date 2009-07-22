@@ -20,10 +20,8 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
-import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
 
 /**

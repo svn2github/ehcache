@@ -18,16 +18,13 @@ package net.sf.ehcache.store;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStoreTester;
-import net.sf.ehcache.StopWatch;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Map;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

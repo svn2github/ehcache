@@ -27,11 +27,10 @@ import java.util.Random;
  */
 public abstract class AbstractPolicy implements Policy {
 
-
     /**
      * The sample size to use
      */
-    static final int DEFAULT_SAMPLE_SIZE = 30;
+    static final int DEFAULT_SAMPLE_SIZE = 15;
 
     /**
      * Used to select random numbers
@@ -62,6 +61,8 @@ public abstract class AbstractPolicy implements Policy {
      * @return the least hit
      */
     public Element selectedBasedOnPolicy(Element[] sampledElements, Element justAdded) {
+        StringBuffer elementList = new StringBuffer();
+
         //edge condition when Memory Store configured to size 0
         if (sampledElements.length == 1 && justAdded != null) {
             return justAdded;

@@ -19,8 +19,8 @@ package net.sf.ehcache;
 
 import net.sf.ehcache.util.PropertyUtil;
 
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A timer service used to check performance of tests.

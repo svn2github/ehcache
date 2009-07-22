@@ -48,8 +48,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Tests for CacheManager
@@ -756,13 +756,6 @@ public class CacheManagerTest {
             String name = thread.getName();
             LOG.log(Level.INFO, name);
         }
-    }
-
-    @Test
-    public void testTest() {
-
-        System.out.println("" + new Date());
-
     }
 
 }

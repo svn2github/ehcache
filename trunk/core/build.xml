@@ -157,6 +157,7 @@
                 <arg value="cache_extensions.apt"/>
                 <arg value="cache_server.apt"/>
                 <arg value="hibernate.apt"/>
+                <arg value="openjpa_provider.apt"/>
                 <arg value="jsr107.apt"/>
                 <arg value="glassfish.apt"/>
                 <arg value="googleappengine.apt"/>

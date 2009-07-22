@@ -19,7 +19,6 @@ package net.sf.ehcache.hibernate;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.CacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.hibernate.cfg.Environment;
@@ -35,7 +34,6 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
 
 /**

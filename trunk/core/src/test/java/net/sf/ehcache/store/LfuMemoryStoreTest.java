@@ -31,14 +31,14 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
-import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Test class for LfuMemoryStore
@@ -264,7 +264,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      * <p/>
      * ConcurrentHashMap
      */
-    @Test
+//    @Test
     public void testSpeedOfIteration() {
         StopWatch stopWatch = new StopWatch();
         Map map = new ConcurrentHashMap(100000);
@@ -273,9 +273,9 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         }
         LOG.log(Level.INFO, "done putting: " + stopWatch.getElapsedTimeString());
 
-        Collection collection =  map.values();
+        Collection collection = map.values();
         for (Object o : collection) {
-           // 
+            o.toString();
         }
         LOG.log(Level.INFO, stopWatch.getElapsedTimeString());
 
@@ -341,7 +341,14 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
     @Test
     public void testLowest() throws IOException {
         createMemoryStore(MemoryStoreEvictionPolicy.LFU, 5000);
+        //fully populate the otherwise we just find nulls
+        for (int i = 0; i < 5000; i++) {
+            Element newElement = new Element("" + i, new Date());
+            store.put(newElement);
+        }
+
         Element element = null;
+
         Element newElement = null;
         for (int i = 0; i < 10; i++) {
             newElement = new Element("" + i, new Date());
@@ -377,14 +384,14 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
             long bottomQuarter = (Math.round(maximumHitCount / 4.0) + 1);
             assertTrue(!element.equals(newElement));
             if (lowest > bottomQuarter) {
+                LOG.info("" + element.getKey() + " hit count: " + element.getHitCount() + " bottomQuarter: " + bottomQuarter);
                 lowestQuarterNotIdentified++;
-                //LOG.log(Level.INFO, i + " " + maximumHitCount + " " + element);
             }
         }
         LOG.log(Level.INFO, "Find time: " + findTime);
-        assertTrue(findTime < 1000);
+        assertTrue(findTime < 200);
         LOG.log(Level.INFO, "Selections not in lowest quartile: " + lowestQuarterNotIdentified);
-        assertTrue(lowestQuarterNotIdentified <= 5);
+        assertTrue(lowestQuarterNotIdentified <= 10);
 
     }
 
@@ -439,25 +446,32 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
     }
 
 
-}
-
-/**
- * A simple persistent JavaBean
- *
- * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
- * @version $Id$
- */
-class TestBean implements Serializable {
-
-    private String string;
-
     /**
-     * Constructor
+     * A simple persistent JavaBean
      *
-     * @param string
+     * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
+     * @version $Id$
      */
-    public TestBean(String string) {
-        this.string = string;
+    private final class TestBean implements Serializable {
+
+        private String string;
+
+        private TestBean() {
+            //noop
+        }
+
+        /**
+         * Constructor
+         *
+         * @param string
+         */
+        private TestBean(String string) {
+            this.string = string;
+        }
     }
+
+
 }
+
+
 

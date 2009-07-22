@@ -1,18 +1,18 @@
 package net.sf.ehcache;
 
-import org.junit.BeforeClass;
-import org.junit.AfterClass;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import org.junit.AfterClass;
+import static org.junit.Assert.assertEquals;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Does the cache tests using the classic LRUMemoryStore implementation.
+ * @author Greg Luck
  */
 public class CacheClassicLruMemoryStoreTest extends CacheTest {
 

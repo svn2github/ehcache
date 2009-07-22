@@ -21,8 +21,8 @@ import net.sf.ehcache.CacheException;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

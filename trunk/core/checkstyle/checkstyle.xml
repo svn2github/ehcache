@@ -21,6 +21,8 @@
 
     <module name="TreeWalker">
         <!--<property name="cacheFile" value="checkstyle.cache}"/>-->
+        <!--Java 5 checks-->
+        <!--<module name="MissingDeprecated"/>-->
 
         <!-- javadoc -->
         <module name="JavadocType">
@@ -201,7 +203,8 @@
 
         <!-- Class Design -->
         <module name="FinalClass"/>
-        <module name="HideUtilityClassConstructor"/>
+        <!--Seems to be broken in 4.4-->
+        <!--<module name="HideUtilityClassConstructor"/>-->
         <module name="InterfaceIsType"/>
         <module name="MutableException"/>
         <module name="ThrowsCount">

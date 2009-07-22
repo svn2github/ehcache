@@ -19,8 +19,8 @@ package net.sf.ehcache.loader;
 
 import net.sf.ehcache.CacheException;
 
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

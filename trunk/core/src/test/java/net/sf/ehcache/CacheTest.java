@@ -47,8 +47,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -988,6 +988,9 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(0, cache.getSize());
     }
 
+
+
+
     /**
      * Checks the expense of checking for duplicates
      * Typical Results Duplicate Check: 8ms versus 3ms for No Duplicate Check
@@ -1194,6 +1197,9 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Tests flushing the cache, with the default, which is to clear
      *
+     * Note: Which element gets evicted is probabilistic. 1.5 and earlier were deterministic. Thus
+     * the variation in what gets into the DiskStore.
+     *
      * @throws Exception
      */
     @Test
@@ -1212,32 +1218,35 @@ public class CacheTest extends AbstractCacheTest {
             cache.put(new Element("" + i, new Date()));
             //hit
             cache.get("" + i);
+            cache.get("" + i);
+            cache.get("" + i);
         }
         assertEquals(50, cache.getMemoryStoreSize());
         assertEquals(50, cache.getDiskStoreSize());
 
 
+        //Should get selected. But this is probabilistic
         cache.put(new Element("key", new Object()));
         cache.put(new Element("key2", new Object()));
         Object key = new Object();
         cache.put(new Element(key, "value"));
 
         //get it and make sure it is mru
-        Thread.sleep(15);
+        Thread.sleep(300);
         cache.get(key);
 
-        assertEquals(101, cache.getSize());
         assertEquals(50, cache.getMemoryStoreSize());
-        assertEquals(51, cache.getDiskStoreSize());
+        assertTrue(cache.getDiskStoreSize() >= 50 && cache.getDiskStoreSize() <= 53);
+        assertTrue(cache.getSize() >= 100 && cache.getSize() <= 103);
 
 
         //these "null" Elements are ignored and do not get put in
         cache.put(new Element(null, null));
         cache.put(new Element(null, null));
 
-        assertEquals(101, cache.getSize());
         assertEquals(50, cache.getMemoryStoreSize());
-        assertEquals(51, cache.getDiskStoreSize());
+        assertTrue(cache.getDiskStoreSize() >= 50 && cache.getDiskStoreSize() <= 53);
+        assertTrue(cache.getSize() >= 100 && cache.getSize() <= 103);
 
         //this one does
         cache.put(new Element("nullValue", null));
@@ -1245,7 +1254,8 @@ public class CacheTest extends AbstractCacheTest {
         LOG.log(Level.INFO, "Size: " + cache.getDiskStoreSize());
 
         assertEquals(50, cache.getMemoryStoreSize());
-        assertEquals(52, cache.getDiskStoreSize());
+        assertTrue(cache.getDiskStoreSize() >= 52 && cache.getDiskStoreSize() <= 53);
+        assertTrue(cache.getSize() >= 102 && cache.getSize() <= 103);
 
         cache.flush();
         assertEquals(0, cache.getMemoryStoreSize());
@@ -2068,11 +2078,16 @@ public class CacheTest extends AbstractCacheTest {
             //CHM does have the occasional very slow time.
             assertTrue("Failures = " + failures, failures <= 50);
         } finally {
-            LOG.log(Level.INFO, "Average Get Time for " + getTimeCount.get() + " observations: " + getTimeSum.floatValue() / getTimeCount.get() + " ms");
-            LOG.log(Level.INFO, "Average Put Time for " + putTimeCount.get() + " obervations: " + putTimeSum.floatValue() / putTimeCount.get() + " ms");
-            LOG.log(Level.INFO, "Average Remove Time for " + removeTimeCount.get() + " obervations: " + removeTimeSum.floatValue() / removeTimeCount.get() + " ms");
-            LOG.log(Level.INFO, "Average Remove All Time for " + removeAllTimeCount.get() + " observations: " + removeAllTimeSum.floatValue() / removeAllTimeCount.get() + " ms");
-            LOG.log(Level.INFO, "Average keySet Time for " + keySetTimeCount.get() + " observations: " + keySetTimeSum.floatValue() / keySetTimeCount.get() + " ms");
+            LOG.log(Level.INFO, "Average Get Time for " + getTimeCount.get() + " observations: "
+                    + getTimeSum.floatValue() / getTimeCount.get() + " ms");
+            LOG.log(Level.INFO, "Average Put Time for " + putTimeCount.get() + " obervations: "
+                    + putTimeSum.floatValue() / putTimeCount.get() + " ms");
+            LOG.log(Level.INFO, "Average Remove Time for " + removeTimeCount.get() + " obervations: "
+                    + removeTimeSum.floatValue() / removeTimeCount.get() + " ms");
+            LOG.log(Level.INFO, "Average Remove All Time for " + removeAllTimeCount.get() + " observations: "
+                    + removeAllTimeSum.floatValue() / removeAllTimeCount.get() + " ms");
+            LOG.log(Level.INFO, "Average keySet Time for " + keySetTimeCount.get() + " observations: "
+                    + keySetTimeSum.floatValue() / keySetTimeCount.get() + " ms");
             LOG.log(Level.INFO, "Total loads: " + countingCacheLoader.getLoadCounter());
             LOG.log(Level.INFO, "Total loadAlls: " + countingCacheLoader.getLoadAllCounter());
         }
@@ -2278,25 +2293,17 @@ public class CacheTest extends AbstractCacheTest {
     @Test
     public void testGetWithLoader() {
 
+        /**
+         * 
+         */
+        class TestCacheLoader implements CacheLoader {
 
-        Cache cache = manager.getCache("sampleCache1");
-        cache.registerCacheLoader(new CacheLoader() {
+
             public Object load(Object key, Object argument) throws CacheException {
                 LOG.log(Level.INFO, "load1 " + key);
                 return key;
             }
 
-            /**
-             * Load using both a key and an argument.
-             * <p/>
-             * JCache will use the loadAll(key) method where the argument is null.
-             *
-             * @param keys     the keys to load objects for
-             * @param argument can be anything that makes sense to the loader
-             * @return a map of Objects keyed by the collection of keys passed in.
-             * @throws CacheException
-             *
-             */
             public Map loadAll(Collection keys, Object argument) throws CacheException {
                 return null;
             }
@@ -2306,48 +2313,18 @@ public class CacheTest extends AbstractCacheTest {
                 return null;
             }
 
-            /**
-             * Creates a clone of this extension. This method will only be called by ehcache before a
-             * cache is initialized.
-             * <p/>
-             * Implementations should throw CloneNotSupportedException if they do not support clone
-             * but that will stop them from being used with defaultCache.
-             *
-             * @return a clone
-             * @throws CloneNotSupportedException if the extension could not be cloned.
-             */
             public CacheLoader clone(Ehcache cache) throws CloneNotSupportedException {
                 return null;
             }
 
-            /**
-             * Notifies providers to initialise themselves.
-             * <p/>
-             * This method is called during the Cache's initialise method after it has changed it's
-             * status to alive. Cache operations are legal in this method.
-             *
-             * @throws CacheException
-             */
             public void init() {
                 //noop
             }
 
-            /**
-             * Providers may be doing all sorts of exotic things and need to be able to clean up on
-             * dispose.
-             * <p/>
-             * Cache operations are illegal when this method is called. The cache itself is partly
-             * disposed when this method is called.
-             *
-             * @throws CacheException
-             */
             public void dispose() throws CacheException {
                 //noop
             }
 
-            /**
-             * @return the status of the extension
-             */
             public Status getStatus() {
                 return null;
             }
@@ -2363,7 +2340,12 @@ public class CacheTest extends AbstractCacheTest {
             public Map loadAll(Collection collection) throws CacheException {
                 return null;
             }
-        });
+
+
+        }
+
+        Cache cache = manager.getCache("sampleCache1");
+        cache.registerCacheLoader(new TestCacheLoader()); 
 
 
         Element element = cache.get("a");

@@ -17,6 +17,7 @@
 package net.sf.ehcache;
 
 
+import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -25,15 +26,13 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.io.NotSerializableException;
 import java.util.HashMap;
-import java.util.logging.Logger;
 import java.util.logging.Level;
-
-import static junit.framework.Assert.fail;
+import java.util.logging.Logger;
 
 /**
  * Test cases for the Element.

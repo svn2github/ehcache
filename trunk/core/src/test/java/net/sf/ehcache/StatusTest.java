@@ -20,8 +20,8 @@ package net.sf.ehcache;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

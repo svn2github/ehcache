@@ -33,8 +33,8 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -83,8 +83,8 @@ public class SelfPopulatingCacheTest extends CacheTest {
      */
     @After
     public void tearDown() throws Exception {
-    	if(selfPopulatingCache != null) {
-    		selfPopulatingCache.removeAll();
+        if (selfPopulatingCache != null) {
+            selfPopulatingCache.removeAll();
         }
         manager.shutdown();
         super.tearDown();
@@ -96,7 +96,6 @@ public class SelfPopulatingCacheTest extends CacheTest {
     @Test
     public void testFetch() throws Exception {
         LOG.log(Level.SEVERE, ".");
-        System.out.println("-=-");
 
         // Lookup
         final Element element = selfPopulatingCache.get("key");
@@ -441,8 +440,8 @@ public class SelfPopulatingCacheTest extends CacheTest {
      */
     @Test
     public void testBehaviourOnDiskStoreBackUp() throws Exception {
-        Cache cache = new Cache("testGetMemoryStoreSize", 10, true, false, 100, 200, false, 0);
-        manager.addCache(cache);
+        Cache newCache = new Cache("testGetMemoryStoreSize", 10, true, false, 100, 200, false, 0);
+        manager.addCache(newCache);
 
         assertEquals(0, cache.getMemoryStoreSize());
 
@@ -473,11 +472,11 @@ public class SelfPopulatingCacheTest extends CacheTest {
      */
     @Test
     public void testCacheEntryFactoryReturningElementMake() throws Exception {
-        final long SPECIAL_VERSION_NUMBER = 54321L;
+        final long specialVersionNumber = 54321L;
         final CacheEntryFactory elementReturningFactory = new CacheEntryFactory() {
             public Object createEntry(final Object key) throws Exception {
                 Element e = new Element(key, "V_" + key);
-                e.setVersion(SPECIAL_VERSION_NUMBER);
+                e.setVersion(specialVersionNumber);
                 return e;
             }
         };
@@ -485,10 +484,10 @@ public class SelfPopulatingCacheTest extends CacheTest {
         Element e = null;
         e = selfPopulatingCache.get("key1");
         assertEquals("V_key1", e.getValue());
-        assertEquals(SPECIAL_VERSION_NUMBER, e.getVersion());
+        assertEquals(specialVersionNumber, e.getVersion());
         e = selfPopulatingCache.get("key2");
         assertEquals("V_key2", e.getValue());
-        assertEquals(SPECIAL_VERSION_NUMBER, e.getVersion());
+        assertEquals(specialVersionNumber, e.getVersion());
         assertEquals(2, selfPopulatingCache.getSize());
     }
 
@@ -498,11 +497,11 @@ public class SelfPopulatingCacheTest extends CacheTest {
      */
     @Test
     public void testCacheEntryFactoryReturningElementRefresh() throws Exception {
-        final long SPECIAL_VERSION_NUMBER = 54321L;
+        final long specialVersionNumber = 54321L;
         final CacheEntryFactory elementReturningFactory = new CacheEntryFactory() {
             public Object createEntry(final Object key) throws Exception {
                 Element e = new Element(key, "V_" + key);
-                e.setVersion(SPECIAL_VERSION_NUMBER);
+                e.setVersion(specialVersionNumber);
                 return e;
             }
         };
@@ -510,18 +509,18 @@ public class SelfPopulatingCacheTest extends CacheTest {
         Element e = null;
         e = selfPopulatingCache.get("key1");
         assertEquals("V_key1", e.getValue());
-        assertEquals(SPECIAL_VERSION_NUMBER, e.getVersion());
+        assertEquals(specialVersionNumber, e.getVersion());
         e = selfPopulatingCache.get("key2");
         assertEquals("V_key2", e.getValue());
-        assertEquals(SPECIAL_VERSION_NUMBER, e.getVersion());
+        assertEquals(specialVersionNumber, e.getVersion());
         assertEquals(2, selfPopulatingCache.getSize());
         selfPopulatingCache.refresh();
         e = selfPopulatingCache.get("key1");
         assertEquals("V_key1", e.getValue());
-        assertEquals(SPECIAL_VERSION_NUMBER, e.getVersion());
+        assertEquals(specialVersionNumber, e.getVersion());
         e = selfPopulatingCache.get("key2");
         assertEquals("V_key2", e.getValue());
-        assertEquals(SPECIAL_VERSION_NUMBER, e.getVersion());
+        assertEquals(specialVersionNumber, e.getVersion());
         assertEquals(2, selfPopulatingCache.getSize());
     }
 
@@ -549,10 +548,10 @@ public class SelfPopulatingCacheTest extends CacheTest {
         }
     }
 
-    
+
     @Test
     public void testRefreshElement() throws Exception {
-    	final IncrementingCacheEntryFactory factory = new IncrementingCacheEntryFactory();
+        final IncrementingCacheEntryFactory factory = new IncrementingCacheEntryFactory();
         selfPopulatingCache = new SelfPopulatingCache(cache, factory);
 
         Element e1 = selfPopulatingCache.get("key1");
@@ -561,7 +560,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
         assertEquals(2, factory.getCount());
         assertEquals(new Integer(1), e1.getValue());
         assertEquals(new Integer(2), e2.getValue());
-        
+
         // full refresh
         selfPopulatingCache.refresh();
         e1 = selfPopulatingCache.get("key1");
@@ -574,17 +573,17 @@ public class SelfPopulatingCacheTest extends CacheTest {
         //them key1&2 must have the values 3 & 4
         int e1i = ((Integer) e1.getValue()).intValue();
         int e2i = ((Integer) e2.getValue()).intValue();
-        assertTrue(((e1i==3) && (e2i==4)) || ((e1i==4) && (e2i==3)));
-        
+        assertTrue(((e1i == 3) && (e2i == 4)) || ((e1i == 4) && (e2i == 3)));
+
         // single element refresh
-        selfPopulatingCache.get("key2"); 
+        selfPopulatingCache.get("key2");
         Element e2r = selfPopulatingCache.refresh("key2");
         assertEquals(2, selfPopulatingCache.getSize());
         assertEquals(5, factory.getCount());
         assertNotNull(e2r);
         assertEquals("key2", e2r.getKey());
         assertEquals(new Integer(5), e2r.getValue());
-        
+
         // additional element
         Element e3 = selfPopulatingCache.get("key3");
         assertEquals(3, selfPopulatingCache.getSize());
@@ -597,23 +596,23 @@ public class SelfPopulatingCacheTest extends CacheTest {
         selfPopulatingCache.refresh();
         assertEquals(3, selfPopulatingCache.getSize());
         assertEquals(9, factory.getCount());
-    } 
-    
+    }
+
     @Test
     public void testRefreshAbsentElement() throws Exception {
-    	final IncrementingCacheEntryFactory factory = new IncrementingCacheEntryFactory();
+        final IncrementingCacheEntryFactory factory = new IncrementingCacheEntryFactory();
         selfPopulatingCache = new SelfPopulatingCache(cache, factory);
 
         selfPopulatingCache.get("key1");
         selfPopulatingCache.get("key2");
         assertEquals(2, selfPopulatingCache.getSize());
         assertEquals(2, factory.getCount());
-        
+
         // full refresh
         selfPopulatingCache.refresh();
         assertEquals(2, selfPopulatingCache.getSize());
         assertEquals(4, factory.getCount());
-        
+
         // single element refresh which is not in the cache
         Element e3 = selfPopulatingCache.refresh("key3");
         assertEquals(3, selfPopulatingCache.getSize());
@@ -621,16 +620,16 @@ public class SelfPopulatingCacheTest extends CacheTest {
         assertNotNull(e3);
         assertEquals("key3", e3.getKey());
         assertEquals(new Integer(5), e3.getValue());
-    } 
-    
+    }
+
     @Test
     public void testRefreshQuietly() throws Exception {
-       	final CountingCacheEntryFactory factory = new CountingCacheEntryFactory("value");
+        final CountingCacheEntryFactory factory = new CountingCacheEntryFactory("value");
         CountingCacheEventListener countingCacheEventListener = new CountingCacheEventListener();
         CountingCacheEventListener.resetCounters();
         cache.getCacheEventNotificationService().registerListener(countingCacheEventListener);
         selfPopulatingCache = new SelfPopulatingCache(cache, factory);
-        
+
         //check initial conditions on counters
         assertEquals(0, CountingCacheEventListener.getCacheElementsPut(cache).size());
         assertEquals(0, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
@@ -642,10 +641,10 @@ public class SelfPopulatingCacheTest extends CacheTest {
         assertEquals(0, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
         long lastUpdateTime1 = e1.getLastUpdateTime();
         long lastUpdateTime2 = e2.getLastUpdateTime();
-        
+
         //wait a little so creation time to allow CPU clock to advance
         Thread.sleep(100L);
-        
+
         // full refresh
         selfPopulatingCache.refresh();
         assertEquals(4, factory.getCount());
@@ -653,29 +652,29 @@ public class SelfPopulatingCacheTest extends CacheTest {
         assertEquals(0, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
         e1 = selfPopulatingCache.get("key1");
         e2 = selfPopulatingCache.get("key2");
-        assertTrue("getLastUpdateTime() should be the same", lastUpdateTime1==e1.getLastUpdateTime());
-        assertTrue("getLastUpdateTime() should be the same", lastUpdateTime2==e2.getLastUpdateTime());
+        assertTrue("getLastUpdateTime() should be the same", lastUpdateTime1 == e1.getLastUpdateTime());
+        assertTrue("getLastUpdateTime() should be the same", lastUpdateTime2 == e2.getLastUpdateTime());
         lastUpdateTime2 = e2.getLastUpdateTime();
-        
+
         //wait a little to allow CPU clock to advance
         Thread.sleep(100L);
-        
+
         // single element refresh
         e2 = selfPopulatingCache.refresh("key2");
         assertEquals(5, factory.getCount());
         assertEquals(2, CountingCacheEventListener.getCacheElementsPut(cache).size());
         assertEquals(0, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
-        assertTrue("getLastUpdateTime() should be the same", lastUpdateTime2==e2.getLastUpdateTime());
+        assertTrue("getLastUpdateTime() should be the same", lastUpdateTime2 == e2.getLastUpdateTime());
     }
-    
+
     @Test
     public void testRefreshNoisily() throws Exception {
-    	final CountingCacheEntryFactory factory = new CountingCacheEntryFactory("value");
+        final CountingCacheEntryFactory factory = new CountingCacheEntryFactory("value");
         CountingCacheEventListener countingCacheEventListener = new CountingCacheEventListener();
         CountingCacheEventListener.resetCounters();
         cache.getCacheEventNotificationService().registerListener(countingCacheEventListener);
         selfPopulatingCache = new SelfPopulatingCache(cache, factory);
-        
+
         //check initial conditions on counters
         assertEquals(0, CountingCacheEventListener.getCacheElementsPut(cache).size());
         assertEquals(0, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
@@ -687,10 +686,10 @@ public class SelfPopulatingCacheTest extends CacheTest {
         assertEquals(0, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
         long lastUpdateTime1 = e1.getLastUpdateTime();
         long lastUpdateTime2 = e2.getLastUpdateTime();
-        
+
         //wait a little so creation time to allow CPU clock to advance
         Thread.sleep(100L);
-        
+
         // full refresh
         selfPopulatingCache.refresh(false);
         assertEquals(4, factory.getCount());
@@ -698,39 +697,39 @@ public class SelfPopulatingCacheTest extends CacheTest {
         assertEquals(2, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
         e1 = selfPopulatingCache.get("key1");
         e2 = selfPopulatingCache.get("key2");
-        assertFalse("getLastUpdateTime() should not be the same", lastUpdateTime1==e1.getLastUpdateTime());
-        assertFalse("getLastUpdateTime() should not be the same", lastUpdateTime2==e2.getLastUpdateTime());
+        assertFalse("getLastUpdateTime() should not be the same", lastUpdateTime1 == e1.getLastUpdateTime());
+        assertFalse("getLastUpdateTime() should not be the same", lastUpdateTime2 == e2.getLastUpdateTime());
         lastUpdateTime2 = e2.getLastUpdateTime();
-        
+
         //wait a little to allow CPU clock to advance
         Thread.sleep(100L);
-        
+
         // single element refresh
         e2 = selfPopulatingCache.refresh("key2", false);
         assertEquals(5, factory.getCount());
         assertEquals(2, CountingCacheEventListener.getCacheElementsPut(cache).size());
         assertEquals(3, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
-        assertFalse("getLastUpdateTime() should not be the same", lastUpdateTime2==e2.getLastUpdateTime());
+        assertFalse("getLastUpdateTime() should not be the same", lastUpdateTime2 == e2.getLastUpdateTime());
     }
-    
+
     /**
-     * Much like CountingCacheEntryFactory, but the value in the Element is 
+     * Much like CountingCacheEntryFactory, but the value in the Element is
      * incremented on every update, in line with the 'count'
      */
     private class IncrementingCacheEntryFactory implements CacheEntryFactory {
-    	private int count;
-    	
+        private int count;
+
         public Object createEntry(Object key) throws Exception {
-        	count++;
+            count++;
             return new Integer(count);
         }
-        
+
         /**
          * @return number of entries the factory has created.
          */
         public int getCount() {
             return count;
-        }        
+        }
     }
 }
 

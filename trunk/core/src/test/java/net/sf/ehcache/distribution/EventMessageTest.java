@@ -31,8 +31,8 @@ import java.io.ObjectOutputStream;
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Tests Serialization and SoftReferences in EventMessage

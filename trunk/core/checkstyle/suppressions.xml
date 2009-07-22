@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
 
 <!DOCTYPE suppressions PUBLIC
-    "-//Puppy Crawl//DTD Suppressions 1.1//EN"
-    "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
+    "-//Puppy Crawl//DTD Suppressions 1.1//EN" "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 
 <suppressions>
     <!-- Turn off some checks for tests -->
@@ -19,6 +18,10 @@
     <suppress checks="PackageHtml" files="test[/\\]"/>
     <suppress checks="" files="Primitive.java"/>
     <suppress checks="IllegalTypeCheck" files="test[/\\]"/>
+    <suppress checks="HeaderCheck" files="Test.java"/>
+    <!--<suppress checks="JavadocTypeCheck" files="Test.java"/>-->
+    <suppress checks="JavadocMethodCheck" files="Test.java"/>
+
 
 
     <!-- Suppress duplicate checking of copyright notice -->
@@ -26,6 +29,11 @@
     <!--Have some duplication until we get rid of Old Lru-->
     <suppress checks="StrictDuplicateCode" files="LruMemoryStore.java" />
     <suppress checks="StrictDuplicateCode" files="MemoryStore.java" />
+
+    <!--Tests-->
+    <suppress checks="StrictDuplicateCode" files="NullCountingCacheLoader.java" />
+    <suppress checks="StrictDuplicateCode" files="CountingCacheLoader.java" />
+    <suppress checks="StrictDuplicateCode" files="BaseComponentLoader.java" />
 
     <!-- super.clone won't work here -->
     <suppress checks="SuperClone" files="Element.java"/>

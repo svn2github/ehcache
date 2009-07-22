@@ -18,19 +18,18 @@ package net.sf.ehcache.constructs.asynchronous;
 
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.StopWatch;
-import net.sf.ehcache.CacheManager;
+import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.After;
-import org.junit.AfterClass;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Tests of the package.
@@ -68,7 +67,7 @@ public class AsynchronousCommandExecutorTest {
     }
 
     @AfterClass
-    public static void tearDown() throws AsynchronousCommandException {
+    public static void afterClass() throws AsynchronousCommandException {
         AsynchronousCommandExecutor.getInstance().dispose();
         CacheManager.getInstance().shutdown();
     }

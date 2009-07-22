@@ -7,10 +7,16 @@
         <artifactId>ehcache-parent</artifactId>
         <version>1.5.0</version>
     </parent>
-    <name>Ehcache Core</name>                                                                       
+    <name>Ehcache Core</name>
     <artifactId>ehcache</artifactId>
     <packaging>jar</packaging>
     <version>1.6.1-SNAPSHOT</version>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <net.sf.ehcache.speedAdjustmentFactor>1</net.sf.ehcache.speedAdjustmentFactor>
+    </properties>
 
     <dependencies>
 
@@ -25,7 +31,7 @@
             <artifactId>hibernate</artifactId>
             <scope>provided</scope>
             <version>3.2.6.ga</version>
-            
+
         </dependency>
 
         <!--  Test scope -->
@@ -39,22 +45,6 @@
             <artifactId>junit</artifactId>
             <version>4.4</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>httpunit</groupId>
-            <artifactId>httpunit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>checkstyle</groupId>
-            <artifactId>checkstyle</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>checkstyle</groupId>
-            <artifactId>checkstyle-optional</artifactId>
         </dependency>
         <dependency>
             <groupId>com.cenqua.clover</groupId>
@@ -97,7 +87,7 @@
 
                 <configuration>
                     <author>true</author>
-                    <bottom>true</bottom> 
+                    <bottom>true</bottom>
                     <!--<destDir>${project.build.directory}/site/javadoc</destDir>-->
                     <header><![CDATA[<a href="/" target="_top">ehcache</a>]]></header>
                     <minmemory>128m</minmemory>
@@ -205,13 +195,13 @@
                 <artifactId>maven-source-plugin</artifactId>
                 <version>2.0.3</version>
                 <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>attach-sources</id>-->
-                        <!--<phase>package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>jar</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
+                <!--<execution>-->
+                <!--<id>attach-sources</id>-->
+                <!--<phase>package</phase>-->
+                <!--<goals>-->
+                <!--<goal>jar</goal>-->
+                <!--</goals>-->
+                <!--</execution>-->
                 <!--</executions>-->
             </plugin>
 
@@ -302,9 +292,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.3</version>
                 <executions>
                     <execution>
-                        <phase>validate</phase>
+                        <phase>process-classes</phase>
                         <goals>
                             <goal>checkstyle</goal>
                         </goals>
@@ -321,6 +312,7 @@
                     <failOnViolation>true</failOnViolation>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <enableRulesSummary>true</enableRulesSummary>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
                 </configuration>
             </plugin>
 
@@ -466,7 +458,4 @@
         </site>
     </distributionManagement>
 
-    <properties>
-        <net.sf.ehcache.speedAdjustmentFactor>1</net.sf.ehcache.speedAdjustmentFactor>
-    </properties>
 </project>

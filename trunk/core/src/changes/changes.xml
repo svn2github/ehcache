@@ -2,8 +2,7 @@
 <document>
     <body>
 
-        <release version="1.6.1" date="2009-7-31"
-                 desc="This release fixes minor issues in Ehcache 1.6.0.">
+        <release version="1.6.1" date="2009-7-31" desc="This release fixes minor issues in Ehcache 1.6.0.">
 
             <action dev="Greg Luck" type="fix">
                 Fixed ConcurrentModificationException when using DiskStore. This issue would log an exception
@@ -19,9 +18,14 @@
             </action>
             <action dev="Greg Luck" type="update">
                 Allow the network interface to be specified on multi-homed machines for MulticastRMICacheManagerPeerProvider.
-                This can now be done by specifying hostName=<hostname or IP of network interface> in the properties.
+                This can now be done by specifying hostName=&lt;hostname or IP of network interface&gt; in the properties.
                 The default interface is used if this is not specified as it has been in past versions.
             </action>
+            <action dev="Greg Luck" type="fix" issue="2823211">
+                Improved incrementer in MemoryStore to avoid rare overwrites in the key sampling. Thanks to
+                Michael Maraist for this fix.
+            </action>
+
         </release>
 
         <release version="1.6.0" date="2009-6-17"

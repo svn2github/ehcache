@@ -16,9 +16,9 @@
 
 package net.sf.ehcache.loader;
 
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.CacheException;
 
 import java.util.Collection;
 import java.util.Map;
@@ -99,7 +99,7 @@ public class BaseComponentLoader extends CacheLoaderFactory implements CacheLoad
      * @return the name of this CacheLoader
      */
     public String getName() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     /**
@@ -113,7 +113,7 @@ public class BaseComponentLoader extends CacheLoaderFactory implements CacheLoad
      * @throws CloneNotSupportedException if the extension could not be cloned.
      */
     public CacheLoader clone(Ehcache cache) throws CloneNotSupportedException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;  
     }
 
     /**

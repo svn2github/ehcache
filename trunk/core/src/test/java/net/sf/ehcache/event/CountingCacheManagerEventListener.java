@@ -59,8 +59,6 @@ public class CountingCacheManagerEventListener implements CacheManagerEventListe
 
     /**
      * Call to start the listeners and do any other required initialisation.
-     *
-     * @throws net.sf.ehcache.CacheException - all exceptions are wrapped in CacheException
      */
     public void init() throws CacheException {
         //noop

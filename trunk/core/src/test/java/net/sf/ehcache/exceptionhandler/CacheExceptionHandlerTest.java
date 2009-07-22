@@ -215,7 +215,7 @@ public class CacheExceptionHandlerTest {
             }
         }
 
-        if (foundExceptionInChain == false) {
+        if (!foundExceptionInChain) {
             fail();
         }
 

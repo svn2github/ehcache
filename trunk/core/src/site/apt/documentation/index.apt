@@ -65,6 +65,8 @@ Ehcache 1.6 User Guide
 
     * {{{./hibernate.html}Using ehcache with Hibernate}}
 
+    * {{{./openjpa_provider.html}Using ehcache with OpenJPA}}
+
     * {{{./glassfish.html}Glassfish HowTo}}
 
     * {{{./googleappengine.html}Google App Engine HowTo}}

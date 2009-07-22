@@ -16,7 +16,6 @@
 
 package net.sf.ehcache;
 
-import net.sf.ehcache.distribution.JVMUtil;
 import net.sf.ehcache.store.LruMemoryStoreTest;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Store;
@@ -34,8 +33,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Other than policy differences, the Store implementations should work identically
@@ -112,7 +111,8 @@ public class MemoryStoreTester extends AbstractCacheTest {
      * @throws CacheException
      */
     protected void createMemoryOnlyStore(MemoryStoreEvictionPolicy evictionPolicy) throws CacheException {
-        cache = new Cache("testMemoryOnly", 12000, evictionPolicy, false, System.getProperty("java.io.tmpdir"), true, 60, 30, false, 60, null);
+        cache = new Cache("testMemoryOnly", 12000, evictionPolicy, false, System.getProperty("java.io.tmpdir"), 
+                true, 60, 30, false, 60, null);
         manager.addCache(cache);
         store = cache.getMemoryStore();
     }
@@ -408,6 +408,43 @@ public class MemoryStoreTester extends AbstractCacheTest {
         long time = stopWatch.getElapsedTime();
         LOG.log(Level.INFO, "Time for benchmarkPutGet: " + time);
         assertTrue("Too slow. Time was " + time, time < 300);
+    }
+
+
+    /**
+     * Benchmark to test speed.
+     *
+     * With iteration up to 5000:
+     * 100: Time for putSpeed: 2772
+     * 1000: Time for putSpeed: 10943
+     * 4000: Time for putSpeed: 42367
+     * 10000: Time for putSpeed: 4179
+     * 300000: Time for putSpeed: 6616
+     *
+     * With no iteration:
+     * 100: Time for putSpeed: 2358
+     * 1000: Time for putSpeed: 2692
+     * 4000: Time for putSpeed: 2833
+     * 10000: Time for putSpeed: 3630
+     * 300000: Time for putSpeed: 6616
+     */
+    @Test
+    public void testPutSpeed() throws Exception {
+        cache = new Cache("testPutSpeed", 4000, false, true, 120, 120);
+        manager.addCache(cache);
+        store = cache.getMemoryStore();
+        final Long key = 0L;
+        byte[] value = new byte[1];
+        StopWatch stopWatch = new StopWatch();
+
+        // Add a bunch of entries
+        for (int i = 0; i < 500000; i++) {
+            Element element = new Element(key + i, value);
+            store.put(element);
+        }
+        long time = stopWatch.getElapsedTime();
+        LOG.log(Level.INFO, "Time for putSpeed: " + time);
+        assertTrue("Too slow. Time was " + time, time < 4000);
     }
 
 

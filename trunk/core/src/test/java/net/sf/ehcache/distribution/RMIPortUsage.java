@@ -25,15 +25,26 @@ import java.rmi.server.UnicastRemoteObject;
 
 /**
  * Enables manual playing around with RMI ports.
+ * @author Greg Luck
  */
 public class RMIPortUsage extends UnicastRemoteObject {
 
     private static RMIPortUsage rmi;
 
+    /**
+     * 
+     * @param port
+     * @throws RemoteException
+     */
     protected RMIPortUsage(int port) throws RemoteException {
         super(port);
     }
 
+    /**
+     *
+     * @param args
+     * @throws Exception
+     */
     public static void main(String[] args) throws Exception {
         int port = 10001;
         String service = "rmi://127.0.0.1" + ':' + port + '/' +

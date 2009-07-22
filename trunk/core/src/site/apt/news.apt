@@ -7,6 +7,19 @@
 
 News
 
+
+* 14 July: Ehcache-OpenJPA 0.1 released
+
+    An Ehcache plugin for OpenJPA has been released. It can be easily plugged in to OpenJPA  to provide familiar ehcache
+    caching. Conceptually the plugin is similar to Hibernate. Persistent Object caches and Query caches are implemented.
+
+    Download {{{/download.html}here}}. All documentation is {{{http://ehcache.sourceforge.net/documentation/openjpa_provider.html}here}}.
+
+    The release is also available on Maven central.
+
+    Thanks to Craig Andrews for contributing this plugin.
+
+
 * 17 June 2009: Ehcache 1.6.0 released
 
   This production release of ehcache-1.6 adds bug fixes and massive performance improvements. This release contains

@@ -45,8 +45,8 @@ import java.rmi.registry.LocateRegistry;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * These tests use the JDK1.5 platform mbean server

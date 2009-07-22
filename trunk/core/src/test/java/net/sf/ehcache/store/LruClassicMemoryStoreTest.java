@@ -1,16 +1,8 @@
 package net.sf.ehcache.store;
 
-import org.junit.Before;
-import org.junit.After;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.AbstractCacheTest;
-
-import java.util.Date;
+import org.junit.After;
+import org.junit.Before;
 
 /**
  * Tests the pre ehcache-1.6 LruMemoryStore, which can be switched in

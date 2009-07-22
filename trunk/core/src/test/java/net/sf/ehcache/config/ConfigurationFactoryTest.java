@@ -54,14 +54,13 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.Map;
-import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
 
 /**
  * Tests for Store Configuration
@@ -111,7 +110,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
 
         //Check CacheManagerPeerProvider
-        Map<String,CacheManagerPeerProvider> peerProviders = configurationHelper.createCachePeerProviders();
+        Map<String, CacheManagerPeerProvider> peerProviders = configurationHelper.createCachePeerProviders();
         CacheManagerPeerProvider peerProvider = peerProviders.get("RMI");
 
 
@@ -217,7 +216,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
 
         //Check CacheManagerPeerProvider
-        Map<String,CacheManagerPeerProvider> peerProviders = configurationHelper.createCachePeerProviders();
+        Map<String, CacheManagerPeerProvider> peerProviders = configurationHelper.createCachePeerProviders();
         CacheManagerPeerProvider peerProvider = peerProviders.get("RMI");
 
 
@@ -266,7 +265,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     }
 
     /**
-     * Can we read from a UTF8 encoded file which uses Japanese characters 
+     * Can we read from a UTF8 encoded file which uses Japanese characters
      */
     @Test
     public void testLoadUTF8ConfigurationFromFile() throws Exception {
@@ -418,7 +417,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
         //Check CacheManagerPeerProvider
-        Map<String,CacheManagerPeerProvider> peerProviders = configurationHelper.createCachePeerProviders();
+        Map<String, CacheManagerPeerProvider> peerProviders = configurationHelper.createCachePeerProviders();
         CacheManagerPeerProvider peerProvider = peerProviders.get("RMI");
 
 
@@ -950,11 +949,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     public void testPathExpansionAndReplacement() throws Exception {
 
         String configuration = "This is my ${basedir}.";
-        String trimmedToken	= "basedir";
-        String property	= "D:\\sonatype\\workspace\\nexus-aggregator\\nexus\\nexus-app";
-        System.out.println("Property: " + property);
-
-        System.out.println("configuration is: " + configuration);
+        String trimmedToken = "basedir";
+        String property = "D:\\sonatype\\workspace\\nexus-aggregator\\nexus\\nexus-app";
+        LOG.info("Property: " + property);
+        LOG.info("configuration is: " + configuration);
         String propertyWithQuotesProtected = Matcher.quoteReplacement(property);
         configuration = configuration.replaceAll("\\$\\{" + trimmedToken + "\\}", propertyWithQuotesProtected);
         assertTrue(configuration.contains(property));
