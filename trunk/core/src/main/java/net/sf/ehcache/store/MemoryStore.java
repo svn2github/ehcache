@@ -501,7 +501,7 @@ public class MemoryStore implements Store {
     /**
      * A bounds-safe incrementer, which loops back to zero when it exceeds the array size.
      * <p/>
-     * This method is not syncrhnoized. It uses CAS and loops until is can set the value. 
+     * This method is not synchronized. It uses CAS and loops until is can set the value. 
      */
     protected int incrementIndex() {
         int newVal;
