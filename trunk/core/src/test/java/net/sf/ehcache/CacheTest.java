@@ -1236,7 +1236,7 @@ public class CacheTest extends AbstractCacheTest {
         cache.get(key);
 
         assertEquals(50, cache.getMemoryStoreSize());
-        assertTrue(cache.getDiskStoreSize() >= 50 && cache.getDiskStoreSize() <= 53);
+        assertTrue(cache.getDiskStoreSize() >= 50 && cache.getDiskStoreSize() <= 54);
         assertTrue(cache.getSize() >= 100 && cache.getSize() <= 103);
 
 

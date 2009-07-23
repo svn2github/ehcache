@@ -497,16 +497,23 @@ public class MemoryStore implements Store {
 
     }
 
+
     /**
-     * A bounds-safe incrementer, which loops back to zero when it exceeds the array size
+     * A bounds-safe incrementer, which loops back to zero when it exceeds the array size.
+     * <p/>
+     * This method is not syncrhnoized. It uses CAS and loops until is can set the value. 
      */
     protected int incrementIndex() {
-        int index = keySamplePointer.getAndIncrement();
-        if (index > (keyArray.length() - 1)) {
-            keySamplePointer.set(0);
-            return 0;
-        } else {
-            return index;
+        int newVal;
+        while (true) {
+            int oldVal = keySamplePointer.get();
+            newVal = oldVal + 1;
+            if (newVal > keyArray.length() - 1) {
+                newVal = 0;
+            }
+            if (keySamplePointer.compareAndSet(oldVal, newVal)) {
+                return newVal;
+            }
         }
     }
 

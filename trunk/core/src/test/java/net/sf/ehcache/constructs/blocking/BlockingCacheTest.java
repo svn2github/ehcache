@@ -364,5 +364,11 @@ public class BlockingCacheTest extends CacheTest {
     public void testGetWithLoader() {
         super.testGetWithLoader();
     }
+
+
+    @Test
+    public void testFlushWhenOverflowToDisk() throws Exception {
+        super.testFlushWhenOverflowToDisk();
+    }
 }
 
