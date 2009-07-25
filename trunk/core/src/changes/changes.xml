@@ -7,11 +7,11 @@
             <action dev="Greg Luck" type="fix">
                 Fixed ConcurrentModificationException when using DiskStore. This issue would log an exception
                 and those elements waiting to be spooled would be discarded. The DiskStore and cache would
-                continue to run unaffected.
+                continue to run unaffected. 1.6 issue.
             </action>
             <action dev="Greg Luck" type="fix">
                 Fixed regression in 1.6.0. When an Element is not Serializable, but it's key is, then replications
-                via invalidate should still work as only the key needs to be Serializable.
+                via invalidate should still work as only the key needs to be Serializable. 1.6 issue.
             </action>
             <action dev="Greg Luck" type="update">
                 Clarified and made consistent removeQuiet and getQuiet. Both do not update statistics nor call listeners.
@@ -23,9 +23,15 @@
             </action>
             <action dev="Greg Luck" type="fix" issue="2823211">
                 Improved incrementer in MemoryStore to avoid rare overwrites in the key sampling. Thanks to
-                Michael Maraist for this fix.
+                Michael Maraist for this fix. 1.6 issue.
             </action>
-
+            <action dev="Greg Luck" type="fix" >
+                Fixed very rare ordering problem with concurrent puts where an older version could get returned
+                on a get. 1.6 issue.
+            </action>
+            <action dev="Greg Luck" type="update" >
+                Improve performance of memory store eviction.
+            </action>
         </release>
 
         <release version="1.6.0" date="2009-6-17"

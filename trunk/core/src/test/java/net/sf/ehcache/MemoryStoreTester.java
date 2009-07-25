@@ -111,7 +111,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
      * @throws CacheException
      */
     protected void createMemoryOnlyStore(MemoryStoreEvictionPolicy evictionPolicy) throws CacheException {
-        cache = new Cache("testMemoryOnly", 12000, evictionPolicy, false, System.getProperty("java.io.tmpdir"), 
+        cache = new Cache("testMemoryOnly", 12000, evictionPolicy, false, System.getProperty("java.io.tmpdir"),
                 true, 60, 30, false, 60, null);
         manager.addCache(cache);
         store = cache.getMemoryStore();
@@ -413,14 +413,14 @@ public class MemoryStoreTester extends AbstractCacheTest {
 
     /**
      * Benchmark to test speed.
-     *
+     * <p/>
      * With iteration up to 5000:
      * 100: Time for putSpeed: 2772
      * 1000: Time for putSpeed: 10943
      * 4000: Time for putSpeed: 42367
      * 10000: Time for putSpeed: 4179
      * 300000: Time for putSpeed: 6616
-     *
+     * <p/>
      * With no iteration:
      * 100: Time for putSpeed: 2358
      * 1000: Time for putSpeed: 2692

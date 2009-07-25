@@ -44,7 +44,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
@@ -989,8 +991,6 @@ public class CacheTest extends AbstractCacheTest {
     }
 
 
-
-
     /**
      * Checks the expense of checking for duplicates
      * Typical Results Duplicate Check: 8ms versus 3ms for No Duplicate Check
@@ -1196,7 +1196,7 @@ public class CacheTest extends AbstractCacheTest {
 
     /**
      * Tests flushing the cache, with the default, which is to clear
-     *
+     * <p/>
      * Note: Which element gets evicted is probabilistic. 1.5 and earlier were deterministic. Thus
      * the variation in what gets into the DiskStore.
      *
@@ -1218,35 +1218,33 @@ public class CacheTest extends AbstractCacheTest {
             cache.put(new Element("" + i, new Date()));
             //hit
             cache.get("" + i);
-            cache.get("" + i);
-            cache.get("" + i);
         }
         assertEquals(50, cache.getMemoryStoreSize());
         assertEquals(50, cache.getDiskStoreSize());
+        assertEquals(100, cache.getSize());
 
 
         //Should get selected. But this is probabilistic
-        cache.put(new Element("key", new Object()));
-        cache.put(new Element("key2", new Object()));
-        Object key = new Object();
-        cache.put(new Element(key, "value"));
+        cache.put(new Element("key", new String("sdf")));
+        cache.put(new Element("key2", new String("fdgdf")));
+        cache.put(new Element("key1", "value"));
 
         //get it and make sure it is mru
-        Thread.sleep(300);
-        cache.get(key);
+        Thread.sleep(15);
+        cache.get("key1");
 
+        assertEquals(103, cache.getSize());
         assertEquals(50, cache.getMemoryStoreSize());
-        assertTrue(cache.getDiskStoreSize() >= 50 && cache.getDiskStoreSize() <= 54);
-        assertTrue(cache.getSize() >= 100 && cache.getSize() <= 103);
+        assertEquals(53, cache.getDiskStoreSize());
 
 
         //these "null" Elements are ignored and do not get put in
         cache.put(new Element(null, null));
         cache.put(new Element(null, null));
 
+        assertEquals(103, cache.getSize());
         assertEquals(50, cache.getMemoryStoreSize());
-        assertTrue(cache.getDiskStoreSize() >= 50 && cache.getDiskStoreSize() <= 53);
-        assertTrue(cache.getSize() >= 100 && cache.getSize() <= 103);
+        assertEquals(53, cache.getDiskStoreSize());
 
         //this one does
         cache.put(new Element("nullValue", null));
@@ -1254,13 +1252,12 @@ public class CacheTest extends AbstractCacheTest {
         LOG.log(Level.INFO, "Size: " + cache.getDiskStoreSize());
 
         assertEquals(50, cache.getMemoryStoreSize());
-        assertTrue(cache.getDiskStoreSize() >= 52 && cache.getDiskStoreSize() <= 53);
-        assertTrue(cache.getSize() >= 102 && cache.getSize() <= 103);
+        assertEquals(54, cache.getDiskStoreSize());
 
         cache.flush();
         assertEquals(0, cache.getMemoryStoreSize());
         //Non Serializable Elements get discarded
-        assertEquals(101, cache.getDiskStoreSize());
+        assertEquals(104, cache.getDiskStoreSize());
 
         cache.removeAll();
 
@@ -1818,6 +1815,15 @@ public class CacheTest extends AbstractCacheTest {
      * INFO: Average Put Time for 358907 obervations: 0.027190888 ms
      * INFO: Average Remove Time for 971741 obervations: 0.00924732 ms
      * INFO: Average keySet Time for 466812 observations: 0.15059596 ms
+     * <p/>
+     * After putting back synchronized:
+     * <p/>
+     * INFO: Average Get Time for 7184321 observations: 0.009596036 ms
+     * INFO: Average Put Time for 15853 obervations: 0.117264874 ms
+     * INFO: Average Remove Time for 385518 obervations: 0.017298803 ms
+     * INFO: Average Remove All Time for 456174 observations: 0.10433519 ms
+     * INFO: Average keySet Time for 4042893 observations: 0.0029669348 ms
+     * INFO: Total loads: 123
      *
      * @throws Exception
      */
@@ -2294,7 +2300,7 @@ public class CacheTest extends AbstractCacheTest {
     public void testGetWithLoader() {
 
         /**
-         * 
+         *
          */
         class TestCacheLoader implements CacheLoader {
 
@@ -2345,7 +2351,7 @@ public class CacheTest extends AbstractCacheTest {
         }
 
         Cache cache = manager.getCache("sampleCache1");
-        cache.registerCacheLoader(new TestCacheLoader()); 
+        cache.registerCacheLoader(new TestCacheLoader());
 
 
         Element element = cache.get("a");
@@ -2451,5 +2457,71 @@ public class CacheTest extends AbstractCacheTest {
         assertNull(cache.get("key2put"));
         assertNull(cache.get("key2putQuiet"));
     }
+
+
+
+
+    /**
+     * Shows a consistency problem as reported against 1.6.0.
+     *
+     * Does not happen when not using DiskStore
+     * Putting synchronized on put/get on cache fixes it
+     * Only happens when the Element is retrieved from the DiskStore. Debugging shows
+     * that the problem is caused by puts not getting through or coming in the wrong order
+     * Putting synchronized on MemoryStore.put() fixes the issue. That is the applied fix.
+     * <p/>
+     * The exact cause is unknown but the behaviour of ConcurrentHashMap is suspected.
+     */
+    @Test
+    public void testConcurrentPutsAreConsistent() throws InterruptedException {
+        Cache cache = new Cache("someName", 100, true, true, 0, 0);
+        manager.addCache(cache);
+
+        Executor executor = Executors.newFixedThreadPool(1000);
+
+        for (int i = 0; i < 5000; i++) {
+            executor.execute(new CacheTestRunnable(cache, String.valueOf(i)));
+        }
+        Thread.sleep(5000L);
+
+        assertEquals("Failures: ", 0, CacheTestRunnable.FAILURES.size());
+    }
+
+    /**
+     * A runnable that sets 5 times in a row then calls get and checks it is the last value set
+     */
+    private static final class CacheTestRunnable implements Runnable {
+        static final List FAILURES = new ArrayList();
+
+        private Ehcache cache;
+        private String key;
+
+        private CacheTestRunnable(Ehcache cache, String key) {
+            this.cache = cache;
+            this.key = key;
+        }
+
+        public void run() {
+            setValue("new value");
+            setValue("new value2");
+            setValue("new value3");
+            setValue("new value4");
+            setValue("new value5");
+
+            Element element = cache.get(key);
+            String value = element.getValue().toString();
+            boolean result = value.equals("new value5");
+            if (!result) {
+                LOG.info("key is: " + key + " value: " + value + " version: " + element.getVersion());
+                FAILURES.add("key is: " + key + " value: " + value);
+            }
+        }
+
+        private void setValue(String valueToSet) {
+            cache.put(new Element(key, valueToSet));
+        }
+
+    }
+
 
 }

@@ -57,6 +57,8 @@ public class MemoryStore implements Store {
      */
     protected static final int CONCURRENCY_LEVEL = 100;
 
+    private static final int JUMP_AHEAD = 5;
+
     private static final Logger LOG = Logger.getLogger(MemoryStore.class.getName());
 
     /**
@@ -89,12 +91,11 @@ public class MemoryStore implements Store {
      */
     protected Status status;
 
+
     /**
      * The maximum size of the store
      */
     protected int maximumSize;
-
-
     private AtomicReferenceArray<Object> keyArray;
     private AtomicInteger keySamplePointer;
 
@@ -143,7 +144,7 @@ public class MemoryStore implements Store {
      *
      * @param element the element to add
      */
-    public final void put(Element element) throws CacheException {
+    public synchronized final void put(Element element) throws CacheException {
         if (element != null) {
             map.put(element.getObjectKey(), element);
             doPut(element);
@@ -464,17 +465,19 @@ public class MemoryStore implements Store {
             removeElementChosenByEvictionPolicy(elementJustAdded);
         }
         if (useKeySample) {
-
-            //use 100% sample size for now
-            //if (fastRandom.select(elementJustAdded.getLatestOfCreationAndUpdateTime())) {
             saveKey(elementJustAdded);
-            //}
         }
 
     }
 
     /**
      * Saves the key to our fast access AtomicReferenceArray
+     * <p/>
+     * We save the new key if:
+     * <ol>
+     * <li>
+     * <li>
+     * </ol>
      *
      * @param elementJustAdded the new element
      */
@@ -485,7 +488,7 @@ public class MemoryStore implements Store {
         if (key != null) {
             oldElement = (Element) map.get(key);
         }
-        if (oldElement != null) {
+        if (oldElement != null && !oldElement.isExpired()) {
             if (policy.compare(oldElement, elementJustAdded)) {
                 //new one will always be more desirable for eviction as no gets yet, unless no gets on old one.
                 //Consequence of this algorithm
@@ -501,7 +504,7 @@ public class MemoryStore implements Store {
     /**
      * A bounds-safe incrementer, which loops back to zero when it exceeds the array size.
      * <p/>
-     * This method is not synchronized. It uses CAS and loops until is can set the value. 
+     * This method is not synchronized. It uses CAS and loops until is can set the value.
      */
     protected int incrementIndex() {
         int newVal;
@@ -557,17 +560,37 @@ public class MemoryStore implements Store {
             Element[] elements = sampleElementsViaKeyArray();
             //this can return null. Let the cache get bigger by one.
             element = policy.selectedBasedOnPolicy(elements, elementJustAdded);
+
+            if (element != null) {
+                return element;
+            }
+
+            //To svoid an expensive search via iterating through the CHM, which is very expensive
+            //but it is guaranteed to not return null, which would cause a memory leak
+            //iterate through our list, which is really fast
+            //If we cannot evict in accordance in the algorithm, drop back to an eviction based on FIFO
+            int startingIndex = keySamplePointer.get();
+            //jump ahead of the puts to make sure we don't grab something that is very new
+            int counter = startingIndex + JUMP_AHEAD;
+
+            //todo will this always work? Add one full circuit failsafe
+            while (true) {
+                if (counter > keyArray.length() - 1) {
+                    counter = 0;
+                }
+                element = (Element) map.get(keyArray.get(counter));
+                if (element != null) {
+                    return element;
+                }
+                counter++;
+            }
+        } else {
+            //Using iterate technique    
+            Element[] elements = sampleElements(map.size());
+            return policy.selectedBasedOnPolicy(elements, elementJustAdded);
         }
-
-        if (element != null) {
-            return element;
-            //else fall through to more expensive search
-        }
-
-        Element[] elements = sampleElements(map.size());
-        return policy.selectedBasedOnPolicy(elements, elementJustAdded);
-
     }
+
 
     /**
      * Uses random numbers to sample the entire map.

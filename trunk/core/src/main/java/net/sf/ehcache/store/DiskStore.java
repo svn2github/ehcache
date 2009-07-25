@@ -89,6 +89,7 @@ public class DiskStore implements Store {
 
     private ConcurrentHashMap diskElements = new ConcurrentHashMap();
     private List freeSpace = Collections.synchronizedList(new ArrayList());
+    //todo set concurrency level
     private ConcurrentHashMap spool = new ConcurrentHashMap();
 
     private Thread spoolAndExpiryThread;
