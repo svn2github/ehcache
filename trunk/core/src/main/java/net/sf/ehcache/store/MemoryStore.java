@@ -572,7 +572,7 @@ public class MemoryStore implements Store {
             int startingIndex = keySamplePointer.get();
             //jump ahead of the puts to make sure we don't grab something that is very new
             int counter = startingIndex + JUMP_AHEAD;
-
+            int failsafeCounter = maximumSize;
             //todo will this always work? Add one full circuit failsafe
             while (true) {
                 if (counter > keyArray.length() - 1) {
@@ -583,6 +583,10 @@ public class MemoryStore implements Store {
                     return element;
                 }
                 counter++;
+                //Should never happen. Failsafe.
+                if (failsafeCounter-- < 0) {
+                    return elementJustAdded;
+                }
             }
         } else {
             //Using iterate technique    
