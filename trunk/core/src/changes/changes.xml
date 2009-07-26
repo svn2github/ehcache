@@ -25,12 +25,15 @@
                 Improved incrementer in MemoryStore to avoid rare overwrites in the key sampling. Thanks to
                 Michael Maraist for this fix. 1.6 issue.
             </action>
-            <action dev="Greg Luck" type="fix" >
-                Fixed very rare ordering problem with concurrent puts where an older version could get returned
-                on a get. 1.6 issue.
-            </action>
-            <action dev="Greg Luck" type="update" >
+            <action dev="Greg Luck" type="fix" issue="2823281" >
                 Improve performance of memory store eviction.
+            </action>
+            <action dev="Greg Luck" type="add" >
+                Delete directories that were created with auto_created which are meant for one time only use.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2824181">
+                Fix consistency problem where, with very fast updates to a Cache, gets were returning old versions.
+                Thanks to Marcin Sciesinski for a very clear test case which showed the issue.
             </action>
         </release>
 
