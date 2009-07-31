@@ -78,6 +78,12 @@ public class EhCacheDerivation extends AbstractProductDerivation {
                         rcp, NO_RCP);
                 cp.addProperty("openjpa.RemoteCommitProvider", NO_RCP);
             }
+            Object qc = Configurations.getProperty("QueryCache", props);
+            if(qc==null){
+            	cp.addProperty("openjpa.QueryCache",EHCACHE);
+            }
+            //using a non-ehcache query cache with an ehcache datacache is perfectly okay
+            //so don't warn if that is the configuration
         }
         return false;
     }

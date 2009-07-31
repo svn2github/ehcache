@@ -31,7 +31,6 @@ public class TestEhCache extends TestCase {
         	props.put("openjpa.jdbc.SynchronizeMappings", "buildSchema");
         	props.put("openjpa.Log", "SQL=WARN");
         	props.put("openjpa.DataCacheManager","ehcache");
-        	props.put("openjpa.QueryCache","ehcache");
             emf = Persistence.createEntityManagerFactory(UNIT_NAME,props);
             conf = ((OpenJPAEntityManagerFactorySPI)emf).getConfiguration();
         }
