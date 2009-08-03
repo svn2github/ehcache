@@ -10,7 +10,7 @@
     <name>Ehcache Core</name>
     <artifactId>ehcache</artifactId>
     <packaging>jar</packaging>
-    <version>1.6.1-SNAPSHOT</version>
+    <version>1.6.1</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -49,6 +49,7 @@
         <dependency>
             <groupId>com.cenqua.clover</groupId>
             <artifactId>clover</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -259,7 +260,7 @@
                     </execution>
                 </executions>
             </plugin>
-
+<!--
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -288,7 +289,7 @@
                     </execution>
                 </executions>
             </plugin>
-
+-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>

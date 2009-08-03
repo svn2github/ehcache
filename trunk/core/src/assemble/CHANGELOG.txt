@@ -3,22 +3,40 @@ $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 ehcache-1.6.1
 =============
 
-        <release version="1.6.1" date="2009-7-31"
-                 desc="This release fixes minor issues in Ehcache 1.6.0.">
+    <release version="1.6.1" date="2009-7-27" desc="This is a maintenance release to Ehcache 1.6.0.">
 
-            <action dev="Greg Luck" type="fix">
-                Fixed ConcurrentModificationException when using DiskStore. This issue would log an exception
-                and those elements waiting to be spooled would be discarded. The DiskStore and cache would
-                continue to run unaffected.
-            </action>
-            <action dev="Greg Luck" type="fix">
-                Fixed regression in 1.6.0. When an Element is not Serializable, but it's key is, then replications
-                via invalidate should still work as only the key needs to be Serializable.
-            </action>
-            <action dev="Greg Luck" type="update">
-                Clarified and made consistent removeQuiet and getQuiet. Both do not update statistics nor call listeners.
-            </action>
-        </release>
+        <action dev="Greg Luck" type="fix">
+            Fixed ConcurrentModificationException when using DiskStore. This issue would log an exception
+            and those elements waiting to be spooled would be discarded. The DiskStore and cache would
+            continue to run unaffected. 1.6 issue.
+        </action>
+        <action dev="Greg Luck" type="fix">
+            Fixed regression in 1.6.0. When an Element is not Serializable, but it's key is, then replications
+            via invalidate should still work as only the key needs to be Serializable. 1.6 issue.
+        </action>
+        <action dev="Greg Luck" type="update">
+            Clarified and made consistent removeQuiet and getQuiet. Both do not update statistics nor call listeners.
+        </action>
+        <action dev="Greg Luck" type="update">
+            Allow the network interface to be specified on multi-homed machines for MulticastRMICacheManagerPeerProvider.
+            This can now be done by specifying hostName=&lt;hostname or IP of network interface&gt; in the properties.
+            The default interface is used if this is not specified as it has been in past versions.
+        </action>
+        <action dev="Greg Luck" type="fix" issue="2823211">
+            Improved incrementer in MemoryStore to avoid rare overwrites in the key sampling. Thanks to
+            Michael Maraist for this fix. 1.6 issue.
+        </action>
+        <action dev="Greg Luck" type="fix" issue="2823281" >
+            Improve performance of memory store eviction.
+        </action>
+        <action dev="Greg Luck" type="add" >
+            Delete directories that were created with auto_created which are meant for one time only use.
+        </action>
+        <action dev="Greg Luck" type="fix" issue="2824181">
+            Fix consistency problem where, with very fast updates to a Cache, gets were returning old versions.
+            Thanks to Marcin Sciesinski for a very clear test case which showed the issue.
+        </action>
+    </release>
 
 ehcache-1.6.0
 =============

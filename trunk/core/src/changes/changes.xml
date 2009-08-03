@@ -2,7 +2,7 @@
 <document>
     <body>
 
-        <release version="1.6.1" date="2009-7-31" desc="This release fixes minor issues in Ehcache 1.6.0.">
+        <release version="1.6.1" date="2009-7-27" desc="This is a maintenance release to Ehcache 1.6.0.">
 
             <action dev="Greg Luck" type="fix">
                 Fixed ConcurrentModificationException when using DiskStore. This issue would log an exception

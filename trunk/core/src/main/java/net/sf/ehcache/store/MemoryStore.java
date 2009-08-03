@@ -573,7 +573,6 @@ public class MemoryStore implements Store {
             //jump ahead of the puts to make sure we don't grab something that is very new
             int counter = startingIndex + JUMP_AHEAD;
             int failsafeCounter = maximumSize;
-            //todo will this always work? Add one full circuit failsafe
             while (true) {
                 if (counter > keyArray.length() - 1) {
                     counter = 0;

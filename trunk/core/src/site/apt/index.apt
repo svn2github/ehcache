@@ -14,10 +14,45 @@ Welcome to ehcache
 
  Ehcache is available under an Apache open source {{{license.html}license}} and is actively developed, maintained and supported.
 
-[images/layered_architecture.png] 
+[images/layered_architecture.png]
+
+
+* Module Quick Links
+
+ Ehcache is now modularised. Here are some quick links to help you get what you need.
+
+*----------*--------------:------------------------:
+| <<Module>> | <<Description>>     | <<Links>>            |
+*----------*--------------:------------------------:
+| ehcache-core | Caching engine, RMI replication and Hibernate plugin     | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
+*----------*--------------:------------------------:
+| ehcache-debugger | Allows tracing of distributed replication events    | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
+*----------*--------------:------------------------:
+| ehcache-jcache | JSR107 JCACHE Implementation     | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
+*----------*--------------:------------------------:
+| ehcache-jgroupsreplication | Replication via JGroups  | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
+*----------*--------------:------------------------:
+| ehcache-jmsreplication | Replication via JMS   | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
+*----------*--------------:------------------------:
+| ehcache-openjpa | Caching Plugin for OpenJPA     | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
+*----------*--------------:------------------------:
+| ehcache-server | RESTful cache server in a war   | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
+*----------*--------------:------------------------:
 
 
 * Latest News
+
+** 27 July 2009: Ehcache Core 1.6.1 released
+
+  This is a production maintenance release of ehcache-1.6. Users of 1.6.0 should upgrade to 1.6.1.
+
+  Download {{{/download.html}here}}. All documentation is {{{http://ehcache.sourceforge.net/documentation}here}}.
+  The release is also available on Maven central.
+
+  There are no open core bugs at the time of release.
+
+  For those still wishing to use the old engine it can be turned on at runtime
+  using <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>.
 
 ** 14 July: Ehcache-OpenJPA 0.1 released
 
@@ -36,7 +71,7 @@ Welcome to ehcache
   This production release of ehcache-1.6 adds bug fixes and massive performance improvements. This release contains
   the changes mooted in February.
 
-  The changes made remove used of the <<<synchronized>>> keyword from CacheManager, Cache and MemoryStore. The speed
+  The changes removed most usages of the <<<synchronized>>> keyword from CacheManager, Cache and MemoryStore. The speed
   improvements kick in with significant numbers of threads which is what happens in production.
   Single-threaded performance, which is what you will see in your IDE is unchanged.
 
