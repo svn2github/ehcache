@@ -2,6 +2,15 @@
 <document>
     <body>
 
+        <release version="1.6.2" date="2009-8-16" desc="This is a maintenance release to Ehcache 1.6.0">
+
+            <action dev="Greg Luck" type="remove">
+                Remove AsynchronousCommandExecutor. This is not used by anyone that I know of and is obsolete
+                as j.u.c. provides a similar mechanism.
+            </action>
+        </release>
+
+
         <release version="1.6.1" date="2009-7-27" desc="This is a maintenance release to Ehcache 1.6.0.">
 
             <action dev="Greg Luck" type="fix">
@@ -14,21 +23,24 @@
                 via invalidate should still work as only the key needs to be Serializable. 1.6 issue.
             </action>
             <action dev="Greg Luck" type="update">
-                Clarified and made consistent removeQuiet and getQuiet. Both do not update statistics nor call listeners.
+                Clarified and made consistent removeQuiet and getQuiet. Both do not update statistics nor call
+                listeners.
             </action>
             <action dev="Greg Luck" type="update">
-                Allow the network interface to be specified on multi-homed machines for MulticastRMICacheManagerPeerProvider.
-                This can now be done by specifying hostName=&lt;hostname or IP of network interface&gt; in the properties.
+                Allow the network interface to be specified on multi-homed machines for
+                MulticastRMICacheManagerPeerProvider.
+                This can now be done by specifying hostName=&lt;hostname or IP of network interface&gt; in the
+                properties.
                 The default interface is used if this is not specified as it has been in past versions.
             </action>
             <action dev="Greg Luck" type="fix" issue="2823211">
                 Improved incrementer in MemoryStore to avoid rare overwrites in the key sampling. Thanks to
                 Michael Maraist for this fix. 1.6 issue.
             </action>
-            <action dev="Greg Luck" type="fix" issue="2823281" >
+            <action dev="Greg Luck" type="fix" issue="2823281">
                 Improve performance of memory store eviction.
             </action>
-            <action dev="Greg Luck" type="add" >
+            <action dev="Greg Luck" type="add">
                 Delete directories that were created with auto_created which are meant for one time only use.
             </action>
             <action dev="Greg Luck" type="fix" issue="2824181">
