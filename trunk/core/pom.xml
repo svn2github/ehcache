@@ -452,10 +452,15 @@
         <!--
         The server id here defined must also appear in ~/.m2/settings.xml with username
         Note: site URL repeated here to ensure correct deployment path -->
+        <!--<site>-->
+            <!--<id>sourceforge.net</id>-->
+            <!--<name>SF EHCache Site</name>-->
+            <!--<url>scp://web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs</url>-->
+        <!--</site>-->
         <site>
-            <id>sourceforge.net</id>
-            <name>SF EHCache Site</name>
-            <url>scp://web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs</url>
+            <id>ehcache.org</id>
+            <name>EHCache Site</name>
+            <url>dav:https://echache-stage.terracotta.lan/export1/ehache.org</url>
         </site>
     </distributionManagement>
 

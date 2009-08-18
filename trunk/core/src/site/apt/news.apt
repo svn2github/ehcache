@@ -7,6 +7,31 @@
 
 News
 
+* 18 August 2009: Ehcache joins with Terracotta 
+
+  The Ehcache project is excited to announce Ehcache's merger with Terracotta.
+
+  Terracotta is committed to maintaining the Ehcache community and plans to retain availability of Ehcache as an
+  open source product under the Apache 2 license. Ehcache will remain available for download at its current location
+  at http://ehcache.sourceforge.net, in the Maven central repository, as well as at it's new home at http://ehcache.org.
+
+  As part of the merger, Greg Luck, the maintainer of Ehcache, will join Terracotta Inc..
+
+  Both the Ehcache and Terracotta communities will benefit from this merger.
+
+  The Ehcache community will get accelerated development of new Ehcache features which will provide a comprehensive,
+  standards-based caching solution for existing and upcoming performance challenges.
+
+  Terracotta community members will have a seamless, single-vendor experience with easy access to a rich and robust
+  caching solution that scales with their businesses.
+
+  Planned integration of the products in the near term will focus on enabling Ehcache users to easily add enterprise availability,
+  reliability and data integrity capabilities through the Terracotta Server Array.
+
+  See Terracotta's {{{http://www.terracotta.org/web/display/orgsite/Terracotta+Acquires+Ehcache}news announcement}} for more detail.
+
+  Greg Luck also has a {{{http://gregluck.com/blog/archives/2009/08/ehcache_joins_w.html}blog post}} on the merger.
+
 
 * 14 July: Ehcache-OpenJPA 0.1 released
 

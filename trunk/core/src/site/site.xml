@@ -5,6 +5,11 @@
         <src>images/ehcache_logo.gif</src>
         <href>/</href>
     </bannerLeft>
+    <bannerRight>
+        <name>ehcache</name>
+        <src>images/t_logo.gif</src>
+        <href>/</href>
+    </bannerRight>
     <body>
         <links>
             <item name="Download" href="http://sourceforge.net/project/showfiles.php?group_id=93232"/>
