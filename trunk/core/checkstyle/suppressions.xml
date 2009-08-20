@@ -44,7 +44,7 @@
      runtime performance.-->
     <suppress checks="CyclomaticComplexity" files="Cache.java"/>
     <suppress checks="CyclomaticComplexity" files="CacheManager.java" lines="147"/>
-    <suppress checks="CyclomaticComplexity" files="DiskStore.java" lines="583"/>
+    <suppress checks="CyclomaticComplexity" files="DiskStore.java"/>
     <suppress checks="CyclomaticComplexity" files="RMIBootstrapCacheLoader.java"/>
     <suppress checks="NPathComplexity" files="RMIBootstrapCacheLoader.java"/>
     <suppress checks="NPathComplexity" files="Cache.java"/>

@@ -89,8 +89,7 @@ public class DiskStore implements Store {
 
     private ConcurrentHashMap diskElements = new ConcurrentHashMap();
     private List freeSpace = Collections.synchronizedList(new ArrayList());
-    //todo set concurrency level
-    private ConcurrentHashMap spool = new ConcurrentHashMap();
+    private volatile ConcurrentHashMap spool = new ConcurrentHashMap();
 
     private Thread spoolAndExpiryThread;
 
@@ -632,7 +631,7 @@ public class DiskStore implements Store {
         while (spoolAndExpiryThreadActive || writeIndexFlag.get()) {
 
             try {
-                //don't wait when we want to flish
+                //don't wait when we want to flush
                 if (!writeIndexFlag.get()) {
                     Thread.sleep(SPOOL_THREAD_INTERVAL);
                 }
@@ -735,34 +734,13 @@ public class DiskStore implements Store {
 
     private void writeElement(Element element, Serializable key) throws IOException {
         try {
-            int bufferLength;
-            long expirationTime = element.getExpirationTime();
-
-            //try two times to Serialize. A ConcurrentModificationException can occur because Java's serialization
-            //mechanism is not threadsafe and POJOs are seldom implemented in a threadsafe way.
-            //e.g. we are serializing an ArrayList field while another thread somewhere in the application is appending to it.
-            //The best we can do is try again and then give up.
-            int retryCount = 0;
-            MemoryEfficientByteArrayOutputStream buffer = null;
-            try {
-                buffer = MemoryEfficientByteArrayOutputStream.serialize(element, estimatedPayloadSize());
-                retryCount++;
-            } catch (ConcurrentModificationException e) {
-                if (retryCount == 2) {
-                    //give up.
-                    if (LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "Gave up trying to Serialize " + key, e);
-                    }
-                    return;
-                } else {
-                    //wait for the other thread(s) to finish
-                    Thread.sleep(QUARTER_OF_A_SECOND);
-                }
+            MemoryEfficientByteArrayOutputStream buffer = serializeElement(element);
+            if (buffer == null) {
+                return;
             }
-            bufferLength = buffer.size();
-
+            
+            int bufferLength = buffer.size();
             try {
-
                 DiskElement diskElement = checkForFreeBlock(bufferLength);
 
                 // Write the record
@@ -775,7 +753,7 @@ public class DiskStore implements Store {
                 // Add to index, update stats
                 diskElement.payloadSize = bufferLength;
                 diskElement.key = key;
-                diskElement.expiryTime = expirationTime;
+                diskElement.expiryTime = element.getExpirationTime();
                 diskElement.hitcount = element.getHitCount();
                 totalSize += bufferLength;
                 lastElementSize = bufferLength;
@@ -791,6 +769,29 @@ public class DiskStore implements Store {
                     + "'. Initial cause was " + e.getMessage(), e);
         }
 
+    }
+
+    private MemoryEfficientByteArrayOutputStream serializeElement(Element element) 
+            throws IOException, InterruptedException {
+        //try two times to Serialize. A ConcurrentModificationException can occur because Java's serialization
+        //mechanism is not threadsafe and POJOs are seldom implemented in a threadsafe way.
+        //e.g. we are serializing an ArrayList field while another thread somewhere in the application is appending to it.
+        //The best we can do is try again and then give up.
+        Exception exception = null;
+        for (int retryCount = 0; retryCount < 2; retryCount++) {
+            try {
+                return MemoryEfficientByteArrayOutputStream.serialize(element, estimatedPayloadSize());
+            } catch (ConcurrentModificationException e) {
+                exception = e;
+                
+                //wait for the other thread(s) to finish
+                Thread.sleep(QUARTER_OF_A_SECOND);
+            }
+        }
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.log(Level.FINE, "Gave up trying to Serialize " + element.getObjectKey(), exception);
+        }
+        return null;
     }
 
     private int estimatedPayloadSize() {
@@ -840,16 +841,19 @@ public class DiskStore implements Store {
      * Note that the store is locked for the entire time that the index is being written
      */
     private synchronized void writeIndex() throws IOException {
-
+        FileOutputStream fout = null;
         ObjectOutputStream objectOutputStream = null;
         try {
-            FileOutputStream fout = new FileOutputStream(indexFile);
+            fout = new FileOutputStream(indexFile);
             objectOutputStream = new ObjectOutputStream(fout);
             objectOutputStream.writeObject(diskElements);
             objectOutputStream.writeObject(freeSpace);
         } finally {
             if (objectOutputStream != null) {
                 objectOutputStream.close();
+            }
+            if (fout != null) {
+                fout.close();
             }
         }
     }
@@ -871,7 +875,14 @@ public class DiskStore implements Store {
             try {
                 fin = new FileInputStream(indexFile);
                 objectInputStream = new ObjectInputStream(fin);
-                diskElements = (ConcurrentHashMap) objectInputStream.readObject();
+
+                Map diskElementsMap = (Map)objectInputStream.readObject();
+                if (diskElementsMap instanceof ConcurrentHashMap) {
+                    diskElements = (ConcurrentHashMap)diskElementsMap;
+                } else {
+                    diskElements = new ConcurrentHashMap(diskElementsMap);
+                }
+
                 freeSpace = (List) objectInputStream.readObject();
                 success = true;
             } catch (StreamCorruptedException e) {
@@ -887,7 +898,8 @@ public class DiskStore implements Store {
                 try {
                     if (objectInputStream != null) {
                         objectInputStream.close();
-                    } else if (fin != null) {
+                    }
+                    if (fin != null) {
                         fin.close();
                     }
                 } catch (IOException e) {

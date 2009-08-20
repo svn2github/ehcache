@@ -1081,7 +1081,7 @@ public class Cache implements Ehcache {
 
     /**
      * The loadAll method provides a means to "pre load" objects into the cache. This method will, asynchronously, load
-     * the specified objects into the cache using the associated cache loader. If the an object already exists in the
+     * the specified objects into the cache using the associated cache loader(s). If the an object already exists in the
      * cache, no action is taken. If no loader is associated with the object, no object will be loaded into the cache.
      * If a problem is encountered during the retrieving or loading of the objects, an exception (to be defined)
      * should be logged. The getAll method will return, from the cache, a Map of the objects associated with the
@@ -2343,7 +2343,7 @@ public class Cache implements Ehcache {
 
 
     /**
-     * Does the asynchronous loading.
+     * Creates a future to perform the load
      *
      * @param keys
      * @param argument the loader argument
@@ -2356,32 +2356,15 @@ public class Cache implements Ehcache {
              */
             public void run() {
                 try {
-                    List<Object> nonLoadedKeys = new ArrayList<Object>(keys.size());
+                    Set<Object> nonLoadedKeys = new HashSet<Object>();
                     for (Object key : keys) {
                         if (!isKeyInCache(key)) {
                             nonLoadedKeys.add(key);
                         }
                     }
-                    Map map = null;
-                    if (argument == null) {
-                        for (CacheLoader registeredCacheLoader : registeredCacheLoaders) {
-                            map = registeredCacheLoader.loadAll(nonLoadedKeys);
-                            if (map != null) {
-                                break;
-                            }
-                        }
-                    } else {
-                        for (CacheLoader registeredCacheLoader : registeredCacheLoaders) {
-                            map = registeredCacheLoader.loadAll(nonLoadedKeys, argument);
-                            if (map != null) {
-                                break;
-                            }
-                        }
-                    }
-                    if (map != null) {
-                        for (Object key : map.keySet()) {
-                            put(new Element(key, map.get(key)));
-                        }
+                    Map map = loadWithRegisteredLoaders(argument, nonLoadedKeys);
+                    for (Object key : map.keySet()) {
+                        put(new Element(key, map.get(key)));
                     }
                 } catch (Throwable e) {
                     if (LOG.isLoggable(Level.FINE)) {
@@ -2390,6 +2373,33 @@ public class Cache implements Ehcache {
                 }
             }
         });
+    }
+
+    /**
+     * Does the asynchronous loading.
+     * @param argument the loader argument
+     * @param nonLoadedKeys the Set of keys that are already in the Cache
+     * @return A map of loaded elements
+     */
+    Map loadWithRegisteredLoaders(Object argument, Set<Object> nonLoadedKeys) {
+        Map result = new HashMap();
+        for (CacheLoader registeredCacheLoader : registeredCacheLoaders) {
+            if (nonLoadedKeys.isEmpty()) {
+                break;
+            }
+
+            Map resultForThisCacheLoader = null;
+            if (argument == null) {
+                resultForThisCacheLoader = registeredCacheLoader.loadAll(nonLoadedKeys);
+            } else {
+                resultForThisCacheLoader = registeredCacheLoader.loadAll(nonLoadedKeys, argument);
+            }
+            if (resultForThisCacheLoader != null) {
+                nonLoadedKeys.removeAll(resultForThisCacheLoader.keySet());
+                result.putAll(resultForThisCacheLoader);
+            }
+        }
+        return result;
     }
 
     /**

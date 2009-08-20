@@ -8,6 +8,20 @@
                 Remove AsynchronousCommandExecutor. This is not used by anyone that I know of and is obsolete
                 as j.u.c. provides a similar mechanism.
             </action>
+            <action dev="Greg Luck" type="fix" issue="2840648">
+                1.6.1 cannot read older versions' persistent stores. Thanks to Matt Passell for the patch.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2831089">
+                Fix retry serialize not working. Thanks to Vitaliy Garnashevich for the patch.
+            </action>
+            <action dev="Greg Luck" type="update" issue="2831089">
+                Always close open files. Thanks to Vitaliy Garnashevich for the patch.
+            </action>
+            <action dev="Greg Luck" type="update" issue="2830920">
+                Current implementation stops after at least one loader loaded at least one
+                Element. This patch continues to poll other loaders if more keys left to
+                load. Thanks to Vitaliy Garnashevich for the patch.
+            </action>
         </release>
 
 
