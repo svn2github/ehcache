@@ -267,7 +267,7 @@ News
    * add other oustanding feature requests
 
    Check trunk regularly for updates. For maven users (of which ehcache is one) a SNAPSOT repository has been added. See
-    {{http://ehcache.sf.net/snapshotrepository}}
+    {{http://ehcache.org/snapshotrepository}}
 
 
 * 11 August 2008: Ehcache 1.5 Book released on Lulu.com
@@ -290,7 +290,7 @@ News
    This is the first version of an ehcache W3C Web Services server, packaged as a WAR. This version is made available for testing.
    See the {{{http://ehcache.sourceforge.net/documentation/cache_server.html}documentation}}.
 
-   Two APIs are supported: A soap API specified in {{{http://ehcache.sf.net/wsdl/EhcacheWebServiceEndpointService.wsdl}EhcacheWebServiceEndpointService.wsdl}}
+   Two APIs are supported: A soap API specified in {{{http://ehcache.org/wsdl/EhcacheWebServiceEndpointService.wsdl}EhcacheWebServiceEndpointService.wsdl}}
    and a RESTful, resource oriented API. This release provides a feature-complete soap API. The RESTful API is not yet feature complete.
 
 * 12 July 2008: ehcache-1.5.0 released
@@ -415,7 +415,7 @@ News
  is USD37.50. The book has 154 pages.
 
  Many people have asked for a format for the documentation where it can be printed out as a book and even where they can get it.
- Of course, full documentation in html will always remain available online at http://ehcache.sf.net.
+ Of course, full documentation in html will always remain available online at http://ehcache.org.
 
  Buy it from the {{{http://stores.lulu.com/ehcache}Ehcache Storefront}} at Lulu Books.
 

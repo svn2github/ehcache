@@ -1,3 +1,4 @@
+
 <project name="ehcache" default="build" xmlns:artifact="urn:maven-artifact-ant">
 
 
@@ -191,61 +192,6 @@
 
         <copy file="${src.config.dir}/ehcache.xml" todir="${build.dir}/site"/>
         <copy file="${src.config.dir}/ehcache.xsd" todir="${build.dir}/site"/>
-
-
-        <replace dir="${build.dir}/site">
-            <replacetoken><![CDATA[@standard_support@]]></replacetoken>
-            <replacevalue><![CDATA[
-
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-<input type="hidden" name="cmd" value="_s-xclick">
-<input type="hidden" name="hosted_button_id" value="1346142">
-<table>
-<tr><td><input type="hidden" name="on0" value="Support Contacts (maximum of 2)">Support Contacts (maximum of 2)</td></tr><tr><td><input type="text" name="os0" maxlength="60">
-<tr><td><input type="hidden" name="on1" value="Email Address">Email Address</td></tr><tr><td><input type="text" name="os1" maxlength="60">
-</table>
-<input type="image" src="https://www.paypal.com/en_AU/i/btn/btn_buynow_SM.gif" border="0" name="submit" alt="">
-<img alt="" border="0" src="https://www.paypal.com/en_AU/i/scr/pixel.gif" width="1" height="1">
-</form>
-
-            ]]></replacevalue>
-        </replace>
-
-        <replace dir="${build.dir}/site">
-            <replacetoken><![CDATA[@extended_support@]]></replacetoken>
-            <replacevalue><![CDATA[
-            
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-<input type="hidden" name="cmd" value="_s-xclick">
-<input type="hidden" name="hosted_button_id" value="1391796">
-<table>
-<tr><td><input type="hidden" name="on0" value="Support Contacts (maximum of 2)">Support Contacts (maximum of 2)</td></tr><tr><td><input type="text" name="os0" maxlength="60">
-<tr><td><input type="hidden" name="on1" value="Email Address">Email Address</td></tr><tr><td><input type="text" name="os1" maxlength="60">
-</table>
-<input type="image" src="https://www.paypal.com/en_AU/i/btn/btn_buynow_SM.gif" border="0" name="submit" alt="">
-<img alt="" border="0" src="https://www.paypal.com/en_AU/i/scr/pixel.gif" width="1" height="1">
-</form>
-
-            ]]></replacevalue>
-        </replace>
-
-        <replace dir="${build.dir}/site">
-            <replacetoken><![CDATA[@consulting@]]></replacetoken>
-            <replacevalue><![CDATA[
-
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-<input type="hidden" name="cmd" value="_s-xclick">
-<input type="hidden" name="hosted_button_id" value="1393995">
-<table>
-<tr><td><input type="hidden" name="on0" value="Consulting Contacts (maximum of 2)">Consulting Contacts (maximum of 2)</td></tr><tr><td><input type="text" name="os0" maxlength="60">
-<tr><td><input type="hidden" name="on1" value="Email Address">Email Address</td></tr><tr><td><input type="text" name="os1" maxlength="60">
-</table>
-<input type="image" src="https://www.paypal.com/en_AU/i/btn/btn_buynow_SM.gif" border="0" name="submit" alt="">
-<img alt="" border="0" src="https://www.paypal.com/en_AU/i/scr/pixel.gif" width="1" height="1">
-</form>
-
-            ]]></replacevalue>
-        </replace>
 
         <!--Add google code-->
         <replace dir="${build.dir}/site">

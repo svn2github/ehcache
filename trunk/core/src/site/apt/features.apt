@@ -434,9 +434,9 @@
 
     The API definition is as follows:
 
-    * WSDL - {{{http://ehcache.sf.net/wsdl/EhcacheWebServiceEndpointService.wsdl}EhcacheWebServiceEndpointService.wsdl}}
+    * WSDL - {{{http://ehcache.org/wsdl/EhcacheWebServiceEndpointService.wsdl}EhcacheWebServiceEndpointService.wsdl}}
 
-    * Types - {{{http://ehcache.sf.net/wsdl/EhcacheWebServiceEndpointService_schema1.xsd}EhcacheWebServiceEndpointService_schema1.xsd}}
+    * Types - {{{http://ehcache.org/wsdl/EhcacheWebServiceEndpointService_schema1.xsd}EhcacheWebServiceEndpointService_schema1.xsd}}
 
 ** {comes as a WAR or as a complete server}
 

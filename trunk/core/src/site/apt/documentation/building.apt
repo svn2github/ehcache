@@ -29,11 +29,7 @@
 
 *   Deploying Maven Artifacts
 
-    Ehcache has a repository and snapshot repository at SourceForge in the web directory.
-
-    http://ehcache.sf.net/repository
-
-    http://ehcache.sf.net/snapshotrepository
+    Ehcache has a repository and snapshot repository at oss.sonatype.org.
 
     The repository is synced with the Maven Central Repository.
 

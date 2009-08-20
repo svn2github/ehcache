@@ -1368,7 +1368,7 @@
                 Split out the entire constructs package. These are now in a new subproject:
                 ehcache-constructs, which
                 has been released.
-                See http://ehcache.sf.net/ehcache-constructs for more details.
+                See http://ehcache.org/ehcache-constructs for more details.
             </action>
             <action dev="Greg Luck" type="remove">
                 removed the dependency on Doug Lea's concurrency library.

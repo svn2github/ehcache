@@ -26,6 +26,8 @@ Welcome to ehcache
 *----------*--------------:------------------------:
 | ehcache-core | Caching engine, RMI replication and Hibernate plugin     | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
 *----------*--------------:------------------------:
+| ehcache-web | Java Servlet Container caching, gzipping filters  | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
+*----------*--------------:------------------------:
 | ehcache-debugger | Allows tracing of distributed replication events    | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
 *----------*--------------:------------------------:
 | ehcache-jcache | JSR107 JCACHE Implementation     | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |

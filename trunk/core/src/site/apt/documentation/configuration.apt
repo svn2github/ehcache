@@ -18,7 +18,7 @@
     This chapter covers XML declarative configuration. See the Code samples for programmatic configuration.
 
     Ehcache is redistributed by lots of projects. They may or may not provide a sample ehcache XML configuration file.
-    If one is not provided, download ehcache from {{http://ehcache.sf.net}}. It, and the ehcache.xsd is provided in
+    If one is not provided, download ehcache from {{http://ehcache.org}}. It, and the ehcache.xsd is provided in
     the distribution.
 
 
@@ -27,7 +27,7 @@
 
    Ehcache configuration files must be comply with the ehcache XML schema, ehcache.xsd, reproduced below.
 
-   It can also be downloaded from {{http://ehcache.sf.net/ehcache.xsd}}.
+   It can also be downloaded from {{http://ehcache.org/ehcache.xsd}}.
 
 --------------------------------------------
 <?xml version="1.0" encoding="UTF-8"?>
@@ -211,7 +211,7 @@
    sample contains full commentary required to configure each element. Further information can be
    found in specific chapters in the Guide.
 
-   It can also be downloaded from {{http://ehcache.sf.net/ehcache.xml}}.
+   It can also be downloaded from {{http://ehcache.org/ehcache.xml}}.
 
 ---------------------
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 

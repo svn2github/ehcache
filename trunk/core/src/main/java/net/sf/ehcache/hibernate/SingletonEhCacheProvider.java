@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ import java.util.logging.Logger;
  * Updated for ehcache-1.2. Note this provider requires ehcache-1.2.jar. Make sure ehcache-1.1.jar or earlier
  * is not in the classpath or it will not work.
  * <p/>
- * See http://ehcache.sf.net for documentation on ehcache
+ * See http://ehcache.org for documentation on ehcache
  * <p/>
  *
  * @author Greg Luck

@@ -460,7 +460,7 @@
         <site>
             <id>ehcache.org</id>
             <name>EHCache Site</name>
-            <url>dav:https://echache-stage.terracotta.lan/export1/ehache.org</url>
+            <url>dav:https://echache-stage.terracotta.lan/export1/ehcache.org</url>
         </site>
     </distributionManagement>
 

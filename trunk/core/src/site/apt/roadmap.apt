@@ -20,7 +20,7 @@ Development Roadmap
 
 
    Check trunk regularly for updates. For maven users (of which ehcache is one) a SNAPSHOT repository has been added. See
-    {{http://ehcache.sf.net/snapshotrepository}}
+    {{http://ehcache.org/snapshotrepository}}
 
 
 * Ideas not Scheduled

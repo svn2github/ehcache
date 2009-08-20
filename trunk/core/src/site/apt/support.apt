@@ -8,19 +8,17 @@
 
 Commercial Support
 
-    Ehcache is supported by Luck Consulting Pty Ltd.
+    Ehcache is supported by Terracotta, Inc..
 
-    Please contact {{{mailto:ehcache_sales@gregluck.com}Ehcache Sales}} for custom support options such as unlimited server support or alternate
-    ordering and payment options in addition to the instant purchase option below.
+    Please contact {{{mailto:sales@terracottatech.com}sales@terracottatech.com}}.
 
     On ordering you will be sent a support entitlement for your support type and number of servers. 
 
 *----------+--------------:----------------:
 |           | <<Standard Support>>     | <<Extended Support>> |
 *----------*--------------:----------------:
-|  | USD199/server/year\   | USD399/server/year\      |
-|  | @standard_support@  | @extended_support@      |
-|  |     {{{http://ehcache.sourceforge.net/support/support_entitlement.pdf}Support Entitlement Details}} |     {{{http://ehcache.sourceforge.net/support/support_entitlement.pdf}Support Entitlement Details}} |
+|  | Standard  | Extended      |
+|  |           |               |
 *----------*--------------:----------------:
 |<<Software>> | | |
 *----------*--------------:----------------:
@@ -54,7 +52,7 @@ Commercial Support
 *----------*--------------:----------------:
 | Number of Incidents	| 3 | Unlimited	|
 *----------*--------------:----------------:
-|Web-based Case Management | Yes, SF.net |	Yes, SF.net |
+|Web-based Case Management | Yes |	Yes |
 *----------*--------------:----------------:
 |Max Initial Response Time | 2 business days |	1 business day |
 *----------*--------------:----------------:
