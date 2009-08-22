@@ -14,6 +14,10 @@
             <action dev="Greg Luck" type="fix" issue="2831089">
                 Fix retry serialize not working. Thanks to Vitaliy Garnashevich for the patch.
             </action>
+            <action dev="Greg Luck" type="fix" issue="2831486">
+                Fix to 1.6 where clearOnFlush may now be false and were getting double notification of a remove
+                or expiry if it happened after a flush. Thanks to both Kevin Conaway and Jonathan Barbero.  
+            </action>
             <action dev="Greg Luck" type="update" issue="2831089">
                 Always close open files. Thanks to Vitaliy Garnashevich for the patch.
             </action>

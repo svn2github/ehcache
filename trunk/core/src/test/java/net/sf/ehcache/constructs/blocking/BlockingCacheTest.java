@@ -294,6 +294,7 @@ public class BlockingCacheTest extends CacheTest {
 
         int failures = runThreadsNoCheck(executables);
         if (failures > 0) {
+
             throw new Exception("failures");
         }
         assertTrue("Failures: " + failures, failures <= 0);

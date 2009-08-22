@@ -18,6 +18,7 @@ package net.sf.ehcache;
 
 import static junit.framework.Assert.assertSame;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy;
 import net.sf.ehcache.loader.CacheLoader;
@@ -2459,11 +2460,9 @@ public class CacheTest extends AbstractCacheTest {
     }
 
 
-
-
     /**
      * Shows a consistency problem as reported against 1.6.0.
-     *
+     * <p/>
      * Does not happen when not using DiskStore
      * Putting synchronized on put/get on cache fixes it
      * Only happens when the Element is retrieved from the DiskStore. Debugging shows
@@ -2521,6 +2520,78 @@ public class CacheTest extends AbstractCacheTest {
             cache.put(new Element(key, valueToSet));
         }
 
+    }
+
+
+    /**
+     * Checks that notification only happens once when clearOnFlush is false i.e.
+     * The impact of this is that there will be one copy in each store.
+     */
+    @Test
+    public void testRemoveListenersCalledOnce() {
+        Cache cache = manager.getCache("sampleCache1");
+        RemoveCountingListener l = new RemoveCountingListener();
+        cache.getCacheEventNotificationService().registerListener(l);
+
+        cache.getCacheConfiguration().setDiskPersistent(true);
+        cache.getCacheConfiguration().setClearOnFlush(false);
+
+        Element element = new Element("foo", "bar", 1L);
+
+        cache.put(element);
+
+        cache.flush();
+
+        cache.remove("foo");
+
+        assertEquals(1, l.count);
+        assertSame(element, l.element);
+
+    }
+
+    /**
+     * test listener
+     */
+    private static class RemoveCountingListener implements CacheEventListener {
+
+        private int count;
+        private Element element;
+
+        public void notifyElementRemoved(Ehcache cache, Element element)
+                throws CacheException {
+            count++;
+            this.element = element;
+        }
+
+        public void dispose() {
+
+        }
+
+        public void notifyElementEvicted(Ehcache cache, Element element) {
+
+        }
+
+        public void notifyElementExpired(Ehcache cache, Element element) {
+
+        }
+
+        public void notifyElementPut(Ehcache cache, Element element)
+                throws CacheException {
+
+        }
+
+        public void notifyElementUpdated(Ehcache cache, Element element)
+                throws CacheException {
+        }
+
+        public void notifyRemoveAll(Ehcache cache) {
+
+        }
+
+        @Override
+        public Object clone() throws CloneNotSupportedException {
+            return super.clone();
+        }
     }
 
 

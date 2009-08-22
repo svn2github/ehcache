@@ -1467,6 +1467,7 @@ public class Cache implements Ehcache {
 
         boolean removeNotified = false;
 
+        //Elements may be in both places. Always notify the MemoryStore version if there are two
         if (elementFromMemoryStore != null) {
             if (expiry) {
                 //always notify expire which is lazy regardless of the removeQuiet
@@ -1476,8 +1477,7 @@ public class Cache implements Ehcache {
                 registeredEventListeners.notifyElementRemoved(elementFromMemoryStore, doNotNotifyCacheReplicators);
             }
             removed = true;
-        }
-        if (elementFromDiskStore != null) {
+        } else if (elementFromDiskStore != null) {
             if (expiry) {
                 registeredEventListeners.notifyElementExpiry(elementFromDiskStore, doNotNotifyCacheReplicators);
             } else if (notifyListeners) {
