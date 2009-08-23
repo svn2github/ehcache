@@ -1,5 +1,43 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+ehcache-1.6.2
+=============
+
+        <release version="1.6.2" date="2009-8-23" desc="This is a maintenance release to Ehcache 1.6.0">
+
+            <action dev="Greg Luck" type="remove">
+                Remove AsynchronousCommandExecutor. This is not used by anyone that I know of and is obsolete
+                as j.u.c. provides a similar mechanism.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2840648">
+                1.6.1 cannot read older versions' persistent stores. Thanks to Matt Passell for the patch.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2831089">
+                Fix retry serialize not working. Thanks to Vitaliy Garnashevich for the patch.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2831182">
+                Fix statistics counters. Change them to AtomicLong as they now need to be thread-safe to be accurate.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2831486">
+                Fix to 1.6 where clearOnFlush may now be false and were getting double notification of a remove
+                or expiry if it happened after a flush. Thanks to both Kevin Conaway and Jonathan Barbero.
+            </action>
+            <action dev="Greg Luck" type="update" issue="2831089">
+                Always close open files. Thanks to Vitaliy Garnashevich for the patch.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="2835670">
+                Iterating through ALL_CACHE_MANAGERS sometimes causes ArrayOutOfBoundsException. Bug introduced
+                in 1.6. Fixed. Thanks to Chris Hyzer for reporting.
+            </action>
+            <action dev="Greg Luck" type="update" issue="2830920">
+                Current implementation stops after at least one loader loaded at least one
+                Element. This patch continues to poll other loaders if more keys left to
+                load. Thanks to Vitaliy Garnashevich for the patch.
+            </action>
+        </release>
+
+
+
 ehcache-1.6.1
 =============
 

@@ -371,5 +371,15 @@ public class BlockingCacheTest extends CacheTest {
     public void testFlushWhenOverflowToDisk() throws Exception {
         super.testFlushWhenOverflowToDisk();
     }
+
+    @Test
+    public void testConcurrentPutsAreConsistentRepeatedly() throws InterruptedException {
+        //do nothing
+    }
+
+    @Test
+    public void testConcurrentPutsAreConsistent() throws InterruptedException {
+        //do nothing
+    }
 }
 

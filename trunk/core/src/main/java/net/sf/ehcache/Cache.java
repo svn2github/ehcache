@@ -50,6 +50,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -166,27 +167,27 @@ public class Cache implements Ehcache {
     /**
      * Cache hit count.
      */
-    private long hitCount;
+    private AtomicLong hitCount = new AtomicLong();
 
     /**
      * Memory cache hit count.
      */
-    private long memoryStoreHitCount;
+    private AtomicLong memoryStoreHitCount = new AtomicLong();
 
     /**
      * DiskStore hit count.
      */
-    private long diskStoreHitCount;
+    private AtomicLong diskStoreHitCount = new AtomicLong();
 
     /**
      * Count of misses where element was not found.
      */
-    private long missCountNotFound;
+    private AtomicLong missCountNotFound = new AtomicLong();
 
     /**
      * Count of misses where element was expired.
      */
-    private long missCountExpired;
+    private AtomicLong missCountExpired = new AtomicLong();
 
     /**
      * The {@link MemoryStore} of this {@link Cache}. All caches have a memory store.
@@ -205,7 +206,7 @@ public class Cache implements Ehcache {
 
     private int statisticsAccuracy;
 
-    private long totalGetTime;
+    private AtomicLong totalGetTime = new AtomicLong();
 
     private CacheExceptionHandler cacheExceptionHandler;
 
@@ -688,7 +689,7 @@ public class Cache implements Ehcache {
     }
 
     /**
-     * Bootstrap command. This must be called after the Cache is intialised, during
+     * Bootstrap command. This must be called after the Cache is initialised, during
      * CacheManager initialisation. If loads are synchronous, they will complete before the CacheManager
      * initialise completes, otherwise they will happen in the background.
      */
@@ -718,7 +719,7 @@ public class Cache implements Ehcache {
      * </ul>
      * <p/>                  
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
-     * This exception should be caught in those cirucmstances.
+     * This exception should be caught in those circumstances.
      *
      * @param element A cache Element. If Serializable it can fully participate in replication and the DiskStore. If it is
      *                <code>null</code> or the key is <code>null</code>, it is ignored as a NOOP.
@@ -744,7 +745,7 @@ public class Cache implements Ehcache {
      * if it was requested
      * </ul>
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
-     * This exception should be caught in those cirucmstances.
+     * This exception should be caught in those circumstances.
      *
      * @param element                     A cache Element. If Serializable it can fully participate in replication and the DiskStore. If it is
      *                                    <code>null</code> or the key is <code>null</code>, it is ignored as a NOOP.
@@ -836,7 +837,7 @@ public class Cache implements Ehcache {
      * Synchronization is handled within the method.
      * <p/>
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
-     * This exception should be caught in those cirucmstances.
+     * This exception should be caught in those circumstances.
      * <p/>
      *
      * @param element A cache Element. If Serializable it can fully participate in replication and the DiskStore. If it is
@@ -904,15 +905,16 @@ public class Cache implements Ehcache {
             element = searchInDiskStore(key, true, true);
         }
         if (element == null) {
-            missCountNotFound++;
+            missCountNotFound.incrementAndGet();
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine(configuration.getName() + " cache - Miss");
             }
         } else {
-            hitCount++;
+            hitCount.incrementAndGet();
         }
+        //todo is this expensive. Maybe ditch.
         long end = System.currentTimeMillis();
-        totalGetTime += (end - start);
+        totalGetTime.getAndSet(totalGetTime.get()  + (end - start));
         return element;
     }
 
@@ -961,7 +963,7 @@ public class Cache implements Ehcache {
 
     /**
      * The load method provides a means to "pre load" the cache. This method will, asynchronously, load the specified
-     * object into the cache using the associated cacheloader. If the object already exists in the cache, no action is
+     * object into the cache using the associated CacheLoader. If the object already exists in the cache, no action is
      * taken. If no loader is associated with the object, no object will be loaded into the cache. If a problem is
      * encountered during the retrieving or loading of the object, an exception should be logged. If the "arg" argument
      * is set, the arg object will be passed to the CacheLoader.load method. The cache will not dereference the object.
@@ -972,7 +974,7 @@ public class Cache implements Ehcache {
      * The Ehcache native API provides similar functionality to loaders using the
      * decorator {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
      *
-     * @param key key whose associated value to be loaded using the associated cacheloader if this cache doesn't contain it.
+     * @param key key whose associated value to be loaded using the associated CacheLoader if this cache doesn't contain it.
      * @throws CacheException
      */
     public void load(final Object key) throws CacheException {
@@ -1092,7 +1094,7 @@ public class Cache implements Ehcache {
      * If no "arg" value is provided a null will be passed to the loadAll method.
      * <p/>
      * keys - collection of the keys whose associated values to be loaded into this cache by using the associated
-     * cacheloader if this cache doesn't contain them.
+     * CacheLoader if this cache doesn't contain them.
      * <p/>
      * The Ehcache native API provides similar functionality to loaders using the
      * decorator {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
@@ -1154,7 +1156,7 @@ public class Cache implements Ehcache {
      * <p/>
      * The List returned is not live. It is a copy.
      * <p/>
-     * The time taken is O(n). On a single cpu 1.8Ghz P4, approximately 8ms is required
+     * The time taken is O(n). On a single CPU 1.8Ghz P4, approximately 8ms is required
      * for each 1000 entries.
      *
      * @return a list of {@link Object} keys
@@ -1195,7 +1197,7 @@ public class Cache implements Ehcache {
      * <p/>
      * The time taken is O(n), where n is the number of elements in the cache. On
      * a 1.8Ghz P4, the time taken is approximately 200ms per 1000 entries. This method
-     * is not syncrhonized, because it relies on a non-live list returned from {@link #getKeys()}
+     * is not synchronized, because it relies on a non-live list returned from {@link #getKeys()}
      * , which is synchronised, and which takes 8ms per 1000 entries. This way
      * cache liveness is preserved, even if this method is very slow to return.
      * <p/>
@@ -1232,7 +1234,7 @@ public class Cache implements Ehcache {
      * <p/>
      * The List returned is not live. It is a copy.
      * <p/>
-     * The time taken is O(log n). On a single cpu 1.8Ghz P4, approximately 6ms is required
+     * The time taken is O(log n). On a single CPU 1.8Ghz P4, approximately 6ms is required
      * for 1000 entries and 36 for 50000.
      * <p/>
      * This is the fastest getKeys method
@@ -1265,13 +1267,13 @@ public class Cache implements Ehcache {
                     LOG.log(Level.FINE, configuration.getName() + " Memory cache hit, but element expired");
                 }
                 if (updateStatistics) {
-                    missCountExpired++;
+                    missCountExpired.incrementAndGet();
                 }
                 remove(key, true, notifyListeners, false);
                 element = null;
             } else {
                 if (updateStatistics) {
-                    memoryStoreHitCount++;
+                    memoryStoreHitCount.incrementAndGet();
                 }
             }
         }
@@ -1294,11 +1296,11 @@ public class Cache implements Ehcache {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.log(Level.FINE, configuration.getName() + " cache - Disk Store hit, but element expired");
                 }
-                missCountExpired++;
+                missCountExpired.incrementAndGet();
                 remove(key, true, notifyListeners, false);
                 element = null;
             } else {
-                diskStoreHitCount++;
+                diskStoreHitCount.incrementAndGet();
                 //Put the item back into memory to preserve policies in the memory store and to save updated statistics
                 //todo - maybe make the DiskStore a one-way evict. i.e. Do not replace See testGetSpeedMostlyDisk for speed comp.
                 memoryStore.put(element);
@@ -1316,7 +1318,7 @@ public class Cache implements Ehcache {
      * Synchronization is handled within the method.
      * <p/>
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
-     * This exception should be caught in those cirucmstances.
+     * This exception should be caught in those circumstances.
      *
      * @param key the element key to operate on
      * @return true if the element was removed, false if it was not found in the cache
@@ -1336,7 +1338,7 @@ public class Cache implements Ehcache {
      * Synchronization is handled within the method.
      * <p/>
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
-     * This exception should be caught in those cirucmstances.
+     * This exception should be caught in those circumstances.
      * <p/>
      *
      * @param key the element key to operate on
@@ -1359,7 +1361,7 @@ public class Cache implements Ehcache {
      * Synchronization is handled within the method.
      * <p/>
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
-     * This exception should be caught in those cirucmstances.
+     * This exception should be caught in those circumstances.
      *
      * @param key                         the element key to operate on
      * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
@@ -1411,7 +1413,7 @@ public class Cache implements Ehcache {
      * Listeners are not called.
      * <p/>
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
-     * This exception should be caught in those cirucmstances.
+     * This exception should be caught in those circumstances.
      *
      * @param key the element key to operate on
      * @return true if the element was removed, false if it was not found in the cache
@@ -1437,7 +1439,7 @@ public class Cache implements Ehcache {
      * existed locally.
      * <p/>
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
-     * This exception should be caught in those cirucmstances.
+     * This exception should be caught in those circumstances.
      *
      * @param key                         the element key to operate on
      * @param expiry                      if the reason this method is being called is to expire the element
@@ -1502,7 +1504,7 @@ public class Cache implements Ehcache {
      * Synchronization is handled within the method.
      * <p/>
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
-     * This exception should be caught in those cirucmstances.
+     * This exception should be caught in those circumstances.
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
@@ -1516,7 +1518,7 @@ public class Cache implements Ehcache {
      * Synchronization is handled within the method.
      * <p/>
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
-     * This exception should be caught in those cirucmstances.
+     * This exception should be caught in those circumstances.
      *
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
@@ -1729,7 +1731,7 @@ public class Cache implements Ehcache {
      */
     public final void setName(String name) throws IllegalArgumentException {
         if (!status.equals(Status.STATUS_UNINITIALISED)) {
-            throw new IllegalStateException("Only unitialised caches can have their names set.");
+            throw new IllegalStateException("Only uninitialised caches can have their names set.");
         }
         configuration.setName(name);
     }
@@ -1802,7 +1804,7 @@ public class Cache implements Ehcache {
             throw new CloneNotSupportedException("Cannot clone an initialized cache.");
         }
         Cache copy = (Cache) super.clone();
-        copy.configuration = (CacheConfiguration) configuration.clone();
+        copy.configuration = configuration.clone();
         copy.guid = createGuid();
 
         RegisteredEventListeners registeredEventListenersFromCopy = copy.getCacheEventNotificationService();
@@ -1945,12 +1947,12 @@ public class Cache implements Ehcache {
      */
     public void clearStatistics() throws IllegalStateException {
         checkStatus();
-        hitCount = 0;
-        memoryStoreHitCount = 0;
-        diskStoreHitCount = 0;
-        missCountExpired = 0;
-        missCountNotFound = 0;
-        totalGetTime = 0;
+        hitCount.getAndSet(0);
+        memoryStoreHitCount.getAndSet(0);
+        diskStoreHitCount.getAndSet(0);
+        missCountExpired.getAndSet(0);
+        missCountNotFound.getAndSet(0);
+        totalGetTime.getAndSet(0);
         registeredEventListeners.clearCounters();
     }
 
@@ -1991,7 +1993,7 @@ public class Cache implements Ehcache {
     /**
      * An inexpensive check to see if the key exists in the cache.
      * <p/>
-     * This method is not synchronized. It is possible that an element may exist in the cache aned be removed
+     * This method is not synchronized. It is possible that an element may exist in the cache and be removed
      * before the check gets to it, or vice versa.
      *
      * @param key the key to check.
@@ -2005,7 +2007,7 @@ public class Cache implements Ehcache {
      * An extremely expensive check to see if the value exists in the cache. This implementation is O(n). Ehcache
      * is not designed for efficient access in this manner.
      * <p/>
-     * This method is not synchronized. It is possible that an element may exist in the cache aned be removed
+     * This method is not synchronized. It is possible that an element may exist in the cache and be removed
      * before the check gets to it, or vice versa. Because it is slow to execute the probability of that this will
      * have happened.
      *
@@ -2054,8 +2056,9 @@ public class Cache implements Ehcache {
         } else if (statisticsAccuracy == Statistics.STATISTICS_ACCURACY_NONE) {
             size = getKeysNoDuplicateCheck().size();
         }
-        return new Statistics(this, statisticsAccuracy, hitCount, diskStoreHitCount, memoryStoreHitCount,
-                missCountExpired + missCountNotFound, size, getAverageGetTime(),
+        return new Statistics(this, statisticsAccuracy, hitCount.longValue(), diskStoreHitCount.longValue(),
+                memoryStoreHitCount.longValue(), missCountExpired.longValue() + missCountNotFound.longValue(),
+                size, getAverageGetTime(),
                 registeredEventListeners.getElementsEvictedCounter(),
                 getMemoryStoreSize(), getDiskStoreSize());
     }
@@ -2214,10 +2217,10 @@ public class Cache implements Ehcache {
      * The average get time in ms.
      */
     public float getAverageGetTime() {
-        if (hitCount == 0) {
+        if (hitCount.longValue() == 0) {
             return 0;
         } else {
-            return (float) totalGetTime / hitCount;
+            return (float) totalGetTime.longValue() / hitCount.longValue();
         }
     }
 

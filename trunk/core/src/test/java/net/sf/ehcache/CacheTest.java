@@ -44,12 +44,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -2130,6 +2130,45 @@ public class CacheTest extends AbstractCacheTest {
      * INFO: 1201 threads. Average Get time: 0.07880102 ms
      * INFO: 1601 threads. Average Get time: 0.067811936 ms
      * INFO: 2001 threads. Average Get time: 0.12559706 ms
+     * <p/>
+     * Before AtomicLong
+     * INFO: 1 threads. Average Get time: 0.024948025 ms
+     * INFO: 401 threads. Average Get time: 0.0079776095 ms
+     * INFO: 801 threads. Average Get time: 0.0049358485 ms
+     * INFO: 1201 threads. Average Get time: 0.059032038 ms
+     * INFO: 1601 threads. Average Get time: 0.039221533 ms
+     * INFO: 2001 threads. Average Get time: 0.03138067 ms
+     * <p/>
+     * INFO: 1 threads. Average Get time: 0.039014373 ms
+     * INFO: 401 threads. Average Get time: 0.005683447 ms
+     * INFO: 801 threads. Average Get time: 0.0041153855 ms
+     * INFO: 1201 threads. Average Get time: 0.02003592 ms
+     * INFO: 1601 threads. Average Get time: 0.039240483 ms
+     * INFO: 2001 threads. Average Get time: 0.04503215 ms
+     * <p/>
+     * INFO: 1 threads. Average Get time: 0.026694044 ms
+     * INFO: 401 threads. Average Get time: 0.0076737576 ms
+     * INFO: 801 threads. Average Get time: 0.003894474 ms
+     * INFO: 1201 threads. Average Get time: 0.06022612 ms
+     * INFO: 1601 threads. Average Get time: 0.03710788 ms
+     * INFO: 2001 threads. Average Get time: 0.064271376 ms
+     * <p/>
+     * After AtomicLong counters
+     * INFO: 1 threads. Average Get time: 0.02566735 ms
+     * INFO: 401 threads. Average Get time: 0.0054228795 ms
+     * INFO: 801 threads. Average Get time: 0.0046341107 ms
+     * INFO: 1201 threads. Average Get time: 0.075431876 ms
+     * INFO: 1601 threads. Average Get time: 0.10669952 ms
+     * INFO: 2001 threads. Average Get time: 0.051209673 ms
+     * <p/>
+     * INFO: 1 threads. Average Get time: 0.028481012 ms
+     * INFO: 401 threads. Average Get time: 0.003833565 ms
+     * INFO: 801 threads. Average Get time: 0.005232163 ms
+     * INFO: 1201 threads. Average Get time: 0.06157142 ms
+     * INFO: 1601 threads. Average Get time: 0.08064302 ms
+     * INFO: 2001 threads. Average Get time: 0.048335962 ms
+     * <p/>
+     * <p/>
      * </pre>
      */
     @Test
@@ -2461,6 +2500,17 @@ public class CacheTest extends AbstractCacheTest {
 
 
     /**
+     * Run testConcurrentPutsAreConsistent() repeatedly for 50 times to shake out issues that happen rarely.
+     */
+    @Test
+    public void testConcurrentPutsAreConsistentRepeatedly() throws InterruptedException {
+        for (int i = 0; i < 20; i++) {
+            manager.removalAll();
+            testConcurrentPutsAreConsistent();
+        }
+    }
+
+    /**
      * Shows a consistency problem as reported against 1.6.0.
      * <p/>
      * Does not happen when not using DiskStore
@@ -2476,14 +2526,17 @@ public class CacheTest extends AbstractCacheTest {
         Cache cache = new Cache("someName", 100, true, true, 0, 0);
         manager.addCache(cache);
 
-        Executor executor = Executors.newFixedThreadPool(1000);
+        ExecutorService executor = Executors.newFixedThreadPool(10);
 
         for (int i = 0; i < 5000; i++) {
             executor.execute(new CacheTestRunnable(cache, String.valueOf(i)));
         }
-        Thread.sleep(5000L);
+        executor.shutdown();
+        executor.awaitTermination(10, TimeUnit.SECONDS);
 
         assertEquals("Failures: ", 0, CacheTestRunnable.FAILURES.size());
+        assertEquals(5000, cache.getStatistics().getCacheHits());
+
     }
 
     /**

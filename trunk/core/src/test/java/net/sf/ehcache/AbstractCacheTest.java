@@ -196,11 +196,11 @@ public abstract class AbstractCacheTest {
             thread.join();
         }
 
-        if (errors.size() > 0) {
-            for (Throwable error : errors) {
-                LOG.log(Level.INFO, "Error", error);
-            }
-        }
+//        if (errors.size() > 0) {
+//            for (Throwable error : errors) {
+//                LOG.log(Level.INFO, "Error", error);
+//            }
+//        }
         return errors.size();
     }
 

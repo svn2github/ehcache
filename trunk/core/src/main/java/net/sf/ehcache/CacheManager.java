@@ -58,7 +58,7 @@ public class CacheManager {
      * Keeps track of all known CacheManagers. Used to check on conflicts.
      * CacheManagers should remove themselves from this list during shut down.
      */
-    public static final List ALL_CACHE_MANAGERS = new CopyOnWriteArrayList();
+    public static final List<CacheManager> ALL_CACHE_MANAGERS = new CopyOnWriteArrayList<CacheManager>();
 
 
     /**
@@ -330,8 +330,7 @@ public class CacheManager {
             return;
         }
 
-        for (int i = 0; i < ALL_CACHE_MANAGERS.size(); i++) {
-            CacheManager cacheManager = (CacheManager) ALL_CACHE_MANAGERS.get(i);
+        for (CacheManager cacheManager : ALL_CACHE_MANAGERS) {
             if (diskStorePath.equals(cacheManager.diskStorePath)) {
                 String newDiskStorePath = diskStorePath + File.separator + DiskStore.generateUniqueDirectory();
                 LOG.log(Level.WARNING, "Creating a new instance of CacheManager using the diskStorePath \""
@@ -354,8 +353,7 @@ public class CacheManager {
         }
         for (CacheManagerPeerListener cacheManagerPeerListener : cacheManagerPeerListeners.values()) {
             String uniqueResourceIdentifier = cacheManagerPeerListener.getUniqueResourceIdentifier();
-            for (int i = 0; i < ALL_CACHE_MANAGERS.size(); i++) {
-                CacheManager cacheManager = (CacheManager) ALL_CACHE_MANAGERS.get(i);
+            for (CacheManager cacheManager : ALL_CACHE_MANAGERS) {
                 for (CacheManagerPeerListener otherCacheManagerPeerListener : cacheManager.cacheManagerPeerListeners.values()) {
                     if (otherCacheManagerPeerListener == null) {
                         continue;
