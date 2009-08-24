@@ -4,18 +4,19 @@
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.5.0</version>
+    <version>2.0-SNAPSHOT</version>
     <name>Ehcache Parent</name>
     <description><![CDATA[Ehcache is a widely used, pure Java, distributed in-process cache]]>
     </description>
     <url>http://ehcache.sf.net</url>
     <inceptionYear>2003</inceptionYear>
     <organization>
-        <name>Luck Consulting Pty Ltd</name>
-        <url>http://gregluck.com</url>
+        <name>Terracotta, Inc.</name>
+        <url>www.terracotta.org</url>
     </organization>
 
     <!--Not using aggregate building -->
+<!--
     <modules>
         <module>core</module>
         <module>debugger</module>
@@ -23,11 +24,11 @@
         <module>server</module>
         <module>standalone-server</module>
 
-<!--
--->
     <module>jmsreplication</module>
     <module>jgroupsreplication</module>
+    <module>openjpa</module>
   </modules>
+-->
 
     <dependencyManagement>
         <dependencies>
@@ -158,13 +159,13 @@
             <dependency>
                 <groupId>checkstyle</groupId>
                 <artifactId>checkstyle</artifactId>
-                <version>4.3</version>
+                <version>5.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>checkstyle</groupId>
                 <artifactId>checkstyle-optional</artifactId>
-                <version>4.3</version>
+                <version>4.4</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -352,8 +353,6 @@
         <developer>
             <id>gregluck</id>
             <name>Greg Luck</name>
-            <email>gregluck at users.sourceforge.net</email>
-            <url>http://gregluck.com</url>
             <roles>
                 <role>Maintainer</role>
                 <role>Developer</role>
@@ -367,7 +366,6 @@
         <developer>
             <id>ssuravarapu</id>
             <name>Surya Suravarapu</name>
-            <email>ssuravarapu at users.sourceforge.net</email>
             <url/>
             <roles>
                 <role>Developer</role>
@@ -377,8 +375,6 @@
         <developer>
             <id>oneovthafew</id>
             <name>Gavin King</name>
-            <email>oneovthafew at users.sourceforge.net</email>
-            <url>http://hibernate.org</url>
             <roles>
                 <role>Developer</role>
             </roles>
@@ -394,9 +390,6 @@
                 <role>Maven Guru</role>
             </roles>
             <timezone/>
-            <properties>
-                <contribution>Maven magic and feature suggestions</contribution>
-            </properties>
         </developer>
     </developers>
 
@@ -411,10 +404,6 @@
                 <role>Former Developer</role>
             </roles>
             <timezone>+10</timezone>
-            <properties>
-                <contribution>Created the initial DiskStore. Named ehcache. Threading advice.
-                </contribution>
-            </properties>
         </contributor>
         <contributor>
             <name>Ben Houston</name>
@@ -491,7 +480,7 @@
             <url>http://ehcache.sourceforge.net/LICENSE.txt</url>
             <distribution>repo</distribution>
             <comments>The license is the standard wording from the Apache license, but with
-                Greg Luck as copyright owner.
+                Terracotta, Inc. as copyright owner.
             </comments>
         </license>
     </licenses>
