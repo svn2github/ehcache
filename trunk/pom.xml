@@ -509,7 +509,14 @@
 
     <mailingLists>
         <mailingList>
-            <name>ehcache-list@lists.sourceforge.net</name>
+            <name>Ehcache Mailing List</name>
+            <subscribe>http://lists.terracotta.org/mailman/listinfo/ehcache-list</subscribe>
+            <unsubscribe>http://lists.terracotta.org/mailman/listinfo/ehcache-list</unsubscribe>
+            <post>ehcache-list@lists.terracotta.org</post>
+            <archive>http://lists.terracotta.org/pipermail/ehcache-list/</archive>
+        </mailingList>
+        <mailingList>
+            <name>Old SourceForge Mailing List - closed due to spam attacks</name>
             <subscribe>http://lists.sourceforge.net/lists/listinfo/ehcache-list</subscribe>
             <unsubscribe>http://lists.sourceforge.net/lists/listinfo/ehcache-list</unsubscribe>
             <post>ehcache-list@lists.sourceforge.net</post>
