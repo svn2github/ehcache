@@ -200,7 +200,7 @@
 
    Many users of ehcache hardly know they are using it. Sensible defaults require no initial configuration.
 
-   The API is very simple and easy to use, making it possible to get up and running in minutes. See the {{{samples.html}Code Samples}} for details.
+   The API is very simple and easy to use, making it possible to get up and running in minutes. See the {{{./samples.html}Code Samples}} for details.
 
 ** {Small foot print}
 
@@ -264,7 +264,7 @@
     discovery via multicast or manual configuration. Updates are delivered either asynchronously or synchronously
     via custom RMI connections. Additional discovery or delivery schemes can be plugged in by third parties.
 
-    See the {{{documentation/distributed_caching.html}Distributed Caching}} documentation for more feature details.
+    See the {{{./documentation/distributed_caching.html}Distributed Caching}} documentation for more feature details.
 
 
 * Standards Based
@@ -496,7 +496,7 @@
 
    Ehcache-1.6 is compatible with Google App Engine.
 
-   See the {{{/documentation/googleappengine.html}Google App Engine HowTo}}.
+   See the {{{./documentation/googleappengine.html}Google App Engine HowTo}}.
 
 * {High Quality}
 
@@ -553,15 +553,15 @@
 
  In ehcache, this is manifested by:
 
-     * comprehensive written {{{documentation/index.html}documentation}}
+     * comprehensive written {{{./documentation/index.html}documentation}}
 
      * Complete, meaningful JavaDoc for every package, class and public and protected method. Checkstyle rules enforce this level of documentation.
 
-     * an up-to-date {{{documentation/faq.html}FAQ}}
+     * an up-to-date {{{./documentation/faq.html}FAQ}}
 
 ** {Trusted by Popular Frameworks}
 
- Ehcache is used extensively. See the {{{who_is_using.html} Who is Using?}} page, or browse Google.
+ Ehcache is used extensively. See the {{{./who_is_using.html} Who is Using?}} page, or browse Google.
 
 ** {Conservative Commit policy}
 

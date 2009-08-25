@@ -44,6 +44,21 @@ Welcome to ehcache
 
 * Latest News
 
+** 23 August 2009: Ehcache Core 1.6.2 released
+
+  This is a production maintenance release of ehcache-1.6. Users of 1.6 should upgrade to 1.6.2.
+
+  Download {{{/download.html}here}}. All documentation is {{{http://ehcache.sourceforge.net/documentation}here}}.
+  The release is also available on Maven central. Note that Maven will report a checksum error.
+  It is caused by a bug in Maven 2.1.0 and can be ignored.
+
+  There are no open core bugs at the time of release.
+
+  For those still wishing to use the old engine it can be turned on at runtime
+  using <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>.
+
+
+
 ** 18 August 2009: Ehcache joins with Terracotta
 
   The Ehcache project is excited to announce Ehcache's merger with Terracotta.

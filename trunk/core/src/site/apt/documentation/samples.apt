@@ -3,41 +3,41 @@
     This page shows some of the more common code samples to get you started. Code samples for each feature are in the
      relevant chapters. 
 
- * {{{#Using the CacheManager}Using the CacheManager}}
+ * {{{#Using_the_CacheManager}Using the CacheManager}}
 
-    * {{{#Singleton versus Instance}Singleton versus Instance}}
+    * {{{#Singleton_versus_Instance}Singleton versus Instance}}
 
-    * {{{#Ways of loading Cache Configuration}Ways of loading Cache Configuration}}
+    * {{{#Ways_of_loading_Cache_Configuration}Ways of loading Cache Configuration}}
 
-    * {{{#Adding and Removing Caches Programmatically}Adding and Removing Caches Programmatically}}
+    * {{{#Adding_and_Removing_Caches_Programmatically}Adding and Removing Caches Programmatically}}
 
     * {{{#Shutdown the CacheManager}Shutdown the CacheManager}}
 
- * {{{#Using Caches}Using Caches}}
+ * {{{#Using_Caches}Using Caches}}
 
-     * {{{#Obtaining a reference to a Cache}Obtaining a reference to a Cache}}
+     * {{{#Obtaining_a_reference_to_a_Cache}Obtaining a reference to a Cache}}
 
-     * {{{#CRUD operations}CRUD operations}}
+     * {{{#Performing_CRUD_operations}Performing CRUD operations}}
 
-     * {{{#Disk Persistence on demand}Disk Persistence on demand}}
+     * {{{#Disk_Persistence_on_demand}Disk Persistence on demand}}
 
-     * {{{#Cache Sizes}Cache Sizes}}
+     * {{{#Obtaining_Cache_Sizes}Obtaining Cache Sizes}}
 
-     * {{{#Statistics of Cache Hits and Misses}Statistics of Cache Hits and Misses}}
+     * {{{#Obtaining_Statistics_of_Cache_Hits_and_Misses}Obtaining Statistics of Cache Hits and Misses}}
 
- * {{{#Programmatically Creating Caches}Programmatically Creating Caches}}
+ * Programmatically Creating Caches
 
-     * {{{#Creating a new cache from defaults}Creating a new cache from defaults}}
+     * {{{#Creating_a_new_cache_from_defaults}Creating a new cache from defaults}}
 
-     * {{{#Creating a new cache with custom parameters}Creating a new cache with custom parameters}}
+     * {{{#Creating_a_new_cache_with_custom_parameters}Creating a new cache with custom parameters}}
 
- *  {{{#Registering CacheStatistics in an MBeanServer}Registering CacheStatistics in an MBeanServer}}
+ *  {{{#Registering_CacheStatistics_in_an_MBeanServer}Registering CacheStatistics in an MBeanServer}}
 
- *  {{JCache Examples}}
+ *  {{{#JCache_Examples}JCache Examples}}
 
- *  {{Cache Server Examples}}
+ *  {{{#Cache_Server_Examples}Cache Server Examples}}
 
- * {{{#Browse the JUnit Tests}Browse the JUnit Tests}}
+ * {{{#Browse_the_JUnit_Tests}Browse the JUnit Tests}}
 
 
 
@@ -365,10 +365,10 @@ public Cache(
    in the src.zip in the ehcache tarball.
 
 
- *  {{JCache Examples}}
+*  {{JCache Examples}}
 
-    See the JSR107 Chapter.
+    See the examples in the {{{./jsr107.html}JCache}} Chapter.
 
- *  {{Cache Server Examples}}
+*  {{Cache Server Examples}}
 
-    See the Cache Server Chapter.
+    See the examples in the {{{./cache_server.html}Cache Server}} Chapter.

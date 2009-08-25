@@ -1,14 +1,17 @@
 {Building from Source}
 
+    These instructions work for each of the modules, except for JMS Replication, which requires installation
+    of a message queue. See that module for details.
+
 *   {Building an ehcache distribution from source}
 
     To build Ehcache from source:
 
     [[1]] Check the source out from the subversion repository.
 
-    [[1]] Ensure you have a valid JAVA_HOME and ANT_HOME configured with binaries for both in your PATH
+    [[1]] Ensure you have a valid JDK and Maven 2 installation.
 
-    [[1]] From within the ehcache/core directory, type <<<ant>>>
+    [[1]] From within the ehcache/core directory, type <<<mvn -Dmaven.test.skip=true install>>>
 
 
 *   {Running Tests for Ehcache}
@@ -17,9 +20,7 @@
 
     [[1]] Check the source out from the subversion repository.
 
-    [[1]] Ensure you have a valid JAVA_HOME and ANT_HOME configured with binaries for both in your PATH
-
-    [[1]] The integration tests rely on a standard Tomcat to be installed. Define TOMCAT_HOME to point to a Tomcat 5 or 6 installation.
+    [[1]] Ensure you have a valid JDK and Maven 2 installation.
 
     [[1]] From within the ehcache/core directory, type <<<mvn test>>>
 
@@ -49,7 +50,7 @@
 
     You need the following unix utilities installed:
 
-    * {Maven} 2.0.7
+    * {Maven} 2.2.1
 
     * latex or tetex
 
@@ -66,14 +67,12 @@
     With all that, build the site as below:
 
 ---
-    mvn clean site
+    mvn -Dmaven.test.skip=true package site
 ---
-
-    Unfortunately, sourceforge scp is broken, since they removed the ability for ssh to execute shell commands.
 
     The site needs to be deployed from the target/site directory using:
 
-    rsync -v -r * gregluck,ehcache@web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs    
+    rsync -v -r * echache-stage.terracotta.lan/export1/ehcache.org    
 
 *   Deploying a release
 

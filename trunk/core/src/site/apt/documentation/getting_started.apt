@@ -20,11 +20,11 @@ Getting Started
 
       * Optionally, configure an appropriate {{{./logging.html}logging}} level.
 
-      See the {{{../samples.html}Code Samples}} chapter for more information on direct interaction with ehcache.
+      See the {{{./samples.html}Code Samples}} chapter for more information on direct interaction with ehcache.
 
 * Hibernate
 
-    * Perform the same steps as {{{#General Purpose Caching}General Purpose Caching}}.
+    * Perform the same steps as for {{{#General_Purpose_Caching}General Purpose Caching}}.
 
     * Create caches in ehcache.xml.
 
@@ -32,7 +32,7 @@ Getting Started
 
 * Java EE Servlet Caching
 
-    * Perform the same steps as {{{General Purpose Caching}General Purpose Caching}}.
+    * Perform the same steps as for {{{#General_Purpose_Caching}General Purpose Caching}}.
 
     * Configure a cache for your web page in ehcache.xml.
 
@@ -57,7 +57,7 @@ Getting Started
       By default it will listen on port 8080,
       will have both RESTful and SOAP web services enabled, and will use a sample Ehcache configuration from the WAR module.
 
-    * See the code samples in the {{{./cache_server.html}Cache Server}} chapter. You can use Java or any other programming language
+    * See the {{{./cache_server.html#RESTful_Code_Samples}code samples}} in the Cache Server chapter. You can use Java or any other programming language
       to the use the Cache Server.
 
     See the {{{./cache_server.html}Cache Server}} chapter for more information.

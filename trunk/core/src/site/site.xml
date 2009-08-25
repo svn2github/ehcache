@@ -3,12 +3,12 @@
     <bannerLeft>
         <name>ehcache</name>
         <src>images/ehcache_logo.gif</src>
-        <href>/</href>
+        <href>http://ehcache.org</href>
     </bannerLeft>
     <bannerRight>
-        <name>ehcache</name>
+        <name>terracotta</name>
         <src>images/t_logo.gif</src>
-        <href>/</href>
+        <href>www.terracotta.org</href>
     </bannerRight>
     <body>
         <links>
@@ -56,8 +56,6 @@
             </item>
             <item name="JavaDoc" href="apidocs/index.html"/>
             <item name="FAQ" href="/documentation/faq.html"/>
-            <item name="Whitepaper on distributed caching" href="documentation/distributed_design.html"/>
-            <item name="Whitepaper on caching constructs" href="documentation/constructs_design.html"/>
         </menu>
 
         <menu name="Community">
@@ -65,7 +63,8 @@
             <item name="Mailing Lists" href="/mail-lists.html"/>
             <item name="Issue Tracking" href="/issue-tracking.html"/>
             <item name="Forums" href="http://sourceforge.net/forum/?group_id=93232"/>
-            <item name="Bugs" href="http://sourceforge.net/tracker/?group_id=93232&amp;atid=603559"/>
+            <item name="Old Bug System" href="http://sourceforge.net/tracker/?group_id=93232&amp;atid=603559"/>
+            <item name="New Bug System" href="http://sourceforge.net/tracker/?group_id=93232&amp;atid=603559"/>
             <item name="Feature Requests" href="http://sourceforge.net/tracker/?group_id=93232&amp;atid=603562"/>
             <item name="Who's Using?" href="/who_is_using.html"/>
             <item name="Development Roadmap" href="/roadmap.html"/>
@@ -80,8 +79,6 @@
             <item name="CPD" href="/cpd.html"/>
             <item name="PMD" href="/pmd.html"/>
             <item name="ToDos" href="/taglist.html"/>
-            <item name="Clover Test Coverage" href="/clover/index.html"/>
-            <item name="Parabuild Build Status" href="http://parabuild.viewtier.com:8080/parabuild/index.htm?cid=cc8f"/>
             <item name="Enerjy Code Review" href="http://www.enerjy.com/explorer/projects/ehcache.html"/>
         </menu>
 

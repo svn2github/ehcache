@@ -4,13 +4,20 @@
 
 Development Roadmap
 
- Last Updated 10 May 2009.
+ Last Updated 24 August 2009.
 
-* Ehcache 1.7 Possibles
+* Ehcache 1.7
+
+** Definites
+
+    * Killer new Terracotta integration. Developers will be able to turn on Terracotta on each node by editing
+      ehcache.xml.
+
+** Possibles
 
    * add the RESTful ehcache server as a secondary store, leveraging the new ehcache-server, and using partitioning (memcached feature)
 
-   * add j.u.c. optimisations to DiskStore (MemoryStore done in 1.6).
+   * add j.u.c. optimisations to DiskStore (MemoryStore done in 1.6). I ended up adding quite a few of these in 1.6.
 
    * add extra write and replacement options e.g. write to secondary store straight away, do not overflow
 
@@ -20,7 +27,7 @@ Development Roadmap
 
 
    Check trunk regularly for updates. For maven users (of which ehcache is one) a SNAPSHOT repository has been added. See
-    {{http://ehcache.org/snapshotrepository}}
+    {{http://oss.sonatype.org/content/repositories/sourceforge-snapshots/net/sf/ehcache/}}
 
 
 * Ideas not Scheduled
