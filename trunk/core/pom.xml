@@ -133,6 +133,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.3</version>
                 <executions>
                     <execution>
                         <id>rmic</id>
@@ -140,7 +141,8 @@
                         <configuration>
                             <tasks>
                                 <rmic base="${project.build.outputDirectory}"
-                                      includes="**/RMICachePeer.class"/>
+                                      includes="**/RMICachePeer.class" compiler="forking">
+                                </rmic>
                             </tasks>
                         </configuration>
                         <goals>
