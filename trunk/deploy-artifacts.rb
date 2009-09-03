@@ -19,7 +19,7 @@ class MavenCommand
     def execute
         validate
         mvn_args = self.args ? self.args.join(' ') : ''
-        command = "mvn -f #{pom} #{target} #{mvn_args}"
+        command = "mvn --batch-mode -f #{pom} #{target} #{mvn_args}"
         output=`#{command}`
         if $?.success?
             on_success.call(output) if on_success
