@@ -57,21 +57,17 @@ public final class ClassLoaderUtil {
      * ehcache standard classloader.
      *
      * @param className a fully qualified class name
-     * @return null if the instance cannot be loaded
+     * @return the newly created instance
+     * @throws CacheException if instance cannot be created due to a missing class or exception
      */
     public static Object createNewInstance(String className) throws CacheException {
         Class clazz;
         Object newInstance;
         try {
-            clazz = Class.forName(className, true, getStandardClassLoader());
+            clazz = loadClass(className);
         } catch (ClassNotFoundException e) {
-            //try fallback
-            try {
-                clazz = Class.forName(className, true, getFallbackClassLoader());
-            } catch (ClassNotFoundException ex) {
-                throw new CacheException("Unable to load class " + className +
-                        ". Initial cause was " + e.getMessage(), e);
-            }
+            throw new CacheException("Unable to load class " + className +
+                    ". Initial cause was " + e.getMessage(), e);
         }
 
         try {
@@ -85,6 +81,27 @@ public final class ClassLoaderUtil {
         }
         return newInstance;
     }
+
+    /**
+     * Load the given class by name
+     *
+     * @param className a fully qualified class name
+     * @return Class the loaded class
+     * @throws ClassNotFoundException if the class cannot be loaded
+     * @since 1.7
+     */
+    public static Class loadClass(String className) throws ClassNotFoundException {
+        Class clazz;
+        try {
+            clazz = Class.forName(className, true, getStandardClassLoader());
+        } catch (ClassNotFoundException e) {
+            //try fallback
+            clazz = Class.forName(className, true, getFallbackClassLoader());
+        }
+
+        return clazz;
+    }
+
 
 
 }

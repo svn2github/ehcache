@@ -30,6 +30,8 @@ import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.StoreFactory;
+import net.sf.ehcache.util.ClassLoaderUtil;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -640,10 +642,15 @@ public class Cache implements Ehcache {
 
             this.diskStore = createDiskStore();
 
-            if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
-                memoryStore = new LruMemoryStore(this, diskStore);
+            // XXX: Should all of this store creation logic be factored into a factory?
+            if (isTerracottaClustered()) {
+                memoryStore = newTerracottaStore();
             } else {
-                memoryStore = MemoryStore.create(this, diskStore);
+                if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
+                    memoryStore = new LruMemoryStore(this, diskStore);
+                } else {
+                    memoryStore = MemoryStore.create(this, diskStore);
+                }
             }
             changeStatus(Status.STATUS_ALIVE);
             initialiseRegisteredCacheExtensions();
@@ -661,6 +668,33 @@ public class Cache implements Ehcache {
             }
         }
     }
+
+    private Store newTerracottaStore() {
+        Class factoryClass;
+
+        // XXX: Where should these indirect type names to the TC factory impls live?
+        try {
+            factoryClass = ClassLoaderUtil.loadClass("net.sf.ehcache.terracotta.StandaloneTerracottaStoreFactory");
+        } catch (ClassNotFoundException cnfe) {
+            // assume not standalone usage if standalone factory not present
+            try {
+                factoryClass = ClassLoaderUtil.loadClass("org.terracotta.modules.ehcache.store.TerracottaStoreFactory");
+            } catch (ClassNotFoundException e) {
+                // XXX: improve exception message here? A exception here can be caused by missing the TIM jar(s) in your app
+                throw new CacheException("Terracotta cache class not available, missing jar(s) probably", e);
+            }
+        }
+
+        StoreFactory factory = (StoreFactory) ClassLoaderUtil.createNewInstance(factoryClass.getName());
+        return factory.create(this);
+    }
+
+
+    private boolean isTerracottaClustered() {
+        // XXX: ??? return configuration.isTerracottaClustered();
+        return Boolean.getBoolean("tc-ehcache-clustered");
+    }
+
 
     /**
      * Creates a disk store when either:
@@ -717,7 +751,7 @@ public class Cache implements Ehcache {
      * <li>if the element exists in the cache, that an update has occurred, even if the element would be expired
      * if it was requested
      * </ul>
-     * <p/>                  
+     * <p/>
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
      * This exception should be caught in those circumstances.
      *
@@ -1739,6 +1773,7 @@ public class Cache implements Ehcache {
     /**
      * Returns a {@link String} representation of {@link Cache}.
      */
+    @Override
     public final String toString() {
         StringBuffer dump = new StringBuffer();
 
@@ -1799,6 +1834,7 @@ public class Cache implements Ehcache {
      * @return an object of type {@link Cache}
      * @throws CloneNotSupportedException
      */
+    @Override
     public final Object clone() throws CloneNotSupportedException {
         if (!(memoryStore == null && diskStore == null)) {
             throw new CloneNotSupportedException("Cannot clone an initialized cache.");
@@ -2118,6 +2154,7 @@ public class Cache implements Ehcache {
      * @see #hashCode()
      * @see java.util.Hashtable
      */
+    @Override
     public boolean equals(Object object) {
         if (object == null) {
             return false;
@@ -2166,6 +2203,7 @@ public class Cache implements Ehcache {
      * @see Object#equals(Object)
      * @see java.util.Hashtable
      */
+    @Override
     public int hashCode() {
         return guid.hashCode();
     }
