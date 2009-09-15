@@ -38,7 +38,7 @@ $exit_status = 0
 
 MODULES.each do |mod|
     module_pom = "#{mod}/pom.xml"
-$stderr.puts(module_pom)
+    puts(module_pom)
     if File.exist?(module_pom)
         clean = MavenCommand.new do
             self.pom = module_pom
@@ -51,7 +51,7 @@ $stderr.puts(module_pom)
             maven_deploy_command = MavenCommand.new do
                 self.pom = module_pom
                 self.target = 'deploy'
-                self.args = ['-Dmaven.test.skip=true']
+                self.args = ['-Dmaven.test.skip=true', '-Dmaven.clover.skip=true', '-Dcheckstyle.skip=true']
                 if repo.url
                     self.args << "-DaltDeploymentRepository=#{repo.id}::default::#{repo.url}"
                 end
