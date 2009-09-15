@@ -9,7 +9,7 @@
     <name>Ehcache Terracotta Support</name>
     <artifactId>ehcache-terracotta</artifactId>
     <packaging>jar</packaging>
-    <version>1.7.0-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <description>Integrated support for clustered Ehcache with Terracotta</description>
     <dependencies>
         <dependency>
