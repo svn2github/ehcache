@@ -27,6 +27,7 @@
     <module>jmsreplication</module>
     <module>jgroupsreplication</module>
     <module>openjpa</module>
+    <module>terracotta</module>
   </modules>
 -->
 
