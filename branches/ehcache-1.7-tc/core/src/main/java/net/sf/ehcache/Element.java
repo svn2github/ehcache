@@ -57,7 +57,7 @@ public class Element implements Serializable, Cloneable {
     /**
      * the value.
      */
-    private Object value;
+    private final Object value;
 
     /**
      * version of the element. System.currentTimeMillis() is used to compute version for updated elements. That
@@ -120,7 +120,7 @@ public class Element implements Serializable, Cloneable {
      *
      * @since .4
      */
-    public Element(Serializable key, Serializable value, long version) {
+    public Element(final Serializable key, final Serializable value, final long version) {
         this((Object) key, (Object) value, version);
 
     }
@@ -133,7 +133,7 @@ public class Element implements Serializable, Cloneable {
      *
      * @since 1.2
      */
-    public Element(Object key, Object value, long version) {
+    public Element(final Object key, final Object value, final long version) {
         this.key = key;
         this.value = value;
         this.version = version;
@@ -146,10 +146,10 @@ public class Element implements Serializable, Cloneable {
      *
      * @since 1.3
      */
-    public Element(Object key, Object value, long version,
-                   long creationTime, long lastAccessTime,
-                   long nextToLastAccessTime, long lastUpdateTime,
-                   long hitCount) {
+    public Element(final Object key, final Object value, final long version,
+                   final long creationTime, final long lastAccessTime,
+                   final long nextToLastAccessTime, final long lastUpdateTime,
+                   final long hitCount) {
         this.key = key;
         this.value = value;
         this.version = version;
@@ -159,6 +159,31 @@ public class Element implements Serializable, Cloneable {
         this.lastUpdateTime = lastUpdateTime;
         this.hitCount = hitCount;
     }
+
+    /**
+     * Constructor used by ElementData
+     *
+     * @since 1.7
+     */
+    Element(final Object key, final Object value, final long version, final long creationTime,
+            final long lastAccessTime, final long nextToLastAccessTime, final long hitCount,
+            final int timeToLive, final int timeToIdle, final long lastUpdateTime,
+            final boolean eternal, final boolean lifespanSet) {
+        super();
+        this.key = key;
+        this.value = value;
+        this.version = version;
+        this.creationTime = creationTime;
+        this.lastAccessTime = lastAccessTime;
+        this.nextToLastAccessTime = nextToLastAccessTime;
+        this.hitCount = hitCount;
+        this.timeToLive = timeToLive;
+        this.timeToIdle = timeToIdle;
+        this.lastUpdateTime = lastUpdateTime;
+        this.eternal = eternal;
+        this.lifespanSet = lifespanSet;
+    }
+
 
 
     /**
@@ -170,8 +195,8 @@ public class Element implements Serializable, Cloneable {
      * @param timeToIdleSeconds specify as non-null to override cache configuration
      * @param timeToLiveSeconds specify as non-null to override cache configuration
      */
-    public Element(Object key, Object value,
-                   Boolean eternal, Integer timeToIdleSeconds, Integer timeToLiveSeconds) {
+    public Element(final Object key, final Object value,
+                   final Boolean eternal, final Integer timeToIdleSeconds, final Integer timeToLiveSeconds) {
         this.key = key;
         this.value = value;
         if (eternal != null) {
@@ -192,7 +217,7 @@ public class Element implements Serializable, Cloneable {
      * @param key
      * @param value
      */
-    public Element(Serializable key, Serializable value) {
+    public Element(final Serializable key, final Serializable value) {
         this((Object) key, (Object) value, 1L);
     }
 
@@ -203,7 +228,7 @@ public class Element implements Serializable, Cloneable {
      * @param value
      * @since 1.2
      */
-    public Element(Object key, Object value) {
+    public Element(final Object key, final Object value) {
         this(key, value, 1L);
     }
 
@@ -271,7 +296,8 @@ public class Element implements Serializable, Cloneable {
     /**
      * Equals comparison with another element, based on the key.
      */
-    public final boolean equals(Object object) {
+    @Override
+    public final boolean equals(final Object object) {
         if (object == null || !(object instanceof Element)) {
             return false;
         }
@@ -289,7 +315,7 @@ public class Element implements Serializable, Cloneable {
      *
      * @param timeToLiveSeconds the number of seconds to live
      */
-    public void setTimeToLive(int timeToLiveSeconds) {
+    public void setTimeToLive(final int timeToLiveSeconds) {
         this.timeToLive = timeToLiveSeconds;
         lifespanSet = true;
     }
@@ -299,7 +325,7 @@ public class Element implements Serializable, Cloneable {
      *
      * @param timeToIdleSeconds the number of seconds to idle
      */
-    public void setTimeToIdle(int timeToIdleSeconds) {
+    public void setTimeToIdle(final int timeToIdleSeconds) {
         this.timeToIdle = timeToIdleSeconds;
         lifespanSet = true;
     }
@@ -307,6 +333,7 @@ public class Element implements Serializable, Cloneable {
     /**
      * Gets the hashcode, based on the key.
      */
+    @Override
     public final int hashCode() {
         return key.hashCode();
     }
@@ -316,7 +343,7 @@ public class Element implements Serializable, Cloneable {
      *
      * @param version The new version value
      */
-    public final void setVersion(long version) {
+    public final void setVersion(final long version) {
         this.version = version;
     }
 
@@ -412,6 +439,7 @@ public class Element implements Serializable, Cloneable {
     /**
      * Returns a {@link String} representation of the {@link Element}.
      */
+    @Override
     public final String toString() {
         StringBuffer sb = new StringBuffer();
 
@@ -438,6 +466,7 @@ public class Element implements Serializable, Cloneable {
      * @return a new {@link Element}, with exactly the same field values as the one it was cloned from.
      * @throws CloneNotSupportedException
      */
+    @Override
     public final Object clone() throws CloneNotSupportedException {
         //Not used. Just to get code inspectors to shut up
         super.clone();
@@ -450,7 +479,7 @@ public class Element implements Serializable, Cloneable {
         return element;
     }
 
-    private Object deepCopy(Object oldValue) {
+    private Object deepCopy(final Object oldValue) {
         Serializable newValue = null;
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         ObjectOutputStream oos = null;
@@ -624,7 +653,7 @@ public class Element implements Serializable, Cloneable {
      *
      * @param eternal
      */
-    public void setEternal(boolean eternal) {
+    public void setEternal(final boolean eternal) {
         this.eternal = eternal;
         lifespanSet = true;
     }
