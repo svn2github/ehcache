@@ -690,6 +690,8 @@ public class MemoryStoreTester extends AbstractCacheTest {
             LOG.log(Level.INFO, "About to fail out of memory limit test");
             fail();
         } catch (OutOfMemoryError e) {
+            cache.removeAll();
+            Thread.sleep(1000);
             System.gc();
             Thread.sleep(2000);
             System.gc();
