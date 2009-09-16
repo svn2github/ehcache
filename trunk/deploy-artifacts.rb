@@ -5,7 +5,7 @@ Repository = Struct.new(:id, :url)
 MODULES = %w(. core debugger jcache server standalone-server jmsreplication
              jgroupsreplication openjpa)
 REPOSITORIES = [
-    Repository.new('sourceforge'),
+    #Repository.new('sourceforge'),
     Repository.new('kong', 'file:///shares/maven2')
 ]
 
