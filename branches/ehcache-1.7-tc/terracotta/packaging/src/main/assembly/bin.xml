@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<assembly>
+  <id>agent</id>
+  
+  <formats>
+    <format>jar</format>
+  </formats>
+
+  <includeBaseDirectory>false</includeBaseDirectory>
+
+  <fileSets>
+    <fileSet>
+      <directory>${project.build.directory}/classes</directory>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+  </fileSets>
+  
+  <dependencySets>
+    <dependencySet>
+      <outputDirectory>L1</outputDirectory>
+      <useProjectArtifact>false</useProjectArtifact>
+      <excludes>
+        <exclude>org.terracotta.modules:*</exclude>
+      </excludes>
+    </dependencySet>
+
+    <dependencySet>
+      <outputDirectory>TIMs</outputDirectory>
+      <useTransitiveDependencies>true</useTransitiveDependencies>
+      <includes>
+        <include>org.terracotta.modules:*</include>
+      </includes>
+    </dependencySet>
+
+    <dependencySet>
+      <unpack>true</unpack>
+      <unpackOptions>
+        <includes>
+          <include>**/build-data.txt</include>
+          <include>**/license.txt</include>
+        </includes>
+      </unpackOptions>
+      <includes>
+        <include>org.terracotta:${terracotta-l1.artifactId}</include>
+      </includes>
+    </dependencySet>
+
+    <dependencySet>
+      <unpack>true</unpack>
+      <includes>
+        <include>org.terracotta.agent:agent</include>
+      </includes>
+    </dependencySet>
+
+  </dependencySets>
+</assembly>
