@@ -16,7 +16,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <net.sf.ehcache.speedAdjustmentFactor>1</net.sf.ehcache.speedAdjustmentFactor>
+        <net.sf.ehcache.speedAdjustmentFactor>5</net.sf.ehcache.speedAdjustmentFactor>
     </properties>
 
     <dependencies>
