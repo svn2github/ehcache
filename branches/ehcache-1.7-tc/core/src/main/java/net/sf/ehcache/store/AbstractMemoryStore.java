@@ -22,7 +22,6 @@ import java.util.logging.Logger;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.Status;
 
 /**
  * Abstract base class that provides common methods to facilitate the implementation of memory stores.
@@ -38,16 +37,6 @@ public abstract class AbstractMemoryStore implements Store {
      * The cache this store is associated with.
      */
     protected Ehcache cache;
-
-    /**
-     * The eviction policy to use
-     */
-    protected Policy policy;
-
-    /**
-     * status.
-     */
-    protected Status status;
 
     /**
      * Puts an item in the store. Note that this automatically results in an eviction if the store is full.
@@ -184,38 +173,17 @@ public abstract class AbstractMemoryStore implements Store {
      *
      * @param cache
      */
-    protected final void determineEvictionPolicy(final Ehcache cache) {
+    protected final Policy determineEvictionPolicy(final Ehcache cache) {
         MemoryStoreEvictionPolicy policySelection = cache.getCacheConfiguration().getMemoryStoreEvictionPolicy();
 
         if (policySelection.equals(MemoryStoreEvictionPolicy.LRU)) {
-            policy = new LruPolicy();
+            return new LruPolicy();
         } else if (policySelection.equals(MemoryStoreEvictionPolicy.FIFO)) {
-            policy = new FifoPolicy();
+            return new FifoPolicy();
         } else if (policySelection.equals(MemoryStoreEvictionPolicy.LFU)) {
-            policy = new LfuPolicy();
+            return new LfuPolicy();
         }
-    }
-
-    /**
-     * @return the active eviction policy.
-     */
-    public final Policy getEvictionPolicy() {
-        return policy;
-    }
-
-    /**
-     * Sets the policy. Use this method to inject a custom policy. This can be done while the store is alive.
-     *
-     * @param policy a new policy to be used in evicting elements in this store
-     */
-    public final void setEvictionPolicy(final Policy policy) {
-        this.policy = policy;
-    }
-
-    /**
-     * Gets the status of the MemoryStore.
-     */
-    public final Status getStatus() {
-        return status;
+        
+        throw new IllegalArgumentException(policySelection + " isn't a valid eviction policy");
     }
 }

@@ -82,6 +82,16 @@ public class MemoryStore extends AbstractMemoryStore {
      */
     protected int maximumSize;
 
+    /**
+     * status.
+     */
+    protected Status status;
+
+    /**
+     * The eviction policy to use
+     */
+    protected Policy policy;
+
     private AtomicReferenceArray<Object> keyArray;
     private AtomicInteger keySamplePointer;
 
@@ -96,7 +106,7 @@ public class MemoryStore extends AbstractMemoryStore {
         this.cache = cache;
         this.maximumSize = cache.getCacheConfiguration().getMaxElementsInMemory();
         this.diskStore = diskStore;
-        determineEvictionPolicy(cache);
+        this.policy = determineEvictionPolicy(cache);
 
         map = new ConcurrentHashMap(maximumSize, DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
         if (maximumSize > TOO_LARGE_TO_EFFICIENTLY_ITERATE) {
@@ -545,5 +555,28 @@ public class MemoryStore extends AbstractMemoryStore {
             }
         }
         return elements;
+    }
+
+    /**
+     * @return the active eviction policy.
+     */
+    public final Policy getEvictionPolicy() {
+        return policy;
+    }
+
+    /**
+     * Sets the policy. Use this method to inject a custom policy. This can be done while the store is alive.
+     *
+     * @param policy a new policy to be used in evicting elements in this store
+     */
+    public final void setEvictionPolicy(final Policy policy) {
+        this.policy = policy;
+    }
+
+    /**
+     * Gets the status of the MemoryStore.
+     */
+    public final Status getStatus() {
+        return status;
     }
 }

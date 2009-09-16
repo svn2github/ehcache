@@ -29,10 +29,15 @@ import net.sf.ehcache.Element;
 public class FifoPolicy extends AbstractPolicy {
 
     /**
+     * The name of this policy as a string literal
+     */
+     public static final String NAME = "FIFO";
+
+    /**
      * @return the name of the Policy. Inbuilt examples are LRU, LFU and FIFO.
      */
     public String getName() {
-        return "FIFO";
+        return NAME;
     }
 
     /**

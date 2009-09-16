@@ -28,12 +28,16 @@ import net.sf.ehcache.Element;
  */
 public class LfuPolicy extends AbstractPolicy {
 
+    /**
+     * The name of this policy as a string literal
+     */
+    public static final String NAME = "LFU";
 
     /**
      * @return the name of the Policy. Inbuilt examples are LRU, LFU and FIFO.
      */
     public String getName() {
-        return "LFU";
+        return NAME;
     }
 
     /**
