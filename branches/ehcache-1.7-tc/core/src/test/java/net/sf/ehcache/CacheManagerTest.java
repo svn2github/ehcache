@@ -16,6 +16,24 @@
 
 package net.sf.ehcache;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
@@ -31,25 +49,9 @@ import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.Store;
-import org.junit.After;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import org.junit.Test;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.junit.After;
+import org.junit.Test;
 
 /**
  * Tests for CacheManager
@@ -284,9 +286,17 @@ public class CacheManagerTest {
             instanceManager = new CacheManager(secondCacheConfiguration);
             instanceManager.shutdown();
         }
+        int endingThreadCount;
+        int tries = 0;
         // Give the spools a chance to exit
-        Thread.sleep(300);
-        int endingThreadCount = countThreads();
+        do {
+            Thread.sleep(500);
+            endingThreadCount = countThreads();
+        } while (tries++ < 5 || endingThreadCount >= startingThreadCount + 2);
+        
+        System.out.println("startingThreadCount = " + startingThreadCount);
+        System.out.println("endingThreadCount = " + endingThreadCount);
+        
         // Allow a bit of variation.
         assertTrue(endingThreadCount < startingThreadCount + 2);
 
@@ -308,6 +318,7 @@ public class CacheManagerTest {
         singletonManager = CacheManager
                 .create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-big.xml");
         int threads = countThreads();
+        System.out.println("number of threads = " + threads);
         assertTrue("More than 75 threads: " + threads, countThreads() <= 75);
     }
 
