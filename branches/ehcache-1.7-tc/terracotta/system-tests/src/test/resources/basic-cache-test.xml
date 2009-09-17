@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache>
+
+  <!-- XXX Name the cache manager -->
+
+  <defaultCache
+      maxElementsInMemory="10000"
+      eternal="true"
+      overflowToDisk="false"/>
+
+  <cache name="test"
+         maxElementsInMemory="10000"
+         eternal="true"
+         overflowToDisk="false">
+
+         <!-- XXX <terracotta clustered="true"/> -->
+  </cache>
+
+</ehcache>
