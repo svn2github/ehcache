@@ -14,6 +14,24 @@
       <directory>${project.build.directory}/classes</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
+
+    <fileSet>
+      <directory>${project.build.directory}/dso-boot</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>dso-boot.jar</include>
+      </includes>
+    </fileSet>
+
+
+    <fileSet>
+      <directory>${project.build.directory}</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>exported-classes.jar</include>
+      </includes>
+    </fileSet>
+
   </fileSets>
   
   <dependencySets>

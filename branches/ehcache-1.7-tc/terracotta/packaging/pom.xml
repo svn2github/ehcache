@@ -15,6 +15,7 @@
 
   <properties>
     <jar-name>ehcache-terracotta</jar-name>
+    <exported-classes-jar>${project.build.directory}/exported-classes.jar</exported-classes-jar>
     <terracotta-l1.artifactId>terracotta-l1</terracotta-l1.artifactId>
     <enterprise.packaging>open source</enterprise.packaging>
   </properties>
@@ -66,6 +67,78 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.terracotta.maven.plugins</groupId>
+        <artifactId>tc-maven-plugin</artifactId>
+        <version>${tc-maven-plugin.version}</version>
+        <configuration>
+          <bootJar>${project.build.directory}/dso-boot/dso-boot.jar</bootJar>
+          <overwriteBootjar>true</overwriteBootjar>
+        </configuration>
+        <executions>
+          <execution>
+            <id>create-bootjar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>bootjar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.terracotta.maven.plugins</groupId>
+        <artifactId>tc-build-maven-plugin</artifactId>
+        <version>${tc-build-plugin.version}</version>
+        <configuration>
+          <jarLocation>${exported-classes-jar}</jarLocation>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>generate-exported-classes-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.3</version>
+        <configuration>
+          <tasks>
+            <unzip src="${project.build.directory}/dso-boot/dso-boot.jar"
+                   dest="${project.build.directory}/dso-boot/unpacked">
+              <patternset>
+                <include name="com/tc/**" />
+                <include name="com/tcclient/**" />
+
+                <!--
+                  XXX: We can remove this if we ever stop using
+                  TLinkable in com.tc.object.cache.Cacheable
+                -->
+                <include name="gnu/**" />
+              </patternset>
+            </unzip>
+            <zip destfile="${project.build.directory}/dso-boot/dso-boot.jar"
+                 basedir="${project.build.directory}/dso-boot/unpacked"
+                 update="false">              
+            </zip>
+          </tasks>
+        </configuration>
+        <executions>
+          <execution>
+            <id>unjar-classes</id>
+            <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
