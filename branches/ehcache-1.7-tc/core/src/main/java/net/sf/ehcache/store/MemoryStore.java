@@ -147,13 +147,9 @@ public class MemoryStore implements Store {
      */
     public synchronized final void put(final Element element) throws CacheException {
         if (element != null) {
-            putIntoBackend(element);
+            map.put(element.getObjectKey(), element);
+            doPut(element);
         }
-    }
-
-    protected void putIntoBackend(final Element element) throws CacheException {
-        map.put(element.getObjectKey(), element);
-        doPut(element);
     }
 
     /**
@@ -170,7 +166,7 @@ public class MemoryStore implements Store {
             return null;
         }
 
-        Element element = getFromBackend(key);
+        Element element = (Element) map.get(key);
 
         if (element != null) {
             element.updateAccessStatistics();
@@ -184,10 +180,6 @@ public class MemoryStore implements Store {
         return element;
     }
 
-    protected Element getFromBackend(final Object key) {
-        return (Element) map.get(key);
-    }
-
     /**
      * Gets an item from the cache, without updating statistics.
      *
@@ -195,7 +187,7 @@ public class MemoryStore implements Store {
      * @return the element, or null if there was no match for the key
      */
     public final Element getQuiet(final Object key) {
-        Element cacheElement = getFromBackend(key);
+        Element cacheElement = (Element) map.get(key);
 
         if (cacheElement != null) {
             //cacheElement.updateAccessStatistics(); Don't update statistics
@@ -222,7 +214,7 @@ public class MemoryStore implements Store {
         }
 
         // remove single item.
-        Element element = removeFromBackend(key);
+        Element element = (Element)map.remove(key);
         if (element != null) {
             return element;
         } else {
@@ -231,10 +223,6 @@ public class MemoryStore implements Store {
             }
             return null;
         }
-    }
-
-    protected Element removeFromBackend(final Object key) {
-        return (Element)map.remove(key);
     }
 
     /**
@@ -269,7 +257,7 @@ public class MemoryStore implements Store {
         } else if (policySelection.equals(MemoryStoreEvictionPolicy.LFU)) {
             return new LfuPolicy();
         }
-        
+
         throw new IllegalArgumentException(policySelection + " isn't a valid eviction policy");
     }
 
