@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<ehcache>
-
-  <!-- XXX Name the cache manager -->
+<ehcache name="test">
 
   <defaultCache
       maxElementsInMemory="10000"
