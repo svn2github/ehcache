@@ -161,11 +161,11 @@ public class Element implements Serializable, Cloneable {
     }
 
     /**
-     * Constructor used by ElementData
+     * Constructor used by ElementData. Needs to be public since ElementData might be in another classloader
      *
      * @since 1.7
      */
-    Element(final Object key, final Object value, final long version, final long creationTime,
+    public Element(final Object key, final Object value, final long version, final long creationTime,
             final long lastAccessTime, final long nextToLastAccessTime, final long hitCount,
             final int timeToLive, final int timeToIdle, final long lastUpdateTime,
             final boolean eternal, final boolean lifespanSet) {
