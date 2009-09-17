@@ -294,9 +294,6 @@ public class CacheManagerTest {
             endingThreadCount = countThreads();
         } while (tries++ < 5 || endingThreadCount >= startingThreadCount + 2);
         
-        System.out.println("startingThreadCount = " + startingThreadCount);
-        System.out.println("endingThreadCount = " + endingThreadCount);
-        
         // Allow a bit of variation.
         assertTrue(endingThreadCount < startingThreadCount + 2);
 
@@ -318,7 +315,6 @@ public class CacheManagerTest {
         singletonManager = CacheManager
                 .create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-big.xml");
         int threads = countThreads();
-        System.out.println("number of threads = " + threads);
         assertTrue("More than 75 threads: " + threads, countThreads() <= 75);
     }
 

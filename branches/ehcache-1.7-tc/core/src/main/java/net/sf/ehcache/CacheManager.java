@@ -268,8 +268,8 @@ public class CacheManager {
             if (updateCheckNeeded) {
                 UpdateChecker updateChecker = new UpdateChecker();
                 try {
-                	updateCheckTimer = new Timer(true);
-                	updateCheckTimer.scheduleAtFixedRate(updateChecker, 1, EVERY_WEEK);
+                    updateCheckTimer = new Timer(true);
+                    updateCheckTimer.scheduleAtFixedRate(updateChecker, 1, EVERY_WEEK);
                 } catch (java.security.AccessControlException ace) {
                     // can't spawn thread, run inline
                     updateChecker.checkForUpdate();
@@ -811,8 +811,8 @@ public class CacheManager {
             
             // turn off update check timer if it was set
             if (updateCheckTimer != null) {
-            	updateCheckTimer.cancel();
-            	updateCheckTimer.purge();
+                updateCheckTimer.cancel();
+                updateCheckTimer.purge();
             }
             
             cacheManagerEventListenerRegistry.dispose();
