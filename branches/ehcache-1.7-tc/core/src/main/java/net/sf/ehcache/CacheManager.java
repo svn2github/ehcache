@@ -17,6 +17,20 @@
 
 package net.sf.ehcache;
 
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.ConfigurationHelper;
@@ -27,19 +41,7 @@ import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.event.CacheManagerEventListenerRegistry;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.util.PropertyUtil;
-
-import java.io.File;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import net.sf.ehcache.util.UpdateChecker;
 
 /**
  * A container for {@link Ehcache}s that maintain all aspects of their lifecycle.
@@ -244,11 +246,33 @@ public class CacheManager {
         cacheManagerEventListenerRegistry.init();
         addShutdownHookIfRequired();
 
+        checkForUpdateIfNeeded();
+        
         //do this last
         addConfiguredCaches(configurationHelper);
 
     }
 
+    private void checkForUpdateIfNeeded() {
+		try {
+			// TODO: query ehcache config to see if update check is needed
+	    	boolean updateCheckNeeded = true;
+	    	// TODO: make this a static final field
+	    	long EVERY_WEEK = 7 * 24 * 60 * 60 * 1000;
+	    	if (updateCheckNeeded) {
+	    		UpdateChecker updateChecker = new UpdateChecker();
+	    		try {
+	    			new Timer().scheduleAtFixedRate(updateChecker, 1, EVERY_WEEK);
+	    		} catch (java.security.AccessControlException ace) {
+	    			// can't spawn thread, run inline
+	    			updateChecker.checkForUpdate();
+	    		}
+	    	}
+		} catch (Throwable t) {
+			LOG.log(Level.WARNING, "Failed to set up update checker");
+		}
+    }
+    
     /**
      * Loads configuration, either from the supplied {@link ConfigurationHelper} or by creating a new Configuration instance
      * from the configuration file referred to by file, inputstream or URL.
@@ -562,7 +586,8 @@ public class CacheManager {
             LOG.log(Level.INFO, "The CacheManager shutdown hook is enabled because " + ENABLE_SHUTDOWN_HOOK_PROPERTY + " is set to true.");
 
             Thread localShutdownHook = new Thread() {
-                public void run() {
+                @Override
+				public void run() {
                     synchronized (this) {
                         if (status.equals(Status.STATUS_ALIVE)) {
                             // clear shutdown hook reference to prevent
@@ -848,8 +873,7 @@ public class CacheManager {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.log(Level.FINE, "Clearing all caches");
         }
-        for (int i = 0; i < cacheNames.length; i++) {
-            String cacheName = cacheNames[i];
+        for (String cacheName : cacheNames) {
             Ehcache cache = getEhcache(cacheName);
             cache.removeAll();
         }
@@ -977,7 +1001,8 @@ public class CacheManager {
     /**
      * @return either the name of this CacheManager, or if unset, Object.toString()
      */
-    public String toString() {
+    @Override
+	public String toString() {
         return getName();
     }
 
