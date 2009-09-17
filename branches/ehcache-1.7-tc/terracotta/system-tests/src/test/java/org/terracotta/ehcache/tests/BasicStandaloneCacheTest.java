@@ -30,7 +30,7 @@ import java.util.List;
 
 public class BasicStandaloneCacheTest extends TransparentTestBase {
 
-  private static final boolean DEBUG_CLIENTS = false;
+  private static final boolean DEBUG_CLIENTS = true;
   private static final String  SEP           = File.pathSeparator;
   private static final int     NODE_COUNT    = 1;
 
@@ -50,20 +50,15 @@ public class BasicStandaloneCacheTest extends TransparentTestBase {
 
   public static class App extends AbstractErrorCatchingTransparentApp {
 
-    private final File tempDir;
+    private final File    tempDir;
+    private final Integer port;
 
     // private final String configTemplate;
 
     public App(String appId, ApplicationConfig cfg, ListenerProvider listenerProvider) {
       super(appId, cfg, listenerProvider);
       this.tempDir = (File) cfg.getAttributeObject("TEMP");
-
-      // try {
-      // int port = (Integer) cfg.getAttributeObject("PORT");
-      // writeConfigFile(port);
-      // } catch (IOException e) {
-      // throw new RuntimeException(e);
-      // }
+      this.port = (Integer) cfg.getAttributeObject("PORT");
     }
 
     @Override
@@ -81,9 +76,9 @@ public class BasicStandaloneCacheTest extends TransparentTestBase {
       cmd.add(Exec.getJavaExecutable());
 
       if (DEBUG_CLIENTS) {
-        int port = 8000;
-        cmd.add("-agentlib:jdwp=transport=dt_socket,suspend=y,server=y,address=" + port);
-        Banner.infoBanner("waiting for debugger to attach on port " + port);
+        int debugPort = 8000;
+        cmd.add("-agentlib:jdwp=transport=dt_socket,suspend=y,server=y,address=" + debugPort);
+        Banner.infoBanner("waiting for debugger to attach on port " + debugPort);
       }
 
       cmd.add("-Xms128m");
@@ -92,6 +87,7 @@ public class BasicStandaloneCacheTest extends TransparentTestBase {
       cmd.add("-cp");
       cmd.add(makeClasspath(test, standalone, ehcache));
       cmd.add(client.getName());
+      cmd.add(port.toString());
 
       File output = new File(tempDir, client.getSimpleName() + ".log");
 

@@ -8,8 +8,14 @@ import net.sf.ehcache.CacheManager;
 
 public abstract class ClientBase {
 
-  public ClientBase() {
-    //
+  static {
+    // XXX: remove me!!!
+    System.setProperty("tc-ehcache-clustered", "true");
+  }
+
+  public ClientBase(String args[]) {
+    // XXX: remove me!!
+    System.setProperty("HACK-DSO-PORT", args[0]);
   }
 
   public final void run() {

@@ -4,8 +4,13 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
 public class Client2 extends ClientBase {
+
+  public Client2(String[] args) {
+    super(args);
+  }
+
   public static void main(String[] args) {
-    new Client2().run();
+    new Client2(args).run();
   }
 
   @Override
