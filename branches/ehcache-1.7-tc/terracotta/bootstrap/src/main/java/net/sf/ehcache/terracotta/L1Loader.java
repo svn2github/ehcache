@@ -1,19 +1,18 @@
 /*
- * All content copyright (c) Terracotta, Inc., except as may otherwise be noted in a separate copyright notice. All
- * rights reserved.
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  */
-package org.terracotta.agent;
+package net.sf.ehcache.terracotta;
 
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
 
-class AgentL1Loader extends URLClassLoader {
+public class L1Loader extends URLClassLoader {
 
   private final Map<String, byte[]> extraClassDefs;
 
-  public AgentL1Loader(URL[] urls, ClassLoader parent, Map<String, byte[]> extraClassDefs) {
+  public L1Loader(URL[] urls, ClassLoader parent, Map<String, byte[]> extraClassDefs) {
     super(urls, parent);
     this.extraClassDefs = new HashMap<String, byte[]>(extraClassDefs);
   }
