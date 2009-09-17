@@ -71,6 +71,11 @@ public class CacheManager {
     private static final Logger LOG = Logger.getLogger(CacheManager.class.getName());
 
     /**
+     * Update check interval - one week in milliseconds
+     */
+    private static final long EVERY_WEEK = 7 * 24 * 60 * 60 * 1000;
+
+    /**
      * The Singleton Instance.
      */
     private static CacheManager singleton;
@@ -254,23 +259,21 @@ public class CacheManager {
     }
 
     private void checkForUpdateIfNeeded() {
-		try {
-			// TODO: query ehcache config to see if update check is needed
-	    	boolean updateCheckNeeded = true;
-	    	// TODO: make this a static final field
-	    	long EVERY_WEEK = 7 * 24 * 60 * 60 * 1000;
-	    	if (updateCheckNeeded) {
-	    		UpdateChecker updateChecker = new UpdateChecker();
-	    		try {
-	    			new Timer().scheduleAtFixedRate(updateChecker, 1, EVERY_WEEK);
-	    		} catch (java.security.AccessControlException ace) {
-	    			// can't spawn thread, run inline
-	    			updateChecker.checkForUpdate();
-	    		}
-	    	}
-		} catch (Throwable t) {
-			LOG.log(Level.WARNING, "Failed to set up update checker");
-		}
+        try {
+            // TO DO: query ehcache config to see if update check is needed
+            boolean updateCheckNeeded = true;
+            if (updateCheckNeeded) {
+                UpdateChecker updateChecker = new UpdateChecker();
+                try {
+                    new Timer().scheduleAtFixedRate(updateChecker, 1, EVERY_WEEK);
+                } catch (java.security.AccessControlException ace) {
+                    // can't spawn thread, run inline
+                    updateChecker.checkForUpdate();
+                }
+            }
+        } catch (Throwable t) {
+            LOG.log(Level.WARNING, "Failed to set up update checker");
+        }
     }
     
     /**
@@ -587,7 +590,7 @@ public class CacheManager {
 
             Thread localShutdownHook = new Thread() {
                 @Override
-				public void run() {
+                public void run() {
                     synchronized (this) {
                         if (status.equals(Status.STATUS_ALIVE)) {
                             // clear shutdown hook reference to prevent
@@ -1002,7 +1005,7 @@ public class CacheManager {
      * @return either the name of this CacheManager, or if unset, Object.toString()
      */
     @Override
-	public String toString() {
+    public String toString() {
         return getName();
     }
 

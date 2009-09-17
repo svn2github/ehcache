@@ -35,133 +35,140 @@ import java.util.logging.Logger;
  * @author Hung Huynh
  */
 public class UpdateChecker extends TimerTask {
-	private static final Logger LOG = Logger.getLogger(UpdateChecker.class
-			.getName());
-	private static final String NOT_AVAILABLE = "UNKNOWN";
-	private static final String EHCACHE = "ehcache";
-	private static final String UPDATE_CHECK_URL = "http://www.terracotta.org/kit/reflector?kitID=ehcache.default&pageID=update.properties";
+    private static final Logger LOG = Logger.getLogger(UpdateChecker.class
+            .getName());
+    private static final String NOT_AVAILABLE = "UNKNOWN";
+    private static final String EHCACHE = "ehcache";
+    private static final String UPDATE_CHECK_URL = "http://www.terracotta.org/kit/reflector?kitID=ehcache.default&pageID=update.properties";
 
-	@Override
-	public void run() {
-		checkForUpdate();
-	}
+    /**
+     * Run the update check
+     */
+    @Override
+    public void run() {
+        checkForUpdate();
+    }
 
-	/**
-	 * This method ensures that there will be no exception thrown.
-	 */
-	public void checkForUpdate() {
-		try {
-			doCheck();
-		} catch (Throwable t) {
-			LOG.log(Level.WARNING, "Update check failed", t);
-		}
-	}
+    /**
+     * This method ensures that there will be no exception thrown.
+     */
+    public void checkForUpdate() {
+        try {
+            doCheck();
+        } catch (Throwable t) {
+            LOG.log(Level.WARNING, "Update check failed", t);
+        }
+    }
 
-	private void doCheck() throws IOException {
-		URL updateUrl = buildUpdateCheckUrl();
-		Properties updateProps = getUpdateProperties(updateUrl);
-		// TODO: find a way to get current Ehcache version
-		String currentVersion = "1.7.0-SNAPSHOT";
-		String propVal = updateProps.getProperty("general.notice");
-		if (notBlank(propVal)) {
-			LOG.log(Level.INFO, propVal);
-		}
-		propVal = updateProps.getProperty(currentVersion + ".notice");
-		if (notBlank(propVal)) {
-			LOG.log(Level.INFO, propVal);
-		}
-		propVal = updateProps.getProperty(currentVersion + ".updates");
-		if (notBlank(propVal)) {
-			StringBuilder sb = new StringBuilder();
-			String[] newVersions = propVal.split(",");
-			for (int i = 0; i < newVersions.length; i++) {
-				String newVersion = newVersions[i].trim();
-				if (i > 0)
-					sb.append(", ");
-				sb.append(newVersion);
-				propVal = updateProps
-						.getProperty(newVersion + ".release-notes");
-				if (notBlank(propVal)) {
-					sb.append(" [");
-					sb.append(propVal);
-					sb.append("]");
-				}
-			}
-			if (sb.length() > 0) {
-				LOG.log(Level.INFO, "New update(s) found: " + sb.toString());
-			} else {
-				LOG.log(Level.INFO, "No updates found");
-			}
-		}
-	}
+    private void doCheck() throws IOException {
+        URL updateUrl = buildUpdateCheckUrl();
+        Properties updateProps = getUpdateProperties(updateUrl);
+        // TO DO: find a way to get current Ehcache version
+        String currentVersion = "1.7.0-SNAPSHOT";
+        String propVal = updateProps.getProperty("general.notice");
+        if (notBlank(propVal)) {
+            LOG.log(Level.INFO, propVal);
+        }
+        propVal = updateProps.getProperty(currentVersion + ".notice");
+        if (notBlank(propVal)) {
+            LOG.log(Level.INFO, propVal);
+        }
+        propVal = updateProps.getProperty(currentVersion + ".updates");
+        if (notBlank(propVal)) {
+            StringBuilder sb = new StringBuilder();
+            String[] newVersions = propVal.split(",");
+            for (int i = 0; i < newVersions.length; i++) {
+                String newVersion = newVersions[i].trim();
+                if (i > 0) {
+                    sb.append(", ");
+                }
+                sb.append(newVersion);
+                propVal = updateProps
+                        .getProperty(newVersion + ".release-notes");
+                if (notBlank(propVal)) {
+                    sb.append(" [");
+                    sb.append(propVal);
+                    sb.append("]");
+                }
+            }
+            if (sb.length() > 0) {
+                LOG.log(Level.INFO, "New update(s) found: " + sb.toString());
+            } else {
+                LOG.log(Level.INFO, "No updates found");
+            }
+        }
+    }
 
-	private Properties getUpdateProperties(URL updateUrl) throws IOException {
-		URLConnection connection = updateUrl.openConnection();
-		InputStream in = connection.getInputStream();
-		try {
-			Properties props = new Properties();
-			props.load(connection.getInputStream());
-			return props;
-		} finally {
-			if (in != null) {
-				in.close();
-			}
-		}
-	}
+    private Properties getUpdateProperties(URL updateUrl) throws IOException {
+        URLConnection connection = updateUrl.openConnection();
+        InputStream in = connection.getInputStream();
+        try {
+            Properties props = new Properties();
+            props.load(connection.getInputStream());
+            return props;
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+        }
+    }
 
-	private URL buildUpdateCheckUrl() throws MalformedURLException,
-			UnsupportedEncodingException {
-		String url = System.getProperty("ehcache.update-check.url",
-				UPDATE_CHECK_URL);
-		String connector = url.indexOf('?') > 0 ? "&" : "?";
-		return new URL(url + connector + buildParamsString());
-	}
+    private URL buildUpdateCheckUrl() throws MalformedURLException,
+            UnsupportedEncodingException {
+        String url = System.getProperty("ehcache.update-check.url",
+                UPDATE_CHECK_URL);
+        String connector = url.indexOf('?') > 0 ? "&" : "?";
+        return new URL(url + connector + buildParamsString());
+    }
 
-	private String buildParamsString() throws UnsupportedEncodingException {
-		StringBuilder sb = new StringBuilder();
-		sb.append("id=");
-		sb.append(urlEncode(getClientId()));
-		sb.append("&os-name=");
-		sb.append(urlEncode(getProperty("os.name")));
-		sb.append("&jvm-name=");
-		sb.append(urlEncode(getProperty("jvm.vm.name")));
-		sb.append("&jvm-version=");
-		sb.append(urlEncode(getProperty("java.version")));
-		sb.append("&platform=");
-		sb.append(urlEncode(getProperty("os.arch")));
-		sb.append("&tc-version=");
-		sb.append(NOT_AVAILABLE);
-		sb.append("&tc-product=");
-		sb.append(EHCACHE);
-		sb.append("&source=");
-		sb.append(EHCACHE);
+    private String buildParamsString() throws UnsupportedEncodingException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("id=");
+        sb.append(urlEncode(getClientId()));
+        sb.append("&os-name=");
+        sb.append(urlEncode(getProperty("os.name")));
+        sb.append("&jvm-name=");
+        sb.append(urlEncode(getProperty("jvm.vm.name")));
+        sb.append("&jvm-version=");
+        sb.append(urlEncode(getProperty("java.version")));
+        sb.append("&platform=");
+        sb.append(urlEncode(getProperty("os.arch")));
+        sb.append("&tc-version=");
+        sb.append(NOT_AVAILABLE);
+        sb.append("&tc-product=");
+        sb.append(EHCACHE);
+        sb.append("&source=");
+        sb.append(EHCACHE);
 
-		return sb.toString();
-	}
+        return sb.toString();
+    }
 
-	private String getClientId() {
-		try {
-			return String.valueOf(InetAddress.getLocalHost().hashCode());
-		} catch (Throwable t) {
-			// pick some random field that might be unique to a client
-			return String.valueOf(System.getProperty("java.library.path",
-					NOT_AVAILABLE).hashCode());
-		}
-	}
+    private String getClientId() {
+        try {
+            return String.valueOf(InetAddress.getLocalHost().hashCode());
+        } catch (Throwable t) {
+            // pick some random field that might be unique to a client
+            return String.valueOf(System.getProperty("java.library.path",
+                    NOT_AVAILABLE).hashCode());
+        }
+    }
 
-	private String urlEncode(String param) throws UnsupportedEncodingException {
-		return URLEncoder.encode(param, "UTF-8");
-	}
+    private String urlEncode(String param) throws UnsupportedEncodingException {
+        return URLEncoder.encode(param, "UTF-8");
+    }
 
-	private String getProperty(String prop) {
-		return System.getProperty(prop, NOT_AVAILABLE);
-	}
+    private String getProperty(String prop) {
+        return System.getProperty(prop, NOT_AVAILABLE);
+    }
 
-	private boolean notBlank(String s) {
-		return s != null && s.trim().length() > 0;
-	}
+    private boolean notBlank(String s) {
+        return s != null && s.trim().length() > 0;
+    }
 
-	public static void main(String[] args) {
-		new UpdateChecker().checkForUpdate();
-	}
+    /**
+     * Main test method
+     */
+    public static void main(String[] args) {
+        new UpdateChecker().checkForUpdate();
+    }
 }
