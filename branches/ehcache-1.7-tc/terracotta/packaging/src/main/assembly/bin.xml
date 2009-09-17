@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <assembly>
-  <id>agent</id>
+  <id>jar</id>
   
   <formats>
     <format>jar</format>
@@ -22,6 +22,7 @@
       <useProjectArtifact>false</useProjectArtifact>
       <excludes>
         <exclude>org.terracotta.modules:*</exclude>
+        <exclude>net.sf.ehcache:*</exclude>
       </excludes>
     </dependencySet>
 
@@ -49,7 +50,7 @@
     <dependencySet>
       <unpack>true</unpack>
       <includes>
-        <include>org.terracotta.agent:agent</include>
+        <include>net.sf.ehcache:ehcache-terracotta-bootstrap</include>
       </includes>
     </dependencySet>
 
