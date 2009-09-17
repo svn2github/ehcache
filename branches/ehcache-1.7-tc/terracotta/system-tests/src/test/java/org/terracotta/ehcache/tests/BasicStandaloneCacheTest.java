@@ -30,7 +30,7 @@ import java.util.List;
 
 public class BasicStandaloneCacheTest extends TransparentTestBase {
 
-  private static final boolean DEBUG_CLIENTS = true;
+  private static final boolean DEBUG_CLIENTS = false;
   private static final String  SEP           = File.pathSeparator;
   private static final int     NODE_COUNT    = 1;
 
