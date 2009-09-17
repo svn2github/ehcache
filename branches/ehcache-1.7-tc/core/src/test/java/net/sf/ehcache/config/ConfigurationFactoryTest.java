@@ -80,6 +80,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     /**
      * setup test
      */
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -105,7 +106,11 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Configuration configuration = ConfigurationFactory.parseConfiguration();
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
-        //Check disk store />
+        //Check core attributes
+        assertEquals(null, configurationHelper.getConfigurationBean().getName());
+        assertEquals(true, configurationHelper.getConfigurationBean().getUpdateCheck());
+        
+        //Check disk store
         assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
 
 
@@ -212,6 +217,9 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
+        assertEquals("", configurationHelper.getConfigurationBean().getName());
+        assertEquals(true, configurationHelper.getConfigurationBean().getUpdateCheck());
+
         //Check disk store  <diskStore path="/tmp"/>
         assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
 
@@ -294,6 +302,9 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         File file = new File(TEST_CONFIG_DIR + "ehcache-1_1.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+
+        assertEquals(null, configurationHelper.getConfigurationBean().getName());
+        assertEquals(true, configurationHelper.getConfigurationBean().getUpdateCheck());
 
         //Check disk path  <diskStore path="/tmp"/>
         assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
@@ -505,6 +516,9 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
+        assertEquals(null, configurationHelper.getConfigurationBean().getName());
+        assertEquals(true, configurationHelper.getConfigurationBean().getUpdateCheck());
+
         //Check disk path  <diskStore path="/tmp"/>
         assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
 
@@ -583,6 +597,9 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         File file = new File(TEST_CONFIG_DIR + "ehcache-nodisk.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+
+        assertEquals(null, configurationHelper.getConfigurationBean().getName());
+        assertEquals(true, configurationHelper.getConfigurationBean().getUpdateCheck());
 
         //Check disk path  <diskStore path="/tmp"/>
         assertEquals(null, configurationHelper.getDiskStorePath());
@@ -821,6 +838,9 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
             fis.close();
         }
 
+        assertEquals("", configurationHelper.getConfigurationBean().getName());
+        assertEquals(true, configurationHelper.getConfigurationBean().getUpdateCheck());
+
         //Check disk path  <diskStore path="/tmp"/>
         assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
 
@@ -874,6 +894,9 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
             file.renameTo(new File(AbstractCacheTest.TEST_CLASSES_DIR + "hideehcache.xml"));
             Configuration configuration = ConfigurationFactory.parseConfiguration();
             ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+
+            assertEquals(null, configurationHelper.getConfigurationBean().getName());
+            assertEquals(true, configurationHelper.getConfigurationBean().getUpdateCheck());
 
             //Check disk path  <diskStore path="/tmp"/>
             assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
@@ -1019,5 +1042,45 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(0, propertyTokens.size());
     }
 
+    /**
+     * Test named cachemanager, terracotta config, clustered caches
+     */
+    @Test
+    public void testTerracottaConfiguration() {
+      File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta.xml");
+      Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+      ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+
+      assertEquals("tc", configurationHelper.getConfigurationBean().getName());
+      assertEquals(false, configurationHelper.getConfigurationBean().getUpdateCheck());
+
+//      //Check default cache
+//      Ehcache defaultCache = configurationHelper.createDefaultCache();
+//      assertEquals("default", defaultCache.getName());
+//      assertEquals(false, defaultCache.getCacheConfiguration().isEternal());
+//      assertEquals(5, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
+//      assertEquals(10, defaultCache.getCacheConfiguration().getTimeToLiveSeconds());
+//      assertEquals(true, defaultCache.getCacheConfiguration().isOverflowToDisk());
+//      assertEquals(10, defaultCache.getCacheConfiguration().getMaxElementsInMemory());
+//      assertEquals(0, defaultCache.getCacheConfiguration().getMaxElementsOnDisk());
+//
+//      //Check caches
+//      assertEquals(8, configurationHelper.createCaches().size());
+//
+//      //  <cache name="sampleCache1"
+//      //  maxElementsInMemory="10000"
+//      //  eternal="false"
+//      //  timeToIdleSeconds="300"
+//      //  timeToLiveSeconds="600"
+//      //  overflowToDisk="true"
+//      //  />
+//      Ehcache sampleCache1 = configurationHelper.createCacheFromName("sampleCache1");
+//      assertEquals("sampleCache1", sampleCache1.getName());
+//      assertEquals(false, sampleCache1.getCacheConfiguration().isEternal());
+//      assertEquals(360, sampleCache1.getCacheConfiguration().getTimeToIdleSeconds());
+//      assertEquals(1000, sampleCache1.getCacheConfiguration().getTimeToLiveSeconds());
+//      assertEquals(true, sampleCache1.getCacheConfiguration().isOverflowToDisk());
+      
+    }
 
 }

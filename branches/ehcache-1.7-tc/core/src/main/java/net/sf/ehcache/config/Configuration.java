@@ -32,6 +32,8 @@ import java.util.Set;
  */
 public final class Configuration {
 
+    private String cacheManagerName;
+    private boolean updateCheck = true;
     private DiskStoreConfiguration diskStoreConfiguration;
     private CacheConfiguration defaultCacheConfiguration;
     private List<FactoryConfiguration> cacheManagerPeerProviderFactoryConfiguration = new ArrayList<FactoryConfiguration>();
@@ -41,7 +43,7 @@ public final class Configuration {
     private String configurationSource;
 
     /**
-     * Empty constructor, which is used by {@link ConfigurationFactory}, and can be also sued programmatically.
+     * Empty constructor, which is used by {@link ConfigurationFactory}, and can be also used programmatically.
      * <p/>
      * If you are using it programmtically you need to call the relevant add and setter methods in this class to
      * populate everything.
@@ -49,7 +51,34 @@ public final class Configuration {
     public Configuration() {
     }
 
+    /**
+     * Allows BeanHandler to set the CacheManager name.
+     */
+    public final void setName(String name) {
+        this.cacheManagerName = name;
+    }
 
+    /**
+     * CacheManager name
+     */
+    public final String getName() {
+        return this.cacheManagerName;
+    }
+
+    /**
+     * Allows BeanHandler to set the updateCheck flag.
+     */
+    public final void setUpdateCheck(boolean updateCheck) {
+        this.updateCheck = updateCheck;
+    }
+    
+    /**
+     * Get flag for updateCheck
+     */
+    public final boolean getUpdateCheck() {
+        return this.updateCheck;
+    }
+    
     /**
      * Allows BeanHandler to add disk store location to the configuration.
      */
