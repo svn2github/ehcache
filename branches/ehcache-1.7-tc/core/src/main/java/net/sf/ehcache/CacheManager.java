@@ -138,6 +138,7 @@ public class CacheManager {
      */
     private String diskStorePath;
 
+    private Timer updateCheckTimer;
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -255,21 +256,20 @@ public class CacheManager {
         cacheManagerEventListenerRegistry.init();
         addShutdownHookIfRequired();
 
-        checkForUpdateIfNeeded();
+        checkForUpdateIfNeeded(localConfiguration.getUpdateCheck());
 
         //do this last
         addConfiguredCaches(configurationHelper);
 
     }
 
-    private void checkForUpdateIfNeeded() {
+    private void checkForUpdateIfNeeded(boolean updateCheckNeeded) {
         try {
-            // TO DO: query ehcache config to see if update check is needed
-            boolean updateCheckNeeded = true;
             if (updateCheckNeeded) {
                 UpdateChecker updateChecker = new UpdateChecker();
                 try {
-                    new Timer(true).scheduleAtFixedRate(updateChecker, 1, EVERY_WEEK);
+                	updateCheckTimer = new Timer(true);
+                	updateCheckTimer.scheduleAtFixedRate(updateChecker, 1, EVERY_WEEK);
                 } catch (java.security.AccessControlException ace) {
                     // can't spawn thread, run inline
                     updateChecker.checkForUpdate();
@@ -808,7 +808,13 @@ public class CacheManager {
                     cacheManagerPeerProvider.dispose();
                 }
             }
-
+            
+            // turn off update check timer if it was set
+            if (updateCheckTimer != null) {
+            	updateCheckTimer.cancel();
+            	updateCheckTimer.purge();
+            }
+            
             cacheManagerEventListenerRegistry.dispose();
 
             synchronized (CacheManager.class) {
