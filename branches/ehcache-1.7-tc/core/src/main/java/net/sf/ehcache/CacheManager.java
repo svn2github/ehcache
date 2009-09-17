@@ -265,14 +265,14 @@ public class CacheManager {
             if (updateCheckNeeded) {
                 UpdateChecker updateChecker = new UpdateChecker();
                 try {
-                    new Timer().scheduleAtFixedRate(updateChecker, 1, EVERY_WEEK);
+                    new Timer(true).scheduleAtFixedRate(updateChecker, 1, EVERY_WEEK);
                 } catch (java.security.AccessControlException ace) {
                     // can't spawn thread, run inline
                     updateChecker.checkForUpdate();
                 }
             }
         } catch (Throwable t) {
-            LOG.log(Level.WARNING, "Failed to set up update checker");
+            LOG.log(Level.WARNING, "Failed to set up update checker", t);
         }
     }
     
