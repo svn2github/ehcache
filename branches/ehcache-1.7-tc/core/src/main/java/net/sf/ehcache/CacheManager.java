@@ -240,6 +240,10 @@ public class CacheManager {
             localConfiguration.setSource("Programmatically configured.");
         }
 
+        if (localConfiguration.getName() != null) {
+            setName(localConfiguration.getName());
+        }
+
         ConfigurationHelper configurationHelper = new ConfigurationHelper(this, localConfiguration);
         configure(configurationHelper);
         status = Status.STATUS_ALIVE;
@@ -252,7 +256,7 @@ public class CacheManager {
         addShutdownHookIfRequired();
 
         checkForUpdateIfNeeded();
-        
+
         //do this last
         addConfiguredCaches(configurationHelper);
 
@@ -275,7 +279,7 @@ public class CacheManager {
             LOG.log(Level.WARNING, "Failed to set up update checker", t);
         }
     }
-    
+
     /**
      * Loads configuration, either from the supplied {@link ConfigurationHelper} or by creating a new Configuration instance
      * from the configuration file referred to by file, inputstream or URL.
