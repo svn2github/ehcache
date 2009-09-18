@@ -70,8 +70,8 @@
             </testResource>
         </testResources>
         <filters>
-        	<filter>${project.build.directory}/filter.properties</filter>
-		</filters>
+            <filter>${project.build.directory}/filter.properties</filter>
+        </filters>
         
         <plugins>
             <plugin>
@@ -140,23 +140,23 @@
                 </executions>
             </plugin>
 
-	      	<plugin>
-	        	<groupId>org.codehaus.mojo</groupId>
-	        	<artifactId>buildnumber-maven-plugin</artifactId>
-	        	<version>1.0-beta-3</version>
-		        <executions>
-		          <execution>
-		            <phase>generate-resources</phase>
-		            <goals>
-		              <goal>create</goal>
-		            </goals>
-		          </execution>
-		        </executions>
-		        <configuration>
-		          <doCheck>false</doCheck>
-		          <doUpdate>false</doUpdate>
-		        </configuration>
-		    </plugin>
+              <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.0-beta-3</version>
+                <executions>
+                  <execution>
+                    <phase>generate-resources</phase>
+                    <goals>
+                      <goal>create</goal>
+                    </goals>
+                  </execution>
+                </executions>
+                <configuration>
+                  <doCheck>false</doCheck>
+                  <doUpdate>false</doUpdate>
+                </configuration>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -223,14 +223,14 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <tasks>
-								<tstamp>
-          							<format property="last.updated"
-            							    pattern="yyyy-MM-dd hh:mm:ss"/>
-        					    </tstamp>
-        						<echo file="${project.build.directory}/filter.properties" 
-        						      message="build.time=${last.updated}${line.separator}"/>
-        						<echo file="${project.build.directory}/filter.properties" append="true"
-        						      message="build.revision=${buildNumber}${line.separator}"/>
+                                <tstamp>
+                                      <format property="last.updated"
+                                            pattern="yyyy-MM-dd hh:mm:ss"/>
+                                </tstamp>
+                                <echo file="${project.build.directory}/filter.properties" 
+                                      message="build.time=${last.updated}${line.separator}"/>
+                                <echo file="${project.build.directory}/filter.properties" append="true"
+                                      message="build.revision=${buildNumber}${line.separator}"/>
                             </tasks>
                         </configuration>
                         <goals>
