@@ -121,13 +121,14 @@ public class UpdateChecker extends TimerTask {
     }
 
     private String buildParamsString() throws UnsupportedEncodingException {
+        ProductInfo productInfo = new ProductInfo();
         StringBuilder sb = new StringBuilder();
         sb.append("id=");
         sb.append(urlEncode(getClientId()));
         sb.append("&os-name=");
         sb.append(urlEncode(getProperty("os.name")));
         sb.append("&jvm-name=");
-        sb.append(urlEncode(getProperty("jvm.vm.name")));
+        sb.append(urlEncode(getProperty("java.vm.name")));
         sb.append("&jvm-version=");
         sb.append(urlEncode(getProperty("java.version")));
         sb.append("&platform=");
@@ -135,9 +136,9 @@ public class UpdateChecker extends TimerTask {
         sb.append("&tc-version=");
         sb.append(NOT_AVAILABLE);
         sb.append("&tc-product=");
-        sb.append(EHCACHE);
+        sb.append(EHCACHE + "-" + productInfo.getVersion());
         sb.append("&source=");
-        sb.append(EHCACHE);
+        sb.append(urlEncode(productInfo.getName()));
 
         return sb.toString();
     }
