@@ -54,7 +54,9 @@ public class UpdateChecker extends TimerTask {
      */
     public void checkForUpdate() {
         try {
-            doCheck();
+            if (!Boolean.getBoolean("net.sf.ehcache.skipUpdateCheck")) {
+                doCheck();
+            }
         } catch (Throwable t) {
             LOG.log(Level.WARNING, "Update check failed", t);
         }

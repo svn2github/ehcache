@@ -232,6 +232,10 @@
                     <redirectTestOutputToFile>false</redirectTestOutputToFile>
                     <systemProperties>
                         <property>
+                            <name>net.sf.ehcache.skipUpdateCheck</name>
+                            <value>true</value>
+                        </property>                    
+                        <property>
                             <name>java.awt.headless</name>
                             <value>true</value>
                         </property>
