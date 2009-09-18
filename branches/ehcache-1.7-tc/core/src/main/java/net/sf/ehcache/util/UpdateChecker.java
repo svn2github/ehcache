@@ -65,8 +65,7 @@ public class UpdateChecker extends TimerTask {
     private void doCheck() throws IOException {
         URL updateUrl = buildUpdateCheckUrl();
         Properties updateProps = getUpdateProperties(updateUrl);
-        // TO DO: find a way to get current Ehcache version
-        String currentVersion = "1.7.0-SNAPSHOT";
+        String currentVersion = new ProductInfo().getVersion();
         String propVal = updateProps.getProperty("general.notice");
         if (notBlank(propVal)) {
             LOG.log(Level.INFO, propVal);
@@ -95,8 +94,6 @@ public class UpdateChecker extends TimerTask {
             }
             if (sb.length() > 0) {
                 LOG.log(Level.INFO, "New update(s) found: " + sb.toString());
-            } else {
-                LOG.log(Level.INFO, "No updates found");
             }
         }
     }
