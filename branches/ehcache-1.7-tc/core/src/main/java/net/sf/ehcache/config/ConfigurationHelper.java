@@ -449,6 +449,14 @@ public final class ConfigurationHelper {
      * @param cacheConfiguration
      */
     final Ehcache createCache(CacheConfiguration cacheConfiguration) {
+        boolean terracottaClustered = false;
+        String terracottaValueMode = null;
+        TerracottaConfiguration tcConfiguration = cacheConfiguration.getTerracottaConfiguration();
+        if (tcConfiguration != null) {
+            terracottaClustered = tcConfiguration.isClustered();
+            terracottaValueMode = tcConfiguration.getValueMode().name();
+        }
+        
         Ehcache cache = new Cache(cacheConfiguration.name,
                 cacheConfiguration.maxElementsInMemory,
                 cacheConfiguration.memoryStoreEvictionPolicy,
@@ -463,7 +471,9 @@ public final class ConfigurationHelper {
                 null,
                 cacheConfiguration.maxElementsOnDisk,
                 cacheConfiguration.diskSpoolBufferSizeMB,
-                cacheConfiguration.clearOnFlush);
+                cacheConfiguration.clearOnFlush,
+                terracottaClustered,
+                terracottaValueMode);
         RegisteredEventListeners listeners = cache.getCacheEventNotificationService();
         registerCacheListeners(cacheConfiguration, listeners);
         registerCacheExtensions(cacheConfiguration, cache);

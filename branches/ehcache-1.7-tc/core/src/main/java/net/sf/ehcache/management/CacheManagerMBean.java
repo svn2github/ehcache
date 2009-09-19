@@ -34,7 +34,12 @@ public interface CacheManagerMBean {
      */
     public String getStatus();
 
-
+    /**
+     * Gets the name of the cache manager
+     * 
+     * @return The name of the CacheManager
+     */
+    public String getName();
 
      /**
      * Shuts down the CacheManager.

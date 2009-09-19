@@ -5,13 +5,13 @@
             eternal="false"
             timeToIdleSeconds="5"
             timeToLiveSeconds="10"
-            overflowToDisk="true"
-            />
+            overflowToDisk="false">
+            <terracotta/>
+    </defaultCache>
 
     <!-- An unclustered cache -->
     <cache name="unclustered"
            maxElementsInMemory="1000"
-           eternal="true"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="FIFO"
             />
@@ -31,17 +31,18 @@
     </cache>
     
     <!-- Test serialization mode -->
-    <cache name="clustered-2"
+    <cache name="clustered-3"
            maxElementsInMemory="1000"
            memoryStoreEvictionPolicy="LFU">
            <terracotta valueMode="serialization"/>
     </cache>
     
     <!-- Test identity mode -->
-    <cache name="clustered-2"
+    <cache name="clustered-4"
            maxElementsInMemory="1000"
            memoryStoreEvictionPolicy="LFU">
            <terracotta valueMode="identity"/>
     </cache>
+    
 
 </ehcache>

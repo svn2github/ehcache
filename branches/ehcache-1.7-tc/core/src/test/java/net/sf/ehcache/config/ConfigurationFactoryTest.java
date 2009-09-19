@@ -1054,33 +1054,63 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
       assertEquals("tc", configurationHelper.getConfigurationBean().getName());
       assertEquals(false, configurationHelper.getConfigurationBean().getUpdateCheck());
 
-//      //Check default cache
-//      Ehcache defaultCache = configurationHelper.createDefaultCache();
-//      assertEquals("default", defaultCache.getName());
-//      assertEquals(false, defaultCache.getCacheConfiguration().isEternal());
-//      assertEquals(5, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
-//      assertEquals(10, defaultCache.getCacheConfiguration().getTimeToLiveSeconds());
-//      assertEquals(true, defaultCache.getCacheConfiguration().isOverflowToDisk());
-//      assertEquals(10, defaultCache.getCacheConfiguration().getMaxElementsInMemory());
-//      assertEquals(0, defaultCache.getCacheConfiguration().getMaxElementsOnDisk());
-//
-//      //Check caches
-//      assertEquals(8, configurationHelper.createCaches().size());
-//
-//      //  <cache name="sampleCache1"
-//      //  maxElementsInMemory="10000"
-//      //  eternal="false"
-//      //  timeToIdleSeconds="300"
-//      //  timeToLiveSeconds="600"
-//      //  overflowToDisk="true"
-//      //  />
-//      Ehcache sampleCache1 = configurationHelper.createCacheFromName("sampleCache1");
-//      assertEquals("sampleCache1", sampleCache1.getName());
-//      assertEquals(false, sampleCache1.getCacheConfiguration().isEternal());
-//      assertEquals(360, sampleCache1.getCacheConfiguration().getTimeToIdleSeconds());
-//      assertEquals(1000, sampleCache1.getCacheConfiguration().getTimeToLiveSeconds());
-//      assertEquals(true, sampleCache1.getCacheConfiguration().isOverflowToDisk());
+      //Check default cache
+      Ehcache defaultCache = configurationHelper.createDefaultCache();
+      assertEquals("default", defaultCache.getName());
+      assertEquals(false, defaultCache.getCacheConfiguration().isEternal());
+      assertEquals(5, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
+      assertEquals(10, defaultCache.getCacheConfiguration().getTimeToLiveSeconds());
+      assertEquals(false, defaultCache.getCacheConfiguration().isOverflowToDisk());
+      assertEquals(10, defaultCache.getCacheConfiguration().getMaxElementsInMemory());
+      assertEquals(0, defaultCache.getCacheConfiguration().getMaxElementsOnDisk());
+      assertEquals(true, defaultCache.getCacheConfiguration().isTerracottaClustered());
+
+      //Check caches
+      assertEquals(5, configurationHelper.createCaches().size());
+
+      //  <cache name="clustered-1"
+      //   maxElementsInMemory="1000"
+      //   memoryStoreEvictionPolicy="LFU">
+      //   <terracotta/>
+      //  </cache>
+      Ehcache sampleCache1 = configurationHelper.createCacheFromName("clustered-1");
+      assertEquals("clustered-1", sampleCache1.getName());
+      assertEquals(true, sampleCache1.getCacheConfiguration().isTerracottaClustered());
+      assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION, 
+                  sampleCache1.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
       
+      //  <cache name="clustered-2"
+      //      maxElementsInMemory="1000"
+      //            memoryStoreEvictionPolicy="LFU">
+      //          <terracotta clustered="false"/>
+      //   </cache>
+      Ehcache sampleCache2 = configurationHelper.createCacheFromName("clustered-2");
+      assertEquals("clustered-2", sampleCache2.getName());
+      assertEquals(false, sampleCache2.getCacheConfiguration().isTerracottaClustered());
+      assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION, 
+              sampleCache2.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
+
+      //  <cache name="clustered-3"
+      //   maxElementsInMemory="1000"
+      //   memoryStoreEvictionPolicy="LFU">
+      //   <terracotta valueMode="serialization"/>
+      //  </cache>
+      Ehcache sampleCache3 = configurationHelper.createCacheFromName("clustered-3");
+      assertEquals("clustered-3", sampleCache3.getName());
+      assertEquals(true, sampleCache3.getCacheConfiguration().isTerracottaClustered());
+      assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION, 
+              sampleCache3.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
+
+      //  <cache name="clustered-4"
+      //   maxElementsInMemory="1000"
+      //   memoryStoreEvictionPolicy="LFU">
+      //   <terracotta valueMode="identity"/>
+      //  </cache>
+      Ehcache sampleCache4 = configurationHelper.createCacheFromName("clustered-4");
+      assertEquals("clustered-4", sampleCache4.getName());
+      assertEquals(true, sampleCache4.getCacheConfiguration().isTerracottaClustered());
+      assertEquals(TerracottaConfiguration.ValueMode.IDENTITY, 
+              sampleCache4.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
     }
 
 }

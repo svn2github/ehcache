@@ -143,6 +143,11 @@ public class CacheConfiguration implements Cloneable {
     protected CacheExceptionHandlerFactoryConfiguration cacheExceptionHandlerFactoryConfiguration;
 
     /**
+     * The TerracottaConfiguration.
+     */
+    protected TerracottaConfiguration terracottaConfiguration;
+    
+    /**
      * The cache loader factories added by BeanUtils.
      */
     //protected CacheLoaderFactoryConfiguration cacheLoaderFactoryConfiguration;
@@ -154,6 +159,7 @@ public class CacheConfiguration implements Cloneable {
      * @return a copy, which independent other than configurations than cannot change.
      * @throws CloneNotSupportedException
      */
+    @Override
     public CacheConfiguration clone() throws CloneNotSupportedException {
         return (CacheConfiguration) super.clone();
     }
@@ -343,6 +349,14 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Allows BeanHandler to add the TerracottaConfiguration to the configuration.
+     * @param terracottaConfiguration
+     */
+    public final void addTerracotta(TerracottaConfiguration terracottaConfiguration) {
+      this.terracottaConfiguration = terracottaConfiguration;
+    }
+    
+    /**
      * Accessor
      */
     public String getName() {
@@ -457,5 +471,21 @@ public class CacheConfiguration implements Cloneable {
      */
     public CacheExceptionHandlerFactoryConfiguration getCacheExceptionHandlerFactoryConfiguration() {
         return cacheExceptionHandlerFactoryConfiguration;
+    }
+    
+    /**
+     * Accessor
+     * @return the terracotta configuration
+     */
+    public TerracottaConfiguration getTerracottaConfiguration() {
+        return terracottaConfiguration;
+    }
+
+    /**
+     * Helper method to compute whether the cache is clustered or not
+     * @return True if the <terracotta/> element exists with clustered="true"
+     */
+    public boolean isTerracottaClustered() {
+        return terracottaConfiguration != null && terracottaConfiguration.isClustered();
     }
 }

@@ -42,6 +42,7 @@ import java.util.logging.Logger;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
@@ -439,7 +440,9 @@ public class Cache implements Ehcache {
                 bootstrapCacheLoader,
                 maxElementsOnDisk,
                 0,
-                true);
+                true,
+                false,
+                null);
 
     }
 
@@ -498,7 +501,9 @@ public class Cache implements Ehcache {
                 bootstrapCacheLoader,
                 maxElementsOnDisk,
                 diskSpoolBufferSizeMB,
-                true);
+                true,
+                false,
+                null);
 
     }
 
@@ -545,7 +550,9 @@ public class Cache implements Ehcache {
                  BootstrapCacheLoader bootstrapCacheLoader,
                  int maxElementsOnDisk,
                  int diskSpoolBufferSizeMB,
-                 boolean clearOnFlush) {
+                 boolean clearOnFlush,
+                 boolean isTerracottaClustered,
+                 String terracottaValueMode) {
 
         changeStatus(Status.STATUS_UNINITIALISED);
 
@@ -598,6 +605,13 @@ public class Cache implements Ehcache {
         }
 
         this.bootstrapCacheLoader = bootstrapCacheLoader;
+        
+        TerracottaConfiguration tcConfig = new TerracottaConfiguration();
+        tcConfig.setClustered(isTerracottaClustered);
+        if (terracottaValueMode != null) {
+            tcConfig.setValueMode(terracottaValueMode);
+        }
+        configuration.addTerracotta(tcConfig);
     }
 
     /**

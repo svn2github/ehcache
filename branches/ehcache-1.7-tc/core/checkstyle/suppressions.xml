@@ -80,5 +80,8 @@
 
     <!-- Contains a thread therefore cannot.  -->
     <suppress checks="SuperClone" files="RMIBootstrapCacheLoader.java"/>
+    
+    <!--  We keep adding stuff to these constructors. -->
+    <suppress checks="MethodLength" files="Cache.java"/>
 
 </suppressions>
