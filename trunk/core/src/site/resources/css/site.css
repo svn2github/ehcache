@@ -158,7 +158,7 @@ ol ol {
     list-style: lower-roman;
 }
 
-a, a:link, a:visited {
+a:link, a:visited {
  color: #3686BC;
  text-decoration: none;
 }
