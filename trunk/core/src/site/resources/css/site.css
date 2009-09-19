@@ -1,7 +1,6 @@
 body {
-    font-family: verdana, arial, sans-serif;
-    color: #3C3E29;
-/ / color : #555;
+    font-family: helvetica, arial, sans-serif;
+    color: #666666;
     font-size: 12px;
     padding-left: 3px;
     font-weight: normal;
@@ -11,19 +10,19 @@ body {
 }
 
 b {
-    color: #4C4E39;
-    font-family: arial, helvetica, sans-serif;
+    color: #666666;
+    font-family: helvetica, arial sans-serif;
     font-weight: bold;
 }
 
 tt {
-    color: #3C3E29;
+    color: #666666;
     font-size: 13px;
 
 }
 
 #page-logo {
-    font-family: verdana, arial, sans-serif;
+    font-family: helvetica, arial, sans-serif;
     color: #4C4E39;
     font-size: 30px;
     font-weight: normal;
@@ -35,7 +34,7 @@ tt {
 }
 
 #page-title {
-    font-family: verdana, arial, sans-serif;
+    font-family: helvetica, arial, sans-serif;
     font-size: 16px;
     color: #dCdEa9;
 }
@@ -43,7 +42,7 @@ tt {
 #page-buttons {
     padding: 2px;
     color: #4C4E39;
-    background: #dCcE99;
+    background: #d3d2c4;
     text-align: left;
     height: 1.5em;
     margin-bottom: .1em;
@@ -51,9 +50,9 @@ tt {
 
 h1, .toc {
     color: #4C4E39;
-    border-bottom: 3px solid #dCcE99;
+    border-bottom: 3px solid #a6a698;
     font-size: 1.3em;
-    font-family: arial, helvetica, sans-serif;
+    font-family: helvetica, arial, sans-serif;
     margin: 1.5em 0em .5em 0em;
     font-weight: bold;
 }
@@ -61,23 +60,24 @@ h1, .toc {
 h2 {
     color: #4C4E39;
     font-size: 1.2em;
-    font-family: arial, helvetica, sans-serif;
+    font-family: helvetica, arial, sans-serif;
     margin: 1em 0em .5em 0em;
     font-weight: bold;
-    border-bottom: 1px solid #9C8E59;
+    border-bottom: 1px solid #d3d2c4;
 }
 
 h3 {
     color: #4C4E39;
     font-size: 1.1em;
-    font-family: arial, helvetica, sans-serif;
+    font-family: helvetica, arial, sans-serif;
     margin: 0.4em 0em 0em 0em;
+    border-bottom: 1px solid #d3d2c4;
 }
 
 h4 {
     color: #4C4E39;
     font-size: 1.0em;
-    font-family: arial, helvetica, sans-serif;
+    font-family: helvetica, arial, sans-serif;
     margin: 0.4em 0em 0.4em 0em;
     font-style: italic;
 }
@@ -85,7 +85,7 @@ h4 {
 h5, .toc1, #navcolumn h5 {
     color: #4C4E39;
     font-size: 1.2em;
-    font-family: arial, helvetica, sans-serif;
+    font-family: helvetica, arial, sans-serif;
     margin: 0.4em 0em 0.4em 0em;
     font-style: italic;
 }
@@ -141,7 +141,7 @@ caption {
 
 code {
     font-family: monospace;
-    color: #3C3E29;
+    color: #666666;
     font-size: 12px;
     font-weight: bold;
 }
@@ -158,13 +158,11 @@ ol ol {
     list-style: lower-roman;
 }
 
-a:link {
-    color: #9C8E59;
+a, a:link, a:visited {
+ color: #3686BC;
+ text-decoration: none;
 }
 
-a:visited {
-    color: #9C8E59;
-}
 
 hr {
     border: 0;
@@ -174,14 +172,14 @@ hr {
 }
 
 #page-logo * {
-    font-family: verdana, arial, sans-serif;
+    font-family: helvetica, arial, sans-serif;
     font-size: 30px;
     font-weight: normal;
     color: #4C4E39;
 }
 
 #page-tagline {
-    font-family: verdana, arial, sans-serif;
+    font-family: helvetica, arial, sans-serif;
     color: #0066CC;
     font-size: 16px;
     font-weight: bold;
@@ -266,15 +264,15 @@ p {
 }
 
 input {
-    font-family: verdana, arial, sans-serif;
-    color: #3C3E29;
+    font-family: helvetica, arial, sans-serif;
+    color: #666666;
     font-size: 10px;
     font-weight: normal;
     background: #eee;
 }
 
 .submit input {
-    color: #3C3E29;
+    color: #666666;
     background: #ddd;
 
 

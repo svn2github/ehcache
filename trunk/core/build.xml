@@ -46,7 +46,7 @@
     <property name="classpath" refid="project.class.path"/>
 
     <!-- Requres LaTeX and netpbm. Use this from maven because it needs javadoc generated-->
-    <target name="book">
+    <target name="book" description="Build book">
         <copy file="src/site/apt/.aptconvert" todir="${env.HOME}" overwrite="true"/>
         <mkdir dir="${build.dir}/book"/>
         <copy todir="${build.dir}/book/images" overwrite="true">

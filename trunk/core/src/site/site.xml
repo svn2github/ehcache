@@ -44,7 +44,7 @@
 
         <menu name="Documentation">
             <item name="Getting Started" href="documentation/getting_started.html"/>
-            <item name="Ehcache 1.5 Book" href="http://www.lulu.com/content/3553390"/>
+            <item name="Ehcache Book" href="http://www.lulu.com/content/3553390"/>
             <item name="HTML Single Page User Guide" href="EhcacheUserGuide.html"/>
             <item name="HTML Multi Page User Guide" href="documentation/index.html"/>
             <item name="Older User Guides" href="documentation/older_guides.html" collapse="true">
@@ -59,16 +59,15 @@
         </menu>
 
         <menu name="Community">
-            <item name="SourceForge Home" href="http://sourceforge.net/projects/ehcache/"/>
             <item name="Mailing Lists" href="/mail-lists.html"/>
             <item name="Issue Tracking" href="/issue-tracking.html"/>
-            <item name="Forums" href="http://sourceforge.net/forum/?group_id=93232"/>
-            <item name="Old Bug System" href="http://sourceforge.net/tracker/?group_id=93232&amp;atid=603559"/>
-            <item name="New Bug System" href="http://sourceforge.net/tracker/?group_id=93232&amp;atid=603559"/>
-            <item name="Feature Requests" href="http://sourceforge.net/tracker/?group_id=93232&amp;atid=603562"/>
+            <item name="Forums" href=""/>
+            <item name="Bugs" href="https://jira.terracotta.org/jira/browse/EHCACHE"/>
+            <item name="Feature Requests" href="https://jira.terracotta.org/jira/browse/EHCACHE"/>
             <item name="Who's Using?" href="/who_is_using.html"/>
             <item name="Development Roadmap" href="/roadmap.html"/>
             <item name="Maintainer's blog" href="http://gregluck.com/blog"/>
+            <item name="Twitter" href="http://twitter.com/ehcache"/>
             <item name="Ehcache Merchandise" href="http://cafepress.com/ehcache"/>
         </menu>
 
