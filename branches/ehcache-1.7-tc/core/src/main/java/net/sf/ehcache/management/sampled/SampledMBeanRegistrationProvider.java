@@ -68,7 +68,7 @@ public class SampledMBeanRegistrationProvider implements
      */
     public void initialize(CacheManager cacheManagerParam) {
         this.cacheManager = cacheManagerParam;
-        SampledCacheManagerMBean cacheManagerMBean = new SampledCacheManagerMBeanImpl(
+        SampledCacheManager cacheManagerMBean = new SampledCacheManager(
                 cacheManager);
         try {
 
@@ -103,7 +103,7 @@ public class SampledMBeanRegistrationProvider implements
     private void registerCacheMBean(Ehcache cache)
             throws InstanceAlreadyExistsException, MBeanRegistrationException,
             NotCompliantMBeanException {
-        SampledCacheMBean terracottaCacheMBean = new SampledCacheMBeanImpl(
+        SampledCache terracottaCacheMBean = new SampledCache(
                 cache);
         try {
             this.mBeanServer.registerMBean(terracottaCacheMBean,

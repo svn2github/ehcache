@@ -27,7 +27,7 @@ import net.sf.ehcache.statistics.SampledCacheUsageStatistics;
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class SampledCacheMBeanImpl implements SampledCacheMBean {
+public class SampledCache implements SampledCacheMBean {
 
     private final Ehcache cache;
     private final SampledCacheUsageStatistics sampledCacheUsageStatistics;
@@ -37,7 +37,7 @@ public class SampledCacheMBeanImpl implements SampledCacheMBean {
      * 
      * @param cache
      */
-    public SampledCacheMBeanImpl(Ehcache cache) {
+    public SampledCache(Ehcache cache) {
         this.cache = cache;
         this.sampledCacheUsageStatistics = cache
                 .getSampledCacheUsageStatistics();

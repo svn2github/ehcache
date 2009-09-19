@@ -15,7 +15,7 @@
  */
 package net.sf.ehcache.management.provider;
 
-import net.sf.ehcache.util.ClassLoaderUtil;
+import net.sf.ehcache.management.sampled.SampledMBeanRegistrationProvider;
 
 /**
  * Defult implementation of {@link MBeanRegistrationProvider}
@@ -28,6 +28,11 @@ import net.sf.ehcache.util.ClassLoaderUtil;
 public class MBeanRegistrationProviderFactoryImpl implements
         MBeanRegistrationProviderFactory {
 
+    /**
+     * System property that defines if sampled mbeans should be used or not.
+     */
+    public static final String USE_SAMPLED_MBEANS_PROP_NAME = "net.sf.ehcache.jmx.use-sampled-mbeans";
+
     private static final MBeanRegistrationProvider DEFAULT_PROVIDER = new NullMBeanRegistrationProvider();
 
     /**
@@ -35,15 +40,22 @@ public class MBeanRegistrationProviderFactoryImpl implements
      */
     public MBeanRegistrationProvider createMBeanRegistrationProvider() {
         MBeanRegistrationProvider provider;
-        try {
-            Class providerClass = ClassLoaderUtil
-                    .loadClass("org.terracotta.modules.ehcache.jmx.SampledMBeanRegistrationProvider");
-            provider = (MBeanRegistrationProvider) ClassLoaderUtil
-                    .createNewInstance(providerClass.getName());
-        } catch (ClassNotFoundException cnfe) {
+        if (useSampledMBeans(false)) {
+            provider = new SampledMBeanRegistrationProvider();
+        } else {
             provider = DEFAULT_PROVIDER;
         }
         return provider;
+    }
+
+    private boolean useSampledMBeans(boolean defaultValue) {
+        // temporary hack, probably should come from config or always return
+        // true?
+        String prop = System.getProperty(USE_SAMPLED_MBEANS_PROP_NAME);
+        if (prop == null || "".equals(prop.trim())) {
+            return defaultValue;
+        }
+        return "true".equalsIgnoreCase(prop);
     }
 
 }

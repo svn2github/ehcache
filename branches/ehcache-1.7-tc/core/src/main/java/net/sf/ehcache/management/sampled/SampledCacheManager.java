@@ -26,7 +26,7 @@ import net.sf.ehcache.CacheManager;
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class SampledCacheManagerMBeanImpl implements SampledCacheManagerMBean {
+public class SampledCacheManager implements SampledCacheManagerMBean {
 
     private final CacheManager cacheManager;
 
@@ -35,7 +35,7 @@ public class SampledCacheManagerMBeanImpl implements SampledCacheManagerMBean {
      * 
      * @param cacheManager
      */
-    public SampledCacheManagerMBeanImpl(CacheManager cacheManager) {
+    public SampledCacheManager(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
     }
 
