@@ -16,6 +16,11 @@
 
 package net.sf.ehcache.constructs.blocking;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -30,11 +35,9 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
-
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import net.sf.ehcache.statistics.CacheUsageListener;
+import net.sf.ehcache.statistics.CacheUsageStatistics;
+import net.sf.ehcache.statistics.SampledCacheUsageStatistics;
 
 
 /**
@@ -188,6 +191,7 @@ public class BlockingCache implements Ehcache {
      * @return an object of type {@link net.sf.ehcache.Cache}
      * @throws CloneNotSupportedException
      */
+    @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
@@ -349,6 +353,14 @@ public class BlockingCache implements Ehcache {
      */
     public Statistics getStatistics() throws IllegalStateException {
         return cache.getStatistics();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public CacheUsageStatistics getCacheUsageStatistics()
+            throws IllegalStateException {
+        return cache.getCacheUsageStatistics();
     }
 
     /**
@@ -794,6 +806,14 @@ public class BlockingCache implements Ehcache {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public int getSizeBasedOnAccuracy(int statisticsAccuracy)
+            throws IllegalStateException, CacheException {
+        return cache.getSizeBasedOnAccuracy(statisticsAccuracy);
+    }
+
+    /**
      * Gets the size of the memory store for this cache
      * <p/>
      * Warning: This method can be very expensive to run. Allow approximately 1 second
@@ -1027,6 +1047,42 @@ public class BlockingCache implements Ehcache {
         cache.setDisabled(disabled);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void registerCacheUsageListener(CacheUsageListener cacheUsageListener)
+            throws IllegalStateException {
+        cache.registerCacheUsageListener(cacheUsageListener);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void removeCacheUsageListener(CacheUsageListener cacheUsageListener)
+            throws IllegalStateException {
+        cache.removeCacheUsageListener(cacheUsageListener);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isStatisticsEnabled() {
+        return cache.isStatisticsEnabled();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setStatisticsEnabled(boolean enabledStatistics) {
+        cache.setStatisticsEnabled(enabledStatistics);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public SampledCacheUsageStatistics getSampledCacheUsageStatistics() {
+        return cache.getSampledCacheUsageStatistics();
+    }
 
 }
 

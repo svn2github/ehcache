@@ -39,6 +39,10 @@ import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.event.CacheManagerEventListenerRegistry;
+import net.sf.ehcache.management.provider.MBeanRegistrationProvider;
+import net.sf.ehcache.management.provider.MBeanRegistrationProviderException;
+import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactory;
+import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactoryImpl;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.UpdateChecker;
@@ -137,6 +141,8 @@ public class CacheManager {
      * The path for the directory in which disk caches are created.
      */
     private String diskStorePath;
+    
+    private MBeanRegistrationProviderFactory mBeanRegistrationProviderFactory = new MBeanRegistrationProviderFactoryImpl();
 
     private Timer updateCheckTimer;
 
@@ -261,6 +267,27 @@ public class CacheManager {
         //do this last
         addConfiguredCaches(configurationHelper);
 
+        MBeanRegistrationProvider provider = mBeanRegistrationProviderFactory.createMBeanRegistrationProvider();
+        try {
+            if (registerMBeansByDefault(false)) {
+                provider.initialize(this);
+            }
+        } catch (MBeanRegistrationProviderException e) {
+          LOG.log(Level.WARNING, "Failed to initialize the MBeanRegistrationProvider - " + provider.getClass().getName(), e);
+        }
+    }
+
+    private boolean registerMBeansByDefault(final boolean defaultValue) {
+      //XXX: Should this come from config instead of sys-prop?
+        String prop = System
+                .getProperty(MBeanRegistrationProvider.REGISTER_MBEANS_BY_DEFAULT_PROP_NAME);
+        if (prop == null || prop.trim().equals("")) {
+            return defaultValue;
+        }
+        if ("true".equalsIgnoreCase(prop)) {
+            return true;
+        }
+        return false;
     }
 
     private void checkForUpdateIfNeeded(boolean updateCheckNeeded) {
