@@ -146,7 +146,7 @@
                 <version>1.0-beta-3</version>
                 <executions>
                   <execution>
-                    <phase>generate-resources</phase>
+                    <phase>gernate-resources</phase>
                     <goals>
                       <goal>create</goal>
                     </goals>
@@ -223,6 +223,7 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <tasks>
+                                <mkdir dir="${project.build.directory}"/>
                                 <tstamp>
                                       <format property="last.updated"
                                             pattern="yyyy-MM-dd hh:mm:ss"/>
