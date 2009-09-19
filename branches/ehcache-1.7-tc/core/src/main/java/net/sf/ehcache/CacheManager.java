@@ -31,6 +31,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.ConfigurationHelper;
@@ -44,6 +45,8 @@ import net.sf.ehcache.management.provider.MBeanRegistrationProviderException;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactory;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactoryImpl;
 import net.sf.ehcache.store.DiskStore;
+import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.StoreFactory;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.UpdateChecker;
 
@@ -141,10 +144,15 @@ public class CacheManager {
      * The path for the directory in which disk caches are created.
      */
     private String diskStorePath;
-    
+
     private MBeanRegistrationProviderFactory mBeanRegistrationProviderFactory = new MBeanRegistrationProviderFactoryImpl();
 
     private Timer updateCheckTimer;
+
+    /**
+     * Factory for creating terracotta clustered memory store (may be null if this manager has no terracotta caches)
+     */
+    private StoreFactory terracottaStoreFactory;
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -251,6 +259,15 @@ public class CacheManager {
             setName(localConfiguration.getName());
         }
 
+
+        Map<String, CacheConfiguration> cacheConfigs = localConfiguration.getCacheConfigurations();
+        for (CacheConfiguration config : cacheConfigs.values()) {
+            if (config.isTerracottaClustered()) {
+                terracottaStoreFactory = TerracottaStoreHelper.newStoreFactory(cacheConfigs);
+                break;
+            }
+        }
+
         ConfigurationHelper configurationHelper = new ConfigurationHelper(this, localConfiguration);
         configure(configurationHelper);
         status = Status.STATUS_ALIVE;
@@ -277,8 +294,23 @@ public class CacheManager {
         }
     }
 
+    /**
+     * Create/access the appropriate terracotta clustered store for the given cache
+     *
+     * @param cache The cache for which the Store should be created
+     * @return a new (or existing) clustered store
+     */
+    Store createTerracottaStore(Ehcache cache) {
+        if (terracottaStoreFactory == null) {
+            // This can happen as a result of user configuration if user is directly using addCache()
+            // (read: this is not an AssertionError)
+            throw new CacheException("no terracotta configuration has been initalized for this cache manager");
+        }
+        return terracottaStoreFactory.create(cache);
+    }
+
     private boolean registerMBeansByDefault(final boolean defaultValue) {
-      //XXX: Should this come from config instead of sys-prop?
+        // XXX: Should this come from config instead of sys-prop?
         String prop = System
                 .getProperty(MBeanRegistrationProvider.REGISTER_MBEANS_BY_DEFAULT_PROP_NAME);
         if (prop == null || prop.trim().equals("")) {
@@ -835,13 +867,13 @@ public class CacheManager {
                     cacheManagerPeerProvider.dispose();
                 }
             }
-            
+
             // turn off update check timer if it was set
             if (updateCheckTimer != null) {
                 updateCheckTimer.cancel();
                 updateCheckTimer.purge();
             }
-            
+
             cacheManagerEventListenerRegistry.dispose();
 
             synchronized (CacheManager.class) {

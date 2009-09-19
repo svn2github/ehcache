@@ -12,7 +12,9 @@
          eternal="true"
          overflowToDisk="false">
 
-         <!-- XXX <terracotta clustered="true"/> -->
+         <terracotta clustered="true"/>
   </cache>
+
+  <!-- XXX: <terracottaConfig/> -->
 
 </ehcache>

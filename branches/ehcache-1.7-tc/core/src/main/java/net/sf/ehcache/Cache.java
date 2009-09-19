@@ -60,8 +60,6 @@ import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.StoreFactory;
-import net.sf.ehcache.util.ClassLoaderUtil;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -207,9 +205,9 @@ public class Cache implements Ehcache {
      * Use {@link #getExecutorService()} to ensure that it is initialised.
      */
     private ThreadPoolExecutor executorService;
-    
+
     private CacheUsageStatisticsData cacheUsageStatisticsData;
-    
+
     private SampledCacheUsageStatistics sampledCacheUsageStatistics;
 
 
@@ -605,7 +603,7 @@ public class Cache implements Ehcache {
         }
 
         this.bootstrapCacheLoader = bootstrapCacheLoader;
-        
+
         TerracottaConfiguration tcConfig = new TerracottaConfiguration();
         tcConfig.setClustered(isTerracottaClustered);
         if (terracottaValueMode != null) {
@@ -636,9 +634,8 @@ public class Cache implements Ehcache {
 
             this.diskStore = createDiskStore();
 
-            // XXX: Should all of this store creation logic be factored into a factory?
-            if (isTerracottaClustered()) {
-                memoryStore = newTerracottaStore();
+            if (configuration.isTerracottaClustered()) {
+                memoryStore = cacheManager.createTerracottaStore(this);
             } else {
                 if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
                     memoryStore = new LruMemoryStore(this, diskStore);
@@ -649,7 +646,7 @@ public class Cache implements Ehcache {
             changeStatus(Status.STATUS_ALIVE);
             initialiseRegisteredCacheExtensions();
             initialiseRegisteredCacheLoaders();
-            
+
             //initialize statistics related stuff
             this.cacheUsageStatisticsData = new CacheUsageStatisticsImpl(this);
             this.cacheUsageStatisticsData
@@ -674,33 +671,6 @@ public class Cache implements Ehcache {
             }
         }
     }
-
-    private Store newTerracottaStore() {
-        Class factoryClass;
-
-        // XXX: Where should these indirect type names to the TC factory impls live?
-        try {
-            factoryClass = ClassLoaderUtil.loadClass("net.sf.ehcache.terracotta.StandaloneTerracottaStoreFactory");
-        } catch (ClassNotFoundException cnfe) {
-            // assume not standalone usage if standalone factory not present
-            try {
-                factoryClass = ClassLoaderUtil.loadClass("org.terracotta.modules.ehcache.store.TerracottaStoreFactory");
-            } catch (ClassNotFoundException e) {
-                // XXX: improve exception message here? A exception here can be caused by missing the TIM jar(s) in your app
-                throw new CacheException("Terracotta cache class not available, missing jar(s) probably", e);
-            }
-        }
-
-        StoreFactory factory = (StoreFactory) ClassLoaderUtil.createNewInstance(factoryClass.getName());
-        return factory.create(this);
-    }
-
-
-    private boolean isTerracottaClustered() {
-        // XXX: ??? return configuration.isTerracottaClustered();
-        return Boolean.getBoolean("tc-ehcache-clustered");
-    }
-
 
     /**
      * Creates a disk store when either:

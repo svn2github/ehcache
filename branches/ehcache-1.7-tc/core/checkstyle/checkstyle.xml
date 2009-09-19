@@ -222,7 +222,7 @@
             <property name="max" value="12"/>
         </module>
         <module name="ClassFanOutComplexity">
-            <property name="max" value="35"/>
+            <property name="max" value="36"/>
         </module>
         <module name="CyclomaticComplexity">
             <property name="severity" value="error"/>
