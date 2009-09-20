@@ -25,7 +25,7 @@
   <dependencies>
     <dependency>
       <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache-terracotta</artifactId>
+      <artifactId>ehcache-terracotta-bootstrap</artifactId>
       <version>1.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
