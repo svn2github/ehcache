@@ -307,19 +307,6 @@ public class CacheManager {
         return terracottaStoreFactory.create(cache);
     }
 
-    private boolean registerMBeansByDefault(final boolean defaultValue) {
-        // XXX: Should this come from config instead of sys-prop?
-        String prop = System
-                .getProperty(MBeanRegistrationProvider.REGISTER_MBEANS_BY_DEFAULT_PROP_NAME);
-        if (prop == null || prop.trim().equals("")) {
-            return defaultValue;
-        }
-        if ("true".equalsIgnoreCase(prop)) {
-            return true;
-        }
-        return false;
-    }
-
     private void checkForUpdateIfNeeded(boolean updateCheckNeeded) {
         try {
             if (updateCheckNeeded) {
