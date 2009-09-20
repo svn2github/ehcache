@@ -78,7 +78,7 @@ public interface CacheUsageListener {
      * 
      * @param millis
      */
-    public void notifyTimeTakenForGet(final int millis);
+    public void notifyTimeTakenForGet(final long millis);
 
     /**
      * Called when an element is expired in the cache

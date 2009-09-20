@@ -62,7 +62,7 @@ public interface CacheUsageStatisticsData extends CacheEventListener {
      * 
      * @param millis
      */
-    public void addGetTimeMillis(final int millis);
+    public void addGetTimeMillis(final long millis);
 
     /**
      * Called when an element is expired in the cache

@@ -47,6 +47,7 @@ import net.sf.ehcache.distribution.RMIAsynchronousCacheReplicator;
 import net.sf.ehcache.distribution.RMIBootstrapCacheLoader;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
+import net.sf.ehcache.statistics.CacheUsageStatisticsData;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.Store;
 
@@ -308,6 +309,10 @@ public class CacheManagerTest {
      * <p/>
      * ehcache-1.2.3 had 126 threads for this test. ehcache-1.2.4 has 71. 70 for
      * the DiskStore thread and one shutdown hook
+     * <p />
+     * ehcache-1.7 has 1 additional thread per cache for
+     * SampledCacheUsageStatistics. 70 Caches means 140 threads plus 1 for
+     * shutdown totalling to 141. Plus Junit thread totals 142.
      */
     @Test
     public void testCacheManagerThreads() throws CacheException,
@@ -315,7 +320,7 @@ public class CacheManagerTest {
         singletonManager = CacheManager
                 .create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-big.xml");
         int threads = countThreads();
-        assertTrue("More than 75 threads: " + threads, countThreads() <= 75);
+        assertTrue("More than 145 threads: " + threads, countThreads() <= 145);
     }
 
     /**
@@ -520,6 +525,7 @@ public class CacheManagerTest {
 
     /**
      * Tests we can add caches from the default where the default has listeners.
+     * Since 1.7, a CacheUsageStatisticsData is also registered.
      */
     @Test
     public void testAddCacheFromDefaultWithListeners() throws CacheException {
@@ -534,11 +540,12 @@ public class CacheManagerTest {
 
         Set listeners = cache.getCacheEventNotificationService()
                 .getCacheEventListeners();
-        assertEquals(1, listeners.size());
+        assertEquals(2, listeners.size());
         for (Iterator iterator = listeners.iterator(); iterator.hasNext();) {
             CacheEventListener cacheEventListener = (CacheEventListener) iterator
                     .next();
-            assertTrue(cacheEventListener instanceof RMIAsynchronousCacheReplicator);
+            assertTrue(cacheEventListener instanceof RMIAsynchronousCacheReplicator
+                    || cacheEventListener instanceof CacheUsageStatisticsData);
         }
     }
 

@@ -35,7 +35,7 @@ import net.sf.ehcache.Element;
 public class CacheUsageStatisticsImpl implements CacheUsageStatistics,
         CacheUsageStatisticsData {
 
-    private final AtomicBoolean statisticsEnabled = new AtomicBoolean();
+    private final AtomicBoolean statisticsEnabled = new AtomicBoolean(true);
     private final AtomicLong cacheHitInMemoryCount = new AtomicLong();
     private final AtomicLong cacheHitOnDiskCount = new AtomicLong();
     private final AtomicLong cacheMissNotFound = new AtomicLong();
@@ -100,7 +100,7 @@ public class CacheUsageStatisticsImpl implements CacheUsageStatistics,
     /**
      * {@inheritDoc}
      */
-    public void addGetTimeMillis(int millis) {
+    public void addGetTimeMillis(long millis) {
         if (!statisticsEnabled.get()) {
             return;
         }

@@ -92,7 +92,7 @@ public class SampledCacheUsageStatisticsImpl implements CacheUsageListener,
         averageGetTime = (SampledRateCounter) counterManager
                 .createCounter(sampledRateCounterConfig);
 
-        statisticsEnabled = new AtomicBoolean();
+        statisticsEnabled = new AtomicBoolean(true);
         statisticsAccuracy = new AtomicInteger();
     }
 
@@ -178,7 +178,7 @@ public class SampledCacheUsageStatisticsImpl implements CacheUsageListener,
     /**
      * {@inheritDoc}
      */
-    public void notifyTimeTakenForGet(int millis) {
+    public void notifyTimeTakenForGet(long millis) {
         if (!statisticsEnabled.get()) {
             return;
         }

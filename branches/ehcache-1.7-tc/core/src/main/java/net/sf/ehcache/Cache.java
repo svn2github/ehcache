@@ -35,7 +35,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,6 +51,8 @@ import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.CacheUsageStatistics;
 import net.sf.ehcache.statistics.CacheUsageStatisticsData;
 import net.sf.ehcache.statistics.CacheUsageStatisticsImpl;
+import net.sf.ehcache.statistics.NullCacheUsageStatisticsData;
+import net.sf.ehcache.statistics.NullSampledCacheUsageStatistics;
 import net.sf.ehcache.statistics.SampledCacheUsageStatistics;
 import net.sf.ehcache.statistics.SampledCacheUsageStatisticsImpl;
 import net.sf.ehcache.store.DiskStore;
@@ -186,8 +187,6 @@ public class Cache implements Ehcache {
 
     private BootstrapCacheLoader bootstrapCacheLoader;
 
-    private AtomicLong totalGetTime = new AtomicLong();
-
     private CacheExceptionHandler cacheExceptionHandler;
 
     private List<CacheLoader> registeredCacheLoaders;
@@ -206,9 +205,9 @@ public class Cache implements Ehcache {
      */
     private ThreadPoolExecutor executorService;
 
-    private CacheUsageStatisticsData cacheUsageStatisticsData;
+    private volatile CacheUsageStatisticsData cacheUsageStatisticsData;
 
-    private SampledCacheUsageStatistics sampledCacheUsageStatistics;
+    private volatile SampledCacheUsageStatistics sampledCacheUsageStatistics;
 
 
     /**
@@ -610,6 +609,10 @@ public class Cache implements Ehcache {
             tcConfig.setValueMode(terracottaValueMode);
         }
         configuration.addTerracotta(tcConfig);
+        
+        //initialize to null-impl values
+        cacheUsageStatisticsData = new NullCacheUsageStatisticsData(name);
+        sampledCacheUsageStatistics = new NullSampledCacheUsageStatistics();
     }
 
     /**
@@ -922,7 +925,7 @@ public class Cache implements Ehcache {
         }
         //todo is this expensive. Maybe ditch.
         long end = System.currentTimeMillis();
-        totalGetTime.getAndSet(totalGetTime.get()  + (end - start));
+        cacheUsageStatisticsData.addGetTimeMillis(end - start);
         return element;
     }
 

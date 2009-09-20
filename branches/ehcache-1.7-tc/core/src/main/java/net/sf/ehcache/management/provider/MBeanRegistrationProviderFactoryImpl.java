@@ -28,11 +28,6 @@ import net.sf.ehcache.management.sampled.SampledMBeanRegistrationProvider;
 public class MBeanRegistrationProviderFactoryImpl implements
         MBeanRegistrationProviderFactory {
 
-    /**
-     * System property that defines if sampled mbeans should be used or not.
-     */
-    public static final String USE_SAMPLED_MBEANS_PROP_NAME = "net.sf.ehcache.jmx.use-sampled-mbeans";
-
     private static final MBeanRegistrationProvider DEFAULT_PROVIDER = new NullMBeanRegistrationProvider();
 
     /**
@@ -40,7 +35,7 @@ public class MBeanRegistrationProviderFactoryImpl implements
      */
     public MBeanRegistrationProvider createMBeanRegistrationProvider() {
         MBeanRegistrationProvider provider;
-        if (useSampledMBeans(false)) {
+        if (registerMBeansByDefault(false)) {
             provider = new SampledMBeanRegistrationProvider();
         } else {
             provider = DEFAULT_PROVIDER;
@@ -48,14 +43,17 @@ public class MBeanRegistrationProviderFactoryImpl implements
         return provider;
     }
 
-    private boolean useSampledMBeans(boolean defaultValue) {
-        // temporary hack, probably should come from config or always return
-        // true?
-        String prop = System.getProperty(USE_SAMPLED_MBEANS_PROP_NAME);
-        if (prop == null || "".equals(prop.trim())) {
+    private boolean registerMBeansByDefault(final boolean defaultValue) {
+        // XXX: Should this come from config instead of sys-prop?
+        String prop = System
+                .getProperty(MBeanRegistrationProvider.REGISTER_MBEANS_BY_DEFAULT_PROP_NAME);
+        if (prop == null || prop.trim().equals("")) {
             return defaultValue;
         }
-        return "true".equalsIgnoreCase(prop);
+        if ("true".equalsIgnoreCase(prop)) {
+            return true;
+        }
+        return false;
     }
 
 }

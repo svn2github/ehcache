@@ -286,9 +286,7 @@ public class CacheManager {
 
         MBeanRegistrationProvider provider = mBeanRegistrationProviderFactory.createMBeanRegistrationProvider();
         try {
-            if (registerMBeansByDefault(false)) {
-                provider.initialize(this);
-            }
+            provider.initialize(this);
         } catch (MBeanRegistrationProviderException e) {
           LOG.log(Level.WARNING, "Failed to initialize the MBeanRegistrationProvider - " + provider.getClass().getName(), e);
         }

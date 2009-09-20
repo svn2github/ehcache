@@ -16,8 +16,13 @@
 
 package net.sf.ehcache.event;
 
+import java.util.Iterator;
+
+import junit.framework.Assert;
+
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.statistics.CacheUsageStatisticsData;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +42,7 @@ public class ProgrammaticallyCreatedCacheEventListenerTest extends CacheEventLis
      *
      * @throws Exception
      */
+    @Override
     @Before
     public void setUp() throws Exception {
         CountingCacheEventListener.resetCounters();
@@ -49,22 +55,49 @@ public class ProgrammaticallyCreatedCacheEventListenerTest extends CacheEventLis
 
     /**
      * An instance that <code>equals</code> one already registered is ignored
+     * <p />
+     * Since ehcache-1.7, there is a defaut CacheUsageStatisticsData listener
      */
     @Test
     public void testAttemptDoubleRegistrationOfSameInstance() {
-        cache.getCacheEventNotificationService().registerListener(countingCacheEventListener);
-        //should just be the one from setUp
-        assertEquals(1, cache.getCacheEventNotificationService().getCacheEventListeners().size());
+        cache.getCacheEventNotificationService().registerListener(
+                countingCacheEventListener);
+        // should just be the one from setUp
+        assertEquals(2, cache.getCacheEventNotificationService()
+                .getCacheEventListeners().size());
+        for (Iterator<CacheEventListener> iter = cache
+                .getCacheEventNotificationService().getCacheEventListeners()
+                .iterator(); iter.hasNext();) {
+            CacheEventListener next = iter.next();
+            Assert.assertTrue(next instanceof CacheUsageStatisticsData
+                    || next instanceof CountingCacheEventListener);
+        }
     }
 
     /**
      * An new instance of the same class will be registered
+     * <p />
+     * Since ehcache-1.7, there is a defaut CacheUsageStatisticsData listener
      */
     @Test
     public void testAttemptDoubleRegistrationOfSeparateInstance() {
-        cache.getCacheEventNotificationService().registerListener(new CountingCacheEventListener());
-        //should just be the one from setUp
-        assertEquals(2, cache.getCacheEventNotificationService().getCacheEventListeners().size());
+        cache.getCacheEventNotificationService().registerListener(
+                new CountingCacheEventListener());
+        // should just be the one from setUp
+        assertEquals(3, cache.getCacheEventNotificationService()
+                .getCacheEventListeners().size());
+        int count = 0;
+        for (Iterator<CacheEventListener> iter = cache
+                .getCacheEventNotificationService().getCacheEventListeners()
+                .iterator(); iter.hasNext();) {
+            CacheEventListener next = iter.next();
+            Assert.assertTrue(next instanceof CacheUsageStatisticsData
+                    || next instanceof CountingCacheEventListener);
+            if (next instanceof CountingCacheEventListener) {
+                count++;
+            }
+        }
+        assertEquals(2, count);
     }
 
 
