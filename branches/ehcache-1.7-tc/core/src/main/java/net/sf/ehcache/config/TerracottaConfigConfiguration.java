@@ -63,7 +63,10 @@ public class TerracottaConfigConfiguration implements Cloneable {
     final public String getEmbeddedConfig() {
         return this.embeddedConfig;
     }
-    
+
+    /**
+     * Helper to check whether this is url config or embedded config
+     */
     final public boolean isUrlConfig() {
         return this.url != null;
     }
