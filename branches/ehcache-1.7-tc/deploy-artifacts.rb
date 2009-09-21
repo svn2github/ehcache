@@ -51,7 +51,8 @@ MODULES.each do |mod|
             maven_deploy_command = MavenCommand.new do
                 self.pom = module_pom
                 self.target = 'deploy'
-                self.args = ['-Dmaven.test.skip=true', '-Dmaven.clover.skip=true', '-Dcheckstyle.skip=true']
+                self.args = ['-Dmaven.test.skip=true', '-Dmaven.clover.skip=true', '-Dcheckstyle.skip=true',
+                             "-P '!system-tests'"]
                 if repo.url
                     self.args << "-DaltDeploymentRepository=#{repo.id}::default::#{repo.url}"
                 end
