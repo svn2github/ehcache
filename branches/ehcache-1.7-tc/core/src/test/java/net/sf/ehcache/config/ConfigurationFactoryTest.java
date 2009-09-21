@@ -17,31 +17,11 @@
 
 package net.sf.ehcache.config;
 
-import net.sf.ehcache.AbstractCacheTest;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
-import net.sf.ehcache.distribution.CacheManagerPeerListener;
-import net.sf.ehcache.distribution.CacheManagerPeerProvider;
-import net.sf.ehcache.distribution.MulticastRMICacheManagerPeerProvider;
-import net.sf.ehcache.distribution.RMIAsynchronousCacheReplicator;
-import net.sf.ehcache.distribution.RMIBootstrapCacheLoader;
-import net.sf.ehcache.distribution.RMICacheManagerPeerListener;
-import net.sf.ehcache.event.CacheEventListener;
-import net.sf.ehcache.event.CacheManagerEventListener;
-import net.sf.ehcache.event.CountingCacheEventListener;
-import net.sf.ehcache.event.CountingCacheManagerEventListener;
-import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
-import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -61,6 +41,28 @@ import java.util.jar.JarOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
+
+import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.distribution.CacheManagerPeerListener;
+import net.sf.ehcache.distribution.CacheManagerPeerProvider;
+import net.sf.ehcache.distribution.MulticastRMICacheManagerPeerProvider;
+import net.sf.ehcache.distribution.RMIAsynchronousCacheReplicator;
+import net.sf.ehcache.distribution.RMIBootstrapCacheLoader;
+import net.sf.ehcache.distribution.RMICacheManagerPeerListener;
+import net.sf.ehcache.event.CacheEventListener;
+import net.sf.ehcache.event.CacheManagerEventListener;
+import net.sf.ehcache.event.CountingCacheEventListener;
+import net.sf.ehcache.event.CountingCacheManagerEventListener;
+import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
+import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
+
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Tests for Store Configuration
@@ -1111,6 +1113,67 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
       assertEquals(true, sampleCache4.getCacheConfiguration().isTerracottaClustered());
       assertEquals(TerracottaConfiguration.ValueMode.IDENTITY, 
               sampleCache4.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
+      
+      // <terracottaConfig>
+      //  <url>localhost:9510</url>
+      // </terracottaConfig>
+      TerracottaConfigConfiguration tcConfig = configuration.getTerracottaConfiguration();
+      assertNotNull(tcConfig);
+      assertEquals("localhost:9510", tcConfig.getUrl());
     }
 
+    
+    /**
+     * Test tc-config embedded in ehcache.xml
+     */
+    @Test
+    public void testTerracottaEmbeddedConfig() {
+      File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-tc-embedded.xml");
+      Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+      ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+
+      assertEquals("tc", configurationHelper.getConfigurationBean().getName());
+      assertEquals(false, configurationHelper.getConfigurationBean().getUpdateCheck());
+
+      //Check default cache
+      Ehcache defaultCache = configurationHelper.createDefaultCache();
+      assertEquals("default", defaultCache.getName());
+      assertEquals(false, defaultCache.getCacheConfiguration().isEternal());
+      assertEquals(5, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
+      assertEquals(10, defaultCache.getCacheConfiguration().getTimeToLiveSeconds());
+      assertEquals(false, defaultCache.getCacheConfiguration().isOverflowToDisk());
+      assertEquals(10, defaultCache.getCacheConfiguration().getMaxElementsInMemory());
+      assertEquals(0, defaultCache.getCacheConfiguration().getMaxElementsOnDisk());
+      assertEquals(true, defaultCache.getCacheConfiguration().isTerracottaClustered());
+
+      //Check caches
+      assertEquals(1, configurationHelper.createCaches().size());
+
+      //  <cache name="clustered-1"
+      //   maxElementsInMemory="1000"
+      //   memoryStoreEvictionPolicy="LFU">
+      //   <terracotta/>
+      //  </cache>
+      Ehcache sampleCache1 = configurationHelper.createCacheFromName("clustered-1");
+      assertEquals("clustered-1", sampleCache1.getName());
+      assertEquals(true, sampleCache1.getCacheConfiguration().isTerracottaClustered());
+      assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION, 
+                  sampleCache1.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
+            
+      // <terracottaConfig>
+      //  <tc-config> ... </tc-config>
+      // </terracottaConfig>
+      TerracottaConfigConfiguration tcConfig = configuration.getTerracottaConfiguration();
+      assertNotNull(tcConfig);
+      assertEquals(null, tcConfig.getUrl());
+      String embeddedConfig = tcConfig.getEmbeddedConfig();
+      assertEquals("<tc-config> <servers> <server host=\"server1\" name=\"s1\"></server> " + 
+              "<server host=\"server2\" name=\"s2\"></server> </servers> " + 
+              "<clients> <logs>app/logs-%i</logs> </clients> </tc-config>", 
+              removeLotsOfWhitespace(tcConfig.getEmbeddedConfig()));
+    }
+    
+    private String removeLotsOfWhitespace(String str) {
+        return str.replace("\t", "").replace("\r", "").replace("\n", "").replaceAll("\\s+", " ");
+    }
 }

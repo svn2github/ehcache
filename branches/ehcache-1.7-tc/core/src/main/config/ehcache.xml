@@ -276,27 +276,21 @@ for new versions of Ehcache over the Internet.  If not specified, updateCheck="t
     Configuration can be specified in two main ways: by reference to a source of 
     configuration or by use of an embedded Terracotta configuration file.
     
-    To specify a reference to a source (or sources) of configuration, use the <url> 
-    element.  The <url> element must contain a comma-separated list of:
+    To specify a reference to a source (or sources) of configuration, use the url 
+    attribute.  The url attribute must contain a comma-separated list of:
     * path to Terracotta configuration file (usually named tc-config.xml)
     * URL to Terracotta configuration file
     * <server host>:<port> of running Terracotta Server instance
     
     Example using a path to Terracotta configuration file:
-    <terracottaConfig>
-        <url>/app/config/tc-config.xml</url>
-    </terracottaConfig>
+    <terracottaConfig url="/app/config/tc-config.xml"/>
     
     Example using a URL to a Terracotta configuration file:
-    <terracottaConfig>
-        <url>/app/config/tc-config.xml</url>
-    </terracottaConfig>
-
-    Example using multiple Terracotta server instance URLs (for fault tolerance):
-    <terracottaConfig>
-        <url>host1:9510,host2:9510,host3:9510</url>
-    </terracottaConfig>
+    <terracottaConfig url="http://internal/ehcache/app/tc-config.xml"/>
     
+    Example using multiple Terracotta server instance URLs (for fault tolerance):
+    <terracottaConfig url="host1:9510,host2:9510,host3:9510"/>
+
     To embed a Terracotta configuration file within the ehcache configuration, simply 
     place a normal Terracotta XML config within the <terracottaConfig> element.
     
@@ -314,13 +308,7 @@ for new versions of Ehcache over the Internet.  If not specified, updateCheck="t
     </terracottaConfig>
     
     For more information on the Terracotta configuration, see the Terracotta documentation.
-     -->
-
-<!-- 
-    <terracottaConfig>
-        <url>server:9510</url>
-    </terracottaConfig>
--->
+    -->
 
     <!--
     Cache configuration

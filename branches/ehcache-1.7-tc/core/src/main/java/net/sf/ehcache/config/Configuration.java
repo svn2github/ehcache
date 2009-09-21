@@ -39,6 +39,7 @@ public final class Configuration {
     private List<FactoryConfiguration> cacheManagerPeerProviderFactoryConfiguration = new ArrayList<FactoryConfiguration>();
     private List<FactoryConfiguration> cacheManagerPeerListenerFactoryConfiguration = new ArrayList<FactoryConfiguration>();
     private FactoryConfiguration cacheManagerEventListenerFactoryConfiguration;
+    private TerracottaConfigConfiguration terracottaConfigConfiguration;
     private final Map cacheConfigurations = new HashMap();
     private String configurationSource;
 
@@ -117,7 +118,13 @@ public final class Configuration {
         cacheManagerPeerListenerFactoryConfiguration.add(factory);
     }
 
-
+    /**
+     * Allows BeanHandler to add a Terracotta configuration to the configuration
+     */
+    public final void addTerracottaConfig(TerracottaConfigConfiguration terracottaConfiguration) {
+        this.terracottaConfigConfiguration = terracottaConfiguration;
+    }
+    
     /**
      * Allows BeanHandler to add a default configuration to the configuration.
      */
@@ -191,6 +198,13 @@ public final class Configuration {
      */
     public final FactoryConfiguration getCacheManagerEventListenerFactoryConfiguration() {
         return cacheManagerEventListenerFactoryConfiguration;
+    }
+
+    /**
+     * Gets the TerracottaConfigConfiguration
+     */
+    public final TerracottaConfigConfiguration getTerracottaConfiguration() {
+        return this.terracottaConfigConfiguration;
     }
 
     /**

@@ -44,5 +44,6 @@
            <terracotta valueMode="identity"/>
     </cache>
     
+    <terracottaConfig url="localhost:9510"/>
 
 </ehcache>

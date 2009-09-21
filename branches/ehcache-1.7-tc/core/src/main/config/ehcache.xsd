@@ -11,7 +11,7 @@
                 <xs:element minOccurs="0" maxOccurs="unbounded"
                             ref="cacheManagerPeerListenerFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1"
-                            ref="clusteredCacheConfig"/>
+                            ref="terracottaConfig"/>
                 <xs:element ref="defaultCache"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cache"/>
             </xs:sequence>
@@ -46,27 +46,16 @@
         </xs:complexType>
     </xs:element>
     <xs:element name="terracottaConfig">
-        <xsd:choice minOccurs="1" maxOccurs="1">
-            <xsd:element name="tc-config">
-                <xsd:annotation>
-                    <xsd:documentation>
-                    Allows a complete tc-config.xml to be embedded
-                    </xsd:documentation>
-                </xsd:annotation>
+        <xs:complexType>
+            <xsd:element name="tc-config" minOccurs="0" maxOccurs="1">
                 <xsd:complexType>
                     <xsd:sequence>
-                        <xsd:any minOccurs="0" maxOccurs="unbounded" processContents='skip' />
+                        <xsd:any minOccurs="0" maxOccurs="unbounded" processContents="skip" />
                     </xsd:sequence>
                 </xsd:complexType>        
             </xsd:element>
-            <xsd:element name="url" type="xsd:string">
-                <xsd:annotation>
-                    <xsd:documentation>
-                    Accepts any value that the "tc.config" system property allows
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-        </xsd:choice> 
+            <xs:attribute name="url" use="optional" default="localhost:9510"/>
+        </xs:complexType>
     </xs:element>    
     <!-- add clone support for addition of cacheExceptionHandler. Important! -->
     <xs:element name="defaultCache">
