@@ -32,7 +32,7 @@ import net.sf.ehcache.CacheException;
  * Based on the lock striping concept from Brian Goetz. See Java Concurrency in Practice 11.4.3
  * @author Greg Luck
  */
-public class StripedMutex {
+public class StripedMutex implements StripedSync {
 
 
     /**
@@ -88,7 +88,7 @@ public class StripedMutex {
      * @param key the key
      * @return one of a limited number of Mutexes.
      */
-    public Mutex getMutexForKey(final Object key) {
+    public Sync getSyncForKey(final Object key) {
         int lockNumber = ConcurrencyUtil.selectLock(key, numberOfStripes);
         return mutexes[lockNumber];
     }

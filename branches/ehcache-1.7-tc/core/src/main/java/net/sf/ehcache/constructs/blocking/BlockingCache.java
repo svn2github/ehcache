@@ -28,8 +28,9 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
-import net.sf.ehcache.concurrent.Mutex;
 import net.sf.ehcache.concurrent.StripedMutex;
+import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.concurrent.StripedSync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
@@ -48,7 +49,7 @@ import net.sf.ehcache.statistics.SampledCacheUsageStatistics;
  * <p/>
  * This is useful for constructing read-through or self-populating caches.
  * <p/>
- * This implementation uses the {@link Mutex} class from Doug Lea's concurrency package. If you wish to use
+ * This implementation uses the {@link net.sf.ehcache.concurrent.Mutex} class from Doug Lea's concurrency package. If you wish to use
  * this class, you will need the concurrent package in your class path.
  * <p/>
  * It features:
@@ -104,12 +105,12 @@ public class BlockingCache implements Ehcache {
     /**
      * The amount of time to block a thread before a LockTimeoutException is thrown
      */
-    protected int timeoutMillis;
+    protected volatile int timeoutMillis;
 
     /**
      * locks
      */
-    protected StripedMutex stripedMutex;
+    protected final StripedSync stripedSync;
 
     /**
      * Creates a BlockingCache which decorates the supplied cache.
@@ -122,7 +123,12 @@ public class BlockingCache implements Ehcache {
      */
     public BlockingCache(final Ehcache cache, int numberOfStripes) throws CacheException {
         this.cache = cache;
-        this.stripedMutex = new StripedMutex(numberOfStripes);
+        if (cache.getCacheConfiguration().isTerracottaClustered()) {
+            // todo inject our implementation here
+            this.stripedSync = null;
+        } else {
+            this.stripedSync = new StripedMutex(numberOfStripes);
+        }
     }
 
     /**
@@ -133,8 +139,7 @@ public class BlockingCache implements Ehcache {
      * @since 1.6.1
      */
     public BlockingCache(final Ehcache cache) throws CacheException {
-        this.cache = cache;
-        this.stripedMutex = new StripedMutex();
+        this(cache, StripedMutex.DEFAULT_NUMBER_OF_MUTEXES);
     }
 
     /**
@@ -456,7 +461,7 @@ public class BlockingCache implements Ehcache {
      *                              to release the lock acquired.
      */
     public Element get(final Object key) throws RuntimeException, LockTimeoutException {
-        Mutex lock = getLockForKey(key);
+        Sync lock = getLockForKey(key);
         try {
             if (timeoutMillis == 0) {
                 lock.acquire();
@@ -491,8 +496,8 @@ public class BlockingCache implements Ehcache {
      * @param key the key
      * @return one of a limited number of Mutexes.
      */
-    protected Mutex getLockForKey(final Object key) {
-        return stripedMutex.getMutexForKey(key);
+    protected Sync getLockForKey(final Object key) {
+        return stripedSync.getSyncForKey(key);
     }
 
     /**
@@ -506,7 +511,7 @@ public class BlockingCache implements Ehcache {
         Object key = element.getObjectKey();
         Object value = element.getObjectValue();
 
-        Mutex lock = getLockForKey(key);
+        Sync lock = getLockForKey(key);
         try {
             if (value != null) {
                 cache.put(element);
