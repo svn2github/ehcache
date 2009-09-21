@@ -28,7 +28,8 @@
             <version>[1.6.0-beta4,]</version>
         </dependency>
         <!--Cannot find these complete anywhere. Bug logged against WSIT project. prefix with metro to stop
-         a broken one coming down. Must be installed locally. -->
+         a broken one coming down. Must be installed locally.
+         Download from https://metro.dev.java.net/1.2/ -->
         <dependency>
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>metro-webservices-rt</artifactId>
