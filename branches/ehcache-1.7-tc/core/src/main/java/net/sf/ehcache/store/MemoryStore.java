@@ -35,7 +35,6 @@ import net.sf.ehcache.Status;
  * configured in the cache.
  *
  * @author <a href="mailto:ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
- * @author <a href="mailto:gbevin@terracottatech.com">Geert Bevin</a>
  * @version $Id$
  */
 public class MemoryStore implements Store {
@@ -166,38 +165,7 @@ public class MemoryStore implements Store {
             return null;
         }
 
-        Element element = (Element) map.get(key);
-
-        if (element != null) {
-            element.updateAccessStatistics();
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine(cache.getName() + "Cache: " + cache.getName() + "MemoryStore hit for " + key);
-            }
-        } else if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine(cache.getName() + "Cache: " + cache.getName() + "MemoryStore miss for " + key);
-        }
-
-        return element;
-    }
-
-    /**
-     * Gets an item from the cache, without updating statistics.
-     *
-     * @param key the key of the Element
-     * @return the element, or null if there was no match for the key
-     */
-    public final Element getQuiet(final Object key) {
-        Element cacheElement = (Element) map.get(key);
-
-        if (cacheElement != null) {
-            //cacheElement.updateAccessStatistics(); Don't update statistics
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine(cache.getName() + "Cache: " + cache.getName() + "MemoryStore hit for " + key);
-            }
-        } else if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine(cache.getName() + "Cache: " + cache.getName() + "MemoryStore miss for " + key);
-        }
-        return cacheElement;
+        return (Element) map.get(key);
     }
 
 

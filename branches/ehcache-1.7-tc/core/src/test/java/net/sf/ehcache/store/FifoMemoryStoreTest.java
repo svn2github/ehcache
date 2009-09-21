@@ -40,6 +40,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
     /**
      * setup test
      */
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -49,6 +50,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
     /**
      * Tests adding an entry.
      */
+    @Override
     @Test
     public void testPut() throws Exception {
         putTest();
@@ -68,6 +70,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
      *
      * @throws IOException
      */
+    @Override
     protected void putTest() throws IOException {
         Element element;
 
@@ -111,6 +114,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
     /**
      * Tests removing the entries
      */
+    @Override
     @Test
     public void testRemove() throws Exception {
         removeTest();
@@ -142,6 +146,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
      *
      * @throws IOException
      */
+    @Override
     protected void removeTest() throws IOException {
         Element element;
 
@@ -191,62 +196,63 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
 
     private void fifoPolicyTest() throws IOException, InterruptedException {
         //Make sure that the store is empty to start with
-        assertEquals(0, store.getSize());
+        assertEquals(0, cache.getSize());
 
         // Populate the store till the max limit
         Element element = new Element("key1", "value1");
-        store.put(element);
-        Thread.sleep(15);
+        cache.put(element);
+        Thread.sleep(1015);
         assertEquals(1, store.getSize());
 
         element = new Element("key2", "value2");
-        store.put(element);
-        Thread.sleep(15);
+        cache.put(element);
+        Thread.sleep(1015);
         assertEquals(2, store.getSize());
 
         element = new Element("key3", "value3");
-        store.put(element);
-        Thread.sleep(15);
+        cache.put(element);
+        Thread.sleep(1015);
         assertEquals(3, store.getSize());
 
         element = new Element("key4", "value4");
-        store.put(element);
-        Thread.sleep(15);
+        cache.put(element);
+        Thread.sleep(1015);
         assertEquals(4, store.getSize());
 
         element = new Element("key5", "value5");
-        store.put(element);
-        Thread.sleep(15);
+        cache.put(element);
+        Thread.sleep(1015);
         assertEquals(5, store.getSize());
 
         // Now access the elements to boost the hits count, although irrelevant for this test just to demonstrate
         // hit count is immaterial for this test.
-        store.get("key1");
-        store.get("key1");
-        store.get("key3");
-        store.get("key3");
-        store.get("key3");
-        store.get("key4");
+        cache.get("key1");
+        cache.get("key1");
+        cache.get("key3");
+        cache.get("key3");
+        cache.get("key3");
+        cache.get("key4");
 
         //Create a new element and put in the store so as to force the policy
         element = new Element("key6", "value6");
-        store.put(element);
-        Thread.sleep(15);
+        cache.put(element);
+        Thread.sleep(1015);
 
-        //max size
+        // max size
         assertEquals(5, store.getSize());
 
-        //The element with key "key1" is the First-In element so should be First-Out
+        // The element with key "key1" is the First-In element so should be First-Out
+        // directly access the memory store here since the LFU evicted elements have been flushed to the disk store
         assertNull(store.get("key1"));
 
         // Make some more accesses
-        store.get("key5");
-        store.get("key5");
-        Thread.sleep(15);
+        cache.get("key5");
+        cache.get("key5");
+        Thread.sleep(1015);
 
         // Insert another element to force the policy
         element = new Element("key7", "value7");
-        store.put(element);
+        cache.put(element);
         assertEquals(5, store.getSize());
         assertNull(store.get("key2"));
     }

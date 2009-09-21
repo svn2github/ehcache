@@ -151,7 +151,7 @@
             <xs:attribute name="propertySeparator" use="optional"/>
         </xs:complexType>
     </xs:element>
-        <xs:element name="terracotta">
+    <xs:element name="terracotta">
         <xs:complexType>
             <xs:attribute name="clustered" use="optional" type="xs:boolean" default="true"/>
             <xs:attribute name="valueMode" use="optional" type="terracottaCacheValueType" default="serialization"/>

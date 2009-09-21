@@ -39,15 +39,19 @@ import java.util.logging.Logger;
  * @version $Id$
  */
 public class Element implements Serializable, Cloneable {
+
+    /**
+     * Constant that contains the amount of milliseconds in a second
+     */
+    static final long ONE_SECOND = 1000L;
+    
     /**
      * serial version
-     * Updated for version 1.2 and again for 1.2.1
+     * Updated for version 1.2, 1.2.1 and 1.7
      */
-    private static final long serialVersionUID = 3343087714201120157L;
+    private static final long serialVersionUID = 1098572221246444544L;
 
     private static final Logger LOG = Logger.getLogger(Element.class.getName());
-
-    private static final long ONE_SECOND = 1000L;
 
     /**
      * the cache key.
@@ -66,21 +70,6 @@ public class Element implements Serializable, Cloneable {
     private long version;
 
     /**
-     * The creation time.
-     */
-    private long creationTime;
-
-    /**
-     * The last access time.
-     */
-    private long lastAccessTime;
-
-    /**
-     * The next to last access time. Used by the expiry mechanism
-     */
-    private long nextToLastAccessTime;
-
-    /**
      * The number of times the element was hit.
      */
     private long hitCount;
@@ -88,12 +77,17 @@ public class Element implements Serializable, Cloneable {
     /**
      * The amount of time for the element to live, in seconds. 0 indicates unlimited.
      */
-    private int timeToLive;
+    private int timeToLive = Integer.MIN_VALUE;
 
     /**
      * The amount of time for the element to idle, in seconds. 0 indicates unlimited.
      */
-    private int timeToIdle;
+    private int timeToIdle = Integer.MIN_VALUE;
+    
+    /**
+     * Pluggable element eviction data instance
+     */
+    private ElementEvictionData elementEvictionData;
 
     /**
      * If there is an Element in the Cache and it is replaced with a new Element for the same key,
@@ -101,16 +95,6 @@ public class Element implements Serializable, Cloneable {
      * will be the creation time of the new Element, not the original one, so that TTL concepts still work.
      */
     private long lastUpdateTime;
-
-    /**
-     * Whether the element is eternal, i.e. never expires.
-     */
-    private boolean eternal;
-
-    /**
-     * Whether any combination of eternal, TTL or TTI has been set.
-     */
-    private boolean lifespanSet;
 
     /**
      * A full constructor.
@@ -137,8 +121,8 @@ public class Element implements Serializable, Cloneable {
         this.key = key;
         this.value = value;
         this.version = version;
-        creationTime = System.currentTimeMillis();
-        hitCount = 0;
+        this.hitCount = 0;
+        this.elementEvictionData = new DefaultElementEvictionData(toSecs(System.currentTimeMillis()));
     }
 
     /**
@@ -148,16 +132,15 @@ public class Element implements Serializable, Cloneable {
      */
     public Element(final Object key, final Object value, final long version,
                    final long creationTime, final long lastAccessTime,
-                   final long nextToLastAccessTime, final long lastUpdateTime,
-                   final long hitCount) {
+                   final long lastUpdateTime, final long hitCount) {
         this.key = key;
         this.value = value;
         this.version = version;
-        this.creationTime = creationTime;
-        this.lastAccessTime = lastAccessTime;
-        this.nextToLastAccessTime = nextToLastAccessTime;
         this.lastUpdateTime = lastUpdateTime;
         this.hitCount = hitCount;
+        this.elementEvictionData = new DefaultElementEvictionData(
+                toSecs(creationTime),
+                toSecs(lastAccessTime));
     }
 
     /**
@@ -166,22 +149,18 @@ public class Element implements Serializable, Cloneable {
      * @since 1.7
      */
     public Element(final Object key, final Object value, final long version, final long creationTime,
-            final long lastAccessTime, final long nextToLastAccessTime, final long hitCount,
-            final int timeToLive, final int timeToIdle, final long lastUpdateTime,
-            final boolean eternal, final boolean lifespanSet) {
-        super();
+            final long lastAccessTime, final long hitCount, final int timeToLive, final int timeToIdle,
+            final long lastUpdateTime) {
         this.key = key;
         this.value = value;
         this.version = version;
-        this.creationTime = creationTime;
-        this.lastAccessTime = lastAccessTime;
-        this.nextToLastAccessTime = nextToLastAccessTime;
         this.hitCount = hitCount;
-        this.timeToLive = timeToLive;
-        this.timeToIdle = timeToIdle;
+        setTimeToLive(timeToLive);
+        setTimeToIdle(timeToIdle);
         this.lastUpdateTime = lastUpdateTime;
-        this.eternal = eternal;
-        this.lifespanSet = lifespanSet;
+        this.elementEvictionData = new DefaultElementEvictionData(
+                toSecs(creationTime),
+                toSecs(lastAccessTime));
     }
 
 
@@ -208,7 +187,7 @@ public class Element implements Serializable, Cloneable {
         if (timeToLiveSeconds != null) {
             setTimeToLive(timeToLiveSeconds.intValue());
         }
-        creationTime = System.currentTimeMillis();
+        this.elementEvictionData = new DefaultElementEvictionData(toSecs(System.currentTimeMillis()));
     }
 
     /**
@@ -231,7 +210,14 @@ public class Element implements Serializable, Cloneable {
     public Element(final Object key, final Object value) {
         this(key, value, 1L);
     }
-
+    
+    private static int toSecs(long timeInMillis) {
+        return (int)Math.ceil((double)timeInMillis / ONE_SECOND);
+    }
+    
+    private static long toMillis(int timeInSecs) {
+        return timeInSecs * ONE_SECOND;
+    }
 
     /**
      * Gets the key attribute of the Element object.
@@ -316,8 +302,10 @@ public class Element implements Serializable, Cloneable {
      * @param timeToLiveSeconds the number of seconds to live
      */
     public void setTimeToLive(final int timeToLiveSeconds) {
+        if (timeToLiveSeconds < 0) {
+            throw new IllegalArgumentException("timeToLive can't be negative");
+        }
         this.timeToLive = timeToLiveSeconds;
-        lifespanSet = true;
     }
 
     /**
@@ -326,8 +314,10 @@ public class Element implements Serializable, Cloneable {
      * @param timeToIdleSeconds the number of seconds to idle
      */
     public void setTimeToIdle(final int timeToIdleSeconds) {
+        if (timeToIdleSeconds < 0) {
+            throw new IllegalArgumentException("timeToIdle can't be negative");
+        }
         this.timeToIdle = timeToIdleSeconds;
-        lifespanSet = true;
     }
 
     /**
@@ -348,12 +338,12 @@ public class Element implements Serializable, Cloneable {
     }
 
     /**
-     * Gets the creationTime attribute of the ElementAttributes object.
+     * Gets the creationTime of the Element
      *
      * @return The creationTime value
      */
     public final long getCreationTime() {
-        return creationTime;
+        return toMillis(elementEvictionData.getCreationTime());
     }
 
     /**
@@ -361,18 +351,11 @@ public class Element implements Serializable, Cloneable {
      * @return if never updated, creation time is returned, otherwise updated time
      */
     public final long getLatestOfCreationAndUpdateTime() {
-        if (lastUpdateTime == 0) {
-            return creationTime;
+        if (0 == lastUpdateTime) {
+            return toMillis(elementEvictionData.getCreationTime());
         } else {
             return lastUpdateTime;
         }
-    }
-
-    /**
-     * Sets the creationTime attribute of the ElementAttributes object.
-     */
-    public final void setCreateTime() {
-        creationTime = System.currentTimeMillis();
     }
 
     /**
@@ -390,16 +373,7 @@ public class Element implements Serializable, Cloneable {
      * will have a last access time equal to its create time.
      */
     public final long getLastAccessTime() {
-        return lastAccessTime;
-    }
-
-    /**
-     * Gets the next to last access time.
-     *
-     * @see #getLastAccessTime()
-     */
-    public final long getNextToLastAccessTime() {
-        return nextToLastAccessTime;
+        return toMillis(elementEvictionData.getLastAccessTime());
     }
 
     /**
@@ -413,22 +387,20 @@ public class Element implements Serializable, Cloneable {
      * Resets the hit count to 0 and the last access time to 0.
      */
     public final void resetAccessStatistics() {
-        lastAccessTime = 0;
-        nextToLastAccessTime = 0;
+        elementEvictionData.resetLastAccessStatistics();
         hitCount = 0;
     }
 
     /**
-     * Sets the last access time to now.
+     * Sets the last access time to now and increase the hit count.
      */
     public final void updateAccessStatistics() {
-        nextToLastAccessTime = lastAccessTime;
-        lastAccessTime = System.currentTimeMillis();
+        elementEvictionData.updateAccessStatistics();
         hitCount++;
     }
 
     /**
-     * Sets the last access time to now.
+     * Sets the last access time to now without updating the hit count.
      */
     public final void updateUpdateStatistics() {
         lastUpdateTime = System.currentTimeMillis();
@@ -472,9 +444,7 @@ public class Element implements Serializable, Cloneable {
         super.clone();
 
         Element element = new Element(deepCopy(key), deepCopy(value), version);
-        element.creationTime = creationTime;
-        element.lastAccessTime = lastAccessTime;
-        element.nextToLastAccessTime = nextToLastAccessTime;
+        element.elementEvictionData = elementEvictionData.clone();
         element.hitCount = hitCount;
         return element;
     }
@@ -603,7 +573,7 @@ public class Element implements Serializable, Cloneable {
      * @see #getExpirationTime()
      */
     public boolean isExpired() {
-        if (!lifespanSet) {
+        if (!isLifespanSet()) {
             return false;
         }
 
@@ -620,20 +590,19 @@ public class Element implements Serializable, Cloneable {
      * @return the time to expiration
      */
     public long getExpirationTime() {
-
-        if (!lifespanSet || eternal || (timeToLive == 0 && timeToIdle == 0)) {
+        if (!isLifespanSet() || isEternal()) {
             return Long.MAX_VALUE;
         }
 
         long expirationTime = 0;
-        long ttlExpiry = creationTime + timeToLive * ONE_SECOND;
+        long ttlExpiry = toMillis(elementEvictionData.getCreationTime()) + toMillis(getTimeToLive());
 
-        long mostRecentTime = Math.max(creationTime, nextToLastAccessTime);
-        long ttiExpiry = mostRecentTime + timeToIdle * ONE_SECOND;
+        long mostRecentTime = Math.max(toMillis(elementEvictionData.getCreationTime()), toMillis(elementEvictionData.getLastAccessTime()));
+        long ttiExpiry = mostRecentTime + toMillis(getTimeToIdle());
 
-        if (timeToLive != 0 && (timeToIdle == 0 || lastAccessTime == 0)) {
+        if (getTimeToLive() != 0 && (getTimeToIdle() == 0 || elementEvictionData.getLastAccessTime() == 0)) {
             expirationTime = ttlExpiry;
-        } else if (timeToLive == 0) {
+        } else if (getTimeToLive() == 0) {
             expirationTime = ttiExpiry;
         } else {
             expirationTime = Math.min(ttlExpiry, ttiExpiry);
@@ -645,7 +614,7 @@ public class Element implements Serializable, Cloneable {
      * @return true if the element is eternal
      */
     public boolean isEternal() {
-        return eternal;
+        return 0 == timeToIdle && 0 == timeToLive;
     }
 
     /**
@@ -654,8 +623,13 @@ public class Element implements Serializable, Cloneable {
      * @param eternal
      */
     public void setEternal(final boolean eternal) {
-        this.eternal = eternal;
-        lifespanSet = true;
+        if (eternal) {
+            this.timeToIdle = 0;
+            this.timeToLive = 0;
+        } else if (isEternal()) {
+            this.timeToIdle = Integer.MIN_VALUE;
+            this.timeToLive = Integer.MIN_VALUE;
+        }
     }
 
     /**
@@ -664,13 +638,16 @@ public class Element implements Serializable, Cloneable {
      * @return true if set.
      */
     public boolean isLifespanSet() {
-        return lifespanSet;
+        return this.timeToIdle != Integer.MIN_VALUE || this.timeToLive != Integer.MIN_VALUE;
     }
 
     /**
      * @return the time to live, in seconds
      */
     public int getTimeToLive() {
+        if (Integer.MIN_VALUE == timeToLive) {
+            return 0;
+        }
         return timeToLive;
     }
 
@@ -678,9 +655,9 @@ public class Element implements Serializable, Cloneable {
      * @return the time to idle, in seconds
      */
     public int getTimeToIdle() {
+        if (Integer.MIN_VALUE == timeToIdle) {
+            return 0;
+        }
         return timeToIdle;
     }
 }
-
-
-

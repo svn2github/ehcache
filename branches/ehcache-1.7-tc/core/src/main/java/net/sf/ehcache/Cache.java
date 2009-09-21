@@ -1266,12 +1266,8 @@ public class Cache implements Ehcache {
     }
 
     private Element searchInMemoryStore(Object key, boolean updateStatistics, boolean notifyListeners) {
-        Element element;
-        if (updateStatistics) {
-            element = memoryStore.get(key);
-        } else {
-            element = memoryStore.getQuiet(key);
-        }
+        Element element = memoryStore.get(key);
+
         if (element != null) {
             if (isExpired(element)) {
                 if (LOG.isLoggable(Level.FINE)) {
@@ -1284,9 +1280,16 @@ public class Cache implements Ehcache {
                 element = null;
             } else {
                 if (updateStatistics) {
+                    element.updateAccessStatistics();
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.fine(getName() + "Cache: " + getName() + "MemoryStore hit for " + key);
+                    }
+
                     cacheUsageStatisticsData.cacheHitInMemory();
                 }
             }
+        } else if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine(getName() + "Cache: " + getName() + "MemoryStore miss for " + key);
         }
         return element;
     }
@@ -1296,12 +1299,7 @@ public class Cache implements Ehcache {
             return null;
         }
         Serializable serializableKey = (Serializable) key;
-        Element element;
-        if (updateStatistics) {
-            element = diskStore.get(serializableKey);
-        } else {
-            element = diskStore.getQuiet(serializableKey);
-        }
+        Element element = diskStore.get(serializableKey);
         if (element != null) {
             if (isExpired(element)) {
                 if (LOG.isLoggable(Level.FINE)) {
@@ -1311,6 +1309,9 @@ public class Cache implements Ehcache {
                 remove(key, true, notifyListeners, false);
                 element = null;
             } else {
+                if (updateStatistics) {
+                    element.updateAccessStatistics();
+                }
                 cacheUsageStatisticsData.cacheHitOnDisk();
                 //Put the item back into memory to preserve policies in the memory store and to save updated statistics
                 //todo - maybe make the DiskStore a one-way evict. i.e. Do not replace See testGetSpeedMostlyDisk for speed comp.
