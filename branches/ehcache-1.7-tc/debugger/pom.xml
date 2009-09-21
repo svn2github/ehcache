@@ -9,7 +9,7 @@
     <name>Ehcache Debugger</name>
     <artifactId>ehcache-debugger</artifactId>
     <packaging>jar</packaging>
-    <version>1.5.0</version>
+    <version>1.6.0-SNAPSHOT</version>
     <description>Ehcache bundled with RemoteDebugger</description>
     <dependencies>
         <dependency>
@@ -83,5 +83,22 @@
             </plugin>
         </plugins>
     </build>
+
+
+    <distributionManagement>
+        <!--
+            The server id here defined must also appear in ~/.m2/settings.xml with username
+            Note: site URL repeated here to ensure correct deployment path -->
+        <repository>
+            <id>sourceforge-releases</id>
+            <name>Sourceforge Release Repository</name>
+            <url>http://oss.sonatype.org/content/repositories/sourceforge-releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>sourceforge-snapshots</id>
+            <name>Sourceforge Snapshot Repository</name>
+            <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>

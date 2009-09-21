@@ -47,11 +47,6 @@
             <version>4.4</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.cenqua.clover</groupId>
-            <artifactId>clover</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>

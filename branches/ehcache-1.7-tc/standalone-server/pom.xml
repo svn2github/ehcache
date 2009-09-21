@@ -9,7 +9,7 @@
     </parent>
     <name>Ehcache Standalone Server</name>
     <artifactId>ehcache-standalone-server</artifactId>
-    <version>0.7</version>
+    <version>0.8-SNAPSHOT</version>
     <packaging>jar</packaging>
     <description>The ehcache W3C and RESTful web services standalone server.
         This is packaged as a distribution complete with all required dependencies.
@@ -210,23 +210,16 @@
 
           Not sure why. Changing deploy and wagon versions is not helping.
         -->
-        <snapshotRepository>
-            <id>sourceforge.net</id>
-            <name>SF EHCache Snapshot Repository</name>
-            <url>scp://gregluck,ehcache@web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs/snapshotrepository</url>
-        </snapshotRepository>
-
         <repository>
-            <id>sourceforge.net</id>
-            <name>SF EHCache Repository</name>
-            <url>scp://gregluck,ehcache@web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs/repository</url>
+            <id>sourceforge-releases</id>
+            <name>Sourceforge Release Repository</name>
+            <url>http://oss.sonatype.org/content/repositories/sourceforge-releases</url>
         </repository>
-
-        <site>
-            <id>sourceforge.net</id>
-            <name>SF EHCache Site</name>
-            <url>scp://gregluck@shell.sf.net:/home/groups/e/eh/ehcache/htdocs</url>
-        </site>
+        <snapshotRepository>
+            <id>sourceforge-snapshots</id>
+            <name>Sourceforge Snapshot Repository</name>
+            <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
+        </snapshotRepository>
     </distributionManagement>
 
 </project>                  
