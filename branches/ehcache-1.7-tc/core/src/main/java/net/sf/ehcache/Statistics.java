@@ -254,6 +254,7 @@ public class Statistics implements Serializable {
     /**
      * Returns a {@link String} representation of the {@link Ehcache} statistics.
      */
+    @Override
     public final String toString() {
         StringBuffer dump = new StringBuffer();
 
@@ -284,6 +285,22 @@ public class Statistics implements Serializable {
      */
     public long getEvictionCount() {
         return evictionCount;
+    }
+    
+    /**
+     * Utility method to determine if a given value is a valid statistics
+     * accuracy value or not
+     * 
+     * @param statisticsAccuracy
+     * @return true if the value is one of
+     *         {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT},
+     *         {@link Statistics#STATISTICS_ACCURACY_GUARANTEED},
+     *         {@link Statistics#STATISTICS_ACCURACY_NONE}
+     */
+    public static boolean isValidStatisticsAccuracy(int statisticsAccuracy) {
+        return statisticsAccuracy == STATISTICS_ACCURACY_NONE
+                || statisticsAccuracy == STATISTICS_ACCURACY_BEST_EFFORT
+                || statisticsAccuracy == STATISTICS_ACCURACY_GUARANTEED;
     }
 
 }

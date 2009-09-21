@@ -122,6 +122,13 @@ public class NullSampledCacheUsageStatistics implements
     /**
      * {@inheritDoc}
      */
+    public String getStatisticsAccuracyDescription() {
+        return "None";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean isStatisticsEnabled() {
         return true;
     }

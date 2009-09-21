@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Statistics;
 
 /**
  * Implementation which can be used both as a {@link CacheUsageStatistics} and
@@ -179,6 +180,10 @@ public class CacheUsageStatisticsImpl implements CacheUsageStatistics,
      * {@inheritDoc}
      */
     public void setStatisticsAccuracy(int statisticsAccuracy) {
+        if (!Statistics.isValidStatisticsAccuracy(statisticsAccuracy)) {
+            throw new IllegalArgumentException(
+                    "Invalid statistics accuracy value: " + statisticsAccuracy);
+        }
         this.statisticsAccuracy.set(statisticsAccuracy);
         for (CacheUsageListener l : listeners) {
             l.notifyStatisticsAccuracyChanged(statisticsAccuracy);
@@ -427,9 +432,10 @@ public class CacheUsageStatisticsImpl implements CacheUsageStatistics,
      * {@inheritDoc}
      */
     public String getStatisticsAccuracyDescription() {
-        if (statisticsAccuracy.get() == 0) {
+        int value = statisticsAccuracy.get();
+        if (value == 0) {
             return "None";
-        } else if (statisticsAccuracy.get() == 1) {
+        } else if (value == 1) {
             return "Best Effort";
         } else {
             return "Guaranteed";

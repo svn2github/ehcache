@@ -650,17 +650,20 @@ public class Cache implements Ehcache {
             initialiseRegisteredCacheExtensions();
             initialiseRegisteredCacheLoaders();
 
-            //initialize statistics related stuff
+            // initialize statistics related stuff
             this.cacheUsageStatisticsData = new CacheUsageStatisticsImpl(this);
-            this.cacheUsageStatisticsData
-                    .setStatisticsAccuracy(Statistics.STATISTICS_ACCURACY_BEST_EFFORT);
             // register to get notifications of
             // put/update/remove/expiry/eviction
             getCacheEventNotificationService().registerListener(
                     cacheUsageStatisticsData);
-
+            // register the sampled stats as a listener
             sampledCacheUsageStatistics = new SampledCacheUsageStatisticsImpl();
-            this.registerCacheUsageListener((CacheUsageListener) sampledCacheUsageStatistics);
+            this
+                    .registerCacheUsageListener((CacheUsageListener) sampledCacheUsageStatistics);
+            // set up default values
+            cacheUsageStatisticsData.setStatisticsEnabled(true);
+            cacheUsageStatisticsData
+                    .setStatisticsAccuracy(Statistics.STATISTICS_ACCURACY_BEST_EFFORT);
         }
 
         if (LOG.isLoggable(Level.FINE)) {

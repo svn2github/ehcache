@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Statistics;
 import net.sf.ehcache.util.counter.CounterManager;
 import net.sf.ehcache.util.counter.CounterManagerImpl;
 import net.sf.ehcache.util.counter.sampled.SampledCounter;
@@ -58,7 +59,7 @@ public class SampledCacheUsageStatisticsImpl implements CacheUsageListener,
     private final AtomicInteger statisticsAccuracy;
 
     /**
-     * Default Constructor
+     * Default constructor
      */
     public SampledCacheUsageStatisticsImpl() {
         counterManager = new CounterManagerImpl();
@@ -92,8 +93,9 @@ public class SampledCacheUsageStatisticsImpl implements CacheUsageListener,
         averageGetTime = (SampledRateCounter) counterManager
                 .createCounter(sampledRateCounterConfig);
 
-        statisticsEnabled = new AtomicBoolean(true);
-        statisticsAccuracy = new AtomicInteger();
+        this.statisticsEnabled = new AtomicBoolean(true);
+        this.statisticsAccuracy = new AtomicInteger(
+                Statistics.STATISTICS_ACCURACY_BEST_EFFORT);
     }
 
     private void incrementIfStatsEnabled(SampledCounter... counters) {
@@ -212,7 +214,12 @@ public class SampledCacheUsageStatisticsImpl implements CacheUsageListener,
      * {@inheritDoc}
      */
     public void notifyStatisticsAccuracyChanged(int statisticsAccuracyValue) {
-        statisticsAccuracy.set(statisticsAccuracyValue);
+        if (Statistics.isValidStatisticsAccuracy(statisticsAccuracyValue)) {
+            statisticsAccuracy.set(statisticsAccuracyValue);
+            return;
+        }
+        throw new IllegalArgumentException(
+                "Invalid statistics accuracy value: " + statisticsAccuracyValue);
     }
 
     /**
@@ -318,6 +325,20 @@ public class SampledCacheUsageStatisticsImpl implements CacheUsageListener,
      */
     public int getStatisticsAccuracy() {
         return statisticsAccuracy.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getStatisticsAccuracyDescription() {
+        int value = statisticsAccuracy.get();
+        if (value == 0) {
+            return "None";
+        } else if (value == 1) {
+            return "Best Effort";
+        } else {
+            return "Guaranteed";
+        }
     }
 
     /**

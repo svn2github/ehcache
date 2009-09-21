@@ -121,6 +121,11 @@ public interface SampledCacheUsageStatistics {
      *         {@link Statistics#STATISTICS_ACCURACY_NONE}
      */
     public int getStatisticsAccuracy();
+    
+    /**
+     * Get Description for statisticsAccuracy
+     */
+    public String getStatisticsAccuracyDescription();
 
     /**
      * Returns true if statistics collection is enabled for cache, otherwise

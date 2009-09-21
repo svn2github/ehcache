@@ -74,7 +74,7 @@ public abstract class SampledEhcacheMBeans {
      */
     public static ObjectName getQueryObjectNameForCacheManager(
             String cacheManagerName) throws MalformedObjectNameException {
-        ObjectName objectName = new ObjectName("net.sf.ehcache:type=*,"
+        ObjectName objectName = new ObjectName("net.sf.ehcache:*,"
                 + CACHE_MANAGER_QUALIFIER + "=" + cacheManagerName);
         return objectName;
     }

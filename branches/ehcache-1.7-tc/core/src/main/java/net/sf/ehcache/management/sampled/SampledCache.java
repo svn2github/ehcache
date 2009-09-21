@@ -31,6 +31,7 @@ public class SampledCache implements SampledCacheMBean {
 
     private final Ehcache cache;
     private final SampledCacheUsageStatistics sampledCacheUsageStatistics;
+    private final String immutableCacheName;
 
     /**
      * Constructor accepting the backing {@link Ehcache}
@@ -41,6 +42,17 @@ public class SampledCache implements SampledCacheMBean {
         this.cache = cache;
         this.sampledCacheUsageStatistics = cache
                 .getSampledCacheUsageStatistics();
+        immutableCacheName = cache.getName();
+    }
+
+    /**
+     * Method which returns the name of the cache at construction time.
+     * Package protected method.
+     * 
+     * @return
+     */
+    String getImmutableCacheName() {
+        return immutableCacheName;
     }
 
     /**
@@ -74,8 +86,113 @@ public class SampledCache implements SampledCacheMBean {
     /**
      * {@inheritDoc}
      */
-    public long getCacheHitCountMostRecentSample() {
+    public long getAverageGetTimeMostRecentSample() {
+        return sampledCacheUsageStatistics.getAverageGetTimeMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheElementEvictedMostRecentSample() {
+        return sampledCacheUsageStatistics
+                .getCacheElementEvictedMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheElementExpiredMostRecentSample() {
+        return sampledCacheUsageStatistics
+                .getCacheElementExpiredMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheElementPutMostRecentSample() {
+        return sampledCacheUsageStatistics.getCacheElementPutMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheElementRemovedMostRecentSample() {
+        return sampledCacheUsageStatistics
+                .getCacheElementRemovedMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheElementUpdatedMostRecentSample() {
+        return sampledCacheUsageStatistics
+                .getCacheElementUpdatedMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheHitInMemoryMostRecentSample() {
+        return sampledCacheUsageStatistics
+                .getCacheHitInMemoryMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheHitMostRecentSample() {
         return sampledCacheUsageStatistics.getCacheHitMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheHitOnDiskMostRecentSample() {
+        return sampledCacheUsageStatistics.getCacheHitOnDiskMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheMissExpiredMostRecentSample() {
+        return sampledCacheUsageStatistics
+                .getCacheMissExpiredMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheMissMostRecentSample() {
+        return sampledCacheUsageStatistics.getCacheMissMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheMissNotFoundMostRecentSample() {
+        return sampledCacheUsageStatistics
+                .getCacheMissNotFoundMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getStatisticsAccuracy() {
+        return sampledCacheUsageStatistics.getStatisticsAccuracy();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getStatisticsAccuracyDescription() {
+        return sampledCacheUsageStatistics.getStatisticsAccuracyDescription();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isStatisticsEnabled() {
+        return sampledCacheUsageStatistics.isStatisticsEnabled();
     }
 
 }
