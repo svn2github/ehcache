@@ -191,7 +191,7 @@
 
     <profiles>
         <profile>
-            <id>system-test</id>
+            <id>system-tests</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
