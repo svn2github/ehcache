@@ -195,4 +195,11 @@ public class SampledCache implements SampledCacheMBean {
         return sampledCacheUsageStatistics.isStatisticsEnabled();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isTerracottaClustered() {
+        return this.cache.getCacheConfiguration().isTerracottaClustered();
+    }
+
 }

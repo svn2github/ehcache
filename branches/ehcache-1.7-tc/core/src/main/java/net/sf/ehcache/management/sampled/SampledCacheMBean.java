@@ -158,5 +158,10 @@ public interface SampledCacheMBean {
      * @return
      */
     public boolean isStatisticsEnabled();
+    
+    /**
+     * Is the cache configured with Terracotta clustering?
+     */
+    public boolean isTerracottaClustered();
 
 }
