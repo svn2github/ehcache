@@ -54,13 +54,7 @@ public class StripedMutex {
      * Constructs a striped mutex with the default 2048 stripes.
      */
     public StripedMutex() {
-
-        this.numberOfStripes = DEFAULT_NUMBER_OF_MUTEXES;
-        mutexes = new Mutex[numberOfStripes];
-
-        for (int i = 0; i < numberOfStripes; i++) {
-            mutexes[i] = new Mutex();
-        }
+        this(DEFAULT_NUMBER_OF_MUTEXES);
     }
 
     /**
