@@ -10,7 +10,7 @@
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-jgroupsreplication</artifactId>
     <name>JGroups Replication</name>
-    <version>1.3</version>
+    <version>1.4-SNAPSHOT</version>
     <packaging>jar</packaging>
     <description>This module provides replication via JGroups</description>
     <dependencies>
@@ -125,14 +125,6 @@
             <name>Sourceforge Snapshot Repository</name>
             <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
         </snapshotRepository>
-
-
-
-        <site>
-            <id>sourceforge.net</id>
-            <name>SF EHCache Site</name>
-            <url>scp://web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs</url>
-        </site>
     </distributionManagement>
 
 </project>
