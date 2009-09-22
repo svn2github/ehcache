@@ -21,6 +21,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.concurrent.LockType;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -77,10 +78,10 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
             } else {
                 Sync lock = stripedSync.getSyncForKey(key);
                 try {
-                    lock.acquire();
+                    lock.lock(LockType.WRITE);
                     update(key);
                 } finally {
-                    lock.release();
+                    lock.unlock(LockType.WRITE);
                 }
             }
             return element;

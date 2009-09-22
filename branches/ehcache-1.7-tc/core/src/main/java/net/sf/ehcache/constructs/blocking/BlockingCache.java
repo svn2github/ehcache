@@ -28,9 +28,10 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
-import net.sf.ehcache.concurrent.StripedMutex;
 import net.sf.ehcache.concurrent.StripedSync;
 import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.concurrent.LockType;
+import net.sf.ehcache.concurrent.StripedReadWriteLockSync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
@@ -49,7 +50,7 @@ import net.sf.ehcache.statistics.SampledCacheUsageStatistics;
  * <p/>
  * This is useful for constructing read-through or self-populating caches.
  * <p/>
- * This implementation uses the {@link net.sf.ehcache.concurrent.Mutex} class from Doug Lea's concurrency package. If you wish to use
+ * This implementation uses the {@link net.sf.ehcache.concurrent.ReadWriteLockSync} class. If you wish to use
  * this class, you will need the concurrent package in your class path.
  * <p/>
  * It features:
@@ -127,7 +128,7 @@ public class BlockingCache implements Ehcache {
             // todo inject our implementation here
             this.stripedSync = null;
         } else {
-            this.stripedSync = new StripedMutex(numberOfStripes);
+            this.stripedSync = new StripedReadWriteLockSync(numberOfStripes);
         }
     }
 
@@ -139,7 +140,7 @@ public class BlockingCache implements Ehcache {
      * @since 1.6.1
      */
     public BlockingCache(final Ehcache cache) throws CacheException {
-        this(cache, StripedMutex.DEFAULT_NUMBER_OF_MUTEXES);
+        this(cache, StripedReadWriteLockSync.DEFAULT_NUMBER_OF_MUTEXES);
     }
 
     /**
@@ -461,12 +462,25 @@ public class BlockingCache implements Ehcache {
      *                              to release the lock acquired.
      */
     public Element get(final Object key) throws RuntimeException, LockTimeoutException {
+
         Sync lock = getLockForKey(key);
-        try {
-            if (timeoutMillis == 0) {
-                lock.acquire();
-            } else {
-                boolean acquired = lock.attempt(timeoutMillis);
+        acquiredLockForKey(key, lock, LockType.READ);
+        Element element = cache.get(key);
+        lock.unlock(LockType.READ);
+        if (element == null) {
+            acquiredLockForKey(key, lock, LockType.WRITE);
+            element = cache.get(key);
+            if (element != null) {
+                lock.unlock(LockType.WRITE);
+            }
+        }
+        return element;
+    }
+
+    private void acquiredLockForKey(final Object key, final Sync lock, final LockType lockType) {
+        if (timeoutMillis > 0) {
+            try {
+                boolean acquired = lock.tryLock(lockType, timeoutMillis);
                 if (!acquired) {
                     StringBuffer message = new StringBuffer("Lock timeout. Waited more than ")
                             .append(timeoutMillis)
@@ -474,18 +488,11 @@ public class BlockingCache implements Ehcache {
                             .append(key).append(" on blocking cache ").append(cache.getName());
                     throw new LockTimeoutException(message.toString());
                 }
+            } catch (InterruptedException e) {
+                throw new LockTimeoutException("Got interrupted while trying to acquire lock for key " + key, e);
             }
-            final Element element = cache.get(key);
-            if (element != null) {
-                //ok let the other threads in
-                lock.release();
-                return element;
-            } else {
-                //don't release the read lock until we put
-                return null;
-            }
-        } catch (InterruptedException e) {
-            throw new CacheException("Get interrupted for key " + key + ". Message was: " + e.getMessage());
+        } else {
+            lock.lock(lockType);
         }
     }
 
@@ -511,7 +518,7 @@ public class BlockingCache implements Ehcache {
         Object key = element.getObjectKey();
         Object value = element.getObjectValue();
 
-        Sync lock = getLockForKey(key);
+        getLockForKey(key).lock(LockType.WRITE);
         try {
             if (value != null) {
                 cache.put(element);
@@ -520,7 +527,7 @@ public class BlockingCache implements Ehcache {
             }
         } finally {
             //Release the readlock here. This will have been acquired in the get, where the element was null
-            lock.release();
+            getLockForKey(key).unlock(LockType.WRITE);
         }
     }
 

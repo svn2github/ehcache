@@ -299,52 +299,25 @@ public interface Sync {
     long ONE_CENTURY = 100 * ONE_YEAR;
 
     /**
-     * Wait (possibly forever) until successful passage.
-     * Fail only upon interuption. Interruptions always result in
-     * `clean' failures. On failure,  you can be sure that it has not
-     * been acquired, and that no
-     * corresponding release should be performed. Conversely,
-     * a normal return guarantees that the acquire was successful.
+     * Acquire lock of LockType.READ or WRITE
+     * @param type the lock type to acquire
      */
-    void acquire() throws InterruptedException;
+    void lock(LockType type);
 
     /**
-     * Wait at most msecs to pass; report whether passed.
-     * <p/>
-     * The method has best-effort semantics:
-     * The msecs bound cannot
-     * be guaranteed to be a precise upper bound on wait time in Java.
-     * Implementations generally can only attempt to return as soon as possible
-     * after the specified bound. Also, timers in Java do not stop during garbage
-     * collection, so timeouts can occur just because a GC intervened.
-     * So, msecs arguments should be used in
-     * a coarse-grained manner. Further,
-     * implementations cannot always guarantee that this method
-     * will return at all without blocking indefinitely when used in
-     * unintended ways. For example, deadlocks may be encountered
-     * when called in an unintended context.
-     * <p/>
-     *
-     * @param msecs the number of milleseconds to wait.
-     *              An argument less than or equal to zero means not to wait at all.
-     *              However, this may still require
-     *              access to a synchronization lock, which can impose unbounded
-     *              delay if there is a lot of contention among threads.
-     * @return true if acquired
+     * Tries to acquire a LockType.READ or WRITE for a certain period
+     * @param type the lock type to acquire
+     * @param msec timeout
+     * @return true if the lock got acquired, false otherwise
+     * @throws InterruptedException Should the thread be interrupted
      */
-    boolean attempt(long msecs) throws InterruptedException;
+    boolean tryLock(LockType type, long msec) throws InterruptedException;
 
     /**
-     * Potentially enable others to pass.
-     * <p/>
-     * Because release does not raise exceptions,
-     * it can be used in `finally' clauses without requiring extra
-     * embedded try/catch blocks. But keep in mind that
-     * as with any java method, implementations may
-     * still throw unchecked exceptions such as Error or NullPointerException
-     * when faced with uncontinuable errors. However, these should normally
-     * only be caught by higher-level error handlers.
+     * Releases the lock held by the current Thread.
+     * In case of a LockType.WRITE, should the lock not be held by the current Thread, nothing happens 
+     * @param type the lock type to acquire
      */
-    void release();
+    void unlock(LockType type);
 }
 

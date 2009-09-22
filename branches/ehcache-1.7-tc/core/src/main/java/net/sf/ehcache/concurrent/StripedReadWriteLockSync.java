@@ -13,13 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package net.sf.ehcache.concurrent;
 
 import net.sf.ehcache.CacheException;
 
 /**
- * Provides a number of mutexes which allow fine-grained concurrency. Rather than locking a cache or a store,
+ * Provides a number of Sync which allow fine-grained concurrency. Rather than locking a cache or a store,
  * the individual elements or constituent objects can be locked. This dramatically increases
  * the possible concurrency.
  * <p/>
@@ -30,10 +29,9 @@ import net.sf.ehcache.CacheException;
  * in highly concurrent production environments for years.
  * <p/>
  * Based on the lock striping concept from Brian Goetz. See Java Concurrency in Practice 11.4.3
- * @author Greg Luck
+ * @author Alex Snaps
  */
-public class StripedMutex implements StripedSync {
-
+public class StripedReadWriteLockSync implements StripedSync {
 
     /**
      * The default number of locks to use. Must be a power of 2.
@@ -41,19 +39,15 @@ public class StripedMutex implements StripedSync {
      * The choice of 2048 enables 2048 concurrent operations per cache or cache store, which should be enough for most
      * uses.
      */
-    public static final int DEFAULT_NUMBER_OF_MUTEXES = 2048;
+    public  static final int    DEFAULT_NUMBER_OF_MUTEXES = 2048;
 
-    /**
-     * The array of mutexes
-     */
-    protected final Mutex[] mutexes;
-
-    private int numberOfStripes;
+    private        final Sync[] mutexes;
+    private        final int    numberOfStripes;
 
     /**
      * Constructs a striped mutex with the default 2048 stripes.
      */
-    public StripedMutex() {
+    public StripedReadWriteLockSync() {
         this(DEFAULT_NUMBER_OF_MUTEXES);
     }
 
@@ -63,7 +57,7 @@ public class StripedMutex implements StripedSync {
      * The number of stripes determines the number of concurrent operations per cache or cache store.
      * @param numberOfStripes - must be a factor of two
      */
-    public StripedMutex(int numberOfStripes) {
+    public StripedReadWriteLockSync(int numberOfStripes) {
         if (numberOfStripes % 2 != 0) {
             throw new CacheException("Cannot create a StripedMutex with an odd number of stripes");
         }
@@ -73,10 +67,10 @@ public class StripedMutex implements StripedSync {
         }
 
         this.numberOfStripes = numberOfStripes;
-        mutexes = new Mutex[numberOfStripes];
+        mutexes = new Sync[numberOfStripes];
 
         for (int i = 0; i < numberOfStripes; i++) {
-            mutexes[i] = new Mutex();
+            mutexes[i] = new ReadWriteLockSync();
         }
     }
 
