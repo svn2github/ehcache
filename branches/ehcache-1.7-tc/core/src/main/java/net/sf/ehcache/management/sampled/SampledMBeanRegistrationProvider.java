@@ -120,10 +120,9 @@ public class SampledMBeanRegistrationProvider implements
     private void registerCacheMBean(Ehcache cache)
             throws InstanceAlreadyExistsException, MBeanRegistrationException,
             NotCompliantMBeanException {
-        // set up sampled stats for the cache first
-        cache.setStatisticsEnabled(true);
-        cache.enableSampledStatistics(cacheManager.getTimer());
-        SampledCache terracottaCacheMBean = new SampledCache(cache, cacheManager);
+        // enable sampled stats
+        cache.setSampledStatisticsEnabled(true);
+        SampledCache terracottaCacheMBean = new SampledCache(cache);
         try {
             this.mBeanServer.registerMBean(terracottaCacheMBean,
                     SampledEhcacheMBeans.getCacheObjectName(

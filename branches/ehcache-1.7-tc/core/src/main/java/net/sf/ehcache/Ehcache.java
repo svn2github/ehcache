@@ -30,7 +30,6 @@ import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.CacheUsageStatistics;
 import net.sf.ehcache.statistics.SampledCacheUsageStatistics;
-import net.sf.ehcache.util.FailSafeTimer;
 
 /**
  * An interface for Ehcache.
@@ -850,36 +849,33 @@ public interface Ehcache extends Cloneable {
     public boolean isStatisticsEnabled();
 
     /**
-     * Enable/disable statistics collection. If parameter is false, i.e.
-     * disabling statistics, it will disable Sampled Statistics
-     * Collection too (if its enabled)
+     * Enable/disable statistics collection.
+     * Enabling statistics does not have any effect on sampled statistics. To
+     * enable sampled statistics, use
+     * {@link #setSampledStatisticsEnabled(boolean)} with
+     * parameter <tt>true</tt>.
+     * Disabling statistics also disables the sampled statistics collection if
+     * it is enabled
      * 
      * @param enabledStatistics
      */
-    public void setStatisticsEnabled(boolean enabledStatistics);
+    public void setStatisticsEnabled(boolean enableStatistics);
 
     /**
-     * Returns sampled statistics for this cache
+     * Returns sampled statistics for this cache.
      * 
      * @return
      */
     public SampledCacheUsageStatistics getSampledCacheUsageStatistics();
     
     /**
-     * Enables sampled statistics collection using the input timer to schedule
-     * sampling tasks. Note that to enable sampled statistics, the normal
-     * statistics must also be enabled, i.e. {@link #isStatisticsEnabled()} should be
-     * true, otherwise does nothing
+     * Enable/disable sampled statistics collection.
+     * Enabling sampled statistics also enables the normal statistics collection if its not already enabled.
+     * Disabling sampled statistics does not have any effect on normal statistics.
      * 
-     * @param timer
+     * @param enabledStatistics
      */
-    public void enableSampledStatistics(FailSafeTimer timer);
-
-    /**
-     * Disables sampled statistics collection and cancels all sampling tasks if
-     * any is running.
-     */
-    public void disableSampledStatistics();
+    public void setSampledStatisticsEnabled(boolean enableStatistics);
 
     /**
      * Returns if sampled statistics collection is enabled or disabled

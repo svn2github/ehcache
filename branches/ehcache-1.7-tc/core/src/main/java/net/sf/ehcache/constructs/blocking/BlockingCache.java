@@ -39,7 +39,6 @@ import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.CacheUsageStatistics;
 import net.sf.ehcache.statistics.SampledCacheUsageStatistics;
-import net.sf.ehcache.util.FailSafeTimer;
 
 
 /**
@@ -1089,23 +1088,12 @@ public class BlockingCache implements Ehcache {
     public SampledCacheUsageStatistics getSampledCacheUsageStatistics() {
         return cache.getSampledCacheUsageStatistics();
     }
-
+    
     /**
      * {@inheritDoc}
-     * 
-     * @see net.sf.ehcache.Ehcache#disableSampledStatistics()
      */
-    public void disableSampledStatistics() {
-        cache.disableSampledStatistics();
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
-     * @see net.sf.ehcache.Ehcache#enableSampledStatistics(java.util.Timer)
-     */
-    public void enableSampledStatistics(FailSafeTimer timer) {
-        cache.enableSampledStatistics(timer);
+    public void setSampledStatisticsEnabled(boolean enabledStatistics) {
+        cache.setStatisticsEnabled(enabledStatistics);
     }
 
     /**

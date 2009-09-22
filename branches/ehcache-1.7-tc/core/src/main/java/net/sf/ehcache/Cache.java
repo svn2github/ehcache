@@ -61,7 +61,6 @@ import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.util.FailSafeTimer;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -2545,14 +2544,19 @@ public class Cache implements Ehcache {
     public SampledCacheUsageStatistics getSampledCacheUsageStatistics() {
         return sampledCacheUsageStatistics;
     }
-
-
+    
     /**
      * {@inheritDoc}
-     * 
-     * @see net.sf.ehcache.Ehcache#disableSampledStatistics()
      */
-    public void disableSampledStatistics() {
+    public void setSampledStatisticsEnabled(boolean enableStatistics) {
+        if (enableStatistics) {
+            enableSampledStatistics();
+        } else {
+            disableSampledStatistics();
+        }
+    }
+
+    private void disableSampledStatistics() {
         if (!(sampledCacheUsageStatistics instanceof NullSampledCacheUsageStatistics)) {
             if (sampledCacheUsageStatistics instanceof CacheUsageListener) {
                 this
@@ -2562,23 +2566,16 @@ public class Cache implements Ehcache {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * @see net.sf.ehcache.Ehcache#enableSampledStatistics(java.util.Timer)
-     */
-    public void enableSampledStatistics(FailSafeTimer timer) {
+    private void enableSampledStatistics() {
         // don't do anything if already enabled
         if (!sampledCacheUsageStatistics.isSampledStatisticsEnabled()) {
             sampledCacheUsageStatistics.dispose();
             if (!isStatisticsEnabled()) {
-                LOG.log(Level.WARNING, "Trying to enable Sampled Statistics when statistics collection is not enabled."
-                        + " Please enable statistics collection before enabling this by calling setStatisticsEnabled(true).");
-                sampledCacheUsageStatistics = NULL_SAMPLED_CACHE_STATISTICS;
-                return;
+                // enabled statistics too
+                setStatisticsEnabled(true);
             }
             sampledCacheUsageStatistics = new SampledCacheUsageStatisticsImpl(
-                    timer);
+                    cacheManager.getTimer());
             // register to get the actual data
             this
                     .registerCacheUsageListener((CacheUsageListener) sampledCacheUsageStatistics);

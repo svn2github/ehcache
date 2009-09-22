@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.management.sampled;
 
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 
 /**
@@ -30,7 +29,6 @@ import net.sf.ehcache.Ehcache;
 public class SampledCache implements SampledCacheMBean {
 
     private final Ehcache cache;
-    private final CacheManager cacheManager;
     private final String immutableCacheName;
 
     /**
@@ -38,10 +36,9 @@ public class SampledCache implements SampledCacheMBean {
      * 
      * @param cache
      */
-    public SampledCache(Ehcache cache, CacheManager cacheManager) {
+    public SampledCache(Ehcache cache) {
         this.cache = cache;
         immutableCacheName = cache.getName();
-        this.cacheManager = cacheManager;
     }
 
     /**
@@ -240,9 +237,7 @@ public class SampledCache implements SampledCacheMBean {
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#enableSampledStatistics()
      */
     public void enableSampledStatistics() {
-        // need to enable statistics
-        enableStatistics();
-        cache.enableSampledStatistics(cacheManager.getTimer());
+        cache.setSampledStatisticsEnabled(true);
     }
 
     /**
@@ -252,7 +247,7 @@ public class SampledCache implements SampledCacheMBean {
      *      ()
      */
     public void disableSampledStatistics() {
-        cache.disableSampledStatistics();
+        cache.setSampledStatisticsEnabled(false);
     }
 
 }
