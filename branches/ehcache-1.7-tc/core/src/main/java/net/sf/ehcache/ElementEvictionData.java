@@ -16,15 +16,15 @@
 
 package net.sf.ehcache;
 
-import java.io.Serializable;
+import net.sf.ehcache.store.Store;
 
 /**
  * Provides pluggable storage an configuration of TTI eviction data.
- *
+ * 
  * @author Geert Bevin
  * @version $Id$
  */
-public interface ElementEvictionData extends Serializable, Cloneable {
+public interface ElementEvictionData extends Cloneable {
 
     /**
      * Get the element's creation time.
@@ -32,26 +32,44 @@ public interface ElementEvictionData extends Serializable, Cloneable {
      * @return the element's creation time in seconds
      */
     public int getCreationTime();
-    
+
     /**
      * Gets the last access time.
-     * Access means a get. So a newly created {@link Element}
-     * will have a last access time equal to its create time.
+     * Access means a get. So a newly created {@link Element} will have a last
+     * access time equal to its create time.
      * 
      * @return the element's last access time in seconds
      */
     public int getLastAccessTime();
 
     /**
-     * Sets the last access time to 0.
+     * Updates the last access time.
+     * 
+     * @param time
+     *            the new last access time
+     * @param element
+     *            the element for which the last access time is set
+     * @param store
+     *            the store that is used to be able to perform the action,
+     *            this might not be used by some implementations of this
+     *            interface but allows others to have more access to the context
+     *            in which this method call is executed
      */
-    public void resetLastAccessStatistics();
+    public void updateLastAccessTime(int time, Element element, Store store);
 
     /**
-     * Sets the last access time to now
+     * Resets the last access time.
+     * 
+     * @param element
+     *            the element for which the last access time is set
+     * @param store
+     *            the store that is used to be able to perform the action,
+     *            this might not be used by some implementations of this
+     *            interface but allows others to have more access to the context
+     *            in which this method call is executed
      */
-    public void updateAccessStatistics();
-    
+    public void resetLastAccessTime(Element element, Store store);
+
     /**
      * Creates a clone of the eviction data
      * 
@@ -59,7 +77,13 @@ public interface ElementEvictionData extends Serializable, Cloneable {
      * @throws CloneNotSupportedException
      */
     public ElementEvictionData clone() throws CloneNotSupportedException;
+
+    /**
+     * Indicates whether the data of this element eviction instance can
+     * participate in serialization of the element as a whole.
+     * 
+     * @return {@code true} when the data can participate in serialization; or
+     *         {@code false} otherwise
+     */
+    public boolean canParticipateInSerialization();
 }
-
-
-

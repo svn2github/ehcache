@@ -16,14 +16,14 @@
 
 package net.sf.ehcache;
 
+import net.sf.ehcache.store.Store;
+
 /**
  *
  * @author Geert Bevin
  * @version $Id$
  */
 public class DefaultElementEvictionData implements ElementEvictionData {
-    
-    private static final long serialVersionUID = 6770042345561605257L;
 
     /**
      * The creation time.
@@ -69,15 +69,15 @@ public class DefaultElementEvictionData implements ElementEvictionData {
     /**
      * {@inheritDoc}
      */
-    public void resetLastAccessStatistics() {
-        lastAccessTime = 0;
+    public void updateLastAccessTime(int time, Element element, Store store) {
+        lastAccessTime = time;
     }
 
     /**
      * {@inheritDoc}
      */
-    public void updateAccessStatistics() {        
-        lastAccessTime = (int) (System.currentTimeMillis() / Element.ONE_SECOND);
+    public void resetLastAccessTime(Element element, Store store) {
+        lastAccessTime = 0;
     }
 
     /**
@@ -89,5 +89,12 @@ public class DefaultElementEvictionData implements ElementEvictionData {
         result.creationTime = this.creationTime;
         result.lastAccessTime = this.lastAccessTime;
         return result;
+    }
+
+     /**
+      * {@inheritDoc}
+      */
+    public boolean canParticipateInSerialization() {
+        return true;
     }
 }

@@ -21,11 +21,14 @@ package net.sf.ehcache;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import net.sf.ehcache.store.Store;
 
 /**
  * A Cache Element, consisting of a key, value and attributes.
@@ -87,7 +90,7 @@ public class Element implements Serializable, Cloneable {
     /**
      * Pluggable element eviction data instance
      */
-    private ElementEvictionData elementEvictionData;
+    private volatile transient ElementEvictionData elementEvictionData;
 
     /**
      * If there is an Element in the Cache and it is replaced with a new Element for the same key,
@@ -382,20 +385,38 @@ public class Element implements Serializable, Cloneable {
     public final long getHitCount() {
         return hitCount;
     }
+    
+    /** 
+     * Retrieves this element's eviction data instance.
+     * 
+     * @return this element's eviction data instance
+     */
+    public ElementEvictionData getElementEvictionData() {
+        return elementEvictionData;
+    }
+
+    /**
+     * Sets this element's eviction data instance.
+     * 
+     * @param elementEvictionData this element's eviction data
+     */
+    public void setElementEvictionData(ElementEvictionData elementEvictionData) {
+        this.elementEvictionData = elementEvictionData;
+    }
 
     /**
      * Resets the hit count to 0 and the last access time to 0.
      */
-    public final void resetAccessStatistics() {
-        elementEvictionData.resetLastAccessStatistics();
+    public final void resetAccessStatistics(Store store) {
+        elementEvictionData.resetLastAccessTime(this, store);
         hitCount = 0;
     }
 
     /**
      * Sets the last access time to now and increase the hit count.
      */
-    public final void updateAccessStatistics() {
-        elementEvictionData.updateAccessStatistics();
+    public final void updateAccessStatistics(Store store) {
+        elementEvictionData.updateLastAccessTime(toSecs(System.currentTimeMillis()), this, store);
         hitCount++;
     }
 
@@ -443,13 +464,23 @@ public class Element implements Serializable, Cloneable {
         //Not used. Just to get code inspectors to shut up
         super.clone();
 
-        Element element = new Element(deepCopy(key), deepCopy(value), version);
-        element.elementEvictionData = elementEvictionData.clone();
-        element.hitCount = hitCount;
-        return element;
+        try {
+            Element element = new Element(deepCopy(key), deepCopy(value), version);
+            element.elementEvictionData = elementEvictionData.clone();
+            element.hitCount = hitCount;
+            return element;
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, "Error cloning Element with key " + key
+                    + " during serialization and deserialization of value");
+            throw new CloneNotSupportedException();
+        } catch (ClassNotFoundException e) {
+            LOG.log(Level.SEVERE, "Error cloning Element with key " + key
+                    + " during serialization and deserialization of value");
+            throw new CloneNotSupportedException();
+        }
     }
 
-    private Object deepCopy(final Object oldValue) {
+    private static Object deepCopy(final Object oldValue) throws IOException, ClassNotFoundException {
         Serializable newValue = null;
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         ObjectOutputStream oos = null;
@@ -460,12 +491,6 @@ public class Element implements Serializable, Cloneable {
             ByteArrayInputStream bin = new ByteArrayInputStream(bout.toByteArray());
             ois = new ObjectInputStream(bin);
             newValue = (Serializable) ois.readObject();
-        } catch (IOException e) {
-            LOG.log(Level.SEVERE, "Error cloning Element with key " + key
-                    + " during serialization and deserialization of value");
-        } catch (ClassNotFoundException e) {
-            LOG.log(Level.SEVERE, "Error cloning Element with key " + key
-                    + " during serialization and deserialization of value");
         } finally {
             try {
                 if (oos != null) {
@@ -535,7 +560,9 @@ public class Element implements Serializable, Cloneable {
      * @since 1.2
      */
     public final boolean isSerializable() {
-        return isKeySerializable() && (value instanceof Serializable || value == null);
+        return isKeySerializable() 
+            && (value instanceof Serializable || value == null)
+            && elementEvictionData.canParticipateInSerialization();
     }
 
     /**
@@ -659,5 +686,25 @@ public class Element implements Serializable, Cloneable {
             return 0;
         }
         return timeToIdle;
+    }
+    
+    /**
+     * Custom serialization write logic
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        if (!elementEvictionData.canParticipateInSerialization()) {
+            throw new NotSerializableException();
+        }
+        out.defaultWriteObject();
+        out.writeInt(elementEvictionData.getCreationTime());
+        out.writeInt(elementEvictionData.getLastAccessTime());
+    }
+    
+    /**
+     * Custom serialization read logic
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        elementEvictionData = new DefaultElementEvictionData(in.readInt(), in.readInt());
     }
 }
