@@ -219,7 +219,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
-        assertEquals("", configurationHelper.getConfigurationBean().getName());
+        assertEquals(null, configurationHelper.getConfigurationBean().getName());
         assertEquals(true, configurationHelper.getConfigurationBean().getUpdateCheck());
 
         //Check disk store  <diskStore path="/tmp"/>
@@ -840,7 +840,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
             fis.close();
         }
 
-        assertEquals("", configurationHelper.getConfigurationBean().getName());
+        assertEquals(null, configurationHelper.getConfigurationBean().getName());
         assertEquals(true, configurationHelper.getConfigurationBean().getUpdateCheck());
 
         //Check disk path  <diskStore path="/tmp"/>

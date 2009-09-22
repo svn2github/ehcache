@@ -22,8 +22,7 @@ for new versions of Ehcache over the Internet.  If not specified, updateCheck="t
 -->    
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="ehcache.xsd"
-         name=""
-         updateCheck="true">
+             updateCheck="true">
     
     <!-- 
     DiskStore configuration
