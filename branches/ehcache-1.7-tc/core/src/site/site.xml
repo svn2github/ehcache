@@ -61,9 +61,9 @@
         <menu name="Community">
             <item name="Mailing Lists" href="/mail-lists.html"/>
             <item name="Issue Tracking" href="/issue-tracking.html"/>
-            <item name="Forums" href=""/>
-            <item name="Bugs" href="https://jira.terracotta.org/jira/browse/EHCACHE"/>
-            <item name="Feature Requests" href="https://jira.terracotta.org/jira/browse/EHCACHE"/>
+            <item name="Forums" href="http://forums.terracotta.org/forums/forums/show/16.page"/>
+            <item name="Bugs" href="https://jira.terracotta.org/jira/browse/EHC"/>
+            <item name="Feature Requests" href="https://jira.terracotta.org/jira/browse/EHC"/>
             <item name="Who's Using?" href="/who_is_using.html"/>
             <item name="Development Roadmap" href="/roadmap.html"/>
             <item name="Maintainer's blog" href="http://gregluck.com/blog"/>
