@@ -23,7 +23,7 @@
         <module>jcache</module>
         <module>server</module>
         <module>standalone-server</module>
-
+        <module>console</module>
     <module>jmsreplication</module>
     <module>jgroupsreplication</module>
     <module>openjpa</module>
@@ -501,8 +501,4 @@
         <url>http://fisheye3.atlassian.com/changelog/ehcache/</url>
     </scm>
 
-
-  <modules>
-    <module>console</module>
-  </modules>
 </project>

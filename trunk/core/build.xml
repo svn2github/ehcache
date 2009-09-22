@@ -213,7 +213,7 @@ pageTracker._trackPageview();
         <!--Fix absolute size of architecture diagram-->
         <replace file="${build.dir}/site/index.html">
             <replacetoken><![CDATA[<img src="images/layered_architecture.png"]]></replacetoken>
-            <replacevalue><![CDATA[ <img src="images/layered_architecture.png" width="100%"/>]]></replacevalue>
+            <replacevalue><![CDATA[ <img src="images/layered_architecture.png" width="100%"]]></replacevalue>
         </replace>
         <!--Fix absolute size of members' and contributors' lists-->
         <replace file="${build.dir}/site/team-list.html">
