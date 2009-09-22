@@ -34,4 +34,14 @@ public class NullMBeanRegistrationProvider implements MBeanRegistrationProvider 
         // no-op
     }
 
+    /**
+     * A null implementation of
+     * {@link MBeanRegistrationProvider#reinitialize()}
+     */
+    public void reinitialize()
+            throws MBeanRegistrationProviderException {
+        // no-op
+
+    }
+
 }

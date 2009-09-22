@@ -86,6 +86,11 @@ public class CacheManager {
      * The Singleton Instance.
      */
     private static CacheManager singleton;
+    
+    /**
+     * The factory to use for creating MBeanRegistrationProvider's
+     */
+    private static MBeanRegistrationProviderFactory mBeanRegistrationProviderFactory = new MBeanRegistrationProviderFactoryImpl();
 
     /**
      * Ehcaches managed by this manager.
@@ -144,8 +149,8 @@ public class CacheManager {
      * The path for the directory in which disk caches are created.
      */
     private String diskStorePath;
-
-    private MBeanRegistrationProviderFactory mBeanRegistrationProviderFactory = new MBeanRegistrationProviderFactoryImpl();
+    
+    private MBeanRegistrationProvider mbeanRegistrationProvider;
 
     private FailSafeTimer cacheManagerTimer;
 
@@ -285,11 +290,12 @@ public class CacheManager {
         //do this last
         addConfiguredCaches(configurationHelper);
 
-        MBeanRegistrationProvider provider = mBeanRegistrationProviderFactory.createMBeanRegistrationProvider();
+        mbeanRegistrationProvider = mBeanRegistrationProviderFactory.createMBeanRegistrationProvider();
         try {
-            provider.initialize(this);
+            mbeanRegistrationProvider.initialize(this);
         } catch (MBeanRegistrationProviderException e) {
-          LOG.log(Level.WARNING, "Failed to initialize the MBeanRegistrationProvider - " + provider.getClass().getName(), e);
+            LOG.log(Level.WARNING, "Failed to initialize the MBeanRegistrationProvider - "
+                         + mbeanRegistrationProvider.getClass().getName(), e);
         }
     }
 
@@ -1049,6 +1055,13 @@ public class CacheManager {
      */
     public void setName(String name) {
         this.name = name;
+        try {
+            mbeanRegistrationProvider.reinitialize();
+        } catch (MBeanRegistrationProviderException e) {
+            throw new CacheException(
+                    "Problem in reinitializing MBeanRegistrationProvider - "
+                            + mbeanRegistrationProvider.getClass().getName(), e);
+        }
     }
 
     /**
