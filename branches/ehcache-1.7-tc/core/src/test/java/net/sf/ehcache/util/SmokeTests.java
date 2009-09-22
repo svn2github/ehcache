@@ -16,7 +16,7 @@
 
 package net.sf.ehcache.util;
 
-import net.sf.ehcache.CacheManagerTest;
+import net.sf.ehcache.CacheTest;
 import net.sf.ehcache.ElementTest;
 import net.sf.ehcache.constructs.blocking.BlockingCacheTest;
 
@@ -27,13 +27,13 @@ import org.junit.runners.Suite;
  * This test suite will run a bunch of tests that you specify
  * Good test to run if you want to do a quick smoke tests of ehcache
  * 
- * mvn test -Dtest=SmokeTestsTest
+ * mvn test -Dtest=SmokeTests
  * 
  * @author hhuynh
  * 
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ CacheManagerTest.class, ElementTest.class, BlockingCacheTest.class })
-public class SmokeTestsTest {
+@Suite.SuiteClasses({ CacheTest.class, ElementTest.class, BlockingCacheTest.class })
+public class SmokeTests {
     // place holder
 }
