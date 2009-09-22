@@ -2,8 +2,16 @@
 
 Repository = Struct.new(:id, :url)
 
-MODULES = %w(. core debugger jcache server standalone-server jmsreplication
-             jgroupsreplication openjpa)
+# scan for modules
+MODULES = []
+Dir.chdir(File.dirname(__FILE__)) do |root|
+  Dir.glob("*").each do |entry|
+    if File.directory?(entry) && File.exists?(File.join(entry, "pom.xml"))
+      MODULES << entry
+    end
+  end
+end
+
 REPOSITORIES = [
     Repository.new('default'),
     Repository.new('kong', 'file:///shares/maven2')
