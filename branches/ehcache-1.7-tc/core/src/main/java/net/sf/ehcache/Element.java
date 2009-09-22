@@ -215,6 +215,9 @@ public class Element implements Serializable, Cloneable {
     }
     
     private static int toSecs(long timeInMillis) {
+        // Rounding the result to the ceiling, otherwise a
+        // System.currentTimeInMillis that happens right before a new Element
+        // instantiation will be seen as 'later' than the actual creation time
         return (int)Math.ceil((double)timeInMillis / ONE_SECOND);
     }
     
