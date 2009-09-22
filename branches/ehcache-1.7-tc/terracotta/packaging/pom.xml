@@ -147,7 +147,7 @@
           <appendAssemblyId>false</appendAssemblyId>
           <attach>false</attach>
           <descriptors>
-            <descriptor>src/main/assembly/bin.xml</descriptor>
+            <descriptor>${basedir}/src/main/assembly/bin.xml</descriptor>
           </descriptors>
         </configuration>
         <executions>
@@ -168,7 +168,7 @@
           <execution>
             <id>install-standalone-package</id>
             <configuration>
-              <file>target/${jar-name}-${project.version}.jar</file>
+              <file>${project.build.directory}/${jar-name}-${project.version}.jar</file>
               <packaging>jar</packaging>
               <groupId>net.sf.ehcache</groupId>
               <artifactId>${jar-name}</artifactId>
@@ -232,7 +232,7 @@
               <execution>
                 <id>deploy-to-kong</id>
                 <configuration>
-                  <file>target/${jar-name}-${project.version}.jar</file>
+                  <file>${project.build.directory}/${jar-name}-${project.version}.jar</file>
                   <repositoryId>kong</repositoryId>
                   <url>file:///shares/maven2</url>
                   <packaging>jar</packaging>
@@ -270,7 +270,7 @@
               <execution>
                 <id>deploy-to-kong</id>
                 <configuration>
-                  <file>target/${jar-name}-${project.version}.jar</file>
+                  <file>${project.build.directory}/${jar-name}-${project.version}.jar</file>
                   <repositoryId>kong</repositoryId>
                   <url>file:///export1/forge/repo</url>
                   <packaging>jar</packaging>
