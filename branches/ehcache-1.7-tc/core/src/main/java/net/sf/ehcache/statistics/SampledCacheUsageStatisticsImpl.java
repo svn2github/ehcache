@@ -20,6 +20,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Statistics;
+import net.sf.ehcache.util.FailSafeTimer;
+import net.sf.ehcache.util.counter.CounterConfig;
 import net.sf.ehcache.util.counter.CounterManager;
 import net.sf.ehcache.util.counter.CounterManagerImpl;
 import net.sf.ehcache.util.counter.sampled.SampledCounter;
@@ -41,7 +43,12 @@ public class SampledCacheUsageStatisticsImpl implements CacheUsageListener,
 
     private static final int DEFAULT_HISTORY_SIZE = 30;
     private static final int DEFAULT_INTERVAL_SECS = 3;
-    private final CounterManager counterManager;
+    private final static SampledCounterConfig DEFAULT_SAMPLED_COUNTER_CONFIG = new SampledCounterConfig(
+            DEFAULT_INTERVAL_SECS, DEFAULT_HISTORY_SIZE, true, 0L);
+    private final static SampledRateCounterConfig DEFAULT_SAMPLED_RATE_COUNTER_CONFIG = new SampledRateCounterConfig(
+            DEFAULT_INTERVAL_SECS, DEFAULT_HISTORY_SIZE, true);
+
+    private volatile CounterManager counterManager;
     private final SampledCounter cacheHitCount;
     private final SampledCounter cacheHitInMemoryCount;
     private final SampledCounter cacheHitOnDiskCount;
@@ -55,51 +62,42 @@ public class SampledCacheUsageStatisticsImpl implements CacheUsageListener,
     private final SampledCounter cacheElementUpdated;
     private final SampledRateCounter averageGetTime;
 
-    private final AtomicBoolean statisticsEnabled;
+    private final AtomicBoolean sampledStatisticsEnabled;
     private final AtomicInteger statisticsAccuracy;
 
     /**
-     * Default constructor
+     * Constructor that accepts a timer which will be used to schedule the
+     * sampled counters
      */
-    public SampledCacheUsageStatisticsImpl() {
-        counterManager = new CounterManagerImpl();
-        SampledCounterConfig sampledCounterConfig = new SampledCounterConfig(
-                DEFAULT_INTERVAL_SECS, DEFAULT_HISTORY_SIZE, true, 0L);
-        cacheHitCount = (SampledCounter) counterManager
-                .createCounter(sampledCounterConfig);
-        cacheHitInMemoryCount = (SampledCounter) counterManager
-                .createCounter(sampledCounterConfig);
-        cacheHitOnDiskCount = (SampledCounter) counterManager
-                .createCounter(sampledCounterConfig);
-        cacheMissCount = (SampledCounter) counterManager
-                .createCounter(sampledCounterConfig);
-        cacheMissExpiredCount = (SampledCounter) counterManager
-                .createCounter(sampledCounterConfig);
-        cacheMissNotFoundCount = (SampledCounter) counterManager
-                .createCounter(sampledCounterConfig);
-        cacheElementEvictedCount = (SampledCounter) counterManager
-                .createCounter(sampledCounterConfig);
-        cacheElementRemoved = (SampledCounter) counterManager
-                .createCounter(sampledCounterConfig);
-        cacheElementExpired = (SampledCounter) counterManager
-                .createCounter(sampledCounterConfig);
-        cacheElementPut = (SampledCounter) counterManager
-                .createCounter(sampledCounterConfig);
-        cacheElementUpdated = (SampledCounter) counterManager
-                .createCounter(sampledCounterConfig);
+    public SampledCacheUsageStatisticsImpl(FailSafeTimer timer) {
+        counterManager = new CounterManagerImpl(timer);
+        cacheHitCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
+        cacheHitInMemoryCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
+        cacheHitOnDiskCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
+        cacheMissCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
+        cacheMissExpiredCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
+        cacheMissNotFoundCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
+        cacheElementEvictedCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
+        cacheElementRemoved = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
+        cacheElementExpired = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
+        cacheElementPut = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
+        cacheElementUpdated = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
 
-        final SampledRateCounterConfig sampledRateCounterConfig = new SampledRateCounterConfig(
-                3, 30, true);
-        averageGetTime = (SampledRateCounter) counterManager
-                .createCounter(sampledRateCounterConfig);
+        averageGetTime = (SampledRateCounter) createSampledCounter(DEFAULT_SAMPLED_RATE_COUNTER_CONFIG);
 
-        this.statisticsEnabled = new AtomicBoolean(true);
+        this.sampledStatisticsEnabled = new AtomicBoolean(true);
         this.statisticsAccuracy = new AtomicInteger(
                 Statistics.STATISTICS_ACCURACY_BEST_EFFORT);
     }
 
+    private SampledCounter createSampledCounter(
+            CounterConfig defaultCounterConfig) {
+        return (SampledCounter) counterManager
+                .createCounter(defaultCounterConfig);
+    }
+
     private void incrementIfStatsEnabled(SampledCounter... counters) {
-        if (!statisticsEnabled.get()) {
+        if (!sampledStatisticsEnabled.get()) {
             return;
         }
         for (SampledCounter counter : counters) {
@@ -181,7 +179,7 @@ public class SampledCacheUsageStatisticsImpl implements CacheUsageListener,
      * {@inheritDoc}
      */
     public void notifyTimeTakenForGet(long millis) {
-        if (!statisticsEnabled.get()) {
+        if (!sampledStatisticsEnabled.get()) {
             return;
         }
         averageGetTime.increment(millis, 1);
@@ -207,7 +205,7 @@ public class SampledCacheUsageStatisticsImpl implements CacheUsageListener,
      * {@inheritDoc}
      */
     public void notifyStatisticsEnabledChanged(boolean enableStatistics) {
-        statisticsEnabled.set(enableStatistics);
+        sampledStatisticsEnabled.set(enableStatistics);
     }
 
     /**
@@ -344,8 +342,8 @@ public class SampledCacheUsageStatisticsImpl implements CacheUsageListener,
     /**
      * {@inheritDoc}
      */
-    public boolean isStatisticsEnabled() {
-        return statisticsEnabled.get();
+    public boolean isSampledStatisticsEnabled() {
+        return sampledStatisticsEnabled.get();
     }
 
 }

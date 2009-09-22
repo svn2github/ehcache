@@ -25,7 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
@@ -47,6 +46,7 @@ import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactoryImpl;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreFactory;
+import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.UpdateChecker;
 
@@ -147,7 +147,7 @@ public class CacheManager {
 
     private MBeanRegistrationProviderFactory mBeanRegistrationProviderFactory = new MBeanRegistrationProviderFactoryImpl();
 
-    private Timer updateCheckTimer;
+    private FailSafeTimer cacheManagerTimer;
 
     /**
      * Factory for creating terracotta clustered memory store (may be null if this manager has no terracotta caches)
@@ -279,6 +279,7 @@ public class CacheManager {
         cacheManagerEventListenerRegistry.init();
         addShutdownHookIfRequired();
 
+        cacheManagerTimer = new FailSafeTimer(getName());
         checkForUpdateIfNeeded(localConfiguration.getUpdateCheck());
 
         //do this last
@@ -311,13 +312,8 @@ public class CacheManager {
         try {
             if (updateCheckNeeded) {
                 UpdateChecker updateChecker = new UpdateChecker();
-                try {
-                    updateCheckTimer = new Timer(true);
-                    updateCheckTimer.scheduleAtFixedRate(updateChecker, 1, EVERY_WEEK);
-                } catch (java.security.AccessControlException ace) {
-                    // can't spawn thread, run inline
-                    updateChecker.checkForUpdate();
-                }
+                cacheManagerTimer.scheduleAtFixedRate(updateChecker, 1,
+                        EVERY_WEEK);
             }
         } catch (Throwable t) {
             LOG.log(Level.WARNING, "Failed to set up update checker", t);
@@ -853,10 +849,10 @@ public class CacheManager {
                 }
             }
 
-            // turn off update check timer if it was set
-            if (updateCheckTimer != null) {
-                updateCheckTimer.cancel();
-                updateCheckTimer.purge();
+            // cancel the cacheManager timer and all tasks
+            if (cacheManagerTimer != null) {
+                cacheManagerTimer.cancel();
+                cacheManagerTimer.purge();
             }
 
             cacheManagerEventListenerRegistry.dispose();
@@ -1072,6 +1068,16 @@ public class CacheManager {
      */
     public String getDiskStorePath() {
         return diskStorePath;
+    }
+    
+    /**
+     * Returns a {@link FailSafeTimer} associated with this {@link CacheManager}
+     * 
+     * @return
+     * @since 1.7
+     */
+    public FailSafeTimer getTimer() {
+        return cacheManagerTimer;
     }
 }
 

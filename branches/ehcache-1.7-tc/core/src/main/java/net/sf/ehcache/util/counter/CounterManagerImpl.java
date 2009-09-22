@@ -16,8 +16,10 @@
 
 package net.sf.ehcache.util.counter;
 
-import java.util.Timer;
+import java.util.ArrayList;
+import java.util.List;
 
+import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.counter.sampled.SampledCounter;
 import net.sf.ehcache.util.counter.sampled.SampledCounterImpl;
 
@@ -29,14 +31,20 @@ import net.sf.ehcache.util.counter.sampled.SampledCounterImpl;
  * 
  */
 public class CounterManagerImpl implements CounterManager {
-    private final Timer timer = new Timer("SampledCounterManager Timer", true);
+
+    private FailSafeTimer timer;
     private boolean shutdown;
+    private List<Counter> counters = new ArrayList<Counter>();
 
     /**
-     * Default Constructor
+     * Constructor that accepts a timer that will be used for scheduling sampled
+     * counter if any is created
      */
-    public CounterManagerImpl() {
-        super();
+    public CounterManagerImpl(FailSafeTimer timer) {
+        if (timer == null) {
+            throw new IllegalArgumentException("Timer cannot be null");
+        }
+        this.timer = timer;
     }
 
     /**
@@ -47,7 +55,13 @@ public class CounterManagerImpl implements CounterManager {
             return;
         }
         try {
-            timer.cancel();
+            // do not cancel the timer as others might also be using it
+            // instead shutdown the counters of this counterManager
+            for (Counter counter : counters) {
+                if (counter instanceof SampledCounter) {
+                    ((SampledCounter) counter).shutdown();
+                }
+            }
         } finally {
             shutdown = true;
         }
@@ -63,15 +77,14 @@ public class CounterManagerImpl implements CounterManager {
         if (config == null) {
             throw new NullPointerException("config cannot be null");
         }
-
         Counter counter = config.createCounter();
         if (counter instanceof SampledCounterImpl) {
             SampledCounterImpl sampledCounter = (SampledCounterImpl) counter;
             timer.schedule(sampledCounter.getTimerTask(), sampledCounter
                     .getIntervalMillis(), sampledCounter.getIntervalMillis());
         }
+        counters.add(counter);
         return counter;
-
     }
 
     /**

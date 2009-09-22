@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.util.counter;
 
+
 /**
  * A Counter Manager that accepts a config to create counters. Creates counter's
  * based on {@link CounterConfig}. This manages the
@@ -45,4 +46,5 @@ public interface CounterManager {
      * @param counter
      */
     void shutdownCounter(Counter counter);
+
 }

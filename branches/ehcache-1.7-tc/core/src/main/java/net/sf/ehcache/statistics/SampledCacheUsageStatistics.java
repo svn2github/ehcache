@@ -121,7 +121,7 @@ public interface SampledCacheUsageStatistics {
      *         {@link Statistics#STATISTICS_ACCURACY_NONE}
      */
     public int getStatisticsAccuracy();
-    
+
     /**
      * Get Description for statisticsAccuracy
      */
@@ -133,6 +133,11 @@ public interface SampledCacheUsageStatistics {
      * 
      * @return
      */
-    public boolean isStatisticsEnabled();
+    public boolean isSampledStatisticsEnabled();
+
+    /**
+     * Method used to dispose this statistics
+     */
+    public void dispose();
 
 }

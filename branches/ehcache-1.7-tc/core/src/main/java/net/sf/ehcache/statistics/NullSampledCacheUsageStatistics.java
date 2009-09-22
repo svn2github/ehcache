@@ -129,7 +129,16 @@ public class NullSampledCacheUsageStatistics implements
     /**
      * {@inheritDoc}
      */
-    public boolean isStatisticsEnabled() {
-        return true;
+    public boolean isSampledStatisticsEnabled() {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.SampledCacheUsageStatistics#dispose()
+     */
+    public void dispose() {
+        // no-op
     }
 }

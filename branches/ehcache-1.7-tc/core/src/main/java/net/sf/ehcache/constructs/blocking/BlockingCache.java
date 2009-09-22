@@ -29,8 +29,8 @@ import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.concurrent.StripedMutex;
-import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.concurrent.StripedSync;
+import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
@@ -39,6 +39,7 @@ import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.CacheUsageStatistics;
 import net.sf.ehcache.statistics.SampledCacheUsageStatistics;
+import net.sf.ehcache.util.FailSafeTimer;
 
 
 /**
@@ -1087,6 +1088,33 @@ public class BlockingCache implements Ehcache {
      */
     public SampledCacheUsageStatistics getSampledCacheUsageStatistics() {
         return cache.getSampledCacheUsageStatistics();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.Ehcache#disableSampledStatistics()
+     */
+    public void disableSampledStatistics() {
+        cache.disableSampledStatistics();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.Ehcache#enableSampledStatistics(java.util.Timer)
+     */
+    public void enableSampledStatistics(FailSafeTimer timer) {
+        cache.enableSampledStatistics(timer);
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.Ehcache#isSampledStatisticsEnabled()
+     */
+    public boolean isSampledStatisticsEnabled() {
+        return cache.isSampledStatisticsEnabled();
     }
 
 }

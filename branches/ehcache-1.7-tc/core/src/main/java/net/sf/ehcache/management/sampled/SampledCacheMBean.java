@@ -145,7 +145,7 @@ public interface SampledCacheMBean {
      *         {@link Statistics#STATISTICS_ACCURACY_NONE}
      */
     public int getStatisticsAccuracy();
-    
+
     /**
      * Get Description for statisticsAccuracy
      */
@@ -158,10 +158,41 @@ public interface SampledCacheMBean {
      * @return
      */
     public boolean isStatisticsEnabled();
-    
+
+    /**
+     * Returns true if sampled statistics collection is enabled for cache,
+     * otherwise
+     * false
+     * 
+     * @return
+     */
+    public boolean isSampledStatisticsEnabled();
+
     /**
      * Is the cache configured with Terracotta clustering?
      */
     public boolean isTerracottaClustered();
+
+    /**
+     * Enables statistics collection
+     */
+    public void enableStatistics();
+
+    /**
+     * Disables statistics collection. Also disables sampled statistics if it is
+     * enabled.
+     */
+    public void disableStatistics();
+
+    /**
+     * Enables statistics collection. As it requires that normal statistics
+     * collection to be enabled, it enables it if its not already
+     */
+    public void enableSampledStatistics();
+
+    /**
+     * Disables statistics collection
+     */
+    public void disableSampledStatistics();
 
 }

@@ -61,6 +61,7 @@ import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.util.FailSafeTimer;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -159,6 +160,8 @@ public class Cache implements Ehcache {
                     " Ehcache will work as a local cache.");
         }
     }
+    
+    private static final SampledCacheUsageStatistics NULL_SAMPLED_CACHE_STATISTICS = new NullSampledCacheUsageStatistics();
 
     private boolean disabled;
 
@@ -612,7 +615,7 @@ public class Cache implements Ehcache {
         
         //initialize to null-impl values
         cacheUsageStatisticsData = new NullCacheUsageStatisticsData(name);
-        sampledCacheUsageStatistics = new NullSampledCacheUsageStatistics();
+        sampledCacheUsageStatistics = NULL_SAMPLED_CACHE_STATISTICS;
     }
 
     /**
@@ -656,10 +659,6 @@ public class Cache implements Ehcache {
             // put/update/remove/expiry/eviction
             getCacheEventNotificationService().registerListener(
                     cacheUsageStatisticsData);
-            // register the sampled stats as a listener
-            sampledCacheUsageStatistics = new SampledCacheUsageStatisticsImpl();
-            this
-                    .registerCacheUsageListener((CacheUsageListener) sampledCacheUsageStatistics);
             // set up default values
             cacheUsageStatisticsData.setStatisticsEnabled(true);
             cacheUsageStatisticsData
@@ -2535,6 +2534,9 @@ public class Cache implements Ehcache {
      */
     public void setStatisticsEnabled(boolean enableStatistics) {
         cacheUsageStatisticsData.setStatisticsEnabled(enableStatistics);
+        if (!enableStatistics) {
+            disableSampledStatistics();
+        }
     }
 
     /**
@@ -2542,6 +2544,54 @@ public class Cache implements Ehcache {
      */
     public SampledCacheUsageStatistics getSampledCacheUsageStatistics() {
         return sampledCacheUsageStatistics;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.Ehcache#disableSampledStatistics()
+     */
+    public void disableSampledStatistics() {
+        if (!(sampledCacheUsageStatistics instanceof NullSampledCacheUsageStatistics)) {
+            if (sampledCacheUsageStatistics instanceof CacheUsageListener) {
+                this
+                        .removeCacheUsageListener((CacheUsageListener) sampledCacheUsageStatistics);
+            }
+            sampledCacheUsageStatistics = NULL_SAMPLED_CACHE_STATISTICS;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.Ehcache#enableSampledStatistics(java.util.Timer)
+     */
+    public void enableSampledStatistics(FailSafeTimer timer) {
+        // don't do anything if already enabled
+        if (!sampledCacheUsageStatistics.isSampledStatisticsEnabled()) {
+            sampledCacheUsageStatistics.dispose();
+            if (!isStatisticsEnabled()) {
+                LOG.log(Level.WARNING, "Trying to enable Sampled Statistics when statistics collection is not enabled."
+                        + " Please enable statistics collection before enabling this by calling setStatisticsEnabled(true).");
+                sampledCacheUsageStatistics = NULL_SAMPLED_CACHE_STATISTICS;
+                return;
+            }
+            sampledCacheUsageStatistics = new SampledCacheUsageStatisticsImpl(
+                    timer);
+            // register to get the actual data
+            this
+                    .registerCacheUsageListener((CacheUsageListener) sampledCacheUsageStatistics);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.Ehcache#isSampledStatisticsEnabled()
+     */
+    public boolean isSampledStatisticsEnabled() {
+        return sampledCacheUsageStatistics.isSampledStatisticsEnabled();
     }
 
 }

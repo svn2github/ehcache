@@ -30,6 +30,7 @@ import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.CacheUsageStatistics;
 import net.sf.ehcache.statistics.SampledCacheUsageStatistics;
+import net.sf.ehcache.util.FailSafeTimer;
 
 /**
  * An interface for Ehcache.
@@ -849,7 +850,9 @@ public interface Ehcache extends Cloneable {
     public boolean isStatisticsEnabled();
 
     /**
-     * Enabled/disabled statistics collection
+     * Enable/disable statistics collection. If parameter is false, i.e.
+     * disabling statistics, it will disable Sampled Statistics
+     * Collection too (if its enabled)
      * 
      * @param enabledStatistics
      */
@@ -861,5 +864,28 @@ public interface Ehcache extends Cloneable {
      * @return
      */
     public SampledCacheUsageStatistics getSampledCacheUsageStatistics();
+    
+    /**
+     * Enables sampled statistics collection using the input timer to schedule
+     * sampling tasks. Note that to enable sampled statistics, the normal
+     * statistics must also be enabled, i.e. {@link #isStatisticsEnabled()} should be
+     * true, otherwise does nothing
+     * 
+     * @param timer
+     */
+    public void enableSampledStatistics(FailSafeTimer timer);
+
+    /**
+     * Disables sampled statistics collection and cancels all sampling tasks if
+     * any is running.
+     */
+    public void disableSampledStatistics();
+
+    /**
+     * Returns if sampled statistics collection is enabled or disabled
+     * 
+     * @return
+     */
+    public boolean isSampledStatisticsEnabled();
 
 }
