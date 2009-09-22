@@ -46,29 +46,38 @@
           <target>1.5</target>
         </configuration>
       </plugin>
-      
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <filters>
-            <filter>${basedir}/src/assemble/filter.properties</filter>
-          </filters>
-          <descriptors>
-            <descriptor>${basedir}/src/assemble/distribution.xml</descriptor>
-          </descriptors>
-          <tarLongFileMode>gnu</tarLongFileMode>
-        </configuration>
-        <executions>
-          <execution>
-            <id>assemble</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>assembly</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <id>assembly</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <configuration>
+              <filters>
+                <filter>${basedir}/src/assemble/filter.properties</filter>
+              </filters>
+              <descriptors>
+                <descriptor>${basedir}/src/assemble/distribution.xml</descriptor>
+              </descriptors>
+              <tarLongFileMode>gnu</tarLongFileMode>
+            </configuration>
+            <executions>
+              <execution>
+                <id>assemble</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>assembly</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+  
 </project>
