@@ -261,7 +261,7 @@ public class CacheManager {
         }
 
         if (localConfiguration.getName() != null) {
-            setName(localConfiguration.getName());
+            this.name = localConfiguration.getName();
         }
 
 
