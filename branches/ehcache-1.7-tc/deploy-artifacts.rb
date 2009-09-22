@@ -60,7 +60,9 @@ MODULES.each do |mod|
                 self.on_failure = lambda { |status, output|
                     $exit_status = 1
                     $stderr.puts("FAILURE - failed to deploy #{pom} to repository #{repo.id}")
+                    $stderr.puts("## OUTPUT for #{pom} (#{repo.id})")
                     $stderr.puts(output)
+                    $stderr.puts("## END OUTPUT for #{pom} (#{repo.id})")
                 }
             end
             maven_deploy_command.execute
