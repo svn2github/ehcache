@@ -19,8 +19,8 @@
     </dependency>
     <dependency>
       <groupId>org.terracotta.modules</groupId>
-      <artifactId>tim-ehcache-store</artifactId>
-      <version>${tim-ehcache-store.version}</version>
+      <artifactId>tim-ehcache-1.7</artifactId>
+      <version>${tim-ehcache-1.7.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

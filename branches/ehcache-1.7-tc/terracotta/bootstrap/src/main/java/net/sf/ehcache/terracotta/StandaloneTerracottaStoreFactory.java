@@ -104,7 +104,7 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
     }
 
     // depending on how things get factored this might be a jar resource like it is in the hibernate agent
-    String[] timsToLoad = new String[] { "tim-ehcache-store" };
+    String[] timsToLoad = new String[] { "tim-ehcache-1.7" };
 
     ClassLoader bootJarLoader = new URLClassLoader(new URL[] { newTcJarUrl(bootJarUrl) }, null);
 
@@ -129,14 +129,14 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
     }
   }
 
-  private static void handleSigarZipEntry(ZipInputStream agentJar, ZipEntry entry, File sigarTmpDir) throws IOException {
+  private static void handleSigarZipEntry(final ZipInputStream agentJar, final ZipEntry entry, final File sigarTmpDir) throws IOException {
     // extract only if this is for the current platform
     if (entry.getName().contains(baseLibraryName())) {
       extractSigarZipEntry(agentJar, entry, sigarTmpDir);
     }
   }
 
-  private static void extractSigarZipEntry(ZipInputStream jar, ZipEntry entry, File outputDir) throws IOException {
+  private static void extractSigarZipEntry(final ZipInputStream jar, final ZipEntry entry, final File outputDir) throws IOException {
     byte[] content = getCurrentZipEntry(jar);
     String outName = baseName(entry);
 
@@ -148,7 +148,7 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
     outFile.deleteOnExit();
   }
 
-  private static void writeFile(File file, byte[] contents) throws IOException {
+  private static void writeFile(final File file, final byte[] contents) throws IOException {
     FileOutputStream out = null;
 
     try {
@@ -165,7 +165,7 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
     }
   }
 
-  private static byte[] getCurrentZipEntry(ZipInputStream zis) throws IOException {
+  private static byte[] getCurrentZipEntry(final ZipInputStream zis) throws IOException {
     byte[] buf = new byte[1024];
     ByteArrayOutputStream bout = new ByteArrayOutputStream();
     int n;
@@ -176,7 +176,7 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
     return bout.toByteArray();
   }
 
-  private static File createTempDir(String prefix) throws IOException {
+  private static File createTempDir(final String prefix) throws IOException {
     final File tempDir = File.createTempFile(prefix, Long.toString(System.nanoTime()));
     if (!(tempDir.delete())) { throw new IOException("Could not delete temp file: " + tempDir.getAbsolutePath()); }
     if (!(tempDir.mkdir())) { throw new IOException("Could not create temp directory: " + tempDir.getAbsolutePath()); }
@@ -184,7 +184,7 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
     return tempDir;
   }
 
-  public Store create(Ehcache cache) {
+  public Store create(final Ehcache cache) {
     return realFactory.create(cache);
   }
 
@@ -205,7 +205,7 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
     }
   }
 
-  private ClassLoader newL1Loader(List<Jar> l1Jars, ClassLoader bootJarLoader) {
+  private ClassLoader newL1Loader(final List<Jar> l1Jars, final ClassLoader bootJarLoader) {
     Map<String, byte[]> extraClasses = new HashMap<String, byte[]>();
     extraClasses.put(StandaloneL1Boot.class.getName(), getBootClassBytes());
 
@@ -214,7 +214,7 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
 
   }
 
-  private URL[] toURLs(List<Jar> jars) {
+  private URL[] toURLs(final List<Jar> jars) {
     Jar[] jarArray = jars.toArray(new Jar[] {});
     URL[] urls = new URL[jarArray.length];
     for (int i = 0; i < jarArray.length; i++) {
@@ -234,11 +234,11 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
     }
   }
 
-  private static String baseName(ZipEntry entry) {
+  private static String baseName(final ZipEntry entry) {
     return new File(entry.getName()).getName();
   }
 
-  private URL newTcJarUrl(URL embedded) {
+  private URL newTcJarUrl(final URL embedded) {
     try {
       return new URL(Handler.TC_JAR_PROTOCOL, "", -1, Handler.TAG + embedded.toExternalForm() + Handler.TAG + "/",
                      new Handler(jarManager));
