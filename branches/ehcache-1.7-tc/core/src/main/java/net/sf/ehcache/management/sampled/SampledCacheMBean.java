@@ -48,7 +48,110 @@ public interface SampledCacheMBean {
      * Gets the cache name.
      */
     String getName();
+    
+    /**
+     * The number of times a requested item was found in the cache.
+     * 
+     * @return the number of times a requested item was found in the cache
+     */
+    public long getCacheHitCount();
 
+    /**
+     * Number of times a requested item was found in the Memory Store.
+     * 
+     * @return the number of times a requested item was found in memory
+     */
+    public long getInMemoryHitCount();
+
+    /**
+     * Number of times a requested item was found in the Disk Store.
+     * 
+     * @return the number of times a requested item was found on Disk, or 0 if
+     *         there is no disk storage configured.
+     */
+    public long getOnDiskHitCount();
+
+    /**
+     * @return the number of times a requested element was not found in the
+     *         cache, including expired elements
+     */
+    public long getCacheMissCount();
+
+    /**
+     * @return the number of times a requested element was not found in the
+     *         cache, does not include expired elements
+     */
+    public long getCacheMissCountNotFound();
+
+    /**
+     * @return the number of times a requested element was not found in the
+     *         cache but had already expired
+     */
+    public long getCacheMissCountExpired();
+
+    /**
+     * Size of the cache based on current accuracy settings.
+     * 
+     * @return
+     */
+    public long getSize();
+
+    /**
+     * Number of elements in the MemoryStore
+     * 
+     * @return
+     */
+    public long getInMemorySize();
+
+    /**
+     * Number of elements in the DiskStore
+     * 
+     * @return
+     */
+    public long getOnDiskSize();
+
+    /**
+     * Average time in milli seconds taken to get an element from the cache.
+     * 
+     * @return
+     */
+    public float getAverageGetTimeMillis();
+
+    /**
+     * Number of elements evicted from the cache
+     * 
+     * @return
+     */
+    public long getEvictedCount();
+
+    /**
+     * Number of puts that has happened in the cache
+     * 
+     * @return
+     */
+    public long getPutCount();
+
+    /**
+     * Number of updates that as happened in the cache
+     * 
+     * @return
+     */
+    public long getUpdateCount();
+
+    /**
+     * Number of elements expired since creation or last clear
+     * 
+     * @return
+     */
+    public long getExpiredCount();
+
+    /**
+     * Number of elements removed since creation or last clear
+     * 
+     * @return
+     */
+    public long getRemovedCount();
+    
     /**
      * Gets the most recent sample for cache hit count
      * 
@@ -172,6 +275,11 @@ public interface SampledCacheMBean {
      * Is the cache configured with Terracotta clustering?
      */
     public boolean isTerracottaClustered();
+    
+    /**
+     * Clear both sampled and cumulative statistics
+     */
+    public void clearStatistics();
 
     /**
      * Enables statistics collection
@@ -194,5 +302,51 @@ public interface SampledCacheMBean {
      * Disables statistics collection
      */
     public void disableSampledStatistics();
+    
+    /**
+     * Configuration property accessor
+     */
+    public int getConfigMaxElementsInMemory();
+
+    /**
+     * Configuration property accessor
+     */
+    public int getConfigMaxElementsOnDisk();
+
+    /**
+     * Configuration property accessor
+     * @return a String representation of the policy
+     */
+    public String getConfigMemoryStoreEvictionPolicy();
+
+    /**
+     * Configuration property accessor
+     */
+    public boolean isConfigEternal();
+
+    /**
+     * Configuration property accessor
+     */
+    public long getConfigTimeToIdleSeconds();
+
+    /**
+     * Configuration property accessor
+     */
+    public long getConfigTimeToLiveSeconds();
+
+    /**
+     * Configuration property accessor
+     */
+    public boolean isConfigOverflowToDisk();
+
+    /**
+     * Configuration property accessor
+     */
+    public boolean isConfigDiskPersistent();
+
+    /**
+     * Configuration property accessor
+     */
+    public long getConfigDiskExpiryThreadIntervalSeconds();
 
 }

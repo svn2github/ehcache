@@ -189,6 +189,13 @@ public class SampledCache implements SampledCacheMBean {
         return cache.getSampledCacheUsageStatistics()
                 .getStatisticsAccuracyDescription();
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void clearStatistics() {
+        cache.clearStatistics();
+    }
 
     /**
      * {@inheritDoc}
@@ -248,6 +255,224 @@ public class SampledCache implements SampledCacheMBean {
      */
     public void disableSampledStatistics() {
         cache.setSampledStatisticsEnabled(false);
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getAverageGetTimeMillis()
+     */
+    public float getAverageGetTimeMillis() {
+        return cache.getCacheUsageStatistics().getAverageGetTimeMillis();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getCacheHitCount()
+     */
+    public long getCacheHitCount() {
+        return cache.getCacheUsageStatistics().getCacheHitCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getCacheMissCount()
+     */
+    public long getCacheMissCount() {
+        return cache.getCacheUsageStatistics().getCacheMissCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getCacheMissCountExpired()
+     */
+    public long getCacheMissCountExpired() {
+        return cache.getCacheUsageStatistics().getCacheMissCountExpired();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getCacheMissCountNotFound()
+     */
+    public long getCacheMissCountNotFound() {
+        return cache.getCacheUsageStatistics().getCacheMissCountNotFound();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigDiskExpiryThreadIntervalSeconds()
+     */
+    public long getConfigDiskExpiryThreadIntervalSeconds() {
+        return cache.getCacheConfiguration()
+                .getDiskExpiryThreadIntervalSeconds();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigMaxElementsInMemory()
+     */
+    public int getConfigMaxElementsInMemory() {
+        return cache.getCacheConfiguration().getMaxElementsInMemory();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigMaxElementsOnDisk()
+     */
+    public int getConfigMaxElementsOnDisk() {
+        return cache.getCacheConfiguration().getMaxElementsOnDisk();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigMemoryStoreEvictionPolicy()
+     */
+    public String getConfigMemoryStoreEvictionPolicy() {
+        return cache.getCacheConfiguration().getMemoryStoreEvictionPolicy()
+                .toString();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigTimeToIdleSeconds()
+     */
+    public long getConfigTimeToIdleSeconds() {
+        return cache.getCacheConfiguration().getTimeToIdleSeconds();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigTimeToLiveSeconds()
+     */
+    public long getConfigTimeToLiveSeconds() {
+        return cache.getCacheConfiguration().getTimeToLiveSeconds();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getEvictedCount()
+     */
+    public long getEvictedCount() {
+        return cache.getCacheUsageStatistics().getEvictedCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getExpiredCount()
+     */
+    public long getExpiredCount() {
+        return cache.getCacheUsageStatistics().getExpiredCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getInMemoryHitCount()
+     */
+    public long getInMemoryHitCount() {
+        return cache.getCacheUsageStatistics().getInMemoryHitCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getInMemorySize()
+     */
+    public long getInMemorySize() {
+        return cache.getCacheUsageStatistics().getInMemorySize();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOnDiskHitCount()
+     */
+    public long getOnDiskHitCount() {
+        return cache.getCacheUsageStatistics().getOnDiskHitCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOnDiskSize()
+     */
+    public long getOnDiskSize() {
+        return cache.getCacheUsageStatistics().getOnDiskSize();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getPutCount()
+     */
+    public long getPutCount() {
+        return cache.getCacheUsageStatistics().getPutCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getRemovedCount()
+     */
+    public long getRemovedCount() {
+        return cache.getCacheUsageStatistics().getRemovedCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getSize()
+     */
+    public long getSize() {
+        return cache.getCacheUsageStatistics().getSize();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getUpdateCount()
+     */
+    public long getUpdateCount() {
+        return cache.getCacheUsageStatistics().getUpdateCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#isConfigDiskPersistent()
+     */
+    public boolean isConfigDiskPersistent() {
+        return cache.getCacheConfiguration().isDiskPersistent();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#isConfigEternal()
+     */
+    public boolean isConfigEternal() {
+        return cache.getCacheConfiguration().isEternal();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#isConfigOverflowToDisk()
+     */
+    public boolean isConfigOverflowToDisk() {
+        return cache.getCacheConfiguration().isOverflowToDisk();
     }
 
 }
