@@ -35,7 +35,7 @@ import org.junit.Test;
 /**
  * Tests for the statistics class
  * 
- * @author Greg Luck
+ * @author Abhishek Sanoujam
  * @version $Id$
  */
 public class CacheUsageStatisticsTest extends AbstractCacheTest {
