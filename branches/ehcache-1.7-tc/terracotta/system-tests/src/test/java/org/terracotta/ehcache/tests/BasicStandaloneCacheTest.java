@@ -56,9 +56,6 @@ public class BasicStandaloneCacheTest extends TransparentTestBase {
 
     private final File    tempDir;
     private final Integer port;
-    private String        ehcacheResourceName;
-
-    // private final String configTemplate;
 
     public App(String appId, ApplicationConfig cfg, ListenerProvider listenerProvider) {
       super(appId, cfg, listenerProvider);
@@ -118,7 +115,6 @@ public class BasicStandaloneCacheTest extends TransparentTestBase {
       }
       
       // Write 
-      this.ehcacheResourceName = "/" + resourcePath;
       File ehcacheFile = new File(tempDir, resourcePath);
       FileOutputStream fos = new FileOutputStream(ehcacheFile);
       IOUtils.writeLines(ehcacheConfigLines, IOUtils.LINE_SEPARATOR, fos);
