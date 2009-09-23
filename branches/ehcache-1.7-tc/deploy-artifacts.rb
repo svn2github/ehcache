@@ -75,11 +75,11 @@ MODULES.each do |mod|
             end
             maven_deploy_command.execute
 
-			# deploy EE package of standalone ehcache-terracotta
-			if mod == 'terracotta' && repo.id == 'kong'
-			  maven_deploy_command.args << "-P package-ee"
-			  maven_deploy_command.execute
-		    end
+            # deploy EE package of standalone ehcache-terracotta
+            if mod == 'terracotta' && repo.id == 'kong'
+               maven_deploy_command.args << "-P package-ee"
+               maven_deploy_command.execute
+            end
         end
     end
 end
