@@ -294,7 +294,7 @@ public class BlockingCacheTest extends CacheTest {
             executables.add(executable);
         }
 
-        int failures = runThreadsNoCheck(executables);
+        int failures = runThreadsNoCheck(executables, true);
         if (failures > 0) {
 
             throw new Exception("failures");
