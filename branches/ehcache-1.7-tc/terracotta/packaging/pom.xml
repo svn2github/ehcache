@@ -262,6 +262,28 @@
               </execution>
             </executions>
           </plugin>
+          
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.1.1</version>
+            <executions>
+              <execution>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <executable>mvn</executable>
+              <arguments>
+                <argument>deploy</argument>
+                <argument>-DaltDeploymentRepository=kong::default::file:///shares/maven2</argument>
+                <argument>-Ppackage-ee</argument>
+              </arguments>
+            </configuration>
+          </plugin>          
         </plugins>
       </build>
     </profile>
@@ -300,6 +322,29 @@
               </execution>
             </executions>
           </plugin>
+          
+		      <plugin>
+		        <groupId>org.codehaus.mojo</groupId>
+		        <artifactId>exec-maven-plugin</artifactId>
+		        <version>1.1.1</version>
+		        <executions>
+		          <execution>
+		            <phase>deploy</phase>
+		            <goals>
+		              <goal>exec</goal>
+		            </goals>
+		          </execution>
+		        </executions>
+		        <configuration>
+		          <executable>mvn</executable>
+		          <arguments>
+		            <argument>deploy</argument>
+                <argument>-DaltDeploymentRepository=kong::default::file:///export1/forge/repo</argument>
+                <argument>-Ppackage-ee</argument>
+		          </arguments>
+		        </configuration>
+		      </plugin>
+          
         </plugins>
       </build>
     </profile>
