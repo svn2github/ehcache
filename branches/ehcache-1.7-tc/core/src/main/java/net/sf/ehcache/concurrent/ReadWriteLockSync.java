@@ -34,7 +34,7 @@ public class ReadWriteLockSync implements Sync {
      * {@inheritDoc}
      */
     public void lock(final LockType type) {
-        if (type == LockType.WRITE && rrwl.isWriteLockedByCurrentThread()) {
+        if (type == LockType.WRITE && !rrwl.isWriteLockedByCurrentThread()) {
             getLock(type).lock();
         } else if (type != LockType.WRITE) {
             getLock(type).lock();
