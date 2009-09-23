@@ -1785,11 +1785,11 @@ public class Cache implements Ehcache {
                 .append(" diskPersistent = ").append(configuration.isDiskPersistent())
                 .append(" diskExpiryThreadIntervalSeconds = ").append(configuration.getDiskExpiryThreadIntervalSeconds())
                 .append(registeredEventListeners)
-                .append(" hitCount = ").append(getCacheUsageStatistics().getCacheHitCount())
-                .append(" memoryStoreHitCount = ").append(getCacheUsageStatistics().getInMemoryHitCount())
-                .append(" diskStoreHitCount = ").append(getCacheUsageStatistics().getOnDiskHitCount())
-                .append(" missCountNotFound = ").append(getCacheUsageStatistics().getCacheMissCountNotFound())
-                .append(" missCountExpired = ").append(getCacheUsageStatistics().getCacheMissCountExpired())
+                .append(" hitCount = ").append(getCacheUsageStatisticsNoCheck().getCacheHitCount())
+                .append(" memoryStoreHitCount = ").append(getCacheUsageStatisticsNoCheck().getInMemoryHitCount())
+                .append(" diskStoreHitCount = ").append(getCacheUsageStatisticsNoCheck().getOnDiskHitCount())
+                .append(" missCountNotFound = ").append(getCacheUsageStatisticsNoCheck().getCacheMissCount())
+                .append(" missCountExpired = ").append(getCacheUsageStatisticsNoCheck().getCacheMissCount())
                 .append(" ]");
 
         return dump.toString();
@@ -2500,6 +2500,11 @@ public class Cache implements Ehcache {
      */
     public CacheUsageStatistics getCacheUsageStatistics()
             throws IllegalStateException {
+        checkStatus();
+        return (CacheUsageStatistics) cacheUsageStatisticsData;
+    }
+    
+    private CacheUsageStatistics getCacheUsageStatisticsNoCheck() {
         return (CacheUsageStatistics) cacheUsageStatisticsData;
     }
 

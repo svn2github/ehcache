@@ -114,19 +114,6 @@ public class CacheUsageStatisticsImpl implements CacheUsageStatistics,
     /**
      * {@inheritDoc}
      */
-    public void cacheElementEvicted() {
-        if (!statisticsEnabled.get()) {
-            return;
-        }
-        cacheElementEvictedCount.incrementAndGet();
-        for (CacheUsageListener l : listeners) {
-            l.notifyCacheElementEvicted();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void cacheHitInMemory() {
         if (!statisticsEnabled.get()) {
             return;
@@ -369,6 +356,9 @@ public class CacheUsageStatisticsImpl implements CacheUsageStatistics,
      * {@inheritDoc}
      */
     public long getSize() {
+        if (!statisticsEnabled.get()) {
+            return 0;
+        }
         return cache.getSizeBasedOnAccuracy(statisticsAccuracy.get());
     }
 
@@ -376,6 +366,9 @@ public class CacheUsageStatisticsImpl implements CacheUsageStatistics,
      * {@inheritDoc}
      */
     public long getInMemorySize() {
+        if (!statisticsEnabled.get()) {
+            return 0;
+        }
         return cache.getMemoryStoreSize();
     }
 
@@ -383,13 +376,16 @@ public class CacheUsageStatisticsImpl implements CacheUsageStatistics,
      * {@inheritDoc}
      */
     public long getOnDiskSize() {
+        if (!statisticsEnabled.get()) {
+            return 0;
+        }
         return cache.getDiskStoreSize();
     }
 
     /**
      * {@inheritDoc}
      */
-    public String getAssociatedCacheName() {
+    public String getCacheName() {
         return cache.getName();
     }
 

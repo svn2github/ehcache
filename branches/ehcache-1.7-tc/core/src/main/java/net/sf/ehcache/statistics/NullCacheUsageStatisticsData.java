@@ -45,7 +45,7 @@ public class NullCacheUsageStatisticsData implements CacheUsageStatistics,
     /**
      * {@inheritDoc}
      */
-    public String getAssociatedCacheName() {
+    public String getCacheName() {
         return cacheName;
     }
 

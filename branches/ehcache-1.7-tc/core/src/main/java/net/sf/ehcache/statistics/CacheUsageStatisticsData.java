@@ -65,11 +65,6 @@ public interface CacheUsageStatisticsData extends CacheEventListener {
     public void addGetTimeMillis(final long millis);
 
     /**
-     * Called when an element is expired in the cache
-     */
-    public void cacheElementEvicted();
-
-    /**
      * Sets the statistics accuracy.
      * 
      * @param statisticsAccuracy

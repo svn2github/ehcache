@@ -61,7 +61,7 @@ public class SampledCache implements SampledCacheMBean {
     /**
      * {@inheritDoc}
      */
-    public String getName() {
+    public String getCacheName() {
         return cache.getName();
     }
 
@@ -473,6 +473,14 @@ public class SampledCache implements SampledCacheMBean {
      */
     public boolean isConfigOverflowToDisk() {
         return cache.getCacheConfiguration().isOverflowToDisk();
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see net.sf.ehcache.statistics.SampledCacheUsageStatistics#dispose()
+     */
+    public void dispose() {
+        // no-op
     }
 
 }

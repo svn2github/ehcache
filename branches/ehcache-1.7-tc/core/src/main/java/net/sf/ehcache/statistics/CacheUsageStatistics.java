@@ -163,6 +163,6 @@ public interface CacheUsageStatistics {
     /**
      * @return the name of the Ehcache
      */
-    public String getAssociatedCacheName();
+    public String getCacheName();
 
 }
