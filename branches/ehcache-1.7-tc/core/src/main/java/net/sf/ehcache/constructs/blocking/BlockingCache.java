@@ -28,7 +28,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
-import net.sf.ehcache.concurrent.StripedSync;
+import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.StripedReadWriteLockSync;
@@ -108,10 +108,7 @@ public class BlockingCache implements Ehcache {
      */
     protected volatile int timeoutMillis;
 
-    /**
-     * locks
-     */
-    protected final StripedSync stripedSync;
+    private final CacheLockProvider cacheLockProvider;
 
     /**
      * Creates a BlockingCache which decorates the supplied cache.
@@ -125,10 +122,9 @@ public class BlockingCache implements Ehcache {
     public BlockingCache(final Ehcache cache, int numberOfStripes) throws CacheException {
         this.cache = cache;
         if (cache.getCacheConfiguration().isTerracottaClustered()) {
-            // todo inject our implementation here
-            this.stripedSync = null;
+            this.cacheLockProvider = ((CacheLockProvider) cache.getInternalContext());
         } else {
-            this.stripedSync = new StripedReadWriteLockSync(numberOfStripes);
+            this.cacheLockProvider = new StripedReadWriteLockSync(numberOfStripes);
         }
     }
 
@@ -504,7 +500,7 @@ public class BlockingCache implements Ehcache {
      * @return one of a limited number of Mutexes.
      */
     protected Sync getLockForKey(final Object key) {
-        return stripedSync.getSyncForKey(key);
+        return cacheLockProvider.getSyncForKey(key);
     }
 
     /**
@@ -1112,6 +1108,12 @@ public class BlockingCache implements Ehcache {
         return cache.isSampledStatisticsEnabled();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public Object getInternalContext() {
+        return cache.getInternalContext();
+    }
 }
 
 

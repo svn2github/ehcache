@@ -31,7 +31,7 @@ import net.sf.ehcache.CacheException;
  * Based on the lock striping concept from Brian Goetz. See Java Concurrency in Practice 11.4.3
  * @author Alex Snaps
  */
-public class StripedReadWriteLockSync implements StripedSync {
+public class StripedReadWriteLockSync implements CacheLockProvider {
 
     /**
      * The default number of locks to use. Must be a power of 2.

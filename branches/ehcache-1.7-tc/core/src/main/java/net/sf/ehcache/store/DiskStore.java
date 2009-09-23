@@ -1273,5 +1273,10 @@ public class DiskStore implements Store {
         throw new UnsupportedOperationException("Disk store only uses LFU.");
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
+    public Object getInternalContext() {
+        return null;
+    }
 }

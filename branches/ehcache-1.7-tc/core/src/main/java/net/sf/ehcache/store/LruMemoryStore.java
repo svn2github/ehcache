@@ -451,5 +451,10 @@ public class LruMemoryStore implements Store {
                 " strategy.");
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
+    public Object getInternalContext() {
+        return null;
+    }
 }

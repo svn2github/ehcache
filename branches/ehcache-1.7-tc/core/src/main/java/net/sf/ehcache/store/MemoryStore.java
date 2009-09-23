@@ -642,6 +642,13 @@ public class MemoryStore implements Store {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public Object getInternalContext() {
+        return null;
+    }
+
+    /**
      * Gets the status of the MemoryStore.
      */
     public final Status getStatus() {

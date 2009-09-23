@@ -2596,4 +2596,10 @@ public class Cache implements Ehcache {
         return sampledCacheUsageStatistics.isSampledStatisticsEnabled();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public Object getInternalContext() {
+        return memoryStore.getInternalContext();
+    }
 }

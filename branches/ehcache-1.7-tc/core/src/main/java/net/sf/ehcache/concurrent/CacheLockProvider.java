@@ -18,7 +18,7 @@ package net.sf.ehcache.concurrent;
 /**
  * @author Alex Snaps
  */
-public interface StripedSync {
+public interface CacheLockProvider {
 
     /**
      * Gets the Sync Stripe to use for a given key.

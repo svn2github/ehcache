@@ -133,4 +133,9 @@ public interface Store {
      */
     void setEvictionPolicy(Policy policy);
 
+    /**
+     * This should not be used, and will generally return null
+     * @return some internal context (probably null)
+     */
+    Object getInternalContext();
 }

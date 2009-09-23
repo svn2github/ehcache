@@ -884,4 +884,9 @@ public interface Ehcache extends Cloneable {
      */
     public boolean isSampledStatisticsEnabled();
 
+    /**
+     * This should not be used
+     * return some internal context (generally will be null)
+     */
+    Object getInternalContext();
 }

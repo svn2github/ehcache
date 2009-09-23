@@ -76,7 +76,7 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
             if (element == null) {
                 element = super.get(key);
             } else {
-                Sync lock = stripedSync.getSyncForKey(key);
+                Sync lock = getLockForKey(key);
                 try {
                     lock.lock(LockType.WRITE);
                     update(key);
