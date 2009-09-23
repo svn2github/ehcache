@@ -9,8 +9,7 @@ import net.sf.ehcache.CacheManager;
 public abstract class ClientBase {
 
   public ClientBase(String args[]) {
-    // XXX: remove me!!
-    System.setProperty("HACK-DSO-PORT", args[0]);
+    //
   }
 
   public final void run() {

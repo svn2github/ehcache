@@ -268,7 +268,9 @@ public class CacheManager {
         Map<String, CacheConfiguration> cacheConfigs = localConfiguration.getCacheConfigurations();
         for (CacheConfiguration config : cacheConfigs.values()) {
             if (config.isTerracottaClustered()) {
-                terracottaStoreFactory = TerracottaStoreHelper.newStoreFactory(cacheConfigs);
+                terracottaStoreFactory = TerracottaStoreHelper.newStoreFactory(
+                        cacheConfigs, localConfiguration
+                                .getTerracottaConfiguration());
                 break;
             }
         }

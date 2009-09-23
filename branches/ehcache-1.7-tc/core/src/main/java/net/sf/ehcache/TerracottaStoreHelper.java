@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.TerracottaConfigConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.store.StoreFactory;
 import net.sf.ehcache.util.ClassLoaderUtil;
@@ -42,7 +43,7 @@ class TerracottaStoreHelper {
      * @param cacheConfigs
      * @return the selected terracotta store factory
      */
-    static StoreFactory newStoreFactory(Map<String, CacheConfiguration> cacheConfigs) {
+    static StoreFactory newStoreFactory(Map<String, CacheConfiguration> cacheConfigs, TerracottaConfigConfiguration terracottaConfig) {
         Class factoryClass;
 
         try {
@@ -61,6 +62,15 @@ class TerracottaStoreHelper {
                                           "mode which is not permitted with standalone deployment " +
                                           identityCaches.toString());
             }
+            
+            // This is required in standalone but in non-standalone, this stuff is picked up through
+            // the normal tc-config mechanisms instead
+            if (terracottaConfig == null) {
+                throw new CacheException(
+                        "Terracotta caches are defined but no <terracottaConfig> element was used " +
+                        "to specify the Terracotta configuration.");
+            }
+            
         } catch (ClassNotFoundException cnfe) {
             // assume not standalone usage if standalone factory not present
             try {
@@ -69,9 +79,18 @@ class TerracottaStoreHelper {
                 // XXX: improve exception message here? A exception here can be caused by missing the TIM jar(s) in your app
                 throw new CacheException("Terracotta cache classes are not available, you are missing jar(s) most likely", e);
             }
+            
+            if (terracottaConfig != null) {
+                throw new CacheException("The ehcache configuration specified Terracotta configuration information, " +
+                        "but when using the full install of Terracotta, you must specify the Terracotta configuration " +
+                        "only with an external tc-config.xml file, not embedded or referenced from the ehcache " + 
+                        "configuration file.");
+            }
         }
 
-        return (StoreFactory) ClassLoaderUtil.createNewInstance(factoryClass.getName());
+        return (StoreFactory) ClassLoaderUtil.createNewInstance(factoryClass.getName(), 
+                new Class[] {TerracottaConfigConfiguration.class}, 
+                new Object[] {terracottaConfig});
     }
 
 }

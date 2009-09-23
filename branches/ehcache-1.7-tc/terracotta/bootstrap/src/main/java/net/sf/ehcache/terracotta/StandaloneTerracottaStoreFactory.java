@@ -2,6 +2,7 @@ package net.sf.ehcache.terracotta;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.config.TerracottaConfigConfiguration;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreFactory;
 
@@ -40,7 +41,7 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
   private final JarManager    jarManager                   = new JarManager();
   private final StoreFactory  realFactory;
 
-  public StandaloneTerracottaStoreFactory() {
+  public StandaloneTerracottaStoreFactory(TerracottaConfigConfiguration terracottaConfig) {
     testForBootJar();
 
     System.setProperty("tc.active", "true");
@@ -93,14 +94,12 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
       }
     }
 
-    final String tcConfig;
-    final boolean isURLConfig = true; // XXX: cache.getCacheConfiguration().isTerracottaConfigURL();
-    // XXX: String tcConfig = cache.getCacheConfiguration().getTerracottaConfig();
-    if (System.getProperty("HACK-DSO-PORT") != null) {
-      // system tests are doing this now
-      tcConfig = "localhost:" + System.getProperty("HACK-DSO-PORT");
+    final boolean isURLConfig = terracottaConfig.isUrlConfig();
+    String tcConfig = null;
+    if (isURLConfig) {
+      tcConfig = terracottaConfig.getUrl();
     } else {
-      tcConfig = "localhost:9510";
+      tcConfig = terracottaConfig.getEmbeddedConfig();
     }
 
     // depending on how things get factored this might be a jar resource like it is in the hibernate agent

@@ -15,6 +15,6 @@
          <terracotta clustered="true"/>
   </cache>
 
-  <!-- XXX: <terracottaConfig/> -->
+  <terracottaConfig url="localhost:PORT"/>
 
 </ehcache>

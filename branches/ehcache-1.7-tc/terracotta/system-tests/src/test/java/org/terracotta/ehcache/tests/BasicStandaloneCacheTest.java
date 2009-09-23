@@ -20,7 +20,9 @@ import com.tctest.runner.AbstractErrorCatchingTransparentApp;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.security.CodeSource;
@@ -39,6 +41,8 @@ public class BasicStandaloneCacheTest extends TransparentTestBase {
     t.getTransparentAppConfig().setClientCount(NODE_COUNT);
     t.getTransparentAppConfig().setAttribute("PORT", new Integer(getDsoPort()));
     t.getTransparentAppConfig().setAttribute("TEMP", getTempDirectory());
+    
+    System.out.println("PORT = " + getDsoPort());
     t.initializeTestRunner();
   }
 
@@ -52,6 +56,7 @@ public class BasicStandaloneCacheTest extends TransparentTestBase {
 
     private final File    tempDir;
     private final Integer port;
+    private String        ehcacheResourceName;
 
     // private final String configTemplate;
 
@@ -85,18 +90,40 @@ public class BasicStandaloneCacheTest extends TransparentTestBase {
       cmd.add("-Xmx128m");
 
       cmd.add("-cp");
-      cmd.add(makeClasspath(test, standalone, ehcache));
+      cmd.add(makeClasspath(writeEhcacheConfigWithPort("basic-cache-test.xml"), test, standalone, ehcache));
       cmd.add(client.getName());
-      cmd.add(port.toString());
-
+      
       File output = new File(tempDir, client.getSimpleName() + ".log");
 
       Result result = Exec.execute(cmd.toArray(new String[cmd.size()]), output.getAbsolutePath());
 
       if (result.getExitCode() != 0 || !getFileContents(output).trim().contains("[PASS: " + client.getName() + "]")) {
-        //
         throw new AssertionError(result.toString());
       }
+    }
+    
+    /**
+     * Read the ehcache.xml file as a resource, replace PORT token with appropriate port, 
+     * write the ehcache.xml file back out to the temp dir, and return the resulting resource directory.
+     */
+    private String writeEhcacheConfigWithPort(String resourcePath) throws IOException {
+      // Slurp resourcePath file
+      InputStream is = this.getClass().getClassLoader().getResourceAsStream(resourcePath);
+      List<String> ehcacheConfigLines = IOUtils.readLines(is);
+      
+      // Replace PORT token
+      for(int i=0; i<ehcacheConfigLines.size(); i++) {
+        String line = ehcacheConfigLines.get(i);
+        ehcacheConfigLines.set(i, line.replace("PORT", ""+this.port));
+      }
+      
+      // Write 
+      this.ehcacheResourceName = "/" + resourcePath;
+      File ehcacheFile = new File(tempDir, resourcePath);
+      FileOutputStream fos = new FileOutputStream(ehcacheFile);
+      IOUtils.writeLines(ehcacheConfigLines, IOUtils.LINE_SEPARATOR, fos);
+      
+      return tempDir.getAbsolutePath();
     }
 
     private String getFileContents(File f) throws IOException {
