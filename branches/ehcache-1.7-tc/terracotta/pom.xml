@@ -22,6 +22,27 @@
     <tc-maven-plugin.version>1.5.0-SNAPSHOT</tc-maven-plugin.version>
     <terracotta.version>3.2.0-SNAPSHOT</terracotta.version>
     <tim-ehcache-store.version>1.0.0-SNAPSHOT</tim-ehcache-store.version>
+    <ehcache.version>1.7.0-SNAPSHOT</ehcache.version>
   </properties>
 
+  <repositories>
+    <repository>
+      <id>terracotta-tc-staging</id>
+      <url>http://forge-dev/tc-staging</url>
+    </repository>  
+    <repository>
+      <id>terracotta-repository</id>
+      <url>http://www.terracotta.org/download/reflector/maven2</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>terracotta-tc-staging</id>
+      <url>http://forge-dev/tc-staging</url>
+    </pluginRepository>  
+    <pluginRepository>
+      <id>terracotta-repository</id>
+      <url>http://www.terracotta.org/download/reflector/maven2</url>
+    </pluginRepository>
+  </pluginRepositories>
 </project>

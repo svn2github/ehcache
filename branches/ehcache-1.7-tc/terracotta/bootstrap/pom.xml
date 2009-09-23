@@ -14,19 +14,19 @@
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache</artifactId>
-      <version>1.7.0-SNAPSHOT</version>
+      <version>${ehcache.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.terracotta.modules</groupId>
       <artifactId>tim-ehcache-store</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>${tim-ehcache-store.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.terracotta</groupId>
       <artifactId>terracotta-l1</artifactId>
-      <version>3.2.0-SNAPSHOT</version>
+      <version>${terracotta.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

@@ -149,6 +149,20 @@
           <descriptors>
             <descriptor>${basedir}/src/main/assembly/bin.xml</descriptor>
           </descriptors>
+          <archive>
+            <manifestEntries>
+              <Terracotta-Category>Product</Terracotta-Category>
+              <Terracotta-ArtifactCoordinates>${project.groupId}:${jar-name}:${project.version}</Terracotta-ArtifactCoordinates>
+              <Terracotta-RequireVersion>${terracotta.version}</Terracotta-RequireVersion>
+              <Terracotta-Require></Terracotta-Require>
+              <Terracotta-ProjectStatus>Supported</Terracotta-ProjectStatus>
+              <Terracotta-InternalTIM>false</Terracotta-InternalTIM>
+              <Terracotta-DownloadPath>../distributed-cache</Terracotta-DownloadPath>
+              <Terracotta-Name>${jar-name}</Terracotta-Name>
+              <Terracotta-Description>${project.description}</Terracotta-Description>
+              <Terracotta-Kit>${enterprise.packaging}</Terracotta-Kit>
+            </manifestEntries>
+          </archive>
         </configuration>
         <executions>
           <execution>
