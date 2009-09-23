@@ -10,13 +10,13 @@
     <name>Ehcache Web Filters</name>
     <artifactId>ehcache-web</artifactId>
     <packaging>jar</packaging>
-    <version>1.6.0-beta2</version>
+    <version>1.6.0-beta3-SNAPSHOT</version>
     <description><![CDATA[Web caching filters.]]> </description>
     <dependencies>
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>ehcache</artifactId>
-            <version>[1.6.0-beta4,]</version>
+            <version>1.7.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
