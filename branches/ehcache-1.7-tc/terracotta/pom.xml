@@ -27,19 +27,11 @@
 
   <repositories>
     <repository>
-      <id>terracotta-tc-staging</id>
-      <url>http://forge-dev/tc-staging</url>
-    </repository>  
-    <repository>
       <id>terracotta-repository</id>
       <url>http://www.terracotta.org/download/reflector/maven2</url>
     </repository>
   </repositories>
   <pluginRepositories>
-    <pluginRepository>
-      <id>terracotta-tc-staging</id>
-      <url>http://forge-dev/tc-staging</url>
-    </pluginRepository>  
     <pluginRepository>
       <id>terracotta-repository</id>
       <url>http://www.terracotta.org/download/reflector/maven2</url>
