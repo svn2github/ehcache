@@ -73,6 +73,10 @@ public class CacheUsageStatisticsImpl implements CacheUsageStatistics,
         cacheMissNotFound.set(0);
         cacheElementEvictedCount.set(0);
         totalGetTimeTakenMillis.set(0);
+        cacheElementRemoved.set(0);
+        cacheElementExpired.set(0);
+        cacheElementPut.set(0);
+        cacheElementUpdated.set(0);
         for (CacheUsageListener l : listeners) {
             l.notifyStatisticsCleared();
         }
@@ -314,7 +318,7 @@ public class CacheUsageStatisticsImpl implements CacheUsageStatistics,
      * {@inheritDoc}
      */
     public long getCacheMissCount() {
-        return cacheMissExpired.get() + cacheMissNotFound.get();
+        return cacheMissNotFound.get();
     }
 
     /**
@@ -322,13 +326,6 @@ public class CacheUsageStatisticsImpl implements CacheUsageStatistics,
      */
     public long getCacheMissCountExpired() {
         return cacheMissExpired.get();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getCacheMissCountNotFound() {
-        return cacheMissNotFound.get();
     }
 
     /**

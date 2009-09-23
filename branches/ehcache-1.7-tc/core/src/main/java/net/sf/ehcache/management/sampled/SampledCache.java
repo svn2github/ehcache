@@ -296,15 +296,6 @@ public class SampledCache implements SampledCacheMBean {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getCacheMissCountNotFound()
-     */
-    public long getCacheMissCountNotFound() {
-        return cache.getCacheUsageStatistics().getCacheMissCountNotFound();
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigDiskExpiryThreadIntervalSeconds()
      */
     public long getConfigDiskExpiryThreadIntervalSeconds() {

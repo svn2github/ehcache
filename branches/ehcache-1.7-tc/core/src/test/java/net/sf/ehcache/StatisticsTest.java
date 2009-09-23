@@ -16,12 +16,10 @@
 
 package net.sf.ehcache;
 
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,30 +29,32 @@ import java.io.ObjectOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.junit.Test;
+
 /**
  * Tests for the statistics class
- *
+ * 
  * @author Greg Luck
  * @version $Id$
  */
 public class StatisticsTest extends AbstractCacheTest {
 
-
-    private static final Logger LOG = Logger.getLogger(StatisticsTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(StatisticsTest.class
+            .getName());
 
     /**
      * Test statistics directly from Statistics Object
      */
     @Test
-    public void testStatisticsFromStatisticsObject() throws InterruptedException {
-        //Set size so the second element overflows to disk.
+    public void testStatisticsFromStatisticsObject()
+            throws InterruptedException {
+        // Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
 
-
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
-        //key1 should be in the Disk Store
+        // key1 should be in the Disk Store
         cache.get("key1");
 
         Statistics statistics = cache.getStatistics();
@@ -66,7 +66,7 @@ public class StatisticsTest extends AbstractCacheTest {
         assertEquals(1, statistics.getMemoryStoreObjectCount());
         assertEquals(1, statistics.getDiskStoreObjectCount());
 
-        //key 1 should now be in the LruMemoryStore
+        // key 1 should now be in the LruMemoryStore
         cache.get("key1");
 
         statistics = cache.getStatistics();
@@ -75,11 +75,19 @@ public class StatisticsTest extends AbstractCacheTest {
         assertEquals(1, statistics.getInMemoryHits());
         assertEquals(0, statistics.getCacheMisses());
 
-        //Let the idle expire
-        Thread.sleep(5020);
+        // Let the idle expire
+        Thread.sleep(6000);
 
-        //key 1 should now be expired
+        // key 1 should now be expired
         cache.get("key1");
+        statistics = cache.getStatistics();
+        assertEquals(2, statistics.getCacheHits());
+        assertEquals(1, statistics.getOnDiskHits());
+        assertEquals(1, statistics.getInMemoryHits());
+        assertEquals(1, statistics.getCacheMisses());
+
+        // key 2 should also be expired
+        cache.get("key2");
         statistics = cache.getStatistics();
         assertEquals(2, statistics.getCacheHits());
         assertEquals(1, statistics.getOnDiskHits());
@@ -89,20 +97,18 @@ public class StatisticsTest extends AbstractCacheTest {
         assertNotNull(statistics.toString());
     }
 
-
     /**
      * Test statistics directly from Statistics Object
      */
     @Test
     public void testClearStatistics() throws InterruptedException {
-        //Set size so the second element overflows to disk.
+        // Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
 
-
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
-        //key1 should be in the Disk Store
+        // key1 should be in the Disk Store
         cache.get("key1");
 
         Statistics statistics = cache.getStatistics();
@@ -111,7 +117,7 @@ public class StatisticsTest extends AbstractCacheTest {
         assertEquals(0, statistics.getInMemoryHits());
         assertEquals(0, statistics.getCacheMisses());
 
-        //clear stats
+        // clear stats
         statistics.clearStatistics();
         statistics = cache.getStatistics();
         assertEquals(0, statistics.getCacheHits());
@@ -119,7 +125,6 @@ public class StatisticsTest extends AbstractCacheTest {
         assertEquals(0, statistics.getInMemoryHits());
         assertEquals(0, statistics.getCacheMisses());
     }
-
 
     /**
      * CacheStatistics should always be sensible when the cache has not started.
@@ -135,7 +140,6 @@ public class StatisticsTest extends AbstractCacheTest {
         }
 
     }
-
 
     /**
      * We want to be able to use Statistics as a value object.
@@ -157,9 +161,9 @@ public class StatisticsTest extends AbstractCacheTest {
         assertEquals(1, statistics.getOnDiskHits());
         assertEquals(1, statistics.getInMemoryHits());
         assertEquals(0, statistics.getCacheMisses());
-        assertEquals(Statistics.STATISTICS_ACCURACY_BEST_EFFORT, statistics.getStatisticsAccuracy());
+        assertEquals(Statistics.STATISTICS_ACCURACY_BEST_EFFORT, statistics
+                .getStatisticsAccuracy());
         statistics.clearStatistics();
-
 
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(bout);
@@ -172,21 +176,22 @@ public class StatisticsTest extends AbstractCacheTest {
         afterDeserializationStatistics = (Statistics) ois.readObject();
         ois.close();
 
-        //Check after Serialization
+        // Check after Serialization
         assertEquals(2, afterDeserializationStatistics.getCacheHits());
         assertEquals(1, afterDeserializationStatistics.getOnDiskHits());
         assertEquals(1, afterDeserializationStatistics.getInMemoryHits());
         assertEquals(0, afterDeserializationStatistics.getCacheMisses());
-        assertEquals(Statistics.STATISTICS_ACCURACY_BEST_EFFORT, statistics.getStatisticsAccuracy());
+        assertEquals(Statistics.STATISTICS_ACCURACY_BEST_EFFORT, statistics
+                .getStatisticsAccuracy());
         statistics.clearStatistics();
 
     }
 
-
     /**
      * What happens when a long larger than int max value is cast to an int?
      * <p/>
-     * The answer is that negative numbers are reported. The cast value is incorrect.
+     * The answer is that negative numbers are reported. The cast value is
+     * incorrect.
      */
     @Test
     public void testIntOverflow() {
@@ -234,8 +239,9 @@ public class StatisticsTest extends AbstractCacheTest {
      */
     @Test
     public void testEvictionStatistics() throws InterruptedException {
-        //set to 0 to make it run slow
-        Ehcache ehcache = new net.sf.ehcache.Cache("test", 10, false, false, 2, 2);
+        // set to 0 to make it run slow
+        Ehcache ehcache = new net.sf.ehcache.Cache("test", 10, false, false, 2,
+                2);
         manager.addCache(ehcache);
         Statistics statistics = ehcache.getStatistics();
         assertEquals(0, statistics.getEvictionCount());
@@ -248,7 +254,7 @@ public class StatisticsTest extends AbstractCacheTest {
 
         Thread.sleep(2010);
 
-        //expiries do not count
+        // expiries do not count
         statistics = ehcache.getStatistics();
         assertEquals(9990, statistics.getEvictionCount());
 

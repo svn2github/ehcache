@@ -62,19 +62,13 @@ public interface CacheUsageStatistics {
 
     /**
      * @return the number of times a requested element was not found in the
-     *         cache, including expired elements
+     *         cache
      */
     public long getCacheMissCount();
 
     /**
      * @return the number of times a requested element was not found in the
-     *         cache, does not include expired elements
-     */
-    public long getCacheMissCountNotFound();
-
-    /**
-     * @return the number of times a requested element was not found in the
-     *         cache but had already expired
+     *         cache and the reason being the element already expired
      */
     public long getCacheMissCountExpired();
 
