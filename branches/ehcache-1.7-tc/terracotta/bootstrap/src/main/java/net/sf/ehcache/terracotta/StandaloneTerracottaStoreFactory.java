@@ -12,7 +12,9 @@ import org.terracotta.agent.loader.Util;
 
 import com.tc.object.bytecode.ManagerUtil;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.reflect.Constructor;
@@ -31,8 +33,12 @@ import java.util.zip.ZipInputStream;
 
 public class StandaloneTerracottaStoreFactory implements StoreFactory {
 
-  private final JarManager   jarManager = new JarManager();
-  private final StoreFactory realFactory;
+  private static final String SIGAR_LIB_PATH_PROPERTY_NAME = "org.hyperic.sigar.path";
+
+  private static String       computedBaseLibraryName;
+
+  private final JarManager    jarManager                   = new JarManager();
+  private final StoreFactory  realFactory;
 
   public StandaloneTerracottaStoreFactory() {
     testForBootJar();
@@ -48,8 +54,8 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
 
     ZipInputStream standaloneJar = null;
     try {
-      // XXX: SIGAR STUFF!!!!
 
+      File sigarTmpDir = createTempDir("tmpSigarJars");
       standaloneJar = new ZipInputStream(source.openStream());
       for (ZipEntry entry = standaloneJar.getNextEntry(); entry != null; entry = standaloneJar.getNextEntry()) {
         if (entry.getName().startsWith("L1") && entry.getName().endsWith(".jar")) {
@@ -68,7 +74,13 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
           URL exports = new URL("jar:" + source.toExternalForm() + "!/" + entry.getName());
           timJars.add(jarManager.getOrCreate(exports.toExternalForm(), exports));
         }
+
+        // extract to tmp dir if sigar file
+        if (entry.getName().toLowerCase().contains("sigar")) {
+          handleSigarZipEntry(standaloneJar, entry, sigarTmpDir);
+        }
       }
+      System.setProperty(SIGAR_LIB_PATH_PROPERTY_NAME, sigarTmpDir.getAbsolutePath());
     } catch (IOException ioe) {
       throw new CacheException(ioe);
     } finally {
@@ -115,6 +127,61 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
     } catch (Exception e) {
       throw new CacheException(e);
     }
+  }
+
+  private static void handleSigarZipEntry(ZipInputStream agentJar, ZipEntry entry, File sigarTmpDir) throws IOException {
+    // extract only if this is for the current platform
+    if (entry.getName().contains(baseLibraryName())) {
+      extractSigarZipEntry(agentJar, entry, sigarTmpDir);
+    }
+  }
+
+  private static void extractSigarZipEntry(ZipInputStream jar, ZipEntry entry, File outputDir) throws IOException {
+    byte[] content = getCurrentZipEntry(jar);
+    String outName = baseName(entry);
+
+    // no need to strip off the version (like in hibernate-agent)
+
+    // dump the content at outputDir/outName
+    File outFile = new File(outputDir, outName);
+    writeFile(outFile, content);
+    outFile.deleteOnExit();
+  }
+
+  private static void writeFile(File file, byte[] contents) throws IOException {
+    FileOutputStream out = null;
+
+    try {
+      out = new FileOutputStream(file);
+      out.write(contents);
+    } finally {
+      if (out != null) {
+        try {
+          out.close();
+        } catch (IOException ioe) {
+          // ignore
+        }
+      }
+    }
+  }
+
+  private static byte[] getCurrentZipEntry(ZipInputStream zis) throws IOException {
+    byte[] buf = new byte[1024];
+    ByteArrayOutputStream bout = new ByteArrayOutputStream();
+    int n;
+    while ((n = zis.read(buf, 0, 1024)) > -1) {
+      bout.write(buf, 0, n);
+    }
+    bout.close();
+    return bout.toByteArray();
+  }
+
+  private static File createTempDir(String prefix) throws IOException {
+    final File tempDir = File.createTempFile(prefix, Long.toString(System.nanoTime()));
+    if (!(tempDir.delete())) { throw new IOException("Could not delete temp file: " + tempDir.getAbsolutePath()); }
+    if (!(tempDir.mkdir())) { throw new IOException("Could not create temp directory: " + tempDir.getAbsolutePath()); }
+    tempDir.deleteOnExit();
+    return tempDir;
   }
 
   public Store create(Ehcache cache) {
@@ -177,6 +244,68 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
                      new Handler(jarManager));
     } catch (MalformedURLException e) {
       throw new CacheException(e);
+    }
+  }
+
+  // Adapted from Sigar's ArchName.java
+  private static String baseLibraryName() {
+    if (computedBaseLibraryName != null) return computedBaseLibraryName;
+
+    String name = System.getProperty("os.name");
+    String arch = System.getProperty("os.arch");
+    String version = System.getProperty("os.version");
+    String majorVersion = version.substring(0, 1); // 4.x, 5.x, etc.
+
+    StringBuffer buf = new StringBuffer();
+
+    if (arch.endsWith("86")) {
+      arch = "x86";
+    }
+
+    if (name.equals("Linux")) {
+      buf.append(arch).append("-linux");
+    } else if (name.indexOf("Windows") > -1) {
+      buf.append(arch).append("-winnt");
+    } else if (name.equals("SunOS")) {
+      if (arch.startsWith("sparcv") && "64".equals(System.getProperty("sun.arch.data.model"))) {
+        arch = "sparc64";
+      }
+      buf.append(arch).append("-solaris");
+    } else if (name.equals("HP-UX")) {
+      if (arch.startsWith("IA64")) {
+        arch = "ia64";
+      } else {
+        arch = "pa";
+      }
+      if (version.indexOf("11") > -1) {
+        buf.append(arch).append("-hpux-11");
+      }
+    } else if (name.equals("AIX")) {
+      buf.append("ppc-aix-").append(majorVersion);
+    } else if (name.equals("Mac OS X")) {
+      buf.append("universal-macosx");
+    } else if (name.equals("FreeBSD")) {
+      // none of the 4,5,6 major versions are binary compatible
+      buf.append(arch).append("-freebsd-").append(majorVersion);
+    } else if (name.equals("OpenBSD")) {
+      buf.append(arch).append("-openbsd-").append(majorVersion);
+    } else if (name.equals("NetBSD")) {
+      buf.append(arch).append("-netbsd-").append(majorVersion);
+    } else if (name.equals("OSF1")) {
+      buf.append("alpha-osf1-").append(majorVersion);
+    } else if (name.equals("NetWare")) {
+      buf.append("x86-netware-").append(majorVersion);
+    }
+
+    if (buf.length() == 0) {
+      return null;
+    } else {
+      String prefix = "libsigar-";
+      if (name.startsWith("Windows")) {
+        prefix = "sigar-";
+      }
+      computedBaseLibraryName = prefix + buf.toString();
+      return computedBaseLibraryName;
     }
   }
 
