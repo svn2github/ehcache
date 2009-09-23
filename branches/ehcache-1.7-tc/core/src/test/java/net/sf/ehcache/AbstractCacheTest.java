@@ -192,12 +192,8 @@ public abstract class AbstractCacheTest {
                     } catch (Throwable t) {
                         // Hang on to any errors
                         errors.add(t);
-                        if (t instanceof AssertionError) {
-                          if (explicitLog) {
-                            LOG.log(Level.SEVERE, "Throwable " + t + " " + t.getMessage(), t);
-                          } else {
+                        if (!explicitLog && t instanceof AssertionError) {
                             LOG.log(Level.INFO, "Throwable " + t + " " + t.getMessage());
-                          }
                         } else {
                             LOG.log(Level.SEVERE, "Throwable " + t + " " + t.getMessage(), t);
                         }
