@@ -295,17 +295,17 @@
         <!--
           The server id here defined must also appear in ~/.m2/settings.xml with username
         -->
-        <snapshotRepository>
-            <id>sourceforge.net</id>
-            <name>SF EHCache Snapshot Repository</name>
-            <url>scp://gregluck,ehcache@web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs/snapshotrepository</url>
-        </snapshotRepository>
-
         <repository>
-            <id>sourceforge.net</id>
-            <name>SF EHCache Repository</name>
-            <url>scp://gregluck,ehcache@web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs/repository</url>
+            <id>sourceforge-releases</id>
+            <name>Sourceforge Release Repository</name>
+            <url>http://oss.sonatype.org/content/repositories/sourceforge-releases</url>
         </repository>
+        <snapshotRepository>
+            <id>sourceforge-snapshots</id>
+            <name>Sourceforge Snapshot Repository</name>
+            <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
+        </snapshotRepository>
     </distributionManagement>
+
 
 </project>
