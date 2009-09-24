@@ -65,6 +65,12 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
         cache.setStatisticsEnabled(false);
         doTestCacheUsageStatistics(cache, false, anotherStats);
 
+        // remove the listener
+        cache.removeCacheUsageListener(anotherStats);
+        // enable statistics but don't check stats as no longer a listener
+        cache.setStatisticsEnabled(true);
+        doTestCacheUsageStatistics(cache, false, anotherStats);
+
         assertEquals(Statistics.STATISTICS_ACCURACY_BEST_EFFORT, cache
                 .getCacheUsageStatistics().getStatisticsAccuracy());
         assertEquals("Best Effort", cache.getCacheUsageStatistics()
@@ -84,16 +90,15 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
      * - average get time
      * 
      */
-    public void doTestCacheUsageStatistics(Cache cache,
-            boolean statisticsEnabled, AnotherStatistics anotherStats)
-            throws InterruptedException {
+    public void doTestCacheUsageStatistics(Cache cache, boolean checkStats,
+            AnotherStatistics anotherStats) throws InterruptedException {
 
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
         // key1 should be in the Disk Store
         cache.get("key1");
 
-        if (statisticsEnabled) {
+        if (checkStats) {
             assertEquals(1, anotherStats.getCacheHitCount());
             assertEquals(1, anotherStats.getOnDiskHitCount());
             assertEquals(0, anotherStats.getInMemoryHitCount());
@@ -114,7 +119,7 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
         // key 1 should now be in the LruMemoryStore
         cache.get("key1");
 
-        if (statisticsEnabled) {
+        if (checkStats) {
             assertEquals(2, anotherStats.getCacheHitCount());
             assertEquals(1, anotherStats.getOnDiskHitCount());
             assertEquals(1, anotherStats.getInMemoryHitCount());
@@ -131,7 +136,7 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
 
         // key 1 should now be expired
         cache.get("key1");
-        if (statisticsEnabled) {
+        if (checkStats) {
             assertEquals(2, anotherStats.getCacheHitCount());
             assertEquals(1, anotherStats.getOnDiskHitCount());
             assertEquals(1, anotherStats.getInMemoryHitCount());
@@ -145,7 +150,7 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
 
         // key 2 should also be expired
         cache.get("key1");
-        if (statisticsEnabled) {
+        if (checkStats) {
             assertEquals(2, anotherStats.getCacheHitCount());
             assertEquals(1, anotherStats.getOnDiskHitCount());
             assertEquals(1, anotherStats.getInMemoryHitCount());
@@ -187,12 +192,19 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
         // test enable/disable statistics
         cache.setStatisticsEnabled(false);
         doTestAverageGetTime(cache, false, anotherStats);
+
+        // remove the listener
+        cache.removeCacheUsageListener(anotherStats);
+        // enable statistics but don't check stats as no longer a listener
+        cache.setStatisticsEnabled(true);
+        doTestAverageGetTime(cache, false, anotherStats);
+
     }
 
     /**
      * Tests average get time
      */
-    public void doTestAverageGetTime(Cache cache, boolean statsEnabled,
+    public void doTestAverageGetTime(Cache cache, boolean checkStats,
             AnotherStatistics anotherStats) {
         float averageGetTime = anotherStats.getAverageGetTimeMillis();
         assertTrue(0 == anotherStats.getAverageGetTimeMillis());
@@ -207,7 +219,7 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
         }
 
         averageGetTime = anotherStats.getAverageGetTimeMillis();
-        if (statsEnabled) {
+        if (checkStats) {
             assertTrue(averageGetTime >= .000001);
         } else {
             assertTrue(0 == averageGetTime);
@@ -223,9 +235,14 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
      */
     @Test
     public void testEvictionStatistics() throws InterruptedException {
-        doTestEvictionStatistics(true);
+        // stats enabled, non-zero stats expected, as listener
+        doTestEvictionStatistics(true, true, true);
 
-        doTestEvictionStatistics(false);
+        // stats disabled, non-zero stats NOT expected, as listener
+        doTestEvictionStatistics(false, false, true);
+
+        // stats enabled, non-zero stats NOT expected, NOT a listener
+        doTestEvictionStatistics(true, false, false);
     }
 
     /**
@@ -237,7 +254,8 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
      * - expiredCount
      * - size
      */
-    public void doTestEvictionStatistics(boolean statsEnabled)
+    public void doTestEvictionStatistics(boolean statsEnabled,
+            boolean nonZeroStatsExpected, boolean asListener)
             throws InterruptedException {
         // run 5 times with random total and capacity values
         Random rand = new Random();
@@ -250,12 +268,18 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
             }
             int total = Math.max(a, b);
             int capacity = Math.min(a, b);
-            Ehcache ehcache = new net.sf.ehcache.Cache("test-" + statsEnabled
-                    + "-" + loop, capacity, false, false, 2, 2);
+            Ehcache ehcache = new net.sf.ehcache.Cache("test-"
+                    + nonZeroStatsExpected + "-" + loop, capacity, false,
+                    false, 2, 2);
             manager.addCache(ehcache);
-            // add as a listener
             AnotherStatistics anotherStats = new AnotherStatistics();
-            ehcache.registerCacheUsageListener(anotherStats);
+            if (asListener) {
+                ehcache.registerCacheUsageListener(anotherStats);
+            } else {
+                // register and remove as we want to test remove listener
+                ehcache.registerCacheUsageListener(anotherStats);
+                ehcache.removeCacheUsageListener(anotherStats);
+            }
             ehcache.setStatisticsEnabled(statsEnabled);
 
             assertEquals(0, anotherStats.getEvictedCount());
@@ -263,7 +287,7 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
             for (int i = 0; i < total; i++) {
                 ehcache.put(new Element("" + i, "value1"));
             }
-            if (statsEnabled) {
+            if (nonZeroStatsExpected) {
                 assertEquals(total - capacity, anotherStats.getEvictedCount());
             } else {
                 assertEquals(0, anotherStats.getEvictedCount());
@@ -272,7 +296,7 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
             Thread.sleep(3010);
 
             // expiries do not count as eviction
-            if (statsEnabled) {
+            if (nonZeroStatsExpected) {
                 assertEquals(total - capacity, anotherStats.getEvictedCount());
             } else {
                 assertEquals(0, anotherStats.getEvictedCount());
@@ -288,7 +312,7 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
                 ehcache.get("" + i);
             }
 
-            if (statsEnabled) {
+            if (nonZeroStatsExpected) {
                 assertEquals(total, anotherStats.getCacheMissCount());
                 assertEquals(capacity, anotherStats.getCacheMissCountExpired());
                 assertEquals(capacity, anotherStats.getExpiredCount());
@@ -309,6 +333,8 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
             assertEquals(0, anotherStats.getExpiredCount());
             assertEquals(0, anotherStats.getCacheMissCount());
             // assertEquals(0, anotherStats.getSize());
+            
+            manager.removeCache(ehcache.getName());
         }
 
     }
@@ -321,12 +347,19 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
      */
     @Test
     public void testPutUpdateRemoveStats() throws InterruptedException {
-        doTestElementUpdateRemove(true);
 
-        doTestElementUpdateRemove(false);
+        // stats enabled, non-zero stats expected, as listener
+        doTestElementUpdateRemove(true, true, true);
+
+        // stats disabled, non-zero stats NOT expected, as listener
+        doTestElementUpdateRemove(false, false, true);
+
+        // stats enabled, non-zero stats NOT expected, NOT a listener
+        doTestElementUpdateRemove(true, false, false);
     }
 
-    public void doTestElementUpdateRemove(boolean statsEnabled)
+    public void doTestElementUpdateRemove(boolean statsEnabled,
+            boolean nonZeroStatsExpected, boolean asListener)
             throws InterruptedException {
         Random rand = new Random();
         int min = 100;
@@ -335,12 +368,19 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
 
             // always ensure enough capacity. Otherwise cannot predict
             // updateCount with eviction (based on capacity)
-            Ehcache ehcache = new net.sf.ehcache.Cache("test-" + statsEnabled
-                    + "-" + loop, total + 1, false, false, 1200, 1200);
+            Ehcache ehcache = new net.sf.ehcache.Cache("test-"
+                    + nonZeroStatsExpected + "-" + loop, total + 1, false,
+                    false, 1200, 1200);
             manager.addCache(ehcache);
             // add as a listener
             AnotherStatistics anotherStats = new AnotherStatistics();
-            ehcache.registerCacheUsageListener(anotherStats);
+            if (asListener) {
+                ehcache.registerCacheUsageListener(anotherStats);
+            } else {
+                // register and remove as we want to test remove listener
+                ehcache.registerCacheUsageListener(anotherStats);
+                ehcache.removeCacheUsageListener(anotherStats);
+            }
             ehcache.setStatisticsEnabled(statsEnabled);
 
             assertEquals(0, anotherStats.getEvictedCount());
@@ -351,7 +391,7 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
             for (int i = 0; i < total; i++) {
                 ehcache.put(new Element("" + i, "value1"));
             }
-            if (statsEnabled) {
+            if (nonZeroStatsExpected) {
                 assertEquals(total, anotherStats.getPutCount());
                 assertEquals(0, anotherStats.getEvictedCount());
                 // assertEquals(total, anotherStats.getSize());
@@ -371,7 +411,7 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
             for (int i = 0; i < updates; i++) {
                 ehcache.put(new Element("" + i, "value1"));
             }
-            if (statsEnabled) {
+            if (nonZeroStatsExpected) {
                 // assertEquals(total, anotherStats.getSize());
                 assertEquals(updates, anotherStats.getUpdateCount());
                 assertEquals(total, anotherStats.getPutCount());
@@ -391,7 +431,7 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
             for (int i = 0; i < remove; i++) {
                 ehcache.remove("" + i);
             }
-            if (statsEnabled) {
+            if (nonZeroStatsExpected) {
                 // assertEquals(total - remove, anotherStats.getSize());
                 assertEquals(updates, anotherStats.getUpdateCount());
                 assertEquals(remove, anotherStats.getRemovedCount());
@@ -411,6 +451,8 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
             assertEquals(0, anotherStats.getRemovedCount());
             assertEquals(0, anotherStats.getEvictedCount());
             assertEquals(0, anotherStats.getUpdateCount());
+            
+            manager.removeCache(ehcache.getName());
         }
 
     }
