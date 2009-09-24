@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>ehcache</artifactId>
+            <artifactId>ehcache-core</artifactId>
             <version>[1.6.0-beta4,]</version>
         </dependency>
 

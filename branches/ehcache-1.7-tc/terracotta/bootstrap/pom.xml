@@ -13,7 +13,7 @@
   <dependencies>
     <dependency>
       <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
+      <artifactId>ehcache-core</artifactId>
       <version>${ehcache.version}</version>
       <scope>provided</scope>
     </dependency>
