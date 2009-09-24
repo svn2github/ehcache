@@ -15,7 +15,6 @@ public class OverflowToDiskStandaloneCacheTest extends AbstractStandaloneCacheTe
 
   public OverflowToDiskStandaloneCacheTest() {
     super("overflow-to-disk-cache-test.xml");
-    disableAllUntil(ALL_TESTS_PASS_BY);
   }
 
   @Override
@@ -24,13 +23,13 @@ public class OverflowToDiskStandaloneCacheTest extends AbstractStandaloneCacheTe
   }
 
   public static class App extends AbstractStandaloneCacheTest.App {
-    public App(String appId, ApplicationConfig cfg, ListenerProvider listenerProvider) {
+    public App(final String appId, final ApplicationConfig cfg, final ListenerProvider listenerProvider) {
       super(appId, cfg, listenerProvider);
     }
 
     @Override
-    protected void evaluateClientOutput(String clientName, int exitCode, String clientOutput) throws AssertionError {
-      if ((exitCode == 0) || !clientOutput.contains("IllegalArgumentException")) {
+    protected void evaluateClientOutput(final String clientName, final int exitCode, final String clientOutput) throws AssertionError {
+      if ((exitCode == 0) || !clientOutput.contains("InvalidConfigurationException")) {
         throw new AssertionError("Exit Code " + exitCode + "\n" + clientOutput);
       }
     }
