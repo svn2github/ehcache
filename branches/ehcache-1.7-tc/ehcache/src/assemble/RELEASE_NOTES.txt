@@ -1,11 +1,6 @@
 $Id: RELEASE_NOTES.txt,v 1.16 2006/03/01 01:52:03 gregluck Exp $
 
 
-To Do
-javadoc and sources etc not there
-ehcache-terracotta missing
-
-
 Release Notes For ehcache 1.7.0
 
 Introduction
