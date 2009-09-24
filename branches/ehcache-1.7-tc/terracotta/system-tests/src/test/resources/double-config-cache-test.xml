@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache name="test">
+
+  <defaultCache
+      maxElementsInMemory="10000"
+      eternal="true"
+      overflowToDisk="false"/>
+
+  <cache name="test"
+         maxElementsInMemory="10000"
+         eternal="true"
+         overflowToDisk="false">
+
+         <terracotta clustered="true"/>
+  </cache>
+
+  <terracottaConfig url="localhost:PORT">
+    <tc-config xmlns="http://www.terracotta.org/config">
+      <servers>
+        <server host="localhost" name="LocalServer"/>
+        <dso-port>PORT</dso-port>
+      </servers>
+    </tc-config>
+  </terracottaConfig>
+
+</ehcache>

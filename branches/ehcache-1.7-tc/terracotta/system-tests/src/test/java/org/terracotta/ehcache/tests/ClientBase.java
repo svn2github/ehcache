@@ -23,7 +23,7 @@ public abstract class ClientBase {
   }
 
   private Cache setupCache() {
-    CacheManager mgr = new CacheManager(Client1.class.getResourceAsStream("/basic-cache-test.xml"));
+    CacheManager mgr = new CacheManager(Client1.class.getResourceAsStream("/ehcache-config.xml"));
     return mgr.getCache("test");
   }
 
