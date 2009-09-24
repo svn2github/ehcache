@@ -7,13 +7,16 @@ MODULES = []
 Dir.chdir(File.dirname(__FILE__)) do |root|
   Dir.glob("*").each do |entry|
     if File.directory?(entry) && File.exists?(File.join(entry, "pom.xml"))
+      # currently this module trigger error
+      # while deploying to sonatype
+      next if entry == 'console'
       MODULES << entry
     end
   end
 end
 
 REPOSITORIES = [
-    #Repository.new('default'),
+    Repository.new('default'),
     Repository.new('kong', 'file:///shares/maven2')
 ]
 
@@ -28,11 +31,11 @@ class MavenCommand
         validate
         mvn_args = self.args ? self.args.join(' ') : ''
         command = "mvn --batch-mode -f #{pom} #{target} #{mvn_args}"
-        output=`#{command}`
-        if $?.success?
-            on_success.call(output) if on_success
+        success = system("#{command}")
+        if success
+            on_success.call() if on_success
         else
-            on_failure.call($?, output) if on_failure
+            on_failure.call(1, "failed to publish") if on_failure
         end
     end
 
