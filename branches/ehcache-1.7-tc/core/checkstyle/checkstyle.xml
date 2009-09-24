@@ -226,7 +226,7 @@
         </module>
         <module name="CyclomaticComplexity">
             <property name="severity" value="error"/>
-            <property name="max" value="10"/>
+            <property name="max" value="12"/>
         </module>
         <module name="NPathComplexity">
             <property name="max" value="50"/>
