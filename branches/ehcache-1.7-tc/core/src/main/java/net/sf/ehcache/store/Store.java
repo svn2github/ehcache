@@ -69,10 +69,16 @@ public interface Store {
     void dispose();
 
     /**
-     * Returns the current store size
-     * @return the count of the Elements in the Store
+     * Returns the current local store size
+     * @return the count of the Elements in the Store on the local machine
      */
     int getSize();
+
+    /**
+     * Returns the current clustered store size
+     * @return the count of the Elements in the Store across the cluster
+     */
+    int getClusteredSize();
 
     /**
      * Gets the size of the store, in bytes.

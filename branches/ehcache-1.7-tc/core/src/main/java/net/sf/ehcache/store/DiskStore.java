@@ -350,6 +350,14 @@ public class DiskStore implements Store {
             return 0;
         }
     }
+    
+    /**
+     * Returns nothing since a disk store isn't clustered
+     * @return returns 0
+     */
+    public final int getClusteredSize() {
+        return 0;
+    }
 
     /**
      * Gets the size of the store, in bytes.

@@ -348,6 +348,14 @@ public class MemoryStore implements Store {
         return map.size();
     }
 
+    
+    /**
+     * Returns nothing since a disk store isn't clustered
+     * @return returns 0
+     */
+    public final int getClusteredSize() {
+        return 0;
+    }
 
     /**
      * A check to see if a key is in the Store. No check is made to see if the Element is expired.
