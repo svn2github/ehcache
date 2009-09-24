@@ -1182,6 +1182,76 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
               removeLotsOfWhitespace(tcConfig.getEmbeddedConfig()));
     }
     
+    /**
+     * Test invalid combination of overflow to disk and terracotta ehcache.xml
+     */
+    @Test
+    public void testTerracottaInvalidConfig1() {
+      File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-invalid1.xml");
+      try {
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        fail("expecting exception to be thrown");
+      } catch (CacheException e) {
+        assertTrue(e.getMessage().contains("overflowToDisk isn't supported for a clustered Terracotta cache"));
+      }
+    }
+    
+    /**
+     * Test invalid combination of disk persistent and terracotta ehcache.xml
+     */
+    @Test
+    public void testTerracottaInvalidConfig2() {
+      File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-invalid2.xml");
+      try {
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        fail("expecting exception to be thrown");
+      } catch (CacheException e) {
+        assertTrue(e.getMessage().contains("diskPersistent isn't supported for a clustered Terracotta cache"));
+      }
+    }
+    
+    /**
+     * Test invalid combination of replicated and terracotta ehcache.xml
+     */
+    @Test
+    public void testTerracottaInvalidConfig3() {
+      File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-invalid3.xml");
+      try {
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        fail("expecting exception to be thrown");
+      } catch (CacheException e) {
+        assertTrue(e.getMessage().contains("cache replication isn't supported for a clustered Terracotta cache"));
+      }
+    }
+    
+    /**
+     * Test invalid combination of replicated and terracotta ehcache.xml
+     */
+    @Test
+    public void testTerracottaInvalidConfig4() {
+      File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-invalid4.xml");
+      try {
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        fail("expecting exception to be thrown");
+      } catch (CacheException e) {
+        assertTrue(e.getMessage().contains("cache replication isn't supported for a clustered Terracotta cache"));
+      }
+    }
+    
+    /**
+     * Test invalid combination of replicated and terracotta ehcache.xml
+     */
+    @Test
+    public void testTerracottaInvalidConfig5() {
+      File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-invalid5.xml");
+      try {
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        fail("expecting exception to be thrown");
+      } catch (CacheException e) {
+        assertTrue(e.getMessage().contains("cache replication isn't supported for a clustered Terracotta cache"));
+      }
+    }
+    
     private String removeLotsOfWhitespace(String str) {
         return str.replace("\t", "").replace("\r", "").replace("\n", "").replaceAll("\\s+", " ");
     }
