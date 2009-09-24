@@ -460,9 +460,14 @@ public class BlockingCache implements Ehcache {
     public Element get(final Object key) throws RuntimeException, LockTimeoutException {
 
         Sync lock = getLockForKey(key);
-        acquiredLockForKey(key, lock, LockType.READ);
+        boolean tcClustered = cache.getCacheConfiguration().isTerracottaClustered();
+        if (!tcClustered) {
+            acquiredLockForKey(key, lock, LockType.READ);
+        }
         Element element = cache.get(key);
-        lock.unlock(LockType.READ);
+        if (!tcClustered) {
+            lock.unlock(LockType.READ);
+        }
         if (element == null) {
             acquiredLockForKey(key, lock, LockType.WRITE);
             element = cache.get(key);
