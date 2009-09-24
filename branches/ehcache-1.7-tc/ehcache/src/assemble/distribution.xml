@@ -34,10 +34,13 @@
         <dependencySet>
             <outputDirectory>lib</outputDirectory>
             <unpack>false</unpack>
+            <scope>provided</scope>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <unpack>false</unpack>
             <scope>runtime</scope>
-            <excludes>
-                <exclude>net.sf.ehcache:ehcache</exclude>
-            </excludes>
         </dependencySet>
     </dependencySets>
+
 </assembly>

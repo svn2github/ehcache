@@ -21,11 +21,26 @@
             <artifactId>ehcache-core</artifactId>
             <version>1.7.0-SNAPSHOT</version>
         </dependency>
-        <!--Uncomment this once ehcache-terracotta comes into existence-->
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-terracotta</artifactId>
             <version>1.7.0-SNAPSHOT</version>
+        </dependency>
+
+        <!--Add sources and javadoc to the assembly-->
+        <dependency>
+            <scope>provided</scope>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
+            <version>1.7.0-SNAPSHOT</version>
+            <classifier>javadoc</classifier>
+        </dependency>
+        <dependency>
+            <scope>provided</scope>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
+            <version>1.7.0-SNAPSHOT</version>
+            <classifier>sources</classifier>
         </dependency>
     </dependencies>
 
