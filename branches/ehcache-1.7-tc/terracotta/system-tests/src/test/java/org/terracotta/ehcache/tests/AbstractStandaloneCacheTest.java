@@ -80,12 +80,16 @@ public abstract class AbstractStandaloneCacheTest extends TransparentTestBase {
     }
 
     @Override
-    protected final void runTest() throws Throwable {
+    protected void runTest() throws Throwable {
       runClient(Client1.class);
       runClient(Client2.class);
     }
 
     protected void runClient(Class client) throws Throwable {
+      runClient(client, true);
+    }
+
+    protected void runClient(Class client, boolean withStandaloneJar) throws Throwable {
       String test = jarFor(client);
       String standalone = jarFor(net.sf.ehcache.terracotta.StandaloneTerracottaStoreFactory.class);
       String ehcache = jarFor(CacheManager.class);
@@ -103,7 +107,11 @@ public abstract class AbstractStandaloneCacheTest extends TransparentTestBase {
       cmd.add("-Xmx128m");
 
       cmd.add("-cp");
-      cmd.add(makeClasspath(writeEhcacheConfigWithPort(configFile), test, standalone, ehcache));
+      if (withStandaloneJar) {
+        cmd.add(makeClasspath(writeEhcacheConfigWithPort(configFile), test, standalone, ehcache));
+      } else {
+        cmd.add(makeClasspath(writeEhcacheConfigWithPort(configFile), test, ehcache));
+      }
       cmd.add(client.getName());
       
       File output = new File(tempDir, client.getSimpleName() + ".log");
@@ -118,20 +126,26 @@ public abstract class AbstractStandaloneCacheTest extends TransparentTestBase {
      * write the ehcache.xml file back out to the temp dir, and return the resulting resource directory.
      */
     private String writeEhcacheConfigWithPort(String resourcePath) throws IOException {
+      return writeXmlFileWithPort(resourcePath, "ehcache-config.xml");
+    }
+
+    protected String writeXmlFileWithPort(String resourcePath, String outputName) throws IOException {
       // Slurp resourcePath file
       InputStream is = this.getClass().getClassLoader().getResourceAsStream(resourcePath);
-      List<String> ehcacheConfigLines = IOUtils.readLines(is);
-      
+      List<String> lines = IOUtils.readLines(is);
+
       // Replace PORT token
-      for(int i=0; i<ehcacheConfigLines.size(); i++) {
-        String line = ehcacheConfigLines.get(i);
-        ehcacheConfigLines.set(i, line.replace("PORT", Integer.toString(this.port)));
+      for(int i=0; i<lines.size(); i++) {
+        String line = lines.get(i);
+        lines.set(i, line.replace("PORT", Integer.toString(this.port))
+                .replace("CONFIG", configFile)
+                .replace("TEMP", tempDir.getAbsolutePath()));
       }
-      
-      // Write 
-      File ehcacheFile = new File(tempDir, "ehcache-config.xml");
-      FileOutputStream fos = new FileOutputStream(ehcacheFile);
-      IOUtils.writeLines(ehcacheConfigLines, IOUtils.LINE_SEPARATOR, fos);
+
+      // Write
+      File outputFile = new File(tempDir, outputName);
+      FileOutputStream fos = new FileOutputStream(outputFile);
+      IOUtils.writeLines(lines, IOUtils.LINE_SEPARATOR, fos);
       return tempDir.getAbsolutePath();
     }
 

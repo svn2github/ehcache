@@ -15,13 +15,12 @@
          <terracotta clustered="true"/>
   </cache>
 
-  <terracottaConfig>
-    <tc-config xmlns="http://www.terracotta.org/config">
-      <servers>
-        <server host="localhost" name="LocalServer">
-          <dso-port>PORT</dso-port>
-        </server>
-      </servers>
-    </tc-config>
-  </terracottaConfig>
+  <cache name="test-unclustered"
+         maxElementsInMemory="10000"
+         eternal="true"
+         overflowToDisk="false">
+  </cache>
+
+  <terracottaConfig url="localhost:PORT"/>
+
 </ehcache>

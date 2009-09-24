@@ -8,8 +8,10 @@ import net.sf.ehcache.CacheManager;
 
 public abstract class ClientBase {
 
-  public ClientBase(String args[]) {
-    //
+  private final String name;
+  
+  public ClientBase(String cacheName, String args[]) {
+    this.name = cacheName;
   }
 
   public final void run() {
@@ -24,7 +26,7 @@ public abstract class ClientBase {
 
   private Cache setupCache() {
     CacheManager mgr = new CacheManager(Client1.class.getResourceAsStream("/ehcache-config.xml"));
-    return mgr.getCache("test");
+    return mgr.getCache(name);
   }
 
   protected abstract void test(Cache cache) throws Throwable;
