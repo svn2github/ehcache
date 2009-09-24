@@ -16,7 +16,7 @@ Dir.chdir(File.dirname(__FILE__)) do |root|
 end
 
 REPOSITORIES = [
-    Repository.new('default'),
+    #Repository.new('default'),
     Repository.new('kong', 'file:///shares/maven2')
 ]
 
