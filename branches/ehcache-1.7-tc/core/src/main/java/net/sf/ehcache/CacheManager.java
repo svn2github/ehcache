@@ -1057,6 +1057,14 @@ public class CacheManager {
             return super.toString();
         }
     }
+    
+    /**
+     * Indicate whether the CacheManager is named or not.
+     * @return True if named
+     */
+    public boolean isNamed() {
+        return name != null;
+    }
 
     /**
      * Sets the name of the CacheManager. This is useful for distinguishing multiple CacheManagers
