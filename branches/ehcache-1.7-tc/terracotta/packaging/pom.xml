@@ -17,6 +17,9 @@
     <exported-classes-jar>${project.build.directory}/exported-classes.jar</exported-classes-jar>
     <terracotta-l1.artifactId>terracotta-l1</terracotta-l1.artifactId>
     <enterprise.packaging>open source</enterprise.packaging>
+
+    <sourceforge-snapshots.url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</sourceforge-snapshots.url>
+    <sourceforge-releases.url>http://oss.sonatype.org/content/repositories/sourceforge-releases</sourceforge-releases.url>
   </properties>
 
   <dependencies>
@@ -227,9 +230,9 @@
         </repository>
       </repositories>
     </profile>
-    
+
     <profile>
-      <id>deploy-snapshot-and-final</id>
+      <id>deploy-kong</id>
       <activation>
         <property>
           <name>altDeploymentRepository</name>
@@ -249,6 +252,82 @@
                   <file>${project.build.directory}/${jar-name}-${project.version}.jar</file>
                   <repositoryId>kong</repositoryId>
                   <url>file:///shares/maven2</url>
+                  <packaging>jar</packaging>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>${jar-name}</artifactId>
+                  <version>${project.version}</version>
+                  <uniqueVersion>false</uniqueVersion>
+                </configuration>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>deploy-snapshot-default</id>
+      <activation>
+        <property>
+          <name>deploySnapshot</name>
+          <value>default</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <version>2.4</version>
+            <executions>
+              <execution>
+                <id>deploy-to-kong</id>
+                <configuration>
+                  <file>${project.build.directory}/${jar-name}-${project.version}.jar</file>
+                  <repositoryId>sourceforge-snapshots</repositoryId>
+                  <url>${sourceforge-snapshots.url}</url>
+                  <packaging>jar</packaging>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>${jar-name}</artifactId>
+                  <version>${project.version}</version>
+                  <uniqueVersion>false</uniqueVersion>
+                </configuration>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>deploy-release-default</id>
+      <activation>
+        <property>
+          <name>deployRelease</name>
+          <value>default</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <version>2.4</version>
+            <executions>
+              <execution>
+                <id>deploy-to-kong</id>
+                <configuration>
+                  <file>${project.build.directory}/${jar-name}-${project.version}.jar</file>
+                  <repositoryId>sourceforge-releases</repositoryId>
+                  <url>${sourceforge-releases.url}</url>
                   <packaging>jar</packaging>
                   <groupId>${project.groupId}</groupId>
                   <artifactId>${jar-name}</artifactId>
