@@ -15,6 +15,8 @@
  */
 package net.sf.ehcache.management.provider;
 
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.Configuration.Monitoring;
 import net.sf.ehcache.management.sampled.SampledMBeanRegistrationProvider;
 
 /**
@@ -33,9 +35,13 @@ public class MBeanRegistrationProviderFactoryImpl implements
     /**
      * {@inheritDoc}
      */
-    public MBeanRegistrationProvider createMBeanRegistrationProvider() {
+    public MBeanRegistrationProvider createMBeanRegistrationProvider(
+            final Configuration config) {
+        if (null == config) {
+            throw new IllegalArgumentException("Configuration cannot be null.");
+        }
         MBeanRegistrationProvider provider;
-        if (registerMBeansByDefault(false)) {
+        if (shouldRegisterMBeans(config)) {
             provider = new SampledMBeanRegistrationProvider();
         } else {
             provider = DEFAULT_PROVIDER;
@@ -43,17 +49,26 @@ public class MBeanRegistrationProviderFactoryImpl implements
         return provider;
     }
 
-    private boolean registerMBeansByDefault(final boolean defaultValue) {
-        // XXX: Should this come from config instead of sys-prop?
-        String prop = System
-                .getProperty(MBeanRegistrationProvider.REGISTER_MBEANS_BY_DEFAULT_PROP_NAME);
-        if (prop == null || prop.trim().equals("")) {
-            return defaultValue;
-        }
-        if ("true".equalsIgnoreCase(prop)) {
+    private boolean shouldRegisterMBeans(final Configuration config) {
+        Monitoring monitoring = config.getMonitoring();
+        switch (monitoring) {
+        case AUTODETECT:
+            return isTcActive();
+        case ON:
             return true;
+        case OFF:
+            return false;
+        default:
+            throw new IllegalArgumentException(
+                    "Unknown type of monitoring specified in config: "
+                            + monitoring);
         }
-        return false;
     }
 
+    private boolean isTcActive() {
+        // do not use a static final to store this in a class.
+        // If unclustered cacheManager's are created before creating
+        // clustered ones, mbeans will never get registered
+        return Boolean.getBoolean("tc.active");
+    }
 }

@@ -301,7 +301,7 @@ public class CacheManager {
         //do this last
         addConfiguredCaches(configurationHelper);
 
-        mbeanRegistrationProvider = mBeanRegistrationProviderFactory.createMBeanRegistrationProvider();
+        mbeanRegistrationProvider = mBeanRegistrationProviderFactory.createMBeanRegistrationProvider(localConfiguration);
         try {
             mbeanRegistrationProvider.initialize(this);
         } catch (MBeanRegistrationProviderException e) {

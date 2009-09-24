@@ -29,8 +29,20 @@ import javax.management.ObjectName;
  */
 public abstract class SampledEhcacheMBeans {
 
-    private static final String SAMPLED_CACHE_MANAGER_TYPE = "SampledCacheManager";
-    private static final String SAMPLED_CACHE_TYPE = "SampledCache";
+    /**
+     * Type used for sampled cache manager mbean
+     */
+    public static final String SAMPLED_CACHE_MANAGER_TYPE = "SampledCacheManager";
+
+    /**
+     * Type used for sampled cache mbean
+     */
+    public static final String SAMPLED_CACHE_TYPE = "SampledCache";
+
+    /**
+     * Group id for all sampled mbeans registered
+     */
+    public static final String GROUP_ID = "net.sf.ehcache";
 
     /**
      * Returns an ObjectName for the passed cacheManagerName
@@ -41,7 +53,7 @@ public abstract class SampledEhcacheMBeans {
      */
     public static ObjectName getCacheManagerObjectName(String cacheManagerName)
             throws MalformedObjectNameException {
-        ObjectName objectName = new ObjectName("net.sf.ehcache:type="
+        ObjectName objectName = new ObjectName(GROUP_ID + ":type="
                 + SAMPLED_CACHE_MANAGER_TYPE + ",name=" + cacheManagerName);
         return objectName;
     }
@@ -57,7 +69,7 @@ public abstract class SampledEhcacheMBeans {
      */
     public static ObjectName getCacheObjectName(String cacheManagerName,
             String cacheName) throws MalformedObjectNameException {
-        ObjectName objectName = new ObjectName("net.sf.ehcache:type="
+        ObjectName objectName = new ObjectName(GROUP_ID + ":type="
                 + SAMPLED_CACHE_TYPE + "," + SAMPLED_CACHE_MANAGER_TYPE + "="
                 + cacheManagerName + ",name=" + cacheName);
         return objectName;
@@ -73,7 +85,7 @@ public abstract class SampledEhcacheMBeans {
      */
     public static ObjectName getQueryObjectNameForCacheManager(
             String cacheManagerName) throws MalformedObjectNameException {
-        ObjectName objectName = new ObjectName("net.sf.ehcache:*,"
+        ObjectName objectName = new ObjectName(GROUP_ID + ":*,"
                 + SAMPLED_CACHE_MANAGER_TYPE + "=" + cacheManagerName);
         return objectName;
     }

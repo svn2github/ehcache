@@ -15,6 +15,8 @@
  */
 package net.sf.ehcache.management.provider;
 
+import net.sf.ehcache.config.Configuration;
+
 /**
  * Factory interface to create {@link MBeanRegistrationProvider}
  * 
@@ -30,6 +32,7 @@ public interface MBeanRegistrationProviderFactory {
      * 
      * @return
      */
-    public MBeanRegistrationProvider createMBeanRegistrationProvider();
+    public MBeanRegistrationProvider createMBeanRegistrationProvider(
+            Configuration config);
 
 }

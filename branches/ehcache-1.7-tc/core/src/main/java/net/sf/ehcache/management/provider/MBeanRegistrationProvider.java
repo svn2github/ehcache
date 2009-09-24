@@ -30,13 +30,6 @@ import net.sf.ehcache.CacheManager;
 public interface MBeanRegistrationProvider {
 
     /**
-     * Name of system-property name that controls whether MBeans for a
-     * cacheManager should be registered or not when a CacheManager is created
-     * by default. Allowed values are "true" and "false"
-     */
-    public static final String REGISTER_MBEANS_BY_DEFAULT_PROP_NAME = "net.sf.ehcache.jmx.register-mbeans-by-default";
-
-    /**
      * Initialize MBeanRegistration if necessary for the cacheManager
      * 
      * @param cacheManager
