@@ -278,7 +278,7 @@ public class CacheManager {
          * May not have any CacheConfigurations yet, so check the default configuration.
          */
         if (terracottaStoreFactory == null) {
-            if (configuration.getDefaultCacheConfiguration().isTerracottaClustered()) {
+            if (localConfiguration.getDefaultCacheConfiguration().isTerracottaClustered()) {
                 terracottaStoreFactory = TerracottaStoreHelper.newStoreFactory(cacheConfigs, localConfiguration
                         .getTerracottaConfiguration());
             }
