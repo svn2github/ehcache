@@ -16,9 +16,11 @@ Dir.chdir(File.dirname(__FILE__)) do |root|
 end
 
 REPOSITORIES = [
-    #Repository.new('default'),
+    Repository.new('default'),
     Repository.new('kong', 'file:///shares/maven2')
 ]
+
+MODULES_TO_SONATYPE_ONLY = ['core', 'ehcache', 'terracotta']
 
 class MavenCommand
     def initialize(&block)
@@ -59,6 +61,9 @@ MODULES.each do |mod|
         clean.execute
 
         REPOSITORIES.each do |repo|
+
+            next if repo.id == 'default' && ! MODULES_TO_SONATYPE_ONLY.include?(mod)
+
             maven_deploy_command = MavenCommand.new do
                 self.pom = module_pom
                 self.target = 'deploy'
