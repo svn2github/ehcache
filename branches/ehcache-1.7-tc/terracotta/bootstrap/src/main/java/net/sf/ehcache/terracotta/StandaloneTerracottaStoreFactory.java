@@ -41,7 +41,7 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
   private final JarManager    jarManager                   = new JarManager();
   private final StoreFactory  realFactory;
 
-  public StandaloneTerracottaStoreFactory(TerracottaConfigConfiguration terracottaConfig) {
+  public StandaloneTerracottaStoreFactory(final TerracottaConfigConfiguration terracottaConfig) {
     testForBootJar();
 
     System.setProperty("tc.active", "true");
@@ -121,8 +121,9 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
       ClassFileTransformer dsoContext = call.call();
       appLevelTimLoader.setTransformer(dsoContext);
 
-      realFactory = (StoreFactory) appLevelTimLoader
-          .loadClass("org.terracotta.modules.ehcache.store.TerracottaStoreFactory").newInstance();
+      Class factoryClass = appLevelTimLoader.loadClass("org.terracotta.modules.ehcache.store.TerracottaStoreFactory");
+      Constructor factoryClassConstructor = factoryClass.getConstructor(new Class[] {TerracottaConfigConfiguration.class});
+      realFactory = (StoreFactory)factoryClassConstructor.newInstance(terracottaConfig);
     } catch (Exception e) {
       throw new CacheException(e);
     }
