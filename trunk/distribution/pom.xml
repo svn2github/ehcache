@@ -14,7 +14,7 @@
 	<dependencies>
          <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>ehcache</artifactId>
+            <artifactId>ehcache-core</artifactId>
             <version>${pom.version}</version>
          </dependency>
          <dependency>
@@ -42,7 +42,7 @@
 							<descriptors>
 								<descriptor>${basedir}/src/main/assembly/assembly-bin.xml</descriptor>
 							</descriptors>
-							<finalName>ehcache-${pom.version}</finalName>
+							<finalName>ehcache-core-${pom.version}</finalName>
 							<workDirectory>${project.build.directory}/assembly/bin</workDirectory>
 						</configuration>
 					</execution>
@@ -56,7 +56,7 @@
 							<descriptors>
 								<descriptor>${basedir}/src/main/assembly/assembly-src.xml</descriptor>
 							</descriptors>
-							<finalName>ehcache-${pom.version}</finalName>
+							<finalName>ehcache-core-${pom.version}</finalName>
 							<workDirectory>${project.build.directory}/assembly/src</workDirectory>
 						</configuration>
 					</execution>
