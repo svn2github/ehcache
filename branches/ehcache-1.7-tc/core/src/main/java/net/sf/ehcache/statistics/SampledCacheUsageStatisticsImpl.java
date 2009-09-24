@@ -231,6 +231,10 @@ public class SampledCacheUsageStatisticsImpl implements CacheUsageListener,
         cacheMissExpiredCount.getAndReset();
         cacheMissNotFoundCount.getAndReset();
         cacheElementEvictedCount.getAndReset();
+        cacheElementRemoved.getAndReset();
+        cacheElementExpired.getAndReset();
+        cacheElementPut.getAndReset();
+        cacheElementUpdated.getAndReset();
         averageGetTime.getAndReset();
     }
 

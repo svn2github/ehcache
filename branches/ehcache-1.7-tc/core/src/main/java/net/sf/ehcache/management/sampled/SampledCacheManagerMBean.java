@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.management.sampled;
 
+import java.util.Map;
+
 /**
  * An MBean for {@link CacheManager} exposing sampled cache usage statistics
  * 
@@ -57,4 +59,40 @@ public interface SampledCacheManagerMBean {
      */
     public String[] getCacheNames() throws IllegalStateException;
 
+    /**
+     * Get a map of cache name to performance metrics (hits, misses).
+     * 
+     * @return a map of cache metrics
+     */
+    public Map<String, long[]> getCacheMetrics();
+    
+    /**
+     * @return aggregate hit rate
+     */
+    public long getCacheHitRate();    
+
+    /**
+     * @return aggregate miss rate
+     */
+    public long getCacheMissRate();    
+
+    /**
+     * @return aggregate put rate
+     */
+    public long getCachePutRate();    
+
+    /**
+     * @return aggregate update rate
+     */
+    public long getCacheUpdateRate();    
+    
+    /**
+     * @return aggregate eviction rate
+     */
+    public long getCacheEvictionRate();   
+    
+    /**
+     * @return aggregate expiration rate
+     */
+    public long getCacheExpirationRate();
 }

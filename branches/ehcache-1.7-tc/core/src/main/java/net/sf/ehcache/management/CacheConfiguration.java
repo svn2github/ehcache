@@ -142,6 +142,13 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
         return cacheConfiguration.getDiskExpiryThreadIntervalSeconds();
     }
 
+    /**
+     * Accessor
+     */
+    public boolean isTerracottaClustered() {
+        return cacheConfiguration.isTerracottaClustered();
+    }
+
 
     /**
      * @return the object name for this MBean

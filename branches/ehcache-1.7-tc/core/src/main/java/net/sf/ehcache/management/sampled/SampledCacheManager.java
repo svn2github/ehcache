@@ -16,7 +16,12 @@
 
 package net.sf.ehcache.management.sampled;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.statistics.SampledCacheUsageStatistics;
 
 /**
  * An implementation of {@link SampledCacheManagerMBean}
@@ -43,7 +48,7 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
      * {@inheritDoc}
      */
     public void clearAll() {
-        // no-op
+        cacheManager.clearAll();
     }
 
     /**
@@ -67,4 +72,104 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
         //no-op
     }
 
+
+    /**
+     * @return map of cache metrics (hits, misses)
+     */
+    public Map<String, long[]> getCacheMetrics() {
+        Map<String, long[]> result = new HashMap<String, long[]>();
+        String[] caches = getCacheNames();
+        for (String cacheName : caches) {
+            Cache cache = cacheManager.getCache(cacheName);
+            SampledCacheUsageStatistics stats = cache.getSampledCacheUsageStatistics();
+            result.put(cacheName, new long[] {stats.getCacheHitMostRecentSample(),
+                    stats.getCacheMissMostRecentSample(), stats.getCacheElementPutMostRecentSample(), });
+        }
+        return result;
+    }
+    
+    /**
+     * @return aggregate hit rate
+     */
+    public long getCacheHitRate() {
+        long result = 0;
+        String[] caches = getCacheNames();
+        for (String cacheName : caches) {
+            Cache cache = cacheManager.getCache(cacheName);
+            SampledCacheUsageStatistics stats = cache.getSampledCacheUsageStatistics();
+            result += stats.getCacheHitMostRecentSample();
+        }
+        return result;
+    }
+  
+    /**
+     * @return aggregate miss rate
+     */
+    public long getCacheMissRate() {
+        long result = 0;
+        String[] caches = getCacheNames();
+        for (String cacheName : caches) {
+            Cache cache = cacheManager.getCache(cacheName);
+            SampledCacheUsageStatistics stats = cache.getSampledCacheUsageStatistics();
+            result += stats.getCacheMissMostRecentSample();
+        }
+        return result;
+    }
+ 
+    /**
+     * @return aggregate put rate
+     */
+    public long getCachePutRate() {
+        long result = 0;
+        String[] caches = getCacheNames();
+        for (String cacheName : caches) {
+            Cache cache = cacheManager.getCache(cacheName);
+            SampledCacheUsageStatistics stats = cache.getSampledCacheUsageStatistics();
+            result += stats.getCacheElementPutMostRecentSample();
+        }
+        return result;
+    }
+   
+    /**
+     * @return aggregate update rate
+     */
+    public long getCacheUpdateRate() {
+        long result = 0;
+        String[] caches = getCacheNames();
+        for (String cacheName : caches) {
+            Cache cache = cacheManager.getCache(cacheName);
+            SampledCacheUsageStatistics stats = cache.getSampledCacheUsageStatistics();
+            result += stats.getCacheElementUpdatedMostRecentSample();
+        }
+        return result;
+    }
+    
+    /**
+     * @return aggregate eviction rate
+     */
+    public long getCacheEvictionRate() {
+        long result = 0;
+        String[] caches = getCacheNames();
+        for (String cacheName : caches) {
+            Cache cache = cacheManager.getCache(cacheName);
+            SampledCacheUsageStatistics stats = cache.getSampledCacheUsageStatistics();
+            result += stats.getCacheElementEvictedMostRecentSample();
+        }
+        return result;
+    }
+    
+    /**
+     * @return aggregate expiration rate
+     */
+    public long getCacheExpirationRate() {
+        long result = 0;
+        String[] caches = getCacheNames();
+        for (String cacheName : caches) {
+            Cache cache = cacheManager.getCache(cacheName);
+            SampledCacheUsageStatistics stats = cache.getSampledCacheUsageStatistics();
+            result += stats.getCacheElementExpiredMostRecentSample();
+        }
+        return result;
+    }
+    
 }

@@ -76,5 +76,8 @@ public interface CacheConfigurationMBean {
      */
     public long getDiskExpiryThreadIntervalSeconds();
 
-
+    /**
+     * Accessor
+     */
+    boolean isTerracottaClustered();
 }

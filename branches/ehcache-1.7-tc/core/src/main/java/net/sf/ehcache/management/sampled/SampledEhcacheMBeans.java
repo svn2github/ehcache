@@ -29,9 +29,8 @@ import javax.management.ObjectName;
  */
 public abstract class SampledEhcacheMBeans {
 
-    private static final String CACHE_MANAGER_MBEAN_TYPE = "SampledCacheManagerMBean";
-    private static final String CACHE_MBEAN_TYPE = "SampledCacheMBean";
-    private static final String CACHE_MANAGER_QUALIFIER = "SampledCacheManager";
+    private static final String SAMPLED_CACHE_MANAGER_TYPE = "SampledCacheManager";
+    private static final String SAMPLED_CACHE_TYPE = "SampledCache";
 
     /**
      * Returns an ObjectName for the passed cacheManagerName
@@ -43,7 +42,7 @@ public abstract class SampledEhcacheMBeans {
     public static ObjectName getCacheManagerObjectName(String cacheManagerName)
             throws MalformedObjectNameException {
         ObjectName objectName = new ObjectName("net.sf.ehcache:type="
-                + CACHE_MANAGER_MBEAN_TYPE + ",name=" + cacheManagerName);
+                + SAMPLED_CACHE_MANAGER_TYPE + ",name=" + cacheManagerName);
         return objectName;
     }
 
@@ -59,7 +58,7 @@ public abstract class SampledEhcacheMBeans {
     public static ObjectName getCacheObjectName(String cacheManagerName,
             String cacheName) throws MalformedObjectNameException {
         ObjectName objectName = new ObjectName("net.sf.ehcache:type="
-                + CACHE_MBEAN_TYPE + "," + CACHE_MANAGER_QUALIFIER + "="
+                + SAMPLED_CACHE_TYPE + "," + SAMPLED_CACHE_MANAGER_TYPE + "="
                 + cacheManagerName + ",name=" + cacheName);
         return objectName;
     }
@@ -75,7 +74,7 @@ public abstract class SampledEhcacheMBeans {
     public static ObjectName getQueryObjectNameForCacheManager(
             String cacheManagerName) throws MalformedObjectNameException {
         ObjectName objectName = new ObjectName("net.sf.ehcache:*,"
-                + CACHE_MANAGER_QUALIFIER + "=" + cacheManagerName);
+                + SAMPLED_CACHE_MANAGER_TYPE + "=" + cacheManagerName);
         return objectName;
     }
 

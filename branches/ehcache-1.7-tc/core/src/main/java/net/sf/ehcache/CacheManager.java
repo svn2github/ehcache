@@ -264,7 +264,6 @@ public class CacheManager {
             this.name = localConfiguration.getName();
         }
 
-
         Map<String, CacheConfiguration> cacheConfigs = localConfiguration.getCacheConfigurations();
         for (CacheConfiguration config : cacheConfigs.values()) {
             if (config.isTerracottaClustered()) {
@@ -274,7 +273,17 @@ public class CacheManager {
                 break;
             }
         }
-
+        
+        /*
+         * May not have any CacheConfigurations yet, so check the default configuration.
+         */
+        if (terracottaStoreFactory == null) {
+            if (configuration.getDefaultCacheConfiguration().isTerracottaClustered()) {
+                terracottaStoreFactory = TerracottaStoreHelper.newStoreFactory(cacheConfigs, localConfiguration
+                        .getTerracottaConfiguration());
+            }
+        }
+        
         ConfigurationHelper configurationHelper = new ConfigurationHelper(this, localConfiguration);
         configure(configurationHelper);
         status = Status.STATUS_ALIVE;
@@ -1061,8 +1070,8 @@ public class CacheManager {
             mbeanRegistrationProvider.reinitialize();
         } catch (MBeanRegistrationProviderException e) {
             throw new CacheException(
-                    "Problem in reinitializing MBeanRegistrationProvider - "
-                            + mbeanRegistrationProvider.getClass().getName(), e);
+                "Problem in reinitializing MBeanRegistrationProvider - "
+                        + mbeanRegistrationProvider.getClass().getName(), e);
         }
     }
 
