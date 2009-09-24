@@ -131,7 +131,7 @@
         <repository>
             <id>sourceforge-releases</id>
             <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
-            <layout>legacy</layout>
+            <!--<layout>legacy</layout> -->
             <releases>
                 <enabled>false</enabled>
                 <updatePolicy>daily</updatePolicy>

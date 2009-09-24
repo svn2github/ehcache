@@ -2,11 +2,22 @@
 
 Repository = Struct.new(:id, :url)
 
-MODULES = %w(. core debugger jcache server standalone-server jmsreplication
-             jgroupsreplication openjpa)
+# scan for modules
+MODULES = []
+Dir.chdir(File.dirname(__FILE__)) do |root|
+  Dir.glob("*").each do |entry|
+    if File.directory?(entry) && File.exists?(File.join(entry, "pom.xml"))
+      # currently this module trigger error
+      # while deploying to sonatype
+      next if entry == 'console'
+      MODULES << entry
+    end
+  end
+end
+
 REPOSITORIES = [
-    #Repository.new('sourceforge'),
-    Repository.new('kong', 'file:///shares/maven2')
+    Repository.new('default'),
+    #Repository.new('kong', 'file:///shares/maven2')
 ]
 
 class MavenCommand
@@ -20,11 +31,11 @@ class MavenCommand
         validate
         mvn_args = self.args ? self.args.join(' ') : ''
         command = "mvn --batch-mode -f #{pom} #{target} #{mvn_args}"
-        output=`#{command}`
-        if $?.success?
-            on_success.call(output) if on_success
+        success = system("#{command}")
+        if success
+            on_success.call() if on_success
         else
-            on_failure.call($?, output) if on_failure
+            on_failure.call(1, "failed to publish") if on_failure
         end
     end
 
@@ -51,7 +62,8 @@ MODULES.each do |mod|
             maven_deploy_command = MavenCommand.new do
                 self.pom = module_pom
                 self.target = 'deploy'
-                self.args = ['-Dmaven.test.skip=true', '-Dmaven.clover.skip=true', '-Dcheckstyle.skip=true']
+                self.args = ['-Dmaven.test.skip=true', '-Dmaven.clover.skip=true', '-Dcheckstyle.skip=true',
+                             "-P '!system-tests'"]
                 if repo.url
                     self.args << "-DaltDeploymentRepository=#{repo.id}::default::#{repo.url}"
                 end
@@ -59,10 +71,18 @@ MODULES.each do |mod|
                 self.on_failure = lambda { |status, output|
                     $exit_status = 1
                     $stderr.puts("FAILURE - failed to deploy #{pom} to repository #{repo.id}")
+                    $stderr.puts("## OUTPUT for #{pom} (#{repo.id})")
                     $stderr.puts(output)
+                    $stderr.puts("## END OUTPUT for #{pom} (#{repo.id})")
                 }
             end
             maven_deploy_command.execute
+
+            # deploy EE package of standalone ehcache-terracotta
+            if mod == 'terracotta' && repo.id == 'kong'
+               maven_deploy_command.args << "-P package-ee"
+               maven_deploy_command.execute
+            end
         end
     end
 end
