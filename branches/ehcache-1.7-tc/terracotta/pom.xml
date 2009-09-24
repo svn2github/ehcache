@@ -18,12 +18,23 @@
   </modules>
 
   <properties>
-    <tc-build-plugin.version>1.1.0-SNAPSHOT</tc-build-plugin.version>
-    <tc-maven-plugin.version>1.5.0-SNAPSHOT</tc-maven-plugin.version>
-    <terracotta.version>3.2.0-SNAPSHOT</terracotta.version>
-    <tim-ehcache-1.7.version>1.5.0-SNAPSHOT</tim-ehcache-1.7.version>
+    <tc-build-plugin.version>1.0.2-SNAPSHOT</tc-build-plugin.version>
+    <tc-maven-plugin.version>1.4.2-SNAPSHOT</tc-maven-plugin.version>
+    <terracotta.version>3.1.1-SNAPSHOT</terracotta.version>
+    <tim-ehcache-1.7.version>1.4.2-SNAPSHOT</tim-ehcache-1.7.version>
     <ehcache.version>1.7.0-SNAPSHOT</ehcache.version>
+    <depdb.version>1.0.0</depdb.version>
   </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.terracotta.plugin</groupId>
+        <artifactId>maven-depdb-plugin</artifactId>
+        <version>${depdb.version}</version>
+      </plugin>
+    </plugins>
+  </build>
 
   <repositories>
     <repository>
