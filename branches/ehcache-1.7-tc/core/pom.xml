@@ -8,6 +8,7 @@
         <version>2.0-SNAPSHOT</version>
     </parent>
     <name>Ehcache Core</name>
+     <description>This is the ehcache core module. Pair it with other modules for added functionality</description>
     <artifactId>ehcache-core</artifactId>
     <packaging>jar</packaging>
     <version>1.7.0-SNAPSHOT</version>
@@ -504,11 +505,6 @@
         <!--
         The server id here defined must also appear in ~/.m2/settings.xml with username
         Note: site URL repeated here to ensure correct deployment path -->
-        <!--<site>-->
-            <!--<id>sourceforge.net</id>-->
-            <!--<name>SF EHCache Site</name>-->
-            <!--<url>scp://web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs</url>-->
-        <!--</site>-->
         <site>
             <id>ehcache.org</id>
             <name>EHCache Site</name>
