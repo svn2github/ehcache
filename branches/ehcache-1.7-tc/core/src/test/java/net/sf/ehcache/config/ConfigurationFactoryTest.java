@@ -111,6 +111,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //Check core attributes
         assertEquals(null, configurationHelper.getConfigurationBean().getName());
         assertEquals(true, configurationHelper.getConfigurationBean().getUpdateCheck());
+        assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper.getConfigurationBean().getMonitoring());
         
         //Check disk store
         assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
@@ -221,7 +222,8 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
         assertEquals(null, configurationHelper.getConfigurationBean().getName());
         assertEquals(true, configurationHelper.getConfigurationBean().getUpdateCheck());
-
+        assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper.getConfigurationBean().getMonitoring());
+        
         //Check disk store  <diskStore path="/tmp"/>
         assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
 
@@ -307,6 +309,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
         assertEquals(null, configurationHelper.getConfigurationBean().getName());
         assertEquals(true, configurationHelper.getConfigurationBean().getUpdateCheck());
+        assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper.getConfigurationBean().getMonitoring());
 
         //Check disk path  <diskStore path="/tmp"/>
         assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
@@ -520,6 +523,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
         assertEquals(null, configurationHelper.getConfigurationBean().getName());
         assertEquals(true, configurationHelper.getConfigurationBean().getUpdateCheck());
+        assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper.getConfigurationBean().getMonitoring());
 
         //Check disk path  <diskStore path="/tmp"/>
         assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
@@ -602,6 +606,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
         assertEquals(null, configurationHelper.getConfigurationBean().getName());
         assertEquals(true, configurationHelper.getConfigurationBean().getUpdateCheck());
+        assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper.getConfigurationBean().getMonitoring());
 
         //Check disk path  <diskStore path="/tmp"/>
         assertEquals(null, configurationHelper.getDiskStorePath());
@@ -842,6 +847,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
         assertEquals(null, configurationHelper.getConfigurationBean().getName());
         assertEquals(true, configurationHelper.getConfigurationBean().getUpdateCheck());
+        assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper.getConfigurationBean().getMonitoring());
 
         //Check disk path  <diskStore path="/tmp"/>
         assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
@@ -899,6 +905,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
             assertEquals(null, configurationHelper.getConfigurationBean().getName());
             assertEquals(true, configurationHelper.getConfigurationBean().getUpdateCheck());
+            assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper.getConfigurationBean().getMonitoring());
 
             //Check disk path  <diskStore path="/tmp"/>
             assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
@@ -1055,6 +1062,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
       assertEquals("tc", configurationHelper.getConfigurationBean().getName());
       assertEquals(false, configurationHelper.getConfigurationBean().getUpdateCheck());
+      assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper.getConfigurationBean().getMonitoring());
 
       //Check default cache
       Ehcache defaultCache = configurationHelper.createDefaultCache();
@@ -1134,6 +1142,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
       assertEquals("tc", configurationHelper.getConfigurationBean().getName());
       assertEquals(false, configurationHelper.getConfigurationBean().getUpdateCheck());
+      assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper.getConfigurationBean().getMonitoring());
 
       //Check default cache
       Ehcache defaultCache = configurationHelper.createDefaultCache();
@@ -1175,5 +1184,32 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     
     private String removeLotsOfWhitespace(String str) {
         return str.replace("\t", "").replace("\r", "").replace("\n", "").replaceAll("\\s+", " ");
+    }
+    
+    @Test
+    public void testMonitoringOn() {
+      File file = new File(TEST_CONFIG_DIR + "ehcache-monitoring-on.xml");
+      Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+      ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+
+      assertEquals(Configuration.Monitoring.ON, configurationHelper.getConfigurationBean().getMonitoring());
+    }
+    
+    @Test
+    public void testMonitoringOff() {
+      File file = new File(TEST_CONFIG_DIR + "ehcache-monitoring-off.xml");
+      Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+      ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+
+      assertEquals(Configuration.Monitoring.OFF, configurationHelper.getConfigurationBean().getMonitoring());
+    }
+    
+    @Test
+    public void testMonitoringAutodetect() {
+      File file = new File(TEST_CONFIG_DIR + "ehcache-monitoring-autodetect.xml");
+      Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+      ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+
+      assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper.getConfigurationBean().getMonitoring());
     }
 }

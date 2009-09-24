@@ -17,6 +17,7 @@
             </xs:sequence>
             <xs:attribute name="name" use="optional"/>
             <xs:attribute name="updateCheck" use="optional" type="xs:boolean" default="true"/>
+            <xs:attribute name="monitoring" use="optional" type="monitoringType" default="autodetect"/>
         </xs:complexType>
     </xs:element>     
     <xs:element name="diskStore">
@@ -55,6 +56,7 @@
                 </xsd:complexType>        
             </xsd:element>
             <xs:attribute name="url" use="optional" default="localhost:9510"/>
+            <xs:attribute name="registerStatsMBean" type="xsd:boolean" use="optional"/>
         </xs:complexType>
     </xs:element>    
     <!-- add clone support for addition of cacheExceptionHandler. Important! -->
@@ -146,6 +148,13 @@
             <xs:attribute name="valueMode" use="optional" type="terracottaCacheValueType" default="serialization"/>
         </xs:complexType>
     </xs:element>
+    <xsd:simpleType name="monitoringType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="autodetect" />
+            <xsd:enumeration value="on" />
+            <xsd:enumeration value="off" />
+        </xsd:restriction>
+    </xsd:simpleType>
     <xsd:simpleType name="terracottaCacheValueType">
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="serialization" />

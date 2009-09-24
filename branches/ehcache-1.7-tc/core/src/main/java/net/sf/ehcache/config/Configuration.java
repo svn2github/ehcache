@@ -32,8 +32,24 @@ import java.util.Set;
  */
 public final class Configuration {
 
+    /**
+     * Represents whether monitoring should be enabled or not.
+     * @author amiller
+     */
+    public enum Monitoring {
+        /** When possible, notice the use of Terracotta and auto register the SampledCacheMBean. */
+        AUTODETECT,
+        
+        /** Always auto register the SampledCacheMBean */
+        ON,
+        
+        /** Never auto register the SampledCacheMBean */
+        OFF;
+    }
+    
     private String cacheManagerName;
     private boolean updateCheck = true;
+    private Monitoring monitoring = Monitoring.AUTODETECT;
     private DiskStoreConfiguration diskStoreConfiguration;
     private CacheConfiguration defaultCacheConfiguration;
     private List<FactoryConfiguration> cacheManagerPeerProviderFactoryConfiguration = new ArrayList<FactoryConfiguration>();
@@ -78,6 +94,23 @@ public final class Configuration {
      */
     public final boolean getUpdateCheck() {
         return this.updateCheck;
+    }
+    
+    /**
+     * Allows BeanHandler to set the monitoring flag
+     */
+    public final void setMonitoring(String monitoring) {
+        if (monitoring == null) {
+            throw new IllegalArgumentException("Monitoring value must be non-null");
+        }
+        this.monitoring = Monitoring.valueOf(Monitoring.class, monitoring.toUpperCase());
+    }
+    
+    /**
+     * Get monitoring type, should not be null
+     */
+    public final Monitoring getMonitoring() {
+        return this.monitoring;
     }
     
     /**
