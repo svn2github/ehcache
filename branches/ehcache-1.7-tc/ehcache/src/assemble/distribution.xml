@@ -29,15 +29,22 @@
             </includes>
             <outputDirectory>/</outputDirectory>
         </fileSet>
+        <!--Include goodies from core-->
+        <fileSet>
+            <directory>${basedir}/../core/src/main/config</directory>
+            <includes>
+                <include>*.xml</include>
+                <include>*.xsd</include>
+            </includes>
+            <outputDirectory>/</outputDirectory>
+        </fileSet>
     </fileSets>
     <dependencySets>
         <dependencySet>
-            <outputDirectory>lib</outputDirectory>
             <unpack>false</unpack>
             <scope>provided</scope>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>lib</outputDirectory>
             <unpack>false</unpack>
             <scope>runtime</scope>
         </dependencySet>
