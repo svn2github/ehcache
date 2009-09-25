@@ -805,7 +805,7 @@ public class Cache implements Ehcache {
             return;
         }
 
-        element.resetAccessStatistics(memoryStore);
+        element.resetAccessStatistics();
         boolean elementExists;
         Object key = element.getObjectKey();
         elementExists = isElementInMemory(key) || isElementOnDisk(key);
@@ -1291,7 +1291,7 @@ public class Cache implements Ehcache {
                 element = null;
             } else {
                 if (updateStatistics) {
-                    element.updateAccessStatistics(memoryStore);
+                    element.updateAccessStatistics();
                     if (LOG.isLoggable(Level.FINE)) {
                         LOG.fine(getName() + "Cache: " + getName() + "MemoryStore hit for " + key);
                     }
@@ -1321,7 +1321,7 @@ public class Cache implements Ehcache {
                 element = null;
             } else {
                 if (updateStatistics) {
-                    element.updateAccessStatistics(diskStore);
+                    element.updateAccessStatistics();
                 }
                 cacheUsageStatisticsData.cacheHitOnDisk();
                 //Put the item back into memory to preserve policies in the memory store and to save updated statistics

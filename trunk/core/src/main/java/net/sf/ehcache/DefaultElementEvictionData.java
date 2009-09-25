@@ -16,7 +16,6 @@
 
 package net.sf.ehcache;
 
-import net.sf.ehcache.store.Store;
 
 /**
  *
@@ -69,14 +68,14 @@ public class DefaultElementEvictionData implements ElementEvictionData {
     /**
      * {@inheritDoc}
      */
-    public void updateLastAccessTime(int time, Element element, Store store) {
+    public void updateLastAccessTime(int time, Element element) {
         lastAccessTime = time;
     }
 
     /**
      * {@inheritDoc}
      */
-    public void resetLastAccessTime(Element element, Store store) {
+    public void resetLastAccessTime(Element element) {
         lastAccessTime = 0;
     }
 
