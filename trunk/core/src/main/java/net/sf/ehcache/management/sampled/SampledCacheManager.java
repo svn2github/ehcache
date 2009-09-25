@@ -171,5 +171,14 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
         }
         return result;
     }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheManagerMBean#getName()
+     */
+    public String getName() {
+        return cacheManager.getName();
+    }
     
 }

@@ -27,6 +27,13 @@ import java.util.Map;
  * @since 1.7
  */
 public interface SampledCacheManagerMBean {
+    
+    /**
+     * Gets the actual name of the cache manager. This may be different from the
+     * name used to register this mbean as there can potentially be multiple
+     * cache managers with same name
+     */
+    public String getName();
 
     /**
      * Gets the status attribute of the Ehcache
