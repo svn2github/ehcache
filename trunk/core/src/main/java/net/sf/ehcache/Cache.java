@@ -50,11 +50,9 @@ import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.LiveCacheStatisticsData;
-import net.sf.ehcache.statistics.LiveCacheStatisticsImpl;
-import net.sf.ehcache.statistics.NullLiveCacheStatisticsData;
-import net.sf.ehcache.statistics.NullSampledCacheStatistics;
-import net.sf.ehcache.statistics.SampledCacheStatistics;
-import net.sf.ehcache.statistics.SampledCacheStatisticsImpl;
+import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
+import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
+import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.LruMemoryStore;
 import net.sf.ehcache.store.MemoryStore;
@@ -159,8 +157,6 @@ public class Cache implements Ehcache {
                     " Ehcache will work as a local cache.");
         }
     }
-    
-    private static final SampledCacheStatistics NULL_SAMPLED_CACHE_STATISTICS = new NullSampledCacheStatistics();
 
     private boolean disabled;
 
@@ -207,9 +203,9 @@ public class Cache implements Ehcache {
      */
     private ThreadPoolExecutor executorService;
 
-    private volatile LiveCacheStatisticsData cacheUsageStatisticsData;
+    private final LiveCacheStatisticsData liveCacheStatisticsData;
 
-    private volatile SampledCacheStatistics sampledCacheUsageStatistics;
+    private final SampledCacheStatisticsWrapper sampledCacheStatistics;
 
 
     /**
@@ -662,9 +658,9 @@ public class Cache implements Ehcache {
         }
         configuration.addTerracotta(tcConfig);
         
-        //initialize to null-impl values
-        cacheUsageStatisticsData = new NullLiveCacheStatisticsData(name);
-        sampledCacheUsageStatistics = NULL_SAMPLED_CACHE_STATISTICS;
+        //initialize statistics
+        liveCacheStatisticsData = new LiveCacheStatisticsWrapper(this);
+        sampledCacheStatistics = new SampledCacheStatisticsWrapper();
     }
 
     /**
@@ -702,16 +698,18 @@ public class Cache implements Ehcache {
             initialiseRegisteredCacheExtensions();
             initialiseRegisteredCacheLoaders();
 
-            // initialize statistics related stuff
-            this.cacheUsageStatisticsData = new LiveCacheStatisticsImpl(this);
+            // initialize live statistics
             // register to get notifications of
             // put/update/remove/expiry/eviction
             getCacheEventNotificationService().registerListener(
-                    cacheUsageStatisticsData);
+                    liveCacheStatisticsData);
             // set up default values
-            cacheUsageStatisticsData.setStatisticsEnabled(true);
-            cacheUsageStatisticsData
+            liveCacheStatisticsData
                     .setStatisticsAccuracy(Statistics.STATISTICS_ACCURACY_BEST_EFFORT);
+            liveCacheStatisticsData.setStatisticsEnabled(true);
+            
+            // register the sampled cache statistics
+            this.registerCacheUsageListener(sampledCacheStatistics);
         }
 
         if (LOG.isLoggable(Level.FINE)) {
@@ -979,14 +977,14 @@ public class Cache implements Ehcache {
             element = searchInDiskStore(key, true, true);
         }
         if (element == null) {
-            cacheUsageStatisticsData.cacheMissNotFound();
+            liveCacheStatisticsData.cacheMissNotFound();
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine(configuration.getName() + " cache - Miss");
             }
         }
         //todo is this expensive. Maybe ditch.
         long end = System.currentTimeMillis();
-        cacheUsageStatisticsData.addGetTimeMillis(end - start);
+        liveCacheStatisticsData.addGetTimeMillis(end - start);
         return element;
     }
 
@@ -1335,7 +1333,7 @@ public class Cache implements Ehcache {
                     LOG.log(Level.FINE, configuration.getName() + " Memory cache hit, but element expired");
                 }
                 if (updateStatistics) {
-                    cacheUsageStatisticsData.cacheMissExpired();
+                    liveCacheStatisticsData.cacheMissExpired();
                 }
                 remove(key, true, notifyListeners, false);
                 element = null;
@@ -1346,7 +1344,7 @@ public class Cache implements Ehcache {
                         LOG.fine(getName() + "Cache: " + getName() + "MemoryStore hit for " + key);
                     }
 
-                    cacheUsageStatisticsData.cacheHitInMemory();
+                    liveCacheStatisticsData.cacheHitInMemory();
                 }
             }
         } else if (LOG.isLoggable(Level.FINE)) {
@@ -1366,14 +1364,14 @@ public class Cache implements Ehcache {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.log(Level.FINE, configuration.getName() + " cache - Disk Store hit, but element expired");
                 }
-                cacheUsageStatisticsData.cacheMissExpired();
+                liveCacheStatisticsData.cacheMissExpired();
                 remove(key, true, notifyListeners, false);
                 element = null;
             } else {
                 if (updateStatistics) {
                     element.updateAccessStatistics();
                 }
-                cacheUsageStatisticsData.cacheHitOnDisk();
+                liveCacheStatisticsData.cacheHitOnDisk();
                 //Put the item back into memory to preserve policies in the memory store and to save updated statistics
                 //todo - maybe make the DiskStore a one-way evict. i.e. Do not replace See testGetSpeedMostlyDisk for speed comp.
                 memoryStore.put(element);
@@ -1848,11 +1846,11 @@ public class Cache implements Ehcache {
                 .append(" diskPersistent = ").append(configuration.isDiskPersistent())
                 .append(" diskExpiryThreadIntervalSeconds = ").append(configuration.getDiskExpiryThreadIntervalSeconds())
                 .append(registeredEventListeners)
-                .append(" hitCount = ").append(getCacheUsageStatisticsNoCheck().getCacheHitCount())
-                .append(" memoryStoreHitCount = ").append(getCacheUsageStatisticsNoCheck().getInMemoryHitCount())
-                .append(" diskStoreHitCount = ").append(getCacheUsageStatisticsNoCheck().getOnDiskHitCount())
-                .append(" missCountNotFound = ").append(getCacheUsageStatisticsNoCheck().getCacheMissCount())
-                .append(" missCountExpired = ").append(getCacheUsageStatisticsNoCheck().getCacheMissCount())
+                .append(" hitCount = ").append(getLiveCacheStatisticsNoCheck().getCacheHitCount())
+                .append(" memoryStoreHitCount = ").append(getLiveCacheStatisticsNoCheck().getInMemoryHitCount())
+                .append(" diskStoreHitCount = ").append(getLiveCacheStatisticsNoCheck().getOnDiskHitCount())
+                .append(" missCountNotFound = ").append(getLiveCacheStatisticsNoCheck().getCacheMissCount())
+                .append(" missCountExpired = ").append(getLiveCacheStatisticsNoCheck().getCacheMissCount())
                 .append(" ]");
 
         return dump.toString();
@@ -2041,7 +2039,7 @@ public class Cache implements Ehcache {
      */
     public void clearStatistics() throws IllegalStateException {
         checkStatus();
-        cacheUsageStatisticsData.clearStatistics();
+        liveCacheStatisticsData.clearStatistics();
         registeredEventListeners.clearCounters();
     }
 
@@ -2060,7 +2058,7 @@ public class Cache implements Ehcache {
      * @param statisticsAccuracy one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}, {@link Statistics#STATISTICS_ACCURACY_GUARANTEED}, {@link Statistics#STATISTICS_ACCURACY_NONE}
      */
     public void setStatisticsAccuracy(int statisticsAccuracy) {
-        cacheUsageStatisticsData.setStatisticsAccuracy(statisticsAccuracy);
+        liveCacheStatisticsData.setStatisticsAccuracy(statisticsAccuracy);
     }
 
     /**
@@ -2564,11 +2562,11 @@ public class Cache implements Ehcache {
     public LiveCacheStatistics getLiveCacheStatistics()
             throws IllegalStateException {
         checkStatus();
-        return (LiveCacheStatistics) cacheUsageStatisticsData;
+        return (LiveCacheStatistics) liveCacheStatisticsData;
     }
     
-    private LiveCacheStatistics getCacheUsageStatisticsNoCheck() {
-        return (LiveCacheStatistics) cacheUsageStatisticsData;
+    private LiveCacheStatistics getLiveCacheStatisticsNoCheck() {
+        return (LiveCacheStatistics) liveCacheStatisticsData;
     }
 
     /**
@@ -2577,7 +2575,7 @@ public class Cache implements Ehcache {
     public void registerCacheUsageListener(CacheUsageListener cacheUsageListener)
             throws IllegalStateException {
         checkStatus();
-        cacheUsageStatisticsData.registerCacheUsageListener(cacheUsageListener);
+        liveCacheStatisticsData.registerCacheUsageListener(cacheUsageListener);
     }
 
     /**
@@ -2586,7 +2584,7 @@ public class Cache implements Ehcache {
     public void removeCacheUsageListener(CacheUsageListener cacheUsageListener)
             throws IllegalStateException {
         checkStatus();
-        cacheUsageStatisticsData.removeCacheUsageListener(cacheUsageListener);
+        liveCacheStatisticsData.removeCacheUsageListener(cacheUsageListener);
     }
 
     /**
@@ -2600,9 +2598,9 @@ public class Cache implements Ehcache {
      * {@inheritDoc}
      */
     public void setStatisticsEnabled(boolean enableStatistics) {
-        cacheUsageStatisticsData.setStatisticsEnabled(enableStatistics);
+        liveCacheStatisticsData.setStatisticsEnabled(enableStatistics);
         if (!enableStatistics) {
-            disableSampledStatistics();
+            setSampledStatisticsEnabled(false);
         }
     }
 
@@ -2610,43 +2608,23 @@ public class Cache implements Ehcache {
      * {@inheritDoc}
      */
     public SampledCacheStatistics getSampledCacheStatistics() {
-        return sampledCacheUsageStatistics;
+        return sampledCacheStatistics;
     }
     
     /**
      * {@inheritDoc}
      */
-    public void setSampledStatisticsEnabled(boolean enableStatistics) {
+    public void setSampledStatisticsEnabled(final boolean enableStatistics) {
+        if (cacheManager == null) {
+            throw new IllegalStateException(
+                    "You must add the cache to a CacheManager before enabling/disabling sampled statistics.");
+        }
         if (enableStatistics) {
-            enableSampledStatistics();
+            setStatisticsEnabled(true);
+            sampledCacheStatistics.enableSampledStatistics(cacheManager
+                    .getTimer());
         } else {
-            disableSampledStatistics();
-        }
-    }
-
-    private void disableSampledStatistics() {
-        if (!(sampledCacheUsageStatistics instanceof NullSampledCacheStatistics)) {
-            if (sampledCacheUsageStatistics instanceof CacheUsageListener) {
-                this
-                        .removeCacheUsageListener((CacheUsageListener) sampledCacheUsageStatistics);
-            }
-            sampledCacheUsageStatistics = NULL_SAMPLED_CACHE_STATISTICS;
-        }
-    }
-
-    private void enableSampledStatistics() {
-        // don't do anything if already enabled
-        if (!sampledCacheUsageStatistics.isSampledStatisticsEnabled()) {
-            sampledCacheUsageStatistics.dispose();
-            if (!isStatisticsEnabled()) {
-                // enabled statistics too
-                setStatisticsEnabled(true);
-            }
-            sampledCacheUsageStatistics = new SampledCacheStatisticsImpl(
-                    cacheManager.getTimer());
-            // register to get the actual data
-            this
-                    .registerCacheUsageListener((CacheUsageListener) sampledCacheUsageStatistics);
+            sampledCacheStatistics.disableSampledStatistics();
         }
     }
 
@@ -2656,7 +2634,7 @@ public class Cache implements Ehcache {
      * @see net.sf.ehcache.Ehcache#isSampledStatisticsEnabled()
      */
     public boolean isSampledStatisticsEnabled() {
-        return sampledCacheUsageStatistics.isSampledStatisticsEnabled();
+        return sampledCacheStatistics.isSampledStatisticsEnabled();
     }
 
     /**

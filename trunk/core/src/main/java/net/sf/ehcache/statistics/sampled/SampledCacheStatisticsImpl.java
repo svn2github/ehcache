@@ -13,13 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package net.sf.ehcache.statistics;
+package net.sf.ehcache.statistics.sampled;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Statistics;
+import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.counter.CounterConfig;
 import net.sf.ehcache.util.counter.CounterManager;
@@ -205,7 +206,9 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener,
      * {@inheritDoc}
      */
     public void notifyStatisticsEnabledChanged(boolean enableStatistics) {
-        sampledStatisticsEnabled.set(enableStatistics);
+        if (!enableStatistics) {
+            sampledStatisticsEnabled.set(false);
+        }
     }
 
     /**

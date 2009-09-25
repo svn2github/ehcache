@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package net.sf.ehcache.statistics;
+package net.sf.ehcache.statistics.sampled;
 
 /**
  * Interface for <strong>sampled</strong> usage statistics of a Cache

@@ -17,6 +17,7 @@
 package net.sf.ehcache.statistics;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -36,12 +37,49 @@ import org.junit.Test;
  * Tests for the statistics class
  * 
  * @author Abhishek Sanoujam
- * @version $Id$
+ * @version $Id: CacheUsageStatisticsTest.java 1221 2009-09-25 17:29:35Z asingh
+ *          $
  */
-public class CacheUsageStatisticsTest extends AbstractCacheTest {
+public class LiveCacheStatisticsTest extends AbstractCacheTest {
 
     private static final Logger LOG = Logger
-            .getLogger(CacheUsageStatisticsTest.class.getName());
+            .getLogger(LiveCacheStatisticsTest.class.getName());
+    
+    /**
+     * test enable disable
+     */
+    @Test
+    public void testEnableDisable() {
+        Cache cache = new Cache("test", 1, true, false, 5, 2);
+        manager.addCache(cache);
+        
+        cache.setStatisticsEnabled(true);
+        assertTrue(cache.isStatisticsEnabled());
+        assertFalse(cache.isSampledStatisticsEnabled());
+
+        cache.setStatisticsEnabled(false);
+        assertFalse(cache.isStatisticsEnabled());
+        assertFalse(cache.isSampledStatisticsEnabled());
+        
+        // enabling sampled enables both
+        cache.setSampledStatisticsEnabled(true);
+        assertTrue(cache.isStatisticsEnabled());
+        assertTrue(cache.isSampledStatisticsEnabled());
+
+        cache.setSampledStatisticsEnabled(false);
+        assertTrue(cache.isStatisticsEnabled());
+        assertFalse(cache.isSampledStatisticsEnabled());
+        
+        // enable sampled again
+        cache.setSampledStatisticsEnabled(true);
+        assertTrue(cache.isStatisticsEnabled());
+        assertTrue(cache.isSampledStatisticsEnabled());
+
+        // disabling live disables sampled too
+        cache.setStatisticsEnabled(false);
+        assertFalse(cache.isStatisticsEnabled());
+        assertFalse(cache.isSampledStatisticsEnabled());
+    }
 
     /**
      * Test statistics enabling/disabling/clearing
@@ -53,6 +91,7 @@ public class CacheUsageStatisticsTest extends AbstractCacheTest {
         // Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
+
         cache.setStatisticsEnabled(true);
         doTestCacheUsageStatistics(cache, true);
 
@@ -64,6 +103,7 @@ public class CacheUsageStatisticsTest extends AbstractCacheTest {
                 .getLiveCacheStatistics().getStatisticsAccuracy());
         assertEquals("Best Effort", cache.getLiveCacheStatistics()
                 .getStatisticsAccuracyDescription());
+
     }
 
     /**

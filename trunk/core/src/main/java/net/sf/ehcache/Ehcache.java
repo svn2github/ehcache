@@ -29,7 +29,7 @@ import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
-import net.sf.ehcache.statistics.SampledCacheStatistics;
+import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 
 /**
  * An interface for Ehcache.

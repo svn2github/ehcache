@@ -31,22 +31,11 @@ import net.sf.ehcache.Statistics;
 public class NullLiveCacheStatisticsData implements LiveCacheStatistics,
         LiveCacheStatisticsData {
 
-    private final String cacheName;
-
-    /**
-     * Constructor accepting the cache-name
-     * 
-     * @param cacheName
-     */
-    public NullLiveCacheStatisticsData(String cacheName) {
-        this.cacheName = cacheName;
-    }
-
     /**
      * {@inheritDoc}
      */
     public String getCacheName() {
-        return cacheName;
+        return "_unknown_";
     }
 
     /**
@@ -172,7 +161,7 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics,
      * {@inheritDoc}
      */
     public boolean isStatisticsEnabled() {
-        return true;
+        return false;
     }
 
     /**

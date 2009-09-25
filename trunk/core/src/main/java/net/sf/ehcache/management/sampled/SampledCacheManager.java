@@ -21,7 +21,7 @@ import java.util.Map;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.statistics.SampledCacheStatistics;
+import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 
 /**
  * An implementation of {@link SampledCacheManagerMBean}

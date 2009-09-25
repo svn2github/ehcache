@@ -469,7 +469,7 @@ public class SampledCache implements SampledCacheMBean {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.statistics.SampledCacheStatistics#dispose()
+     * @see net.sf.ehcache.statistics.sampled.SampledCacheStatistics#dispose()
      */
     public void dispose() {
         // no-op

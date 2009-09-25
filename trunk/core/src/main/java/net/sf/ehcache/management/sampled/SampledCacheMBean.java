@@ -17,7 +17,7 @@
 package net.sf.ehcache.management.sampled;
 
 import net.sf.ehcache.statistics.LiveCacheStatistics;
-import net.sf.ehcache.statistics.SampledCacheStatistics;
+import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 
 /**
  * An MBean for {@link Cache} exposing cache statistics.
