@@ -333,7 +333,7 @@ public class CacheManager {
                         EVERY_WEEK);
             }
         } catch (Throwable t) {
-            LOG.log(Level.WARNING, "Failed to set up update checker", t);
+            LOG.log(Level.WARNING, "Failed to set up update checker: " + t.toString());
         }
     }
 

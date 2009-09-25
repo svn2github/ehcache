@@ -25,12 +25,13 @@ import java.util.logging.Logger;
  * Build properties of the product
  * 
  * @author hhuynh
- *
+ * 
  */
 public class ProductInfo {
     private static final Logger LOG = Logger.getLogger(ProductInfo.class
             .getName());
     private static final String VERSION_RESOURCE = "/ehcache-version.properties";
+    private static final String UNKNOWN = "UNKNOWN";
     private Properties props = new Properties();
 
     /**
@@ -42,6 +43,7 @@ public class ProductInfo {
 
     /**
      * Construct product info object from a resource
+     * 
      * @param resource
      */
     public ProductInfo(String resource) {
@@ -66,7 +68,7 @@ public class ProductInfo {
      * @return product name
      */
     public String getName() {
-        return props.getProperty("product-name");
+        return props.getProperty("product-name", UNKNOWN);
     }
 
     /**
@@ -74,7 +76,7 @@ public class ProductInfo {
      * @return version
      */
     public String getVersion() {
-        return props.getProperty("version");
+        return props.getProperty("version", UNKNOWN);
     }
 
     /**
@@ -82,7 +84,7 @@ public class ProductInfo {
      * @return the person who built
      */
     public String getBuiltBy() {
-        return props.getProperty("built-by");
+        return props.getProperty("built-by", UNKNOWN);
     }
 
     /**
@@ -90,7 +92,7 @@ public class ProductInfo {
      * @return jdk that was used
      */
     public String getBuildJdk() {
-        return props.getProperty("build-jdk");
+        return props.getProperty("build-jdk", UNKNOWN);
     }
 
     /**
@@ -98,7 +100,7 @@ public class ProductInfo {
      * @return build timestamp
      */
     public String getBuildTime() {
-        return props.getProperty("build-time");
+        return props.getProperty("build-time", UNKNOWN);
     }
 
     /**
@@ -106,7 +108,15 @@ public class ProductInfo {
      * @return revision
      */
     public String getBuildRevision() {
-        return props.getProperty("build-revision");
+        return props.getProperty("build-revision", UNKNOWN);
+    }
+
+    /**
+     * 
+     * @return patch number
+     */
+    public String getPatchLevel() {
+        return props.getProperty("patch-level", UNKNOWN);
     }
 
     /**
@@ -114,9 +124,14 @@ public class ProductInfo {
      */
     @Override
     public String toString() {
-        return String.format(
-                "%s version %s was built on %s, at revision %s, with jdk %s by %s",
-                getName(), getVersion(), getBuildTime(), getBuildRevision(),
-                getBuildJdk(), getBuiltBy());
+        String versionString = String
+                .format(
+                        "%s version %s was built on %s, at revision %s, with jdk %s by %s",
+                        getName(), getVersion(), getBuildTime(),
+                        getBuildRevision(), getBuildJdk(), getBuiltBy());
+        if (!UNKNOWN.equals(getPatchLevel())) {
+            versionString = versionString + ". Patch level " + getPatchLevel();
+        }
+        return versionString;
     }
 }

@@ -37,9 +37,11 @@ import java.util.logging.Logger;
 public class UpdateChecker extends TimerTask {
     private static final Logger LOG = Logger.getLogger(UpdateChecker.class
             .getName());
+    private static final long MILLIS_PER_SECOND = 1000L;
     private static final String NOT_AVAILABLE = "UNKNOWN";
     private static final String EHCACHE = "ehcache";
     private static final String UPDATE_CHECK_URL = "http://www.terracotta.org/kit/reflector?kitID=ehcache.default&pageID=update.properties";
+    private static final long START_TIME = System.currentTimeMillis();
 
     /**
      * Run the update check
@@ -58,11 +60,12 @@ public class UpdateChecker extends TimerTask {
                 doCheck();
             }
         } catch (Throwable t) {
-            LOG.log(Level.WARNING, "Update check failed", t);
+            LOG.log(Level.WARNING, "Update check failed: " + t.toString());
         }
     }
 
     private void doCheck() throws IOException {
+        LOG.log(Level.INFO, "Checking for update...");
         URL updateUrl = buildUpdateCheckUrl();
         Properties updateProps = getUpdateProperties(updateUrl);
         String currentVersion = new ProductInfo().getVersion();
@@ -95,6 +98,8 @@ public class UpdateChecker extends TimerTask {
             if (sb.length() > 0) {
                 LOG.log(Level.INFO, "New update(s) found: " + sb.toString());
             }
+        } else {
+            LOG.log(Level.INFO, "No update found.");
         }
     }
 
@@ -124,7 +129,7 @@ public class UpdateChecker extends TimerTask {
         ProductInfo productInfo = new ProductInfo();
         StringBuilder sb = new StringBuilder();
         sb.append("id=");
-        sb.append(urlEncode(getClientId()));
+        sb.append(getClientId());
         sb.append("&os-name=");
         sb.append(urlEncode(getProperty("os.name")));
         sb.append("&jvm-name=");
@@ -136,20 +141,27 @@ public class UpdateChecker extends TimerTask {
         sb.append("&tc-version=");
         sb.append(NOT_AVAILABLE);
         sb.append("&tc-product=");
-        sb.append(EHCACHE + "-" + productInfo.getVersion());
+        sb.append(urlEncode(productInfo.getName() + " "
+                + productInfo.getVersion()));
         sb.append("&source=");
         sb.append(urlEncode(productInfo.getName()));
-
+        sb.append("&uptime-secs=");
+        sb.append(getUptimeInSeconds());
+        sb.append("&patch=");
+        sb.append(urlEncode(productInfo.getPatchLevel()));
         return sb.toString();
     }
 
-    private String getClientId() {
+    private long getUptimeInSeconds() {
+        long uptime = System.currentTimeMillis() - START_TIME;
+        return uptime > 0 ? (uptime / MILLIS_PER_SECOND) : 0;
+    }
+
+    private int getClientId() {
         try {
-            return String.valueOf(InetAddress.getLocalHost().hashCode());
+            return InetAddress.getLocalHost().hashCode();
         } catch (Throwable t) {
-            // pick some random field that might be unique to a client
-            return String.valueOf(System.getProperty("java.library.path",
-                    NOT_AVAILABLE).hashCode());
+            return 0;
         }
     }
 
@@ -163,12 +175,5 @@ public class UpdateChecker extends TimerTask {
 
     private boolean notBlank(String s) {
         return s != null && s.trim().length() > 0;
-    }
-
-    /**
-     * Main test method
-     */
-    public static void main(String[] args) {
-        new UpdateChecker().checkForUpdate();
     }
 }
