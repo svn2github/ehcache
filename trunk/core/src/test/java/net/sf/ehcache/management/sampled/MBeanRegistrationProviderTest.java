@@ -155,8 +155,22 @@ public class MBeanRegistrationProviderTest extends AbstractCacheTest {
             assertSampledMBeansGroupRegistered(3 * (i + 1));
             assertCacheManagerMBeansRegistered(i + 1);
         }
+        
+        CacheManager[] duplicates = new CacheManager[count];
+        for (int i = 0; i < count; i++) {
+            File file = new File(TEST_CONFIG_DIR + "ehcache-monitoring-on.xml");
+            Configuration configuration = ConfigurationFactory
+                    .parseConfiguration(file);
+
+            duplicates[i] = new CacheManager(configuration);
+            assertSampledMBeansGroupRegistered(3 * (i + 1) + count * 3);
+            assertCacheManagerMBeansRegistered((i + 1) + count);
+        }
         // shutting down the cacheManager should clean up the mbeans
         for (CacheManager mgr : managers) {
+            mgr.shutdown();
+        }
+        for (CacheManager mgr : duplicates) {
             mgr.shutdown();
         }
         assertSampledMBeansGroupRegistered(0);

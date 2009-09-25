@@ -189,7 +189,7 @@ public class SampledCache implements SampledCacheMBean {
         return cache.getSampledCacheUsageStatistics()
                 .getStatisticsAccuracyDescription();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -468,6 +468,7 @@ public class SampledCache implements SampledCacheMBean {
 
     /**
      * {@inheritDoc}
+     * 
      * @see net.sf.ehcache.statistics.SampledCacheUsageStatistics#dispose()
      */
     public void dispose() {

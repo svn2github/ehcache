@@ -116,6 +116,7 @@ public class SampledMBeanRegistrationProvider implements
                                 SampledEhcacheMBeans
                                         .getCacheManagerObjectName(registeredCacheManagerName));
                 success = true;
+                cacheManagerMBean.setMBeanRegisteredName(registeredCacheManagerName);
                 break;
             } catch (InstanceAlreadyExistsException e) {
                 success = false;
@@ -155,6 +156,10 @@ public class SampledMBeanRegistrationProvider implements
         // no-op
     }
 
+    // no need to worry about duplicate cache names
+    // cache manager does not allow duplicate cache names
+    // and as cache manager mbeans names are unique, the mbeans for the caches
+    // will also be unique
     private void registerCacheMBean(Ehcache cache)
             throws InstanceAlreadyExistsException, MBeanRegistrationException,
             NotCompliantMBeanException {

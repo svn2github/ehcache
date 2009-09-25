@@ -34,6 +34,8 @@ import net.sf.ehcache.statistics.SampledCacheUsageStatistics;
 public class SampledCacheManager implements SampledCacheManagerMBean {
 
     private final CacheManager cacheManager;
+    private String mbeanRegisteredName;
+    private volatile boolean mbeanRegisteredNameSet;
 
     /**
      * Constructor taking the backing {@link CacheManager}
@@ -42,6 +44,18 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
      */
     public SampledCacheManager(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
+    }
+    
+    /**
+     * Set the name used to register this mbean. Can be called only once.
+     * Package protected method
+     */
+    void setMBeanRegisteredName(String name) {
+        if (mbeanRegisteredNameSet) {
+            throw new IllegalStateException("Name used for registering this mbean is already set");
+        }
+        mbeanRegisteredNameSet = true;
+        mbeanRegisteredName = name;
     }
 
     /**
@@ -179,6 +193,15 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
      */
     public String getName() {
         return cacheManager.getName();
+    }
+    
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheManagerMBean#getName()
+     */
+    public String getMBeanRegisteredName() {
+        return this.mbeanRegisteredName;
     }
     
 }

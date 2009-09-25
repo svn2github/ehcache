@@ -34,6 +34,11 @@ public interface SampledCacheManagerMBean {
      * cache managers with same name
      */
     public String getName();
+    
+    /**
+     * Gets the name used to register this mbean.
+     */
+    public String getMBeanRegisteredName();
 
     /**
      * Gets the status attribute of the Ehcache
