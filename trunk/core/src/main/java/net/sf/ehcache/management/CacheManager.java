@@ -67,6 +67,15 @@ public class CacheManager implements CacheManagerMBean {
     public String getStatus() {
         return cacheManager.getStatus().toString();
     }
+    
+    /**
+     * Gets the name of the CacheManager
+     * 
+     * @return The cache manager name, which may not be set
+     */
+    public String getName() {
+        return cacheManager.getName();
+    }
 
     /**
      * Shuts down the CacheManager.
@@ -111,8 +120,7 @@ public class CacheManager implements CacheManagerMBean {
     public List getCaches() {
         List cacheList = new ArrayList();
         String[] caches = getCacheNames();
-        for (int i = 0; i < caches.length; i++) {
-            String cacheName = caches[i];
+        for (String cacheName : caches) {
             Cache cache = getCache(cacheName);
             cacheList.add(cache);
         }

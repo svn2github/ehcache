@@ -16,21 +16,6 @@
 
 package net.sf.ehcache;
 
-import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.event.CacheEventListener;
-import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
-import net.sf.ehcache.extension.CacheExtension;
-import net.sf.ehcache.loader.CacheLoader;
-import net.sf.ehcache.store.DiskStore;
-import net.sf.ehcache.store.LruMemoryStore;
-import net.sf.ehcache.store.MemoryStore;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.ehcache.store.Policy;
-import net.sf.ehcache.store.Store;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
@@ -50,9 +35,32 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration;
+import net.sf.ehcache.event.CacheEventListener;
+import net.sf.ehcache.event.RegisteredEventListeners;
+import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
+import net.sf.ehcache.extension.CacheExtension;
+import net.sf.ehcache.loader.CacheLoader;
+import net.sf.ehcache.statistics.CacheUsageListener;
+import net.sf.ehcache.statistics.CacheUsageStatistics;
+import net.sf.ehcache.statistics.CacheUsageStatisticsData;
+import net.sf.ehcache.statistics.CacheUsageStatisticsImpl;
+import net.sf.ehcache.statistics.NullCacheUsageStatisticsData;
+import net.sf.ehcache.statistics.NullSampledCacheUsageStatistics;
+import net.sf.ehcache.statistics.SampledCacheUsageStatistics;
+import net.sf.ehcache.statistics.SampledCacheUsageStatisticsImpl;
+import net.sf.ehcache.store.DiskStore;
+import net.sf.ehcache.store.LruMemoryStore;
+import net.sf.ehcache.store.MemoryStore;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.store.Policy;
+import net.sf.ehcache.store.Store;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -151,6 +159,8 @@ public class Cache implements Ehcache {
                     " Ehcache will work as a local cache.");
         }
     }
+    
+    private static final SampledCacheUsageStatistics NULL_SAMPLED_CACHE_STATISTICS = new NullSampledCacheUsageStatistics();
 
     private boolean disabled;
 
@@ -163,31 +173,6 @@ public class Cache implements Ehcache {
     private Status status;
 
     private CacheConfiguration configuration;
-
-    /**
-     * Cache hit count.
-     */
-    private AtomicLong hitCount = new AtomicLong();
-
-    /**
-     * Memory cache hit count.
-     */
-    private AtomicLong memoryStoreHitCount = new AtomicLong();
-
-    /**
-     * DiskStore hit count.
-     */
-    private AtomicLong diskStoreHitCount = new AtomicLong();
-
-    /**
-     * Count of misses where element was not found.
-     */
-    private AtomicLong missCountNotFound = new AtomicLong();
-
-    /**
-     * Count of misses where element was expired.
-     */
-    private AtomicLong missCountExpired = new AtomicLong();
 
     /**
      * The {@link MemoryStore} of this {@link Cache}. All caches have a memory store.
@@ -203,10 +188,6 @@ public class Cache implements Ehcache {
     private CacheManager cacheManager;
 
     private BootstrapCacheLoader bootstrapCacheLoader;
-
-    private int statisticsAccuracy;
-
-    private AtomicLong totalGetTime = new AtomicLong();
 
     private CacheExceptionHandler cacheExceptionHandler;
 
@@ -225,6 +206,10 @@ public class Cache implements Ehcache {
      * Use {@link #getExecutorService()} to ensure that it is initialised.
      */
     private ThreadPoolExecutor executorService;
+
+    private volatile CacheUsageStatisticsData cacheUsageStatisticsData;
+
+    private volatile SampledCacheUsageStatistics sampledCacheUsageStatistics;
 
 
     /**
@@ -454,7 +439,9 @@ public class Cache implements Ehcache {
                 bootstrapCacheLoader,
                 maxElementsOnDisk,
                 0,
-                true);
+                true,
+                false,
+                null);
 
     }
 
@@ -513,7 +500,9 @@ public class Cache implements Ehcache {
                 bootstrapCacheLoader,
                 maxElementsOnDisk,
                 diskSpoolBufferSizeMB,
-                true);
+                true,
+                false,
+                null);
 
     }
 
@@ -560,7 +549,9 @@ public class Cache implements Ehcache {
                  BootstrapCacheLoader bootstrapCacheLoader,
                  int maxElementsOnDisk,
                  int diskSpoolBufferSizeMB,
-                 boolean clearOnFlush) {
+                 boolean clearOnFlush,
+                 boolean isTerracottaClustered,
+                 String terracottaValueMode) {
 
         changeStatus(Status.STATUS_UNINITIALISED);
 
@@ -614,8 +605,16 @@ public class Cache implements Ehcache {
 
         this.bootstrapCacheLoader = bootstrapCacheLoader;
 
-        statisticsAccuracy = Statistics.STATISTICS_ACCURACY_BEST_EFFORT;
-
+        TerracottaConfiguration tcConfig = new TerracottaConfiguration();
+        tcConfig.setClustered(isTerracottaClustered);
+        if (terracottaValueMode != null) {
+            tcConfig.setValueMode(terracottaValueMode);
+        }
+        configuration.addTerracotta(tcConfig);
+        
+        //initialize to null-impl values
+        cacheUsageStatisticsData = new NullCacheUsageStatisticsData(name);
+        sampledCacheUsageStatistics = NULL_SAMPLED_CACHE_STATISTICS;
     }
 
     /**
@@ -640,14 +639,29 @@ public class Cache implements Ehcache {
 
             this.diskStore = createDiskStore();
 
-            if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
-                memoryStore = new LruMemoryStore(this, diskStore);
+            if (isClustered()) {
+                memoryStore = cacheManager.createTerracottaStore(this);
             } else {
-                memoryStore = MemoryStore.create(this, diskStore);
+                if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
+                    memoryStore = new LruMemoryStore(this, diskStore);
+                } else {
+                    memoryStore = MemoryStore.create(this, diskStore);
+                }
             }
             changeStatus(Status.STATUS_ALIVE);
             initialiseRegisteredCacheExtensions();
             initialiseRegisteredCacheLoaders();
+
+            // initialize statistics related stuff
+            this.cacheUsageStatisticsData = new CacheUsageStatisticsImpl(this);
+            // register to get notifications of
+            // put/update/remove/expiry/eviction
+            getCacheEventNotificationService().registerListener(
+                    cacheUsageStatisticsData);
+            // set up default values
+            cacheUsageStatisticsData.setStatisticsEnabled(true);
+            cacheUsageStatisticsData
+                    .setStatisticsAccuracy(Statistics.STATISTICS_ACCURACY_BEST_EFFORT);
         }
 
         if (LOG.isLoggable(Level.FINE)) {
@@ -687,6 +701,16 @@ public class Cache implements Ehcache {
     protected boolean isDiskStore() {
         return configuration.isOverflowToDisk() || configuration.isDiskPersistent();
     }
+    
+    /**
+     * Indicates whether this cache is clustered
+     * 
+     * @return {@code true} when the cache is clustered; or {@code false}Êotherwise
+     * @return
+     */
+    protected boolean isClustered() {
+        return configuration.isTerracottaClustered();
+    }
 
     /**
      * Bootstrap command. This must be called after the Cache is initialised, during
@@ -717,7 +741,7 @@ public class Cache implements Ehcache {
      * <li>if the element exists in the cache, that an update has occurred, even if the element would be expired
      * if it was requested
      * </ul>
-     * <p/>                  
+     * <p/>
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
      * This exception should be caught in those circumstances.
      *
@@ -781,7 +805,7 @@ public class Cache implements Ehcache {
             return;
         }
 
-        element.resetAccessStatistics();
+        element.resetAccessStatistics(memoryStore);
         boolean elementExists;
         Object key = element.getObjectKey();
         elementExists = isElementInMemory(key) || isElementOnDisk(key);
@@ -905,16 +929,14 @@ public class Cache implements Ehcache {
             element = searchInDiskStore(key, true, true);
         }
         if (element == null) {
-            missCountNotFound.incrementAndGet();
+            cacheUsageStatisticsData.cacheMissNotFound();
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine(configuration.getName() + " cache - Miss");
             }
-        } else {
-            hitCount.incrementAndGet();
         }
         //todo is this expensive. Maybe ditch.
         long end = System.currentTimeMillis();
-        totalGetTime.getAndSet(totalGetTime.get()  + (end - start));
+        cacheUsageStatisticsData.addGetTimeMillis(end - start);
         return element;
     }
 
@@ -1255,27 +1277,30 @@ public class Cache implements Ehcache {
     }
 
     private Element searchInMemoryStore(Object key, boolean updateStatistics, boolean notifyListeners) {
-        Element element;
-        if (updateStatistics) {
-            element = memoryStore.get(key);
-        } else {
-            element = memoryStore.getQuiet(key);
-        }
+        Element element = memoryStore.get(key);
+
         if (element != null) {
             if (isExpired(element)) {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.log(Level.FINE, configuration.getName() + " Memory cache hit, but element expired");
                 }
                 if (updateStatistics) {
-                    missCountExpired.incrementAndGet();
+                    cacheUsageStatisticsData.cacheMissExpired();
                 }
                 remove(key, true, notifyListeners, false);
                 element = null;
             } else {
                 if (updateStatistics) {
-                    memoryStoreHitCount.incrementAndGet();
+                    element.updateAccessStatistics(memoryStore);
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.fine(getName() + "Cache: " + getName() + "MemoryStore hit for " + key);
+                    }
+
+                    cacheUsageStatisticsData.cacheHitInMemory();
                 }
             }
+        } else if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine(getName() + "Cache: " + getName() + "MemoryStore miss for " + key);
         }
         return element;
     }
@@ -1285,22 +1310,20 @@ public class Cache implements Ehcache {
             return null;
         }
         Serializable serializableKey = (Serializable) key;
-        Element element;
-        if (updateStatistics) {
-            element = diskStore.get(serializableKey);
-        } else {
-            element = diskStore.getQuiet(serializableKey);
-        }
+        Element element = diskStore.get(serializableKey);
         if (element != null) {
             if (isExpired(element)) {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.log(Level.FINE, configuration.getName() + " cache - Disk Store hit, but element expired");
                 }
-                missCountExpired.incrementAndGet();
+                cacheUsageStatisticsData.cacheMissExpired();
                 remove(key, true, notifyListeners, false);
                 element = null;
             } else {
-                diskStoreHitCount.incrementAndGet();
+                if (updateStatistics) {
+                    element.updateAccessStatistics(diskStore);
+                }
+                cacheUsageStatisticsData.cacheHitOnDisk();
                 //Put the item back into memory to preserve policies in the memory store and to save updated statistics
                 //todo - maybe make the DiskStore a one-way evict. i.e. Do not replace See testGetSpeedMostlyDisk for speed comp.
                 memoryStore.put(element);
@@ -1649,6 +1672,22 @@ public class Cache implements Ehcache {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public int getSizeBasedOnAccuracy(int statisticsAccuracy)
+            throws IllegalStateException, CacheException {
+        if (statisticsAccuracy == Statistics.STATISTICS_ACCURACY_BEST_EFFORT) {
+            return getSize();
+        } else if (statisticsAccuracy == Statistics.STATISTICS_ACCURACY_GUARANTEED) {
+            return getKeysWithExpiryCheck().size();
+        } else if (statisticsAccuracy == Statistics.STATISTICS_ACCURACY_NONE) {
+            return getKeysNoDuplicateCheck().size();
+        }
+        throw new IllegalArgumentException("Unknown statistics accuracy: "
+                + statisticsAccuracy);
+    }
+
+    /**
      * Gets the size of the memory store for this cache. This method relies on calculating
      * Serialized sizes. If the Element values are not Serializable they will show as zero.
      * <p/>
@@ -1685,6 +1724,9 @@ public class Cache implements Ehcache {
      */
     public final int getDiskStoreSize() throws IllegalStateException {
         checkStatus();
+        if (isClustered()) {
+            return memoryStore.getClusteredSize();
+        }
         if (isDiskStore()) {
             return diskStore.getSize();
         } else {
@@ -1739,6 +1781,7 @@ public class Cache implements Ehcache {
     /**
      * Returns a {@link String} representation of {@link Cache}.
      */
+    @Override
     public final String toString() {
         StringBuffer dump = new StringBuffer();
 
@@ -1755,11 +1798,11 @@ public class Cache implements Ehcache {
                 .append(" diskPersistent = ").append(configuration.isDiskPersistent())
                 .append(" diskExpiryThreadIntervalSeconds = ").append(configuration.getDiskExpiryThreadIntervalSeconds())
                 .append(registeredEventListeners)
-                .append(" hitCount = ").append(hitCount)
-                .append(" memoryStoreHitCount = ").append(memoryStoreHitCount)
-                .append(" diskStoreHitCount = ").append(diskStoreHitCount)
-                .append(" missCountNotFound = ").append(missCountNotFound)
-                .append(" missCountExpired = ").append(missCountExpired)
+                .append(" hitCount = ").append(getCacheUsageStatisticsNoCheck().getCacheHitCount())
+                .append(" memoryStoreHitCount = ").append(getCacheUsageStatisticsNoCheck().getInMemoryHitCount())
+                .append(" diskStoreHitCount = ").append(getCacheUsageStatisticsNoCheck().getOnDiskHitCount())
+                .append(" missCountNotFound = ").append(getCacheUsageStatisticsNoCheck().getCacheMissCount())
+                .append(" missCountExpired = ").append(getCacheUsageStatisticsNoCheck().getCacheMissCount())
                 .append(" ]");
 
         return dump.toString();
@@ -1799,6 +1842,7 @@ public class Cache implements Ehcache {
      * @return an object of type {@link Cache}
      * @throws CloneNotSupportedException
      */
+    @Override
     public final Object clone() throws CloneNotSupportedException {
         if (!(memoryStore == null && diskStore == null)) {
             throw new CloneNotSupportedException("Cannot clone an initialized cache.");
@@ -1947,12 +1991,7 @@ public class Cache implements Ehcache {
      */
     public void clearStatistics() throws IllegalStateException {
         checkStatus();
-        hitCount.getAndSet(0);
-        memoryStoreHitCount.getAndSet(0);
-        diskStoreHitCount.getAndSet(0);
-        missCountExpired.getAndSet(0);
-        missCountNotFound.getAndSet(0);
-        totalGetTime.getAndSet(0);
+        cacheUsageStatisticsData.clearStatistics();
         registeredEventListeners.clearCounters();
     }
 
@@ -1962,7 +2001,7 @@ public class Cache implements Ehcache {
      * @return one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}, {@link Statistics#STATISTICS_ACCURACY_GUARANTEED}, {@link Statistics#STATISTICS_ACCURACY_NONE}
      */
     public int getStatisticsAccuracy() {
-        return statisticsAccuracy;
+        return getCacheUsageStatistics().getStatisticsAccuracy();
     }
 
     /**
@@ -1971,7 +2010,7 @@ public class Cache implements Ehcache {
      * @param statisticsAccuracy one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}, {@link Statistics#STATISTICS_ACCURACY_GUARANTEED}, {@link Statistics#STATISTICS_ACCURACY_NONE}
      */
     public void setStatisticsAccuracy(int statisticsAccuracy) {
-        this.statisticsAccuracy = statisticsAccuracy;
+        cacheUsageStatisticsData.setStatisticsAccuracy(statisticsAccuracy);
     }
 
     /**
@@ -2044,22 +2083,20 @@ public class Cache implements Ehcache {
     /**
      * {@inheritDoc}
      * <p/>
-     * Note, the {@link #getSize} method will have the same value as the size reported by Statistics
-     * for the statistics accuracy of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}.
+     * Note, the {@link #getSize} method will have the same value as the size
+     * reported by Statistics for the statistics accuracy of
+     * {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}.
      */
     public Statistics getStatistics() throws IllegalStateException {
-        int size = 0;
-        if (statisticsAccuracy == Statistics.STATISTICS_ACCURACY_BEST_EFFORT) {
-            size = getSize();
-        } else if (statisticsAccuracy == Statistics.STATISTICS_ACCURACY_GUARANTEED) {
-            size = getKeysWithExpiryCheck().size();
-        } else if (statisticsAccuracy == Statistics.STATISTICS_ACCURACY_NONE) {
-            size = getKeysNoDuplicateCheck().size();
-        }
-        return new Statistics(this, statisticsAccuracy, hitCount.longValue(), diskStoreHitCount.longValue(),
-                memoryStoreHitCount.longValue(), missCountExpired.longValue() + missCountNotFound.longValue(),
-                size, getAverageGetTime(),
-                registeredEventListeners.getElementsEvictedCounter(),
+        int size = getSizeBasedOnAccuracy(getCacheUsageStatistics()
+                .getStatisticsAccuracy());
+        return new Statistics(this, getCacheUsageStatistics()
+                .getStatisticsAccuracy(), getCacheUsageStatistics()
+                .getCacheHitCount(), getCacheUsageStatistics()
+                .getOnDiskHitCount(), getCacheUsageStatistics()
+                .getInMemoryHitCount(), getCacheUsageStatistics()
+                .getCacheMissCount(), size, getAverageGetTime(),
+                getCacheUsageStatistics().getEvictedCount(),
                 getMemoryStoreSize(), getDiskStoreSize());
     }
 
@@ -2118,6 +2155,7 @@ public class Cache implements Ehcache {
      * @see #hashCode()
      * @see java.util.Hashtable
      */
+    @Override
     public boolean equals(Object object) {
         if (object == null) {
             return false;
@@ -2166,6 +2204,7 @@ public class Cache implements Ehcache {
      * @see Object#equals(Object)
      * @see java.util.Hashtable
      */
+    @Override
     public int hashCode() {
         return guid.hashCode();
     }
@@ -2217,11 +2256,7 @@ public class Cache implements Ehcache {
      * The average get time in ms.
      */
     public float getAverageGetTime() {
-        if (hitCount.longValue() == 0) {
-            return 0;
-        } else {
-            return (float) totalGetTime.longValue() / hitCount.longValue();
-        }
+        return getCacheUsageStatistics().getAverageGetTimeMillis();
     }
 
     /**
@@ -2473,5 +2508,111 @@ public class Cache implements Ehcache {
         memoryStore.setEvictionPolicy(policy);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public CacheUsageStatistics getCacheUsageStatistics()
+            throws IllegalStateException {
+        checkStatus();
+        return (CacheUsageStatistics) cacheUsageStatisticsData;
+    }
+    
+    private CacheUsageStatistics getCacheUsageStatisticsNoCheck() {
+        return (CacheUsageStatistics) cacheUsageStatisticsData;
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void registerCacheUsageListener(CacheUsageListener cacheUsageListener)
+            throws IllegalStateException {
+        checkStatus();
+        cacheUsageStatisticsData.registerCacheUsageListener(cacheUsageListener);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void removeCacheUsageListener(CacheUsageListener cacheUsageListener)
+            throws IllegalStateException {
+        checkStatus();
+        cacheUsageStatisticsData.removeCacheUsageListener(cacheUsageListener);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isStatisticsEnabled() {
+        return getCacheUsageStatistics().isStatisticsEnabled();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setStatisticsEnabled(boolean enableStatistics) {
+        cacheUsageStatisticsData.setStatisticsEnabled(enableStatistics);
+        if (!enableStatistics) {
+            disableSampledStatistics();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public SampledCacheUsageStatistics getSampledCacheUsageStatistics() {
+        return sampledCacheUsageStatistics;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void setSampledStatisticsEnabled(boolean enableStatistics) {
+        if (enableStatistics) {
+            enableSampledStatistics();
+        } else {
+            disableSampledStatistics();
+        }
+    }
+
+    private void disableSampledStatistics() {
+        if (!(sampledCacheUsageStatistics instanceof NullSampledCacheUsageStatistics)) {
+            if (sampledCacheUsageStatistics instanceof CacheUsageListener) {
+                this
+                        .removeCacheUsageListener((CacheUsageListener) sampledCacheUsageStatistics);
+            }
+            sampledCacheUsageStatistics = NULL_SAMPLED_CACHE_STATISTICS;
+        }
+    }
+
+    private void enableSampledStatistics() {
+        // don't do anything if already enabled
+        if (!sampledCacheUsageStatistics.isSampledStatisticsEnabled()) {
+            sampledCacheUsageStatistics.dispose();
+            if (!isStatisticsEnabled()) {
+                // enabled statistics too
+                setStatisticsEnabled(true);
+            }
+            sampledCacheUsageStatistics = new SampledCacheUsageStatisticsImpl(
+                    cacheManager.getTimer());
+            // register to get the actual data
+            this
+                    .registerCacheUsageListener((CacheUsageListener) sampledCacheUsageStatistics);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.Ehcache#isSampledStatisticsEnabled()
+     */
+    public boolean isSampledStatisticsEnabled() {
+        return sampledCacheUsageStatistics.isSampledStatisticsEnabled();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Object getInternalContext() {
+        return memoryStore.getInternalContext();
+    }
 }

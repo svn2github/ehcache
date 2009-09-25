@@ -1,0 +1,53 @@
+<assembly>
+    <id>distribution</id>
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+            <directory>target</directory>
+            <includes>
+                <include>*.jar</include>
+                <include>*.sources.jar</include>
+                <include>*.javadoc.jar</include>
+            </includes>
+            <outputDirectory>/</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/assemble</directory>
+            <includes>
+                <include>*.txt</include>
+            </includes>
+            <outputDirectory>/</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/main/config</directory>
+            <includes>
+                <include>*.txt</include>
+                <include>*.xml</include>
+                <include>*.xsd</include>
+            </includes>
+            <outputDirectory>/</outputDirectory>
+        </fileSet>
+        <!--Include goodies from core-->
+        <fileSet>
+            <directory>${basedir}/../core/src/main/config</directory>
+            <includes>
+                <include>*.xml</include>
+                <include>*.xsd</include>
+            </includes>
+            <outputDirectory>/</outputDirectory>
+        </fileSet>
+    </fileSets>
+    <dependencySets>
+        <dependencySet>
+            <unpack>false</unpack>
+            <scope>provided</scope>
+        </dependencySet>
+        <dependencySet>
+            <unpack>false</unpack>
+            <scope>runtime</scope>
+        </dependencySet>
+    </dependencySets>
+
+</assembly>

@@ -88,7 +88,7 @@
             <property name="tokens" value="METHOD_DEF"/>
         </module>
         <module name="ParameterNumber">
-            <property name="max" value="8"/>
+            <property name="max" value="12"/>
             <property name="tokens" value="CTOR_DEF"/>
         </module>
         <module name="AnonInnerLength">
@@ -219,14 +219,14 @@
             <property name="max" value="4"/>
         </module>
         <module name="ClassDataAbstractionCoupling">
-            <property name="max" value="10"/>
+            <property name="max" value="12"/>
         </module>
         <module name="ClassFanOutComplexity">
-            <property name="max" value="30"/>
+            <property name="max" value="36"/>
         </module>
         <module name="CyclomaticComplexity">
             <property name="severity" value="error"/>
-            <property name="max" value="10"/>
+            <property name="max" value="12"/>
         </module>
         <module name="NPathComplexity">
             <property name="max" value="50"/>

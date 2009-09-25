@@ -16,11 +16,6 @@
 
 package net.sf.ehcache.store;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.Status;
-
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -29,6 +24,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
 
 /**
  * A Store implementation suitable for fast, concurrent in memory stores. The policy is determined by that
@@ -62,19 +62,14 @@ public class MemoryStore implements Store {
     private static final Logger LOG = Logger.getLogger(MemoryStore.class.getName());
 
     /**
-     * The eviction policy to use
+     * The cache this store is associated with.
      */
-    protected Policy policy;
+    protected Ehcache cache;
 
     /**
      * when sampling elements, whether to iterate or to use the keySample array for faster random access
      */
     protected boolean useKeySample;
-
-    /**
-     * The cache this store is associated with.
-     */
-    protected Ehcache cache;
 
     /**
      * Map where items are stored by key.
@@ -87,15 +82,20 @@ public class MemoryStore implements Store {
     protected final Store diskStore;
 
     /**
+     * The maximum size of the store
+     */
+    protected int maximumSize;
+
+    /**
      * status.
      */
     protected Status status;
 
-
     /**
-     * The maximum size of the store
+     * The eviction policy to use
      */
-    protected int maximumSize;
+    protected Policy policy;
+
     private AtomicReferenceArray<Object> keyArray;
     private AtomicInteger keySamplePointer;
 
@@ -105,12 +105,12 @@ public class MemoryStore implements Store {
      * @param cache
      * @param diskStore
      */
-    protected MemoryStore(Ehcache cache, Store diskStore) {
+    protected MemoryStore(final Ehcache cache, final Store diskStore) {
         status = Status.STATUS_UNINITIALISED;
         this.cache = cache;
         this.maximumSize = cache.getCacheConfiguration().getMaxElementsInMemory();
         this.diskStore = diskStore;
-        determineEvictionPolicy(cache);
+        this.policy = determineEvictionPolicy();
 
         map = new ConcurrentHashMap(maximumSize, DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
         if (maximumSize > TOO_LARGE_TO_EFFICIENTLY_ITERATE) {
@@ -134,7 +134,7 @@ public class MemoryStore implements Store {
      * @param diskStore
      * @return an instance of a MemoryStore, configured with the appropriate eviction policy
      */
-    public static MemoryStore create(Ehcache cache, Store diskStore) {
+    public static MemoryStore create(final Ehcache cache, final Store diskStore) {
         MemoryStore memoryStore = new MemoryStore(cache, diskStore);
         return memoryStore;
     }
@@ -144,7 +144,7 @@ public class MemoryStore implements Store {
      *
      * @param element the element to add
      */
-    public synchronized final void put(Element element) throws CacheException {
+    public synchronized final void put(final Element element) throws CacheException {
         if (element != null) {
             map.put(element.getObjectKey(), element);
             doPut(element);
@@ -156,48 +156,16 @@ public class MemoryStore implements Store {
      * <p/>
      * The last access time in {@link net.sf.ehcache.Element} is updated.
      *
-     * @param key the cache key
+     * @param key the key of the Element
      * @return the element, or null if there was no match for the key
      */
-    public final Element get(Object key) {
+    public final Element get(final Object key) {
 
         if (key == null) {
             return null;
         }
 
-        Element element = (Element) map.get(key);
-
-        if (element != null) {
-            element.updateAccessStatistics();
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine(cache.getName() + "Cache: " + cache.getName() + "MemoryStore hit for " + key);
-            }
-        } else if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine(cache.getName() + "Cache: " + cache.getName() + "MemoryStore miss for " + key);
-        }
-
-        return element;
-    }
-
-
-    /**
-     * Gets an item from the cache, without updating statistics.
-     *
-     * @param key the cache key
-     * @return the element, or null if there was no match for the key
-     */
-    public final Element getQuiet(Object key) {
-        Element cacheElement = (Element) map.get(key);
-
-        if (cacheElement != null) {
-            //cacheElement.updateAccessStatistics(); Don't update statistics
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine(cache.getName() + "Cache: " + cache.getName() + "MemoryStore hit for " + key);
-            }
-        } else if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine(cache.getName() + "Cache: " + cache.getName() + "MemoryStore miss for " + key);
-        }
-        return cacheElement;
+        return (Element) map.get(key);
     }
 
 
@@ -207,14 +175,14 @@ public class MemoryStore implements Store {
      * @param key the key of the Element, usually a String
      * @return the Element if one was found, else null
      */
-    public final Element remove(Object key) {
+    public final Element remove(final Object key) {
 
         if (key == null) {
             return null;
         }
 
         // remove single item.
-        Element element = (Element) map.remove(key);
+        Element element = (Element)map.remove(key);
         if (element != null) {
             return element;
         } else {
@@ -223,6 +191,42 @@ public class MemoryStore implements Store {
             }
             return null;
         }
+    }
+
+    /**
+     * Memory stores are never backed up and always return false
+     */
+    public final boolean bufferFull() {
+        return false;
+    }
+
+    /**
+     * Expire all elements.
+     * <p/>
+     * This is a default implementation which does nothing. Expiration on demand is only
+     * implemented for disk stores.
+     */
+    public final void expireElements() {
+        //empty implementation
+    }
+
+    /**
+     * Chooses the Policy from the cache configuration
+     *
+     * @param cache
+     */
+    protected final Policy determineEvictionPolicy() {
+        MemoryStoreEvictionPolicy policySelection = cache.getCacheConfiguration().getMemoryStoreEvictionPolicy();
+
+        if (policySelection.equals(MemoryStoreEvictionPolicy.LRU)) {
+            return new LruPolicy();
+        } else if (policySelection.equals(MemoryStoreEvictionPolicy.FIFO)) {
+            return new FifoPolicy();
+        } else if (policySelection.equals(MemoryStoreEvictionPolicy.LFU)) {
+            return new LfuPolicy();
+        }
+
+        throw new IllegalArgumentException(policySelection + " isn't a valid eviction policy");
     }
 
     /**
@@ -289,8 +293,8 @@ public class MemoryStore implements Store {
     protected final void spoolAllToDisk() {
         boolean clearOnFlush = cache.getCacheConfiguration().isClearOnFlush();
         Object[] keys = getKeyArray();
-        for (int i = 0; i < keys.length; i++) {
-            Element element = (Element) map.get(keys[i]);
+        for (Object key : keys) {
+            Element element = (Element) map.get(key);
             if (element != null) {
                 if (!element.isSerializable()) {
                     if (LOG.isLoggable(Level.FINE)) {
@@ -302,7 +306,7 @@ public class MemoryStore implements Store {
                     //Don't notify listeners. They are not being removed from the cache, only a store
                     //Leave it in the memory store for performance if do not want to clear on flush
                     if (clearOnFlush) {
-                        remove(keys[i]);
+                        remove(key);
                     }
                 }
             }
@@ -317,18 +321,11 @@ public class MemoryStore implements Store {
      *
      * @param element The Element
      */
-    protected void spoolToDisk(Element element) {
+    protected void spoolToDisk(final Element element) {
         diskStore.put(element);
         if (LOG.isLoggable(Level.FINE)) {
             LOG.log(Level.FINE, cache.getName() + "Cache: spool to disk done for: " + element.getObjectKey());
         }
-    }
-
-    /**
-     * Gets the status of the MemoryStore.
-     */
-    public final Status getStatus() {
-        return status;
     }
 
     /**
@@ -351,6 +348,14 @@ public class MemoryStore implements Store {
         return map.size();
     }
 
+    
+    /**
+     * Returns nothing since a disk store isn't clustered
+     * @return returns 0
+     */
+    public final int getClusteredSize() {
+        return 0;
+    }
 
     /**
      * A check to see if a key is in the Store. No check is made to see if the Element is expired.
@@ -359,7 +364,7 @@ public class MemoryStore implements Store {
      * @return true if found. If this method return false, it means that an Element with the given key is definitely not in the MemoryStore.
      *         If it returns true, there is an Element there. An attempt to get it may return null if the Element has expired.
      */
-    public final boolean containsKey(Object key) {
+    public final boolean containsKey(final Object key) {
         return map.containsKey(key);
     }
 
@@ -397,7 +402,7 @@ public class MemoryStore implements Store {
      *
      * @param element the <code>Element</code> to be evicted.
      */
-    protected final void evict(Element element) throws CacheException {
+    protected final void evict(final Element element) throws CacheException {
         boolean spooled = false;
         if (cache.getCacheConfiguration().isOverflowToDisk()) {
             if (!element.isSerializable()) {
@@ -421,7 +426,7 @@ public class MemoryStore implements Store {
      *
      * @param element
      */
-    protected final void notifyExpiry(Element element) {
+    protected final void notifyExpiry(final Element element) {
         cache.getCacheEventNotificationService().notifyElementExpiry(element, false);
     }
 
@@ -430,23 +435,6 @@ public class MemoryStore implements Store {
      */
     protected final boolean isFull() {
         return map.size() > maximumSize;
-    }
-
-    /**
-     * Expire all elsments.
-     * <p/>
-     * This is a default implementation which does nothing. Expiry on demand is only
-     * implemented for disk stores.
-     */
-    public void expireElements() {
-        //empty implementation
-    }
-
-    /**
-     * Memory stores are never backed up and always return false
-     */
-    public boolean bufferFull() {
-        return false;
     }
 
     /**
@@ -460,7 +448,7 @@ public class MemoryStore implements Store {
     /**
      * Puts an element into the store
      */
-    protected void doPut(Element elementJustAdded) {
+    protected void doPut(final Element elementJustAdded) {
         if (isFull()) {
             removeElementChosenByEvictionPolicy(elementJustAdded);
         }
@@ -481,7 +469,7 @@ public class MemoryStore implements Store {
      *
      * @param elementJustAdded the new element
      */
-    protected void saveKey(Element elementJustAdded) {
+    protected void saveKey(final Element elementJustAdded) {
         int index = incrementIndex();
         Object key = keyArray.get(index);
         Element oldElement = null;
@@ -526,7 +514,7 @@ public class MemoryStore implements Store {
      *
      * @param elementJustAdded it is possible for this to be null
      */
-    protected void removeElementChosenByEvictionPolicy(Element elementJustAdded) {
+    protected void removeElementChosenByEvictionPolicy(final Element elementJustAdded) {
 
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("Cache is full. Removing element ...");
@@ -552,7 +540,7 @@ public class MemoryStore implements Store {
     /**
      * Find a "relatively" unused element, but not the element just added.
      */
-    protected final Element findEvictionCandidate(Element elementJustAdded) {
+    protected final Element findEvictionCandidate(final Element elementJustAdded) {
         Element element = null;
 
         //attempt quicker eviction
@@ -588,7 +576,7 @@ public class MemoryStore implements Store {
                 }
             }
         } else {
-            //Using iterate technique    
+            //Using iterate technique
             Element[] elements = sampleElements(map.size());
             return policy.selectedBasedOnPolicy(elements, elementJustAdded);
         }
@@ -618,11 +606,11 @@ public class MemoryStore implements Store {
     /**
      * Uses random numbers to sample the entire map.
      * <p/>
-     * This implemenation uses the {@link ConcurrentHashMap} iterator.
+     * This implementation uses the {@link ConcurrentHashMap} iterator.
      *
      * @return a random sample of elements
      */
-    protected Element[] sampleElements(int size) {
+    protected Element[] sampleElements(final int size) {
         int[] offsets = LfuPolicy.generateRandomSample(size);
         Element[] elements = new Element[offsets.length];
         Iterator iterator = map.values().iterator();
@@ -645,28 +633,10 @@ public class MemoryStore implements Store {
         return elements;
     }
 
-
-    /**
-     * Chooses the Policy from the cache configuration
-     *
-     * @param cache
-     */
-    protected void determineEvictionPolicy(Ehcache cache) {
-        MemoryStoreEvictionPolicy policySelection = cache.getCacheConfiguration().getMemoryStoreEvictionPolicy();
-
-        if (policySelection.equals(MemoryStoreEvictionPolicy.LRU)) {
-            policy = new LruPolicy();
-        } else if (policySelection.equals(MemoryStoreEvictionPolicy.FIFO)) {
-            policy = new FifoPolicy();
-        } else if (policySelection.equals(MemoryStoreEvictionPolicy.LFU)) {
-            policy = new LfuPolicy();
-        }
-    }
-
     /**
      * @return the active eviction policy.
      */
-    public Policy getEvictionPolicy() {
+    public final Policy getEvictionPolicy() {
         return policy;
     }
 
@@ -675,9 +645,21 @@ public class MemoryStore implements Store {
      *
      * @param policy a new policy to be used in evicting elements in this store
      */
-    public void setEvictionPolicy(Policy policy) {
+    public final void setEvictionPolicy(final Policy policy) {
         this.policy = policy;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public Object getInternalContext() {
+        return null;
+    }
 
+    /**
+     * Gets the status of the MemoryStore.
+     */
+    public final Status getStatus() {
+        return status;
+    }
 }

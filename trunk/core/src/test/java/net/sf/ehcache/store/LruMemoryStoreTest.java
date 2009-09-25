@@ -54,6 +54,7 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
     /**
      * setup test
      */
+    @Override
     @Before
     public void setUp() throws Exception {
 
@@ -70,61 +71,62 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
         createMemoryStore(MemoryStoreEvictionPolicy.LRU, 5);
 
         //Make sure that the store is empty to start with
-        assertEquals(0, store.getSize());
+        assertEquals(0, cache.getSize());
 
         // Populate the store till the max limit
         Element element = new Element("key1", "value1");
-        store.put(element);
+        cache.put(element);
         assertEquals(1, store.getSize());
 
         element = new Element("key2", "value2");
-        store.put(element);
+        cache.put(element);
         assertEquals(2, store.getSize());
 
         element = new Element("key3", "value3");
-        store.put(element);
+        cache.put(element);
         assertEquals(3, store.getSize());
 
         element = new Element("key4", "value4");
-        store.put(element);
+        cache.put(element);
         assertEquals(4, store.getSize());
 
         element = new Element("key5", "value5");
-        store.put(element);
+        cache.put(element);
         assertEquals(5, store.getSize());
 
         // Now access the elements to boost the hits count, although irrelevant for this test just to demonstrate
         // hit count is immaterial for this test.
-        store.get("key1");
-        store.get("key1");
-        Thread.sleep(15);
-        store.get("key3");
-        store.get("key3");
-        store.get("key3");
-        Thread.sleep(15);
-        store.get("key4");
+        cache.get("key1");
+        cache.get("key1");
+        Thread.sleep(1020);
+        cache.get("key3");
+        cache.get("key3");
+        cache.get("key3");
+        Thread.sleep(1020);
+        cache.get("key4");
 
         //Create a new element and put in the store so as to force the policy
         element = new Element("key6", "value6");
-        store.put(element);
+        cache.put(element);
 
-        Thread.sleep(15);
-        store.get("key6");
+        Thread.sleep(1020);
+        cache.get("key6");
 
         //max size
         assertEquals(5, store.getSize());
 
         //The element with key "key2" should be the least recently used
         assertNull(store.get("key2"));
+        cache.get("key2");
 
         // Make some more accesses
-        Thread.sleep(15);
-        store.get("key5");
-        store.get("key5");
+        Thread.sleep(1020);
+        cache.get("key5");
+        cache.get("key5");
 
         // Insert another element to force the policy
         element = new Element("key7", "value7");
-        store.put(element);
+        cache.put(element);
         assertEquals(5, store.getSize());
 
         //key1 should now be the least recently used.
@@ -149,6 +151,7 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
      * This checks for memory leaks
      * using the removeAll which was the known cause of memory leaks with MemoryStore in JCS
      */
+    @Override
     @Test
     public void testMemoryLeak() throws Exception {
         super.testMemoryLeak();

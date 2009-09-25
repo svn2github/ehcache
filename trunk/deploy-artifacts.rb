@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+DEPLOY_PROFILE = ARGV[0] || 'snapshot'
+
 Repository = Struct.new(:id, :url)
 
 # scan for modules
@@ -17,8 +19,10 @@ end
 
 REPOSITORIES = [
     Repository.new('default'),
-    #Repository.new('kong', 'file:///shares/maven2')
+    Repository.new('kong', 'file:///shares/maven2')
 ]
+
+MODULES_TO_SONATYPE_ONLY = ['core', 'ehcache', 'terracotta']
 
 class MavenCommand
     def initialize(&block)
@@ -59,11 +63,20 @@ MODULES.each do |mod|
         clean.execute
 
         REPOSITORIES.each do |repo|
+
+            next if repo.id == 'default' && ! MODULES_TO_SONATYPE_ONLY.include?(mod)
+
             maven_deploy_command = MavenCommand.new do
                 self.pom = module_pom
                 self.target = 'deploy'
                 self.args = ['-Dmaven.test.skip=true', '-Dmaven.clover.skip=true', '-Dcheckstyle.skip=true',
                              "-P '!system-tests'"]
+                if DEPLOY_PROFILE == 'snapshot'
+                  self.args << "-DdeploySnapshot=#{repo.id}"
+                elsif DEPLOY_PROFILE == 'release'
+                  self.args << "-DdeployRelease=#{repo.id}"
+                end
+
                 if repo.url
                     self.args << "-DaltDeploymentRepository=#{repo.id}::default::#{repo.url}"
                 end

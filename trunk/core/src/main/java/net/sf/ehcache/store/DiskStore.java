@@ -17,14 +17,6 @@
 
 package net.sf.ehcache.store;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.Status;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,16 +30,24 @@ import java.io.Serializable;
 import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.ConcurrentModificationException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.event.RegisteredEventListeners;
+import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
 
 /**
  * A disk store implementation.
@@ -253,7 +253,6 @@ public class DiskStore implements Store {
             Element element;
             element = (Element) spool.remove(key);
             if (element != null) {
-                element.updateAccessStatistics();
                 return element;
             }
 
@@ -265,9 +264,6 @@ public class DiskStore implements Store {
             }
 
             element = loadElementFromDiskElement(diskElement);
-            if (element != null) {
-                element.updateAccessStatistics();
-            }
             return element;
         } catch (Exception exception) {
             LOG.log(Level.SEVERE, name + "Cache: Could not read disk store element for key " + key + ". Error was "
@@ -275,7 +271,7 @@ public class DiskStore implements Store {
         }
         return null;
     }
-
+    
     /**
      * An unsynchronized and very low cost check to see if a key is in the Store. No check is made to see if the Element is expired.
      *
@@ -303,6 +299,7 @@ public class DiskStore implements Store {
              * Overridden because of:
              * Bug 1324221 ehcache DiskStore has issues when used in Tomcat
              */
+            @Override
             protected Class resolveClass(ObjectStreamClass clazz) throws ClassNotFoundException, IOException {
                 try {
                     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -317,40 +314,6 @@ public class DiskStore implements Store {
         element = (Element) objstr.readObject();
         objstr.close();
         return element;
-    }
-
-    /**
-     * Gets an {@link Element} from the Disk Store, without updating statistics
-     *
-     * @return The element
-     */
-    public final synchronized Element getQuiet(final Object key) {
-        try {
-            checkActive();
-
-            // Check in the spool.  Remove if present
-            Element element;
-            element = (Element) spool.remove(key);
-            if (element != null) {
-                //element.updateAccessStatistics(); Don't update statistics
-                return element;
-            }
-
-            // Check if the element is on disk
-            final DiskElement diskElement = (DiskElement) diskElements.get(key);
-            if (diskElement == null) {
-                // Not on disk
-                return null;
-            }
-
-            element = loadElementFromDiskElement(diskElement);
-            //element.updateAccessStatistics(); Don't update statistics
-            return element;
-        } catch (Exception e) {
-            LOG.log(Level.SEVERE, name + "Cache: Could not read disk store element for key " + key
-                    + ". Initial cause was " + e.getMessage(), e);
-        }
-        return null;
     }
 
 
@@ -386,6 +349,14 @@ public class DiskStore implements Store {
             LOG.log(Level.SEVERE, name + "Cache: Could not determine size of disk store.. Initial cause was " + e.getMessage(), e);
             return 0;
         }
+    }
+    
+    /**
+     * Returns nothing since a disk store isn't clustered
+     * @return returns 0
+     */
+    public final int getClusteredSize() {
+        return 0;
     }
 
     /**
@@ -1017,6 +988,7 @@ public class DiskStore implements Store {
     /**
      * Returns a {@link String} representation of the {@link DiskStore}
      */
+    @Override
     public final String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("[ dataFile = ").append(dataFile.getAbsolutePath())
@@ -1112,6 +1084,7 @@ public class DiskStore implements Store {
         /**
          * RemoteDebugger thread method.
          */
+        @Override
         public final void run() {
             spoolAndExpiryThreadMain();
         }
@@ -1308,5 +1281,10 @@ public class DiskStore implements Store {
         throw new UnsupportedOperationException("Disk store only uses LFU.");
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
+    public Object getInternalContext() {
+        return null;
+    }
 }

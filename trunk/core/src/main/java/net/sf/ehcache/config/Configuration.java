@@ -32,16 +32,35 @@ import java.util.Set;
  */
 public final class Configuration {
 
+    /**
+     * Represents whether monitoring should be enabled or not.
+     * @author amiller
+     */
+    public enum Monitoring {
+        /** When possible, notice the use of Terracotta and auto register the SampledCacheMBean. */
+        AUTODETECT,
+        
+        /** Always auto register the SampledCacheMBean */
+        ON,
+        
+        /** Never auto register the SampledCacheMBean */
+        OFF;
+    }
+    
+    private String cacheManagerName;
+    private boolean updateCheck = true;
+    private Monitoring monitoring = Monitoring.AUTODETECT;
     private DiskStoreConfiguration diskStoreConfiguration;
     private CacheConfiguration defaultCacheConfiguration;
     private List<FactoryConfiguration> cacheManagerPeerProviderFactoryConfiguration = new ArrayList<FactoryConfiguration>();
     private List<FactoryConfiguration> cacheManagerPeerListenerFactoryConfiguration = new ArrayList<FactoryConfiguration>();
     private FactoryConfiguration cacheManagerEventListenerFactoryConfiguration;
+    private TerracottaConfigConfiguration terracottaConfigConfiguration;
     private final Map cacheConfigurations = new HashMap();
     private String configurationSource;
 
     /**
-     * Empty constructor, which is used by {@link ConfigurationFactory}, and can be also sued programmatically.
+     * Empty constructor, which is used by {@link ConfigurationFactory}, and can be also used programmatically.
      * <p/>
      * If you are using it programmtically you need to call the relevant add and setter methods in this class to
      * populate everything.
@@ -49,7 +68,51 @@ public final class Configuration {
     public Configuration() {
     }
 
+    /**
+     * Allows BeanHandler to set the CacheManager name.
+     */
+    public final void setName(String name) {
+        this.cacheManagerName = name;
+    }
 
+    /**
+     * CacheManager name
+     */
+    public final String getName() {
+        return this.cacheManagerName;
+    }
+
+    /**
+     * Allows BeanHandler to set the updateCheck flag.
+     */
+    public final void setUpdateCheck(boolean updateCheck) {
+        this.updateCheck = updateCheck;
+    }
+    
+    /**
+     * Get flag for updateCheck
+     */
+    public final boolean getUpdateCheck() {
+        return this.updateCheck;
+    }
+    
+    /**
+     * Allows BeanHandler to set the monitoring flag
+     */
+    public final void setMonitoring(String monitoring) {
+        if (monitoring == null) {
+            throw new IllegalArgumentException("Monitoring value must be non-null");
+        }
+        this.monitoring = Monitoring.valueOf(Monitoring.class, monitoring.toUpperCase());
+    }
+    
+    /**
+     * Get monitoring type, should not be null
+     */
+    public final Monitoring getMonitoring() {
+        return this.monitoring;
+    }
+    
     /**
      * Allows BeanHandler to add disk store location to the configuration.
      */
@@ -88,7 +151,13 @@ public final class Configuration {
         cacheManagerPeerListenerFactoryConfiguration.add(factory);
     }
 
-
+    /**
+     * Allows BeanHandler to add a Terracotta configuration to the configuration
+     */
+    public final void addTerracottaConfig(TerracottaConfigConfiguration terracottaConfiguration) {
+        this.terracottaConfigConfiguration = terracottaConfiguration;
+    }
+    
     /**
      * Allows BeanHandler to add a default configuration to the configuration.
      */
@@ -162,6 +231,13 @@ public final class Configuration {
      */
     public final FactoryConfiguration getCacheManagerEventListenerFactoryConfiguration() {
         return cacheManagerEventListenerFactoryConfiguration;
+    }
+
+    /**
+     * Gets the TerracottaConfigConfiguration
+     */
+    public final TerracottaConfigConfiguration getTerracottaConfiguration() {
+        return this.terracottaConfigConfiguration;
     }
 
     /**

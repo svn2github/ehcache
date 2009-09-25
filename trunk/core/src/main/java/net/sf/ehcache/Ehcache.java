@@ -16,17 +16,20 @@
 
 package net.sf.ehcache;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
-
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import net.sf.ehcache.statistics.CacheUsageListener;
+import net.sf.ehcache.statistics.CacheUsageStatistics;
+import net.sf.ehcache.statistics.SampledCacheUsageStatistics;
 
 /**
  * An interface for Ehcache.
@@ -338,6 +341,25 @@ public interface Ehcache extends Cloneable {
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
     int getSize() throws IllegalStateException, CacheException;
+    
+    /**
+     * Accurately measuring statistics can be expensive. Returns the size of the
+     * cache based on the accuracy setting
+     * 
+     * @param statisticsAccuracy
+     *            one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT},
+     *            {@link Statistics#STATISTICS_ACCURACY_GUARANTEED},
+     *            {@link Statistics#STATISTICS_ACCURACY_NONE}
+     * @return
+     * @throws IllegalArgumentException
+     *             if the statisticsAccuracy is not one of the above
+     * @throws IllegalStateException
+     *             if the cache is not
+     *             {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     */
+    int getSizeBasedOnAccuracy(int statisticsAccuracy)
+            throws IllegalArgumentException, IllegalStateException,
+            CacheException;
 
     /**
      * Gets the size of the memory store for this cache
@@ -550,12 +572,47 @@ public interface Ehcache extends Cloneable {
      * The number given may contain expired elements. In addition if the DiskStore is used it may contain some double
      * counting of elements. It takes 6ms for 1000 elements to execute. Time to execute is O(log n). 50,000 elements take
      * 36ms.
-     *
+     * @see {@link #getCacheUsageStatistics()}
      * @return the number of elements in the ehcache, with a varying degree of accuracy, depending on accuracy setting.
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     Statistics getStatistics() throws IllegalStateException;
+    
+    /**
+     * This is different from {@link #getStatistics()} in the way that values
+     * returned from {@link CacheUsageStatistics} will reflect the current state
+     * of the cache (and not a snapshot of the cache when the api's were called
+     * like {@link #getStatistics()})
+     * 
+     * @return The {@link CacheUsageStatistics} associated with this cache
+     * @throws IllegalStateException
+     * @since 1.7
+     */
+    CacheUsageStatistics getCacheUsageStatistics() throws IllegalStateException;
 
+    /**
+     * Registers a {@link CacheUsageListener} which will be notified of the
+     * cache
+     * usage.
+     * Implementations of {@link CacheUsageListener} should override the
+     * {@link #equals(Object)} and {@link #hashCode()} methods as it is used for
+     * equality check
+     * 
+     * @throws IllegalStateException
+     * @since 1.7
+     */
+    void registerCacheUsageListener(CacheUsageListener cacheUsageListener)
+            throws IllegalStateException;
+
+    /**
+     * Remove an already registered {@link CacheUsageListener}, if any.
+     * Depends on the {@link #equals(Object)} method.
+     * 
+     * @throws IllegalStateException
+     * @since 1.7
+     */
+    void removeCacheUsageListener(CacheUsageListener cacheUsageListener)
+            throws IllegalStateException;
 
     /**
      * Sets the CacheManager
@@ -783,6 +840,53 @@ public interface Ehcache extends Cloneable {
      * @see #isDisabled()
      */
     public void setDisabled(boolean disabled);
+    
+    /**
+     * Returns true if statistics collection is enabled
+     * 
+     * @return
+     */
+    public boolean isStatisticsEnabled();
 
+    /**
+     * Enable/disable statistics collection.
+     * Enabling statistics does not have any effect on sampled statistics. To
+     * enable sampled statistics, use
+     * {@link #setSampledStatisticsEnabled(boolean)} with
+     * parameter <tt>true</tt>.
+     * Disabling statistics also disables the sampled statistics collection if
+     * it is enabled
+     * 
+     * @param enabledStatistics
+     */
+    public void setStatisticsEnabled(boolean enableStatistics);
 
+    /**
+     * Returns sampled statistics for this cache.
+     * 
+     * @return
+     */
+    public SampledCacheUsageStatistics getSampledCacheUsageStatistics();
+    
+    /**
+     * Enable/disable sampled statistics collection.
+     * Enabling sampled statistics also enables the normal statistics collection if its not already enabled.
+     * Disabling sampled statistics does not have any effect on normal statistics.
+     * 
+     * @param enabledStatistics
+     */
+    public void setSampledStatisticsEnabled(boolean enableStatistics);
+
+    /**
+     * Returns if sampled statistics collection is enabled or disabled
+     * 
+     * @return
+     */
+    public boolean isSampledStatisticsEnabled();
+
+    /**
+     * This should not be used
+     * return some internal context (generally will be null)
+     */
+    Object getInternalContext();
 }

@@ -57,6 +57,10 @@ public interface CacheMBean {
      */
     String getName();
 
+    /**
+     * Uses a Terracotta clustered store.
+     */
+    boolean isTerracottaClustered(); 
 
     /**
      *

@@ -63,6 +63,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -79,6 +80,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
+    @Override
     @After
     public void tearDown() throws Exception {
         CountingCacheEventListener.resetCounters();
@@ -283,7 +285,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         cache.put(element);
 
         //expire
-        Thread.sleep(1020);
+        Thread.sleep(1999);
 
         //force expiry
         Element expiredElement = cache.get(key);
@@ -453,6 +455,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
          *                                    be cloned.
          * @see Cloneable
          */
+        @Override
         public Object clone() throws CloneNotSupportedException {
             return super.clone();
         }
@@ -521,7 +524,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             cache.put(new Element(i + "", new Date()));
         }
 
-        Thread.sleep(1030);
+        Thread.sleep(1999);
         cache.put(new Element(11 + "", new Date()));
 
         List removalNotifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
@@ -570,7 +573,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             cache.put(new Element(i + "", new Date()));
         }
 
-        Thread.sleep(1020);
+        Thread.sleep(1999);
         cache.put(new Element(11 + "", new Date()));
 
         List notifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
@@ -619,7 +622,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             cache.put(new Element(i + "", new Date()));
         }
 
-        Thread.sleep(1020);
+        Thread.sleep(1999);
         cache.put(new Element(11 + "", new Date()));
 
         List notifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
@@ -648,7 +651,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
 
         //Check expiry from memory store in 1 second
         cache.put(element);
-        Thread.sleep(1020);
+        Thread.sleep(1999);
 
         //Trigger expiry
         cache.get(key);
@@ -673,7 +676,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         }
 
         //Wait for expiry
-        Thread.sleep(1020);
+        Thread.sleep(1999);
 
         //Trigger expiry
         for (int i = 0; i < 20; i++) {
@@ -702,8 +705,8 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             cache.put(element);
         }
 
-        //Wait for expiry and expiry thread
-        Thread.sleep(2120);
+        // Wait for expiry and expiry thread
+        Thread.sleep(2999);
 
         List notifications = CountingCacheEventListener.getCacheElementsExpired(cache);
         for (int i = 0; i < notifications.size(); i++) {
@@ -728,7 +731,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             cache.put(element);
         }
         cache.put(new Element(21 + "", new Date()));
-        Thread.sleep(2100);
+        Thread.sleep(2999);
 
         List notifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
         assertEquals(1, notifications.size());

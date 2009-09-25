@@ -13,7 +13,7 @@
     <description><![CDATA[The RI for JSR107 - JCACHE.]]> </description>
     <dependencies>
         <dependency>
-            <groupId>net.sf.ehcache</groupId>
+            <groupId>${pom.groupId}</groupId>
             <artifactId>ehcache-core</artifactId>
             <version>1.7.0-SNAPSHOT</version>
         </dependency>
@@ -129,16 +129,16 @@
 
     <repositories>
         <repository>
-            <id>sourceforge-snapshots</id>
+            <id>sourceforge-releases</id>
             <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
-            <!--<layout>legacy</layout> -->
+            <layout>legacy</layout>
             <releases>
-                <enabled>true</enabled>
+                <enabled>false</enabled>
                 <updatePolicy>daily</updatePolicy>
             </releases>
             <snapshots>
                 <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
+                <updatePolicy>daily</updatePolicy>
             </snapshots>
         </repository>
     </repositories>

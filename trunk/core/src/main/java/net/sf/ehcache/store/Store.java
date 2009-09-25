@@ -16,11 +16,11 @@
 
 package net.sf.ehcache.store;
 
+import java.io.IOException;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-
-import java.io.IOException;
 
 /**
  * This is the interface for all stores. A store is a physical counterpart to a cache, which
@@ -40,13 +40,6 @@ public interface Store {
      * Gets an item from the cache.
      */
     Element get(Object key);
-
-    /**
-     * Gets an {@link Element} from the Store, without updating statistics
-     *
-     * @return The element
-     */
-    public Element getQuiet(final Object key);
 
     /**
      * Gets an Array of the keys for all elements in the disk store.
@@ -76,10 +69,16 @@ public interface Store {
     void dispose();
 
     /**
-     * Returns the current store size
-     * @return the count of the Elements in the Store
+     * Returns the current local store size
+     * @return the count of the Elements in the Store on the local machine
      */
     int getSize();
+
+    /**
+     * Returns the current clustered store size
+     * @return the count of the Elements in the Store across the cluster
+     */
+    int getClusteredSize();
 
     /**
      * Gets the size of the store, in bytes.
@@ -140,4 +139,9 @@ public interface Store {
      */
     void setEvictionPolicy(Policy policy);
 
+    /**
+     * This should not be used, and will generally return null
+     * @return some internal context (probably null)
+     */
+    Object getInternalContext();
 }

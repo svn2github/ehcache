@@ -16,18 +16,12 @@
 
 package net.sf.ehcache;
 
-import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.store.DiskStore;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.ehcache.store.Primitive;
-import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -43,6 +37,14 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.store.DiskStore;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.store.Primitive;
+
+import org.junit.After;
+import org.junit.Test;
+
 /**
  * Test cases for the DiskStore.
  *
@@ -56,12 +58,13 @@ import java.util.logging.Logger;
 public class DiskStoreTest extends AbstractCacheTest {
 
     private static final Logger LOG = Logger.getLogger(DiskStoreTest.class.getName());
-    private static final int ELEMENT_ON_DISK_SIZE = 1340;
+    private static final int ELEMENT_ON_DISK_SIZE = 1246;
     private CacheManager manager2;
 
     /**
      * teardown
      */
+    @Override
     @After
     public void tearDown() throws Exception {
         super.tearDown();
@@ -495,7 +498,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         Element element = diskStore.get("key");
         assertNull(element);
         diskStore.put(new Element("key", "value"));
-        element = diskStore.getQuiet("key");
+        element = diskStore.get("key");
         assertNotNull(element);
     }
 
@@ -505,10 +508,10 @@ public class DiskStoreTest extends AbstractCacheTest {
     @Test
     public void testGetQuietUnknownThenKnown() throws Exception {
         final DiskStore diskStore = createDiskStore();
-        Element element = diskStore.getQuiet("key");
+        Element element = diskStore.get("key");
         assertNull(element);
         diskStore.put(new Element("key", "value"));
-        element = diskStore.getQuiet("key");
+        element = diskStore.get("key");
         assertNotNull(element);
     }
 
@@ -852,7 +855,7 @@ public class DiskStoreTest extends AbstractCacheTest {
                 diskStore.put(element);
             }
             waitLonger();
-            int predictedSize = 140800;
+            int predictedSize = (ELEMENT_ON_DISK_SIZE + 68) * 100;
             long actualSize = diskStore.getDataFileSize();
             LOG.log(Level.INFO, "Predicted Size: " + predictedSize + " Actual Size: " + actualSize);
             assertEquals(predictedSize, actualSize);

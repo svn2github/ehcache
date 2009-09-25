@@ -1,4 +1,5 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="1.6">
+
     <xs:element name="ehcache" >
         <xs:complexType>
             <xs:sequence>
@@ -9,11 +10,16 @@
                             ref="cacheManagerPeerProviderFactory"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded"
                             ref="cacheManagerPeerListenerFactory"/>
+                <xs:element minOccurs="0" maxOccurs="1"
+                            ref="terracottaConfig"/>
                 <xs:element ref="defaultCache"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cache"/>
             </xs:sequence>
+            <xs:attribute name="name" use="optional"/>
+            <xs:attribute name="updateCheck" use="optional" type="xs:boolean" default="true"/>
+            <xs:attribute name="monitoring" use="optional" type="monitoringType" default="autodetect"/>
         </xs:complexType>
-    </xs:element>
+    </xs:element>     
     <xs:element name="diskStore">
         <xs:complexType>
             <xs:attribute name="path" use="optional" />
@@ -40,6 +46,19 @@
             <xs:attribute name="propertySeparator" use="optional"/>
         </xs:complexType>
     </xs:element>
+    <xs:element name="terracottaConfig">
+        <xs:complexType>
+            <xsd:element name="tc-config" minOccurs="0" maxOccurs="1">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:any minOccurs="0" maxOccurs="unbounded" processContents="skip" />
+                    </xsd:sequence>
+                </xsd:complexType>        
+            </xsd:element>
+            <xs:attribute name="url" use="optional" default="localhost:9510"/>
+            <xs:attribute name="registerStatsMBean" type="xsd:boolean" use="optional"/>
+        </xs:complexType>
+    </xs:element>    
     <!-- add clone support for addition of cacheExceptionHandler. Important! -->
     <xs:element name="defaultCache">
         <xs:complexType>
@@ -49,6 +68,7 @@
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheLoaderFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheExceptionHandlerFactory"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="terracotta"/>
             </xs:sequence>
             <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
             <xs:attribute name="diskSpoolBufferSizeMB" use="optional" type="xs:integer"/>
@@ -71,6 +91,7 @@
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheLoaderFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheExceptionHandlerFactory"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="terracotta"/>
             </xs:sequence>
             <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
             <xs:attribute name="diskSpoolBufferSizeMB" use="optional" type="xs:integer"/>
@@ -121,4 +142,23 @@
             <xs:attribute name="propertySeparator" use="optional"/>
         </xs:complexType>
     </xs:element>
+    <xs:element name="terracotta">
+        <xs:complexType>
+            <xs:attribute name="clustered" use="optional" type="xs:boolean" default="true"/>
+            <xs:attribute name="valueMode" use="optional" type="terracottaCacheValueType" default="serialization"/>
+        </xs:complexType>
+    </xs:element>
+    <xsd:simpleType name="monitoringType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="autodetect" />
+            <xsd:enumeration value="on" />
+            <xsd:enumeration value="off" />
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="terracottaCacheValueType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="serialization" />
+            <xsd:enumeration value="identity" />
+        </xsd:restriction>
+    </xsd:simpleType>
 </xs:schema>

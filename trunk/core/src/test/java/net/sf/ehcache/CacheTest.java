@@ -53,10 +53,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * Tests for a Cache
- *
+ * 
+ * Since expiration is rounded on seconds, we need to at least go up to the last
+ * millisecond before the next second in many of the tests
+ * 
  * @author Greg Luck, Claus Ibsen
  * @version $Id$
  */
@@ -68,6 +70,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * teardown
      */
+    @Override
     @After
     public void tearDown() throws Exception {
         super.tearDown();
@@ -245,12 +248,12 @@ public class CacheTest extends AbstractCacheTest {
         assertNotNull(cache.get("key2"));
 
         //Test time to idle. Should not idle out because not specified
-        Thread.sleep(2000);
+        Thread.sleep(2999);
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
 
         //Test time to live.
-        Thread.sleep(5020);
+        Thread.sleep(5999);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
     }
@@ -340,12 +343,12 @@ public class CacheTest extends AbstractCacheTest {
         assertNotNull(cache.get("key2"));
 
         //Test time to idle. Should not idle out because not specified
-        Thread.sleep(1000);
+        Thread.sleep(1999);
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
 
         //Test time to live.
-        Thread.sleep(4020);
+        Thread.sleep(4999);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
     }
@@ -359,7 +362,7 @@ public class CacheTest extends AbstractCacheTest {
      * overflowToDisk="false"
      * />
      * <p/>
-     * where an Elment override is set on TTL
+     * where an Element override is set on TTL
      */
     @Test
     public void testExpiryBasedOnTimeToIdleElementOverride() throws Exception {
@@ -376,8 +379,8 @@ public class CacheTest extends AbstractCacheTest {
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
 
-        //Test time to idle. Should not idle out because not specified
-        Thread.sleep(1050);
+        //Test time to idle
+        Thread.sleep(1999);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
 
@@ -409,7 +412,7 @@ public class CacheTest extends AbstractCacheTest {
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
 
-        Thread.sleep(5050);
+        Thread.sleep(5999);
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
 
@@ -435,12 +438,12 @@ public class CacheTest extends AbstractCacheTest {
         assertNotNull(cache.get("key2"));
 
         //Test time to idle. Should not idle out because not specified
-        Thread.sleep(2000);
+        Thread.sleep(2999);
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
 
         //Test time to live.
-        Thread.sleep(5020);
+        Thread.sleep(5999);
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
     }
@@ -631,7 +634,7 @@ public class CacheTest extends AbstractCacheTest {
         //Test time to live
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
-        Thread.sleep(1020);
+        Thread.sleep(1959); 
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
     }
@@ -662,7 +665,7 @@ public class CacheTest extends AbstractCacheTest {
         //Test time to live
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
-        Thread.sleep(10020);
+        Thread.sleep(10999);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
 
@@ -690,11 +693,11 @@ public class CacheTest extends AbstractCacheTest {
         assertNotNull(element2);
 
         //Test time to live
-        Thread.sleep(2020);
+        Thread.sleep(2999);
         //Should not affect age
         cache.putQuiet((Element) element2.clone());
         cache.putQuiet((Element) element2.clone());
-        Thread.sleep(3020);
+        Thread.sleep(3000);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
     }
@@ -715,12 +718,12 @@ public class CacheTest extends AbstractCacheTest {
         assertNotNull(cache.get("key2"));
 
         //Check that we did not idle out
-        Thread.sleep(2020);
+        Thread.sleep(2999);
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
 
         //Check that we did not expire out
-        Thread.sleep(3020);
+        Thread.sleep(3999);
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
     }
@@ -741,18 +744,18 @@ public class CacheTest extends AbstractCacheTest {
         Element element2 = cache.get("key2");
         assertNotNull(element1);
         assertNotNull(element2);
-        Thread.sleep(2050);
+        Thread.sleep(2999);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
 
         //Test effect of get
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
-        Thread.sleep(1050);
+        Thread.sleep(1999);
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
 
-        Thread.sleep(2050);
+        Thread.sleep(2999);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
     }
@@ -779,7 +782,7 @@ public class CacheTest extends AbstractCacheTest {
         Thread.sleep(1050);
         element1 = cache.getQuiet("key1");
         element2 = cache.getQuiet("key2");
-        Thread.sleep(2050);
+        Thread.sleep(2949);
         assertNull(cache.getQuiet("key1"));
         assertNull(cache.getQuiet("key2"));
 
@@ -937,7 +940,7 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(2, cache.getSize());
         String keyFromDisk = (String) cache.get(key1).getObjectKey();
         assertTrue(key1 == keyFromDisk);
-        Thread.sleep(1050);
+        Thread.sleep(1999);
         assertEquals(2, cache.getKeys().size());
         //getKeysWithExpiryCheck does check and gives the correct answer of 0
         assertEquals(0, cache.getKeysWithExpiryCheck().size());
@@ -1060,8 +1063,8 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
 
-        //Let the idle expire
-        Thread.sleep(1020);
+        // Let the idle expire
+        Thread.sleep(1999);
         assertEquals(null, cache.get("key1"));
         assertEquals(null, cache.get("key2"));
 
@@ -1418,22 +1421,21 @@ public class CacheTest extends AbstractCacheTest {
 
         Object key = new Object();
         Element element = new Element(key, "value");
-        element.setTimeToLive(2);
+        element.setTimeToLive(3);
         cache.put(element);
         Thread.sleep(1050);
         assertNotNull(cache.get(key));
         assertSame(element, cache.get(key));
 
-
         Element element2 = new Element(key, "value");
         cache.put(element2);
-        Thread.sleep(1050);
+        Thread.sleep(1999);
         assertNull(cache.get(key));
 
         Element element3 = new Element(key, "value");
-        element3.setTimeToLive(2);
+        element3.setTimeToLive(5);
         cache.put(element3);
-        Thread.sleep(1500);
+        Thread.sleep(1999);
         assertSame(element3, cache.get(key));
 
     }
@@ -1457,16 +1459,15 @@ public class CacheTest extends AbstractCacheTest {
         assertNotNull(cache.get(key));
         assertSame(element, cache.get(key));
 
-
         Element element2 = new Element(key, "value");
         cache.putQuiet(element2);
-        Thread.sleep(1050);
+        Thread.sleep(1999);
         assertNull(cache.get(key));
 
         Element element3 = new Element(key, "value");
         element3.setTimeToLive(2);
         cache.putQuiet(element3);
-        Thread.sleep(1500);
+        Thread.sleep(1999);
         assertSame(element3, cache.get(key));
 
     }
@@ -2328,6 +2329,7 @@ public class CacheTest extends AbstractCacheTest {
         /**
          * Override the Object finalize method
          */
+        @Override
         protected void finalize() throws Throwable {
             manager.getCache("test").getQuiet("key");
             LOG.log(Level.INFO, "finalize run from thread " + Thread.currentThread().getName());

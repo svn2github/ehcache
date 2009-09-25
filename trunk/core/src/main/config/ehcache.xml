@@ -1,20 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
         
+<!--
+CacheManager Configuration
+==========================
+An ehcache.xml corresponds to a single CacheManager.
+
+See instructions below or the ehcache schema (ehcache.xsd) on how to configure.
+
+System property tokens can be specified in this file which are replaced when the configuration
+is loaded. For example multicastGroupPort=${multicastGroupPort} can be replaced with the
+System property either from an environment variable or a system property specified with a
+command line switch such as -DmulticastGroupPort=4446.
+
+The attributes of <ehcache> are:
+* name - an optional name for the CacheManager.  The name is optional and primarily used 
+for documentation or to distinguish Terracotta clustered cache state.  With Terracotta 
+clustered caches, a combination of CacheManager name and cache name uniquely identify a 
+particular cache store in the Terracotta clustered memory.
+* updateCheck - an optional boolean flag specifying whether this CacheManager should check
+for new versions of Ehcache over the Internet.  If not specified, updateCheck="true".
+* monitoring - an optional setting that determines whether the CacheManager should 
+automatically register the SampledCacheMBean with the system MBean server.  Currently,
+this monitoring is only useful when using Terracotta and thus the "autodetect" value 
+will detect the presence of Terracotta and register the MBean.  Other allowed values 
+are "on" and "off".  The default is "autodetect".
+-->    
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="ehcache.xsd" >
-
-    <!--
-    CacheManager Configuration
-    ==========================
-    An ehcache.xml corresponds to a single CacheManager.
+         xsi:noNamespaceSchemaLocation="ehcache.xsd"
+             updateCheck="true" monitoring="autodetect">
     
-    See instructions below or the ehcache schema (ehcache.xsd) on how to configure.
-
-    System property tokens can be specified in this file which are replaced when the configuration
-    is loaded. For example multicastGroupPort=${multicastGroupPort} can be replaced with the
-    System property either from an environment variable or a system property specified with a
-    command line switch such as -DmulticastGroupPort=4446.
-
+    <!-- 
     DiskStore configuration
     =======================
 
@@ -254,6 +269,50 @@
     <cacheManagerPeerListenerFactory
             class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
 
+    <!--
+    TerracottaConfig
+    ========================
+    (Enable for Terracotta clustered operation)
+
+    Specifies a TerracottaConfig which will be used to configure the Terracotta
+    runtime for this CacheManager.
+    
+    Configuration can be specified in two main ways: by reference to a source of 
+    configuration or by use of an embedded Terracotta configuration file.
+    
+    To specify a reference to a source (or sources) of configuration, use the url 
+    attribute.  The url attribute must contain a comma-separated list of:
+    * path to Terracotta configuration file (usually named tc-config.xml)
+    * URL to Terracotta configuration file
+    * <server host>:<port> of running Terracotta Server instance
+    
+    Example using a path to Terracotta configuration file:
+    <terracottaConfig url="/app/config/tc-config.xml"/>
+    
+    Example using a URL to a Terracotta configuration file:
+    <terracottaConfig url="http://internal/ehcache/app/tc-config.xml"/>
+    
+    Example using multiple Terracotta server instance URLs (for fault tolerance):
+    <terracottaConfig url="host1:9510,host2:9510,host3:9510"/>
+
+    To embed a Terracotta configuration file within the ehcache configuration, simply 
+    place a normal Terracotta XML config within the <terracottaConfig> element.
+    
+    Example:
+    <terracottaConfig>
+        <tc-config>
+            <servers>
+                <server host="server1" name="s1"/>
+                <server host="server2" name="s2"/>
+            </servers>
+            <clients>
+                <logs>app/logs-%i</logs>
+            </clients>           
+        </tc-config>
+    </terracottaConfig>
+    
+    For more information on the Terracotta configuration, see the Terracotta documentation.
+    -->
 
     <!--
     Cache configuration
@@ -339,6 +398,7 @@
       synchronously to load objects into a cache. More than one cacheLoaderFactory element
       can be added, in which case the loaders form a chain which are executed in order. If a
       loader returns null, the next in chain is called.
+      
 
     RMI Cache Replication
     +++++++++++++++++++++
@@ -491,6 +551,29 @@
                              properties="refreshIntervalMillis=18000, loaderTimeout=3000,
                                          flushPeriod=whatever, someOtherProperty=someValue ..."/>
 
+    Terracotta Clustering 
+    
+    Cache elements can also contain information about whether the cache can be clustered with Terracotta.
+    The <terracotta> sub-element has the following attributes:
+
+    * clustered=true|false - indicates whether this cache should be clustered with Terracotta. By 
+      default, if the <terracotta> element is included, clustered=true.
+    * valueMode=serialization|identity - indicates whether this cache should be clustered with 
+      serialized copies of the values or using Terracotta identity mode.  By default, values will
+      be cached in serialization mode which is similar to other replicated Ehcache modes.  The identity
+      mode is only available in certain Terracotta deployment scenarios and will maintain actual object
+      identity of the keys and values across the cluster.  In this case, all users of a value retrieved from 
+      the cache are using the same clustered value and must provide appropriate locking for any changes 
+      made to the value (or objects referred to by the value).
+    
+    Simplest example to indicate clustering:
+        <terracotta/>
+        
+    To indicate the cache should not be clustered (or remove the <terracotta> element altogether):    
+        <terracotta clustered="false"> 
+
+    To indicate the cache should be clustered using identity mode:
+        <terracotta clustered="true" valueMode="identity"/>
     -->
 
 

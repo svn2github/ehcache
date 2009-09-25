@@ -44,12 +44,13 @@ import java.util.logging.Logger;
  */
 public class HibernateAPIUsageTest extends AbstractCacheTest {
     private static final Logger LOG = Logger.getLogger(HibernateAPIUsageTest.class.getName());
-    private static final int EMPTY_ELEMENT_SIZE = 298;
+    private static final int EMPTY_ELEMENT_SIZE = 204;
 
 
     /**
      * teardown
      */
+    @Override
     @After
     public void tearDown() throws Exception {
         super.tearDown();
@@ -125,7 +126,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         cache.clear();
         assertEquals(0, cache.getElementCountInMemory());
         cache.put(key, value);
-        assertTrue(EMPTY_ELEMENT_SIZE == cache.getSizeInMemory());
+        assertEquals(EMPTY_ELEMENT_SIZE, cache.getSizeInMemory());
 
         //locks
         //timeout. This seems strange

@@ -69,6 +69,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     /**
      * setup test
      */
+    @Override
     @Before
     public void setUp() throws Exception {
         manager = CacheManager.getInstance();
@@ -77,11 +78,17 @@ public class MemoryStoreTester extends AbstractCacheTest {
     /**
      * teardown
      */
+    @Override
     @After
     public void tearDown() throws Exception {
         try {
+            if (cache != null) {
+                cache.removeAll();
+                cache = null;
+            }
             if (manager != null) {
                 manager.shutdown();
+                manager = null;
             }
         } catch (OutOfMemoryError e) {
             //OutOfMemoryError Happens at different places on Apache LRU for some reason

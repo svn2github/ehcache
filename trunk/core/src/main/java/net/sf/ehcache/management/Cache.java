@@ -111,6 +111,13 @@ public class Cache implements CacheMBean, Serializable {
     }
 
     /**
+     * Is the cache configured with Terracotta clustering?
+     */
+    public boolean isTerracottaClustered() {
+        return cache.getCacheConfiguration().isTerracottaClustered();
+    }
+    
+    /**
      * Gets the JMX read-only CacheConfiguration
      */
     public CacheConfiguration getCacheConfiguration() {

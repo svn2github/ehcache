@@ -124,6 +124,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
+    @Override
     @Before
     public void setUp() throws Exception {
 
@@ -162,6 +163,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
+    @Override
     @After
     public void tearDown() throws Exception {
 
@@ -535,7 +537,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
 
         Element firstElement = cachePeer.getQuiet((Serializable) keys.get(0));
         long size = firstElement.getSerializedSize();
-        assertEquals(574, size);
+        assertEquals(480, size);
 
         int chunkSize = (int) (5000000 / size);
 

@@ -17,17 +17,6 @@
 
 package net.sf.ehcache;
 
-import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.config.ConfigurationFactory;
-import net.sf.ehcache.config.ConfigurationHelper;
-import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.distribution.CacheManagerPeerListener;
-import net.sf.ehcache.distribution.CacheManagerPeerProvider;
-import net.sf.ehcache.event.CacheManagerEventListener;
-import net.sf.ehcache.event.CacheManagerEventListenerRegistry;
-import net.sf.ehcache.store.DiskStore;
-import net.sf.ehcache.util.PropertyUtil;
-
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
@@ -40,6 +29,26 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ConfigurationFactory;
+import net.sf.ehcache.config.ConfigurationHelper;
+import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.distribution.CacheManagerPeerListener;
+import net.sf.ehcache.distribution.CacheManagerPeerProvider;
+import net.sf.ehcache.event.CacheManagerEventListener;
+import net.sf.ehcache.event.CacheManagerEventListenerRegistry;
+import net.sf.ehcache.management.provider.MBeanRegistrationProvider;
+import net.sf.ehcache.management.provider.MBeanRegistrationProviderException;
+import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactory;
+import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactoryImpl;
+import net.sf.ehcache.store.DiskStore;
+import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.StoreFactory;
+import net.sf.ehcache.util.FailSafeTimer;
+import net.sf.ehcache.util.PropertyUtil;
+import net.sf.ehcache.util.UpdateChecker;
 
 /**
  * A container for {@link Ehcache}s that maintain all aspects of their lifecycle.
@@ -69,9 +78,19 @@ public class CacheManager {
     private static final Logger LOG = Logger.getLogger(CacheManager.class.getName());
 
     /**
+     * Update check interval - one week in milliseconds
+     */
+    private static final long EVERY_WEEK = 7 * 24 * 60 * 60 * 1000;
+
+    /**
      * The Singleton Instance.
      */
     private static CacheManager singleton;
+    
+    /**
+     * The factory to use for creating MBeanRegistrationProvider's
+     */
+    private static MBeanRegistrationProviderFactory mBeanRegistrationProviderFactory = new MBeanRegistrationProviderFactoryImpl();
 
     /**
      * Ehcaches managed by this manager.
@@ -130,7 +149,15 @@ public class CacheManager {
      * The path for the directory in which disk caches are created.
      */
     private String diskStorePath;
+    
+    private MBeanRegistrationProvider mbeanRegistrationProvider;
 
+    private FailSafeTimer cacheManagerTimer;
+
+    /**
+     * Factory for creating terracotta clustered memory store (may be null if this manager has no terracotta caches)
+     */
+    private StoreFactory terracottaStoreFactory;
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -233,6 +260,30 @@ public class CacheManager {
             localConfiguration.setSource("Programmatically configured.");
         }
 
+        if (localConfiguration.getName() != null) {
+            this.name = localConfiguration.getName();
+        }
+
+        Map<String, CacheConfiguration> cacheConfigs = localConfiguration.getCacheConfigurations();
+        for (CacheConfiguration config : cacheConfigs.values()) {
+            if (config.isTerracottaClustered()) {
+                terracottaStoreFactory = TerracottaStoreHelper.newStoreFactory(
+                        cacheConfigs, localConfiguration
+                                .getTerracottaConfiguration());
+                break;
+            }
+        }
+        
+        /*
+         * May not have any CacheConfigurations yet, so check the default configuration.
+         */
+        if (terracottaStoreFactory == null) {
+            if (localConfiguration.getDefaultCacheConfiguration().isTerracottaClustered()) {
+                terracottaStoreFactory = TerracottaStoreHelper.newStoreFactory(cacheConfigs, localConfiguration
+                        .getTerracottaConfiguration());
+            }
+        }
+        
         ConfigurationHelper configurationHelper = new ConfigurationHelper(this, localConfiguration);
         configure(configurationHelper);
         status = Status.STATUS_ALIVE;
@@ -244,9 +295,46 @@ public class CacheManager {
         cacheManagerEventListenerRegistry.init();
         addShutdownHookIfRequired();
 
+        cacheManagerTimer = new FailSafeTimer(getName());
+        checkForUpdateIfNeeded(localConfiguration.getUpdateCheck());
+
         //do this last
         addConfiguredCaches(configurationHelper);
 
+        mbeanRegistrationProvider = mBeanRegistrationProviderFactory.createMBeanRegistrationProvider(localConfiguration);
+        try {
+            mbeanRegistrationProvider.initialize(this);
+        } catch (MBeanRegistrationProviderException e) {
+            LOG.log(Level.WARNING, "Failed to initialize the MBeanRegistrationProvider - "
+                         + mbeanRegistrationProvider.getClass().getName(), e);
+        }
+    }
+
+    /**
+     * Create/access the appropriate terracotta clustered store for the given cache
+     *
+     * @param cache The cache for which the Store should be created
+     * @return a new (or existing) clustered store
+     */
+    Store createTerracottaStore(Ehcache cache) {
+        if (terracottaStoreFactory == null) {
+            // This can happen as a result of user configuration if user is directly using addCache()
+            // (read: this is not an AssertionError)
+            throw new CacheException("no terracotta configuration has been initalized for this cache manager");
+        }
+        return terracottaStoreFactory.create(cache);
+    }
+
+    private void checkForUpdateIfNeeded(boolean updateCheckNeeded) {
+        try {
+            if (updateCheckNeeded) {
+                UpdateChecker updateChecker = new UpdateChecker();
+                cacheManagerTimer.scheduleAtFixedRate(updateChecker, 1,
+                        EVERY_WEEK);
+            }
+        } catch (Throwable t) {
+            LOG.log(Level.WARNING, "Failed to set up update checker", t);
+        }
     }
 
     /**
@@ -562,6 +650,7 @@ public class CacheManager {
             LOG.log(Level.INFO, "The CacheManager shutdown hook is enabled because " + ENABLE_SHUTDOWN_HOOK_PROPERTY + " is set to true.");
 
             Thread localShutdownHook = new Thread() {
+                @Override
                 public void run() {
                     synchronized (this) {
                         if (status.equals(Status.STATUS_ALIVE)) {
@@ -777,6 +866,12 @@ public class CacheManager {
                 }
             }
 
+            // cancel the cacheManager timer and all tasks
+            if (cacheManagerTimer != null) {
+                cacheManagerTimer.cancel();
+                cacheManagerTimer.purge();
+            }
+
             cacheManagerEventListenerRegistry.dispose();
 
             synchronized (CacheManager.class) {
@@ -848,8 +943,7 @@ public class CacheManager {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.log(Level.FINE, "Clearing all caches");
         }
-        for (int i = 0; i < cacheNames.length; i++) {
-            String cacheName = cacheNames[i];
+        for (String cacheName : cacheNames) {
             Ehcache cache = getEhcache(cacheName);
             cache.removeAll();
         }
@@ -963,6 +1057,14 @@ public class CacheManager {
             return super.toString();
         }
     }
+    
+    /**
+     * Indicate whether the CacheManager is named or not.
+     * @return True if named
+     */
+    public boolean isNamed() {
+        return name != null;
+    }
 
     /**
      * Sets the name of the CacheManager. This is useful for distinguishing multiple CacheManagers
@@ -972,11 +1074,19 @@ public class CacheManager {
      */
     public void setName(String name) {
         this.name = name;
+        try {
+            mbeanRegistrationProvider.reinitialize();
+        } catch (MBeanRegistrationProviderException e) {
+            throw new CacheException(
+                "Problem in reinitializing MBeanRegistrationProvider - "
+                        + mbeanRegistrationProvider.getClass().getName(), e);
+        }
     }
 
     /**
      * @return either the name of this CacheManager, or if unset, Object.toString()
      */
+    @Override
     public String toString() {
         return getName();
     }
@@ -990,6 +1100,16 @@ public class CacheManager {
      */
     public String getDiskStorePath() {
         return diskStorePath;
+    }
+    
+    /**
+     * Returns a {@link FailSafeTimer} associated with this {@link CacheManager}
+     * 
+     * @return
+     * @since 1.7
+     */
+    public FailSafeTimer getTimer() {
+        return cacheManagerTimer;
     }
 }
 

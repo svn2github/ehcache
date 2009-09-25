@@ -24,4 +24,21 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <distributionManagement>
+    <!--
+      The server id here defined must also appear in ~/.m2/settings.xml with username
+    -->
+    <repository>
+      <id>sourceforge-releases</id>
+      <name>Sourceforge Release Repository</name>
+      <url>http://oss.sonatype.org/content/repositories/sourceforge-releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>sourceforge-snapshots</id>
+      <name>Sourceforge Snapshot Repository</name>
+      <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
 </project>

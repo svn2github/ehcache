@@ -281,15 +281,14 @@ public class ElementTest extends AbstractCacheTest {
     @Test
     public void testFullConstructor() {
 
-        Element element = new Element("key", "value", 1L, 123L, 1234L, 12345L, 123456L, 1234567L);
+        Element element = new Element("key", "value", 1L, 123L, 1234L, 12345L, 123456L);
         assertEquals("key", element.getKey());
         assertEquals("value", element.getValue());
         assertEquals(1L, element.getVersion());
-        assertEquals(123L, element.getCreationTime());
-        assertEquals(1234L, element.getLastAccessTime());
-        assertEquals(12345L, element.getNextToLastAccessTime());
-        assertEquals(123456L, element.getLastUpdateTime());
-        assertEquals(1234567L, element.getHitCount());
+        assertEquals(1000L, element.getCreationTime());
+        assertEquals(2000L, element.getLastAccessTime());
+        assertEquals(12345L, element.getLastUpdateTime());
+        assertEquals(123456L, element.getHitCount());
 
     }
 

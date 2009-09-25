@@ -16,6 +16,11 @@
 
 package net.sf.ehcache.constructs.blocking;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -23,18 +28,18 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
-import net.sf.ehcache.concurrent.Mutex;
-import net.sf.ehcache.concurrent.StripedMutex;
+import net.sf.ehcache.concurrent.CacheLockProvider;
+import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.concurrent.LockType;
+import net.sf.ehcache.concurrent.StripedReadWriteLockSync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
-
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import net.sf.ehcache.statistics.CacheUsageListener;
+import net.sf.ehcache.statistics.CacheUsageStatistics;
+import net.sf.ehcache.statistics.SampledCacheUsageStatistics;
 
 
 /**
@@ -45,7 +50,7 @@ import java.util.Map;
  * <p/>
  * This is useful for constructing read-through or self-populating caches.
  * <p/>
- * This implementation uses the {@link Mutex} class from Doug Lea's concurrency package. If you wish to use
+ * This implementation uses the {@link net.sf.ehcache.concurrent.ReadWriteLockSync} class. If you wish to use
  * this class, you will need the concurrent package in your class path.
  * <p/>
  * It features:
@@ -101,12 +106,9 @@ public class BlockingCache implements Ehcache {
     /**
      * The amount of time to block a thread before a LockTimeoutException is thrown
      */
-    protected int timeoutMillis;
+    protected volatile int timeoutMillis;
 
-    /**
-     * locks
-     */
-    protected StripedMutex stripedMutex;
+    private final CacheLockProvider cacheLockProvider;
 
     /**
      * Creates a BlockingCache which decorates the supplied cache.
@@ -119,7 +121,11 @@ public class BlockingCache implements Ehcache {
      */
     public BlockingCache(final Ehcache cache, int numberOfStripes) throws CacheException {
         this.cache = cache;
-        this.stripedMutex = new StripedMutex(numberOfStripes);
+        if (cache.getCacheConfiguration().isTerracottaClustered()) {
+            this.cacheLockProvider = ((CacheLockProvider) cache.getInternalContext());
+        } else {
+            this.cacheLockProvider = new StripedReadWriteLockSync(numberOfStripes);
+        }
     }
 
     /**
@@ -130,8 +136,7 @@ public class BlockingCache implements Ehcache {
      * @since 1.6.1
      */
     public BlockingCache(final Ehcache cache) throws CacheException {
-        this.cache = cache;
-        this.stripedMutex = new StripedMutex();
+        this(cache, StripedReadWriteLockSync.DEFAULT_NUMBER_OF_MUTEXES);
     }
 
     /**
@@ -188,6 +193,7 @@ public class BlockingCache implements Ehcache {
      * @return an object of type {@link net.sf.ehcache.Cache}
      * @throws CloneNotSupportedException
      */
+    @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
@@ -352,6 +358,14 @@ public class BlockingCache implements Ehcache {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public CacheUsageStatistics getCacheUsageStatistics()
+            throws IllegalStateException {
+        return cache.getCacheUsageStatistics();
+    }
+
+    /**
      * Sets the CacheManager
      *
      * @param cacheManager the CacheManager this cache belongs to
@@ -444,12 +458,30 @@ public class BlockingCache implements Ehcache {
      *                              to release the lock acquired.
      */
     public Element get(final Object key) throws RuntimeException, LockTimeoutException {
-        Mutex lock = getLockForKey(key);
-        try {
-            if (timeoutMillis == 0) {
-                lock.acquire();
-            } else {
-                boolean acquired = lock.attempt(timeoutMillis);
+
+        Sync lock = getLockForKey(key);
+        boolean tcClustered = cache.getCacheConfiguration().isTerracottaClustered();
+        if (!tcClustered) {
+            acquiredLockForKey(key, lock, LockType.READ);
+        }
+        Element element = cache.get(key);
+        if (!tcClustered) {
+            lock.unlock(LockType.READ);
+        }
+        if (element == null) {
+            acquiredLockForKey(key, lock, LockType.WRITE);
+            element = cache.get(key);
+            if (element != null) {
+                lock.unlock(LockType.WRITE);
+            }
+        }
+        return element;
+    }
+
+    private void acquiredLockForKey(final Object key, final Sync lock, final LockType lockType) {
+        if (timeoutMillis > 0) {
+            try {
+                boolean acquired = lock.tryLock(lockType, timeoutMillis);
                 if (!acquired) {
                     StringBuffer message = new StringBuffer("Lock timeout. Waited more than ")
                             .append(timeoutMillis)
@@ -457,18 +489,11 @@ public class BlockingCache implements Ehcache {
                             .append(key).append(" on blocking cache ").append(cache.getName());
                     throw new LockTimeoutException(message.toString());
                 }
+            } catch (InterruptedException e) {
+                throw new LockTimeoutException("Got interrupted while trying to acquire lock for key " + key, e);
             }
-            final Element element = cache.get(key);
-            if (element != null) {
-                //ok let the other threads in
-                lock.release();
-                return element;
-            } else {
-                //don't release the read lock until we put
-                return null;
-            }
-        } catch (InterruptedException e) {
-            throw new CacheException("Get interrupted for key " + key + ". Message was: " + e.getMessage());
+        } else {
+            lock.lock(lockType);
         }
     }
 
@@ -479,8 +504,8 @@ public class BlockingCache implements Ehcache {
      * @param key the key
      * @return one of a limited number of Mutexes.
      */
-    protected Mutex getLockForKey(final Object key) {
-        return stripedMutex.getMutexForKey(key);
+    protected Sync getLockForKey(final Object key) {
+        return cacheLockProvider.getSyncForKey(key);
     }
 
     /**
@@ -494,7 +519,7 @@ public class BlockingCache implements Ehcache {
         Object key = element.getObjectKey();
         Object value = element.getObjectValue();
 
-        Mutex lock = getLockForKey(key);
+        getLockForKey(key).lock(LockType.WRITE);
         try {
             if (value != null) {
                 cache.put(element);
@@ -503,7 +528,7 @@ public class BlockingCache implements Ehcache {
             }
         } finally {
             //Release the readlock here. This will have been acquired in the get, where the element was null
-            lock.release();
+            getLockForKey(key).unlock(LockType.WRITE);
         }
     }
 
@@ -794,6 +819,14 @@ public class BlockingCache implements Ehcache {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public int getSizeBasedOnAccuracy(int statisticsAccuracy)
+            throws IllegalStateException, CacheException {
+        return cache.getSizeBasedOnAccuracy(statisticsAccuracy);
+    }
+
+    /**
      * Gets the size of the memory store for this cache
      * <p/>
      * Warning: This method can be very expensive to run. Allow approximately 1 second
@@ -1027,7 +1060,65 @@ public class BlockingCache implements Ehcache {
         cache.setDisabled(disabled);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void registerCacheUsageListener(CacheUsageListener cacheUsageListener)
+            throws IllegalStateException {
+        cache.registerCacheUsageListener(cacheUsageListener);
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void removeCacheUsageListener(CacheUsageListener cacheUsageListener)
+            throws IllegalStateException {
+        cache.removeCacheUsageListener(cacheUsageListener);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isStatisticsEnabled() {
+        return cache.isStatisticsEnabled();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setStatisticsEnabled(boolean enabledStatistics) {
+        cache.setStatisticsEnabled(enabledStatistics);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public SampledCacheUsageStatistics getSampledCacheUsageStatistics() {
+        return cache.getSampledCacheUsageStatistics();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void setSampledStatisticsEnabled(boolean enabledStatistics) {
+        cache.setStatisticsEnabled(enabledStatistics);
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.Ehcache#isSampledStatisticsEnabled()
+     */
+    public boolean isSampledStatisticsEnabled() {
+        return cache.isSampledStatisticsEnabled();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Object getInternalContext() {
+        return cache.getInternalContext();
+    }
 }
 
 

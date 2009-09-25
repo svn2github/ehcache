@@ -16,10 +16,12 @@
 
 package net.sf.ehcache.config;
 
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 /**
  * A value object to represent Cache configuration that can be set by the BeanHandler.
@@ -40,6 +42,8 @@ import java.util.List;
  * @version $Id$
  */
 public class CacheConfiguration implements Cloneable {
+
+    private static final Logger LOG = Logger.getLogger(CacheConfiguration.class.getName());
 
     /**
      * the name of the cache.
@@ -125,12 +129,14 @@ public class CacheConfiguration implements Cloneable {
     /**
      * The event listener factories added by BeanUtils.
      */
-    protected final List cacheEventListenerConfigurations = new ArrayList();
+    protected final List<CacheEventListenerFactoryConfiguration> cacheEventListenerConfigurations =
+        new ArrayList<CacheEventListenerFactoryConfiguration>();
 
     /**
      * The cache extension factories added by BeanUtils.
      */
-    protected final List cacheExtensionConfigurations = new ArrayList();
+    protected final List<CacheExtensionFactoryConfiguration> cacheExtensionConfigurations =
+        new ArrayList<CacheExtensionFactoryConfiguration>();
 
     /**
      * The BootstrapCacheLoaderFactoryConfiguration.
@@ -143,6 +149,11 @@ public class CacheConfiguration implements Cloneable {
     protected CacheExceptionHandlerFactoryConfiguration cacheExceptionHandlerFactoryConfiguration;
 
     /**
+     * The TerracottaConfiguration.
+     */
+    protected TerracottaConfiguration terracottaConfiguration;
+    
+    /**
      * The cache loader factories added by BeanUtils.
      */
     //protected CacheLoaderFactoryConfiguration cacheLoaderFactoryConfiguration;
@@ -154,6 +165,7 @@ public class CacheConfiguration implements Cloneable {
      * @return a copy, which independent other than configurations than cannot change.
      * @throws CloneNotSupportedException
      */
+    @Override
     public CacheConfiguration clone() throws CloneNotSupportedException {
         return (CacheConfiguration) super.clone();
     }
@@ -229,6 +241,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setOverflowToDisk(boolean overflowToDisk) {
         this.overflowToDisk = overflowToDisk;
+        validateConfiguration();
     }
 
     /**
@@ -236,6 +249,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setDiskPersistent(boolean diskPersistent) {
         this.diskPersistent = diskPersistent;
+        validateConfiguration();
     }
 
     /**
@@ -283,6 +297,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void addCacheEventListenerFactory(CacheEventListenerFactoryConfiguration factory) {
         cacheEventListenerConfigurations.add(factory);
+        validateConfiguration();
     }
 
     /**
@@ -342,6 +357,41 @@ public class CacheConfiguration implements Cloneable {
         cacheLoaderConfigurations.add(factory);
     }
 
+    /**
+     * Allows BeanHandler to add the TerracottaConfiguration to the configuration.
+     * @param terracottaConfiguration
+     */
+    public final void addTerracotta(TerracottaConfiguration terracottaConfiguration) {
+        this.terracottaConfiguration = terracottaConfiguration;
+        validateConfiguration();
+    }
+
+    private void validateConfiguration() {
+        if (terracottaConfiguration != null && terracottaConfiguration.isClustered()) {
+            if (overflowToDisk) {
+                throw new InvalidConfigurationException("overflowToDisk isn't supported for a clustered Terracotta cache");
+            }
+            if (diskPersistent) {
+                throw new InvalidConfigurationException("diskPersistent isn't supported for a clustered Terracotta cache");
+            }
+            if (cacheEventListenerConfigurations != null) {
+                for (CacheEventListenerFactoryConfiguration listenerConfig : cacheEventListenerConfigurations) {
+                    if (null == listenerConfig.getFullyQualifiedClassPath()) {
+                        continue;
+                    }
+                    if (listenerConfig.getFullyQualifiedClassPath().startsWith("net.sf.ehcache.distribution.")) {
+                        throw new InvalidConfigurationException("cache replication isn't supported" + 
+                                " for a clustered Terracotta cache");                        
+                    } else if (listenerConfig.getFullyQualifiedClassPath().startsWith("net.sf.ehcache.") &&
+                        LOG.isLoggable(Level.WARNING)) {
+                        LOG.warning("A non-standard CacheEventListenerFactory is used with a clustered Terracotta cache, " +
+                                "if the purpose of this listener is replication it is not supported in a clustered context");
+                    }
+                }
+            }
+        }
+    }
+    
     /**
      * Accessor
      */
@@ -457,5 +507,21 @@ public class CacheConfiguration implements Cloneable {
      */
     public CacheExceptionHandlerFactoryConfiguration getCacheExceptionHandlerFactoryConfiguration() {
         return cacheExceptionHandlerFactoryConfiguration;
+    }
+    
+    /**
+     * Accessor
+     * @return the terracotta configuration
+     */
+    public TerracottaConfiguration getTerracottaConfiguration() {
+        return terracottaConfiguration;
+    }
+
+    /**
+     * Helper method to compute whether the cache is clustered or not
+     * @return True if the <terracotta/> element exists with clustered="true"
+     */
+    public boolean isTerracottaClustered() {
+        return terracottaConfiguration != null && terracottaConfiguration.isClustered();
     }
 }

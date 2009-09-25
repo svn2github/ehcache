@@ -8,9 +8,10 @@
         <version>2.0-SNAPSHOT</version>
     </parent>
     <name>Ehcache Core</name>
+     <description>This is the ehcache core module. Pair it with other modules for added functionality</description>
     <artifactId>ehcache-core</artifactId>
     <packaging>jar</packaging>
-    <version>1.6.2</version>
+    <version>1.7.0-SNAPSHOT</version>
 
 
     <properties>
@@ -50,6 +51,12 @@
     </dependencies>
 
     <build>
+        <resources>  
+            <resource>  
+                <directory>src/main/resources</directory>  
+                <filtering>true</filtering>  
+            </resource>  
+        </resources> 
         <testResources>
             <testResource>
                 <directory>${basedir}/src/main/config/jcache</directory>
@@ -58,6 +65,10 @@
                 <directory>${basedir}/src/test/resources</directory>
             </testResource>
         </testResources>
+        <filters>
+            <filter>${project.build.directory}/filter.properties</filter>
+        </filters>
+        
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -125,6 +136,24 @@
                 </executions>
             </plugin>
 
+              <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.0-beta-3</version>
+                <executions>
+                  <execution>
+                    <phase>generate-resources</phase>
+                    <goals>
+                      <goal>create</goal>
+                    </goals>
+                  </execution>
+                </executions>
+                <configuration>
+                  <doCheck>false</doCheck>
+                  <doUpdate>false</doUpdate>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -185,6 +214,27 @@
                         </goals>
                     </execution>
 
+                    <execution>
+                        <id>build_info</id>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${project.build.directory}"/>
+                                <tstamp>
+                                      <format property="last.updated"
+                                            pattern="yyyy-MM-dd hh:mm:ss"/>
+                                </tstamp>
+                                <echo file="${project.build.directory}/filter.properties" 
+                                      message="build.time=${last.updated}${line.separator}"/>
+                                <echo file="${project.build.directory}/filter.properties" append="true"
+                                      message="build.revision=${buildNumber}${line.separator}"/>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    
                 </executions>
             </plugin>
 
@@ -226,6 +276,10 @@
                     <reportFormat>plain</reportFormat>
                     <redirectTestOutputToFile>false</redirectTestOutputToFile>
                     <systemProperties>
+                        <property>
+                            <name>net.sf.ehcache.skipUpdateCheck</name>
+                            <value>true</value>
+                        </property>                    
                         <property>
                             <name>java.awt.headless</name>
                             <value>true</value>
@@ -451,11 +505,6 @@
         <!--
         The server id here defined must also appear in ~/.m2/settings.xml with username
         Note: site URL repeated here to ensure correct deployment path -->
-        <!--<site>-->
-            <!--<id>sourceforge.net</id>-->
-            <!--<name>SF EHCache Site</name>-->
-            <!--<url>scp://web.sourceforge.net:/home/groups/e/eh/ehcache/htdocs</url>-->
-        <!--</site>-->
         <site>
             <id>ehcache.org</id>
             <name>EHCache Site</name>

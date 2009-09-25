@@ -146,10 +146,10 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <filters>
-                        <filter>src/assemble/filter.properties</filter>
+                        <filter>${basedir}/src/assemble/filter.properties</filter>
                     </filters>
                     <descriptors>
-                        <descriptor>src/assemble/distribution.xml</descriptor>
+                        <descriptor>${basedir}/src/assemble/distribution.xml</descriptor>
                     </descriptors>
                     <tarLongFileMode>gnu</tarLongFileMode>
                 </configuration>

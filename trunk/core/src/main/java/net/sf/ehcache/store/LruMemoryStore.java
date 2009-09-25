@@ -16,15 +16,15 @@
 
 package net.sf.ehcache.store;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.Status;
-
 import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
 
 
 /**
@@ -111,29 +111,8 @@ public class LruMemoryStore implements Store {
      * @return the element, or null if there was no match for the key
      */
     public final synchronized Element get(Object key) {
-        Element element = (Element) map.get(key);
-
-        if (element != null) {
-            element.updateAccessStatistics();
-        }
-        return element;
+        return (Element) map.get(key);
     }
-
-    /**
-     * Gets an item from the cache, without updating statistics.
-     *
-     * @param key the cache key
-     * @return the element, or null if there was no match for the key
-     */
-    public final synchronized Element getQuiet(Object key) {
-        Element cacheElement = (Element) map.get(key);
-
-//        if (cacheElement != null) {
-            //cacheElement.updateAccessStatistics(); Don't update statistics
-//        }
-        return cacheElement;
-    }
-
 
     /**
      * Removes an Element from the store.
@@ -267,6 +246,14 @@ public class LruMemoryStore implements Store {
      */
     public final int getSize() {
         return map.size();
+    }
+    
+    /**
+     * Returns nothing since a disk store isn't clustered
+     * @return returns 0
+     */
+    public final int getClusteredSize() {
+        return 0;
     }
 
 
@@ -421,6 +408,7 @@ public class LruMemoryStore implements Store {
          * @return true if the eldest entry should be removed
          *         from the map; <tt>false</t> if it should be retained.
          */
+        @Override
         protected final boolean removeEldestEntry(Map.Entry eldest) {
             Element element = (Element) eldest.getValue();
             return removeLeastRecentlyUsedElement(element);
@@ -471,5 +459,10 @@ public class LruMemoryStore implements Store {
                 " strategy.");
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
+    public Object getInternalContext() {
+        return null;
+    }
 }

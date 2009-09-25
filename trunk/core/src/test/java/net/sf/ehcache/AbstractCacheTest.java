@@ -161,6 +161,18 @@ public abstract class AbstractCacheTest {
      * @return the number of Throwables thrown while running
      */
     protected int runThreadsNoCheck(final List executables) throws Exception {
+      return runThreadsNoCheck(executables, false);
+    }
+
+  /**
+   * Runs a set of threads, for a fixed amount of time.
+   *
+   * Does not fail if throwables are thrown.
+   * @param executables the list of executables to execute
+   * @param explicitLog whether to log detailed AsserttionErrors or not
+   * @return the number of Throwables thrown while running
+   */
+    protected int runThreadsNoCheck(final List executables, final boolean explicitLog) throws Exception {
 
         final long endTime = System.currentTimeMillis() + 10000;
         final List<Throwable> errors = new ArrayList<Throwable>();
@@ -180,7 +192,7 @@ public abstract class AbstractCacheTest {
                     } catch (Throwable t) {
                         // Hang on to any errors
                         errors.add(t);
-                        if (t instanceof AssertionError) {
+                        if (!explicitLog && t instanceof AssertionError) {
                             LOG.log(Level.INFO, "Throwable " + t + " " + t.getMessage());
                         } else {
                             LOG.log(Level.SEVERE, "Throwable " + t + " " + t.getMessage(), t);

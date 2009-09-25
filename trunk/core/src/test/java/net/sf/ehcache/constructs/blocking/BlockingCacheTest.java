@@ -16,19 +16,10 @@
 
 package net.sf.ehcache.constructs.blocking;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheTest;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.Status;
-import net.sf.ehcache.StopWatch;
-import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -37,6 +28,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheTest;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
+import net.sf.ehcache.StopWatch;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Test cases for the {@link BlockingCache}.
@@ -292,7 +294,7 @@ public class BlockingCacheTest extends CacheTest {
             executables.add(executable);
         }
 
-        int failures = runThreadsNoCheck(executables);
+        int failures = runThreadsNoCheck(executables, true);
         if (failures > 0) {
 
             throw new Exception("failures");

@@ -54,6 +54,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
     /**
      * setup test
      */
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -64,6 +65,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
     /**
      * Check no NPE on get
      */
+    @Override
     @Test
     public void testNullGet() throws IOException {
         assertNull(store.get(null));
@@ -72,6 +74,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
     /**
      * Check no NPE on remove
      */
+    @Override
     @Test
     public void testNullRemove() throws IOException {
         assertNull(store.remove(null));
@@ -128,48 +131,49 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
 
     private void lfuPolicyTest() throws IOException {
         //Make sure that the store is empty to start with
-        assertEquals(0, store.getSize());
+        assertEquals(0, cache.getSize());
 
         // Populate the store till the max limit
         Element element = new Element("key1", "value1");
-        store.put(element);
+        cache.put(element);
         assertEquals(1, store.getSize());
 
         element = new Element("key2", "value2");
-        store.put(element);
+        cache.put(element);
         assertEquals(2, store.getSize());
 
         element = new Element("key3", "value3");
-        store.put(element);
+        cache.put(element);
         assertEquals(3, store.getSize());
 
         element = new Element("key4", "value4");
-        store.put(element);
+        cache.put(element);
         assertEquals(4, store.getSize());
 
         //Now access the elements to boost the hit count
-        store.get("key1");
-        store.get("key1");
-        store.get("key3");
-        store.get("key3");
-        store.get("key3");
-        store.get("key4");
+        cache.get("key1");
+        cache.get("key1");
+        cache.get("key3");
+        cache.get("key3");
+        cache.get("key3");
+        cache.get("key4");
 
         //Create a new element and put in the store so as to force the policy
         element = new Element("key5", "value5");
-        store.put(element);
+        cache.put(element);
 
         assertEquals(4, store.getSize());
         //The element with key "key2" is the LFU element so should be removed
+        // directly access the memory store here since the LFU evicted elements have been flushed to the disk store
         assertNull(store.get("key2"));
 
         // Make some more accesses
-        store.get("key5");
-        store.get("key5");
+        cache.get("key5");
+        cache.get("key5");
 
         // Insert another element to force the policy
         element = new Element("key6", "value6");
-        store.put(element);
+        cache.put(element);
         assertEquals(4, store.getSize());
         assertNull(store.get("key4"));
 
@@ -180,6 +184,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      * Benchmark to test speed.
      * new sampling LFU 417ms
      */
+    @Override
     @Test
     public void testBenchmarkPutGetRemove() throws Exception {
         super.testBenchmarkPutGetRemove();
@@ -192,6 +197,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      * using the removeAll which was the known cause of memory leaks with LruMemoryStore in JCS
      * new sampling LFU has no leaks
      */
+    @Override
     @Test
     public void testMemoryLeak() throws Exception {
         super.testMemoryLeak();
@@ -201,6 +207,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      * Benchmark to test speed.
      * new sampling LFU 132ms
      */
+    @Override
     @Test
     public void testBenchmarkPutGet() throws Exception {
         super.testBenchmarkPutGet();
