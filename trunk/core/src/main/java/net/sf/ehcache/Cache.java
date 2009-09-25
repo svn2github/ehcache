@@ -556,7 +556,7 @@ public class Cache implements Ehcache {
     }
 
     /**
-     * 1.6.0 Constructor
+     * 1.7.0 Constructor
      * <p/>
      * The {@link net.sf.ehcache.config.ConfigurationFactory} and clients can create these.
      * <p/>
