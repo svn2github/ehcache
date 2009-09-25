@@ -1325,7 +1325,12 @@ public class Cache implements Ehcache {
     }
 
     private Element searchInMemoryStore(Object key, boolean updateStatistics, boolean notifyListeners) {
-        Element element = memoryStore.get(key);
+        Element element;
+        if (updateStatistics) {
+        	element = memoryStore.get(key);
+        } else {
+        	element = memoryStore.getQuiet(key);
+        }
 
         if (element != null) {
             if (isExpired(element)) {
@@ -1358,7 +1363,12 @@ public class Cache implements Ehcache {
             return null;
         }
         Serializable serializableKey = (Serializable) key;
-        Element element = diskStore.get(serializableKey);
+        Element element;
+        if (updateStatistics) {
+        	element = diskStore.get(serializableKey);
+        } else {
+        	element = diskStore.getQuiet(serializableKey);
+        }
         if (element != null) {
             if (isExpired(element)) {
                 if (LOG.isLoggable(Level.FINE)) {
@@ -1686,37 +1696,46 @@ public class Cache implements Ehcache {
         }
     }
 
-
-    /**
-     * Gets the size of the cache. This is a subtle concept. See below.
-     * <p/>
-     * The size is the number of {@link Element}s in the {@link MemoryStore} plus
-     * the number of {@link Element}s in the {@link DiskStore}.
-     * <p/>
-     * This number is the actual number of elements, including expired elements that have
-     * not been removed.
-     * <p/>
-     * Expired elements are removed from the the memory store when
-     * getting an expired element, or when attempting to spool an expired element to
-     * disk.
-     * <p/>
-     * Expired elements are removed from the disk store when getting an expired element,
-     * or when the expiry thread runs, which is once every five minutes.
-     * <p/>
-     * To get an exact size, which would exclude expired elements, use {@link #getKeysWithExpiryCheck()}.size(),
-     * although see that method for the approximate time that would take.
-     * <p/>
-     * To get a very fast result, use {@link #getKeysNoDuplicateCheck()}.size(). If the disk store
-     * is being used, there will be some duplicates.
-     *
-     * @return The size value
-     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
-     */
+	/**
+	 * Gets the size of the cache. This is a subtle concept. See below.
+	 * <p/>
+	 * The size is the number of {@link Element}s in the {@link MemoryStore}
+	 * plus the number of {@link Element}s in the {@link DiskStore}. However, if
+	 * the cache is Terracotta clustered, the underlying store has a coherent
+	 * view of the all the elements in the cache and doesn't have to be
+	 * aggregated from an underlying {@code MemoryStore}Êand {@code DiskStore}.
+	 * <p/>
+	 * This number is the actual number of elements, including expired elements
+	 * that have not been removed.
+	 * <p/>
+	 * Expired elements are removed from the the memory store when getting an
+	 * expired element, or when attempting to spool an expired element to disk.
+	 * <p/>
+	 * Expired elements are removed from the disk store when getting an expired
+	 * element, or when the expiry thread runs, which is once every five
+	 * minutes.
+	 * <p/>
+	 * To get an exact size, which would exclude expired elements, use
+	 * {@link #getKeysWithExpiryCheck()}.size(), although see that method for
+	 * the approximate time that would take.
+	 * <p/>
+	 * To get a very fast result, use {@link #getKeysNoDuplicateCheck()}.size().
+	 * If the disk store is being used, there will be some duplicates.
+	 * 
+	 * @return The size value
+	 * @throws IllegalStateException
+	 *             if the cache is not {@link Status#STATUS_ALIVE}
+	 */
     public final int getSize() throws IllegalStateException, CacheException {
         checkStatus();
-        /* The memory store and the disk store can simultaneously contain elements with the same key
-            Cache size is the size of the union of the two key sets.*/
-        return getKeys().size();
+        
+    	if (memoryStore.isCacheCoherent()) {
+    		return memoryStore.getTerracottaClusteredSize();
+    	} else {
+	        /* The memory store and the disk store can simultaneously contain elements with the same key
+	            Cache size is the size of the union of the two key sets.*/
+	        return getKeys().size();
+    	}
     }
 
     /**

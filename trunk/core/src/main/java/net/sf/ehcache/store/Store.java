@@ -44,12 +44,9 @@ public interface Store {
     /**
      * Gets an {@link Element} from the Store, without updating statistics
      *
-     * @deprecated all store item retrieval is quiet since version 1.7, use {@link #get(Object)}
      * @return The element
-     * @see #get(Object)
      */
-    @Deprecated
-    Element getQuiet(final Object key);
+    Element getQuiet(Object key);
 
     /**
      * Gets an Array of the keys for all elements in the disk store.
@@ -154,4 +151,15 @@ public interface Store {
      * @return some internal context (probably null)
      */
     Object getInternalContext();
+    
+	/**
+	 * Indicates whether this store provides a coherent view of all the elements
+	 * in a cache.
+	 * 
+	 * @return {@code true}Êif the store is coherent; or {@code false} if the
+	 *         store potentially splits the cache storage with another store or
+	 *         isn't internally coherent
+	 * @since 1.7
+	 */
+    boolean isCacheCoherent();
 }
