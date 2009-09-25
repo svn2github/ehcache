@@ -316,6 +316,17 @@ public class DiskStore implements Store {
         return element;
     }
 
+    /**
+     * Gets an {@link Element} from the Disk Store, without updating statistics
+     *
+     * @deprecated all store item retrieval is quiet since version 1.7, use {@link #get(Object)}
+     * @return The element
+     * @see #get(Object)
+     */
+    @Deprecated
+    public final synchronized Element getQuiet(final Object key) {
+        return get(key);
+    }
 
     /**
      * Gets an Array of the keys for all elements in the disk store.

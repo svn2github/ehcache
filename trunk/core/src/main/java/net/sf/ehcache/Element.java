@@ -128,8 +128,25 @@ public class Element implements Serializable, Cloneable {
 
     /**
      * Constructor.
-     *
+     * 
+     * @deprecated The {@code nextToLastAccessTime} field is unused since
+     *             version 1.7, setting it will have no effect. Use
+     *             #Element(Object, Object, long, long, long, long, long)
+     *             instead
      * @since 1.3
+     * @see #Element(Object, Object, long, long, long, long, long)
+     */
+    @Deprecated
+    public Element(final Object key, final Object value, final long version,
+                   final long creationTime, final long lastAccessTime, final long nextToLastAccessTime,
+                   final long lastUpdateTime, final long hitCount) {
+        this(key, value, version, creationTime, lastAccessTime, lastUpdateTime, hitCount);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @since 1.7
      */
     public Element(final Object key, final Object value, final long version,
                    final long creationTime, final long lastAccessTime,
@@ -143,7 +160,7 @@ public class Element implements Serializable, Cloneable {
                 toSecs(creationTime),
                 toSecs(lastAccessTime));
     }
-
+    
     /**
      * Constructor used by ElementData. Needs to be public since ElementData might be in another classloader
      *
@@ -342,6 +359,20 @@ public class Element implements Serializable, Cloneable {
     }
 
     /**
+     * Sets the creationTime attribute of the ElementAttributes object.
+     * <p>
+     * Note that in a Terracotta clustered environment, resetting the creation
+     * time will not have any effect.
+     * 
+     * @deprecated Resetting the creation time is not recommended as of version
+     *             1.7
+     */
+    @Deprecated
+    public final void setCreateTime() {
+        this.elementEvictionData.setCreationTime(toSecs(System.currentTimeMillis()));
+    }
+
+    /**
      * Gets the creationTime of the Element
      *
      * @return The creationTime value
@@ -378,6 +409,19 @@ public class Element implements Serializable, Cloneable {
      */
     public final long getLastAccessTime() {
         return toMillis(elementEvictionData.getLastAccessTime());
+    }
+
+    /**
+     * Gets the next to last access time.
+     * 
+     * @deprecated The {@code nextToLastAccessTime} field is unused since
+     *             version 1.7, retrieving it will return the {@code
+     *             lastAccessTime}. Use #getLastAccessTime() instead.
+     * @see #getLastAccessTime()
+     */
+    @Deprecated
+    public final long getNextToLastAccessTime() {
+        return getLastAccessTime();
     }
 
     /**

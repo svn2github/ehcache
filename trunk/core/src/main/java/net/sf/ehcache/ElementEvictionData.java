@@ -17,13 +17,20 @@
 package net.sf.ehcache;
 
 /**
- * Provides pluggable storage an configuration of TTI eviction data.
+ * Provides pluggable storage and configuration of TTI eviction data.
  * 
  * @author Geert Bevin
  * @version $Id$
  */
 public interface ElementEvictionData extends Cloneable {
 
+    /**
+     * Sets the element creation time. Note that this is optional to implement and might result in a no-op.
+     * 
+     * @param creationTime the new element's creation time
+     */
+    public void setCreationTime(int creationTime);
+    
     /**
      * Get the element's creation time.
      * 

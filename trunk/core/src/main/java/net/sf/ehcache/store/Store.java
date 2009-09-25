@@ -42,11 +42,21 @@ public interface Store {
     Element get(Object key);
 
     /**
+     * Gets an {@link Element} from the Store, without updating statistics
+     *
+     * @deprecated all store item retrieval is quiet since version 1.7, use {@link #get(Object)}
+     * @return The element
+     * @see #get(Object)
+     */
+    @Deprecated
+    Element getQuiet(final Object key);
+
+    /**
      * Gets an Array of the keys for all elements in the disk store.
      *
      * @return An Object[] of {@link java.io.Serializable} keys
      */
-    public Object[] getKeyArray();
+    Object[] getKeyArray();
 
     /**
      * Removes an item from the cache.

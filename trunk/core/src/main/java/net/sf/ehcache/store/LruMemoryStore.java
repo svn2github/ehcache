@@ -115,6 +115,19 @@ public class LruMemoryStore implements Store {
     }
 
     /**
+     * Gets an item from the cache, without updating statistics.
+     *
+     * @deprecated all store item retrieval is quiet since version 1.7, use {@link #get(Object)}
+     * @param key the cache key
+     * @return the element, or null if there was no match for the key
+     * @see #get(Object)
+     */
+    @Deprecated
+    public final synchronized Element getQuiet(Object key) {
+        return get(key);
+    }
+    
+    /**
      * Removes an Element from the store.
      *
      * @param key the key of the Element, usually a String

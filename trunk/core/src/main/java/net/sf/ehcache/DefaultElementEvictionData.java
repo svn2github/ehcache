@@ -16,11 +16,13 @@
 
 package net.sf.ehcache;
 
-
 /**
- *
+ * Default implementation of the element eviction data storage that just keeps
+ * all the data in instance fields in the heap.
+ * 
  * @author Geert Bevin
- * @version $Id$
+ * @version $Id: DefaultElementEvictionData.java 1219 2009-09-25 05:10:31Z
+ *          gbevin $
  */
 public class DefaultElementEvictionData implements ElementEvictionData {
 
@@ -49,6 +51,13 @@ public class DefaultElementEvictionData implements ElementEvictionData {
     public DefaultElementEvictionData(int creationTime, int lastAccessTime) {
         this.creationTime = creationTime;
         this.lastAccessTime = lastAccessTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setCreationTime(int creationTime) {
+        this.creationTime = creationTime;        
     }
 
     /**
