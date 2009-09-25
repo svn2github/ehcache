@@ -83,10 +83,24 @@ public abstract class SampledEhcacheMBeans {
      * @return
      * @throws MalformedObjectNameException
      */
-    public static ObjectName getQueryObjectNameForCacheManager(
+    public static ObjectName getQueryCacheManagerObjectName(
             String cacheManagerName) throws MalformedObjectNameException {
         ObjectName objectName = new ObjectName(GROUP_ID + ":*,"
                 + SAMPLED_CACHE_MANAGER_TYPE + "=" + cacheManagerName);
+        return objectName;
+    }
+    
+    /**
+     * Returns an ObjectName that can be used to query all objectNames of
+     * {@link #SAMPLED_CACHE_MANAGER_TYPE}
+     * 
+     * @return
+     * @throws MalformedObjectNameException
+     */
+    public static ObjectName getQueryCacheManagersObjectName()
+            throws MalformedObjectNameException {
+        ObjectName objectName = new ObjectName(GROUP_ID + ":type="
+                + SAMPLED_CACHE_MANAGER_TYPE + ",*");
         return objectName;
     }
 

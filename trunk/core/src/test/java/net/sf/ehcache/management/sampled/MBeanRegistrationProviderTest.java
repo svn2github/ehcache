@@ -56,16 +56,28 @@ public class MBeanRegistrationProviderTest extends AbstractCacheTest {
     public void setUp() throws Exception {
         super.setUp();
         mbeanServer = createMBeanServer();
+        cleanUpExistingMbeans();
     }
 
     @Override
     @After
     public void tearDown() throws Exception {
-        cacheManager.shutdown();
+        if (cacheManager != null) {
+            cacheManager.shutdown();
+        }
         super.tearDown();
         assertEquals(0, mbeanServer.queryNames(
                 new ObjectName("net.sf.ehcache:*"), null).size());
         cacheManager = null;
+        cleanUpExistingMbeans();
+    }
+
+    private void cleanUpExistingMbeans() throws Exception {
+        Set<ObjectName> queryNames = mbeanServer.queryNames(new ObjectName(
+                "net.sf.ehcache:*"), null);
+        for (ObjectName name : queryNames) {
+            mbeanServer.unregisterMBean(name);
+        }
     }
 
     @Test
@@ -91,6 +103,12 @@ public class MBeanRegistrationProviderTest extends AbstractCacheTest {
         assertEquals(size, queryNames.size());
     }
 
+    private void assertCacheManagerMBeansRegistered(int size) throws Exception {
+        Set queryNames = mbeanServer.queryNames(SampledEhcacheMBeans
+                .getQueryCacheManagersObjectName(), null);
+        assertEquals(size, queryNames.size());
+    }
+
     @Test
     public void testMonitoringOff() throws Exception {
         File file = new File(TEST_CONFIG_DIR + "ehcache-monitoring-off.xml");
@@ -103,7 +121,7 @@ public class MBeanRegistrationProviderTest extends AbstractCacheTest {
 
     @Test
     public void testMonitoringAutodetect() throws Exception {
-        System.setProperty("tc.active", "false");        
+        System.setProperty("tc.active", "false");
         doTestMonitoringAutodetect(false);
 
         System.setProperty("tc.active", "true");
@@ -123,5 +141,25 @@ public class MBeanRegistrationProviderTest extends AbstractCacheTest {
             assertSampledMBeansGroupRegistered(0);
             assertCacheManagerMBeansRegistered("cacheManagerAutoDetect", 0);
         }
+    }
+
+    @Test
+    public void testMultipleCacheManagerSameNames() throws Exception {
+        int count = 8;
+        CacheManager[] managers = new CacheManager[count];
+        for (int i = 0; i < count; i++) {
+            File file = new File(TEST_CONFIG_DIR + "ehcache-monitoring-on.xml");
+            Configuration configuration = ConfigurationFactory
+                    .parseConfiguration(file);
+            managers[i] = new CacheManager(configuration);
+            assertSampledMBeansGroupRegistered(3 * (i + 1));
+            assertCacheManagerMBeansRegistered(i + 1);
+        }
+        // shutting down the cacheManager should clean up the mbeans
+        for (CacheManager mgr : managers) {
+            mgr.shutdown();
+        }
+        assertSampledMBeansGroupRegistered(0);
+        assertCacheManagerMBeansRegistered(0);
     }
 }

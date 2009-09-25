@@ -53,6 +53,8 @@ public class SampledMBeanRegistrationProvider implements
     private static final Logger LOG = Logger
             .getLogger(SampledMBeanRegistrationProvider.class.getName());
 
+    private static final int MAX_MBEAN_REGISTRATION_RETRIES = 50;
+
     private volatile Status status = Status.STATUS_UNINITIALISED;
     private CacheManager cacheManager;
     private final MBeanServer mBeanServer;
@@ -60,7 +62,8 @@ public class SampledMBeanRegistrationProvider implements
     // name of the cacheManager when the mbeans are registered.
     // On cacheManager.dispose(), need to remove
     // the mbean with the name used while registering the mbean.
-    // Avoid leaking mbeans when user changes name of the cacheManager after construction
+    // Avoid leaking mbeans when user changes name of the cacheManager after
+    // construction
     // by doing setName()
     private volatile String registeredCacheManagerName;
 
@@ -83,18 +86,7 @@ public class SampledMBeanRegistrationProvider implements
         SampledCacheManager cacheManagerMBean = new SampledCacheManager(
                 cacheManager);
         try {
-
-            this.registeredCacheManagerName = cacheManager.getName();
-            // register the CacheManager MBean
-            mBeanServer.registerMBean(cacheManagerMBean, SampledEhcacheMBeans
-                    .getCacheManagerObjectName(registeredCacheManagerName));
-
-            // register Cache MBeans for the caches
-            String[] caches = cacheManager.getCacheNames();
-            for (String cacheName : caches) {
-                Ehcache cache = cacheManager.getEhcache(cacheName);
-                registerCacheMBean(cache);
-            }
+            registerCacheManagerMBean(cacheManagerMBean);
         } catch (Exception e) {
             status = Status.STATUS_UNINITIALISED;
             throw new CacheException(e);
@@ -105,12 +97,53 @@ public class SampledMBeanRegistrationProvider implements
         cacheManager.getCacheManagerEventListenerRegistry().registerListener(
                 this);
     }
-    
+
+    private void registerCacheManagerMBean(SampledCacheManager cacheManagerMBean)
+            throws Exception {
+        int tries = 0;
+        boolean success = false;
+        Exception exception = null;
+        do {
+            this.registeredCacheManagerName = cacheManager.getName();
+            if (tries != 0) {
+                registeredCacheManagerName += "_" + tries;
+            }
+            try {
+                // register the CacheManager MBean
+                mBeanServer
+                        .registerMBean(
+                                cacheManagerMBean,
+                                SampledEhcacheMBeans
+                                        .getCacheManagerObjectName(registeredCacheManagerName));
+                success = true;
+                break;
+            } catch (InstanceAlreadyExistsException e) {
+                success = false;
+                exception = e;
+            }
+            tries++;
+        } while (tries < MAX_MBEAN_REGISTRATION_RETRIES);
+        if (!success) {
+            throw new Exception(
+                    "Cannot register mbean for CacheManager with name"
+                            + cacheManager.getName() + " after "
+                            + MAX_MBEAN_REGISTRATION_RETRIES
+                            + " retries. Last tried name="
+                            + registeredCacheManagerName, exception);
+        }
+
+        // register Cache MBeans for the caches
+        String[] caches = cacheManager.getCacheNames();
+        for (String cacheName : caches) {
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            registerCacheMBean(cache);
+        }
+    }
+
     /**
      * {@inheritDoc}
      */
-    public void reinitialize()
-            throws MBeanRegistrationProviderException {
+    public void reinitialize() throws MBeanRegistrationProviderException {
         dispose();
         initialize(this.cacheManager);
     }
@@ -161,17 +194,15 @@ public class SampledMBeanRegistrationProvider implements
 
         try {
             // CacheManager MBean
-            registeredObjectNames = mBeanServer
-                    .queryNames(
-                            SampledEhcacheMBeans
-                                    .getCacheManagerObjectName(registeredCacheManagerName),
-                            null);
+            registeredObjectNames = mBeanServer.queryNames(SampledEhcacheMBeans
+                    .getCacheManagerObjectName(registeredCacheManagerName),
+                    null);
             // Other MBeans for this CacheManager
             registeredObjectNames
                     .addAll(mBeanServer
                             .queryNames(
                                     SampledEhcacheMBeans
-                                            .getQueryObjectNameForCacheManager(registeredCacheManagerName),
+                                            .getQueryCacheManagerObjectName(registeredCacheManagerName),
                                     null));
         } catch (MalformedObjectNameException e) {
             LOG.log(Level.WARNING, "Error querying MBeanServer. Error was "
