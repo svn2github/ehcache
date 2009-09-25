@@ -506,7 +506,6 @@ public class Cache implements Ehcache {
 
     }
 
-
     /**
      * 1.6.0 Constructor
      * <p/>
@@ -534,6 +533,57 @@ public class Cache implements Ehcache {
      * @param diskSpoolBufferSizeMB     the amount of memory to allocate the write buffer for puts to the DiskStore.
      * @param clearOnFlush              whether the MemoryStore should be cleared when {@link #flush flush()} is called on the cache
      * @since 1.6.0
+     */
+    public Cache(String name,
+                 int maxElementsInMemory,
+                 MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
+                 boolean overflowToDisk,
+                 String diskStorePath,
+                 boolean eternal,
+                 long timeToLiveSeconds,
+                 long timeToIdleSeconds,
+                 boolean diskPersistent,
+                 long diskExpiryThreadIntervalSeconds,
+                 RegisteredEventListeners registeredEventListeners,
+                 BootstrapCacheLoader bootstrapCacheLoader,
+                 int maxElementsOnDisk,
+                 int diskSpoolBufferSizeMB,
+                 boolean clearOnFlush) {
+    
+        this(name, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal, timeToLiveSeconds,
+                timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners, 
+                bootstrapCacheLoader, maxElementsOnDisk, diskSpoolBufferSizeMB, clearOnFlush, false, null);
+    }
+
+    /**
+     * 1.6.0 Constructor
+     * <p/>
+     * The {@link net.sf.ehcache.config.ConfigurationFactory} and clients can create these.
+     * <p/>
+     * A client can specify their own settings here and pass the {@link Cache} object
+     * into {@link CacheManager#addCache} to specify parameters other than the defaults.
+     * <p/>
+     * Only the CacheManager can initialise them.
+     *
+     * @param name                      the name of the cache. Note that "default" is a reserved name for the defaultCache.
+     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted
+     * @param memoryStoreEvictionPolicy one of LRU, LFU and FIFO. Optionally null, in which case it will be set to LRU.
+     * @param overflowToDisk            whether to use the disk store
+     * @param diskStorePath             this parameter is ignored. CacheManager sets it using setter injection.
+     * @param eternal                   whether the elements in the cache are eternal, i.e. never expire
+     * @param timeToLiveSeconds         the default amount of time to live for an element from its creation date
+     * @param timeToIdleSeconds         the default amount of time to live for an element from its last accessed or modified date
+     * @param diskPersistent            whether to persist the cache to disk between JVM restarts
+     * @param diskExpiryThreadIntervalSeconds
+     *                                  how often to run the disk store expiry thread. A large number of 120 seconds plus is recommended
+     * @param registeredEventListeners  a notification service. Optionally null, in which case a new one with no registered listeners will be created.
+     * @param bootstrapCacheLoader      the BootstrapCacheLoader to use to populate the cache when it is first initialised. Null if none is required.
+     * @param maxElementsOnDisk         the maximum number of Elements to allow on the disk. 0 means unlimited.
+     * @param diskSpoolBufferSizeMB     the amount of memory to allocate the write buffer for puts to the DiskStore.
+     * @param clearOnFlush              whether the MemoryStore should be cleared when {@link #flush flush()} is called on the cache
+     * @param isTerracottaClustered     whether to cluster this cache with Terracotta
+     * @param terracottaValueMode       either "SERIALIZATION" or "IDENTITY" mode, only used if isTerracottaClustered=true
+     * @since 1.7.0
      */
     public Cache(String name,
                  int maxElementsInMemory,
