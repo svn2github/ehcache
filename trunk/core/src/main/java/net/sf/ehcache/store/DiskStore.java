@@ -1301,6 +1301,6 @@ public class DiskStore implements Store {
      * {@inheritDoc}
      */
     public boolean isCacheCoherent() {
-    	return false;
+        return false;
     }
 }

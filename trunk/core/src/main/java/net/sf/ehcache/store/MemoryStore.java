@@ -676,6 +676,6 @@ public class MemoryStore implements Store {
      * {@inheritDoc}
      */
     public boolean isCacheCoherent() {
-    	return false;
+        return false;
     }
 }

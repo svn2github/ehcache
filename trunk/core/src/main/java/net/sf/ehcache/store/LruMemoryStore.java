@@ -480,6 +480,6 @@ public class LruMemoryStore implements Store {
      * {@inheritDoc}
      */
     public boolean isCacheCoherent() {
-    	return false;
+        return false;
     }
 }

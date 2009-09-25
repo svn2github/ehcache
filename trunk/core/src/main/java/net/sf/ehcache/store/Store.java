@@ -152,14 +152,14 @@ public interface Store {
      */
     Object getInternalContext();
     
-	/**
-	 * Indicates whether this store provides a coherent view of all the elements
-	 * in a cache.
-	 * 
-	 * @return {@code true}Êif the store is coherent; or {@code false} if the
-	 *         store potentially splits the cache storage with another store or
-	 *         isn't internally coherent
-	 * @since 1.7
-	 */
+    /**
+     * Indicates whether this store provides a coherent view of all the elements
+     * in a cache.
+     * 
+     * @return {@code true} if the store is coherent; or {@code false} if the
+     *         store potentially splits the cache storage with another store or
+     *         isn't internally coherent
+     * @since 1.7
+     */
     boolean isCacheCoherent();
 }
