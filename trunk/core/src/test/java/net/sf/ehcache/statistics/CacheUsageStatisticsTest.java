@@ -61,8 +61,8 @@ public class CacheUsageStatisticsTest extends AbstractCacheTest {
         doTestCacheUsageStatistics(cache, false);
 
         assertEquals(Statistics.STATISTICS_ACCURACY_BEST_EFFORT, cache
-                .getCacheUsageStatistics().getStatisticsAccuracy());
-        assertEquals("Best Effort", cache.getCacheUsageStatistics()
+                .getLiveCacheStatistics().getStatisticsAccuracy());
+        assertEquals("Best Effort", cache.getLiveCacheStatistics()
                 .getStatisticsAccuracyDescription());
     }
 
@@ -87,7 +87,7 @@ public class CacheUsageStatisticsTest extends AbstractCacheTest {
         // key1 should be in the Disk Store
         cache.get("key1");
 
-        CacheUsageStatistics statistics = cache.getCacheUsageStatistics();
+        LiveCacheStatistics statistics = cache.getLiveCacheStatistics();
         if (statisticsEnabled) {
             assertEquals(1, statistics.getCacheHitCount());
             assertEquals(1, statistics.getOnDiskHitCount());
@@ -109,7 +109,7 @@ public class CacheUsageStatisticsTest extends AbstractCacheTest {
         // key 1 should now be in the LruMemoryStore
         cache.get("key1");
 
-        statistics = cache.getCacheUsageStatistics();
+        statistics = cache.getLiveCacheStatistics();
         if (statisticsEnabled) {
             assertEquals(2, statistics.getCacheHitCount());
             assertEquals(1, statistics.getOnDiskHitCount());
@@ -127,7 +127,7 @@ public class CacheUsageStatisticsTest extends AbstractCacheTest {
 
         // key 1 should now be expired
         cache.get("key1");
-        statistics = cache.getCacheUsageStatistics();
+        statistics = cache.getLiveCacheStatistics();
         if (statisticsEnabled) {
             assertEquals(2, statistics.getCacheHitCount());
             assertEquals(1, statistics.getOnDiskHitCount());
@@ -142,7 +142,7 @@ public class CacheUsageStatisticsTest extends AbstractCacheTest {
 
         // key 2 should also be expired
         cache.get("key1");
-        statistics = cache.getCacheUsageStatistics();
+        statistics = cache.getLiveCacheStatistics();
         if (statisticsEnabled) {
             assertEquals(2, statistics.getCacheHitCount());
             assertEquals(1, statistics.getOnDiskHitCount());
@@ -186,7 +186,7 @@ public class CacheUsageStatisticsTest extends AbstractCacheTest {
      * Tests average get time
      */
     public void doTestAverageGetTime(Cache cache, boolean statsEnabled) {
-        CacheUsageStatistics statistics = cache.getCacheUsageStatistics();
+        LiveCacheStatistics statistics = cache.getLiveCacheStatistics();
         float averageGetTime = statistics.getAverageGetTimeMillis();
         assertTrue(0 == statistics.getAverageGetTimeMillis());
 
@@ -199,7 +199,7 @@ public class CacheUsageStatisticsTest extends AbstractCacheTest {
             cache.get("" + i);
         }
 
-        statistics = cache.getCacheUsageStatistics();
+        statistics = cache.getLiveCacheStatistics();
         averageGetTime = statistics.getAverageGetTimeMillis();
         if (statsEnabled) {
             assertTrue(averageGetTime >= .000001);
@@ -249,7 +249,7 @@ public class CacheUsageStatisticsTest extends AbstractCacheTest {
             manager.addCache(ehcache);
             ehcache.setStatisticsEnabled(statsEnabled);
 
-            CacheUsageStatistics statistics = ehcache.getCacheUsageStatistics();
+            LiveCacheStatistics statistics = ehcache.getLiveCacheStatistics();
             assertEquals(0, statistics.getEvictedCount());
 
             for (int i = 0; i < total; i++) {
@@ -332,7 +332,7 @@ public class CacheUsageStatisticsTest extends AbstractCacheTest {
             manager.addCache(ehcache);
             ehcache.setStatisticsEnabled(statsEnabled);
 
-            CacheUsageStatistics statistics = ehcache.getCacheUsageStatistics();
+            LiveCacheStatistics statistics = ehcache.getLiveCacheStatistics();
 
             assertEquals(0, statistics.getEvictedCount());
             assertEquals(0, statistics.getPutCount());
@@ -416,14 +416,14 @@ public class CacheUsageStatisticsTest extends AbstractCacheTest {
         String string = cache.toString();
         assertTrue(string.contains("test"));
         try {
-            CacheUsageStatistics statistics = cache.getCacheUsageStatistics();
+            LiveCacheStatistics statistics = cache.getLiveCacheStatistics();
             fail();
         } catch (IllegalStateException e) {
             assertEquals("The test Cache is not alive.", e.getMessage());
         }
         // initialize cache now
         manager.addCache(cache);
-        CacheUsageStatistics statistics = cache.getCacheUsageStatistics();
+        LiveCacheStatistics statistics = cache.getLiveCacheStatistics();
         assertEquals(0, statistics.getCacheHitCount());
     }
 

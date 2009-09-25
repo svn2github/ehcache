@@ -27,14 +27,14 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
 
 /**
- * Implementation which can be used both as a {@link CacheUsageStatistics} and
- * {@link CacheUsageStatisticsData}
+ * Implementation which can be used both as a {@link LiveCacheStatistics} and
+ * {@link LiveCacheStatisticsData}
  * 
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class CacheUsageStatisticsImpl implements CacheUsageStatistics,
-        CacheUsageStatisticsData {
+public class LiveCacheStatisticsImpl implements LiveCacheStatistics,
+        LiveCacheStatisticsData {
 
     private final AtomicBoolean statisticsEnabled = new AtomicBoolean(true);
     private final AtomicLong cacheHitInMemoryCount = new AtomicLong();
@@ -59,7 +59,7 @@ public class CacheUsageStatisticsImpl implements CacheUsageStatistics,
      * 
      * @param cache
      */
-    public CacheUsageStatisticsImpl(Ehcache cache) {
+    public LiveCacheStatisticsImpl(Ehcache cache) {
         this.cache = cache;
     }
 

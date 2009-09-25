@@ -16,21 +16,21 @@
 
 package net.sf.ehcache.management.sampled;
 
-import net.sf.ehcache.statistics.CacheUsageStatistics;
-import net.sf.ehcache.statistics.SampledCacheUsageStatistics;
+import net.sf.ehcache.statistics.LiveCacheStatistics;
+import net.sf.ehcache.statistics.SampledCacheStatistics;
 
 /**
  * An MBean for {@link Cache} exposing cache statistics.
- * Extends from both {@link CacheUsageStatistics} and
- * {@link SampledCacheUsageStatistics}
+ * Extends from both {@link LiveCacheStatistics} and
+ * {@link SampledCacheStatistics}
  * 
  * <p />
  * 
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public interface SampledCacheMBean extends CacheUsageStatistics,
-        SampledCacheUsageStatistics {
+public interface SampledCacheMBean extends LiveCacheStatistics,
+        SampledCacheStatistics {
 
     /**
      * Removes all cached items.

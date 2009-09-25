@@ -17,7 +17,7 @@
 package net.sf.ehcache.statistics;
 
 /**
- * Just another statistics class extending from {@link CacheUsageStatisticsImpl}
+ * Just another statistics class extending from {@link LiveCacheStatisticsImpl}
  * Only for testing as a {@link CacheUsageListener}. The following methods will
  * not work for this class (as it depends on an internal cache) and will throw
  * an NPE :
@@ -29,7 +29,7 @@ package net.sf.ehcache.statistics;
  * @author Abhishek Sanoujam
  * 
  */
-public class AnotherStatistics extends CacheUsageStatisticsImpl implements
+public class AnotherStatistics extends LiveCacheStatisticsImpl implements
         CacheUsageListener {
 
     /**

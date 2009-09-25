@@ -38,8 +38,8 @@ import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.statistics.CacheUsageListener;
-import net.sf.ehcache.statistics.CacheUsageStatistics;
-import net.sf.ehcache.statistics.SampledCacheUsageStatistics;
+import net.sf.ehcache.statistics.LiveCacheStatistics;
+import net.sf.ehcache.statistics.SampledCacheStatistics;
 
 
 /**
@@ -360,9 +360,9 @@ public class BlockingCache implements Ehcache {
     /**
      * {@inheritDoc}
      */
-    public CacheUsageStatistics getCacheUsageStatistics()
+    public LiveCacheStatistics getLiveCacheStatistics()
             throws IllegalStateException {
-        return cache.getCacheUsageStatistics();
+        return cache.getLiveCacheStatistics();
     }
 
     /**
@@ -1094,8 +1094,8 @@ public class BlockingCache implements Ehcache {
     /**
      * {@inheritDoc}
      */
-    public SampledCacheUsageStatistics getSampledCacheUsageStatistics() {
-        return cache.getSampledCacheUsageStatistics();
+    public SampledCacheStatistics getSampledCacheStatistics() {
+        return cache.getSampledCacheStatistics();
     }
     
     /**

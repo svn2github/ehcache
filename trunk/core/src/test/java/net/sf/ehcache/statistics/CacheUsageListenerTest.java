@@ -72,8 +72,8 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
         doTestCacheUsageStatistics(cache, false, anotherStats);
 
         assertEquals(Statistics.STATISTICS_ACCURACY_BEST_EFFORT, cache
-                .getCacheUsageStatistics().getStatisticsAccuracy());
-        assertEquals("Best Effort", cache.getCacheUsageStatistics()
+                .getLiveCacheStatistics().getStatisticsAccuracy());
+        assertEquals("Best Effort", cache.getLiveCacheStatistics()
                 .getStatisticsAccuracyDescription());
     }
 
@@ -467,7 +467,7 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
         String string = cache.toString();
         assertTrue(string.contains("test"));
         try {
-            CacheUsageStatistics statistics = cache.getCacheUsageStatistics();
+            LiveCacheStatistics statistics = cache.getLiveCacheStatistics();
             fail();
         } catch (IllegalStateException e) {
             assertEquals("The test Cache is not alive.", e.getMessage());

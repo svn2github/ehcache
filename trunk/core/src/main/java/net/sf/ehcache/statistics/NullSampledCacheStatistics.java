@@ -19,14 +19,14 @@ package net.sf.ehcache.statistics;
 import net.sf.ehcache.Statistics;
 
 /**
- * A no-op implementation of {@link SampledCacheUsageStatistics}
+ * A no-op implementation of {@link SampledCacheStatistics}
  * <p />
  * 
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class NullSampledCacheUsageStatistics implements
-        SampledCacheUsageStatistics {
+public class NullSampledCacheStatistics implements
+        SampledCacheStatistics {
 
     /**
      * {@inheritDoc}
@@ -136,7 +136,7 @@ public class NullSampledCacheUsageStatistics implements
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.statistics.SampledCacheUsageStatistics#dispose()
+     * @see net.sf.ehcache.statistics.SampledCacheStatistics#dispose()
      */
     public void dispose() {
         // no-op

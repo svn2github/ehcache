@@ -28,8 +28,8 @@ import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.statistics.CacheUsageListener;
-import net.sf.ehcache.statistics.CacheUsageStatistics;
-import net.sf.ehcache.statistics.SampledCacheUsageStatistics;
+import net.sf.ehcache.statistics.LiveCacheStatistics;
+import net.sf.ehcache.statistics.SampledCacheStatistics;
 
 /**
  * An interface for Ehcache.
@@ -572,7 +572,7 @@ public interface Ehcache extends Cloneable {
      * The number given may contain expired elements. In addition if the DiskStore is used it may contain some double
      * counting of elements. It takes 6ms for 1000 elements to execute. Time to execute is O(log n). 50,000 elements take
      * 36ms.
-     * @see {@link #getCacheUsageStatistics()}
+     * @see {@link #getLiveCacheStatistics()}
      * @return the number of elements in the ehcache, with a varying degree of accuracy, depending on accuracy setting.
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
@@ -580,15 +580,15 @@ public interface Ehcache extends Cloneable {
     
     /**
      * This is different from {@link #getStatistics()} in the way that values
-     * returned from {@link CacheUsageStatistics} will reflect the current state
+     * returned from {@link LiveCacheStatistics} will reflect the current state
      * of the cache (and not a snapshot of the cache when the api's were called
      * like {@link #getStatistics()})
      * 
-     * @return The {@link CacheUsageStatistics} associated with this cache
+     * @return The {@link LiveCacheStatistics} associated with this cache
      * @throws IllegalStateException
      * @since 1.7
      */
-    CacheUsageStatistics getCacheUsageStatistics() throws IllegalStateException;
+    LiveCacheStatistics getLiveCacheStatistics() throws IllegalStateException;
 
     /**
      * Registers a {@link CacheUsageListener} which will be notified of the
@@ -866,7 +866,7 @@ public interface Ehcache extends Cloneable {
      * 
      * @return
      */
-    public SampledCacheUsageStatistics getSampledCacheUsageStatistics();
+    public SampledCacheStatistics getSampledCacheStatistics();
     
     /**
      * Enable/disable sampled statistics collection.

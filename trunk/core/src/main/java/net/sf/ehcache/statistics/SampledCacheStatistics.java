@@ -23,7 +23,7 @@ package net.sf.ehcache.statistics;
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public interface SampledCacheUsageStatistics {
+public interface SampledCacheStatistics {
 
     /**
      * Get most recent value for cache hit

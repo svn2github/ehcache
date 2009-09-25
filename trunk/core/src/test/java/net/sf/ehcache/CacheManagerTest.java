@@ -47,7 +47,7 @@ import net.sf.ehcache.distribution.RMIAsynchronousCacheReplicator;
 import net.sf.ehcache.distribution.RMIBootstrapCacheLoader;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.statistics.CacheUsageStatisticsData;
+import net.sf.ehcache.statistics.LiveCacheStatisticsData;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.Store;
 
@@ -545,7 +545,7 @@ public class CacheManagerTest {
             CacheEventListener cacheEventListener = (CacheEventListener) iterator
                     .next();
             assertTrue(cacheEventListener instanceof RMIAsynchronousCacheReplicator
-                    || cacheEventListener instanceof CacheUsageStatisticsData);
+                    || cacheEventListener instanceof LiveCacheStatisticsData);
         }
     }
 

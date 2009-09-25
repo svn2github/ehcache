@@ -29,7 +29,7 @@ package net.sf.ehcache.statistics;
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public interface CacheUsageStatistics {
+public interface LiveCacheStatistics {
 
     /**
      * Returns true if statistics is enabled

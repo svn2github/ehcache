@@ -30,7 +30,7 @@ import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounterConfig;
 
 /**
- * An implementation of {@link SampledCacheUsageStatistics} This also implements
+ * An implementation of {@link SampledCacheStatistics} This also implements
  * {@link CacheUsageListener} and depends on the notification received from
  * these to update the stats
  * <p />
@@ -38,8 +38,8 @@ import net.sf.ehcache.util.counter.sampled.SampledRateCounterConfig;
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class SampledCacheUsageStatisticsImpl implements CacheUsageListener,
-        SampledCacheUsageStatistics {
+public class SampledCacheStatisticsImpl implements CacheUsageListener,
+        SampledCacheStatistics {
 
     private static final int DEFAULT_HISTORY_SIZE = 30;
     private static final int DEFAULT_INTERVAL_SECS = 1;
@@ -69,7 +69,7 @@ public class SampledCacheUsageStatisticsImpl implements CacheUsageListener,
      * Constructor that accepts a timer which will be used to schedule the
      * sampled counters
      */
-    public SampledCacheUsageStatisticsImpl(FailSafeTimer timer) {
+    public SampledCacheStatisticsImpl(FailSafeTimer timer) {
         counterManager = new CounterManagerImpl(timer);
         cacheHitCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
         cacheHitInMemoryCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);

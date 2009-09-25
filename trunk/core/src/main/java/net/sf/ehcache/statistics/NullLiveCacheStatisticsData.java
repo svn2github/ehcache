@@ -23,13 +23,13 @@ import net.sf.ehcache.Statistics;
 
 /**
  * A no-op implementation which can be used both as a
- * {@link CacheUsageStatistics} and {@link CacheUsageStatisticsData}
+ * {@link LiveCacheStatistics} and {@link LiveCacheStatisticsData}
  * 
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class NullCacheUsageStatisticsData implements CacheUsageStatistics,
-        CacheUsageStatisticsData {
+public class NullLiveCacheStatisticsData implements LiveCacheStatistics,
+        LiveCacheStatisticsData {
 
     private final String cacheName;
 
@@ -38,7 +38,7 @@ public class NullCacheUsageStatisticsData implements CacheUsageStatistics,
      * 
      * @param cacheName
      */
-    public NullCacheUsageStatisticsData(String cacheName) {
+    public NullLiveCacheStatisticsData(String cacheName) {
         this.cacheName = cacheName;
     }
 

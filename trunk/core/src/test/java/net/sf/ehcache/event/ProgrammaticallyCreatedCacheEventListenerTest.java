@@ -22,7 +22,7 @@ import junit.framework.Assert;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.statistics.CacheUsageStatisticsData;
+import net.sf.ehcache.statistics.LiveCacheStatisticsData;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,7 +69,7 @@ public class ProgrammaticallyCreatedCacheEventListenerTest extends CacheEventLis
                 .getCacheEventNotificationService().getCacheEventListeners()
                 .iterator(); iter.hasNext();) {
             CacheEventListener next = iter.next();
-            Assert.assertTrue(next instanceof CacheUsageStatisticsData
+            Assert.assertTrue(next instanceof LiveCacheStatisticsData
                     || next instanceof CountingCacheEventListener);
         }
     }
@@ -91,7 +91,7 @@ public class ProgrammaticallyCreatedCacheEventListenerTest extends CacheEventLis
                 .getCacheEventNotificationService().getCacheEventListeners()
                 .iterator(); iter.hasNext();) {
             CacheEventListener next = iter.next();
-            Assert.assertTrue(next instanceof CacheUsageStatisticsData
+            Assert.assertTrue(next instanceof LiveCacheStatisticsData
                     || next instanceof CountingCacheEventListener);
             if (next instanceof CountingCacheEventListener) {
                 count++;

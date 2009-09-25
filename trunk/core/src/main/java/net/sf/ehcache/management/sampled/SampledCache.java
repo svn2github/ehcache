@@ -83,7 +83,7 @@ public class SampledCache implements SampledCacheMBean {
      * {@inheritDoc}
      */
     public long getAverageGetTimeMostRecentSample() {
-        return cache.getSampledCacheUsageStatistics()
+        return cache.getSampledCacheStatistics()
                 .getAverageGetTimeMostRecentSample();
     }
 
@@ -91,7 +91,7 @@ public class SampledCache implements SampledCacheMBean {
      * {@inheritDoc}
      */
     public long getCacheElementEvictedMostRecentSample() {
-        return cache.getSampledCacheUsageStatistics()
+        return cache.getSampledCacheStatistics()
                 .getCacheElementEvictedMostRecentSample();
     }
 
@@ -99,7 +99,7 @@ public class SampledCache implements SampledCacheMBean {
      * {@inheritDoc}
      */
     public long getCacheElementExpiredMostRecentSample() {
-        return cache.getSampledCacheUsageStatistics()
+        return cache.getSampledCacheStatistics()
                 .getCacheElementExpiredMostRecentSample();
     }
 
@@ -107,7 +107,7 @@ public class SampledCache implements SampledCacheMBean {
      * {@inheritDoc}
      */
     public long getCacheElementPutMostRecentSample() {
-        return cache.getSampledCacheUsageStatistics()
+        return cache.getSampledCacheStatistics()
                 .getCacheElementPutMostRecentSample();
     }
 
@@ -115,7 +115,7 @@ public class SampledCache implements SampledCacheMBean {
      * {@inheritDoc}
      */
     public long getCacheElementRemovedMostRecentSample() {
-        return cache.getSampledCacheUsageStatistics()
+        return cache.getSampledCacheStatistics()
                 .getCacheElementRemovedMostRecentSample();
     }
 
@@ -123,7 +123,7 @@ public class SampledCache implements SampledCacheMBean {
      * {@inheritDoc}
      */
     public long getCacheElementUpdatedMostRecentSample() {
-        return cache.getSampledCacheUsageStatistics()
+        return cache.getSampledCacheStatistics()
                 .getCacheElementUpdatedMostRecentSample();
     }
 
@@ -131,7 +131,7 @@ public class SampledCache implements SampledCacheMBean {
      * {@inheritDoc}
      */
     public long getCacheHitInMemoryMostRecentSample() {
-        return cache.getSampledCacheUsageStatistics()
+        return cache.getSampledCacheStatistics()
                 .getCacheHitInMemoryMostRecentSample();
     }
 
@@ -139,7 +139,7 @@ public class SampledCache implements SampledCacheMBean {
      * {@inheritDoc}
      */
     public long getCacheHitMostRecentSample() {
-        return cache.getSampledCacheUsageStatistics()
+        return cache.getSampledCacheStatistics()
                 .getCacheHitMostRecentSample();
     }
 
@@ -147,7 +147,7 @@ public class SampledCache implements SampledCacheMBean {
      * {@inheritDoc}
      */
     public long getCacheHitOnDiskMostRecentSample() {
-        return cache.getSampledCacheUsageStatistics()
+        return cache.getSampledCacheStatistics()
                 .getCacheHitOnDiskMostRecentSample();
     }
 
@@ -155,7 +155,7 @@ public class SampledCache implements SampledCacheMBean {
      * {@inheritDoc}
      */
     public long getCacheMissExpiredMostRecentSample() {
-        return cache.getSampledCacheUsageStatistics()
+        return cache.getSampledCacheStatistics()
                 .getCacheMissExpiredMostRecentSample();
     }
 
@@ -163,7 +163,7 @@ public class SampledCache implements SampledCacheMBean {
      * {@inheritDoc}
      */
     public long getCacheMissMostRecentSample() {
-        return cache.getSampledCacheUsageStatistics()
+        return cache.getSampledCacheStatistics()
                 .getCacheMissMostRecentSample();
     }
 
@@ -171,7 +171,7 @@ public class SampledCache implements SampledCacheMBean {
      * {@inheritDoc}
      */
     public long getCacheMissNotFoundMostRecentSample() {
-        return cache.getSampledCacheUsageStatistics()
+        return cache.getSampledCacheStatistics()
                 .getCacheMissNotFoundMostRecentSample();
     }
 
@@ -179,14 +179,14 @@ public class SampledCache implements SampledCacheMBean {
      * {@inheritDoc}
      */
     public int getStatisticsAccuracy() {
-        return cache.getSampledCacheUsageStatistics().getStatisticsAccuracy();
+        return cache.getSampledCacheStatistics().getStatisticsAccuracy();
     }
 
     /**
      * {@inheritDoc}
      */
     public String getStatisticsAccuracyDescription() {
-        return cache.getSampledCacheUsageStatistics()
+        return cache.getSampledCacheStatistics()
                 .getStatisticsAccuracyDescription();
     }
 
@@ -208,7 +208,7 @@ public class SampledCache implements SampledCacheMBean {
      * {@inheritDoc}
      */
     public boolean isSampledStatisticsEnabled() {
-        return cache.getSampledCacheUsageStatistics()
+        return cache.getSampledCacheStatistics()
                 .isSampledStatisticsEnabled();
     }
 
@@ -263,7 +263,7 @@ public class SampledCache implements SampledCacheMBean {
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getAverageGetTimeMillis()
      */
     public float getAverageGetTimeMillis() {
-        return cache.getCacheUsageStatistics().getAverageGetTimeMillis();
+        return cache.getLiveCacheStatistics().getAverageGetTimeMillis();
     }
 
     /**
@@ -272,7 +272,7 @@ public class SampledCache implements SampledCacheMBean {
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getCacheHitCount()
      */
     public long getCacheHitCount() {
-        return cache.getCacheUsageStatistics().getCacheHitCount();
+        return cache.getLiveCacheStatistics().getCacheHitCount();
     }
 
     /**
@@ -281,7 +281,7 @@ public class SampledCache implements SampledCacheMBean {
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getCacheMissCount()
      */
     public long getCacheMissCount() {
-        return cache.getCacheUsageStatistics().getCacheMissCount();
+        return cache.getLiveCacheStatistics().getCacheMissCount();
     }
 
     /**
@@ -290,7 +290,7 @@ public class SampledCache implements SampledCacheMBean {
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getCacheMissCountExpired()
      */
     public long getCacheMissCountExpired() {
-        return cache.getCacheUsageStatistics().getCacheMissCountExpired();
+        return cache.getLiveCacheStatistics().getCacheMissCountExpired();
     }
 
     /**
@@ -355,7 +355,7 @@ public class SampledCache implements SampledCacheMBean {
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getEvictedCount()
      */
     public long getEvictedCount() {
-        return cache.getCacheUsageStatistics().getEvictedCount();
+        return cache.getLiveCacheStatistics().getEvictedCount();
     }
 
     /**
@@ -364,7 +364,7 @@ public class SampledCache implements SampledCacheMBean {
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getExpiredCount()
      */
     public long getExpiredCount() {
-        return cache.getCacheUsageStatistics().getExpiredCount();
+        return cache.getLiveCacheStatistics().getExpiredCount();
     }
 
     /**
@@ -373,7 +373,7 @@ public class SampledCache implements SampledCacheMBean {
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getInMemoryHitCount()
      */
     public long getInMemoryHitCount() {
-        return cache.getCacheUsageStatistics().getInMemoryHitCount();
+        return cache.getLiveCacheStatistics().getInMemoryHitCount();
     }
 
     /**
@@ -382,7 +382,7 @@ public class SampledCache implements SampledCacheMBean {
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getInMemorySize()
      */
     public long getInMemorySize() {
-        return cache.getCacheUsageStatistics().getInMemorySize();
+        return cache.getLiveCacheStatistics().getInMemorySize();
     }
 
     /**
@@ -391,7 +391,7 @@ public class SampledCache implements SampledCacheMBean {
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOnDiskHitCount()
      */
     public long getOnDiskHitCount() {
-        return cache.getCacheUsageStatistics().getOnDiskHitCount();
+        return cache.getLiveCacheStatistics().getOnDiskHitCount();
     }
 
     /**
@@ -400,7 +400,7 @@ public class SampledCache implements SampledCacheMBean {
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOnDiskSize()
      */
     public long getOnDiskSize() {
-        return cache.getCacheUsageStatistics().getOnDiskSize();
+        return cache.getLiveCacheStatistics().getOnDiskSize();
     }
 
     /**
@@ -409,7 +409,7 @@ public class SampledCache implements SampledCacheMBean {
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getPutCount()
      */
     public long getPutCount() {
-        return cache.getCacheUsageStatistics().getPutCount();
+        return cache.getLiveCacheStatistics().getPutCount();
     }
 
     /**
@@ -418,7 +418,7 @@ public class SampledCache implements SampledCacheMBean {
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getRemovedCount()
      */
     public long getRemovedCount() {
-        return cache.getCacheUsageStatistics().getRemovedCount();
+        return cache.getLiveCacheStatistics().getRemovedCount();
     }
 
     /**
@@ -427,7 +427,7 @@ public class SampledCache implements SampledCacheMBean {
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getSize()
      */
     public long getSize() {
-        return cache.getCacheUsageStatistics().getSize();
+        return cache.getLiveCacheStatistics().getSize();
     }
 
     /**
@@ -436,7 +436,7 @@ public class SampledCache implements SampledCacheMBean {
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getUpdateCount()
      */
     public long getUpdateCount() {
-        return cache.getCacheUsageStatistics().getUpdateCount();
+        return cache.getLiveCacheStatistics().getUpdateCount();
     }
 
     /**
@@ -469,7 +469,7 @@ public class SampledCache implements SampledCacheMBean {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.statistics.SampledCacheUsageStatistics#dispose()
+     * @see net.sf.ehcache.statistics.SampledCacheStatistics#dispose()
      */
     public void dispose() {
         // no-op

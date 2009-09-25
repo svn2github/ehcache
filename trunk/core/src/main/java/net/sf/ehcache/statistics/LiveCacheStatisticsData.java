@@ -23,7 +23,7 @@ import net.sf.ehcache.event.CacheEventListener;
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public interface CacheUsageStatisticsData extends CacheEventListener {
+public interface LiveCacheStatisticsData extends CacheEventListener {
     
     /**
      * Enabled/Disabled statistics
