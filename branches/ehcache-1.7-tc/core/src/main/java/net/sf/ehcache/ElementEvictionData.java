@@ -16,8 +16,6 @@
 
 package net.sf.ehcache;
 
-import net.sf.ehcache.store.Store;
-
 /**
  * Provides pluggable storage an configuration of TTI eviction data.
  * 
@@ -49,26 +47,16 @@ public interface ElementEvictionData extends Cloneable {
      *            the new last access time
      * @param element
      *            the element for which the last access time is set
-     * @param store
-     *            the store that is used to be able to perform the action,
-     *            this might not be used by some implementations of this
-     *            interface but allows others to have more access to the context
-     *            in which this method call is executed
      */
-    public void updateLastAccessTime(int time, Element element, Store store);
+    public void updateLastAccessTime(int time, Element element);
 
     /**
      * Resets the last access time.
      * 
      * @param element
      *            the element for which the last access time is set
-     * @param store
-     *            the store that is used to be able to perform the action,
-     *            this might not be used by some implementations of this
-     *            interface but allows others to have more access to the context
-     *            in which this method call is executed
      */
-    public void resetLastAccessTime(Element element, Store store);
+    public void resetLastAccessTime(Element element);
 
     /**
      * Creates a clone of the eviction data

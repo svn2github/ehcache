@@ -28,8 +28,6 @@ import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.ehcache.store.Store;
-
 /**
  * A Cache Element, consisting of a key, value and attributes.
  * <p/>
@@ -410,16 +408,16 @@ public class Element implements Serializable, Cloneable {
     /**
      * Resets the hit count to 0 and the last access time to 0.
      */
-    public final void resetAccessStatistics(Store store) {
-        elementEvictionData.resetLastAccessTime(this, store);
+    public final void resetAccessStatistics() {
+        elementEvictionData.resetLastAccessTime(this);
         hitCount = 0;
     }
 
     /**
      * Sets the last access time to now and increase the hit count.
      */
-    public final void updateAccessStatistics(Store store) {
-        elementEvictionData.updateLastAccessTime(toSecs(System.currentTimeMillis()), this, store);
+    public final void updateAccessStatistics() {
+        elementEvictionData.updateLastAccessTime(toSecs(System.currentTimeMillis()), this);
         hitCount++;
     }
 
