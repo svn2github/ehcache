@@ -639,7 +639,7 @@ public class Cache implements Ehcache {
 
             this.diskStore = createDiskStore();
 
-            if (isClustered()) {
+            if (isTerracottaClustered()) {
                 memoryStore = cacheManager.createTerracottaStore(this);
             } else {
                 if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
@@ -703,12 +703,12 @@ public class Cache implements Ehcache {
     }
     
     /**
-     * Indicates whether this cache is clustered
+     * Indicates whether this cache is clustered by Terracotta
      * 
-     * @return {@code true} when the cache is clustered; or {@code false}Êotherwise
+     * @return {@code true} when the cache is clustered by Terracotta; or {@code false}Êotherwise
      * @return
      */
-    protected boolean isClustered() {
+    protected boolean isTerracottaClustered() {
         return configuration.isTerracottaClustered();
     }
 
@@ -1724,8 +1724,8 @@ public class Cache implements Ehcache {
      */
     public final int getDiskStoreSize() throws IllegalStateException {
         checkStatus();
-        if (isClustered()) {
-            return memoryStore.getClusteredSize();
+        if (isTerracottaClustered()) {
+            return memoryStore.getTerracottaClusteredSize();
         }
         if (isDiskStore()) {
             return diskStore.getSize();

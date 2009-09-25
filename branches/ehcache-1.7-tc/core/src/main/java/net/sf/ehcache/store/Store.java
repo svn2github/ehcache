@@ -75,10 +75,10 @@ public interface Store {
     int getSize();
 
     /**
-     * Returns the current clustered store size
+     * Returns the current Terracotta clustered store size
      * @return the count of the Elements in the Store across the cluster
      */
-    int getClusteredSize();
+    int getTerracottaClusteredSize();
 
     /**
      * Gets the size of the store, in bytes.
