@@ -19,8 +19,8 @@ package net.sf.ehcache.management.sampled;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 
 /**
@@ -45,14 +45,15 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
     public SampledCacheManager(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
     }
-    
+
     /**
      * Set the name used to register this mbean. Can be called only once.
      * Package protected method
      */
     void setMBeanRegisteredName(String name) {
         if (mbeanRegisteredNameSet) {
-            throw new IllegalStateException("Name used for registering this mbean is already set");
+            throw new IllegalStateException(
+                    "Name used for registering this mbean is already set");
         }
         mbeanRegisteredNameSet = true;
         mbeanRegisteredName = name;
@@ -83,9 +84,8 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
      * {@inheritDoc}
      */
     public void shutdown() {
-        //no-op
+        // no-op
     }
-
 
     /**
      * @return map of cache metrics (hits, misses)
@@ -94,14 +94,16 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
         Map<String, long[]> result = new HashMap<String, long[]>();
         String[] caches = getCacheNames();
         for (String cacheName : caches) {
-            Cache cache = cacheManager.getCache(cacheName);
+            Ehcache cache = cacheManager.getEhcache(cacheName);
             SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-            result.put(cacheName, new long[] {stats.getCacheHitMostRecentSample(),
-                    stats.getCacheMissMostRecentSample(), stats.getCacheElementPutMostRecentSample(), });
+            result.put(cacheName, 
+                    new long[] {stats.getCacheHitMostRecentSample(),
+                    stats.getCacheMissMostRecentSample(),
+                    stats.getCacheElementPutMostRecentSample(), });
         }
         return result;
     }
-    
+
     /**
      * @return aggregate hit rate
      */
@@ -109,13 +111,13 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
         long result = 0;
         String[] caches = getCacheNames();
         for (String cacheName : caches) {
-            Cache cache = cacheManager.getCache(cacheName);
+            Ehcache cache = cacheManager.getEhcache(cacheName);
             SampledCacheStatistics stats = cache.getSampledCacheStatistics();
             result += stats.getCacheHitMostRecentSample();
         }
         return result;
     }
-  
+
     /**
      * @return aggregate miss rate
      */
@@ -123,13 +125,13 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
         long result = 0;
         String[] caches = getCacheNames();
         for (String cacheName : caches) {
-            Cache cache = cacheManager.getCache(cacheName);
+            Ehcache cache = cacheManager.getEhcache(cacheName);
             SampledCacheStatistics stats = cache.getSampledCacheStatistics();
             result += stats.getCacheMissMostRecentSample();
         }
         return result;
     }
- 
+
     /**
      * @return aggregate put rate
      */
@@ -137,13 +139,13 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
         long result = 0;
         String[] caches = getCacheNames();
         for (String cacheName : caches) {
-            Cache cache = cacheManager.getCache(cacheName);
+            Ehcache cache = cacheManager.getEhcache(cacheName);
             SampledCacheStatistics stats = cache.getSampledCacheStatistics();
             result += stats.getCacheElementPutMostRecentSample();
         }
         return result;
     }
-   
+
     /**
      * @return aggregate update rate
      */
@@ -151,13 +153,13 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
         long result = 0;
         String[] caches = getCacheNames();
         for (String cacheName : caches) {
-            Cache cache = cacheManager.getCache(cacheName);
+            Ehcache cache = cacheManager.getEhcache(cacheName);
             SampledCacheStatistics stats = cache.getSampledCacheStatistics();
             result += stats.getCacheElementUpdatedMostRecentSample();
         }
         return result;
     }
-    
+
     /**
      * @return aggregate eviction rate
      */
@@ -165,13 +167,13 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
         long result = 0;
         String[] caches = getCacheNames();
         for (String cacheName : caches) {
-            Cache cache = cacheManager.getCache(cacheName);
+            Ehcache cache = cacheManager.getEhcache(cacheName);
             SampledCacheStatistics stats = cache.getSampledCacheStatistics();
             result += stats.getCacheElementEvictedMostRecentSample();
         }
         return result;
     }
-    
+
     /**
      * @return aggregate expiration rate
      */
@@ -179,7 +181,7 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
         long result = 0;
         String[] caches = getCacheNames();
         for (String cacheName : caches) {
-            Cache cache = cacheManager.getCache(cacheName);
+            Ehcache cache = cacheManager.getEhcache(cacheName);
             SampledCacheStatistics stats = cache.getSampledCacheStatistics();
             result += stats.getCacheElementExpiredMostRecentSample();
         }
@@ -194,7 +196,7 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
     public String getName() {
         return cacheManager.getName();
     }
-    
+
     /**
      * {@inheritDoc}
      * 
@@ -203,5 +205,5 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
     public String getMBeanRegisteredName() {
         return this.mbeanRegisteredName;
     }
-    
+
 }
