@@ -355,7 +355,7 @@ public class DiskStore implements Store {
      * Returns nothing since a disk store isn't clustered
      * @return returns 0
      */
-    public final int getClusteredSize() {
+    public final int getTerracottaClusteredSize() {
         return 0;
     }
 

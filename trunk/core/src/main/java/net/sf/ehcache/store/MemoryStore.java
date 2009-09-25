@@ -206,7 +206,7 @@ public class MemoryStore implements Store {
      * This is a default implementation which does nothing. Expiration on demand is only
      * implemented for disk stores.
      */
-    public final void expireElements() {
+    public void expireElements() {
         //empty implementation
     }
 
@@ -353,7 +353,7 @@ public class MemoryStore implements Store {
      * Returns nothing since a disk store isn't clustered
      * @return returns 0
      */
-    public final int getClusteredSize() {
+    public final int getTerracottaClusteredSize() {
         return 0;
     }
 
@@ -636,7 +636,7 @@ public class MemoryStore implements Store {
     /**
      * @return the active eviction policy.
      */
-    public final Policy getEvictionPolicy() {
+    public Policy getEvictionPolicy() {
         return policy;
     }
 
@@ -645,7 +645,7 @@ public class MemoryStore implements Store {
      *
      * @param policy a new policy to be used in evicting elements in this store
      */
-    public final void setEvictionPolicy(final Policy policy) {
+    public void setEvictionPolicy(final Policy policy) {
         this.policy = policy;
     }
 
