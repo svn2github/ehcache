@@ -1,5 +1,27 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+ehcache-1.7.0
+=============
+
+        <release version="1.7.0" date="2009-10-5" desc="This is a major release of Ehcache.">
+
+            <action dev="Greg Luck" type="update">
+                ehcache now becomes a composite modules which includes ehcache-core, ehcache-terracotta
+                and may include other commonly used modules in the future like ehcache-jcache.
+            </action>
+            <action dev="Terracotta Team" type="add" >
+                ehcache-terracotta module, which provides seamless integration to the Terracotta Server for
+                Terracotta based clustering.
+            </action>
+            <action dev="Terracotta Team" type="bug" issue="EHC-395>
+                Reduce iterator crossover from 100 to 5 to solve suspected CPU load issue in small caches.
+            </action>
+            <action dev="Terracotta Team" type="bug" issue="EHC-357>
+                Statistics reporting incorrectly in Hibernate in 1.6.2.
+            </action>
+        </release>
+
+
 ehcache-1.6.2
 =============
 
