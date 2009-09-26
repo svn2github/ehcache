@@ -8,9 +8,9 @@ package org.terracotta.ehcache.tests;
  *
  * @author cdennis
  */
-public class EmbeddedConfigStandaloneCacheTest extends AbstractStandaloneCacheTest {
+public class EmbeddedConfigNamespaceStandaloneCacheTest extends AbstractStandaloneCacheTest {
 
-  public EmbeddedConfigStandaloneCacheTest() {
-    super("embedded-config-cache-test.xml");
+  public EmbeddedConfigNamespaceStandaloneCacheTest() {
+    super("embedded-config-cache-test-ns.xml");
   }
 }

@@ -1176,10 +1176,42 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
       assertNotNull(tcConfig);
       assertEquals(null, tcConfig.getUrl());
       String embeddedConfig = tcConfig.getEmbeddedConfig();
-      assertEquals("<tc-config> <servers> <server host=\"server1\" name=\"s1\"></server> " + 
+      assertEquals("<tc:tc-config xmlns:tc=\"http://www.terracotta.org/config\"> " +
+              "<servers> <server host=\"server1\" name=\"s1\"></server> " + 
               "<server host=\"server2\" name=\"s2\"></server> </servers> " + 
-              "<clients> <logs>app/logs-%i</logs> </clients> </tc-config>", 
+              "<clients> <logs>app/logs-%i</logs> </clients> </tc:tc-config>", 
               removeLotsOfWhitespace(tcConfig.getEmbeddedConfig()));
+    }
+    
+    @Test
+    public void testTerracottaEmbeddedXsdConfig() {
+        File file = new File(TEST_CONFIG_DIR
+                + "terracotta/ehcache-tc-embedded-xsd.xml");
+        Configuration configuration = ConfigurationFactory
+                .parseConfiguration(file);
+        ConfigurationHelper configurationHelper = new ConfigurationHelper(
+                manager, configuration);
+
+        assertEquals("tc", configurationHelper.getConfigurationBean().getName());
+        assertEquals(false, configurationHelper.getConfigurationBean()
+                .getUpdateCheck());
+        assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper
+                .getConfigurationBean().getMonitoring());
+
+        // <terracottaConfig>
+        // <tc-config> ... </tc-config>
+        // </terracottaConfig>
+        TerracottaConfigConfiguration tcConfig = configuration
+                .getTerracottaConfiguration();
+        assertNotNull(tcConfig);
+        assertEquals(null, tcConfig.getUrl());
+        String embeddedConfig = tcConfig.getEmbeddedConfig();
+        assertEquals(
+                "<tc:tc-config xmlns:tc=\"http://www.terracotta.org/config\"> <servers> "
+                        + "<server host=\"server1\" name=\"s1\"></server> "
+                        + "<server host=\"server2\" name=\"s2\"></server> </servers> "
+                        + "<clients> <logs>app/logs-%i</logs> </clients> </tc:tc-config>",
+                removeLotsOfWhitespace(tcConfig.getEmbeddedConfig()));
     }
     
     /**

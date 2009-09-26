@@ -63,6 +63,11 @@ final class BeanHandler extends DefaultHandler {
         this.locator = locator;
     }
 
+    private String getTagPart(String qName) {
+        String[] parts = qName.split(":");
+        return parts[parts.length - 1];
+    }
+    
     /**
      * Receive notification of the start of an element.
      */
@@ -72,17 +77,24 @@ final class BeanHandler extends DefaultHandler {
                              final String qName,
                              final Attributes attributes)
             throws SAXException {
-        
-        if (extractingSubtree() || startExtractingSubtree(qName)) {
-            appendToSubtree("<" + qName);
+                
+        boolean subtreeAppend = extractingSubtree();
+        if (extractingSubtree() || startExtractingSubtree(getTagPart(qName))) {  
+            if (subtreeAppend) {
+                appendToSubtree("<" + qName);                             
+            }
             
             for (int i = 0; i < attributes.getLength(); i++) {
                 final String attrName = attributes.getQName(i);
                 final String attrValue = attributes.getValue(i);
-                appendToSubtree(" " + attrName + "=\"" + attrValue + "\"");
+                if (subtreeAppend) {
+                    appendToSubtree(" " + attrName + "=\"" + attrValue + "\"");
+                }
             }
             
-            appendToSubtree(">");
+            if (subtreeAppend) {
+                appendToSubtree(">");
+            }
             element = new ElementInfo(element, qName, bean);
         } else {
             if (element == null) {
@@ -112,11 +124,11 @@ final class BeanHandler extends DefaultHandler {
         
         if (element.parent != null) {
             if (extractingSubtree()) {
-                appendToSubtree("</" + qName + ">");
-                
-                if (endsSubtree(qName)) {
+                if (endsSubtree(getTagPart(qName))) {
                     endSubtree();
-                }                
+                } else {
+                    appendToSubtree("</" + qName + ">");
+                }
             } else { 
                 addChild(element.parent.bean, element.bean, qName);
             }

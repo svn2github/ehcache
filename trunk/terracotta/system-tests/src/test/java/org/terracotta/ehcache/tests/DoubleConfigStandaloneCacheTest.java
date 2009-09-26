@@ -15,7 +15,6 @@ public class DoubleConfigStandaloneCacheTest extends AbstractStandaloneCacheTest
 
   public DoubleConfigStandaloneCacheTest() {
     super("double-config-cache-test.xml");
-    disableAllUntil(ALL_TESTS_PASS_BY);
   }
 
   @Override
@@ -30,7 +29,7 @@ public class DoubleConfigStandaloneCacheTest extends AbstractStandaloneCacheTest
 
     @Override
     protected void evaluateClientOutput(String clientName, int exitCode, String clientOutput) throws AssertionError {
-      if ((exitCode == 0) || !clientOutput.contains("IllegalArgumentException")) {
+      if ((exitCode == 0) || !clientOutput.contains("InvalidConfigurationException")) {
         throw new AssertionError("Exit Code " + exitCode + "\n" + clientOutput);
       }
     }
