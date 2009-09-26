@@ -13,7 +13,12 @@ ehcache-1.7.0
                 ehcache-terracotta module, which provides seamless integration to the Terracotta Server for
                 Terracotta based clustering.
             </action>
-
+            <action dev="Terracotta Team" type="bug" issue="EHC-395>
+                Reduce iterator crossover from 100 to 5 to solve suspected CPU load issue in small caches.
+            </action>
+            <action dev="Terracotta Team" type="bug" issue="EHC-357>
+                Statistics reporting incorrectly in Hibernate in 1.6.2.
+            </action>
         </release>
 
 
