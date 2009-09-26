@@ -17,6 +17,7 @@
             <directory>${basedir}/src/assemble</directory>
             <includes>
                 <include>*.txt</include>
+                <include>*.TXT</include>
             </includes>
             <outputDirectory>/</outputDirectory>
         </fileSet>
