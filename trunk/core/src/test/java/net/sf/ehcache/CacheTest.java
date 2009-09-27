@@ -2576,6 +2576,28 @@ public class CacheTest extends AbstractCacheTest {
         }
 
     }
+    
+    /**
+     * test cache clones do not have same statistics
+     * @throws Exception
+     */
+    @Test
+    public void testCloneCompleteness() throws Exception {
+        Cache cache = new Cache("testGetMemoryStore", 10, false, false, 100,
+                200);
+        Cache clone = (Cache) cache.clone();
+        clone.setName("testGetMemoryStoreClone");
+        manager.addCache(cache);
+        manager.addCache(clone);
+
+        assertFalse(cache.getGuid().equals(clone.getGuid()));
+
+        // validate updating the statistics of one cache does NOT affect a
+        // cloned one
+        cache.get("notFoundKey");
+        assertEquals(1, cache.getStatistics().getCacheMisses());
+        assertEquals(0, clone.getStatistics().getCacheMisses());
+    }
 
 
     /**

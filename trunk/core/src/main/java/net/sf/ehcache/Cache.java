@@ -203,9 +203,9 @@ public class Cache implements Ehcache {
      */
     private ThreadPoolExecutor executorService;
 
-    private final LiveCacheStatisticsData liveCacheStatisticsData;
+    private LiveCacheStatisticsData liveCacheStatisticsData;
 
-    private final SampledCacheStatisticsWrapper sampledCacheStatistics;
+    private SampledCacheStatisticsWrapper sampledCacheStatistics;
 
 
     /**
@@ -1915,6 +1915,10 @@ public class Cache implements Ehcache {
             throw new CloneNotSupportedException("Cannot clone an initialized cache.");
         }
         Cache copy = (Cache) super.clone();
+        // create new copies of the statistics
+        copy.liveCacheStatisticsData = new LiveCacheStatisticsWrapper(copy);
+        copy.sampledCacheStatistics = new SampledCacheStatisticsWrapper();
+        
         copy.configuration = configuration.clone();
         copy.guid = createGuid();
 
