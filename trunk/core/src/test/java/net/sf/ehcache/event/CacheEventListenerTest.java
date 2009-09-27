@@ -497,7 +497,8 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         cache.put(new Element(12 + "", new Object()));
 
         for (int i = 0; i < 10; i++) {
-            cache.put(new Element(i + "", new Date()));
+            // use non-serializable object for all values
+            cache.put(new Element(i + "", new Object()));
             cache.get(i + "");
         }
 
