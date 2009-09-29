@@ -1372,7 +1372,7 @@ public class CacheTest extends AbstractCacheTest {
         Element a = null;
         int i = 0;
         try {
-            for (; i < 200000; i++) {
+            for (; i < 150000; i++) {
                 String key = i + "";
                 String value = key;
                 a = new Element(key, value + "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");

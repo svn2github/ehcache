@@ -30,16 +30,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Check for new Ehcache updates and alert users
+ * Check for new Ehcache updates and alert users if an update is available
  * 
  * @author Hung Huynh
  */
 public class UpdateChecker extends TimerTask {
-    private static final Logger LOG = Logger.getLogger(UpdateChecker.class
-            .getName());
+    private static final Logger LOG = Logger.getLogger(UpdateChecker.class.getName());
     private static final long MILLIS_PER_SECOND = 1000L;
     private static final String NOT_AVAILABLE = "UNKNOWN";
-    private static final String EHCACHE = "ehcache";
     private static final String UPDATE_CHECK_URL = "http://www.terracotta.org/kit/reflector?kitID=ehcache.default&pageID=update.properties";
     private static final long START_TIME = System.currentTimeMillis();
 

@@ -40,6 +40,8 @@ import java.util.logging.Logger;
 /**
  * Test cases for the {@link SelfPopulatingCache}.
  *
+ *
+ *
  * @author Adam Murdoch
  * @author Greg Luck
  * @version $Id$
@@ -71,6 +73,8 @@ public class SelfPopulatingCacheTest extends CacheTest {
      */
     @Before
     public void setUp() throws Exception {
+        //Skip update checks. Causing an OutOfMemoryError
+        System.setProperty("net.sf.ehcache.skipUpdateCheck", "true");
         super.setUp();
         manager = new CacheManager();
         cache = manager.getCache("sampleIdlingExpiringCache");
@@ -448,7 +452,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
         Element a = null;
         int i = 0;
         try {
-            for (; i < 200000; i++) {
+            for (; i < 160000; i++) {
                 String key = i + "";
                 String value = key;
                 a = new Element(key, value + "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
