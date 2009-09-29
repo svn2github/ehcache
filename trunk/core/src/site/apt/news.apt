@@ -7,6 +7,14 @@
 
 News
 
+* 29 September 2009: Subversion, JIRA, Forums and Mailing List migrated to Terracotta Infrastructure
+
+  As announced at the time of acquisition, Subversion, JIRA, Forums and Mailing List have now been migrated to
+  Terracotta Infrastructure. Please check the site links for the latest correct URLs.
+
+  File and Maven released will be made to SourceForge and Sonatype/Central for a fortcoming 1.7 release.
+
+
 * 23 August 2009: Ehcache Core 1.6.2 released
 
   This is a production maintenance release of ehcache-1.6. Users of 1.6 should upgrade to 1.6.2.

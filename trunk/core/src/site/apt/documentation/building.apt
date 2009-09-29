@@ -72,7 +72,7 @@
 
     The site needs to be deployed from the target/site directory using:
 
-    rsync -v -r * echache-stage.terracotta.lan:/export1/ehcache.org    
+    rsync -v -r * ehcache-stage.terracotta.lan:/export1/ehcache.org    
 
 *   Deploying a release
 
