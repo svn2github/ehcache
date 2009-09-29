@@ -1,0 +1,401 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>net.sf.ehcache</groupId>
+    <artifactId>ehcache-terracotta-root</artifactId>
+    <version>1.7.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>ehcache-terracotta-packaging</artifactId>
+  <name>ehcache-terracotta-packaging</name>
+  <packaging>jar</packaging>
+
+  <properties>
+    <jar-name>ehcache-terracotta</jar-name>
+    <exported-classes-jar>${project.build.directory}/exported-classes.jar</exported-classes-jar>
+    <terracotta-l1.artifactId>terracotta-l1</terracotta-l1.artifactId>
+    <enterprise.packaging>open source</enterprise.packaging>
+
+    <sourceforge-snapshots.url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</sourceforge-snapshots.url>
+    <sourceforge-releases.url>http://oss.sonatype.org/content/repositories/sourceforge-releases</sourceforge-releases.url>
+  </properties>
+
+  <dependencies>
+    <!-- bootstrap code -->
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache-terracotta-bootstrap</artifactId>
+      <version>1.7.0-SNAPSHOT</version>
+    </dependency>
+
+    <!-- Stuff that goes into L1 -->
+    <dependency>
+      <groupId>org.terracotta</groupId>
+      <artifactId>${terracotta-l1.artifactId}</artifactId>
+      <version>${terracotta.version}</version>
+    </dependency>
+
+    <!-- stuff that goes into TIMs -->
+    <dependency>
+      <groupId>org.terracotta.modules</groupId>
+      <artifactId>excludes-config</artifactId>
+      <version>${terracotta.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.terracotta.modules</groupId>
+      <artifactId>guimodels-config</artifactId>
+      <version>${terracotta.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.terracotta.modules</groupId>
+      <artifactId>jdk15-preinst-config</artifactId>
+      <version>${terracotta.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.terracotta.modules</groupId>
+      <artifactId>standard-config</artifactId>
+      <version>${terracotta.version}</version>
+    </dependency>
+
+    <!-- TIMs that we bundle in the standalone package -->
+    <dependency>
+      <groupId>org.terracotta.modules</groupId>
+      <artifactId>tim-ehcache-1.7</artifactId>
+      <version>${tim-ehcache-1.7.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.terracotta.maven.plugins</groupId>
+        <artifactId>tc-maven-plugin</artifactId>
+        <version>${tc-maven-plugin.version}</version>
+        <configuration>
+          <bootJar>${project.build.directory}/dso-boot/dso-boot.jar</bootJar>
+          <overwriteBootjar>true</overwriteBootjar>
+        </configuration>
+        <executions>
+          <execution>
+            <id>create-bootjar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>bootjar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.terracotta.maven.plugins</groupId>
+        <artifactId>tc-build-maven-plugin</artifactId>
+        <version>${tc-build-plugin.version}</version>
+        <configuration>
+          <jarLocation>${exported-classes-jar}</jarLocation>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>generate-exported-classes-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.3</version>
+        <configuration>
+          <tasks>
+            <unzip src="${project.build.directory}/dso-boot/dso-boot.jar"
+                   dest="${project.build.directory}/dso-boot/unpacked">
+              <patternset>
+                <include name="com/tc/**" />
+                <include name="com/tcclient/**" />
+
+                <!--
+                  XXX: We can remove this if we ever stop using
+                  TLinkable in com.tc.object.cache.Cacheable
+                -->
+                <include name="gnu/**" />
+              </patternset>
+            </unzip>
+            <zip destfile="${project.build.directory}/dso-boot/dso-boot.jar"
+                 basedir="${project.build.directory}/dso-boot/unpacked"
+                 update="false">              
+            </zip>
+          </tasks>
+        </configuration>
+        <executions>
+          <execution>
+            <id>unjar-classes</id>
+            <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.2-beta-4</version>
+        <configuration>
+          <finalName>${jar-name}-${project.version}</finalName>
+          <appendAssemblyId>false</appendAssemblyId>
+          <attach>false</attach>
+          <descriptors>
+            <descriptor>${basedir}/src/main/assembly/bin.xml</descriptor>
+          </descriptors>
+          <archive>
+            <manifestEntries>
+              <Terracotta-Category>Product</Terracotta-Category>
+              <Terracotta-ArtifactCoordinates>${project.groupId}:${jar-name}:${project.version}</Terracotta-ArtifactCoordinates>
+              <Terracotta-RequireVersion>${terracotta.version}</Terracotta-RequireVersion>
+              <Terracotta-Require></Terracotta-Require>
+              <Terracotta-ProjectStatus>Supported</Terracotta-ProjectStatus>
+              <Terracotta-InternalTIM>false</Terracotta-InternalTIM>
+              <Terracotta-DownloadPath>../distributed-cache</Terracotta-DownloadPath>
+              <Terracotta-Name>${jar-name}</Terracotta-Name>
+              <Terracotta-Description>${project.description}</Terracotta-Description>
+              <Terracotta-Kit>${enterprise.packaging}</Terracotta-Kit>
+            </manifestEntries>
+          </archive>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>2.3</version>
+        <executions>
+          <execution>
+            <id>install-standalone-package</id>
+            <configuration>
+              <file>${project.build.directory}/${jar-name}-${project.version}.jar</file>
+              <packaging>jar</packaging>
+              <groupId>net.sf.ehcache</groupId>
+              <artifactId>${jar-name}</artifactId>
+              <version>${project.version}</version>
+            </configuration>
+            <phase>install</phase>
+            <goals>
+              <goal>install-file</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+
+
+  <profiles>
+    <profile>
+      <!-- 
+        * activate this profile to build an EE standalone version
+        * you can onnly pull terracotta-l1-ee artifact inside Terracotta LAN
+        *
+        * If you want to build it outside of TC LAN, 
+        * run 'tcbuild dist_maven_ee' under appropriate TC EE checkout
+        * to build the terracotta-l1-ee artifact
+        * 
+      -->
+      <id>package-ee</id>
+      
+      <!-- overwrite terracotta-l1 artifact name to terracotta-l1-ee -->
+      <properties>
+        <jar-name>ehcache-terracotta-ee</jar-name>
+        <terracotta-l1.artifactId>terracotta-l1-ee</terracotta-l1.artifactId>
+        <enterprise.packaging>enterprise</enterprise.packaging>
+      </properties>
+      
+      <repositories>
+        <repository>
+          <id>terracotta-repository-ee</id>
+          <url>http://kong.terracotta.lan/repo/ee</url>
+        </repository>
+      </repositories>
+    </profile>
+
+    <profile>
+      <id>deploy-kong</id>
+      <activation>
+        <property>
+          <name>altDeploymentRepository</name>
+          <value>kong::default::file:///shares/maven2</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <version>2.4</version>
+            <executions>
+              <execution>
+                <id>deploy-to-kong</id>
+                <configuration>
+                  <file>${project.build.directory}/${jar-name}-${project.version}.jar</file>
+                  <repositoryId>kong</repositoryId>
+                  <url>file:///shares/maven2</url>
+                  <packaging>jar</packaging>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>${jar-name}</artifactId>
+                  <version>${project.version}</version>
+                  <uniqueVersion>false</uniqueVersion>
+                </configuration>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>deploy-snapshot-default</id>
+      <activation>
+        <property>
+          <name>deploySnapshot</name>
+          <value>default</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <version>2.4</version>
+            <executions>
+              <execution>
+                <id>deploy-to-kong</id>
+                <configuration>
+                  <file>${project.build.directory}/${jar-name}-${project.version}.jar</file>
+                  <repositoryId>sourceforge-snapshots</repositoryId>
+                  <url>${sourceforge-snapshots.url}</url>
+                  <packaging>jar</packaging>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>${jar-name}</artifactId>
+                  <version>${project.version}</version>
+                  <uniqueVersion>false</uniqueVersion>
+                </configuration>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>deploy-release-default</id>
+      <activation>
+        <property>
+          <name>deployRelease</name>
+          <value>default</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <version>2.4</version>
+            <executions>
+              <execution>
+                <id>deploy-to-kong</id>
+                <configuration>
+                  <file>${project.build.directory}/${jar-name}-${project.version}.jar</file>
+                  <repositoryId>sourceforge-releases</repositoryId>
+                  <url>${sourceforge-releases.url}</url>
+                  <packaging>jar</packaging>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>${jar-name}</artifactId>
+                  <version>${project.version}</version>
+                  <uniqueVersion>false</uniqueVersion>
+                </configuration>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
+    <profile>
+      <id>deploy-release-candidate</id>
+      <activation>
+        <property>
+          <name>altDeploymentRepository</name>
+          <value>kong::default::file:///export1/forge/repo</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <version>2.4</version>
+            <executions>
+              <execution>
+                <id>deploy-to-kong</id>
+                <configuration>
+                  <file>${project.build.directory}/${jar-name}-${project.version}.jar</file>
+                  <repositoryId>kong</repositoryId>
+                  <url>file:///export1/forge/repo</url>
+                  <packaging>jar</packaging>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>${jar-name}</artifactId>
+                  <version>${project.version}</version>
+                  <uniqueVersion>false</uniqueVersion>
+                </configuration>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
+  </profiles>
+
+  <repositories>
+    <repository>
+      <id>terracotta-repository</id>
+      <url>http://www.terracotta.org/download/reflector/maven2</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>terracotta-repository</id>
+      <url>http://www.terracotta.org/download/reflector/maven2</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+</project>

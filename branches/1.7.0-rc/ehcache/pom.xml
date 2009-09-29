@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>ehcache-parent</artifactId>
+        <groupId>net.sf.ehcache</groupId>
+        <version>2.0-SNAPSHOT</version>
+    </parent>
+    <groupId>net.sf.ehcache</groupId>
+    <artifactId>ehcache</artifactId>
+    <version>1.7.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>ehcache</name>
+    <description>This is an ehcache pom module which provides commonly used modules</description>
+    <url>http://maven.apache.org</url>
+    <dependencies>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
+            <version>1.7.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-terracotta</artifactId>
+            <version>1.7.0-SNAPSHOT</version>
+        </dependency>
+
+        <!--Add sources and javadoc to the assembly. These are not classpath dependencies-->
+        <dependency>
+            <scope>provided</scope>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
+            <version>1.7.0-SNAPSHOT</version>
+            <classifier>javadoc</classifier>
+        </dependency>
+        <dependency>
+            <scope>provided</scope>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
+            <version>1.7.0-SNAPSHOT</version>
+            <classifier>sources</classifier>
+        </dependency>
+    </dependencies>
+
+
+    <build>
+        <plugins>
+            <!-- To create the distribution tarball: mvn clean assembly:assembly -->
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <filters>
+                        <filter>src/assemble/filter.properties</filter>
+                    </filters>
+                    <descriptors>
+                        <descriptor>src/assemble/distribution.xml</descriptor>
+                    </descriptors>
+                    <tarLongFileMode>gnu</tarLongFileMode>
+                </configuration>
+            </plugin>
+        </plugins>
+
+    </build>
+
+    <repositories>
+        <repository>
+            <id>sourceforge-snapshots</id>
+            <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>sourceforge-releases</id>
+            <name>Sourceforge Release Repository</name>
+            <url>http://oss.sonatype.org/content/repositories/sourceforge-releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>sourceforge-snapshots</id>
+            <name>Sourceforge Snapshot Repository</name>
+            <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+
+</project>

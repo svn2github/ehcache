@@ -1,0 +1,26 @@
+{OpenJPA Caching Provider}
+
+    Ehcache easily integrates with the {{{http://openjpa.apache.org/}OpenJPA}}
+    persistence framework.
+
+
+* Installing
+
+    To use it, add a Maven dependency for ehcache-openjpa.
+
+---
+    <groupId>net.sf.ehcache</groupId>
+    <artifactId>ehcache-openjpa</artifactId>
+    <version>0.1</version>
+---    
+
+    or download from downloads.
+
+*   Configuration
+
+
+    Set OpenJPA’s <<<openjpa.QueryCache>>> to <<<ehcache>>> and <<<openjpa.DataCacheManager>>> to <<<ehcache>>>. That’s it!
+
+    See {{http://openjpa.apache.org/builds/1.0.2/apache-openjpa-1.0.2/docs/manual/ref_guide_caching.html}}
+    for more on caching in OpenJPA.
+
