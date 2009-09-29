@@ -52,7 +52,7 @@ Maven POM snippet
 
      <dependency>
         <groupId>net.sf.ehcache</groupId>
-        <artifactId>ehcache</artifactId>
+        <artifactId>ehcache-core</artifactId>
         <version>1.7.0</version>
      </dependency>
 
