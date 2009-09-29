@@ -48,15 +48,17 @@
     </xs:element>
     <xs:element name="terracottaConfig">
         <xs:complexType>
-            <xsd:element name="tc-config" minOccurs="0" maxOccurs="1">
-                <xsd:complexType>
-                    <xsd:sequence>
-                        <xsd:any minOccurs="0" maxOccurs="unbounded" processContents="skip" />
-                    </xsd:sequence>
-                </xsd:complexType>        
-            </xsd:element>
+            <xs:sequence>
+                <xs:element name="tc-config" minOccurs="0" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip" />
+                        </xs:sequence>
+                    </xs:complexType>        
+                </xs:element>
+            </xs:sequence>
             <xs:attribute name="url" use="optional" default="localhost:9510"/>
-            <xs:attribute name="registerStatsMBean" type="xsd:boolean" use="optional"/>
+            <xs:attribute name="registerStatsMBean" type="xs:boolean" use="optional"/>
         </xs:complexType>
     </xs:element>    
     <!-- add clone support for addition of cacheExceptionHandler. Important! -->
@@ -148,17 +150,17 @@
             <xs:attribute name="valueMode" use="optional" type="terracottaCacheValueType" default="serialization"/>
         </xs:complexType>
     </xs:element>
-    <xsd:simpleType name="monitoringType">
-        <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="autodetect" />
-            <xsd:enumeration value="on" />
-            <xsd:enumeration value="off" />
-        </xsd:restriction>
-    </xsd:simpleType>
-    <xsd:simpleType name="terracottaCacheValueType">
-        <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="serialization" />
-            <xsd:enumeration value="identity" />
-        </xsd:restriction>
-    </xsd:simpleType>
+    <xs:simpleType name="monitoringType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="autodetect" />
+            <xs:enumeration value="on" />
+            <xs:enumeration value="off" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="terracottaCacheValueType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="serialization" />
+            <xs:enumeration value="identity" />
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>
