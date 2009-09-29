@@ -1,7 +1,7 @@
 $Id: RELEASE_NOTES.txt,v 1.16 2006/03/01 01:52:03 gregluck Exp $
 
 
-Release Notes For ehcache 1.6.2
+Release Notes For ehcache 1.7.0
 
 Introduction
 ============
@@ -26,11 +26,12 @@ Ehcache is a pure Java, in-process cache with the following features:
    17. Full JMX monitoring implementation
    18. Complete implementation of the draft JCACHE (JSR107) specification.
    19. Compatible with Google App Engine
+   20. Seamless support for Terracotta Clustering
 
 Java Requirements
 =================
 
-    Ehcache 1.6.0 and above supports Java 1.5 and 1.6 at runtime. Ehcache final releases are compiled with -target 1.5.
+    Ehcache 1.7.0 and above supports Java 1.5 and 1.6 at runtime. Ehcache final releases are compiled with -target 1.5.
 
     The Ehcache 1.5 branch is being maintained for Java 1.4 users.
 
@@ -44,29 +45,29 @@ Maven POM snippet
 
      All Ehcache releases are placed in the central Maven repository.
 
-     The Maven snippet for ehcache core (which automatically picks up any point releases in 1.6) is:
+     The Maven snippet for ehcache core is:
 
      <dependency>
         <groupId>net.sf.ehcache</groupId>
-        <artifactId>ehcache</artifactId>
-        <version>[1.6.0,]</version>
+        <artifactId>ehcache-core</artifactId>
+        <version>1.7.0</version>
      </dependency>
 
 Installation
 ============
-Place the ehcache.jar into your classpath. Ensure the required dependencies are in the classpath.
+Place the ehcache-core.jar into your classpath. Ensure the required dependencies are in the classpath.
 
 Create an ehcache.xml configuration from the one supplied in the distribution and place it in your classpath.
 
 The ehcache-remote-debugger.jar is a tool to be used for distributed debugging. Do not install it in
-your project. See http://ehcache.sourceforge.net/documentation/logging.html for how to use it.
+your project. See http://ehcache.org/documentation/logging.html for how to use it.
 
 
 Documentation
 =============
-See http://ehcache.sourceforge.net/documentation for full documentation.
+See  http://ehcache.org/documentation for full documentation.
 
-The JavaDoc is in the distribution and also online at http://ehcache.sourceforge.net/javadoc.
+The JavaDoc is in the distribution and also online at http://ehcache.org/javadoc.
 
 Known Issues
 ============
