@@ -350,7 +350,7 @@
       <activation>
         <property>
           <name>altDeploymentRepository</name>
-          <value>kong::default::file:///export1/forge/repo</value>
+          <value>kong::default::file:///shares/forge/repo</value>
         </property>
       </activation>
       <build>
@@ -365,7 +365,7 @@
                 <configuration>
                   <file>${project.build.directory}/${jar-name}-${project.version}.jar</file>
                   <repositoryId>kong</repositoryId>
-                  <url>file:///export1/forge/repo</url>
+                  <url>file:///shares/forge/repo</url>
                   <packaging>jar</packaging>
                   <groupId>${project.groupId}</groupId>
                   <artifactId>${jar-name}</artifactId>
