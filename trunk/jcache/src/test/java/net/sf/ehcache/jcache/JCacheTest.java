@@ -16,6 +16,25 @@
 
 package net.sf.ehcache.jcache;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Logger;
+
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -30,30 +49,16 @@ import net.sf.jsr107cache.CacheEntry;
 import net.sf.jsr107cache.CacheException;
 import net.sf.jsr107cache.CacheManager;
 import net.sf.jsr107cache.CacheStatistics;
+
 import org.junit.After;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.logging.Logger;
-
 /**
  * Tests for a Cache
+ *
+ * Since expiration is rounded on seconds, we need to at least go up to the last
+ * millisecond before the next second in many of the tests
  *
  * @author Greg Luck
  * @version $Id:JCacheTest.java 318 2007-01-25 01:48:35Z gregluck $
@@ -65,7 +70,8 @@ public class JCacheTest extends AbstractCacheTest {
     /**
      * setup test
      */
-    @Before
+    @Override
+	@Before
     public void setUp() throws Exception {
         super.setUp();
         System.gc();
@@ -82,7 +88,8 @@ public class JCacheTest extends AbstractCacheTest {
      * teardown
      * limits to what we can do here under jsr107
      */
-    @After
+    @Override
+	@After
     public void tearDown() throws Exception {
         //gettest1jcacheCache().clear();
         //getTest2Cache().clear();
@@ -308,14 +315,14 @@ public class JCacheTest extends AbstractCacheTest {
         cache.evict();
         assertFalse(cache.isEmpty());
 
-        Thread.sleep(1020);
+        Thread.sleep(1999);
         cache.evict();
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
 
         cache.put("key1", "value1");
         cache.put("key2", "value1");
-        Thread.sleep(1020);
+        Thread.sleep(1999);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
 
@@ -682,7 +689,7 @@ public class JCacheTest extends AbstractCacheTest {
         //Test time to live
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
-        Thread.sleep(1020);
+        Thread.sleep(1959);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
     }
@@ -706,7 +713,7 @@ public class JCacheTest extends AbstractCacheTest {
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
 
-        Thread.sleep(1020);
+        Thread.sleep(1999);
         //Test time to live
         assertNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
@@ -743,7 +750,7 @@ public class JCacheTest extends AbstractCacheTest {
         //Test time to live
         assertNotNull(cache.peek("key1"));
         assertNotNull(cache.peek("key2"));
-        Thread.sleep(1020);
+        Thread.sleep(1969);
         assertNull(cache.peek("key1"));
         assertNull(cache.peek("key2"));
     }
@@ -788,7 +795,7 @@ public class JCacheTest extends AbstractCacheTest {
         assertNotNull(cache.get("key2"));
 
         //Check that we did not expire out
-        Thread.sleep(3020);
+        Thread.sleep(6000);
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
     }
@@ -809,7 +816,7 @@ public class JCacheTest extends AbstractCacheTest {
         //Test time to idle
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
-        Thread.sleep(2020);
+        Thread.sleep(2999);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
 
@@ -820,7 +827,7 @@ public class JCacheTest extends AbstractCacheTest {
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
 
-        Thread.sleep(2020);
+        Thread.sleep(3999);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
     }
@@ -951,11 +958,13 @@ public class JCacheTest extends AbstractCacheTest {
 
         //try null values
         cache.clear();
-        cache.put("nullValue1", null);
-        cache.put("nullValue2", null);
+        Object object1 = new Object();
+        Object object2 = new Object();
+        cache.put(object1, null);
+        cache.put(object2, null);
         //Cannot overflow therefore just one
         assertEquals(1, cache.getCacheStatistics().getObjectCount());
-        Object nullValue = cache.get("nullValue2");
+        Object nullValue = cache.get(object2);
         assertNull(nullValue);
 
     }
@@ -978,7 +987,7 @@ public class JCacheTest extends AbstractCacheTest {
         assertEquals(2, cache.getCacheStatistics().getObjectCount());
         String keyFromDisk = (String) cache.getCacheEntry(key1).getKey();
         assertTrue(key1.equals(keyFromDisk));
-        Thread.sleep(1020);
+        Thread.sleep(1999);
         assertEquals(2, cache.keySet().size());
         //getKeysWithExpiryCheck does check and gives the correct answer of 0
         Ehcache ehcache = ((JCache) cache).getBackingCache();
@@ -1068,7 +1077,7 @@ public class JCacheTest extends AbstractCacheTest {
         cache.put("key2", "value1");
 
         //Let the idle expire
-        Thread.sleep(1020);
+        Thread.sleep(1999);
         assertEquals(null, cache.get("key1"));
         assertEquals(null, cache.get("key2"));
 
@@ -1094,14 +1103,16 @@ public class JCacheTest extends AbstractCacheTest {
         Cache cache = new JCache(ehcache);
 
         try {
-            cache.put(null, null);
-            assertNull(cache.get(null));
-            cache.put(null, "value");
-            assertEquals("value", cache.get(null));
+            // Disabled since memory store doesn't support null keys anymore
+//            cache.put(null, null);
+//            assertNull(cache.get(null));
+//            cache.put(null, "value");
+//            assertEquals("value", cache.get(null));
             cache.put("key", null);
             assertEquals(null, cache.get("key"));
             assertFalse(null instanceof Serializable);
         } catch (Exception e) {
+        	e.printStackTrace();
             fail("Should not have thrown an Execption");
         }
     }
@@ -1184,15 +1195,16 @@ public class JCacheTest extends AbstractCacheTest {
      */
     @Test
     public void testSpoolThreadHandlesThreadKiller() throws Exception {
-        Ehcache ehcache = new net.sf.ehcache.Cache("testThreadKiller", 1, true, false, 100, 200);
+        Ehcache ehcache = new net.sf.ehcache.Cache("testThreadKiller", 0, true, false, 100, 200);
         manager.addCache(ehcache);
         Cache cache = new JCache(ehcache);
 
         cache.put("key", new ThreadKiller());
+        Thread.sleep(2999);
         cache.put("key1", "one");
         cache.put("key2", "two");
 
-        Thread.sleep(2000);
+        Thread.sleep(2999);
 
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
@@ -1483,8 +1495,6 @@ public class JCacheTest extends AbstractCacheTest {
         for (int i = 0; i < 999; i++) {
             keys.add(new Integer(i));
         }
-        //make on key null
-        keys.add(null);
 
         //pre populate only 1 element
         jcache.put(new Integer(1), "");
@@ -1492,8 +1502,8 @@ public class JCacheTest extends AbstractCacheTest {
         jcache.loadAll(keys);
         Thread.sleep((long) (3000 * StopWatch.getSpeedAdjustmentFactor()));
 
-        assertEquals(1000, jcache.size());
-        assertEquals(999, countingCacheLoader.getLoadAllCounter());
+        assertEquals(999, jcache.size());
+        assertEquals(998, countingCacheLoader.getLoadAllCounter());
 
     }
 

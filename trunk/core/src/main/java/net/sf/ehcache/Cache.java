@@ -201,7 +201,7 @@ public class Cache implements Ehcache {
      * <p/>
      * Use {@link #getExecutorService()} to ensure that it is initialised.
      */
-    private ThreadPoolExecutor executorService;
+    private volatile ThreadPoolExecutor executorService;
 
     private LiveCacheStatisticsData liveCacheStatisticsData;
 
@@ -2476,8 +2476,8 @@ public class Cache implements Ehcache {
                         put(new Element(key, map.get(key)));
                     }
                 } catch (Throwable e) {
-                    if (LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "Problem during load. Load will not be completed. Cause was " + e.getCause(), e);
+                    if (LOG.isLoggable(Level.SEVERE)) {
+                        LOG.log(Level.SEVERE, "Problem during load. Load will not be completed. Cause was " + e.getCause(), e);
                     }
                 }
             }
@@ -2515,11 +2515,9 @@ public class Cache implements Ehcache {
      * @return Gets the executor service. This is not publically accessible.
      */
     ThreadPoolExecutor getExecutorService() {
-        if (executorService == null) {
-            synchronized (this) {
-                executorService = new ThreadPoolExecutor(EXECUTOR_CORE_POOL_SIZE, EXECUTOR_MAXIMUM_POOL_SIZE,
-                        EXECUTOR_KEEP_ALIVE_TIME, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
-            }
+        if (null == executorService) {
+            executorService = new ThreadPoolExecutor(EXECUTOR_CORE_POOL_SIZE, EXECUTOR_MAXIMUM_POOL_SIZE,
+                    EXECUTOR_KEEP_ALIVE_TIME, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
         }
         return executorService;
     }

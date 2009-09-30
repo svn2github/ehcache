@@ -910,12 +910,14 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(0, cache.getSize());
 
         //try null values
-        Object object = new Object();
-        cache.put(new Element(object, null));
-        cache.put(new Element(object, null));
+        cache.removeAll();
+        Object object1 = new Object();
+        Object object2 = new Object();
+        cache.put(new Element(object1, null));
+        cache.put(new Element(object2, null));
         //Cannot overflow therefore just one
         assertEquals(1, cache.getSize());
-        Element nullValueElement = cache.get(object);
+        Element nullValueElement = cache.get(object2);
         assertNull(nullValueElement.getValue());
         assertNull(nullValueElement.getObjectValue());
 
@@ -1539,13 +1541,13 @@ public class CacheTest extends AbstractCacheTest {
 
         Element elementThreadKiller = new Element("key", new ThreadKiller());
         cache.put(elementThreadKiller);
-        Thread.sleep(2000);
+        Thread.sleep(2999);
         Element element1 = new Element("key1", "one");
         Element element2 = new Element("key2", "two");
         cache.put(element1);
         cache.put(element2);
 
-        Thread.sleep(2000);
+        Thread.sleep(2999);
 
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
