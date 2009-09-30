@@ -18,6 +18,8 @@
 package net.sf.ehcache;
 
 
+import net.sf.ehcache.util.TimeUtil;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -41,11 +43,6 @@ import java.util.logging.Logger;
  */
 public class Element implements Serializable, Cloneable {
 
-    /**
-     * Constant that contains the amount of milliseconds in a second
-     */
-    static final long ONE_SECOND = 1000L;
-    
     /**
      * serial version
      * Updated for version 1.2, 1.2.1 and 1.7
@@ -123,7 +120,7 @@ public class Element implements Serializable, Cloneable {
         this.value = value;
         this.version = version;
         this.hitCount = 0;
-        this.elementEvictionData = new DefaultElementEvictionData(toSecs(System.currentTimeMillis()));
+        this.elementEvictionData = new DefaultElementEvictionData(TimeUtil.toSecs(System.currentTimeMillis()));
     }
 
     /**
@@ -157,8 +154,8 @@ public class Element implements Serializable, Cloneable {
         this.lastUpdateTime = lastUpdateTime;
         this.hitCount = hitCount;
         this.elementEvictionData = new DefaultElementEvictionData(
-                toSecs(creationTime),
-                toSecs(lastAccessTime));
+                TimeUtil.toSecs(creationTime),
+                TimeUtil.toSecs(lastAccessTime));
     }
     
     /**
@@ -177,8 +174,8 @@ public class Element implements Serializable, Cloneable {
         setTimeToIdle(timeToIdle);
         this.lastUpdateTime = lastUpdateTime;
         this.elementEvictionData = new DefaultElementEvictionData(
-                toSecs(creationTime),
-                toSecs(lastAccessTime));
+                TimeUtil.toSecs(creationTime),
+                TimeUtil.toSecs(lastAccessTime));
     }
 
 
@@ -205,7 +202,7 @@ public class Element implements Serializable, Cloneable {
         if (timeToLiveSeconds != null) {
             setTimeToLive(timeToLiveSeconds.intValue());
         }
-        this.elementEvictionData = new DefaultElementEvictionData(toSecs(System.currentTimeMillis()));
+        this.elementEvictionData = new DefaultElementEvictionData(TimeUtil.toSecs(System.currentTimeMillis()));
     }
 
     /**
@@ -227,17 +224,6 @@ public class Element implements Serializable, Cloneable {
      */
     public Element(final Object key, final Object value) {
         this(key, value, 1L);
-    }
-    
-    private static int toSecs(long timeInMillis) {
-        // Rounding the result to the ceiling, otherwise a
-        // System.currentTimeInMillis that happens right before a new Element
-        // instantiation will be seen as 'later' than the actual creation time
-        return (int)Math.ceil((double)timeInMillis / ONE_SECOND);
-    }
-    
-    private static long toMillis(int timeInSecs) {
-        return timeInSecs * ONE_SECOND;
     }
 
     /**
@@ -369,7 +355,7 @@ public class Element implements Serializable, Cloneable {
      */
     @Deprecated
     public final void setCreateTime() {
-        this.elementEvictionData.setCreationTime(toSecs(System.currentTimeMillis()));
+        this.elementEvictionData.setCreationTime(TimeUtil.toSecs(System.currentTimeMillis()));
     }
 
     /**
@@ -378,7 +364,7 @@ public class Element implements Serializable, Cloneable {
      * @return The creationTime value
      */
     public final long getCreationTime() {
-        return toMillis(elementEvictionData.getCreationTime());
+        return TimeUtil.toMillis(elementEvictionData.getCreationTime());
     }
 
     /**
@@ -387,7 +373,7 @@ public class Element implements Serializable, Cloneable {
      */
     public final long getLatestOfCreationAndUpdateTime() {
         if (0 == lastUpdateTime) {
-            return toMillis(elementEvictionData.getCreationTime());
+            return TimeUtil.toMillis(elementEvictionData.getCreationTime());
         } else {
             return lastUpdateTime;
         }
@@ -408,7 +394,7 @@ public class Element implements Serializable, Cloneable {
      * will have a last access time equal to its create time.
      */
     public final long getLastAccessTime() {
-        return toMillis(elementEvictionData.getLastAccessTime());
+        return TimeUtil.toMillis(elementEvictionData.getLastAccessTime());
     }
 
     /**
@@ -450,7 +436,7 @@ public class Element implements Serializable, Cloneable {
     }
 
     /**
-     * Resets the hit count to 0 and the last access time to 0.
+     * Resets the hit count to 0 and the last access time to now. Used when an Element is put into a cache.
      */
     public final void resetAccessStatistics() {
         elementEvictionData.resetLastAccessTime(this);
@@ -461,7 +447,7 @@ public class Element implements Serializable, Cloneable {
      * Sets the last access time to now and increase the hit count.
      */
     public final void updateAccessStatistics() {
-        elementEvictionData.updateLastAccessTime(toSecs(System.currentTimeMillis()), this);
+        elementEvictionData.updateLastAccessTime(TimeUtil.toSecs(System.currentTimeMillis()), this);
         hitCount++;
     }
 
@@ -667,10 +653,11 @@ public class Element implements Serializable, Cloneable {
         }
 
         long expirationTime = 0;
-        long ttlExpiry = toMillis(elementEvictionData.getCreationTime()) + toMillis(getTimeToLive());
+        long ttlExpiry = TimeUtil.toMillis(elementEvictionData.getCreationTime()) + TimeUtil.toMillis(getTimeToLive());
 
-        long mostRecentTime = Math.max(toMillis(elementEvictionData.getCreationTime()), toMillis(elementEvictionData.getLastAccessTime()));
-        long ttiExpiry = mostRecentTime + toMillis(getTimeToIdle());
+        long mostRecentTime = Math.max(TimeUtil.toMillis(elementEvictionData.getCreationTime()),
+                TimeUtil.toMillis(elementEvictionData.getLastAccessTime()));
+        long ttiExpiry = mostRecentTime + TimeUtil.toMillis(getTimeToIdle());
 
         if (getTimeToLive() != 0 && (getTimeToIdle() == 0 || elementEvictionData.getLastAccessTime() == 0)) {
             expirationTime = ttlExpiry;

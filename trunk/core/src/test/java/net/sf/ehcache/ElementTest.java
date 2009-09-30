@@ -220,7 +220,7 @@ public class ElementTest extends AbstractCacheTest {
     }
 
     /**
-     * ehcache-1.1 and earllier exclusively uses Serializable keys and values. Check that this works
+     * ehcache-1.1 and earlier exclusively uses Serializable keys and values. Check that this works
      */
     @Test
     public void testSerializableAccess() {

@@ -137,6 +137,20 @@ public class MemoryStoreTester extends AbstractCacheTest {
         store = cache.getMemoryStore();
     }
 
+
+    /**
+     * Creates a cache with the given policy with a MemoryStore only and adds it to the manager.
+     *
+     * @param evictionPolicy
+     * @throws CacheException
+     */
+    protected void createMemoryOnlyStore(MemoryStoreEvictionPolicy evictionPolicy, int memoryStoreSize) throws CacheException {
+        manager.removeCache("test");
+        cache = new Cache("test", memoryStoreSize, evictionPolicy, false, null, true, 60, 30, false, 60, null);
+        manager.addCache(cache);
+        store = cache.getMemoryStore();
+    }
+
     /**
      * Creates a store from the given configuration and cache within it.
      *

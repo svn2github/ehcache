@@ -3,6 +3,7 @@ package net.sf.ehcache.store;
 import net.sf.ehcache.Cache;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Tests the pre ehcache-1.6 LruMemoryStore, which can be switched in
@@ -27,6 +28,14 @@ public class LruClassicMemoryStoreTest extends LruMemoryStoreTest {
     public void tearDown() throws Exception {
         super.tearDown();
         System.setProperty(Cache.NET_SF_EHCACHE_USE_CLASSIC_LRU, "false");
+    }
+
+    /**
+     * Test the LRU policy
+     */
+    @Test
+    public void testProbabilisticEvictionPolicy() throws Exception {
+        super.testProbabilisticEvictionPolicy();
     }
 
 }
