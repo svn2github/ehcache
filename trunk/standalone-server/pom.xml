@@ -85,7 +85,7 @@
                     <excludes>
                         <exclude>**/*$*</exclude>
                     </excludes>
-                    <disableXmlReport>true</disableXmlReport>
+                    <disableXmlReport>false</disableXmlReport>
                     <printSummary>true</printSummary>
                     <enableAssertions>false</enableAssertions>
                     <additionalClasspathElements>

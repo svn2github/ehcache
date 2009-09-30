@@ -138,7 +138,7 @@
                             </excludes>
                             <forkMode>never</forkMode>
                             <childDelegation>false</childDelegation>
-                            <disableXmlReport>true</disableXmlReport>
+                            <disableXmlReport>false</disableXmlReport>
                             <printSummary>true</printSummary>
                             <reportFormat>plain</reportFormat>
                             <redirectTestOutputToFile>true</redirectTestOutputToFile>
