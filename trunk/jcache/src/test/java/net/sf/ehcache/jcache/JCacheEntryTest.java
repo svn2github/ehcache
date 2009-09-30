@@ -136,7 +136,7 @@ public class JCacheEntryTest extends AbstractCacheTest {
 
         //test expiry time s 1000ms after create time.
         assertTrue(retrievedEntry.getExpirationTime() > (System.currentTimeMillis() + 995));
-        assertTrue(retrievedEntry.getExpirationTime() < (System.currentTimeMillis() + 1005));
+        assertTrue(retrievedEntry.getExpirationTime() < (System.currentTimeMillis() + 1995));
     }
 
     /**
@@ -255,7 +255,7 @@ public class JCacheEntryTest extends AbstractCacheTest {
         assertEquals(true, retrievedEntry.isValid());
 
 
-        Thread.sleep(1020);
+        Thread.sleep(1999);
         assertEquals(false, retrievedEntry.isValid());
 
     }
