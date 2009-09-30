@@ -57,7 +57,7 @@ public class JCacheEntryTest extends AbstractCacheTest {
     private Cache getTestCache() throws CacheException {
         Cache cache = CacheManager.getInstance().getCache("testCacheEntry");
         if (cache == null) {
-            Map env = new HashMap();
+            Map<String,String> env = new HashMap<String,String>();
             env.put("name", "testCacheEntry");
             env.put("maxElementsInMemory", "1");
             env.put("overflowToDisk", "true");
@@ -69,8 +69,7 @@ public class JCacheEntryTest extends AbstractCacheTest {
         }
         return CacheManager.getInstance().getCache("testCacheEntry");
     }
-
-
+    
     @Test
     public void testGetTestCache() throws CacheException {
         Cache cache = getTestCache();
@@ -194,7 +193,9 @@ public class JCacheEntryTest extends AbstractCacheTest {
         CacheEntry retrievedEntry = cache.getCacheEntry(entry.getKey());
 
         //test access is in the last 5ms
-        assertTrue(retrievedEntry.getLastAccessTime() <= System.currentTimeMillis());
+        assertNotNull(retrievedEntry);
+        assertTrue(retrievedEntry.getLastAccessTime() > 0);
+        assertTrue(retrievedEntry.getLastAccessTime() <= (System.currentTimeMillis()+1000));
 
     }
 
