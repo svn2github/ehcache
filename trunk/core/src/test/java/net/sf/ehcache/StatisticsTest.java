@@ -84,7 +84,7 @@ public class StatisticsTest extends AbstractCacheTest {
         assertEquals(2, statistics.getCacheHits());
         assertEquals(1, statistics.getOnDiskHits());
         assertEquals(1, statistics.getInMemoryHits());
-        assertEquals(2, statistics.getCacheMisses());
+        assertEquals(1, statistics.getCacheMisses());
 
         // key 2 should also be expired
         cache.get("key2");
@@ -92,7 +92,7 @@ public class StatisticsTest extends AbstractCacheTest {
         assertEquals(2, statistics.getCacheHits());
         assertEquals(1, statistics.getOnDiskHits());
         assertEquals(1, statistics.getInMemoryHits());
-        assertEquals(4, statistics.getCacheMisses());
+        assertEquals(2, statistics.getCacheMisses());
 
         assertNotNull(statistics.toString());
     }

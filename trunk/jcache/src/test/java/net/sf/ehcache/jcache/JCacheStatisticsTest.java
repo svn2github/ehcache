@@ -95,7 +95,7 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
         cache.get("key1");
         statistics = cache.getCacheStatistics();
         assertEquals(2, statistics.getCacheHits());
-        assertEquals(2, statistics.getCacheMisses());
+        assertEquals(1, statistics.getCacheMisses());
         assertNotNull(statistics.toString());
     }
 
