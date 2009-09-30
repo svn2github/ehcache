@@ -2166,7 +2166,7 @@ public class Cache implements Ehcache {
                 .getCacheHitCount(), getLiveCacheStatistics()
                 .getOnDiskHitCount(), getLiveCacheStatistics()
                 .getInMemoryHitCount(), getLiveCacheStatistics()
-                .getCacheMissCount(), size, getAverageGetTime(),
+                .getCacheMissCount() + getLiveCacheStatistics().getCacheMissCountExpired(), size, getAverageGetTime(),
                 getLiveCacheStatistics().getEvictedCount(),
                 getMemoryStoreSize(), getDiskStoreSize());
     }
