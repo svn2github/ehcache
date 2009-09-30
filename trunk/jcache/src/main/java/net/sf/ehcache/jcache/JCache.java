@@ -379,7 +379,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * @see JCacheListenerAdaptor
      */
     public void removeListener(CacheListener cacheListener) {
-        Set<CacheEventListener> listeners = cache.getCacheEventNotificationService().getCacheEventListeners();
+        Set<CacheEventListener> listeners = new HashSet<CacheEventListener>(cache.getCacheEventNotificationService().getCacheEventListeners());
         for (CacheEventListener listener : listeners) {
             if (listener instanceof JCacheListenerAdaptor) {
                 CacheListener registeredCacheListener = ((JCacheListenerAdaptor) listener).getCacheListener();

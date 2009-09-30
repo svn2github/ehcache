@@ -206,7 +206,7 @@ public class CacheListenerTest extends AbstractCacheTest {
         cache.put(key, value);
 
         //expire
-        Thread.sleep(1020);
+        Thread.sleep(1999);
 
         //force expiry
         Object expired = cache.get(key);
@@ -338,7 +338,7 @@ public class CacheListenerTest extends AbstractCacheTest {
         cache.put("non-serializable", new Object());
 
         for (int i = 0; i < 10000; i++) {
-            cache.put(i + "", new Date());
+            cache.put(i + "", new Object());
         }
 
         List evictionNotifications = countingCacheListener.getCacheElementsEvicted();
