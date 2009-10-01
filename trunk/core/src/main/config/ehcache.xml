@@ -274,6 +274,9 @@ are "on" and "off".  The default is "autodetect".
     ========================
     (Enable for Terracotta clustered operation)
 
+    Note: You need to install and run one or more Terracotta servers to use Terracotta clustering.
+    See http://www.terracotta.org/web/display/orgsite/Download.
+
     Specifies a TerracottaConfig which will be used to configure the Terracotta
     runtime for this CacheManager.
     
@@ -664,6 +667,7 @@ are "on" and "off".  The default is "autodetect".
            timeToIdleSeconds="100"
            timeToLiveSeconds="100"
            overflowToDisk="false">
+
         <cacheEventListenerFactory
                 class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>
         <bootstrapCacheLoaderFactory
