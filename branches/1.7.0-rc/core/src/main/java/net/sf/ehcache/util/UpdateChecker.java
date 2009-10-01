@@ -63,7 +63,7 @@ public class UpdateChecker extends TimerTask {
     }
 
     private void doCheck() throws IOException {
-        LOG.log(Level.INFO, "Checking for update...");
+        LOG.log(Level.FINE, "Checking for update...");
         URL updateUrl = buildUpdateCheckUrl();
         Properties updateProps = getUpdateProperties(updateUrl);
         String currentVersion = new ProductInfo().getVersion();
@@ -97,7 +97,7 @@ public class UpdateChecker extends TimerTask {
                 LOG.log(Level.INFO, "New update(s) found: " + sb.toString());
             }
         } else {
-            LOG.log(Level.INFO, "No update found.");
+            LOG.log(Level.FINE, "No update found.");
         }
     }
 

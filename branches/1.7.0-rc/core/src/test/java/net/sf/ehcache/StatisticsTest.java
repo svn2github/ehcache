@@ -39,8 +39,7 @@ import org.junit.Test;
  */
 public class StatisticsTest extends AbstractCacheTest {
 
-    private static final Logger LOG = Logger.getLogger(StatisticsTest.class
-            .getName());
+    private static final Logger LOG = Logger.getLogger(StatisticsTest.class.getName());
 
     /**
      * Test statistics directly from Statistics Object

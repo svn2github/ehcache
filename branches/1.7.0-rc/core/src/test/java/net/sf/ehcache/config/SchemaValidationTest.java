@@ -52,13 +52,15 @@ public class SchemaValidationTest {
 
         try {
             // parse an XML document into a DOM tree
-            DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            docFactory.setNamespaceAware(true);
+            DocumentBuilder parser = docFactory.newDocumentBuilder();
             Document document = parser.parse(docStream);
     
-            // create a SchemaFactory capable of understanding WXS schemas
+            // create a SchemaFactory capable of understanding the schemas
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
     
-            // load a WXS schema, represented by a Schema instance
+            // load the schema, represented by a Schema instance
             Source schemaFile = new StreamSource(xsdStream);
             Schema schema = factory.newSchema(schemaFile);
     

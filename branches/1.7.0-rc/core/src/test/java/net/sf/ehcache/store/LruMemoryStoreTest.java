@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.store;
 
+import static junit.framework.Assert.assertTrue;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStoreTester;
 import static org.junit.Assert.assertEquals;
@@ -133,6 +134,41 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
         assertNull(store.get("key1"));
     }
 
+    /**
+     * Test the LRU policy
+     */
+    @Test
+    public void testProbabilisticEvictionPolicy() throws Exception {
+        createMemoryOnlyStore(MemoryStoreEvictionPolicy.LRU, 500);
+
+        //Make sure that the store is empty to start with
+        assertEquals(0, cache.getSize());
+
+        // Populate the store till the max limit
+        Element element = new Element("key1", "value1");
+        for (int i = 0; i < 500; i++) {
+            cache.put(new Element("" + i, "value1"));
+        }
+        Thread.sleep(1010);
+        for (int i = 0; i < 500; i++) {
+            cache.get("" + i);
+        }
+
+        //evict some
+        for (int i = 501; i < 750; i++) {
+            cache.put(new Element("" + i, "value1"));
+        }
+
+        int lastPutCount = 0;
+        for (int i = 501; i < 750; i++) {
+            if (cache.get("" + i) != null) {
+                lastPutCount++;
+            }
+        }
+
+        assertTrue("Ineffective eviction algorithm. Less than 230 of the last 249 put Elements remain.", lastPutCount >= 230);
+    }
+
 
     /**
      * Benchmark to test speed. This uses both memory and disk and tries to be realistic
@@ -181,7 +217,7 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
      * INFO: Store size is: 19324
      * Jun 9, 2009 10:47:48 AM net.sf.ehcache.store.LruMemoryStoreTest testMemoryLeakPutGetRemove
      * INFO: Store size is: 20300
-     *
+     * <p/>
      * Now fixed and this test consistently gives a size of 12000
      */
     @Test
@@ -203,8 +239,6 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
             LOG.log(Level.INFO, "Store size is: " + store.getSize());
         }
     }
-
-
 
 
 }

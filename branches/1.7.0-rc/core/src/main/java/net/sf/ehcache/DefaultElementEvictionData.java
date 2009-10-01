@@ -16,6 +16,8 @@
 
 package net.sf.ehcache;
 
+import net.sf.ehcache.util.TimeUtil;
+
 /**
  * Default implementation of the element eviction data storage that just keeps
  * all the data in instance fields in the heap.
@@ -85,7 +87,7 @@ public class DefaultElementEvictionData implements ElementEvictionData {
      * {@inheritDoc}
      */
     public void resetLastAccessTime(Element element) {
-        lastAccessTime = 0;
+        lastAccessTime = TimeUtil.toSecs(System.currentTimeMillis());
     }
 
     /**
