@@ -213,7 +213,21 @@ pageTracker._trackPageview();
         <!--Fix absolute size of architecture diagram-->
         <replace file="${build.dir}/site/index.html">
             <replacetoken><![CDATA[<img src="images/layered_architecture.png"]]></replacetoken>
-            <replacevalue><![CDATA[ <img src="images/layered_architecture.png" width="100%"]]></replacevalue>
+            <replacevalue><![CDATA[ <img src="images/layered_architecture.png" width="100%"
+            alt="Ehcache Architecture diagram showing core caching capabilities, replication features,
+            in-process APIs, and network APIs.  These capabilities make Ehcache a widely used java distributed
+            cache for general purpose caching, Java EE and light-weight containers. It features memory and disk stores,
+            replicate by copy and invalidate, listeners, cache loaders, cache extensions, cache exception handlers,
+            a gzip caching servlet filter, RESTful & SOAP APIs and much more."]]></replacevalue>
+        </replace>
+        <replace file="${build.dir}/site/index.html">
+            <replacetoken><![CDATA[</head>]]></replacetoken>
+            <replacevalue><![CDATA[
+            <META name="description" content="Ehcache is a widely used java distributed cache for general purpose caching,
+            Java EE and light-weight containers. It features memory and disk stores, replicate by copy and invalidate,
+            listeners, cache loaders, cache extensions, cache exception handlers, a gzip caching servlet filter, RESTful
+            & SOAP APIs and much more.  Ehcache is available under an Apache open source license and is actively developed,
+            maintained and supported by Terracotta, Inc."></head>]]></replacevalue>
         </replace>
         <!--Fix absolute size of members' and contributors' lists-->
         <replace file="${build.dir}/site/team-list.html">
