@@ -573,7 +573,7 @@ are "on" and "off".  The default is "autodetect".
         <terracotta/>
         
     To indicate the cache should not be clustered (or remove the <terracotta> element altogether):    
-        <terracotta clustered="false"> 
+        <terracotta clustered="false"/> 
 
     To indicate the cache should be clustered using identity mode:
         <terracotta clustered="true" valueMode="identity"/>
