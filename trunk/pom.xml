@@ -512,7 +512,7 @@
         <connection>scm:svn:http://svn.terracotta.org/svn/ehcache</connection>
         <developerConnection>scm:svn:https://svn.terracotta.org/repo/ehcache</developerConnection>
         <tag/>
-        <url>http://fisheye3.atlassian.com/changelog/ehcache/</url>
+        <url>http://fisheye2.atlassian.com/changelog/ehcache/</url>
     </scm>
 
 </project>
