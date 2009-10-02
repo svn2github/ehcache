@@ -716,6 +716,7 @@ are "on" and "off".  The default is "autodetect".
     Sample Terracotta clustered cache named sampleTerracottaCache.
     This cache uses Terracotta to cluster the contents of the cache.
     -->
+    <!--
     <cache name="sampleTerracottaCache"
            maxElementsInMemory="1000"
            eternal="false"
@@ -724,6 +725,7 @@ are "on" and "off".  The default is "autodetect".
            overflowToDisk="false">
         <terracotta/>
     </cache>
+    -->
     
 
 
