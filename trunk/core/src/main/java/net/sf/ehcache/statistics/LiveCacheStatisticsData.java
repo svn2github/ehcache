@@ -68,9 +68,9 @@ public interface LiveCacheStatisticsData extends CacheEventListener {
      * Sets the statistics accuracy.
      * 
      * @param statisticsAccuracy
-     *            one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT},
-     *            {@link Statistics#STATISTICS_ACCURACY_GUARANTEED},
-     *            {@link Statistics#STATISTICS_ACCURACY_NONE}
+     *            one of Statistics#STATISTICS_ACCURACY_BEST_EFFORT,
+     *            Statistics#STATISTICS_ACCURACY_GUARANTEED,
+     *            Statistics#STATISTICS_ACCURACY_NONE
      */
     public void setStatisticsAccuracy(int statisticsAccuracy);
     
@@ -79,7 +79,7 @@ public interface LiveCacheStatisticsData extends CacheEventListener {
      * cache
      * usage.
      * Implementations of {@link CacheUsageListener} should override the
-     * {@link #equals(Object)} and {@link #hashCode()} methods as it is used for
+     * {@link Object#equals(Object)} and {@link Object#hashCode()} methods as it is used for
      * equality check
      * 
      * @throws IllegalStateException
@@ -90,7 +90,7 @@ public interface LiveCacheStatisticsData extends CacheEventListener {
 
     /**
      * Remove an already registered {@link CacheUsageListener}, if any.
-     * Depends on the {@link #equals(Object)} method.
+     * Depends on the {@link Object#equals(Object)} method.
      * 
      * @throws IllegalStateException
      * @since 1.7

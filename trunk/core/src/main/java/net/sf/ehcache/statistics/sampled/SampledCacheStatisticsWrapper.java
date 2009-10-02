@@ -65,9 +65,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
 
     /**
      * {@inheritDoc}
-     * 
-     * @see net.sf.ehcache.statistics.sampled.SampledCacheStatistics#isSampledStatisticsEnabled
-     *      ()
+
      */
     public boolean isSampledStatisticsEnabled() {
         return delegate instanceof SampledCacheStatisticsImpl;
@@ -76,7 +74,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.statistics.sampled.SampledCacheStatistics#dispose()
      */
     public void dispose() {
         delegate.dispose();
@@ -85,9 +82,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @seenet.sf.ehcache.statistics.SampledCacheStatistics#
-     *                                                       getAverageGetTimeMostRecentSample
-     *                                                       ()
      */
     public long getAverageGetTimeMostRecentSample() {
         return delegate.getAverageGetTimeMostRecentSample();
@@ -96,9 +90,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @seenet.sf.ehcache.statistics.SampledCacheStatistics#
-     *                                                       getCacheElementEvictedMostRecentSample
-     *                                                       ()
      */
     public long getCacheElementEvictedMostRecentSample() {
         return delegate.getCacheElementEvictedMostRecentSample();
@@ -107,9 +98,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @seenet.sf.ehcache.statistics.SampledCacheStatistics#
-     *                                                       getCacheElementExpiredMostRecentSample
-     *                                                       ()
      */
     public long getCacheElementExpiredMostRecentSample() {
         return delegate.getCacheElementExpiredMostRecentSample();
@@ -118,9 +106,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @seenet.sf.ehcache.statistics.SampledCacheStatistics#
-     *                                                       getCacheElementPutMostRecentSample
-     *                                                       ()
      */
     public long getCacheElementPutMostRecentSample() {
         return delegate.getCacheElementPutMostRecentSample();
@@ -129,9 +114,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @seenet.sf.ehcache.statistics.SampledCacheStatistics#
-     *                                                       getCacheElementRemovedMostRecentSample
-     *                                                       ()
      */
     public long getCacheElementRemovedMostRecentSample() {
         return delegate.getCacheElementRemovedMostRecentSample();
@@ -140,9 +122,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @seenet.sf.ehcache.statistics.SampledCacheStatistics#
-     *                                                       getCacheElementUpdatedMostRecentSample
-     *                                                       ()
      */
     public long getCacheElementUpdatedMostRecentSample() {
         return delegate.getCacheElementUpdatedMostRecentSample();
@@ -151,9 +130,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @seenet.sf.ehcache.statistics.SampledCacheStatistics#
-     *                                                       getCacheHitInMemoryMostRecentSample
-     *                                                       ()
      */
     public long getCacheHitInMemoryMostRecentSample() {
         return delegate.getCacheHitInMemoryMostRecentSample();
@@ -162,8 +138,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.statistics.sampled.SampledCacheStatistics#getCacheHitMostRecentSample
-     *      ()
      */
     public long getCacheHitMostRecentSample() {
         return delegate.getCacheHitMostRecentSample();
@@ -172,9 +146,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @seenet.sf.ehcache.statistics.SampledCacheStatistics#
-     *                                                       getCacheHitOnDiskMostRecentSample
-     *                                                       ()
      */
     public long getCacheHitOnDiskMostRecentSample() {
         return delegate.getCacheHitOnDiskMostRecentSample();
@@ -183,9 +154,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @seenet.sf.ehcache.statistics.SampledCacheStatistics#
-     *                                                       getCacheMissExpiredMostRecentSample
-     *                                                       ()
      */
     public long getCacheMissExpiredMostRecentSample() {
         return delegate.getCacheMissExpiredMostRecentSample();
@@ -194,8 +162,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.statistics.sampled.SampledCacheStatistics#getCacheMissMostRecentSample
-     *      ()
      */
     public long getCacheMissMostRecentSample() {
         return delegate.getCacheMissMostRecentSample();
@@ -204,9 +170,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @seenet.sf.ehcache.statistics.SampledCacheStatistics#
-     *                                                       getCacheMissNotFoundMostRecentSample
-     *                                                       ()
      */
     public long getCacheMissNotFoundMostRecentSample() {
         return delegate.getCacheMissNotFoundMostRecentSample();
@@ -215,7 +178,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.statistics.sampled.SampledCacheStatistics#getStatisticsAccuracy()
      */
     public int getStatisticsAccuracy() {
         return delegate.getStatisticsAccuracy();
@@ -224,9 +186,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @seenet.sf.ehcache.statistics.SampledCacheStatistics#
-     *                                                       getStatisticsAccuracyDescription
-     *                                                       ()
      */
     public String getStatisticsAccuracyDescription() {
         return delegate.getStatisticsAccuracyDescription();
@@ -239,7 +198,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementEvicted()
      */
     public void notifyCacheElementEvicted() {
         getDelegateAsListener().notifyCacheElementEvicted();
@@ -248,7 +206,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementExpired()
      */
     public void notifyCacheElementExpired() {
         getDelegateAsListener().notifyCacheElementExpired();
@@ -257,7 +214,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementPut()
      */
     public void notifyCacheElementPut() {
         getDelegateAsListener().notifyCacheElementPut();
@@ -266,7 +222,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementRemoved()
      */
     public void notifyCacheElementRemoved() {
         getDelegateAsListener().notifyCacheElementRemoved();
@@ -275,7 +230,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementUpdated()
      */
     public void notifyCacheElementUpdated() {
         getDelegateAsListener().notifyCacheElementUpdated();
@@ -284,7 +238,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheHitInMemory()
      */
     public void notifyCacheHitInMemory() {
         getDelegateAsListener().notifyCacheHitInMemory();
@@ -293,7 +246,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheHitOnDisk()
      */
     public void notifyCacheHitOnDisk() {
         getDelegateAsListener().notifyCacheHitOnDisk();
@@ -302,7 +254,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissedWithExpired()
      */
     public void notifyCacheMissedWithExpired() {
         getDelegateAsListener().notifyCacheMissedWithExpired();
@@ -311,7 +262,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissedWithNotFound()
      */
     public void notifyCacheMissedWithNotFound() {
         getDelegateAsListener().notifyCacheMissedWithNotFound();
@@ -320,7 +270,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyRemoveAll()
      */
     public void notifyRemoveAll() {
         getDelegateAsListener().notifyRemoveAll();
@@ -329,7 +278,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyStatisticsAccuracyChanged(int)
      */
     public void notifyStatisticsAccuracyChanged(int statisticsAccuracy) {
         getDelegateAsListener().notifyStatisticsAccuracyChanged(
@@ -339,7 +287,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyStatisticsCleared()
      */
     public void notifyStatisticsCleared() {
         getDelegateAsListener().notifyStatisticsCleared();
@@ -348,7 +295,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyStatisticsEnabledChanged(boolean)
      */
     public void notifyStatisticsEnabledChanged(boolean enableStatistics) {
         getDelegateAsListener()
@@ -357,8 +303,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
 
     /**
      * {@inheritDoc}
-     * 
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyTimeTakenForGet(long)
+     *
      */
     public void notifyTimeTakenForGet(long millis) {
         getDelegateAsListener().notifyTimeTakenForGet(millis);

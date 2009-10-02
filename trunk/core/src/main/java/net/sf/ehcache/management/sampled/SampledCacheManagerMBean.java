@@ -19,7 +19,7 @@ package net.sf.ehcache.management.sampled;
 import java.util.Map;
 
 /**
- * An MBean for {@link CacheManager} exposing sampled cache usage statistics
+ * An MBean for CacheManager exposing sampled cache usage statistics
  * 
  * <p />
  * 

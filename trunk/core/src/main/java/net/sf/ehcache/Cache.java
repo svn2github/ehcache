@@ -754,7 +754,6 @@ public class Cache implements Ehcache {
      * Indicates whether this cache is clustered by Terracotta
      * 
      * @return {@code true} when the cache is clustered by Terracotta; or {@code false}Êotherwise
-     * @return
      */
     protected boolean isTerracottaClustered() {
         return configuration.isTerracottaClustered();

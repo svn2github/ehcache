@@ -53,16 +53,14 @@ public interface SampledRateCounter extends SampledCounter {
     /**
      * Sets the value of the numerator to the passed value
      * 
-     * @param numerator
-     * @param denominator
+     * @param newValue
      */
     public void setNumeratorValue(long newValue);
 
     /**
      * Sets the value of the denominator to the passed value
      * 
-     * @param numerator
-     * @param denominator
+     * @param newValue
      */
     public void setDenominatorValue(long newValue);
 

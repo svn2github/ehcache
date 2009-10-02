@@ -61,7 +61,7 @@ public class SampledCounterConfig extends CounterConfig {
     /**
      * Returns the history size
      * 
-     * @return
+     * @return The history size
      */
     public int getHistorySize() {
         return historySize;
@@ -70,7 +70,7 @@ public class SampledCounterConfig extends CounterConfig {
     /**
      * Returns the interval time (seconds)
      * 
-     * @return
+     * @return Interval of the sampling thread in seconds
      */
     public int getIntervalSecs() {
         return intervalSecs;
@@ -80,7 +80,7 @@ public class SampledCounterConfig extends CounterConfig {
      * Returns true if counters created from this config will reset on each
      * sample
      * 
-     * @return
+     * @return true if values are reset to the initial value after each sample
      */
     public boolean isResetOnSample() {
         return this.isReset;

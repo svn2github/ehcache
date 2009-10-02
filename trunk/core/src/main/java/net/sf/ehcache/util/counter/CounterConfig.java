@@ -39,7 +39,7 @@ public class CounterConfig {
     /**
      * Gets the initial value
      * 
-     * @return
+     * @return the initial value of counters created by this config
      */
     public final long getInitialValue() {
         return initialValue;
@@ -48,7 +48,7 @@ public class CounterConfig {
     /**
      * Creates and returns a Counter based on the initial value
      * 
-     * @return
+     * @return The counter created by this config
      */
     public Counter createCounter() {
         return new CounterImpl(initialValue);
