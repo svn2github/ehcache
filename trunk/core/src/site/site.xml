@@ -73,7 +73,7 @@
 
 
         <menu name="Project Reports">
-            <item name="fisheye Subversion browser" href="http://fisheye2.cenqua.com/changelog/ehcache/"/>
+            <item name="fisheye Subversion browser" href="http://fisheye2.atlassian.com/changelog/ehcache/"/>
             <item name="Checkstyle" href="/checkstyle.html"/>
             <item name="CPD" href="/cpd.html"/>
             <item name="PMD" href="/pmd.html"/>
