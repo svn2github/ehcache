@@ -273,6 +273,11 @@
                                     <Ron>noR</Ron>
                                 </systemProperties>
                             </container>
+                            <configuration>
+                              <properties>
+                                <cargo.servlet.port>9090</cargo.servlet.port>
+                              </properties>
+                            </configuration>
                         </configuration>
 
                         <executions>
@@ -298,6 +303,10 @@
                         <artifactId>maven-jetty-plugin</artifactId>
                         <configuration>
                             <systemProperties>
+                                <systemProperty>
+                                    <name>jetty.port</name>
+                                    <value>9090</value>
+                                </systemProperty>
                                 <systemProperty>
                                     <name>com.sun.management.jmxremote</name>
                                     <value>true</value>

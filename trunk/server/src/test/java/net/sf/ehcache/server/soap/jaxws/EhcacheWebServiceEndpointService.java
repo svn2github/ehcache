@@ -16,7 +16,7 @@ import javax.xml.ws.WebServiceFeature;
  * Generated source version: 2.1
  * 
  */
-@WebServiceClient(name = "EhcacheWebServiceEndpointService", targetNamespace = "http://soap.server.ehcache.sf.net/", wsdlLocation = "http://localhost:8080/ehcache/soap/EhcacheWebServiceEndpoint?wsdl")
+@WebServiceClient(name = "EhcacheWebServiceEndpointService", targetNamespace = "http://soap.server.ehcache.sf.net/", wsdlLocation = "http://localhost:9090/ehcache/soap/EhcacheWebServiceEndpoint?wsdl")
 public class EhcacheWebServiceEndpointService
     extends Service
 {
@@ -26,7 +26,7 @@ public class EhcacheWebServiceEndpointService
     static {
         URL url = null;
         try {
-            url = new URL("http://localhost:8080/ehcache/soap/EhcacheWebServiceEndpoint?wsdl");
+            url = new URL("http://localhost:9090/ehcache/soap/EhcacheWebServiceEndpoint?wsdl");
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

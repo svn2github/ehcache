@@ -72,7 +72,7 @@ public class CacheResourceTest {
 
     @Test
     public void testHead() throws IOException, ParserConfigurationException, SAXException {
-        HttpURLConnection result = HttpUtil.head("http://localhost:8080/ehcache/rest/sampleCache1");
+        HttpURLConnection result = HttpUtil.head("http://localhost:9090/ehcache/rest/sampleCache1");
         assertEquals(200, result.getResponseCode());
         assertEquals("application/xml", result.getContentType());
 
@@ -88,7 +88,7 @@ public class CacheResourceTest {
     @Test
     public void testHeadCacheDoesNotExist() throws Exception {
 
-        HttpURLConnection result = HttpUtil.head("http://localhost:8080/ehcache/rest/doesnotexist");
+        HttpURLConnection result = HttpUtil.head("http://localhost:9090/ehcache/rest/doesnotexist");
         assertEquals(404, result.getResponseCode());
         //0 for Jetty. Stack trace for Glassfish
         assertTrue(result.getContentLength() >= 0);
@@ -113,7 +113,7 @@ public class CacheResourceTest {
     @Test
     public void testOptions() throws Exception {
 
-        HttpURLConnection result = HttpUtil.options("http://localhost:8080/ehcache/rest/doesnotexist");
+        HttpURLConnection result = HttpUtil.options("http://localhost:9090/ehcache/rest/doesnotexist");
         assertEquals(200, result.getResponseCode());
         assertEquals("application/vnd.sun.wadl+xml", result.getContentType());
 
@@ -130,7 +130,7 @@ public class CacheResourceTest {
     @Test
     public void testGetCache() throws Exception {
 
-        HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache1");
+        HttpURLConnection result = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache1");
         assertEquals(200, result.getResponseCode());
         assertEquals("application/xml", result.getContentType());
 
@@ -139,14 +139,14 @@ public class CacheResourceTest {
         Cache cache = (Cache) unmarshaller.unmarshal(result.getInputStream());
 
         assertEquals("sampleCache1", cache.getName());
-        assertEquals("http://localhost:8080/ehcache/rest/sampleCache1", cache.getUri());
-        assertNotNull("http://localhost:8080/ehcache/rest/sampleCache1", cache.getDescription());
+        assertEquals("http://localhost:9090/ehcache/rest/sampleCache1", cache.getUri());
+        assertNotNull("http://localhost:9090/ehcache/rest/sampleCache1", cache.getDescription());
     }
 
     @Test
     public void testGetCacheDoesNotExist() throws Exception {
 
-        HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache/rest/doesnotexist");
+        HttpURLConnection result = HttpUtil.get("http://localhost:9090/ehcache/rest/doesnotexist");
         assertEquals(404, result.getResponseCode());
         JAXBContext jaxbContext = new JAXBContextResolver().getContext(Caches.class);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
@@ -164,7 +164,7 @@ public class CacheResourceTest {
     public void testAddCache() throws Exception {
 
         //add a cache that does not exist
-        HttpURLConnection urlConnection = HttpUtil.put("http://localhost:8080/ehcache/rest/newcache1");
+        HttpURLConnection urlConnection = HttpUtil.put("http://localhost:9090/ehcache/rest/newcache1");
         assertEquals(201, urlConnection.getResponseCode());
 
         if (urlConnection.getHeaderField("Server").matches("(.*)Glassfish(.*)")) {
@@ -172,14 +172,14 @@ public class CacheResourceTest {
             assertTrue(urlConnection.getContentType().matches("text/plain(.*)"));
         }
         String location = urlConnection.getHeaderField("Location");
-        assertEquals("http://localhost:8080/ehcache/rest/newcache1", location);
+        assertEquals("http://localhost:9090/ehcache/rest/newcache1", location);
         String responseBody = HttpUtil.inputStreamToText(urlConnection.getInputStream());
         assertEquals("", responseBody);
         assertEquals(0, urlConnection.getContentLength());
 
 
         //attempt to add an existing cache
-        urlConnection = HttpUtil.put("http://localhost:8080/ehcache/rest/newcache1");
+        urlConnection = HttpUtil.put("http://localhost:9090/ehcache/rest/newcache1");
         assertEquals(409, urlConnection.getResponseCode());
 
         if (urlConnection.getHeaderField("Server").matches("(.*)Glassfish(.*)")) {
@@ -199,10 +199,10 @@ public class CacheResourceTest {
     public void testDeleteCache() throws Exception {
 
         //add cache
-        HttpURLConnection urlConnection = HttpUtil.put("http://localhost:8080/ehcache/rest/newcache1");
+        HttpURLConnection urlConnection = HttpUtil.put("http://localhost:9090/ehcache/rest/newcache1");
 
         //remove cache
-        urlConnection = HttpUtil.delete("http://localhost:8080/ehcache/rest/newcache1");
+        urlConnection = HttpUtil.delete("http://localhost:9090/ehcache/rest/newcache1");
         assertEquals(200, urlConnection.getResponseCode());
 
 
@@ -213,7 +213,7 @@ public class CacheResourceTest {
         String responseBody = HttpUtil.inputStreamToText(urlConnection.getInputStream());
         assertEquals("", responseBody);
 
-        urlConnection = HttpUtil.delete("http://localhost:8080/ehcache/rest/newcache1");
+        urlConnection = HttpUtil.delete("http://localhost:9090/ehcache/rest/newcache1");
         assertEquals(404, urlConnection.getResponseCode());
         assertTrue(urlConnection.getContentType().matches("text/plain(.*)"));
 
@@ -229,7 +229,7 @@ public class CacheResourceTest {
     @Test
     public void testCacheStatus() throws Exception {
 
-        HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache1");
+        HttpURLConnection result = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache1");
         assertEquals(200, result.getResponseCode());
         assertEquals("application/xml", result.getContentType());
 
@@ -238,8 +238,8 @@ public class CacheResourceTest {
         Cache cache = (Cache) unmarshaller.unmarshal(result.getInputStream());
 
         assertEquals("sampleCache1", cache.getName());
-        assertEquals("http://localhost:8080/ehcache/rest/sampleCache1", cache.getUri());
-        assertNotNull("http://localhost:8080/ehcache/rest/sampleCache1", cache.getDescription());
+        assertEquals("http://localhost:9090/ehcache/rest/sampleCache1", cache.getUri());
+        assertNotNull("http://localhost:9090/ehcache/rest/sampleCache1", cache.getDescription());
 
 
 //        Status status = cacheService.getStatus("sampleCache1");
@@ -293,7 +293,7 @@ public class CacheResourceTest {
 //    @Test
 //    public void testCacheStatus() throws Exception {
 //
-//        HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache1");
+//        HttpURLConnection result = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache1");
 //        assertEquals(200, result.getResponseCode());
 //        assertEquals("application/xml", result.getContentType());
 //
@@ -302,8 +302,8 @@ public class CacheResourceTest {
 //        Cache cache = (Cache) unmarshaller.unmarshal(result.getInputStream());
 //
 //        assertEquals("sampleCache1", cache.getName());
-//        assertEquals("http://localhost:8080/ehcache/rest/sampleCache1", cache.getUri());
-//        assertNotNull("http://localhost:8080/ehcache/rest/sampleCache1", cache.getDescription());
+//        assertEquals("http://localhost:9090/ehcache/rest/sampleCache1", cache.getUri());
+//        assertNotNull("http://localhost:9090/ehcache/rest/sampleCache1", cache.getDescription());
 //
 //
 ////        Status status = cacheService.getStatus("sampleCache1");

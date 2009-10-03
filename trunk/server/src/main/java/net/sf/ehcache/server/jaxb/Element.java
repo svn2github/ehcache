@@ -214,7 +214,7 @@ public class Element {
     /**
      * Gets the URI for this resource
      *
-     * @return a string being a fully qualified URI e.g. http://localhost:8080/ehcache/rest/sampleCache1/34
+     * @return a string being a fully qualified URI e.g. http://localhost:9090/ehcache/rest/sampleCache1/34
      */
     public String getResourceUri() {
         return resourceUri;
@@ -223,7 +223,7 @@ public class Element {
     /**
      * Sets the URI for this resource
      *
-     * @param resourceUri a string being a fully qualified URI e.g. http://localhost:8080/ehcache/rest/sampleCache1/34
+     * @param resourceUri a string being a fully qualified URI e.g. http://localhost:9090/ehcache/rest/sampleCache1/34
      */
     public void setResourceUri(String resourceUri) {
         this.resourceUri = resourceUri;

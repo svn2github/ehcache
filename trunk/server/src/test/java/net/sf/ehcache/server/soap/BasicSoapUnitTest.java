@@ -41,7 +41,7 @@ public class BasicSoapUnitTest {
     @Test
     public void testEhcacheWebServiceEndPointExists() throws IOException, ParserConfigurationException, SAXException, InterruptedException {
 
-        HttpURLConnection response = HttpUtil.get("http://localhost:8080/ehcache/soap/EhcacheWebServiceEndpoint?wsdl");
+        HttpURLConnection response = HttpUtil.get("http://localhost:9090/ehcache/soap/EhcacheWebServiceEndpoint?wsdl");
         assertEquals(200, response.getResponseCode());
         String responseBody = HttpUtil.inputStreamToText(response.getInputStream());
         assertTrue(responseBody.indexOf("Implementation class:") != 0);
@@ -72,7 +72,7 @@ public class BasicSoapUnitTest {
     @BeforeClass
     public static void startService() throws InterruptedException {
         implementor = new EhcacheWebServiceEndpoint();
-        address = "http://localhost:8080/ehcache/soap/";
+        address = "http://localhost:9090/ehcache/soap/";
 
         webServiceThread = new WebServiceThread();
         webServiceThread.start();

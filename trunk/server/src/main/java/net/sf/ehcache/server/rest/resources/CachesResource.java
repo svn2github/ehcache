@@ -43,7 +43,7 @@ import java.util.logging.Logger;
  * Lists the Caches in the CacheManager.
  * </code>
  * <p/>
- * e.g. <code>http://localhost:8080/ehcache/rest/</code>
+ * e.g. <code>http://localhost:9090/ehcache/rest/</code>
  *
  * @author Greg Luck
  * @version $Id$
@@ -64,7 +64,7 @@ public class CachesResource {
     /**
      * The full URI for the resource.
      * <p/>
-     * e.g. <code>//http://localhost:8080/ehcache/rest/testCache</code>
+     * e.g. <code>//http://localhost:9090/ehcache/rest/testCache</code>
      */
     @Context
     private UriInfo uriInfo;

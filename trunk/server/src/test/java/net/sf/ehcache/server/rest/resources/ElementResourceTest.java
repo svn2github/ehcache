@@ -96,10 +96,10 @@ public class ElementResourceTest {
 
         String originalString = "Some string";
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(originalString.getBytes());
-        int status = HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache1/1", "text/plain", byteArrayInputStream);
+        int status = HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache1/1", "text/plain", byteArrayInputStream);
         assertEquals(201, status);
 
-        HttpURLConnection urlConnection = HttpUtil.head("http://localhost:8080/ehcache/rest/sampleCache1/1");
+        HttpURLConnection urlConnection = HttpUtil.head("http://localhost:9090/ehcache/rest/sampleCache1/1");
         assertEquals(200, urlConnection.getResponseCode());
 
         if (urlConnection.getHeaderField("Server").matches("(.*)Glassfish(.*)")) {
@@ -120,7 +120,7 @@ public class ElementResourceTest {
     @Test
     public void testHeadElementDoesNotExist() throws Exception {
 
-        HttpURLConnection result = HttpUtil.head("http://localhost:8080/ehcache/rest/sampleCache3/doesnotexist");
+        HttpURLConnection result = HttpUtil.head("http://localhost:9090/ehcache/rest/sampleCache3/doesnotexist");
         assertEquals(404, result.getResponseCode());
         //0 for Jetty. Stack trace for Glassfish
         assertTrue(result.getContentLength() >= 0);
@@ -145,7 +145,7 @@ public class ElementResourceTest {
     @Test
     public void testOptions() throws Exception {
 
-        HttpURLConnection result = HttpUtil.options("http://localhost:8080/ehcache/rest/doesnotexist/1");
+        HttpURLConnection result = HttpUtil.options("http://localhost:9090/ehcache/rest/doesnotexist/1");
         assertEquals(200, result.getResponseCode());
         assertEquals("application/vnd.sun.wadl+xml", result.getContentType());
 
@@ -173,11 +173,11 @@ public class ElementResourceTest {
         String originalString = "The rain in Spain falls mainly on the plain";
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(originalString.getBytes());
 
-        assertEquals(404, HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1").getResponseCode());
-        int status = HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream);
+        assertEquals(404, HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1").getResponseCode());
+        int status = HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream);
         assertEquals(201, status);
 
-        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
+        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
         assertEquals(200, urlConnection.getResponseCode());
         assertTrue(urlConnection.getContentType().matches("text/plain"));
         byte[] bytes = HttpUtil.inputStreamToBytes(urlConnection.getInputStream());
@@ -207,44 +207,44 @@ public class ElementResourceTest {
         String originalString = "The rain in Spain falls mainly on the plain";
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(originalString.getBytes());
 
-        assertEquals(404, HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1").getResponseCode());
+        assertEquals(404, HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1").getResponseCode());
         HttpUtil.Header header = new HttpUtil.Header("ehcacheTimeToLiveSeconds", "2");
-        int status = HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream, header);
+        int status = HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream, header);
         assertEquals(201, status);
 
-        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
+        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
         assertEquals(200, urlConnection.getResponseCode());
 
         Thread.sleep(3000);
-        urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
+        urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
         assertEquals(404, urlConnection.getResponseCode());
 
         header = new HttpUtil.Header("ehcacheTimeToLiveSeconds", "garbage");
-        status = HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream, header);
+        status = HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream, header);
         assertEquals(201, status);
 
         //Should have not parsed
         Thread.sleep(3000);
-        urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
+        urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
         assertEquals(200, urlConnection.getResponseCode());
 
 
         header = new HttpUtil.Header("ehcacheTimeToLiveSeconds", null);
-        status = HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream, header);
+        status = HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream, header);
         assertEquals(201, status);
 
         //Should have not parsed
         Thread.sleep(3000);
-        urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
+        urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
         assertEquals(200, urlConnection.getResponseCode());
 
         //the header is case insensitive
         header = new HttpUtil.Header("EhcachetImeToLiveSeconds", "1");
-        status = HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream, header);
+        status = HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream, header);
         assertEquals(201, status);
 
         Thread.sleep(3000);
-        urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
+        urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
         assertEquals(404, urlConnection.getResponseCode());
 
 
@@ -264,13 +264,13 @@ public class ElementResourceTest {
         String originalString = "The rain in Spain falls mainly on the plain";
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(originalString.getBytes());
 
-        int status = HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream);
+        int status = HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream);
         assertEquals(201, status);
-        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
+        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
         assertEquals(200, urlConnection.getResponseCode());
 
-        urlConnection = HttpUtil.delete("http://localhost:8080/ehcache/rest/sampleCache2/1");
-        assertEquals(404, HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1").getResponseCode());
+        urlConnection = HttpUtil.delete("http://localhost:9090/ehcache/rest/sampleCache2/1");
+        assertEquals(404, HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1").getResponseCode());
     }
 
 
@@ -287,18 +287,18 @@ public class ElementResourceTest {
         String originalString = "The rain in Spain falls mainly on the plain";
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(originalString.getBytes());
 
-        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream);
-        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/2", "text/plain", byteArrayInputStream);
-        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/3", "text/plain", byteArrayInputStream);
+        HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream);
+        HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/2", "text/plain", byteArrayInputStream);
+        HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/3", "text/plain", byteArrayInputStream);
 
 
-        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
+        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
         assertEquals(200, urlConnection.getResponseCode());
 
-        urlConnection = HttpUtil.delete("http://localhost:8080/ehcache/rest/sampleCache2/*");
-        assertEquals(404, HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1").getResponseCode());
-        assertEquals(404, HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/2").getResponseCode());
-        assertEquals(404, HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/3").getResponseCode());
+        urlConnection = HttpUtil.delete("http://localhost:9090/ehcache/rest/sampleCache2/*");
+        assertEquals(404, HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1").getResponseCode());
+        assertEquals(404, HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/2").getResponseCode());
+        assertEquals(404, HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/3").getResponseCode());
     }
 
     /**
@@ -312,11 +312,11 @@ public class ElementResourceTest {
 
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(serializedForm);
 
-        assertEquals(404, HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1").getResponseCode());
-        int status = HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", "application/x-java-serialized-object", byteArrayInputStream);
+        assertEquals(404, HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1").getResponseCode());
+        int status = HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/1", "application/x-java-serialized-object", byteArrayInputStream);
         assertEquals(201, status);
 
-        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
+        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
         assertEquals(200, urlConnection.getResponseCode());
         assertTrue(urlConnection.getContentType().matches("application/x-java-serialized-object"));
         byte[] bytes = HttpUtil.inputStreamToBytes(urlConnection.getInputStream());
@@ -338,7 +338,7 @@ public class ElementResourceTest {
         Status somethingThatIsSerializable = Status.STATUS_ALIVE;
         byte[] serializedForm = MemoryEfficientByteArrayOutputStream.serialize(somethingThatIsSerializable).getBytes();
 
-        assertEquals(404, HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1").getResponseCode());
+        assertEquals(404, HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1").getResponseCode());
 
         net.sf.ehcache.server.soap.jaxws.Element element = new net.sf.ehcache.server.soap.jaxws.Element();
         element.setKey("1");
@@ -346,7 +346,7 @@ public class ElementResourceTest {
         cacheService.put("sampleCache2", element);
 
 
-        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1");
+        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
         assertEquals(200, urlConnection.getResponseCode());
 
         //MimeTYpe not set, so the server sets application/octet-stream
@@ -377,8 +377,8 @@ public class ElementResourceTest {
 
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(serializedForm);
 
-        assertEquals(404, HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/1").getResponseCode());
-        int status = HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/1", null, byteArrayInputStream);
+        assertEquals(404, HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1").getResponseCode());
+        int status = HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/1", null, byteArrayInputStream);
         //GF does 400 which is better
         //Jetty does 500
         assertTrue(status == 400 || status == 500);
@@ -400,10 +400,10 @@ public class ElementResourceTest {
                 "<applause/>\n" +
                 "</oldjoke>";
 
-        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/2", "application/xml",
+        HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/2", "application/xml",
                 new ByteArrayInputStream(xmlDocument.getBytes()));
         Thread.sleep(100);
-        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache2/2");
+        HttpURLConnection urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/2");
         assertEquals(200, urlConnection.getResponseCode());
         assertTrue(urlConnection.getContentType().matches("application/xml"));
 
@@ -423,7 +423,7 @@ public class ElementResourceTest {
         LOG.info("lastModified: " + lastModified);
 
         //Check ETag and Last-Modified are the same
-        URL u = new URL("http://localhost:8080/ehcache/rest/sampleCache2/2");
+        URL u = new URL("http://localhost:9090/ehcache/rest/sampleCache2/2");
         urlConnection = (HttpURLConnection) u.openConnection();
         urlConnection.setRequestMethod("GET");
         assertEquals(200, urlConnection.getResponseCode());
@@ -433,10 +433,10 @@ public class ElementResourceTest {
         urlConnection.disconnect();
 
         //Check ETag and Last-Modified are different after the element was updated.
-        HttpUtil.put("http://localhost:8080/ehcache/rest/sampleCache2/2", "application/xml",
+        HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/2", "application/xml",
                 new ByteArrayInputStream(xmlDocument.getBytes()));
         Thread.sleep(100);
-        u = new URL("http://localhost:8080/ehcache/rest/sampleCache2/2");
+        u = new URL("http://localhost:9090/ehcache/rest/sampleCache2/2");
         urlConnection = (HttpURLConnection) u.openConnection();
         urlConnection.setRequestMethod("GET");
         assertEquals(200, urlConnection.getResponseCode());
@@ -450,7 +450,7 @@ public class ElementResourceTest {
         //assertTrue(!lastModified.equals(urlConnection.getHeaderField("Last-Modified")));
 
         //Check Caching Behaviour
-        u = new URL("http://localhost:8080/ehcache/rest/sampleCache2/2");
+        u = new URL("http://localhost:9090/ehcache/rest/sampleCache2/2");
         urlConnection = (HttpURLConnection) u.openConnection();
         urlConnection.setRequestMethod("GET");
         urlConnection.setIfModifiedSince(System.currentTimeMillis());
@@ -464,7 +464,7 @@ public class ElementResourceTest {
     @Test
     public void testGetElement() throws Exception {
 
-        HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache1");
+        HttpURLConnection result = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache1");
         assertEquals(200, result.getResponseCode());
         assertEquals("application/xml", result.getContentType());
 
@@ -473,14 +473,14 @@ public class ElementResourceTest {
         Cache cache = (Cache) unmarshaller.unmarshal(result.getInputStream());
 
         assertEquals("sampleCache1", cache.getName());
-        assertEquals("http://localhost:8080/ehcache/rest/sampleCache1", cache.getUri());
-        assertNotNull("http://localhost:8080/ehcache/rest/sampleCache1", cache.getDescription());
+        assertEquals("http://localhost:9090/ehcache/rest/sampleCache1", cache.getUri());
+        assertNotNull("http://localhost:9090/ehcache/rest/sampleCache1", cache.getDescription());
     }
 
     @Test
     public void testGetCacheDoesNotExist() throws Exception {
 
-        HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache/rest/doesnotexist");
+        HttpURLConnection result = HttpUtil.get("http://localhost:9090/ehcache/rest/doesnotexist");
         assertEquals(404, result.getResponseCode());
         JAXBContext jaxbContext = new JAXBContextResolver().getContext(Caches.class);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
@@ -511,7 +511,7 @@ public class ElementResourceTest {
     public void testAddCache() throws Exception {
 
         //add a cache that does not exist
-        HttpURLConnection urlConnection = HttpUtil.put("http://localhost:8080/ehcache/rest/newcache1");
+        HttpURLConnection urlConnection = HttpUtil.put("http://localhost:9090/ehcache/rest/newcache1");
         assertEquals(201, urlConnection.getResponseCode());
 
         if (urlConnection.getHeaderField("Server").matches("(.*)Glassfish(.*)")) {
@@ -519,13 +519,13 @@ public class ElementResourceTest {
             assertTrue(urlConnection.getContentType().matches("text/plain(.*)"));
         }
         String location = urlConnection.getHeaderField("Location");
-        assertEquals("http://localhost:8080/ehcache/rest/newcache1", location);
+        assertEquals("http://localhost:9090/ehcache/rest/newcache1", location);
         String responseBody = HttpUtil.inputStreamToText(urlConnection.getInputStream());
         assertEquals("", responseBody);
         assertEquals(0, urlConnection.getContentLength());
 
         //attempt to add an existing cache
-        urlConnection = HttpUtil.put("http://localhost:8080/ehcache/rest/newcache1");
+        urlConnection = HttpUtil.put("http://localhost:9090/ehcache/rest/newcache1");
         assertEquals(409, urlConnection.getResponseCode());
 
         if (urlConnection.getHeaderField("Server").matches("(.*)Glassfish(.*)")) {
@@ -545,10 +545,10 @@ public class ElementResourceTest {
     public void testDeleteCache() throws Exception {
 
         //add cache
-        HttpURLConnection urlConnection = HttpUtil.put("http://localhost:8080/ehcache/rest/newcache1");
+        HttpURLConnection urlConnection = HttpUtil.put("http://localhost:9090/ehcache/rest/newcache1");
 
         //remove cache
-        urlConnection = HttpUtil.delete("http://localhost:8080/ehcache/rest/newcache1");
+        urlConnection = HttpUtil.delete("http://localhost:9090/ehcache/rest/newcache1");
         assertEquals(200, urlConnection.getResponseCode());
 
 
@@ -559,7 +559,7 @@ public class ElementResourceTest {
         String responseBody = HttpUtil.inputStreamToText(urlConnection.getInputStream());
         assertEquals("", responseBody);
 
-        urlConnection = HttpUtil.delete("http://localhost:8080/ehcache/rest/newcache1");
+        urlConnection = HttpUtil.delete("http://localhost:9090/ehcache/rest/newcache1");
         assertEquals(404, urlConnection.getResponseCode());
         assertTrue(urlConnection.getContentType().matches("text/plain(.*)"));
 
@@ -575,7 +575,7 @@ public class ElementResourceTest {
     @Test
     public void testCacheStatus() throws Exception {
 
-        HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache/rest/sampleCache1");
+        HttpURLConnection result = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache1");
         assertEquals(200, result.getResponseCode());
         assertEquals("application/xml", result.getContentType());
 
@@ -584,8 +584,8 @@ public class ElementResourceTest {
         Cache cache = (Cache) unmarshaller.unmarshal(result.getInputStream());
 
         assertEquals("sampleCache1", cache.getName());
-        assertEquals("http://localhost:8080/ehcache/rest/sampleCache1", cache.getUri());
-        assertNotNull("http://localhost:8080/ehcache/rest/sampleCache1", cache.getDescription());
+        assertEquals("http://localhost:9090/ehcache/rest/sampleCache1", cache.getUri());
+        assertNotNull("http://localhost:9090/ehcache/rest/sampleCache1", cache.getDescription());
 
 //        Status status = cacheService.getStatus("sampleCache1");
 //        assertTrue(status == Status.STATUS_ALIVE);
@@ -797,7 +797,7 @@ wget
 
 
 
-1. wget -d --timestamping "http://localhost:8080/ehcache/rest/sampleCache2/2"
+1. wget -d --timestamping "http://localhost:9090/ehcache/rest/sampleCache2/2"
 
 Expected behaviour: Will check the Last-Modified timestamp against the last modified time on the local filesystem.
 This is how mirroring is implemented in wget. See http://www.gnu.org/software/wget/manual/wget.html#HTTP-Time_002dStamping-Internals
@@ -807,17 +807,17 @@ Here are some manual tests that can be done with wget and curl to verify correct
 
 This test requires data in samplecache2/2.
 
-wget -d --timestamping "http://localhost:8080/ehcache/rest/sampleCache2/2" results in the following interaction:
+wget -d --timestamping "http://localhost:9090/ehcache/rest/sampleCache2/2" results in the following interaction:
 
-wget -d --timestamping "http://localhost:8080/ehcache/rest/sampleCache2/2"
+wget -d --timestamping "http://localhost:9090/ehcache/rest/sampleCache2/2"
 Setting --timestamping (timestamping) to 1
 DEBUG output created by Wget 1.10.2 on darwin8.8.0.
 
---18:02:19--  http://localhost:8080/ehcache/rest/sampleCache2/2
+--18:02:19--  http://localhost:9090/ehcache/rest/sampleCache2/2
            => `2'
 Resolving localhost... 127.0.0.1, ::1
 Caching localhost => 127.0.0.1 ::1
-Connecting to localhost|127.0.0.1|:8080... connected.
+Connecting to localhost|127.0.0.1|:9090... connected.
 Created socket 3.
 Releasing 0x004022d0 (new refcount 1).
 
@@ -825,7 +825,7 @@ Releasing 0x004022d0 (new refcount 1).
 HEAD /ehcache/rest/sampleCache2/2 HTTP/1.0
 User-Agent: Wget/1.10.2
 Accept: *\/*
-Host: localhost:8080
+Host: localhost:9090
 Connection: Keep-Alive
 
 ---request end---
@@ -855,12 +855,12 @@ curl
 
 1. OPTIONS test
 
-curl --request OPTIONS http://localhost:8080/ehcache/rest/sampleCache2/2
+curl --request OPTIONS http://localhost:9090/ehcache/rest/sampleCache2/2
 
 
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <application xmlns="http://research.sun.com/wadl/2006/10">
-<resources base="http://localhost:8080/ehcache/rest/">
+<resources base="http://localhost:9090/ehcache/rest/">
 <resource path="sampleCache2/2">
 <method name="HEAD"><response><representation mediaType="
     ...
@@ -871,7 +871,7 @@ curl --request OPTIONS http://localhost:8080/ehcache/rest/sampleCache2/2
 
 2. HEAD test
 
-curl --head  http://localhost:8080/ehcache/rest/sampleCache2/2
+curl --head  http://localhost:9090/ehcache/rest/sampleCache2/2
 
 HTTP/1.1 200 OK
 X-Powered-By: Servlet/2.5

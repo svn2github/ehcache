@@ -30,9 +30,9 @@ import java.net.URL;
 public class ExampleJavaClient {
 
     private static String TABLE_COLUMN_BASE =
-            "http://localhost:8080/ehcache/rest/tableColumn";
+            "http://localhost:9090/ehcache/rest/tableColumn";
     private static String TABLE_COLUMN_ELEMENT =
-            "http://localhost:8080/ehcache/rest/tableColumn/1";
+            "http://localhost:9090/ehcache/rest/tableColumn/1";
 
     /**
      * Creates a new instance of EHCacheREST

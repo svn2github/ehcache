@@ -92,7 +92,7 @@ public class CachesResourceTest {
     @Test
     public void testOptions() throws Exception {
 
-        HttpURLConnection result = HttpUtil.options("http://localhost:8080/ehcache/rest/");
+        HttpURLConnection result = HttpUtil.options("http://localhost:9090/ehcache/rest/");
         assertEquals(200, result.getResponseCode());
         assertEquals("application/vnd.sun.wadl+xml", result.getContentType());
 
@@ -113,7 +113,7 @@ public class CachesResourceTest {
     @Test
     public void testCacheNames() throws Exception, IOException, ParserConfigurationException, SAXException {
 
-        HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache/rest/");
+        HttpURLConnection result = HttpUtil.get("http://localhost:9090/ehcache/rest/");
         assertEquals(200, result.getResponseCode());
         JAXBContext jaxbContext = new JAXBContextResolver().getContext(Caches.class);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
@@ -129,7 +129,7 @@ public class CachesResourceTest {
 
     @Test
     public void testGetCaches() throws IOException, ParserConfigurationException, SAXException, XPathExpressionException {
-        HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache/rest/");
+        HttpURLConnection result = HttpUtil.get("http://localhost:9090/ehcache/rest/");
         assertEquals(200, result.getResponseCode());
 
         DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -143,7 +143,7 @@ public class CachesResourceTest {
 
     @Test
     public void testGetCachesJaxb() throws Exception, SAXException, XPathExpressionException, JAXBException {
-        HttpURLConnection result = HttpUtil.get("http://localhost:8080/ehcache/rest/");
+        HttpURLConnection result = HttpUtil.get("http://localhost:9090/ehcache/rest/");
         assertEquals(200, result.getResponseCode());
         JAXBContext jaxbContext = new JAXBContextResolver().getContext(Caches.class);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
