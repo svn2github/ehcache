@@ -10,7 +10,7 @@ Welcome to ehcache
  Ehcache is a widely used java distributed cache for general purpose caching, Java EE and light-weight containers.
 
  It features memory and disk stores, replicate by copy and invalidate, listeners, cache loaders, cache extensions, cache exception handlers,
- a gzip caching servlet filter, RESTful & SOAP APIs and much {{{features.html}more}}...
+ a gzip caching servlet filter, RESTful & SOAP APIs, an implementation of JSR107 and much {{{features.html}more}}...
 
  Ehcache is available under an Apache open source {{{license.html}license}} and is actively developed, maintained and supported.
 
@@ -43,6 +43,28 @@ Welcome to ehcache
 
 
 * Latest News
+
+** 5 October 2009: New beta 1.7.0-beta releases - ehcache, ehcache-core and the new ehcache-terracotta
+
+  This is a beta release of ehcache-1.7.0 comprising ehcache, ehcache-core and ehcache-terracotta modules.
+
+  The ehcache module is a new packaging module which consists of commonly used ehcache modules, the ehcache-core
+  module contains the caching engine, RMI replication and Hibernate plugin and finally the ehcache-terracotta module contains
+  the brand new, seamless Terracotta clustering integration.
+
+  This release is the first fruits of the merger of Ehcache and Terracotta. It enables Ehcache to be Terracotta clustered
+  with only a few lines of config in ehcache.xml and no application code changes. See the {{{/documentation/distributed_caching_with_terracotta.html}Terracotta Clustering Documentation}}
+  for configuration and a worked example.
+
+  We anticipate a final release shortly. In the meantime please feel free to check it out and kick the tyres.
+
+  See the {{{http://ehcache.org/changes-report.html}changelog}} for complete details. Downloads and Maven modules
+  are available {{{/download.html}here}}.
+
+  A few more bug fixes have been picked up against the 1.6 core caching engine in this release. As with the 1.6 release,
+  if you experience unexpected behaviour you can enable the <<<LinkedHashMap>>> based engine with
+  <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>.
+
 
 ** 29 September 2009: Subversion, JIRA, Forums and Mailing List migrated to Terracotta Infrastructure
 

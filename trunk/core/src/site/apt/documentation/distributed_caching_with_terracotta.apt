@@ -41,7 +41,8 @@ public class TerracottaExample {
     <terracottaConfig url="localhost:9510"/>
 ---
     which tells ehcache to load the Terracotta server config from localhost port 9510. Note: You must have a
-    Terracotta 3.1 or higher server running locally for this example.
+    Terracotta 3.1 or higher server running locally for this example. For the 1.7-beta release please contact
+    Mike Allen (mike AT terracottatech.com) for a download link.
 
     Next we want to enable Terracotta clustering for the cache named <<<sampleTerracottaCache>>>. Uncomment or add the
     following in ehcache.xml.
