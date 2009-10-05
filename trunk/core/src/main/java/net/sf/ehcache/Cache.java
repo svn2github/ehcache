@@ -437,7 +437,8 @@ public class Cache implements Ehcache {
                 0,
                 true,
                 false,
-                null);
+                null,
+                true);
 
     }
 
@@ -498,7 +499,8 @@ public class Cache implements Ehcache {
                 diskSpoolBufferSizeMB,
                 true,
                 false,
-                null);
+                null,
+                true);
 
     }
 
@@ -548,7 +550,7 @@ public class Cache implements Ehcache {
     
         this(name, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal, timeToLiveSeconds,
                 timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners, 
-                bootstrapCacheLoader, maxElementsOnDisk, diskSpoolBufferSizeMB, clearOnFlush, false, null);
+                bootstrapCacheLoader, maxElementsOnDisk, diskSpoolBufferSizeMB, clearOnFlush, false, null, true);
     }
 
     /**
@@ -579,6 +581,7 @@ public class Cache implements Ehcache {
      * @param clearOnFlush              whether the MemoryStore should be cleared when {@link #flush flush()} is called on the cache
      * @param isTerracottaClustered     whether to cluster this cache with Terracotta
      * @param terracottaValueMode       either "SERIALIZATION" or "IDENTITY" mode, only used if isTerracottaClustered=true
+     * @param terracottaCoherentReads   whether this cache should use coherent reads (usually should be true) unless optimizing for read-only
      * @since 1.7.0
      */
     public Cache(String name,
@@ -597,7 +600,8 @@ public class Cache implements Ehcache {
                  int diskSpoolBufferSizeMB,
                  boolean clearOnFlush,
                  boolean isTerracottaClustered,
-                 String terracottaValueMode) {
+                 String terracottaValueMode,
+                 boolean terracottaCoherentReads) {
 
         changeStatus(Status.STATUS_UNINITIALISED);
 
@@ -656,6 +660,7 @@ public class Cache implements Ehcache {
         if (terracottaValueMode != null) {
             tcConfig.setValueMode(terracottaValueMode);
         }
+        tcConfig.setCoherentReads(terracottaCoherentReads);
         configuration.addTerracotta(tcConfig);
         
         //initialize statistics

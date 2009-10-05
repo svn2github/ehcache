@@ -148,6 +148,7 @@
         <xs:complexType>
             <xs:attribute name="clustered" use="optional" type="xs:boolean" default="true"/>
             <xs:attribute name="valueMode" use="optional" type="terracottaCacheValueType" default="serialization"/>
+            <xs:attribute name="coherentReads" use="optional" type="xs:boolean" default="true"/>
         </xs:complexType>
     </xs:element>
     <xs:simpleType name="monitoringType">

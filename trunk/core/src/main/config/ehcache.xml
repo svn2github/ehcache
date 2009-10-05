@@ -571,6 +571,12 @@ are "on" and "off".  The default is "autodetect".
       identity of the keys and values across the cluster.  In this case, all users of a value retrieved from 
       the cache are using the same clustered value and must provide appropriate locking for any changes 
       made to the value (or objects referred to by the value).
+    * coherentReads=true|false - indicates whether this cache should have coherent reads with guaranteed 
+      consistency across the cluster.  By default, this setting is true.  If you set this property to 
+      false, reads are allowed to check the local value without locking, possibly seeing stale values.  
+      This is a performance optimization with weaker concurrency guarantees and should generally be used 
+      with caches that contain read-only data or where the application can tolerate reading stale
+      data.
     
     Simplest example to indicate clustering:
         <terracotta/>
