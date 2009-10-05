@@ -458,7 +458,7 @@
 
     <issueManagement>
         <system>Terracotta's JIRA</system>
-        <url>https://jira.terracotta.org/jira/browse/EHCACHE</url>
+        <url>https://jira.terracotta.org/jira/browse/EHC</url>
     </issueManagement>
 
 
@@ -512,7 +512,6 @@
         <connection>scm:svn:http://svn.terracotta.org/svn/ehcache</connection>
         <developerConnection>scm:svn:https://svn.terracotta.org/repo/ehcache</developerConnection>
         <tag/>
-        <url>http://fisheye2.atlassian.com/changelog/ehcache/</url>
     </scm>
 
 </project>
