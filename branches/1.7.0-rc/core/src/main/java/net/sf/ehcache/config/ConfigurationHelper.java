@@ -451,10 +451,12 @@ public final class ConfigurationHelper {
     final Ehcache createCache(CacheConfiguration cacheConfiguration) {
         boolean terracottaClustered = false;
         String terracottaValueMode = null;
+        boolean terracottaCoherentReads = true;
         TerracottaConfiguration tcConfiguration = cacheConfiguration.getTerracottaConfiguration();
         if (tcConfiguration != null) {
             terracottaClustered = tcConfiguration.isClustered();
             terracottaValueMode = tcConfiguration.getValueMode().name();
+            terracottaCoherentReads = tcConfiguration.getCoherentReads();
         }
         
         Ehcache cache = new Cache(cacheConfiguration.name,
@@ -473,7 +475,8 @@ public final class ConfigurationHelper {
                 cacheConfiguration.diskSpoolBufferSizeMB,
                 cacheConfiguration.clearOnFlush,
                 terracottaClustered,
-                terracottaValueMode);
+                terracottaValueMode,
+                terracottaCoherentReads);
         RegisteredEventListeners listeners = cache.getCacheEventNotificationService();
         registerCacheListeners(cacheConfiguration, listeners);
         registerCacheExtensions(cacheConfiguration, cache);

@@ -69,13 +69,6 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics,
     /**
      * {@inheritDoc}
      */
-    public long getCacheMissCountNotFound() {
-        return 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public long getEvictedCount() {
         return 0;
     }
@@ -168,13 +161,6 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics,
      * {@inheritDoc}
      */
     public void addGetTimeMillis(long millis) {
-        // no-op
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void cacheElementEvicted() {
         // no-op
     }
 

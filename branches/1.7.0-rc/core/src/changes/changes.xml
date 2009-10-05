@@ -2,6 +2,29 @@
 <document>
     <body>
 
+        <release version="1.7.0-beta" date="2009-10-5" description="This is a beta release of Ehcache 1.7.">
+
+            <action dev="Greg Luck" type="update">
+                ehcache now becomes a composite modules which includes ehcache-core, ehcache-terracotta
+                and may include other commonly used modules in the future like ehcache-jcache.
+            </action>
+            <action dev="Terracotta Team" type="add">
+                ehcache-terracotta module, which provides seamless integration to the Terracotta Server for
+                Terracotta based clustering.
+            </action>
+            <action dev="Terracotta Team" type="bug" issue="EHC-395">
+                Reduce iterator crossover from 100 to 5 to solve suspected CPU load issue in small caches.
+            </action>
+            <action dev="Greg Luck" type="bug">
+                Take puts into account for recent use in the eviction algorithms. Fixes an algorithm regression from
+                1.5.
+            </action>
+            <action dev="Terracotta Team" type="bug" issue="EHC-357">
+                Statistics reporting incorrectly in Hibernate in 1.6.2.
+            </action>
+        </release>
+
+
         <release version="1.6.2" date="2009-8-23" description="This is a maintenance release to Ehcache 1.6.0">
 
             <action dev="Greg Luck" type="remove">
@@ -19,7 +42,7 @@
             </action>
             <action dev="Greg Luck" type="fix" issue="2831486">
                 Fix to 1.6 where clearOnFlush may now be false and were getting double notification of a remove
-                or expiry if it happened after a flush. Thanks to both Kevin Conaway and Jonathan Barbero.  
+                or expiry if it happened after a flush. Thanks to both Kevin Conaway and Jonathan Barbero.
             </action>
             <action dev="Greg Luck" type="update" issue="2831089">
                 Always close open files. Thanks to Vitaliy Garnashevich for the patch.

@@ -31,7 +31,7 @@ public interface CounterManager {
      * Creates a Counter based on tha passed config
      * 
      * @param config
-     * @return
+     * @return The counter created and managed by this CounterManager
      */
     Counter createCounter(CounterConfig config);
 

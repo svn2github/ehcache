@@ -44,6 +44,13 @@
            <terracotta valueMode="identity"/>
     </cache>
     
+    <!-- Test coherent reads -->
+    <cache name="clustered-5"
+           maxElementsInMemory="1000"
+           memoryStoreEvictionPolicy="LFU">
+           <terracotta coherentReads="false"/>
+    </cache>
+    
     <terracottaConfig url="localhost:9510"/>
 
 </ehcache>

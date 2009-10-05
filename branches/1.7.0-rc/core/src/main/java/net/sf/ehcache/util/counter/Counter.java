@@ -28,14 +28,14 @@ public interface Counter {
     /**
      * Increment the counter by 1
      * 
-     * @return
+     * @return the value after incrementing
      */
     long increment();
 
     /**
      * Decrement the counter by 1
      * 
-     * @return
+     * @return the value after decrementing
      */
     long decrement();
 
@@ -43,14 +43,14 @@ public interface Counter {
      * Returns the value of the counter and sets it to the new value
      * 
      * @param newValue
-     * @return
+     * @return Returns the old value
      */
     long getAndSet(long newValue);
 
     /**
      * Gets current value of the counter
      * 
-     * @return
+     * @return current value of the counter
      */
     long getValue();
 
@@ -58,7 +58,7 @@ public interface Counter {
      * Increment the counter by given amount
      * 
      * @param amount
-     * @return
+     * @return the value of the counter after incrementing
      */
     long increment(long amount);
 
@@ -66,7 +66,7 @@ public interface Counter {
      * Decrement the counter by given amount
      * 
      * @param amount
-     * @return
+     * @return the value of the counter after decrementing
      */
     long decrement(long amount);
 

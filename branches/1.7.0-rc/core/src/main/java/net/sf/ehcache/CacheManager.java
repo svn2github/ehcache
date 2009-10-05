@@ -1105,7 +1105,7 @@ public class CacheManager {
     /**
      * Returns a {@link FailSafeTimer} associated with this {@link CacheManager}
      * 
-     * @return
+     * @return The {@link FailSafeTimer} associated with this cache manager
      * @since 1.7
      */
     public FailSafeTimer getTimer() {

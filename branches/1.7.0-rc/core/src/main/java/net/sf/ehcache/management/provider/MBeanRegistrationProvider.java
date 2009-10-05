@@ -20,7 +20,7 @@ import net.sf.ehcache.CacheManager;
 /**
  * Implementations of this interface will can initialize MBeanRegistration for
  * the passed CacheManager.
- * This is in addition to the {@link ManagementService} and has nothing to do
+ * This is in addition to the ManagementService and has nothing to do
  * 
  * <p />
  * 

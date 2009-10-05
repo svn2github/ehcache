@@ -274,6 +274,9 @@ are "on" and "off".  The default is "autodetect".
     ========================
     (Enable for Terracotta clustered operation)
 
+    Note: You need to install and run one or more Terracotta servers to use Terracotta clustering.
+    See http://www.terracotta.org/web/display/orgsite/Download.
+
     Specifies a TerracottaConfig which will be used to configure the Terracotta
     runtime for this CacheManager.
     
@@ -285,6 +288,9 @@ are "on" and "off".  The default is "autodetect".
     * path to Terracotta configuration file (usually named tc-config.xml)
     * URL to Terracotta configuration file
     * <server host>:<port> of running Terracotta Server instance
+    
+    Simplest example for pointing to a Terracotta server on this machine:
+    <terracottaConfig url="localhost:9510"/>
     
     Example using a path to Terracotta configuration file:
     <terracottaConfig url="/app/config/tc-config.xml"/>
@@ -565,17 +571,22 @@ are "on" and "off".  The default is "autodetect".
       identity of the keys and values across the cluster.  In this case, all users of a value retrieved from 
       the cache are using the same clustered value and must provide appropriate locking for any changes 
       made to the value (or objects referred to by the value).
+    * coherentReads=true|false - indicates whether this cache should have coherent reads with guaranteed 
+      consistency across the cluster.  By default, this setting is true.  If you set this property to 
+      false, reads are allowed to check the local value without locking, possibly seeing stale values.  
+      This is a performance optimization with weaker concurrency guarantees and should generally be used 
+      with caches that contain read-only data or where the application can tolerate reading stale
+      data.
     
     Simplest example to indicate clustering:
         <terracotta/>
         
     To indicate the cache should not be clustered (or remove the <terracotta> element altogether):    
-        <terracotta clustered="false"> 
+        <terracotta clustered="false"/> 
 
     To indicate the cache should be clustered using identity mode:
-        <terracotta clustered="true" valueMode="identity"/>
+        <terracotta clustered="true" valueMode="identity"/>        
     -->
-
 
     <!--
     Mandatory Default Cache configuration. These settings will be applied to caches
@@ -664,6 +675,7 @@ are "on" and "off".  The default is "autodetect".
            timeToIdleSeconds="100"
            timeToLiveSeconds="100"
            overflowToDisk="false">
+
         <cacheEventListenerFactory
                 class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>
         <bootstrapCacheLoaderFactory
@@ -706,6 +718,20 @@ are "on" and "off".  The default is "autodetect".
                 properties="asynchronousReplicationIntervalMillis=200"/>
     </cache>
 
+    <!--
+    Sample Terracotta clustered cache named sampleTerracottaCache.
+    This cache uses Terracotta to cluster the contents of the cache.
+    -->
+    <!--
+    <cache name="sampleTerracottaCache"
+           maxElementsInMemory="1000"
+           eternal="false"
+           timeToIdleSeconds="3600"
+           timeToLiveSeconds="1800"
+           overflowToDisk="false">
+        <terracotta/>
+    </cache>
+    -->
     
 
 

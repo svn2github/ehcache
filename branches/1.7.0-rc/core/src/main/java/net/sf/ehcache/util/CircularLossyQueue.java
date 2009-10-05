@@ -64,7 +64,9 @@ public class CircularLossyQueue<T> {
      * elements is in reverse order of the order items were added.
      * 
      * @param type
-     * @return
+     * @return An array containing the current elements in the queue. The first
+     *         element of the array is the tail of the queue and the last
+     *         element is the head of the queue
      */
     public T[] toArray(T[] type) {
         if (type.length > maxSize) {
@@ -85,9 +87,9 @@ public class CircularLossyQueue<T> {
     }
 
     /**
-     * Returns values at the tail of the queue
+     * Returns value at the tail of the queue
      * 
-     * @return
+     * @return Value at the tail of the queue
      */
     public T peek() {
         if (depth() == 0) {
@@ -99,7 +101,7 @@ public class CircularLossyQueue<T> {
     /**
      * Returns true if the queue is empty, otherwise false
      * 
-     * @return
+     * @return true if the queue is empty, false otherwise
      */
     public boolean isEmtpy() {
         return depth() == 0;
@@ -112,7 +114,7 @@ public class CircularLossyQueue<T> {
     /**
      * Returns the number of items currently in the queue
      * 
-     * @return
+     * @return the number of items in the queue
      */
     public int depth() {
         long currInd = currentIndex.get() + 1;

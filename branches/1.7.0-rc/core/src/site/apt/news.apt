@@ -7,6 +7,26 @@
 
 News
 
+* 5 October 2009: New beta 1.7.0-beta releases - ehcache, ehcache-core and the new ehcache-terracotta
+
+  This is a beta release of ehcache-1.7.0 comprising ehcache, ehcache-core and ehcache-terracotta modules.
+
+  The ehcache module is a new packaging module which consists of commonly used ehcache modules, the ehcache-core
+  module contains the caching engine, RMI replication and Hibernate plugin and finally the ehcache-terracotta module contains
+  the brand new, seamless Terracotta clustering integration.
+
+  This release is the first fruits of the merger of Ehcache and Terracotta. It enables Ehcache to be Terracotta clustered
+  with only a few lines of config in ehcache.xml and no application code changes. See the {{{/documentation/distributed_caching_with_terracotta.html}Terracotta Clustering Documentation}}
+  for configuration and a worked example.
+
+  We anticipate a final release shortly. In the meantime please feel free to check it out and kick the tyres.
+
+  See the {{{http://ehcache.org/changes-report.html}changelog}} for complete details. Downloads and Maven modules
+  are available {{{/download.html}here}}.
+
+  A few more bug fixes have been picked up against the 1.6 core caching engine in this release. As with the 1.6 release,
+  if you experience unexpected behaviour you can enable the <<<LinkedHashMap>> based engine with
+  <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>.
 * 29 September 2009: Subversion, JIRA, Forums and Mailing List migrated to Terracotta Infrastructure
 
   As announced at the time of acquisition, Subversion, JIRA, Forums and Mailing List have now been migrated to
@@ -19,7 +39,7 @@ News
 
   This is a production maintenance release of ehcache-1.6. Users of 1.6 should upgrade to 1.6.2.
 
-  Download {{{/download.html}here}}. All documentation is {{{http://ehcache.sourceforge.net/documentation}here}}.
+  Download {{{/download.html}here}}. All documentation is {{{http://ehcache.org/documentation}here}}.
   The release is also available on Maven central. Note that Maven will report a checksum error.
   It is caused by a bug in Maven 2.1.0 and can be ignored.
 

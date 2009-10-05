@@ -20,7 +20,7 @@ import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 
 /**
- * An MBean for {@link Cache} exposing cache statistics.
+ * An MBean for Cache exposing cache statistics.
  * Extends from both {@link LiveCacheStatistics} and
  * {@link SampledCacheStatistics}
  * 
@@ -52,6 +52,8 @@ public interface SampledCacheMBean extends LiveCacheStatistics,
 
     /**
      * Is the cache configured with Terracotta clustering?
+     * 
+     * @return true if clustered with terracotta
      */
     public boolean isTerracottaClustered();
 
@@ -84,11 +86,15 @@ public interface SampledCacheMBean extends LiveCacheStatistics,
 
     /**
      * Configuration property accessor
+     * 
+     * @return Max elements in memory config setting value
      */
     public int getConfigMaxElementsInMemory();
 
     /**
      * Configuration property accessor
+     * 
+     * @return Max elements on disk config setting value
      */
     public int getConfigMaxElementsOnDisk();
 
@@ -101,31 +107,43 @@ public interface SampledCacheMBean extends LiveCacheStatistics,
 
     /**
      * Configuration property accessor
+     * 
+     * @return true if set to eternal in config
      */
     public boolean isConfigEternal();
 
     /**
      * Configuration property accessor
+     * 
+     * @return TTI in config
      */
     public long getConfigTimeToIdleSeconds();
 
     /**
      * Configuration property accessor
+     * 
+     * @return TTL in config
      */
     public long getConfigTimeToLiveSeconds();
 
     /**
      * Configuration property accessor
+     * 
+     * @return true if overflow to disk specified in config
      */
     public boolean isConfigOverflowToDisk();
 
     /**
      * Configuration property accessor
+     * 
+     * @return true if configured with disk persistence
      */
     public boolean isConfigDiskPersistent();
 
     /**
      * Configuration property accessor
+     * 
+     * @return Value for disk expiry thread interval in seconds specified in config
      */
     public long getConfigDiskExpiryThreadIntervalSeconds();
 

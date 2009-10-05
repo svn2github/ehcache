@@ -38,6 +38,7 @@ public class TerracottaConfiguration implements Cloneable {
     
     private boolean clustered = true;
     private ValueMode valueMode = ValueMode.SERIALIZATION;
+    private boolean coherentReads = true;
 
     /**
      * Clones this object, following the usual contract.
@@ -64,6 +65,19 @@ public class TerracottaConfiguration implements Cloneable {
         return this.clustered;
     }
 
+    /**
+     * Used by BeanHandler to set the coherentReads flag during parsing
+     */
+    public void setCoherentReads(boolean coherentReads) {
+        this.coherentReads = coherentReads;
+    }
+
+    /**
+     * Check whether coherent reads are enabled
+     */
+    public boolean getCoherentReads() {
+        return this.coherentReads;
+    }
     /**
      * Used by BeanHandler to set the mode during parsing.  Convert valueMode string to uppercase and 
      * look up enum constant in ValueMode.

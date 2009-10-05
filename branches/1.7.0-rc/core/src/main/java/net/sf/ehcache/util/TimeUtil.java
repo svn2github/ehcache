@@ -30,7 +30,7 @@ public class TimeUtil {
     /**
      * Converts milliseconds to seconds
      * @param timeInMillis
-     * @return
+     * @return The equivalent time in seconds
      */
     public static int toSecs(long timeInMillis) {
         // Rounding the result to the ceiling, otherwise a
@@ -42,7 +42,7 @@ public class TimeUtil {
     /**
      * Converts seconds to milliseconds, with a precision of 1 second
      * @param timeInSecs the time in seconds
-     * @return
+     * @return The equivalent time in milliseconds
      */
     public static long toMillis(int timeInSecs) {
         return timeInSecs * ONE_SECOND;

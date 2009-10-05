@@ -17,11 +17,11 @@ package net.sf.ehcache.statistics;
 
 /**
  * Interface for listeners to any change in usage statistics of an
- * {@link Ehcache}.
+ * Ehcache.
  * 
  * <p />
  * Implementations of this interface should implement the
- * {@link #equals(Object)} and the {@link #hashCode()} as registering and
+ * {@link Object#equals(Object)} and the {@link Object#hashCode()} as registering and
  * removing listeners depends on these
  * <p />
  * 
@@ -104,9 +104,9 @@ public interface CacheUsageListener {
      * Notified when the statistics accuracy is changed.
      * 
      * @param statisticsAccuracy
-     *            one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT},
-     *            {@link Statistics#STATISTICS_ACCURACY_GUARANTEED},
-     *            {@link Statistics#STATISTICS_ACCURACY_NONE}
+     *            one of Statistics#STATISTICS_ACCURACY_BEST_EFFORT,
+     *            Statistics#STATISTICS_ACCURACY_GUARANTEED,
+     *            Statistics#STATISTICS_ACCURACY_NONE
      */
     public void notifyStatisticsAccuracyChanged(int statisticsAccuracy);
 

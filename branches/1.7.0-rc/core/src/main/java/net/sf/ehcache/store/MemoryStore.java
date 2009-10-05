@@ -221,8 +221,7 @@ public class MemoryStore implements Store {
 
     /**
      * Chooses the Policy from the cache configuration
-     *
-     * @param cache
+     * 
      */
     protected final Policy determineEvictionPolicy() {
         MemoryStoreEvictionPolicy policySelection = cache.getCacheConfiguration().getMemoryStoreEvictionPolicy();

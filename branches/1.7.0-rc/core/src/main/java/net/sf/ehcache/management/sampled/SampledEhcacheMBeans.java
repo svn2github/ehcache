@@ -48,7 +48,7 @@ public abstract class SampledEhcacheMBeans {
      * Returns an ObjectName for the passed cacheManagerName
      * 
      * @param cacheManagerName
-     * @return
+     * @return An {@link ObjectName} using the input name of cache manager
      * @throws MalformedObjectNameException
      */
     public static ObjectName getCacheManagerObjectName(String cacheManagerName)
@@ -64,7 +64,8 @@ public abstract class SampledEhcacheMBeans {
      * 
      * @param cacheManagerName
      * @param cacheName
-     * @return
+     * @return An {@link ObjectName} representing the cache using the passed
+     *         cache and the cache manager name
      * @throws MalformedObjectNameException
      */
     public static ObjectName getCacheObjectName(String cacheManagerName,
@@ -80,7 +81,8 @@ public abstract class SampledEhcacheMBeans {
      * ObjectName's for the passed cacheManagerName
      * 
      * @param cacheManagerName
-     * @return
+     * @return An {@link ObjectName} which can be used for querying all Cache
+     *         ObjectName's for the input cache manager name
      * @throws MalformedObjectNameException
      */
     public static ObjectName getQueryCacheManagerObjectName(
@@ -89,12 +91,13 @@ public abstract class SampledEhcacheMBeans {
                 + SAMPLED_CACHE_MANAGER_TYPE + "=" + cacheManagerName);
         return objectName;
     }
-    
+
     /**
      * Returns an ObjectName that can be used to query all objectNames of
      * {@link #SAMPLED_CACHE_MANAGER_TYPE}
      * 
-     * @return
+     * @return An {@link ObjectName} that can be used to query all ObjectName's
+     *         of {@value #SAMPLED_CACHE_MANAGER_TYPE}
      * @throws MalformedObjectNameException
      */
     public static ObjectName getQueryCacheManagersObjectName()

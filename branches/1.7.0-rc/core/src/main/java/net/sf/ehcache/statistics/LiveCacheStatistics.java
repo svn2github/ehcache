@@ -34,7 +34,7 @@ public interface LiveCacheStatistics {
     /**
      * Returns true if statistics is enabled
      * 
-     * @return
+     * @return true if statistics is enabled
      */
     public boolean isStatisticsEnabled();
 
@@ -75,63 +75,63 @@ public interface LiveCacheStatistics {
     /**
      * Size of the cache based on current accuracy settings.
      * 
-     * @return
+     * @return The size of the cache based on currect accuracy setting
      */
     public long getSize();
 
     /**
      * Number of elements in the MemoryStore
      * 
-     * @return
+     * @return the number of elements in memory
      */
     public long getInMemorySize();
 
     /**
      * Number of elements in the DiskStore
      * 
-     * @return
+     * @return number of elements on disk
      */
     public long getOnDiskSize();
 
     /**
      * Average time in milli seconds taken to get an element from the cache.
      * 
-     * @return
+     * @return Average time taken for a get operation in milliseconds
      */
     public float getAverageGetTimeMillis();
 
     /**
      * Number of elements evicted from the cache
      * 
-     * @return
+     * @return Number of elements evicted from the cache
      */
     public long getEvictedCount();
 
     /**
      * Number of puts that has happened in the cache
      * 
-     * @return
+     * @return Number of puts
      */
     public long getPutCount();
 
     /**
      * Number of updates that as happened in the cache
      * 
-     * @return
+     * @return Number of updates
      */
     public long getUpdateCount();
 
     /**
      * Number of elements expired since creation or last clear
      * 
-     * @return
+     * @return Number of expired elements
      */
     public long getExpiredCount();
 
     /**
      * Number of elements removed since creation or last clear
      * 
-     * @return
+     * @return Number of elements removed
      */
     public long getRemovedCount();
 
@@ -139,9 +139,9 @@ public interface LiveCacheStatistics {
      * Accurately measuring statistics can be expensive. Returns the current
      * accuracy setting.
      * 
-     * @return one of {@link #STATISTICS_ACCURACY_BEST_EFFORT},
-     *         {@link #STATISTICS_ACCURACY_GUARANTEED},
-     *         {@link #STATISTICS_ACCURACY_NONE}
+     * @return one of Statistics.STATISTICS_ACCURACY_BEST_EFFORT,
+     *         Statistics.STATISTICS_ACCURACY_GUARANTEED,
+     *         Statistics.STATISTICS_ACCURACY_NONE
      */
     public int getStatisticsAccuracy();
 

@@ -28,28 +28,28 @@ public interface SampledCacheStatistics {
     /**
      * Get most recent value for cache hit
      * 
-     * @return
+     * @return Most recent sample for cache hit count
      */
     public long getCacheHitMostRecentSample();
 
     /**
      * Get most recent value for in-memory cache hit
      * 
-     * @return
+     * @return Most recent sample for cache hit count in memory
      */
     public long getCacheHitInMemoryMostRecentSample();
 
     /**
      * Get most recent value for on-disk cache hit
      * 
-     * @return
+     * @return Most recent sample for cache hit count on disk
      */
     public long getCacheHitOnDiskMostRecentSample();
 
     /**
      * Get most recent value for cache miss
      * 
-     * @return
+     * @return Most recent sample for cache miss count
      */
     public long getCacheMissMostRecentSample();
 
@@ -57,7 +57,8 @@ public interface SampledCacheStatistics {
      * Get most recent value for cache miss as result of the element getting
      * expired
      * 
-     * @return
+     * @return Most recent sample for cache miss count and the reason for miss
+     *         being the element got expired
      */
     public long getCacheMissExpiredMostRecentSample();
 
@@ -65,35 +66,35 @@ public interface SampledCacheStatistics {
      * Get most recent value for cache miss as result of the element not found
      * in cache
      * 
-     * @return
+     * @return Most recent sample for cache miss not found count
      */
     public long getCacheMissNotFoundMostRecentSample();
 
     /**
      * Get most recent value element evicted from cache
      * 
-     * @return
+     * @return Most recent sample for element evicted count
      */
     public long getCacheElementEvictedMostRecentSample();
 
     /**
      * Get most recent value element removed from cache
      * 
-     * @return
+     * @return Most recent sample for element removed count
      */
     public long getCacheElementRemovedMostRecentSample();
 
     /**
      * Get most recent value element expired from cache
      * 
-     * @return
+     * @return Most recent value for element expired count
      */
     public long getCacheElementExpiredMostRecentSample();
 
     /**
      * Get most recent value element puts in the cache
      * 
-     * @return
+     * @return Most recent sample for number of element puts
      */
     public long getCacheElementPutMostRecentSample();
 
@@ -101,7 +102,7 @@ public interface SampledCacheStatistics {
      * Get most recent value element updates , i.e. put() on elements with
      * already existing keys in the cache
      * 
-     * @return
+     * @return Most recent sampled value for element update count
      */
     public long getCacheElementUpdatedMostRecentSample();
 
@@ -109,16 +110,16 @@ public interface SampledCacheStatistics {
      * Get most recent value for average time taken for get() operation in the
      * cache
      * 
-     * @return
+     * @return Most recent sample of average get time taken for a get operation
      */
     public long getAverageGetTimeMostRecentSample();
 
     /**
      * Get value for statisticsAccuracy
      * 
-     * @return one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT},
-     *         {@link Statistics#STATISTICS_ACCURACY_GUARANTEED},
-     *         {@link Statistics#STATISTICS_ACCURACY_NONE}
+     * @return one of Statistics#STATISTICS_ACCURACY_BEST_EFFORT,
+     *         Statistics#STATISTICS_ACCURACY_GUARANTEED,
+     *         Statistics#STATISTICS_ACCURACY_NONE
      */
     public int getStatisticsAccuracy();
 
@@ -131,7 +132,7 @@ public interface SampledCacheStatistics {
      * Returns true if statistics collection is enabled for cache, otherwise
      * false
      * 
-     * @return
+     * @return true if sampled statistics is enabled, false otherwise
      */
     public boolean isSampledStatisticsEnabled();
 

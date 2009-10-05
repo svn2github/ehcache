@@ -91,14 +91,18 @@ public class SampledCounterImpl extends CounterImpl implements SampledCounter {
     }
 
     /**
-     * {@inheritDoc}
+     * Returns the timer task for this sampled counter
+     * 
+     * @return the timer task for this sampled counter
      */
     public TimerTask getTimerTask() {
         return this.samplerTask;
     }
 
     /**
-     * {@inheritDoc}
+     * Returns the sampling thread interval in millis
+     * 
+     * @return the sampling thread interval in millis
      */
     public long getIntervalMillis() {
         return intervalMillis;

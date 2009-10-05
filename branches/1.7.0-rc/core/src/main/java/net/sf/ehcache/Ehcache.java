@@ -350,7 +350,7 @@ public interface Ehcache extends Cloneable {
      *            one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT},
      *            {@link Statistics#STATISTICS_ACCURACY_GUARANTEED},
      *            {@link Statistics#STATISTICS_ACCURACY_NONE}
-     * @return
+     * @return the size of the cache based on the current accuracy setting
      * @throws IllegalArgumentException
      *             if the statisticsAccuracy is not one of the above
      * @throws IllegalStateException
@@ -572,7 +572,6 @@ public interface Ehcache extends Cloneable {
      * The number given may contain expired elements. In addition if the DiskStore is used it may contain some double
      * counting of elements. It takes 6ms for 1000 elements to execute. Time to execute is O(log n). 50,000 elements take
      * 36ms.
-     * @see {@link #getLiveCacheStatistics()}
      * @return the number of elements in the ehcache, with a varying degree of accuracy, depending on accuracy setting.
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
@@ -595,7 +594,7 @@ public interface Ehcache extends Cloneable {
      * cache
      * usage.
      * Implementations of {@link CacheUsageListener} should override the
-     * {@link #equals(Object)} and {@link #hashCode()} methods as it is used for
+     * {@link Object#equals(Object)} and {@link Object#hashCode()} methods as it is used for
      * equality check
      * 
      * @throws IllegalStateException
@@ -606,7 +605,7 @@ public interface Ehcache extends Cloneable {
 
     /**
      * Remove an already registered {@link CacheUsageListener}, if any.
-     * Depends on the {@link #equals(Object)} method.
+     * Depends on the {@link Object#equals(Object)} method.
      * 
      * @throws IllegalStateException
      * @since 1.7
@@ -844,7 +843,7 @@ public interface Ehcache extends Cloneable {
     /**
      * Returns true if statistics collection is enabled
      * 
-     * @return
+     * @return true if statistics is enabled, false otherwise
      */
     public boolean isStatisticsEnabled();
 
@@ -857,14 +856,14 @@ public interface Ehcache extends Cloneable {
      * Disabling statistics also disables the sampled statistics collection if
      * it is enabled
      * 
-     * @param enabledStatistics
+     * @param enableStatistics
      */
     public void setStatisticsEnabled(boolean enableStatistics);
 
     /**
      * Returns sampled statistics for this cache.
      * 
-     * @return
+     * @return The sampled cache statistics
      */
     public SampledCacheStatistics getSampledCacheStatistics();
     
@@ -873,14 +872,14 @@ public interface Ehcache extends Cloneable {
      * Enabling sampled statistics also enables the normal statistics collection if its not already enabled.
      * Disabling sampled statistics does not have any effect on normal statistics.
      * 
-     * @param enabledStatistics
+     * @param enableStatistics
      */
     public void setSampledStatisticsEnabled(boolean enableStatistics);
 
     /**
      * Returns if sampled statistics collection is enabled or disabled
      * 
-     * @return
+     * @return true if sampled statistics is enabled, false otherwise
      */
     public boolean isSampledStatisticsEnabled();
 

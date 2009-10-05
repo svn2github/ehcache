@@ -35,6 +35,8 @@
 
  *  {{{#JCache_Examples}JCache Examples}}
 
+ *  {{{#Terracotta_Example}Terracotta Clustering Examples}}
+
  *  {{{#Cache_Server_Examples}Cache Server Examples}}
 
  * {{{#Browse_the_JUnit_Tests}Browse the JUnit Tests}}
@@ -365,10 +367,14 @@ public Cache(
    in the src.zip in the ehcache tarball.
 
 
-*  {{JCache Examples}}
+*  {JCache Examples}
 
     See the examples in the {{{./jsr107.html}JCache}} Chapter.
 
-*  {{Cache Server Examples}}
+*  {Terracotta Example}
+
+    See the fully worked examples in the {{{./distributed_caching_with_terracotta.html}Terracotta Clustering}} Chapter.
+
+*  {Cache Server Examples}
 
     See the examples in the {{{./cache_server.html}Cache Server}} Chapter.

@@ -42,7 +42,7 @@ public class TimeStampedCounterValue implements Serializable {
     /**
      * Get the counter value
      * 
-     * @return
+     * @return The counter value
      */
     public long getCounterValue() {
         return this.counterValue;
@@ -51,7 +51,7 @@ public class TimeStampedCounterValue implements Serializable {
     /**
      * Get value of the timestamp
      * 
-     * @return
+     * @return the timestamp associated with the current value
      */
     public long getTimestamp() {
         return this.timestamp;
