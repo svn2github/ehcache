@@ -11,9 +11,7 @@ News
 
   This is a beta release of ehcache-1.7.0 comprising ehcache, ehcache-core and ehcache-terracotta modules.
 
-  The ehcache module is a new packaging module which consists of commonly used ehcache modules, the ehcache-core
-  module contains the caching engine, RMI replication and Hibernate plugin and finally the ehcache-terracotta module contains
-  the brand new, seamless Terracotta clustering integration.
+  The new 1.7.0-beta ehcache module now contains out-of-the-box support for Terracotta.
 
   This release is the first fruits of the merger of Ehcache and Terracotta. It enables Ehcache to be Terracotta clustered
   with only a few lines of config in ehcache.xml and no application code changes. See the {{{/documentation/distributed_caching_with_terracotta.html}Terracotta Clustering Documentation}}
@@ -25,8 +23,9 @@ News
   are available {{{/download.html}here}}.
 
   A few more bug fixes have been picked up against the 1.6 core caching engine in this release. As with the 1.6 release,
-  if you experience unexpected behaviour you can enable the <<<LinkedHashMap>> based engine with
+  if you experience unexpected behaviour you can enable the <<<LinkedHashMap>>> based engine with
   <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>.
+
 * 29 September 2009: Subversion, JIRA, Forums and Mailing List migrated to Terracotta Infrastructure
 
   As announced at the time of acquisition, Subversion, JIRA, Forums and Mailing List have now been migrated to

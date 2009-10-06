@@ -26,8 +26,7 @@
         </menu>
 
         <menu name="Services">
-            <item name="Consulting" href="/consulting.html"/>
-            <item name="Commercial Support" href="/support.html"/>
+            <item name="Consulting &amp; Support" href="http://www.terracotta.org/web/display/orgsite/Enterprise+Support+for+Ehcache?source=ehcachebanner"/>
         </menu>
 
         <menu name="Code">

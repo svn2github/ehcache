@@ -2,7 +2,7 @@
 
     Terracotta has been integrated with ehcache since Ehcache 1.4.
 
-    From version 1.7 Ehcache has been seamlessly integrated with Terracotta 3.1 and takes just a few lines
+    From version 1.7 Ehcache has been seamlessly integrated with Terracotta 3.1.1 and takes just a few lines
     of config in ehcache.xml to get up and running.
 
 *   Worked Example
@@ -41,8 +41,8 @@ public class TerracottaExample {
     <terracottaConfig url="localhost:9510"/>
 ---
     which tells ehcache to load the Terracotta server config from localhost port 9510. Note: You must have a
-    Terracotta 3.1 or higher server running locally for this example. For the 1.7-beta release please contact
-    Mike Allen (mike AT terracottatech.com) for a download link.
+    Terracotta 3.1.1 or higher server running locally for this example. For the beta release (including ehcache-1.7.0 
+    and terracotta-3.1.1) please contact Mike Allen (mike AT terracottatech.com) for a download link.
 
     Next we want to enable Terracotta clustering for the cache named <<<sampleTerracottaCache>>>. Uncomment or add the
     following in ehcache.xml.
@@ -69,7 +69,7 @@ public class TerracottaExample {
 
     * Terracotta Server Configuration
 
-    * Setting Terracotta clustering per cache
+    * Enabling Terracotta clustering per cache
 
 **  CacheManager Configuration
 
@@ -170,10 +170,73 @@ public class TerracottaExample {
 ---
 
 
+** Enabling Terracotta clustering per cache
+
+    Cache elements can also contain information about whether the cache can be clustered with Terracotta.
+
+    The <terracotta> sub-element has the following attributes:
+
+    * clustered=true|false
+
+      Indicates whether this cache should be clustered with Terracotta. By
+      default, if the <terracotta> element is included, clustered=true.
+
+    * valueMode=serialization|identity
+
+      Indicates whether this cache should be clustered with
+      serialized copies of the values or using Terracotta identity mode.  By default, values will
+      be cached in serialization mode which is similar to other replicated Ehcache modes.  The identity
+      mode is only available in certain Terracotta deployment scenarios and will maintain actual object
+      identity of the keys and values across the cluster.  In this case, all users of a value retrieved from
+      the cache are using the same clustered value and must provide appropriate locking for any changes
+      made to the value (or objects referred to by the value).
+
+    * coherentReads=true|false
+
+      Indicates whether this cache should have coherent reads with guaranteed
+      consistency across the cluster.  By default, this setting is true.  If you set this property to
+      false, reads are allowed to check the local value without locking, possibly seeing stale values.
+      This is a performance optimization with weaker concurrency guarantees and should generally be used
+      with caches that contain read-only data or where the application can tolerate reading stale
+      data.
+
+    The simplest way to enable clustering is to add:
+
+---
+        <terracotta/>
+---
+
+    To indicate the cache should not be clustered (or remove the <terracotta> element altogether):
+
+---
+        <terracotta clustered="false"/>
+---
+
+    To indicate the cache should be clustered using identity mode:
+
+---
+        <terracotta clustered="true" valueMode="identity"/>
+---
+
+    Following is an example Terracotta clustered cache named sampleTerracottaCache.
+
+---
+    <cache name="sampleTerracottaCache"
+           maxElementsInMemory="1000"
+           eternal="false"
+           timeToIdleSeconds="3600"
+           timeToLiveSeconds="1800"
+           overflowToDisk="false">
+        <terracotta/>
+    </cache>
+---
+
+
 
 *   More Information
 
-    Please see {{http://www.terracotta.org/web/display/orgsite/Distributed+Cache}} for much more information.
+    Please see {{{http://www.terracotta.org/web/display/orgsite/Terracotta+Ehcache+Overview}Terracotta Documentation}}
+    for much more information.
 
 
     
