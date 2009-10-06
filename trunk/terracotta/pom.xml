@@ -11,6 +11,12 @@
   <packaging>pom</packaging>
   <version>1.7.0-SNAPSHOT</version>
 
+
+  <!--
+   Deploy instructions: 
+    mvn deploy -Pdeploy-snapshot-default
+    mvn deploy -Pdeploy-release-default
+   -->
   <modules>
     <module>bootstrap</module>
     <module>packaging</module>
