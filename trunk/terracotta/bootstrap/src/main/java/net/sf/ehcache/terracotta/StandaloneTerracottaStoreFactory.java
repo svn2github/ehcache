@@ -48,6 +48,19 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
     System.setProperty("tc.dso.globalmode", "false");
 
     URL source = getClass().getProtectionDomain().getCodeSource().getLocation();
+    if (!source.toExternalForm().endsWith(".jar")) {
+      // code source may return upto the class and not the containing jar
+      String extForm = source.toExternalForm();
+      if (extForm.startsWith("jar:") && extForm.endsWith(".class") && extForm.contains(".jar!")) {
+        // rip the jar protocol, use the jar directly
+        extForm = extForm.substring(4, extForm.lastIndexOf(".jar!")) + ".jar";
+        try {
+          source = new URL(extForm);
+        } catch (MalformedURLException e) {
+          throw new CacheException(e);
+        }
+      }
+    }
     URL bootJarUrl = null;
     List<Jar> l1Jars = Collections.synchronizedList(new ArrayList<Jar>());
     List<Jar> timJars = Collections.synchronizedList(new ArrayList<Jar>());
@@ -122,21 +135,24 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
       appLevelTimLoader.setTransformer(dsoContext);
 
       Class factoryClass = appLevelTimLoader.loadClass("org.terracotta.modules.ehcache.store.TerracottaStoreFactory");
-      Constructor factoryClassConstructor = factoryClass.getConstructor(new Class[] {TerracottaConfigConfiguration.class});
-      realFactory = (StoreFactory)factoryClassConstructor.newInstance(terracottaConfig);
+      Constructor factoryClassConstructor = factoryClass
+          .getConstructor(new Class[] { TerracottaConfigConfiguration.class });
+      realFactory = (StoreFactory) factoryClassConstructor.newInstance(terracottaConfig);
     } catch (Exception e) {
       throw new CacheException(e);
     }
   }
 
-  private static void handleSigarZipEntry(final ZipInputStream agentJar, final ZipEntry entry, final File sigarTmpDir) throws IOException {
+  private static void handleSigarZipEntry(final ZipInputStream agentJar, final ZipEntry entry, final File sigarTmpDir)
+      throws IOException {
     // extract only if this is for the current platform
     if (entry.getName().contains(baseLibraryName())) {
       extractSigarZipEntry(agentJar, entry, sigarTmpDir);
     }
   }
 
-  private static void extractSigarZipEntry(final ZipInputStream jar, final ZipEntry entry, final File outputDir) throws IOException {
+  private static void extractSigarZipEntry(final ZipInputStream jar, final ZipEntry entry, final File outputDir)
+      throws IOException {
     byte[] content = getCurrentZipEntry(jar);
     String outName = baseName(entry);
 
