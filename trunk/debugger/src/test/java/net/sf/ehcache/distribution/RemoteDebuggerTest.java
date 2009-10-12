@@ -5,6 +5,8 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import java.net.URL;
+
 /**
  * A place holder to stop maven from falling over with an NPE
  */
@@ -77,15 +79,14 @@ public class RemoteDebuggerTest extends TestCase {
             return;
         }
 
-
-
-        remoteDebugger = new RemoteDebugger("/Users/gluck/work/ehcache/debugger/target/test-classes/ehcache-distributed6.xml", "sampleCache1");
+        URL configResource = this.getClass().getResource("/ehcache-distributed6.xml");
+        remoteDebugger = new RemoteDebugger(configResource.getFile(), "sampleCache1");
         RemoteDebuggerThread remoteDebuggerThread = new RemoteDebuggerThread();
         remoteDebuggerThread.start();
         assertTrue(remoteDebuggerThread.isAlive());
         assertTrue(remoteDebugger.getDistributedCacheNames().length > 50);
 
-        CacheManager manager6 = new CacheManager(this.getClass().getResource("/ehcache-distributed6.xml"));
+        CacheManager manager6 = new CacheManager(configResource);
         Cache sendingCache = manager6.getCache("sampleCache1");
 
 
