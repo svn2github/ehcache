@@ -49,9 +49,8 @@ public final class RemoteDebugger {
      *
      * @param configurationFileName e.g. app/config/ehcache.xml
      * @param cacheNameToMonitor    sampleDistributedCache1
-     * @throws InterruptedException
      */
-    public RemoteDebugger(String configurationFileName, String cacheNameToMonitor) throws InterruptedException {
+    public RemoteDebugger(String configurationFileName, String cacheNameToMonitor) {
 
         this.configurationFileName = configurationFileName;
         this.cacheNameToMonitor = cacheNameToMonitor;
@@ -63,11 +62,6 @@ public final class RemoteDebugger {
                     "Stack trace follows:");
             e.printStackTrace();
         }
-        if (manager == null) {
-            return;
-        }
-
-
 
     }
 
