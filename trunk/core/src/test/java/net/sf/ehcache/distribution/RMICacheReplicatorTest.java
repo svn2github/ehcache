@@ -630,38 +630,52 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
             }
 
         }
-        Thread.sleep(8000);
-        assertEquals(5000, cache1.getSize());
-        assertEquals(5000, manager2.getCache("sampleCache1").getSize());
-        assertEquals(5000, manager3.getCache("sampleCache1").getSize());
-        assertEquals(5000, manager4.getCache("sampleCache1").getSize());
-        assertEquals(5000, manager5.getCache("sampleCache1").getSize());
 
+
+        Ehcache[] caches = {
+            cache1,
+            manager2.getCache("sampleCache1"),
+            manager3.getCache("sampleCache1"),
+            manager4.getCache("sampleCache1"),
+            manager5.getCache("sampleCache1") };
+
+        waitForCacheSize(5000, 25, caches);
         //Let the disk stores catch up before the next stage of the test
         Thread.sleep(2000);
 
-        StopWatch stopWatch = new StopWatch();
-
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 1000; j++) {
-                index = new Integer(((1000 * i) + j));
-                cache1.remove(index);
+                cache1.remove(new Integer(((1000 * i) + j)));
             }
         }
 
-
-        int timeForPropagate = 10000;
-
-        Thread.sleep(timeForPropagate);
-        assertEquals(0, cache1.getSize());
-        assertEquals(0, manager2.getCache("sampleCache1").getSize());
-        assertEquals(0, manager3.getCache("sampleCache1").getSize());
-        assertEquals(0, manager4.getCache("sampleCache1").getSize());
-        assertEquals(0, manager5.getCache("sampleCache1").getSize());
-
+        long timeForPropagate = waitForCacheSize(0, 25, caches);
         LOG.log(Level.INFO, "Remove Elapsed time: " + timeForPropagate);
 
+    }
 
+    public long waitForCacheSize(long size, int maxSeconds, Ehcache... caches) throws InterruptedException {
+
+        StopWatch stopWatch = new StopWatch();
+        while(checkForCacheSize(size, caches)) {
+            Thread.sleep(500);
+            if(stopWatch.getElapsedTime() > maxSeconds * 1000) {
+                fail("Caches still haven't reached the expected size after " + maxSeconds + " seconds");
+            }
+        }
+
+        return stopWatch.getElapsedTime();
+    }
+
+    private boolean checkForCacheSize(long size, Ehcache... caches) {
+        boolean sizeReached = true;
+        for (Ehcache cache : caches) {
+            if(cache.getSize() != size) {
+                sizeReached = false;
+                break;
+            }
+        }
+        return sizeReached;
     }
 
 
