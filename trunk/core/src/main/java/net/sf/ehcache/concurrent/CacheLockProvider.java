@@ -23,10 +23,10 @@ public interface CacheLockProvider {
     /**
      * Gets the Sync Stripe to use for a given key.
      * <p/>
-     * This lookup must always return the same Mutex for a given key.
+     * This lookup must always return the same Sync for a given key.
      * <p/>
      * @param key the key
-     * @return one of a limited number of Mutexes.
+     * @return one of a limited number of Sync's.
      */
     Sync getSyncForKey(Object key);
 }

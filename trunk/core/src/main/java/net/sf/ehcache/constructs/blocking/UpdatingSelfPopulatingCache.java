@@ -60,7 +60,7 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
      * <p/>
      * It is expected that
      * gets, which update as part of the get, might take considerable time. Access to the cache cannot be blocked
-     * while that is happening. This method is therefore not synchronized. Mutexes are used for thread safety based on key
+     * while that is happening. This method is therefore not synchronized. Sync's are used for thread safety based on key
      *
      * @param key
      * @return a value

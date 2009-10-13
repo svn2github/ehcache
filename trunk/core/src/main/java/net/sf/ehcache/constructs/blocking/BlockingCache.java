@@ -60,27 +60,6 @@ import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
  * <li>Scalability to a large number of threads.
  * </ul>
  * <p/>
- * This class has been updated to use Lock striping. The Mutex implementation gives scalability but creates
- * many Mutex objects of 24 bytes each. Lock striping limits their number to 100.
- * <p/>
- * A version of this class is planned which will dynamically use JDK5's concurrency package, which is
- * based on Doug Lea's, so as to avoid a dependency on his package for JDK5 systems. This will not
- * be implemented until JDK5 is released on MacOSX and Linux, as JDK5 will be required to compile
- * it, though any version from JDK1.2 up will be able to run the code, falling back to Doug
- * Lea's concurrency package, if the JDK5 package is not found in the classpath.
- * <p/>
- * The <code>Mutex</code> class does not appear in the JDK5 concurrency package. Doug Lea has
- * generously offered the following advice:
- * <p/>
- * "You should just be able to use ReentrantLock here.  We supply
- * ReentrantLock, but not Mutex because the number of cases where a
- * non-reentrant mutex is preferable is small, and most people are more
- * familiar with reentrant seamantics. If you really need a non-reentrant
- * one, the javadocs for class AbstractQueuedSynchronizer include sample
- * code for them."
- * <p/>
- * -Doug
- * <p/>
  * "Hashtable / synchronizedMap uses the "one big fat lock" approach to guard the mutable state of the map.
  * That works, but is a big concurrency bottleneck, as you've observed.  You went to the opposite extreme, one lock per key.
  * That works (as long as you've got sufficient synchronization in the cache itself to protect its own data structures.)
@@ -500,10 +479,10 @@ public class BlockingCache implements Ehcache {
 
 
     /**
-     * Gets the Mutex to use for a given key.
+     * Gets the Sync to use for a given key.
      *
      * @param key the key
-     * @return one of a limited number of Mutexes.
+     * @return one of a limited number of Sync's.
      */
     protected Sync getLockForKey(final Object key) {
         return cacheLockProvider.getSyncForKey(key);

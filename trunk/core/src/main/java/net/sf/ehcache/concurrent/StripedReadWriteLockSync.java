@@ -22,7 +22,7 @@ import net.sf.ehcache.CacheException;
  * the individual elements or constituent objects can be locked. This dramatically increases
  * the possible concurrency.
  * <p/>
- * The more stripes, the higher the concurrency. To be threadsafe, the instance of StripedMutex needs to be
+ * The more stripes, the higher the concurrency. To be threadsafe, the instance of CacheLockProvider needs to be
  * maintained for the entire life of the cache or store, so there is some added memory use.
  * <p/>
  * Though a new class, this code has been refactored from <code>BlockingCache</code>, where it has been in use
@@ -59,11 +59,11 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
      */
     public StripedReadWriteLockSync(int numberOfStripes) {
         if (numberOfStripes % 2 != 0) {
-            throw new CacheException("Cannot create a StripedMutex with an odd number of stripes");
+            throw new CacheException("Cannot create a CacheLockProvider with an odd number of stripes");
         }
 
         if (numberOfStripes == 0) {
-            throw new CacheException("A zero size StripedMutex does not have useful semantics.");
+            throw new CacheException("A zero size CacheLockProvider does not have useful semantics.");
         }
 
         this.numberOfStripes = numberOfStripes;
@@ -75,12 +75,12 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
     }
 
     /**
-     * Gets the Mutex Stripe to use for a given key.
+     * Gets the Sync Stripe to use for a given key.
      * <p/>
-     * This lookup must always return the same Mutex for a given key.
+     * This lookup must always return the same Sync for a given key.
      * <p/>
      * @param key the key
-     * @return one of a limited number of Mutexes.
+     * @return one of a limited number of Sync's.
      */
     public Sync getSyncForKey(final Object key) {
         int lockNumber = ConcurrencyUtil.selectLock(key, numberOfStripes);
