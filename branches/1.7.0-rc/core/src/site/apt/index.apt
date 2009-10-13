@@ -22,9 +22,13 @@ Welcome to ehcache
  Ehcache is now modularised. Here are some quick links to help you get what you need.
 
 *----------*--------------:------------------------:
-| <<Module>> | <<Description>>     | <<Links>>            |
+| <<Module>> | <<Description>>     | <<Download>>            |
+*----------*--------------:------------------------:
+| ehcache | a packaging of commonly used modules     | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
 *----------*--------------:------------------------:
 | ehcache-core | Caching engine, RMI replication and Hibernate plugin     | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
+*----------*--------------:------------------------:
+| ehcache-terracotta | Seamless integration with Terracotta clustering     | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
 *----------*--------------:------------------------:
 | ehcache-web | Java Servlet Container caching, gzipping filters  | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
 *----------*--------------:------------------------:
@@ -48,9 +52,7 @@ Welcome to ehcache
 
   This is a beta release of ehcache-1.7.0 comprising ehcache, ehcache-core and ehcache-terracotta modules.
 
-  The ehcache module is a new packaging module which consists of commonly used ehcache modules, the ehcache-core
-  module contains the caching engine, RMI replication and Hibernate plugin and finally the ehcache-terracotta module contains
-  the brand new, seamless Terracotta clustering integration.
+  The new 1.7.0-beta ehcache module now contains out-of-the-box support for Terracotta.  
 
   This release is the first fruits of the merger of Ehcache and Terracotta. It enables Ehcache to be Terracotta clustered
   with only a few lines of config in ehcache.xml and no application code changes. See the {{{/documentation/distributed_caching_with_terracotta.html}Terracotta Clustering Documentation}}
