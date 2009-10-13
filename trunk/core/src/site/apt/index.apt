@@ -24,35 +24,35 @@ Welcome to ehcache
 *----------*--------------:------------------------:
 | <<Module>> | <<Description>>     | <<Download>>            |
 *----------*--------------:------------------------:
-| ehcache | a packaging of commonly used modules     | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
+| ehcache | a packaging of commonly used modules     | {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}Download}}   |
 *----------*--------------:------------------------:
-| ehcache-core | Caching engine, RMI replication and Hibernate plugin     | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
+| ehcache-core | Caching engine, RMI replication and Hibernate plugin     | {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}Download}}   |
 *----------*--------------:------------------------:
-| ehcache-terracotta | Seamless integration with Terracotta clustering     | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
+| ehcache-terracotta | Seamless integration with Terracotta clustering     | {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}Download}}   |
 *----------*--------------:------------------------:
-| ehcache-web | Java Servlet Container caching, gzipping filters  | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
+| ehcache-web | Java Servlet Container caching, gzipping filters  | {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}Download}}   |
 *----------*--------------:------------------------:
-| ehcache-debugger | Allows tracing of distributed replication events    | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
+| ehcache-debugger | Allows tracing of distributed replication events    | {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}Download}}   |
 *----------*--------------:------------------------:
-| ehcache-jcache | JSR107 JCACHE Implementation     | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
+| ehcache-jcache | JSR107 JCACHE Implementation     | {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}Download}}   |
 *----------*--------------:------------------------:
-| ehcache-jgroupsreplication | Replication via JGroups  | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
+| ehcache-jgroupsreplication | Replication via JGroups  | {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}Download}}   |
 *----------*--------------:------------------------:
-| ehcache-jmsreplication | Replication via JMS   | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
+| ehcache-jmsreplication | Replication via JMS   | {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}Download}}   |
 *----------*--------------:------------------------:
-| ehcache-openjpa | Caching Plugin for OpenJPA     | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
+| ehcache-openjpa | Caching Plugin for OpenJPA     | {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}Download}}   |
 *----------*--------------:------------------------:
-| ehcache-server | RESTful cache server in a war   | {{{http://sourceforge.net/projects/ehcache/files/}Download}}   |
+| ehcache-server | RESTful cache server in a war   | {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}Download}}   |
 *----------*--------------:------------------------:
 
 
 * Latest News
 
-** 5 October 2009: New beta 1.7.0-beta releases - ehcache, ehcache-core and the new ehcache-terracotta
+** 13 October 2009: New 1.7.0 releases - ehcache, ehcache-core and the new ehcache-terracotta
 
-  This is a beta release of ehcache-1.7.0 comprising ehcache, ehcache-core and ehcache-terracotta modules.
+  This is a final release of ehcache-1.7.0 comprising ehcache, ehcache-core and ehcache-terracotta modules.
 
-  The new 1.7.0-beta ehcache module now contains out-of-the-box support for Terracotta.  
+  The new 1.7.0 ehcache module now contains out-of-the-box support for Terracotta.
 
   This release is the first fruits of the merger of Ehcache and Terracotta. It enables Ehcache to be Terracotta clustered
   with only a few lines of config in ehcache.xml and no application code changes. See the {{{/documentation/distributed_caching_with_terracotta.html}Terracotta Clustering Documentation}}
@@ -61,11 +61,15 @@ Welcome to ehcache
   We anticipate a final release shortly. In the meantime please feel free to check it out and kick the tyres.
 
   See the {{{http://ehcache.org/changes-report.html}changelog}} for complete details. Downloads and Maven modules
-  are available {{{/download.html}here}}.
+  are available {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}here}}.
 
-  A few more bug fixes have been picked up against the 1.6 core caching engine in this release. As with the 1.6 release,
+  A few more bug fixes have been picked up against the 1.6 core caching engine redesign in this release. As with the 1.6 release,
   if you experience unexpected behaviour you can enable the <<<LinkedHashMap>>> based engine with
   <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>.
+
+** 5 October 2009: New beta 1.7.0-beta releases - ehcache, ehcache-core and the new ehcache-terracotta
+
+  This is a beta release of ehcache-1.7.0 comprising ehcache, ehcache-core and ehcache-terracotta modules.
 
 
 ** 29 September 2009: Subversion, JIRA, Forums and Mailing List migrated to Terracotta Infrastructure
@@ -80,7 +84,7 @@ Welcome to ehcache
 
   This is a production maintenance release of ehcache-1.6. Users of 1.6 should upgrade to 1.6.2.
 
-  Download {{{/download.html}here}}. All documentation is {{{http://ehcache.sourceforge.net/documentation}here}}.
+  Download {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}here}}. All documentation is {{{http://ehcache.sourceforge.net/documentation}here}}.
   The release is also available on Maven central. Note that Maven will report a checksum error.
   It is caused by a bug in Maven 2.1.0 and can be ignored.
 
@@ -115,101 +119,6 @@ Welcome to ehcache
   See Terracotta's {{{http://www.terracotta.org/web/display/orgsite/Terracotta+Acquires+Ehcache}news announcement}} for more detail.
 
   Greg Luck also has a {{{http://gregluck.com/blog/archives/2009/08/ehcache_joins_w.html}blog post}} on the merger.
-
-
-** 27 July 2009: Ehcache Core 1.6.1 released
-
-  This is a production maintenance release of ehcache-1.6. Users of 1.6.0 should upgrade to 1.6.1.
-
-  Download {{{/download.html}here}}. All documentation is {{{http://ehcache.sourceforge.net/documentation}here}}.
-  The release is also available on Maven central.
-
-  There are no open core bugs at the time of release.
-
-  For those still wishing to use the old engine it can be turned on at runtime
-  using <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>.
-
-** 14 July: Ehcache-OpenJPA 0.1 released
-
-  An Ehcache plugin for OpenJPA has been released. It can be easily plugged in to OpenJPA  to provide familiar ehcache
-  caching. Conceptually the plugin is similar to Hibernate. Persistent Object caches and Query caches are implemented.
-
-  Download {{{/download.html}here}}. All documentation is {{{http://ehcache.sourceforge.net/documentation/openjpa_provider.html}here}}.
-
-  The release is also available on Maven central.
-
-  Thanks to Craig Andrews for contributing this plugin.
-
-
-** 17 June 2009: Ehcache 1.6.0 released
-
-  This production release of ehcache-1.6 adds bug fixes and massive performance improvements. This release contains
-  the changes mooted in February.
-
-  The changes removed most usages of the <<<synchronized>>> keyword from CacheManager, Cache and MemoryStore. The speed
-  improvements kick in with significant numbers of threads which is what happens in production.
-  Single-threaded performance, which is what you will see in your IDE is unchanged.
-
-  The improvements are:
-
-  * Gets 60 times faster
-
-  * Puts 10 times faster
-
-  * Removes 50 times faster
-
-
-  This version removes all dependencies. Finally It is compatible with Google App Engine.
-
-  For those still wishing to use the old engine it can be turned on at runtime
-  using <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>.
-
-  Download {{{/download.html}here}}. All documentation is {{{http://ehcache.sourceforge.net/documentation}here}}.
-  The release is also available on Maven central.
-
-  There are no open bugs at time of release.
-  
-
-** 10 May 2009: New Ehcache Maven repo
-
-  The primary ehcache repo has been migrated, with all history to {{http://oss.sonatype.org}}. This change simplifies
-  deployment and provides an advanced Maven Repository Manager to ehcache users. As usual all release artifacts are
-  deployed to the central Maven repository.
-  See {{{http://gregluck.com/blog/archives/2009/05/anyone_with_a_p.html}Greg Luck's blog}} for the full details.
-
-
-
-** 11 April 2009: Ehcache Server and Ehcache Web updates released
-
-    Ehcache Server, Standalone Server and Ehcache Web have been released to Maven Central and Sourceforge Downloads.
-
-    Ehcache Server adds per PUT ttls to its REST API. The Standalone Server is upgraded to build 14 of Glassfish V3 Prelude
-    Embedded which fixes all outstanding feature requests raised against it by this project. See the updated
-    {{{http://ehcache.sourceforge.net/documentation/cache_server.html}documentation}}.
-
-    Ehcache Web 1.6.0-beta2 contains a minor bug fix over beta1.
-
-    This beta release of ehcache-1.6.0 adds bug fixes and dramatic performance improvements.
-
-   Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. All documentation is
-    {{{http://ehcache.sourceforge.net/documentation}here}}.
-
-    A note on naming. With ehcache fully modularised, each module has its own release cycle which may or may not
-    correspond with the Ehcache core releases.
-
-** 28 January 2009: New releases which break JCache into its own module.
-
-    A new release of Ehcache core, ehcache-1.6.0-beta3 and the new ehcache-jcache-1.1 break JCache functionality
-    into its own Maven module and file download. jsr107cache has been updated to 1.1.
-
-    The upshot of this change is that ehcache core has no third party dependencies, simplifying its use for many
-    and making it easier to add ehcache to other projects.
-
-    This completes the modularisation work for 1.6. The next beta will add bug fixes, performance improvements
-    and some longstanding feature requests.
-
-   Download {{{http://sourceforge.net/project/showfiles.php?group_id=93232}here}}. All documentation is
-    {{{http://ehcache.sourceforge.net/documentation}here}}.
 
 
 

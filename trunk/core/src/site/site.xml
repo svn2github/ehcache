@@ -12,7 +12,7 @@
     </bannerRight>
     <body>
         <links>
-            <item name="Download" href="http://sourceforge.net/project/showfiles.php?group_id=93232"/>
+            <item name="Download" href="http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup"/>
         </links>
 
         <menu name="About">
@@ -30,7 +30,7 @@
         </menu>
 
         <menu name="Code">
-            <item name="Download" href="/download.html"/>
+            <item name="Download" href="http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup"/>
             <item name="Maven Release Repository" href="http://oss.sonatype.org/content/repositories/sourceforge-releases/net/sf/ehcache/"/>
             <item name="Maven Snapshot Repository" href="http://oss.sonatype.org/content/repositories/sourceforge-snapshots/net/sf/ehcache/"/>
             <item name="ehcache.xml" href="/ehcache.xml"/>
