@@ -21,6 +21,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStoreTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -117,6 +118,11 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
         assertEquals(5, store.getSize());
 
         //The element with key "key2" should be the least recently used
+        assertNotNull(store.get("key1"));
+        assertNotNull(store.get("key3"));
+        assertNotNull(store.get("key4"));
+        assertNotNull(store.get("key5"));
+        assertNotNull(store.get("key6"));
         assertNull(store.get("key2"));
         cache.get("key2");
 
@@ -131,6 +137,11 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
         assertEquals(5, store.getSize());
 
         //key1 should now be the least recently used.
+        assertNotNull(store.get("key3"));
+        assertNotNull(store.get("key4"));
+        assertNotNull(store.get("key5"));
+        assertNotNull(store.get("key6"));
+        assertNotNull(store.get("key7"));
         assertNull(store.get("key1"));
     }
 
