@@ -84,6 +84,7 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
         cache.put(element);
         assertEquals(2, store.getSize());
 
+        Thread.sleep(1020);
         element = new Element("key3", "value3");
         cache.put(element);
         assertEquals(3, store.getSize());
