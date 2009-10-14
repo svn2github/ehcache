@@ -569,7 +569,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
         long differenceMemoryCache = thrashCache();
         LOG.log(Level.INFO, "Difference is : " + differenceMemoryCache);
         //Sometimes this can be higher but a three hour run confirms no memory leak. Consider increasing.
-        assertTrue(differenceMemoryCache < 500000);
+        assertTrue("Memory difference was expected to be less than 500000, but was " + differenceMemoryCache, differenceMemoryCache < 500000);
     }
 
 
