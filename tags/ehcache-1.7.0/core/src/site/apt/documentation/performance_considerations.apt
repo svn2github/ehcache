@@ -1,0 +1,33 @@
+{Performance Considerations}
+
+* DiskStore
+
+    Ehcache comes with a <<<MemoryStore>>> and a <<<DiskStore>>>. The <<<MemoryStore>>> is approximately
+    an order of magnitude faster than the <<<DiskStore>>>. The reason is that
+    the <<<DiskStore>>> incurs the following extra overhead:
+
+      * Serialization of the key and value
+
+      * Eviction from the <<<MemoryStore>>> using an eviction algorithm
+
+      * Reading from disk
+
+    Note that writing to disk is not a synchronous performance overhead
+    because it is handled by a separate thread.
+
+    A Cache should alway have its <<<maximumSize>>> attribute
+    set to 1 or higher. A Cache with a maximum
+    size of 1 has twice the performance of a disk only cache, i.e. one
+    where the <<<maximumSize>>> is set to 0. For this reason a warning will be issued if a Cache is
+    created with a 0 <<<maximumSize>>>.
+
+* Replication
+
+    The asynchronous replicator is the highest performance. There are two different effects:
+
+    * Because it is asynchronous the caller returns immediately
+
+    * The messages are placed in a queue. As the queue is processed, multiple messages are sent in one RMI
+      call, dramatically accelerating replication performance.
+
+
