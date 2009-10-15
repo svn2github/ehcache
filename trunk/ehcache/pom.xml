@@ -10,7 +10,7 @@
     </parent>
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache</artifactId>
-    <version>1.7.0-SNAPSHOT</version>
+    <version>1.7.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>ehcache</name>
     <description>This is an ehcache pom module which provides commonly used modules</description>
@@ -19,12 +19,12 @@
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
-            <version>1.7.0-SNAPSHOT</version>
+            <version>1.7.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-terracotta</artifactId>
-            <version>1.7.0-SNAPSHOT</version>
+            <version>1.7.1-SNAPSHOT</version>
         </dependency>
 
         <!--Add sources and javadoc to the assembly. These are not classpath dependencies-->
@@ -32,14 +32,14 @@
             <scope>provided</scope>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
-            <version>1.7.0-SNAPSHOT</version>
+            <version>1.7.1-SNAPSHOT</version>
             <classifier>javadoc</classifier>
         </dependency>
         <dependency>
             <scope>provided</scope>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
-            <version>1.7.0-SNAPSHOT</version>
+            <version>1.7.1-SNAPSHOT</version>
             <classifier>sources</classifier>
         </dependency>
     </dependencies>

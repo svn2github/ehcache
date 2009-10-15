@@ -5,7 +5,7 @@
   <parent>
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-terracotta-root</artifactId>
-    <version>1.7.0-SNAPSHOT</version>
+    <version>1.7.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>ehcache-terracotta-packaging</artifactId>
@@ -27,7 +27,7 @@
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache-terracotta-bootstrap</artifactId>
-      <version>1.7.0-SNAPSHOT</version>
+      <version>1.7.1-SNAPSHOT</version>
     </dependency>
 
     <!-- Stuff that goes into L1 -->
