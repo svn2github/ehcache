@@ -524,13 +524,13 @@ public class DiskStore implements Store {
             //set the write index flag. Ignored if not persistent
             flush();
 
-            //tell the spool thread to spool down. It will loop one last time if flush was caled.
+            //tell the spool thread to spool down. It will loop one last time if flush was called.
             spoolAndExpiryThreadActive = false;
 
             //interrupt the spoolAndExpiryThread if it is waiting to run again to get it to run now
             // Then wait for it to write
-            spoolAndExpiryThread.interrupt();
             if (spoolAndExpiryThread != null) {
+                spoolAndExpiryThread.interrupt();
                 spoolAndExpiryThread.join();
             }
 
@@ -538,8 +538,8 @@ public class DiskStore implements Store {
             spool.clear();
             diskElements.clear();
             freeSpace.clear();
-            synchronized (randomAccessFile) {
-                if (randomAccessFile != null) {
+            if (randomAccessFile != null) {
+                synchronized (randomAccessFile) {
                     randomAccessFile.close();
                 }
             }
