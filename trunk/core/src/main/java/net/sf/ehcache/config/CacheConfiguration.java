@@ -289,7 +289,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Configuration for the CachePeerListenerFactoryConfiguration.
      */
-    public final class CacheEventListenerFactoryConfiguration extends FactoryConfiguration {
+    public static final class CacheEventListenerFactoryConfiguration extends FactoryConfiguration {
     }
 
     /**
@@ -303,7 +303,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Configuration for the CacheExtensionFactoryConfiguration.
      */
-    public final class CacheExtensionFactoryConfiguration extends FactoryConfiguration {
+    public static final class CacheExtensionFactoryConfiguration extends FactoryConfiguration {
     }
 
     /**
@@ -316,7 +316,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Configuration for the BootstrapCacheLoaderFactoryConfiguration.
      */
-    public final class BootstrapCacheLoaderFactoryConfiguration extends FactoryConfiguration {
+    public static final class BootstrapCacheLoaderFactoryConfiguration extends FactoryConfiguration {
     }
 
     /**
@@ -331,7 +331,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Configuration for the BootstrapCacheLoaderFactoryConfiguration.
      */
-    public final class CacheExceptionHandlerFactoryConfiguration extends FactoryConfiguration {
+    public static final class CacheExceptionHandlerFactoryConfiguration extends FactoryConfiguration {
     }
 
 
@@ -346,7 +346,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Configuration for the CacheLoaderFactoryConfiguration.
      */
-    public final class CacheLoaderFactoryConfiguration extends FactoryConfiguration {
+    public static final class CacheLoaderFactoryConfiguration extends FactoryConfiguration {
     }
 
     /**
