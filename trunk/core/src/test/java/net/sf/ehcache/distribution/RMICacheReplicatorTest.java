@@ -34,6 +34,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -58,6 +59,8 @@ import java.util.logging.Logger;
  * @author Greg Luck
  * @version $Id$
  */
+
+@Ignore("MNK-1377")
 public class RMICacheReplicatorTest extends AbstractCacheTest {
 
 
