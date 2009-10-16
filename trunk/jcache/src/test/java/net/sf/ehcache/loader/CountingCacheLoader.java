@@ -20,13 +20,15 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.jcache.loader.JCacheLoader;
 import net.sf.jsr107cache.CacheException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
-import java.util.logging.Logger;
+
 
 
 /**
@@ -40,7 +42,7 @@ import java.util.logging.Logger;
  */
 public class CountingCacheLoader implements JCacheLoader {
 
-    private static final Logger LOG = Logger.getLogger(CountingCacheLoader.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(CountingCacheLoader.class);
 
     private volatile int loadCounter;
     private volatile int loadAllCounter;
@@ -62,7 +64,7 @@ public class CountingCacheLoader implements JCacheLoader {
         try {
             Thread.sleep(random.nextInt(3) + 1);
         } catch (InterruptedException e) {
-            LOG.severe("Interrupted");
+            LOG.error("Interrupted");
         }
         return new Integer(loadCounter++);
     }
@@ -86,7 +88,7 @@ public class CountingCacheLoader implements JCacheLoader {
             try {
                 Thread.sleep(random.nextInt(4));
             } catch (InterruptedException e) {
-                LOG.severe("Interrupted");
+                LOG.error("Interrupted");
             }
             map.put(key, new Integer(loadAllCounter++));
         }
@@ -123,7 +125,7 @@ public class CountingCacheLoader implements JCacheLoader {
         try {
             Thread.sleep(random.nextInt(3) + 1);
         } catch (InterruptedException e) {
-            LOG.severe("Interrupted");
+            LOG.error("Interrupted");
         }
         return name + ":" + argument;
 //        return load(key);

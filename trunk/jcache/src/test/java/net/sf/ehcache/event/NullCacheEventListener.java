@@ -19,9 +19,8 @@ package net.sf.ehcache.event;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -33,15 +32,15 @@ import java.util.logging.Logger;
  */
 public class NullCacheEventListener implements CacheEventListener {
 
-    private static final Logger LOG = Logger.getLogger(NullCacheEventListener.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(NullCacheEventListener.class);
 
 
     /**
      * {@inheritDoc}
      */
     public void notifyElementRemoved(final Ehcache cache, final Element element) {
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("notifyElementRemoved called for cache " + cache + " for element with key " + element.getObjectKey());
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("notifyElementRemoved called for cache " + cache + " for element with key " + element.getObjectKey());
         }
     }
 
@@ -49,12 +48,12 @@ public class NullCacheEventListener implements CacheEventListener {
      * {@inheritDoc}
      */
     public void notifyElementPut(final Ehcache cache, final Element element) {
-        if (LOG.isLoggable(Level.FINEST)) {
+        if (LOG.isTraceEnabled()) {
             Object key = null;
             if (element != null) {
                 key = element.getObjectKey();
             }
-            LOG.finest("notifyElementPut called for cache " + cache + " for element with key " + key);
+            LOG.trace("notifyElementPut called for cache " + cache + " for element with key " + key);
         }
     }
 
@@ -72,12 +71,12 @@ public class NullCacheEventListener implements CacheEventListener {
      * @param element the element which was just put into the cache.
      */
     public void notifyElementUpdated(final Ehcache cache, final Element element) throws CacheException {
-        if (LOG.isLoggable(Level.FINEST)) {
+        if (LOG.isTraceEnabled()) {
             Object key = null;
             if (element != null) {
                 key = element.getObjectKey();
             }
-            LOG.finest("notifyElementUpdated called for cache " + cache + " for element with key " + key);
+            LOG.trace("notifyElementUpdated called for cache " + cache + " for element with key " + key);
         }
     }
 
@@ -85,8 +84,8 @@ public class NullCacheEventListener implements CacheEventListener {
      * {@inheritDoc}
      */
     public void notifyElementExpired(final Ehcache cache, final Element element) {
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("notifyElementExpired called for cache " + cache + " for element with key " + element.getObjectKey());
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("notifyElementExpired called for cache " + cache + " for element with key " + element.getObjectKey());
         }
     }
 

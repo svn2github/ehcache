@@ -9,13 +9,13 @@
     <name>Ehcache JCache Reference Implementation</name>
     <artifactId>ehcache-jcache</artifactId>
     <packaging>jar</packaging>
-    <version>1.2</version>
+    <version>1.2-SNAPSHOT</version>
     <description><![CDATA[The RI for JSR107 - JCACHE.]]> </description>
     <dependencies>
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>ehcache-core</artifactId>
-            <version>1.7.0</version>   
+            <version>1.7.0</version>
         </dependency>
         <dependency>
             <groupId>net.sf.jsr107cache</groupId>
@@ -23,14 +23,22 @@
             <version>1.1</version>
         </dependency>
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <scope>compile</scope>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.5.8</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.1</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <!--With slf4j, users choose a concrete logging implementation at deploy time-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.5.8</version>
             <scope>test</scope>
         </dependency>
 
@@ -127,19 +135,19 @@
     </build>
 
     <!--<repositories>-->
-        <!--<repository>-->
-            <!--<id>sourceforge-releases</id>-->
-            <!--<url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>-->
-            <!--<layout>legacy</layout>-->
-            <!--<releases>-->
-                <!--<enabled>false</enabled>-->
-                <!--<updatePolicy>daily</updatePolicy>-->
-            <!--</releases>-->
-            <!--<snapshots>-->
-                <!--<enabled>true</enabled>-->
-                <!--<updatePolicy>daily</updatePolicy>-->
-            <!--</snapshots>-->
-        <!--</repository>-->
+    <!--<repository>-->
+    <!--<id>sourceforge-releases</id>-->
+    <!--<url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>-->
+    <!--<layout>legacy</layout>-->
+    <!--<releases>-->
+    <!--<enabled>false</enabled>-->
+    <!--<updatePolicy>daily</updatePolicy>-->
+    <!--</releases>-->
+    <!--<snapshots>-->
+    <!--<enabled>true</enabled>-->
+    <!--<updatePolicy>daily</updatePolicy>-->
+    <!--</snapshots>-->
+    <!--</repository>-->
     <!--</repositories>-->
 
     <!-- Note: site URL repeated here to ensure correct deployment path -->

@@ -25,6 +25,8 @@ import net.sf.jsr107cache.CacheEntry;
 import net.sf.jsr107cache.CacheException;
 import net.sf.jsr107cache.CacheListener;
 import net.sf.jsr107cache.CacheStatistics;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,8 +35,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Warning: This class is related to the JSR107 specification, which is in draft. It is subject to change without notice.
@@ -66,7 +66,7 @@ import java.util.logging.Logger;
  */
 public class JCache implements net.sf.jsr107cache.Cache {
 
-    private static final Logger LOG = Logger.getLogger(JCache.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(JCache.class);
 
     /**
      * An Ehcache backing instance
@@ -446,8 +446,8 @@ public class JCache implements net.sf.jsr107cache.Cache {
         boolean inCache = cache.isValueInCache(value);
         long end = System.currentTimeMillis();
 
-        if (LOG.isLoggable(Level.WARNING)) {
-            LOG.warning("Performance Warning: containsValue is not recommended. This call took "
+        if (LOG.isWarnEnabled()) {
+            LOG.warn("Performance Warning: containsValue is not recommended. This call took "
                     + (end - start) + " ms");
         }
         return inCache;

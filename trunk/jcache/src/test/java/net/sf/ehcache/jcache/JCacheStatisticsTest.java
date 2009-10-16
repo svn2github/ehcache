@@ -26,13 +26,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.logging.Logger;
+
 
 /**
  * Tests for the statistics class
@@ -43,7 +45,7 @@ import java.util.logging.Logger;
 public class JCacheStatisticsTest extends AbstractCacheTest {
 
 
-    private static final Logger LOG = Logger.getLogger(JCacheStatisticsTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(JCacheStatisticsTest.class);
 
     /**
      * Test statistics directly from Statistics Object

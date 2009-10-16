@@ -27,7 +27,9 @@ import net.sf.jsr107cache.CacheLoader;
 
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A CacheFactory implementation for JCache.
@@ -40,7 +42,7 @@ import java.util.logging.Logger;
 public class JCacheFactory implements CacheFactory {
 
 
-    private static final Logger LOG = Logger.getLogger(JCacheFactory.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(JCacheFactory.class);
 
     /**
      * Creates a new implementation specific Cache object using the environment parameters.
@@ -77,8 +79,8 @@ public class JCacheFactory implements CacheFactory {
     public Cache createCache(Map environment) throws CacheException {
 
 
-        CacheLoader cacheLoader = null;
-        Ehcache cache = null;
+        CacheLoader cacheLoader;
+        Ehcache cache;
         try {
             String name = PropertyUtil.extractAndLogProperty("name", environment);
 
@@ -122,7 +124,7 @@ public class JCacheFactory implements CacheFactory {
             String cacheLoaderFactoryClassName =
                     PropertyUtil.extractAndLogProperty("cacheLoaderFactoryClassName", environment);
             if (cacheLoaderFactoryClassName == null) {
-                LOG.fine("cacheLoaderFactoryClassName not configured. Skipping...");
+                LOG.debug("cacheLoaderFactoryClassName not configured. Skipping...");
             } else {
                 JCacheLoaderFactory factory = (JCacheLoaderFactory) ClassLoaderUtil.createNewInstance(cacheLoaderFactoryClassName);
 

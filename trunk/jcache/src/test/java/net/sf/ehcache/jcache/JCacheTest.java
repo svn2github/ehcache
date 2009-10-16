@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Logger;
+
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Ehcache;
@@ -53,6 +53,8 @@ import net.sf.jsr107cache.CacheStatistics;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tests for a Cache
@@ -65,7 +67,7 @@ import org.junit.Test;
  */
 public class JCacheTest extends AbstractCacheTest {
 
-    private static final Logger LOG = Logger.getLogger(JCacheTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(JCacheTest.class);
 
     /**
      * setup test

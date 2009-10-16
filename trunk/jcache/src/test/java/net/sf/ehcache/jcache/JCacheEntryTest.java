@@ -28,11 +28,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
+
 
 /**
  * Tests for CacheEntry
@@ -42,7 +44,7 @@ import java.util.logging.Logger;
  */
 public class JCacheEntryTest extends AbstractCacheTest {
 
-    private static final Logger LOG = Logger.getLogger(JCacheTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(JCacheEntryTest.class);
 
 
     /**

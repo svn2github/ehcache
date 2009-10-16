@@ -22,13 +22,14 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.ObjectExistsException;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  * A container for {@link Ehcache}s that maintain all aspects of their lifecycle.
@@ -49,8 +50,7 @@ public class JCacheManager extends CacheManager {
     protected static JCacheManager singleton;
 
 
-    private static final Logger LOG = Logger.getLogger(JCacheManager.class.getName());
-
+    private static final Logger LOG = LoggerFactory.getLogger(JCacheManager.class);
 
     /**
      * JCaches managed by this manager. For each JCache there is a backing ehcache stored in the ehcaches map.
@@ -157,14 +157,14 @@ public class JCacheManager extends CacheManager {
 
         synchronized (CacheManager.class) {
             if (singleton == null) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Creating new CacheManager with default config");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Creating new CacheManager with default config");
                 }
 
                 singleton = new JCacheManager();
             } else {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Attempting to create an existing singleton. Existing singleton returned.");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Attempting to create an existing singleton. Existing singleton returned.");
                 }
             }
             return singleton;
@@ -196,8 +196,8 @@ public class JCacheManager extends CacheManager {
     public static JCacheManager create(String configurationFileName) throws CacheException {
         synchronized (CacheManager.class) {
             if (singleton == null) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Creating new CacheManager with config file: " + configurationFileName);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Creating new CacheManager with config file: " + configurationFileName);
                 }
                 singleton = new JCacheManager(configurationFileName);
             }
@@ -228,8 +228,8 @@ public class JCacheManager extends CacheManager {
     public static JCacheManager create(URL configurationFileURL) throws CacheException {
         synchronized (CacheManager.class) {
             if (singleton == null) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Creating new CacheManager with config URL: " + configurationFileURL);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Creating new CacheManager with config URL: " + configurationFileURL);
                 }
                 singleton = new JCacheManager(configurationFileURL);
 
@@ -253,8 +253,8 @@ public class JCacheManager extends CacheManager {
     public static JCacheManager create(InputStream inputStream) throws CacheException {
         synchronized (CacheManager.class) {
             if (singleton == null) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Creating new CacheManager with InputStream");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Creating new CacheManager with InputStream");
                 }
                 singleton = new JCacheManager(inputStream);
             }
@@ -367,8 +367,8 @@ public class JCacheManager extends CacheManager {
     public void shutdown() {
         synchronized (JCacheManager.class) {
             if (status.equals(Status.STATUS_SHUTDOWN)) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("CacheManager already shutdown");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("CacheManager already shutdown");
                 }
                 return;
             }
