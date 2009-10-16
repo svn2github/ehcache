@@ -2673,5 +2673,51 @@ public class CacheTest extends AbstractCacheTest {
         }
     }
 
+    /**
+     * Checks that TTL of Long.MAX_VALUE means value never expires.
+     * See EHC-432.
+     */
+    @Test
+    public void testMaxLongTTLIsEternal() {
+        long maxLiveTime = Long.MAX_VALUE;
 
+        final Cache cache = new Cache("bla", 5000, false, false, maxLiveTime, 0);
+        final CacheManager cacheManager = CacheManager.create();
+
+        cacheManager.addCache(cache);
+
+        Element e = new Element("key", "bla");
+        cache.put(e);
+
+        // theoretically we should wait a long time here but the error from EHC-432 
+        // has already shown up in the put.  And we don't have time to wait forever
+        // to verify this.
+        
+        Element e2 = cache.get("key");
+        assertNotNull(e2);
+    }
+    
+    /**
+     * Checks that TTL of Integer.MAX_VALUE means value never expires.
+     * See EHC-432.
+     */
+    @Test
+    public void testMaxIntegerTTLIsEternal() {
+        long maxLiveTime = Integer.MAX_VALUE;
+
+        final Cache cache = new Cache("bla", 5000, false, false, maxLiveTime, 0);
+        final CacheManager cacheManager = CacheManager.create();
+
+        cacheManager.addCache(cache);
+
+        Element e = new Element("key", "bla");
+        cache.put(e);
+
+        // theoretically we should wait a long time here but the error from EHC-432 
+        // has already shown up in the put.  And we don't have time to wait forever
+        // to verify this.
+        
+        Element e2 = cache.get("key");
+        assertNotNull(e2);
+    }
 }

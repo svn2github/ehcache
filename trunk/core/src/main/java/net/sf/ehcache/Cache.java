@@ -900,12 +900,25 @@ public class Cache implements Ehcache {
     private void applyDefaultsToElementWithoutLifespanSet(Element element) {
         if (!element.isLifespanSet()) {
             //Setting with Cache defaults
-            element.setTimeToLive((int) configuration.getTimeToLiveSeconds());
-            element.setTimeToIdle((int) configuration.getTimeToIdleSeconds());
+            element.setTimeToLive(convertTimeToInt(configuration.getTimeToLiveSeconds()));
+            element.setTimeToIdle(convertTimeToInt(configuration.getTimeToIdleSeconds()));
             element.setEternal(configuration.isEternal());
         }
     }
 
+    /**
+     * Converts a long seconds value to an int seconds value and takes into account overflow
+     * from the downcast by switching to Integer.MAX_VALUE.
+     * @param seconds Long value
+     * @return Same int value unless long > Integer.MAX_VALUE in which case MAX_VALUE is returned
+     */
+    private int convertTimeToInt(long seconds) {
+        if (seconds > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        } else {
+            return (int) seconds;
+        }
+    }
 
     /**
      * Put an element in the cache, without updating statistics, or updating listeners. This is meant to be used
