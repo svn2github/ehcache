@@ -50,9 +50,9 @@
 
     You need the following unix utilities installed:
 
-    * {Maven} 2.2.1
+    * {maven} 2.2.1
 
-    * latex or tetex
+    * a latex distribution  (e.g. Tex Live 2008)
 
     * ghostscript
 

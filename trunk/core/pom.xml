@@ -348,7 +348,7 @@
                 <version>2.3</version>
                 <executions>
                     <execution>
-                        <phase>process-classes</phase>
+                        <phase>verify</phase>
                         <goals>
                             <goal>checkstyle</goal>
                         </goals>

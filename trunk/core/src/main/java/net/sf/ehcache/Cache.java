@@ -1886,7 +1886,7 @@ public class Cache implements Ehcache {
                 .append(" memoryStoreHitCount = ").append(getLiveCacheStatisticsNoCheck().getInMemoryHitCount())
                 .append(" diskStoreHitCount = ").append(getLiveCacheStatisticsNoCheck().getOnDiskHitCount())
                 .append(" missCountNotFound = ").append(getLiveCacheStatisticsNoCheck().getCacheMissCount())
-                .append(" missCountExpired = ").append(getLiveCacheStatisticsNoCheck().getCacheMissCount())
+                .append(" missCountExpired = ").append(getLiveCacheStatisticsNoCheck().getCacheMissCountExpired())
                 .append(" ]");
 
         return dump.toString();
