@@ -43,7 +43,7 @@ public class SpeedTest extends AbstractWebTest {
     @Test
     public void testSpeedHttpClientNotCached() throws IOException {
         StopWatch stopWatch = new StopWatch();
-        String url = "http://localhost:8080/Login.jsp";
+        String url = "http://localhost:9090/Login.jsp";
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(url);
         stopWatch.getElapsedTime();
@@ -62,7 +62,7 @@ public class SpeedTest extends AbstractWebTest {
     @Test
     public void testSpeedHttpClientCached() throws IOException {
         StopWatch stopWatch = new StopWatch();
-        String url = "http://localhost:8080/CachedPage.jsp";
+        String url = "http://localhost:9090/CachedPage.jsp";
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(url);
         stopWatch.getElapsedTime();
@@ -82,7 +82,7 @@ public class SpeedTest extends AbstractWebTest {
         StopWatch stopWatch = new StopWatch();
         final WebConversation conversation = createWebConversation(true);
 
-        String requestUrl = "http://localhost:8080/CachedPage.jsp";
+        String requestUrl = "http://localhost:9090/CachedPage.jsp";
         stopWatch.getElapsedTime();
         for (int i = 0; i < 200; i++) {
             WebResponse response = conversation.getResponse(requestUrl);

@@ -152,7 +152,7 @@ public abstract class AbstractWebTest {
      * @return
      */
     protected String buildUrl(String uri) {
-        return "http://localhost:8080" + uri;
+        return "http://localhost:9090" + uri;
     }
 
     /**

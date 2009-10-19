@@ -87,12 +87,12 @@ public class GzipFilterTest extends AbstractWebTest {
     /**
      * A 0 length body should give a 0 length gzip body and content length
      * <p/>
-     * Manual test: wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:8080/empty_gzip/empty.html
+     * Manual test: wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:9090/empty_gzip/empty.html
      */
     @Test
     public void testZeroLengthHTML() throws Exception {
 
-        String url = "http://localhost:8080/empty_gzip/empty.html";
+        String url = "http://localhost:9090/empty_gzip/empty.html";
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(url);
         httpMethod.addRequestHeader("If-modified-Since", "Fri, 13 May 3006 23:54:18 GMT");
@@ -113,12 +113,12 @@ public class GzipFilterTest extends AbstractWebTest {
      * retry loop, and presumably some other web clients, the content length should be 0
      * and the body 0.
      * <p/>
-     * Manual test: wget -d --server-response --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:8080/empty_gzip/SC_NOT_MODIFIED.jsp
+     * Manual test: wget -d --server-response --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:9090/empty_gzip/SC_NOT_MODIFIED.jsp
      */
     @Test
     public void testNotModifiedJSPGzipFilter() throws Exception {
 
-        String url = "http://localhost:8080/empty_gzip/SC_NOT_MODIFIED.jsp";
+        String url = "http://localhost:9090/empty_gzip/SC_NOT_MODIFIED.jsp";
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(url);
         httpMethod.addRequestHeader("If-modified-Since", "Fri, 13 May 3006 23:54:18 GMT");
@@ -139,12 +139,12 @@ public class GzipFilterTest extends AbstractWebTest {
      * retry loop, and presumably some other web clients, the content length should be 0
      * and the body 0.
      * <p/>
-     * Manual test: wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:8080/empty_gzip/SC_NO_CONTENT.jsp
+     * Manual test: wget -d --server-response --timestamping --header='If-modified-Since: Fri, 13 May 3006 23:54:18 GMT' --header='Accept-Encoding: gzip' http://localhost:9090/empty_gzip/SC_NO_CONTENT.jsp
      */
     @Test
     public void testNoContentJSPGzipFilter() throws Exception {
 
-        String url = "http://localhost:8080/empty_gzip/SC_NO_CONTENT.jsp";
+        String url = "http://localhost:9090/empty_gzip/SC_NO_CONTENT.jsp";
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(url);
         httpMethod.addRequestHeader("If-modified-Since", "Fri, 13 May 3006 23:54:18 GMT");
@@ -189,12 +189,12 @@ public class GzipFilterTest extends AbstractWebTest {
      * When the servlet container generates a 404 page not found, we want to pass
      * it through without caching and without adding anything to it.
      * <p/>
-     * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:8080/non_ok/PageNotFoundGzip.jsp
+     * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:9090/non_ok/PageNotFoundGzip.jsp
      */
     @Test
     public void testNotFound() throws Exception {
 
-        String url = "http://localhost:8080/non_ok/PageNotFoundGzip.jsp";
+        String url = "http://localhost:9090/non_ok/PageNotFoundGzip.jsp";
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(url);
         httpMethod.addRequestHeader("If-modified-Since", "Fri, 13 May 3006 23:54:18 GMT");
@@ -210,12 +210,12 @@ public class GzipFilterTest extends AbstractWebTest {
      * When the servlet container generates a 404 page not found, we want to pass
      * it through without caching and without adding anything to it.
      * <p/>
-     * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:8080/non_ok/SendRedirectGzip.jsp
+     * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:9090/non_ok/SendRedirectGzip.jsp
      */
     @Test
     public void testRedirect() throws Exception {
 
-        String url = "http://localhost:8080/non_ok/SendRedirectGzip.jsp";
+        String url = "http://localhost:9090/non_ok/SendRedirectGzip.jsp";
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(url);
         httpMethod.addRequestHeader("Accept-Encoding", "gzip");
@@ -230,12 +230,12 @@ public class GzipFilterTest extends AbstractWebTest {
     /**
      * When the servlet container forwards to a page does it work?
      * <p/>
-     * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:8080/non_ok/ForwardFromGzip.jsp
+     * Manual Test: wget -d --server-response --header='Accept-Encoding: gzip'  http://localhost:9090/non_ok/ForwardFromGzip.jsp
      */
     @Test
     public void testForward() throws Exception {
 
-        String url = "http://localhost:8080/non_ok/ForwardFromGzip.jsp";
+        String url = "http://localhost:9090/non_ok/ForwardFromGzip.jsp";
         HttpClient httpClient = new HttpClient();
         HttpMethod httpMethod = new GetMethod(url);
         httpMethod.addRequestHeader("Accept-Encoding", "gzip");
