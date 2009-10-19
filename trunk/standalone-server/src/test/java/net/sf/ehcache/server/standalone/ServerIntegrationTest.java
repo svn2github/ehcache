@@ -30,7 +30,7 @@ public class ServerIntegrationTest {
 
     @BeforeClass
     public static void startup() throws Exception, InterruptedException {
-        Server.main(new String[]{"8080", "target/war/work/net.sf.ehcache/ehcache-server/"});
+        Server.main(new String[]{"9090", "target/war/work/net.sf.ehcache/ehcache-server/"});
         sleep(10000);
     }
 
@@ -40,7 +40,7 @@ public class ServerIntegrationTest {
      */
     @Test
     public void testEhcacheWebServiceEndPointExists() throws IOException, ParserConfigurationException, SAXException {
-        URL u = new URL("http://localhost:8080/ehcache/soap/EhcacheWebServiceEndpoint");
+        URL u = new URL("http://localhost:9090/ehcache/soap/EhcacheWebServiceEndpoint");
         HttpURLConnection httpURLConnection = (HttpURLConnection) u.openConnection();
         httpURLConnection.setRequestMethod("GET");
 
@@ -56,7 +56,7 @@ public class ServerIntegrationTest {
      */
     @Test
     public void testGetRESTfulCache() throws IOException, ParserConfigurationException, SAXException {
-        URL u = new URL("http://localhost:8080/ehcache/rest/sampleCache1");
+        URL u = new URL("http://localhost:9090/ehcache/rest/sampleCache1");
         HttpURLConnection httpURLConnection = (HttpURLConnection) u.openConnection();
         httpURLConnection.setRequestMethod("GET");
 
