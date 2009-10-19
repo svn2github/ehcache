@@ -95,7 +95,7 @@
                 <access-log format="%client.name% %auth-user-name% %datetime% %request% %status% %response.length%" rotation-enabled="true"
                             rotation-interval-in-minutes="15" rotation-policy="time" rotation-suffix="yyyy-MM-dd"/>
                 <http-listener acceptor-threads="1" address="0.0.0.0" blocking-enabled="false" default-virtual-server="server"
-                               enabled="true" family="inet" id="http-listener-1" port="8080" security-enabled="false" server-name=""
+                               enabled="true" family="inet" id="http-listener-1" port="9090" security-enabled="false" server-name=""
                                xpowered-by="true">
                     <property name="proxiedProtocols" value="ws/tcp"/>
                 </http-listener>
