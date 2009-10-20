@@ -1,7 +1,18 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
-        
+
+        <release version="1.7.1" date="2009-12-31" description="Unreleased">
+
+            <action dev="Greg Luck" type="fix" issue="EHC-???">
+                Fixed Cache.toString() bug introduced in 1.7.0.
+            </action>
+            <action dev="Alex Miller" type="fix" issue="EHC-???">
+                Fixed ttl bug introduced in 1.7.0.
+            </action>
+        </release>        
+
+
         <release version="1.7.0" date="2009-10-5" description="This is a beta release of Ehcache 1.7.">
 
             <action dev="Greg Luck" type="update">
