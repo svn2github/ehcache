@@ -166,6 +166,16 @@
                     <additionalClasspathElements>
                         <additionalClasspathElement>target/classes</additionalClasspathElement>
                     </additionalClasspathElements>
+                    <systemProperties>
+                      <property>
+                          <name>net.sf.ehcache.skipUpdateCheck</name>
+                          <value>true</value>
+                      </property>                    
+                      <property>
+                          <name>java.awt.headless</name>
+                          <value>true</value>
+                      </property>
+                  </systemProperties>
                 </configuration>
                 <executions>
                     <execution>
