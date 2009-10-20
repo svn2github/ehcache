@@ -84,7 +84,29 @@
                     <!--<enableRulesSummary>true</enableRulesSummary>-->
                 <!--</configuration>-->
             <!--</plugin>-->
-
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-surefire-plugin</artifactId>
+              <configuration>
+                  <forkMode>pertest</forkMode>
+                  <debugForkedProcess>true</debugForkedProcess>
+                  <childDelegation>false</childDelegation>
+                  <disableXmlReport>false</disableXmlReport>
+                  <printSummary>true</printSummary>
+                  <reportFormat>plain</reportFormat>
+                  <redirectTestOutputToFile>false</redirectTestOutputToFile>
+                  <systemProperties>
+                      <property>
+                          <name>net.sf.ehcache.skipUpdateCheck</name>
+                          <value>true</value>
+                      </property>                    
+                      <property>
+                          <name>java.awt.headless</name>
+                          <value>true</value>
+                      </property>
+                  </systemProperties>
+              </configuration>
+            </plugin>
 
         </plugins>
     </build>
