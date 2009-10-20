@@ -17,7 +17,7 @@
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>ehcache-core</artifactId>
-            <version>1.7.0-SNAPSHOT</version>
+            <version>1.7.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>jgroups</groupId>
@@ -38,18 +38,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <repositories>
-        <repository>
-            <id>jboss</id>
-            <url>http://repository.jboss.com/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
     <build>
         <plugins>
             <plugin>
@@ -84,6 +72,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.3</version>
                 <executions>
                     <execution>
                         <phase>validate</phase>
@@ -110,6 +99,27 @@
 
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>jboss</id>
+            <url>http://repository.jboss.com/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>sourceforge-snapshots</id>
+            <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <distributionManagement>
         <!--

@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 
 package net.sf.ehcache.distribution.jgroups;
 
@@ -47,7 +48,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
      * Teh default interval for async cache replication
      */
     public static final long DEFAULT_ASYNC_INTERVAL = 1000;
-    
+
     private static final Logger LOG = Logger.getLogger(JGroupsCacheReplicator.class.getName());
 
     private long asynchronousReplicationInterval = DEFAULT_ASYNC_INTERVAL;
@@ -84,11 +85,10 @@ public class JGroupsCacheReplicator implements CacheReplicator {
 
     private Status status;
 
-    
 
     /**
      * Constructor called by factory
-     * 
+     *
      * @param replicatePuts
      * @param replicateUpdates
      * @param replicateUpdatesViaCopy
@@ -96,7 +96,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
      * @param replicateAsync
      */
     public JGroupsCacheReplicator(boolean replicatePuts, boolean replicateUpdates, boolean replicateUpdatesViaCopy,
-            boolean replicateRemovals, boolean replicateAsync) {
+                                  boolean replicateRemovals, boolean replicateAsync) {
         super();
 
         this.replicatePuts = replicatePuts;
@@ -156,7 +156,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
      * the element to the replication queue. If not async, searches for the
      * cachePeer and send the Message. That way the class handles both async and
      * sync replication Sending is delegated to the peer (of type JGroupManager)
-     * 
+     *
      * @param cache
      * @param e
      */
@@ -280,7 +280,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
 
     /**
      * Package protected List of cache peers
-     * 
+     *
      * @param cache
      * @return a list of {@link CachePeer} peers for the given cache, excluding
      *         the local peer.
@@ -299,9 +299,8 @@ public class JGroupsCacheReplicator implements CacheReplicator {
 
     /**
      * The replication thread
-     * 
+     *
      * @author pierrem
-     * 
      */
     private final class ReplicationThread extends Thread {
         public ReplicationThread() {
@@ -399,7 +398,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
      * underlying EventMessage <p/> If an EventMessage has been invalidated due
      * to SoftReference collection of the Element, it is not propagated. This
      * only affects puts and updates via copy.
-     * 
+     *
      * @param replicationQueueCopy
      * @return a list of EventMessages which were able to be resolved
      */
@@ -418,7 +417,7 @@ public class JGroupsCacheReplicator implements CacheReplicator {
 
     /**
      * Get the time interval is ms between asynchronous replication
-     * 
+     *
      * @return the interval
      */
     public long getAsynchronousReplicationInterval() {
@@ -427,9 +426,9 @@ public class JGroupsCacheReplicator implements CacheReplicator {
 
     /**
      * Set the time inteval for asynchronous replication
-     * 
+     *
      * @param asynchronousReplicationInterval
-     *            the interval between replication
+     *         the interval between replication
      */
     public void setAsynchronousReplicationInterval(long asynchronousReplicationInterval) {
         this.asynchronousReplicationInterval = asynchronousReplicationInterval;

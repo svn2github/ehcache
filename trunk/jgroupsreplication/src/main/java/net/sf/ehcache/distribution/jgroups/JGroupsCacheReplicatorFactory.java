@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 
 package net.sf.ehcache.distribution.jgroups;
 
@@ -73,8 +74,8 @@ public class JGroupsCacheReplicatorFactory extends CacheEventListenerFactory {
 
     /**
      * Extract a long out of a string.
-     * 
-     * @param properties the property
+     *
+     * @param properties   the property
      * @param propertyName the name of the property
      * @param defaultValue the default value if none is found
      * @return the extracted value
@@ -87,7 +88,7 @@ public class JGroupsCacheReplicatorFactory extends CacheEventListenerFactory {
                 Long longValue = new Long(parsedString);
                 return longValue.longValue();
             } catch (NumberFormatException e) {
-               LOG.warning("Number format exception trying to set asynchronousReplicationIntervalMillis. " +
+                LOG.warning("Number format exception trying to set asynchronousReplicationIntervalMillis. " +
                         "Using the default instead. String value was: '" + parsedString + "'");
             }
 
@@ -97,8 +98,8 @@ public class JGroupsCacheReplicatorFactory extends CacheEventListenerFactory {
 
     /**
      * Extract a Boolean out of a Property
-     * 
-     * @param properties the properties
+     *
+     * @param properties   the properties
      * @param propertyName the name of the property
      * @param defaultValue the deulat value id none is found
      * @return the extracted property

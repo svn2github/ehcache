@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  *  limitations under the License.
  */
 
+
 package net.sf.ehcache.distribution.jgroups;
 
 import java.io.Serializable;
 
 /**
  * Serializable type used for Jgroups type replication
- * 
+ *
  * @author Pierre Monestie (pmonestie__REMOVE__THIS__@gmail.com)
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
@@ -37,7 +38,7 @@ public class JGroupSerializable implements Serializable {
 
     /**
      * @param event the type of replication event
-     * @param key the key
+     * @param key   the key
      * @param value can be null if REMOVE or REMOVE_ALL
      */
     public JGroupSerializable(int event, Serializable key, Serializable value, String cacheName) {
@@ -50,7 +51,7 @@ public class JGroupSerializable implements Serializable {
 
     /**
      * Gets the event
-     * 
+     *
      * @return the event
      */
     public int getEvent() {
@@ -59,7 +60,7 @@ public class JGroupSerializable implements Serializable {
 
     /**
      * Get the Serializable key for the event
-     * 
+     *
      * @return the key
      */
     public Serializable getKey() {
@@ -68,7 +69,7 @@ public class JGroupSerializable implements Serializable {
 
     /**
      * Gets the value, null if REMOVE or REMOVE_ALL
-     * 
+     *
      * @return the value
      */
     public Serializable getValue() {
@@ -77,7 +78,7 @@ public class JGroupSerializable implements Serializable {
 
     /**
      * Gets the cache name
-     * 
+     *
      * @return the cache name
      */
     public String getCacheName() {

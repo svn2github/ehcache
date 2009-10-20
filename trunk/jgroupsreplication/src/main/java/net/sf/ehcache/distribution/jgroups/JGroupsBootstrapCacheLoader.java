@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 
 package net.sf.ehcache.distribution.jgroups;
 
@@ -213,7 +214,7 @@ public class JGroupsBootstrapCacheLoader implements BootstrapCacheLoader {
         }
         if (LOG.isLoggable(Level.INFO)) {
             LOG.log(Level.INFO, "Attempting to acquire cache peers for cache "
-                    + cache.getName() + " to bootstrap from. Will wait up to " 
+                    + cache.getName() + " to bootstrap from. Will wait up to "
                     + timeForClusterToForm + "ms for cache to join cluster.");
         }
         List cachePeers = null;

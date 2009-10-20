@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  *  limitations under the License.
  */
 
+
 package net.sf.ehcache.distribution.jgroups;
 
 import net.sf.ehcache.Ehcache;
@@ -24,6 +25,7 @@ import java.io.Serializable;
 
 /**
  * An EventMessage used for JGroups
+ *
  * @author Pierre Monestie (pmonestie[at]@gmail.com)
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
@@ -37,7 +39,7 @@ public class JGroupEventMessage extends EventMessage {
     public static final int ASK_FOR_BOOTSTRAP = 10;
 
     /**
-     * Reply to bootstrap 
+     * Reply to bootstrap
      */
     public static final int BOOTSTRAP_REPLY = 11;
 
@@ -49,17 +51,12 @@ public class JGroupEventMessage extends EventMessage {
      * An event message for the JGroupsCacheReplicator. We keep as transient the
      * origin cache and we serialize the cacheName. That way the JgroupManager
      * will know from which cache the message came from
-     * 
-     * @param event
-     *            (PUT,REMOVE,REMOVE_ALL)
-     * @param key
-     *            the serializable key of the cache element
-     * @param element
-     *            The element itself. In case of a put.
-     * @param cache
-     *            the Ehcache instance. This is a transient variable
-     * @param cacheName
-     *            the name of the cache
+     *
+     * @param event     (PUT,REMOVE,REMOVE_ALL)
+     * @param key       the serializable key of the cache element
+     * @param element   The element itself. In case of a put.
+     * @param cache     the Ehcache instance. This is a transient variable
+     * @param cacheName the name of the cache
      */
     public JGroupEventMessage(int event, Serializable key, Element element, Ehcache cache, String cacheName) {
         super(event, key, element);
@@ -77,7 +74,7 @@ public class JGroupEventMessage extends EventMessage {
 
     /**
      * Returns the cache name
-     * 
+     *
      * @return the cache name
      */
     public String getCacheName() {

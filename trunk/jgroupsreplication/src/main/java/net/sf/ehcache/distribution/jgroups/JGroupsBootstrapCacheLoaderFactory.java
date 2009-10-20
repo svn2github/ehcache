@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  *  limitations under the License.
  */
 
+
 package net.sf.ehcache.distribution.jgroups;
 
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
@@ -26,6 +27,7 @@ import java.util.logging.Logger;
 
 /**
  * A factory to create a configured JGroupsBootstrapCacheLoader
+ *
  * @author Greg Luck
  * @version $Id$
  */
@@ -74,7 +76,6 @@ public class JGroupsBootstrapCacheLoaderFactory extends BootstrapCacheLoaderFact
     }
 
     /**
-     *
      * @param properties
      */
     protected int extractMaximumChunkSizeBytes(Properties properties) {

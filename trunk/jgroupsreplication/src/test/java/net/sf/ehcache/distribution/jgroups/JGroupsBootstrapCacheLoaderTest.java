@@ -140,7 +140,7 @@ public class JGroupsBootstrapCacheLoaderTest {
         assertEquals(2000, manager1.getCache("sampleCacheAsync").getSize());
 
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jgroups/ehcache-distributed-jgroups.xml");
-        Thread.sleep(5000);
+        Thread.sleep(8000);
         assertEquals(2000, manager3.getCache("sampleCacheAsync").getSize());
 
 

@@ -37,6 +37,10 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.logging.Logger;
 
+/**
+ * Test JGroups replication
+ * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
+ */
 public class JGroupsReplicationTest {
 
     private static final String SAMPLE_CACHE_NOREP = "sampleCacheNorep";
@@ -45,11 +49,14 @@ public class JGroupsReplicationTest {
 
     private static final String SAMPLE_CACHE1 = "sampleCacheAsync";
     private static final String SAMPLE_CACHE2 = "sampleCacheAsync2";
-    String cacheName;
-
     private static final Logger LOG = Logger.getLogger(JGroupsReplicationTest.class.getName());
 
-    protected CacheManager manager1, manager2, manager3, manager4, manager5;
+    private CacheManager manager1;
+    private CacheManager manager2;
+    private CacheManager manager3;
+    private CacheManager manager4;
+
+    private String cacheName;
 
     @Before
     public void setUp() throws Exception {
@@ -85,7 +92,8 @@ public class JGroupsReplicationTest {
         }
         Thread.sleep(3000);
 
-        LOG.info(manager1.getEhcache(cacheName).getKeys().size() + "  " + manager2.getEhcache(cacheName).getKeys().size() + " " + manager3.getEhcache(cacheName).getKeys().size());
+        LOG.info(manager1.getEhcache(cacheName).getKeys().size() + "  " + manager2.getEhcache(cacheName).getKeys().size()
+                + " " + manager3.getEhcache(cacheName).getKeys().size());
         assertTrue(manager1.getEhcache(cacheName).getKeys().size() == manager2.getEhcache(cacheName).getKeys().size() &&
                 manager1.getEhcache(cacheName).getKeys().size() == manager3.getEhcache(cacheName).getKeys().size() &&
                 manager1.getEhcache(cacheName).getKeys().size() == manager4.getEhcache(cacheName).getKeys().size() &&
@@ -129,8 +137,9 @@ public class JGroupsReplicationTest {
     @Test
     public void testAddManager() throws Exception {
         cacheName = SAMPLE_CACHE1;
-        if (manager1.getStatus() != Status.STATUS_SHUTDOWN)
+        if (manager1.getStatus() != Status.STATUS_SHUTDOWN) {
             manager1.shutdown();
+        }
 
 
         Thread.sleep(1000);
@@ -209,7 +218,8 @@ public class JGroupsReplicationTest {
 
     @Test
     public void testSimultaneousPutRemove() throws InterruptedException {
-        cacheName = SAMPLE_CACHE2; //Synced one
+        //Synced one
+        cacheName = SAMPLE_CACHE2;
         Ehcache cache1 = manager1.getEhcache(cacheName);
         Ehcache cache2 = manager2.getEhcache(cacheName);
 
