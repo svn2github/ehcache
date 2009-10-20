@@ -8,7 +8,9 @@
                 Fixed Cache.toString() bug introduced in 1.7.0.
             </action>
             <action dev="Alex Miller" type="fix" issue="EHC-342">
-                Fixed ttl bug introduced in 1.7.0.
+                Fixed ttl bug introduced in 1.7.0. TTL or TTI values > Integer.MAX_VALUE were incorrectly
+                downcast causing negative values.  Most commonly, setting a TTI or TTL of Long.MAX_VALUE
+                caused an exception to be thrown.
             </action>
         </release>        
 
