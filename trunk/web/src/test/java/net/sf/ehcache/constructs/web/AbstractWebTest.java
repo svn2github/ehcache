@@ -54,7 +54,7 @@ import java.util.logging.Logger;
  * Running using Jetty
  * 1) comment out the BeforeClass and AfterClass methods in this class which uses Glassfish Embedded.
  * 2) mvn clean package
- * 3) mvn jetty:run-war
+ * 3) mvn -Ptest -Denv=test jetty:run-war
  * 4) run your tests from the IDE
  *
  * Running using Glassfish
