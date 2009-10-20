@@ -62,6 +62,8 @@
 
     * netpbm
 
+    * xfig 
+
     You also need a yDoc license.
 
     With all that, build the site as below:

@@ -20,10 +20,13 @@ particular cache store in the Terracotta clustered memory.
 * updateCheck - an optional boolean flag specifying whether this CacheManager should check
 for new versions of Ehcache over the Internet.  If not specified, updateCheck="true".
 * monitoring - an optional setting that determines whether the CacheManager should 
-automatically register the SampledCacheMBean with the system MBean server.  Currently,
-this monitoring is only useful when using Terracotta and thus the "autodetect" value 
-will detect the presence of Terracotta and register the MBean.  Other allowed values 
-are "on" and "off".  The default is "autodetect".
+automatically register the SampledCacheMBean with the system MBean server.
+
+Currently, this monitoring is only useful when using Terracotta clustering and using the
+Terracotta Developer Console. With the "autodetect" value, the presense of Terracotta clustering
+will be detected and monitoring, via the Developer Console, will be enabled. Other allowed values
+are "on" and "off".  The default is "autodetect". This setting does not perform any function when
+used with JMX monitors.
 -->    
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="ehcache.xsd"

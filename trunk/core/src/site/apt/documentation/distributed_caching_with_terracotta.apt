@@ -175,12 +175,12 @@ public class TerracottaExample {
 
     The <terracotta> sub-element has the following attributes:
 
-    * clustered=true|false
+    * <<<clustered=true|false>>>
 
       Indicates whether this cache should be clustered with Terracotta. By
       default, if the <terracotta> element is included, clustered=true.
 
-    * valueMode=serialization|identity
+    * <<<valueMode=serialization|identity>>>
 
       Indicates whether this cache should be clustered with
       serialized copies of the values or using Terracotta identity mode.  By default, values will
@@ -190,11 +190,12 @@ public class TerracottaExample {
       the cache are using the same clustered value and must provide appropriate locking for any changes
       made to the value (or objects referred to by the value).
 
-    * coherentReads=true|false
+    * <<<coherentReads=true|false>>>
 
-      Indicates whether this cache should have coherent reads with guaranteed
-      consistency across the cluster.  By default, this setting is true.  If you set this property to
+      Indicates whether this cache should have coherent reads with guaranteed consistency across the cluster.
+       By default, this setting is true.  If you set this property to
       false, reads are allowed to check the local value without locking, possibly seeing stale values.
+
       This is a performance optimization with weaker concurrency guarantees and should generally be used
       with caches that contain read-only data or where the application can tolerate reading stale
       data.
@@ -230,7 +231,30 @@ public class TerracottaExample {
     </cache>
 ---
 
+*   Behaviour differences with <<<CacheEventListener>>>s when using Terracotta Clustering
 
+    Terracotta clustering works by clustering the <<<MemoryStore>>>, unlike the replication mechanisms which use the
+    <<<CacheEventListener>>> infrastructure.
+
+    This results in a simpler programming contract than with the replication mechanisms.
+
+    Things to note:
+
+**  Cache listeners
+
+    Cache listeners listen for changes, including replicated cluster changes, made through the Cache API. Because
+    Terracotta cluster changes happen transparently directly to the <<<MemoryStore>>> a listener will not be invoked
+    when an event occurs out on the cluster. If it occurs locally, then it must have occurred through the Cache API, so
+    a local event will be detected by a local listener.
+
+    A common use of listeners is to trigger a reload of a just invalidated <<<Element>>>. In Terracotta clustering
+    this is avoided as a change in one node is always coherent to the other nodes.
+
+**  Overflow to Disk
+
+    Overflow to Disk is not supported when using Terracotta Clustering. However it is also not needed, because the
+    Terracotta server has its own overflow to disk. Once the <<<maxElementsInMemory>>> limit is reached <<<Element>>>s will be
+    evicted to the cluster.
 
 *   More Information
 
