@@ -2,6 +2,8 @@
 
 * {JMX} Overview
 
+    todo update for new Sampled stats
+
     JMX, part of JDK1.5, and available as a download for 1.4, creates a standard way of instrumenting classes and making them
      available to a management and monitoring infrastructure.
 

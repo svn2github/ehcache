@@ -44,6 +44,7 @@ public class SampledCounterImpl extends CounterImpl implements SampledCounter {
     private final long intervalMillis;
 
     /**
+     * todo GL how many threads is this creating?
      * Constructor accepting a {@link SampledCounterConfig}
      * 
      * @param config
