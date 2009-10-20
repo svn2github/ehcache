@@ -7,7 +7,7 @@
             <action dev="Greg Luck" type="fix" issue="EHC-???">
                 Fixed Cache.toString() bug introduced in 1.7.0.
             </action>
-            <action dev="Alex Miller" type="fix" issue="EHC-???">
+            <action dev="Alex Miller" type="fix" issue="EHC-342">
                 Fixed ttl bug introduced in 1.7.0.
             </action>
         </release>        
