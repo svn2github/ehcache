@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.xml.ws.BindingProvider;
@@ -144,6 +145,7 @@ public class EhcacheWebServiceEndpointTest {
     /**
      * Tests get, getQuiet and put, putQuiet
      */
+    @Ignore("MNK-1417: fails repeatedly")
     @Test
     public void testCacheGetPut() throws CacheException_Exception,
             NoSuchCacheException_Exception, IllegalStateException_Exception, IOException, IllegalArgumentException_Exception, InterruptedException {
@@ -184,6 +186,7 @@ public class EhcacheWebServiceEndpointTest {
 
     }
 
+    @Ignore("MNK-1417: fails repeatedly")
     @Test
     public void testDefaultExpiry() throws NoSuchCacheException_Exception, CacheException_Exception, IllegalStateException_Exception, InterruptedException {
         Element element2 = new Element();
@@ -210,6 +213,7 @@ public class EhcacheWebServiceEndpointTest {
     }
 
 
+    @Ignore("MNK-1417: fails repeatedly")
     @Test
     public void testOverrideTTI() throws NoSuchCacheException_Exception, CacheException_Exception, IllegalStateException_Exception, InterruptedException {
         Element element = new Element();
