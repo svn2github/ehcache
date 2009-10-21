@@ -4,15 +4,18 @@
 
         <release version="1.7.1" date="2009-12-31" description="Unreleased">
 
+            <action dev="Greg Luck" type="update">
+                Enable cache loaders to work with Google App Engine. 
+            </action>
             <action dev="Greg Luck" type="fix" issue="EHC-???">
                 Fixed Cache.toString() bug introduced in 1.7.0.
             </action>
             <action dev="Alex Miller" type="fix" issue="EHC-342">
                 Fixed ttl bug introduced in 1.7.0. TTL or TTI values > Integer.MAX_VALUE were incorrectly
-                downcast causing negative values.  Most commonly, setting a TTI or TTL of Long.MAX_VALUE
+                downcast causing negative values. Most commonly, setting a TTI or TTL of Long.MAX_VALUE
                 caused an exception to be thrown.
             </action>
-        </release>        
+        </release>
 
 
         <release version="1.7.0" date="2009-10-5" description="This is a beta release of Ehcache 1.7.">
@@ -36,7 +39,8 @@
                 Statistics reporting incorrectly in Hibernate in 1.6.2.
             </action>
             <action dev="Greg Luck" type="update">
-                Replaced Mutex with higher concurrency strategy (ReadWriteLock based) for both BlockingCache and SelfPopulatingCache
+                Replaced Mutex with higher concurrency strategy (ReadWriteLock based) for both BlockingCache and
+                SelfPopulatingCache
             </action>
         </release>
 

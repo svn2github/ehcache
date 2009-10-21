@@ -24,13 +24,16 @@ import java.rmi.server.UID;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -59,6 +62,7 @@ import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.util.TimeUtil;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -144,7 +148,7 @@ public class Cache implements Ehcache {
     private static final int BACK_OFF_TIME_MILLIS = 50;
 
     private static final int EXECUTOR_KEEP_ALIVE_TIME = 60000;
-    private static final int EXECUTOR_MAXIMUM_POOL_SIZE = 10;
+    private static final int EXECUTOR_MAXIMUM_POOL_SIZE = Math.min(10, Runtime.getRuntime().availableProcessors());
     private static final int EXECUTOR_CORE_POOL_SIZE = 1;
 
     static {
@@ -201,7 +205,7 @@ public class Cache implements Ehcache {
      * <p/>
      * Use {@link #getExecutorService()} to ensure that it is initialised.
      */
-    private volatile ThreadPoolExecutor executorService;
+    private ExecutorService executorService;
 
     private LiveCacheStatisticsData liveCacheStatisticsData;
 
@@ -900,23 +904,9 @@ public class Cache implements Ehcache {
     private void applyDefaultsToElementWithoutLifespanSet(Element element) {
         if (!element.isLifespanSet()) {
             //Setting with Cache defaults
-            element.setTimeToLive(convertTimeToInt(configuration.getTimeToLiveSeconds()));
-            element.setTimeToIdle(convertTimeToInt(configuration.getTimeToIdleSeconds()));
+            element.setTimeToLive(TimeUtil.convertTimeToInt(configuration.getTimeToLiveSeconds()));
+            element.setTimeToIdle(TimeUtil.convertTimeToInt(configuration.getTimeToIdleSeconds()));
             element.setEternal(configuration.isEternal());
-        }
-    }
-
-    /**
-     * Converts a long seconds value to an int seconds value and takes into account overflow
-     * from the downcast by switching to Integer.MAX_VALUE.
-     * @param seconds Long value
-     * @return Same int value unless long > Integer.MAX_VALUE in which case MAX_VALUE is returned
-     */
-    private int convertTimeToInt(long seconds) {
-        if (seconds > Integer.MAX_VALUE) {
-            return Integer.MAX_VALUE;
-        } else {
-            return (int) seconds;
         }
     }
 
@@ -2531,10 +2521,52 @@ public class Cache implements Ehcache {
     /**
      * @return Gets the executor service. This is not publically accessible.
      */
-    ThreadPoolExecutor getExecutorService() {
-        if (null == executorService) {
-            executorService = new ThreadPoolExecutor(EXECUTOR_CORE_POOL_SIZE, EXECUTOR_MAXIMUM_POOL_SIZE,
-                    EXECUTOR_KEEP_ALIVE_TIME, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
+    ExecutorService getExecutorService() {
+        if (executorService == null) {
+            synchronized (this) {
+                boolean inGoogleAppEngine;
+
+                try {
+                    Class.forName("com.google.apphosting.api.DeadlineExceededException");
+                    inGoogleAppEngine = true;
+                } catch (ClassNotFoundException cnfe) {
+                    inGoogleAppEngine = false;
+                }
+
+                if (inGoogleAppEngine) {
+
+                    // no Thread support. Run all tasks on the caller thread
+                    executorService = new AbstractExecutorService() {
+                        /** {@inheritDoc} */
+                        public void execute(Runnable command) {
+                            command.run();
+                        }
+                        /** {@inheritDoc} */
+                        public List<Runnable> shutdownNow() {
+                            return Collections.emptyList();
+                        }
+                        /** {@inheritDoc} */
+                        public void shutdown() {
+                        }
+                        /** {@inheritDoc} */
+                        public boolean isTerminated() {
+                            return isShutdown();
+                        }
+                        /** {@inheritDoc} */
+                        public boolean isShutdown() {
+                            return false;
+                        }
+                        /** {@inheritDoc} */
+                        public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+                            return true;
+                        }
+                    };
+                } else {
+                    // we can create Threads
+                    executorService = new ThreadPoolExecutor(EXECUTOR_CORE_POOL_SIZE, EXECUTOR_MAXIMUM_POOL_SIZE,
+                            EXECUTOR_KEEP_ALIVE_TIME, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
+                }
+            }
         }
         return executorService;
     }
