@@ -6,7 +6,7 @@
     <cacheManagerPeerProviderFactory
                             class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
                             properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1,
-                                        multicastGroupPort=${multicastGroupPort}, timeToLive=32"/>
+                                        multicastGroupPort=${multicastGroupPort}, timeToLive=0"/>
 
 
     <defaultCache

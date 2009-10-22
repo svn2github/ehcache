@@ -17,7 +17,7 @@
     <!--<diskStore path="java.io.tmpdir/one"/>-->
 
     <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.jgroups.JGroupsCacheManagerPeerProviderFactory"
-                                     properties="connect=UDP(mcast_addr=231.12.21.132;mcast_port=45566;ip_ttl=32;
+                                     properties="connect=UDP(mcast_addr=231.12.21.132;mcast_port=45566;ip_ttl=0;
                                      mcast_send_buf_size=150000;mcast_recv_buf_size=80000):
                                      PING(timeout=2000;num_initial_members=6):
                                      MERGE2(min_interval=5000;max_interval=10000):
