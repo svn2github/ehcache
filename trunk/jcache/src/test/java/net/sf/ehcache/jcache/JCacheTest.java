@@ -52,6 +52,7 @@ import net.sf.jsr107cache.CacheStatistics;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -479,7 +480,7 @@ public class JCacheTest extends AbstractCacheTest {
 
     }
 
-
+    @Ignore("MNK-1440")
     /**
      * Test the get values method.
      */
@@ -1290,12 +1291,7 @@ public class JCacheTest extends AbstractCacheTest {
         assertEquals(serializableValue, retrievedValue);
     }
 
-    /**
-     * Test issues reported. N/A
-     */
-//    @Test public void testDiskStoreFlorian() {
-
-
+    @Ignore("MNK-1440")
     /**
      * Multi-thread read-write test with lots of threads
      * Just use MemoryStore to put max stress on cache
@@ -1481,6 +1477,7 @@ public class JCacheTest extends AbstractCacheTest {
                 .get(0)).getException()) instanceof RuntimeException);
     }
 
+    @Ignore("MNK-1440")
     /**
      * Tests the loadAll Public API method
      */
@@ -1509,7 +1506,7 @@ public class JCacheTest extends AbstractCacheTest {
 
     }
 
-
+    @Ignore("MNK-1440")
     /**
      * Tests the getAll Public API method
      */
