@@ -9,13 +9,13 @@
     <name>Ehcache Debugger</name>
     <artifactId>ehcache-debugger</artifactId>
     <packaging>jar</packaging>
-    <version>1.7.0-SNAPSHOT</version>
+    <version>1.7.1-SNAPSHOT</version>
     <description>Ehcache bundled with RemoteDebugger</description>
     <dependencies>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
-            <version>1.7.0-SNAPSHOT</version>
+            <version>1.7.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
