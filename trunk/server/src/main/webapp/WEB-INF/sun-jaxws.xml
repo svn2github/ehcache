@@ -2,6 +2,6 @@
 
 <endpoints xmlns='http://java.sun.com/xml/ns/jax-ws/ri/runtime' version='2.0'>
     <endpoint name='EhcacheWebServiceEndpoint' implementation='net.sf.ehcache.server.soap.EhcacheWebServiceEndpoint'
-         url-pattern='/soap/EhcacheWebServiceEndpoint'/>
+              url-pattern='/soap/EhcacheWebServiceEndpoint'/>
 
 </endpoints>

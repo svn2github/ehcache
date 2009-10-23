@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import java.util.Set;
 
 /**
  * @author Greg Luck
- * @version $Id$
  */
 @Provider
 public final class JAXBContextResolver implements ContextResolver<JAXBContext> {
@@ -37,7 +36,6 @@ public final class JAXBContextResolver implements ContextResolver<JAXBContext> {
     private final Class[] classTypes = {Caches.class, Cache.class, Element.class, Statistics.class, StatisticsAccuracy.class, Status.class};
 
     /**
-     *
      * @throws Exception
      */
     public JAXBContextResolver() throws Exception {
@@ -46,7 +44,6 @@ public final class JAXBContextResolver implements ContextResolver<JAXBContext> {
     }
 
     /**
-     *
      * @param objectType
      * @return
      */

@@ -1,4 +1,3 @@
-
 package net.sf.ehcache.server.soap.jaxws;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -9,9 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for abstractMap complex type.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType name="abstractMap">
  *   &lt;complexContent>
@@ -22,13 +21,11 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "abstractMap")
 @XmlSeeAlso({
-    HashMap.class
+        HashMap.class
 })
 public abstract class AbstractMap {
 

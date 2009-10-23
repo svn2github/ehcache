@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,11 +29,11 @@ import javax.xml.bind.annotation.XmlRootElement;
  * <p/>
  * The {@link net.sf.ehcache.server.jaxb.StatisticsAccuracy#STATISTICS_ACCURACY_BEST_EFFORT},
  * {@link net.sf.ehcache.server.jaxb.StatisticsAccuracy#STATISTICS_ACCURACY_GUARANTEED} and
- *  {@link net.sf.ehcache.server.jaxb.StatisticsAccuracy#STATISTICS_ACCURACY_NONE}
+ * {@link net.sf.ehcache.server.jaxb.StatisticsAccuracy#STATISTICS_ACCURACY_NONE}
  * constants have the same values as in JSR107.
  * <p/>
+ *
  * @author Greg Luck
- * @version $Id$
  */
 @XmlRootElement
 public class Statistics {
@@ -163,7 +163,7 @@ public class Statistics {
      * Accurately measuring statistics can be expensive. Returns the current accuracy setting.
      *
      * @return one of {@link StatisticsAccuracy#STATISTICS_ACCURACY_BEST_EFFORT},
-     * {@link StatisticsAccuracy#STATISTICS_ACCURACY_GUARANTEED}, {@link StatisticsAccuracy#STATISTICS_ACCURACY_NONE}
+     *         {@link StatisticsAccuracy#STATISTICS_ACCURACY_GUARANTEED}, {@link StatisticsAccuracy#STATISTICS_ACCURACY_NONE}
      */
     public StatisticsAccuracy getStatisticsAccuracy() {
         return statisticsAccuracy;
@@ -185,7 +185,6 @@ public class Statistics {
     }
 
     /**
-     *
      * @param statisticsAccuracy
      */
     public void setStatisticsAccuracy(StatisticsAccuracy statisticsAccuracy) {
@@ -193,7 +192,6 @@ public class Statistics {
     }
 
     /**
-     *
      * @param cacheHits
      */
     public void setCacheHits(long cacheHits) {
@@ -201,7 +199,6 @@ public class Statistics {
     }
 
     /**
-     *
      * @param onDiskHits
      */
     public void setOnDiskHits(long onDiskHits) {
@@ -209,7 +206,6 @@ public class Statistics {
     }
 
     /**
-     *
      * @param inMemoryHits
      */
     public void setInMemoryHits(long inMemoryHits) {
@@ -217,7 +213,6 @@ public class Statistics {
     }
 
     /**
-     *
      * @param misses
      */
     public void setMisses(long misses) {
@@ -225,7 +220,6 @@ public class Statistics {
     }
 
     /**
-     *
      * @param averageGetTime
      */
     public void setAverageGetTime(float averageGetTime) {
@@ -233,7 +227,6 @@ public class Statistics {
     }
 
     /**
-     *
      * @param evictionCount
      */
     public void setEvictionCount(long evictionCount) {
@@ -241,7 +234,6 @@ public class Statistics {
     }
 
     /**
-     * 
      * @return
      */
     public long getSize() {
@@ -249,7 +241,6 @@ public class Statistics {
     }
 
     /**
-     *
      * @return
      */
     public long getMisses() {
@@ -257,7 +248,6 @@ public class Statistics {
     }
 
     /**
-     *
      * @param size
      */
     public void setSize(long size) {
@@ -265,7 +255,6 @@ public class Statistics {
     }
 
     /**
-     *
      * @return
      */
     public long getMemoryStoreSize() {
@@ -273,7 +262,6 @@ public class Statistics {
     }
 
     /**
-     *
      * @param memoryStoreSize
      */
     public void setMemoryStoreSize(long memoryStoreSize) {
@@ -281,7 +269,6 @@ public class Statistics {
     }
 
     /**
-     *
      * @return
      */
     public long getDiskStoreSize() {
@@ -289,7 +276,6 @@ public class Statistics {
     }
 
     /**
-     *
      * @param diskStoreSize
      */
     public void setDiskStoreSize(long diskStoreSize) {

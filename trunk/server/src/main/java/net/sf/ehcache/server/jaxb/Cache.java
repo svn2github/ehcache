@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author Greg Luck
- * @version $Id$
  */
 @XmlRootElement
 public class Cache {
@@ -45,6 +44,7 @@ public class Cache {
 
     /**
      * Constructs a Cache Representation from a core Ehcache
+     *
      * @param ehcache
      */
     public Cache(Ehcache ehcache) {
@@ -75,7 +75,6 @@ public class Cache {
     }
 
     /**
-     *
      * @param name the cache name
      */
     public void setName(String name) {
@@ -83,7 +82,6 @@ public class Cache {
     }
 
     /**
-     *
      * @return The full URI of the resource
      */
     public String getUri() {
@@ -98,7 +96,6 @@ public class Cache {
     }
 
     /**
-     *
      * @param uri the full URI of the resource
      */
     public void setUri(String uri) {
@@ -107,6 +104,7 @@ public class Cache {
 
     /**
      * Gets the description of the cache.
+     *
      * @return the description
      */
     public String getDescription() {
@@ -115,6 +113,7 @@ public class Cache {
 
     /**
      * Sets the description of the cache.
+     *
      * @param description the description
      */
     public void setDescription(String description) {
@@ -123,6 +122,7 @@ public class Cache {
 
     /**
      * Sets the statistics
+     *
      * @param statistics a JAXB statistics object
      */
     public void setStatistics(Statistics statistics) {
@@ -137,7 +137,6 @@ public class Cache {
     }
 
     /**
-     *
      * @param cacheConfiguration the active configuration of this cache
      */
     public void setCacheConfiguration(CacheConfiguration cacheConfiguration) {

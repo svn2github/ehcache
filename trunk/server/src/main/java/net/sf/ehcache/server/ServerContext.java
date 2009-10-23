@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,19 +17,17 @@
 package net.sf.ehcache.server;
 
 
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.management.ManagementService;
 
 import javax.management.MBeanServer;
-import javax.management.remote.JMXConnectorServer;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.lang.management.ManagementFactory;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.util.List;
-import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Listens to servlet context events.
@@ -40,7 +38,6 @@ import java.io.IOException;
  * When the web app shutsdown, an orderly shutdown of ehcache will commence. Any peristent disk stores will be preserved.
  *
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
- * @version $Id$
  */
 public class ServerContext implements ServletContextListener {
 

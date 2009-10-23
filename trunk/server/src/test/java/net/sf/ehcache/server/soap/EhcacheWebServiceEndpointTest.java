@@ -23,10 +23,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -145,7 +143,6 @@ public class EhcacheWebServiceEndpointTest {
     /**
      * Tests get, getQuiet and put, putQuiet
      */
-    @Ignore("MNK-1417: fails repeatedly")
     @Test
     public void testCacheGetPut() throws CacheException_Exception,
             NoSuchCacheException_Exception, IllegalStateException_Exception, IOException, IllegalArgumentException_Exception, InterruptedException {
@@ -179,14 +176,13 @@ public class EhcacheWebServiceEndpointTest {
         expiryOverrideElement.setValue("value".getBytes());
         expiryOverrideElement.setTimeToLiveSeconds(1);
         cacheService.put("sampleCache1", expiryOverrideElement);
-        Thread.sleep(1010);
+        Thread.sleep(2010);
         element = cacheService.get("sampleCache1", "abc");
         assertEquals(null, element);
 
 
     }
 
-    @Ignore("MNK-1417: fails repeatedly")
     @Test
     public void testDefaultExpiry() throws NoSuchCacheException_Exception, CacheException_Exception, IllegalStateException_Exception, InterruptedException {
         Element element2 = new Element();
@@ -194,7 +190,7 @@ public class EhcacheWebServiceEndpointTest {
         element2.setValue(new byte[]{1, 2, 3, 4, 5, 6});
         cacheService.put("sampleCache3", element2);
         assertNotNull(cacheService.get("sampleCache3", "2"));
-        Thread.sleep(1010);
+        Thread.sleep(2010);
         assertEquals(null, cacheService.get("sampleCache3", "2"));
 
     }
@@ -213,7 +209,6 @@ public class EhcacheWebServiceEndpointTest {
     }
 
 
-    @Ignore("MNK-1417: fails repeatedly")
     @Test
     public void testOverrideTTI() throws NoSuchCacheException_Exception, CacheException_Exception, IllegalStateException_Exception, InterruptedException {
         Element element = new Element();
@@ -222,7 +217,7 @@ public class EhcacheWebServiceEndpointTest {
         element.setTimeToIdleSeconds(1);
         cacheService.put("sampleCache3", element);
         assertNotNull(cacheService.get("sampleCache3", "2"));
-        Thread.sleep(1010);
+        Thread.sleep(2010);
         //should expire
         assertNull(cacheService.get("sampleCache3", "2"));
     }

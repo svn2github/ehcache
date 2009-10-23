@@ -1,4 +1,3 @@
-
 package net.sf.ehcache.server.soap.jaxws;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -9,9 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for getStatisticsAccuracyResponse complex type.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType name="getStatisticsAccuracyResponse">
  *   &lt;complexContent>
@@ -23,12 +22,10 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "getStatisticsAccuracyResponse", propOrder = {
-    "_return"
+        "_return"
 })
 public class GetStatisticsAccuracyResponse {
 
@@ -37,11 +34,9 @@ public class GetStatisticsAccuracyResponse {
 
     /**
      * Gets the value of the return property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link StatisticsAccuracy }
-     *     
+     *
+     * @return possible object is
+     *         {@link StatisticsAccuracy }
      */
     public StatisticsAccuracy getReturn() {
         return _return;
@@ -49,11 +44,9 @@ public class GetStatisticsAccuracyResponse {
 
     /**
      * Sets the value of the return property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link StatisticsAccuracy }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link StatisticsAccuracy }
      */
     public void setReturn(StatisticsAccuracy value) {
         this._return = value;

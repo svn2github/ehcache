@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,26 +16,26 @@
 
 package net.sf.ehcache.server.rest.resources;
 
-import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.api.ConflictException;
+import com.sun.jersey.api.NotFoundException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.server.jaxb.Cache;
 import net.sf.ehcache.server.jaxb.Statistics;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.HEAD;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A resource for a Cache.
@@ -59,7 +59,6 @@ import java.util.logging.Level;
  * Deletes the Cache.
  *
  * @author Greg Luck
- * @version $Id$
  */
 @Produces("application/xml")
 public class CacheResource {
@@ -76,7 +75,7 @@ public class CacheResource {
     /**
      * The full URI of the resource
      */
-    @Context                      
+    @Context
     private UriInfo uriInfo;
 
     /**
@@ -106,6 +105,7 @@ public class CacheResource {
 
     /**
      * HEAD method implementation
+     *
      * @return
      */
     @HEAD
@@ -121,6 +121,7 @@ public class CacheResource {
 
     /**
      * GET method implementation
+     *
      * @return
      */
     @GET
@@ -143,6 +144,7 @@ public class CacheResource {
 
     /**
      * PUT method implementation
+     *
      * @return
      */
     @PUT
@@ -165,6 +167,7 @@ public class CacheResource {
 
     /**
      * DELETE method implementation
+     *
      * @return
      */
     @DELETE
@@ -184,7 +187,7 @@ public class CacheResource {
 
     /**
      * Routes the request to an {@link ElementResource}
-     *
+     * <p/>
      * Any extra / are still treated as an element key i.e. limited = false as their is nothing
      * else after element in the URI template.
      *
@@ -192,7 +195,7 @@ public class CacheResource {
      * @return
      */
     @Path(value = "{element}")
-    public ElementResource getElementResource(@PathParam("element")String element) {
+    public ElementResource getElementResource(@PathParam("element") String element) {
         return new ElementResource(uriInfo, request, cache, element);
     }
 

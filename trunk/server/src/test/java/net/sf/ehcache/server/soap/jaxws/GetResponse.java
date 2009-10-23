@@ -1,4 +1,3 @@
-
 package net.sf.ehcache.server.soap.jaxws;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -9,9 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for getResponse complex type.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType name="getResponse">
  *   &lt;complexContent>
@@ -23,12 +22,10 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "getResponse", propOrder = {
-    "_return"
+        "_return"
 })
 public class GetResponse {
 
@@ -37,11 +34,9 @@ public class GetResponse {
 
     /**
      * Gets the value of the return property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Element }
-     *     
+     *
+     * @return possible object is
+     *         {@link Element }
      */
     public Element getReturn() {
         return _return;
@@ -49,11 +44,9 @@ public class GetResponse {
 
     /**
      * Sets the value of the return property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Element }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link Element }
      */
     public void setReturn(Element value) {
         this._return = value;

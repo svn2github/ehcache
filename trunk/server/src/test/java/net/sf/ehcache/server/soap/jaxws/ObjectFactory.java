@@ -1,4 +1,3 @@
-
 package net.sf.ehcache.server.soap.jaxws;
 
 import javax.xml.bind.JAXBElement;
@@ -8,18 +7,17 @@ import javax.xml.namespace.QName;
 
 
 /**
- * This object contains factory methods for each 
- * Java content interface and Java element interface 
- * generated in the net.sf.ehcache.server.soap.jaxws package. 
- * <p>An ObjectFactory allows you to programatically 
- * construct new instances of the Java representation 
- * for XML content. The Java representation of XML 
- * content can consist of schema derived interfaces 
- * and classes representing the binding of schema 
- * type definitions, element declarations and model 
- * groups.  Factory methods for each of these are 
+ * This object contains factory methods for each
+ * Java content interface and Java element interface
+ * generated in the net.sf.ehcache.server.soap.jaxws package.
+ * <p>An ObjectFactory allows you to programatically
+ * construct new instances of the Java representation
+ * for XML content. The Java representation of XML
+ * content can consist of schema derived interfaces
+ * and classes representing the binding of schema
+ * type definitions, element declarations and model
+ * groups.  Factory methods for each of these are
  * provided in this class.
- * 
  */
 @XmlRegistry
 public class ObjectFactory {
@@ -82,14 +80,12 @@ public class ObjectFactory {
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: net.sf.ehcache.server.soap.jaxws
-     * 
      */
     public ObjectFactory() {
     }
 
     /**
      * Create an instance of {@link ObjectExistsException }
-     * 
      */
     public ObjectExistsException createObjectExistsException() {
         return new ObjectExistsException();
@@ -97,7 +93,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetStatisticsAccuracy }
-     * 
      */
     public GetStatisticsAccuracy createGetStatisticsAccuracy() {
         return new GetStatisticsAccuracy();
@@ -105,7 +100,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetWithLoader }
-     * 
      */
     public GetWithLoader createGetWithLoader() {
         return new GetWithLoader();
@@ -113,7 +107,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Statistics }
-     * 
      */
     public Statistics createStatistics() {
         return new Statistics();
@@ -121,7 +114,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetCacheResponse }
-     * 
      */
     public GetCacheResponse createGetCacheResponse() {
         return new GetCacheResponse();
@@ -129,7 +121,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Ping }
-     * 
      */
     public Ping createPing() {
         return new Ping();
@@ -137,7 +128,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link RemoveQuiet }
-     * 
      */
     public RemoveQuiet createRemoveQuiet() {
         return new RemoveQuiet();
@@ -145,7 +135,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetQuiet }
-     * 
      */
     public GetQuiet createGetQuiet() {
         return new GetQuiet();
@@ -153,7 +142,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link RemoveAllResponse }
-     * 
      */
     public RemoveAllResponse createRemoveAllResponse() {
         return new RemoveAllResponse();
@@ -161,7 +149,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link RemoveCacheResponse }
-     * 
      */
     public RemoveCacheResponse createRemoveCacheResponse() {
         return new RemoveCacheResponse();
@@ -169,7 +156,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Get }
-     * 
      */
     public Get createGet() {
         return new Get();
@@ -177,7 +163,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetKeysWithExpiryCheck }
-     * 
      */
     public GetKeysWithExpiryCheck createGetKeysWithExpiryCheck() {
         return new GetKeysWithExpiryCheck();
@@ -185,7 +170,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link RemoveCache }
-     * 
      */
     public RemoveCache createRemoveCache() {
         return new RemoveCache();
@@ -193,7 +177,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link AddCache }
-     * 
      */
     public AddCache createAddCache() {
         return new AddCache();
@@ -201,7 +184,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Load }
-     * 
      */
     public Load createLoad() {
         return new Load();
@@ -209,7 +191,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link PingResponse }
-     * 
      */
     public PingResponse createPingResponse() {
         return new PingResponse();
@@ -217,7 +198,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link LoadAll }
-     * 
      */
     public LoadAll createLoadAll() {
         return new LoadAll();
@@ -225,7 +205,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetWithLoaderResponse }
-     * 
      */
     public GetWithLoaderResponse createGetWithLoaderResponse() {
         return new GetWithLoaderResponse();
@@ -233,7 +212,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link IllegalArgumentException }
-     * 
      */
     public IllegalArgumentException createIllegalArgumentException() {
         return new IllegalArgumentException();
@@ -241,7 +219,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetKeysWithExpiryCheckResponse }
-     * 
      */
     public GetKeysWithExpiryCheckResponse createGetKeysWithExpiryCheckResponse() {
         return new GetKeysWithExpiryCheckResponse();
@@ -249,7 +226,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Put }
-     * 
      */
     public Put createPut() {
         return new Put();
@@ -257,7 +233,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetStatus }
-     * 
      */
     public GetStatus createGetStatus() {
         return new GetStatus();
@@ -265,7 +240,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link RemoveAll }
-     * 
      */
     public RemoveAll createRemoveAll() {
         return new RemoveAll();
@@ -273,7 +247,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link PutQuiet }
-     * 
      */
     public PutQuiet createPutQuiet() {
         return new PutQuiet();
@@ -281,7 +254,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetCache }
-     * 
      */
     public GetCache createGetCache() {
         return new GetCache();
@@ -289,7 +261,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link PutResponse }
-     * 
      */
     public PutResponse createPutResponse() {
         return new PutResponse();
@@ -297,7 +268,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetQuietResponse }
-     * 
      */
     public GetQuietResponse createGetQuietResponse() {
         return new GetQuietResponse();
@@ -305,7 +275,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetStatusResponse }
-     * 
      */
     public GetStatusResponse createGetStatusResponse() {
         return new GetStatusResponse();
@@ -313,7 +282,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link LoadResponse }
-     * 
      */
     public LoadResponse createLoadResponse() {
         return new LoadResponse();
@@ -321,7 +289,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link CacheException }
-     * 
      */
     public CacheException createCacheException() {
         return new CacheException();
@@ -329,7 +296,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link ClearStatisticsResponse }
-     * 
      */
     public ClearStatisticsResponse createClearStatisticsResponse() {
         return new ClearStatisticsResponse();
@@ -337,7 +303,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Element }
-     * 
      */
     public Element createElement() {
         return new Element();
@@ -345,7 +310,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetAllWithLoader }
-     * 
      */
     public GetAllWithLoader createGetAllWithLoader() {
         return new GetAllWithLoader();
@@ -353,7 +317,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetStatistics }
-     * 
      */
     public GetStatistics createGetStatistics() {
         return new GetStatistics();
@@ -361,7 +324,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetSizeResponse }
-     * 
      */
     public GetSizeResponse createGetSizeResponse() {
         return new GetSizeResponse();
@@ -369,7 +331,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetKeysResponse }
-     * 
      */
     public GetKeysResponse createGetKeysResponse() {
         return new GetKeysResponse();
@@ -377,7 +338,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link CacheNames }
-     * 
      */
     public CacheNames createCacheNames() {
         return new CacheNames();
@@ -385,7 +345,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link RemoveQuietResponse }
-     * 
      */
     public RemoveQuietResponse createRemoveQuietResponse() {
         return new RemoveQuietResponse();
@@ -393,7 +352,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Cache }
-     * 
      */
     public Cache createCache() {
         return new Cache();
@@ -401,7 +359,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link HashMap }
-     * 
      */
     public HashMap createHashMap() {
         return new HashMap();
@@ -409,7 +366,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetResponse }
-     * 
      */
     public GetResponse createGetResponse() {
         return new GetResponse();
@@ -417,7 +373,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link NoSuchCacheException }
-     * 
      */
     public NoSuchCacheException createNoSuchCacheException() {
         return new NoSuchCacheException();
@@ -425,7 +380,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetKeys }
-     * 
      */
     public GetKeys createGetKeys() {
         return new GetKeys();
@@ -433,7 +387,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetKeysNoDuplicateCheck }
-     * 
      */
     public GetKeysNoDuplicateCheck createGetKeysNoDuplicateCheck() {
         return new GetKeysNoDuplicateCheck();
@@ -441,7 +394,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link AddCacheResponse }
-     * 
      */
     public AddCacheResponse createAddCacheResponse() {
         return new AddCacheResponse();
@@ -449,7 +401,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link IllegalStateException }
-     * 
      */
     public IllegalStateException createIllegalStateException() {
         return new IllegalStateException();
@@ -457,7 +408,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link RemoveResponse }
-     * 
      */
     public RemoveResponse createRemoveResponse() {
         return new RemoveResponse();
@@ -465,7 +415,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link CacheNamesResponse }
-     * 
      */
     public CacheNamesResponse createCacheNamesResponse() {
         return new CacheNamesResponse();
@@ -473,7 +422,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetStatisticsResponse }
-     * 
      */
     public GetStatisticsResponse createGetStatisticsResponse() {
         return new GetStatisticsResponse();
@@ -481,7 +429,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetSize }
-     * 
      */
     public GetSize createGetSize() {
         return new GetSize();
@@ -489,7 +436,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link PutQuietResponse }
-     * 
      */
     public PutQuietResponse createPutQuietResponse() {
         return new PutQuietResponse();
@@ -497,7 +443,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Remove }
-     * 
      */
     public Remove createRemove() {
         return new Remove();
@@ -505,7 +450,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link LoadAllResponse }
-     * 
      */
     public LoadAllResponse createLoadAllResponse() {
         return new LoadAllResponse();
@@ -513,7 +457,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetKeysNoDuplicateCheckResponse }
-     * 
      */
     public GetKeysNoDuplicateCheckResponse createGetKeysNoDuplicateCheckResponse() {
         return new GetKeysNoDuplicateCheckResponse();
@@ -521,7 +464,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetStatisticsAccuracyResponse }
-     * 
      */
     public GetStatisticsAccuracyResponse createGetStatisticsAccuracyResponse() {
         return new GetStatisticsAccuracyResponse();
@@ -529,7 +471,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link ClearStatistics }
-     * 
      */
     public ClearStatistics createClearStatistics() {
         return new ClearStatistics();
@@ -537,7 +478,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link GetAllWithLoaderResponse }
-     * 
      */
     public GetAllWithLoaderResponse createGetAllWithLoaderResponse() {
         return new GetAllWithLoaderResponse();
@@ -545,7 +485,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link AddCache }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "addCache")
     public JAXBElement<AddCache> createAddCache(AddCache value) {
@@ -554,7 +493,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getResponse")
     public JAXBElement<GetResponse> createGetResponse(GetResponse value) {
@@ -563,7 +501,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link CacheException }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "CacheException")
     public JAXBElement<CacheException> createCacheException(CacheException value) {
@@ -572,7 +509,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link CacheNamesResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "cacheNamesResponse")
     public JAXBElement<CacheNamesResponse> createCacheNamesResponse(CacheNamesResponse value) {
@@ -581,7 +517,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetKeysNoDuplicateCheck }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getKeysNoDuplicateCheck")
     public JAXBElement<GetKeysNoDuplicateCheck> createGetKeysNoDuplicateCheck(GetKeysNoDuplicateCheck value) {
@@ -590,7 +525,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link IllegalStateException }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "IllegalStateException")
     public JAXBElement<IllegalStateException> createIllegalStateException(IllegalStateException value) {
@@ -599,7 +533,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link NoSuchCacheException }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "NoSuchCacheException")
     public JAXBElement<NoSuchCacheException> createNoSuchCacheException(NoSuchCacheException value) {
@@ -608,7 +541,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetQuietResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getQuietResponse")
     public JAXBElement<GetQuietResponse> createGetQuietResponse(GetQuietResponse value) {
@@ -617,7 +549,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link RemoveResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "removeResponse")
     public JAXBElement<RemoveResponse> createRemoveResponse(RemoveResponse value) {
@@ -626,7 +557,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetKeysWithExpiryCheck }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getKeysWithExpiryCheck")
     public JAXBElement<GetKeysWithExpiryCheck> createGetKeysWithExpiryCheck(GetKeysWithExpiryCheck value) {
@@ -635,7 +565,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link Put }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "put")
     public JAXBElement<Put> createPut(Put value) {
@@ -644,7 +573,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link CacheNames }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "cacheNames")
     public JAXBElement<CacheNames> createCacheNames(CacheNames value) {
@@ -653,7 +581,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetStatisticsAccuracyResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getStatisticsAccuracyResponse")
     public JAXBElement<GetStatisticsAccuracyResponse> createGetStatisticsAccuracyResponse(GetStatisticsAccuracyResponse value) {
@@ -662,7 +589,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link PutQuietResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "putQuietResponse")
     public JAXBElement<PutQuietResponse> createPutQuietResponse(PutQuietResponse value) {
@@ -671,7 +597,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetStatisticsResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getStatisticsResponse")
     public JAXBElement<GetStatisticsResponse> createGetStatisticsResponse(GetStatisticsResponse value) {
@@ -680,7 +605,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetStatistics }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getStatistics")
     public JAXBElement<GetStatistics> createGetStatistics(GetStatistics value) {
@@ -689,7 +613,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetKeysWithExpiryCheckResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getKeysWithExpiryCheckResponse")
     public JAXBElement<GetKeysWithExpiryCheckResponse> createGetKeysWithExpiryCheckResponse(GetKeysWithExpiryCheckResponse value) {
@@ -698,7 +621,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link PingResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "pingResponse")
     public JAXBElement<PingResponse> createPingResponse(PingResponse value) {
@@ -707,7 +629,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link Load }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "load")
     public JAXBElement<Load> createLoad(Load value) {
@@ -716,7 +637,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetAllWithLoaderResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getAllWithLoaderResponse")
     public JAXBElement<GetAllWithLoaderResponse> createGetAllWithLoaderResponse(GetAllWithLoaderResponse value) {
@@ -725,7 +645,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link IllegalArgumentException }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "IllegalArgumentException")
     public JAXBElement<IllegalArgumentException> createIllegalArgumentException(IllegalArgumentException value) {
@@ -734,7 +653,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link RemoveAllResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "removeAllResponse")
     public JAXBElement<RemoveAllResponse> createRemoveAllResponse(RemoveAllResponse value) {
@@ -743,7 +661,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetSize }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getSize")
     public JAXBElement<GetSize> createGetSize(GetSize value) {
@@ -752,7 +669,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link AddCacheResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "addCacheResponse")
     public JAXBElement<AddCacheResponse> createAddCacheResponse(AddCacheResponse value) {
@@ -761,7 +677,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link PutResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "putResponse")
     public JAXBElement<PutResponse> createPutResponse(PutResponse value) {
@@ -770,7 +685,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetKeysResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getKeysResponse")
     public JAXBElement<GetKeysResponse> createGetKeysResponse(GetKeysResponse value) {
@@ -779,7 +693,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link RemoveAll }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "removeAll")
     public JAXBElement<RemoveAll> createRemoveAll(RemoveAll value) {
@@ -788,7 +701,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link LoadAll }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "loadAll")
     public JAXBElement<LoadAll> createLoadAll(LoadAll value) {
@@ -797,7 +709,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link ObjectExistsException }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "ObjectExistsException")
     public JAXBElement<ObjectExistsException> createObjectExistsException(ObjectExistsException value) {
@@ -806,7 +717,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link Cache }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "cache")
     public JAXBElement<Cache> createCache(Cache value) {
@@ -815,7 +725,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetWithLoaderResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getWithLoaderResponse")
     public JAXBElement<GetWithLoaderResponse> createGetWithLoaderResponse(GetWithLoaderResponse value) {
@@ -824,7 +733,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetStatisticsAccuracy }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getStatisticsAccuracy")
     public JAXBElement<GetStatisticsAccuracy> createGetStatisticsAccuracy(GetStatisticsAccuracy value) {
@@ -833,7 +741,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetSizeResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getSizeResponse")
     public JAXBElement<GetSizeResponse> createGetSizeResponse(GetSizeResponse value) {
@@ -842,7 +749,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link RemoveQuiet }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "removeQuiet")
     public JAXBElement<RemoveQuiet> createRemoveQuiet(RemoveQuiet value) {
@@ -851,7 +757,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetStatus }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getStatus")
     public JAXBElement<GetStatus> createGetStatus(GetStatus value) {
@@ -860,7 +765,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetAllWithLoader }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getAllWithLoader")
     public JAXBElement<GetAllWithLoader> createGetAllWithLoader(GetAllWithLoader value) {
@@ -869,7 +773,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetQuiet }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getQuiet")
     public JAXBElement<GetQuiet> createGetQuiet(GetQuiet value) {
@@ -878,7 +781,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetCacheResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getCacheResponse")
     public JAXBElement<GetCacheResponse> createGetCacheResponse(GetCacheResponse value) {
@@ -887,7 +789,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link RemoveQuietResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "removeQuietResponse")
     public JAXBElement<RemoveQuietResponse> createRemoveQuietResponse(RemoveQuietResponse value) {
@@ -896,7 +797,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetKeysNoDuplicateCheckResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getKeysNoDuplicateCheckResponse")
     public JAXBElement<GetKeysNoDuplicateCheckResponse> createGetKeysNoDuplicateCheckResponse(GetKeysNoDuplicateCheckResponse value) {
@@ -905,7 +805,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link ClearStatisticsResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "clearStatisticsResponse")
     public JAXBElement<ClearStatisticsResponse> createClearStatisticsResponse(ClearStatisticsResponse value) {
@@ -914,7 +813,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetCache }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getCache")
     public JAXBElement<GetCache> createGetCache(GetCache value) {
@@ -923,7 +821,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link ClearStatistics }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "clearStatistics")
     public JAXBElement<ClearStatistics> createClearStatistics(ClearStatistics value) {
@@ -932,7 +829,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetWithLoader }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getWithLoader")
     public JAXBElement<GetWithLoader> createGetWithLoader(GetWithLoader value) {
@@ -941,7 +837,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link RemoveCache }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "removeCache")
     public JAXBElement<RemoveCache> createRemoveCache(RemoveCache value) {
@@ -950,7 +845,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link Remove }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "remove")
     public JAXBElement<Remove> createRemove(Remove value) {
@@ -959,7 +853,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link Get }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "get")
     public JAXBElement<Get> createGet(Get value) {
@@ -968,7 +861,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link PutQuiet }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "putQuiet")
     public JAXBElement<PutQuiet> createPutQuiet(PutQuiet value) {
@@ -977,7 +869,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link LoadResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "loadResponse")
     public JAXBElement<LoadResponse> createLoadResponse(LoadResponse value) {
@@ -986,7 +877,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link LoadAllResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "loadAllResponse")
     public JAXBElement<LoadAllResponse> createLoadAllResponse(LoadAllResponse value) {
@@ -995,7 +885,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetStatusResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getStatusResponse")
     public JAXBElement<GetStatusResponse> createGetStatusResponse(GetStatusResponse value) {
@@ -1004,7 +893,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link RemoveCacheResponse }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "removeCacheResponse")
     public JAXBElement<RemoveCacheResponse> createRemoveCacheResponse(RemoveCacheResponse value) {
@@ -1013,7 +901,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link Ping }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "ping")
     public JAXBElement<Ping> createPing(Ping value) {
@@ -1022,7 +909,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GetKeys }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "getKeys")
     public JAXBElement<GetKeys> createGetKeys(GetKeys value) {
@@ -1031,7 +917,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link Element }{@code >}}
-     * 
      */
     @XmlElementDecl(namespace = "http://soap.server.ehcache.sf.net/", name = "element")
     public JAXBElement<Element> createElement(Element value) {

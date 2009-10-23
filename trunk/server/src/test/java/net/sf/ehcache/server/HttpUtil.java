@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,34 +16,30 @@
 
 package net.sf.ehcache.server;
 
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.net.URL;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.URL;
 import java.util.logging.Logger;
-import java.util.Set;
-import java.util.Map;
 
 /**
  * Utilities used by tests
+ *
  * @author Greg Luck
- * @version $Id$
  */
 public class HttpUtil {
 
     private static final Logger LOG = Logger.getLogger(HttpUtil.class.getName());
 
-
+    private HttpUtil() {
+        //noop
+    }
 
     public static HttpURLConnection get(String uri) throws IOException, ParserConfigurationException, SAXException {
         URL u = new URL(uri);

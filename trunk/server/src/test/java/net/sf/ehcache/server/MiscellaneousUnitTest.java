@@ -41,10 +41,10 @@ public class MiscellaneousUnitTest {
     @Test
     public void testByteArrayEquality() throws NoSuchAlgorithmException {
 
-        byte[] bytes1 = new byte[]{1,2,3};
-        byte[] bytes2 = new byte[]{1,2,3};
+        byte[] bytes1 = new byte[]{1, 2, 3};
+        byte[] bytes2 = new byte[]{1, 2, 3};
         byte[] bytes3 = bytes1;
-        
+
         //cannot compare using equals. It uses ==
         assertFalse(bytes1 == bytes2);
         assertTrue(bytes1 == bytes3);

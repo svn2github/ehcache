@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import javax.xml.bind.annotation.XmlRootElement;
  * typesafe enum which is pre jdk 5.
  *
  * @author Greg Luck
- * @version $Id$
  */
 @XmlRootElement
 public enum Status {
@@ -47,6 +46,7 @@ public enum Status {
 
     /**
      * The code enum matching an int code
+     *
      * @param code an int status code
      * @return the enum matching
      */

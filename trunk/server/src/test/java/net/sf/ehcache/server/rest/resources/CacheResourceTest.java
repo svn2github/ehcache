@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.xml.sax.SAXException;
+import samples.ExampleJavaClient;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
@@ -41,15 +42,12 @@ import java.net.HttpURLConnection;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import samples.ExampleJavaClient;
-
 
 /**
  * Tests the REST web resource using the lightweight http container
  * <p/>
  *
  * @author Greg Luck
- * @version $Id$
  */
 public class CacheResourceTest {
 
@@ -157,7 +155,6 @@ public class CacheResourceTest {
             //expected
         }
     }
-
 
 
     @Test
@@ -309,7 +306,6 @@ public class CacheResourceTest {
 ////        Status status = cacheService.getStatus("sampleCache1");
 ////        assertTrue(status == Status.STATUS_ALIVE);
 //    }
-
 
 
 }

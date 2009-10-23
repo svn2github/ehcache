@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -46,7 +46,6 @@ import java.util.logging.Logger;
  * e.g. <code>http://localhost:9090/ehcache/rest/</code>
  *
  * @author Greg Luck
- * @version $Id$
  */
 @Path("/")
 @Produces("application/xml")
@@ -78,6 +77,7 @@ public class CachesResource {
 
     /**
      * Routes the request to a {@link CacheResource} if the path is <code>/ehcache/rest/{cache}</code>
+     *
      * @param cache
      * @return
      */
@@ -88,6 +88,7 @@ public class CachesResource {
 
     /**
      * GET method implementation. Lists the available caches
+     *
      * @return
      */
     @GET

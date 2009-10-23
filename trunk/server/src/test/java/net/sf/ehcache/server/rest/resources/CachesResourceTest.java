@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,53 +17,41 @@
 package net.sf.ehcache.server.rest.resources;
 
 import net.sf.ehcache.server.HttpUtil;
-import net.sf.ehcache.server.jaxb.JAXBContextResolver;
 import net.sf.ehcache.server.jaxb.Caches;
+import net.sf.ehcache.server.jaxb.JAXBContextResolver;
 import net.sf.ehcache.server.soap.jaxws.CacheException_Exception;
-import net.sf.ehcache.server.soap.jaxws.NoSuchCacheException_Exception;
-import net.sf.ehcache.server.soap.jaxws.Cache;
-import net.sf.ehcache.server.soap.jaxws.IllegalStateException_Exception;
-import net.sf.ehcache.server.soap.jaxws.ObjectExistsException_Exception;
-import net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpointService;
 import net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpoint;
+import net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpointService;
+import net.sf.ehcache.server.soap.jaxws.IllegalStateException_Exception;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
-import org.junit.Test;
-import org.junit.BeforeClass;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import javax.xml.ws.soap.SOAPFaultException;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.FileInputStream;
-import java.util.logging.Logger;
-import java.util.List;
 import java.net.HttpURLConnection;
-
-import com.sun.xml.ws.util.Pool;
+import java.util.List;
+import java.util.logging.Logger;
 
 
 /**
  * Tests the REST web resource using the lightweight http container
  * <p/>
+ *
  * @author Greg Luck
- * @version $Id$
  */
 public class CachesResourceTest {
 
@@ -84,9 +72,9 @@ public class CachesResourceTest {
     }
 
 
-
     /**
      * Returns the WADL for the CacheManager operations. Should just list GET
+     *
      * @throws Exception
      */
     @Test
@@ -126,7 +114,6 @@ public class CachesResourceTest {
     }
 
 
-
     @Test
     public void testGetCaches() throws IOException, ParserConfigurationException, SAXException, XPathExpressionException {
         HttpURLConnection result = HttpUtil.get("http://localhost:9090/ehcache/rest/");
@@ -150,8 +137,6 @@ public class CachesResourceTest {
         Caches caches = (Caches) unmarshaller.unmarshal(result.getInputStream());
         assertTrue(caches.getCaches().size() >= 6);
     }
-
-
 
 
 }

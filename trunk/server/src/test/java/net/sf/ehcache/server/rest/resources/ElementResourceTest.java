@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,52 +16,45 @@
 
 package net.sf.ehcache.server.rest.resources;
 
+import net.sf.ehcache.Status;
 import net.sf.ehcache.server.HttpUtil;
 import net.sf.ehcache.server.jaxb.Cache;
 import net.sf.ehcache.server.jaxb.Caches;
 import net.sf.ehcache.server.jaxb.JAXBContextResolver;
-import net.sf.ehcache.server.jaxb.Element;
 import net.sf.ehcache.server.soap.jaxws.CacheException_Exception;
 import net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpoint;
 import net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpointService;
 import net.sf.ehcache.server.soap.jaxws.IllegalStateException_Exception;
-import net.sf.ehcache.Status;
-import net.sf.ehcache.MimeTypeByteArray;
 import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.xml.sax.SAXException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Date;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.logging.Logger;
 
 
@@ -70,7 +63,6 @@ import java.util.logging.Logger;
  * <p/>
  *
  * @author Greg Luck
- * @version $Id$
  */
 public class ElementResourceTest {
 
@@ -167,7 +159,6 @@ public class ElementResourceTest {
      *
      * @throws org.xml.sax.SAXException
      */
-    @Ignore("MNK-1417: failed repeatedly")
     @Test
     public void testPutGetElementPlainText() throws Exception {
         long beforeCreated = System.currentTimeMillis();
@@ -187,15 +178,15 @@ public class ElementResourceTest {
         String plainText = new String(bytes);
         assertEquals(originalString, plainText);
         LOG.info("beforeCreated: " + beforeCreated);
-        LOG.info("lastModified: " + urlConnection.getLastModified());
-        LOG.info("now: " + System.currentTimeMillis());
+        LOG.info("lastModified: " + new Date(urlConnection.getLastModified()));
+        LOG.info("now: " + new Date(System.currentTimeMillis()));
         //The HTTP protocol Last-Modified only goes down to seconds, therefore we need to take a second off to make sure the time is grated than a ms
-        //accurate beforeCreated time. This was little messy to find out.
-        assertTrue(
-                urlConnection.getLastModified() > (beforeCreated - 1000) &&
-                        urlConnection.getLastModified() < System.currentTimeMillis());
+        //accurate beforeCreated time. This was a little messy to find out.
         //We use the Element version + Last-Modified
         assertNotNull(urlConnection.getHeaderField("ETag"));
+        //As of 1.7 Element now ceilings up, so can be up to a second out
+        assertTrue("", urlConnection.getLastModified() > (beforeCreated - 1000));
+        assertTrue("last Modified not before now", urlConnection.getLastModified() < (System.currentTimeMillis() + 1000));
     }
 
 
@@ -390,7 +381,6 @@ public class ElementResourceTest {
     /**
      * Note: The server does not return Elements. It returns values, with meta data in the headers.
      */
-    @Ignore("MNK-1417: fails repeatedly")
     @Test
     public void testPutGetElementXML() throws Exception {
 
@@ -435,6 +425,8 @@ public class ElementResourceTest {
         assertEquals(lastModified, urlConnection.getHeaderField("Last-Modified"));
         urlConnection.disconnect();
 
+        Thread.sleep(1100);
+        //Need a thread sleep because Element ceilings up
         //Check ETag and Last-Modified are different after the element was updated.
         HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/2", "application/xml",
                 new ByteArrayInputStream(xmlDocument.getBytes()));
@@ -445,9 +437,9 @@ public class ElementResourceTest {
         assertEquals(200, urlConnection.getResponseCode());
         assertTrue(urlConnection.getContentType().matches("application/xml"));
         String eTagInResponse = urlConnection.getHeaderField("Etag");
+        LOG.info("eTag in response: " + urlConnection.getHeaderField("Etag"));
         assertTrue(!eTag.equals(eTagInResponse));
         String content = HttpUtil.inputStreamToText(urlConnection.getInputStream());
-        LOG.info("eTag: " + urlConnection.getHeaderField("Etag"));
         LOG.info("lastModified: " + urlConnection.getHeaderField("Last-Modified"));
         //HttpURLConnection weirdness. It works from wget.
         //assertTrue(!lastModified.equals(urlConnection.getHeaderField("Last-Modified")));
@@ -456,7 +448,7 @@ public class ElementResourceTest {
         u = new URL("http://localhost:9090/ehcache/rest/sampleCache2/2");
         urlConnection = (HttpURLConnection) u.openConnection();
         urlConnection.setRequestMethod("GET");
-        urlConnection.setIfModifiedSince(System.currentTimeMillis());
+        urlConnection.setIfModifiedSince(System.currentTimeMillis() + 1000);
         urlConnection.setRequestProperty("If-None-Match", eTagInResponse);
 
         assertEquals(304, urlConnection.getResponseCode());

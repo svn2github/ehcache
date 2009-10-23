@@ -1,19 +1,14 @@
 package net.sf.ehcache.server.soap;
 
+import net.sf.ehcache.server.HttpUtil;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.BeforeClass;
-import org.junit.AfterClass;
 import org.xml.sax.SAXException;
 
-import javax.xml.ws.Endpoint;
 import javax.xml.parsers.ParserConfigurationException;
-import java.net.HttpURLConnection;
 import java.io.IOException;
-
-import net.sf.ehcache.server.HttpUtil;
+import java.net.HttpURLConnection;
 
 
 /**

@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import java.io.IOException;
  * then defaults are not applied.
  *
  * @author Greg Luck
- * @version $Id$
  */
 
 @XmlRootElement
@@ -110,6 +109,7 @@ public class Element {
      * <li>If no mimeType was set and the value is a <code>byte[]</code> the <code>mimeType</code> is set to "application/octet-stream".
      * <li>If no mimeType was set and the value is a <code>String</code> the <code>mimeType</code> is set to "text/plain".
      * </ol>
+     *
      * @param element the ehcache core Element
      * @throws CacheException if an Exception occurred in the underlying cache.
      */
@@ -131,6 +131,7 @@ public class Element {
      * <li>If no mimeType was set and the value is a <code>byte[]</code> the <code>mimeType</code> is set to "application/octet-stream".
      * <li>If no mimeType was set and the value is a <code>String</code> the <code>mimeType</code> is set to "text/plain".
      * </ol>
+     *
      * @param element the ehcache core Element
      * @throws CacheException if an Exception occurred in the underlying cache.
      */
@@ -144,7 +145,8 @@ public class Element {
         if (ehcacheValue == null) {
             this.value = null;
             this.mimeType = null;
-        } if (ehcacheValue instanceof MimeTypeByteArray) {
+        }
+        if (ehcacheValue instanceof MimeTypeByteArray) {
             //we have Mime Type data to extract
             mimeType = ((MimeTypeByteArray) ehcacheValue).getMimeType();
             if (mimeType == null) {
@@ -177,6 +179,7 @@ public class Element {
 
     /**
      * The key for this element. It needs to be Serializable. To work with the RESTful API it needs to be a String.
+     *
      * @return the value of the key
      */
     public Object getKey() {
@@ -184,7 +187,8 @@ public class Element {
     }
 
     /**
-     * The key for this element. It needs to be Serializable. To work with the RESTful API it needs to be a String. 
+     * The key for this element. It needs to be Serializable. To work with the RESTful API it needs to be a String.
+     *
      * @param key the value of the key
      */
     public void setKey(Object key) {
@@ -248,6 +252,7 @@ public class Element {
      * <li><code>application/x-java-serialized-object</code>A serialized Java object
      * </ul>
      * A Mime Type of null indicates the value is a Java Object.
+     *
      * @return
      */
     public String getMimeType() {
@@ -340,7 +345,6 @@ public class Element {
     }
 
     /**
-     * 
      * @param timeToIdleSeconds the time an element may be unused before it becomes stale
      */
     public void setTimeToIdleSeconds(Integer timeToIdleSeconds) {
@@ -350,6 +354,7 @@ public class Element {
     /**
      * Throws a <code>UnsupportedOperationException</code> if called. This is immutatble but
      * a setter must be provided to support the JavaBeans convention.
+     *
      * @throws UnsupportedOperationException do not call this method. This is immutable
      */
     public void setCreationTime(Long creationTime) throws UnsupportedOperationException {
@@ -359,6 +364,7 @@ public class Element {
     /**
      * Throws a <code>UnsupportedOperationException</code> if called. This is immutatble but
      * a setter must be provided to support the JavaBeans convention.
+     *
      * @throws UnsupportedOperationException do not call this method. This is immutable
      */
     public void setVersion(Long version) throws UnsupportedOperationException {
@@ -368,6 +374,7 @@ public class Element {
     /**
      * Throws a <code>UnsupportedOperationException</code> if called. This is immutatble but
      * a setter must be provided to support the JavaBeans convention.
+     *
      * @throws UnsupportedOperationException do not call this method. This is immutable
      */
     public void setLastUpdateTime(Long lastUpdateTime) throws UnsupportedOperationException {
@@ -376,8 +383,9 @@ public class Element {
 
     /**
      * Gets the core Ehcache element.
+     *
      * @return the core Ehcache element. The {@link #mimeType} and {@link #value} are stored in
-     * the core Ehcache <code>value</code> field using {@link net.sf.ehcache.MimeTypeByteArray}
+     *         the core Ehcache <code>value</code> field using {@link net.sf.ehcache.MimeTypeByteArray}
      */
     public net.sf.ehcache.Element getEhcacheElement() {
         MimeTypeByteArray mimeTypeByteArray = new MimeTypeByteArray(mimeType, value);
@@ -386,8 +394,9 @@ public class Element {
 
     /**
      * Returns the expiration time of the element
+     *
      * @return the best estimate of the expiration date of this element from the cache. If the element is eternal
-     *  {@link Long#MAX_VALUE} is returned.
+     *         {@link Long#MAX_VALUE} is returned.
      * @see net.sf.ehcache.Element#getExpirationTime()
      */
     public Long getExpirationDate() {
@@ -396,6 +405,7 @@ public class Element {
 
     /**
      * Do not call. This is immutable from the point of view of a client.
+     *
      * @throws UnsupportedOperationException do not call this method. This is immutable.
      */
     public void setExpirationDate(Long expirationDate) throws UnsupportedOperationException {

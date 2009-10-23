@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import net.sf.ehcache.server.jaxb.Element;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
 import javax.ws.rs.HEAD;
+import javax.ws.rs.PUT;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
@@ -35,12 +35,13 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
+ * Resource representing an ehcache Element
+ *
  * @author Greg Luck
- * @version $Id$
  */
 public class ElementResource {
 
@@ -158,10 +159,11 @@ public class ElementResource {
      * Implements the PUT method
      *
      * @param headers this method parses the mime type header and also ehcacheTimeToLiveSeconds, which is used
-     * to override the cache's default time to live.
-     * @param data the data is stored in a MimeTypeByteArray
+     *                to override the cache's default time to live.
+     * @param data    the data is stored in a MimeTypeByteArray
      * @return 201 for a successful PUT
-     * @throws com.sun.jersey.api.NotFoundException if the cache is not found a 404 response with the message.
+     * @throws com.sun.jersey.api.NotFoundException
+     *          if the cache is not found a 404 response with the message.
      */
     @PUT
     public Response putElement(@Context HttpHeaders headers, byte[] data) throws NotFoundException {

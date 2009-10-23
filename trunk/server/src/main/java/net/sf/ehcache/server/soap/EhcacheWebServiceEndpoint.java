@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -62,8 +62,8 @@ import java.util.List;
  * Values are always byte arrays. The type of the byte[] is provided by the
  * MIME type. See {@link net.sf.ehcache.server.jaxb.Element#getMimeType}
  * <p/>
+ *
  * @author Greg Luck
- * @version $Id$
  */
 @WebService()
 public class EhcacheWebServiceEndpoint {
@@ -97,6 +97,7 @@ public class EhcacheWebServiceEndpoint {
      * Gets a Cache representation. This call does not throw an exception if the cache is not found.
      * Most other methods in this endpoint do.
      * <p/>
+     *
      * @param cacheName the name of the cache to perform this operation on.
      * @return a representation of a Cache, if an object of type Cache exists by that name, else null
      * @throws net.sf.ehcache.CacheException if something goes wrong in the Ehcache core infrastructure
@@ -124,7 +125,8 @@ public class EhcacheWebServiceEndpoint {
      * It will be created with the defaultCache attributes specified in ehcache.xml
      *
      * @param cacheName the name of the cache to perform this operation on. the name for the cache
-     * @throws net.sf.ehcache.ObjectExistsException if the cache already exists.
+     * @throws net.sf.ehcache.ObjectExistsException
+     *                                       if the cache already exists.
      *                                       if the cache already exists
      * @throws net.sf.ehcache.CacheException if there was an error creating the cache.
      * @throws IllegalStateException         if the CacheManager is not alive
@@ -139,6 +141,7 @@ public class EhcacheWebServiceEndpoint {
      * Remove a cache from the CacheManager. The cache is disposed of.
      * <p/>
      * This method can be called multiple times. If the cache does not exist no exception is thrown.
+     *
      * @param cacheName the name of the cache to perform this operation on. the cache name
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
@@ -207,8 +210,8 @@ public class EhcacheWebServiceEndpoint {
      * @param key       keys must be String in this WebServices API
      * @return the element, or null, if it does not exist.
      * @throws net.sf.ehcache.CacheException if a general cache exception occurs
-     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
-     * @throws NoSuchCacheException  if a cache named cacheName does not exist.
+     * @throws IllegalStateException         if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws NoSuchCacheException          if a cache named cacheName does not exist.
      */
     @WebMethod
     public Element get(String cacheName, String key) throws IllegalStateException, NoSuchCacheException, CacheException {
@@ -234,7 +237,7 @@ public class EhcacheWebServiceEndpoint {
      * @param cacheName the name of the cache to perform this operation on.
      * @return a list of {@link Object} keys
      * @throws net.sf.ehcache.CacheException if an Ehcache core exception occurs
-     * @throws IllegalStateException if the cache is not alive
+     * @throws IllegalStateException         if the cache is not alive
      */
     @WebMethod
     public List getKeys(String cacheName) throws IllegalStateException, CacheException {
@@ -249,7 +252,7 @@ public class EhcacheWebServiceEndpoint {
      * Also notifies the CacheEventListener after the element was removed.
      *
      * @param cacheName the name of the cache to perform this operation on.
-     * @param key keys must be Strings in this WebServices API
+     * @param key       keys must be Strings in this WebServices API
      * @return true if the element was removed, false if it was not found in the cache
      * @throws net.sf.ehcache.CacheException if an Ehcache core exception occurs
      */
@@ -279,7 +282,7 @@ public class EhcacheWebServiceEndpoint {
      *
      * @param cacheName the name of the cache to perform this operation on.
      * @return a list of {@link Object} keys
-     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws IllegalStateException         if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      * @throws net.sf.ehcache.CacheException if something goes wrong in the underlying Ehcache core
      */
     @WebMethod
@@ -304,7 +307,7 @@ public class EhcacheWebServiceEndpoint {
      *
      * @param cacheName the name of the cache to perform this operation on.
      * @return a list of {@link Object} keys
-     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws IllegalStateException         if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      * @throws net.sf.ehcache.CacheException if something goes wrong in the underlying Ehcache core
      */
     @WebMethod
@@ -356,11 +359,12 @@ public class EhcacheWebServiceEndpoint {
      * Removes an {@link net.sf.ehcache.Element} from the Cache, without notifying listeners. This also removes it from any
      * stores it may be in.
      * <p/>
+     *
      * @param cacheName the name of the cache to perform this operation on.
-     * @param key the cache key. This must be a String in this WebService API even though Ehcache can
-     * use any Java Object or literal as a key.
+     * @param key       the cache key. This must be a String in this WebService API even though Ehcache can
+     *                  use any Java Object or literal as a key.
      * @return true if the element was removed, false if it was not found in the cache
-     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws IllegalStateException         if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      * @throws net.sf.ehcache.CacheException if an exception happens in Ehcache core.
      */
     @WebMethod
@@ -522,7 +526,7 @@ public class EhcacheWebServiceEndpoint {
      * decorator {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
      *
      * @param cacheName the name of the cache to perform this operation on.
-     * @param keys  a list of keys which must be String in this WebServices API
+     * @param keys      a list of keys which must be String in this WebServices API
      * @throws net.sf.ehcache.CacheException a general exception in the underlying Ehcache cache
      */
     @WebMethod

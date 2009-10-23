@@ -1,28 +1,19 @@
 package net.sf.ehcache.server.soap;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.BeforeClass;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.xml.sax.SAXException;
-
-import javax.xml.ws.Endpoint;
-import javax.xml.ws.Binding;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.handler.Handler;
-import javax.xml.parsers.ParserConfigurationException;
-import java.net.HttpURLConnection;
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-
 import net.sf.ehcache.server.HttpUtil;
 import net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpointService;
-import net.sf.ehcache.server.soap.jaxws.CacheException_Exception;
-import net.sf.ehcache.server.soap.jaxws.IllegalStateException_Exception;
+import org.junit.AfterClass;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.ws.Endpoint;
+import java.io.IOException;
+import java.net.HttpURLConnection;
 
 
 /**
@@ -79,7 +70,7 @@ public class BasicSoapUnitTest {
         assertTrue(webServiceThread.isAlive());
         //Wait to start up
 
-        Thread.sleep(10000);
+        Thread.sleep(15000);
 
 
     }

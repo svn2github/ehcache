@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import java.util.List;
 
 /**
  * A collection of Cache representations available from a CacheManager
+ *
  * @author Greg Luck
- * @version $Id$
  */
 @XmlRootElement
 public class Caches {
@@ -37,6 +37,7 @@ public class Caches {
 
     /**
      * Constructor using a list of cache representations
+     *
      * @param caches a list of caches that belong in this CacheManager
      */
     public Caches(List<Cache> caches) {
@@ -45,6 +46,7 @@ public class Caches {
 
     /**
      * Gets the list of caches
+     *
      * @return a list of Cache representations
      */
     public List<Cache> getCaches() {
@@ -53,6 +55,7 @@ public class Caches {
 
     /**
      * Sets the list of caches
+     *
      * @param caches a list of cache representations
      */
     public void setCaches(List<Cache> caches) {

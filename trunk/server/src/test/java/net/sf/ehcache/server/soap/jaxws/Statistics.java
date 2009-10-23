@@ -1,4 +1,3 @@
-
 package net.sf.ehcache.server.soap.jaxws;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -8,9 +7,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for statistics complex type.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType name="statistics">
  *   &lt;complexContent>
@@ -27,17 +26,15 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "statistics", propOrder = {
-    "averageGetTime",
-    "cacheHits",
-    "evictionCount",
-    "inMemoryHits",
-    "onDiskHits",
-    "statisticsAccuracy"
+        "averageGetTime",
+        "cacheHits",
+        "evictionCount",
+        "inMemoryHits",
+        "onDiskHits",
+        "statisticsAccuracy"
 })
 public class Statistics {
 
@@ -50,7 +47,6 @@ public class Statistics {
 
     /**
      * Gets the value of the averageGetTime property.
-     * 
      */
     public float getAverageGetTime() {
         return averageGetTime;
@@ -58,7 +54,6 @@ public class Statistics {
 
     /**
      * Sets the value of the averageGetTime property.
-     * 
      */
     public void setAverageGetTime(float value) {
         this.averageGetTime = value;
@@ -66,7 +61,6 @@ public class Statistics {
 
     /**
      * Gets the value of the cacheHits property.
-     * 
      */
     public long getCacheHits() {
         return cacheHits;
@@ -74,7 +68,6 @@ public class Statistics {
 
     /**
      * Sets the value of the cacheHits property.
-     * 
      */
     public void setCacheHits(long value) {
         this.cacheHits = value;
@@ -82,7 +75,6 @@ public class Statistics {
 
     /**
      * Gets the value of the evictionCount property.
-     * 
      */
     public long getEvictionCount() {
         return evictionCount;
@@ -90,7 +82,6 @@ public class Statistics {
 
     /**
      * Sets the value of the evictionCount property.
-     * 
      */
     public void setEvictionCount(long value) {
         this.evictionCount = value;
@@ -98,7 +89,6 @@ public class Statistics {
 
     /**
      * Gets the value of the inMemoryHits property.
-     * 
      */
     public long getInMemoryHits() {
         return inMemoryHits;
@@ -106,7 +96,6 @@ public class Statistics {
 
     /**
      * Sets the value of the inMemoryHits property.
-     * 
      */
     public void setInMemoryHits(long value) {
         this.inMemoryHits = value;
@@ -114,7 +103,6 @@ public class Statistics {
 
     /**
      * Gets the value of the onDiskHits property.
-     * 
      */
     public long getOnDiskHits() {
         return onDiskHits;
@@ -122,7 +110,6 @@ public class Statistics {
 
     /**
      * Sets the value of the onDiskHits property.
-     * 
      */
     public void setOnDiskHits(long value) {
         this.onDiskHits = value;
@@ -130,11 +117,9 @@ public class Statistics {
 
     /**
      * Gets the value of the statisticsAccuracy property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link StatisticsAccuracy }
-     *     
+     *
+     * @return possible object is
+     *         {@link StatisticsAccuracy }
      */
     public StatisticsAccuracy getStatisticsAccuracy() {
         return statisticsAccuracy;
@@ -142,11 +127,9 @@ public class Statistics {
 
     /**
      * Sets the value of the statisticsAccuracy property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link StatisticsAccuracy }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link StatisticsAccuracy }
      */
     public void setStatisticsAccuracy(StatisticsAccuracy value) {
         this.statisticsAccuracy = value;
