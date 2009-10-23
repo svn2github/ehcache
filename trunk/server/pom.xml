@@ -93,30 +93,30 @@
             </plugin>
             <!--todo checkstyle, resolve javadoc warnings. Also upgrade Jersey and Glassfish-->
             <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-checkstyle-plugin</artifactId>-->
-                <!--<version>2.3</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>validate</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>checkstyle</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-                <!--<configuration>-->
-                    <!--<configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>-->
-                    <!--<suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>-->
-                    <!--<headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>-->
-                    <!--<enableRSS>false</enableRSS>-->
-                    <!--<linkXRef>true</linkXRef>-->
-                    <!--<enableRulesSummary>false</enableRulesSummary>-->
-                    <!--<consoleOutput>true</consoleOutput>-->
-                    <!--<failsOnError>true</failsOnError>-->
-                    <!--<failOnViolation>true</failOnViolation>-->
-                    <!--<includeTestSourceDirectory>true</includeTestSourceDirectory>-->
-                    <!--<enableRulesSummary>true</enableRulesSummary>-->
-                <!--</configuration>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-checkstyle-plugin</artifactId>-->
+            <!--<version>2.3</version>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<phase>validate</phase>-->
+            <!--<goals>-->
+            <!--<goal>checkstyle</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--<configuration>-->
+            <!--<configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>-->
+            <!--<suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>-->
+            <!--<headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>-->
+            <!--<enableRSS>false</enableRSS>-->
+            <!--<linkXRef>true</linkXRef>-->
+            <!--<enableRulesSummary>false</enableRulesSummary>-->
+            <!--<consoleOutput>true</consoleOutput>-->
+            <!--<failsOnError>true</failsOnError>-->
+            <!--<failOnViolation>true</failOnViolation>-->
+            <!--<includeTestSourceDirectory>true</includeTestSourceDirectory>-->
+            <!--<enableRulesSummary>true</enableRulesSummary>-->
+            <!--</configuration>-->
             <!--</plugin>-->
 
             <!--Conflicts with Dave Whitla's plugin with the same goal.
@@ -127,6 +127,14 @@
                 <groupId>org.glassfish</groupId>
                 <artifactId>maven-glassfish-plugin</artifactId>
                 <version>1.0-alpha-4</version>
+            </plugin>
+
+            <plugin>
+                <!-- Something in maven 2.1, deploy 2.4 or something else in the chain is causing an OOME
+                on deploy. Use the following script to deploy export MAVEN_OPTS=-Xmx1024m; mvn -Dmaven.test.skip=true  deploy -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.3</version>
             </plugin>
 
             <!--mvn jar:jar to create this jar plugin -->
