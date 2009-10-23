@@ -54,8 +54,9 @@
 
     <properties>
         <!--Install each message queue and specify these properties-->
-        <activemq.bin.dir>${user.home}/work/apache-activemq-5.1.0/bin</activemq.bin.dir>
-        <openmq.bin.dir>${user.home}/work/mq/bin</openmq.bin.dir>
+        <!-- you have to set these 2 env variables to be able to run system-tests-->
+        <activemq.bin.dir>${env.ACTIVEMQ_HOME}/bin</activemq.bin.dir>
+        <openmq.bin.dir>${env.OPENMQ_HOME}/bin</openmq.bin.dir>
     </properties>
 
     <repositories>
