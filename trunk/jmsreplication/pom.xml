@@ -157,6 +157,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <skip>true</skip>
                     <configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>
                     <suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>
                     <headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>
