@@ -4,6 +4,7 @@ import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 import org.glassfish.embed.EmbeddedException;
@@ -34,7 +35,7 @@ public class ServerIntegrationTest {
         sleep(10000);
     }
 
-
+    @Ignore("MNK-1415")
     /**
      * Checks that the SOAP Web Service is actually running
      */
@@ -51,6 +52,7 @@ public class ServerIntegrationTest {
         assertTrue(responseBody.indexOf("Implementation class:") != 0);
     }
 
+    @Ignore("MNK-1415")
     /**
      * Checks that the RESTful WebService is actually running
      */

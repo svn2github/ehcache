@@ -779,6 +779,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     }
 
 
+    @Ignore("MNK-1429")
     /**
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>

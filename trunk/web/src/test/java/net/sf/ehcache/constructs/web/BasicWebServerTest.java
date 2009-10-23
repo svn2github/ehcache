@@ -17,6 +17,8 @@
 package net.sf.ehcache.constructs.web;
 
 import com.meterware.httpunit.WebResponse;
+
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -45,6 +47,7 @@ public class BasicWebServerTest extends AbstractWebTest {
         assertResponseGood(response, true);
     }
 
+    @Ignore("MNK-1432")
     /**
      * Tests that a page which is not   in the cache filter pattern is not cached.
      */

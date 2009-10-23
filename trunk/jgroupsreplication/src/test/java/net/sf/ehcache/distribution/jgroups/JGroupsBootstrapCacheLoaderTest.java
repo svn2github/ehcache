@@ -27,6 +27,7 @@ import java.util.Date;
 
 import org.junit.Before;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -112,6 +113,7 @@ public class JGroupsBootstrapCacheLoaderTest {
         }
     }
 
+    @Ignore("MNK-1404")
     /**
      * Tests loading from bootstrap
      */
@@ -146,6 +148,7 @@ public class JGroupsBootstrapCacheLoaderTest {
 
     }
 
+    @Ignore("MNK-1404")
     /**
      * Tests loading from bootstrap
      */

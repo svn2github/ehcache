@@ -62,6 +62,7 @@ import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -89,6 +90,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         manager.removalAll();
     }
 
+    @Ignore("MNK-1444")
     /**
      * Tests that the loader successfully loads from ehcache.xml.
      * ehcache.xml should be found in the classpath. In our ant configuration
