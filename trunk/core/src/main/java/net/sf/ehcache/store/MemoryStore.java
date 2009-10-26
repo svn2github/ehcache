@@ -561,7 +561,7 @@ public class MemoryStore implements Store {
                 return element;
             }
 
-            //To svoid an expensive search via iterating through the CHM, which is very expensive
+            //To avoid an expensive search via iterating through the CHM, which is very expensive
             //but it is guaranteed to not return null, which would cause a memory leak
             //iterate through our list, which is really fast
             //If we cannot evict in accordance in the algorithm, drop back to an eviction based on FIFO
