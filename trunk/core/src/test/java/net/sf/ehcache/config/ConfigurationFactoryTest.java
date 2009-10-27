@@ -90,7 +90,6 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         manager.removalAll();
     }
 
-    @Ignore("MNK-1444")
     /**
      * Tests that the loader successfully loads from ehcache.xml.
      * ehcache.xml should be found in the classpath. In our ant configuration
@@ -126,7 +125,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
         //Check TTL
         assertTrue(peerProvider instanceof MulticastRMICacheManagerPeerProvider);
-        assertEquals(new Integer(1), ((MulticastRMICacheManagerPeerProvider) peerProvider).getHeartBeatSender().getTimeToLive());
+        assertEquals(new Integer(0), ((MulticastRMICacheManagerPeerProvider) peerProvider).getHeartBeatSender().getTimeToLive());
 
         //Check CacheManagerEventListener
         assertEquals(null, configurationHelper.createCacheManagerEventListener());
@@ -425,7 +424,6 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(1, registeredListeners.size());
     }
 
-    @Ignore("MNK-1444")
     /**
      * Tests for Distributed Cache config
      */
@@ -442,7 +440,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
         //Check TTL
         assertTrue(peerProvider instanceof MulticastRMICacheManagerPeerProvider);
-        assertEquals(new Integer(64), ((MulticastRMICacheManagerPeerProvider) peerProvider).getHeartBeatSender().getTimeToLive());
+        assertEquals(new Integer(0), ((MulticastRMICacheManagerPeerProvider) peerProvider).getHeartBeatSender().getTimeToLive());
 
 
         //check CacheManagerPeerListener
