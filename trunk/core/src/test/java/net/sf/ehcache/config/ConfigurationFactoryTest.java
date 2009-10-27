@@ -62,7 +62,6 @@ import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -113,7 +112,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(null, configurationHelper.getConfigurationBean().getName());
         assertEquals(true, configurationHelper.getConfigurationBean().getUpdateCheck());
         assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper.getConfigurationBean().getMonitoring());
-        
+
         //Check disk store
         assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
 
@@ -224,7 +223,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(null, configurationHelper.getConfigurationBean().getName());
         assertEquals(true, configurationHelper.getConfigurationBean().getUpdateCheck());
         assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper.getConfigurationBean().getMonitoring());
-        
+
         //Check disk store  <diskStore path="/tmp"/>
         assertEquals(System.getProperty("java.io.tmpdir"), configurationHelper.getDiskStorePath());
 
@@ -1088,9 +1087,9 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
       Ehcache sampleCache1 = configurationHelper.createCacheFromName("clustered-1");
       assertEquals("clustered-1", sampleCache1.getName());
       assertEquals(true, sampleCache1.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION, 
+      assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION,
                   sampleCache1.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
-      
+
       //  <cache name="clustered-2"
       //      maxElementsInMemory="1000"
       //            memoryStoreEvictionPolicy="LFU">
@@ -1099,7 +1098,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
       Ehcache sampleCache2 = configurationHelper.createCacheFromName("clustered-2");
       assertEquals("clustered-2", sampleCache2.getName());
       assertEquals(false, sampleCache2.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION, 
+      assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION,
               sampleCache2.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
 
       //  <cache name="clustered-3"
@@ -1110,7 +1109,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
       Ehcache sampleCache3 = configurationHelper.createCacheFromName("clustered-3");
       assertEquals("clustered-3", sampleCache3.getName());
       assertEquals(true, sampleCache3.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION, 
+      assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION,
               sampleCache3.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
 
       //  <cache name="clustered-4"
@@ -1121,7 +1120,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
       Ehcache sampleCache4 = configurationHelper.createCacheFromName("clustered-4");
       assertEquals("clustered-4", sampleCache4.getName());
       assertEquals(true, sampleCache4.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(TerracottaConfiguration.ValueMode.IDENTITY, 
+      assertEquals(TerracottaConfiguration.ValueMode.IDENTITY,
               sampleCache4.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
 
       //  <cache name="clustered-5"
@@ -1132,7 +1131,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
       Ehcache sampleCache5 = configurationHelper.createCacheFromName("clustered-5");
       assertEquals("clustered-5", sampleCache5.getName());
       assertEquals(true, sampleCache5.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(false, 
+      assertEquals(false,
               sampleCache5.getCacheConfiguration().getTerracottaConfiguration().getCoherentReads());
 
       // <terracottaConfig>
@@ -1143,7 +1142,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
       assertEquals("localhost:9510", tcConfig.getUrl());
     }
 
-    
+
     /**
      * Test tc-config embedded in ehcache.xml
      */
@@ -1179,9 +1178,9 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
       Ehcache sampleCache1 = configurationHelper.createCacheFromName("clustered-1");
       assertEquals("clustered-1", sampleCache1.getName());
       assertEquals(true, sampleCache1.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION, 
+      assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION,
                   sampleCache1.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
-            
+
       // <terracottaConfig>
       //  <tc-config> ... </tc-config>
       // </terracottaConfig>
@@ -1190,12 +1189,12 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
       assertEquals(null, tcConfig.getUrl());
       String embeddedConfig = tcConfig.getEmbeddedConfig();
       assertEquals("<tc:tc-config xmlns:tc=\"http://www.terracotta.org/config\"> " +
-              "<servers> <server host=\"server1\" name=\"s1\"></server> " + 
-              "<server host=\"server2\" name=\"s2\"></server> </servers> " + 
-              "<clients> <logs>app/logs-%i</logs> </clients> </tc:tc-config>", 
+              "<servers> <server host=\"server1\" name=\"s1\"></server> " +
+              "<server host=\"server2\" name=\"s2\"></server> </servers> " +
+              "<clients> <logs>app/logs-%i</logs> </clients> </tc:tc-config>",
               removeLotsOfWhitespace(tcConfig.getEmbeddedConfig()));
     }
-    
+
     @Test
     public void testTerracottaEmbeddedXsdConfig() {
         File file = new File(TEST_CONFIG_DIR
@@ -1226,7 +1225,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
                         + "<clients> <logs>app/logs-%i</logs> </clients> </tc:tc-config>",
                 removeLotsOfWhitespace(tcConfig.getEmbeddedConfig()));
     }
-    
+
     /**
      * Test invalid combination of overflow to disk and terracotta ehcache.xml
      */
@@ -1240,7 +1239,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertTrue(e.getMessage().contains("overflowToDisk isn't supported for a clustered Terracotta cache"));
       }
     }
-    
+
     /**
      * Test invalid combination of disk persistent and terracotta ehcache.xml
      */
@@ -1254,7 +1253,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertTrue(e.getMessage().contains("diskPersistent isn't supported for a clustered Terracotta cache"));
       }
     }
-    
+
     /**
      * Test invalid combination of replicated and terracotta ehcache.xml
      */
@@ -1268,7 +1267,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertTrue(e.getMessage().contains("cache replication isn't supported for a clustered Terracotta cache"));
       }
     }
-    
+
     /**
      * Test invalid combination of replicated and terracotta ehcache.xml
      */
@@ -1282,7 +1281,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertTrue(e.getMessage().contains("cache replication isn't supported for a clustered Terracotta cache"));
       }
     }
-    
+
     /**
      * Test invalid combination of replicated and terracotta ehcache.xml
      */
@@ -1296,11 +1295,11 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertTrue(e.getMessage().contains("cache replication isn't supported for a clustered Terracotta cache"));
       }
     }
-    
+
     private String removeLotsOfWhitespace(String str) {
         return str.replace("\t", "").replace("\r", "").replace("\n", "").replaceAll("\\s+", " ");
     }
-    
+
     @Test
     public void testMonitoringOn() {
       File file = new File(TEST_CONFIG_DIR + "ehcache-monitoring-on.xml");
@@ -1309,7 +1308,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
       assertEquals(Configuration.Monitoring.ON, configurationHelper.getConfigurationBean().getMonitoring());
     }
-    
+
     @Test
     public void testMonitoringOff() {
       File file = new File(TEST_CONFIG_DIR + "ehcache-monitoring-off.xml");
@@ -1318,7 +1317,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
       assertEquals(Configuration.Monitoring.OFF, configurationHelper.getConfigurationBean().getMonitoring());
     }
-    
+
     @Test
     public void testMonitoringAutodetect() {
       File file = new File(TEST_CONFIG_DIR + "ehcache-monitoring-autodetect.xml");
