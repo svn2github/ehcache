@@ -18,6 +18,7 @@ package net.sf.ehcache.server.rest.resources;
 
 import net.sf.ehcache.Status;
 import net.sf.ehcache.server.HttpUtil;
+import net.sf.ehcache.server.Header;
 import net.sf.ehcache.server.jaxb.Cache;
 import net.sf.ehcache.server.jaxb.Caches;
 import net.sf.ehcache.server.jaxb.JAXBContextResolver;
@@ -32,6 +33,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -55,7 +58,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Map;
-import java.util.logging.Logger;
+
 
 
 /**
@@ -66,13 +69,13 @@ import java.util.logging.Logger;
  */
 public class ElementResourceTest {
 
-    public static final Logger LOG = Logger.getLogger(CachesResourceTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(ElementResourceTest.class);
 
     private static EhcacheWebServiceEndpoint cacheService;
     private String cacheName = "sampleCache1";
 
     @BeforeClass
-    public static void setup() {
+    public static void beforeClass() {
         cacheService = new EhcacheWebServiceEndpointService().getEhcacheWebServiceEndpointPort();
     }
 
@@ -180,7 +183,8 @@ public class ElementResourceTest {
         LOG.info("beforeCreated: " + beforeCreated);
         LOG.info("lastModified: " + new Date(urlConnection.getLastModified()));
         LOG.info("now: " + new Date(System.currentTimeMillis()));
-        //The HTTP protocol Last-Modified only goes down to seconds, therefore we need to take a second off to make sure the time is grated than a ms
+        //The HTTP protocol Last-Modified only goes down to seconds, therefore we need to take a second off to make sure
+        //  the time is grated than a ms
         //accurate beforeCreated time. This was a little messy to find out.
         //We use the Element version + Last-Modified
         assertNotNull(urlConnection.getHeaderField("ETag"));
@@ -201,7 +205,7 @@ public class ElementResourceTest {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(originalString.getBytes());
 
         assertEquals(404, HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1").getResponseCode());
-        HttpUtil.Header header = new HttpUtil.Header("ehcacheTimeToLiveSeconds", "2");
+        Header header = new Header("ehcacheTimeToLiveSeconds", "2");
         int status = HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream, header);
         assertEquals(201, status);
 
@@ -212,7 +216,7 @@ public class ElementResourceTest {
         urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
         assertEquals(404, urlConnection.getResponseCode());
 
-        header = new HttpUtil.Header("ehcacheTimeToLiveSeconds", "garbage");
+        header = new Header("ehcacheTimeToLiveSeconds", "garbage");
         status = HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream, header);
         assertEquals(201, status);
 
@@ -222,7 +226,7 @@ public class ElementResourceTest {
         assertEquals(200, urlConnection.getResponseCode());
 
 
-        header = new HttpUtil.Header("ehcacheTimeToLiveSeconds", null);
+        header = new Header("ehcacheTimeToLiveSeconds", null);
         status = HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream, header);
         assertEquals(201, status);
 
@@ -232,7 +236,7 @@ public class ElementResourceTest {
         assertEquals(200, urlConnection.getResponseCode());
 
         //the header is case insensitive
-        header = new HttpUtil.Header("EhcachetImeToLiveSeconds", "1");
+        header = new Header("EhcachetImeToLiveSeconds", "1");
         status = HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream, header);
         assertEquals(201, status);
 
@@ -306,7 +310,8 @@ public class ElementResourceTest {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(serializedForm);
 
         assertEquals(404, HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1").getResponseCode());
-        int status = HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/1", "application/x-java-serialized-object", byteArrayInputStream);
+        int status = HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/1", "application/x-java-serialized-object",
+                byteArrayInputStream);
         assertEquals(201, status);
 
         HttpURLConnection urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
@@ -536,56 +541,6 @@ public class ElementResourceTest {
         }
     }
 
-    @Test
-    public void testDeleteCache() throws Exception {
-
-        //add cache
-        HttpURLConnection urlConnection = HttpUtil.put("http://localhost:9090/ehcache/rest/newcache1");
-
-        //remove cache
-        urlConnection = HttpUtil.delete("http://localhost:9090/ehcache/rest/newcache1");
-        assertEquals(200, urlConnection.getResponseCode());
-
-
-        if (urlConnection.getHeaderField("Server").matches("(.*)Glassfish(.*)")) {
-            //others do not set it because the response body is empty
-            assertTrue(urlConnection.getContentType().matches("text/plain(.*)"));
-        }
-        String responseBody = HttpUtil.inputStreamToText(urlConnection.getInputStream());
-        assertEquals("", responseBody);
-
-        urlConnection = HttpUtil.delete("http://localhost:9090/ehcache/rest/newcache1");
-        assertEquals(404, urlConnection.getResponseCode());
-        assertTrue(urlConnection.getContentType().matches("text/plain(.*)"));
-
-        //todo HttpURLConnection is not giving the actual response message
-        try {
-            responseBody = HttpUtil.inputStreamToText(urlConnection.getInputStream());
-        } catch (IOException e) {
-            //expected
-        }
-
-    }
-
-    @Test
-    public void testCacheStatus() throws Exception {
-
-        HttpURLConnection result = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache1");
-        assertEquals(200, result.getResponseCode());
-        assertEquals("application/xml", result.getContentType());
-
-        JAXBContext jaxbContext = new JAXBContextResolver().getContext(Caches.class);
-        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-        Cache cache = (Cache) unmarshaller.unmarshal(result.getInputStream());
-
-        assertEquals("sampleCache1", cache.getName());
-        assertEquals("http://localhost:9090/ehcache/rest/sampleCache1", cache.getUri());
-        assertNotNull("http://localhost:9090/ehcache/rest/sampleCache1", cache.getDescription());
-
-//        Status status = cacheService.getStatus("sampleCache1");
-//        assertTrue(status == Status.STATUS_ALIVE);
-    }
-
 
     @Test
     public void testEncoding() throws URISyntaxException, MalformedURLException, UnsupportedEncodingException {
@@ -600,189 +555,10 @@ public class ElementResourceTest {
     }
 
 
-//
-//    private Element getElementFromCache() throws CacheException_Exception, IllegalStateException_Exception, NoSuchCacheException_Exception {
-//        Element element;
-//        element = cacheService.get("sampleCache1", "1");
-//        return element;
-//    }
-//
-//    /**
-//     * Tests get, getQuiet and put, putQuiet
-//     */
-//    @Test
-//    public void testCacheGetPut() throws CacheException_Exception,
-//            NoSuchCacheException_Exception, IllegalStateException_Exception, IOException, IllegalArgumentException_Exception, InterruptedException {
-//
-//        Element element = new Element();
-//        element.setKey("2");
-//        byte[] bytes1 = new byte[]{1, 2, 3, 4, 5, 6};
-//        element.setValue(bytes1);
-//
-//        cacheService.put("sampleCache1", element);
-//        element = cacheService.get("sampleCache1", "2");
-//        byte[] bytes2 = element.getValue();
-//        assertTrue(Arrays.equals(bytes1, bytes2));
-//        cacheService.remove("sampleCache1", "2");
-//
-//        cacheService.putQuiet("sampleCache1", element);
-//        element = cacheService.get("sampleCache1", "2");
-//        bytes2 = element.getValue();
-//        assertTrue(Arrays.equals(bytes1, bytes2));
-//        cacheService.remove("sampleCache1", "2");
-//
-//        cacheService.put("sampleCache1", element);
-//        element = cacheService.getQuiet("sampleCache1", "2");
-//        bytes2 = element.getValue();
-//        assertTrue(Arrays.equals(bytes1, bytes2));
-//        cacheService.remove("sampleCache1", "2");
-//
-//        //ttl override
-//        Element expiryOverrideElement = new Element();
-//        expiryOverrideElement.setKey("abc");
-//        expiryOverrideElement.setValue("value".getBytes());
-//        expiryOverrideElement.setTimeToLiveSeconds(1);
-//        cacheService.put("sampleCache1", expiryOverrideElement);
-//        Thread.sleep(1010);
-//        element = cacheService.get("sampleCache1", "abc");
-//        assertEquals(null, element);
-//
-//
-//    }
-//
-//    @Test
-//    public void testDefaultExpiry() throws NoSuchCacheException_Exception, CacheException_Exception, IllegalStateException_Exception, InterruptedException {
-//        Element element2 = new Element();
-//        element2.setKey("2");
-//        element2.setValue(new byte[]{1, 2, 3, 4, 5, 6});
-//        cacheService.put("sampleCache3", element2);
-//        assertNotNull(cacheService.get("sampleCache3", "2"));
-//        Thread.sleep(1010);
-//        assertEquals(null, cacheService.get("sampleCache3", "2"));
-//
-//    }
-//
-//    @Test
-//    public void testOverrideEternal() throws NoSuchCacheException_Exception, CacheException_Exception, IllegalStateException_Exception, InterruptedException {
-//        Element element = new Element();
-//        element.setKey("2");
-//        element.setValue(new byte[]{1, 2, 3, 4, 5, 6});
-//        element.setEternal(true);
-//        cacheService.put("sampleCache3", element);
-//        assertNotNull(cacheService.get("sampleCache3", "2"));
-//        Thread.sleep(1010);
-//        //should not expire
-//        assertNotNull(cacheService.get("sampleCache3", "2"));
-//    }
-//
-//
-//    @Test
-//    public void testOverrideTTI() throws NoSuchCacheException_Exception, CacheException_Exception, IllegalStateException_Exception, InterruptedException {
-//        Element element = new Element();
-//        element.setKey("2");
-//        element.setValue(new byte[]{1, 2, 3, 4, 5, 6});
-//        element.setTimeToIdleSeconds(1);
-//        cacheService.put("sampleCache3", element);
-//        assertNotNull(cacheService.get("sampleCache3", "2"));
-//        Thread.sleep(1010);
-//        //should expire
-//        assertNull(cacheService.get("sampleCache3", "2"));
-//    }
-//
-//    /**
-//     * Test getKeys() and its veriants
-//     */
-//    @Test
-//    public void testGetKeys() throws NoSuchCacheException_Exception,
-//            CacheException_Exception, IllegalStateException_Exception {
-//
-//        for (int i = 0; i < 1000; i++) {
-//            Element element = new Element();
-//            element.setKey(i);
-//            element.setValue(("value" + i).getBytes());
-//
-//            cacheService.put("sampleCache1", element);
-//        }
-//
-//        List keys = cacheService.getKeys("sampleCache1");
-//        assertEquals(1000, keys.size());
-//
-//        keys = cacheService.getKeysWithExpiryCheck("sampleCache1");
-//        assertEquals(1000, keys.size());
-//
-//        keys = cacheService.getKeysNoDuplicateCheck("sampleCache1");
-//        assertEquals(1000, keys.size());
-//
-//    }
-//
-//
-//    @Test
-//    public void testRemove() throws NoSuchCacheException_Exception,
-//            CacheException_Exception, IllegalStateException_Exception {
-//
-//        putElementIntoCache();
-//
-//        assertEquals(1, cacheService.getSize("sampleCache1"));
-//    }
-//
-//    private void putElementIntoCache() throws CacheException_Exception, NoSuchCacheException_Exception {
-//        Element element = new Element();
-//        element.setKey("1");
-//        element.setValue(("value1").getBytes());
-//        cacheService.put("sampleCache1", element);
-//    }
-//
-//
-//
-//
-//    /**
-//     * No loader configured. smoke test only
-//     */
-//    @Test
-//    public void testLoad() throws NoSuchCacheException_Exception,
-//            CacheException_Exception, IllegalStateException_Exception {
-//        cacheService.load("sampleCache1", "2");
-//    }
-//
-//    /**
-//     * No loader configured. smoke test only
-//     */
-//    @Test
-//    public void testLoadAll() throws NoSuchCacheException_Exception,
-//            CacheException_Exception, IllegalStateException_Exception {
-//        List keys = new ArrayList();
-//        for (int i = 0; i < 5; i++) {
-//            keys.add("" + i);
-//        }
-//        cacheService.loadAll("sampleCache1", keys);
-//    }
-//
-//
-//    /**
-//     * No loader configured. smoke test only
-//     */
-//    @Test
-//    public void testGetWithLoad() throws NoSuchCacheException_Exception,
-//            CacheException_Exception, IllegalStateException_Exception {
-//        cacheService.getWithLoader("sampleCache1", "2");
-//    }
-//
-//    /**
-//     * No loader configured. smoke test only
-//     */
-//    @Test
-//    public void testGetAllWithLoader() throws NoSuchCacheException_Exception,
-//            CacheException_Exception, IllegalStateException_Exception {
-//        List keys = new ArrayList();
-//        for (int i = 0; i < 5; i++) {
-//            keys.add("" + i);
-//        }
-//        cacheService.getAllWithLoader("sampleCache1", keys);
-//    }
 
 
 /*
-Manual Testing
+Manual Testing Procedure
 
 HttpURLConnection is a little unwieldy. Also we need to make sure that the implementation works with widely
 used HTTP client tools.

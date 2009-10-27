@@ -21,6 +21,8 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.server.jaxb.Cache;
 import net.sf.ehcache.server.jaxb.Caches;
 import net.sf.ehcache.server.jaxb.Statistics;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -32,7 +34,7 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+
 
 /**
  * A CacheManagerResource which permits the following operations:
@@ -51,7 +53,7 @@ import java.util.logging.Logger;
 @Produces("application/xml")
 public class CachesResource {
 
-    private static final Logger LOG = Logger.getLogger(CachesResource.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(CachesResource.class);
 
     private static final CacheManager MANAGER;
 

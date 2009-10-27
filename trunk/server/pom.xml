@@ -1,7 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <!-- mvn -Ptest verify to run tests -->
+
+
     <!-- Note to IntelliJ users. Run mvn compile before interactively running tests. -->
+    
     <parent>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-parent</artifactId>
@@ -26,6 +30,11 @@
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
             <version>1.7.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.5.8</version>
         </dependency>
         <!--Cannot find these complete anywhere. Bug logged against WSIT project. prefix with metro to stop
          a broken one coming down. Must be installed locally.
@@ -91,33 +100,33 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--todo checkstyle, resolve javadoc warnings. Also upgrade Jersey and Glassfish-->
-            <!--<plugin>-->
-            <!--<groupId>org.apache.maven.plugins</groupId>-->
-            <!--<artifactId>maven-checkstyle-plugin</artifactId>-->
-            <!--<version>2.3</version>-->
-            <!--<executions>-->
-            <!--<execution>-->
-            <!--<phase>validate</phase>-->
-            <!--<goals>-->
-            <!--<goal>checkstyle</goal>-->
-            <!--</goals>-->
-            <!--</execution>-->
-            <!--</executions>-->
-            <!--<configuration>-->
-            <!--<configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>-->
-            <!--<suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>-->
-            <!--<headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>-->
-            <!--<enableRSS>false</enableRSS>-->
-            <!--<linkXRef>true</linkXRef>-->
-            <!--<enableRulesSummary>false</enableRulesSummary>-->
-            <!--<consoleOutput>true</consoleOutput>-->
-            <!--<failsOnError>true</failsOnError>-->
-            <!--<failOnViolation>true</failOnViolation>-->
-            <!--<includeTestSourceDirectory>true</includeTestSourceDirectory>-->
-            <!--<enableRulesSummary>true</enableRulesSummary>-->
-            <!--</configuration>-->
-            <!--</plugin>-->
+            <!--todo resolve javadoc warnings. Also upgrade Jersey and Glassfish-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>checkstyle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>
+                    <suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>
+                    <headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>
+                    <enableRSS>false</enableRSS>
+                    <linkXRef>true</linkXRef>
+                    <enableRulesSummary>false</enableRulesSummary>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <failOnViolation>true</failOnViolation>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <enableRulesSummary>true</enableRulesSummary>
+                </configuration>
+            </plugin>
 
             <!--Conflicts with Dave Whitla's plugin with the same goal.
             Use mvn org.glassfish:maven-glassfish-plugin:run instead
@@ -268,10 +277,18 @@
 
     <profiles>
         <profile>
-            <id>system-tests</id>
+            <id>test</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
+            <dependencies>
+                <!--With slf4j, users choose a concrete logging implementation at deploy time, which they provide-->
+                <dependency>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-jdk14</artifactId>
+                    <version>1.5.8</version>
+                </dependency>
+            </dependencies>
             <build>
                 <plugins>
                     <plugin>

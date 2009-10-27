@@ -21,6 +21,8 @@ import com.sun.jersey.api.NotFoundException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.server.jaxb.Cache;
 import net.sf.ehcache.server.jaxb.Statistics;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -34,8 +36,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  * A resource for a Cache.
@@ -63,7 +64,7 @@ import java.util.logging.Logger;
 @Produces("application/xml")
 public class CacheResource {
 
-    private static final Logger LOG = Logger.getLogger(CacheResource.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(CacheResource.class);
 
     private static final CacheManager MANAGER;
 
@@ -110,7 +111,7 @@ public class CacheResource {
      */
     @HEAD
     public Response getCacheHeader() {
-        LOG.log(Level.FINE, "HEAD Cache {}" + cache);
+        LOG.debug("HEAD Cache {}" + cache);
 
         net.sf.ehcache.Cache ehcache = MANAGER.getCache(this.cache);
         if (ehcache == null) {
@@ -126,7 +127,7 @@ public class CacheResource {
      */
     @GET
     public Cache getCache() {
-        LOG.log(Level.FINE, "GET Cache {}" + cache);
+        LOG.debug("GET Cache {}" + cache);
 
         net.sf.ehcache.Cache ehcache = MANAGER.getCache(cache);
         if (ehcache == null) {
@@ -149,7 +150,7 @@ public class CacheResource {
      */
     @PUT
     public Response putCache() {
-        LOG.log(Level.FINE, "PUT Cache {}" + cache);
+        LOG.debug("PUT Cache {}" + cache);
 
         Response response;
 
@@ -158,7 +159,7 @@ public class CacheResource {
             CacheManager.getInstance().addCache(cache);
             URI uri = uriInfo.getAbsolutePath();
             response = Response.created(uri).build();
-            LOG.log(Level.FINE, "Created Cache {}" + cache);
+            LOG.debug("Created Cache {}" + cache);
         } else {
             throw new ConflictException("Cache already exists " + cache);
         }
@@ -172,7 +173,7 @@ public class CacheResource {
      */
     @DELETE
     public Response deleteCache() {
-        LOG.log(Level.FINE, "DELETE Cache {}" + cache);
+        LOG.debug("DELETE Cache {}" + cache);
         net.sf.ehcache.Cache ehcache = MANAGER.getCache(cache);
         Response response;
         if (ehcache == null) {

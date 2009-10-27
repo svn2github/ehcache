@@ -1,8 +1,20 @@
 /**
- * Tests for the Ehcache WebService
- * @author Greg Luck
- * @version $Id$
+ *  Copyright 2003-2009 Terracotta, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
+
+
 package net.sf.ehcache.server.soap;
 
 import net.sf.ehcache.server.soap.jaxws.Cache;
@@ -10,10 +22,8 @@ import net.sf.ehcache.server.soap.jaxws.CacheException_Exception;
 import net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpoint;
 import net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpointService;
 import net.sf.ehcache.server.soap.jaxws.Element;
-import net.sf.ehcache.server.soap.jaxws.IllegalArgumentException_Exception;
 import net.sf.ehcache.server.soap.jaxws.IllegalStateException_Exception;
 import net.sf.ehcache.server.soap.jaxws.NoSuchCacheException_Exception;
-import net.sf.ehcache.server.soap.jaxws.ObjectExistsException_Exception;
 import net.sf.ehcache.server.soap.jaxws.Statistics;
 import net.sf.ehcache.server.soap.jaxws.StatisticsAccuracy;
 import net.sf.ehcache.server.soap.jaxws.Status;
@@ -26,17 +36,21 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.xml.ws.soap.SOAPFaultException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Tests for the Ehcache WebService
+ * @author Greg Luck
+ * @version $Id$
+ */
 public class EhcacheWebServiceEndpointTest {
     private static EhcacheWebServiceEndpoint cacheService;
     private String cacheName = "sampleCache1";
 
     @BeforeClass
-    public static void setup() {
+    public static void beforeClass() {
         cacheService = new EhcacheWebServiceEndpointService().getEhcacheWebServiceEndpointPort();
 
         //add security credentials
@@ -72,7 +86,7 @@ public class EhcacheWebServiceEndpointTest {
     }
 
     @Test
-    public void testAddCache() throws CacheException_Exception, NoSuchCacheException_Exception, IllegalStateException_Exception, ObjectExistsException_Exception {
+    public void testAddCache() throws Exception {
 
         cacheService.addCache("newcache1");
         Cache cache = cacheService.getCache("newcache1");
@@ -87,7 +101,7 @@ public class EhcacheWebServiceEndpointTest {
     }
 
     @Test
-    public void testRemoveCache() throws CacheException_Exception, NoSuchCacheException_Exception, IllegalStateException_Exception, ObjectExistsException_Exception {
+    public void testRemoveCache() throws Exception {
 
         cacheService.addCache("newcache2");
         Cache cache = cacheService.getCache("newcache2");
@@ -122,7 +136,7 @@ public class EhcacheWebServiceEndpointTest {
 
 
     @Test
-    public void testCachePutNull() throws CacheException_Exception,
+    public void testCachePutNull() throws Exception,
             NoSuchCacheException_Exception, IllegalStateException_Exception {
 
         Element element = new Element();
@@ -134,7 +148,7 @@ public class EhcacheWebServiceEndpointTest {
         assertTrue(equals);
     }
 
-    private Element getElementFromCache() throws CacheException_Exception, IllegalStateException_Exception, NoSuchCacheException_Exception {
+    private Element getElementFromCache() throws Exception {
         Element element;
         element = cacheService.get("sampleCache1", "1");
         return element;
@@ -145,7 +159,7 @@ public class EhcacheWebServiceEndpointTest {
      */
     @Test
     public void testCacheGetPut() throws CacheException_Exception,
-            NoSuchCacheException_Exception, IllegalStateException_Exception, IOException, IllegalArgumentException_Exception, InterruptedException {
+            NoSuchCacheException_Exception, Exception {
 
         Element element = new Element();
         element.setKey("2");
@@ -184,7 +198,7 @@ public class EhcacheWebServiceEndpointTest {
     }
 
     @Test
-    public void testDefaultExpiry() throws NoSuchCacheException_Exception, CacheException_Exception, IllegalStateException_Exception, InterruptedException {
+    public void testDefaultExpiry() throws Exception {
         Element element2 = new Element();
         element2.setKey("2");
         element2.setValue(new byte[]{1, 2, 3, 4, 5, 6});
@@ -196,7 +210,7 @@ public class EhcacheWebServiceEndpointTest {
     }
 
     @Test
-    public void testOverrideEternal() throws NoSuchCacheException_Exception, CacheException_Exception, IllegalStateException_Exception, InterruptedException {
+    public void testOverrideEternal() throws Exception {
         Element element = new Element();
         element.setKey("2");
         element.setValue(new byte[]{1, 2, 3, 4, 5, 6});
@@ -210,7 +224,7 @@ public class EhcacheWebServiceEndpointTest {
 
 
     @Test
-    public void testOverrideTTI() throws NoSuchCacheException_Exception, CacheException_Exception, IllegalStateException_Exception, InterruptedException {
+    public void testOverrideTTI() throws Exception {
         Element element = new Element();
         element.setKey("2");
         element.setValue(new byte[]{1, 2, 3, 4, 5, 6});
@@ -267,8 +281,7 @@ public class EhcacheWebServiceEndpointTest {
 
 
     @Test
-    public void testGetStatistics() throws NoSuchCacheException_Exception,
-            CacheException_Exception, IllegalStateException_Exception {
+    public void testGetStatistics() throws Exception {
         cacheService.clearStatistics("sampleCache1");
 
         Statistics statistics = cacheService.getStatistics("sampleCache1");
@@ -294,8 +307,7 @@ public class EhcacheWebServiceEndpointTest {
     }
 
     @Test
-    public void testClearStatistics() throws NoSuchCacheException_Exception,
-            CacheException_Exception, IllegalStateException_Exception {
+    public void testClearStatistics() throws Exception {
         putElementIntoCache();
         getElementFromCache();
 

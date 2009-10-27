@@ -29,23 +29,19 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.List;
-import java.util.logging.Logger;
-
 
 /**
  * Tests the REST web resource using the lightweight http container
@@ -55,13 +51,13 @@ import java.util.logging.Logger;
  */
 public class CachesResourceTest {
 
-    public static final Logger LOG = Logger.getLogger(CachesResourceTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(CachesResourceTest.class);
 
     private static EhcacheWebServiceEndpoint cacheService;
     private String cacheName = "sampleCache1";
 
     @BeforeClass
-    public static void setup() {
+    public static void beforeClass() {
         cacheService = new EhcacheWebServiceEndpointService().getEhcacheWebServiceEndpointPort();
     }
 
@@ -99,7 +95,7 @@ public class CachesResourceTest {
      * Gets the cache names
      */
     @Test
-    public void testCacheNames() throws Exception, IOException, ParserConfigurationException, SAXException {
+    public void testCacheNames() throws Exception {
 
         HttpURLConnection result = HttpUtil.get("http://localhost:9090/ehcache/rest/");
         assertEquals(200, result.getResponseCode());
@@ -115,7 +111,7 @@ public class CachesResourceTest {
 
 
     @Test
-    public void testGetCaches() throws IOException, ParserConfigurationException, SAXException, XPathExpressionException {
+    public void testGetCaches() throws Exception {
         HttpURLConnection result = HttpUtil.get("http://localhost:9090/ehcache/rest/");
         assertEquals(200, result.getResponseCode());
 
@@ -129,7 +125,7 @@ public class CachesResourceTest {
     }
 
     @Test
-    public void testGetCachesJaxb() throws Exception, SAXException, XPathExpressionException, JAXBException {
+    public void testGetCachesJaxb() throws Exception {
         HttpURLConnection result = HttpUtil.get("http://localhost:9090/ehcache/rest/");
         assertEquals(200, result.getResponseCode());
         JAXBContext jaxbContext = new JAXBContextResolver().getContext(Caches.class);

@@ -579,10 +579,9 @@ public class EhcacheWebServiceEndpoint {
      * @param cacheName the name of the cache to perform this operation on.
      * @param key       key whose associated value is to be returned.
      * @return an element if it existed or could be loaded, otherwise null
-     * @throws NoSuchCacheException if the cacheName is not found
      */
     @WebMethod
-    public Element getWithLoader(String cacheName, String key) throws NoSuchCacheException {
+    public Element getWithLoader(String cacheName, String key) {
         net.sf.ehcache.Cache cache = lookupCache(cacheName);
         net.sf.ehcache.Element element = cache.getWithLoader(key, null, null);
         if (element != null) {
@@ -592,10 +591,11 @@ public class EhcacheWebServiceEndpoint {
         }
     }
 
-    private net.sf.ehcache.Cache lookupCache(String cacheName) throws NoSuchCacheException {
+    private net.sf.ehcache.Cache lookupCache(String cacheName) {
         net.sf.ehcache.Cache cache = manager.getCache(cacheName);
         if (cache == null) {
-            throw new NoSuchCacheException(MessageFormat.format("The cache named {0} does not exist.", cacheName));
+            throw new net.sf.ehcache.server.soap.NoSuchCacheException(MessageFormat.format(
+                    "The cache named {} does not exist.", cacheName));
         }
         return cache;
     }

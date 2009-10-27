@@ -30,6 +30,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 import samples.ExampleJavaClient;
 
@@ -40,7 +42,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.Map;
-import java.util.logging.Logger;
 
 
 /**
@@ -51,13 +52,13 @@ import java.util.logging.Logger;
  */
 public class CacheResourceTest {
 
-    public static final Logger LOG = Logger.getLogger(CachesResourceTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(CacheResourceTest.class);
 
     private static EhcacheWebServiceEndpoint cacheService;
     private String cacheName = "sampleCache1";
 
     @BeforeClass
-    public static void setup() {
+    public static void beforeClass() {
         cacheService = new EhcacheWebServiceEndpointService().getEhcacheWebServiceEndpointPort();
     }
 

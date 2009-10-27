@@ -20,6 +20,8 @@ import com.sun.jersey.api.NotFoundException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.MimeTypeByteArray;
 import net.sf.ehcache.server.jaxb.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -35,8 +37,7 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  * Resource representing an ehcache Element
@@ -45,7 +46,7 @@ import java.util.logging.Logger;
  */
 public class ElementResource {
 
-    private static final Logger LOG = Logger.getLogger(ElementResource.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(ElementResource.class);
 
     private static final CacheManager MANAGER;
 
@@ -99,7 +100,7 @@ public class ElementResource {
      */
     @HEAD
     public Response getElementHeader() throws NotFoundException {
-        LOG.log(Level.FINE, "HEAD element {}", element);
+        LOG.debug("HEAD element {}", element);
 
         net.sf.ehcache.Cache ehcache = lookupCache();
         net.sf.ehcache.Element ehcacheElement = lookupElement(ehcache);
@@ -129,7 +130,7 @@ public class ElementResource {
      */
     @GET
     public Response getElement() throws NotFoundException {
-        LOG.log(Level.FINE, "GET element {}", element);
+        LOG.debug("GET element {}", element);
         net.sf.ehcache.Cache ehcache = lookupCache();
         net.sf.ehcache.Element ehcacheElement = lookupElement(ehcache);
 
@@ -167,7 +168,7 @@ public class ElementResource {
      */
     @PUT
     public Response putElement(@Context HttpHeaders headers, byte[] data) throws NotFoundException {
-        LOG.log(Level.FINE, "PUT element {}" + element);
+        LOG.debug("PUT element {}" + element);
 
         net.sf.ehcache.Cache ehcache = lookupCache();
 
@@ -176,7 +177,7 @@ public class ElementResource {
         Integer ehcacheTimeToLiveSeconds = extractEhcacheTimeToLiveSeconds(headers);
 
         MediaType mimeType = headers.getMediaType();
-        String mimeTypeString = null;
+        String mimeTypeString;
         if (mimeType == null) {
             mimeTypeString = "application/octet-stream";
         } else {
@@ -195,11 +196,11 @@ public class ElementResource {
 
         MimeTypeByteArray mimeTypeByteArray = new MimeTypeByteArray(localElement.getMimeType(), data);
 
-        net.sf.ehcache.Element element = new net.sf.ehcache.Element(this.element, mimeTypeByteArray);
+        net.sf.ehcache.Element newElement = new net.sf.ehcache.Element(this.element, mimeTypeByteArray);
         if (ehcacheTimeToLiveSeconds != null) {
-            element.setTimeToLive(ehcacheTimeToLiveSeconds);
+            newElement.setTimeToLive(ehcacheTimeToLiveSeconds);
         }
-        ehcache.put(element);
+        ehcache.put(newElement);
 
 
         // Create the cache if one has not been created
@@ -215,8 +216,8 @@ public class ElementResource {
             try {
                 ehcacheTimeToLiveSeconds = Integer.parseInt(ehcacheTimeToLiveSecondsString);
             } catch (NumberFormatException e) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Cannot parse " + ehcacheTimeToLiveSecondsString);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Cannot parse " + ehcacheTimeToLiveSecondsString);
                 }
             }
         }
@@ -233,7 +234,7 @@ public class ElementResource {
      */
     @DELETE
     public void deleteElement() throws NotFoundException {
-        LOG.log(Level.FINE, "DELETE element {0}", element);
+        LOG.debug("DELETE element {}", element);
         net.sf.ehcache.Cache ehcache = lookupCache();
 
         if (element.equals("*")) {
@@ -257,8 +258,8 @@ public class ElementResource {
     private Date createLastModified(net.sf.ehcache.Element ehcacheElement) {
         long lastModified = ehcacheElement.getCreationTime();
         Date lastModifiedDate = new Date(lastModified);
-        LOG.log(Level.FINE, "lastModified as long: {}", lastModified);
-        LOG.log(Level.FINE, "lastModified as Date without ms: {}", lastModifiedDate);
+        LOG.debug("lastModified as long: {}", lastModified);
+        LOG.debug("lastModified as Date without ms: {}", lastModifiedDate);
         return lastModifiedDate;
     }
 

@@ -1,10 +1,23 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+<release version="0.9" date="2009-12-31" desc=" release">
+
+    <!-- Features and Enhancements -->
+    <action dev="Greg Luck" type="update">
+        Apply checkstyle and clean up code
+    </action>
+    <action dev="Greg Luck" type="add">
+        Change logging to SLF4J.
+    </action>
+</release>
+
+
+
 <release version="0.8" date="2009-06-26" desc="Minor release">
 
     <!-- Features and Enhancements -->
     <action dev="Greg Luck" type="update">
-        Improve ServerContext so that it shut down Ehcache core in an orderly way when the war shutsdown.
+        Improve ServerContext so that it shut down Ehcache core in an orderly way when the war shuts down.
     </action>
 </release>
 

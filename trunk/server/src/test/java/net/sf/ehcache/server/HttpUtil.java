@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -26,16 +28,16 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.util.logging.Logger;
 
 /**
  * Utilities used by tests
  *
  * @author Greg Luck
  */
-public class HttpUtil {
+public final class HttpUtil {
 
-    private static final Logger LOG = Logger.getLogger(HttpUtil.class.getName());
+
+    private static final Logger LOG = LoggerFactory.getLogger(HttpUtil.class);
 
     private HttpUtil() {
         //noop
@@ -76,8 +78,9 @@ public class HttpUtil {
 
         byte[] data = new byte[2048];
         int read;
-        while ((read = in.read(data)) != -1)
+        while ((read = in.read(data)) != -1) {
             out.write(data, 0, read);
+        }
         out.close();
 
         int status = uc.getResponseCode();
@@ -89,7 +92,7 @@ public class HttpUtil {
     public static int put(String uri, String mediaType, InputStream in, Header requestHeader) throws IOException {
         URL u = new URL(uri);
         HttpURLConnection uc = (HttpURLConnection) u.openConnection();
-        uc.setRequestProperty(requestHeader.key, requestHeader.value);
+        uc.setRequestProperty(requestHeader.getKey(), requestHeader.getValue());
         uc.setRequestMethod("PUT");
         uc.setRequestProperty("Content-Type", mediaType);
         uc.setDoOutput(true);
@@ -98,8 +101,9 @@ public class HttpUtil {
 
         byte[] data = new byte[2048];
         int read;
-        while ((read = in.read(data)) != -1)
+        while ((read = in.read(data)) != -1) {
             out.write(data, 0, read);
+        }
         out.close();
 
         int status = uc.getResponseCode();
@@ -119,8 +123,9 @@ public class HttpUtil {
 
         byte[] data = new byte[2048];
         int read;
-        while ((read = in.read(data)) != -1)
+        while ((read = in.read(data)) != -1) {
             out.write(data, 0, read);
+        }
         out.close();
 
         int status = uc.getResponseCode();
@@ -183,18 +188,6 @@ public class HttpUtil {
         String mediaType = httpURLConnection.getContentType();
         LOG.info("Content Type: " + mediaType);
         return httpURLConnection;
-    }
-
-    public static class Header {
-
-        public Header(String key, String value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        public String key;
-        public String value;
-
     }
 
 

@@ -20,14 +20,15 @@ package net.sf.ehcache.server;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.management.ManagementService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanServer;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.lang.management.ManagementFactory;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  * Listens to servlet context events.
@@ -42,7 +43,8 @@ import java.util.logging.Logger;
 public class ServerContext implements ServletContextListener {
 
 
-    private static final Logger LOG = Logger.getLogger(ServerContext.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(ServerContext.class);
+    
     private ManagementService managementService;
 
 
@@ -71,17 +73,17 @@ public class ServerContext implements ServletContextListener {
         try {
             managementService.dispose();
         } catch (CacheException e) {
-            LOG.severe(e.getMessage());
+            LOG.error("", e.getMessage());
         }
         LOG.info("Shutting down Ehcache.");
 
         //shutdown cache managers
         List knownCacheManagers = CacheManager.ALL_CACHE_MANAGERS;
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Shutting down " + knownCacheManagers.size() + " CacheManagers.");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Shutting down " + knownCacheManagers.size() + " CacheManagers.");
         }
         while (!knownCacheManagers.isEmpty()) {
-            ((CacheManager) CacheManager.ALL_CACHE_MANAGERS.get(0)).shutdown();
+            CacheManager.ALL_CACHE_MANAGERS.get(0).shutdown();
         }
     }
 }

@@ -16,6 +16,10 @@
 
 package samples;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -27,103 +31,123 @@ import java.net.URL;
  * @author BryantR
  * @author Greg Luck
  */
-public class ExampleJavaClient {
+public final class ExampleJavaClient {
 
-    private static String TABLE_COLUMN_BASE =
-            "http://localhost:9090/ehcache/rest/tableColumn";
-    private static String TABLE_COLUMN_ELEMENT =
-            "http://localhost:9090/ehcache/rest/tableColumn/1";
+    private static final String EXAMPLE_CACHE_1 = "http://localhost:9090/ehcache/rest/tableColumn";
+    private static final String EXAMPLE_ENTRY_1 = "http://localhost:9090/ehcache/rest/tableColumn/1";
 
-    /**
-     * Creates a new instance of EHCacheREST
-     */
-    public ExampleJavaClient() {
+    private static final Logger LOG = LoggerFactory.getLogger(ExampleJavaClient.class);
+
+    private ExampleJavaClient() {
+        //noop    
     }
 
     public static void main(String[] args) {
-        URL url;
-        HttpURLConnection connection = null;
-        InputStream is = null;
-        OutputStream os = null;
-        int result = 0;
         try {
-            //create cache
-            URL u = new URL(TABLE_COLUMN_BASE);
-            HttpURLConnection urlConnection = (HttpURLConnection) u.openConnection();
-            urlConnection.setRequestMethod("PUT");
+            createCache();
+            int result = getCache();
 
-            int status = urlConnection.getResponseCode();
-            System.out.println("Status: " + status);
-            urlConnection.disconnect();
+            URL url;
+            HttpURLConnection connection;
+            InputStream is;
+            createEntry(result);
+            getEntry();
 
-            //get cache
-            url = new URL(TABLE_COLUMN_BASE);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.connect();
-            is = connection.getInputStream();
-            byte[] response1 = new byte[4096];
-            result = is.read(response1);
-            while (result != -1) {
-                System.out.write(response1, 0, result);
-                result = is.read(response1);
-            }
-            if (is != null) try {
-                is.close();
-            } catch (Exception ignore) {
-            }
-            System.out.println("reading cache: " + connection.getResponseCode()
-                    + " " + connection.getResponseMessage());
-            if (connection != null) connection.disconnect();
 
-            //create entry
-            url = new URL(TABLE_COLUMN_ELEMENT);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestProperty("Content-Type", "text/plain");
-            connection.setDoOutput(true);
-            connection.setRequestMethod("PUT");
-            connection.connect();
-            String sampleData = "ehcache is way cool!!!";
-            byte[] sampleBytes = sampleData.getBytes();
-            os = connection.getOutputStream();
-            os.write(sampleBytes, 0, sampleBytes.length);
-            os.flush();
-            System.out.println("result=" + result);
-            System.out.println("creating entry: " + connection.getResponseCode()
-                    + " " + connection.getResponseMessage());
-            if (connection != null) connection.disconnect();
-
-            //get entry
-            url = new URL(TABLE_COLUMN_ELEMENT);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.connect();
-            is = connection.getInputStream();
-            byte[] response2 = new byte[4096];
-            result = is.read(response2);
-            while (result != -1) {
-                System.out.write(response2, 0, result);
-                result = is.read(response2);
-            }
-            if (is != null) try {
-                is.close();
-            } catch (Exception ignore) {
-            }
-            System.out.println("reading entry: " + connection.getResponseCode()
-                    + " " + connection.getResponseMessage());
-            if (connection != null) connection.disconnect();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if (os != null) try {
-                os.close();
-            } catch (Exception ignore) {
-            }
-            if (is != null) try {
-                is.close();
-            } catch (Exception ignore) {
-            }
-            if (connection != null) connection.disconnect();
         }
+    }
+
+    private static void getEntry() throws IOException {
+        URL url;
+        HttpURLConnection connection;
+        InputStream is;
+        int result;
+        url = new URL(EXAMPLE_ENTRY_1);
+        connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        connection.connect();
+        is = connection.getInputStream();
+        byte[] response2 = new byte[4096];
+        result = is.read(response2);
+        while (result != -1) {
+            //System.out.write(response2, 0, result);
+            result = is.read(response2);
+        }
+        if (is != null) {
+            try {
+                is.close();
+            } catch (Exception e) {
+                LOG.error("Exception on inputstream closeure", e);
+            }
+        }
+        LOG.info("reading entry: " + connection.getResponseCode()
+                + " " + connection.getResponseMessage());
+        if (connection != null) {
+            connection.disconnect();
+        }
+    }
+
+    private static void createEntry(int result) throws IOException {
+        URL url;
+        HttpURLConnection connection;
+        url = new URL(EXAMPLE_ENTRY_1);
+        connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestProperty("Content-Type", "text/plain");
+        connection.setDoOutput(true);
+        connection.setRequestMethod("PUT");
+        connection.connect();
+        String sampleData = "ehcache is way cool!!!";
+        byte[] sampleBytes = sampleData.getBytes();
+        OutputStream os = null;
+        os = connection.getOutputStream();
+        os.write(sampleBytes, 0, sampleBytes.length);
+        os.flush();
+        LOG.info("result=" + result);
+        LOG.info("creating entry: " + connection.getResponseCode()
+                + " " + connection.getResponseMessage());
+        if (connection != null) {
+            connection.disconnect();
+        }
+    }
+
+    private static int getCache() throws IOException {
+        //get cache
+        URL url = new URL(EXAMPLE_CACHE_1);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        connection.connect();
+        InputStream is = connection.getInputStream();
+        byte[] response1 = new byte[4096];
+        int result = is.read(response1);
+        while (result != -1) {
+            //System.out.write(response1, 0, result);
+            result = is.read(response1);
+        }
+        if (is != null) {
+            try {
+                is.close();
+            } catch (Exception e) {
+                LOG.error("Exception on inputstream closure", e);
+            }
+        }
+        LOG.info("reading cache: " + connection.getResponseCode()
+                + " " + connection.getResponseMessage());
+        if (connection != null) {
+            connection.disconnect();
+        }
+        return result;
+    }
+
+    private static void createCache() throws IOException {
+        //create cache
+        URL u = new URL(EXAMPLE_CACHE_1);
+        HttpURLConnection urlConnection = (HttpURLConnection) u.openConnection();
+        urlConnection.setRequestMethod("PUT");
+
+        int status = urlConnection.getResponseCode();
+        LOG.info("Status: " + status);
+        urlConnection.disconnect();
     }
 }
