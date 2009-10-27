@@ -425,6 +425,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(1, registeredListeners.size());
     }
 
+    @Ignore("MNK-1444")
     /**
      * Tests for Distributed Cache config
      */
