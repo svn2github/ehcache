@@ -15,6 +15,11 @@
             <item name="Download" href="http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup"/>
         </links>
 
+        <menu name="Products">
+            <item name="Product Brochure" href="/EhcacheBrochure.pdf"/>
+        </menu>
+
+
         <menu name="About">
             <item name="Overview" href="/index.html"/>
             <item name="Features" href="/features.html"/>
