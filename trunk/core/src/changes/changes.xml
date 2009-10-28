@@ -15,6 +15,11 @@
                 downcast causing negative values. Most commonly, setting a TTI or TTL of Long.MAX_VALUE
                 caused an exception to be thrown.
             </action>
+            <action dev="Alex Miller" type="fix" issue="EHC-449">
+                Fixed memory visiblity issues with fields in MemoryStore. Made maximumSize and useKeySample
+                final as they never change.  Made status and policy volatile as they change but weren't 
+                guaranteeing visibility.
+            </action>
         </release>
 
 
