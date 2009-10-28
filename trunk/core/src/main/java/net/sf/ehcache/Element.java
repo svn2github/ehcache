@@ -97,8 +97,7 @@ public class Element implements Serializable, Cloneable {
     /**
      * A full constructor.
      * <p/>
-     * Creation time is set to the current time. Last Access Time and Previous To Last Access Time
-     * are not set.
+     * Creation time is set to the current time. Last Access Time is not set.
      *
      * @since .4
      */
