@@ -27,19 +27,16 @@ import net.sf.ehcache.CacheManager;
 public class NullMBeanRegistrationProvider implements MBeanRegistrationProvider {
 
     /**
-     * A null implementation of
-     * {@link MBeanRegistrationProvider#initialize(CacheManager)}
+     * A null implementation of {@link MBeanRegistrationProvider#initialize(CacheManager)}
      */
     public void initialize(CacheManager cacheManager) {
         // no-op
     }
 
     /**
-     * A null implementation of
-     * {@link MBeanRegistrationProvider#reinitialize()}
+     * A null implementation of {@link MBeanRegistrationProvider#reinitialize()}
      */
-    public void reinitialize()
-            throws MBeanRegistrationProviderException {
+    public void reinitialize() throws MBeanRegistrationProviderException {
         // no-op
 
     }

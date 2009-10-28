@@ -52,8 +52,7 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
      */
     void setMBeanRegisteredName(String name) {
         if (mbeanRegisteredNameSet) {
-            throw new IllegalStateException(
-                    "Name used for registering this mbean is already set");
+            throw new IllegalStateException("Name used for registering this mbean is already set");
         }
         mbeanRegisteredNameSet = true;
         mbeanRegisteredName = name;
@@ -96,9 +95,7 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
         for (String cacheName : caches) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
             SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-            result.put(cacheName, 
-                    new long[] {stats.getCacheHitMostRecentSample(),
-                    stats.getCacheMissMostRecentSample(),
+            result.put(cacheName, new long[] {stats.getCacheHitMostRecentSample(), stats.getCacheMissMostRecentSample(),
                     stats.getCacheElementPutMostRecentSample(), });
         }
         return result;

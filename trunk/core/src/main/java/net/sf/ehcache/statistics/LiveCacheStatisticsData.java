@@ -24,7 +24,7 @@ import net.sf.ehcache.event.CacheEventListener;
  * @since 1.7
  */
 public interface LiveCacheStatisticsData extends CacheEventListener {
-    
+
     /**
      * Enabled/Disabled statistics
      * 
@@ -73,20 +73,19 @@ public interface LiveCacheStatisticsData extends CacheEventListener {
      *            Statistics#STATISTICS_ACCURACY_NONE
      */
     public void setStatisticsAccuracy(int statisticsAccuracy);
-    
+
     /**
      * Registers a {@link CacheUsageListener} which will be notified of the
      * cache
      * usage.
-     * Implementations of {@link CacheUsageListener} should override the
-     * {@link Object#equals(Object)} and {@link Object#hashCode()} methods as it is used for
+     * Implementations of {@link CacheUsageListener} should override the {@link Object#equals(Object)} and {@link Object#hashCode()} methods
+     * as it is used for
      * equality check
      * 
      * @throws IllegalStateException
      * @since 1.7
      */
-    void registerCacheUsageListener(CacheUsageListener cacheUsageListener)
-            throws IllegalStateException;
+    void registerCacheUsageListener(CacheUsageListener cacheUsageListener) throws IllegalStateException;
 
     /**
      * Remove an already registered {@link CacheUsageListener}, if any.
@@ -95,7 +94,6 @@ public interface LiveCacheStatisticsData extends CacheEventListener {
      * @throws IllegalStateException
      * @since 1.7
      */
-    void removeCacheUsageListener(CacheUsageListener cacheUsageListener)
-            throws IllegalStateException;
+    void removeCacheUsageListener(CacheUsageListener cacheUsageListener) throws IllegalStateException;
 
 }

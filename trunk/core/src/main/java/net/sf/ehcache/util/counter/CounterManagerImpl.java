@@ -80,8 +80,7 @@ public class CounterManagerImpl implements CounterManager {
         Counter counter = config.createCounter();
         if (counter instanceof SampledCounterImpl) {
             SampledCounterImpl sampledCounter = (SampledCounterImpl) counter;
-            timer.schedule(sampledCounter.getTimerTask(), sampledCounter
-                    .getIntervalMillis(), sampledCounter.getIntervalMillis());
+            timer.schedule(sampledCounter.getTimerTask(), sampledCounter.getIntervalMillis(), sampledCounter.getIntervalMillis());
         }
         counters.add(counter);
         return counter;

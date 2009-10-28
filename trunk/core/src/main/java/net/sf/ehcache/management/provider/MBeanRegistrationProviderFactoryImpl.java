@@ -27,16 +27,14 @@ import net.sf.ehcache.management.sampled.SampledMBeanRegistrationProvider;
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class MBeanRegistrationProviderFactoryImpl implements
-        MBeanRegistrationProviderFactory {
+public class MBeanRegistrationProviderFactoryImpl implements MBeanRegistrationProviderFactory {
 
     private static final MBeanRegistrationProvider DEFAULT_PROVIDER = new NullMBeanRegistrationProvider();
 
     /**
      * {@inheritDoc}
      */
-    public MBeanRegistrationProvider createMBeanRegistrationProvider(
-            final Configuration config) {
+    public MBeanRegistrationProvider createMBeanRegistrationProvider(final Configuration config) {
         if (null == config) {
             throw new IllegalArgumentException("Configuration cannot be null.");
         }
@@ -59,9 +57,7 @@ public class MBeanRegistrationProviderFactoryImpl implements
         case OFF:
             return false;
         default:
-            throw new IllegalArgumentException(
-                    "Unknown type of monitoring specified in config: "
-                            + monitoring);
+            throw new IllegalArgumentException("Unknown type of monitoring specified in config: " + monitoring);
         }
     }
 

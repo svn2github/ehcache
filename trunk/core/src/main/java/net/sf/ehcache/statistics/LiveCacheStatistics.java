@@ -19,11 +19,9 @@ package net.sf.ehcache.statistics;
  * Interface for usage statistics of a Cache.
  * 
  * <p />
- * Implementations of this interface is different from
- * {@link net.sf.ehcache.Statistics} in the way that values returned from this
- * interface implementations will reflect the current state of the cache and not
- * a snapshot of the cache when the api's were called (which is the behavior of
- * {@link net.sf.ehcache.Statistics})
+ * Implementations of this interface is different from {@link net.sf.ehcache.Statistics} in the way that values returned from this interface
+ * implementations will reflect the current state of the cache and not a snapshot of the cache when the api's were called (which is the
+ * behavior of {@link net.sf.ehcache.Statistics})
  * <p />
  * 
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>

@@ -27,6 +27,7 @@ public class MBeanRegistrationProviderException extends Exception {
 
     /**
      * Constructor accepting a string message and a Throwable
+     * 
      * @param message
      * @param cause
      */
@@ -36,6 +37,7 @@ public class MBeanRegistrationProviderException extends Exception {
 
     /**
      * Constructor accepting a message
+     * 
      * @param message
      */
     public MBeanRegistrationProviderException(String message) {

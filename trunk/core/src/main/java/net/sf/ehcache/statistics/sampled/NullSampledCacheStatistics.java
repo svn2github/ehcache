@@ -26,8 +26,7 @@ import net.sf.ehcache.statistics.CacheUsageListener;
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class NullSampledCacheStatistics implements CacheUsageListener,
-        SampledCacheStatistics {
+public class NullSampledCacheStatistics implements CacheUsageListener, SampledCacheStatistics {
 
     /**
      * {@inheritDoc}

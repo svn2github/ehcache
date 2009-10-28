@@ -39,8 +39,7 @@ public class SampledRateCounterConfig extends SampledCounterConfig {
      * @param historySize
      * @param isResetOnSample
      */
-    public SampledRateCounterConfig(int intervalSecs, int historySize,
-            boolean isResetOnSample) {
+    public SampledRateCounterConfig(int intervalSecs, int historySize, boolean isResetOnSample) {
         this(intervalSecs, historySize, isResetOnSample, 0, 0);
     }
 
@@ -55,8 +54,7 @@ public class SampledRateCounterConfig extends SampledCounterConfig {
      * @param initialNumeratorValue
      * @param initialDenominatorValue
      */
-    public SampledRateCounterConfig(int intervalSecs, int historySize,
-            boolean isResetOnSample, long initialNumeratorValue,
+    public SampledRateCounterConfig(int intervalSecs, int historySize, boolean isResetOnSample, long initialNumeratorValue,
             long initialDenominatorValue) {
         super(intervalSecs, historySize, isResetOnSample, 0);
         this.initialNumeratorValue = initialNumeratorValue;
@@ -68,10 +66,8 @@ public class SampledRateCounterConfig extends SampledCounterConfig {
      */
     @Override
     public Counter createCounter() {
-        SampledRateCounterImpl sampledRateCounter = new SampledRateCounterImpl(
-                this);
-        sampledRateCounter.setValue(initialNumeratorValue,
-                initialDenominatorValue);
+        SampledRateCounterImpl sampledRateCounter = new SampledRateCounterImpl(this);
+        sampledRateCounter.setValue(initialNumeratorValue, initialDenominatorValue);
         return sampledRateCounter;
     }
 

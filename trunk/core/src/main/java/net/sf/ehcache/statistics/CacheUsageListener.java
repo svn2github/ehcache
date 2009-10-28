@@ -20,8 +20,7 @@ package net.sf.ehcache.statistics;
  * Ehcache.
  * 
  * <p />
- * Implementations of this interface should implement the
- * {@link Object#equals(Object)} and the {@link Object#hashCode()} as registering and
+ * Implementations of this interface should implement the {@link Object#equals(Object)} and the {@link Object#hashCode()} as registering and
  * removing listeners depends on these
  * <p />
  * 

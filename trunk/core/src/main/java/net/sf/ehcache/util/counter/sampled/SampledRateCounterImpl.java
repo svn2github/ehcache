@@ -23,8 +23,7 @@ package net.sf.ehcache.util.counter.sampled;
  * @since 1.7
  * 
  */
-public class SampledRateCounterImpl extends SampledCounterImpl implements
-        SampledRateCounter {
+public class SampledRateCounterImpl extends SampledCounterImpl implements SampledRateCounter {
 
     private static final String OPERATION_NOT_SUPPORTED_MSG = "This operation is not supported. Use SampledCounter Or Counter instead";
 

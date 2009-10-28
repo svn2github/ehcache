@@ -21,18 +21,17 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
 /**
- * An implementation of {@link LiveCacheStatistics} and also implements
- * {@link LiveCacheStatisticsData}. Uses separate delegates depending on whether
+ * An implementation of {@link LiveCacheStatistics} and also implements {@link LiveCacheStatisticsData}. Uses separate delegates depending
+ * on whether
  * statistics is enabled or not.
  * <p />
- * To collect statistics element put/update/remove/expired data, instances of
- * this class must be registered as a CacheEventListener to a Cache
+ * To collect statistics element put/update/remove/expired data, instances of this class must be registered as a CacheEventListener to a
+ * Cache
  * 
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class LiveCacheStatisticsWrapper implements LiveCacheStatistics,
-        LiveCacheStatisticsData {
+public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCacheStatisticsData {
 
     private static final LiveCacheStatistics NULL_LIVE_CACHE_STATISTICS = new NullLiveCacheStatisticsData();
 
@@ -77,8 +76,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics,
      * 
      * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#registerCacheUsageListener(net.sf.ehcache.statistics.CacheUsageListener)
      */
-    public void registerCacheUsageListener(CacheUsageListener cacheUsageListener)
-            throws IllegalStateException {
+    public void registerCacheUsageListener(CacheUsageListener cacheUsageListener) throws IllegalStateException {
         // always register on the live delegate
         liveDelegate.registerCacheUsageListener(cacheUsageListener);
     }
@@ -88,8 +86,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics,
      * 
      * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#removeCacheUsageListener(net.sf.ehcache.statistics.CacheUsageListener)
      */
-    public void removeCacheUsageListener(CacheUsageListener cacheUsageListener)
-            throws IllegalStateException {
+    public void removeCacheUsageListener(CacheUsageListener cacheUsageListener) throws IllegalStateException {
         // always use the live delegate for this
         liveDelegate.removeCacheUsageListener(cacheUsageListener);
     }
@@ -330,8 +327,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics,
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.event.CacheEventListener#notifyElementEvicted(net.sf.ehcache.Ehcache,
-     *      net.sf.ehcache.Element)
+     * @see net.sf.ehcache.event.CacheEventListener#notifyElementEvicted(net.sf.ehcache.Ehcache, net.sf.ehcache.Element)
      */
     public void notifyElementEvicted(Ehcache cache, Element element) {
         getDelegateAsLiveStatisticsData().notifyElementEvicted(cache, element);
@@ -340,8 +336,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics,
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.event.CacheEventListener#notifyElementExpired(net.sf.ehcache.Ehcache,
-     *      net.sf.ehcache.Element)
+     * @see net.sf.ehcache.event.CacheEventListener#notifyElementExpired(net.sf.ehcache.Ehcache, net.sf.ehcache.Element)
      */
     public void notifyElementExpired(Ehcache cache, Element element) {
         getDelegateAsLiveStatisticsData().notifyElementExpired(cache, element);
@@ -350,33 +345,27 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics,
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.event.CacheEventListener#notifyElementPut(net.sf.ehcache.Ehcache,
-     *      net.sf.ehcache.Element)
+     * @see net.sf.ehcache.event.CacheEventListener#notifyElementPut(net.sf.ehcache.Ehcache, net.sf.ehcache.Element)
      */
-    public void notifyElementPut(Ehcache cache, Element element)
-            throws CacheException {
+    public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
         getDelegateAsLiveStatisticsData().notifyElementPut(cache, element);
     }
 
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.event.CacheEventListener#notifyElementRemoved(net.sf.ehcache.Ehcache,
-     *      net.sf.ehcache.Element)
+     * @see net.sf.ehcache.event.CacheEventListener#notifyElementRemoved(net.sf.ehcache.Ehcache, net.sf.ehcache.Element)
      */
-    public void notifyElementRemoved(Ehcache cache, Element element)
-            throws CacheException {
+    public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
         getDelegateAsLiveStatisticsData().notifyElementRemoved(cache, element);
     }
 
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.event.CacheEventListener#notifyElementUpdated(net.sf.ehcache.Ehcache,
-     *      net.sf.ehcache.Element)
+     * @see net.sf.ehcache.event.CacheEventListener#notifyElementUpdated(net.sf.ehcache.Ehcache, net.sf.ehcache.Element)
      */
-    public void notifyElementUpdated(Ehcache cache, Element element)
-            throws CacheException {
+    public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
         getDelegateAsLiveStatisticsData().notifyElementUpdated(cache, element);
     }
 

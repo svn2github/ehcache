@@ -31,23 +31,22 @@ import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounterConfig;
 
 /**
- * An implementation of {@link SampledCacheStatistics} This also implements
- * {@link CacheUsageListener} and depends on the notification received from
+ * An implementation of {@link SampledCacheStatistics} This also implements {@link CacheUsageListener} and depends on the notification
+ * received from
  * these to update the stats
  * <p />
  * 
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class SampledCacheStatisticsImpl implements CacheUsageListener,
-        SampledCacheStatistics {
+public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCacheStatistics {
 
     private static final int DEFAULT_HISTORY_SIZE = 30;
     private static final int DEFAULT_INTERVAL_SECS = 1;
-    private final static SampledCounterConfig DEFAULT_SAMPLED_COUNTER_CONFIG = new SampledCounterConfig(
-            DEFAULT_INTERVAL_SECS, DEFAULT_HISTORY_SIZE, true, 0L);
-    private final static SampledRateCounterConfig DEFAULT_SAMPLED_RATE_COUNTER_CONFIG = new SampledRateCounterConfig(
-            DEFAULT_INTERVAL_SECS, DEFAULT_HISTORY_SIZE, true);
+    private final static SampledCounterConfig DEFAULT_SAMPLED_COUNTER_CONFIG = new SampledCounterConfig(DEFAULT_INTERVAL_SECS,
+            DEFAULT_HISTORY_SIZE, true, 0L);
+    private final static SampledRateCounterConfig DEFAULT_SAMPLED_RATE_COUNTER_CONFIG = new SampledRateCounterConfig(DEFAULT_INTERVAL_SECS,
+            DEFAULT_HISTORY_SIZE, true);
 
     private volatile CounterManager counterManager;
     private final SampledCounter cacheHitCount;
@@ -87,14 +86,11 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener,
         averageGetTime = (SampledRateCounter) createSampledCounter(DEFAULT_SAMPLED_RATE_COUNTER_CONFIG);
 
         this.sampledStatisticsEnabled = new AtomicBoolean(true);
-        this.statisticsAccuracy = new AtomicInteger(
-                Statistics.STATISTICS_ACCURACY_BEST_EFFORT);
+        this.statisticsAccuracy = new AtomicInteger(Statistics.STATISTICS_ACCURACY_BEST_EFFORT);
     }
 
-    private SampledCounter createSampledCounter(
-            CounterConfig defaultCounterConfig) {
-        return (SampledCounter) counterManager
-                .createCounter(defaultCounterConfig);
+    private SampledCounter createSampledCounter(CounterConfig defaultCounterConfig) {
+        return (SampledCounter) counterManager.createCounter(defaultCounterConfig);
     }
 
     private void incrementIfStatsEnabled(SampledCounter... counters) {
@@ -219,8 +215,7 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener,
             statisticsAccuracy.set(statisticsAccuracyValue);
             return;
         }
-        throw new IllegalArgumentException(
-                "Invalid statistics accuracy value: " + statisticsAccuracyValue);
+        throw new IllegalArgumentException("Invalid statistics accuracy value: " + statisticsAccuracyValue);
     }
 
     /**

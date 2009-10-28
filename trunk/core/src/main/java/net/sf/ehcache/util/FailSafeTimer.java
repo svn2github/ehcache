@@ -147,8 +147,7 @@ public class FailSafeTimer {
      * inline for only one time. No further repeated execution happens for the
      * task
      * 
-     * @see java.util.Timer#scheduleAtFixedRate(java.util.TimerTask,
-     *      java.util.Date, long)
+     * @see java.util.Timer#scheduleAtFixedRate(java.util.TimerTask, java.util.Date, long)
      */
     public void scheduleAtFixedRate(TimerTask task, Date firstTime, long period) {
         if (timerThreadRunning) {

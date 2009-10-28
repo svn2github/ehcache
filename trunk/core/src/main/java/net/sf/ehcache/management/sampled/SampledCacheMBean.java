@@ -21,16 +21,14 @@ import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 
 /**
  * An MBean for Cache exposing cache statistics.
- * Extends from both {@link LiveCacheStatistics} and
- * {@link SampledCacheStatistics}
+ * Extends from both {@link LiveCacheStatistics} and {@link SampledCacheStatistics}
  * 
  * <p />
  * 
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public interface SampledCacheMBean extends LiveCacheStatistics,
-        SampledCacheStatistics {
+public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStatistics {
 
     /**
      * Removes all cached items.

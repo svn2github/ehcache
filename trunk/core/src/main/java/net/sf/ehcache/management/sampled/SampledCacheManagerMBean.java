@@ -27,14 +27,14 @@ import java.util.Map;
  * @since 1.7
  */
 public interface SampledCacheManagerMBean {
-    
+
     /**
      * Gets the actual name of the cache manager. This may be different from the
      * name used to register this mbean as there can potentially be multiple
      * cache managers with same name
      */
     public String getName();
-    
+
     /**
      * Gets the name used to register this mbean.
      */
@@ -50,9 +50,8 @@ public interface SampledCacheManagerMBean {
     /**
      * Shuts down the CacheManager.
      * <p/>
-     * If the shutdown occurs on the singleton, then the singleton is removed,
-     * so that if a singleton access method is called, a new singleton will be
-     * created.
+     * If the shutdown occurs on the singleton, then the singleton is removed, so that if a singleton access method is called, a new
+     * singleton will be created.
      */
     public void shutdown();
 
@@ -60,8 +59,7 @@ public interface SampledCacheManagerMBean {
      * Clears the contents of all caches in the CacheManager, but without
      * removing any caches.
      * <p/>
-     * This method is not synchronized. It only guarantees to clear those
-     * elements in a cache at the time that the
+     * This method is not synchronized. It only guarantees to clear those elements in a cache at the time that the
      * {@link net.sf.ehcache.Ehcache#removeAll()} mehod on each cache is called.
      */
     public void clearAll();
@@ -77,32 +75,32 @@ public interface SampledCacheManagerMBean {
      * @return a map of cache metrics
      */
     public Map<String, long[]> getCacheMetrics();
-    
+
     /**
      * @return aggregate hit rate
      */
-    public long getCacheHitRate();    
+    public long getCacheHitRate();
 
     /**
      * @return aggregate miss rate
      */
-    public long getCacheMissRate();    
+    public long getCacheMissRate();
 
     /**
      * @return aggregate put rate
      */
-    public long getCachePutRate();    
+    public long getCachePutRate();
 
     /**
      * @return aggregate update rate
      */
-    public long getCacheUpdateRate();    
-    
+    public long getCacheUpdateRate();
+
     /**
      * @return aggregate eviction rate
      */
-    public long getCacheEvictionRate();   
-    
+    public long getCacheEvictionRate();
+
     /**
      * @return aggregate expiration rate
      */

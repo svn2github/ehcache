@@ -22,14 +22,12 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
 
 /**
- * A no-op implementation which can be used both as a
- * {@link LiveCacheStatistics} and {@link LiveCacheStatisticsData}
+ * A no-op implementation which can be used both as a {@link LiveCacheStatistics} and {@link LiveCacheStatisticsData}
  * 
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class NullLiveCacheStatisticsData implements LiveCacheStatistics,
-        LiveCacheStatisticsData {
+public class NullLiveCacheStatisticsData implements LiveCacheStatistics, LiveCacheStatisticsData {
 
     /**
      * {@inheritDoc}
@@ -202,8 +200,7 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics,
     /**
      * {@inheritDoc}
      */
-    public void registerCacheUsageListener(CacheUsageListener cacheUsageListener)
-            throws IllegalStateException {
+    public void registerCacheUsageListener(CacheUsageListener cacheUsageListener) throws IllegalStateException {
         // no-op
     }
 
@@ -211,8 +208,7 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics,
      * {@inheritDoc}
      */
 
-    public void removeCacheUsageListener(CacheUsageListener cacheUsageListener)
-            throws IllegalStateException {
+    public void removeCacheUsageListener(CacheUsageListener cacheUsageListener) throws IllegalStateException {
         // no-op
     }
 
@@ -254,8 +250,7 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics,
     /**
      * {@inheritDoc}
      */
-    public void notifyElementPut(Ehcache cache, Element element)
-            throws CacheException {
+    public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
         // no-op
     }
 
@@ -263,16 +258,14 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics,
      * {@inheritDoc}
      */
 
-    public void notifyElementRemoved(Ehcache cache, Element element)
-            throws CacheException {
+    public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
         // no-op
     }
 
     /**
      * {@inheritDoc}
      */
-    public void notifyElementUpdated(Ehcache cache, Element element)
-            throws CacheException {
+    public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
         // no-op
     }
 

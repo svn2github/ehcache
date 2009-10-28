@@ -20,19 +20,17 @@ import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.util.FailSafeTimer;
 
 /**
- * An implementation of {@link SampledCacheStatistics} and also implements
- * {@link CacheUsageListener} and depends on the notification received from
+ * An implementation of {@link SampledCacheStatistics} and also implements {@link CacheUsageListener} and depends on the notification
+ * received from
  * these to update the stats. Uses separate delegates depending on whether
  * sampled statistics is enabled or not.
  * <p />
- * To collect statistics data, instances of this class should be registered as a
- * {@link CacheUsageListener} to a Cache
+ * To collect statistics data, instances of this class should be registered as a {@link CacheUsageListener} to a Cache
  * 
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class SampledCacheStatisticsWrapper implements CacheUsageListener,
-        SampledCacheStatistics {
+public class SampledCacheStatisticsWrapper implements CacheUsageListener, SampledCacheStatistics {
 
     private static final NullSampledCacheStatistics NULL_SAMPLED_CACHE_STATISTICS = new NullSampledCacheStatistics();
 
@@ -65,7 +63,6 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
 
     /**
      * {@inheritDoc}
-
      */
     public boolean isSampledStatisticsEnabled() {
         return delegate instanceof SampledCacheStatisticsImpl;
@@ -280,8 +277,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
      * 
      */
     public void notifyStatisticsAccuracyChanged(int statisticsAccuracy) {
-        getDelegateAsListener().notifyStatisticsAccuracyChanged(
-                statisticsAccuracy);
+        getDelegateAsListener().notifyStatisticsAccuracyChanged(statisticsAccuracy);
     }
 
     /**
@@ -297,13 +293,12 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener,
      * 
      */
     public void notifyStatisticsEnabledChanged(boolean enableStatistics) {
-        getDelegateAsListener()
-                .notifyStatisticsEnabledChanged(enableStatistics);
+        getDelegateAsListener().notifyStatisticsEnabledChanged(enableStatistics);
     }
 
     /**
      * {@inheritDoc}
-     *
+     * 
      */
     public void notifyTimeTakenForGet(long millis) {
         getDelegateAsListener().notifyTimeTakenForGet(millis);

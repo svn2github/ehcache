@@ -35,12 +35,10 @@ public interface MBeanRegistrationProvider {
      * @param cacheManager
      * @throws MBeanRegistrationProviderException
      */
-    public void initialize(CacheManager cacheManager)
-            throws MBeanRegistrationProviderException;
+    public void initialize(CacheManager cacheManager) throws MBeanRegistrationProviderException;
 
     /**
-     * Reinitialize the mbeans. Uses the current name of the
-     * {@link CacheManager} to re-register the mbeans
+     * Reinitialize the mbeans. Uses the current name of the {@link CacheManager} to re-register the mbeans
      * 
      * @throws MBeanRegistrationProviderException
      */

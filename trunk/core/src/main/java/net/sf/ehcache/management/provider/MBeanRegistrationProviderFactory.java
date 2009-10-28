@@ -32,7 +32,6 @@ public interface MBeanRegistrationProviderFactory {
      * 
      * @return The {@link MBeanRegistrationProvider} created by this factory
      */
-    public MBeanRegistrationProvider createMBeanRegistrationProvider(
-            Configuration config);
+    public MBeanRegistrationProvider createMBeanRegistrationProvider(Configuration config);
 
 }

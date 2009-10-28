@@ -83,96 +83,84 @@ public class SampledCache implements SampledCacheMBean {
      * {@inheritDoc}
      */
     public long getAverageGetTimeMostRecentSample() {
-        return cache.getSampledCacheStatistics()
-                .getAverageGetTimeMostRecentSample();
+        return cache.getSampledCacheStatistics().getAverageGetTimeMostRecentSample();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getCacheElementEvictedMostRecentSample() {
-        return cache.getSampledCacheStatistics()
-                .getCacheElementEvictedMostRecentSample();
+        return cache.getSampledCacheStatistics().getCacheElementEvictedMostRecentSample();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getCacheElementExpiredMostRecentSample() {
-        return cache.getSampledCacheStatistics()
-                .getCacheElementExpiredMostRecentSample();
+        return cache.getSampledCacheStatistics().getCacheElementExpiredMostRecentSample();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getCacheElementPutMostRecentSample() {
-        return cache.getSampledCacheStatistics()
-                .getCacheElementPutMostRecentSample();
+        return cache.getSampledCacheStatistics().getCacheElementPutMostRecentSample();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getCacheElementRemovedMostRecentSample() {
-        return cache.getSampledCacheStatistics()
-                .getCacheElementRemovedMostRecentSample();
+        return cache.getSampledCacheStatistics().getCacheElementRemovedMostRecentSample();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getCacheElementUpdatedMostRecentSample() {
-        return cache.getSampledCacheStatistics()
-                .getCacheElementUpdatedMostRecentSample();
+        return cache.getSampledCacheStatistics().getCacheElementUpdatedMostRecentSample();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getCacheHitInMemoryMostRecentSample() {
-        return cache.getSampledCacheStatistics()
-                .getCacheHitInMemoryMostRecentSample();
+        return cache.getSampledCacheStatistics().getCacheHitInMemoryMostRecentSample();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getCacheHitMostRecentSample() {
-        return cache.getSampledCacheStatistics()
-                .getCacheHitMostRecentSample();
+        return cache.getSampledCacheStatistics().getCacheHitMostRecentSample();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getCacheHitOnDiskMostRecentSample() {
-        return cache.getSampledCacheStatistics()
-                .getCacheHitOnDiskMostRecentSample();
+        return cache.getSampledCacheStatistics().getCacheHitOnDiskMostRecentSample();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getCacheMissExpiredMostRecentSample() {
-        return cache.getSampledCacheStatistics()
-                .getCacheMissExpiredMostRecentSample();
+        return cache.getSampledCacheStatistics().getCacheMissExpiredMostRecentSample();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getCacheMissMostRecentSample() {
-        return cache.getSampledCacheStatistics()
-                .getCacheMissMostRecentSample();
+        return cache.getSampledCacheStatistics().getCacheMissMostRecentSample();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getCacheMissNotFoundMostRecentSample() {
-        return cache.getSampledCacheStatistics()
-                .getCacheMissNotFoundMostRecentSample();
+        return cache.getSampledCacheStatistics().getCacheMissNotFoundMostRecentSample();
     }
 
     /**
@@ -186,8 +174,7 @@ public class SampledCache implements SampledCacheMBean {
      * {@inheritDoc}
      */
     public String getStatisticsAccuracyDescription() {
-        return cache.getSampledCacheStatistics()
-                .getStatisticsAccuracyDescription();
+        return cache.getSampledCacheStatistics().getStatisticsAccuracyDescription();
     }
 
     /**
@@ -208,8 +195,7 @@ public class SampledCache implements SampledCacheMBean {
      * {@inheritDoc}
      */
     public boolean isSampledStatisticsEnabled() {
-        return cache.getSampledCacheStatistics()
-                .isSampledStatisticsEnabled();
+        return cache.getSampledCacheStatistics().isSampledStatisticsEnabled();
     }
 
     /**
@@ -250,8 +236,7 @@ public class SampledCache implements SampledCacheMBean {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#disableSampledStatistics
-     *      ()
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#disableSampledStatistics ()
      */
     public void disableSampledStatistics() {
         cache.setSampledStatisticsEnabled(false);
@@ -299,8 +284,7 @@ public class SampledCache implements SampledCacheMBean {
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigDiskExpiryThreadIntervalSeconds()
      */
     public long getConfigDiskExpiryThreadIntervalSeconds() {
-        return cache.getCacheConfiguration()
-                .getDiskExpiryThreadIntervalSeconds();
+        return cache.getCacheConfiguration().getDiskExpiryThreadIntervalSeconds();
     }
 
     /**
@@ -327,8 +311,7 @@ public class SampledCache implements SampledCacheMBean {
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigMemoryStoreEvictionPolicy()
      */
     public String getConfigMemoryStoreEvictionPolicy() {
-        return cache.getCacheConfiguration().getMemoryStoreEvictionPolicy()
-                .toString();
+        return cache.getCacheConfiguration().getMemoryStoreEvictionPolicy().toString();
     }
 
     /**

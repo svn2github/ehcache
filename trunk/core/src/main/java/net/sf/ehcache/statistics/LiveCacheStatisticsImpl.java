@@ -27,14 +27,12 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
 
 /**
- * Implementation which can be used both as a {@link LiveCacheStatistics} and
- * {@link LiveCacheStatisticsData}
+ * Implementation which can be used both as a {@link LiveCacheStatistics} and {@link LiveCacheStatisticsData}
  * 
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class LiveCacheStatisticsImpl implements LiveCacheStatistics,
-        LiveCacheStatisticsData {
+public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheStatisticsData {
 
     private final AtomicBoolean statisticsEnabled = new AtomicBoolean(true);
     private final AtomicLong cacheHitInMemoryCount = new AtomicLong();
@@ -54,8 +52,7 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics,
     private final Ehcache cache;
 
     /**
-     * Constructor that accepts the backing {@link Ehcache}, needed for
-     * {@link #getSize()}
+     * Constructor that accepts the backing {@link Ehcache}, needed for {@link #getSize()}
      * 
      * @param cache
      */
@@ -172,8 +169,7 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics,
      */
     public void setStatisticsAccuracy(int statisticsAccuracy) {
         if (!Statistics.isValidStatisticsAccuracy(statisticsAccuracy)) {
-            throw new IllegalArgumentException(
-                    "Invalid statistics accuracy value: " + statisticsAccuracy);
+            throw new IllegalArgumentException("Invalid statistics accuracy value: " + statisticsAccuracy);
         }
         this.statisticsAccuracy.set(statisticsAccuracy);
         for (CacheUsageListener l : listeners) {
@@ -219,8 +215,7 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics,
     /**
      * {@inheritDoc}
      */
-    public void notifyElementPut(Ehcache cache, Element element)
-            throws CacheException {
+    public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
         if (!statisticsEnabled.get()) {
             return;
         }
@@ -233,8 +228,7 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics,
     /**
      * {@inheritDoc}
      */
-    public void notifyElementRemoved(Ehcache cache, Element element)
-            throws CacheException {
+    public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
         if (!statisticsEnabled.get()) {
             return;
         }
@@ -247,8 +241,7 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics,
     /**
      * {@inheritDoc}
      */
-    public void notifyElementUpdated(Ehcache cache, Element element)
-            throws CacheException {
+    public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
         if (!statisticsEnabled.get()) {
             return;
         }
@@ -294,16 +287,14 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics,
     /**
      * {@inheritDoc}
      */
-    public void registerCacheUsageListener(CacheUsageListener cacheUsageListener)
-            throws IllegalStateException {
+    public void registerCacheUsageListener(CacheUsageListener cacheUsageListener) throws IllegalStateException {
         listeners.add(cacheUsageListener);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void removeCacheUsageListener(CacheUsageListener cacheUsageListener)
-            throws IllegalStateException {
+    public void removeCacheUsageListener(CacheUsageListener cacheUsageListener) throws IllegalStateException {
         listeners.remove(cacheUsageListener);
     }
 

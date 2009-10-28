@@ -51,10 +51,8 @@ public abstract class SampledEhcacheMBeans {
      * @return An {@link ObjectName} using the input name of cache manager
      * @throws MalformedObjectNameException
      */
-    public static ObjectName getCacheManagerObjectName(String cacheManagerName)
-            throws MalformedObjectNameException {
-        ObjectName objectName = new ObjectName(GROUP_ID + ":type="
-                + SAMPLED_CACHE_MANAGER_TYPE + ",name=" + cacheManagerName);
+    public static ObjectName getCacheManagerObjectName(String cacheManagerName) throws MalformedObjectNameException {
+        ObjectName objectName = new ObjectName(GROUP_ID + ":type=" + SAMPLED_CACHE_MANAGER_TYPE + ",name=" + cacheManagerName);
         return objectName;
     }
 
@@ -68,10 +66,8 @@ public abstract class SampledEhcacheMBeans {
      *         cache and the cache manager name
      * @throws MalformedObjectNameException
      */
-    public static ObjectName getCacheObjectName(String cacheManagerName,
-            String cacheName) throws MalformedObjectNameException {
-        ObjectName objectName = new ObjectName(GROUP_ID + ":type="
-                + SAMPLED_CACHE_TYPE + "," + SAMPLED_CACHE_MANAGER_TYPE + "="
+    public static ObjectName getCacheObjectName(String cacheManagerName, String cacheName) throws MalformedObjectNameException {
+        ObjectName objectName = new ObjectName(GROUP_ID + ":type=" + SAMPLED_CACHE_TYPE + "," + SAMPLED_CACHE_MANAGER_TYPE + "="
                 + cacheManagerName + ",name=" + cacheName);
         return objectName;
     }
@@ -85,25 +81,20 @@ public abstract class SampledEhcacheMBeans {
      *         ObjectName's for the input cache manager name
      * @throws MalformedObjectNameException
      */
-    public static ObjectName getQueryCacheManagerObjectName(
-            String cacheManagerName) throws MalformedObjectNameException {
-        ObjectName objectName = new ObjectName(GROUP_ID + ":*,"
-                + SAMPLED_CACHE_MANAGER_TYPE + "=" + cacheManagerName);
+    public static ObjectName getQueryCacheManagerObjectName(String cacheManagerName) throws MalformedObjectNameException {
+        ObjectName objectName = new ObjectName(GROUP_ID + ":*," + SAMPLED_CACHE_MANAGER_TYPE + "=" + cacheManagerName);
         return objectName;
     }
 
     /**
-     * Returns an ObjectName that can be used to query all objectNames of
-     * {@link #SAMPLED_CACHE_MANAGER_TYPE}
+     * Returns an ObjectName that can be used to query all objectNames of {@link #SAMPLED_CACHE_MANAGER_TYPE}
      * 
      * @return An {@link ObjectName} that can be used to query all ObjectName's
      *         of {@value #SAMPLED_CACHE_MANAGER_TYPE}
      * @throws MalformedObjectNameException
      */
-    public static ObjectName getQueryCacheManagersObjectName()
-            throws MalformedObjectNameException {
-        ObjectName objectName = new ObjectName(GROUP_ID + ":type="
-                + SAMPLED_CACHE_MANAGER_TYPE + ",*");
+    public static ObjectName getQueryCacheManagersObjectName() throws MalformedObjectNameException {
+        ObjectName objectName = new ObjectName(GROUP_ID + ":type=" + SAMPLED_CACHE_MANAGER_TYPE + ",*");
         return objectName;
     }
 

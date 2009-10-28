@@ -53,8 +53,7 @@ public class SampledCounterImpl extends CounterImpl implements SampledCounter {
         super(config.getInitialValue());
 
         this.intervalMillis = config.getIntervalSecs() * MILLIS_PER_SEC;
-        this.history = new CircularLossyQueue<TimeStampedCounterValue>(config
-                .getHistorySize());
+        this.history = new CircularLossyQueue<TimeStampedCounterValue>(config.getHistorySize());
         this.resetOnSample = config.isResetOnSample();
 
         this.samplerTask = new TimerTask() {
@@ -78,8 +77,7 @@ public class SampledCounterImpl extends CounterImpl implements SampledCounter {
      * {@inheritDoc}
      */
     public TimeStampedCounterValue[] getAllSampleValues() {
-        return this.history.toArray(new TimeStampedCounterValue[this.history
-                .depth()]);
+        return this.history.toArray(new TimeStampedCounterValue[this.history.depth()]);
     }
 
     /**
@@ -121,8 +119,7 @@ public class SampledCounterImpl extends CounterImpl implements SampledCounter {
         }
 
         final long now = System.currentTimeMillis();
-        TimeStampedCounterValue timedSample = new TimeStampedCounterValue(now,
-                sample);
+        TimeStampedCounterValue timedSample = new TimeStampedCounterValue(now, sample);
 
         history.push(timedSample);
     }
