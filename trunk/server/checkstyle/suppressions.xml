@@ -7,9 +7,9 @@
 <suppressions>
     <!-- Turn off some checks for tests -->
     <!--auto generated-->
-    <suppress checks="" files="net/sf/ehcache/server/soap/jaxws/*"/>
+    <suppress checks="" files="jaxws[/\\]."/>
     <!--Bug in checkstyle with NoSuchMethodException. Need to filter this out. See SF 2777291 -->
-    <suppress checks="" files="net/sf/ehcache/server/soap/EhcacheWebServiceEndpoint.java"/>
+    <suppress checks="" files="EhcacheWebServiceEndpoint.java"/>
     <suppress checks="MagicNumberCheck" files="test[/\\]"/>
     <suppress checks="JavadocMethodCheck" files="test[/\\]"/>
     <suppress checks="PackageHtmlCheck" files="test[/\\]"/>
