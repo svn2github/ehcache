@@ -69,7 +69,7 @@ public class MemoryStore implements Store {
     /**
      * when sampling elements, whether to iterate or to use the keySample array for faster random access
      */
-    protected boolean useKeySample;
+    protected final boolean useKeySample;
 
     /**
      * Map where items are stored by key.
@@ -84,17 +84,17 @@ public class MemoryStore implements Store {
     /**
      * The maximum size of the store
      */
-    protected int maximumSize;
+    protected final int maximumSize;
 
     /**
      * status.
      */
-    protected Status status;
+    protected volatile Status status;
 
     /**
      * The eviction policy to use
      */
-    protected Policy policy;
+    protected volatile Policy policy;
 
     private AtomicReferenceArray<Object> keyArray;
     private AtomicInteger keySamplePointer;
@@ -117,6 +117,10 @@ public class MemoryStore implements Store {
             useKeySample = true;
             keyArray = new AtomicReferenceArray<Object>(maximumSize);
             keySamplePointer = new AtomicInteger(0);
+        } else {
+            useKeySample = false;
+            keyArray = null;
+            keySamplePointer = null;
         }
 
         status = Status.STATUS_ALIVE;
