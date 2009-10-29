@@ -111,8 +111,11 @@ public class MemoryStore implements Store {
         this.maximumSize = cache.getCacheConfiguration().getMaxElementsInMemory();
         this.diskStore = diskStore;
         this.policy = determineEvictionPolicy();
-
-        map = new ConcurrentHashMap(maximumSize, DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
+        
+        // create the CHM with initialCapacity sufficient to hold maximumSize
+        double actualMaximum = Math.ceil(maximumSize / DEFAULT_LOAD_FACTOR);
+        int initialCapacity = actualMaximum >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) actualMaximum;
+        map = new ConcurrentHashMap(initialCapacity, DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
         if (maximumSize > TOO_LARGE_TO_EFFICIENTLY_ITERATE) {
             useKeySample = true;
             keyArray = new AtomicReferenceArray<Object>(maximumSize);
