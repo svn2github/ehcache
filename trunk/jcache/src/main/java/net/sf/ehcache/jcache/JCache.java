@@ -41,12 +41,12 @@ import java.util.Set;
  * <p/>
  * A cache implementation that matches the draft JCACHE specification.
  * <p/>
- * WARNING: The JCache specfication is in draft and this API will change up until the time that JCACHE is finalised.
+ * WARNING: The JCache specification is in draft and this API will change up until the time that JCACHE is finalised.
  * <p/>
  * It is not possible for one class to implement both JCACHE and Ehcache
  * in the same class due to conflicts with method signatures on get and remove.
  * <p/>
- * This implementation is an adaptor to Ehcache, and will exhibit the same underlying characteristics as Ehcache. Additiona features
+ * This implementation is an adaptor to Ehcache, and will exhibit the same underlying characteristics as Ehcache. Additional features
  * have been added to Ehcache to match the JCache features. All of these features can be configured in ehcache.xml.
  * <p/>
  * The current JCache CacheManager class, available in the draft, is considered unworkable. Instead, use the Ehcache <code>cacheManager.getJCache(String name)</code>
@@ -358,7 +358,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * The peek method will return the object associated with "key" if it currently exists (and is valid) in the cache.
      * If not, a null is returned. With "peek" the CacheLoader will not be invoked and other caches in the system will not be searched.
      * <p/>
-     * In ehcache peek bahaves the same way as {@link #get}
+     * In ehcache peek behaves the same way as {@link #get}
      *
      * @param key
      * @return the value stored in the cache by key, or null if it does not exist
