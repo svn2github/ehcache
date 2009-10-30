@@ -11,7 +11,7 @@
                 Fixed Cache.toString() bug introduced in 1.7.0.
             </action>
             <action dev="Alex Miller" type="fix" issue="EHC-342">
-                Fixed ttl bug introduced in 1.7.0. TTL or TTI values > Integer.MAX_VALUE were incorrectly
+                Fixed ttl bug introduced in 1.7.0. TTL or TTI values &gt; Integer.MAX_VALUE were incorrectly
                 downcast causing negative values. Most commonly, setting a TTI or TTL of Long.MAX_VALUE
                 caused an exception to be thrown.
             </action>
@@ -19,6 +19,12 @@
                 Fixed memory visiblity issues with fields in MemoryStore. Made maximumSize and useKeySample
                 final as they never change.  Made status and policy volatile as they change but weren't 
                 guaranteeing visibility.
+            </action>
+            <action dev="Alex Miller" type="fix" issue="EHC-427">
+                Fixed a race that can cause an NPE when evicting with key samples during put.  This
+                can happen if there is a concurrent clear() that wipes the map as the keyArray is 
+                not updated under the same lock.  This happens in tests a lot but is probably less
+                common in actual user code.
             </action>
         </release>
 
