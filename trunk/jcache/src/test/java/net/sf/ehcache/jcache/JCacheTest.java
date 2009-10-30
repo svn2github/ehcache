@@ -34,7 +34,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -52,7 +51,6 @@ import net.sf.jsr107cache.CacheStatistics;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -480,7 +478,6 @@ public class JCacheTest extends AbstractCacheTest {
 
     }
 
-    //@Ignore("MNK-1440,MNK-1428")
     /**
      * Test the get values method.
      */
@@ -500,6 +497,7 @@ public class JCacheTest extends AbstractCacheTest {
         for (int i = 0; i < 1000; i++) {
             keys.add(new Integer(i));
         }
+        
         jcache.loadAll(keys);
         jcache.put(new Integer(1), new Date());
         jcache.put(new Integer(2), new NonSerializable());
@@ -574,7 +572,6 @@ public class JCacheTest extends AbstractCacheTest {
     }
 
 
-    //@Ignore("MNK-1428")
     /**
      * Performance tests for a range of Memory Store - Disk Store combinations.
      * <p/>
@@ -1292,7 +1289,6 @@ public class JCacheTest extends AbstractCacheTest {
         assertEquals(serializableValue, retrievedValue);
     }
 
-    //@Ignore("MNK-1440, MNK-1428")
     /**
      * Multi-thread read-write test with lots of threads
      * Just use MemoryStore to put max stress on cache
@@ -1478,7 +1474,6 @@ public class JCacheTest extends AbstractCacheTest {
                 .get(0)).getException()) instanceof RuntimeException);
     }
 
-    //@Ignore("MNK-1440, MNK-1428")
     /**
      * Tests the loadAll Public API method
      */
@@ -1507,7 +1502,6 @@ public class JCacheTest extends AbstractCacheTest {
 
     }
 
-    //@Ignore("MNK-1440, MNK-1428")
     /**
      * Tests the getAll Public API method
      */
