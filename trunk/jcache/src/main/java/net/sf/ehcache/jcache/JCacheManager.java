@@ -365,7 +365,7 @@ public class JCacheManager extends CacheManager {
      * Set the system property net.sf.ehcache.enableShutdownHook=true to turn it on.
      */
     public void shutdown() {
-        synchronized (JCacheManager.class) {
+        synchronized (CacheManager.class) {
             if (status.equals(Status.STATUS_SHUTDOWN)) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("CacheManager already shutdown");
