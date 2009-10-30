@@ -480,7 +480,7 @@ public class JCacheTest extends AbstractCacheTest {
 
     }
 
-    @Ignore("MNK-1440,MNK-1428")
+    //@Ignore("MNK-1440,MNK-1428")
     /**
      * Test the get values method.
      */
@@ -574,7 +574,7 @@ public class JCacheTest extends AbstractCacheTest {
     }
 
 
-    @Ignore("MNK-1428")
+    //@Ignore("MNK-1428")
     /**
      * Performance tests for a range of Memory Store - Disk Store combinations.
      * <p/>
@@ -1292,7 +1292,7 @@ public class JCacheTest extends AbstractCacheTest {
         assertEquals(serializableValue, retrievedValue);
     }
 
-    @Ignore("MNK-1440, MNK-1428")
+    //@Ignore("MNK-1440, MNK-1428")
     /**
      * Multi-thread read-write test with lots of threads
      * Just use MemoryStore to put max stress on cache
@@ -1478,7 +1478,7 @@ public class JCacheTest extends AbstractCacheTest {
                 .get(0)).getException()) instanceof RuntimeException);
     }
 
-    @Ignore("MNK-1440, MNK-1428")
+    //@Ignore("MNK-1440, MNK-1428")
     /**
      * Tests the loadAll Public API method
      */
@@ -1507,7 +1507,7 @@ public class JCacheTest extends AbstractCacheTest {
 
     }
 
-    @Ignore("MNK-1440, MNK-1428")
+    //@Ignore("MNK-1440, MNK-1428")
     /**
      * Tests the getAll Public API method
      */
