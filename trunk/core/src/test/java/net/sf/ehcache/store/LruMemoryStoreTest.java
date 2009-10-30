@@ -167,7 +167,7 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
             }
         }
 
-        assertTrue("Ineffective eviction algorithm. Less than 230 of the last 249 put Elements remain.", lastPutCount >= 230);
+        assertTrue("Ineffective eviction algorithm. Less than 230 of the last 249 put Elements remain: " + lastPutCount, lastPutCount >= 230);
     }
 
 
