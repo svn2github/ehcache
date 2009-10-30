@@ -85,11 +85,6 @@ public class CountingCacheLoader implements JCacheLoader {
         Map map = new HashMap(keys.size());
         for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
             Object key = iterator.next();
-            try {
-                Thread.sleep(random.nextInt(4));
-            } catch (InterruptedException e) {
-                LOG.error("Interrupted");
-            }
             map.put(key, new Integer(loadAllCounter++));
         }
         return map;
