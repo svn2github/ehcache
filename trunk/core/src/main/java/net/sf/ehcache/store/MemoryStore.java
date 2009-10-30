@@ -580,9 +580,13 @@ public class MemoryStore implements Store {
                 if (counter > keyArray.length() - 1) {
                     counter = 0;
                 }
-                element = (Element) map.get(keyArray.get(counter));
-                if (element != null) {
-                    return element;
+                Object key = keyArray.get(counter);
+                if (key != null) {
+                    // check for key==null here as a concurrent clear() could catch the map and the keyArray out of sync 
+                    element = (Element) map.get(key);
+                    if (element != null) {
+                        return element;
+                    }
                 }
                 counter++;
                 //Should never happen. Failsafe.
