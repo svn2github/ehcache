@@ -14,39 +14,41 @@ Welcome to ehcache
 
  Ehcache is available under an Apache open source {{{license.html}license}} and is actively developed, maintained and supported.
 
-[images/layered_architecture.png]
+ Ehcache is a professional Open Source project and a critical component of the Terracotta suite of products.
+ {{{http://www.terracotta.org}Terracotta, Inc.}} offers a
+ range of {{{http://www.terracotta.org/web/display/orgsite/Enterprise+Support+for+Ehcache?source=ehcachebanner}24x7 Professional Support,
+ Consulting, and Training services}} worldwide to assist you with Ehcache.
 
-
-* Module Quick Links
-
- Ehcache is now modularised. Here are some quick links to help you get what you need.
-
-*----------*--------------:------------------------:
-| <<Module>> | <<Description>>     | <<Download>>            |
-*----------*--------------:------------------------:
-| ehcache | a packaging of commonly used modules     | {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}Download}}   |
-*----------*--------------:------------------------:
-| ehcache-core | Caching engine, RMI replication and Hibernate plugin     | {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}Download}}   |
-*----------*--------------:------------------------:
-| ehcache-terracotta | Seamless integration with Terracotta clustering     | {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}Download}}   |
-*----------*--------------:------------------------:
-| ehcache-web | Java Servlet Container caching, gzipping filters  | {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}Download}}   |
-*----------*--------------:------------------------:
-| ehcache-debugger | Allows tracing of distributed replication events    | {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}Download}}   |
-*----------*--------------:------------------------:
-| ehcache-jcache | JSR107 JCACHE Implementation     | {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}Download}}   |
-*----------*--------------:------------------------:
-| ehcache-jgroupsreplication | Replication via JGroups  | {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}Download}}   |
-*----------*--------------:------------------------:
-| ehcache-jmsreplication | Replication via JMS   | {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}Download}}   |
-*----------*--------------:------------------------:
-| ehcache-openjpa | Caching Plugin for OpenJPA     | {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}Download}}   |
-*----------*--------------:------------------------:
-| ehcache-server | RESTful cache server in a war   | {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}Download}}   |
-*----------*--------------:------------------------:
-
+*----------+--------------+
+{{{documentation/index.html}ehcache}} | a packaging of commonly used modules
+*----------+--------------+
+{{{documentation/index.html}ehcache-core}} | Caching engine, RMI replication and Hibernate plugin
+*----------+--------------+
+{{{documentation/distributed_caching_with_terracotta.html}ehcache-terracotta}} | Seamless integration with Terracotta clustering     
+*----------+--------------+
+{{{documentation/web_caching.html}ehcache-web}} | Java Servlet Container caching, gzipping filters
+*----------+--------------+
+{{{documentation/remotedebugger.html}ehcache-debugger}} | Allows tracing of distributed replication events
+*----------+--------------+
+{{{documentation/jsr107.html}ehcache-jcache}} | JSR107 JCACHE Implementation
+*----------+--------------+
+{{{documentation/distributed_caching_with_jgroups.html}ehcache-jgroupsreplication}} | Replication via JGroups
+*----------+--------------+
+{{{documentation/distributed_caching_with_jms.html}ehcache-jmsreplication}} | Replication via JMS
+*----------+--------------+
+{{{documentation/openjpa_provider.html}ehcache-openjpa}} | Caching Plugin for OpenJPA
+*----------+--------------+
+{{{documentation/cache_server.html}ehcache-server}} | RESTful cache server in a WAR or standalone
+*----------+--------------:
 
 * Latest News
+
+** 30 October 2009: Greg Luck previews exciting new Monitoring and Management product
+
+  See a {{{http://www.screencast.com/t/rtAvqBAYrMy}3 minute video of Greg Luck previewing Ehcache DX}}, the new monitoring and
+  management product, for Ehcache versions 1.2.3 and higher. Help to shape this exciting new product by registering and
+  downloading the {{{http://www.terracotta.org/web/display/orgsite/Terracotta+Pre+Release}Ehcache DX early release}}.
+    
 
 ** 13 October 2009: New 1.7.0 releases - ehcache, ehcache-core and the new ehcache-terracotta
 

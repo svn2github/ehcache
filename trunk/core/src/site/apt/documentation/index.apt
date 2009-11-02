@@ -11,6 +11,8 @@ Ehcache 1.7 User Guide
 
     * {{{./concepts.html}Cache Concepts}}
 
+    * {{{./architecture.html}Architecture}}
+
     * {{{./configuration.html}Cache Configuration}}
 
     * {{{./storage_options.html}Storage Options}}
