@@ -16,34 +16,43 @@
 
 package net.sf.ehcache.distribution;
 
-
-import net.sf.ehcache.AbstractCacheTest;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.StopWatch;
-import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.StopWatch;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 /**
  * Note these tests need a live network interface running in multicast mode to work
- *
+ * 
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
 public class PayloadUtilTest {
 
     private static final Logger LOG = Logger.getLogger(PayloadUtilTest.class.getName());
+    private static final Random RANDOM = new Random(System.currentTimeMillis());
+    private static final String RANDOM_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.";
     private CacheManager manager;
 
     /**
      * setup test
-     *
+     * 
      * @throws Exception
      */
     @Before
@@ -54,7 +63,7 @@ public class PayloadUtilTest {
 
     /**
      * Shuts down the cachemanager
-     *
+     * 
      * @throws Exception
      */
     @After
@@ -82,17 +91,17 @@ public class PayloadUtilTest {
     /**
      * 376 µs per one gzipping each time.
      * .1 µs if we compare hashCodes on the String and only gzip as necessary.
-     *
+     * 
      * @throws IOException
      * @throws InterruptedException
      */
     @Test
     public void testGzipSanityAndPerformance() throws IOException, InterruptedException {
         String payload = createReferenceString();
-        //warmup vm
+        // warmup vm
         for (int i = 0; i < 10; i++) {
             byte[] compressed = PayloadUtil.gzip(payload.getBytes());
-            //make sure we don't forget to close the stream
+            // make sure we don't forget to close the stream
             assertTrue(compressed.length > 300);
             Thread.sleep(20);
         }
@@ -109,7 +118,7 @@ public class PayloadUtilTest {
 
     /**
      * 169 µs per one.
-     *
+     * 
      * @throws IOException
      * @throws InterruptedException
      */
@@ -121,7 +130,7 @@ public class PayloadUtilTest {
         int byteLength = original.length;
         assertEquals(length, byteLength);
         byte[] compressed = PayloadUtil.gzip(original);
-        //warmup vm
+        // warmup vm
         for (int i = 0; i < 10; i++) {
             byte[] uncompressed = PayloadUtil.ungzip(compressed);
             uncompressed.hashCode();
@@ -136,14 +145,12 @@ public class PayloadUtilTest {
         LOG.log(Level.INFO, "Ungzip took " + elapsed / 10000F + " µs");
     }
 
-
     private String createReferenceString() {
 
         String[] names = manager.getCacheNames();
         String urlBase = "//localhost.localdomain:12000/";
         StringBuffer buffer = new StringBuffer();
-        for (int i = 0; i < names.length; i++) {
-            String name = names[i];
+        for (String name : names) {
             buffer.append(urlBase);
             buffer.append(name);
             buffer.append("|");
@@ -152,5 +159,199 @@ public class PayloadUtilTest {
         return payload;
     }
 
+    @Test
+    public void testBigPayload() throws RemoteException {
+        List<CachePeer> bigPayloadList = new ArrayList<CachePeer>();
+        // create 5000 peers, each peer having cache name between 50 - 500 char length
+        int peers = 5000;
+        int minCacheNameSize = 50;
+        int maxCacheNameSize = 500;
+        for (int i = 0; i < peers; i++) {
+            bigPayloadList.add(new PayloadUtilTestCachePeer(getRandomName(minCacheNameSize, maxCacheNameSize)));
+        }
+
+        doTestBigPayLoad(bigPayloadList, 5);
+        doTestBigPayLoad(bigPayloadList, 10);
+        doTestBigPayLoad(bigPayloadList, 50);
+        doTestBigPayLoad(bigPayloadList, 100);
+        doTestBigPayLoad(bigPayloadList, 150);
+        doTestBigPayLoad(bigPayloadList, 300);
+        doTestBigPayLoad(bigPayloadList, 500);
+
+        // do a big test where maximumPeersPerSend is a large value, try to accomodate all peers in one payload
+        // this should result in payload breaking up by MTU size
+        doTestBigPayLoad(bigPayloadList, 1000000);
+
+        // test heartbeat won't work when single cache has very very long cacheName
+        bigPayloadList.clear();
+        bigPayloadList.add(new PayloadUtilTestCachePeer(getRandomName(3000, 3001)));
+        List<byte[]> compressedList = PayloadUtil.createCompressedPayloadList(bigPayloadList, 150);
+        assertEquals(0, compressedList.size());
+
+    }
+
+    private void doTestBigPayLoad(List<CachePeer> bigPayloadList, int maximumPeersPerSend) throws RemoteException {
+        List<byte[]> compressedList = PayloadUtil.createCompressedPayloadList(bigPayloadList, maximumPeersPerSend);
+        // the big list cannot be compressed in 1 entry
+        assertTrue(compressedList.size() > 1);
+        StringBuilder actual = new StringBuilder();
+        for (byte[] bytes : compressedList) {
+            assertTrue("One payload should not be greater than MTU, actual size: " + bytes.length + ", MTU: " + PayloadUtil.MTU,
+                    bytes.length <= PayloadUtil.MTU);
+            String urlList = new String(PayloadUtil.ungzip(bytes));
+            String[] urls = urlList.split(PayloadUtil.URL_DELIMITER_REGEXP);
+            assertTrue("Number of URL's in one payload should not exceed maximumPeersPerSend (=" + maximumPeersPerSend + "), actual: "
+                    + urls.length, urls.length <= maximumPeersPerSend);
+
+            if (bytes == compressedList.get(compressedList.size() - 1)) {
+                actual.append(urlList);
+            } else {
+                actual.append(urlList + PayloadUtil.URL_DELIMITER);
+            }
+        }
+        StringBuilder expected = new StringBuilder();
+        for (CachePeer peer : bigPayloadList) {
+            if (peer != bigPayloadList.get(bigPayloadList.size() - 1)) {
+                expected.append(peer.getUrl() + PayloadUtil.URL_DELIMITER);
+            } else {
+                expected.append(peer.getUrl());
+            }
+        }
+        assertEquals(expected.toString(), actual.toString());
+    }
+
+    private String getRandomName(final int minLength, final int maxLength) {
+        int length = minLength + RANDOM.nextInt(maxLength - minLength);
+        StringBuilder rv = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            rv.append(RANDOM_CHARS.charAt(RANDOM.nextInt(RANDOM_CHARS.length())));
+        }
+        return rv.toString();
+    }
+
+    /**
+     * A test class which implements only {@link #getUrl()} to test PayloadUtil.createCompressedPayloadList()
+     * 
+     * @author Abhishek Sanoujam
+     * 
+     */
+    private static class PayloadUtilTestCachePeer implements CachePeer {
+
+        public static final String URL_BASE = "//localhost.localdomain:12000/";
+        private final String cacheName;
+
+        public PayloadUtilTestCachePeer(String cacheName) {
+            this.cacheName = cacheName;
+        }
+
+        /**
+         * {@inheritDoc}
+         * 
+         * @see net.sf.ehcache.distribution.CachePeer#getUrl()
+         */
+        public String getUrl() throws RemoteException {
+            return URL_BASE + cacheName;
+        }
+
+        /**
+         * {@inheritDoc}
+         * 
+         * @see net.sf.ehcache.distribution.CachePeer#getElements(java.util.List)
+         */
+        public List getElements(List keys) throws RemoteException {
+            // no-op
+            return null;
+        }
+
+        /**
+         * {@inheritDoc}
+         * 
+         * @see net.sf.ehcache.distribution.CachePeer#getGuid()
+         */
+        public String getGuid() throws RemoteException {
+            // no-op
+            return null;
+        }
+
+        /**
+         * {@inheritDoc}
+         * 
+         * @see net.sf.ehcache.distribution.CachePeer#getKeys()
+         */
+        public List getKeys() throws RemoteException {
+            // no-op
+            return null;
+        }
+
+        /**
+         * {@inheritDoc}
+         * 
+         * @see net.sf.ehcache.distribution.CachePeer#getName()
+         */
+        public String getName() throws RemoteException {
+            // no-op
+            return null;
+        }
+
+        /**
+         * {@inheritDoc}
+         * 
+         * @see net.sf.ehcache.distribution.CachePeer#getQuiet(java.io.Serializable)
+         */
+        public Element getQuiet(Serializable key) throws RemoteException {
+            // no-op
+            return null;
+        }
+
+        /**
+         * {@inheritDoc}
+         * 
+         * @see net.sf.ehcache.distribution.CachePeer#getUrlBase()
+         */
+        public String getUrlBase() throws RemoteException {
+            // no-op
+            return null;
+        }
+
+        /**
+         * {@inheritDoc}
+         * 
+         * @see net.sf.ehcache.distribution.CachePeer#put(net.sf.ehcache.Element)
+         */
+        public void put(Element element) throws IllegalArgumentException, IllegalStateException, RemoteException {
+            // no-op
+
+        }
+
+        /**
+         * {@inheritDoc}
+         * 
+         * @see net.sf.ehcache.distribution.CachePeer#remove(java.io.Serializable)
+         */
+        public boolean remove(Serializable key) throws IllegalStateException, RemoteException {
+            // no-op
+            return false;
+        }
+
+        /**
+         * {@inheritDoc}
+         * 
+         * @see net.sf.ehcache.distribution.CachePeer#removeAll()
+         */
+        public void removeAll() throws RemoteException, IllegalStateException {
+            // no-op
+        }
+
+        /**
+         * {@inheritDoc}
+         * 
+         * @see net.sf.ehcache.distribution.CachePeer#send(java.util.List)
+         */
+        public void send(List eventMessages) throws RemoteException {
+            // no-op
+
+        }
+
+    }
 
 }

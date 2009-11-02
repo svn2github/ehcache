@@ -121,6 +121,7 @@ public final class MulticastKeepaliveHeartbeatSender {
             setDaemon(true);
         }
 
+        @Override
         public final void run() {
             while (!stopped) {
                 try {
@@ -179,22 +180,7 @@ public final class MulticastKeepaliveHeartbeatSender {
             int newCachePeersHash = localCachePeers.hashCode();
             if (cachePeersHash != newCachePeersHash) {
                 cachePeersHash = newCachePeersHash;
-
-                compressedUrlListList = new ArrayList();
-                while (localCachePeers.size() > 0) {
-                    int endIndex = Math.min(localCachePeers.size(), MAXIMUM_PEERS_PER_SEND);
-                    List localCachePeersSubList = localCachePeers.subList(0, endIndex);
-                    localCachePeers = localCachePeers.subList(endIndex, localCachePeers.size());
-
-                    byte[] uncompressedUrlList = PayloadUtil.assembleUrlList(localCachePeersSubList);
-                    byte[] compressedUrlList = PayloadUtil.gzip(uncompressedUrlList);
-                    if (compressedUrlList.length > PayloadUtil.MTU) {
-                        LOG.log(Level.SEVERE, "Heartbeat is not working. Configure fewer caches for replication. " +
-                                "Size is " + compressedUrlList.length + " but should be no greater than" +
-                                PayloadUtil.MTU);
-                    }
-                    compressedUrlListList.add(compressedUrlList);
-                }
+                compressedUrlListList = PayloadUtil.createCompressedPayloadList(localCachePeers, MAXIMUM_PEERS_PER_SEND);
             }
             return compressedUrlListList;
         }
@@ -233,6 +219,7 @@ public final class MulticastKeepaliveHeartbeatSender {
          *
          * @throws SecurityException if the current thread cannot modify this thread
          */
+        @Override
         public final void interrupt() {
             closeSocket();
             super.interrupt();
