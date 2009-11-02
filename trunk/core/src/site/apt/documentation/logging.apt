@@ -1,45 +1,23 @@
 {Logging}
 
-
 * {Java Util Logging}
 
-    As of 1.6, Ehcache uses the built-in Java Util library ("{j.u.l}") for logging.
-
-
-* Working with SL4J
-
-    Simple Logging Facade For Java (SL4J) is an increasingly popular replacement for commons-logging.
-
-    You can still log via SL4J using the SLF4JBridgeHandler. See {{http://www.slf4j.org/legacy.html}}
-
-    According to {{http://blog.cn-consult.dk/2009/03/bridging-javautillogging-to-slf4j.html}}
-    this will install an extra logger. To stop j.u.l. from logging at all
-
-    To remove j.u.l logging all together use the following code snippet.
-
----
-    java.util.logging.Logger rootLogger = LogManager.getLogManager().getLogger("");
-    Handler[] handlers = rootLogger.getHandlers();
-    for (int i = 0; i < handlers.length; i++) {
-        rootLogger.removeHandler(handlers[i]);
-    }
-    SLF4JBridgeHandler.install();
----
-
+    As of 1.7.1, Ehcache uses the the slf4j logging facade. Plug in your own logging framework.
 
 
 * Recommended Logging Levels
 
     Ehcache seeks to trade off informing production support developers or important messages and cluttering the log.
 
-    {SEVERE} JDK logging SEVERE messages should not occur in normal production and indicate that action should be taken.
+    {ERROR} ERROR messages should not occur in normal production and indicate that action should be taken.
 
-    {WARN} JDK logging WARN messages generally indicate a configuration change should be made or an unusual event
+    {WARN} WARN messages generally indicate a configuration change should be made or an unusual event
     has occurred.
 
-    {FINE} JDK logging FINE messages are for development use. All DEBUG level statements are surrounded with a guard
-    so that they are not executed unless the level is DEBUG.
+    {DEBUG} DEBUG and TRACE messages are for development use. All DEBUG level statements
+    are surrounded with a guard so that no performance cost is incurred unless the logging
+    level is set.
 
-    Setting the logging level to FINE should provide more information on the source of any problems.
+    Setting the logging level to DEBUG should provide more information on the source of any problems.
     Many logging systems enable a logging level change to be made without restarting the application.
 

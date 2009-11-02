@@ -13,7 +13,7 @@ Glassfish HowTo & FAQ
     Ehcache comes with a sample web application which is used to test the page caching. The page caching is the only area
     that is sensitive to the Application Server. For Hibernate and general caching, it is only dependent on your Java version.
 
-    From a checkout of ehcache run the following from the <<<core>>> directory:
+    From a checkout of Ehcache run the following from the <<<core>>> directory:
 
 
     You need:
@@ -52,7 +52,7 @@ Glassfish HowTo & FAQ
 
 **  How to get around the EJB Container restrictions on thread creation
 
-    When ehcache is running in the EJB Container, for example for Hibernate caching, it is in technical breach of
+    When Ehcache is running in the EJB Container, for example for Hibernate caching, it is in technical breach of
     the EJB rules. Some app servers let you override this restriction.
 
     I am not exactly sure how this in done in Glassfish. For a number of reasons we run Glassfish
@@ -83,10 +83,10 @@ Glassfish HowTo & FAQ
     This issue was fixed in Ehcache 1.3.
 
 **  I get a <<<Could not ungzip. Heartbeat will not be working. Not in GZIP format>>> reported from PayloadUtil
-    exception when using ehcache with my Glassfish cluster. Why?
+    exception when using Ehcache with my Glassfish cluster. Why?
 
-    Ehcache and Glassfish clustering have nothing to do with each other. The error is caused because ehcache has
-    received a multicast message from the Glassfish cluster. Ensure that ehcache clustering has its own unique
+    Ehcache and Glassfish clustering have nothing to do with each other. The error is caused because Ehcache has
+    received a multicast message from the Glassfish cluster. Ensure that Ehcache clustering has its own unique
     multicast address different to Glassfish.
     
 

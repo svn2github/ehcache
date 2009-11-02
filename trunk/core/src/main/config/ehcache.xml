@@ -23,7 +23,7 @@ for new versions of Ehcache over the Internet.  If not specified, updateCheck="t
 automatically register the SampledCacheMBean with the system MBean server.
 
 Currently, this monitoring is only useful when using Terracotta clustering and using the
-Terracotta Developer Console. With the "autodetect" value, the presense of Terracotta clustering
+Terracotta Developer Console. With the "autodetect" value, the presence of Terracotta clustering
 will be detected and monitoring, via the Developer Console, will be enabled. Other allowed values
 are "on" and "off".  The default is "autodetect". This setting does not perform any function when
 used with JMX monitors.

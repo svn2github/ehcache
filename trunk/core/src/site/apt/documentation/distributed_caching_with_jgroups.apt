@@ -132,7 +132,7 @@ Distributed Caching using {JGroups}
     A typical complete configuration for one replicated cache configured for UDP will look like:
 	 
 ---
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<Ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:noNamespaceSchemaLocation="../../../main/config/ehcache.xsd">
 
 <diskStore path="java.io.tmpdir/one"/>

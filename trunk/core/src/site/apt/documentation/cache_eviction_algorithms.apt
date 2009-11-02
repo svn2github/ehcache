@@ -4,8 +4,8 @@
 
     A cache eviction algorithm is a way of deciding which <<<Element>>> to evict when the cache is full.
 
-    In ehcache the <<<MemoryStore>>> has a fixed limited size set by {<<<maxElementsInMemory>>>}.
-    When the store gets full, <<<elements>>> are evicted. The eviction algorithms in ehcache
+    In Ehcache the <<<MemoryStore>>> has a fixed limited size set by {<<<maxElementsInMemory>>>}.
+    When the store gets full, <<<elements>>> are evicted. The eviction algorithms in Ehcache
     determines which elements is evicted. The default is LRU.
 
     What happens on eviction depends on the cache configuration. If a <<<DiskStore>>> is configured,
@@ -26,9 +26,9 @@
     information that will not be needed for the longest time in the future. This it a theoretical result
     that is unimplementable without domain knowledge. The Least Recently Used ("LRU") algorithm is often used as
     a proxy. It works pretty well because of the locality of reference phenonemon. As a result, LRU is the default
-    eviction algorithm in ehcache, as it is in most caches.
+    eviction algorithm in Ehcache, as it is in most caches.
 
-    Ehcache users may sometimes have a good domain knowledge. Accordingly, ehcache provides three eviction
+    Ehcache users may sometimes have a good domain knowledge. Accordingly, Ehcache provides three eviction
     algorithms to choose from for the <<<MemoryStore>>>.
 
     
@@ -56,7 +56,7 @@
      If cache element use follows a pareto distribution, this algorithm may give better
      results than LRU.
 
-     LFU is an algorithm unique to ehcache. It takes a random sample of the Elements and
+     LFU is an algorithm unique to Ehcache. It takes a random sample of the Elements and
      evicts the smallest. Using the sample size of 30 elements, empirical testing shows
      that an Element in the lowest quartile of use is evicted 99.99% of the time.
 

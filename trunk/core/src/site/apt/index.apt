@@ -54,7 +54,7 @@ Welcome to ehcache
 
   This is a final release of ehcache-1.7.0 comprising ehcache, ehcache-core and ehcache-terracotta modules.
 
-  The new 1.7.0 ehcache module now contains out-of-the-box support for Terracotta.
+  The new 1.7.0 Ehcache module now contains out-of-the-box support for Terracotta.
 
   This release is the first fruits of the merger of Ehcache and Terracotta. It enables Ehcache to be Terracotta clustered
   with only a few lines of config in ehcache.xml and no application code changes. See the {{{/documentation/distributed_caching_with_terracotta.html}Terracotta Clustering Documentation}}
@@ -86,7 +86,7 @@ Welcome to ehcache
 
   This is a production maintenance release of ehcache-1.6. Users of 1.6 should upgrade to 1.6.2.
 
-  Download {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}here}}. All documentation is {{{http://ehcache.sourceforge.net/documentation}here}}.
+  Download {{{http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup}here}}. All documentation is {{{http://ehcache.org/documentation}here}}.
   The release is also available on Maven central. Note that Maven will report a checksum error.
   It is caused by a bug in Maven 2.1.0 and can be ignored.
 
@@ -103,7 +103,7 @@ Welcome to ehcache
 
   Terracotta is committed to maintaining the Ehcache community and plans to retain availability of Ehcache as an
   open source product under the Apache 2 license. Ehcache will remain available for download at its current location
-  at http://ehcache.sourceforge.net, in the Maven central repository, as well as at it's new home at http://ehcache.org.
+  at http://ehcache.org, in the Maven central repository, as well as at it's new home at http://ehcache.org.
 
   As part of the merger, Greg Luck, the maintainer of Ehcache, will join Terracotta Inc..
 

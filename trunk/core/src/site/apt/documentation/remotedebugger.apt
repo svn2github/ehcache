@@ -23,7 +23,8 @@
 --------------------------------------------
 
 java -classpath [add your application jars here]
- -jar ehcache-debugger-1.5.0.jar ehcache.xml sampleCache1 path_to_ehcache.xml [cacheToMonitor]
+ -jar ehcache-debugger-1.5.0.jar ehcache.xml sampleCache1
+    path_to_ehcache.xml [cacheToMonitor]
 
 --------------------------------------------
 
@@ -32,8 +33,8 @@ java -classpath [add your application jars here]
 
    It takes one or two arguments:
 
-   * the first argument, which is mandatory, is the ehcache configuration file e.g. app/config/ehcache.xml. This file should be configured to allow
-   ehcache to joing the cluster. Using one of the existing ehcache.xml files from the other nodes normally is
+   * the first argument, which is mandatory, is the Ehcache configuration file e.g. app/config/ehcache.xml. This file should be configured to allow
+   Ehcache to joing the cluster. Using one of the existing ehcache.xml files from the other nodes normally is
    sufficient.
 
    * the second argument, which is optional, is the name of the cache e.g. distributedCache1
@@ -91,7 +92,7 @@ java -classpath [add your application jars here]
 ** Yes, but I still have a cluster problem
 
    Check the FAQ where a lot of commonly reported errors and their solutions are provided. Beyond that, post to the forums or mailing
-    list or contact ehcache for support.
+    list or contact Ehcache for support.
 
 
 

@@ -45,33 +45,33 @@ cacheManager.replaceCacheWithDecoratedCache(cache, newBlockingCache);
     found in <<<CachingFilter>>>:
 
 ---
-    /**
-     * The cache holding the web pages. Ensure that all threads for a given cache name
-     * are using the same instance of this.
-     */
-    private BlockingCache blockingCache;
+/**
+ * The cache holding the web pages. Ensure that all threads for a given cache name
+ * are using the same instance of this.
+ */
+private BlockingCache blockingCache;
 
-    /**
-     * Initialises blockingCache to use
-     *
-     * @throws CacheException The most likely cause is that a cache has not been
-     *                        configured in ehcache's configuration file ehcache.xml for the
-     *                        filter name
-     */
-    public void doInit() throws CacheException {
-        synchronized (this.getClass()) {
-            if (blockingCache == null) {
-                final String cacheName = getCacheName();
-                Ehcache cache = getCacheManager().getEhcache(cacheName);
-                if (!(cache instanceof BlockingCache)) {
-                    //decorate and substitute
-                    BlockingCache newBlockingCache = new BlockingCache(cache);
-                    getCacheManager().replaceCacheWithDecoratedCache(cache, newBlockingCache);
-                }
-                blockingCache = (BlockingCache) getCacheManager().getEhcache(getCacheName());
+/**
+ * Initialises blockingCache to use
+ *
+ * @throws CacheException The most likely cause is that a cache has not been
+ *                        configured in Ehcache's configuration file ehcache.xml for the
+ *                        filter name
+ */
+public void doInit() throws CacheException {
+    synchronized (this.getClass()) {
+        if (blockingCache == null) {
+            final String cacheName = getCacheName();
+            Ehcache cache = getCacheManager().getEhcache(cacheName);
+            if (!(cache instanceof BlockingCache)) {
+                //decorate and substitute
+                BlockingCache newBlockingCache = new BlockingCache(cache);
+                getCacheManager().replaceCacheWithDecoratedCache(cache, newBlockingCache);
             }
+            blockingCache = (BlockingCache) getCacheManager().getEhcache(getCacheName());
         }
     }
+}
 ---
 
 

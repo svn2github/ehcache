@@ -50,14 +50,14 @@
  */
 public abstract class CacheExceptionHandlerFactory {
 
-    /**
-     * Create an <code>CacheExceptionHandler</code>
-     *
-     * @param properties implementation specific properties. These are configured as comma
-     *                   separated name value pairs in ehcache.xml
-     * @return a constructed CacheExceptionHandler
-     */
-    public abstract CacheExceptionHandler createExceptionHandler(Properties properties);
+/**
+ * Create an <code>CacheExceptionHandler</code>
+ *
+ * @param properties implementation specific properties. These are configured as comma
+ *                   separated name value pairs in ehcache.xml
+ * @return a constructed CacheExceptionHandler
+ */
+public abstract CacheExceptionHandler createExceptionHandler(Properties properties);
 
 
 }
@@ -97,20 +97,20 @@ public abstract class CacheExceptionHandlerFactory {
  */
 public interface CacheExceptionHandler {
 
-    /**
-     * Called if an Exception occurs in a Cache method. This method is not called
-     * if an <code>Error</code> occurs.
-     *
-     * @param ehcache   the cache in which the Exception occurred
-     * @param key       the key used in the operation, or null if the operation does not use a
-     * key or the key was null
-     * @param exception the exception caught
-     */
-    void onException(Ehcache ehcache, Object key, Exception exception);
+/**
+ * Called if an Exception occurs in a Cache method. This method is not called
+ * if an <code>Error</code> occurs.
+ *
+ * @param Ehcache   the cache in which the Exception occurred
+ * @param key       the key used in the operation, or null if the operation does not use a
+ * key or the key was null
+ * @param exception the exception caught
+ */
+void onException(Ehcache ehcache, Object key, Exception exception);
 }
 ------------------------------------------
 
-    The implementations need to be placed in the classpath accessible to ehcache.
+    The implementations need to be placed in the classpath accessible to Ehcache.
 
     See the chapter on {{{./class_loading.html}Classloading}} for details on how classloading
     of these classes will be done.

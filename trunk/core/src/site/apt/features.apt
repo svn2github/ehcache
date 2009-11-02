@@ -139,7 +139,7 @@
 
 ** {Fast}
 
-  Over the years, various performance tests have shown ehcache to be one of the fastest Java caches. Ehcache's threading is designed
+  Over the years, various performance tests have shown Ehcache to be one of the fastest Java caches. Ehcache's threading is designed
   for large, high concurrency systems.
 
   Extensive performance tests in the test suite keep ehcache's performance consistent between releases.
@@ -168,7 +168,7 @@
   [java] ---------------------------------------------------------------
   [java] cache4j 0.4 |9240 |9116 |5556 |
   [java] oscache 2.2 |33577 |30803 |8350 |
-  [java] ehcache 1.1 |7697 |6145 |3395 |
+  [java] Ehcache 1.1 |7697 |6145 |3395 |
   [java] jcs 1.2.7.0 |8966 |9455 |4072 |
   [java] ---------------------------------------------------------------
 
@@ -189,7 +189,7 @@
   [java] ---------------------------------------------------------------
   [java] cache4j 0.4 |9410 |9053 |5865 |
   [java] oscache 2.2 |28076 |30833 |8031 |
-  [java] ehcache 1.2 |8753 |7072 |3479 |
+  [java] Ehcache 1.2 |8753 |7072 |3479 |
   [java] jcs 1.2.7.0 |8806 |9522 |4097 |
   [java] ---------------------------------------------------------------
 
@@ -198,7 +198,7 @@
 
 ** {Simple}
 
-   Many users of ehcache hardly know they are using it. Sensible defaults require no initial configuration.
+   Many users of Ehcache hardly know they are using it. Sensible defaults require no initial configuration.
 
    The API is very simple and easy to use, making it possible to get up and running in minutes. See the {{{./samples.html}Code Samples}} for details.
 
@@ -214,11 +214,11 @@
 
 ** {Provides Memory and Disk stores for scalabilty into gigabytes}
 
-    The largest ehcache installations use memory and disk stores in the gigabyte range. Ehcache is tuned for these large sizes.
+    The largest Ehcache installations use memory and disk stores in the gigabyte range. Ehcache is tuned for these large sizes.
 
 ** {Scalable to hundreds of caches}
 
-    The largest ehcache installations use hundreds of caches.
+    The largest Ehcache installations use hundreds of caches.
 
 ** {Tuned for high concurrent load on large multi-cpu servers}
 
@@ -236,7 +236,7 @@
 ** {Supports Object or Serializable caching}
 
    As of ehcache-1.2 there is an API for Objects in addition to the one for Serializable. Non-serializable Objects can
-   use all parts of ehcache except for DiskStore and replication. If an attempt is made to persist or replicate them
+   use all parts of Ehcache except for DiskStore and replication. If an attempt is made to persist or replicate them
    they are discarded and a WARNING level log message emitted.
 
    The APIs are identical except for the return methods from Element. Two new methods on
@@ -288,7 +288,7 @@
 
 ** {Peer Discovery, Replicators and Listeners may be plugged in}
 
-    Distributed caching, introduced in ehcache 1.2 involves many choices and tradeoffs. The ehcache team believe that one size will not fit all.
+    Distributed caching, introduced in Ehcache 1.2 involves many choices and tradeoffs. The Ehcache team believe that one size will not fit all.
     Implementers can use built-in mechanisms or write their own. A plugin development guide is included for this purpose.
 
 ** {Cache Extensions may be plugged in}
@@ -308,12 +308,12 @@
 
 ** {Persistent disk store which stores data between VM restarts}
 
-    With ehcache 1.1 in 2004, ehcache was the first open source Java cache to introduce persistent storage of cache data
+    With Ehcache 1.1 in 2004, Ehcache was the first open source Java cache to introduce persistent storage of cache data
     on disk on shutdown. The cached data is then accessible the next time the application runs.
 
 ** {Flush to disk on demand}
 
-    With ehcache 1.2, the flushing of entries to disk can be executed with a <<<cache.flush()>>> method whenever required,
+    With Ehcache 1.2, the flushing of entries to disk can be executed with a <<<cache.flush()>>> method whenever required,
     making it easier to use ehcache
 
 * Listeners
@@ -390,7 +390,7 @@
 
 ** {Extensible}
 
-    Distributed caching, introduced in ehcache 1.2 involves many choices and tradeoffs. The ehcache team believe that one size will not fit all.
+    Distributed caching, introduced in Ehcache 1.2 involves many choices and tradeoffs. The Ehcache team believe that one size will not fit all.
     Implementers can use built-in mechanisms or write their own. A plugin development guide is included for this purpose.
 
 ** {Bootstrapping from Peers}
@@ -409,7 +409,7 @@
 
 ** {RESTful cache server}
 
-    The ehcache implementation strictly follows the RESTful resource-oriented architecture style.
+    The Ehcache implementation strictly follows the RESTful resource-oriented architecture style.
 
     Specifically:
 
@@ -487,7 +487,7 @@
 ** {Works with Hibernate}
 
    Tested with Hibernate2.1.8 and  Hibernate3.1.3, which can utilise all of the new features except for Object API and
-   multiple session factories each using a different ehcache CacheManager.
+   multiple session factories each using a different Ehcache CacheManager.
 
    A new <<<net.sf.ehcache.hibernate.EhCacheProvider>>> makes those additional features available to Hibernate-3.1.3. A version of the new provider should make it into
    the Hibernate3.2 release.
@@ -502,14 +502,14 @@
 
 ** {High Test Coverage}
 
- The ehcache team believe that the first and most important quality measure is a well designed and comprehensive test suite.
+ The Ehcache team believe that the first and most important quality measure is a well designed and comprehensive test suite.
 
  Ehcache has a relatively high 86% test coverage of source code. This has edged higher over time. Clover enforces the test coverage.
  Most of the missing 14% is logging and exception paths.
 
 ** Automated {Load, Limit and Performance System Tests}
 
-  The ehcache JUnit test suite contains some long-running system tests which place high load on different ehcache subsystems
+  The Ehcache JUnit test suite contains some long-running system tests which place high load on different Ehcache subsystems
     to the point of failure and then are back off to just below that point. The same is done with limits such as the amount
       of Elements that can fit in a given heap size. The same is also done with performance testing of each subsystem and
       the whole together. The same is also done with network tests for cache replication.
@@ -542,7 +542,7 @@
 
  Ehcache came about in the first place because of production issues with another open source cache.
 
- Final release versions of ehcache have been production tested on a very busy e-commerce site, supporting thousands of concurrent
+ Final release versions of Ehcache have been production tested on a very busy e-commerce site, supporting thousands of concurrent
  users, gigabyte size caches on large multi-cpu machines. It has been the experience of the team that most threading issues
  do not surface until this type of load has been applied. Once an issue has been identified and investigated a concurrency unit test
  can then be crafted.
@@ -577,8 +577,8 @@
 
 ** {Responsiveness to serious bugs}
 
- The ehcache team is serious about quality. If one user is having a problem, it probably means others are too, or will
- have. The ehcache team use ehcache themselves in production. Every effort will be made to provide fixes for serious
+ The Ehcache team is serious about quality. If one user is having a problem, it probably means others are too, or will
+ have. The Ehcache team use Ehcache themselves in production. Every effort will be made to provide fixes for serious
  production problems as soon as possible. These will be committed to trunk. From there an affected user can apply
  the fix to their own branch.
 
@@ -587,8 +587,8 @@
 ** {Apache 2.0 license}
 
  Ehcache's original Apache1.1 copyright and licensing was reviewed and approved by the Apache Software Foundation,
- making ehcache suitable for use in Apache projects. ehcache-1.2 is released under the updated Apache 2.0 license.
+ making Ehcache suitable for use in Apache projects. ehcache-1.2 is released under the updated Apache 2.0 license.
 
- The Apache license is also friendly one, making it safe and easy to include ehcache in other open source projects or commercial products.
+ The Apache license is also friendly one, making it safe and easy to include Ehcache in other open source projects or commercial products.
 
 

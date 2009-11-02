@@ -131,6 +131,7 @@
                 <arg value="getting_started.apt"/>
                 <arg value="features.apt"/>
                 <arg value="concepts.apt"/>
+                <arg value="architecture.apt"/>
                 <arg value="configuration.apt"/>
                 <arg value="storage_options.apt"/>
                 <arg value="cache_eviction_algorithms.apt"/>
@@ -165,7 +166,6 @@
                 <arg value="tomcat.apt"/>
                 <arg value="building.apt"/>
                 <arg value="faq.apt"/>
-                <arg value="nameandlogo.apt"/>
             </exec>
 
         </sequential>

@@ -45,11 +45,11 @@
 
 * {Using the CacheManager}
 
- All usages of ehcache start with the creation of a CacheManager.
+ All usages of Ehcache start with the creation of a CacheManager.
 
 ** {Singleton versus Instance}
 
- As of ehcache-1.2, ehcache CacheManagers can be created as either singletons (use the create factory method) or instances (use new).
+ As of ehcache-1.2, Ehcache CacheManagers can be created as either singletons (use the create factory method) or instances (use new).
 
  Create a singleton CacheManager using defaults, then list caches.
 
@@ -188,7 +188,7 @@ cache.put(element);
 ---------------------------------
 
 
- Update an element in a cache. Even though <<<cache.put()>>> is used, ehcache knows there is an existing element, and considers
+ Update an element in a cache. Even though <<<cache.put()>>> is used, Ehcache knows there is an existing element, and considers
  the put an update for the purpose of notifying cache listeners.
 
 ---------------------------------
@@ -363,8 +363,8 @@ public Cache(
 
  Ehcache comes with a comprehensive JUnit test suite, which not only tests the code, but shows you how to use ehcache.
 
- A link to {{{/xref-test/index.html}browsable unit test source code}} for the major ehcache classes is given per section. The unit tests are also
-   in the src.zip in the ehcache tarball.
+ A link to {{{/xref-test/index.html}browsable unit test source code}} for the major Ehcache classes is given per section. The unit tests are also
+   in the src.zip in the Ehcache tarball.
 
 
 *  {JCache Examples}

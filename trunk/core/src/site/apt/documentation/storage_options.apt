@@ -22,7 +22,7 @@ Storage Options
      Thread safe for use by multiple concurrent threads.
 
      Tested for memory leaks. See MemoryCacheTest#testMemoryLeak. This test
-     passes for ehcache but exploits a number of memory leaks in JCS. JCS
+     passes for Ehcache but exploits a number of memory leaks in JCS. JCS
      will give an OutOfMemory error with a default 64M in 10 seconds.
 
      ** Backed By JDK
@@ -85,7 +85,7 @@ Storage Options
      cache. Memory sizing of an application must always take into
      account the maximum size of each cache. There is a convenience method
      which can provide an estimate of the size in bytes of the <<<MemoryStore>>>.
-     See {{{http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/Cache.html#calculateInMemorySize%28%29}calculateInMemorySize()}}.
+     See {{{http://ehcache.org/javadoc/net/sf/ehcache/Cache.html#calculateInMemorySize%28%29}calculateInMemorySize()}}.
      It returns the serialized size of the cache. Do not use this method in
      production. It is very slow. It is only meant to provide a rough
      estimate.
@@ -114,7 +114,7 @@ Storage Options
     To turn off disk store path creation, comment out the diskStore element in ehcache.xml.
 
     The <<<ehcache-failsafe.xml>>> configuration uses a disk store. This will remain the case so as to not affect
-    existing ehcache deployments. So, if you do not wish to use a disk store make
+    existing Ehcache deployments. So, if you do not wish to use a disk store make
     sure you specify your own ehcache.xml and comment out the diskStore element.
 
 ** Suitable Element Types
@@ -208,7 +208,7 @@ Storage Options
      In all cases the index file is only written when dispose is called on the <<<DiskStore>>>.
      This happens when the CacheManager is shut down, a Cache is disposed,
      or the VM is being shut down. It is recommended that the
-     CacheManager {{{http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/CacheManager.html#shutdown%28%29}shutdown()}}
+     CacheManager {{{http://ehcache.org/javadoc/net/sf/ehcache/CacheManager.html#shutdown%28%29}shutdown()}}
      method be used. See Virtual Machine Shutdown Considerations for guidance on how to safely shut the Virtual
      Machine down.
 
@@ -230,7 +230,7 @@ Storage Options
        * If the index file is read successfully, the free list and element
      list are loaded into memory. Once this is done, the index file contents
      are removed. This way, if there is a dirty shutdown, when restarted,
-     ehcache will delete the dirt index and data files.
+     Ehcache will delete the dirt index and data files.
 
        * The <<<DiskStore>>> starts. All data is available.
 
@@ -298,6 +298,6 @@ Storage Options
      thing that may happen is that the elements will expire, in which case the <<<DiskStore>>> expiry
      thread will reap them, (or they will get removed on a get if they are expired).
 
-     So, the ehcache design does not load them all into memory on start up, but lazily loads them as
+     So, the Ehcache design does not load them all into memory on start up, but lazily loads them as
      required.
 

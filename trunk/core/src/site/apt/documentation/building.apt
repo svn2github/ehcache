@@ -3,7 +3,7 @@
     These instructions work for each of the modules, except for JMS Replication, which requires installation
     of a message queue. See that module for details.
 
-*   {Building an ehcache distribution from source}
+*   {Building an Ehcache distribution from source}
 
     To build Ehcache from source:
 

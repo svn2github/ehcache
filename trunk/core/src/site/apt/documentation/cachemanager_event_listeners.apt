@@ -23,8 +23,7 @@
 
 ------------------------------------------
 
-<cacheManagerEventListenerFactory class=""
-properties=""/>
+<cacheManagerEventListenerFactory class="" properties=""/>
 
 -------------------------------------------
 
@@ -64,7 +63,7 @@ properties=""/>
  *
  * @author Greg Luck
  * @version $Id$
- * @see "http://ehcache.sourceforge.net/documentation/cachemanager_event_listeners.html"
+ * @see "http://ehcache.org/documentation/cachemanager_event_listeners.html"
  */
 public abstract class CacheManagerEventListenerFactory {
 
@@ -103,46 +102,47 @@ public abstract class CacheManagerEventListenerFactory {
 public interface CacheManagerEventListener {
 
 
-    /**
-     * Called immediately after a cache has been added and activated.
-     * <p/>
-     * Note that the CacheManager calls this method from a synchronized method. Any attempt to
-     * call a synchronized method on CacheManager from this method will cause a deadlock.
-     * <p/>
-     * Note that activation will also cause a CacheEventListener status change notification
-     * from {@link net.sf.ehcache.Status#STATUS_UNINITIALISED} to
-     * {@link net.sf.ehcache.Status#STATUS_ALIVE}. Care should be taken on processing that
-     * notification because:
-     * <ul>
-     * <li>the cache will not yet be accessible from the CacheManager.
-     * <li>the addCaches methods whih cause this notification are synchronized on the
-     * CacheManager. An attempt to call {@link net.sf.ehcache.CacheManager#getCache(String)}
-     * will cause a deadlock.
-     * </ul>
-     * The calling method will block until this method returns.
-     * <p/>
-     * @param cacheName the name of the <code>Cache</code> the operation relates to
-     * @see CacheEventListener
-     */
-    void notifyCacheAdded(String cacheName);
+/**
+ * Called immediately after a cache has been added and activated.
+ * <p/>
+ * Note that the CacheManager calls this method from a synchronized method. Any attempt to
+ * call a synchronized method on CacheManager from this method will cause a deadlock.
+ * <p/>
+ * Note that activation will also cause a CacheEventListener status change notification
+ * from {@link net.sf.ehcache.Status#STATUS_UNINITIALISED} to
+ * {@link net.sf.ehcache.Status#STATUS_ALIVE}. Care should be taken on processing that
+ * notification because:
+ * <ul>
+ * <li>the cache will not yet be accessible from the CacheManager.
+ * <li>the addCaches methods whih cause this notification are synchronized on the
+ * CacheManager. An attempt to call {@link net.sf.ehcache.CacheManager#getCache(String)}
+ * will cause a deadlock.
+ * </ul>
+ * The calling method will block until this method returns.
+ * <p/>
+ * @param cacheName the name of the <code>Cache</code> the operation relates to
+ * @see CacheEventListener
+ */
+void notifyCacheAdded(String cacheName);
 
-    /**
-     * Called immediately after a cache has been disposed and removed. The calling method will
-     * block until this method returns.
-     * <p/>
-     * Note that the CacheManager calls this method from a synchronized method. Any attempt to
-     * call a synchronized method on CacheManager from this method will cause a deadlock.
-     * <p/>
-     * Note that a {@link CacheEventListener} status changed will also be triggered. Any
-     * attempt from that notification to access CacheManager will also result in a deadlock.
-     * @param cacheName the name of the <code>Cache</code> the operation relates to
-     */
-    void notifyCacheRemoved(String cacheName);
+/**
+ * Called immediately after a cache has been disposed and removed. The calling method will
+ * block until this method returns.
+ * <p/>
+ * Note that the CacheManager calls this method from a synchronized method. Any attempt to
+ * call a synchronized method on CacheManager from this method will cause a deadlock.
+ * <p/>
+ * Note that a {@link CacheEventListener} status changed will also be triggered. Any
+ * attempt from that notification to access CacheManager will also result in a deadlock.
+ * @param cacheName the name of the <code>Cache</code> the operation relates to
+ */
+void notifyCacheRemoved(String cacheName);
 
 }
 ---
 
     The implementations need to be placed in the classpath accessible to
-    ehcache. Ehcache uses the ClassLoader returned by <<<Thread.currentThread().getContextClassLoader()>>> to load classes.
+    ehcache. Ehcache uses the ClassLoader returned by <<<Thread.currentThread().getContextClassLoader()>>>
+    to load classes.
 
 

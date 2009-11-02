@@ -2,7 +2,7 @@
 
     If you are using persistent disk stores, or distributed caching, care should be taken to shutdown ehcache.
 
-    Note that Hibernate automatically shuts down its ehcache <<<CacheManager>>>.
+    Note that Hibernate automatically shuts down its Ehcache <<<CacheManager>>>.
 
     The recommended way to shutdown the Ehcache is:
 
@@ -10,13 +10,13 @@
 
     * in a web app, register the Ehcache <<<ShutdownListener>>>
 
-    Though not recommended, ehcache also lets you register a JVM shutdown hook.
+    Though not recommended, Ehcache also lets you register a JVM shutdown hook.
 
 
 *   ServletContextListener
 
     Ehcache proivdes a ServletContextListener that shutsdown CacheManager. Use this when you want to shutdown
-    ehcache automatically when the web application is shutdown.
+    Ehcache automatically when the web application is shutdown.
 
     To receive notification events, this class must be configured in the deployment
     descriptor for the web application.
@@ -98,7 +98,7 @@
 
 *   Dirty Shutdown
 
-    If ehcache is shutdown dirty then any persistent disk stores will be corrupted. They will be deleted, with a log message, on the next startup.
+    If Ehcache is shutdown dirty then any persistent disk stores will be corrupted. They will be deleted, with a log message, on the next startup.
 
     Replications waiting to happen to other nodes in a distributed cache will also not get written.
 

@@ -1,6 +1,6 @@
 {Garbage Collection}
 
-    Applications which use ehcache can be expected to have larger heaps. Some ehcache applications have heap sizes greater than 6GB.
+    Applications which use Ehcache can be expected to have larger heaps. Some Ehcache applications have heap sizes greater than 6GB.
 
     Ehcache works well at this scale. However large heaps or long held object, which is what a cache is, can place strain on the
     default Garbage Collector.

@@ -12,7 +12,7 @@ Getting Started
 
       * Make sure you are using a supported {{{./dependencies.html#java}Java}} version.
 
-      * Place the ehcache jar into your classpath.
+      * Place the Ehcache jar into your classpath.
 
       * Ensure that any libraries required to satisfy {{{./dependencies.html}dependencies}} are also in the classpath.
 
@@ -72,7 +72,7 @@ Getting Started
 
 * Spring, Cocoon, Acegi and other frameworks
 
-   Usually, with these, you are using ehcache without even realising it. The first steps in getting more control
+   Usually, with these, you are using Ehcache without even realising it. The first steps in getting more control
    over what is happening are:
 
    * discover the cache names used by the framework

@@ -58,7 +58,7 @@
 
     All caches implement the <<<Ehcache>>> interface. A cache has a name and attributes. Each cache contains Elements.
 
-    A Cache in ehcache is analogous to a cache region in other caching systems.
+    A Cache in Ehcache is analogous to a cache region in other caching systems.
 
     Cache elements are stored in the <<<MemoryStore>>>. Optionally they also overflow to a <<<DiskStore>>>.
 
@@ -71,7 +71,7 @@
     expire and be removed by the Cache, depending on the Cache settings.
 
     As of ehcache-1.2 there is an API for Objects in addition to the one for Serializable. Non-serializable Objects can
-    use all parts of ehcache except for DiskStore and replication. If an attempt is made to persist or replicate them
+    use all parts of Ehcache except for DiskStore and replication. If an attempt is made to persist or replicate them
     they are discarded without error and with a DEBUG level log message.
 
     The APIs are identical except for the return methods from Element. Two new methods on

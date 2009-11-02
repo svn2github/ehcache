@@ -73,36 +73,36 @@
  */
 public abstract class CacheLoaderFactory {
 
-    /**
-     * Creates a CacheLoader using the JSR107 creational mechanism.
-     * This method is called from {@link net.sf.ehcache.jcache.JCacheFactory}
-     *
-     * @param environment the same environment passed into
-     * {@link net.sf.ehcache.jcache.JCacheFactory}.
-     * This factory can extract any properties it needs from the environment.
-     * @return a constructed CacheLoader
-     */
-    public abstract net.sf.jsr107cache.CacheLoader createCacheLoader(Map environment);
+/**
+ * Creates a CacheLoader using the JSR107 creational mechanism.
+ * This method is called from {@link net.sf.ehcache.jcache.JCacheFactory}
+ *
+ * @param environment the same environment passed into
+ * {@link net.sf.ehcache.jcache.JCacheFactory}.
+ * This factory can extract any properties it needs from the environment.
+ * @return a constructed CacheLoader
+ */
+public abstract net.sf.jsr107cache.CacheLoader createCacheLoader(Map environment);
 
 
-    /**
-     * Creates a CacheLoader using the Ehcache configuration mechanism at the time
-     * the associated cache is created.
-     *
-     * @param properties implementation specific properties. These are configured as comma
-     *                   separated name value pairs in ehcache.xml
-     * @return a constructed CacheLoader
-     */
-    public abstract net.sf.ehcache.loader.CacheLoader createCacheLoader(Properties properties);
+/**
+ * Creates a CacheLoader using the Ehcache configuration mechanism at the time
+ * the associated cache is created.
+ *
+ * @param properties implementation specific properties. These are configured as comma
+ *                   separated name value pairs in ehcache.xml
+ * @return a constructed CacheLoader
+ */
+public abstract net.sf.ehcache.loader.CacheLoader createCacheLoader(Properties properties);
 
-    /**
-     * @param cache the cache this extension should hold a reference to,
-     * and to whose lifecycle it should be bound.
-     * @param properties implementation specific properties configured as delimiter
-     *  separated name value pairs in ehcache.xml
-     * @return a constructed CacheLoader
-     */
-    public abstract CacheLoader createCacheLoader(Ehcache cache, Properties properties);
+/**
+ * @param cache the cache this extension should hold a reference to,
+ * and to whose lifecycle it should be bound.
+ * @param properties implementation specific properties configured as delimiter
+ *  separated name value pairs in ehcache.xml
+ * @return a constructed CacheLoader
+ */
+public abstract CacheLoader createCacheLoader(Ehcache cache, Properties properties);
 
 }
 ------------------------------------------
@@ -154,7 +154,7 @@ Map loadAll(Collection keys, Object argument) throws CacheException;
 String getName();
 
 /**
- * Creates a clone of this extension. This method will only be called by ehcache before a
+ * Creates a clone of this extension. This method will only be called by Ehcache before a
  * cache is initialized.
  * <p/>
  * Implementations should throw CloneNotSupportedException if they do not support clone
@@ -208,33 +208,35 @@ public Status getStatus();
     of loaders:
 
 ---
-    /**
-     * Register a {@link CacheLoader} with the cache. It will then be tied into the cache lifecycle.
-     * <p/>
-     * If the CacheLoader is not initialised, initialise it.
-     *
-     * @param cacheLoader A Cache Loader to register
-     */
-    public void registerCacheLoader(CacheLoader cacheLoader) {
-        registeredCacheLoaders.add(cacheLoader);
-    }
+/**
+ * Register a {@link CacheLoader} with the cache. It will then be tied into the cache
+ *   lifecycle.
+ * <p/>
+ * If the CacheLoader is not initialised, initialise it.
+ *
+ * @param cacheLoader A Cache Loader to register
+ */
+public void registerCacheLoader(CacheLoader cacheLoader) {
+    registeredCacheLoaders.add(cacheLoader);
+}
 
-    /**
-     * Unregister a {@link CacheLoader} with the cache. It will then be detached from the cache lifecycle.
-     *
-     * @param cacheLoader A Cache Loader to unregister
-     */
-    public void unregisterCacheLoader(CacheLoader cacheLoader) {
-        registeredCacheLoaders.remove(cacheLoader);
-    }
+/**
+ * Unregister a {@link CacheLoader} with the cache. It will then be detached from the cache
+ * lifecycle.
+ *
+ * @param cacheLoader A Cache Loader to unregister
+ */
+public void unregisterCacheLoader(CacheLoader cacheLoader) {
+    registeredCacheLoaders.remove(cacheLoader);
+}
 
 
-    /**
-     * @return the cache loaders as a live list
-     */
-    public List<CacheLoader> getRegisteredCacheLoaders() {
-        return registeredCacheLoaders;
-    }
+/**
+ * @return the cache loaders as a live list
+ */
+public List<CacheLoader> getRegisteredCacheLoaders() {
+    return registeredCacheLoaders;
+}
 ---
 
 

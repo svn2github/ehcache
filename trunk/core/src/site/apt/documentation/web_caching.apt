@@ -86,7 +86,7 @@
    So why would you ever want to use SimplePageCachingFilter, which does not set these headers?
    The answer is that in some caching
    scenarios you may wish to remove a page before its natural expiry. Consider a scenario where a web page shows dynamic
-   data. Under ehcache the Element can be removed at any time. However if a browser is holding expiry information, those
+   data. Under Ehcache the Element can be removed at any time. However if a browser is holding expiry information, those
    browsers will have to wait until the expiry time before getting updated. The caching in this scenario is more about
    defraying server load rather than minimising browser calls.
 
@@ -118,83 +118,85 @@
 
 ---
 <web-app xmlns="http://java.sun.com/xml/ns/javaee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd "
-         version="2.5">
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+     http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd "
+     version="2.5">
 
-    <filter>
-        <filter-name>CachePage1CachingFilter</filter-name>
-        <filter-class>net.sf.ehcache.constructs.web.filter.SimplePageCachingFilter
-        </filter-class>
-        <init-param>
-            <param-name>suppressStackTraces</param-name>
-            <param-value>false</param-value>
-        </init-param>
-        <init-param>
-            <param-name>cacheName</param-name>
-            <param-value>CachePage1CachingFilter</param-value>
-        </init-param>
-    </filter>
+  <filter>
+    <filter-name>CachePage1CachingFilter</filter-name>
+    <filter-class>net.sf.ehcache.constructs.web.filter.SimplePageCachingFilter
+    </filter-class>
+    <init-param>
+      <param-name>suppressStackTraces</param-name>
+      <param-value>false</param-value>
+    </init-param>
+    <init-param>
+      <param-name>cacheName</param-name>
+      <param-value>CachePage1CachingFilter</param-value>
+    </init-param>
+  </filter>
 
-    <filter>
-        <filter-name>SimplePageFragmentCachingFilter</filter-name>
-        <filter-class>net.sf.ehcache.constructs.web.filter.SimplePageFragmentCachingFilter
-        </filter-class>
-        <init-param>
-            <param-name>suppressStackTraces</param-name>
-            <param-value>false</param-value>
-        </init-param>
-        <init-param>
-            <param-name>cacheName</param-name>
-            <param-value>SimplePageFragmentCachingFilter</param-value>
-        </init-param>
-    </filter>
+  <filter>
+    <filter-name>SimplePageFragmentCachingFilter</filter-name>
+    <filter-class>net.sf.ehcache.constructs.web.filter.SimplePageFragmentCachingFilter
+    </filter-class>
+    <init-param>
+      <param-name>suppressStackTraces</param-name>
+      <param-value>false</param-value>
+    </init-param>
+    <init-param>
+      <param-name>cacheName</param-name>
+      <param-value>SimplePageFragmentCachingFilter</param-value>
+    </init-param>
+  </filter>
 
-    <filter>
-        <filter-name>SimpleCachingHeadersPageCachingFilter</filter-name>
-        <filter-class>net.sf.ehcache.constructs.web.filter.SimpleCachingHeadersPageCachingFilter
-        </filter-class>
-        <init-param>
-            <param-name>suppressStackTraces</param-name>
-            <param-value>false</param-value>
-        </init-param>
-        <init-param>
-            <param-name>cacheName</param-name>
-            <param-value>CachedPage2Cache</param-value>
-        </init-param>
+  <filter>
+    <filter-name>SimpleCachingHeadersPageCachingFilter</filter-name>
+    <filter-class>net.sf.ehcache.constructs.web.filter.SimpleCachingHeadersPageCachingFilter
+    </filter-class>
+    <init-param>
+      <param-name>suppressStackTraces</param-name>
+      <param-value>false</param-value>
+    </init-param>
+    <init-param>
+      <param-name>cacheName</param-name>
+      <param-value>CachedPage2Cache</param-value>
+    </init-param>
 
-    </filter>
+  </filter>
 
-    <!-- This is a filter chain. They are executed in the order below. Do not change the order. -->
-    <filter-mapping>
-        <filter-name>CachePage1CachingFilter</filter-name>
-        <url-pattern>/CachedPage.jsp</url-pattern>
-        <dispatcher>REQUEST</dispatcher>
-        <dispatcher>INCLUDE</dispatcher>
-        <dispatcher>FORWARD</dispatcher>
-    </filter-mapping>
+  <!-- This is a filter chain. They are executed in the order below.
+  Do not change the order. -->
+  <filter-mapping>
+    <filter-name>CachePage1CachingFilter</filter-name>
+    <url-pattern>/CachedPage.jsp</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+  </filter-mapping>
 
-    <filter-mapping>
-        <filter-name>SimplePageFragmentCachingFilter</filter-name>
-        <url-pattern>/include/Footer.jsp</url-pattern>
-    </filter-mapping>
+  <filter-mapping>
+    <filter-name>SimplePageFragmentCachingFilter</filter-name>
+    <url-pattern>/include/Footer.jsp</url-pattern>
+  </filter-mapping>
 
-    <filter-mapping>
-        <filter-name>SimplePageFragmentCachingFilter</filter-name>
-        <url-pattern>/fragment/CachedFragment.jsp</url-pattern>
-    </filter-mapping>
+  <filter-mapping>
+    <filter-name>SimplePageFragmentCachingFilter</filter-name>
+    <url-pattern>/fragment/CachedFragment.jsp</url-pattern>
+  </filter-mapping>
 
-    <filter-mapping>
-        <filter-name>SimpleCachingHeadersPageCachingFilter</filter-name>
-        <url-pattern>/CachedPage2.jsp</url-pattern>
-    </filter-mapping>
-
----
-
-An ehcache.xml configuration file, matching the above would then be:
+  <filter-mapping>
+    <filter-name>SimpleCachingHeadersPageCachingFilter</filter-name>
+    <url-pattern>/CachedPage2.jsp</url-pattern>
+  </filter-mapping>
 
 ---
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+    An ehcache.xml configuration file, matching the above would then be:
+
+---
+<Ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd">
 
     <diskStore path="java.io.tmpdir"/>
@@ -246,3 +248,29 @@ An ehcache.xml configuration file, matching the above would then be:
 </ehcache>
 
 ---
+
+* CachingFilter Exceptions
+
+    Additional exception types have been added to the Caching Filter.
+
+** {FilterNonReentrantException}
+
+    Thrown when it is detected that a caching filter's doFilter
+   method is reentered by the same thread. Reentrant calls will block indefinitely because the first request has not yet
+   unblocked the cache. Nasty.
+
+** {AlreadyGzippedException}
+
+   The web package performs gzipping operations. One cause of problems on web browsers
+   is getting content that is double or triple gzipped. They will either get gobblydeegook
+   or a blank page. This exception is thrown when a gzip is attempted on already gzipped content.
+
+** {ResponseHeadersNotModifiableException}
+
+   A gzip encoding header needs to be added for gzipped content. The HttpServletResponse#setHeader() method
+   is used for that purpose. If the header had already been set, the new value normally overwrites the previous one.
+   In some cases according to the servlet specification, setHeader silently fails. Two scenarios where this happens are:
+
+    * The response is committed.
+
+    * RequestDispatcher#include method caused the request.

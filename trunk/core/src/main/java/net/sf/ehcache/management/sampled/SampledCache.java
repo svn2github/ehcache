@@ -45,7 +45,7 @@ public class SampledCache implements SampledCacheMBean {
      * Method which returns the name of the cache at construction time.
      * Package protected method.
      * 
-     * @return
+     * @return The name of the cache
      */
     String getImmutableCacheName() {
         return immutableCacheName;

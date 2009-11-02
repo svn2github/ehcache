@@ -15,7 +15,7 @@ Development Roadmap
 
 ** Possibles
 
-   * add the RESTful ehcache server as a secondary store, leveraging the new ehcache-server, and using partitioning (memcached feature)
+   * add the RESTful Ehcache server as a secondary store, leveraging the new ehcache-server, and using partitioning (memcached feature)
 
    * add j.u.c. optimisations to DiskStore (MemoryStore done in 1.6). I ended up adding quite a few of these in 1.6.
 
@@ -26,7 +26,7 @@ Development Roadmap
    * SoftReference store (some preliminary work has been done on this). 
 
 
-   Check trunk regularly for updates. For maven users (of which ehcache is one) a SNAPSHOT repository has been added. See
+   Check trunk regularly for updates. For maven users (of which Ehcache is one) a SNAPSHOT repository has been added. See
     {{http://oss.sonatype.org/content/repositories/sourceforge-snapshots/net/sf/ehcache/}}
 
 
@@ -88,7 +88,7 @@ Development Roadmap
 
 ** Updated JCache implementation
 
-  Now looking to finalise JCache with ehcache as the RI. This will probably be maintained in a branch until the JSR process
+  Now looking to finalise JCache with Ehcache as the RI. This will probably be maintained in a branch until the JSR process
    is concluded. The net.sf.jsr107cache will be updated in the meantime.
 
 

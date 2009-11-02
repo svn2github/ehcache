@@ -1,6 +1,6 @@
-{Distributed Caching via Terracotta}
+{Distributed Caching Using Terracotta}
 
-    Terracotta has been integrated with ehcache since Ehcache 1.4.
+    Terracotta has been integrated with Ehcache since Ehcache 1.4.
 
     From version 1.7 Ehcache has been seamlessly integrated with Terracotta 3.1.1 and takes just a few lines
     of config in ehcache.xml to get up and running.
@@ -40,7 +40,7 @@ public class TerracottaExample {
 ---
     <terracottaConfig url="localhost:9510"/>
 ---
-    which tells ehcache to load the Terracotta server config from localhost port 9510. Note: You must have a
+    which tells Ehcache to load the Terracotta server config from localhost port 9510. Note: You must have a
     Terracotta 3.1.1 or higher server running locally for this example.
 
     Next we want to enable Terracotta clustering for the cache named <<<sampleTerracottaCache>>>. Uncomment or add the
@@ -81,6 +81,7 @@ public class TerracottaExample {
     clustered caches, a combination of CacheManager name and cache name uniquely identify a
     particular cache store in the Terracotta clustered memory.
 
+    The name will show up in the Developer Console.s
 
     * {updateCheck}
 
@@ -96,7 +97,7 @@ public class TerracottaExample {
     are "on" and "off".  The default is "autodetect".
 
 ---
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<Ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="ehcache.xsd"
              updateCheck="true" monitoring="autodetect">
 
@@ -105,6 +106,7 @@ public class TerracottaExample {
 **  {Terracotta Server Configuration}
 
     Note: You need to install and run one or more Terracotta servers to use Terracotta clustering.
+
     See http://www.terracotta.org/web/display/orgsite/Download.
 
     With a server/servers up and running you need to specify the location of the servers.
@@ -119,7 +121,19 @@ public class TerracottaExample {
 
     * path to the Terracotta configuration file (usually named tc-config.xml)
 
+    Example using a path to Terracotta configuration file:
+
+---
+    <terracottaConfig url="/app/config/tc-config.xml"/>
+---
+
     * URL to the Terracotta configuration file
+
+    Example using a URL to a Terracotta configuration file:
+
+---
+    <terracottaConfig url="http://internal/ehcache/app/tc-config.xml"/>
+---
 
     * <server host>:<port> of a running Terracotta Server instance
 
@@ -127,18 +141,6 @@ public class TerracottaExample {
 
 ---
     <terracottaConfig url="localhost:9510"/>
----
-
-    Example using a path to Terracotta configuration file:
-
----
-    <terracottaConfig url="/app/config/tc-config.xml"/>
----
-
-    Example using a URL to a Terracotta configuration file:
-
----
-    <terracottaConfig url="http://internal/ehcache/app/tc-config.xml"/>
 ---
 
     Example using multiple Terracotta server instance URLs (for fault tolerance):
@@ -149,7 +151,7 @@ public class TerracottaExample {
 
 *** Specification using embedded tc-config
 
-    To embed a Terracotta configuration file within the ehcache configuration, simply
+    To embed a Terracotta configuration file within the Ehcache configuration, simply
     place the usual Terracotta XML config within the <terracottaConfig> element.
 
     In this example we have two Terracotta servers running on <<<server1>>> and <<<server2>>>.
@@ -303,14 +305,14 @@ public class TerracottaExample {
 
 **  How does Element equality work in Serialization mode?
 
-    An Element in ehcache is guaranteed to <<<.equals()>>> another as it moves between stores.
+    An Element in Ehcache is guaranteed to <<<.equals()>>> another as it moves between stores.
 
     In the Express install or Serialization mode of Terracotta, which is the default, Terracotta is the same. Elements will
     not <<<==>>> each other as they move between stores.
 
 **  How does Element equality work in Identity mode?
 
-    An Element in ehcache is guaranteed to <<<.equals()>>> another as it moves between stores.
+    An Element in Ehcache is guaranteed to <<<.equals()>>> another as it moves between stores.
 
     However in Identity mode, Terracotta makes a further guarantee - that they will <<<==>>> each other. This is achieved
     using extensions to the Java Memory Model.

@@ -7,15 +7,15 @@ Distributed Caching with ehcache
 
     Ehcache has a pluggable cache replication scheme which enables the addition of cache replication mechanisms.
 
-    The following distribution mechanisms are supported in ehcache 1.5:
+    The following distribution mechanisms are supported in Ehcache 1.7:
+
+    * Terracotta
 
     * RMI
 
     * JGroups
 
     * JMS
-
-    * Terracotta
 
     * Cache Server
 
@@ -82,19 +82,19 @@ Distributed Caching with ehcache
 
 *   Potential Issues with Distributed Caching
 
-** Potential for Inconsisent Data
+** Potential for Inconsistent Data
 
      Timing scenarios, race conditions, delivery, reliability
      constraints and concurrent updates to the same cached data can cause
      inconsistency (and thus a lack of coherency) across the cache
      instances.
 
-     This potential exists within the ehcache implementation.
+     This potential exists within the Ehcache implementation.
      These issues are the same as what is seen when two completely
      separate systems are sharing a database; a common scenario.
 
      Whether data inconsistency is a problem depends on the data and how it
-     is used. For those times when it is important, ehcache provides for
+     is used. For those times when it is important, Ehcache provides for
      synchronous delivery of puts and updates via invalidation. These are discussed below:
 
 *** Synchronous Delivery
@@ -128,7 +128,7 @@ Distributed Caching with ehcache
 
 **  Use of Time To Idle
 
-     Time To Idle is isconsistent with distributed caching. Time-to-idle makes some entries live longer on some
+     Time To Idle is inconsistent with distributed caching. Time-to-idle makes some entries live longer on some
      nodes than in others because of cache usage patterns. However, the cache entry "last touched" timestamp
      is not replicated across the distributed cache.
 

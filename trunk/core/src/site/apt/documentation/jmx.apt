@@ -1,15 +1,25 @@
 {JMX Management and Monitoring}
 
-* {JMX} Overview
+*   Terracotta Monitoring Products
 
-    todo update for new Sampled stats
+    An extensive new monitoring product, available in Ehcache DX, provides a monitoring
+    server with probes supporting Ehcache-1.2.3 and higher for standalone and clustered
+    Ehcache. It comes with a web console and a RESTful API for operations integration.
+
+    See the Ehcache DX documentation for more information. 
+
+    When using Ehcache 1.7 with Terracotta clustering, the Terracotta Developer Console
+    shows statistics for ehcache.
+
+
+* {JMX} Overview
 
     JMX, part of JDK1.5, and available as a download for 1.4, creates a standard way of instrumenting classes and making them
      available to a management and monitoring infrastructure.
 
     The <<<net.sf.ehcache.management>>> package contains MBeans and a <<<ManagementService>>> for JMX management of ehcache. It
     is in a separate package so that JMX libraries are only required if you wish to use it - there is no leakage of JMX dependencies
-    into the core ehcache package.
+    into the core Ehcache package.
 
     This implementation attempts to follow Sun's JMX best practices. See
     http://java.sun.com/javase/technologies/core/mntr-mgmt/
@@ -18,7 +28,7 @@
     Use <<<net.sf.ehcache.management.ManagementService.registerMBeans(...)>>> static method
     to register a selection of MBeans to the MBeanServer provided to the method.
 
-    If you wish to monitor ehcache but not use JMX, just use the existing public methods on <<<Cache>>> and <<<CacheStatistics>>>.
+    If you wish to monitor Ehcache but not use JMX, just use the existing public methods on <<<Cache>>> and <<<CacheStatistics>>>.
 
 
 [images/uml/management_package.png] The Management Package
@@ -65,7 +75,8 @@
 
      * Cache - "net.sf.ehcache:type=Cache,CacheManager=<cacheManagerName>,name=<cacheName>"
 
-     * CacheConfiguration - "net.sf.ehcache:type=CacheConfiguration,CacheManager=<cacheManagerName>,name=<cacheName>"
+     * CacheConfiguration
+     - "net.sf.ehcache:type=CacheConfiguration,CacheManager=<cacheManagerName>,name=<cacheName>"
 
      * CacheStatistics - "net.sf.ehcache:type=CacheStatistics,CacheManager=<cacheManagerName>,name=<cacheName>"
 
@@ -77,7 +88,9 @@
 [images/uml/ManagementService.png] ManagementService
 
     There is only one method, <<<ManagementService.registerMBeans>>> which is used to initiate JMX registration
-    of an ehcache CacheManager's instrumented MBeans. The <<<ManagementService>>> is a <<<CacheManagerEventListener>>> and
+    of an Ehcache CacheManager's instrumented MBeans.
+
+    The <<<ManagementService>>> is a <<<CacheManagerEventListener>>> and
     is therefore notified of any new Caches added or disposed and updates the MBeanServer appropriately.
 
     Once initiated the MBeans remain registered in the MBeanServer until the CacheManager shuts down, at which time
@@ -85,36 +98,36 @@
     deployed and undeployed.
 
 ---
-    /**
-     * This method causes the selected monitoring options to be be registered
-     * with the provided MBeanServer for caches in the given CacheManager.
-     * <p/>
-     * While registering the CacheManager enables traversal to all of the other
-     *  items,
-     * this requires programmatic traversal. The other options allow entry points closer
-     * to an item of interest and are more accessible from JMX management tools like JConsole.
-     * Moreover CacheManager and Cache are not serializable, so remote monitoring is not
-     * possible * for CacheManager or Cache, while CacheStatistics and CacheConfiguration are.
-     * Finally * CacheManager and Cache enable management operations to be performed.
-     * <p/>
-     * Once monitoring is enabled caches will automatically added and removed from the
-     * MBeanServer * as they are added and disposed of from the CacheManager. When the
-     * CacheManager itself * shutsdown all registered MBeans will be unregistered.
-     *
-     * @param cacheManager the CacheManager to listen to
-     * @param mBeanServer the MBeanServer to register MBeans to
-     * @param registerCacheManager Whether to register the CacheManager MBean
-     * @param registerCaches Whether to register the Cache MBeans
-     * @param registerCacheConfigurations Whether to register the CacheConfiguration MBeans
-     * @param registerCacheStatistics Whether to register the CacheStatistics MBeans
-     */
-    public static void registerMBeans(
-            net.sf.ehcache.CacheManager cacheManager,
-            MBeanServer mBeanServer,
-            boolean registerCacheManager,
-            boolean registerCaches,
-            boolean registerCacheConfigurations,
-            boolean registerCacheStatistics) throws CacheException {
+/**
+ * This method causes the selected monitoring options to be be registered
+ * with the provided MBeanServer for caches in the given CacheManager.
+ * <p/>
+ * While registering the CacheManager enables traversal to all of the other
+ *  items,
+ * this requires programmatic traversal. The other options allow entry points closer
+ * to an item of interest and are more accessible from JMX management tools like JConsole.
+ * Moreover CacheManager and Cache are not serializable, so remote monitoring is not
+ * possible * for CacheManager or Cache, while CacheStatistics and CacheConfiguration are.
+ * Finally * CacheManager and Cache enable management operations to be performed.
+ * <p/>
+ * Once monitoring is enabled caches will automatically added and removed from the
+ * MBeanServer * as they are added and disposed of from the CacheManager. When the
+ * CacheManager itself * shutsdown all registered MBeans will be unregistered.
+ *
+ * @param cacheManager the CacheManager to listen to
+ * @param mBeanServer the MBeanServer to register MBeans to
+ * @param registerCacheManager Whether to register the CacheManager MBean
+ * @param registerCaches Whether to register the Cache MBeans
+ * @param registerCacheConfigurations Whether to register the CacheConfiguration MBeans
+ * @param registerCacheStatistics Whether to register the CacheStatistics MBeans
+ */
+public static void registerMBeans(
+        net.sf.ehcache.CacheManager cacheManager,
+        MBeanServer mBeanServer,
+        boolean registerCacheManager,
+        boolean registerCaches,
+        boolean registerCacheConfigurations,
+        boolean registerCacheStatistics) throws CacheException {
 ---
 
 
@@ -138,6 +151,9 @@
 
     See {{http://weblogs.java.net/blog/maxpoon/archive/2007/06/extending_the_n_2.html}} for
     an online tutorial.
+
+
+
 
 
 

@@ -15,7 +15,7 @@ Introduction
 
 ** {Locality of Reference}
 
-    While ehcache concerns itself with Java objects, caching is used throughout computing, from CPU caches to the DNS system.
+    While Ehcache concerns itself with Java objects, caching is used throughout computing, from CPU caches to the DNS system.
    Why? Because many computer systems exhibit <locality of reference>. Data that is near other data or has just been used
     is more likely to be used again.
 
@@ -59,7 +59,7 @@ Introduction
 
    The role of caching, if there is one, is to temporarily store computations that may be reused again.
 
-   An example from ehcache would be large web pages that have a high rendering cost. Another caching of authentication
+   An example from Ehcache would be large web pages that have a high rendering cost. Another caching of authentication
    status, where authentication requires cryptographic transforms.
 
 ** Speeding up {I/O bound Applications}
@@ -80,7 +80,7 @@ Introduction
 
     * marshalling and unmarhshalling overhead
 
-    The caching of data can often help a lot with I/O bound applications. Some examples of ehcache uses are:
+    The caching of data can often help a lot with I/O bound applications. Some examples of Ehcache uses are:
 
    * Data Access Object caching for Hibernate
 
@@ -261,7 +261,7 @@ in Hits   1 Server    2 Servers  3 Servers   4 Servers
 
     However when the lifespan is short, cache efficiency is dramatically affected.
 
-    (To solve this problem, ehcache supports distributed caching, where an entry put in a local cache is also propagated
+    (To solve this problem, Ehcache supports distributed caching, where an entry put in a local cache is also propagated
     to other servers in the cluster.)
 
 ** A cache version of Amdahl's law

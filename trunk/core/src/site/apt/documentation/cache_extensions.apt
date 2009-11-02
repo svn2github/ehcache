@@ -27,9 +27,9 @@
 ------------------------------------------
 
 <cache ...>
-     <cacheExtensionFactory class="com.example.FileWatchingCacheRefresherExtensionFactory"
-         properties="refreshIntervalMillis=18000, loaderTimeout=3000,
-                     flushPeriod=whatever, someOtherProperty=someValue ..."/>
+ <cacheExtensionFactory class="com.example.FileWatchingCacheRefresherExtensionFactory"
+     properties="refreshIntervalMillis=18000, loaderTimeout=3000,
+                 flushPeriod=whatever, someOtherProperty=someValue ..."/>
 
 </cache>
 
@@ -57,13 +57,13 @@
  */
 public abstract class CacheExtensionFactory {
 
-    /**
-     * @param cache the cache this extension should hold a reference to, and to whose
-     * lifecycle it should be bound.
-     * @param properties implementation specific properties configured as delimiter separated
-     * name value pairs in ehcache.xml
-     */
-    public abstract CacheExtension createCacheExtension(Ehcache cache, Properties properties);
+/**
+ * @param cache the cache this extension should hold a reference to, and to whose
+ * lifecycle it should be bound.
+ * @param properties implementation specific properties configured as delimiter separated
+ * name value pairs in ehcache.xml
+ */
+public abstract CacheExtension createCacheExtension(Ehcache cache, Properties properties);
 
 }
 
@@ -98,52 +98,52 @@ public abstract class CacheExtensionFactory {
  */
 public interface CacheExtension {
 
-    /**
-     * Notifies providers to initialise themselves.
-     * <p/>
-     * This method is called during the Cache's initialise method after it has changed it's
-     * status to alive. Cache operations are legal in this method.
-     *
-     * @throws CacheException
-     */
-    void init();
+/**
+ * Notifies providers to initialise themselves.
+ * <p/>
+ * This method is called during the Cache's initialise method after it has changed it's
+ * status to alive. Cache operations are legal in this method.
+ *
+ * @throws CacheException
+ */
+void init();
 
-    /**
-     * Providers may be doing all sorts of exotic things and need to be able to clean up on
-     * dispose.
-     * <p/>
-     * Cache operations are illegal when this method is called. The cache itself is partly
-     * disposed when this method is called.
-     *
-     * @throws CacheException
-     */
-    void dispose() throws CacheException;
+/**
+ * Providers may be doing all sorts of exotic things and need to be able to clean up on
+ * dispose.
+ * <p/>
+ * Cache operations are illegal when this method is called. The cache itself is partly
+ * disposed when this method is called.
+ *
+ * @throws CacheException
+ */
+void dispose() throws CacheException;
 
-    /**
-     * Creates a clone of this extension. This method will only be called by ehcache before a
-     * cache is initialized.
-     * <p/>
-     * Implementations should throw CloneNotSupportedException if they do not support clone
-     * but that will stop them from being used with defaultCache.
-     *
-     * @return a clone
-     * @throws CloneNotSupportedException if the extension could not be cloned.
-     */
-    public CacheExtension clone(Ehcache cache) throws CloneNotSupportedException;
+/**
+ * Creates a clone of this extension. This method will only be called by Ehcache before a
+ * cache is initialized.
+ * <p/>
+ * Implementations should throw CloneNotSupportedException if they do not support clone
+ * but that will stop them from being used with defaultCache.
+ *
+ * @return a clone
+ * @throws CloneNotSupportedException if the extension could not be cloned.
+ */
+public CacheExtension clone(Ehcache cache) throws CloneNotSupportedException;
 
 
-    /**
-     * @return the status of the extension
-     */
-    public Status getStatus();
+/**
+ * @return the status of the extension
+ */
+public Status getStatus();
 }
 
 ---
 
     The implementations need to be placed in the classpath accessible to ehcache.
 
-    See the chapter on {{{./class_loading.html}Classloading}} for details on how classloading
-    of these classes will be done.
+    See the chapter on {{{./class_loading.html}Classloading}} for details on how class
+    loading of these classes will be done.
 
 
 *   Programmatic Configuration

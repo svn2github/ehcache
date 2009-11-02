@@ -14,7 +14,7 @@
     Roy Fielding coined the acronym REST, denoting Representational State Transfer, in his
     {{{http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm}PhD thesis}}.
 
-    The ehcache implementation strictly follows the RESTful resource-oriented architecture style.
+    The Ehcache implementation strictly follows the RESTful resource-oriented architecture style.
 
     Specifically:
 
@@ -30,7 +30,7 @@
 
 
     Roy is on the JSR311 expert group. JSR311 and Jersey, the reference implementation, are used to deliver
-    RESTful web services in ehcache server.
+    RESTful web services in Ehcache server.
 
 ** RESTFul Web Services API
 
@@ -131,7 +131,7 @@
  application/x-java-serialized-object | A serialized Java object
 *-----*------*
 
-    Because ehcache is a distributed Java cache, in some configurations the Cache server may contain Java objects
+    Because Ehcache is a distributed Java cache, in some configurations the Cache server may contain Java objects
     that arrived at the Cache server via distributed replication. In this case no MIME Type will be set
     and the Element will be examined to determine its MIME Type.
 
@@ -149,7 +149,7 @@
 
 **** OPTIONS
 
-    This example shows how calling OPTIONS causes ehcache server to respond with the WADL for that resource
+    This example shows how calling OPTIONS causes Ehcache server to respond with the WADL for that resource
 
 ---
 curl --request OPTIONS http://localhost:8080/ehcache/rest/sampleCache2/2
@@ -341,7 +341,7 @@ public class ExampleJavaClient {
             connection.setDoOutput(true);
             connection.setRequestMethod("PUT");
             connection.connect();
-            String sampleData = "ehcache is way cool!!!";
+            String sampleData = "Ehcache is way cool!!!";
             byte[] sampleBytes = sampleData.getBytes();
             os = connection.getOutputStream();
             os.write(sampleBytes, 0, sampleBytes.length);
@@ -505,7 +505,7 @@ Expect: 100-continue
 *   {Creating Massive Caches} with {Load Balancers} and Partitioning
 
     The RESTful Ehcache Server is designed to achieve massive scaling using data partitioning - all from a RESTful interface.
-    The largest ehcache single instances run at around 20GB in memory. The largest disk stores run at 100Gb each.
+    The largest Ehcache single instances run at around 20GB in memory. The largest disk stores run at 100Gb each.
     Add nodes together, with cache data partitioned across them, to get larger sizes. 50 nodes at 20GB gets you to 1 Terabyte.
 
     Two deployment choices need to be made:
@@ -544,9 +544,9 @@ String cacheserver = cacheservers[cacheserverIndex];
 [images/loadbalancer_client_hashing.png]
 
     Redundancy is added as shown in the above diagram by:
-    Replacing each node with a cluster of two nodes. One of the existing distributed caching options in ehcache is used to form the cluster.
-    Options in ehcache 1.5 are RMI and JGroups-based clusters. Ehcache-1.6 will add JMS as a further option.
-    Put each ehcache cluster behind VIPs on a load balancer.
+    Replacing each node with a cluster of two nodes. One of the existing distributed caching options in Ehcache is used to form the cluster.
+    Options in Ehcache 1.5 are RMI and JGroups-based clusters. Ehcache-1.6 will add JMS as a further option.
+    Put each Ehcache cluster behind VIPs on a load balancer.
 
 **  Redundant, Scalable with load balancer hash-based routing
 
@@ -650,11 +650,13 @@ The programmatic interfaces made available are referred to as Web services.
     To add client credentials into the SOAP request do:
 
 ---
-    cacheService = new EhcacheWebServiceEndpointService().getEhcacheWebServiceEndpointPort();
-    //add security credentials
-    ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "Ron");
-    ((BindingProvider)cacheService).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "noR");
-    String result = cacheService.ping();
+cacheService = new EhcacheWebServiceEndpointService().getEhcacheWebServiceEndpointPort();
+//add security credentials
+((BindingProvider)cacheService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY,
+ "Ron");
+((BindingProvider)cacheService).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY,
+ "noR");
+String result = cacheService.ping();
 ---
 
 
@@ -754,7 +756,7 @@ The programmatic interfaces made available are referred to as Web services.
 
     The ehcache.xml configuration file is located in WEB-INF/classes/ehcache.xml.
 
-    Follow the instructions in this config file, or the core ehcache instructions to configure.
+    Follow the instructions in this config file, or the core Ehcache instructions to configure.
 
 ***  SOAP Web Service Security
 
@@ -851,7 +853,7 @@ The programmatic interfaces made available are referred to as Web services.
 
     Then click <<<Connect>>>.
 
-    To see the ehcache MBeans, click on the <<<Mbeans>>> tab and expand the <<<net.sf.ehcache>>> tree node.
+    To see the Ehcache MBeans, click on the <<<Mbeans>>> tab and expand the <<<net.sf.ehcache>>> tree node.
 
     You will see something like the following.
 

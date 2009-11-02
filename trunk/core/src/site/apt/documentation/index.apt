@@ -13,7 +13,7 @@ Ehcache 1.7 User Guide
 
     * {{{./architecture.html}Architecture}}
 
-    * {{{./configuration.html}Cache Configuration}}
+    * {{{./configuration.html}Configuration}}
 
     * {{{./storage_options.html}Storage Options}}
 
@@ -61,11 +61,11 @@ Ehcache 1.7 User Guide
 
     * {{{./cache_server.html}Cache Server with SOAP and RESTful Web Services}}
 
-    * {{{./constructs.html}Constructs Package}}
+    * {{{./constructs.html}BlockingCache and SelfPopulatingCache}}
 
-    * {{{./hibernate.html}Using ehcache with Hibernate}}
+    * {{{./hibernate.html}Using Ehcache with Hibernate}}
 
-    * {{{./openjpa_provider.html}Using ehcache with OpenJPA}}
+    * {{{./openjpa_provider.html}Using Ehcache with OpenJPA}}
 
     * {{{./glassfish.html}Glassfish HowTo}}
 

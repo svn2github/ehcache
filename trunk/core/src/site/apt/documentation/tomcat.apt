@@ -10,19 +10,23 @@ Tomcat Issues and Best Practices
 
     Because Tomcat is so widely used, over time a list of known issues has been compiled. These issues and their solutions are listed below.
 
-**  If I restart/reload a web application in Tomcat that has a CacheManager that is part of a cluster, the CacheManager is unable to rejoin the cluster.
+**  Problem rejoining a cluster after a reload
+
+    If I restart/reload a web application in Tomcat that has a CacheManager that is part of a cluster, the CacheManager is unable to rejoin the cluster.
     If I set logging for net.sf.ehcache.distribution to FINE I see the following exception: "FINE: Unable to lookup remote cache peer for .... Removing from peer list. Cause was: error unmarshalling return; nested exception is:
         java.io.EOFException.
 
-    The Tomcat and RMI classloaders do not get along that well. Move ehcache.jar to $TOMCAT_HOME/common/lib. This fixes the problem. This issue happens
+    The Tomcat and RMI class loaders do not get along that well. Move ehcache.jar to $TOMCAT_HOME/common/lib. This fixes the problem. This issue happens
     with anything that uses RMI, not just ehcache.
 
-**  In development, there appear to be classloader memory leak as I continually redeploy my web application.
+**  In development, there appear to be class loader memory leak as I continually redeploy my web application.
 
-    There are lots of causes of memory leaks on redeploy. Moving ehcache and backport-util-concurrent out of the WAR and into $TOMCAT/common/lib
+    There are lots of causes of memory leaks on redeploy. Moving Ehcache out of the WAR and into $TOMCAT/common/lib
      fixes this leak.
 
-**   I get net.sf.ehcache.CacheException: Problem starting listener for RMICachePeer ... java.rmi.UnmarshalException: error unmarshalling
+**   net.sf.ehcache.CacheException: Problem starting listener for RMICachePeer ... 
+
+    I get net.sf.ehcache.CacheException: Problem starting listener for RMICachePeer ... java.rmi.UnmarshalException: error unmarshalling
     arguments; nested exception is: java.net.MalformedURLException: no protocol: Files/Apache. What is going on?
 
     This issue occurs to any RMI listener started on Tomcat whenever Tomcat has spaces in its installation path.

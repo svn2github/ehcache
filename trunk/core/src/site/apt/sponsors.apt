@@ -8,7 +8,7 @@
 
 Sponsors
 
- The ehcache project gratefully acknowledges the contribution of the following sponsors:
+ The Ehcache project gratefully acknowledges the contribution of the following sponsors:
 
 
 * Code
@@ -31,7 +31,7 @@ the grant.
 
  {{{http://cenqua.com/}Cenqua}} for the free open
 source license of the test coverage tool {{{http://cenqua.com/clover/}Clover}}
-and the online ehcache rcs explorer {{{http://fisheye1.cenqua.com/viewrep/ehcache} fisheye}}.
+and the online Ehcache rcs explorer {{{http://fisheye1.cenqua.com/viewrep/ehcache} fisheye}}.
 
  {{{http://atlassian.com}Atlassian}} for the free
 open source licenses of {{{http://atlassian.com/software/jira/}JIRA}}, an issue tracking tool and

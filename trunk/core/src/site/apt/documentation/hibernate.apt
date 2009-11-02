@@ -5,18 +5,18 @@
 
     Ehcache easily integrates with the {{{http://hibernate.org}Hibernate}}
     Object/Relational persistence and query service. Gavin King, the
-    maintainer of Hibernate, is also a committer to the ehcache project.
-    This ensures ehcache will remain a first class cache for Hibernate.
+    maintainer of Hibernate, is also a committer to the Ehcache project.
+    This ensures Ehcache will remain a first class cache for Hibernate.
 
-    Since {Hibernate 2.1}, ehcache has been the default cache, for Hibernate.
+    Since {Hibernate 2.1}, Ehcache has been the default cache, for Hibernate.
 
     The net.sf.ehcache.hibernate package provides classes integrating
-    ehcache with Hibernate. {Hibernate} is an application of ehcache. Ehcache
+    Ehcache with Hibernate. {Hibernate} is an application of ehcache. Ehcache
     is also widely used a general-purpose Java cache.
 
-    To use ehcache with Hibernate do the following:
+    To use Ehcache with Hibernate do the following:
 
-      * Ensure ehcache is enabled in the Hibernate configuration.
+      * Ensure Ehcache is enabled in the Hibernate configuration.
 
       * Add the cache element to the Hibernate mapping file, either manually, or via hibernatedoclet for each Domain
         Object you wish to cache.
@@ -36,11 +36,11 @@
 
     They are reproduced here for convenience in using ehcache.
 
-* {Setting ehcache as the cache provider}
+* {Setting Ehcache as the cache provider}
 
-** Using one of the two ehcache providers from the ehcache project
+** Using one of the two Ehcache providers from the Ehcache project
 
-    To ensure ehcache is enabled, verify that the hibernate.cache.provider_class property
+    To ensure Ehcache is enabled, verify that the hibernate.cache.provider_class property
     is set to one of the following in the Hibernate configuration file, either hibernate.cfg.xml
     or hibernate.properties. The format given is for hibernate.cfg.xml.
 
@@ -81,7 +81,7 @@ net.sf.ehcache.configurationResourceName=/name_of_ehcache.xml
     CacheManagers in the same VM. It tells Hibernate which configuration to use. An example
     might be "ehcache-2.xml".
 
-** {Using the Hibernate ehcache provider}
+** {Using the Hibernate Ehcache provider}
 
     To use the one from the Hibernate project:
 
@@ -375,7 +375,7 @@ public List getStreetTypes(final Country country) throws HibernateException {
 
 * Hibernate Caching Performance Tips
 
-    To get the most out of ehcache with Hibernate, Hibernate's use of it's
+    To get the most out of Ehcache with Hibernate, Hibernate's use of it's
     in-process cache is important to understand.
 
 ** In-Process Cache

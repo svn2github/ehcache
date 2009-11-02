@@ -19,7 +19,7 @@
 
        * RMI had improvements added to it with each release of Java, which can then be taken advantage of.
 
-    While RMI is a point-to-point protocol, which can generate a lot of network traffic, ehcache manages this through
+    While RMI is a point-to-point protocol, which can generate a lot of network traffic, Ehcache manages this through
        batching of communications for the asynchronous replicator.
 
 
@@ -54,7 +54,8 @@
     manual and automatic.
 
     To use one of the built-in peer discovery mechanisms specify the class
-    attribute of <<<cacheManagerPeerProviderFactory>>> as <<<net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory>>>
+    attribute of <<<cacheManagerPeerProviderFactory>>> as
+    <<<net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory>>>
     in the ehcache.xml configuration file.
 
 ** {Automatic Peer Discovery}
@@ -109,7 +110,8 @@
      it to set up one way replications of data, by having server2 know about
      server1 but not vice versa.
 
-     To set manual peer discovery, specify the properties attribute of <<<cacheManagerPeerProviderFactory>>>
+     To set manual peer discovery, specify the properties attribute
+     of <<<cacheManagerPeerProviderFactory>>>
      as follows:
      peerDiscovery=manual
      rmiUrls=//server:port/cacheName, ...
@@ -206,18 +208,18 @@ socketTimeoutMillis=2000"/>
 
 
 --------------------------------------------
-    <!-- Sample cache named sampleCache2. -->
-    <cache name="sampleCache2"
-           maxElementsInMemory="10"
-           eternal="false"
-           timeToIdleSeconds="100"
-           timeToLiveSeconds="100"
-           overflowToDisk="false">
-        <cacheEventListenerFactory
-            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
-            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
-            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
-    </cache>
+<!-- Sample cache named sampleCache2. -->
+<cache name="sampleCache2"
+   maxElementsInMemory="10"
+   eternal="false"
+   timeToIdleSeconds="100"
+   timeToLiveSeconds="100"
+   overflowToDisk="false">
+ <cacheEventListenerFactory
+    class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+    properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+    replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+</cache>
 --------------------------------------------
 
     class - use net.sf.ehcache.distribution.RMICacheReplicatorFactory
@@ -298,12 +300,10 @@ socketTimeoutMillis=2000"/>
 
    Ehcache's own integration tests provide complete examples of RMI-based replication.
    The best example is the integration test for cache replication. You can see it online here:
-   {{http://ehcache.sourceforge.net/xref-test/net/sf/ehcache/distribution/RMICacheReplicatorTest.html}}
+   {{http://ehcache.org/xref-test/net/sf/ehcache/distribution/RMICacheReplicatorTest.html}}
 
    The test uses 5 ehcache.xml's representing 5 CacheManagers set up to distribute using RMI.
-   You can copy and paste them from:
-   {{http://ehcache.svn.sourceforge.net/viewvc/ehcache/trunk/core/src/test/resources/distribution/}}
-   
+
 
 * Common Problems
 
@@ -321,10 +321,10 @@ socketTimeoutMillis=2000"/>
   Virtualisation technologies like Xen and VMWare may be blocking multicast. If so enable it.
   You may also need to turn it on in the configuration for your network interface card.
 
-  An easy way to tell if your mutlicast is getting through is to use the ehcache remote debugger
+  An easy way to tell if your multicast is getting through is to use the Ehcache remote debugger
   and watch for the heartbeat packets to arrive.
 
-** Multicast Not Progagating Far Enough or Propagating Too Far
+** Multicast Not Propagating Far Enough or Propagating Too Far
 
   You can control how far the multicast packets propagate by setting the badly misnamed time to live.
   Using the multicast IP protocol, the timeToLive value indicates the scope or range in which a packet may be forwarded.
