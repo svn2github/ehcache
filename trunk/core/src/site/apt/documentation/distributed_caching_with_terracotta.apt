@@ -263,5 +263,84 @@ public class TerracottaExample {
 
 
     
+*  FAQ
+
+
+**  Is Expiry the same in Terracotta?
+
+    timeToIdle and timeToLive work as usual. Ehcache 1.7 introduced a less fine grained age recording in Element
+    which rounds up to the nearest second. Some APIs may be sensitive to this change.
+
+    In Ehcache Elements can have overridden TTI and TTLs. Terracotta supports this functionality.
+
+**  What Eviction strategies are supported?
+
+    Ehcache supports LRU, LFU and FIFO eviction strategies.
+
+    Terracotta supports LRU and LFU eviction from the local node. Not FIFO and not custom evictors.
+
+**  What Stores are available and how are they configured?
+
+    The Terracotta server provides an additional store, generally referred to as the Level 2 or {L2} store.
+
+    The MemoryStore in JVM in the local node is referred to as the {L1} Store.
+
+    maxElementsInMemory - the maximum number of elements in the local L1 store.
+
+    maxElementsOnDisk - is overridden when using Terracotta to provide the L2 size.
+
+    overflowToDisk normally controls whether to overflow to the DiskStore. This is ignored when using Terracotta - the DiskStore
+    is never used. When the store gets full, elements will always overflow to the Terracotta L2 Store running on the server. The L2
+    can be further configured with the tcconfig.
+
+**  When do Elements overflow?
+
+    Two things to cause elements to be flushed from L1 to L2.
+
+    * the L1 store exceeding maxElementsInMemory
+
+    * When the local JMV exceeds 70% of Old Generation. This can be turned off in the TC Config. By default it is on (in 1.7).
+
+**  How does Element equality work in Serialization mode?
+
+    An Element in ehcache is guaranteed to <<<.equals()>>> another as it moves between stores.
+
+    In the Express install or Serialization mode of Terracotta, which is the default, Terracotta is the same. Elements will
+    not <<<==>>> each other as they move between stores.
+
+**  How does Element equality work in Identity mode?
+
+    An Element in ehcache is guaranteed to <<<.equals()>>> another as it moves between stores.
+
+    However in Identity mode, Terracotta makes a further guarantee - that they will <<<==>>> each other. This is achieved
+    using extensions to the Java Memory Model.
+
+**  What is the recommended way to write to a database?
+
+    Terracotta' non Ehcache API offers an async writethrough to the database which is guaranteed. It uses the TIM Async module and works
+    by putting the database update in a clustered queue. It guarantees that a node, even if the local node fails, will take it out
+    and process it.
+
+    That option is not available with Ehcache although it may get added.
+
+**  If updates to a database bypass the Terracotta clustered application, then how is that coherent?
+
+    It isn't. This is a problem with using a database as an integration point. Integration via a message queue, with a
+    Terracotta clustered application acting as a message queue listener and updating the database avoids this. As would
+    The application receiving a REST or SOAP call and writing to the database.
+
+    AQ can have DB trigger put in a poll. Or AQ can push it up.
+
+
+**  Do CacheEventListeners work?
+
+    A local CacheEventListener will work locally, but other nodes in a Terracotta cluster are not notified. With the Ehcache replication
+     non Terracotta mechanisms the remote nodes are updated.  
+
+
+
+
+
+
 
     

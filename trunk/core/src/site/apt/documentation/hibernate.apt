@@ -413,3 +413,7 @@ public List getStreetTypes(final Country country) throws HibernateException {
     Use these where the chance of getting a cache hit is high.
 
 
+
+*   {Hibernate FAQ}
+
+**  TBC

@@ -1,5 +1,21 @@
-Frequently Asked Questions
+{Frequently Asked Questions}
 
+
+* There are a lot of product choices? Which one should I use?
+
+   Terracotta Ehcache is available in DX, EX and FX versions.
+
+   There is an Ehcache {{{/EhcacheBrochure.pdf}product brochure}} which explains the choices. That is a good
+   start.
+
+* What are the software licenses used.
+
+    Terracotta Open Source is available with TPL.
+
+    The Ehcache open source modules are released under an Apache license.
+
+    There are some modules which are part of the commercial product offering e.g. monitoring server.
+    These are available under a Terracotta Commercial License.
 
 * Does ehcache run on {JDK1.3}/{JDK1.4}?
 
