@@ -27,6 +27,7 @@ import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,6 +52,8 @@ public class Element implements Serializable, Cloneable {
 
     private static final Logger LOG = Logger.getLogger(Element.class.getName());
 
+    private static final AtomicLongFieldUpdater HIT_COUNT_UPDATER = AtomicLongFieldUpdater.newUpdater(Element.class, "hitCount");
+    
     /**
      * the cache key.
      */
@@ -65,22 +68,22 @@ public class Element implements Serializable, Cloneable {
      * version of the element. System.currentTimeMillis() is used to compute version for updated elements. That
      * way, the actual version of the updated element does not need to be checked.
      */
-    private long version;
+    private volatile long version;
 
     /**
      * The number of times the element was hit.
      */
-    private long hitCount;
+    private volatile long hitCount;
 
     /**
      * The amount of time for the element to live, in seconds. 0 indicates unlimited.
      */
-    private int timeToLive = Integer.MIN_VALUE;
+    private volatile int timeToLive = Integer.MIN_VALUE;
 
     /**
      * The amount of time for the element to idle, in seconds. 0 indicates unlimited.
      */
-    private int timeToIdle = Integer.MIN_VALUE;
+    private volatile int timeToIdle = Integer.MIN_VALUE;
     
     /**
      * Pluggable element eviction data instance
@@ -92,7 +95,7 @@ public class Element implements Serializable, Cloneable {
      * then both the version number and lastUpdateTime should be updated to reflect that. The creation time
      * will be the creation time of the new Element, not the original one, so that TTL concepts still work.
      */
-    private long lastUpdateTime;
+    private volatile long lastUpdateTime;
 
     /**
      * A full constructor.
@@ -118,7 +121,7 @@ public class Element implements Serializable, Cloneable {
         this.key = key;
         this.value = value;
         this.version = version;
-        this.hitCount = 0;
+        HIT_COUNT_UPDATER.set(this, 0);
         this.elementEvictionData = new DefaultElementEvictionData(TimeUtil.toSecs(System.currentTimeMillis()));
     }
 
@@ -151,7 +154,7 @@ public class Element implements Serializable, Cloneable {
         this.value = value;
         this.version = version;
         this.lastUpdateTime = lastUpdateTime;
-        this.hitCount = hitCount;
+        HIT_COUNT_UPDATER.set(this, hitCount);
         this.elementEvictionData = new DefaultElementEvictionData(
                 TimeUtil.toSecs(creationTime),
                 TimeUtil.toSecs(lastAccessTime));
@@ -168,7 +171,7 @@ public class Element implements Serializable, Cloneable {
         this.key = key;
         this.value = value;
         this.version = version;
-        this.hitCount = hitCount;
+        HIT_COUNT_UPDATER.set(this, hitCount);
         setTimeToLive(timeToLive);
         setTimeToIdle(timeToIdle);
         this.lastUpdateTime = lastUpdateTime;
@@ -439,7 +442,7 @@ public class Element implements Serializable, Cloneable {
      */
     public final void resetAccessStatistics() {
         elementEvictionData.resetLastAccessTime(this);
-        hitCount = 0;
+        HIT_COUNT_UPDATER.set(this, 0);
     }
 
     /**
@@ -447,7 +450,7 @@ public class Element implements Serializable, Cloneable {
      */
     public final void updateAccessStatistics() {
         elementEvictionData.updateLastAccessTime(TimeUtil.toSecs(System.currentTimeMillis()), this);
-        hitCount++;
+        HIT_COUNT_UPDATER.incrementAndGet(this);
     }
 
     /**
@@ -497,7 +500,7 @@ public class Element implements Serializable, Cloneable {
         try {
             Element element = new Element(deepCopy(key), deepCopy(value), version);
             element.elementEvictionData = elementEvictionData.clone();
-            element.hitCount = hitCount;
+            HIT_COUNT_UPDATER.set(element, hitCount);
             return element;
         } catch (IOException e) {
             LOG.log(Level.SEVERE, "Error cloning Element with key " + key

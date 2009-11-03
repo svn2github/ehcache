@@ -101,13 +101,6 @@ public class Cache implements Ehcache {
      */
     public static final String NET_SF_EHCACHE_DISABLED = "net.sf.ehcache.disabled";
 
-    {
-        String value = System.getProperty(NET_SF_EHCACHE_DISABLED);
-        if (value != null) {
-            disabled = value.equalsIgnoreCase("true");
-        }
-    }
-
     /**
      * System Property based method of selecting the LruMemoryStore in use up to ehcache 1.5. This is provided
      * for ease of migration.
@@ -118,13 +111,6 @@ public class Cache implements Ehcache {
      * This can easily be done using <code>java -Dnet.sf.ehcache.use.classic.lru=true</code> in the command line.
      */
     public static final String NET_SF_EHCACHE_USE_CLASSIC_LRU = "net.sf.ehcache.use.classic.lru";
-
-    {
-        String value = System.getProperty(NET_SF_EHCACHE_USE_CLASSIC_LRU);
-        if (value != null) {
-            useClassicLru = value.equalsIgnoreCase("true");
-        }
-    }
 
     /**
      * The default interval between runs of the expiry thread.
@@ -162,36 +148,36 @@ public class Cache implements Ehcache {
         }
     }
 
-    private boolean disabled;
+    private volatile boolean disabled = Boolean.getBoolean(NET_SF_EHCACHE_DISABLED);
+    
+    private final boolean useClassicLru = Boolean.getBoolean(NET_SF_EHCACHE_USE_CLASSIC_LRU);
 
-    private boolean useClassicLru;
+    private volatile Store diskStore;
 
-    private Store diskStore;
+    private volatile String diskStorePath;
 
-    private String diskStorePath;
+    private volatile Status status;
 
-    private Status status;
-
-    private CacheConfiguration configuration;
+    private volatile CacheConfiguration configuration;
 
     /**
      * The {@link MemoryStore} of this {@link Cache}. All caches have a memory store.
      */
-    private Store memoryStore;
+    private volatile Store memoryStore;
 
-    private RegisteredEventListeners registeredEventListeners;
+    private volatile RegisteredEventListeners registeredEventListeners;
 
-    private List<CacheExtension> registeredCacheExtensions;
+    private volatile List<CacheExtension> registeredCacheExtensions;
 
-    private String guid;
+    private volatile String guid;
 
-    private CacheManager cacheManager;
+    private volatile CacheManager cacheManager;
 
-    private BootstrapCacheLoader bootstrapCacheLoader;
+    private volatile BootstrapCacheLoader bootstrapCacheLoader;
 
-    private CacheExceptionHandler cacheExceptionHandler;
+    private volatile CacheExceptionHandler cacheExceptionHandler;
 
-    private List<CacheLoader> registeredCacheLoaders;
+    private volatile List<CacheLoader> registeredCacheLoaders;
 
     /**
      * A ThreadPoolExecutor which uses a thread pool to schedule loads in the order in which they are requested.
@@ -205,11 +191,11 @@ public class Cache implements Ehcache {
      * <p/>
      * Use {@link #getExecutorService()} to ensure that it is initialised.
      */
-    private ExecutorService executorService;
+    private volatile ExecutorService executorService;
 
-    private LiveCacheStatisticsData liveCacheStatisticsData;
+    private volatile LiveCacheStatisticsData liveCacheStatisticsData;
 
-    private SampledCacheStatisticsWrapper sampledCacheStatistics;
+    private volatile SampledCacheStatisticsWrapper sampledCacheStatistics;
 
 
     /**
@@ -762,7 +748,7 @@ public class Cache implements Ehcache {
     /**
      * Indicates whether this cache is clustered by Terracotta
      * 
-     * @return {@code true} when the cache is clustered by Terracotta; or {@code false}Êotherwise
+     * @return {@code true} when the cache is clustered by Terracotta; or {@code false} otherwise
      */
     protected boolean isTerracottaClustered() {
         return configuration.isTerracottaClustered();
@@ -816,7 +802,7 @@ public class Cache implements Ehcache {
      * Put an element in the cache.
      * <p/>
      * Resets the access statistics on the element, which would be the case if it has previously been
-     * gotten from a cache, and is now being put back.               ÷
+     * gotten from a cache, and is now being put back.
      * <p/>
      * Also notifies the CacheEventListener that:
      * <ul>
@@ -1710,7 +1696,7 @@ public class Cache implements Ehcache {
      * plus the number of {@link Element}s in the {@link DiskStore}. However, if
      * the cache is Terracotta clustered, the underlying store has a coherent
      * view of the all the elements in the cache and doesn't have to be
-     * aggregated from an underlying {@code MemoryStore}Êand {@code DiskStore}.
+     * aggregated from an underlying {@code MemoryStore} and {@code DiskStore}.
      * <p/>
      * This number is the actual number of elements, including expired elements
      * that have not been removed.
