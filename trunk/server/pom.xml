@@ -28,8 +28,9 @@
         </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-core</artifactId>
+            <artifactId>ehcache</artifactId>
             <version>1.7.1-SNAPSHOT</version>
+            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -421,7 +422,7 @@
             <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
             <snapshots>
                 <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
+                <updatePolicy>always</updatePolicy>                            
             </snapshots>
         </repository>
     </repositories>
