@@ -229,12 +229,12 @@ pageTracker._trackPageview();
             & SOAP APIs and much more.  Ehcache is available under an Apache open source license and is actively developed,
             maintained and supported by Terracotta, Inc."></head>]]></replacevalue>
         </replace>
-        <!--<replace file="${build.dir}/site/index.html">-->
-            <!--<replacetoken><![CDATA[dx_preview]]></replacetoken>-->
-            <!--<replacevalue><![CDATA[-->
-            <!--<object width="600" height="450"> <param name="movie" value="http://content.screencast.com/users/gregrluck/folders/Jing/media/e486b2af-3cc4-4161-b650-fc8ee131319e/jingh264player.swf"></param> <param name="quality" value="high"></param> <param name="bgcolor" value="#FFFFFF"></param> <param name="flashVars" value="thumb=http://content.screencast.com/users/gregrluck/folders/Jing/media/e486b2af-3cc4-4161-b650-fc8ee131319e/FirstFrame.jpg&containerwidth=1023&containerheight=767&content=http://content.screencast.com/users/gregrluck/folders/Jing/media/e486b2af-3cc4-4161-b650-fc8ee131319e/00000002.mp4&advseek=true"></param> <param name="allowFullScreen" value="true"></param> <param name="scale" value="showall"></param> <param name="allowScriptAccess" value="always"></param> <param name="base" value="http://content.screencast.com/users/gregrluck/folders/Jing/media/e486b2af-3cc4-4161-b650-fc8ee131319e/"></param> <embed src="http://content.screencast.com/users/gregrluck/folders/Jing/media/e486b2af-3cc4-4161-b650-fc8ee131319e/jingh264player.swf" quality="high" bgcolor="#FFFFFF" width="1023" height="767" type="application/x-shockwave-flash" allowScriptAccess="always" flashVars="thumb=http://content.screencast.com/users/gregrluck/folders/Jing/media/e486b2af-3cc4-4161-b650-fc8ee131319e/FirstFrame.jpg&containerwidth=1023&containerheight=767&content=http://content.screencast.com/users/gregrluck/folders/Jing/media/e486b2af-3cc4-4161-b650-fc8ee131319e/00000002.mp4&advseek=true" allowFullScreen="true" base="http://content.screencast.com/users/gregrluck/folders/Jing/media/e486b2af-3cc4-4161-b650-fc8ee131319e/" scale="showall"></embed> </object>-->
-                    <!--]]></replacevalue>-->
-        <!--</replace>-->
+        <replace file="${build.dir}/site/index.html">
+            <replacetoken><![CDATA[dx_preview]]></replacetoken>
+            <replacevalue><![CDATA[
+            <object width="425" height="344"><param name="movie" value="http://www.youtube.com/v/XU9ZnOBJ4I0&hl=en&fs=1&"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/XU9ZnOBJ4I0&hl=en&fs=1&" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="425" height="344"></embed></object>
+                    ]]></replacevalue>
+        </replace>
         <!--Fix absolute size of members' and contributors' lists-->
         <replace file="${build.dir}/site/team-list.html">
             <replacetoken><![CDATA[<table class="bodyTable">]]></replacetoken>

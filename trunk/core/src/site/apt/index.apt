@@ -41,14 +41,13 @@ Welcome to ehcache
 {{{documentation/cache_server.html}ehcache-server}} | RESTful cache server in a WAR or standalone
 *----------+--------------:
 
+  dx_preview
+
+  This is a 3 minute video of Greg Luck previewing Ehcache DX, a new Ehcache Monitoring and Management server, for Ehcache versions 1.2.3 and higher. Sign up for {{{http://www.terracotta.org/web/display/orgsite/Terracotta+Pre+Release}Ehcache DX EAP}}
+  now.
+
 * Latest News
 
-** 30 October 2009: Greg Luck previews exciting new Monitoring and Management product
-
-  See a {{{http://www.screencast.com/t/rtAvqBAYrMy}3 minute video of Greg Luck previewing Ehcache DX}}, the new monitoring and
-  management product, for Ehcache versions 1.2.3 and higher. Help to shape this exciting new product by registering and
-  downloading the {{{http://www.terracotta.org/web/display/orgsite/Terracotta+Pre+Release}Ehcache DX early release}}.
-    
 
 ** 13 October 2009: New 1.7.0 releases - ehcache, ehcache-core and the new ehcache-terracotta
 
