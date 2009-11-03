@@ -23,10 +23,10 @@ import org.apache.commons.daemon.DaemonController;
 import org.glassfish.embed.EmbeddedException;
 import org.glassfish.embed.EmbeddedInfo;
 import org.glassfish.embed.EmbeddedDeployer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * The ehcache server.
@@ -49,8 +49,7 @@ public class Server implements Daemon {
      */
     public static final Integer DEFAULT_BASE_PORT = 8080;
 
-    private static final Logger LOG = Logger.getLogger(Server.class.getName());
-
+    private static final Logger LOG = LoggerFactory.getLogger(Server.class);
     private static ServerThread serverThread;
 
     private DaemonController controller;
@@ -258,7 +257,7 @@ public class Server implements Daemon {
                 LOG.info("Glassfish server running on httpPort " + httpPort + " with WAR " + war
                         + ". JMX is listening at " + jmxPort);
             } catch (Exception e) {
-                LOG.log(Level.SEVERE, "Cannot start server. ", e);
+                LOG.error("Cannot start server. ", e);
             }
         }
 

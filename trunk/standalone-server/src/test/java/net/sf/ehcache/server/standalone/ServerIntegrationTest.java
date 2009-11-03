@@ -32,10 +32,10 @@ public class ServerIntegrationTest {
     @BeforeClass
     public static void startup() throws Exception, InterruptedException {
         Server.main(new String[]{"9090", "target/war/work/net.sf.ehcache/ehcache-server/"});
-        sleep(10000);
+        sleep(15000);
     }
 
-    @Ignore("MNK-1415")
+//    @Ignore("MNK-1415")
     /**
      * Checks that the SOAP Web Service is actually running
      */
@@ -52,7 +52,7 @@ public class ServerIntegrationTest {
         assertTrue(responseBody.indexOf("Implementation class:") != 0);
     }
 
-    @Ignore("MNK-1415")
+//    @Ignore("MNK-1415")
     /**
      * Checks that the RESTful WebService is actually running
      */

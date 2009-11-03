@@ -31,6 +31,12 @@
             <artifactId>commons-daemon</artifactId>
             <version>1.0.1</version>
         </dependency>
+        <!--Concrete logging implementation-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.5.8</version>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -95,12 +101,12 @@
                         <property>
                             <name>net.sf.ehcache.skipUpdateCheck</name>
                             <value>true</value>
-                        </property>                    
+                        </property>
                         <property>
                             <name>java.awt.headless</name>
                             <value>true</value>
                         </property>
-                    </systemProperties>                    
+                    </systemProperties>
                 </configuration>
                 <executions>
                     <execution>
@@ -128,29 +134,29 @@
                 </executions>
             </plugin>
             <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-checkstyle-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>verify</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>checkstyle</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-                <!--<configuration>-->
-                    <!--<configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>-->
-                    <!--<suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>-->
-                    <!--<headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>-->
-                    <!--<enableRSS>false</enableRSS>-->
-                    <!--<linkXRef>true</linkXRef>-->
-                    <!--<enableRulesSummary>false</enableRulesSummary>-->
-                    <!--<consoleOutput>true</consoleOutput>-->
-                    <!--<failsOnError>true</failsOnError>-->
-                    <!--<failOnViolation>true</failOnViolation>-->
-                    <!--<includeTestSourceDirectory>true</includeTestSourceDirectory>-->
-                    <!--<enableRulesSummary>true</enableRulesSummary>-->
-                <!--</configuration>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-checkstyle-plugin</artifactId>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<phase>verify</phase>-->
+            <!--<goals>-->
+            <!--<goal>checkstyle</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--<configuration>-->
+            <!--<configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>-->
+            <!--<suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>-->
+            <!--<headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>-->
+            <!--<enableRSS>false</enableRSS>-->
+            <!--<linkXRef>true</linkXRef>-->
+            <!--<enableRulesSummary>false</enableRulesSummary>-->
+            <!--<consoleOutput>true</consoleOutput>-->
+            <!--<failsOnError>true</failsOnError>-->
+            <!--<failOnViolation>true</failOnViolation>-->
+            <!--<includeTestSourceDirectory>true</includeTestSourceDirectory>-->
+            <!--<enableRulesSummary>true</enableRulesSummary>-->
+            <!--</configuration>-->
             <!--</plugin>-->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
