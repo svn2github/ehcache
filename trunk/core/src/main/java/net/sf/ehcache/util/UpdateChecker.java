@@ -58,7 +58,7 @@ public class UpdateChecker extends TimerTask {
                 doCheck();
             }
         } catch (Throwable t) {
-            LOG.log(Level.WARNING, "Update check failed: " + t.toString());
+            LOG.log(Level.FINE, "Update check failed: " + t.toString());
         }
     }
 
