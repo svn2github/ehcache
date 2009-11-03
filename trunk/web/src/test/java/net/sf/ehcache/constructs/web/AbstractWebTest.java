@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.File;
 import java.net.HttpURLConnection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -272,6 +273,7 @@ public abstract class AbstractWebTest {
     protected void assertResponseGoodAndCached(String path, boolean fullPage) throws Exception {
         WebResponse firstResponse = getResponseFromAcceptGzipRequest(path);
         assertResponseGood(firstResponse, fullPage);
+        sleep(TimeUnit.SECONDS, 2);
         WebResponse secondResponse = getResponseFromAcceptGzipRequest(path);
         assertResponseGood(secondResponse, fullPage);
         checkTimeStamps(firstResponse, secondResponse, true);
@@ -285,6 +287,7 @@ public abstract class AbstractWebTest {
     protected void assertResponseGoodAndNotCached(String path, boolean fullPage) throws Exception {
         WebResponse firstResponse = getResponseFromAcceptGzipRequest(path);
         assertResponseGood(firstResponse, fullPage);
+        sleep(TimeUnit.SECONDS, 2);
         WebResponse secondResponse = getResponseFromAcceptGzipRequest(path);
         assertResponseGood(secondResponse, fullPage);
         checkTimeStamps(firstResponse, secondResponse, false);
@@ -419,5 +422,25 @@ public abstract class AbstractWebTest {
         }
     }
 
+    private void sleep(TimeUnit unit, long length) {
+      boolean interrupted = false;
+      try {
+        long duration = TimeUnit.MILLISECONDS.convert(length, unit);
+        while (duration > 0) {
+          long start = System.currentTimeMillis();
+          try {
+            Thread.sleep(duration);
+          } catch (InterruptedException e) {
+            interrupted = true;
+          }
+          long end = System.currentTimeMillis();
+          duration -= (end - start);
+        }
+      } finally {
+        if (interrupted) {
+          Thread.currentThread().interrupt();
+        }
+      }
+    }
 }
 
