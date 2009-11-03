@@ -26,6 +26,14 @@
                 not updated under the same lock.  This happens in tests a lot but is probably less
                 common in actual user code.
             </action>
+            <action dev="Chris Dennis" type="fix" issue="EHC-443">
+                Fixed a number of latent visibility bugs in the Cache class.
+            </action>
+            <action dev="Chris Dennis" type="fix" issue="EHC-445">
+                Fixed a number of latent visibility bugs in the Element class.  Notably updates to
+                the hitCount field are now coherent across multiple threads through the use of an
+                AtomicLongFieldUpdater.
+            </action>
         </release>
 
 
