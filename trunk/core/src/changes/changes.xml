@@ -34,6 +34,21 @@
                 the hitCount field are now coherent across multiple threads through the use of an
                 AtomicLongFieldUpdater.
             </action>
+            <action dev="Abhishek Sanoujam" type="fix" issue="EHC-424">
+                Fixed bug to avoid any limit on the number of caches that can be configured for replication.
+                Earlier there was a limit on the number of caches that can be configured for replication as 
+                the heartbeat size was exceeding the MTU when the number of caches were high and/or the caches had
+                long names. Fixed to break up into multiple payloads in case the heartbeat size exceeds the MTU. 
+            </action>
+            <action dev="Abhishek Sanoujam" type="fix" issue="EHC-446">
+                Fixed MemoryStore to use sufficient initial capacity for the internal ConcurrentHashMap so that it
+                can accommodate the maximumSize of the store.
+            </action>
+            <action dev="Abhishek Sanoujam" type="fix" issue="EHC-415">
+                Allow Terracotta clustered caches to be added programmatically even when the CacheManager was created
+                initially without any Terracotta clustered caches. e.g. Adding a terracotta clustered cache programmatically
+                to the default singleton CacheManager when there is no ehcache.xml present in the classpath.                  
+            </action>
         </release>
 
 
