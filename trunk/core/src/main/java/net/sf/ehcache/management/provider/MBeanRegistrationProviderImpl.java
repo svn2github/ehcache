@@ -31,7 +31,7 @@ import net.sf.ehcache.management.sampled.SampledMBeanRegistrationProvider;
  */
 public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider {
 
-    private static final SampledMBeanRegistrationProvider SAMPLED_PROVIDER = new SampledMBeanRegistrationProvider();
+    private final SampledMBeanRegistrationProvider sampledProvider;
 
     private final Monitoring monitoring;
     private final AtomicBoolean initialized = new AtomicBoolean(false);
@@ -43,6 +43,7 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
      * @param configuration
      */
     public MBeanRegistrationProviderImpl(Configuration configuration) {
+        sampledProvider = new SampledMBeanRegistrationProvider();
         this.monitoring = configuration.getMonitoring();
     }
 
@@ -52,7 +53,7 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
     public void initialize(CacheManager cacheManager) throws MBeanRegistrationProviderException {
         if (!initialized.getAndSet(true)) {
             if (shouldRegisterMBeans()) {
-                SAMPLED_PROVIDER.initialize(cacheManager);
+                sampledProvider.initialize(cacheManager);
             }
             this.cachedCacheManager = cacheManager;
         } else {
@@ -65,10 +66,10 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
      */
     public void reinitialize() throws MBeanRegistrationProviderException {
         if (shouldRegisterMBeans()) {
-            if (SAMPLED_PROVIDER.isAlive()) {
-                SAMPLED_PROVIDER.reinitialize();
+            if (sampledProvider.isAlive()) {
+                sampledProvider.reinitialize();
             } else {
-                SAMPLED_PROVIDER.initialize(cachedCacheManager);
+                sampledProvider.initialize(cachedCacheManager);
             }
         }
     }
