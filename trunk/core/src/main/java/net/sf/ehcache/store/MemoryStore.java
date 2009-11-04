@@ -113,8 +113,7 @@ public class MemoryStore implements Store {
         this.policy = determineEvictionPolicy();
         
         // create the CHM with initialCapacity sufficient to hold maximumSize
-        double actualMaximum = Math.ceil(maximumSize / DEFAULT_LOAD_FACTOR);
-        int initialCapacity = actualMaximum >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) actualMaximum;
+        int initialCapacity = getInitialCapacityForLoadFactor(maximumSize, DEFAULT_LOAD_FACTOR);
         map = new ConcurrentHashMap(initialCapacity, DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
         if (maximumSize > TOO_LARGE_TO_EFFICIENTLY_ITERATE) {
             useKeySample = true;
@@ -133,6 +132,19 @@ public class MemoryStore implements Store {
         }
     }
 
+    /**
+     * Calculates the initialCapacity for a desired maximumSize goal and loadFactor.
+     * 
+     * @param maximumSizeGoal
+     *            the desired maximum size goal
+     * @param loadFactor
+     *            the load factor
+     * @return the calculated initialCapacity. Returns 0 if the parameter <tt>maximumSizeGoal</tt> is less than or equal to 0
+     */
+    static int getInitialCapacityForLoadFactor(int maximumSizeGoal, float loadFactor) {
+        double actualMaximum = Math.ceil(maximumSizeGoal / loadFactor);
+        return Math.max(0, actualMaximum >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) actualMaximum);
+    }
 
     /**
      * A factory method to create a MemoryStore.
