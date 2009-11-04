@@ -203,7 +203,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
 
     /**
      * Returns true if this {@link SampledMBeanRegistrationProvider} is alive
-     * @return
+     * @return true if alive otherwise false
      */
     public boolean isAlive() {
         return status == Status.STATUS_ALIVE;
