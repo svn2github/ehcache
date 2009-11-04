@@ -219,10 +219,10 @@
             <property name="max" value="4"/>
         </module>
         <module name="ClassDataAbstractionCoupling">
-            <property name="max" value="12"/>
+            <property name="max" value="15"/>
         </module>
         <module name="ClassFanOutComplexity">
-            <property name="max" value="36"/>
+            <property name="max" value="40"/>
         </module>
         <module name="CyclomaticComplexity">
             <property name="severity" value="error"/>

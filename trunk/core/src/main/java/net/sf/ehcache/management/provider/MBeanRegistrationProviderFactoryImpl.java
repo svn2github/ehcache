@@ -16,8 +16,6 @@
 package net.sf.ehcache.management.provider;
 
 import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.config.Configuration.Monitoring;
-import net.sf.ehcache.management.sampled.SampledMBeanRegistrationProvider;
 
 /**
  * Defult implementation of {@link MBeanRegistrationProvider}
@@ -29,8 +27,6 @@ import net.sf.ehcache.management.sampled.SampledMBeanRegistrationProvider;
  */
 public class MBeanRegistrationProviderFactoryImpl implements MBeanRegistrationProviderFactory {
 
-    private static final MBeanRegistrationProvider DEFAULT_PROVIDER = new NullMBeanRegistrationProvider();
-
     /**
      * {@inheritDoc}
      */
@@ -38,33 +34,7 @@ public class MBeanRegistrationProviderFactoryImpl implements MBeanRegistrationPr
         if (null == config) {
             throw new IllegalArgumentException("Configuration cannot be null.");
         }
-        MBeanRegistrationProvider provider;
-        if (shouldRegisterMBeans(config)) {
-            provider = new SampledMBeanRegistrationProvider();
-        } else {
-            provider = DEFAULT_PROVIDER;
-        }
-        return provider;
+        return new MBeanRegistrationProviderImpl(config);
     }
 
-    private boolean shouldRegisterMBeans(final Configuration config) {
-        Monitoring monitoring = config.getMonitoring();
-        switch (monitoring) {
-        case AUTODETECT:
-            return isTcActive();
-        case ON:
-            return true;
-        case OFF:
-            return false;
-        default:
-            throw new IllegalArgumentException("Unknown type of monitoring specified in config: " + monitoring);
-        }
-    }
-
-    private boolean isTcActive() {
-        // do not use a static final to store this in a class.
-        // If unclustered cacheManager's are created before creating
-        // clustered ones, mbeans will never get registered
-        return Boolean.getBoolean("tc.active");
-    }
 }

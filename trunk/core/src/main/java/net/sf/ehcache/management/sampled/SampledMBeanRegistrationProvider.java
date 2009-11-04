@@ -201,7 +201,11 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         status = Status.STATUS_SHUTDOWN;
     }
 
-    private boolean isAlive() {
+    /**
+     * Returns true if this {@link SampledMBeanRegistrationProvider} is alive
+     * @return
+     */
+    public boolean isAlive() {
         return status == Status.STATUS_ALIVE;
     }
 

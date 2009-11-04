@@ -21,12 +21,14 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,6 +37,7 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.config.TerracottaConfigConfiguration;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.event.CacheManagerEventListener;
@@ -157,7 +160,14 @@ public class CacheManager {
     /**
      * Factory for creating terracotta clustered memory store (may be null if this manager has no terracotta caches)
      */
-    private StoreFactory terracottaStoreFactory;
+    private volatile StoreFactory terracottaStoreFactory;
+    
+    /**
+     * The {@link TerracottaConfigConfiguration} used for this {@link CacheManager}
+     */
+    private TerracottaConfigConfiguration terracottaConfigConfiguration;
+    
+    private AtomicBoolean terracottaStoreFactoryCreated = new AtomicBoolean(false);
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -263,6 +273,8 @@ public class CacheManager {
         if (localConfiguration.getName() != null) {
             this.name = localConfiguration.getName();
         }
+        
+        this.terracottaConfigConfiguration = localConfiguration.getTerracottaConfiguration();
 
         Map<String, CacheConfiguration> cacheConfigs = localConfiguration.getCacheConfigurations();
         for (CacheConfiguration config : cacheConfigs.values()) {
@@ -297,10 +309,20 @@ public class CacheManager {
 
         cacheManagerTimer = new FailSafeTimer(getName());
         checkForUpdateIfNeeded(localConfiguration.getUpdateCheck());
+        
+        terracottaStoreFactoryCreated.set(terracottaStoreFactory != null);
 
         //do this last
         addConfiguredCaches(configurationHelper);
 
+        initializeMBeanRegistrationProvider(localConfiguration);
+    }
+
+    /**
+     * Initialize the {@link MBeanRegistrationProvider} for this {@link CacheManager}
+     * @param localConfiguration
+     */
+    private void initializeMBeanRegistrationProvider(Configuration localConfiguration) {
         mbeanRegistrationProvider = mBeanRegistrationProviderFactory.createMBeanRegistrationProvider(localConfiguration);
         try {
             mbeanRegistrationProvider.initialize(this);
@@ -318,9 +340,24 @@ public class CacheManager {
      */
     Store createTerracottaStore(Ehcache cache) {
         if (terracottaStoreFactory == null) {
-            // This can happen as a result of user configuration if user is directly using addCache()
-            // (read: this is not an AssertionError)
-            throw new CacheException("no terracotta configuration has been initalized for this cache manager");
+            // adding a cache programmatically when there is no clustered store defined in the configuration
+            // at the time this cacheManager was created
+            // synchronized so that multiple threads will wait till the store is created
+            synchronized (this) {
+                // only 1 thread will create the store
+                if (!terracottaStoreFactoryCreated.getAndSet(true)) {
+                    // use the TerracottaConfigConfiguration of this CacheManager to create a new StoreFactory
+                    Map<String, CacheConfiguration> map = new HashMap<String, CacheConfiguration>(1);
+                    map.put(cache.getName(), cache.getCacheConfiguration());
+                    terracottaStoreFactory = TerracottaStoreHelper.newStoreFactory(map, terracottaConfigConfiguration);
+                    try {
+                        mbeanRegistrationProvider.reinitialize();
+                    } catch (MBeanRegistrationProviderException e) {
+                        LOG.log(Level.WARNING, "Failed to initialize the MBeanRegistrationProvider - "
+                                + mbeanRegistrationProvider.getClass().getName(), e);
+                    }
+                }
+            }
         }
         return terracottaStoreFactory.create(cache);
     }

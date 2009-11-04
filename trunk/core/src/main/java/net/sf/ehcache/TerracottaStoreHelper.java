@@ -33,6 +33,11 @@ import net.sf.ehcache.util.ClassLoaderUtil;
  */
 class TerracottaStoreHelper {
 
+    /**
+     * Boolean indicating if TC is running or not.
+     * Can be stored in a static final field as required only in DSO mode.
+     */
+    private static final boolean TC_DSO_MODE = Boolean.getBoolean("tc.active");
     private static final String DIRECT_STORE_FACTORY = "org.terracotta.modules.ehcache.store.TerracottaStoreFactory";
     private static final String STANDALONE_STORE_FACTORY = "net.sf.ehcache.terracotta.StandaloneTerracottaStoreFactory";
 
@@ -75,6 +80,11 @@ class TerracottaStoreHelper {
             // assume not standalone usage if standalone factory not present
             try {
                 factoryClass = ClassLoaderUtil.loadClass(DIRECT_STORE_FACTORY);
+                if (!TC_DSO_MODE) {
+                    // required tim jars found in classpath but tc is not running.
+                    throw new CacheException("When not using standalone deployment, you need to use full install of Terracotta"
+                            + " in order to use Terracotta Clustered Caches.");
+                }
             } catch (ClassNotFoundException e) {
                 // XXX: improve exception message here? A exception here can be caused by missing the TIM jar(s) in your app
                 throw new CacheException("Terracotta cache classes are not available, you are missing jar(s) most likely", e);
