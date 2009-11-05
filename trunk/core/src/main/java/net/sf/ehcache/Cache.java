@@ -2103,6 +2103,9 @@ public class Cache implements Ehcache {
      * @return true if an Element matching the key is found in the cache. No assertions are made about the state of the Element.
      */
     public boolean isKeyInCache(Object key) {
+        if (key == null) {
+            return false;
+        }
         return isElementInMemory(key) || isElementOnDisk(key);
     }
 

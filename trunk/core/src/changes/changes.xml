@@ -49,6 +49,10 @@
                 initially without any Terracotta clustered caches. e.g. Adding a terracotta clustered cache programmatically
                 to the default singleton CacheManager when there is no ehcache.xml present in the classpath.                  
             </action>
+            <action dev="Greg Luck" type="fix" issue="EHC-462">
+                cache.isKeyInCache(null) causes an NPE. Fixed.
+            </action>
+
         </release>
 
 

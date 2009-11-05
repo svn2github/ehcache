@@ -1675,6 +1675,27 @@ public class CacheTest extends AbstractCacheTest {
     }
 
     /**
+     * When does equals mean the same thing as == ?
+     *
+     * @throws CacheException
+     * @throws InterruptedException
+     */
+    @Test
+    public void testIsKeyInCache() throws CacheException, InterruptedException {
+        Cache cache = new Cache("cache", 1, true, false, 100, 200, false, 1);
+        manager.addCache(cache);
+
+        Element element1 = new Element("1", new Date());
+        Element element2 = new Element("2", new Date());
+        cache.put(element1);
+        cache.put(element2);
+
+        assertTrue(cache.isKeyInCache("1"));
+        assertTrue(cache.isKeyInCache("2"));
+        assertFalse(cache.isKeyInCache(null));
+    }
+
+    /**
      * Tests the uniqueness of the GUID
      */
     @Test
