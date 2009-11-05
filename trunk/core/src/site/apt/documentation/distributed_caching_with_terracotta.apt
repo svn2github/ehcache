@@ -289,7 +289,7 @@ public class TerracottaExample {
 
     maxElementsInMemory - the maximum number of elements in the local L1 store.
 
-    maxElementsOnDisk - is overridden when using Terracotta to provide the L2 size.
+    maxElementsOnDisk - is overridden when using Terracotta to provide the L2 size. The L2 size is effectively the maximum cache size.
 
     overflowToDisk normally controls whether to overflow to the DiskStore. This is ignored when using Terracotta - the DiskStore
     is never used. When the store gets full, elements will always overflow to the Terracotta L2 Store running on the server. The L2
@@ -301,11 +301,11 @@ public class TerracottaExample {
 
     * the L1 store exceeding maxElementsInMemory
 
-    * When the local JMV exceeds 70% of Old Generation. This can be turned off in the TC Config. By default it is on (in 1.7).
+    * When the local JVM exceeds 70% of Old Generation. This can be turned off in the TC Config. By default it is on (in 1.7).
 
 **  How does Element equality work in Serialization mode?
 
-    An Element in Ehcache is guaranteed to <<<.equals()>>> another as it moves between stores.
+    An Element, key and value in Ehcache is guaranteed to <<<.equals()>>> another as it moves between stores.
 
     In the Express install or Serialization mode of Terracotta, which is the default, Terracotta is the same. Elements will
     not <<<==>>> each other as they move between stores.
@@ -314,7 +314,7 @@ public class TerracottaExample {
 
     An Element in Ehcache is guaranteed to <<<.equals()>>> another as it moves between stores.
 
-    However in Identity mode, Terracotta makes a further guarantee - that they will <<<==>>> each other. This is achieved
+    However in Identity mode, Terracotta makes a further guarantee that they key and the value <<<==>>>. This is achieved
     using extensions to the Java Memory Model.
 
 **  What is the recommended way to write to a database?
@@ -337,7 +337,16 @@ public class TerracottaExample {
 **  Do CacheEventListeners work?
 
     A local CacheEventListener will work locally, but other nodes in a Terracotta cluster are not notified. With the Ehcache replication
-     non Terracotta mechanisms the remote nodes are updated.  
+     non Terracotta mechanisms the remote nodes are updated.
+
+**  What are the JMX statistics available in the Terracotta Developer Console?
+
+    SampledCache and SampledCacheManager MBeans are made available in the Terracotta Developer Console.
+
+    These are time based gauges, based on once per second measurements. These are different to the JMX MBeans available through the
+    <<<ManagementService>>>.
+
+
 
 
 

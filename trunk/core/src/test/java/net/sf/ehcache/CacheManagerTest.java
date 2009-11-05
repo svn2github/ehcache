@@ -62,8 +62,7 @@ import org.junit.Test;
  */
 public class CacheManagerTest {
 
-    private static final Logger LOG = Logger.getLogger(CacheManagerTest.class
-            .getName());
+    private static final Logger LOG = Logger.getLogger(CacheManagerTest.class.getName());
 
     /**
      * the CacheManager Singleton instance
@@ -83,21 +82,17 @@ public class CacheManagerTest {
     public void tearDown() throws Exception {
         if (singletonManager != null) {
             if (singletonManager.getStatus().equals(Status.STATUS_ALIVE)) {
-                assertTrue(CacheManager.ALL_CACHE_MANAGERS
-                        .contains(singletonManager));
+                assertTrue(CacheManager.ALL_CACHE_MANAGERS.contains(singletonManager));
             }
             singletonManager.shutdown();
-            assertFalse(CacheManager.ALL_CACHE_MANAGERS
-                    .contains(singletonManager));
+            assertFalse(CacheManager.ALL_CACHE_MANAGERS.contains(singletonManager));
         }
         if (instanceManager != null) {
             if (instanceManager.getStatus().equals(Status.STATUS_ALIVE)) {
-                assertTrue(CacheManager.ALL_CACHE_MANAGERS
-                        .contains(instanceManager));
+                assertTrue(CacheManager.ALL_CACHE_MANAGERS.contains(instanceManager));
             }
             instanceManager.shutdown();
-            assertFalse(CacheManager.ALL_CACHE_MANAGERS
-                    .contains(instanceManager));
+            assertFalse(CacheManager.ALL_CACHE_MANAGERS.contains(instanceManager));
         }
     }
 
@@ -116,8 +111,7 @@ public class CacheManagerTest {
      */
     @Test
     public void testCreateCacheManagerFromFile() throws CacheException {
-        singletonManager = CacheManager.create(AbstractCacheTest.SRC_CONFIG_DIR
-                + "ehcache.xml");
+        singletonManager = CacheManager.create(AbstractCacheTest.SRC_CONFIG_DIR + "ehcache.xml");
         assertNotNull(singletonManager);
         assertEquals(6, singletonManager.getCacheNames().length);
     }
@@ -128,8 +122,7 @@ public class CacheManagerTest {
     @Test
     public void testCreateCacheManagerFromConfiguration() throws CacheException {
         File file = new File(AbstractCacheTest.SRC_CONFIG_DIR + "ehcache.xml");
-        Configuration configuration = ConfigurationFactory
-                .parseConfiguration(file);
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         CacheManager manager = new CacheManager(configuration);
         assertNotNull(manager);
         assertEquals(6, manager.getCacheNames().length);
@@ -794,15 +787,25 @@ public class CacheManagerTest {
     }
 
     /**
-     * Ehcache 1.5 allows the diskStore element to be optional. Check that is is
-     * null
+     * Ehcache 1.5 allows the diskStore element to be optional. Check that is is null
+     * Add different cache constructors to make sure none inadvertently create a disk store
      */
     @Test
-    public void testCacheManagerWithNoDiskCachesFromConfiguration()
-            throws CacheException, InterruptedException {
-        singletonManager = CacheManager
-                .create(AbstractCacheTest.TEST_CONFIG_DIR
-                        + "ehcache-nodisk.xml");
+    public void testCacheManagerWithNoDiskCachesFromConfiguration() throws CacheException, InterruptedException {
+        LOG.info(System.getProperty("java.io.tmpdir"));
+        singletonManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-nodisk.xml");
+        singletonManager.addCache("jsecurity-activeSessionCache");
+        Cache cacheA = singletonManager.getCache("jsecurity-activeSessionCache");
+        Cache cacheB = new Cache("1", 10, false, false, 2, 2);
+        singletonManager.addCache(cacheB);
+        Cache cacheC = new Cache("2", 10, false, false, 2, 2, false, 100);
+        singletonManager.addCache(cacheC);
+        for(int i = 0; i < 100; i++) {
+            cacheA.put(new Element(i + "", "dog"));
+            cacheB.put(new Element(i + "", "dog"));
+            cacheC.put(new Element(i + "", "dog"));
+        }
+        singletonManager.shutdown();
         assertEquals(null, singletonManager.getDiskStorePath());
     }
 
