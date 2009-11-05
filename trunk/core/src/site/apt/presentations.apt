@@ -1,0 +1,34 @@
+Presentations
+
+
+* Ehcache 1.7 - Scaling applications with distributed caches
+
+    Recorded: 5 November 2009 Duration: 1 hour
+
+[images/ehcache_1_7_presentation.jpg]
+
+     Click {{{https://terracotta.webex.com/terracotta/lsr.php?AT=pb&SP=EC&rID=1702397&rKey=b0920841e529407d}here}}
+
+    In this webcast, learn how simple it is to scale applications using new Ehcache-1.7 clustered with Terracotta 3.1.1, both components of the Terracotta for Caching product line.
+    We will walk through a demo application which uses standalone ehcache and show you how, with a few config line changes in ehcache.xml, we can plug into a Terracotta Server Array for coherent distributed caching.
+    You will also learn how to use the Developer Console to visualise and profile your application in real-time. Finally, we will demonstrate how to add automatic partitioning, capacity on demand, durability and guaranteed write-behind updates.
+    Hundreds of thousands of deployments depend for their performance today on Ehcache, the reference implementation for JSR107, and some of the largest companies in the world rely on the enterprise scale of Terracotta. Now, you can have the best of both worlds with no code changes.
+
+    The Terracotta for Caching product line is available immediately. All three versions incorporate the Ehcache API. They include:
+
+    * Ehcache DX - High-performance Ehcache standalone and peer-to-peer replicated cache with enterprise support, monitoring, management and visualization;
+
+    * Ehcache EX - The same industry-standard high performance Ehcache running on the award-winning Terracotta Server Array for high throughput, scalable distributed cache applications with guaranteed data coherence, along with high availability, enterprise support, monitoring, management and visualization;
+
+    * Ehcache FX - Distributed cache infrastructure software for massive scale; it incorporates the industry-standard Ehcache API and high throughput Terracotta Server Array with data striping to partition cache data for extreme scale, and includes enterprise support, monitoring, management, and visualization.
+
+* Ehcache DX Preview (3 minutes)
+
+    Recorded: 30 November 2009 Duration: 1 hour
+
+    dx_preview
+
+    In this video Greg Luck prevents a preview of the forthcoming Ehcache DX product, which contains a management and monitoring server.
+
+
+
