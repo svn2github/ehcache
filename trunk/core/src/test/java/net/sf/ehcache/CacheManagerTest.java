@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -805,6 +806,13 @@ public class CacheManagerTest {
             cacheA.put(new Element(i + "", "dog"));
             cacheB.put(new Element(i + "", "dog"));
             cacheC.put(new Element(i + "", "dog"));
+        }
+        Cache diskCache = new Cache("disk", 10, true, false, 2, 2);
+        try {
+          singletonManager.addCache(diskCache);
+          throw new AssertionError("Expected that adding a disk cache to a cache manager with no configured disk store path would throw CacheException");
+        } catch (CacheException e) {
+          LOG.info("Caught expected exception", e);
         }
         singletonManager.shutdown();
         assertEquals(null, singletonManager.getDiskStorePath());

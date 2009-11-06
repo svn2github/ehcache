@@ -90,7 +90,7 @@ public class CacheManager {
     /**
      * The Singleton Instance.
      */
-    private static CacheManager singleton;
+    private static volatile CacheManager singleton;
     
     /**
      * The factory to use for creating MBeanRegistrationProvider's

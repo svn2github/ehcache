@@ -181,8 +181,15 @@ public class DiskStore implements Store {
 
 
     private void initialiseFiles() throws Exception {
-        // Make sure the cache directory exists
+        if (diskPath == null) {
+          throw new CacheException(cache.getName() + " Cache: Could not create disk store. " +
+                  "This CacheManager configuration does not allow creation of DiskStores. " +
+                  "If you wish to create DiskStores, please configure a diskStore path.");
+        }
+
         final File diskDir = new File(diskPath);
+        
+        // Make sure the cache directory exists
         if (diskDir.exists() && !diskDir.isDirectory()) {
             throw new Exception("Store directory \"" + diskDir.getCanonicalPath() + "\" exists and is not a directory.");
         }
