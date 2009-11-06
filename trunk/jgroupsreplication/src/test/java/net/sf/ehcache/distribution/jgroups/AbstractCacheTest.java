@@ -16,19 +16,19 @@
 
 package net.sf.ehcache.distribution.jgroups;
 
-import junit.framework.TestCase;
-
-import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.util.List;
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
-
-import net.sf.ehcache.CacheManager;
+import java.util.List;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
+
+import junit.framework.TestCase;
+import net.sf.ehcache.CacheManager;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 
@@ -55,7 +55,7 @@ public abstract class AbstractCacheTest extends TestCase {
     public static final String TEST_CLASSES_DIR = "target/test-classes/";
 
 
-    private static final Logger LOG = Logger.getLogger(AbstractCacheTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractCacheTest.class.getName());
 
     /**
      * name for sample cache 1
@@ -186,7 +186,7 @@ public abstract class AbstractCacheTest extends TestCase {
             Method method = managementFactoryClass.getMethod("getPlatformMBeanServer", null);
             return (MBeanServer) method.invoke(null, null);
         } catch (Exception e) {
-            LOG.log(Level.INFO, "JDK1.5 ManagementFactory not found. Falling back to JMX1.2.1", e);
+            LOG.info("JDK1.5 ManagementFactory not found. Falling back to JMX1.2.1", e);
             return MBeanServerFactory.createMBeanServer("SimpleAgent");
         }
     }

@@ -17,20 +17,21 @@
 
 package net.sf.ehcache.distribution.jgroups;
 
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.distribution.CachePeer;
 import net.sf.ehcache.distribution.RemoteCacheException;
-import org.jgroups.stack.IpAddress;
 
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.jgroups.stack.IpAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Loads Elements from a random Cache Peer
@@ -42,7 +43,7 @@ public class JGroupsBootstrapCacheLoader implements BootstrapCacheLoader {
 
     private static final int ONE_SECOND = 1000;
 
-    private static final Logger LOG = Logger.getLogger(JGroupsBootstrapCacheLoader.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(JGroupsBootstrapCacheLoader.class.getName());
 
     private static final int WAIT_FOR_RESPONSE = 3000;
 
@@ -108,7 +109,7 @@ public class JGroupsBootstrapCacheLoader implements BootstrapCacheLoader {
             try {
                 doLoad(cache);
             } catch (RemoteCacheException e) {
-                LOG.log(Level.WARNING, "Error asynchronously performing bootstrap. The cause was: " + e.getMessage(), e);
+                LOG.warn("Error asynchronously performing bootstrap. The cause was: {}", e.getMessage(), e);
             } finally {
                 cache = null;
             }
@@ -131,21 +132,21 @@ public class JGroupsBootstrapCacheLoader implements BootstrapCacheLoader {
 
         List cachePeers = acquireCachePeers(cache);
         if (cachePeers == null || cachePeers.size() == 0) {
-            LOG.log(Level.INFO, "Empty list of cache peers for cache " + cache.getName() + ". No cache peer to bootstrap from.");
+            LOG.info("Empty list of cache peers for cache {}. No cache peer to bootstrap from.", cache.getName());
             return;
         }
 
 
         jGroupManager = (JGroupManager) cachePeers.get(0);
         IpAddress localAddress = (IpAddress) jGroupManager.getBusLocalAddress();
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE, "(" + cache.getName() + ") localAddress: " + localAddress);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("({}) localAddress: {}", cache.getName(), localAddress);
         }
         List<IpAddress> addresses = buildCachePeerAddressList(cache, jGroupManager, localAddress);
 
 
         if (addresses == null || addresses.size() == 0) {
-            LOG.log(Level.INFO, "This is the first node to start: no cache bootstrap for " + cache.getName());
+            LOG.info("This is the first node to start: no cache bootstrap for {}", cache.getName());
             return;
         }
 
@@ -158,8 +159,8 @@ public class JGroupsBootstrapCacheLoader implements BootstrapCacheLoader {
             addresses.remove(randomPeerNumber);
             JGroupEventMessage event =
                     new JGroupEventMessage(JGroupEventMessage.ASK_FOR_BOOTSTRAP, localAddress, null, cache, cache.getName());
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "contact " + address + " to boot cache " + cache.getName());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("contact {} to boot cache {}", address, cache.getName());
             }
             List events = new ArrayList();
             events.add(event);
@@ -168,17 +169,17 @@ public class JGroupsBootstrapCacheLoader implements BootstrapCacheLoader {
                 try {
                     Thread.sleep(WAIT_FOR_RESPONSE);
                 } catch (InterruptedException e) {
-                    LOG.log(Level.SEVERE, "InterruptedException", e);
+                    LOG.error("InterruptedException", e);
                 }
             } catch (RemoteException e1) {
-                LOG.log(Level.SEVERE, "error calling " + address, e1);
+                LOG.error("error calling {}", address, e1);
             }
         }
 
         if (cache.getSize() == 0) {
-            LOG.log(Level.WARNING, "Cache failed to bootstrap from its peers: " + cache.getName());
+            LOG.warn("Cache failed to bootstrap from its peers: " + cache.getName());
         } else {
-            LOG.log(Level.INFO, "Bootstrap for cache " + cache.getName() + " has loaded " + cache.getSize() + " elements");
+            LOG.info("Bootstrap for cache {} has loaded {} elements", cache.getName(), cache.getSize());
         }
 
 
@@ -189,9 +190,9 @@ public class JGroupsBootstrapCacheLoader implements BootstrapCacheLoader {
         List<IpAddress> addresses = new ArrayList<IpAddress>();
         for (int i = 0; i < members.size(); i++) {
             IpAddress member = (IpAddress) members.get(i);
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "(" + cache.getName() + ") member " + i + ": "
-                        + member.getIpAddress() + (member.equals(localAddress) ? " ***" : ""));
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("({}) member {}: {}{}",
+                        new Object[] {cache.getName(), i, member.getIpAddress(), member.equals(localAddress) ? " ***" : "" });
             }
             if (!member.equals(localAddress)) {
                 addresses.add(member);
@@ -212,10 +213,10 @@ public class JGroupsBootstrapCacheLoader implements BootstrapCacheLoader {
         if (cacheManagerPeerProvider != null) {
             timeForClusterToForm = cacheManagerPeerProvider.getTimeForClusterToForm();
         }
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Attempting to acquire cache peers for cache "
-                    + cache.getName() + " to bootstrap from. Will wait up to "
-                    + timeForClusterToForm + "ms for cache to join cluster.");
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Attempting to acquire cache peers for cache {}"
+                    + " to bootstrap from. Will wait up to "
+                    + "{}ms for cache to join cluster.", cache.getName(), timeForClusterToForm);
         }
         List cachePeers = null;
         for (int i = 0; i <= timeForClusterToForm; i = i + ONE_SECOND) {
@@ -223,15 +224,15 @@ public class JGroupsBootstrapCacheLoader implements BootstrapCacheLoader {
             /*
              * if (cachePeers == null) { break; } if (cachePeers.size() > 0) { break; }
              */
-            LOG.log(Level.INFO, "waiting...");
+            LOG.info("waiting...");
             try {
                 Thread.sleep(ONE_SECOND);
             } catch (InterruptedException e) {
-                LOG.log(Level.INFO, "doLoad for " + cache.getName() + " interrupted.");
+                LOG.info("doLoad for {} interrupted.", cache.getName());
             }
         }
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "cache peers: " + cachePeers.size());
+        if (LOG.isInfoEnabled()) {
+            LOG.info("cache peers: {}", cachePeers.size());
         }
         return cachePeers;
     }

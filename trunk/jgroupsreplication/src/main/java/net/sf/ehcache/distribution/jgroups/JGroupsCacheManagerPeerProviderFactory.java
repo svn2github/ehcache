@@ -23,7 +23,8 @@ import net.sf.ehcache.distribution.CacheManagerPeerProviderFactory;
 import net.sf.ehcache.util.PropertyUtil;
 
 import java.util.Properties;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Pierre Monestie (pmonestie__REMOVE__THIS__@gmail.com)
@@ -32,14 +33,14 @@ import java.util.logging.Logger;
  */
 
 public class JGroupsCacheManagerPeerProviderFactory extends CacheManagerPeerProviderFactory {
-    private static final Logger LOG = Logger.getLogger(JGroupsCacheManagerPeerProviderFactory.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(JGroupsCacheManagerPeerProviderFactory.class.getName());
     private static final String CONNECT = "connect";
 
     /**
      * {@inheritDoc}
      */
     public CacheManagerPeerProvider createCachePeerProvider(CacheManager cacheManager, Properties properties) {
-        LOG.fine("CREATING JGOUPS PEER PROVIDER");
+        LOG.debug("CREATING JGOUPS PEER PROVIDER");
         String connect = PropertyUtil.extractAndLogProperty(CONNECT, properties);
         if (connect == null) {
             connect = "";
@@ -49,7 +50,7 @@ public class JGroupsCacheManagerPeerProviderFactory extends CacheManagerPeerProv
         if (connect.trim().equals("")) {
             connect = null;
         }
-        LOG.fine("Connect is:" + connect);
+        LOG.debug("Connect is: {}", connect);
         return new JGroupManager(cacheManager, connect);
 
     }

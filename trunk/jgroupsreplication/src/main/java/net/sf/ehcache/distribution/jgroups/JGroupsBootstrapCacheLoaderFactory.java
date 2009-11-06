@@ -22,7 +22,8 @@ import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
 import net.sf.ehcache.util.PropertyUtil;
 
 import java.util.Properties;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -59,7 +60,7 @@ public class JGroupsBootstrapCacheLoaderFactory extends BootstrapCacheLoaderFact
      */
     protected static final int FIVE_KB = 5000;
 
-    private static final Logger LOG = Logger.getLogger(JGroupsBootstrapCacheLoaderFactory.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(JGroupsBootstrapCacheLoaderFactory.class.getName());
 
 
     /**
@@ -85,13 +86,13 @@ public class JGroupsBootstrapCacheLoaderFactory extends BootstrapCacheLoaderFact
             try {
                 int maximumChunkSizeBytesCandidate = Integer.parseInt(maximumChunkSizeBytesString);
                 if ((maximumChunkSizeBytesCandidate < FIVE_KB) || (maximumChunkSizeBytesCandidate > ONE_HUNDRED_MB)) {
-                    LOG.warning("Trying to set the chunk size to an unreasonable number. Using the default instead.");
+                    LOG.warn("Trying to set the chunk size to an unreasonable number. Using the default instead.");
                     maximumChunkSizeBytes = DEFAULT_MAXIMUM_CHUNK_SIZE_BYTES;
                 } else {
                     maximumChunkSizeBytes = maximumChunkSizeBytesCandidate;
                 }
             } catch (NumberFormatException e) {
-                LOG.warning("Number format exception trying to set chunk size. Using the default instead.");
+                LOG.warn("Number format exception trying to set chunk size. Using the default instead.");
                 maximumChunkSizeBytes = DEFAULT_MAXIMUM_CHUNK_SIZE_BYTES;
             }
 

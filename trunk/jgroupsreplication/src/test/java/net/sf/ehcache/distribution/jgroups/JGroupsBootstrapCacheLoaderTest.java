@@ -22,7 +22,8 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.distribution.MulticastKeepaliveHeartbeatSender;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.Date;
 
 import org.junit.Before;
@@ -47,7 +48,7 @@ public class JGroupsBootstrapCacheLoaderTest {
      */
     protected static final boolean SYNCHRONOUS = false;
 
-    private static final Logger LOG = Logger.getLogger(JGroupsBootstrapCacheLoaderTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(JGroupsBootstrapCacheLoaderTest.class.getName());
 
     /**
      * CacheManager 1 in the cluster

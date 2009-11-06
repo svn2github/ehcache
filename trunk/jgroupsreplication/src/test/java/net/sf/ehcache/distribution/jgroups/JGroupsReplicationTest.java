@@ -35,7 +35,8 @@ import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test JGroups replication
@@ -49,7 +50,7 @@ public class JGroupsReplicationTest {
 
     private static final String SAMPLE_CACHE1 = "sampleCacheAsync";
     private static final String SAMPLE_CACHE2 = "sampleCacheAsync2";
-    private static final Logger LOG = Logger.getLogger(JGroupsReplicationTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(JGroupsReplicationTest.class.getName());
 
     private CacheManager manager1;
     private CacheManager manager2;
@@ -70,13 +71,13 @@ public class JGroupsReplicationTest {
 
     @After
     public void tearDown() throws Exception {
-        LOG.fine("Tearing down cm1");
+        LOG.debug("Tearing down cm1");
         manager1.shutdown();
-        LOG.fine("Tearing down cm2");
+        LOG.debug("Tearing down cm2");
         manager2.shutdown();
-        LOG.fine("Tearing down cm3");
+        LOG.debug("Tearing down cm3");
         manager3.shutdown();
-        LOG.fine("Tearing down cm4");
+        LOG.debug("Tearing down cm4");
         manager4.shutdown();
         //JGroups needs to close sockets
         Thread.sleep(2000);

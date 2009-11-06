@@ -17,6 +17,12 @@
 
 package net.sf.ehcache.distribution.jgroups;
 
+import java.io.Serializable;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -25,18 +31,13 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.distribution.CachePeer;
+
 import org.jgroups.Address;
 import org.jgroups.Channel;
 import org.jgroups.blocks.NotificationBus;
 import org.jgroups.stack.IpAddress;
-
-import java.io.Serializable;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The main Jgroup class for replication via JGroup. Starts up the Jgroup communication bus and listen for message in
@@ -49,7 +50,7 @@ import java.util.logging.Logger;
  */
 public class JGroupManager implements NotificationBus.Consumer, CachePeer, CacheManagerPeerProvider {
 
-    private static final Logger LOG = Logger.getLogger(JGroupManager.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(JGroupManager.class.getName());
 
     private static final int CHUNK_SIZE = 100;
 
@@ -73,7 +74,7 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
             notificationBus.setConsumer(this);
             LOG.info("JGroupManager started. address is " + this.notificationBus.getLocalAddress());
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
 
     }
@@ -89,14 +90,16 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
         Cache cache = cacheManager.getCache(e.getCacheName());
         if (cache != null) {
             if (e.getEvent() == JGroupEventMessage.REMOVE && cache.getQuiet(e.getKey()) != null) {
+                LOG.debug("received remove:          cache={}, key={}", e.getCacheName(), e.getKey());
                 cache.remove(e.getKey(), true);
             } else if (e.getEvent() == JGroupEventMessage.PUT) {
+                LOG.debug("received put:             cache={}, key={}", e.getCacheName(), e.getKey());
                 cache.put(new Element(e.getKey(), e.getValue()), true);
             } else if (e.getEvent() == JGroupEventMessage.BOOTSTRAP_REPLY) {
-                LOG.fine("received bootstrap reply: cache=" + e.getCacheName() + ", key=" + e.getKey());
+                LOG.debug("received bootstrap reply: cache={}, key={}", e.getCacheName(), e.getKey());
                 cache.put(new Element(e.getKey(), e.getValue()), true);
             } else if (e.getEvent() == JGroupEventMessage.REMOVE_ALL) {
-                LOG.fine("remove all");
+                LOG.debug("remove all");
                 cache.removeAll(true);
             } else if (e.getEvent() == JGroupEventMessage.ASK_FOR_BOOTSTRAP) {
                 sendBootstrapResponse(e, cache);
@@ -107,7 +110,7 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
 
     private void sendBootstrapResponse(JGroupSerializable e, Cache cache) {
         IpAddress requestAddress = (IpAddress) e.getKey();
-        LOG.fine("received bootstrap request from " + requestAddress + ", cache=" + e.getCacheName());
+        LOG.debug("received bootstrap request from {}, cache={}", requestAddress, e.getCacheName());
         List keys = cache.getKeys();
         if (keys != null && keys.size() > 0) {
 
@@ -131,16 +134,16 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
             }
 
         } else {
-            LOG.log(Level.FINE, "no keys to reply to " + requestAddress + " to boot cache " + cache.getName());
+            LOG.debug("no keys to reply to {} to boot cache {}", requestAddress, cache.getName());
         }
     }
 
     private void sendResponseChunk(Cache cache, IpAddress requestAddress, List events) {
-        LOG.fine("reply " + events.size() + " elements to " + requestAddress + " to boot cache " + cache.getName());
+        LOG.debug("reply {} elements to {} to boot cache {}", new Object[] {events.size(), requestAddress, cache.getName()});
         try {
             send(requestAddress, events);
         } catch (RemoteException e1) {
-            LOG.log(Level.SEVERE, "error repling to " + requestAddress, e1);
+            LOG.error("error repling to {}", requestAddress, e1);
         }
     }
 
@@ -170,7 +173,7 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
      * {@inheritDoc}
      */
     public void memberJoined(Address arg0) {
-        LOG.fine("joined:" + arg0);
+        LOG.debug("joined: {}", arg0);
 
     }
 
@@ -178,7 +181,7 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
      * {@inheritDoc}
      */
     public void memberLeft(Address arg0) {
-        LOG.fine("left:" + arg0);
+        LOG.debug("left: {}", arg0);
 
     }
 
@@ -310,7 +313,7 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
             try {
                 notificationBus.stop();
             } catch (Exception e) {
-                LOG.log(Level.SEVERE, "Error occured while closing Manager:", e);
+                LOG.error("Error occured while closing Manager:", e);
             }
         }
 
