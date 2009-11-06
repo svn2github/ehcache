@@ -274,15 +274,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
-                    <includes>
-                        <include>**/*Test.java</include>
-                    </includes>
-                    <excludes>
-                        <exclude>**/*$*</exclude>
-                        <exclude>**/web/**/*</exclude>
-                        <exclude>**/Abstract*Test.java</exclude>
-                        <exclude>**/constructs/web/**</exclude>
-                    </excludes>
+                    <!-- Skip tests by default. Will be using different executions setup to run different set of tests with different configurations -->
+                    <skip>true</skip>
+                    <!-- other default configuration -->
                     <forkMode>pertest</forkMode>
                     <debugForkedProcess>true</debugForkedProcess>
                     <childDelegation>false</childDelegation>
@@ -311,12 +305,50 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <!-- run all tests except for web tests and RMICacheReplicatorWithLargePayloadTest -->
+                        <id>test-phase-execution</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <includes>
+                                <include>**/*Test.java</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/*$*</exclude>
+                                <exclude>**/web/**/*</exclude>
+                                <exclude>**/Abstract*Test.java</exclude>
+                                <exclude>**/constructs/web/**</exclude>
+                                <exclude>**/RMICacheReplicatorWithLargePayloadTest.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- Run RMICacheReplicatorWithLargePayloadTest with 256 MB heap -->
+                        <id>large-heap-test-execution</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <includes>
+                                <include>**/RMICacheReplicatorWithLargePayloadTest.java</include>
+                            </includes>
+                            <argLine>-Xms256m -Xmx256m</argLine>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- Run the web tests -->
                         <id>integration-tests</id>
                         <phase>integration-test</phase>
                         <goals>
                             <goal>test</goal>
                         </goals>
                         <configuration>
+                            <skip>false</skip>
                             <includes>
                                 <include>**/web/**/*Test.java</include>
                             </includes>
