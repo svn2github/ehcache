@@ -37,9 +37,19 @@ import java.util.logging.Logger;
 public class UpdateChecker extends TimerTask {
     private static final Logger LOG = Logger.getLogger(UpdateChecker.class.getName());
     private static final long MILLIS_PER_SECOND = 1000L;
-    private static final String NOT_AVAILABLE = "UNKNOWN";
+    private static final String UNKNOWN = "UNKNOWN";
     private static final String UPDATE_CHECK_URL = "http://www.terracotta.org/kit/reflector?kitID=ehcache.default&pageID=update.properties";
     private static final long START_TIME = System.currentTimeMillis();
+
+    private String tcVersion;
+
+    public UpdateChecker() {
+        this(UNKNOWN);
+    }
+
+    public UpdateChecker(String tcVersion) {
+        this.tcVersion = tcVersion;
+    }
 
     /**
      * Run the update check
@@ -85,8 +95,7 @@ public class UpdateChecker extends TimerTask {
                     sb.append(", ");
                 }
                 sb.append(newVersion);
-                propVal = updateProps
-                        .getProperty(newVersion + ".release-notes");
+                propVal = updateProps.getProperty(newVersion + ".release-notes");
                 if (notBlank(propVal)) {
                     sb.append(" [");
                     sb.append(propVal);
@@ -115,10 +124,8 @@ public class UpdateChecker extends TimerTask {
         }
     }
 
-    private URL buildUpdateCheckUrl() throws MalformedURLException,
-            UnsupportedEncodingException {
-        String url = System.getProperty("ehcache.update-check.url",
-                UPDATE_CHECK_URL);
+    private URL buildUpdateCheckUrl() throws MalformedURLException, UnsupportedEncodingException {
+        String url = System.getProperty("ehcache.update-check.url", UPDATE_CHECK_URL);
         String connector = url.indexOf('?') > 0 ? "&" : "?";
         return new URL(url + connector + buildParamsString());
     }
@@ -137,10 +144,9 @@ public class UpdateChecker extends TimerTask {
         sb.append("&platform=");
         sb.append(urlEncode(getProperty("os.arch")));
         sb.append("&tc-version=");
-        sb.append(NOT_AVAILABLE);
+        sb.append(urlEncode(tcVersion));
         sb.append("&tc-product=");
-        sb.append(urlEncode(productInfo.getName() + " "
-                + productInfo.getVersion()));
+        sb.append(urlEncode(productInfo.getName() + " " + productInfo.getVersion()));
         sb.append("&source=");
         sb.append(urlEncode(productInfo.getName()));
         sb.append("&uptime-secs=");
@@ -168,7 +174,7 @@ public class UpdateChecker extends TimerTask {
     }
 
     private String getProperty(String prop) {
-        return System.getProperty(prop, NOT_AVAILABLE);
+        return System.getProperty(prop, UNKNOWN);
     }
 
     private boolean notBlank(String s) {

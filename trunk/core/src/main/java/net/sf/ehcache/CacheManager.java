@@ -365,7 +365,7 @@ public class CacheManager {
     private void checkForUpdateIfNeeded(boolean updateCheckNeeded) {
         try {
             if (updateCheckNeeded) {
-                UpdateChecker updateChecker = new UpdateChecker();
+                UpdateChecker updateChecker = new UpdateChecker(terracottaStoreFactory.getTCVersion());
                 cacheManagerTimer.scheduleAtFixedRate(updateChecker, 1,
                         EVERY_WEEK);
             }
