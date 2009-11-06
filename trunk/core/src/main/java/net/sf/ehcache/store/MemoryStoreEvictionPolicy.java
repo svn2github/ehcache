@@ -18,8 +18,9 @@ package net.sf.ehcache.store;
 
 
 import java.io.Serializable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A typesafe enumeration of eviction policies.
@@ -54,7 +55,7 @@ public final class MemoryStoreEvictionPolicy implements Serializable {
      */
     public static final MemoryStoreEvictionPolicy FIFO = new MemoryStoreEvictionPolicy("FIFO");
 
-    private static final Logger LOG = Logger.getLogger(MemoryStoreEvictionPolicy.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(MemoryStoreEvictionPolicy.class.getName());
 
     private final String myName;
 
@@ -89,11 +90,7 @@ public final class MemoryStoreEvictionPolicy implements Serializable {
                 return FIFO;
             }
         }
-
-        if (LOG.isLoggable(Level.WARNING)) {
-            LOG.log(Level.WARNING, "The memoryStoreEvictionPolicy of " + policy + " cannot be resolved. The policy will be" +
-                    " set to LRU");
-        }
+            LOG.warn("The memoryStoreEvictionPolicy of {} cannot be resolved. The policy will be set to LRU", policy);
         return LRU;
     }
 }

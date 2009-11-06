@@ -28,8 +28,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Cache Element, consisting of a key, value and attributes.
@@ -50,7 +51,7 @@ public class Element implements Serializable, Cloneable {
      */
     private static final long serialVersionUID = 1098572221246444544L;
 
-    private static final Logger LOG = Logger.getLogger(Element.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(Element.class.getName());
 
     private static final AtomicLongFieldUpdater HIT_COUNT_UPDATER = AtomicLongFieldUpdater.newUpdater(Element.class, "hitCount");
     
@@ -155,9 +156,7 @@ public class Element implements Serializable, Cloneable {
         this.version = version;
         this.lastUpdateTime = lastUpdateTime;
         HIT_COUNT_UPDATER.set(this, hitCount);
-        this.elementEvictionData = new DefaultElementEvictionData(
-                TimeUtil.toSecs(creationTime),
-                TimeUtil.toSecs(lastAccessTime));
+        this.elementEvictionData = new DefaultElementEvictionData(TimeUtil.toSecs(creationTime), TimeUtil.toSecs(lastAccessTime));
     }
     
     /**
@@ -175,9 +174,7 @@ public class Element implements Serializable, Cloneable {
         setTimeToLive(timeToLive);
         setTimeToIdle(timeToIdle);
         this.lastUpdateTime = lastUpdateTime;
-        this.elementEvictionData = new DefaultElementEvictionData(
-                TimeUtil.toSecs(creationTime),
-                TimeUtil.toSecs(lastAccessTime));
+        this.elementEvictionData = new DefaultElementEvictionData(TimeUtil.toSecs(creationTime), TimeUtil.toSecs(lastAccessTime));
     }
 
 
@@ -503,11 +500,11 @@ public class Element implements Serializable, Cloneable {
             HIT_COUNT_UPDATER.set(element, hitCount);
             return element;
         } catch (IOException e) {
-            LOG.log(Level.SEVERE, "Error cloning Element with key " + key
+            LOG.error("Error cloning Element with key " + key
                     + " during serialization and deserialization of value");
             throw new CloneNotSupportedException();
         } catch (ClassNotFoundException e) {
-            LOG.log(Level.SEVERE, "Error cloning Element with key " + key
+            LOG.error("Error cloning Element with key " + key
                     + " during serialization and deserialization of value");
             throw new CloneNotSupportedException();
         }
@@ -533,7 +530,7 @@ public class Element implements Serializable, Cloneable {
                     ois.close();
                 }
             } catch (Exception e) {
-                LOG.log(Level.SEVERE, "Error closing Stream");
+                LOG.error("Error closing Stream");
             }
         }
         return newValue;
@@ -564,14 +561,14 @@ public class Element implements Serializable, Cloneable {
             size = bout.size();
             return size;
         } catch (IOException e) {
-            LOG.log(Level.FINE, "Error measuring element size for element with key " + key + ". Cause was: " + e.getMessage());
+            LOG.debug("Error measuring element size for element with key " + key + ". Cause was: " + e.getMessage());
         } finally {
             try {
                 if (oos != null) {
                     oos.close();
                 }
             } catch (Exception e) {
-                LOG.log(Level.SEVERE, "Error closing ObjectOutputStream");
+                LOG.error("Error closing ObjectOutputStream");
             }
         }
 

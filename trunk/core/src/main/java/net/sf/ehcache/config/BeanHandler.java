@@ -26,8 +26,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A SAX handler that configures a bean.
@@ -38,7 +39,7 @@ import java.util.logging.Logger;
  */
 final class BeanHandler extends DefaultHandler {
 
-    private static final Logger LOG = Logger.getLogger(BeanHandler.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(BeanHandler.class.getName());
     private final Object bean;
     private ElementInfo element;
     private Locator locator;
@@ -265,9 +266,7 @@ final class BeanHandler extends DefaultHandler {
             } else {
                 //allow references to an XML schema but do not use it
                 if (element.elementName.equals("ehcache")) {
-                    if (LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "Ignoring ehcache attribute " + attrName);
-                    }
+                    LOG.debug("Ignoring ehcache attribute {}", attrName);
                     return;
                 }
             }

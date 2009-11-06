@@ -38,8 +38,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test class for LfuMemoryStore
@@ -50,7 +51,7 @@ import java.util.logging.Logger;
  */
 public class LfuMemoryStoreTest extends MemoryStoreTester {
 
-    private static final Logger LOG = Logger.getLogger(LfuMemoryStoreTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(LfuMemoryStoreTest.class.getName());
 
     /**
      * setup test
@@ -239,11 +240,11 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         for (Iterator iterator = map.keySet().iterator(); iterator.hasNext();) {
             String string = (String) iterator.next();
             int thisReading = Integer.parseInt(string);
-            LOG.log(Level.INFO, "reading: " + thisReading);
+            LOG.info("reading: " + thisReading);
             absoluteDifferences += Math.abs(lastReading - thisReading);
             lastReading = thisReading;
         }
-        LOG.log(Level.FINE, "Mean difference through iteration: " + absoluteDifferences / 500);
+        LOG.debug("Mean difference through iteration: " + absoluteDifferences / 500);
 
         //Random selection without replacement
         Random random = new Random();
@@ -256,8 +257,8 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
             absoluteDifferences += Math.abs(lastReading - thisReading);
             lastReading = thisReading;
         }
-        LOG.log(Level.INFO, "Mean difference with random selection without replacement : " + absoluteDifferences / 500);
-        LOG.log(Level.INFO, "Mean of range 1 - 500 : " + mean);
+        LOG.info("Mean difference with random selection without replacement : " + absoluteDifferences / 500);
+        LOG.info("Mean of range 1 - 500 : " + mean);
 
     }
 
@@ -280,13 +281,13 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         for (int i = 1; i <= 100000; i++) {
             map.put(i, i);
         }
-        LOG.log(Level.INFO, "done putting: " + stopWatch.getElapsedTimeString());
+        LOG.info("done putting: " + stopWatch.getElapsedTimeString());
 
         Collection collection = map.values();
         for (Object o : collection) {
             o.toString();
         }
-        LOG.log(Level.INFO, stopWatch.getElapsedTimeString());
+        LOG.info(stopWatch.getElapsedTimeString());
 
     }
 
@@ -397,9 +398,9 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
                 lowestQuarterNotIdentified++;
             }
         }
-        LOG.log(Level.INFO, "Find time: " + findTime);
+        LOG.info("Find time: " + findTime);
         assertTrue(findTime < 200);
-        LOG.log(Level.INFO, "Selections not in lowest quartile: " + lowestQuarterNotIdentified);
+        LOG.info("Selections not in lowest quartile: " + lowestQuarterNotIdentified);
         assertTrue(lowestQuarterNotIdentified <= 10);
 
     }
@@ -440,7 +441,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         getTestBean(cache, "test2");
 
         Statistics stats = cache.getStatistics();
-        LOG.log(Level.INFO, stats.toString());
+        LOG.info(stats.toString());
 
         cacheManager.shutdown();
     }

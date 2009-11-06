@@ -19,7 +19,6 @@ package net.sf.ehcache.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 /**
  * Build properties of the product
@@ -28,8 +27,6 @@ import java.util.logging.Logger;
  * 
  */
 public class ProductInfo {
-    private static final Logger LOG = Logger.getLogger(ProductInfo.class
-            .getName());
     private static final String VERSION_RESOURCE = "/ehcache-version.properties";
     private static final String UNKNOWN = "UNKNOWN";
     private Properties props = new Properties();

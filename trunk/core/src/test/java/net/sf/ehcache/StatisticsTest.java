@@ -26,8 +26,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.junit.Test;
 
@@ -39,7 +40,7 @@ import org.junit.Test;
  */
 public class StatisticsTest extends AbstractCacheTest {
 
-    private static final Logger LOG = Logger.getLogger(StatisticsTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(StatisticsTest.class.getName());
 
     /**
      * Test statistics directly from Statistics Object
@@ -198,9 +199,9 @@ public class StatisticsTest extends AbstractCacheTest {
         long value = Integer.MAX_VALUE;
         value += Integer.MAX_VALUE;
         value += 5;
-        LOG.log(Level.INFO, "" + value);
+        LOG.info("" + value);
         int valueAsInt = (int) value;
-        LOG.log(Level.INFO, "" + valueAsInt);
+        LOG.info("" + valueAsInt);
         assertEquals(3, valueAsInt);
 
     }

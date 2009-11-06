@@ -22,8 +22,9 @@ import net.sf.ehcache.Element;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -43,7 +44,7 @@ import java.util.logging.Logger;
  */
 public class SelfPopulatingCache extends BlockingCache {
 
-    private static final Logger LOG = Logger.getLogger(SelfPopulatingCache.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(SelfPopulatingCache.class.getName());
 
     /**
      * A factory for creating entries, given a key
@@ -103,12 +104,13 @@ public class SelfPopulatingCache extends BlockingCache {
      * <li>use timeToIdle to discard elements unused for a period of time
      * <li>use timeToLive to discard elmeents that have existed beyond their allotted lifespan
      * </ul>
+     *
      * @throws CacheException
      */
     public void refresh() throws CacheException {
         refresh(true);
     }
-    
+
     /**
      * Refresh the elements of this cache.
      * <p/>
@@ -116,7 +118,7 @@ public class SelfPopulatingCache extends BlockingCache {
      * This way, {@link BlockingCache} gets can continue to return stale data while the refresh, which
      * might be expensive, takes place.
      * <p/>
-     * Quiet methods are used if argument 0 is true, so that statistics are not affected, 
+     * Quiet methods are used if argument 0 is true, so that statistics are not affected,
      * but note that replication will then not occur
      * <p/>
      * Configure ehcache.xml to stop elements from being refreshed forever:
@@ -124,7 +126,8 @@ public class SelfPopulatingCache extends BlockingCache {
      * <li>use timeToIdle to discard elements unused for a period of time
      * <li>use timeToLive to discard elmeents that have existed beyond their allotted lifespan
      * </ul>
-     * @param quiet        whether the backing cache is quietly updated or not, if true replication will not occur
+     *
+     * @param quiet whether the backing cache is quietly updated or not, if true replication will not occur
      * @throws CacheException
      * @since 1.6.1
      */
@@ -135,9 +138,7 @@ public class SelfPopulatingCache extends BlockingCache {
         // Refetch the entries
         final Collection keys = getKeys();
 
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine(getName() + ": found " + keys.size() + " keys to refresh");
-        }
+        LOG.debug(getName() + ": found " + keys.size() + " keys to refresh");
 
         // perform the refresh
         for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
@@ -148,10 +149,9 @@ public class SelfPopulatingCache extends BlockingCache {
                 final Element element = backingCache.getQuiet(key);
 
                 if (element == null) {
-                    if (LOG.isLoggable(Level.FINE)) {
-                        LOG.fine(getName() + ": entry with key " + key + " has been removed - skipping it");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(getName() + ": entry with key " + key + " has been removed - skipping it");
                     }
-
                     continue;
                 }
 
@@ -160,7 +160,7 @@ public class SelfPopulatingCache extends BlockingCache {
                 // Collect the exception and keep going.
                 // Throw the exception once all the entries have been refreshed
                 // If the refresh fails, keep the old element. It will simply become staler.
-                LOG.log(Level.WARNING, getName() + "Could not refresh element " + key, e);
+                LOG.warn(getName() + "Could not refresh element " + key, e);
                 exception = e;
             }
         }
@@ -179,9 +179,9 @@ public class SelfPopulatingCache extends BlockingCache {
      * <p/>
      * If the element is absent it is created
      * <p/>
-     * Quiet methods are used, so that statistics are not affected.  
+     * Quiet methods are used, so that statistics are not affected.
      * Note that the refreshed element will not be replicated to any cache peers.
-     * 
+     *
      * @param key
      * @return the refreshed Element
      * @throws CacheException
@@ -200,12 +200,12 @@ public class SelfPopulatingCache extends BlockingCache {
      * <p/>
      * If the element is absent it is created
      * <p/>
-     * Quiet methods are used if argument 1 is true, so that statistics are not affected, 
+     * Quiet methods are used if argument 1 is true, so that statistics are not affected,
      * but note that replication will then not occur
-     * 
+     *
      * @param key
-     * @param quiet        whether the backing cache is quietly updated or not, 
-     * if true replication will not occur
+     * @param quiet whether the backing cache is quietly updated or not,
+     *              if true replication will not occur
      * @return the refreshed Element
      * @throws CacheException
      * @since 1.6.1
@@ -226,7 +226,7 @@ public class SelfPopulatingCache extends BlockingCache {
             throw new CacheException(e.getMessage() + " on refresh with key " + key, e);
         }
     }
-    
+
     /**
      * Refresh a single element.
      *
@@ -248,12 +248,11 @@ public class SelfPopulatingCache extends BlockingCache {
      * @throws Exception
      * @since 1.6.1
      */
-    protected Element refreshElement(final Element element, Ehcache backingCache, boolean quiet)
-            throws Exception {
+    protected Element refreshElement(final Element element, Ehcache backingCache, boolean quiet) throws Exception {
         Object key = element.getObjectKey();
 
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine(getName() + ": refreshing element with key " + key);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(getName() + ": refreshing element with key " + key);
         }
 
         final Element replacementElement;
@@ -310,7 +309,7 @@ public class SelfPopulatingCache extends BlockingCache {
             throw new CacheException("CacheEntryFactory returned an Element with a null key");
         } else if (!element.getObjectKey().equals(key)) {
             throw new CacheException("CacheEntryFactory returned an Element with a different key: " +
-                element.getObjectKey() + " compared to the key that was requested: " + key);
+                    element.getObjectKey() + " compared to the key that was requested: " + key);
         } else {
             return element;
         }

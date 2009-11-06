@@ -27,8 +27,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A peer provider which discovers peers using Multicast.
@@ -61,7 +62,7 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
      */
     protected static final int SHORT_DELAY = 100;
 
-    private static final Logger LOG = Logger.getLogger(MulticastRMICacheManagerPeerProvider.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(MulticastRMICacheManagerPeerProvider.class.getName());
 
 
     private final MulticastKeepaliveHeartbeatReceiver heartBeatReceiver;
@@ -94,7 +95,7 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
             heartBeatReceiver.init();
             heartBeatSender.init();
         } catch (IOException exception) {
-            LOG.log(Level.SEVERE, "Error starting heartbeat. Error was: " + exception.getMessage(), exception);
+            LOG.error("Error starting heartbeat. Error was: " + exception.getMessage(), exception);
             throw new CacheException(exception.getMessage());
         }
     }
@@ -119,19 +120,19 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
                 cachePeerEntry.date = new Date();
             }
         } catch (IOException e) {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Unable to lookup remote cache peer for " + rmiUrl + ". Removing from peer list. Cause was: "
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Unable to lookup remote cache peer for " + rmiUrl + ". Removing from peer list. Cause was: "
                         + e.getMessage());
             }
             unregisterPeer(rmiUrl);
         } catch (NotBoundException e) {
             peerUrls.remove(rmiUrl);
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Unable to lookup remote cache peer for " + rmiUrl + ". Removing from peer list. Cause was: "
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Unable to lookup remote cache peer for " + rmiUrl + ". Removing from peer list. Cause was: "
                         + e.getMessage());
             }
         } catch (Throwable t) {
-            LOG.log(Level.SEVERE, "Unable to lookup remote cache peer for " + rmiUrl
+            LOG.error("Unable to lookup remote cache peer for " + rmiUrl
                     + ". Cause was not due to an IOException or NotBoundException which will occur in normal operation:" +
                     " " + t.getMessage());
         }
@@ -157,14 +158,14 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
                         CachePeer cachePeer = cachePeerEntry.cachePeer;
                         remoteCachePeers.add(cachePeer);
                     } else {
-                        if (LOG.isLoggable(Level.FINE)) {
-                            LOG.log(Level.FINE, "rmiUrl " + rmiUrl + " is stale. Either the remote peer is shutdown or the " +
-                                    "network connectivity has been interrupted. Will be removed from list of remote cache peers");
-                        }
+
+                            LOG.debug("rmiUrl is stale. Either the remote peer is shutdown or the " +
+                                    "network connectivity has been interrupted. Will be removed from list of remote cache peers",
+                                    rmiUrl);
                         staleList.add(rmiUrl);
                     }
                 } catch (Exception exception) {
-                    LOG.log(Level.SEVERE, exception.getMessage(), exception);
+                    LOG.error(exception.getMessage(), exception);
                     throw new CacheException("Unable to list remote cache peers. Error was " + exception.getMessage());
                 }
             }

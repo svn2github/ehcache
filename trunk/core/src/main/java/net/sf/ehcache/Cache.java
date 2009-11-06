@@ -38,8 +38,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -122,7 +123,7 @@ public class Cache implements Ehcache {
      */
     private static final int DEFAULT_SPOOL_BUFFER_SIZE = 30;
 
-    private static final Logger LOG = Logger.getLogger(Cache.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(Cache.class.getName());
 
     private static final MemoryStoreEvictionPolicy DEFAULT_MEMORY_STORE_EVICTION_POLICY = MemoryStoreEvictionPolicy.LRU;
 
@@ -141,9 +142,9 @@ public class Cache implements Ehcache {
         try {
             localhost = InetAddress.getLocalHost();
         } catch (UnknownHostException e) {
-            LOG.log(Level.SEVERE, "Unable to set localhost. This prevents creation of a GUID. Cause was: " + e.getMessage(), e);
+            LOG.error("Unable to set localhost. This prevents creation of a GUID. Cause was: " + e.getMessage(), e);
         } catch (java.lang.NoClassDefFoundError e) {
-            LOG.log(Level.FINE, "InetAddress is being blocked by your runtime environment. e.g. Google App Engine." +
+            LOG.debug("InetAddress is being blocked by your runtime environment. e.g. Google App Engine." +
                     " Ehcache will work as a local cache.");
         }
     }
@@ -260,7 +261,7 @@ public class Cache implements Ehcache {
                  long diskExpiryThreadIntervalSeconds) {
         this(name, maxElementsInMemory, DEFAULT_MEMORY_STORE_EVICTION_POLICY, overflowToDisk, null,
                 eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, null, null);
-        LOG.log(Level.WARNING, "An API change between ehcache-1.1 and ehcache-1.2 results in the persistence path being set to " +
+        LOG.warn("An API change between ehcache-1.1 and ehcache-1.2 results in the persistence path being set to " +
                 DiskStoreConfiguration.getDefaultPath() + " when the ehcache-1.1 constructor is used. " +
                 "Please change to the 1.2 constructor.");
     }
@@ -671,11 +672,11 @@ public class Cache implements Ehcache {
             }
 
             if (configuration.getMaxElementsInMemory() == 0) {
-                if (LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Cache: " + configuration.getName()
+
+                    LOG.warn("Cache: " + configuration.getName()
                             + " has a maxElementsInMemory of 0. It is strongly recommended to " +
                             "have a maximumSize of at least 1. Performance is halved by not using a MemoryStore.");
-                }
+
             }
 
             this.diskStore = createDiskStore();
@@ -707,15 +708,13 @@ public class Cache implements Ehcache {
             this.registerCacheUsageListener(sampledCacheStatistics);
         }
 
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE, "Initialised cache: " + configuration.getName());
+            if (LOG.isDebugEnabled()) {
+            LOG.debug("Initialised cache: " + configuration.getName());
         }
 
         if (disabled) {
-            if (LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Cache: " + configuration.getName() + " is disabled because the " + NET_SF_EHCACHE_DISABLED
+                LOG.warn("Cache: " + configuration.getName() + " is disabled because the " + NET_SF_EHCACHE_DISABLED
                         + " property was set to true. No elements will be added to the cache.");
-            }
         }
     }
 
@@ -831,11 +830,11 @@ public class Cache implements Ehcache {
 
         if (element == null) {
             if (doNotNotifyCacheReplicators) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Element from replicated put is null. This happens because the element is a SoftReference" +
+
+                    LOG.debug("Element from replicated put is null. This happens because the element is a SoftReference" +
                             " and it has been collected.Increase heap memory on the JVM or set -Xms to be the same as " +
                             "-Xmx to avoid this problem.");
-                }
+
             }
             //nulls are ignored
             return;
@@ -971,8 +970,8 @@ public class Cache implements Ehcache {
         }
         if (element == null) {
             liveCacheStatisticsData.cacheMissNotFound();
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine(configuration.getName() + " cache - Miss");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(configuration.getName() + " cache - Miss");
             }
         }
         //todo is this expensive. Maybe ditch.
@@ -1042,17 +1041,15 @@ public class Cache implements Ehcache {
      */
     public void load(final Object key) throws CacheException {
         if (registeredCacheLoaders.size() == 0) {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("The CacheLoader is null. Returning.");
-            }
+
+                LOG.debug("The CacheLoader is null. Returning.");
             return;
         }
 
         boolean existsOnCall = isKeyInCache(key);
         if (existsOnCall) {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "The key " + key + " exists in the cache. Returning.");
-            }
+
+                LOG.debug("The key {} exists in the cache. Returning.", key);
             return;
         }
 
@@ -1165,9 +1162,8 @@ public class Cache implements Ehcache {
     public void loadAll(final Collection keys, final Object argument) throws CacheException {
 
         if (registeredCacheLoaders.size() == 0) {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "The CacheLoader is null. Returning.");
-            }
+
+                LOG.debug("The CacheLoader is null. Returning.");
             return;
         }
         if (keys == null) {
@@ -1327,8 +1323,8 @@ public class Cache implements Ehcache {
 
         if (element != null) {
             if (isExpired(element)) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, configuration.getName() + " Memory cache hit, but element expired");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(configuration.getName() + " Memory cache hit, but element expired");
                 }
                 if (updateStatistics) {
                     liveCacheStatisticsData.cacheMissExpired();
@@ -1338,15 +1334,16 @@ public class Cache implements Ehcache {
             } else {
                 if (updateStatistics) {
                     element.updateAccessStatistics();
-                    if (LOG.isLoggable(Level.FINE)) {
-                        LOG.fine(getName() + "Cache: " + getName() + "MemoryStore hit for " + key);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(getName() + "Cache: " + getName() + "MemoryStore hit for " + key);
                     }
 
                     liveCacheStatisticsData.cacheHitInMemory();
                 }
             }
-        } else if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine(getName() + "Cache: " + getName() + "MemoryStore miss for " + key);
+        } else
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(getName() + "Cache: " + getName() + "MemoryStore miss for " + key);
         }
         return element;
     }
@@ -1364,8 +1361,8 @@ public class Cache implements Ehcache {
         }
         if (element != null) {
             if (isExpired(element)) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, configuration.getName() + " cache - Disk Store hit, but element expired");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(configuration.getName() + " cache - Disk Store hit, but element expired");
                 }
                 liveCacheStatisticsData.cacheMissExpired();
                 remove(key, true, notifyListeners, false);
@@ -2415,8 +2412,8 @@ public class Cache implements Ehcache {
                         }
                     }
                 } catch (Throwable e) {
-                    if (LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "Problem during load. Load will not be completed. Cause was " + e.getCause(), e);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Problem during load. Load will not be completed. Cause was " + e.getCause(), e);
                     }
                     throw new CacheException("Problem during load. Load will not be completed. Cause was " + e.getCause(), e);
                 }
@@ -2472,8 +2469,8 @@ public class Cache implements Ehcache {
                         put(new Element(key, map.get(key)));
                     }
                 } catch (Throwable e) {
-                    if (LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE, "Problem during load. Load will not be completed. Cause was " + e.getCause(), e);
+                    if (LOG.isErrorEnabled()) {
+                        LOG.error("Problem during load. Load will not be completed. Cause was " + e.getCause(), e);
                     }
                 }
             }
@@ -2680,8 +2677,7 @@ public class Cache implements Ehcache {
         }
         if (enableStatistics) {
             setStatisticsEnabled(true);
-            sampledCacheStatistics.enableSampledStatistics(cacheManager
-                    .getTimer());
+            sampledCacheStatistics.enableSampledStatistics(cacheManager.getTimer());
         } else {
             sampledCacheStatistics.disableSampledStatistics();
         }

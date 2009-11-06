@@ -23,8 +23,9 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.concurrent.LockType;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -42,7 +43,7 @@ import java.util.logging.Logger;
  */
 public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
 
-    private static final Logger LOG = Logger.getLogger(UpdatingSelfPopulatingCache.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(UpdatingSelfPopulatingCache.class.getName());
 
     /**
      * Creates a SelfPopulatingCache.
@@ -102,8 +103,8 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
             final Element element = backingCache.getQuiet(key);
 
             if (element == null) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine(getName() + ": entry with key " + key + " has been removed - skipping it");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(getName() + ": entry with key " + key + " has been removed - skipping it");
                 }
                 return;
             }
@@ -113,7 +114,7 @@ public class UpdatingSelfPopulatingCache extends SelfPopulatingCache {
             // Collect the exception and keep going.
             // Throw the exception once all the entries have been refreshed
             // If the refresh fails, keep the old element. It will simply become staler.
-            LOG.log(Level.WARNING, getName() + "Could not refresh element " + key, e);
+            LOG.warn(getName() + "Could not refresh element " + key, e);
         }
     }
 

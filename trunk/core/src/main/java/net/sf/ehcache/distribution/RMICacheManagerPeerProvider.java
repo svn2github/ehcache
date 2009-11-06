@@ -29,8 +29,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
-import java.util.logging.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * A provider of Peer RMI addresses.
@@ -40,7 +41,7 @@ import java.util.logging.Level;
  */
 public abstract class RMICacheManagerPeerProvider implements CacheManagerPeerProvider {
 
-    private static final Logger LOG = Logger.getLogger(RMICacheManagerPeerProvider.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(RMICacheManagerPeerProvider.class.getName());
 
     /**
      * Contains a RMI URLs of the form: "//" + hostName + ":" + port + "/" + cacheName;
@@ -122,7 +123,7 @@ public abstract class RMICacheManagerPeerProvider implements CacheManagerPeerPro
      * They will simply replace the ones that were there.
      */
     public CachePeer lookupRemoteCachePeer(String url) throws MalformedURLException, NotBoundException, RemoteException {
-        LOG.log(Level.FINEST, "Lookup URL {0}", url);
+        LOG.debug("Lookup URL {}", url);
         CachePeer cachePeer = (CachePeer) Naming.lookup(url);
         return cachePeer;
     }

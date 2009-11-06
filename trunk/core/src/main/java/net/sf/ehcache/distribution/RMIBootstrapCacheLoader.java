@@ -25,8 +25,9 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Loads Elements from a random Cache Peer
@@ -38,7 +39,7 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
 
     private static final int ONE_SECOND = 1000;
 
-    private static final Logger LOG = Logger.getLogger(RMIBootstrapCacheLoader.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(RMIBootstrapCacheLoader.class.getName());
 
     /**
      * Whether to load asynchronously
@@ -105,7 +106,7 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
             try {
                 doLoad(cache);
             } catch (RemoteCacheException e) {
-                LOG.log(Level.WARNING, "Error asynchronously performing bootstrap. The cause was: " + e.getMessage(), e);
+                LOG.warn("Error asynchronously performing bootstrap. The cause was: " + e.getMessage(), e);
             } finally {
                 cache = null;
             }
@@ -130,13 +131,13 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
 
         List cachePeers = acquireCachePeers(cache);
         if (cachePeers == null || cachePeers.size() == 0) {
-            LOG.log(Level.FINE, "Empty list of cache peers for cache " + cache.getName() + ". No cache peer to bootstrap from.");
+            LOG.debug("Empty list of cache peers for cache " + cache.getName() + ". No cache peer to bootstrap from.");
             return;
         }
         Random random = new Random();
         int randomPeerNumber = random.nextInt(cachePeers.size());
         CachePeer cachePeer = (CachePeer) cachePeers.get(randomPeerNumber);
-        LOG.log(Level.FINE, "Bootstrapping " + cache.getName() + " from " + cachePeer);
+        LOG.debug("Bootstrapping " + cache.getName() + " from " + cachePeer);
 
         try {
 
@@ -151,7 +152,7 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
                 }
             }
             if (sampleElement == null) {
-                LOG.log(Level.FINE, "All cache peer elements were either null or empty. Nothing to bootstrap from. Cache was "
+                LOG.debug("All cache peer elements were either null or empty. Nothing to bootstrap from. Cache was "
                         + cache.getName() + ". Cache peer was " + cachePeer);
                 return;
             }
@@ -169,7 +170,7 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
             }
             //get leftovers
             fetchAndPutElements(cache, requestChunk, cachePeer);
-            LOG.log(Level.FINE, "Bootstrap of " + cache.getName() + " from " + cachePeer + " finished. "
+            LOG.debug("Bootstrap of " + cache.getName() + " from " + cachePeer + " finished. "
                     + keys.size() + " keys requested.");
         } catch (Throwable t) {
             throw new RemoteCacheException("Error bootstrapping from remote peer. Message was: " + t.getMessage(), t);
@@ -188,8 +189,8 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
         if (cacheManagerPeerProvider != null) {
             timeForClusterToForm = cacheManagerPeerProvider.getTimeForClusterToForm();
         }
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE, "Attempting to acquire cache peers for cache " + cache.getName()
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Attempting to acquire cache peers for cache " + cache.getName()
                     + " to bootstrap from. Will wait up to " + timeForClusterToForm + "ms for cache to join cluster.");
         }
         List cachePeers = null;
@@ -204,12 +205,11 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
             try {
                 Thread.sleep(ONE_SECOND);
             } catch (InterruptedException e) {
-                LOG.log(Level.FINE, "doLoad for " + cache.getName() + " interrupted.");
+                LOG.debug("doLoad for " + cache.getName() + " interrupted.");
             }
         }
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE, "cache peers: " + cachePeers);
-        }
+
+            LOG.debug("cache peers: {}", cachePeers);
         return cachePeers;
     }
 

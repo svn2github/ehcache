@@ -18,8 +18,9 @@ package net.sf.ehcache.config;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
@@ -43,7 +44,7 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
  */
 public class CacheConfiguration implements Cloneable {
 
-    private static final Logger LOG = Logger.getLogger(CacheConfiguration.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(CacheConfiguration.class.getName());
 
     /**
      * the name of the cache.
@@ -383,8 +384,8 @@ public class CacheConfiguration implements Cloneable {
                         throw new InvalidConfigurationException("cache replication isn't supported" + 
                                 " for a clustered Terracotta cache");                        
                     } else if (listenerConfig.getFullyQualifiedClassPath().startsWith("net.sf.ehcache.") &&
-                        LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("A non-standard CacheEventListenerFactory is used with a clustered Terracotta cache, " +
+                        LOG.isWarnEnabled()) {
+                        LOG.warn("A non-standard CacheEventListenerFactory is used with a clustered Terracotta cache, " +
                                 "if the purpose of this listener is replication it is not supported in a clustered context");
                     }
                 }

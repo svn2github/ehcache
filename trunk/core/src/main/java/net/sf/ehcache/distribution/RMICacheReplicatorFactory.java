@@ -21,8 +21,9 @@ import net.sf.ehcache.event.CacheEventListenerFactory;
 import net.sf.ehcache.util.PropertyUtil;
 
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -47,7 +48,7 @@ public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
      */
     protected static final int DEFAULT_ASYNCHRONOUS_REPLICATION_INTERVAL_MILLIS = 1000;
 
-    private static final Logger LOG = Logger.getLogger(RMICacheReplicatorFactory.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(RMICacheReplicatorFactory.class.getName());
     private static final String REPLICATE_PUTS = "replicatePuts";
     private static final String REPLICATE_PUTS_VIA_COPY = "replicatePutsViaCopy";
     private static final String REPLICATE_UPDATES = "replicateUpdates";
@@ -127,14 +128,14 @@ public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
                 int asynchronousReplicationIntervalMillisCandidate =
                         Integer.parseInt(asynchronousReplicationIntervalMillisString);
                 if (asynchronousReplicationIntervalMillisCandidate < MINIMUM_REASONABLE_INTERVAL) {
-                    LOG.log(Level.FINE, "Trying to set the asynchronousReplicationIntervalMillis to an unreasonable number." +
+                    LOG.debug("Trying to set the asynchronousReplicationIntervalMillis to an unreasonable number." +
                             " Using the default instead.");
                     asynchronousReplicationIntervalMillis = DEFAULT_ASYNCHRONOUS_REPLICATION_INTERVAL_MILLIS;
                 } else {
                     asynchronousReplicationIntervalMillis = asynchronousReplicationIntervalMillisCandidate;
                 }
             } catch (NumberFormatException e) {
-                LOG.log(Level.WARNING, "Number format exception trying to set asynchronousReplicationIntervalMillis. " +
+                LOG.warn("Number format exception trying to set asynchronousReplicationIntervalMillis. " +
                         "Using the default instead. String value was: '" + asynchronousReplicationIntervalMillisString + "'");
                 asynchronousReplicationIntervalMillis = DEFAULT_ASYNCHRONOUS_REPLICATION_INTERVAL_MILLIS;
             }

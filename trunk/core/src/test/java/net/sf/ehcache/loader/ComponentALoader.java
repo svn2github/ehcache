@@ -19,8 +19,9 @@ package net.sf.ehcache.loader;
 
 import net.sf.ehcache.CacheException;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -31,7 +32,7 @@ import java.util.logging.Logger;
  */
 public class ComponentALoader extends BaseComponentLoader {
 
-    private static final Logger LOG = Logger.getLogger(ComponentALoader.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(ComponentALoader.class.getName());
 
     /**
      * @return
@@ -52,7 +53,7 @@ public class ComponentALoader extends BaseComponentLoader {
 
         boolean createDeadLock = Boolean.valueOf(props.getProperty("createDeadLock")).booleanValue();
 
-        LOG.log(Level.INFO, "createDeadLock=" + createDeadLock);
+        LOG.info("createDeadLock=" + createDeadLock);
 
         if (createDeadLock) {
             key = (String) arg0;
@@ -60,7 +61,7 @@ public class ComponentALoader extends BaseComponentLoader {
             key = new String((String) arg0);
         }
 
-        LOG.log(Level.INFO, "Getting componentB...");
+        LOG.info("Getting componentB...");
         b = (ComponentB) CacheHelper.get("ehcache-loaderinteractions.xml", "BCache", key);
 
         return new ComponentA(key, b);

@@ -26,8 +26,9 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.Properties;
 import java.util.TimerTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Check for new Ehcache updates and alert users if an update is available
@@ -35,7 +36,7 @@ import java.util.logging.Logger;
  * @author Hung Huynh
  */
 public class UpdateChecker extends TimerTask {
-    private static final Logger LOG = Logger.getLogger(UpdateChecker.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateChecker.class.getName());
     private static final long MILLIS_PER_SECOND = 1000L;
     private static final String UNKNOWN = "UNKNOWN";
     private static final String UPDATE_CHECK_URL = "http://www.terracotta.org/kit/reflector?kitID=ehcache.default&pageID=update.properties";
@@ -43,10 +44,17 @@ public class UpdateChecker extends TimerTask {
 
     private String tcVersion;
 
+    /**
+     * Empty constructor. This creates a checker with an Unknown product type
+     */
     public UpdateChecker() {
         this(UNKNOWN);
     }
 
+    /**
+     * Constructor which creates a checker with a product type
+     * @param tcVersion
+     */
     public UpdateChecker(String tcVersion) {
         this.tcVersion = tcVersion;
     }
@@ -68,22 +76,22 @@ public class UpdateChecker extends TimerTask {
                 doCheck();
             }
         } catch (Throwable t) {
-            LOG.log(Level.FINE, "Update check failed: " + t.toString());
+            LOG.debug("Update check failed: " + t.toString());
         }
     }
 
     private void doCheck() throws IOException {
-        LOG.log(Level.FINE, "Checking for update...");
+        LOG.debug("Checking for update...");
         URL updateUrl = buildUpdateCheckUrl();
         Properties updateProps = getUpdateProperties(updateUrl);
         String currentVersion = new ProductInfo().getVersion();
         String propVal = updateProps.getProperty("general.notice");
         if (notBlank(propVal)) {
-            LOG.log(Level.INFO, propVal);
+            LOG.info(propVal);
         }
         propVal = updateProps.getProperty(currentVersion + ".notice");
         if (notBlank(propVal)) {
-            LOG.log(Level.INFO, propVal);
+            LOG.info(propVal);
         }
         propVal = updateProps.getProperty(currentVersion + ".updates");
         if (notBlank(propVal)) {
@@ -103,10 +111,10 @@ public class UpdateChecker extends TimerTask {
                 }
             }
             if (sb.length() > 0) {
-                LOG.log(Level.INFO, "New update(s) found: " + sb.toString());
+                LOG.info("New update(s) found: " + sb.toString());
             }
         } else {
-            LOG.log(Level.FINE, "No update found.");
+            LOG.debug("No update found.");
         }
     }
 

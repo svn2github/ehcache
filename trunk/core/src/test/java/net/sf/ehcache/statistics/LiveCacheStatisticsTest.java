@@ -23,7 +23,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Random;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
@@ -42,8 +43,6 @@ import org.junit.Test;
  */
 public class LiveCacheStatisticsTest extends AbstractCacheTest {
 
-    private static final Logger LOG = Logger
-            .getLogger(LiveCacheStatisticsTest.class.getName());
     
     /**
      * test enable disable

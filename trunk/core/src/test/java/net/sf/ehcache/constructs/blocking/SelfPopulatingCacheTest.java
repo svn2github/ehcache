@@ -33,8 +33,9 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -48,7 +49,7 @@ import java.util.logging.Logger;
  */
 public class SelfPopulatingCacheTest extends CacheTest {
 
-    private static final Logger LOG = Logger.getLogger(SelfPopulatingCacheTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(SelfPopulatingCacheTest.class.getName());
 
     /**
      * Shared with subclass
@@ -99,7 +100,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
      */
     @Test
     public void testFetch() throws Exception {
-        LOG.log(Level.SEVERE, ".");
+        LOG.error(".");
 
         // Lookup
         final Element element = selfPopulatingCache.get("key");
@@ -408,7 +409,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
             try {
                 cache.get(key);
             } catch (Exception e) {
-                LOG.log(Level.INFO, "Exception: " + e.getMessage());
+                LOG.info("Exception: " + e.getMessage());
             }
         }
     }
@@ -460,7 +461,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
             }
         } catch (OutOfMemoryError e) {
             //the disk store backs up on the laptop. 
-            LOG.log(Level.INFO, "OutOfMemoryError: " + e.getMessage() + " " + i);
+            LOG.info("OutOfMemoryError: " + e.getMessage() + " " + i);
             fail();
         }
     }

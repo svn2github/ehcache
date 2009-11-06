@@ -18,8 +18,9 @@ package net.sf.ehcache.management.sampled;
 
 import java.lang.management.ManagementFactory;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
@@ -49,7 +50,7 @@ import net.sf.ehcache.management.provider.MBeanRegistrationProviderException;
  */
 public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvider, CacheManagerEventListener {
 
-    private static final Logger LOG = Logger.getLogger(SampledMBeanRegistrationProvider.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(SampledMBeanRegistrationProvider.class.getName());
 
     private static final int MAX_MBEAN_REGISTRATION_RETRIES = 50;
 
@@ -189,13 +190,13 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
             registeredObjectNames.addAll(mBeanServer.queryNames(SampledEhcacheMBeans
                     .getQueryCacheManagerObjectName(registeredCacheManagerName), null));
         } catch (MalformedObjectNameException e) {
-            LOG.log(Level.WARNING, "Error querying MBeanServer. Error was " + e.getMessage(), e);
+            LOG.warn("Error querying MBeanServer. Error was " + e.getMessage(), e);
         }
         for (ObjectName objectName : registeredObjectNames) {
             try {
                 mBeanServer.unregisterMBean(objectName);
             } catch (Exception e) {
-                LOG.log(Level.WARNING, "Error unregistering object instance " + objectName + " . Error was " + e.getMessage(), e);
+                LOG.warn("Error unregistering object instance " + objectName + " . Error was " + e.getMessage(), e);
             }
         }
         status = Status.STATUS_SHUTDOWN;
@@ -220,7 +221,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
             Ehcache cache = cacheManager.getEhcache(cacheName);
             registerCacheMBean(cache);
         } catch (Exception e) {
-            LOG.log(Level.WARNING, "Error registering cache for management for " + cacheName + " . Error was " + e.getMessage(), e);
+            LOG.warn("Error registering cache for management for " + cacheName + " . Error was " + e.getMessage(), e);
         }
     }
 
@@ -242,7 +243,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
             mBeanServer.unregisterMBean(objectName);
 
         } catch (Exception e) {
-            LOG.log(Level.WARNING, "Error unregistering cache for management for " + objectName + " . Error was " + e.getMessage(), e);
+            LOG.warn("Error unregistering cache for management for " + objectName + " . Error was " + e.getMessage(), e);
         }
 
     }

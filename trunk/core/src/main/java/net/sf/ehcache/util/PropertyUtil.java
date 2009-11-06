@@ -21,8 +21,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Property utilities.
@@ -31,7 +32,7 @@ import java.util.logging.Logger;
  */
 public final class PropertyUtil {
 
-    private static final Logger LOG = Logger.getLogger(PropertyUtil.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(PropertyUtil.class.getName());
 
     private static final String DEFAULT_PROPERTY_SEPARATOR = ",";
 
@@ -53,9 +54,8 @@ public final class PropertyUtil {
         if (foundValue != null) {
             foundValue = foundValue.trim();
         }
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE, new StringBuffer().append("Value found for ").append(name).append(": ")
-                    .append(foundValue).toString());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(new StringBuffer().append("Value found for ").append(name).append(": ").append(foundValue).toString());
         }
         return foundValue;
     }
@@ -71,9 +71,8 @@ public final class PropertyUtil {
         if (foundValue != null) {
             foundValue = foundValue.trim();
         }
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE, new StringBuffer().append("Value found for ").append(name).append(": ")
-                    .append(foundValue).toString());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(new StringBuffer().append("Value found for ").append(name).append(": ").append(foundValue).toString());
         }
         return foundValue;
     }
@@ -86,7 +85,7 @@ public final class PropertyUtil {
     public static Properties parseProperties(String propertiesString, String propertySeparator) {
         String propertySeparatorLocal = propertySeparator;
         if (propertiesString == null) {
-            LOG.log(Level.FINE, "propertiesString is null.");
+            LOG.debug("propertiesString is null.");
             return null;
         }
         if (propertySeparator == null) {
@@ -98,7 +97,7 @@ public final class PropertyUtil {
         try {
             properties.load(new ByteArrayInputStream(propertyLines.getBytes()));
         } catch (IOException e) {
-            LOG.log(Level.SEVERE, "Cannot load properties from " + propertiesString);
+            LOG.error("Cannot load properties from " + propertiesString);
         }
         return properties;
     }

@@ -40,8 +40,9 @@ import net.sf.ehcache.loader.CacheLoader;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -55,7 +56,7 @@ import java.util.logging.Logger;
  */
 public class CustomExceptionThrowingLoader implements CacheLoader {
 
-    private static final Logger LOG = Logger.getLogger(CustomExceptionThrowingLoader.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(CustomExceptionThrowingLoader.class.getName());
 
     private Random random = new Random();
     private String name = "CustomExceptionThrowingLoader";
@@ -75,7 +76,7 @@ public class CustomExceptionThrowingLoader implements CacheLoader {
         try {
             Thread.sleep(random.nextInt(3) + 1);
         } catch (InterruptedException e) {
-            LOG.log(Level.SEVERE, "Interrupted");
+            LOG.error("Interrupted");
         }
         throw new UnsupportedOperationException("load not supported by CustomExceptionThrowingLoader");
     }
@@ -97,7 +98,7 @@ public class CustomExceptionThrowingLoader implements CacheLoader {
         try {
             Thread.sleep(random.nextInt(4));
         } catch (InterruptedException e) {
-            LOG.log(Level.SEVERE, "Interrupted");
+            LOG.error("Interrupted");
         }
         throw new UnsupportedOperationException("loadAll not supported by CustomExceptionThrowingLoader");
 
@@ -119,7 +120,7 @@ public class CustomExceptionThrowingLoader implements CacheLoader {
         try {
             Thread.sleep(random.nextInt(3) + 1);
         } catch (InterruptedException e) {
-            LOG.log(Level.SEVERE, "Interrupted");
+            LOG.error("Interrupted");
         }
         throw new UnsupportedOperationException("2-arg load not supported by CustomExceptionThrowingLoader");
     }
@@ -139,7 +140,7 @@ public class CustomExceptionThrowingLoader implements CacheLoader {
         try {
             Thread.sleep(random.nextInt(3) + 1);
         } catch (InterruptedException e) {
-            LOG.log(Level.SEVERE, "Interrupted");
+            LOG.error("Interrupted");
         }
         throw new UnsupportedOperationException("2-arg loadAll not supported by CustomExceptionThrowingLoader");
     }

@@ -18,8 +18,9 @@ package net.sf.ehcache.store;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
@@ -38,7 +39,7 @@ import net.sf.ehcache.Status;
  */
 public class LruMemoryStore implements Store {
 
-    private static final Logger LOG = Logger.getLogger(LruMemoryStore.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(LruMemoryStore.class.getName());
 
     /**
      * The cache this store is associated with.
@@ -175,8 +176,8 @@ public class LruMemoryStore implements Store {
      */
     public final void flush() {
         if (cache.getCacheConfiguration().isDiskPersistent()) {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, cache.getName() + " is persistent. Spooling " + map.size() + " elements to the disk store.");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(cache.getName() + " is persistent. Spooling " + map.size() + " elements to the disk store.");
             }
             spoolAllToDisk();
         }
@@ -200,8 +201,8 @@ public class LruMemoryStore implements Store {
             Element element = (Element) map.get(key);
             if (element != null) {
                 if (!element.isSerializable()) {
-                    if (LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "Object with key " + element.getObjectKey()
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Object with key " + element.getObjectKey()
                                 + " is not Serializable and is not being overflowed to disk.");
                     }
                 } else {
@@ -226,8 +227,8 @@ public class LruMemoryStore implements Store {
      */
     protected void spoolToDisk(Element element) {
         diskStore.put(element);
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE, cache.getName() + "Cache: spool to disk done for: " + element.getObjectKey());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(cache.getName() + "Cache: spool to disk done for: " + element.getObjectKey());
         }
     }
 
@@ -316,8 +317,8 @@ public class LruMemoryStore implements Store {
         boolean spooled = false;
         if (cache.getCacheConfiguration().isOverflowToDisk()) {
             if (!element.isSerializable()) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, new StringBuffer("Object with key ").append(element.getObjectKey())
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(new StringBuffer("Object with key ").append(element.getObjectKey())
                             .append(" is not Serializable and cannot be overflowed to disk").toString());
                 }
             } else {

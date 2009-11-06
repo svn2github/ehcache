@@ -24,8 +24,9 @@ import org.hibernate.cache.Timestamper;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * EHCache plugin for Hibernate.
@@ -44,7 +45,7 @@ import java.util.logging.Logger;
  */
 public final class EhCache implements Cache {
 
-    private static final Logger LOG = Logger.getLogger(EhCache.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(EhCache.class.getName());
 
     private static final int SIXTY_THOUSAND_MS = 60000;
 
@@ -73,17 +74,14 @@ public final class EhCache implements Cache {
      */
     public final Object get(Object key) throws CacheException {
         try {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "key: " + key);
-            }
+                LOG.debug("key: {}", key);
             if (key == null) {
                 return null;
             } else {
                 Element element = cache.get(key);
                 if (element == null) {
-                    if (LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "Element for " + key + " is null");
-                    }
+
+                        LOG.debug("Element for key {} is null", key);
                     return null;
                 } else {
                     return element.getObjectValue();
@@ -125,10 +123,7 @@ public final class EhCache implements Cache {
      * @throws CacheException if the {@link net.sf.ehcache.CacheManager} is shutdown or another {@link Exception} occurs.
      */
     public final void put(Object key, Object value) throws CacheException {
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE, "key: " + key + " value: " + value);
-        }
-        
+            LOG.debug("key: {} value: {}", key, value);
         try {
             Element element = new Element(key, value);
             cache.put(element);
@@ -183,9 +178,8 @@ public final class EhCache implements Cache {
         } catch (IllegalStateException e) {
             //When Spring and Hibernate are both involved this will happen in normal shutdown operation.
             //Do not throw an exception, simply log this one.
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "This can happen if multiple frameworks both try to shutdown ehcache", e);
-            }
+
+                LOG.debug("This can happen if multiple frameworks both try to shutdown ehcache", e);
         } catch (net.sf.ehcache.CacheException e) {
             throw new CacheException(e);
         }

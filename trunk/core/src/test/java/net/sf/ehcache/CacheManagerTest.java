@@ -31,8 +31,9 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -62,7 +63,7 @@ import org.junit.Test;
  */
 public class CacheManagerTest {
 
-    private static final Logger LOG = Logger.getLogger(CacheManagerTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(CacheManagerTest.class.getName());
 
     /**
      * the CacheManager Singleton instance
@@ -678,7 +679,7 @@ public class CacheManagerTest {
             }
         }
         long elapsedTime = stopWatch.getElapsedTime();
-        LOG.log(Level.INFO, "Time taken was: " + elapsedTime);
+        LOG.info("Time taken was: " + elapsedTime);
         assertTrue("Time taken was: " + elapsedTime, elapsedTime < 5000);
     }
 
@@ -823,7 +824,7 @@ public class CacheManagerTest {
         for (int i = 0; i < threads.size(); i++) {
             Thread thread = (Thread) threads.get(i);
             String name = thread.getName();
-            LOG.log(Level.INFO, name);
+            LOG.info(name);
         }
     }
 

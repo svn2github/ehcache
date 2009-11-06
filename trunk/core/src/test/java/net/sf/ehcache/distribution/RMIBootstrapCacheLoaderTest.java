@@ -30,7 +30,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Date;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Greg Luck
@@ -49,7 +50,7 @@ public class RMIBootstrapCacheLoaderTest {
      */
     protected static final boolean SYNCHRONOUS = false;
 
-    private static final Logger LOG = Logger.getLogger(RMIBootstrapCacheLoaderTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(RMIBootstrapCacheLoaderTest.class.getName());
 
     /**
      * CacheManager 1 in the cluster

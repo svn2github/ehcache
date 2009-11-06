@@ -273,9 +273,9 @@ net.sf.jsr107cache.Cache cache = new JCache(manager.getCache("sampleCacheNoIdle"
         long value = Integer.MAX_VALUE;
         value += Integer.MAX_VALUE;
         value += 5;
-        LOG.log(Level.INFO, "" + value);
+        LOG.info("" + value);
         int valueAsInt = (int) value;
-        LOG.log(Level.INFO, "" + valueAsInt);
+        LOG.info("" + valueAsInt);
         assertEquals(3, valueAsInt);
     }
 -----

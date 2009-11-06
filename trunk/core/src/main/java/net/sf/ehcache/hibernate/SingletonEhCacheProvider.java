@@ -24,8 +24,9 @@ import org.hibernate.cache.Timestamper;
 
 import java.net.URL;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Singleton cache Provider plugin for Hibernate 3.2 and ehcache-1.2. New in this provider is support for
@@ -59,7 +60,7 @@ public final class SingletonEhCacheProvider implements CacheProvider {
      */
     public static final String NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME = "net.sf.ehcache.configurationResourceName";
 
-    private static final Logger LOG = Logger.getLogger(SingletonEhCacheProvider.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(SingletonEhCacheProvider.class.getName());
 
     /**
      * To be backwardly compatible with a lot of Hibernate code out there, allow multiple starts and stops on the
@@ -88,11 +89,11 @@ public final class SingletonEhCacheProvider implements CacheProvider {
         try {
             net.sf.ehcache.Ehcache cache = manager.getEhcache(name);
             if (cache == null) {
-                SingletonEhCacheProvider.LOG.log(Level.WARNING, "Could not find a specific ehcache configuration for cache named ["
+                SingletonEhCacheProvider.LOG.warn("Could not find a specific ehcache configuration for cache named ["
                         + name + "]; using defaults.");
                 manager.addCache(name);
                 cache = manager.getEhcache(name);
-                SingletonEhCacheProvider.LOG.log(Level.FINE, "started EHCache region: " + name);
+                SingletonEhCacheProvider.LOG.debug("started EHCache region: " + name);
             }
             return new EhCache(cache);
         } catch (net.sf.ehcache.CacheException e) {
@@ -125,10 +126,8 @@ public final class SingletonEhCacheProvider implements CacheProvider {
         } else {
             if (!configurationResourceName.startsWith("/")) {
                 configurationResourceName = "/" + configurationResourceName;
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, "prepending / to " + configurationResourceName + ". It should be placed in the root"
-                            + "of the classpath rather than in a package.");
-                }
+                    LOG.debug("prepending / to {}. It should be placed in the rootof the classpath rather than in a package.", 
+                            configurationResourceName);
             }
             URL url = loadResource(configurationResourceName);
             manager = CacheManager.create(url);
@@ -145,16 +144,12 @@ public final class SingletonEhCacheProvider implements CacheProvider {
         if (url == null) {
             url = this.getClass().getResource(configurationResourceName);
         }
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE, "Creating EhCacheProvider from a specified resource: "
-                    + configurationResourceName + " Resolved to URL: " + url);
-        }
+
+        LOG.debug("Creating EhCacheProvider from a specified resource: {}. Resolved to URL: ", configurationResourceName, url);
         if (url == null) {
-            if (LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "A configurationResourceName was set to " + configurationResourceName +
-                        " but the resource could not be loaded from the classpath." +
-                        "Ehcache will configure itself using defaults.");
-            }
+
+                LOG.warn("A configurationResourceName was set to {} but the resource could not be loaded from the classpath." +
+                        "Ehcache will configure itself using defaults.", configurationResourceName);
         }
         return url;
     }

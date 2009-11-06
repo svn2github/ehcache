@@ -20,8 +20,9 @@ package net.sf.ehcache;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -32,7 +33,7 @@ import java.util.logging.Logger;
  */
 public class StatusTest {
 
-    private static final Logger LOG = Logger.getLogger(StatusTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(StatusTest.class.getName());
 
     private static int int1 = 1;
     private int int2 = 2;
@@ -59,7 +60,7 @@ public class StatusTest {
             status1.equals(status2);
         }
         long statusCompareTime = stopWatch.getElapsedTime();
-        LOG.log(Level.INFO, "Time to do equals(Status): " + statusCompareTime);
+        LOG.info("Time to do equals(Status): " + statusCompareTime);
         assertTrue("Status compare is greater than permitted time", statusCompareTime < 35);
 
     }
@@ -82,7 +83,7 @@ public class StatusTest {
             status1.equals(object);
         }
         long objectCompareTime = stopWatch.getElapsedTime();
-        LOG.log(Level.INFO, "Time to do equals(Object): " + objectCompareTime);
+        LOG.info("Time to do equals(Object): " + objectCompareTime);
         assertTrue("Status compare is greater than permitted time", objectCompareTime < 25);
 
 
@@ -107,7 +108,7 @@ public class StatusTest {
             result = int1 == int2;
         }
         long intCompareTime = stopWatch.getElapsedTime();
-        LOG.log(Level.INFO, "Time to do int == int: " + intCompareTime);
+        LOG.info("Time to do int == int: " + intCompareTime);
         assertTrue("Status compare is greater than permitted time", intCompareTime < 10);
 
 

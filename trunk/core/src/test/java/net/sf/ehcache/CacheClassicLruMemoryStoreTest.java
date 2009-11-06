@@ -7,8 +7,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Does the cache tests using the classic LRUMemoryStore implementation.
@@ -16,7 +17,7 @@ import java.util.logging.Logger;
  */
 public class CacheClassicLruMemoryStoreTest extends CacheTest {
 
-    private static final Logger LOG = Logger.getLogger(CacheClassicLruMemoryStoreTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(CacheClassicLruMemoryStoreTest.class.getName());
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -110,7 +111,7 @@ public class CacheClassicLruMemoryStoreTest extends CacheTest {
         //this one does
         cache.put(new Element("nullValue", null));
 
-        LOG.log(Level.INFO, "Size: " + cache.getDiskStoreSize());
+        LOG.info("Size: " + cache.getDiskStoreSize());
 
         assertEquals(50, cache.getMemoryStoreSize());
         assertEquals(54, cache.getDiskStoreSize());

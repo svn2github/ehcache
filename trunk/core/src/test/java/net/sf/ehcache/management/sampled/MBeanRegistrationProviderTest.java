@@ -20,7 +20,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.util.Set;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -44,7 +45,7 @@ import org.junit.Test;
  */
 public class MBeanRegistrationProviderTest extends AbstractCacheTest {
 
-    private static final Logger LOG = Logger.getLogger(MBeanRegistrationProviderTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(MBeanRegistrationProviderTest.class.getName());
 
     private MBeanServer mbeanServer;
 

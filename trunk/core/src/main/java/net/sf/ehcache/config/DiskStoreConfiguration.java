@@ -18,8 +18,9 @@ package net.sf.ehcache.config;
 
 
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A class to represent DiskStore configuration
@@ -30,11 +31,11 @@ import java.util.logging.Logger;
  */
 public final class DiskStoreConfiguration {
 
-    private static final Logger LOG = Logger.getLogger(DiskStoreConfiguration.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(DiskStoreConfiguration.class.getName());
 
 
     /**
-     * The path to the directory where .data and .index files will be created. 
+     * The path to the directory where .data and .index files will be created.
      */
     private String path;
 
@@ -70,15 +71,15 @@ public final class DiskStoreConfiguration {
      *
      * @param path If the path contains a Java System Property token it is replaced by
      *             its value in the running VM. Subdirectories can be specified below the property e.g. java.io.tmpdir/one.
-     *  The following properties are translated:
+     *             The following properties are translated:
      *             <ul>
      *             <li><code>user.home</code> - User's home directory
      *             <li><code>user.dir</code> - User's current working directory
      *             <li><code>java.io.tmpdir</code> - Default temp file path
      *             <li><code>ehcache.disk.store.di?r</code> - A system property you would normally specify on the command linecan specify with -DDefault temp file path
-     *              e.g. <code>java -Dehcache.disk.store.dir=/u01/myapp/diskdir ...</code>
+     *             e.g. <code>java -Dehcache.disk.store.dir=/u01/myapp/diskdir ...</code>
      *             </ul>
-     * Additional strings can be placed before and after tokens?
+     *             Additional strings can be placed before and after tokens?
      *             e.g. <code>java.io/tmpdir/caches</code> might become <code>/tmp/caches</code>
      */
     public final void setPath(final String path) {
@@ -93,11 +94,7 @@ public final class DiskStoreConfiguration {
         translatedPath = replaceToken(Env.EHCACHE_DISK_STORE_DIR, System.getProperty(Env.EHCACHE_DISK_STORE_DIR), translatedPath);
         //Remove duplicate separators: Windows and Solaris
         translatedPath = replaceToken(File.separator + File.separator, File.separator, translatedPath);
-
-
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE, "Disk Store Path: " + translatedPath);
-        }
+        LOG.debug("Disk Store Path: " + translatedPath);
         return translatedPath;
     }
 

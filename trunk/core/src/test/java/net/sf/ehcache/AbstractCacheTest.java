@@ -29,8 +29,9 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -56,7 +57,7 @@ public abstract class AbstractCacheTest {
     public static final String TEST_CLASSES_DIR = "target/test-classes/";
 
 
-    private static final Logger LOG = Logger.getLogger(AbstractCacheTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractCacheTest.class.getName());
 
     /**
      * name for sample cache 1
@@ -148,7 +149,7 @@ public abstract class AbstractCacheTest {
      */
     protected void runThreads(final List executables) throws Exception {
         int failures = runThreadsNoCheck(executables);
-            LOG.log(Level.INFO, failures + " failures");
+            LOG.info(failures + " failures");
             //CHM does have the occasional very slow time.
             assertTrue("Failures = " + failures, failures <= 35);
     }
@@ -193,9 +194,9 @@ public abstract class AbstractCacheTest {
                         // Hang on to any errors
                         errors.add(t);
                         if (!explicitLog && t instanceof AssertionError) {
-                            LOG.log(Level.INFO, "Throwable " + t + " " + t.getMessage());
+                            LOG.info("Throwable " + t + " " + t.getMessage());
                         } else {
-                            LOG.log(Level.SEVERE, "Throwable " + t + " " + t.getMessage(), t);
+                            LOG.error("Throwable " + t + " " + t.getMessage(), t);
                         }
                     }
                 }
@@ -210,7 +211,7 @@ public abstract class AbstractCacheTest {
 
 //        if (errors.size() > 0) {
 //            for (Throwable error : errors) {
-//                LOG.log(Level.INFO, "Error", error);
+//                LOG.info("Error", error);
 //            }
 //        }
         return errors.size();
@@ -227,7 +228,7 @@ public abstract class AbstractCacheTest {
             Method method = managementFactoryClass.getMethod("getPlatformMBeanServer", (Class[]) null);
             return (MBeanServer) method.invoke(null, (Object[]) null);
         } catch (Exception e) {
-            LOG.log(Level.INFO, "JDK1.5 ManagementFactory not found. Falling back to JMX1.2.1", e);
+            LOG.info("JDK1.5 ManagementFactory not found. Falling back to JMX1.2.1", e);
             return MBeanServerFactory.createMBeanServer("SimpleAgent");
         }
     }

@@ -34,8 +34,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -46,7 +47,7 @@ import java.util.logging.Logger;
  */
 public class CacheEventListenerTest extends AbstractCacheTest {
 
-    private static final Logger LOG = Logger.getLogger(CacheEventListenerTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(CacheEventListenerTest.class.getName());
 
 
     /**
@@ -759,7 +760,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
                         assertTrue(cache.getCacheEventNotificationService().unregisterListener(listener));
 
                     } catch (Throwable t) {
-                        LOG.log(Level.SEVERE, "", t);
+                        LOG.error("", t);
                         fail();
                     }
                 }

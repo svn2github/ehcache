@@ -25,8 +25,9 @@ import java.net.MulticastSocket;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Sends heartbeats to a multicast group containing a compressed list of URLs.
@@ -50,7 +51,7 @@ import java.util.logging.Logger;
 public final class MulticastKeepaliveHeartbeatSender {
 
 
-    private static final Logger LOG = Logger.getLogger(MulticastKeepaliveHeartbeatSender.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(MulticastKeepaliveHeartbeatSender.class.getName());
 
     private static final int DEFAULT_HEARTBEAT_INTERVAL = 5000;
     private static final int MINIMUM_HEARTBEAT_INTERVAL = 1000;
@@ -146,14 +147,14 @@ public final class MulticastKeepaliveHeartbeatSender {
                             }
                         } catch (InterruptedException e) {
                             if (!stopped) {
-                                LOG.log(Level.SEVERE, "Error receiving heartbeat. Initial cause was " + e.getMessage(), e);
+                                LOG.error("Error receiving heartbeat. Initial cause was " + e.getMessage(), e);
                             }
                         }
                     }
                 } catch (IOException e) {
-                    LOG.log(Level.FINE, "Error on multicast socket", e);
+                    LOG.debug("Error on multicast socket", e);
                 } catch (Throwable e) {
-                    LOG.log(Level.INFO, "Unexpected throwable in run thread. Continuing..." + e.getMessage(), e);
+                    LOG.info("Unexpected throwable in run thread. Continuing..." + e.getMessage(), e);
                 } finally {
                     closeSocket();
                 }
@@ -161,7 +162,7 @@ public final class MulticastKeepaliveHeartbeatSender {
                     try {
                         sleep(heartBeatInterval);
                     } catch (InterruptedException e) {
-                        LOG.log(Level.SEVERE, "Sleep after error interrupted. Initial cause was " + e.getMessage(), e);
+                        LOG.error("Sleep after error interrupted. Initial cause was " + e.getMessage(), e);
                     }
                 }
             }
@@ -231,16 +232,16 @@ public final class MulticastKeepaliveHeartbeatSender {
                     try {
                         socket.leaveGroup(groupMulticastAddress);
                     } catch (IOException e) {
-                        LOG.log(Level.SEVERE, "Error leaving multicast group. Message was " + e.getMessage());
+                        LOG.error("Error leaving multicast group. Message was " + e.getMessage());
                     }
                     socket.close();
                 }
             } catch (NoSuchMethodError e) {
-                LOG.log(Level.FINE, "socket.isClosed is not supported by JDK1.3");
+                LOG.debug("socket.isClosed is not supported by JDK1.3");
                 try {
                     socket.leaveGroup(groupMulticastAddress);
                 } catch (IOException ex) {
-                    LOG.log(Level.SEVERE, "Error leaving multicast group. Message was " + ex.getMessage());
+                    LOG.error("Error leaving multicast group. Message was " + ex.getMessage());
                 }
                 socket.close();
             }
@@ -257,7 +258,7 @@ public final class MulticastKeepaliveHeartbeatSender {
      */
     public static void setHeartBeatInterval(long heartBeatInterval) {
         if (heartBeatInterval < MINIMUM_HEARTBEAT_INTERVAL) {
-            LOG.log(Level.WARNING, "Trying to set heartbeat interval too low. Using MINIMUM_HEARTBEAT_INTERVAL instead.");
+            LOG.warn("Trying to set heartbeat interval too low. Using MINIMUM_HEARTBEAT_INTERVAL instead.");
             MulticastKeepaliveHeartbeatSender.heartBeatInterval = MINIMUM_HEARTBEAT_INTERVAL;
         } else {
             MulticastKeepaliveHeartbeatSender.heartBeatInterval = heartBeatInterval;

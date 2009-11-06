@@ -23,8 +23,9 @@ import net.sf.ehcache.Status;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -39,7 +40,7 @@ import java.util.logging.Logger;
  */
 public class NullCountingCacheLoader implements CacheLoader {
 
-    private static final Logger LOG = Logger.getLogger(NullCountingCacheLoader.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(NullCountingCacheLoader.class.getName());
 
     private volatile int loadCounter;
     private volatile int loadAllCounter;
@@ -60,7 +61,7 @@ public class NullCountingCacheLoader implements CacheLoader {
         try {
             Thread.sleep(random.nextInt(3) + 1);
         } catch (InterruptedException e) {
-            LOG.log(Level.SEVERE, "Interrupted");
+            LOG.error("Interrupted");
         }
         loadCounter++;
         return null;
@@ -111,7 +112,7 @@ public class NullCountingCacheLoader implements CacheLoader {
         try {
             Thread.sleep(random.nextInt(3) + 1);
         } catch (InterruptedException e) {
-            LOG.log(Level.SEVERE, "Interrupted");
+            LOG.error("Interrupted");
         }
         return name + ":" + argument;
     }

@@ -24,8 +24,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Builds a factory based on RMI
@@ -35,7 +36,7 @@ import java.util.logging.Logger;
  */
 public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProviderFactory {
 
-    private static final Logger LOG = Logger.getLogger(RMICacheManagerPeerProviderFactory.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(RMICacheManagerPeerProviderFactory.class.getName());
 
     private static final String HOST_NAME = "hostName";
     private static final String PEER_DISCOVERY = "peerDiscovery";
@@ -75,7 +76,7 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
     protected CacheManagerPeerProvider createManuallyConfiguredCachePeerProvider(Properties properties) {
         String rmiUrls = PropertyUtil.extractAndLogProperty(RMI_URLS, properties);
         if (rmiUrls == null || rmiUrls.length() == 0) {
-            LOG.log(Level.INFO, "Starting manual peer provider with empty list of peers. " +
+            LOG.info("Starting manual peer provider with empty list of peers. " +
                     "No replication will occur unless peers are added.");
             rmiUrls = new String();
         }
@@ -86,9 +87,8 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
             String rmiUrl = stringTokenizer.nextToken();
             rmiUrl = rmiUrl.trim();
             rmiPeerProvider.registerPeer(rmiUrl);
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Registering peer " + rmiUrl);
-            }
+
+                LOG.debug("Registering peer {}", rmiUrl);
         }
         return rmiPeerProvider;
     }
@@ -103,7 +103,7 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
         if (hostName != null && hostName.length() != 0) {
             hostAddress = InetAddress.getByName(hostName);
             if (hostName.equals("localhost")) {
-                LOG.log(Level.WARNING, "Explicitly setting the multicast hostname to 'localhost' is not recommended. "
+                LOG.warn("Explicitly setting the multicast hostname to 'localhost' is not recommended. "
                         + "It will only work if all CacheManager peers are on the same machine.");
             }
         }
@@ -117,7 +117,7 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
         Integer timeToLive;
         if (packetTimeToLiveString == null) {
             timeToLive = new Integer(1);
-            LOG.log(Level.FINE, "No TTL set. Setting it to the default of 1, which means packets are limited to the same subnet.");
+            LOG.debug("No TTL set. Setting it to the default of 1, which means packets are limited to the same subnet.");
         } else {
             timeToLive = new Integer(packetTimeToLiveString);
             if (timeToLive.intValue() < 0 || timeToLive.intValue() > MAXIMUM_TTL) {
