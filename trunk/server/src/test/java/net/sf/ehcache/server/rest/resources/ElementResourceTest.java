@@ -343,9 +343,12 @@ public class ElementResourceTest {
         element.setValue(serializedForm);
         cacheService.put("sampleCache2", element);
 
-
+        long begin = System.currentTimeMillis();
         HttpURLConnection urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
+        long end = System.currentTimeMillis();
+        LOG.info("Get time: " + (end - begin));
         assertEquals(200, urlConnection.getResponseCode());
+
 
         //MimeTYpe not set, so the server sets application/octet-stream
         assertTrue(urlConnection.getContentType().matches("application/octet-stream"));
@@ -358,6 +361,32 @@ public class ElementResourceTest {
         Status somethingThatIsSerializable2 = (Status) objectInputStream.readObject();
 
         assertEquals(somethingThatIsSerializable, somethingThatIsSerializable2);
+    }
+
+
+    /**
+     * Get a java object which was put in some way other than the RESTful API.
+     */
+    @Test
+    public void testGetElementJavaPerfTest() throws Exception {
+
+        Status somethingThatIsSerializable = Status.STATUS_ALIVE;
+        byte[] serializedForm = MemoryEfficientByteArrayOutputStream.serialize(somethingThatIsSerializable).getBytes();
+
+        assertEquals(404, HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1").getResponseCode());
+
+        net.sf.ehcache.server.soap.jaxws.Element element = new net.sf.ehcache.server.soap.jaxws.Element();
+        element.setKey("1");
+        element.setValue(serializedForm);
+        cacheService.put("sampleCache2", element);
+
+        long begin = System.currentTimeMillis();
+        for (int i = 0; i < 100; i++) {
+            HttpURLConnection urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
+            assertEquals(200, urlConnection.getResponseCode());
+        }
+        long end = System.currentTimeMillis();
+        LOG.info("Get time: " + (end - begin) / 100f);
     }
 
 

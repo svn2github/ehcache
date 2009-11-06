@@ -2,6 +2,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <!-- mvn -Ptest verify to run tests -->
+    <!-- mvn -Ptest jetty:run-war to run jetty interactively -->
+    <!-- Activate the test profile in your IDE otherwise the concrete logging implementation will not be found. -->
 
 
     <!-- Note to IntelliJ users. Run mvn compile before interactively running tests. -->
