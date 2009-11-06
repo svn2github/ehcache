@@ -366,12 +366,12 @@ public class CacheManager {
     private void checkForUpdateIfNeeded(boolean updateCheckNeeded) {
         try {
             if (updateCheckNeeded) {
-                UpdateChecker updateChecker = new UpdateChecker(terracottaStoreFactory.getTCVersion());
+                UpdateChecker updateChecker = new UpdateChecker();
                 cacheManagerTimer.scheduleAtFixedRate(updateChecker, 1,
                         EVERY_WEEK);
             }
         } catch (Throwable t) {
-            LOG.warn("Failed to set up update checker: " + t.toString());
+            LOG.debug("Failed to set up update checker", t);
         }
     }
 

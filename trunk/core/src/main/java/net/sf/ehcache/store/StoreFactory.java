@@ -34,8 +34,4 @@ public interface StoreFactory {
      */
     Store create(Ehcache cache);
 
-    /**
-     * Return Terracotta version
-     */
-    String getTCVersion();
 }

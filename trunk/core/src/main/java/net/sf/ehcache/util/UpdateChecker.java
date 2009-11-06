@@ -38,26 +38,9 @@ import org.slf4j.LoggerFactory;
 public class UpdateChecker extends TimerTask {
     private static final Logger LOG = LoggerFactory.getLogger(UpdateChecker.class.getName());
     private static final long MILLIS_PER_SECOND = 1000L;
-    private static final String UNKNOWN = "UNKNOWN";
+    private static final String NOT_AVAILABLE = "UNKNOWN";
     private static final String UPDATE_CHECK_URL = "http://www.terracotta.org/kit/reflector?kitID=ehcache.default&pageID=update.properties";
     private static final long START_TIME = System.currentTimeMillis();
-
-    private String tcVersion;
-
-    /**
-     * Empty constructor. This creates a checker with an Unknown product type
-     */
-    public UpdateChecker() {
-        this(UNKNOWN);
-    }
-
-    /**
-     * Constructor which creates a checker with a product type
-     * @param tcVersion
-     */
-    public UpdateChecker(String tcVersion) {
-        this.tcVersion = tcVersion;
-    }
 
     /**
      * Run the update check
@@ -152,7 +135,7 @@ public class UpdateChecker extends TimerTask {
         sb.append("&platform=");
         sb.append(urlEncode(getProperty("os.arch")));
         sb.append("&tc-version=");
-        sb.append(urlEncode(tcVersion));
+        sb.append(NOT_AVAILABLE);
         sb.append("&tc-product=");
         sb.append(urlEncode(productInfo.getName() + " " + productInfo.getVersion()));
         sb.append("&source=");
@@ -182,7 +165,7 @@ public class UpdateChecker extends TimerTask {
     }
 
     private String getProperty(String prop) {
-        return System.getProperty(prop, UNKNOWN);
+        return System.getProperty(prop, NOT_AVAILABLE);
     }
 
     private boolean notBlank(String s) {
