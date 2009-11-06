@@ -94,7 +94,7 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractCacheTest {
     private void failFastInsufficientMemory() {
         // fail fast if running with insufficient heap
         long totalMemory = Runtime.getRuntime().totalMemory();
-        if (totalMemory < 250 * MB) {
+        if (totalMemory < 200 * MB) {
             String msg = "Insufficient heap (approx. " + (totalMemory / MB) + " MB detected), this test requires at least 256 MB to run.\n";
             msg += "Steps to take:\n";
             msg += "   1) If you are running with eclipse: specify \"-Xms256m -Xmx256m\" as VM arguments in the \"Run Confuguration\" for this test\n";
