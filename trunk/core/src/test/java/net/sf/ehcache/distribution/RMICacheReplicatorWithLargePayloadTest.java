@@ -35,6 +35,7 @@ import net.sf.ehcache.event.CountingCacheEventListener;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -45,7 +46,7 @@ import org.junit.Test;
  * 
  * @author Abhishek Sanoujam
  */
-
+@Ignore
 public class RMICacheReplicatorWithLargePayloadTest extends AbstractCacheTest {
 
     private static final Logger LOG = Logger.getLogger(RMICacheReplicatorWithLargePayloadTest.class.getName());
