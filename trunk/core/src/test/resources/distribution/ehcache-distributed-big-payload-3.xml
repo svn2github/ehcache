@@ -4,12 +4,11 @@
 
   <cacheManagerPeerProviderFactory
     class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
-    properties="hostName=localhost, peerDiscovery=automatic, multicastGroupAddress=230.0.0.1,
-                                      multicastGroupPort=4446, timeToLive=0" />
+    properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446, timeToLive=0"/>
 
   <cacheManagerPeerListenerFactory
     class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
-    properties="hostName=localhost, port=40003, socketTimeoutMillis=" />
+    properties="hostName=, port=40003, socketTimeoutMillis=120000" />
 
   <defaultCache maxElementsInMemory="10000" eternal="false"
     timeToIdleSeconds="120" timeToLiveSeconds="120" overflowToDisk="false"

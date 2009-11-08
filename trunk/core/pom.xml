@@ -328,7 +328,7 @@
                     <execution>
                         <!-- Run RMICacheReplicatorWithLargePayloadTest with 256 MB heap -->
                         <id>large-heap-test-execution</id>
-                        <phase>test</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>test</goal>
                         </goals>
