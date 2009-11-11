@@ -2,8 +2,41 @@
 
 * {Java Util Logging}
 
-    As of 1.7.1, Ehcache uses the the slf4j logging facade. Plug in your own logging framework.
+    As of 1.7.1, Ehcache uses the the slf4j ({{www.slf4j.org}}) logging facade. Plug in your own logging framework.
 
+** Concrete Logging Implementation Use in Maven
+
+    With slf4j, users must choose a concrete logging implementation at deploy time.
+
+    The maven dependency declarations are reproduced here for convenience. Add <one> of these to your Maven pom.
+
+---
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.5.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.5.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.5.8</version>
+        </dependency>
+---
+
+
+** Concrete Logging Implemenation Use in the Download Kit
+
+    We provide the slf4j-api and slf4j-jdk14 jars in the kit along with the ehcache jars so that, if the app does not already
+    use SLF4J, you have everything you need.
+
+    Additional concrete logging implementations can be downloaded from {{www.slf4j.org}}.
 
 * Recommended Logging Levels
 
