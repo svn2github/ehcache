@@ -42,13 +42,19 @@
     </fileSets>
     <dependencySets>
         <dependencySet>
-            <unpack>false</unpack>
-            <scope>provided</scope>
-        </dependencySet>
-        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
             <unpack>false</unpack>
             <scope>runtime</scope>
         </dependencySet>
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <unpack>false</unpack>
+            <scope>provided</scope>
+            <excludes>
+                <exclude>org.slf4j:slf4j-api</exclude>
+            </excludes>
+        </dependencySet>
     </dependencySets>
+
 
 </assembly>
