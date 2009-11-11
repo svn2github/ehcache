@@ -43,6 +43,7 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
 
   public StandaloneTerracottaStoreFactory(final TerracottaConfigConfiguration terracottaConfig) {
     testForBootJar();
+    testForWrongTcconfig();
 
     System.setProperty("tc.active", "true");
     System.setProperty("tc.dso.globalmode", "false");
@@ -121,38 +122,31 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
     ClassLoader bootJarLoader = new URLClassLoader(new URL[] { newTcJarUrl(bootJarUrl) }, null);
 
     ClassLoader newL1Loader = newL1Loader(l1Jars, bootJarLoader);
-    AppLevelTIMLoader appLevelTimLoader = new AppLevelTIMLoader(toURLs(timJars), bootJarLoader, getClass()
-        .getClassLoader());
+    AppLevelTIMLoader appLevelTimLoader = new AppLevelTIMLoader(toURLs(timJars), bootJarLoader, getClass().getClassLoader());
     try {
       Class boot = newL1Loader.loadClass(StandaloneL1Boot.class.getName());
-      Constructor<?> cstr = boot.getConstructor(String[].class, Map.class, String.class, Boolean.TYPE,
-                                                ClassLoader.class);
-      Callable<ClassFileTransformer> call = (Callable<ClassFileTransformer>) cstr.newInstance(timsToLoad,
-                                                                                              virtualTimJars, tcConfig,
-                                                                                              isURLConfig,
-                                                                                              appLevelTimLoader);
+      Constructor<?> cstr = boot.getConstructor(String[].class, Map.class, String.class, Boolean.TYPE, ClassLoader.class);
+      Callable<ClassFileTransformer> call = (Callable<ClassFileTransformer>) cstr.newInstance(timsToLoad, virtualTimJars, tcConfig,
+                                                                                              isURLConfig, appLevelTimLoader);
       ClassFileTransformer dsoContext = call.call();
       appLevelTimLoader.setTransformer(dsoContext);
 
       Class factoryClass = appLevelTimLoader.loadClass("org.terracotta.modules.ehcache.store.TerracottaStoreFactory");
-      Constructor factoryClassConstructor = factoryClass
-          .getConstructor(new Class[] { TerracottaConfigConfiguration.class });
+      Constructor factoryClassConstructor = factoryClass.getConstructor(new Class[] { TerracottaConfigConfiguration.class });
       realFactory = (StoreFactory) factoryClassConstructor.newInstance(terracottaConfig);
     } catch (Exception e) {
       throw new CacheException(e);
     }
   }
 
-  private static void handleSigarZipEntry(final ZipInputStream agentJar, final ZipEntry entry, final File sigarTmpDir)
-      throws IOException {
+  private static void handleSigarZipEntry(final ZipInputStream agentJar, final ZipEntry entry, final File sigarTmpDir) throws IOException {
     // extract only if this is for the current platform
     if (entry.getName().contains(baseLibraryName())) {
       extractSigarZipEntry(agentJar, entry, sigarTmpDir);
     }
   }
 
-  private static void extractSigarZipEntry(final ZipInputStream jar, final ZipEntry entry, final File outputDir)
-      throws IOException {
+  private static void extractSigarZipEntry(final ZipInputStream jar, final ZipEntry entry, final File outputDir) throws IOException {
     byte[] content = getCurrentZipEntry(jar);
     String outName = baseName(entry);
 
@@ -221,6 +215,12 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
     }
   }
 
+  private static void testForWrongTcconfig() {
+    String tcConfigValue = System.getProperty("tc.config");
+    if (tcConfigValue != null) { throw new CacheException(
+                                                          "The Terracotta config file should not be set through -Dtc.config in this usage. It must be embedded in ehcache configuration file."); }
+  }
+
   private ClassLoader newL1Loader(final List<Jar> l1Jars, final ClassLoader bootJarLoader) {
     Map<String, byte[]> extraClasses = new HashMap<String, byte[]>();
     extraClasses.put(StandaloneL1Boot.class.getName(), getBootClassBytes());
@@ -256,8 +256,7 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
 
   private URL newTcJarUrl(final URL embedded) {
     try {
-      return new URL(Handler.TC_JAR_PROTOCOL, "", -1, Handler.TAG + embedded.toExternalForm() + Handler.TAG + "/",
-                     new Handler(jarManager));
+      return new URL(Handler.TC_JAR_PROTOCOL, "", -1, Handler.TAG + embedded.toExternalForm() + Handler.TAG + "/", new Handler(jarManager));
     } catch (MalformedURLException e) {
       throw new CacheException(e);
     }
