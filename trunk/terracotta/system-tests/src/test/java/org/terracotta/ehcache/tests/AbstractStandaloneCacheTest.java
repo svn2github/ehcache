@@ -1,6 +1,6 @@
 /*
- * All content copyright (c) 2003-2008 Terracotta, Inc., except as may otherwise be noted in a separate copyright
- * notice. All rights reserved.
+ * All content copyright (c) 2003-2008 Terracotta, Inc., except as may otherwise be noted in a separate copyright notice. All rights
+ * reserved.
  */
 package org.terracotta.ehcache.tests;
 
@@ -34,24 +34,24 @@ import java.util.List;
 
 public abstract class AbstractStandaloneCacheTest extends TransparentTestBase {
 
-  public static final Date ALL_TESTS_PASS_BY = new Date(109, Calendar.SEPTEMBER, 28);
-  
-  private static final boolean DEBUG_CLIENTS = false;
-  private static final String  SEP           = File.pathSeparator;
-  private static final int     NODE_COUNT    = 1;
+  public static final Date     ALL_TESTS_PASS_BY = new Date(109, Calendar.SEPTEMBER, 28);
+
+  private static final boolean DEBUG_CLIENTS     = false;
+  private static final String  SEP               = File.pathSeparator;
+  private static final int     NODE_COUNT        = 1;
 
   private final String         configFile;
 
   AbstractStandaloneCacheTest(String configFile) {
     this.configFile = configFile;
   }
-  
+
   @Override
   public void doSetUp(TransparentTestIface t) throws Exception {
     t.getTransparentAppConfig().setClientCount(NODE_COUNT);
     t.getTransparentAppConfig().setAttribute("PORT", new Integer(getDsoPort()));
     t.getTransparentAppConfig().setAttribute("TEMP", getTempDirectory());
-    t.getTransparentAppConfig().setAttribute("CONFIG", configFile);    
+    t.getTransparentAppConfig().setAttribute("CONFIG", configFile);
     t.initializeTestRunner();
   }
 
@@ -65,7 +65,8 @@ public abstract class AbstractStandaloneCacheTest extends TransparentTestBase {
     private final File    tempDir;
     private final Integer port;
     private final String  configFile;
-    
+    private String        extraClientJvmargs = "";
+
     public App(String appId, ApplicationConfig cfg, ListenerProvider listenerProvider) {
       super(appId, cfg, listenerProvider);
       this.tempDir = (File) cfg.getAttributeObject("TEMP");
@@ -74,9 +75,7 @@ public abstract class AbstractStandaloneCacheTest extends TransparentTestBase {
     }
 
     protected void evaluateClientOutput(String clientName, int exitCode, String clientOutput) throws AssertionError {
-      if ((exitCode != 0) || !clientOutput.trim().contains("[PASS: " + clientName + "]")) {
-        throw new AssertionError(clientOutput);
-      }
+      if ((exitCode != 0) || !clientOutput.trim().contains("[PASS: " + clientName + "]")) { throw new AssertionError(clientOutput); }
     }
 
     @Override
@@ -93,6 +92,8 @@ public abstract class AbstractStandaloneCacheTest extends TransparentTestBase {
       String test = jarFor(client);
       String standalone = jarFor(net.sf.ehcache.terracotta.StandaloneTerracottaStoreFactory.class);
       String ehcache = jarFor(CacheManager.class);
+      String slf4jApi = jarFor(org.slf4j.LoggerFactory.class);
+      String slf4jBinder = jarFor(org.slf4j.impl.StaticLoggerBinder.class);
 
       List<String> cmd = new ArrayList<String>();
       cmd.add(Exec.getJavaExecutable());
@@ -105,25 +106,27 @@ public abstract class AbstractStandaloneCacheTest extends TransparentTestBase {
 
       cmd.add("-Xms128m");
       cmd.add("-Xmx128m");
+      cmd.add(extraClientJvmargs);
 
       cmd.add("-cp");
       if (withStandaloneJar) {
-        cmd.add(makeClasspath(writeEhcacheConfigWithPort(configFile), test, standalone, ehcache));
+        cmd.add(makeClasspath(writeEhcacheConfigWithPort(configFile), test, standalone, ehcache, slf4jApi, slf4jBinder));
       } else {
-        cmd.add(makeClasspath(writeEhcacheConfigWithPort(configFile), test, ehcache));
+        cmd.add(makeClasspath(writeEhcacheConfigWithPort(configFile), test, ehcache, slf4jApi, slf4jBinder));
       }
       cmd.add(client.getName());
-      
+
+      System.err.println("Starting client with cmd: " + cmd);
       File output = new File(tempDir, client.getSimpleName() + ".log");
 
       Result result = Exec.execute(cmd.toArray(new String[cmd.size()]), output.getAbsolutePath());
 
       evaluateClientOutput(client.getName(), result.getExitCode(), getFileContents(output));
     }
-    
+
     /**
-     * Read the ehcache.xml file as a resource, replace PORT token with appropriate port, 
-     * write the ehcache.xml file back out to the temp dir, and return the resulting resource directory.
+     * Read the ehcache.xml file as a resource, replace PORT token with appropriate port, write the ehcache.xml file back out to the temp
+     * dir, and return the resulting resource directory.
      */
     private String writeEhcacheConfigWithPort(String resourcePath) throws IOException {
       return writeXmlFileWithPort(resourcePath, "ehcache-config.xml");
@@ -135,11 +138,10 @@ public abstract class AbstractStandaloneCacheTest extends TransparentTestBase {
       List<String> lines = IOUtils.readLines(is);
 
       // Replace PORT token
-      for(int i=0; i<lines.size(); i++) {
+      for (int i = 0; i < lines.size(); i++) {
         String line = lines.get(i);
-        lines.set(i, line.replace("PORT", Integer.toString(this.port))
-                .replace("CONFIG", configFile)
-                .replace("TEMP", tempDir.getAbsolutePath()));
+        lines.set(i, line.replace("PORT", Integer.toString(this.port)).replace("CONFIG", configFile).replace("TEMP",
+                                                                                                             tempDir.getAbsolutePath()));
       }
 
       // Write
@@ -167,6 +169,10 @@ public abstract class AbstractStandaloneCacheTest extends TransparentTestBase {
 
       return cp;
     }
+    
+    public void addClientExtraJavaOps(String jvmarg) {
+      extraClientJvmargs += " " + jvmarg;
+    }
 
   }
 
@@ -180,5 +186,4 @@ public abstract class AbstractStandaloneCacheTest extends TransparentTestBase {
     }
     return URLDecoder.decode(path);
   }
-
 }
