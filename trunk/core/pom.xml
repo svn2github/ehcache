@@ -8,7 +8,7 @@
         <version>2.0</version>
     </parent>
     <name>Ehcache Core</name>
-     <description>This is the ehcache core module. Pair it with other modules for added functionality</description>
+    <description>This is the ehcache core module. Pair it with other modules for added functionality</description>
     <artifactId>ehcache-core</artifactId>
     <packaging>jar</packaging>
     <version>1.7.1-SNAPSHOT</version>
@@ -26,7 +26,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.5.8</version>
-            <scope>compile</scope> 
+            <scope>compile</scope>
         </dependency>
 
         <!--With slf4j, users must choose a concrete logging implementation at deploy time, which they provide
@@ -48,27 +48,15 @@
         </dependency>
         -->
 
-        <!-- Provided scope -->
-        <dependency>
-            <groupId>dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate</artifactId>
-            <scope>provided</scope>
-            <version>3.2.6.ga</version>
-        </dependency>
-
-        <!-- Test scope -->
+        <!-- Provided scope. This one, or another concrete logging implementation must be provided. -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
             <version>1.5.8</version>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
-        
+
+        <!-- Test scope -->
         <dependency>
             <groupId>net.sf.hibernate</groupId>
             <artifactId>hibernate</artifactId>
@@ -80,15 +68,26 @@
             <version>4.4</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate</artifactId>
+            <scope>provided</scope>
+            <version>3.2.6.ga</version>
+        </dependency>
     </dependencies>
 
     <build>
-        <resources>  
-            <resource>  
-                <directory>src/main/resources</directory>  
-                <filtering>true</filtering>  
-            </resource>  
-        </resources> 
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <testResources>
             <testResource>
                 <directory>${basedir}/src/main/config/jcache</directory>
@@ -100,7 +99,7 @@
         <filters>
             <filter>${project.build.directory}/filter.properties</filter>
         </filters>
-        
+
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -168,21 +167,21 @@
                 </executions>
             </plugin>
 
-              <plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
                 <version>1.0-beta-3</version>
                 <executions>
-                  <execution>
-                    <phase>generate-resources</phase>
-                    <goals>
-                      <goal>create</goal>
-                    </goals>
-                  </execution>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
                 </executions>
                 <configuration>
-                  <doCheck>false</doCheck>
-                  <doUpdate>false</doUpdate>
+                    <doCheck>false</doCheck>
+                    <doUpdate>false</doUpdate>
                 </configuration>
             </plugin>
 
@@ -253,10 +252,10 @@
                             <tasks>
                                 <mkdir dir="${project.build.directory}"/>
                                 <tstamp>
-                                      <format property="last.updated"
+                                    <format property="last.updated"
                                             pattern="yyyy-MM-dd hh:mm:ss"/>
                                 </tstamp>
-                                <echo file="${project.build.directory}/filter.properties" 
+                                <echo file="${project.build.directory}/filter.properties"
                                       message="build.time=${last.updated}${line.separator}"/>
                                 <echo file="${project.build.directory}/filter.properties" append="true"
                                       message="build.revision=${buildNumber}${line.separator}"/>
@@ -266,7 +265,7 @@
                             <goal>run</goal>
                         </goals>
                     </execution>
-                    
+
                 </executions>
             </plugin>
 
@@ -291,9 +290,14 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
-                    <!-- Skip tests by default. Will be using different executions setup to run different set of tests with different configurations -->
-                    <skip>true</skip>
-                    <!-- other default configuration -->
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+                    <excludes>
+                        <exclude>**/*$*</exclude>
+                        <exclude>**/Abstract*Test.java</exclude>
+                        <exclude>**/RMICacheReplicatorWithLargePayloadTest.java</exclude>
+                    </excludes>
                     <forkMode>pertest</forkMode>
                     <debugForkedProcess>true</debugForkedProcess>
                     <childDelegation>false</childDelegation>
@@ -305,7 +309,7 @@
                         <property>
                             <name>net.sf.ehcache.skipUpdateCheck</name>
                             <value>true</value>
-                        </property>                    
+                        </property>
                         <property>
                             <name>java.awt.headless</name>
                             <value>true</value>
@@ -320,93 +324,58 @@
                         </property>
                     </systemProperties>
                 </configuration>
-                <executions>
-                    <execution>
-                        <!-- run all tests except for web tests and RMICacheReplicatorWithLargePayloadTest -->
-                        <id>test-phase-execution</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <skip>false</skip>
-                            <includes>
-                                <include>**/*Test.java</include>
-                            </includes>
-                            <excludes>
-                                <exclude>**/*$*</exclude>
-                                <exclude>**/web/**/*</exclude>
-                                <exclude>**/Abstract*Test.java</exclude>
-                                <exclude>**/constructs/web/**</exclude>
-                                <exclude>**/RMICacheReplicatorWithLargePayloadTest.java</exclude>
-                            </excludes>
-                            <argLine>-Xms64m -Xmx64m</argLine>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <!-- Run RMICacheReplicatorWithLargePayloadTest with 256 MB heap -->
-                        <id>large-heap-test-execution</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <skip>false</skip>
-                            <includes>
-                                <include>**/RMICacheReplicatorWithLargePayloadTest.java</include>
-                            </includes>
-                            <argLine>-Xms256m -Xmx256m</argLine>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <!-- Run the web tests -->
-                        <id>integration-tests</id>
-                        <phase>integration-test</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <skip>false</skip>
-                            <includes>
-                                <include>**/web/**/*Test.java</include>
-                            </includes>
-                            <excludes>
-                                <exclude>**/*$*</exclude>
-                            </excludes>
-                        </configuration>
-                    </execution>
-                </executions>
+                <!--todo fix test-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--&lt;!&ndash; Run RMICacheReplicatorWithLargePayloadTest with 256 MB heap &ndash;&gt;-->
+                        <!--<id>large-heap-test-execution</id>-->
+                        <!--<phase>integration-test</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>test</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<skip>false</skip>-->
+                            <!--<excludes>-->
+                                <!--<exclude>**/*$*</exclude>-->
+                            <!--</excludes>-->
+                            <!--<includes>-->
+                                <!--<include>**/RMICacheReplicatorWithLargePayloadTest.java</include>-->
+                            <!--</includes>-->
+                            <!--<argLine>-Xms256m -Xmx256m</argLine>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
             </plugin>
-<!--
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-SymbolicName>
-                            ${pom.artifactId}
-                        </Bundle-SymbolicName>
-                        <Export-Package>
-                            *;version=${pom.version}
-                        </Export-Package>
-                        <Import-Package>
-                            net.sf.hibernate.cache;resolution:=optional,*;-split-package:=merge-first
-                        </Import-Package>
-                    </instructions>
-                    <classifier>osgi</classifier>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>bundle</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>bundle</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
--->
+            <!--
+                        <plugin>
+                            <groupId>org.apache.felix</groupId>
+                            <artifactId>maven-bundle-plugin</artifactId>
+                            <extensions>true</extensions>
+                            <configuration>
+                                <instructions>
+                                    <Bundle-SymbolicName>
+                                        ${pom.artifactId}
+                                    </Bundle-SymbolicName>
+                                    <Export-Package>
+                                        *;version=${pom.version}
+                                    </Export-Package>
+                                    <Import-Package>
+                                        net.sf.hibernate.cache;resolution:=optional,*;-split-package:=merge-first
+                                    </Import-Package>
+                                </instructions>
+                                <classifier>osgi</classifier>
+                            </configuration>
+                            <executions>
+                                <execution>
+                                    <id>bundle</id>
+                                    <phase>package</phase>
+                                    <goals>
+                                        <goal>bundle</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>

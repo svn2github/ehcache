@@ -8,6 +8,10 @@
 
     * Object Storage - Ehcache in-process cache works with Objects that are not Serializable.
 
+    We are planning an ehcache-googleappengine module which will integrate the speed of Ehcache with the scale of Google's Cache Infrastructure
+    and provide the best of both worlds. Check {{http://ehcache.org}} regularly for updates.
+
+
 *   Compatibility
 
     Ehcache is compatible and works with Google App Engine.
@@ -24,10 +28,13 @@
 
 *   Versions
 
-    Version 1.6 of Ehcache is compatible with Google App Engine. 1.6.0-rc1 is not. Use a snapshot or the released
-    version (which will be available soon).
+    Version 1.6 and higher of Ehcache is compatible with Google App Engine.
+
+    Version 1.7.1 makes the CacheLoaders in Ehcache compatible with Google App Engine.
 
     Older versions will not work.
+
+
 
 *   Configuring ehcache.xml
 

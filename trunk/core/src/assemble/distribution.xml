@@ -39,5 +39,21 @@
                 <exclude>net.sf.ehcache:ehcache</exclude>
             </excludes>
         </dependencySet>
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <unpack>false</unpack>
+            <scope>provided</scope>
+            <excludes>
+                <exclude>net.sf.ehcache:ehcache</exclude>
+                <exclude>org.slf4j:slf4j-api</exclude>
+                <exclude>asm:asm-attrs</exclude>
+                <exclude>asm:asm</exclude>
+                <exclude>org.hibernate:hibernate</exclude>
+                <exclude>commons-collections:commons-collections</exclude>
+                <exclude>antlr:antlr</exclude>
+                <exclude>cglib:cglib</exclude>
+                <exclude>dom4j:dom4j</exclude>
+            </excludes>
+        </dependencySet>
     </dependencySets>
 </assembly>
