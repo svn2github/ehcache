@@ -29,6 +29,25 @@
             <scope>compile</scope> 
         </dependency>
 
+        <!--With slf4j, users must choose a concrete logging implementation at deploy time, which they provide
+            The maven dependency declarations are reproduced here for convenience.
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.5.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.5.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.5.8</version>
+        </dependency>
+        -->
+
         <!-- Provided scope -->
         <dependency>
             <groupId>dom4j</groupId>
@@ -40,11 +59,9 @@
             <artifactId>hibernate</artifactId>
             <scope>provided</scope>
             <version>3.2.6.ga</version>
-
         </dependency>
 
-        <!--  Test scope -->
-        <!--With slf4j, users choose a concrete logging implementation at deploy time, which they provide-->
+        <!-- Test scope -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
