@@ -577,5 +577,11 @@
         </site>
     </distributionManagement>
 
+    <scm>
+        <connection>scm:svn:http://svn.terracotta.org/svn/ehcache/trunk</connection>
+        <developerConnection>scm:svn:https://svn.terracotta.org/repo/ehcache/trunk</developerConnection>
+        <tag/>
+    </scm>
+
 </project>
 
