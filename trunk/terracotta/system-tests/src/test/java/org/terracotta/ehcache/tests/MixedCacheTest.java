@@ -10,7 +10,12 @@ import com.tc.simulator.listener.ListenerProvider;
 public class MixedCacheTest extends AbstractStandaloneCacheTest {
 
   public MixedCacheTest() {
-    super("basic-cache-test.xml");
+    super("mixed-cache-test.xml");
+  }
+  
+  @Override
+  protected Class getApplicationClass() {
+    return MixedCacheTest.App.class;
   }
   
   public static class App extends AbstractStandaloneCacheTest.App {
