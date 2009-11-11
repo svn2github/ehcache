@@ -290,6 +290,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
+                    <!--<skip>true</skip>-->
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
@@ -324,27 +325,26 @@
                         </property>
                     </systemProperties>
                 </configuration>
-                <!--todo fix test-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--&lt;!&ndash; Run RMICacheReplicatorWithLargePayloadTest with 256 MB heap &ndash;&gt;-->
-                        <!--<id>large-heap-test-execution</id>-->
-                        <!--<phase>integration-test</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>test</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<skip>false</skip>-->
-                            <!--<excludes>-->
-                                <!--<exclude>**/*$*</exclude>-->
-                            <!--</excludes>-->
-                            <!--<includes>-->
-                                <!--<include>**/RMICacheReplicatorWithLargePayloadTest.java</include>-->
-                            <!--</includes>-->
-                            <!--<argLine>-Xms256m -Xmx256m</argLine>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
+                <executions>
+                    <execution>
+                        <!-- Run RMICacheReplicatorWithLargePayloadTest with 256 MB heap -->
+                        <id>large-heap-test-execution</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <excludes>
+                                <exclude>**/*$*</exclude>
+                            </excludes>
+                            <includes>
+                                <include>**/RMICacheReplicatorWithLargePayloadTest.java</include>
+                            </includes>
+                            <argLine>-Xms512m -Xmx512m</argLine>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <!--
                         <plugin>
