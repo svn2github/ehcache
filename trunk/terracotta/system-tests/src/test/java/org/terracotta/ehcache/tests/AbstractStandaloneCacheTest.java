@@ -65,7 +65,7 @@ public abstract class AbstractStandaloneCacheTest extends TransparentTestBase {
     private final File    tempDir;
     private final Integer port;
     private final String  configFile;
-    private String        extraClientJvmargs = "";
+    private final List    extraClientJvmargs = new ArrayList();
 
     public App(String appId, ApplicationConfig cfg, ListenerProvider listenerProvider) {
       super(appId, cfg, listenerProvider);
@@ -106,7 +106,7 @@ public abstract class AbstractStandaloneCacheTest extends TransparentTestBase {
 
       cmd.add("-Xms128m");
       cmd.add("-Xmx128m");
-      cmd.add(extraClientJvmargs);
+      cmd.addAll(extraClientJvmargs);
 
       cmd.add("-cp");
       if (withStandaloneJar) {
@@ -170,8 +170,8 @@ public abstract class AbstractStandaloneCacheTest extends TransparentTestBase {
       return cp;
     }
     
-    public void addClientExtraJavaOps(String jvmarg) {
-      extraClientJvmargs += " " + jvmarg;
+    public void addClientJvmarg(String jvmarg) {
+      extraClientJvmargs.add(jvmarg);
     }
 
   }

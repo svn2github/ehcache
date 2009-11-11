@@ -13,6 +13,11 @@ public class SystemPropTcConfigTest extends AbstractStandaloneCacheTest {
     super("basic-cache-test.xml");
   }
   
+  @Override
+  protected Class getApplicationClass() {
+    return SystemPropTcConfigTest.App.class;
+  }
+  
   public static class App extends AbstractStandaloneCacheTest.App {
     public App(String appId, ApplicationConfig cfg, ListenerProvider listenerProvider) {
       super(appId, cfg, listenerProvider);
@@ -20,7 +25,8 @@ public class SystemPropTcConfigTest extends AbstractStandaloneCacheTest {
 
     @Override
     protected void runTest() throws Throwable {
-      addClientExtraJavaOps("-Dtc.config=tc-config.xml");
+      System.out.println("adding extra -Dtc.config");
+      addClientJvmarg("-Dtc.config=tc-config.xml");
       runClient(Client1.class);
     }
   }
