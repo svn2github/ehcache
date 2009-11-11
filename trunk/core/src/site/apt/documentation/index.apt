@@ -43,7 +43,7 @@ Ehcache 1.7 User Guide
 
     * {{{./shutdown.html}Shutting Down Ehcache}}
 
-    * {{{./logging.html}Logging & Debugging}}
+    * {{{./logging.html}Logging}}
 
     * {{{./remotedebugger.html}Remote Network debugging and monitoring for Distributed Caches}}
 

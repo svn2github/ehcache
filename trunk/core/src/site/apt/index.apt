@@ -26,6 +26,8 @@ Welcome to ehcache
 *----------+--------------+
 {{{documentation/distributed_caching_with_terracotta.html}ehcache-terracotta}} | Seamless integration with Terracotta clustering     
 *----------+--------------+
+{{{http://www.terracotta.org/web/display/orgsite/Terracotta+Pre+Release}<<New!>> Ehcache Monitor (beta)}} | Enterprise-class monitoring and management for development and production     
+*----------+--------------+
 {{{documentation/web_caching.html}ehcache-web}} | Java Servlet Container caching, gzipping filters
 *----------+--------------+
 {{{documentation/remotedebugger.html}ehcache-debugger}} | Allows tracing of distributed replication events
@@ -43,10 +45,14 @@ Welcome to ehcache
 
   dx_preview ehcache_1_7_talk
 
-  This is a 3 minute video of Greg Luck previewing Ehcache DX, a new Ehcache Monitoring and Management server, for Ehcache versions 1.2.3 and higher. Sign up for {{{http://www.terracotta.org/web/display/orgsite/Terracotta+Pre+Release}Ehcache DX EAP}}
-  now.
+  This is a 3 minute video of Greg Luck previewing Ehcache DX, which includes a new Ehcache Monitoring and Management server, for Ehcache versions 1.4.1 and higher. Get the {{{http://www.terracotta.org/web/display/orgsite/Terracotta+Pre+Release}Ehcache Monitor Beta}} now.
 
 * Latest News
+
+** 10 November 2009: New monitoring beta release
+
+  This is a beta release of the new Ehcache Monitoring and Management server, featuring enterprise-class monitoring and management for development and production.
+  Get the {{{http://www.terracotta.org/web/display/orgsite/Terracotta+Pre+Release}Ehcache Monitor Beta}} now.
 
 
 ** 13 October 2009: New 1.7.0 releases - ehcache, ehcache-core and the new ehcache-terracotta

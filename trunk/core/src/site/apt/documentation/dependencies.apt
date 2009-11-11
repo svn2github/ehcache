@@ -15,7 +15,7 @@ Java Requirements and Dependencies
 
     Ehcache core 1.6 through to 1.7.0 has no dependencies.
 
-    Ehcache core 1.7.1 depends on SLF4J ({{www.slf4j.org}}), an increasingly commonly used logging framework
+    Ehcache core 1.7.1 depends on SLF4J ({{http://www.slf4j.org}}), an increasingly commonly used logging framework
     which provides a choice of concrete logging implementation. See the chapter on Logging for configuration details.
 
     Other modules have dependencies as specified in their maven poms.
