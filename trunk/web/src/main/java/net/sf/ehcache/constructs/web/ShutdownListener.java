@@ -17,6 +17,8 @@
 package net.sf.ehcache.constructs.web;
 
 import net.sf.ehcache.CacheManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -25,7 +27,7 @@ import javax.servlet.ServletContextListener;
 
 
 import java.util.List;
-import java.util.logging.Logger;
+
 import java.util.logging.Level;
 
 /**
@@ -49,7 +51,7 @@ import java.util.logging.Level;
  */
 public class ShutdownListener implements ServletContextListener {
 
-    private static final Logger LOG = Logger.getLogger(ShutdownListener.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(ShutdownListener.class);
 
     /**
      * Notification that the web application is ready to process requests.
@@ -69,8 +71,8 @@ public class ShutdownListener implements ServletContextListener {
      */
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
         List knownCacheManagers = CacheManager.ALL_CACHE_MANAGERS;
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Shutting down " + knownCacheManagers.size() + " CacheManagers.");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Shutting down " + knownCacheManagers.size() + " CacheManagers.");
         }
         while (!knownCacheManagers.isEmpty()) {
             ((CacheManager) CacheManager.ALL_CACHE_MANAGERS.get(0)).shutdown();

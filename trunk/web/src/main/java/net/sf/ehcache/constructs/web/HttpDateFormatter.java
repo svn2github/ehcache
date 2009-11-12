@@ -16,10 +16,13 @@
 
 package net.sf.ehcache.constructs.web;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
-import java.util.logging.Logger;
+
 import java.util.logging.Level;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -50,7 +53,7 @@ import java.text.SimpleDateFormat;
  */
 public class HttpDateFormatter {
 
-    private static final Logger LOG = Logger.getLogger(HttpDateFormatter.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(HttpDateFormatter.class);
 
     private final SimpleDateFormat httpDateFormat;
 
@@ -87,7 +90,7 @@ public class HttpDateFormatter {
         try {
             return httpDateFormat.parse(date);
         } catch (ParseException e) {
-            LOG.log(Level.FINE, "ParseException on date {0}. 1/1/1970 will be returned", date);
+            LOG.debug("ParseException on date {}. 1/1/1970 will be returned", date);
             return new Date(0);
         }
     }

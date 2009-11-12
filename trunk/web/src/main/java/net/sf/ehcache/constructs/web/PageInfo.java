@@ -17,6 +17,9 @@
 package net.sf.ehcache.constructs.web;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
@@ -28,7 +31,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Date;
-import java.util.logging.Logger;
+
 import java.util.logging.Level;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -41,7 +44,9 @@ import java.util.zip.GZIPOutputStream;
  * @version $Id: PageInfo.java 744 2008-08-16 20:10:49Z gregluck $
  */
 public class PageInfo implements Serializable {
-    private static final Logger LOG = Logger.getLogger(PageInfo.class.getName());
+
+    private static final Logger LOG = LoggerFactory.getLogger(PageInfo.class);
+
     private static final int FOUR_KB = 4196;
     private static final int GZIP_MAGIC_NUMBER_BYTE_1 = 31;
     private static final int GZIP_MAGIC_NUMBER_BYTE_2 = -117;
@@ -103,7 +108,7 @@ public class PageInfo implements Serializable {
                 }
             }
         } catch (IOException e) {
-            LOG.log(Level.SEVERE, "Error ungzipping gzipped body", e);
+            LOG.error("Error ungzipping gzipped body", e);
         }
 
 

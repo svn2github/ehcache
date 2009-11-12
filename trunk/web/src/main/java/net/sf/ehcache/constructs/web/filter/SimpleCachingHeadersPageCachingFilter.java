@@ -41,7 +41,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import java.util.zip.DataFormatException;
 
 import javax.servlet.FilterChain;
@@ -53,6 +53,8 @@ import net.sf.ehcache.constructs.web.PageInfo;
 import net.sf.ehcache.constructs.web.ResponseHeadersNotModifiableException;
 import net.sf.ehcache.constructs.web.HttpDateFormatter;
 import net.sf.ehcache.config.CacheConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -159,7 +161,8 @@ public class SimpleCachingHeadersPageCachingFilter extends SimplePageCachingFilt
      */
     public static final String NAME = "SimpleCachingHeadersPageCachingFilter";
 
-    private static final Logger LOG = Logger.getLogger(SimpleCachingHeadersPageCachingFilter.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(SimpleCachingHeadersPageCachingFilter.class);
+
     private static final long ONE_YEAR_IN_MILLISECONDS = 60 * 60 * 24 * 365 * 1000L;
     private static final int MILLISECONDS_PER_SECOND = 1000;
 
@@ -307,8 +310,8 @@ public class SimpleCachingHeadersPageCachingFilter extends SimplePageCachingFilt
     private Date createLastModified(net.sf.ehcache.Element ehcacheElement) {
         long lastModified = ehcacheElement.getCreationTime();
         Date lastModifiedDate = new Date(lastModified);
-        LOG.log(Level.FINE, "lastModified as long: {}", lastModified);
-        LOG.log(Level.FINE, "lastModified as Date without ms: {}", lastModifiedDate);
+        LOG.debug("lastModified as long: {}", lastModified);
+        LOG.debug("lastModified as Date without ms: {}", lastModifiedDate);
         return lastModifiedDate;
     }
 

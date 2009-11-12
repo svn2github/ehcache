@@ -17,9 +17,11 @@
 package net.sf.ehcache.constructs.web.filter;
 
 import net.sf.ehcache.CacheManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.logging.Logger;
+
 import java.util.logging.Level;
 
 /**
@@ -103,7 +105,7 @@ public class SimplePageCachingFilter extends CachingFilter {
      */
     public static final String DEFAULT_CACHE_NAME = "SimplePageCachingFilter";
 
-    private static final Logger LOG = Logger.getLogger(SimplePageCachingFilter.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(SimplePageCachingFilter.class);
 
     /**
      * A meaningful name representative of the page being cached.
@@ -114,10 +116,10 @@ public class SimplePageCachingFilter extends CachingFilter {
      */
     protected String getCacheName() {
         if (cacheName != null && cacheName.length() > 0) {
-            LOG.log(Level.FINE, "Using configured cacheName of {0}.", cacheName);
+            LOG.debug("Using configured cacheName of {}.", cacheName);
             return cacheName;
         } else {
-            LOG.log(Level.FINE, "No cacheName configured. Using default of {0}.", DEFAULT_CACHE_NAME);
+            LOG.debug("No cacheName configured. Using default of {}.", DEFAULT_CACHE_NAME);
             return DEFAULT_CACHE_NAME;
         }
     }

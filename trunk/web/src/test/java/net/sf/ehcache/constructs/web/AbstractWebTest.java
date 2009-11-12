@@ -35,6 +35,8 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -43,7 +45,7 @@ import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  * A convenient base class for ehcache filter tests
@@ -95,7 +97,7 @@ public abstract class AbstractWebTest {
      */
     public static final String KEEP_ALIVE = "KEEP-ALIVE";
 
-    private static final Logger LOG = Logger.getLogger(AbstractWebTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractWebTest.class);
 
     /**
      * Run web tests in a caching cluster. They use a singleton, so create a second
@@ -238,11 +240,11 @@ public abstract class AbstractWebTest {
      */
     protected void checkTimeStamps(WebResponse webResponse1, WebResponse webResponse2,
                                    boolean shouldTimestampsBeEqual) throws Exception {
-        LOG.fine("Should timestamps be equal: " + shouldTimestampsBeEqual);
+        LOG.debug("Should timestamps be equal: {}", shouldTimestampsBeEqual);
         String firstGeneratedTimestamp = getTimestamp(webResponse1);
-        LOG.fine("First time stamp: " + firstGeneratedTimestamp);
+        LOG.debug("First time stamp: {}", firstGeneratedTimestamp);
         String secondGeneratedTimestamp = getTimestamp(webResponse2);
-        LOG.fine("Second time stamp: " + secondGeneratedTimestamp);
+        LOG.debug("Second time stamp: {}", secondGeneratedTimestamp);
 
 
         // Use assert equals because it provides more information if the assertion fails
@@ -340,7 +342,7 @@ public abstract class AbstractWebTest {
 
             threads[i].start();
         }
-        LOG.fine("Started " + threads.length + " threads");
+        LOG.debug("Started {} threads.", threads.length);
 
         // Wait for the threads to finish
         for (int i = 0; i < threads.length; i++) {
@@ -380,7 +382,7 @@ public abstract class AbstractWebTest {
         try {
             body = response.getText();
         } catch (IOException e) {
-            LOG.log(Level.SEVERE, "", e);
+            LOG.error("", e);
             fail();
         }
         assertNotNull(body);
@@ -403,7 +405,7 @@ public abstract class AbstractWebTest {
         try {
             text = response.getText();
         } catch (IOException e) {
-            LOG.log(Level.SEVERE, e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             fail();
         }
         assertTrue(text.indexOf("<html>") != -1);

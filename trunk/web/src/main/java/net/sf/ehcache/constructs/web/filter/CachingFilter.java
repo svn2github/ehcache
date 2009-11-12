@@ -29,7 +29,8 @@ import net.sf.ehcache.constructs.web.PageInfo;
 import net.sf.ehcache.constructs.web.ResponseHeadersNotModifiableException;
 import net.sf.ehcache.constructs.web.ResponseUtil;
 import net.sf.ehcache.constructs.web.SerializableCookie;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import javax.servlet.FilterChain;
@@ -43,7 +44,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.logging.Logger;
+
 import java.util.logging.Level;
 import java.util.zip.DataFormatException;
 
@@ -71,7 +72,7 @@ import java.util.zip.DataFormatException;
  */
 public abstract class CachingFilter extends Filter {
 
-    private static final Logger LOG = Logger.getLogger(CachingFilter.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(CachingFilter.class);
     private static final String BLOCKING_TIMEOUT_MILLIS = "blockingTimeoutMillis";
     private static final String CACHE_NAME = "cacheName";
 
@@ -217,13 +218,13 @@ public abstract class CachingFilter extends Filter {
                     // Page is not cached - build the response, cache it, and send to client
                     pageInfo = buildPage(request, response, chain);
                     if (pageInfo.isOk()) {
-                        if (LOG.isLoggable(Level.FINEST)) {
-                            LOG.finest("PageInfo ok. Adding to cache " + blockingCache.getName() + " with key " + key);
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("PageInfo ok. Adding to cache " + blockingCache.getName() + " with key " + key);
                         }
                         blockingCache.put(new Element(key, pageInfo));
                     } else {
-                        if (LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("PageInfo was not ok(200). Putting null into cache " + blockingCache.getName()
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("PageInfo was not ok(200). Putting null into cache " + blockingCache.getName()
                                     + " with key " + key);
                         }
                         blockingCache.put(new Element(key, null));
@@ -466,9 +467,8 @@ public abstract class CachingFilter extends Filter {
         //Instrument thread name
         thread.setName(thread.getName() + " been through " + filterName);
         String newThreadName = thread.getName();
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Thread name changed from " + threadName
-                    + " to " + newThreadName);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Thread name changed from " + threadName + " to " + newThreadName);
         }
     }
 }

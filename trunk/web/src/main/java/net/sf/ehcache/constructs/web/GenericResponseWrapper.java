@@ -17,7 +17,8 @@
 package net.sf.ehcache.constructs.web;
 
 import net.sf.ehcache.constructs.web.filter.FilterServletOutputStream;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import javax.servlet.ServletOutputStream;
@@ -32,7 +33,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Logger;
+
 
 /**
  * Provides a wrapper for {@link javax.servlet.http.HttpServletResponseWrapper}.
@@ -49,7 +50,7 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
 
     private static final long serialVersionUID = -5976708169031065498L;
 
-    private static final Logger LOG = Logger.getLogger(GenericResponseWrapper.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(GenericResponseWrapper.class);
     private int statusCode = SC_OK;
     private int contentLength;
     private String contentType;
@@ -123,7 +124,7 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
      */
     public void setStatus(final int code, final String msg) {
         statusCode = code;
-        LOG.warning("Discarding message because this method is deprecated.");
+        LOG.warn("Discarding message because this method is deprecated.");
         super.setStatus(code);
     }
 

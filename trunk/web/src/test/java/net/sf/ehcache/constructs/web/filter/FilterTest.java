@@ -20,12 +20,14 @@ import com.meterware.httpunit.HttpInternalErrorException;
 import net.sf.ehcache.constructs.web.AbstractWebTest;
 import static org.junit.Assert.fail;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.logging.Logger;
+
 
 /**
  * {@link Filter#doFilter} captures all exceptions passed up to it from subclasses.
@@ -38,16 +40,7 @@ import java.util.logging.Logger;
  */
 public class FilterTest extends AbstractWebTest {
 
-    private static final Logger LOG = Logger.getLogger(FilterTest.class.getName());
-
-    @Test
-    public void testHandlingOfDynamicLogInvocation() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-
-        Method method = Logger.class.getMethod("fine", new Class[]{String.class});
-        method.invoke(LOG, new Object[]{"hello logging world"});
-
-    }
-
+    private static final Logger LOG = LoggerFactory.getLogger(FilterTest.class);
 
     /**
      * The GzipFilter filter definition is set up to do special logging for NullPointerException

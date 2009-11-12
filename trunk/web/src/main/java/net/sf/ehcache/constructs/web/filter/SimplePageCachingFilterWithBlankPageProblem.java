@@ -17,12 +17,14 @@
 package net.sf.ehcache.constructs.web.filter;
 
 import net.sf.ehcache.constructs.web.PageInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  * This implementation only writes the response when it is not committed. This is half
@@ -44,7 +46,7 @@ public class SimplePageCachingFilterWithBlankPageProblem extends SimplePageCachi
      */
     public static final String NAME = "SimplePageCachingFilterWithBlankPageProblem";
 
-    private static final Logger LOG = Logger.getLogger(SimplePageCachingFilterWithBlankPageProblem.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(SimplePageCachingFilterWithBlankPageProblem.class);
 
     /**
      * {@inheritDoc}
@@ -53,9 +55,8 @@ public class SimplePageCachingFilterWithBlankPageProblem extends SimplePageCachi
                             final FilterChain chain) throws Exception {
         PageInfo pageInfo = buildPageInfo(request, response, chain);
         if (response.isCommitted()) {
-            if (LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Response cannot be written as it was already committed for "
-                        + request.getRequestURL());
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Response cannot be written as it was already committed for " + request.getRequestURL());
             }
         } else {
             writeResponse(request, response, pageInfo);

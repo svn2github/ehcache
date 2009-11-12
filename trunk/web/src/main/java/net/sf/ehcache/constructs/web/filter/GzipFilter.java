@@ -18,7 +18,8 @@ package net.sf.ehcache.constructs.web.filter;
 
 import net.sf.ehcache.constructs.web.GenericResponseWrapper;
 import net.sf.ehcache.constructs.web.ResponseUtil;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import javax.servlet.FilterChain;
@@ -27,7 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.util.zip.GZIPOutputStream;
-import java.util.logging.Logger;
+
 import java.util.logging.Level;
 
 /**
@@ -42,7 +43,7 @@ import java.util.logging.Level;
  */
 public class GzipFilter extends Filter {
 
-    private static final Logger LOG = Logger.getLogger(GzipFilter.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(GzipFilter.class);
 
     /**
      * Performs initialisation.
@@ -68,8 +69,8 @@ public class GzipFilter extends Filter {
                             final FilterChain chain) throws Exception {
         if (!isIncluded(request) && acceptsEncoding(request, "gzip")) {
             // Client accepts zipped content
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine(request.getRequestURL() + ". Writing with gzip compression");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(request.getRequestURL() + ". Writing with gzip compression");
             }
 
             // Create a gzip stream
@@ -105,8 +106,8 @@ public class GzipFilter extends Filter {
             response.getOutputStream().write(compressedBytes);
         } else {
             // Client does not accept zipped content - don't bother zipping
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine(request.getRequestURL()
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(request.getRequestURL()
                         + ". Writing without gzip compression because the request does not accept gzip.");
             }
             chain.doFilter(request, response);
@@ -122,8 +123,8 @@ public class GzipFilter extends Filter {
         final String uri = (String) request.getAttribute("javax.servlet.include.request_uri");
         final boolean includeRequest = !(uri == null);
 
-        if (includeRequest && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(request.getRequestURL() + " resulted in an include request. This is unusable, because" +
+        if (includeRequest && LOG.isDebugEnabled()) {
+            LOG.debug(request.getRequestURL() + " resulted in an include request. This is unusable, because" +
                     "the response will be assembled into the overrall response. Not gzipping.");
         }
         return includeRequest;

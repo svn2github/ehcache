@@ -24,9 +24,11 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.logging.Logger;
+
 
 /**
  * @author Greg Luck
@@ -34,7 +36,7 @@ import java.util.logging.Logger;
  */
 public class SpeedTest extends AbstractWebTest {
 
-    private static final Logger LOG = Logger.getLogger(SpeedTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(SpeedTest.class);
 
     /**
      * Time to get 200 Cached Pages

@@ -4,7 +4,7 @@
         Enable Terracotta clustering. Simply add ehcache-terracotta.jar
     </action>
     <action dev="Greg Luck" type="add">
-        Change logging to SLF4J.
+        Change logging to SLF4J to be consistent with ehcache-core-1.7.1.
     </action>
     <action dev="Greg Luck" type="update">
         Upgrade dependency to Ehcache core 1.7.1. This includes the ability to cluster web caches with Terracotta.

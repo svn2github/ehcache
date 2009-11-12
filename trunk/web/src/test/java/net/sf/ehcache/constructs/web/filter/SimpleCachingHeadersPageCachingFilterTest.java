@@ -35,6 +35,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.Ignore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -42,7 +44,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+
 
 /**
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
@@ -50,7 +52,7 @@ import java.util.logging.Logger;
  */
 public class SimpleCachingHeadersPageCachingFilterTest extends AbstractWebTest {
 
-    private static final Logger LOG = Logger.getLogger(SimpleCachingHeadersPageCachingFilterTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(SimpleCachingHeadersPageCachingFilterTest.class);
 
     private String cachedPageUrl = "/CachedPage2.jsp";
 

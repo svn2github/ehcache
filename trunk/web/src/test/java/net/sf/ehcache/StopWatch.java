@@ -18,8 +18,9 @@ package net.sf.ehcache;
 
 
 import net.sf.ehcache.util.PropertyUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.logging.Logger;
 
 /**
  * A timer service used to check performance of tests.
@@ -43,7 +44,7 @@ import java.util.logging.Logger;
  */
 public class StopWatch {
 
-    private static final Logger LOG = Logger.getLogger(StopWatch.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(StopWatch.class);
 
 
     private static final String SUFFIX = "ms";
@@ -78,15 +79,15 @@ public class StopWatch {
             try {
                 speedAdjustmentFactor = Float.parseFloat(speedAdjustmentFactorString);
             } catch (NumberFormatException e) {
-                LOG.fine("Consider setting system property 'net.sf.ehcache.speedAdjustmentFactor=n' " +
+                LOG.debug("Consider setting system property 'net.sf.ehcache.speedAdjustmentFactor=n' " +
                         "where n is the number of times your machine is slower than the reference machine, " +
                         "which is currently a dual G5 PowerMac. e.g. 1.2, which then enables elasped time " +
                         "measurement to be adjusted accordingly.");
             }
-            LOG.fine("Using speedAjustmentFactor of " + speedAdjustmentFactor);
+            LOG.debug("Using speedAjustmentFactor of " + speedAdjustmentFactor);
 
         } else {
-            LOG.fine("Consider setting system property 'net.sf.ehcache.speedAdjustmentFactor=n' " +
+            LOG.debug("Consider setting system property 'net.sf.ehcache.speedAdjustmentFactor=n' " +
                     "where n is the number of times your machine is slower than the reference machine, " +
                     "which is currently a dual G5 PowerMac. e.g. 1.2, which then enables elasped time " +
                     "measurement to be adjusted accordingly.");
@@ -98,46 +99,10 @@ public class StopWatch {
         } catch (InterruptedException e) {
             //
         }
-        LOG.fine("100 measures as " + stopWatch.getElapsedTime());
+        LOG.debug("100 measures as " + stopWatch.getElapsedTime());
 
 
     }
-
-//    static {
-//
-//        float referenceTime = 2050;
-//        CacheManager singletonManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-big.xml");
-//
-//        String[] names = singletonManager.getCacheNames();
-//        for (int i = 0; i < names.length; i++) {
-//            String name = names[i];
-//            Ehcache cache = singletonManager.getCache(name);
-//            for (int j = 0; i < 100; i++) {
-//                cache.put(new Element(new Integer(j), "value"));
-//            }
-//        }
-//        long start = System.currentTimeMillis();
-//        for (int repeats = 0; repeats < 5000; repeats++) {
-//            for (int i = 0; i < names.length; i++) {
-//                String name = names[i];
-//                Ehcache cache = singletonManager.getCache(name);
-//                for (int j = 0; i < 100; i++) {
-//                    Element element = cache.get(name + j);
-//                    if ((element == null)) {
-//                        cache.put(new Element(new Integer(j), "value"));
-//                    }
-//                }
-//            }
-//        }
-//        long elapsedTime = System.currentTimeMillis() - start;
-//
-//        LOG.severe("It took this machine: " + elapsedTime + " to perform a time trial compared with the reference time of "
-//                + referenceTime + "ms");
-//
-//        speedAdjustmentFactor = elapsedTime / referenceTime;
-//
-//        LOG.severe("Elapsed stopwatch times will be adjusted divided by " + speedAdjustmentFactor);
-//    }
 
 
     /**

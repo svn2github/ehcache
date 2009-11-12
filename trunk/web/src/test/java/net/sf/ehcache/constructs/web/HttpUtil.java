@@ -18,10 +18,12 @@
 
 package net.sf.ehcache.constructs.web;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import java.util.logging.Logger;
+
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.ProtocolException;
@@ -38,7 +40,7 @@ import java.io.ByteArrayOutputStream;
  */
 public class HttpUtil {
 
-    private static final Logger LOG = Logger.getLogger(HttpUtil.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(HttpUtil.class);
 
     private HttpUtil() {
         //utility class

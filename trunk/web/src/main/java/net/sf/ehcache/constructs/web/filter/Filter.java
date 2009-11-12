@@ -16,6 +16,9 @@
 
 package net.sf.ehcache.constructs.web.filter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -28,7 +31,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  * A generic {@link javax.servlet.Filter} with most of what we need done.
@@ -43,7 +46,8 @@ public abstract class Filter implements javax.servlet.Filter {
      * If a request attribute NO_FILTER is set, then filtering will be skipped
      */
     public static final String NO_FILTER = "NO_FILTER";
-    private static final Logger LOG = Logger.getLogger(Filter.class.getName());
+
+    private static final Logger LOG = LoggerFactory.getLogger(Filter.class);
 
     /**
      * The filter configuration.
@@ -54,15 +58,6 @@ public abstract class Filter implements javax.servlet.Filter {
      * The exceptions to log differently, as a comma separated list
      */
     protected String exceptionsToLogDifferently;
-
-
-    /**
-     * A the level of the exceptions which will be logged differently.
-     * <p/>
-     * This should match the logging method name in Java logging e.g. fine
-     */
-    protected Level exceptionsToLogDifferentlyLevel;
-
 
     /**
      * Most {@link Throwable}s in Web applications propagate to the user. Usually they are logged where they first
@@ -123,12 +118,12 @@ public abstract class Filter implements javax.servlet.Filter {
         if (matchFound) {
             try {
                 if (suppressStackTraces) {
-                    LOG.log(exceptionsToLogDifferentlyLevel, throwable.getMessage());
+                    LOG.error(throwable.getMessage());
                 } else {
-                    LOG.log(exceptionsToLogDifferentlyLevel, throwable.getMessage(), throwable);
+                    LOG.error(throwable.getMessage(), throwable);
                 }
             } catch (Exception e) {
-                LOG.log(Level.SEVERE, "Could not invoke Log method for " + exceptionsToLogDifferentlyLevel, e);
+                LOG.error("Could not invoke Log method", e);
             }
             if (throwable instanceof IOException) {
                 throw (IOException) throwable;
@@ -138,10 +133,10 @@ public abstract class Filter implements javax.servlet.Filter {
         } else {
 
             if (suppressStackTraces) {
-                LOG.log(Level.WARNING, messageBuffer.append(throwable.getMessage()).append("\nTop StackTraceElement: ")
+                LOG.warn(messageBuffer.append(throwable.getMessage()).append("\nTop StackTraceElement: ")
                         .append(throwable.getStackTrace()[0].toString()).toString());
             } else {
-                LOG.log(Level.WARNING, messageBuffer.append(throwable.getMessage()).toString(), throwable);
+                LOG.warn(messageBuffer.append(throwable.getMessage()).toString(), throwable);
             }
             if (throwable instanceof IOException) {
                 throw (IOException) throwable;
@@ -194,7 +189,7 @@ public abstract class Filter implements javax.servlet.Filter {
             // Attempt to initialise this filter
             doInit(filterConfig);
         } catch (final Exception e) {
-            LOG.log(Level.SEVERE, "Could not initialise servlet filter.", e);
+            LOG.error("Could not initialise servlet filter.", e);
             throw new ServletException("Could not initialise servlet filter.", e);
         }
     }
@@ -219,16 +214,15 @@ public abstract class Filter implements javax.servlet.Filter {
         String level = config.getInitParameter("exceptionsToLogDifferentlyLevel");
         String suppressStackTracesString = config.getInitParameter("suppressStackTraces");
         suppressStackTraces = Boolean.valueOf(suppressStackTracesString).booleanValue();
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Suppression of stack traces enabled for " + this.getClass().getName());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Suppression of stack traces enabled for " + this.getClass().getName());
         }
 
         if (exceptions != null) {
             validateMandatoryParameters(exceptions, level);
-            setLevel(level);
             exceptionsToLogDifferently = exceptions;
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Different logging levels configured for " + this.getClass().getName());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Different logging levels configured for " + this.getClass().getName());
             }
         }
     }
@@ -238,24 +232,6 @@ public abstract class Filter implements javax.servlet.Filter {
             throw new ServletException("Invalid init-params. Both exceptionsToLogDifferently"
                     + " and exceptionsToLogDifferentlyLevelvalue should be specified if one is"
                     + " specified.");
-        }
-    }
-
-    private void setLevel(String level) throws ServletException {
-        //Check correct level set
-        if (level.equals("finest")) {
-            exceptionsToLogDifferentlyLevel = Level.FINEST;
-        } else if (level.equals("fine")) {
-            exceptionsToLogDifferentlyLevel = Level.FINE;
-        } else if (level.equals("info")) {
-            exceptionsToLogDifferentlyLevel = Level.INFO;
-        } else if (level.equals("warning")) {
-            exceptionsToLogDifferentlyLevel = Level.WARNING;
-        } else if (level.equals("severe")) {
-            exceptionsToLogDifferentlyLevel = Level.SEVERE;
-        } else {
-            throw new ServletException("Invalid init-params value for \"exceptionsToLogDifferentlyLevel\"."
-                    + "Must be one of finest, fine, info, warning or severe.");
         }
     }
 
@@ -299,7 +275,7 @@ public abstract class Filter implements javax.servlet.Filter {
      * @param request
      */
     protected void logRequestHeaders(final HttpServletRequest request) {
-        if (LOG.isLoggable(Level.FINE)) {
+        if (LOG.isDebugEnabled()) {
             Map headers = new HashMap();
             Enumeration enumeration = request.getHeaderNames();
             StringBuffer logLine = new StringBuffer();
@@ -310,7 +286,7 @@ public abstract class Filter implements javax.servlet.Filter {
                 headers.put(name, headerValue);
                 logLine.append(": ").append(name).append(" -> ").append(headerValue);
             }
-            LOG.fine(logLine.toString());
+            LOG.debug(logLine.toString());
         }
     }
 

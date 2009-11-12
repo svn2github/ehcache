@@ -23,6 +23,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -32,7 +34,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.logging.Logger;
+
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -43,7 +45,8 @@ import java.util.zip.GZIPOutputStream;
  * @version $Id: PageInfoTest.java 796 2008-10-09 02:39:03Z gregluck $
  */
 public class PageInfoTest extends AbstractWebTest {
-    private static final Logger LOG = Logger.getLogger(PageInfoTest.class.getName());
+
+    private static final Logger LOG = LoggerFactory.getLogger(PageInfoTest.class);
 
     private File testFile;
 
