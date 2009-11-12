@@ -275,7 +275,7 @@
     </option>
   </component>
   <component name="VcsDirectoryMappings">
-    <mapping directory="" vcs="" />
+    <mapping directory="" vcs="svn" />
   </component>
   <component name="libraryTable">
     <library name="Maven: com.google.appengine:appengine-api-1.0-sdk:1.2.1">
@@ -347,11 +347,14 @@
     <library name="Maven: net.sf.ehcache:ehcache-web:2.0.0-SNAPSHOT">
       <CLASSES>
         <root url="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/net/sf/ehcache/ehcache-web/2.0.0-SNAPSHOT/ehcache-web-2.0.0-SNAPSHOT.jar!/" />
+        <root url="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/net/sf/ehcache/ehcache-web/2.0.0-SNAPSHOT/ehcache-web-2.0.0-SNAPSHOT.jar!/" />
       </CLASSES>
       <JAVADOC>
         <root url="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/net/sf/ehcache/ehcache-web/2.0.0-SNAPSHOT/ehcache-web-2.0.0-SNAPSHOT-javadoc.jar!/" />
+        <root url="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/net/sf/ehcache/ehcache-web/2.0.0-SNAPSHOT/ehcache-web-2.0.0-SNAPSHOT-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
+        <root url="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/net/sf/ehcache/ehcache-web/2.0.0-SNAPSHOT/ehcache-web-2.0.0-SNAPSHOT-sources.jar!/" />
         <root url="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/net/sf/ehcache/ehcache-web/2.0.0-SNAPSHOT/ehcache-web-2.0.0-SNAPSHOT-sources.jar!/" />
       </SOURCES>
     </library>
