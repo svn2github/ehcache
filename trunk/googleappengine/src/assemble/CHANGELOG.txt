@@ -1,0 +1,11 @@
+$Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
+
+<release version="1.0" date="2009-12-31" desc="Initial release">
+
+    <!-- Features and Enhancements -->
+    <action dev="Greg Luck" type="add">
+        Add contribution by Cedric Lime with integration to GAE caching infrastructure
+    </action>
+
+</release>
+

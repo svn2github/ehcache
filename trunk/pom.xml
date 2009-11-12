@@ -514,4 +514,7 @@
         <tag/>
     </scm>
 
+  <modules>
+    <module>googleappengine</module>
+  </modules>
 </project>
