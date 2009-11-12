@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <!--mvn -Ptest verify to do a test build-->
@@ -13,7 +14,7 @@
     <name>Ehcache Web Filters</name>
     <artifactId>ehcache-web</artifactId>
     <packaging>jar</packaging>
-    <version>2.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <description><![CDATA[Web caching filters.]]> </description>
     <dependencies>
         <dependency>
@@ -28,14 +29,18 @@
             <scope>provided</scope>
         </dependency>
 
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.1</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.5.8</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
@@ -70,6 +75,14 @@
             <properties>
                 <maven.test.skip>false</maven.test.skip>
             </properties>
+            <dependencies>
+                <!--With slf4j, users choose a concrete logging implementation at deploy time, which they provide-->
+                <dependency>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-jdk14</artifactId>
+                    <version>1.5.8</version>
+                </dependency>
+            </dependencies>
             <build>
                 <plugins>
                     <plugin>
@@ -93,7 +106,8 @@
                         <configuration>
                             <contextPath>/</contextPath>
                             <connectors>
-                                <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+                                <connector
+                                        implementation="org.mortbay.jetty.nio.SelectChannelConnector">
                                     <port>9090</port>
                                     <maxIdleTime>60000</maxIdleTime>
                                 </connector>
@@ -168,7 +182,8 @@
                                     <goal>test</goal>
                                 </goals>
                                 <configuration>
-                                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                                    <redirectTestOutputToFile>true
+                                    </redirectTestOutputToFile>
                                     <forkMode>never</forkMode>
                                     <includes>
                                         <include>**/web/**/*Test.java</include>
@@ -179,7 +194,8 @@
                                     <enableAssertions>false</enableAssertions>
                                     <useSystemClassLoader>false</useSystemClassLoader>
                                     <additionalClasspathElements>
-                                        <additionalClasspathElement>target/classes</additionalClasspathElement>
+                                        <additionalClasspathElement>target/classes
+                                        </additionalClasspathElement>
                                     </additionalClasspathElements>
                                 </configuration>
                             </execution>
@@ -209,33 +225,33 @@
                     <target>1.5</target>
                 </configuration>
             </plugin>
-<!--
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>checkstyle</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>
-                    <suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>
-                    <headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>
-                    <enableRSS>false</enableRSS>
-                    <linkXRef>true</linkXRef>
-                    <enableRulesSummary>false</enableRulesSummary>
-                    <consoleOutput>true</consoleOutput>
-                    <failsOnError>true</failsOnError>
-                    <failOnViolation>true</failOnViolation>
-                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                    <enableRulesSummary>true</enableRulesSummary>
-                </configuration>
-            </plugin>
--->
+            <!--
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-checkstyle-plugin</artifactId>
+                            <executions>
+                                <execution>
+                                    <phase>validate</phase>
+                                    <goals>
+                                        <goal>checkstyle</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                            <configuration>
+                                <configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>
+                                <suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>
+                                <headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>
+                                <enableRSS>false</enableRSS>
+                                <linkXRef>true</linkXRef>
+                                <enableRulesSummary>false</enableRulesSummary>
+                                <consoleOutput>true</consoleOutput>
+                                <failsOnError>true</failsOnError>
+                                <failOnViolation>true</failOnViolation>
+                                <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                                <enableRulesSummary>true</enableRulesSummary>
+                            </configuration>
+                        </plugin>
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -288,7 +304,8 @@
             </roles>
             <timezone>+10</timezone>
             <properties>
-                <contribution>Contributed to the CachingHeaders implementation.</contribution>
+                <contribution>Contributed to the CachingHeaders implementation.
+                </contribution>
             </properties>
         </contributor>
     </contributors>
