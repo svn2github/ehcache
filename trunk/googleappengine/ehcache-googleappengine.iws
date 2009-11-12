@@ -71,10 +71,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="pom.xml" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="pom.xml" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="30" column="21" selection-start="1127" selection-end="1127" vertical-scroll-proportion="0.0">
+            <state line="26" column="35" selection-start="992" selection-end="992" vertical-scroll-proportion="0.4852255">
               <folding />
             </state>
           </provider>
@@ -151,10 +151,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="distribution.xml" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="distribution.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/assemble/distribution.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+            <state line="11" column="18" selection-start="279" selection-end="279" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -172,13 +172,13 @@
       <list>
         <option value="$PROJECT_DIR$/checkstyle/ClassHeader.txt" />
         <option value="$PROJECT_DIR$/src/main/java/net/sf/ehcache/googleappengine/package.html" />
-        <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/src/main/java/net/sf/ehcache/googleappengine/AppEngineCacheEventListenerFactory.java" />
         <option value="$PROJECT_DIR$/src/main/java/net/sf/ehcache/googleappengine/AppEngineCacheEventListener.java" />
         <option value="$PROJECT_DIR$/src/main/java/net/sf/ehcache/googleappengine/AppEngineCacheLoader.java" />
         <option value="$PROJECT_DIR$/src/main/java/net/sf/ehcache/googleappengine/AppEngineCacheLoaderFactory.java" />
         <option value="$PROJECT_DIR$/src/main/java/net/sf/ehcache/googleappengine/CacheStatisticsServlet.java" />
         <option value="$PROJECT_DIR$/src/assemble/CHANGELOG.txt" />
+        <option value="$PROJECT_DIR$/pom.xml" />
       </list>
     </option>
   </component>
@@ -581,13 +581,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="21" selection-start="1127" selection-end="1127" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_LOCAL_REPOSITORY_PATH$/net/sf/ehcache/ehcache-core/1.7.0/ehcache-core-1.7.0-sources.jar!/net/sf/ehcache/event/CacheEventListenerFactory.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="30" column="28" selection-start="1053" selection-end="1053" vertical-scroll-proportion="0.0">
@@ -649,7 +642,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/assemble/distribution.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+        <state line="11" column="18" selection-start="279" selection-end="279" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="26" column="35" selection-start="992" selection-end="992" vertical-scroll-proportion="0.4852255">
           <folding />
         </state>
       </provider>
