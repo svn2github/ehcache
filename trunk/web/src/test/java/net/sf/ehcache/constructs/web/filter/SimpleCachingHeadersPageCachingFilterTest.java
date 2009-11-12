@@ -280,7 +280,7 @@ public class SimpleCachingHeadersPageCachingFilterTest extends AbstractWebTest {
      * The name is reset at the end. Check that this works for concurrent situations.
      */
     @Test
-    @Ignore("Broken by 1.7.0. Works with 1.6.2. todo. EHC-436")
+//    @Ignore("Broken by 1.7.0. Works with 1.6.2. todo. EHC-436")
     public void testCachedPageConcurrent() throws Exception {
 
         final List executables = new ArrayList();
