@@ -422,7 +422,7 @@ public class LruMemoryStore implements Store {
         @Override
         protected final boolean removeEldestEntry(Map.Entry eldest) {
             Element element = (Element) eldest.getValue();
-            return removeLeastRecentlyUsedElement(element);
+            return element != null && removeLeastRecentlyUsedElement(element);
         }
 
         /**
