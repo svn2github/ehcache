@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,10 +18,9 @@ package net.sf.ehcache.constructs.web.filter;
 
 import com.meterware.httpunit.HttpInternalErrorException;
 import com.meterware.httpunit.WebResponse;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.constructs.web.AbstractWebTest;
 import net.sf.ehcache.constructs.web.PageInfo;
-import net.sf.ehcache.constructs.web.HttpUtil;
-import net.sf.ehcache.CacheManager;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
@@ -39,16 +38,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Enumeration;
+import java.util.List;
 
 
 /**

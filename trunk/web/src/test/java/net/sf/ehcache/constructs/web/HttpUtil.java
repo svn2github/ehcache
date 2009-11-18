@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,14 +23,13 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.ProtocolException;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.ByteArrayOutputStream;
+import java.net.HttpURLConnection;
+import java.net.ProtocolException;
+import java.net.URL;
 
 
 /**
@@ -38,7 +37,7 @@ import java.io.ByteArrayOutputStream;
  * @author Greg Luck
  * @version $Id$
  */
-public class HttpUtil {
+public final class HttpUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpUtil.class);
 
@@ -46,6 +45,14 @@ public class HttpUtil {
         //utility class
     }
 
+    /**
+     *
+     * @param uri
+     * @return
+     * @throws IOException
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     */
     public static HttpURLConnection get(String uri) throws IOException, ParserConfigurationException, SAXException {
         URL u = new URL(uri);
         HttpURLConnection urlConnection = (HttpURLConnection) u.openConnection();
@@ -59,6 +66,12 @@ public class HttpUtil {
         return urlConnection;
     }
 
+    /**
+     *
+     * @param uri
+     * @return
+     * @throws IOException
+     */
     public static HttpURLConnection put(String uri) throws IOException {
         URL u = new URL(uri);
         HttpURLConnection urlConnection = (HttpURLConnection) u.openConnection();
@@ -70,6 +83,14 @@ public class HttpUtil {
         return urlConnection;
     }
 
+    /**
+     *
+     * @param uri
+     * @param mediaType
+     * @param in
+     * @return
+     * @throws IOException
+     */
     public static int put(String uri, String mediaType, InputStream in) throws IOException {
         URL u = new URL(uri);
         HttpURLConnection uc = (HttpURLConnection) u.openConnection();
@@ -81,8 +102,9 @@ public class HttpUtil {
 
         byte[] data = new byte[2048];
         int read;
-        while ((read = in.read(data)) != -1)
+        while ((read = in.read(data)) != -1) {
             out.write(data, 0, read);
+        }
         out.close();
 
         int status = uc.getResponseCode();
@@ -91,6 +113,14 @@ public class HttpUtil {
         return status;
     }
 
+    /**
+     *
+     * @param uri
+     * @param mediaType
+     * @param in
+     * @return
+     * @throws IOException
+     */
     public static int post(String uri, String mediaType, InputStream in) throws IOException {
         URL u = new URL(uri);
         HttpURLConnection uc = (HttpURLConnection) u.openConnection();
@@ -102,8 +132,9 @@ public class HttpUtil {
 
         byte[] data = new byte[2048];
         int read;
-        while ((read = in.read(data)) != -1)
+        while ((read = in.read(data)) != -1) {
             out.write(data, 0, read);
+        }
         out.close();
 
         int status = uc.getResponseCode();
@@ -111,6 +142,12 @@ public class HttpUtil {
         return status;
     }
 
+    /**
+     *
+     * @param uri
+     * @return
+     * @throws IOException
+     */
     public static HttpURLConnection delete(String uri) throws IOException {
         URL u = new URL(uri);
         HttpURLConnection urlConnection = (HttpURLConnection) u.openConnection();
@@ -143,6 +180,13 @@ public class HttpUtil {
     }
 
 
+    /**
+     *
+     * @param uri
+     * @return
+     * @throws IOException
+     * @throws ProtocolException
+     */
     public static HttpURLConnection head(String uri) throws IOException, ProtocolException {
         URL u = new URL(uri);
         HttpURLConnection httpURLConnection = (HttpURLConnection) u.openConnection();
@@ -155,7 +199,13 @@ public class HttpUtil {
         return httpURLConnection;
     }
 
-
+    /**
+     * 
+     * @param uri
+     * @return
+     * @throws IOException
+     * @throws ProtocolException
+     */
     public static HttpURLConnection options(String uri) throws IOException, ProtocolException {
         URL u = new URL(uri);
         HttpURLConnection httpURLConnection = (HttpURLConnection) u.openConnection();

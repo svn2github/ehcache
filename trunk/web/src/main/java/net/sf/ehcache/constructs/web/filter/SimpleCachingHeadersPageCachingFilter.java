@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -35,26 +35,22 @@
 
 package net.sf.ehcache.constructs.web.filter;
 
-import java.util.Date;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.logging.Level;
-
-import java.util.zip.DataFormatException;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.constructs.web.AlreadyGzippedException;
+import net.sf.ehcache.constructs.web.HttpDateFormatter;
+import net.sf.ehcache.constructs.web.PageInfo;
+import net.sf.ehcache.constructs.web.ResponseHeadersNotModifiableException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import net.sf.ehcache.constructs.web.AlreadyGzippedException;
-import net.sf.ehcache.constructs.web.PageInfo;
-import net.sf.ehcache.constructs.web.ResponseHeadersNotModifiableException;
-import net.sf.ehcache.constructs.web.HttpDateFormatter;
-import net.sf.ehcache.config.CacheConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.zip.DataFormatException;
 
 
 /**

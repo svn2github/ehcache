@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2008 Luck Consulting Pty Ltd
+ *  Copyright 2003-2008 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package net.sf.ehcache;
 
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Assert;
 import static org.junit.Assert.assertTrue;
+import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,9 +29,8 @@ import javax.management.MBeanServerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.logging.Level;
+import java.util.List;
 
 
 
@@ -96,7 +95,7 @@ public abstract class AbstractCacheTest {
      * Force the VM to grow to its full size. This stops SoftReferences from being reclaimed in favour of
      * Heap growth. Only an issue when a VM is cold.
      */
-    static public void forceVMGrowth() {
+    public static void forceVMGrowth() {
         allocateFiftyMegabytes();
         System.gc();
         try {

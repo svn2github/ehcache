@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Luck Consulting Pty Ltd
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import net.sf.ehcache.constructs.web.SerializableCookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.http.Cookie;
@@ -44,8 +43,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Iterator;
-
-import java.util.logging.Level;
 import java.util.zip.DataFormatException;
 
 /**
