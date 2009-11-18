@@ -52,6 +52,10 @@
             <action dev="Greg Luck" type="fix" issue="EHC-462">
                 cache.isKeyInCache(null) causes an NPE. Fixed.
             </action>
+            <action dev="Greg Luck" type="fix" issue="EHC-437">
+                Fixed an issue with disk store when an abrupt JVM termination leaves a persistent disk store
+                in a corrupt state. This problem was introduced in 1.6.
+            </action>
 
         </release>
 

@@ -215,6 +215,8 @@ public class DiskStoreTest extends AbstractCacheTest {
         CacheManager manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-disk.xml");
         Ehcache cache = manager.getCache("persistentLongExpiryIntervalCache");
 
+        LOG.info("DiskStore path: {}", manager.getDiskStorePath());
+
         for (int i = 0; i < 100; i++) {
             byte[] data = new byte[1024];
             cache.put(new Element("key" + (i + 100), data));
