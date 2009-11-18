@@ -56,7 +56,11 @@
                 Fixed an issue with disk store when an abrupt JVM termination leaves a persistent disk store
                 in a corrupt state. This problem was introduced in 1.6.
             </action>
-
+            <action dev="Greg Luck" type="update" issue="EHC-544">
+                In Ehcache 1.6 the web package was broken out into the ehcache-web module. However the ShutdownListener
+                is useful even if you are not using web caching - you use it to shutdown a CacheManager in a web app,
+                when the servlet container shuts down. For that reason it should be in core. Putting it back.
+            </action>
         </release>
 
 
