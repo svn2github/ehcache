@@ -240,7 +240,7 @@
     </profile>
 
     <profile>
-      <id>deploy-kong</id>
+      <id>deploy-terracotta</id>
       <activation>
         <property>
           <name>altDeploymentRepository</name>
@@ -255,7 +255,7 @@
             <version>2.4</version>
             <executions>
               <execution>
-                <id>deploy-to-kong</id>
+                <id>deploy-terracotta</id>
                 <configuration>
                   <file>${project.build.directory}/${jar-name}-${project.version}.jar</file>
                   <repositoryId>kong</repositoryId>
@@ -278,7 +278,7 @@
     </profile>
 
     <profile>
-      <id>deploy-snapshot-default</id>
+      <id>deploy-sonatype-snapshots</id>
       <activation>
         <property>
           <name>deploySnapshot</name>
@@ -293,7 +293,7 @@
             <version>2.4</version>
             <executions>
               <execution>
-                <id>deploy-to-kong</id>
+                <id>deploy-sonatype-snapshots</id>
                 <configuration>
                   <file>${project.build.directory}/${jar-name}-${project.version}.jar</file>
                   <repositoryId>sourceforge-snapshots</repositoryId>
@@ -316,7 +316,7 @@
     </profile>
 
     <profile>
-      <id>deploy-release-default</id>
+      <id>deploy-sonatype-releases</id>
       <activation>
         <property>
           <name>deployRelease</name>
@@ -331,7 +331,7 @@
             <version>2.4</version>
             <executions>
               <execution>
-                <id>deploy-to-kong</id>
+                <id>deploy-sonatype-releases</id>
                 <configuration>
                   <file>${project.build.directory}/${jar-name}-${project.version}.jar</file>
                   <repositoryId>sourceforge-releases</repositoryId>
@@ -369,7 +369,7 @@
             <version>2.4</version>
             <executions>
               <execution>
-                <id>deploy-to-kong</id>
+                <id>deploy-release-candidate</id>
                 <configuration>
                   <file>${project.build.directory}/${jar-name}-${project.version}.jar</file>
                   <repositoryId>kong</repositoryId>
