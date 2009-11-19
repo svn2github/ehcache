@@ -3,16 +3,15 @@
  */
 package net.sf.ehcache.googleappengine;
 
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
+
+import javax.cache.Cache;
+import javax.cache.CacheManager;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import javax.cache.Cache;
-import javax.cache.CacheManager;
-
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Ehcache;
 
 /**
  * @author C&eacute;drik LIME

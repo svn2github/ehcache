@@ -6,18 +6,23 @@
 
 <suppressions>
     <!-- Turn off some checks for tests -->
-    <!--<suppress checks="usage.OneMethodPrivateField" files="Test.java"/>-->
-    <!--<suppress checks="usage.UnusedParameter" files="Test.java"/>-->
-    <!--<suppress checks="usage.UnusedPrivateMethod" files="Test.java"/>-->
-    <!--<suppress checks="StrictDuplicateCode" files="Test.java"/>-->
-    <!--<suppress checks="MagicNumberCheck" files="test[/\\]"/>-->
-    <!--<suppress checks="CyclomaticComplexity" files="Test.java"/>-->
-    <!--<suppress checks="NPathComplexity" files="Test.java"/>-->
-    <!--<suppress checks="ClassDataAbstractionCoupling" files="Test.java"/>-->
-    <!--<suppress checks="ClassFanOutComplexity" files="Test.java"/>-->
-    <!--<suppress checks="FileLengthCheck" files="Test.java"/>    -->
-    <!--<suppress checks="PackageHtml" files="test[/\\]"/>-->
-    <!--<suppress checks="IllegalTypeCheck" files="test[/\\]"/>-->
+    <suppress checks="usage.OneMethodPrivateField" files="Test.java"/>
+    <suppress checks="usage.UnusedParameter" files="Test.java"/>
+    <suppress checks="usage.UnusedPrivateMethod" files="Test.java"/>
+    <suppress checks="StrictDuplicateCode" files="Test.java"/>
+    <suppress checks="MagicNumberCheck" files="test[/\\]"/>
+    <suppress checks="CyclomaticComplexity" files="Test.java"/>
+    <suppress checks="NPathComplexity" files="Test.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="Test.java"/>
+    <suppress checks="ClassFanOutComplexity" files="Test.java"/>
+    <suppress checks="FileLengthCheck" files="Test.java"/>
+    <suppress checks="PackageHtml" files="test[/\\]"/>
+    <suppress checks="" files="Primitive.java"/>
+    <suppress checks="IllegalTypeCheck" files="test[/\\]"/>
+    <suppress checks="HeaderCheck" files="Test.java"/>
+    <suppress checks="JavadocTypeCheck" files="Test.java"/>
+    <suppress checks="JavadocMethodCheck" files="test[/\\]"/>
+
 
     <suppress checks="GenericIllegalRegexpCheck" files="Server.java"/>
     <suppress checks="GenericIllegalRegexpCheck" files="SecurityHandler.java"/>

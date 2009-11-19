@@ -3,14 +3,14 @@
  */
 package net.sf.ehcache.googleappengine;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import net.sf.ehcache.jcache.JCache;
 import net.sf.ehcache.jcache.JCacheManager;
 import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheException;
 import net.sf.jsr107cache.CacheManager;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Implementation notes:

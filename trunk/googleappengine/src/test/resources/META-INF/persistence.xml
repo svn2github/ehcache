@@ -4,6 +4,7 @@
              version="1.0">
     <persistence-unit name="transactions-optional">
         <provider>org.datanucleus.store.appengine.jpa.DatastorePersistenceProvider</provider>
+		<class>net.sf.ehcache.googleappengine.gregrlucksamplejpaapp.guestbook.Greeting</class>
         <properties>
             <property name="datanucleus.NontransactionalRead" value="true"/>
             <property name="datanucleus.NontransactionalWrite" value="true"/>
