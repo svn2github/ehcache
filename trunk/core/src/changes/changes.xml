@@ -61,6 +61,9 @@
                 is useful even if you are not using web caching - you use it to shutdown a CacheManager in a web app,
                 when the servlet container shuts down. For that reason it should be in core. Putting it back.
             </action>
+            <action dev="Abhishek Sanoujam" type="fix" issue="EHC-533">
+                Added null check to avoid NPE.
+            </action>
         </release>
 
 
