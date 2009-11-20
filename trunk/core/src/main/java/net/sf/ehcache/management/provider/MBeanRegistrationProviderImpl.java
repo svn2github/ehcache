@@ -21,6 +21,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.Configuration.Monitoring;
 import net.sf.ehcache.management.sampled.SampledMBeanRegistrationProvider;
+import net.sf.ehcache.store.StoreFactory;
 
 /**
  * Implementation of {@link MBeanRegistrationProvider}
@@ -36,6 +37,7 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
     private final Monitoring monitoring;
     private final AtomicBoolean initialized = new AtomicBoolean(false);
     private CacheManager cachedCacheManager;
+    private StoreFactory storeFactory;
 
     /**
      * Constructor accepting the {@link Configuration}
@@ -50,12 +52,13 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
     /**
      * {@inheritDoc}
      */
-    public void initialize(CacheManager cacheManager) throws MBeanRegistrationProviderException {
+    public void initialize(CacheManager cacheManager, StoreFactory storeFactory) throws MBeanRegistrationProviderException {
         if (!initialized.getAndSet(true)) {
             if (shouldRegisterMBeans()) {
-                sampledProvider.initialize(cacheManager);
+                sampledProvider.initialize(cacheManager, storeFactory);
             }
             this.cachedCacheManager = cacheManager;
+            this.storeFactory = storeFactory;
         } else {
             throw new IllegalStateException("MBeanRegistrationProvider is already initialized");
         }
@@ -69,7 +72,7 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
             if (sampledProvider.isAlive()) {
                 sampledProvider.reinitialize();
             } else {
-                sampledProvider.initialize(cachedCacheManager);
+                sampledProvider.initialize(cachedCacheManager, storeFactory);
             }
         }
     }

@@ -183,6 +183,7 @@ public abstract class AbstractCacheTest {
         for (int i = 0; i < threads.length; i++) {
             final Executable executable = (Executable) executables.get(i);
             threads[i] = new Thread() {
+                @Override
                 public void run() {
                     try {
                         // Run the thread until the given end time

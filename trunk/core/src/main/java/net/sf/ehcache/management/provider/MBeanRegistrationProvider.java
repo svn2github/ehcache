@@ -16,6 +16,7 @@
 package net.sf.ehcache.management.provider;
 
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.store.StoreFactory;
 
 /**
  * Implementations of this interface will can initialize MBeanRegistration for
@@ -35,7 +36,7 @@ public interface MBeanRegistrationProvider {
      * @param cacheManager
      * @throws MBeanRegistrationProviderException
      */
-    public void initialize(CacheManager cacheManager) throws MBeanRegistrationProviderException;
+    public void initialize(CacheManager cacheManager, StoreFactory storeFactory) throws MBeanRegistrationProviderException;
 
     /**
      * Reinitialize the mbeans. Uses the current name of the {@link CacheManager} to re-register the mbeans

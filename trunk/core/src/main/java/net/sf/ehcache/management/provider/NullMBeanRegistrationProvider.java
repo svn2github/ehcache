@@ -16,6 +16,7 @@
 package net.sf.ehcache.management.provider;
 
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.store.StoreFactory;
 
 /**
  * A Null implementation of {@link MBeanRegistrationProvider} which does nothing
@@ -29,7 +30,7 @@ public class NullMBeanRegistrationProvider implements MBeanRegistrationProvider 
     /**
      * A null implementation of {@link MBeanRegistrationProvider#initialize(CacheManager)}
      */
-    public void initialize(CacheManager cacheManager) {
+    public void initialize(CacheManager cacheManager, StoreFactory storeFactory) {
         // no-op
     }
 

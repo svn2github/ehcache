@@ -16,8 +16,12 @@
 
 package net.sf.ehcache.management.sampled;
 
+import java.lang.reflect.Method;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+
+import net.sf.ehcache.store.StoreFactory;
 
 /**
  * Utility class used for getting {@link ObjectName}'s for sampled MBeans
@@ -51,11 +55,37 @@ public abstract class SampledEhcacheMBeans {
      * @return An {@link ObjectName} using the input name of cache manager
      * @throws MalformedObjectNameException
      */
-    public static ObjectName getCacheManagerObjectName(String cacheManagerName) throws MalformedObjectNameException {
-        ObjectName objectName = new ObjectName(GROUP_ID + ":type=" + SAMPLED_CACHE_MANAGER_TYPE + ",name=" + cacheManagerName);
+    public static ObjectName getCacheManagerObjectName(StoreFactory storeFactory, String cacheManagerName)
+      throws MalformedObjectNameException {
+        ObjectName objectName = new ObjectName(GROUP_ID + ":type=" + SAMPLED_CACHE_MANAGER_TYPE +
+                ",name=" + cacheManagerName + getBeanNameSuffix(storeFactory));
         return objectName;
     }
 
+    private static String getBeanNameSuffix(StoreFactory storeFactory) {
+        String suffix = "";
+        if (storeFactory != null) {
+            String uuid = getClientUUID(storeFactory);
+            if (uuid != null) {
+                suffix = ",node=" + uuid;
+            }
+        }
+        return suffix;
+    }
+    
+    private static String getClientUUID(StoreFactory storeFactory) {
+        try {
+            Class c = storeFactory.getClass();
+            Method m = c.getMethod("getUUID");
+            if (m == null) {
+                return null;
+            }
+            return (String)m.invoke(storeFactory);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
     /**
      * Returns an ObjectName for the passed cacheManagerName, cacheName
      * combination
@@ -66,9 +96,11 @@ public abstract class SampledEhcacheMBeans {
      *         cache and the cache manager name
      * @throws MalformedObjectNameException
      */
-    public static ObjectName getCacheObjectName(String cacheManagerName, String cacheName) throws MalformedObjectNameException {
-        ObjectName objectName = new ObjectName(GROUP_ID + ":type=" + SAMPLED_CACHE_TYPE + "," + SAMPLED_CACHE_MANAGER_TYPE + "="
-                + cacheManagerName + ",name=" + cacheName);
+    public static ObjectName getCacheObjectName(StoreFactory storeFactory, String cacheManagerName, String cacheName)
+      throws MalformedObjectNameException {
+        ObjectName objectName = new ObjectName(GROUP_ID + ":type=" + SAMPLED_CACHE_TYPE +
+                "," + SAMPLED_CACHE_MANAGER_TYPE + "=" +
+                cacheManagerName + ",name=" + cacheName + getBeanNameSuffix(storeFactory));
         return objectName;
     }
 
@@ -81,8 +113,10 @@ public abstract class SampledEhcacheMBeans {
      *         ObjectName's for the input cache manager name
      * @throws MalformedObjectNameException
      */
-    public static ObjectName getQueryCacheManagerObjectName(String cacheManagerName) throws MalformedObjectNameException {
-        ObjectName objectName = new ObjectName(GROUP_ID + ":*," + SAMPLED_CACHE_MANAGER_TYPE + "=" + cacheManagerName);
+    public static ObjectName getQueryCacheManagerObjectName(StoreFactory storeFactory, String cacheManagerName)
+      throws MalformedObjectNameException {
+        ObjectName objectName = new ObjectName(GROUP_ID + ":*," + SAMPLED_CACHE_MANAGER_TYPE + "=" +
+                cacheManagerName + getBeanNameSuffix(storeFactory));
         return objectName;
     }
 
@@ -93,9 +127,9 @@ public abstract class SampledEhcacheMBeans {
      *         of {@value #SAMPLED_CACHE_MANAGER_TYPE}
      * @throws MalformedObjectNameException
      */
-    public static ObjectName getQueryCacheManagersObjectName() throws MalformedObjectNameException {
-        ObjectName objectName = new ObjectName(GROUP_ID + ":type=" + SAMPLED_CACHE_MANAGER_TYPE + ",*");
+    public static ObjectName getQueryCacheManagersObjectName(StoreFactory storeFactory) throws MalformedObjectNameException {
+        ObjectName objectName = new ObjectName(GROUP_ID + ":type=" + SAMPLED_CACHE_MANAGER_TYPE + ",*" +
+                getBeanNameSuffix(storeFactory));
         return objectName;
     }
-
 }

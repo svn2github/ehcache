@@ -20,8 +20,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -34,6 +32,8 @@ import net.sf.ehcache.config.ConfigurationFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tests for testing the mbean registration provider
@@ -93,12 +93,12 @@ public class MBeanRegistrationProviderTest extends AbstractCacheTest {
     }
 
     private void assertCacheManagerMBeansRegistered(String cacheManagerName, int size) throws Exception {
-        Set queryNames = mbeanServer.queryNames(SampledEhcacheMBeans.getCacheManagerObjectName(cacheManagerName), null);
+        Set queryNames = mbeanServer.queryNames(SampledEhcacheMBeans.getCacheManagerObjectName(null, cacheManagerName), null);
         assertEquals(size, queryNames.size());
     }
 
     private void assertCacheManagerMBeansRegistered(int size) throws Exception {
-        Set queryNames = mbeanServer.queryNames(SampledEhcacheMBeans.getQueryCacheManagersObjectName(), null);
+        Set queryNames = mbeanServer.queryNames(SampledEhcacheMBeans.getQueryCacheManagersObjectName(null), null);
         assertEquals(size, queryNames.size());
     }
 

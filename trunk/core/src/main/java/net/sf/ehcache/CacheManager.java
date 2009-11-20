@@ -327,7 +327,7 @@ public class CacheManager {
     private void initializeMBeanRegistrationProvider(Configuration localConfiguration) {
         mbeanRegistrationProvider = mBeanRegistrationProviderFactory.createMBeanRegistrationProvider(localConfiguration);
         try {
-            mbeanRegistrationProvider.initialize(this);
+            mbeanRegistrationProvider.initialize(this, terracottaStoreFactory);
         } catch (MBeanRegistrationProviderException e) {
             LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(), e);
         }
