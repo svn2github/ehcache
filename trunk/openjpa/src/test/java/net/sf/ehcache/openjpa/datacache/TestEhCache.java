@@ -1,3 +1,19 @@
+/**
+ *  Copyright 2003-2009 Terracotta, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package net.sf.ehcache.openjpa.datacache;
 
 import java.util.Properties;
@@ -16,23 +32,28 @@ import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
 
 import junit.framework.TestCase;
 
+/**
+ * @author Craig Andrews
+ * @author Greg Luck
+ */
 public class TestEhCache extends TestCase {
     private static EntityManagerFactory emf;
     private static OpenJPAConfiguration conf;
-    private static final String UNIT_NAME = System.getProperty("unit","test");
-    
+    private static final String UNIT_NAME = System.getProperty("unit", "test");
+
     @Override
     protected void setUp() throws Exception {
         if (emf == null) {
-        	Properties props = new Properties();
-        	props.put("openjpa.MetaDataFactory","jpa(Types=net.sf.ehcache.openjpa.datacache.QObject;net.sf.ehcache.openjpa.datacache.PObject)");
-        	props.put("openjpa.ConnectionDriverName","org.hsqldb.jdbcDriver");
-        	props.put("openjpa.ConnectionURL","jdbc:hsqldb:mem:testdb");
-        	props.put("openjpa.jdbc.SynchronizeMappings", "buildSchema");
-        	props.put("openjpa.Log", "SQL=WARN");
-        	props.put("openjpa.DataCacheManager","ehcache");
-            emf = Persistence.createEntityManagerFactory(UNIT_NAME,props);
-            conf = ((OpenJPAEntityManagerFactorySPI)emf).getConfiguration();
+            Properties props = new Properties();
+            props.put("openjpa.MetaDataFactory", "jpa(Types=net.sf.ehcache.openjpa.datacache.QObject;" +
+                    "net.sf.ehcache.openjpa.datacache.PObject)");
+            props.put("openjpa.ConnectionDriverName", "org.hsqldb.jdbcDriver");
+            props.put("openjpa.ConnectionURL", "jdbc:hsqldb:mem:testdb");
+            props.put("openjpa.jdbc.SynchronizeMappings", "buildSchema");
+            props.put("openjpa.Log", "SQL=WARN");
+            props.put("openjpa.DataCacheManager", "ehcache");
+            emf = Persistence.createEntityManagerFactory(UNIT_NAME, props);
+            conf = ((OpenJPAEntityManagerFactorySPI) emf).getConfiguration();
         }
     }
 
@@ -43,17 +64,17 @@ public class TestEhCache extends TestCase {
         DataCacheManager dcm = conf.getDataCacheManagerInstance();
         String dcmName = conf.getDataCacheManager();
         DataCache systemCache = dcm.getSystemDataCache();
-        String dataCache =  conf.getDataCache();
-        
+        String dataCache = conf.getDataCache();
+
         assertNotNull(systemCache);
         assertNotNull(dcm);
-        assertEquals(EhCacheDerivation.EHCACHE, dataCache); 
+        assertEquals(EhCacheDerivation.EHCACHE, dataCache);
         assertEquals(EhCacheDerivation.EHCACHE, dcmName);
         assertTrue(dcm instanceof EhCacheDataCacheManager);
         assertTrue(systemCache instanceof EhCacheDataCache);
-        
-        EhCacheDataCacheManager tdcm = (EhCacheDataCacheManager)dcm;
-        
+
+        EhCacheDataCacheManager tdcm = (EhCacheDataCacheManager) dcm;
+
         /*assertEquals(getConfiguredDataCacheName(PObject.class),
                tdcm.getEhCache(PObject.class).getName());
         assertEquals(getConfiguredDataCacheName(PObject.class),
@@ -64,7 +85,7 @@ public class TestEhCache extends TestCase {
                 tdcm.getEhCache(QObject.class));
         */
     }
-    
+
     public void testPersist() {
         EntityManager em = emf.createEntityManager();
         PObject pc = new PObject("XYZ");
@@ -72,13 +93,13 @@ public class TestEhCache extends TestCase {
         em.persist(pc);
         em.getTransaction().commit();
         Object oid = pc.getId();
-        
+
         em.clear();
         // After clean the instance must not be in L1 cache
         assertFalse(em.contains(pc));
         // But it must be found in L2 cache by its OpenJPA identifier
         assertTrue(getCache(pc.getClass()).contains(getOpenJPAId(pc, oid)));
-        
+
         PObject pc2 = em.find(PObject.class, oid);
         // After find(), the original instance is not in the L1 cache
         assertFalse(em.contains(pc));
@@ -87,15 +108,15 @@ public class TestEhCache extends TestCase {
         // The L2 cache must still hold the key   
         assertTrue(getCache(pc.getClass()).contains(getOpenJPAId(pc, oid)));
     }
-    
+
     /**
      * Gets the data cache for the given class.
-    */
+     */
     DataCache getCache(Class cls) {
         String name = getConfiguredDataCacheName(cls);
         return conf.getDataCacheManagerInstance().getDataCache(name);
     }
-    
+
     /**
      * Gest the configured name of the cache for the given class.
      */
@@ -107,7 +128,7 @@ public class TestEhCache extends TestCase {
 
     Object getOpenJPAId(Object pc, Object oid) {
         ClassMetaData meta = conf.getMetaDataRepositoryInstance()
-            .getCachedMetaData(pc.getClass());
+                .getCachedMetaData(pc.getClass());
         assertNotNull(meta);
         Object ooid = JPAFacadeHelper.toOpenJPAObjectId(meta, oid);
         assertNotNull(oid);

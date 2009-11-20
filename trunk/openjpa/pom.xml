@@ -36,7 +36,19 @@
             <version>1.8.0.7</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.5.8</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
+    
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -59,53 +71,55 @@
                 </configuration>
             </plugin>
 
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-checkstyle-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>validate</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>checkstyle</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-                <!--<configuration>-->
-                    <!--<configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>-->
-                    <!--<suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>-->
-                    <!--<headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>-->
-                    <!--<enableRSS>false</enableRSS>-->
-                    <!--<linkXRef>true</linkXRef>-->
-                    <!--<enableRulesSummary>false</enableRulesSummary>-->
-                    <!--<consoleOutput>true</consoleOutput>-->
-                    <!--<failsOnError>true</failsOnError>-->
-                    <!--<failOnViolation>true</failOnViolation>-->
-                    <!--<includeTestSourceDirectory>true</includeTestSourceDirectory>-->
-                    <!--<enableRulesSummary>true</enableRulesSummary>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
             <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-surefire-plugin</artifactId>
-              <configuration>
-                  <forkMode>pertest</forkMode>
-                  <debugForkedProcess>true</debugForkedProcess>
-                  <childDelegation>false</childDelegation>
-                  <disableXmlReport>false</disableXmlReport>
-                  <printSummary>true</printSummary>
-                  <reportFormat>plain</reportFormat>
-                  <redirectTestOutputToFile>false</redirectTestOutputToFile>
-                  <systemProperties>
-                      <property>
-                          <name>net.sf.ehcache.skipUpdateCheck</name>
-                          <value>true</value>
-                      </property>                    
-                      <property>
-                          <name>java.awt.headless</name>
-                          <value>true</value>
-                      </property>
-                  </systemProperties>
-              </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>checkstyle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>
+                    <suppressionsLocation>${basedir}/checkstyle/suppressions.xml
+                    </suppressionsLocation>
+                    <headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>
+                    <enableRSS>false</enableRSS>
+                    <linkXRef>true</linkXRef>
+                    <enableRulesSummary>false</enableRulesSummary>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <failOnViolation>true</failOnViolation>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <enableRulesSummary>true</enableRulesSummary>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <forkMode>pertest</forkMode>
+                    <debugForkedProcess>true</debugForkedProcess>
+                    <childDelegation>false</childDelegation>
+                    <disableXmlReport>false</disableXmlReport>
+                    <printSummary>true</printSummary>
+                    <reportFormat>plain</reportFormat>
+                    <redirectTestOutputToFile>false</redirectTestOutputToFile>
+                    <systemProperties>
+                        <property>
+                            <name>net.sf.ehcache.skipUpdateCheck</name>
+                            <value>true</value>
+                        </property>
+                        <property>
+                            <name>java.awt.headless</name>
+                            <value>true</value>
+                        </property>
+                    </systemProperties>
+                </configuration>
             </plugin>
 
         </plugins>
