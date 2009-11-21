@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -40,6 +41,7 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
 
   private final JarManager    jarManager                   = new JarManager();
   private final StoreFactory  realFactory;
+  private String              uuidString;
 
   public StandaloneTerracottaStoreFactory(final TerracottaConfigConfiguration terracottaConfig) {
     testForBootJar();
@@ -136,6 +138,16 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
       realFactory = (StoreFactory) factoryClassConstructor.newInstance(terracottaConfig);
     } catch (Exception e) {
       throw new CacheException(e);
+    }
+
+    try {
+      Class c = newL1Loader.loadClass("com.tc.object.bytecode.ManagerUtil");
+      Method m = c.getMethod("getUUID");
+      Object uuid = (m != null) ? m.invoke(null) : null;
+      if (uuid != null) {
+        uuidString = uuid.toString();
+      }
+    } catch (Exception e) {
     }
   }
 
@@ -324,4 +336,7 @@ public class StandaloneTerracottaStoreFactory implements StoreFactory {
     }
   }
 
+  public String getUUID() {
+    return uuidString;
+  }
 }
