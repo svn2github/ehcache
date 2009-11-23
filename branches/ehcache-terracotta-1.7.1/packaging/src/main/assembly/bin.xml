@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<assembly>
+  <id>jar</id>
+  
+  <formats>
+    <format>jar</format>
+  </formats>
+
+  <includeBaseDirectory>false</includeBaseDirectory>
+
+  <fileSets>
+    <fileSet>
+      <directory>${project.build.directory}/classes</directory>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+
+    <fileSet>
+      <directory>${project.build.directory}/dso-boot</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>dso-boot.jar</include>
+      </includes>
+    </fileSet>
+
+
+    <fileSet>
+      <directory>${project.build.directory}</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>exported-classes.jar</include>
+      </includes>
+    </fileSet>
+
+  </fileSets>
+  
+  <dependencySets>
+    <dependencySet>
+      <outputDirectory>L1</outputDirectory>
+      <useProjectArtifact>false</useProjectArtifact>
+      <excludes>
+        <exclude>org.terracotta.modules:*</exclude>
+        <exclude>net.sf.ehcache:*</exclude>
+      </excludes>
+    </dependencySet>
+
+    <dependencySet>
+      <outputDirectory>TIMs</outputDirectory>
+      <useTransitiveDependencies>true</useTransitiveDependencies>
+      <includes>
+        <include>org.terracotta.modules:*</include>
+      </includes>
+    </dependencySet>
+
+    <dependencySet>
+      <unpack>true</unpack>
+      <unpackOptions>
+        <includes>
+          <include>**/build-data.txt</include>
+          <include>**/license.txt</include>
+        </includes>
+      </unpackOptions>
+      <includes>
+        <include>org.terracotta:${terracotta-l1.artifactId}</include>
+      </includes>
+    </dependencySet>
+
+    <dependencySet>
+      <unpack>true</unpack>
+      <includes>
+        <include>net.sf.ehcache:ehcache-terracotta-bootstrap</include>
+      </includes>
+    </dependencySet>
+
+  </dependencySets>
+</assembly>
