@@ -2,113 +2,101 @@
  Development Roadmap
  ------
 
-Development Roadmap
+Development Roadmap @ 21 November 2009
 
- Last Updated 24 August 2009.
+    Ehcache is now modularised. The roadmap is therefore expressed by module name.
 
-* Ehcache 1.7
+    Expected feature completion times are given in parentheses. Those proposed but not yet decided on
+     are <unscheduled>.
 
-** Definites
+* ehcache-core 1.7.1
 
-    * Killer new Terracotta integration. Developers will be able to turn on Terracotta on each node by editing
-      ehcache.xml.
+ * Bug fixes
 
-** Possibles
+ * Unscheduled: memory limited caches OSCache groups feature, sitting in a branch and in production, contributed by Andrew Liles
 
-   * add the RESTful Ehcache server as a secondary store, leveraging the new ehcache-server, and using partitioning (memcached feature)
+* ehcache-monitor - Management and Monitoring (beta now/early 2010)
 
-   * add j.u.c. optimisations to DiskStore (MemoryStore done in 1.6). I ended up adding quite a few of these in 1.6.
+    * commercial license - free for development, licensed for production
 
-   * add extra write and replacement options e.g. write to secondary store straight away, do not overflow
+    * JMX and HTTP monitoring console with ehcache probes.
 
-   * group invalidation (OSCACHE feature)
+    * Tuning and visualisation web app.
 
-   * SoftReference store (some preliminary work has been done on this). 
+    * simple integration with operations tools such as Nagios, Hyperic, Wily, App Manager etc. 
 
+* ehcache-web (2009)
 
-   Check trunk regularly for updates. For maven users (of which Ehcache is one) a SNAPSHOT repository has been added. See
-    {{http://oss.sonatype.org/content/repositories/sourceforge-snapshots/net/sf/ehcache/}}
+ * Release separate module ga dependent on core 1.7.1
 
+ * Bug fixes
 
-* Ideas not Scheduled
+ * ETag and expires headers
 
-** Distributed Transactions with RMI Replication
+* ehcache-jmsreplication (2009)
 
-  A common scenario is where each cache in a cluster replicates to others. We usually want each cache to be coherent.
+    * Release against 1.7 core
 
-  Following is a discussion of a potential design for both synchronous and asynchronous:
+* ehcache-jcache (2009)
 
-*** Synchronous Replication with Transactions Enabled
+    * Release against 1.7 core
 
-  If an Exception is thrown during replication to any peer, then the caches have become incoherent.
+* ehcache-debugger (2009)
 
-  The effect of the operation is not available in any cache until the transaction has been committed.
-  This is done with a commit(messageId) message from the originating cache sent to each cache peer. If an Exception occurs during
-  the operation, the commit message is not sent. On the originating cache a rollback occurs. This is not
-  propagated to the peers. Instead, if the commit does not come within the TRANSACTION_TIMEOUT period,
-  the operation is discarded in each cache.
+    * Release against 1.7 core
 
-  If a commit fails on one cache then data can still be inconsistent. This is the classic problem with
-  2-phase commit transaction systems. You always need an extra phase to be sure the previous phase did not
-  fail. (See Page 267 of Developing Enterprise Web Services, by Sandeep Chatterjee and James Webber).
-  The originating cache commits last.
+* ehcache-jgroups (2009)
 
-  If one or more commits fail, then the caches will be incoherent. However we will throw an IncoherentTransactionException.
+    * Release against 1.7 core
 
-  This then provides the option to the caller to reattempt the operation. Given that cache operations
-  are simple and idempotent (other than the lastUpdated and version statistics), this should be a practical option.
+* ehcache-openjpa (2009)
 
-**** Speed Impact
+    * Release 0.2 with important bug and functionality fixes and depending on 1.7 core
 
-  The number of messages required is doubled, therefore enabling transactions will halve synchronous replication
-  speed.
+* hibernate-ehcache
 
-*** Asynchronous Replicaton with Transactions Enabled
+    * Upgrade Hibernate to use ehcache 1.5 (1.2.3 now) (done in trunk)
 
-  This works the same as with synchronous, except the caller is not informed if the transaction failed.
+    * merge Terracotta Hibernate provider and Ehcache provider (2010)
 
-  The originating cache records the async notifications as they occur. Once everyone has gotten the operation
-  it is then in a position to commit, and the transaction is marked committable. If a failure occurs no commit message is sent
-  and the transaction is placed in the failed transactions list.
+* ehcache-queues (unscheduled)
 
+    * Do a new module to accept queue wrapper contribs
 
-  Instead failed transactions are placed in a list which can be accessed using <<<cache.getFailedTransactions()>>>.
-  The list contains information on the transaction id, the cache operation, and the key used. The data is not
-  retained. By default 10,000 failures may be retained. Eviction is on a FIFO basis.
+* ehcache-googleappengine (snapshots available now/2009)
 
-  This enables the caller to periodically monitor for failed transactions and reattempt. The most probable
-  cause of a failure is that peer has dropped off the network (or the network has failed) in which case
-  redoing the transaction will ensure the remaining cache peers are coherent.
+    Integration into Google App Engine apps by accepting contrib
 
-**** Speed Impact
+    Highlights:
 
-  Because asynchronous replication uses batches in a single RMI call, all that will happen is that there will
-  be a small extra commit message for each other message. Performance should only be mildy degraded.
+    * plugs in using Jcache
 
+    * local events propagate to memcacheg via a CacheEventListener
 
-** Updated JCache implementation
+    * misses hit memcacheg via a CacheLoader
 
-  Now looking to finalise JCache with Ehcache as the RI. This will probably be maintained in a branch until the JSR process
-   is concluded. The net.sf.jsr107cache will be updated in the meantime.
+    * inconsistency controlled by either TTL or a dirty elements list maintained on memcacheg
 
+* ehcache-search (unscheduled)
 
-** Pluggable Disk Stores
+    * Searchable API
 
- 1.3.0-beta contained a couple of tweaks to allow programmatic replacement of the DiskStore with a separate implementation.
- Hopefully a code donation will provide a JDBCDiskStore implementation which will allow Derby and other databases to be plugged
- in. This supplements the built-in DiskStore.
+* ehcache-cacheserver
 
-** Pluggable Eviction Policies
+    * Release against 1.7.1
 
- Ehcache supports LRU, LFU and FIFO. There are plenty more eviction policies. An extension mechanism should be added to
- support these.
+    * client side consistent hashing
 
-** Derby DiskStore Implementation
+    * integration of the cache server with ehcache-core
 
- Code has been donated for a Derby DiskStore implementation.
+    * publihsed performance results
+
+    * memcache API?
+
+    * clustering of partitions via Terracotta for high availabilty/consistency (already delivered)
 
 
 * How to suggest features
 
- Please add your feature suggestions to {{{http://sourceforge.net/tracker/?group_id=93232&atid=603562}Feature Requests}}.
+ Please send your feature suggestions to ehcache-list@lists.terracotta.org
 

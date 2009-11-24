@@ -12,7 +12,7 @@
     </bannerRight>
     <body>
         <links>
-            <item name="Download" href="http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup"/>
+            <item name="Download" href="http://www.terracotta.org/dl/ehcache-oss-sign-up"/>
         </links>
 
         <menu name="Products">
@@ -32,11 +32,11 @@
         </menu>
 
         <menu name="Services">
-            <item name="Consulting &amp; Support" href="http://www.terracotta.org/web/display/orgsite/Enterprise+Support+for+Ehcache?source=ehcachebanner"/>
+            <item name="Consulting &amp; Support" href="http://www.terracotta.org/support/ehcache-support?source=ehcachebanner"/>
         </menu>
 
         <menu name="Code">
-            <item name="Download" href="http://www.terracotta.org/web/display/orgsite/Download+Ehcache+Signup"/>
+            <item name="Download" href="http://www.terracotta.org/dl/ehcache-oss-sign-up"/>
             <item name="Maven Release Repository" href="http://oss.sonatype.org/content/repositories/sourceforge-releases/net/sf/ehcache/"/>
             <item name="Maven Snapshot Repository" href="http://oss.sonatype.org/content/repositories/sourceforge-snapshots/net/sf/ehcache/"/>
             <item name="ehcache.xml" href="/ehcache.xml"/>

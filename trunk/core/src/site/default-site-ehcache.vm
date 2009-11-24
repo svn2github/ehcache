@@ -359,9 +359,9 @@
     </div>
     <div id="rightColumn">
       <div id="navcolumn">
-      <a href="http://www.terracotta.org/web/display/orgsite/Terracotta+Ehcache+Overview?source=ehcachebanner"><img src="images/ehcache-distributed-cache-skyscraper.png" border="0" width="160" alt="Get the Ehcache 1.7.0 and Terracotta 3.1.1 beta"/></a>
-      <a href="http://www.terracotta.org/web/display/orgsite/Enterprise+Support+for+Ehcache?source=ehcachebanner"><img src="images/ad_banner.png" border="0" width="160" alt="Ehcache consulting and support"/></a>
-      <a href="http://www.terracotta.org/web/display/orgsite/Terracotta+Pre+Release"><img src="images/ehcache-monitoring.png" border="0" width="160" alt="Ehcache consulting and support"/></a>
+      <a href="http://www.terracotta.org/ehcache/distributed-cache/?source=ehcachebanner"><img src="images/ehcache-distributed-cache-skyscraper.png" border="0" width="160" alt="Get the Ehcache 1.7.0 and Terracotta 3.1.1 beta"/></a>
+      <a href="http://www.terracotta.org/support/ehcache-support?source=ehcachebanner"><img src="images/ad_banner.png" border="0" width="160" alt="Ehcache consulting and support"/></a>
+      <a href="http://www.terracotta.org/ehcache/ehcache-dx"><img src="images/ehcache-monitoring.png" border="0" width="160" alt="Ehcache consulting and support"/></a>
       <p>Ehcache Guide and Reference is available as a book. The price for the high quality bound edition is USD49.98 plus shipping. The price for the downloadable print-ready version is USD37.50. The book has 180 pages.</p>
       <a href="http://www.lulu.com/content/3553390"><img src="images/ehcache_guide.jpg" border="0" width="160" alt="Ehcache Guide &amp; Reference"/></a>
       <p>This edition includes a new chapter on Ehcache Server - the RESTful and SOAP based server.</p><p>As usual the cuurrent ehcache version full documentation is available on the site.</p><p>Buy the book online from <a href="http://www.lulu.com/content/3553390">Lulu Books</a>.</p></div>
