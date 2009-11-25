@@ -44,6 +44,7 @@
             <unpack>false</unpack>
             <scope>provided</scope>
             <excludes>
+                <exclude>javax.servlet:servlet-api</exclude>
                 <exclude>net.sf.ehcache:ehcache</exclude>
                 <exclude>org.slf4j:slf4j-api</exclude>
                 <exclude>asm:asm-attrs</exclude>
