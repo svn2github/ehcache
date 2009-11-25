@@ -23,8 +23,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Random;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
@@ -36,14 +34,14 @@ import org.junit.Test;
 
 /**
  * Tests for the statistics class
- * 
+ *
  * @author Abhishek Sanoujam
  * @version $Id: CacheUsageStatisticsTest.java 1221 2009-09-25 17:29:35Z asingh
  *          $
  */
 public class LiveCacheStatisticsTest extends AbstractCacheTest {
 
-    
+
     /**
      * test enable disable
      */
@@ -51,7 +49,7 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
     public void testEnableDisable() {
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
-        
+
         cache.setStatisticsEnabled(true);
         assertTrue(cache.isStatisticsEnabled());
         assertFalse(cache.isSampledStatisticsEnabled());
@@ -59,7 +57,7 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
         cache.setStatisticsEnabled(false);
         assertFalse(cache.isStatisticsEnabled());
         assertFalse(cache.isSampledStatisticsEnabled());
-        
+
         // enabling sampled enables both
         cache.setSampledStatisticsEnabled(true);
         assertTrue(cache.isStatisticsEnabled());
@@ -68,7 +66,7 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
         cache.setSampledStatisticsEnabled(false);
         assertTrue(cache.isStatisticsEnabled());
         assertFalse(cache.isSampledStatisticsEnabled());
-        
+
         // enable sampled again
         cache.setSampledStatisticsEnabled(true);
         assertTrue(cache.isStatisticsEnabled());
@@ -82,7 +80,7 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
 
     /**
      * Test statistics enabling/disabling/clearing
-     * 
+     *
      * @throws InterruptedException
      */
     @Test
@@ -116,7 +114,7 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
      * - onDiskSize
      * - clearing statistics
      * - average get time
-     * 
+     *
      */
     public void doTestCacheUsageStatistics(Cache cache,
             boolean statisticsEnabled) throws InterruptedException {
@@ -206,7 +204,7 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
 
     /**
      * Test average get time
-     * 
+     *
      * @throws InterruptedException
      */
     @Test
@@ -251,7 +249,7 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
 
     /**
      * Test cache eviction/expiry stats
-     * 
+     *
      * @throws InterruptedException
      */
     @Test
