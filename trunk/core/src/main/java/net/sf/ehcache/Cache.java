@@ -1839,7 +1839,7 @@ public class Cache implements Ehcache {
      * Returns a {@link String} representation of {@link Cache}.
      */
     @Override
-    public final String toString() {
+    public String toString() {
         StringBuffer dump = new StringBuffer();
 
         dump.append("[")
