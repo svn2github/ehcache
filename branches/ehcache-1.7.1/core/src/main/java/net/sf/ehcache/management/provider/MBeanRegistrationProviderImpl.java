@@ -32,10 +32,10 @@ import net.sf.ehcache.store.StoreFactory;
  */
 public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider {
 
-    private final SampledMBeanRegistrationProvider sampledProvider;
 
     private final Monitoring monitoring;
     private final AtomicBoolean initialized = new AtomicBoolean(false);
+    private SampledMBeanRegistrationProvider sampledProvider;
     private CacheManager cachedCacheManager;
     private StoreFactory storeFactory;
 
@@ -45,8 +45,14 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
      * @param configuration
      */
     public MBeanRegistrationProviderImpl(Configuration configuration) {
-        sampledProvider = new SampledMBeanRegistrationProvider();
         this.monitoring = configuration.getMonitoring();
+    }
+    
+    private synchronized SampledMBeanRegistrationProvider getSampledMBeanRegistrationProvider() {
+        if (sampledProvider == null) {
+            sampledProvider = new SampledMBeanRegistrationProvider();
+        }
+        return sampledProvider;
     }
 
     /**
@@ -55,7 +61,7 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
     public void initialize(CacheManager cacheManager, StoreFactory storeFactory) throws MBeanRegistrationProviderException {
         if (!initialized.getAndSet(true)) {
             if (shouldRegisterMBeans()) {
-                sampledProvider.initialize(cacheManager, storeFactory);
+                getSampledMBeanRegistrationProvider().initialize(cacheManager, storeFactory);
             }
             this.cachedCacheManager = cacheManager;
             this.storeFactory = storeFactory;
@@ -69,10 +75,10 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
      */
     public void reinitialize() throws MBeanRegistrationProviderException {
         if (shouldRegisterMBeans()) {
-            if (sampledProvider.isAlive()) {
-                sampledProvider.reinitialize();
+            if (getSampledMBeanRegistrationProvider().isAlive()) {
+                getSampledMBeanRegistrationProvider().reinitialize();
             } else {
-                sampledProvider.initialize(cachedCacheManager, storeFactory);
+                getSampledMBeanRegistrationProvider().initialize(cachedCacheManager, storeFactory);
             }
         }
     }
