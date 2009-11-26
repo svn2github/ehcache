@@ -64,6 +64,9 @@ ehcache-1.7.1
             <action dev="Abhishek Sanoujam" type="fix" issue="EHC-533">
                 Added null check to avoid NPE.
             </action>
+            <action dev="Abhishek Sanoujam" type="fix" issue="EHC-556">
+                Fix for making ehcache work in Google App Engine runtime. JMX classes won't be used when monitoring="off"
+            </action>
         </release>
 
 ehcache-1.7.0
