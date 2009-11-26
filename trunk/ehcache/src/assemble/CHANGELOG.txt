@@ -1,5 +1,74 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+ehcache-1.7.1
+=============
+
+        <release version="1.7.1" date="2009-11-30" description="Maintenance and enablement of modularisation">
+
+            <action dev="Greg Luck" type="update">
+                Enable cache loaders to work with Google App Engine.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="EHC-???">
+                Fixed Cache.toString() bug introduced in 1.7.0.
+            </action>
+            <action dev="Alex Miller" type="fix" issue="EHC-342">
+                Fixed ttl bug introduced in 1.7.0. TTL or TTI values &gt; Integer.MAX_VALUE were incorrectly
+                downcast causing negative values. Most commonly, setting a TTI or TTL of Long.MAX_VALUE
+                caused an exception to be thrown.
+            </action>
+            <action dev="Alex Miller" type="fix" issue="EHC-449">
+                Fixed memory visiblity issues with fields in MemoryStore. Made maximumSize and useKeySample
+                final as they never change.  Made status and policy volatile as they change but weren't
+                guaranteeing visibility.
+            </action>
+            <action dev="Alex Miller" type="fix" issue="EHC-427">
+                Fixed a race that can cause an NPE when evicting with key samples during put.  This
+                can happen if there is a concurrent clear() that wipes the map as the keyArray is
+                not updated under the same lock.  This happens in tests a lot but is probably less
+                common in actual user code.
+            </action>
+            <action dev="Chris Dennis" type="fix" issue="EHC-443">
+                Fixed a number of latent visibility bugs in the Cache class.
+            </action>
+            <action dev="Chris Dennis" type="fix" issue="EHC-445">
+                Fixed a number of latent visibility bugs in the Element class.  Notably updates to
+                the hitCount field are now coherent across multiple threads through the use of an
+                AtomicLongFieldUpdater.
+            </action>
+            <action dev="Abhishek Sanoujam" type="fix" issue="EHC-424">
+                Fixed bug to avoid any limit on the number of caches that can be configured for replication.
+                Earlier there was a limit on the number of caches that can be configured for replication as
+                the heartbeat size was exceeding the MTU when the number of caches were high and/or the caches had
+                long names. Fixed to break up into multiple payloads in case the heartbeat size exceeds the MTU.
+            </action>
+            <action dev="Abhishek Sanoujam" type="fix" issue="EHC-446">
+                Fixed MemoryStore to use sufficient initial capacity for the internal ConcurrentHashMap so that it
+                can accommodate the maximumSize of the store.
+            </action>
+            <action dev="Abhishek Sanoujam" type="fix" issue="EHC-415">
+                Allow Terracotta clustered caches to be added programmatically even when the CacheManager was created
+                initially without any Terracotta clustered caches. e.g. Adding a terracotta clustered cache programmatically
+                to the default singleton CacheManager when there is no ehcache.xml present in the classpath.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="EHC-462">
+                cache.isKeyInCache(null) causes an NPE. Fixed.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="EHC-437">
+                Fixed an issue with disk store when an abrupt JVM termination leaves a persistent disk store
+                in a corrupt state. This problem was introduced in 1.6.
+            </action>
+            <action dev="Greg Luck" type="update" issue="EHC-544">
+                In Ehcache 1.6 the web package was broken out into the ehcache-web module. However the ShutdownListener
+                is useful even if you are not using web caching - you use it to shutdown a CacheManager in a web app,
+                when the servlet container shuts down. For that reason it should be in core. Putting it back.
+            </action>
+            <action dev="Abhishek Sanoujam" type="fix" issue="EHC-533">
+                Added null check to avoid NPE.
+            </action>
+        </release>
+
+
+
 ehcache-1.7.0
 =============
 

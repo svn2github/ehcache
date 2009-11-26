@@ -83,6 +83,8 @@ and ehcache code in the ehcache-core module and jar, which is governed by the Ap
 Both licenses are compatible with one another, and end users who wish to redistribute this kit should be aware that the
 attribution requirement set forth in the Terracotta Public License would apply to such redistribution.
 
+Ehcache 1.7.1 and higher uses SLF4J for logging. The SLF4J license is included in the licenses folder.
+
 
 Known Issues
 ============

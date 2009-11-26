@@ -19,7 +19,18 @@
                 <include>*.txt</include>
                 <include>*.TXT</include>
             </includes>
+            <excludes>
+                <exclude>*LICENSE*</exclude>
+            </excludes>
             <outputDirectory>/</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/assemble</directory>
+            <includes>
+                <include>*LICENSE.txt</include>
+                <include>*LICENSE.TXT</include>
+            </includes>
+            <outputDirectory>/licenses</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>${basedir}/src/main/config</directory>
