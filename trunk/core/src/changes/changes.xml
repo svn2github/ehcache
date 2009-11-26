@@ -2,7 +2,7 @@
 <document>
     <body>
 
-        <release version="1.7.1" date="2009-12-31" description="Unreleased">
+        <release version="1.7.1" date="2009-11-30" description="Maintenance and enablement of modularisation">
 
             <action dev="Greg Luck" type="update">
                 Enable cache loaders to work with Google App Engine. 
