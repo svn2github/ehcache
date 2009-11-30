@@ -2,7 +2,7 @@
 <document>
     <body>
 
-        <release version="1.7.1" date="2009-12-31" description="Unreleased">
+        <release version="1.7.1" date="2009-11-30" description="Maintenance and enablement of modularisation">
 
             <action dev="Greg Luck" type="update">
                 Enable cache loaders to work with Google App Engine. 
@@ -63,6 +63,9 @@
             </action>
             <action dev="Abhishek Sanoujam" type="fix" issue="EHC-533">
                 Added null check to avoid NPE.
+            </action>
+            <action dev="Abhishek Sanoujam" type="fix" issue="EHC-556">
+                Fix for making ehcache work in Google App Engine runtime. JMX classes won't be used when monitoring="off"
             </action>
         </release>
 

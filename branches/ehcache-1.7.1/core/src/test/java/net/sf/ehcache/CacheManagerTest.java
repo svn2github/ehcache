@@ -32,10 +32,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import java.util.logging.Level;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
@@ -55,10 +51,12 @@ import net.sf.ehcache.store.Store;
 
 import org.junit.After;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tests for CacheManager
- * 
+ *
  * @author Greg Luck
  * @version $Id$
  */
@@ -289,7 +287,7 @@ public class CacheManagerTest {
             Thread.sleep(500);
             endingThreadCount = countThreads();
         } while (tries++ < 5 || endingThreadCount >= startingThreadCount + 2);
-        
+
         // Allow a bit of variation.
         assertTrue(endingThreadCount < startingThreadCount + 2);
 
@@ -351,7 +349,7 @@ public class CacheManagerTest {
      * <li>adding a Cache object
      * <li>setting the DiskStore directory path
      * </ol>
-     * 
+     *
      * @throws CacheException
      */
     @Test
