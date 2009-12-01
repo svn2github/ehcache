@@ -7,6 +7,7 @@ import org.terracotta.agent.repkg.de.schlichtherle.io.archive.zip.Zip32InputArch
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AllPermission;
 import java.security.CodeSource;
@@ -88,10 +89,40 @@ public class Jar {
 
   private void inflateIfNeeded() throws IOException {
     if (archive == null) {
-      jarManager.jarOpened(this);
-      contents = Util.extract(source.openStream());
+      // handle multilevel jar in jars
+      String extForm = source.toExternalForm();
+      if (extForm.startsWith("jar:jar:")) {
+        int nesting = getNumJarSeparators(extForm);
+        if (nesting > 2) {
+          // cannot handle more than 3 levels of nesting
+          throw new IOException("Cannot handle more than 3 levels of nested jar lookups");
+        } else if (nesting <= 0) { throw new MalformedURLException("No '!/' found in URL beginning with 'jar:'"); }
+        extForm = extForm.substring("jar:".length());
+        String secondJarUrl = extForm.substring(0, extForm.lastIndexOf("!/"));
+        String resourceInSecondJar = extForm.substring(extForm.lastIndexOf("!/") + "!/".length());
+        if (resourceInSecondJar.startsWith("/")) {
+          resourceInSecondJar = resourceInSecondJar.substring(1);
+        }
+        Jar secondJar = jarManager.getOrCreate(secondJarUrl, new URL(secondJarUrl));
+        contents = secondJar.lookup(resourceInSecondJar);
+      } else {
+        contents = Util.extract(source.openStream());
+      }
       archive = new Zip32InputArchive(new ByteArrayReadOnlyFile(contents), "UTF-8", false, false);
+      jarManager.jarOpened(this);
     }
+  }
+
+  private static int getNumJarSeparators(String str) {
+    int rv = 0;
+    int length = str.length();
+    for (int i = 0; i < length; i++) {
+      char ch = str.charAt(i);
+      if (ch == '!' && i < length - 1 && str.charAt(i + 1) == '/') {
+        rv++;
+      }
+    }
+    return rv;
   }
 
   @Override

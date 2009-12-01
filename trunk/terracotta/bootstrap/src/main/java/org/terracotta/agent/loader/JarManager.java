@@ -25,6 +25,13 @@ public class JarManager {
     this.idleTime = idleTime;
   }
 
+  /**
+   * package protected method used for tests
+   */
+  long getIdleTime() {
+    return idleTime;
+  }
+
   public synchronized Jar getOrCreate(String key, URL source) {
     if (source == null) throw new NullPointerException("null source");
     if (key == null) throw new NullPointerException("key source");
