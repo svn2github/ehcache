@@ -347,7 +347,43 @@ public class TerracottaExample {
     <<<ManagementService>>>.
 
 
+*   Notes
 
+
+     1 minute failover for SAN
+
+     Works with all containers.
+
+     Works with Sun JDK. Not IBM JDK. Not JRocket. 32 and 64 bit ok and mix works.
+
+     Terracotta server on certified servers.
+
+     99.999 Sabre and Party Poker
+
+     3.1 scale it a lot better. 6-12 million objects. 3000 trans (cache operation) per second going to 20000 in 3.2
+
+     Data consistency huge for Sabre
+
+
+
+     Sessions:
+
+     - web sessions
+     -
+
+
+     If use locking (j.u.c) and synchronization you get same behaviour across threads in a cluster
+     and with threads in a local JVM.
+
+     Thing of a node's JVM as a thread group.
+
+     Problem. Your code will throw a RuntimeException if turn on Terracotta.
+
+     Physically no limit. Tested up to 8 stripes and 10GB.
+
+     Stripes use round robin.
+
+     A Terracotta transaction is a lock and unlock.
 
 
 

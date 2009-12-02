@@ -21,6 +21,10 @@
             <action dev="Abhishek Sanoujam" type="fix" issue="EHC-561">
                 Make ExecutorService's use custom ThreadFactory so that pool threads have meaningful names.
             </action>
+            <action dev="Greg Luck" type="fix" issue="EHC-434">
+                Use UUID rather than RMI's UID which does not work in GAE.
+            </action>
+
         </release>
         <release version="1.7.1" date="2009-11-30" description="Maintenance and enablement of modularisation">
 

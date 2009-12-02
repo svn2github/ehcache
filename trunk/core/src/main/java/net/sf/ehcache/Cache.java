@@ -16,32 +16,6 @@
 
 package net.sf.ehcache;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.rmi.server.UID;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.AbstractExecutorService;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
@@ -65,6 +39,31 @@ import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.util.NamedThreadFactory;
 import net.sf.ehcache.util.TimeUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.AbstractExecutorService;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -2279,15 +2278,7 @@ public class Cache implements Ehcache {
      * Create globally unique ID for this cache.
      */
     private String createGuid() {
-        StringBuilder buffer = null;
-        try {
-            buffer = new StringBuilder().append(localhost).append("-").append(new UID());
-        } catch (java.lang.NoClassDefFoundError e) {
-            //Runtime environment restriction. e.g. Google App Engine
-            //Weaker form of GUID. but we do not need it if networking is blocked.
-            buffer = new StringBuilder().append(configuration.getName()).append("-").append(System.currentTimeMillis());
-        }
-
+        StringBuilder buffer = new StringBuilder().append(localhost).append("-").append(UUID.randomUUID());
         return buffer.toString();
     }
 
