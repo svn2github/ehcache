@@ -252,11 +252,11 @@ public class RegisteredEventListeners {
      */
     @Override
     public final String toString() {
-        StringBuffer stringBuffer = new StringBuffer(" cacheEventListeners: ");
+        StringBuilder StringBuilder = new StringBuilder(" cacheEventListeners: ");
         for (CacheEventListener cacheEventListener : cacheEventListeners) {
-                stringBuffer.append(cacheEventListener.getClass().getName()).append(" ");
+                StringBuilder.append(cacheEventListener.getClass().getName()).append(" ");
             }
-        return stringBuffer.toString();
+        return StringBuilder.toString();
     }
 
     /**

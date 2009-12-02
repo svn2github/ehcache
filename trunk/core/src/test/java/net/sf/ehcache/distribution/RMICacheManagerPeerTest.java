@@ -56,7 +56,7 @@ public class RMICacheManagerPeerTest {
      */
     protected CacheManager manager;
     private String hostName = "localhost";
-    private Integer port = new Integer(40000);
+    private Integer port = Integer.valueOf(40000);
     private RMICacheManagerPeerListener peerListener;
     private Cache cache;
 
@@ -71,7 +71,7 @@ public class RMICacheManagerPeerTest {
         manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
         cache = new Cache("test", 10, false, false, 10, 10);
 
-        peerListener = new RMICacheManagerPeerListener(hostName, port, new Integer(0), manager, new Integer(2000));
+        peerListener = new RMICacheManagerPeerListener(hostName, port, Integer.valueOf(0), manager, Integer.valueOf(2000));
     }
 
     /**
@@ -93,7 +93,7 @@ public class RMICacheManagerPeerTest {
     @Test
     public void testCreatePeerWithAutomaticRemotePort() throws RemoteException {
         for (int i = 0; i < 10; i++) {
-            new RMICachePeer(cache, hostName, port, new Integer(0), new Integer(2000));
+            new RMICachePeer(cache, hostName, port, Integer.valueOf(0), Integer.valueOf(2000));
         }
     }
 
@@ -104,7 +104,7 @@ public class RMICacheManagerPeerTest {
     @Test
     public void testCreatePeerWithSpecificRemotePort() throws RemoteException {
         for (int i = 0; i < 10; i++) {
-            new RMICachePeer(cache, hostName, port, new Integer(45000), new Integer(2000));
+            new RMICachePeer(cache, hostName, port, Integer.valueOf(45000), Integer.valueOf(2000));
         }
     }
 
@@ -117,7 +117,7 @@ public class RMICacheManagerPeerTest {
     @Test
     public void testFailsIfTimeoutExceeded() throws Exception {
 
-        RMICachePeer rmiCachePeer = new SlowRMICachePeer(cache, hostName, port, new Integer(1000));
+        RMICachePeer rmiCachePeer = new SlowRMICachePeer(cache, hostName, port, Integer.valueOf(1000));
         peerListener.addCachePeer(cache.getName(), rmiCachePeer);
         peerListener.init();
 
@@ -141,7 +141,7 @@ public class RMICacheManagerPeerTest {
     public void testWorksIfTimeoutNotExceeded() throws Exception {
 
         cache = new Cache("test", 10, false, false, 10, 10);
-        RMICachePeer rmiCachePeer = new SlowRMICachePeer(cache, hostName, port, new Integer(2100));
+        RMICachePeer rmiCachePeer = new SlowRMICachePeer(cache, hostName, port, Integer.valueOf(2100));
 
         peerListener.addCachePeer(cache.getName(), rmiCachePeer);
         peerListener.init();
@@ -162,7 +162,7 @@ public class RMICacheManagerPeerTest {
     public void testSend() throws Exception {
 
         cache = new Cache("test", 10, false, false, 10, 10);
-        RMICachePeer rmiCachePeer = new RMICachePeer(cache, hostName, port, new Integer(0), new Integer(2100));
+        RMICachePeer rmiCachePeer = new RMICachePeer(cache, hostName, port, Integer.valueOf(0), Integer.valueOf(2100));
         manager.addCache(cache);
 
         peerListener.addCachePeer(cache.getName(), rmiCachePeer);
@@ -193,7 +193,7 @@ public class RMICacheManagerPeerTest {
          */
         public SlowRMICachePeer(Ehcache cache, String hostName, Integer port, Integer socketTimeoutMillis)
                 throws RemoteException {
-            super(cache, hostName, port, new Integer(0), socketTimeoutMillis);
+            super(cache, hostName, port, Integer.valueOf(0), socketTimeoutMillis);
         }
 
         /**

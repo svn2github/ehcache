@@ -57,6 +57,8 @@ public class Statistics implements Serializable {
 
     private transient Ehcache cache;
 
+    private final String cacheName;
+    
     private final int statisticsAccuracy;
 
     private final long cacheHits;
@@ -92,6 +94,7 @@ public class Statistics implements Serializable {
     public Statistics(Ehcache cache, int statisticsAccuracy, long cacheHits, long onDiskHits, long inMemoryHits,
                       long misses, long size, float averageGetTime, long evictionCount, long memoryStoreSize,
                       long diskStoreSize) {
+        this.cacheName = cache.getName();
         this.statisticsAccuracy = statisticsAccuracy;
         this.cacheHits = cacheHits;
         this.onDiskHits = onDiskHits;
@@ -235,7 +238,7 @@ public class Statistics implements Serializable {
         if (cache != null) {
             return cache.getName();
         } else {
-            return null;
+            return cacheName;
         }
     }
 
@@ -256,7 +259,7 @@ public class Statistics implements Serializable {
      */
     @Override
     public final String toString() {
-        StringBuffer dump = new StringBuffer();
+        StringBuilder dump = new StringBuilder();
 
         dump.append("[ ")
                 .append(" name = ").append(getAssociatedCacheName())

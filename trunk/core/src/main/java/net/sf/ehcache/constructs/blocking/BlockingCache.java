@@ -463,7 +463,7 @@ public class BlockingCache implements Ehcache {
             try {
                 boolean acquired = lock.tryLock(lockType, timeoutMillis);
                 if (!acquired) {
-                    StringBuffer message = new StringBuffer("Lock timeout. Waited more than ")
+                    StringBuilder message = new StringBuilder("Lock timeout. Waited more than ")
                             .append(timeoutMillis)
                             .append("ms to acquire lock for key ")
                             .append(key).append(" on blocking cache ").append(cache.getName());

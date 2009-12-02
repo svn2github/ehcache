@@ -60,7 +60,7 @@ public class CachePerformanceTest {
             manager.addCache(m500d500Cache);
             m500d500Cache = manager.getCache("m500d45500Cache");
             for (int i = 0; i < 50000; i++) {
-                Integer key = new Integer(i);
+                Integer key = Integer.valueOf(i);
                 m500d500Cache.put(new Element(key, "value" + i));
             }
             stopWatch.getElapsedTime();
@@ -68,7 +68,7 @@ public class CachePerformanceTest {
         }
         time = stopWatch.getElapsedTime();
         for (int i = 0; i < 50000; i++) {
-            Integer key = new Integer(i);
+            Integer key = Integer.valueOf(i);
             m500d500Cache.get(key);
         }
         time = stopWatch.getElapsedTime();
@@ -91,7 +91,7 @@ public class CachePerformanceTest {
             manager.addCache(m500d500Cache);
             m500d500Cache = manager.getCache("m50000Cache");
             for (int i = 0; i < 50000; i++) {
-                Integer key = new Integer(i);
+                Integer key = Integer.valueOf(i);
                 m500d500Cache.put(new Element(key, "value" + i));
             }
             Thread.sleep(1000);
@@ -100,7 +100,7 @@ public class CachePerformanceTest {
         }
         time = stopWatch.getElapsedTime();
         for (int i = 0; i < 50000; i++) {
-            Integer key = new Integer(i);
+            Integer key = Integer.valueOf(i);
             m500d500Cache.get(key);
         }
         time = stopWatch.getElapsedTime();

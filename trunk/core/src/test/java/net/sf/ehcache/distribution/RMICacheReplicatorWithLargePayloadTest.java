@@ -245,7 +245,7 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractCacheTest {
         Arrays.sort(cacheNames);
         for (int i = 0; i < cacheNames.length; i++) {
             String name = cacheNames[i];
-            manager1.getCache(name).put(new Element("" + i, new Integer(i)));
+            manager1.getCache(name).put(new Element("" + i, Integer.valueOf(i)));
             // Add some non serializable elements that should not get propagated
             manager1.getCache(name).put(new Element("nonSerializable" + i, new Object()));
         }
@@ -257,7 +257,7 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractCacheTest {
             Element element = manager2.getCache(name).get("" + i);
             assertNotNull(element);
             assertEquals("" + i, element.getKey());
-            assertEquals(new Integer(i), element.getValue());
+            assertEquals(Integer.valueOf(i), element.getValue());
 
             element = manager2.getCache(name).get("nonSerializable" + i);
             assertNull(element);
@@ -265,7 +265,7 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractCacheTest {
             element = manager3.getCache(name).get("" + i);
             assertNotNull(element);
             assertEquals("" + i, element.getKey());
-            assertEquals(new Integer(i), element.getValue());
+            assertEquals(Integer.valueOf(i), element.getValue());
 
             element = manager3.getCache(name).get("nonSerializable" + i);
             assertNull(element);

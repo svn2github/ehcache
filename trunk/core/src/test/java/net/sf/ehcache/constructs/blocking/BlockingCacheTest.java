@@ -104,7 +104,7 @@ public class BlockingCacheTest extends CacheTest {
     public void testGetEntries() throws Exception {
         Ehcache cache = blockingCache.getCache();
         for (int i = 0; i < 100; i++) {
-            cache.put(new Element(new Integer(i), "value" + i));
+            cache.put(new Element(Integer.valueOf(i), "value" + i));
         }
         List keys = blockingCache.getKeys();
         List elements = new ArrayList();
@@ -119,7 +119,7 @@ public class BlockingCacheTest extends CacheTest {
             map.put(element.getObjectKey(), element.getObjectValue());
         }
         for (int i = 0; i < 100; i++) {
-            Serializable value = (Serializable) map.get(new Integer(i));
+            Serializable value = (Serializable) map.get(Integer.valueOf(i));
             assertEquals("value" + i, value);
         }
     }

@@ -318,7 +318,7 @@ public class LruMemoryStore implements Store {
         if (cache.getCacheConfiguration().isOverflowToDisk()) {
             if (!element.isSerializable()) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(new StringBuffer("Object with key ").append(element.getObjectKey())
+                    LOG.debug(new StringBuilder("Object with key ").append(element.getObjectKey())
                             .append(" is not Serializable and cannot be overflowed to disk").toString());
                 }
             } else {

@@ -56,8 +56,8 @@ public class RMIDistributedCacheTest {
 
     private String hostName = "localhost";
 
-    private Integer port = new Integer(40000);
-    private Integer remoteObjectPort = new Integer(0);
+    private Integer port = Integer.valueOf(40000);
+    private Integer remoteObjectPort = Integer.valueOf(0);
     private Element element;
     private CachePeer cache1Peer;
     private CachePeer cache2Peer;
@@ -77,7 +77,7 @@ public class RMIDistributedCacheTest {
         element = new Element("key", new Date());
         sampleCache1.put(element);
         CacheManagerPeerListener cacheManagerPeerListener =
-                new RMICacheManagerPeerListener(hostName, port, remoteObjectPort, manager, new Integer(2000));
+                new RMICacheManagerPeerListener(hostName, port, remoteObjectPort, manager, Integer.valueOf(2000));
         cacheManagerPeerListener.init();
         cache1Peer = (CachePeer) Naming.lookup(createNamingUrl() + cacheName1);
         cache2Peer = (CachePeer) Naming.lookup(createNamingUrl() + cacheName2);
@@ -112,7 +112,7 @@ public class RMIDistributedCacheTest {
     public void testMultipleCreationOfRMIServers() throws Exception {
         RMICacheManagerPeerListener[] listeners = new RMICacheManagerPeerListener[100];
         for (int i = 0; i < 100; i++) {
-            listeners[i] = new RMICacheManagerPeerListener(hostName, port, remoteObjectPort, manager, new Integer(2000));
+            listeners[i] = new RMICacheManagerPeerListener(hostName, port, remoteObjectPort, manager, Integer.valueOf(2000));
         }
         cache1Peer = (CachePeer) Naming.lookup(createNamingUrl() + cacheName1);
         assertNotNull(cache1Peer);
@@ -130,7 +130,7 @@ public class RMIDistributedCacheTest {
     public void testMultipleCreationOfRMIServersWithSpecificRemoteObjectPort() throws Exception {
         RMICacheManagerPeerListener[] listeners = new RMICacheManagerPeerListener[100];
         for (int i = 0; i < 100; i++) {
-            listeners[i] = new RMICacheManagerPeerListener(hostName, port, new Integer(45000), manager, new Integer(2000));
+            listeners[i] = new RMICacheManagerPeerListener(hostName, port, Integer.valueOf(45000), manager, Integer.valueOf(2000));
         }
         cache1Peer = (CachePeer) Naming.lookup(createNamingUrl() + cacheName1);
         assertNotNull(cache1Peer);

@@ -113,7 +113,7 @@ public final class DiskStoreConfiguration {
         } else {
             String firstFragment = source.substring(0, foundIndex);
             String lastFragment = source.substring(foundIndex + token.length(), source.length());
-            return new StringBuffer()
+            return new StringBuilder()
                     .append(firstFragment)
                     .append(replacement)
                     .append(lastFragment)

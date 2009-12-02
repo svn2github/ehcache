@@ -1841,7 +1841,7 @@ public class Cache implements Ehcache {
      */
     @Override
     public String toString() {
-        StringBuffer dump = new StringBuffer();
+        StringBuilder dump = new StringBuilder();
 
         dump.append("[")
                 .append(" name = ").append(configuration.getName())
@@ -2279,13 +2279,13 @@ public class Cache implements Ehcache {
      * Create globally unique ID for this cache.
      */
     private String createGuid() {
-        StringBuffer buffer = null;
+        StringBuilder buffer = null;
         try {
-            buffer = new StringBuffer().append(localhost).append("-").append(new UID());
+            buffer = new StringBuilder().append(localhost).append("-").append(new UID());
         } catch (java.lang.NoClassDefFoundError e) {
             //Runtime environment restriction. e.g. Google App Engine
             //Weaker form of GUID. but we do not need it if networking is blocked.
-            buffer = new StringBuffer().append(configuration.getName()).append("-").append(System.currentTimeMillis());
+            buffer = new StringBuilder().append(configuration.getName()).append("-").append(System.currentTimeMillis());
         }
 
         return buffer.toString();

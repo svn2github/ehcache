@@ -80,7 +80,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      * @return the URL, without the scheme, as a string e.g. //hostname:port/cacheName
      */
     public final String getUrl() {
-        return new StringBuffer()
+        return new StringBuilder()
                 .append("//")
                 .append(hostname)
                 .append(":")
@@ -98,7 +98,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      * @return the URL, without the scheme, as a string e.g. //hostname:port
      */
     public final String getUrlBase() {
-        return new StringBuffer()
+        return new StringBuilder()
                 .append("//")
                 .append(hostname)
                 .append(":")
@@ -251,7 +251,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      * Returns a String that represents the value of this object.
      */
     public String toString() {
-        StringBuffer buffer = new StringBuffer("URL: ");
+        StringBuilder buffer = new StringBuilder("URL: ");
         buffer.append(getUrl());
         buffer.append(" Remote Object Port: ");
         buffer.append(remoteObjectPort);

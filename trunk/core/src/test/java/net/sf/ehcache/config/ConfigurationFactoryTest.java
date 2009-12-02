@@ -125,7 +125,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
         //Check TTL
         assertTrue(peerProvider instanceof MulticastRMICacheManagerPeerProvider);
-        assertEquals(new Integer(0), ((MulticastRMICacheManagerPeerProvider) peerProvider).getHeartBeatSender().getTimeToLive());
+        assertEquals(Integer.valueOf(0), ((MulticastRMICacheManagerPeerProvider) peerProvider).getHeartBeatSender().getTimeToLive());
 
         //Check CacheManagerEventListener
         assertEquals(null, configurationHelper.createCacheManagerEventListener());
@@ -235,7 +235,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
         //Check TTL
         assertTrue(peerProvider instanceof MulticastRMICacheManagerPeerProvider);
-        assertEquals(new Integer(1), ((MulticastRMICacheManagerPeerProvider) peerProvider).getHeartBeatSender().getTimeToLive());
+        assertEquals(Integer.valueOf(1), ((MulticastRMICacheManagerPeerProvider) peerProvider).getHeartBeatSender().getTimeToLive());
 
 
         //Check default cache
@@ -440,7 +440,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
         //Check TTL
         assertTrue(peerProvider instanceof MulticastRMICacheManagerPeerProvider);
-        assertEquals(new Integer(0), ((MulticastRMICacheManagerPeerProvider) peerProvider).getHeartBeatSender().getTimeToLive());
+        assertEquals(Integer.valueOf(0), ((MulticastRMICacheManagerPeerProvider) peerProvider).getHeartBeatSender().getTimeToLive());
 
 
         //check CacheManagerPeerListener

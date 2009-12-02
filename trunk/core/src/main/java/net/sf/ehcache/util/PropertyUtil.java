@@ -55,7 +55,7 @@ public final class PropertyUtil {
             foundValue = foundValue.trim();
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug(new StringBuffer().append("Value found for ").append(name).append(": ").append(foundValue).toString());
+            LOG.debug(new StringBuilder().append("Value found for ").append(name).append(": ").append(foundValue).toString());
         }
         return foundValue;
     }
@@ -72,7 +72,7 @@ public final class PropertyUtil {
             foundValue = foundValue.trim();
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug(new StringBuffer().append("Value found for ").append(name).append(": ").append(foundValue).toString());
+            LOG.debug(new StringBuilder().append("Value found for ").append(name).append(": ").append(foundValue).toString());
         }
         return foundValue;
     }

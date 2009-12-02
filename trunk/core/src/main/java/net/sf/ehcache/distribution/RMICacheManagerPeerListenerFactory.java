@@ -42,7 +42,7 @@ public class RMICacheManagerPeerListenerFactory extends CacheManagerPeerListener
      * The default timeout for cache replication for a single replication action.
      * This may need to be increased for large data transfers.
      */
-    public static final Integer DEFAULT_SOCKET_TIMEOUT_MILLIS = new Integer(120000);
+    public static final Integer DEFAULT_SOCKET_TIMEOUT_MILLIS = Integer.valueOf(120000);
 
     private static final String HOSTNAME = "hostName";
     private static final String PORT = "port";
@@ -60,18 +60,18 @@ public class RMICacheManagerPeerListenerFactory extends CacheManagerPeerListener
         String portString = PropertyUtil.extractAndLogProperty(PORT, properties);
         Integer port = null;
         if (portString != null && portString.length() != 0) {
-            port = new Integer(portString);
+            port = Integer.valueOf(portString);
         } else {
-            port = new Integer(0);
+            port = Integer.valueOf(0);
         }
 
         //0 means any port in UnicastRemoteObject, so it is ok if not specified to make it 0
         String remoteObjectPortString = PropertyUtil.extractAndLogProperty(REMOTE_OBJECT_PORT, properties);
         Integer remoteObjectPort = null;
         if (remoteObjectPortString != null && remoteObjectPortString.length() != 0) {
-            remoteObjectPort = new Integer(remoteObjectPortString);
+            remoteObjectPort = Integer.valueOf(remoteObjectPortString);
         } else {
-            remoteObjectPort = new Integer(0);
+            remoteObjectPort = Integer.valueOf(0);
         }
 
         String socketTimeoutMillisString = PropertyUtil.extractAndLogProperty(SOCKET_TIMEOUT_MILLIS, properties);
@@ -79,7 +79,7 @@ public class RMICacheManagerPeerListenerFactory extends CacheManagerPeerListener
         if (socketTimeoutMillisString == null || socketTimeoutMillisString.length() == 0) {
             socketTimeoutMillis = DEFAULT_SOCKET_TIMEOUT_MILLIS;
         } else {
-            socketTimeoutMillis = new Integer(socketTimeoutMillisString);
+            socketTimeoutMillis = Integer.valueOf(socketTimeoutMillisString);
         }
         return doCreateCachePeerListener(hostName, port, remoteObjectPort, cacheManager, socketTimeoutMillis);
     }

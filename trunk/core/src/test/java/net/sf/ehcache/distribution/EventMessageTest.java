@@ -54,12 +54,12 @@ public class EventMessageTest {
         AbstractCacheTest.forceVMGrowth();
         Map map = new HashMap();
         for (int i = 0; i < 100; i++) {
-            map.put(new Integer(i), new SoftReference(new byte[1000000]));
+            map.put(Integer.valueOf(i), new SoftReference(new byte[1000000]));
         }
 
         int counter = 0;
         for (int i = 0; i < 100; i++) {
-            SoftReference softReference = (SoftReference) map.get(new Integer(i));
+            SoftReference softReference = (SoftReference) map.get(Integer.valueOf(i));
             byte[] payload = (byte[]) softReference.get();
             if (payload != null) {
                 LOG.info("Value found for " + i);

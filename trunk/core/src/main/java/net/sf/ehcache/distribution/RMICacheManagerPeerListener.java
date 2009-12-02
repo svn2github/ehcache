@@ -149,7 +149,7 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
         if (status != Status.STATUS_UNINITIALISED) {
             throw new IllegalStateException("Cannot change the port of an already started listener.");
         }
-        this.port = new Integer(this.getFreePort());
+        this.port = Integer.valueOf(this.getFreePort());
         if (forced) {
             LOG.warn("Resolving RMI port conflict by automatically using a free TCP/IP port to listen on: " + this.port);
         } else {

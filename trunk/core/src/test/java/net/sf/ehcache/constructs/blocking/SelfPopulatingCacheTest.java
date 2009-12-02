@@ -588,8 +588,8 @@ public class SelfPopulatingCacheTest extends CacheTest {
         Element e2 = selfPopulatingCache.get("key2");
         assertEquals(2, selfPopulatingCache.getSize());
         assertEquals(2, factory.getCount());
-        assertEquals(new Integer(1), e1.getValue());
-        assertEquals(new Integer(2), e2.getValue());
+        assertEquals(Integer.valueOf(1), e1.getValue());
+        assertEquals(Integer.valueOf(2), e2.getValue());
 
         // full refresh
         selfPopulatingCache.refresh();
@@ -612,7 +612,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
         assertEquals(5, factory.getCount());
         assertNotNull(e2r);
         assertEquals("key2", e2r.getKey());
-        assertEquals(new Integer(5), e2r.getValue());
+        assertEquals(Integer.valueOf(5), e2r.getValue());
 
         // additional element
         Element e3 = selfPopulatingCache.get("key3");
@@ -620,7 +620,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
         assertEquals(6, factory.getCount());
         assertNotNull(e3);
         assertEquals("key3", e3.getKey());
-        assertEquals(new Integer(6), e3.getValue());
+        assertEquals(Integer.valueOf(6), e3.getValue());
 
         // full refresh
         selfPopulatingCache.refresh();
@@ -649,7 +649,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
         assertEquals(5, factory.getCount());
         assertNotNull(e3);
         assertEquals("key3", e3.getKey());
-        assertEquals(new Integer(5), e3.getValue());
+        assertEquals(Integer.valueOf(5), e3.getValue());
     }
 
     @Test
@@ -751,7 +751,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
 
         public Object createEntry(Object key) throws Exception {
             count++;
-            return new Integer(count);
+            return Integer.valueOf(count);
         }
 
         /**

@@ -661,7 +661,7 @@ public class CacheManagerTest {
             String name = names[i];
             Ehcache cache = singletonManager.getCache(name);
             for (int j = 0; i < 100; i++) {
-                cache.put(new Element(new Integer(j), "value"));
+                cache.put(new Element(Integer.valueOf(j), "value"));
             }
         }
         StopWatch stopWatch = new StopWatch();
@@ -672,7 +672,7 @@ public class CacheManagerTest {
                 for (int j = 0; i < 100; i++) {
                     Element element = cache.get(name + j);
                     if ((element == null)) {
-                        cache.put(new Element(new Integer(j), "value"));
+                        cache.put(new Element(Integer.valueOf(j), "value"));
                     }
                 }
             }

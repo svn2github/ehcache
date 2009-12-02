@@ -489,8 +489,8 @@ public class CacheTest extends AbstractCacheTest {
         manager.addCache(memoryOnlyCache);
         time = stopWatch.getElapsedTime();
         for (int i = 0; i < 5000; i++) {
-            Integer key = new Integer(i);
-            memoryOnlyCache.put(new Element(new Integer(i), "value"));
+            Integer key = Integer.valueOf(i);
+            memoryOnlyCache.put(new Element(Integer.valueOf(i), "value"));
             memoryOnlyCache.get(key);
         }
         time = stopWatch.getElapsedTime();
@@ -501,8 +501,8 @@ public class CacheTest extends AbstractCacheTest {
         for (int j = 0; j < 10; j++) {
             time = stopWatch.getElapsedTime();
             for (int i = 0; i < 5000; i++) {
-                Integer key = new Integer(i);
-                memoryOnlyCache.put(new Element(new Integer(i), "value"));
+                Integer key = Integer.valueOf(i);
+                memoryOnlyCache.put(new Element(Integer.valueOf(i), "value"));
                 memoryOnlyCache.get(key);
             }
             time = stopWatch.getElapsedTime();
@@ -517,8 +517,8 @@ public class CacheTest extends AbstractCacheTest {
         for (int j = 0; j < 10; j++) {
             time = stopWatch.getElapsedTime();
             for (int i = 0; i < 5000; i++) {
-                Integer key = new Integer(i);
-                exceptionHandlingMemoryOnlyCache.put(new Element(new Integer(i), "value"));
+                Integer key = Integer.valueOf(i);
+                exceptionHandlingMemoryOnlyCache.put(new Element(Integer.valueOf(i), "value"));
                 exceptionHandlingMemoryOnlyCache.get(key);
             }
             time = stopWatch.getElapsedTime();
@@ -534,7 +534,7 @@ public class CacheTest extends AbstractCacheTest {
         manager.addCache(diskOnlyCache);
         time = stopWatch.getElapsedTime();
         for (int i = 0; i < 5000; i++) {
-            Integer key = new Integer(i);
+            Integer key = Integer.valueOf(i);
             diskOnlyCache.put(new Element(key, "value"));
             diskOnlyCache.get(key);
         }
@@ -549,7 +549,7 @@ public class CacheTest extends AbstractCacheTest {
         manager.addCache(m1d999Cache);
         time = stopWatch.getElapsedTime();
         for (int i = 0; i < 5000; i++) {
-            Integer key = new Integer(i);
+            Integer key = Integer.valueOf(i);
             m1d999Cache.put(new Element(key, "value"));
             m1d999Cache.get(key);
         }
@@ -564,7 +564,7 @@ public class CacheTest extends AbstractCacheTest {
         manager.addCache(m500d500Cache);
         time = stopWatch.getElapsedTime();
         for (int i = 0; i < 5000; i++) {
-            Integer key = new Integer(i);
+            Integer key = Integer.valueOf(i);
             m500d500Cache.put(new Element(key, "value"));
             m500d500Cache.get(key);
         }
@@ -2483,7 +2483,7 @@ public class CacheTest extends AbstractCacheTest {
 
         List keys = new ArrayList();
         for (int i = 0; i < 1000; i++) {
-            keys.add(new Integer(i));
+            keys.add(Integer.valueOf(i));
         }
 
         Future future = cache.asynchronousLoadAll(keys, null);

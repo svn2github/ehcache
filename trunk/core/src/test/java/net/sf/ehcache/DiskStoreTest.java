@@ -604,7 +604,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     public void testClassloading() throws Exception {
         final DiskStore diskStore = createDiskStore();
 
-        Long value = new Long(123L);
+        Long value = Long.valueOf(123L);
         Element element = new Element("key", value);
         diskStore.put(element);
         Thread.sleep(1000);
@@ -841,7 +841,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * fragmented space? Unlikely in production to get contiguous fragments as in the first form
      * of this test.
      * <p/>
-     * Using a key of new Integer(i * outer) the size stays constant at 140800.
+     * Using a key of Integer.valueOf(i * outer) the size stays constant at 140800.
      *
      * @throws InterruptedException
      */
@@ -853,7 +853,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         byte[] data = new byte[1024];
         for (int outer = 1; outer <= 10; outer++) {
             for (int i = 0; i < 100; i++) {
-                Element element = new Element(new Integer(i * outer), data);
+                Element element = new Element(Integer.valueOf(i * outer), data);
                 element.setTimeToLive(1);
                 diskStore.put(element);
             }
@@ -1094,7 +1094,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         try {
             for (; i < 100; i++) {
                 for (j = 0; j < 100000; j++) {
-                    index = new Integer(((1000000 * i) + j));
+                    index = Integer.valueOf(((1000000 * i) + j));
                     cache.put(new Element(index,
                             "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                     + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -1143,7 +1143,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         Integer index;
         for (; i < 5; i++) {
             for (j = 0; j < 100000; j++) {
-                index = new Integer(((1000000 * i) + j));
+                index = Integer.valueOf(((1000000 * i) + j));
                 cache.put(new Element(index,
                         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -1166,7 +1166,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         long getStart = stopWatch.getElapsedTime();
 
         for (int k = 0; k < 1000000; k++) {
-            Integer key = new Integer(random.nextInt(500000));
+            Integer key = Integer.valueOf(random.nextInt(500000));
             cache.get(key);
         }
 

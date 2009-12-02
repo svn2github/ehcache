@@ -151,7 +151,7 @@ public class RMIBootstrapCacheLoaderTest {
         Integer index = null;
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 1000; j++) {
-                index = new Integer(((1000 * i) + j));
+                index = Integer.valueOf(((1000 * i) + j));
                 manager2.getCache("sampleCache1").put(new Element(index,
                         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -185,7 +185,7 @@ public class RMIBootstrapCacheLoaderTest {
         Integer index = null;
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 1000; j++) {
-                index = new Integer(((1000 * i) + j));
+                index = Integer.valueOf(((1000 * i) + j));
                 manager2.getCache("sampleCache2").put(new Element(index,
                         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"

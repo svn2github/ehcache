@@ -112,14 +112,14 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
         String groupAddressString = PropertyUtil.extractAndLogProperty(MULTICAST_GROUP_ADDRESS, properties);
         InetAddress groupAddress = InetAddress.getByName(groupAddressString);
         String multicastPortString = PropertyUtil.extractAndLogProperty(MULTICAST_GROUP_PORT, properties);
-        Integer multicastPort = new Integer(multicastPortString);
+        Integer multicastPort = Integer.valueOf(multicastPortString);
         String packetTimeToLiveString = PropertyUtil.extractAndLogProperty(MULTICAST_PACKET_TTL, properties);
         Integer timeToLive;
         if (packetTimeToLiveString == null) {
-            timeToLive = new Integer(1);
+            timeToLive = Integer.valueOf(1);
             LOG.debug("No TTL set. Setting it to the default of 1, which means packets are limited to the same subnet.");
         } else {
-            timeToLive = new Integer(packetTimeToLiveString);
+            timeToLive = Integer.valueOf(packetTimeToLiveString);
             if (timeToLive.intValue() < 0 || timeToLive.intValue() > MAXIMUM_TTL) {
                 throw new CacheException("The TTL must be set to a value between 0 and 255");
             }

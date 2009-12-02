@@ -1011,7 +1011,7 @@ public class DiskStore implements Store {
      */
     @Override
     public final String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("[ dataFile = ").append(dataFile.getAbsolutePath())
                 .append(", active=").append(active)
                 .append(", totalSize=").append(totalSize)

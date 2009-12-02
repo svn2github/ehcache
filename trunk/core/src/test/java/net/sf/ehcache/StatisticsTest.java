@@ -157,6 +157,7 @@ public class StatisticsTest extends AbstractCacheTest {
         cache.get("key1");
 
         Statistics statistics = cache.getStatistics();
+        assertEquals("test", statistics.getAssociatedCacheName());
         assertEquals(2, statistics.getCacheHits());
         assertEquals(1, statistics.getOnDiskHits());
         assertEquals(1, statistics.getInMemoryHits());
@@ -177,6 +178,7 @@ public class StatisticsTest extends AbstractCacheTest {
         ois.close();
 
         // Check after Serialization
+        assertEquals("test", afterDeserializationStatistics.getAssociatedCacheName());
         assertEquals(2, afterDeserializationStatistics.getCacheHits());
         assertEquals(1, afterDeserializationStatistics.getOnDiskHits());
         assertEquals(1, afterDeserializationStatistics.getInMemoryHits());

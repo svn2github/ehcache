@@ -303,7 +303,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         Arrays.sort(cacheNames);
         for (int i = 0; i < cacheNames.length; i++) {
             String name = cacheNames[i];
-            manager1.getCache(name).put(new Element("" + i, new Integer(i)));
+            manager1.getCache(name).put(new Element("" + i, Integer.valueOf(i)));
             //Add some non serializable elements that should not get propagated
             manager1.getCache(name).put(new Element("nonSerializable" + i, new Object()));
         }
@@ -367,7 +367,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         Arrays.sort(cacheNames);
         for (int i = 0; i < cacheNames.length; i++) {
             String name = cacheNames[i];
-            manager1.getCache(name).put(new Element("" + i, new Integer(i)));
+            manager1.getCache(name).put(new Element("" + i, Integer.valueOf(i)));
             //Add some non serializable elements that should not get propagated
             manager1.getCache(name).put(new Element("nonSerializable" + i, new Object()));
         }
@@ -478,7 +478,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         Integer index = null;
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 1000; j++) {
-                index = new Integer(((1000 * i) + j));
+                index = Integer.valueOf(((1000 * i) + j));
                 cache1.put(new Element(index,
                         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -519,7 +519,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         Integer index = null;
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 1000; j++) {
-                index = new Integer(((1000 * i) + j));
+                index = Integer.valueOf(((1000 * i) + j));
                 cache1.put(new Element(index,
                         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -593,7 +593,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         Integer index = null;
         for (int i = 0; i < 500; i++) {
             for (int j = 0; j < 1000; j++) {
-                index = new Integer(((1000 * i) + j));
+                index = Integer.valueOf(((1000 * i) + j));
                 cache1.put(new Element(index,
                         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -635,7 +635,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         Integer index = null;
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 1000; j++) {
-                index = new Integer(((1000 * i) + j));
+                index = Integer.valueOf(((1000 * i) + j));
                 cache1.put(new Element(index,
                         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -660,7 +660,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
 
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 1000; j++) {
-                cache1.remove(new Integer(((1000 * i) + j)));
+                cache1.remove(Integer.valueOf(((1000 * i) + j)));
             }
         }
 
@@ -710,7 +710,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         Integer index;
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 1000; j++) {
-                index = new Integer(((1000 * i) + j));
+                index = Integer.valueOf(((1000 * i) + j));
                 manager1.getCache("sampleCache3").put(new Element(index,
                         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -1509,7 +1509,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
             Random random = new Random();
 
             for (int i = 0; i < 20; i++) {
-                Integer key = new Integer((i));
+                Integer key = Integer.valueOf((i));
                 int operationSelector = random.nextInt(4);
                 Cache cache = manager.getCache(cacheName);
                 if (operationSelector == 100) {

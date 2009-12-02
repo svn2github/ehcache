@@ -85,7 +85,7 @@ public class ExceptionThrowingLoader extends CountingCacheLoader {
             } catch (InterruptedException e) {
                 LOG.error("Interrupted");
             }
-            map.put(key, new Integer(loadAllCounter++));
+            map.put(key, Integer.valueOf(loadAllCounter++));
             throw new CacheException("Some exception with key " + key);
         }
 

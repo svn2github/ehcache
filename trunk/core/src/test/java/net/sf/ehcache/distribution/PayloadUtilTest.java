@@ -150,7 +150,7 @@ public class PayloadUtilTest {
 
         String[] names = manager.getCacheNames();
         String urlBase = "//localhost.localdomain:12000/";
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         for (String name : names) {
             buffer.append(urlBase);
             buffer.append(name);

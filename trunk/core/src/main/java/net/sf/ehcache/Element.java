@@ -464,7 +464,7 @@ public class Element implements Serializable, Cloneable {
      */
     @Override
     public final String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append("[ key = ").append(key)
                 .append(", value=").append(value)

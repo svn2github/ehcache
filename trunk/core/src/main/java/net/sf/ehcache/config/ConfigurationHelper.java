@@ -401,7 +401,7 @@ public final class ConfigurationHelper {
                 count++;
             }
         }
-        return new Integer(count);
+        return Integer.valueOf(count);
     }
 
 
@@ -418,7 +418,7 @@ public final class ConfigurationHelper {
                 count++;
             }
         }
-        return new Integer(count);
+        return Integer.valueOf(count);
     }
 
     /**

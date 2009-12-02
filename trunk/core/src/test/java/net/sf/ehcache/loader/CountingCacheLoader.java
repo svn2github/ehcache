@@ -64,7 +64,7 @@ public class CountingCacheLoader implements CacheLoader {
         } catch (InterruptedException e) {
             LOG.error("Interrupted");
         }
-        return new Integer(loadCounter++);
+        return Integer.valueOf(loadCounter++);
     }
 
     /**
@@ -87,7 +87,7 @@ public class CountingCacheLoader implements CacheLoader {
             } catch (InterruptedException e) {
                 LOG.error("Interrupted");
             }
-            map.put(key, new Integer(loadAllCounter++));
+            map.put(key, Integer.valueOf(loadAllCounter++));
         }
         return map;
     }
