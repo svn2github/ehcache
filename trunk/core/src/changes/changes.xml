@@ -15,6 +15,12 @@
                 Added the Exception causing the issue to the CacheException. The message now includes the key,
                 rather than null.
             </action>
+            <action dev="Abhishek Sanoujam" type="fix" issue="EHC-549">
+                Made "stopped" variable volatile in MulticastKeepaliveHeartbeatSender/Receiver to make it thread-safe
+            </action>
+            <action dev="Abhishek Sanoujam" type="fix" issue="EHC-561">
+                Make ExecutorService's use custom ThreadFactory so that pool threads have meaningful names.
+            </action>
         </release>
         <release version="1.7.1" date="2009-11-30" description="Maintenance and enablement of modularisation">
 
