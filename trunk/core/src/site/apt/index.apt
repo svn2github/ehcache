@@ -49,6 +49,20 @@ Welcome to ehcache
 
 * Latest News
 
+** 30 November 2009: New 1.7.1 GA release - ehcache, ehcache-core and ehcache-terracotta
+
+  This is a final GA release of ehcache-1.7.1 comprising ehcache, ehcache-core and ehcache-terracotta modules.
+
+  This release contains 15 fixes and improvements over 1.7.0. See the {{{http://ehcache.org/changes-report.html}changelog}} for complete details.
+  Downloads and Maven modules are available {{{http://www.terracotta.org/dl/ehcache-oss-sign-up}here}}.
+
+  Very significantly, this release will enable new GA releases of the other ehcache modules, such as ehcache-web, which we expect to release
+  over the next few weeks.
+
+  Note: If you experience different caching ergonomics you can enable the <<<LinkedHashMap>>> based engine with
+  <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>. This is the engine enabled up to 1.5.
+
+
 ** 21 November 2009: Greg Luck, founder of ehcache, is in the US for two months/Roadmap Updated
 
   Greg Luck, the founder of ehcache and now part of Terracotta, is working out of the Terracotta office in San Francisco.

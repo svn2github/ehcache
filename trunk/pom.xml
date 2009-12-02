@@ -28,6 +28,7 @@
     <module>jgroupsreplication</module>
     <module>openjpa</module>
     <module>terracotta</module>
+    <module>googleappengine</module>
   </modules>
 -->
 
@@ -458,7 +459,7 @@
 
     <issueManagement>
         <system>Terracotta's JIRA</system>
-        <url>https://jira.terracotta.org/jira/browse/EHC</url>
+        <url>https://jira.terracotta.org/browse/EHC</url>
     </issueManagement>
 
 
@@ -514,7 +515,4 @@
         <tag/>
     </scm>
 
-  <modules>
-    <module>googleappengine</module>
-  </modules>
 </project>
