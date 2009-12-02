@@ -161,12 +161,13 @@ public class SelfPopulatingCache extends BlockingCache {
                 // Throw the exception once all the entries have been refreshed
                 // If the refresh fails, keep the old element. It will simply become staler.
                 LOG.warn(getName() + "Could not refresh element " + key, e);
+                keyWithException = key;
                 exception = e;
             }
         }
 
         if (exception != null) {
-            throw new CacheException(exception.getMessage() + " on refresh with key " + keyWithException);
+            throw new CacheException(exception.getMessage() + " on refresh with key " + keyWithException, exception);
         }
     }
 

@@ -79,6 +79,9 @@ public class CountingCacheEntryFactory implements UpdatingCacheEntryFactory {
      */
     public void updateEntryValue(Object key, Object value) throws Exception {
         count++;
+        if (key.equals("explode") && count > 1) {
+            throw new RuntimeException("EXPLODE!");
+        }
     }
 
 }

@@ -18,6 +18,7 @@ package net.sf.ehcache.constructs.blocking;
 
 import static junit.framework.Assert.assertSame;
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.CacheTest;
 import net.sf.ehcache.Ehcache;
@@ -180,6 +181,30 @@ public class SelfPopulatingCacheTest extends CacheTest {
         assertSame(value, selfPopulatingCache.get("key").getObjectValue());
         assertEquals(2, factory.getCount());
 
+    }
+
+    /**
+     * Tests refreshing the entries.
+     */
+    @Test
+    public void testRefreshWithException() throws Exception {
+        final String value = "value";
+        final CountingCacheEntryFactory factory = new CountingCacheEntryFactory(value);
+        selfPopulatingCache = new SelfPopulatingCache(cache, factory);
+
+        // Check the value
+        String explodingKey = "explode";
+        assertSame(value, selfPopulatingCache.get(explodingKey).getObjectValue());
+        assertEquals(1, factory.getCount());
+
+        // Refresh
+        try {
+            selfPopulatingCache.refresh();
+            fail("This should have exploded!");
+        } catch (CacheException e) {
+            assertNotNull(e.getCause());
+            assertEquals(e.getCause().getMessage() + " on refresh with key " + explodingKey, e.getMessage());
+        }
     }
 
     /**
