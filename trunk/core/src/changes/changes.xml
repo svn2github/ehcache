@@ -11,6 +11,10 @@
                 Added a non-transient cache name field to the Statistics class so that cache names
                 persist after passing through serialization.
             </action>
+            <action dev="Chris Dennis" type="fix" issue="EHC-518">
+                Added the Exception causing the issue to the CacheException. The message now includes the key,
+                rather than null.
+            </action>
         </release>
         <release version="1.7.1" date="2009-11-30" description="Maintenance and enablement of modularisation">
 
