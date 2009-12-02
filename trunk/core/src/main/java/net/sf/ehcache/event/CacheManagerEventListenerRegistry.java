@@ -188,11 +188,11 @@ public class CacheManagerEventListenerRegistry implements CacheManagerEventListe
      * @return a string representation of the object.
      */
     public String toString() {
-        StringBuilder StringBuilder = new StringBuilder(" cacheManagerEventListeners: ");
+        StringBuilder sb = new StringBuilder(" cacheManagerEventListeners: ");
         for (Iterator iterator = listeners.iterator(); iterator.hasNext();) {
             CacheManagerEventListener cacheManagerEventListener = (CacheManagerEventListener) iterator.next();
-            StringBuilder.append(cacheManagerEventListener.getClass().getName()).append(" ");
+            sb.append(cacheManagerEventListener.getClass().getName()).append(" ");
         }
-        return StringBuilder.toString();
+        return sb.toString();
     }
 }

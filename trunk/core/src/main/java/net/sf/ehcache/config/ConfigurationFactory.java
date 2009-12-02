@@ -165,13 +165,13 @@ public final class ConfigurationFactory {
      */
     private static InputStream translateSystemProperties(InputStream inputStream) throws IOException {
 
-        StringBuilder StringBuilder = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         int c;
         Reader reader = new InputStreamReader(inputStream, "UTF-8");
         while ((c = reader.read()) != -1) {
-            StringBuilder.append((char) c);
+            sb.append((char) c);
         }
-        String configuration = StringBuilder.toString();
+        String configuration = sb.toString();
 
         Set tokens = extractPropertyTokens(configuration);
         for (Object tokenObject : tokens) {

@@ -2,6 +2,16 @@
 <document>
     <body>
 
+        <release version="1.7.2" date="2009-12-21" description="Maintenance and bug fixes">
+            <action dev="Chris Dennis" type="fix" issue="EHC-435">
+                Replaced single threaded use of StringBuffer with StringBuilder.  Switched to using 
+                valueOf methods for creative primitive wrapper instances instead of new'ing them.
+            </action>
+            <action dev="Chris Dennis" type="fix" issue="EHC-513">
+                Added a non-transient cache name field to the Statistics class so that cache names
+                persist after passing through serialization.
+            </action>
+        </release>
         <release version="1.7.1" date="2009-11-30" description="Maintenance and enablement of modularisation">
 
             <action dev="Greg Luck" type="update">
