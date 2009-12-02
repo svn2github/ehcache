@@ -60,7 +60,7 @@ public class EhCacheDataCache extends AbstractDataCache implements DataCache {
     /**
      *
      */
-    protected boolean useDefaultForUnnamedCaches = false;
+    protected boolean useDefaultForUnnamedCaches;
 
     /**
      *
@@ -182,7 +182,7 @@ public class EhCacheDataCache extends AbstractDataCache implements DataCache {
     @Override
     protected void removeAllInternal(Class cls, boolean subclasses) {
         for (Map.Entry<Class, Ehcache> entry : caches.entrySet()) {
-            if(subclasses) {
+            if (subclasses) {
                 if (cls.isAssignableFrom(entry.getKey())) {
                     entry.getValue().removeAll();
                 }
@@ -254,7 +254,7 @@ public class EhCacheDataCache extends AbstractDataCache implements DataCache {
             }
             if ((name == null || "default".equals(name)) && !isUseDefaultForUnnamedCaches()) {
                 name = clazz.getName();
-            } else if(isUseDefaultForUnnamedCaches()) {
+            } else if (isUseDefaultForUnnamedCaches()) {
                 name = getDefaultName();
             }
 

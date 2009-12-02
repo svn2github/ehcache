@@ -133,18 +133,24 @@ public class TestEhCache extends TestCase {
         assertTrue(getCache(qObject.getClass()).contains(getOpenJPAId(qObject, qObject.getId())));
         assertTrue(getCache(pObject.getClass()).contains(getOpenJPAId(pObject, pObject.getId())));
         evictAllOfType(qObject.getClass(), false);
-        assertFalse("QObject entries should be all gone", OpenJPAPersistence.cast(emf).getStoreCache().contains(qObject.getClass(), qObject.getId()));
-        assertTrue("SubQObject entries should still be in the cache", OpenJPAPersistence.cast(emf).getStoreCache().contains(subQObject.getClass(), subQObject.getId()));
-        assertTrue("This PObject object should still be in the cache", OpenJPAPersistence.cast(emf).getStoreCache().contains(pObject.getClass(), pObject.getId()));
+        assertFalse("QObject entries should be all gone",
+            OpenJPAPersistence.cast(emf).getStoreCache().contains(qObject.getClass(), qObject.getId()));
+        assertTrue("SubQObject entries should still be in the cache",
+            OpenJPAPersistence.cast(emf).getStoreCache().contains(subQObject.getClass(), subQObject.getId()));
+        assertTrue("This PObject object should still be in the cache",
+            OpenJPAPersistence.cast(emf).getStoreCache().contains(pObject.getClass(), pObject.getId()));
         tx = entityManager.getTransaction();
         tx.begin();
         qObject = new QObject("two");
         entityManager.persist(qObject);
         tx.commit();
         evictAllOfType(qObject.getClass(), true);
-        assertFalse("QObject entries should be all gone", OpenJPAPersistence.cast(emf).getStoreCache().contains(qObject.getClass(), qObject.getId()));
-        assertFalse("SubQObject entries should be all gone", OpenJPAPersistence.cast(emf).getStoreCache().contains(subQObject.getClass(), subQObject.getId()));
-        assertTrue("This PObject object should still be in the cache", OpenJPAPersistence.cast(emf).getStoreCache().contains(pObject.getClass(), pObject.getId()));
+        assertFalse("QObject entries should be all gone",
+            OpenJPAPersistence.cast(emf).getStoreCache().contains(qObject.getClass(), qObject.getId()));
+        assertFalse("SubQObject entries should be all gone",
+            OpenJPAPersistence.cast(emf).getStoreCache().contains(subQObject.getClass(), subQObject.getId()));
+        assertTrue("This PObject object should still be in the cache",
+            OpenJPAPersistence.cast(emf).getStoreCache().contains(pObject.getClass(), pObject.getId()));
         tx = entityManager.getTransaction();
         tx.begin();
         qObject = new QObject("three");
@@ -153,18 +159,24 @@ public class TestEhCache extends TestCase {
         entityManager.persist(subQObject);
         tx.commit();
         evictAllOfType(subQObject.getClass(), false);
-        assertTrue("QObject entries should still be in the cache", OpenJPAPersistence.cast(emf).getStoreCache().contains(qObject.getClass(), qObject.getId()));
-        assertFalse("SubQObject entries should be all gone", OpenJPAPersistence.cast(emf).getStoreCache().contains(subQObject.getClass(), subQObject.getId()));
-        assertTrue("This PObject object should still be in the cache", OpenJPAPersistence.cast(emf).getStoreCache().contains(pObject.getClass(), pObject.getId()));
+        assertTrue("QObject entries should still be in the cache",
+            OpenJPAPersistence.cast(emf).getStoreCache().contains(qObject.getClass(), qObject.getId()));
+        assertFalse("SubQObject entries should be all gone",
+            OpenJPAPersistence.cast(emf).getStoreCache().contains(subQObject.getClass(), subQObject.getId()));
+        assertTrue("This PObject object should still be in the cache",
+            OpenJPAPersistence.cast(emf).getStoreCache().contains(pObject.getClass(), pObject.getId()));
         tx = entityManager.getTransaction();
         tx.begin();
         subQObject = new SubQObject("three", "three");
         entityManager.persist(subQObject);
         tx.commit();
         evictAllOfType(pObject.getClass(), true);
-        assertTrue("QObject entries should still be in the cache", OpenJPAPersistence.cast(emf).getStoreCache().contains(qObject.getClass(), qObject.getId()));
-        assertTrue("SubQObject entries should still be in the cache", OpenJPAPersistence.cast(emf).getStoreCache().contains(subQObject.getClass(), subQObject.getId()));
-        assertFalse("This PObject object should be gone", OpenJPAPersistence.cast(emf).getStoreCache().contains(pObject.getClass(), pObject.getId()));
+        assertTrue("QObject entries should still be in the cache",
+            OpenJPAPersistence.cast(emf).getStoreCache().contains(qObject.getClass(), qObject.getId()));
+        assertTrue("SubQObject entries should still be in the cache",
+            OpenJPAPersistence.cast(emf).getStoreCache().contains(subQObject.getClass(), subQObject.getId()));
+        assertFalse("This PObject object should be gone",
+            OpenJPAPersistence.cast(emf).getStoreCache().contains(pObject.getClass(), pObject.getId()));
     }
 
     public void testGetDataCache() {
