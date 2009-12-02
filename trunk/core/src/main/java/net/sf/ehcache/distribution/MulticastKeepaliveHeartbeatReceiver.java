@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.distribution;
 
-import net.sf.ehcache.CacheManager;
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -30,6 +28,9 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.util.NamedThreadFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +88,7 @@ public final class MulticastKeepaliveHeartbeatReceiver {
         socket.joinGroup(groupMulticastAddress);
         receiverThread = new MulticastReceiverThread();
         receiverThread.start();
-        processingThreadPool = Executors.newCachedThreadPool();
+        processingThreadPool = Executors.newCachedThreadPool(new NamedThreadFactory("Multicast keep-alive Heartbeat Receiver"));
     }
 
     /**

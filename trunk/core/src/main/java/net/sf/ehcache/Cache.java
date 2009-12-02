@@ -63,6 +63,7 @@ import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.util.NamedThreadFactory;
 import net.sf.ehcache.util.TimeUtil;
 
 /**
@@ -2549,8 +2550,8 @@ public class Cache implements Ehcache {
                     };
                 } else {
                     // we can create Threads
-                    executorService = new ThreadPoolExecutor(EXECUTOR_CORE_POOL_SIZE, EXECUTOR_MAXIMUM_POOL_SIZE,
-                            EXECUTOR_KEEP_ALIVE_TIME, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
+                    executorService = new ThreadPoolExecutor(EXECUTOR_CORE_POOL_SIZE, EXECUTOR_MAXIMUM_POOL_SIZE, EXECUTOR_KEEP_ALIVE_TIME,
+                            TimeUnit.MILLISECONDS, new LinkedBlockingQueue(), new NamedThreadFactory("Cache Executor Service"));
                 }
             }
         }
