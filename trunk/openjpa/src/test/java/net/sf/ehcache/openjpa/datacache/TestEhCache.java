@@ -186,7 +186,7 @@ public class TestEhCache extends TestCase {
     private void evictAllOfType(final Class aClass, final boolean subClasses) {
         OpenJPAEntityManagerFactory openJPAEntityManagerFactory = OpenJPAPersistence.cast(emf);
         DataCache cache = ((StoreCacheImpl)openJPAEntityManagerFactory.getStoreCache()).getDelegate();
-        if(cache instanceof EhCacheDataCache) {
+        if (cache instanceof EhCacheDataCache) {
             EhCacheDataCache ehCache = (EhCacheDataCache)cache;
             try {
                 Method method = EhCacheDataCache.class.getDeclaredMethod("removeAllInternal", Class.class, Boolean.TYPE);
