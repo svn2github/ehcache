@@ -16,10 +16,12 @@
 
 package net.sf.ehcache.openjpa.datacache;
 
+import java.lang.reflect.Method;
 import java.util.Properties;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
 import org.apache.openjpa.conf.OpenJPAConfiguration;
@@ -28,7 +30,10 @@ import org.apache.openjpa.datacache.DataCacheManager;
 import org.apache.openjpa.meta.ClassMetaData;
 import org.apache.openjpa.meta.MetaDataRepository;
 import org.apache.openjpa.persistence.JPAFacadeHelper;
+import org.apache.openjpa.persistence.OpenJPAEntityManagerFactory;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
+import org.apache.openjpa.persistence.OpenJPAPersistence;
+import org.apache.openjpa.persistence.StoreCacheImpl;
 
 import junit.framework.TestCase;
 
@@ -46,7 +51,8 @@ public class TestEhCache extends TestCase {
         if (emf == null) {
             Properties props = new Properties();
             props.put("openjpa.MetaDataFactory", "jpa(Types=net.sf.ehcache.openjpa.datacache.QObject;" +
-                    "net.sf.ehcache.openjpa.datacache.PObject)");
+                    "net.sf.ehcache.openjpa.datacache.PObject;" +
+                    "net.sf.ehcache.openjpa.datacache.SubQObject)");
             props.put("openjpa.ConnectionDriverName", "org.hsqldb.jdbcDriver");
             props.put("openjpa.ConnectionURL", "jdbc:hsqldb:mem:testdb");
             props.put("openjpa.jdbc.SynchronizeMappings", "buildSchema");
@@ -75,15 +81,18 @@ public class TestEhCache extends TestCase {
 
         EhCacheDataCacheManager tdcm = (EhCacheDataCacheManager) dcm;
 
-        /*assertEquals(getConfiguredDataCacheName(PObject.class),
-               tdcm.getEhCache(PObject.class).getName());
+        assertEquals("default",
+            getConfiguredDataCacheName(QObject.class));
+        assertEquals(QObject.class.getName(),
+               tdcm.getEhCache(QObject.class).getName());
         assertEquals(getConfiguredDataCacheName(PObject.class),
                tdcm.getEhCache(PObject.class).getName());
-        assertNotSame(tdcm.getEhCache(PObject.class), 
+        assertNotSame(tdcm.getEhCache(PObject.class),
                 tdcm.getEhCache(QObject.class));
-        assertSame(tdcm.getEhCache(QObject.class), 
+        assertNotSame(tdcm.getEhCache(SubQObject.class),
                 tdcm.getEhCache(QObject.class));
-        */
+        assertSame(tdcm.getEhCache(QObject.class),
+                tdcm.getEhCache(QObject.class));
     }
 
     public void testPersist() {
@@ -107,6 +116,75 @@ public class TestEhCache extends TestCase {
         assertTrue(em.contains(pc2));
         // The L2 cache must still hold the key   
         assertTrue(getCache(pc.getClass()).contains(getOpenJPAId(pc, oid)));
+    }
+
+    public void testClearCache() {
+        EntityManager entityManager = emf.createEntityManager();
+        EntityTransaction tx = entityManager.getTransaction();
+        tx.begin();
+        SubQObject subQObject = new SubQObject("one", "two");
+        QObject qObject = new QObject("one");
+        PObject pObject = new PObject("one");
+        entityManager.persist(subQObject);
+        entityManager.persist(qObject);
+        entityManager.persist(pObject);
+        tx.commit();
+        assertTrue(getCache(subQObject.getClass()).contains(getOpenJPAId(subQObject, subQObject.getId())));
+        assertTrue(getCache(qObject.getClass()).contains(getOpenJPAId(qObject, qObject.getId())));
+        assertTrue(getCache(pObject.getClass()).contains(getOpenJPAId(pObject, pObject.getId())));
+        evictAllOfType(qObject.getClass(), false);
+        assertFalse("QObject entries should be all gone", OpenJPAPersistence.cast(emf).getStoreCache().contains(qObject.getClass(), qObject.getId()));
+        assertTrue("SubQObject entries should still be in the cache", OpenJPAPersistence.cast(emf).getStoreCache().contains(subQObject.getClass(), subQObject.getId()));
+        assertTrue("This PObject object should still be in the cache", OpenJPAPersistence.cast(emf).getStoreCache().contains(pObject.getClass(), pObject.getId()));
+        tx = entityManager.getTransaction();
+        tx.begin();
+        qObject = new QObject("two");
+        entityManager.persist(qObject);
+        tx.commit();
+        evictAllOfType(qObject.getClass(), true);
+        assertFalse("QObject entries should be all gone", OpenJPAPersistence.cast(emf).getStoreCache().contains(qObject.getClass(), qObject.getId()));
+        assertFalse("SubQObject entries should be all gone", OpenJPAPersistence.cast(emf).getStoreCache().contains(subQObject.getClass(), subQObject.getId()));
+        assertTrue("This PObject object should still be in the cache", OpenJPAPersistence.cast(emf).getStoreCache().contains(pObject.getClass(), pObject.getId()));
+        tx = entityManager.getTransaction();
+        tx.begin();
+        qObject = new QObject("three");
+        entityManager.persist(qObject);
+        subQObject = new SubQObject("two", "two");
+        entityManager.persist(subQObject);
+        tx.commit();
+        evictAllOfType(subQObject.getClass(), false);
+        assertTrue("QObject entries should still be in the cache", OpenJPAPersistence.cast(emf).getStoreCache().contains(qObject.getClass(), qObject.getId()));
+        assertFalse("SubQObject entries should be all gone", OpenJPAPersistence.cast(emf).getStoreCache().contains(subQObject.getClass(), subQObject.getId()));
+        assertTrue("This PObject object should still be in the cache", OpenJPAPersistence.cast(emf).getStoreCache().contains(pObject.getClass(), pObject.getId()));
+        tx = entityManager.getTransaction();
+        tx.begin();
+        subQObject = new SubQObject("three", "three");
+        entityManager.persist(subQObject);
+        tx.commit();
+        evictAllOfType(pObject.getClass(), true);
+        assertTrue("QObject entries should still be in the cache", OpenJPAPersistence.cast(emf).getStoreCache().contains(qObject.getClass(), qObject.getId()));
+        assertTrue("SubQObject entries should still be in the cache", OpenJPAPersistence.cast(emf).getStoreCache().contains(subQObject.getClass(), subQObject.getId()));
+        assertFalse("This PObject object should be gone", OpenJPAPersistence.cast(emf).getStoreCache().contains(pObject.getClass(), pObject.getId()));
+    }
+
+    public void testGetDataCache() {
+
+    }
+
+    private void evictAllOfType(final Class aClass, final boolean subClasses) {
+        OpenJPAEntityManagerFactory openJPAEntityManagerFactory = OpenJPAPersistence.cast(emf);
+        DataCache cache = ((StoreCacheImpl)openJPAEntityManagerFactory.getStoreCache()).getDelegate();
+        if(cache instanceof EhCacheDataCache) {
+            EhCacheDataCache ehCache = (EhCacheDataCache)cache;
+            try {
+                Method method = EhCacheDataCache.class.getDeclaredMethod("removeAllInternal", Class.class, Boolean.TYPE);
+                method.setAccessible(true);
+                method.invoke(ehCache, aClass, subClasses);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     /**

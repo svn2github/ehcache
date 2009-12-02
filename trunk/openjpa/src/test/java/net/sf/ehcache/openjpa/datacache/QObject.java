@@ -26,7 +26,7 @@ import org.apache.openjpa.persistence.DataCache;
  * @author Greg Luck
  */
 @Entity
-@DataCache(name = "Cache#2")
+@DataCache
 public class QObject {
     private static long idCounter = System.currentTimeMillis();
 
