@@ -52,7 +52,7 @@ public final class MulticastKeepaliveHeartbeatReceiver {
     private final Integer groupMulticastPort;
     private MulticastReceiverThread receiverThread;
     private MulticastSocket socket;
-    private boolean stopped;
+    private volatile boolean stopped;
     private final MulticastRMICacheManagerPeerProvider peerProvider;
     private InetAddress hostAddress;
 
@@ -113,6 +113,7 @@ public final class MulticastKeepaliveHeartbeatReceiver {
             setDaemon(true);
         }
 
+        @Override
         public final void run() {
             byte[] buf = new byte[PayloadUtil.MTU];
             try {
@@ -226,6 +227,7 @@ public final class MulticastKeepaliveHeartbeatReceiver {
         /**
          * {@inheritDoc}
          */
+        @Override
         public final void interrupt() {
             try {
                 socket.leaveGroup(groupMulticastAddress);

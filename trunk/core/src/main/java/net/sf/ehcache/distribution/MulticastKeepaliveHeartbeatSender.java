@@ -63,7 +63,7 @@ public final class MulticastKeepaliveHeartbeatSender {
     private final Integer groupMulticastPort;
     private final Integer timeToLive;
     private MulticastServerThread serverThread;
-    private boolean stopped;
+    private volatile boolean stopped;
     private final CacheManager cacheManager;
     private InetAddress hostAddress;
 
