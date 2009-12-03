@@ -4,7 +4,7 @@ $Id: RELEASE_NOTES.txt,v 1.16 2006/03/01 01:52:03 gregluck Exp $
 Release Notes For ehcache-debugger
 ==================================
 
-This version of the debugger works with Ehcache 1.7.0.
+This version of the debugger works with Ehcache 1.7.1.
 
 See http://ehcache.sourceforge.net/documentation/remotedebugger.html for full documentation including installation and configuration.
 
