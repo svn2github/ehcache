@@ -9,7 +9,7 @@
   <name>Ehcache Terracotta Support</name>
   <artifactId>ehcache-terracotta-root</artifactId>
   <packaging>pom</packaging>
-  <version>1.7.1-SNAPSHOT</version>
+  <version>1.7.2-SNAPSHOT</version>
 
 
   <!--
@@ -28,7 +28,7 @@
     <tc-maven-plugin.version>1.4.2-SNAPSHOT</tc-maven-plugin.version>
     <terracotta.version>3.1.2-SNAPSHOT</terracotta.version>
     <tim-ehcache-1.7.version>1.4.2-SNAPSHOT</tim-ehcache-1.7.version>
-    <ehcache.version>1.7.1-SNAPSHOT</ehcache.version>
+    <ehcache.version>1.7.2-SNAPSHOT</ehcache.version>
     <depdb.version>1.0.0</depdb.version>
   </properties>
 

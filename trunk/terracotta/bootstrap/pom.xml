@@ -4,7 +4,7 @@
   <parent>
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-terracotta-root</artifactId>
-    <version>1.7.1-SNAPSHOT</version>
+    <version>1.7.2-SNAPSHOT</version>
   </parent>
   <name>ehcache-terracotta-bootstrap</name>
   <artifactId>ehcache-terracotta-bootstrap</artifactId>

@@ -11,7 +11,7 @@
     <description>This is the ehcache core module. Pair it with other modules for added functionality</description>
     <artifactId>ehcache-core</artifactId>
     <packaging>jar</packaging>
-    <version>1.7.1-SNAPSHOT</version>
+    <version>1.7.2-SNAPSHOT</version>
 
 
     <properties>
