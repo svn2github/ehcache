@@ -1,4 +1,0 @@
-The "terracotta" project is an external svn repo pointing to http://svn.terracotta.org/svn/forge/projects/ehcache-terracotta/branches/<active-branch>
-
-The <active-branch> is production branch of the next release. As of Dec 2009, active branch is tc-3.2
-
