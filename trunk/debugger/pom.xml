@@ -9,7 +9,7 @@
     <name>Ehcache Debugger</name>
     <artifactId>ehcache-debugger</artifactId>
     <packaging>jar</packaging>
-    <version>1.7.1-SNAPSHOT</version>
+    <version>1.7.2-SNAPSHOT</version>
     <description>Ehcache bundled with RemoteDebugger</description>
     <dependencies>
         <dependency>
