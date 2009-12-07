@@ -981,7 +981,6 @@ public class CacheManager {
      * This method is not synchronized. It only guarantees to clear those elements in a cache
      * at the time that the {@link Ehcache#removeAll()} method on each cache is called.
      * @param prefix The prefix the cache name should start with
-     * @throws IllegalStateException Should a cache not be STATUS_ALIVE
      * @throws CacheException
      * @since 1.7.2
      */
@@ -996,7 +995,7 @@ public class CacheManager {
             String cacheName = (String)entry.getKey();
             if (cacheName.startsWith(prefix)) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Clearing cache named '" + cacheName + "' (matches '" + prefix +"' prefix");
+                    LOG.debug("Clearing cache named '" + cacheName + "' (matches '" + prefix + "' prefix");
                 }
                 ((Ehcache) entry.getValue()).removeAll();
             }
