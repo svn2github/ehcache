@@ -1,8 +1,7 @@
-$Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
-
 
 ehcache-debuuger-1.7.1
 ======================
+Released 2009-12-07
 
 1. Code cleanup
 2. Changed logging to SLF4J

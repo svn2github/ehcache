@@ -1,6 +1,5 @@
-$Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
-<release version="1.2" date="2009-12-11" desc="Initial release of separate jcache module">
+<release version="1.2" date="2009-12-07" desc="Initial release of separate jcache module">
     <!-- Features and Enhancements -->
     <action dev="Greg Luck" type="add">
        Change logging to SLF4J
