@@ -834,4 +834,32 @@ public class CacheManagerTest {
         }
     }
 
+    /**
+     * Tests that the CacheManager implements clearAll():void and clearAllStartingWith(String):void properly
+     */
+    @Test
+    public void testClearCacheManager() throws CacheException {
+        singletonManager = CacheManager.create();
+        assertNotNull(singletonManager);
+        assertEquals(13, singletonManager.getCacheNames().length);
+        singletonManager.getEhcache("sampleCache1").put(new Element("key1", "value"));
+        assertEquals(1, singletonManager.getEhcache("sampleCache1").getSize());
+        singletonManager.getEhcache("sampleCache2").put(new Element("key2", "value"));
+        assertEquals(1, singletonManager.getEhcache("sampleCache2").getSize());
+        singletonManager.getEhcache("CachedLogin").put(new Element("key3", "value"));
+        assertEquals(1, singletonManager.getEhcache("CachedLogin").getSize());
+        singletonManager.clearAllStartingWith("");
+        assertEquals(1, singletonManager.getEhcache("sampleCache1").getSize());
+        assertEquals(1, singletonManager.getEhcache("sampleCache2").getSize());
+        assertEquals(1, singletonManager.getEhcache("CachedLogin").getSize());
+        singletonManager.clearAllStartingWith("sample");
+        assertEquals(0, singletonManager.getEhcache("sampleCache1").getSize());
+        assertEquals(0, singletonManager.getEhcache("sampleCache2").getSize());
+        assertEquals(1, singletonManager.getEhcache("CachedLogin").getSize());
+        singletonManager.clearAll();
+        assertEquals(0, singletonManager.getEhcache("sampleCache1").getSize());
+        assertEquals(0, singletonManager.getEhcache("sampleCache2").getSize());
+        assertEquals(0, singletonManager.getEhcache("CachedLogin").getSize());
+    }
+
 }

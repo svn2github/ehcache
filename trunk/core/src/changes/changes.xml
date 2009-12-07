@@ -24,8 +24,12 @@
             <action dev="Greg Luck" type="fix" issue="EHC-434">
                 Use UUID rather than RMI's UID which does not work in GAE.
             </action>
-
+            <action dev="Alex Snaps" type="add" issue="EHC-242">
+                Added CacheManager.clearAllStartingWith(String): void that clears all Caches associated with the cache
+                manager, if the cache name matches the prefix profided
+            </action>
         </release>
+
         <release version="1.7.1" date="2009-11-30" description="Maintenance and enablement of modularisation">
 
             <action dev="Greg Luck" type="update">

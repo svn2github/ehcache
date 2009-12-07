@@ -974,6 +974,31 @@ public class CacheManager {
         }
     }
 
+    /**
+     * Clears  the contents of all caches in the CacheManager with a name starting with the prefix,
+     * but without removing them.
+     * <p/>
+     * This method is not synchronized. It only guarantees to clear those elements in a cache
+     * at the time that the {@link Ehcache#removeAll()} method on each cache is called.
+     * @param prefix The prefix the cache name should start with
+     * @throws IllegalStateException Should a cache not be STATUS_ALIVE
+     * @throws CacheException
+     * @since 1.7.2
+     */
+    public void clearAllStartingWith(String prefix) throws CacheException {
+        checkStatus();
+        //NPE guard
+        if (prefix == null || prefix.length() == 0) {
+            return;
+        }
+
+        for (Object o : ehcaches.entrySet()) {
+            Map.Entry entry = (Map.Entry) o;
+            if (((String) entry.getKey()).startsWith(prefix)) {
+                ((Ehcache) entry.getValue()).removeAll();
+            }
+        }
+    }
 
     /**
      * Gets the <code>CacheManagerPeerProvider</code>, matching the given scheme
