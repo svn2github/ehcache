@@ -1,0 +1,16 @@
+
+ehcache-debuuger-1.7.1
+======================
+Released 2009-12-07
+
+1. Code cleanup
+2. Changed logging to SLF4J
+3. Updated to Ehcache-1.7.1
+
+
+ehcache-debuuger-1.5.0
+======================
+
+1. Initial standalone version
+2. All known bugs fixed
+3. More user friendly and more meaningful error messages
