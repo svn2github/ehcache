@@ -986,7 +986,6 @@ public class CacheManager {
      * @since 1.7.2
      */
     public void clearAllStartingWith(String prefix) throws CacheException {
-        checkStatus();
         //NPE guard
         if (prefix == null || prefix.length() == 0) {
             return;
@@ -994,7 +993,11 @@ public class CacheManager {
 
         for (Object o : ehcaches.entrySet()) {
             Map.Entry entry = (Map.Entry) o;
-            if (((String) entry.getKey()).startsWith(prefix)) {
+            String cacheName = (String)entry.getKey();
+            if (cacheName.startsWith(prefix)) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Clearing cache named '" + cacheName + "' (matches '" + prefix +"' prefix");
+                }
                 ((Ehcache) entry.getValue()).removeAll();
             }
         }
