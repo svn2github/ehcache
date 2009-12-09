@@ -67,6 +67,8 @@ Ehcache 1.7 User Guide
 
     * {{{./openjpa_provider.html}Using Ehcache with OpenJPA}}
 
+    * {{{./grails.html}Using Ehcache as a Second Level Caching Provider for Grails}}
+
     * {{{./glassfish.html}Glassfish HowTo}}
 
     * {{{./googleappengine.html}Google App Engine HowTo}}

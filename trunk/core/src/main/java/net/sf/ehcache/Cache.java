@@ -138,7 +138,7 @@ public class Cache implements Ehcache {
     private static final int EXECUTOR_MAXIMUM_POOL_SIZE = Math.min(10, Runtime.getRuntime().availableProcessors());
     private static final int EXECUTOR_CORE_POOL_SIZE = 1;
 
-    static {
+    static {             
         try {
             localhost = InetAddress.getLocalHost();
         } catch (UnknownHostException e) {

@@ -48,6 +48,14 @@ Performance At Any Scale
 
 * Latest News
 
+** 9 December 2009: Ehcache welcomes Grails as a first-class supported framework
+
+  Grails 1.2RC1 and higher use Ehcache as the default Hibernate second level cache. However earlier versions of Grails
+  ship with the Ehcache library and are very simple to enable.
+
+  A new {{{http://ehcache.org/documentation/grails.html}Grails Chapter}} shows how to configure Grails to use Ehcache and how
+  to tune it for production use.
+  
 ** 30 November 2009: New 1.7.1 GA release - ehcache, ehcache-core and ehcache-terracotta
 
   This is a final GA release of ehcache-1.7.1 comprising ehcache, ehcache-core and ehcache-terracotta modules.
