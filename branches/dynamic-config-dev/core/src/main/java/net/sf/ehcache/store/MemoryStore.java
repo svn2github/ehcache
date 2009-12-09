@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
+import net.sf.ehcache.config.CacheConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -707,28 +708,28 @@ public class MemoryStore implements Store, CacheConfigurationListener {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void timeToIdleChanged(long oldTti, long newTti) {
         // no-op
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void timeToLiveChanged(long oldTtl, long newTtl) {
         // no-op
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void diskCapacityChanged(int oldCapacity, int newCapacity) {
         // no-op
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void memoryCapacityChanged(int oldCapacity, int newCapacity) {
         if (keyArray == null && newCapacity > TOO_LARGE_TO_EFFICIENTLY_ITERATE) {
@@ -743,5 +744,19 @@ public class MemoryStore implements Store, CacheConfigurationListener {
             keyArray = k;
         }
         maximumSize = newCapacity;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void registered(CacheConfiguration config) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void deregistered(CacheConfiguration config) {
+        // no-op
     }
 }

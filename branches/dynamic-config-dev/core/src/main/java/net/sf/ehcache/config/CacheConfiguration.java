@@ -549,9 +549,14 @@ public class CacheConfiguration implements Cloneable {
      * Add a listener to this cache configuration
      *
      * @param listener listener instance to add
+     * @return true if a listener was added
      */
-    public void addListener(CacheConfigurationListener listener) {
-        listeners.add(listener);
+    public boolean addListener(CacheConfigurationListener listener) {
+        boolean added = listeners.add(listener);
+        if (added) {
+            listener.registered(this);
+        }
+        return added;
     }
 
     /**
@@ -561,30 +566,70 @@ public class CacheConfiguration implements Cloneable {
      * @return true if a listener was removed
      */
     public boolean removeListener(CacheConfigurationListener listener) {
-        return listeners.remove(listener);
+        boolean removed = listeners.remove(listener);
+        if (removed) {
+            listener.deregistered(this);
+        }
+        return removed;
     }
 
     private void fireTtiChanged(long oldTti, long newTti) {
-        for (CacheConfigurationListener l : listeners) {
-            l.timeToIdleChanged(oldTti, newTti);
+        if (oldTti != newTti) {
+            for (CacheConfigurationListener l : listeners) {
+                l.timeToIdleChanged(oldTti, newTti);
+            }
         }
     }
 
     private void fireTtlChanged(long oldTtl, long newTtl) {
-        for (CacheConfigurationListener l : listeners) {
-            l.timeToLiveChanged(oldTtl, newTtl);
+        if (oldTtl != newTtl) {
+            for (CacheConfigurationListener l : listeners) {
+                l.timeToLiveChanged(oldTtl, newTtl);
+            }
         }
     }
 
     private void fireDiskCapacityChanged(int oldCapacity, int newCapacity) {
-        for (CacheConfigurationListener l : listeners) {
-            l.diskCapacityChanged(oldCapacity, newCapacity);
+        if (oldCapacity != newCapacity) {
+            for (CacheConfigurationListener l : listeners) {
+                l.diskCapacityChanged(oldCapacity, newCapacity);
+            }
         }
     }
 
     private void fireMemoryCapacityChanged(int oldCapacity, int newCapacity) {
-        for (CacheConfigurationListener l : listeners) {
-            l.memoryCapacityChanged(oldCapacity, newCapacity);
+        if (oldCapacity != newCapacity) {
+            for (CacheConfigurationListener l : listeners) {
+                l.memoryCapacityChanged(oldCapacity, newCapacity);
+            }
         }
+    }
+
+    /**
+     * internal use only
+     */
+    public void internalSetTti(long tti) {
+        this.timeToIdleSeconds = tti;
+    }
+
+    /**
+     * internal use only
+     */
+    public void internalSetTtl(long ttl) {
+        this.timeToLiveSeconds = ttl;
+    }
+
+    /**
+     * internal use only
+     */
+    public void internalSetMemCapacity(int capacity) {
+        this.maxElementsInMemory = capacity;
+    }
+
+    /**
+     * internal use only
+     */
+    public void internalSetDiskCapacity(int capacity) {
+        this.maxElementsOnDisk = capacity;
     }
 }

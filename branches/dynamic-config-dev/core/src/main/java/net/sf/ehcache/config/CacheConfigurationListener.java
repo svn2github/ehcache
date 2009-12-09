@@ -53,4 +53,17 @@ public interface CacheConfigurationListener {
      */
     public void memoryCapacityChanged(int oldCapacity, int newCapacity);
 
+    /**
+     * Indicates that this listener was registered with the given configuration
+     *
+     * @param config
+     */
+    public void registered(CacheConfiguration config);
+
+    /**
+     * Indicates that this listener was removed from the given configuration
+     * 
+     * @param config
+     */
+    public void deregistered(CacheConfiguration config);
 }

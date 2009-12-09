@@ -1034,30 +1034,44 @@ public class DiskStore implements Store, CacheConfigurationListener {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void timeToIdleChanged(long oldTti, long newTti) {
         // no-op
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void timeToLiveChanged(long oldTtl, long newTtl) {
         // no-op
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void diskCapacityChanged(int oldCapacity, int newCapacity) {
         this.maxElementsOnDisk = newCapacity;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void memoryCapacityChanged(int oldCapacity, int newCapacity) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void registered(CacheConfiguration config) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void deregistered(CacheConfiguration config) {
         // no-op
     }
 
