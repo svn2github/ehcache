@@ -17,7 +17,9 @@
 package net.sf.ehcache.config;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,6 +163,11 @@ public class CacheConfiguration implements Cloneable {
     protected List cacheLoaderConfigurations = new ArrayList();
 
     /**
+     * The listeners for this configuration.
+     */
+    private final Collection<CacheConfigurationListener> listeners = new CopyOnWriteArrayList<CacheConfigurationListener>();
+
+    /**
      * Clones this object, following the usual contract.
      *
      * @return a copy, which independent other than configurations than cannot change.
@@ -189,7 +196,10 @@ public class CacheConfiguration implements Cloneable {
      * @param maxElementsInMemory param
      */
     public final void setMaxElementsInMemory(int maxElementsInMemory) {
+        int oldCapacity = this.maxElementsInMemory;
+        int newCapacity = maxElementsInMemory;
         this.maxElementsInMemory = maxElementsInMemory;
+        fireMemoryCapacityChanged(oldCapacity, newCapacity);
     }
 
     /**
@@ -227,14 +237,20 @@ public class CacheConfiguration implements Cloneable {
      * Sets the time to idle for an element before it expires. Is only used if the element is not eternal.
      */
     public final void setTimeToIdleSeconds(long timeToIdleSeconds) {
+        long oldTti = this.timeToIdleSeconds;
+        long newTti = timeToIdleSeconds;
         this.timeToIdleSeconds = timeToIdleSeconds;
+        fireTtiChanged(oldTti, newTti);
     }
 
     /**
      * Sets the time to idle for an element before it expires. Is only used if the element is not eternal.
      */
     public final void setTimeToLiveSeconds(long timeToLiveSeconds) {
+        long oldTtl = this.timeToLiveSeconds;
+        long newTtl = timeToLiveSeconds;
         this.timeToLiveSeconds = timeToLiveSeconds;
+        fireTtlChanged(oldTtl, newTtl);
     }
 
     /**
@@ -273,7 +289,10 @@ public class CacheConfiguration implements Cloneable {
      * Sets the maximum number elements on Disk. 0 means unlimited.
      */
     public void setMaxElementsOnDisk(int maxElementsOnDisk) {
+        int oldCapacity = this.maxElementsOnDisk;
+        int newCapacity = maxElementsOnDisk;
         this.maxElementsOnDisk = maxElementsOnDisk;
+        fireDiskCapacityChanged(oldCapacity, newCapacity);
     }
 
     /**
@@ -524,5 +543,48 @@ public class CacheConfiguration implements Cloneable {
      */
     public boolean isTerracottaClustered() {
         return terracottaConfiguration != null && terracottaConfiguration.isClustered();
+    }
+
+    /**
+     * Add a listener to this cache configuration
+     *
+     * @param listener listener instance to add
+     */
+    public void addListener(CacheConfigurationListener listener) {
+        listeners.add(listener);
+    }
+
+    /**
+     * Remove the supplied cache configuration listener.
+     * 
+     * @param listener listener to remove
+     * @return true if a listener was removed
+     */
+    public boolean removeListener(CacheConfigurationListener listener) {
+        return listeners.remove(listener);
+    }
+
+    private void fireTtiChanged(long oldTti, long newTti) {
+        for (CacheConfigurationListener l : listeners) {
+            l.timeToIdleChanged(oldTti, newTti);
+        }
+    }
+
+    private void fireTtlChanged(long oldTtl, long newTtl) {
+        for (CacheConfigurationListener l : listeners) {
+            l.timeToLiveChanged(oldTtl, newTtl);
+        }
+    }
+
+    private void fireDiskCapacityChanged(int oldCapacity, int newCapacity) {
+        for (CacheConfigurationListener l : listeners) {
+            l.diskCapacityChanged(oldCapacity, newCapacity);
+        }
+    }
+
+    private void fireMemoryCapacityChanged(int oldCapacity, int newCapacity) {
+        for (CacheConfigurationListener l : listeners) {
+            l.memoryCapacityChanged(oldCapacity, newCapacity);
+        }
     }
 }

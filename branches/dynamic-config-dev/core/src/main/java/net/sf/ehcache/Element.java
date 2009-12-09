@@ -18,6 +18,7 @@
 package net.sf.ehcache;
 
 
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.util.TimeUtil;
 
 import java.io.ByteArrayInputStream;
@@ -171,8 +172,8 @@ public class Element implements Serializable, Cloneable {
         this.value = value;
         this.version = version;
         HIT_COUNT_UPDATER.set(this, hitCount);
-        setTimeToLive(timeToLive);
-        setTimeToIdle(timeToIdle);
+        this.timeToLive = timeToLive;
+        this.timeToIdle = timeToIdle;
         this.lastUpdateTime = lastUpdateTime;
         this.elementEvictionData = new DefaultElementEvictionData(TimeUtil.toSecs(creationTime), TimeUtil.toSecs(lastAccessTime));
     }
@@ -311,7 +312,7 @@ public class Element implements Serializable, Cloneable {
         if (timeToLiveSeconds < 0) {
             throw new IllegalArgumentException("timeToLive can't be negative");
         }
-        this.timeToLive = timeToLiveSeconds;
+        this.timeToLive = convertCustomLifetimeToInternalRepresentation(timeToLiveSeconds);
     }
 
     /**
@@ -323,7 +324,7 @@ public class Element implements Serializable, Cloneable {
         if (timeToIdleSeconds < 0) {
             throw new IllegalArgumentException("timeToIdle can't be negative");
         }
-        this.timeToIdle = timeToIdleSeconds;
+        this.timeToIdle = convertCustomLifetimeToInternalRepresentation(timeToIdleSeconds);
     }
 
     /**
@@ -641,6 +642,34 @@ public class Element implements Serializable, Cloneable {
     }
 
     /**
+     * An element is expired if the expiration time as given by {@link #getExpirationTime()} is in the past.
+     * <p>
+     * This method in addition propogates the default TTI/TTL values of the supplied cache into this element.
+     *
+     * @param config config to take default parameters from
+     * @return true if the Element is expired, otherwise false. If no lifespan has been set for the Element it is
+     *         considered not able to expire.
+     * @see #getExpirationTime()
+     */
+    public boolean isExpired(CacheConfiguration config) {
+        if (isUsingDefault(timeToIdle)) {
+            if (config.isEternal()) {
+                timeToIdle = convertDefaultLifetimeToInternalRepresentation(0);
+            } else {
+                timeToIdle = convertDefaultLifetimeToInternalRepresentation(TimeUtil.convertTimeToInt(config.getTimeToIdleSeconds()));
+            }
+        }
+        if (isUsingDefault(timeToLive)) {
+            if (config.isEternal()) {
+                timeToLive = convertDefaultLifetimeToInternalRepresentation(0);
+            } else {
+                timeToLive = convertDefaultLifetimeToInternalRepresentation(TimeUtil.convertTimeToInt(config.getTimeToLiveSeconds()));
+            }
+        }
+        return isExpired();
+    }
+
+    /**
      * Returns the expiration time based on time to live. If this element also has a time to idle setting, the expiry
      * time will vary depending on whether the element is accessed.
      *
@@ -672,7 +701,8 @@ public class Element implements Serializable, Cloneable {
      * @return true if the element is eternal
      */
     public boolean isEternal() {
-        return 0 == timeToIdle && 0 == timeToLive;
+        return (0 == convertInternalRepresentationToLifeTime(timeToIdle))
+                && (0 == convertInternalRepresentationToLifeTime(timeToLive));
     }
 
     /**
@@ -682,8 +712,8 @@ public class Element implements Serializable, Cloneable {
      */
     public void setEternal(final boolean eternal) {
         if (eternal) {
-            this.timeToIdle = 0;
-            this.timeToLive = 0;
+            this.timeToIdle = convertCustomLifetimeToInternalRepresentation(0);
+            this.timeToLive = convertCustomLifetimeToInternalRepresentation(0);
         } else if (isEternal()) {
             this.timeToIdle = Integer.MIN_VALUE;
             this.timeToLive = Integer.MIN_VALUE;
@@ -703,20 +733,59 @@ public class Element implements Serializable, Cloneable {
      * @return the time to live, in seconds
      */
     public int getTimeToLive() {
-        if (Integer.MIN_VALUE == timeToLive) {
+        int ttl = convertInternalRepresentationToLifeTime(timeToLive);
+
+        if (Integer.MIN_VALUE == ttl) {
             return 0;
+        } else {
+            return ttl;
         }
-        return timeToLive;
     }
 
     /**
      * @return the time to idle, in seconds
      */
     public int getTimeToIdle() {
-        if (Integer.MIN_VALUE == timeToIdle) {
+        int tti = convertInternalRepresentationToLifeTime(timeToIdle);
+
+        if (Integer.MIN_VALUE == tti) {
             return 0;
+        } else {
+            return tti;
         }
+    }
+
+    /**
+     * @return the internally encoded time to live
+     */
+    public int getInternalTimeToLive() {
+        return timeToLive;
+    }
+
+    /**
+     * @return the internally encoded time to idle
+     */
+    public int getInternalTimeToIdle() {
         return timeToIdle;
+    }
+
+    /**
+     * Set the default parameters of this element - those from its enclosing cache.
+     * @param tti TTI in seconds
+     * @param ttl TTL in seconds
+     * @param eternal <code>true</code> if the element is eternal.
+     */
+    protected void setLifespanDefaults(int tti, int ttl, boolean eternal) {
+        if (eternal) {
+            this.timeToIdle = convertDefaultLifetimeToInternalRepresentation(0);
+            this.timeToLive = convertDefaultLifetimeToInternalRepresentation(0);
+        } else if (isEternal()) {
+            this.timeToIdle = Integer.MIN_VALUE;
+            this.timeToLive = Integer.MIN_VALUE;
+        } else {
+            timeToIdle = convertDefaultLifetimeToInternalRepresentation(tti);
+            timeToLive = convertDefaultLifetimeToInternalRepresentation(ttl);
+        }
     }
     
     /**
@@ -737,5 +806,35 @@ public class Element implements Serializable, Cloneable {
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         elementEvictionData = new DefaultElementEvictionData(in.readInt(), in.readInt());
+    }
+
+    private static int convertCustomLifetimeToInternalRepresentation(int time) {
+        if (time < 0) {
+            throw new AssertionError();
+        }
+
+        return Math.max(Integer.MIN_VALUE + 1, -1 - time);
+    }
+
+    private static int convertDefaultLifetimeToInternalRepresentation(int time) {
+        if (time < 0) {
+            throw new AssertionError();
+        }
+
+        return time;
+    }
+    
+    private static int convertInternalRepresentationToLifeTime(int internal) {
+        if (internal >= 0) {
+            return internal;
+        } else if (internal == Integer.MIN_VALUE) {
+            return Integer.MIN_VALUE;
+        } else {
+            return -1 - internal;
+        }
+    }
+
+    private static boolean isUsingDefault(int internal) {
+        return internal >= 0;
     }
 }

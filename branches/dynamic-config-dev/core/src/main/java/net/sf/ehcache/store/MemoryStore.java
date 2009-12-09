@@ -30,6 +30,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.config.CacheConfigurationListener;
 
 /**
  * A Store implementation suitable for fast, concurrent in memory stores. The policy is determined by that
@@ -38,7 +39,7 @@ import net.sf.ehcache.Status;
  * @author <a href="mailto:ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
  * @version $Id$
  */
-public class MemoryStore implements Store {
+public class MemoryStore implements Store, CacheConfigurationListener {
 
     /**
      * This number is magic. It was established using empirical testing of the two approaches
@@ -60,6 +61,8 @@ public class MemoryStore implements Store {
 
     private static final int JUMP_AHEAD = 5;
 
+    private static final int MAX_EVICTION_RATIO = 5;
+    
     private static final Logger LOG = LoggerFactory.getLogger(MemoryStore.class.getName());
 
     /**
@@ -70,7 +73,7 @@ public class MemoryStore implements Store {
     /**
      * when sampling elements, whether to iterate or to use the keySample array for faster random access
      */
-    protected final boolean useKeySample;
+    protected volatile boolean useKeySample;
 
     /**
      * Map where items are stored by key.
@@ -85,7 +88,7 @@ public class MemoryStore implements Store {
     /**
      * The maximum size of the store
      */
-    protected final int maximumSize;
+    protected volatile int maximumSize;
 
     /**
      * status.
@@ -97,8 +100,8 @@ public class MemoryStore implements Store {
      */
     protected volatile Policy policy;
 
-    private AtomicReferenceArray<Object> keyArray;
-    private AtomicInteger keySamplePointer;
+    private volatile AtomicReferenceArray<Object> keyArray;
+    private volatile AtomicInteger keySamplePointer;
 
     /**
      * Constructs things that all MemoryStores have in common.
@@ -477,8 +480,11 @@ public class MemoryStore implements Store {
      * Puts an element into the store
      */
     protected void doPut(final Element elementJustAdded) {
-        if (isFull()) {
-            removeElementChosenByEvictionPolicy(elementJustAdded);
+        int overflow = map.size() - maximumSize;
+        if (overflow > 0) {
+            for (int i = 0; i < Math.min(overflow, MAX_EVICTION_RATIO); i++) {
+                removeElementChosenByEvictionPolicy(elementJustAdded);
+            }
         }
         if (useKeySample) {
             saveKey(elementJustAdded);
@@ -504,7 +510,7 @@ public class MemoryStore implements Store {
         if (key != null) {
             oldElement = (Element) map.get(key);
         }
-        if (oldElement != null && !oldElement.isExpired()) {
+        if (oldElement != null && !oldElement.isExpired(cache.getCacheConfiguration())) {
             if (policy.compare(oldElement, elementJustAdded)) {
                 //new one will always be more desirable for eviction as no gets yet, unless no gets on old one.
                 //Consequence of this algorithm
@@ -586,14 +592,14 @@ public class MemoryStore implements Store {
             int startingIndex = keySamplePointer.get();
             //jump ahead of the puts to make sure we don't grab something that is very new
             int counter = startingIndex + JUMP_AHEAD;
-            int failsafeCounter = maximumSize;
+            int failsafeCounter = keyArray.length();
             while (true) {
                 if (counter > keyArray.length() - 1) {
                     counter = 0;
                 }
                 Object key = keyArray.get(counter);
                 if (key != null) {
-                    // check for key==null here as a concurrent clear() could catch the map and the keyArray out of sync 
+                    // check for key==null here as a concurrent clear() could catch the map and the keyArray out of sync
                     element = (Element) map.get(key);
                     if (element != null) {
                         return element;
@@ -621,7 +627,7 @@ public class MemoryStore implements Store {
      * @return a random sample of elements
      */
     protected Element[] sampleElementsViaKeyArray() {
-        int[] indices = LfuPolicy.generateRandomSampleIndices(maximumSize);
+        int[] indices = LfuPolicy.generateRandomSampleIndices(keyArray.length());
         Element[] elements = new Element[indices.length];
         for (int i = 0; i < indices.length; i++) {
             Object key = keyArray.get(indices[i]);
@@ -698,5 +704,44 @@ public class MemoryStore implements Store {
      */
     public boolean isCacheCoherent() {
         return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public void timeToIdleChanged(long oldTti, long newTti) {
+        // no-op
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public void timeToLiveChanged(long oldTtl, long newTtl) {
+        // no-op
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public void diskCapacityChanged(int oldCapacity, int newCapacity) {
+        // no-op
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public void memoryCapacityChanged(int oldCapacity, int newCapacity) {
+        if (keyArray == null && newCapacity > TOO_LARGE_TO_EFFICIENTLY_ITERATE) {
+            keyArray = new AtomicReferenceArray<Object>(newCapacity);
+            keySamplePointer = new AtomicInteger();
+            useKeySample = true;
+        } else if (keyArray != null && newCapacity > keyArray.length()) {
+            AtomicReferenceArray<Object> k = new AtomicReferenceArray<Object>(newCapacity);
+            for (int i = 0; i < keyArray.length(); i++) {
+                k.set(i, keyArray.get(i));
+            }
+            keyArray = k;
+        }
+        maximumSize = newCapacity;
     }
 }
