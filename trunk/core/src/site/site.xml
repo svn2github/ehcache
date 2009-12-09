@@ -2,14 +2,14 @@
 <project name="Ehcache">
     <bannerLeft>
         <name>ehcache</name>
-        <src>images/ehcache_logo.gif</src>
+        <src>images/ehcache_by_terracotta.gif</src>
         <href>http://ehcache.org</href>
     </bannerLeft>
-    <bannerRight>
-        <name>terracotta</name>
-        <src>images/t_logo.gif</src>
-        <href>http://www.terracotta.org</href>
-    </bannerRight>
+    <!--<bannerRight>-->
+        <!--<name>terracotta</name>-->
+        <!--<src>images/t_logo.gif</src>-->
+        <!--<href>http://www.terracotta.org</href>-->
+    <!--</bannerRight>-->
     <body>
         <links>
             <item name="Download" href="http://www.terracotta.org/dl/ehcache-oss-sign-up"/>

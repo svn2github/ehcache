@@ -1,11 +1,4 @@
- ------
- ehcache
- ------
- ------
- Date
- ------
-
-Welcome to ehcache
+Performance At Any Scale
 
  Ehcache is a widely used java distributed cache for general purpose caching, Java EE and light-weight containers.
 
@@ -42,6 +35,12 @@ Welcome to ehcache
 *----------+--------------+
 {{{documentation/cache_server.html}ehcache-server}} | RESTful cache server in a WAR or standalone
 *----------+--------------:
+
+===
+
+ newsticker
+
+===
 
   dx_preview ehcache_1_7_talk
 

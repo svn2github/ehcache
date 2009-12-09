@@ -555,7 +555,7 @@
 
     <issueManagement>
         <system>Terracotta's JIRA</system>
-        <url>https://jira.terracotta.org/browse/EHC</url>
+        <url>https://jira.terracotta.org/jira/browse/EHC</url>
     </issueManagement>
 
 </project>
