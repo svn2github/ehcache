@@ -45,6 +45,7 @@
             <item name="Code Samples" href="documentation/samples.html"/>
             <item name="Source Repository" href="/source-repository.html"/>
             <item name="Browsable Source Code" href="/jxr.html"/>
+            <item name="Fisheye" href="http://fisheye2.atlassian.com/changelog/ehcache/"/>
         </menu>
 
         <menu name="Documentation">
@@ -70,21 +71,11 @@
             <item name="Forums" href="http://forums.terracotta.org/forums/forums/show/16.page"/>
             <item name="Bugs" href="https://jira.terracotta.org/jira/browse/EHC"/>
             <item name="Feature Requests" href="https://jira.terracotta.org/jira/browse/EHC"/>
-            <item name="Who's Using?" href="/who_is_using.html"/>
+            <item name="Who's Using?" href="/customers.html"/>
             <item name="Development Roadmap" href="/roadmap.html"/>
             <item name="Maintainer's blog" href="http://gregluck.com/blog"/>
             <item name="Twitter" href="http://twitter.com/ehcache"/>
             <item name="Ehcache Merchandise" href="http://cafepress.com/ehcache"/>
-        </menu>
-
-
-        <menu name="Project Reports">
-            <item name="fisheye Subversion browser" href="http://fisheye2.atlassian.com/changelog/ehcache/"/>
-            <item name="Checkstyle" href="/checkstyle.html"/>
-            <item name="CPD" href="/cpd.html"/>
-            <item name="PMD" href="/pmd.html"/>
-            <item name="ToDos" href="/taglist.html"/>
-            <item name="Enerjy Code Review" href="http://www.enerjy.com/explorer/projects/ehcache.html"/>
         </menu>
 
     </body>

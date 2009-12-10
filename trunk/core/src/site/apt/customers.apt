@@ -1,5 +1,5 @@
  ------
- Who's Using ehcache?
+ {Customers}
  ------
  ------
  Date
@@ -9,9 +9,13 @@
 Who's Using ehcache?
 
 
- Following is a very small subset of of open source projects, distributions, sites and products using ehcache.
+ Following is a very small subset of of customers, open source projects, distributions, sites and products using ehcache.
 
  Send an email if you want to be included in the list.
+
+* Customers
+
+ tbc
 
 * Open Source
 
@@ -25,17 +29,19 @@ Who's Using ehcache?
 
  * {{{http://www.springframework.org}Spring}}. An IOC framework from Rod Johnson. Method caching, and integration.
 
- * {{{http://www.jpox.org}JPOX}}. A Java Persistent Objects frameworkd and JDO implementation.
+ * {{{http://www.jpox.org}JPOX}}. A Java Persistent Objects framework and JDO implementation.
  
- * {{{http://jofti.com/}Jofti}}. A cached object indexing and searching system.
-
  * {{{http://acegisecurity.org/index.html}Acegi}}. A security system for Spring.
 
  * {{{http://labs.jboss.com/portal/kosmos}Kosmos}}. Kosmos stands for Komposite Open Source Monitoring Suite..
 
  * {{{http://dev.lutece.paris.fr}Lutece}}. Lutece is an Open Source Java/ XML portal.
 
+* Products
+
  * {{{http://liferay.com}LifeRay}}. LifeRay is a JSR standards compliant portal.
+
+ * {{{http://atlassian.com}Atlassian}}. Atlassian uses Ehcache for Confluence, Crowd and others
 
 
 * Distributions
@@ -52,7 +58,7 @@ Who's Using ehcache?
 
  * {{{http://www.lastminute.com.au}lastminute.com.au}}. Last minute travel site
 
- * {{{http://www.emc.com}emc.com}}. Company and product site.
+ * {{{http://www.emc.com}emc.com}}. EMC's company and product site.
 
  * {{{http://buzillions.com}Buzillions.com}}. Buzillions.com A product reviews and recommendation website.
 

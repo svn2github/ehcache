@@ -468,24 +468,6 @@
                 </reportSets>
             </plugin>
 
-
-            <!--PMD and CPD -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <configuration>
-                    <rulesets>
-                        <ruleset>/rulesets/basic.xml</ruleset>
-                    </rulesets>
-                    <format>xml</format>
-                    <targetJdk>1.5</targetJdk>
-                    <linkXRef>true</linkXRef>
-                    <sourceEncoding>utf-8</sourceEncoding>
-                    <minimumTokens>100</minimumTokens>
-                    <outputDirectory>${project.reporting.outputDirectory}</outputDirectory>
-                </configuration>
-            </plugin>
-
             <!--Manual Changelist -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -498,16 +480,6 @@
                         </reports>
                     </reportSet>
                 </reportSets>
-            </plugin>
-
-            <!--ToDos -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>taglist-maven-plugin</artifactId>
-                <version>2.0-beta-1</version>
-                <configuration>
-                    <tags>todo, TODO, @todo</tags>
-                </configuration>
             </plugin>
 
             <!--Java Cross Reference (JXR) -->

@@ -21,6 +21,47 @@ tt {
 
 }
 
+.xright-red {
+    float: right;
+    background: #d42e12;
+    font-size: 13px;
+    font-weight: bold;
+    color: #ffffff;
+    padding-top: 7px;
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-bottom: 7px;
+}
+
+.xright-orange {
+    float: right;
+    background: #d97300;
+    font-size: 13px;
+    font-weight: bold;
+    color: #ffffff;
+    padding-top: 7px;
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-bottom: 7px;
+}
+
+.xright-orange a:visited, .xright-orange a:link, .xright-yellow a:visited, .xright-yellow a:link, .xright-red a:visited, .xright-red a:link {
+    color: #ffffff;
+}
+
+.xright-yellow {
+    float: right;
+    background: #fa9e0d;
+    font-size: 13px;
+    font-weight: bold;
+    color: #ffffff;
+    padding-top: 7px;
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-bottom: 7px;
+}
+
+
 #page-logo {
     font-family: helvetica, arial, sans-serif;
     color: #4C4E39;
@@ -159,10 +200,9 @@ ol ol {
 }
 
 a:link, a:visited {
- color: #3686BC;
- text-decoration: none;
+    color: #3686BC;
+    text-decoration: none;
 }
-
 
 hr {
     border: 0;
@@ -275,17 +315,15 @@ input {
     color: #666666;
     background: #ddd;
 
-
-
 }
 
 /* This is the css style that will make your text blink.*/
 .blinkytext {
-     font-family: Arial, Helvetica, sans-serif;
-     font-size: 1.2em;
-     text-decoration: blink;
-     font-style: normal;
- }
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1.2em;
+    text-decoration: blink;
+    font-style: normal;
+}
 
 #search {
     padding: 8px 5px 2px 5px;

@@ -337,6 +337,11 @@
   <body class="composite">
     <div id="banner">
       #banner( $decoration.bannerLeft "bannerLeft" )
+      <div class="xright-yellow"><a href="/customers.html">Customers</a></div>
+        <div class="xright">&nbsp;</div>
+      <div class="xright-red"><a href="http://www.terracotta.org/products?source=ehcachebanner">Products</a></div>
+        <div class="xright">&nbsp;</div>
+        <div class="xright-orange"><a href="http://www.terracotta.org/support/ehcache-support?source=ehcachebanner">Support</a></div>
       #banner( $decoration.bannerRight "bannerRight" )
     </div>
     <div class="clear">
