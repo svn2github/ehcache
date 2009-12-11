@@ -87,3 +87,15 @@ public static ClassLoader getFallbackClassLoader() {
     Note the use of "/ehcache.xml" which requires that ehcache.xml be
     placed at the root of the classpath, i.e. not in any package.
 
+* Classloading with Terracotta clustering
+
+    If Terracotta clustering is being used with valueMode="serialization" then 
+    keys and values will be moved across the cluster in byte[] and deserialized 
+    on other nodes. 
+
+    The classloaders used (in order) to instantiate those classes will be:
+
+      * Thread.currentThread().getContextClassLoader()
+    
+      * The classloader that defined the CacheManager initially
+

@@ -350,6 +350,13 @@ public class TerracottaExample {
     These are time based gauges, based on once per second measurements. These are different to the JMX MBeans available through the
     <<<ManagementService>>>.
 
+*   What classloader is used to deserialize clustered objects in valueMode="serialization"?
+
+    The following classloaders are tried in this order:
+    
+      * Thread.currentThread().getContextClassLoader() (so set this to override)
+
+      * The classloader used to define the Ehcache CacheManager - the one that loaded the ehcache-terracotta.jar
 
 *   Notes
 
