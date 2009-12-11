@@ -1,4 +1,8 @@
-{Grails Caching}
+ ---
+ {Grails}: Using Ehcache as a Second Level Caching Provider for Hibernate within Grails
+ ---
+
+{Grails}: Using Ehcache as a Second Level Caching Provider for Hibernate within Grails
 
     Grails 1.2RC1 and higher use Ehcache as the default Hibernate second level cache. However earlier versions of Grails
      ship with the Ehcache library and are very simple to enable.

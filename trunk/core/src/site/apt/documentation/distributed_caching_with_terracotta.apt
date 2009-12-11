@@ -1,3 +1,7 @@
+ ---
+ Distributed Caching Using Terracotta
+ ---
+
 {Distributed Caching Using Terracotta}
 
     Terracotta has been integrated with Ehcache since Ehcache 1.4.

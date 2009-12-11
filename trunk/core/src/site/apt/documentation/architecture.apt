@@ -1,3 +1,7 @@
+ ---
+ Architecture
+ ---
+ 
 {Architecture}
 
     This diagram shows the architecture of Ehcache. It is current as of Ehcache-1.6.2.

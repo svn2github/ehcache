@@ -1,4 +1,8 @@
-{Garbage Collection}
+ ---
+ Tuning Garbage Collection
+ ---
+
+{Tuning Garbage Collection}
 
     Applications which use Ehcache can be expected to have larger heaps. Some Ehcache applications have heap sizes greater than 6GB.
 
@@ -26,7 +30,7 @@
 
 *   Garbage Collection Tuning
 
-    The Sun core garbage collection team has offered the following tuning suggestion for virtual machiens with large heaps using caching:
+    The Sun core garbage collection team has offered the following tuning suggestion for virtual machines with large heaps using caching:
 
 ---
 java ... -XX:+DisableExplicitGC -XX:+UseConcMarkSweepGC

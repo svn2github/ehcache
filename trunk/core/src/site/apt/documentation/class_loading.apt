@@ -1,4 +1,8 @@
-Class loading and Class Loaders
+ ---
+ Class loading and Class Loaders
+ ---
+
+{Class loading and Class Loaders}
 
     Class loading within the plethora of environments Ehcache can be running is a somewhat vexed issue.
 

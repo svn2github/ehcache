@@ -1,3 +1,7 @@
+ ---
+ Distributed Caching using JGroups
+ ---
+
 Distributed Caching using {JGroups}
 
     As of version 1.5, JGroups can be used as the underlying mechanism for

@@ -1,3 +1,7 @@
+ ---
+ Cache Decorators
+ ---
+ 
 {Cache Decorators}
 
     Ehcache 1.2 introduced the Ehcache interface, of which Cache is an implementation. It is possible and encouraged

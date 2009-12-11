@@ -1,4 +1,9 @@
-{Configuration}
+ ---
+ Cache Configuration
+ ---
+
+
+{Cache Configuration}
 
     Caches can be configured in Ehcache either declaratively, in xml, or by creating them programmatically
     and specifying their parameters in the constructor.

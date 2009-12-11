@@ -1,3 +1,7 @@
+ ---
+ Web Caching
+ ---
+
 {Web Caching}
 
   Ehcache provides a set of general purpose web caching filters in the <<<ehcache-web>>> module.

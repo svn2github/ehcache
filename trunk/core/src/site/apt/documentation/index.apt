@@ -1,5 +1,8 @@
+ ------
+ Documentation - Table of Contents
+ ------
 
-Ehcache 1.7 User Guide
+Documentation - Table of Contents
 
     * {{{./preface.html}Preface}}
 
@@ -13,7 +16,7 @@ Ehcache 1.7 User Guide
 
     * {{{./architecture.html}Architecture}}
 
-    * {{{./configuration.html}Configuration}}
+    * {{{./configuration.html}Cache Configuration}}
 
     * {{{./storage_options.html}Storage Options}}
 
@@ -25,7 +28,7 @@ Ehcache 1.7 User Guide
 
     * {{{./performance_considerations.html}Performance Considerations}}
 
-    * {{{./garbage_collection.html}Garbage Collection}}
+    * {{{./garbage_collection.html}Tuning Garbage Collection}}
 
     * {{{./cache_decorators.html}Cache Decorators}} 
 
@@ -67,7 +70,7 @@ Ehcache 1.7 User Guide
 
     * {{{./openjpa_provider.html}Using Ehcache with OpenJPA}}
 
-    * {{{./grails.html}Using Ehcache as a Second Level Caching Provider for Grails}}
+    * {{{./grails.html}Grails: Using Ehcache as a Second Level Caching Provider for Hibernate within Grails}}
 
     * {{{./glassfish.html}Glassfish HowTo}}
 

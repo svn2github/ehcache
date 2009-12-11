@@ -1,3 +1,7 @@
+ ---
+ Hibernate Caching
+ ---
+
 {Hibernate Caching}
 
     Note these instructions are for {Hibernate 3.1}. Go to {{{http://ehcache.org/documentation/documentation-1_1.html}Guide for Version 1.1}}

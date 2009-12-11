@@ -1,3 +1,7 @@
+ ---
+ Cache Loaders
+ ---
+
 {Cache Loaders}
 
    A <<<CacheLoader>>> is an interface which specifies <<<load>>> and <<<loadAll>>> methods with a variety of parameters.
