@@ -342,7 +342,7 @@ public class JCache implements net.sf.jsr107cache.Cache {
      * at runtime.
      * <p/>
      * The Ehcache native API provides similar functionality to loaders using the
-     * decorator {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
+     * decorator. See net.sf.ehcache.constructs.blocking.SelfPopulatingCache
      *
      * @param keys           the collection of the keys whose associated values to be loaded into this cache by using the associated
      *                       cacheloader if this cache doesn't contain them.
