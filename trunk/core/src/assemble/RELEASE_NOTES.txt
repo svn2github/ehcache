@@ -1,4 +1,4 @@
-Release Notes For Ehcache 1.7.1
+Release Notes For Ehcache 1.7.2
 
 Introduction
 ============
@@ -29,7 +29,7 @@ Ehcache is a pure Java, in-process cache with the following features:
 Java Requirements
 =================
 
-    Ehcache 1.7.1 and above supports Java 1.5 and 1.6 at runtime. Ehcache final releases are compiled with -target 1.5.
+    Ehcache 1.7.2 and above supports Java 1.5 and 1.6 at runtime. Ehcache final releases are compiled with -target 1.5.
 
     The Ehcache 1.5 branch is being maintained for Java 1.4 users.
 
@@ -48,7 +48,7 @@ Maven POM snippet
      <dependency>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-core</artifactId>
-        <version>1.7.1</version>
+        <version>1.7.2</version>
      </dependency>
 
 Installation
@@ -67,7 +67,7 @@ Licenses
 ========
 This kit contains ehcache code which is governed by the Apache License, version 2.0. The license is in the licenses folder.
 
-Ehcache 1.7.1 and higher uses SLF4J for logging. The SLF4J license is included in the licenses folder.
+Ehcache 1.7.2 and higher uses SLF4J for logging. The SLF4J license is included in the licenses folder.
 
 Known Issues
 ============
