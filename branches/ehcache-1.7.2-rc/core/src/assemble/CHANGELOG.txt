@@ -1,3 +1,34 @@
+ehcache-1.7.2
+=============
+
+        <release version="1.7.2" date="2009-12-21" description="Maintenance and bug fixes">
+
+            <action dev="Chris Dennis" type="fix" issue="EHC-435">
+                Replaced single threaded use of StringBuffer with StringBuilder.  Switched to using
+                valueOf methods for creative primitive wrapper instances instead of new'ing them.
+            </action>
+            <action dev="Chris Dennis" type="fix" issue="EHC-513">
+                Added a non-transient cache name field to the Statistics class so that cache names
+                persist after passing through serialization.
+            </action>
+            <action dev="Alex Snaps" type="fix" issue="EHC-518">
+                Added the Exception causing the issue to the CacheException. The message now includes the key,
+                rather than null.
+            </action>
+            <action dev="Abhishek Sanoujam" type="fix" issue="EHC-549">
+                Made "stopped" variable volatile in MulticastKeepaliveHeartbeatSender/Receiver to make it thread-safe
+            </action>
+            <action dev="Abhishek Sanoujam" type="fix" issue="EHC-561">
+                Make ExecutorService's use custom ThreadFactory so that pool threads have meaningful names.
+            </action>
+            <action dev="Greg Luck" type="fix" issue="EHC-434">
+                Use UUID rather than RMI's UID which does not work in GAE.
+            </action>
+            <action dev="Alex Snaps" type="add" issue="EHC-242">
+                Added CacheManager.clearAllStartingWith(String): void that clears all Caches associated with the cache
+                manager, if the cache name matches the prefix profided
+            </action>
+        </release>
 
 ehcache-1.7.1
 =============
