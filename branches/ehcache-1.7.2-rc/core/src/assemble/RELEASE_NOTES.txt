@@ -67,7 +67,7 @@ Licenses
 ========
 This kit contains ehcache code which is governed by the Apache License, version 2.0. The license is in the licenses folder.
 
-Ehcache 1.7.2 and higher uses SLF4J for logging. The SLF4J license is included in the licenses folder.
+Ehcache 1.7.1 and higher uses SLF4J for logging. The SLF4J license is included in the licenses folder.
 
 Known Issues
 ============
