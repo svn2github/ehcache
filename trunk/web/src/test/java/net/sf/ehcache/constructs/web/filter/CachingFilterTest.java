@@ -127,7 +127,7 @@ public class CachingFilterTest extends AbstractWebTest {
     }
 
     /**
-     * Tests that response.setHeader(Content-Type, ...) makes it through.
+     * Tests that response.setHeader(New-Type, ...) makes it through.
      */
     @Test
     public void testContentTypeByHeader() throws Exception {
@@ -138,7 +138,7 @@ public class CachingFilterTest extends AbstractWebTest {
         assertEquals(HttpURLConnection.HTTP_OK, responseCode);
         String responseBody = httpMethod.getResponseBodyAsString();
         assertNull(responseBody);
-        assertEquals("Some Content Type", httpMethod.getResponseHeader("Content-Type").getValue());
+        assertEquals("Some Type", httpMethod.getResponseHeader("New-Type").getValue());
     }
 
     /**
