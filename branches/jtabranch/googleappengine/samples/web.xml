@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	version="2.5">
+
+	<listener>
+		<listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
+	</listener>
+
+	<servlet>
+		<servlet-name>CacheStats</servlet-name>
+		<servlet-class>net.sf.ehcache.googleappengine.CacheStatisticsServlet</servlet-class>
+		<load-on-startup>-1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CacheStats</servlet-name>
+		<url-pattern>/_ah/stats/cache</url-pattern>
+	</servlet-mapping>
+
+	<!-- Additional GAE administration servlets -->
+
+	<servlet>
+		<servlet-name>_ah_sessioncleanup</servlet-name>
+		<servlet-class>com.google.apphosting.utils.servlet.SessionCleanupServlet</servlet-class>
+		<load-on-startup>-1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>_ah_sessioncleanup</servlet-name>
+		<url-pattern>/_ah/sessioncleanup</url-pattern>
+	</servlet-mapping>
+
+	<!-- GAE built-in administration servlets:
+		com.google.apphosting.utils.servlet.AdminConsoleResourceServlet
+			/_ah/admin
+		com.google.apphosting.utils.servlet.DatastoreViewerServlet
+			/_ah/admin/datastore
+		com.google.apphosting.utils.servlet.TaskQueueViewerServlet
+			/_ah/admin/taskqueue
+		com.google.apphosting.utils.servlet.XmppServlet
+			/_ah/admin/xmpp
+	-->
+
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>_ah</web-resource-name>
+			<url-pattern>/_ah/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>admin</role-name> 
+		</auth-constraint>
+		<user-data-constraint>
+			<transport-guarantee>CONFIDENTIAL</transport-guarantee><!-- NONE | INTEGRAL | CONFIDENTIAL -->
+		</user-data-constraint>
+	</security-constraint>
+
+	<security-role>
+		<role-name>admin</role-name>
+	</security-role>
+</web-app>
