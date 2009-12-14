@@ -17,7 +17,7 @@
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>ehcache-core</artifactId>
-            <version>1.7.1-SNAPSHOT</version>
+            <version>1.7.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>jgroups</groupId>
