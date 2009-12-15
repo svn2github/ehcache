@@ -64,6 +64,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import net.sf.ehcache.config.CacheConfigurationListener;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -690,6 +691,14 @@ public class Cache implements Ehcache {
                     memoryStore = MemoryStore.create(this, diskStore);
                 }
             }
+
+            if (diskStore instanceof CacheConfigurationListener) {
+                configuration.addListener((CacheConfigurationListener) diskStore);
+            }
+            if (memoryStore instanceof CacheConfigurationListener) {
+                configuration.addListener((CacheConfigurationListener) memoryStore);
+            }
+            
             changeStatus(Status.STATUS_ALIVE);
             initialiseRegisteredCacheExtensions();
             initialiseRegisteredCacheLoaders();
@@ -888,10 +897,9 @@ public class Cache implements Ehcache {
 
     private void applyDefaultsToElementWithoutLifespanSet(Element element) {
         if (!element.isLifespanSet()) {
-            //Setting with Cache defaults
-            element.setTimeToLive(TimeUtil.convertTimeToInt(configuration.getTimeToLiveSeconds()));
-            element.setTimeToIdle(TimeUtil.convertTimeToInt(configuration.getTimeToIdleSeconds()));
-            element.setEternal(configuration.isEternal());
+            element.setLifespanDefaults(TimeUtil.convertTimeToInt(configuration.getTimeToIdleSeconds()),
+                                        TimeUtil.convertTimeToInt(configuration.getTimeToLiveSeconds()),
+                                        configuration.isEternal());
         }
     }
 
@@ -1883,7 +1891,7 @@ public class Cache implements Ehcache {
     public final boolean isExpired(Element element) throws IllegalStateException, NullPointerException {
         checkStatus();
         synchronized (element) {
-            return element.isExpired();
+            return element.isExpired(configuration);
         }
     }
 

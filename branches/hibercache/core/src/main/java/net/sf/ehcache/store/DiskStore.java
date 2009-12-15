@@ -47,6 +47,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.CacheConfigurationListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
 
@@ -65,7 +66,7 @@ import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
  * @author patches contributed: Ben Houston
  * @version $Id$
  */
-public class DiskStore implements Store {
+public class DiskStore implements Store, CacheConfigurationListener {
 
     /**
      * If the CacheManager needs to resolve a conflict with the disk path, it will create a
@@ -81,7 +82,7 @@ public class DiskStore implements Store {
     private static final int ESTIMATED_MINIMUM_PAYLOAD_SIZE = 512;
     private static final int ONE_MEGABYTE = 1048576;
     private static final int QUARTER_OF_A_SECOND = 250;
-
+    private static final long MAX_EVICTION_RATIO = 5L;
     private long expiryThreadInterval;
 
     private final String name;
@@ -124,7 +125,7 @@ public class DiskStore implements Store {
     /**
      * The maximum elements to allow in the disk file.
      */
-    private final long maxElementsOnDisk;
+    private volatile long maxElementsOnDisk;
     /**
      * Whether the cache is eternal
      */
@@ -724,7 +725,8 @@ public class DiskStore implements Store {
         final Serializable key = (Serializable) element.getObjectKey();
         removeOldEntryIfAny(key);
         if (maxElementsOnDisk > 0 && diskElements.size() >= maxElementsOnDisk) {
-            evictLfuDiskElement();
+            long overflow = 1 + diskElements.size() - maxElementsOnDisk;
+            evictLfuDiskElements((int) Math.min(overflow, MAX_EVICTION_RATIO));
         }
         writeElement(element, key);
     }
@@ -942,7 +944,7 @@ public class DiskStore implements Store {
         // Clean up the spool
         for (Iterator iterator = spool.values().iterator(); iterator.hasNext();) {
             final Element element = (Element) iterator.next();
-            if (element.isExpired()) {
+            if (element.isExpired(cache.getCacheConfiguration())) {
                 // An expired element
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(name + "Cache: Removing expired spool element " + element.getObjectKey());
@@ -1029,6 +1031,48 @@ public class DiskStore implements Store {
      */
     public static String generateUniqueDirectory() {
         return DiskStore.AUTO_DISK_PATH_DIRECTORY_PREFIX + "_" + System.currentTimeMillis();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void timeToIdleChanged(long oldTti, long newTti) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void timeToLiveChanged(long oldTtl, long newTtl) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void diskCapacityChanged(int oldCapacity, int newCapacity) {
+        this.maxElementsOnDisk = newCapacity;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void memoryCapacityChanged(int oldCapacity, int newCapacity) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void registered(CacheConfiguration config) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void deregistered(CacheConfiguration config) {
+        // no-op
     }
 
 
@@ -1199,12 +1243,14 @@ public class DiskStore implements Store {
         }
     }
 
-    private void evictLfuDiskElement() {
+    private void evictLfuDiskElements(int count) {
         synchronized (diskElements) {
-            DiskElement diskElement = findRelativelyUnused();
-            diskElements.remove(diskElement.key);
-            notifyEvictionListeners(diskElement);
-            freeBlock(diskElement);
+            for (int i = 0; i < count; i++) {
+                DiskElement diskElement = findRelativelyUnused();
+                diskElements.remove(diskElement.key);
+                notifyEvictionListeners(diskElement);
+                freeBlock(diskElement);
+            }
         }
     }
 
