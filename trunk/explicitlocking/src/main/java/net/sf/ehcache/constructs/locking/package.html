@@ -14,10 +14,15 @@ the READ_UNCOMMITTED isolation level.
 
 <h3>Ehcache clustered with Terracotta</h3>
 
-In this case the cache is always coherent, aking to READ_COMMITTED isolation level. This
-package simply gives you more control over when locks are acquired and released.
+In this case the cache is always coherent, akin to READ_COMMITTED isolation level. This
+package simply gives you more control over when locks are acquired and released. In regular
+Ehcache if you get an object to read or write it can be changed underneath you while you are
+performing your app level operations on the object. With this module you can first get the lock
+for the key, then perform your app level operations preventing anyone else from writing to the
+object. When the app level operations are completed you put the Element back in the cache and 
+release the lock so that others can now access it. 
 
-Steve - please expand. 
+
 
 <h2>How it works</h2>
 
