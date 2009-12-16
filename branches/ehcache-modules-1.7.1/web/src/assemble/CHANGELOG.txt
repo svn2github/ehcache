@@ -1,5 +1,5 @@
 
-<release version="2.0" date="2009-4-4" desc="Initial release of separate web module">
+<release version="2.0" date="2009-12-14" desc="Initial release of separate web module">
     <action dev="Greg Luck" type="add">
         Enable Terracotta clustering. Simply add ehcache-terracotta.jar
     </action>
