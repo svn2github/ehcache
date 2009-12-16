@@ -109,8 +109,8 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
             }
             try {
                 // register the CacheManager MBean
-                mBeanServer.registerMBean(cacheManagerMBean,
-                        SampledEhcacheMBeans.getCacheManagerObjectName(storeFactory, registeredCacheManagerName));                
+                mBeanServer.registerMBean(cacheManagerMBean, SampledEhcacheMBeans.getCacheManagerObjectName(storeFactory,
+                        registeredCacheManagerName));
                 success = true;
                 cacheManagerMBean.setMBeanRegisteredName(registeredCacheManagerName);
                 break;
@@ -158,9 +158,8 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         cache.setSampledStatisticsEnabled(true);
         SampledCache terracottaCacheMBean = new SampledCache(cache);
         try {
-            mBeanServer.registerMBean(terracottaCacheMBean,
-                    SampledEhcacheMBeans.getCacheObjectName(storeFactory, registeredCacheManagerName,
-                            terracottaCacheMBean.getImmutableCacheName()));
+            mBeanServer.registerMBean(terracottaCacheMBean, SampledEhcacheMBeans.getCacheObjectName(storeFactory,
+                    registeredCacheManagerName, terracottaCacheMBean.getImmutableCacheName()));
         } catch (MalformedObjectNameException e) {
             throw new MBeanRegistrationException(e);
         }
@@ -189,11 +188,11 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
 
         try {
             // CacheManager MBean
-            registeredObjectNames = mBeanServer
-                    .queryNames(SampledEhcacheMBeans.getCacheManagerObjectName(storeFactory, registeredCacheManagerName), null);
+            registeredObjectNames = mBeanServer.queryNames(SampledEhcacheMBeans.getCacheManagerObjectName(storeFactory,
+                    registeredCacheManagerName), null);
             // Other MBeans for this CacheManager
-            registeredObjectNames.addAll(mBeanServer.queryNames(SampledEhcacheMBeans
-                    .getQueryCacheManagerObjectName(storeFactory, registeredCacheManagerName), null));
+            registeredObjectNames.addAll(mBeanServer.queryNames(SampledEhcacheMBeans.getQueryCacheManagerObjectName(storeFactory,
+                    registeredCacheManagerName), null));
         } catch (MalformedObjectNameException e) {
             LOG.warn("Error querying MBeanServer. Error was " + e.getMessage(), e);
         }
@@ -209,6 +208,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
 
     /**
      * Returns true if this {@link SampledMBeanRegistrationProvider} is alive
+     * 
      * @return true if alive otherwise false
      */
     public boolean isAlive() {

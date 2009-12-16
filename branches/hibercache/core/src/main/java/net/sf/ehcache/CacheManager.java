@@ -319,6 +319,14 @@ public class CacheManager {
 
         initializeMBeanRegistrationProvider(localConfiguration);
     }
+    
+    /**
+     * 
+     * @return {@link StoreFactory} for this cacheManager
+     */
+    public StoreFactory getStoreFactory() {
+        return terracottaStoreFactory;
+    }
 
     /**
      * Initialize the {@link MBeanRegistrationProvider} for this {@link CacheManager}

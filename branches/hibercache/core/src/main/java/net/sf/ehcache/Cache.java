@@ -2061,6 +2061,7 @@ public class Cache implements Ehcache {
     public void clearStatistics() throws IllegalStateException {
         checkStatus();
         liveCacheStatisticsData.clearStatistics();
+        sampledCacheStatistics.clearStatistics();
         registeredEventListeners.clearCounters();
     }
 

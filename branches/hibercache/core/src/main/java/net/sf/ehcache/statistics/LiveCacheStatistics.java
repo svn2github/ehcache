@@ -156,5 +156,10 @@ public interface LiveCacheStatistics {
      * @return the name of the Ehcache
      */
     public String getCacheName();
+    
+    /**
+     * Clears statistics of this cache
+     */
+    public void clearStatistics();
 
 }

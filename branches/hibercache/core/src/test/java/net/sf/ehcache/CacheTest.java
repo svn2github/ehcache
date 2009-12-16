@@ -17,22 +17,12 @@
 package net.sf.ehcache;
 
 import static junit.framework.Assert.assertSame;
-import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
-import net.sf.ehcache.event.CacheEventListener;
-import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy;
-import net.sf.ehcache.loader.CacheLoader;
-import net.sf.ehcache.loader.CountingCacheLoader;
-import net.sf.ehcache.loader.ExceptionThrowingLoader;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
@@ -44,14 +34,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
-import org.junit.Ignore;
+import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.event.CacheEventListener;
+import net.sf.ehcache.event.RegisteredEventListeners;
+import net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy;
+import net.sf.ehcache.loader.CacheLoader;
+import net.sf.ehcache.loader.CountingCacheLoader;
+import net.sf.ehcache.loader.ExceptionThrowingLoader;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+
+import org.junit.After;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
